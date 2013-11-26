@@ -4,6 +4,7 @@
  * */
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -200,7 +201,10 @@ namespace PeanutButter.RandomGenerators
                 var dynamicBuilderType = typeBuilder.CreateType();
                 _dynamicBuilders[prop.PropertyType] = dynamicBuilderType;
             }
-            catch { }
+            catch (Exception ex) 
+            {
+                Debug.WriteLine("Unable to generate dynamic builder for type '" + prop.PropertyType + "': " + ex.Message);
+            }
         }
 
 

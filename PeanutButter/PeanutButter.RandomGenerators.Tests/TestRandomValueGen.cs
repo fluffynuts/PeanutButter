@@ -8,9 +8,8 @@ using NUnit.Framework;
 namespace PeanutButter.RandomGenerators.Tests
 {
     [TestFixture]
-    public class TestRandomValueGen
+    public class TestRandomValueGen : TestBase
     {
-        const int RANDOM_TEST_CYCLES = 10000;
 
         [TestCase(1, 100)]
         [TestCase(101, 250)]
