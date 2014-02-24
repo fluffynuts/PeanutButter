@@ -29,6 +29,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.Utils", "Peanu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.Utils.Tests", "PeanutButter.Utils.Tests\PeanutButter.Utils.Tests.csproj", "{A7B7276C-B224-4289-8930-A821A4B03C90}"
 EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "PeanutButter.DatabaseHelpers", "PeanutButter.DatabaseHelpers\PeanutButter.DatabaseHelpers.vbproj", "{02DF2FD5-59E2-4EC8-80D1-E745D7D834C5}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "PeanutButter.DatabaseHelpers.Tests", "PeanutButter.DatabaseHelpers.Tests\PeanutButter.DatabaseHelpers.Tests.vbproj", "{06CFA7FB-6B07-45DF-896F-ECCEB6633E0B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -114,6 +118,18 @@ Global
 		{A7B7276C-B224-4289-8930-A821A4B03C90}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A7B7276C-B224-4289-8930-A821A4B03C90}.Test|Any CPU.ActiveCfg = Release|Any CPU
 		{A7B7276C-B224-4289-8930-A821A4B03C90}.Test|Any CPU.Build.0 = Release|Any CPU
+		{02DF2FD5-59E2-4EC8-80D1-E745D7D834C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02DF2FD5-59E2-4EC8-80D1-E745D7D834C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02DF2FD5-59E2-4EC8-80D1-E745D7D834C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02DF2FD5-59E2-4EC8-80D1-E745D7D834C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02DF2FD5-59E2-4EC8-80D1-E745D7D834C5}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{02DF2FD5-59E2-4EC8-80D1-E745D7D834C5}.Test|Any CPU.Build.0 = Release|Any CPU
+		{06CFA7FB-6B07-45DF-896F-ECCEB6633E0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06CFA7FB-6B07-45DF-896F-ECCEB6633E0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06CFA7FB-6B07-45DF-896F-ECCEB6633E0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06CFA7FB-6B07-45DF-896F-ECCEB6633E0B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06CFA7FB-6B07-45DF-896F-ECCEB6633E0B}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{06CFA7FB-6B07-45DF-896F-ECCEB6633E0B}.Test|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
