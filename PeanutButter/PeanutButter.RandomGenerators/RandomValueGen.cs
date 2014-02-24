@@ -8,14 +8,21 @@ namespace PeanutButter.RandomGenerators
 {
     public class RandomValueGen
     {
+        private class DefaultRanges
+        {
+            public const int MINLENGTH_STRING = 8;
+            public const int MAXLENGTH_STRING = -1;
+            public const int MIN_NUMERIC_VALUE = 0;
+            public const int MAX_NUMERIC_VALUE = 10;
+        }
         private static readonly Random _rand = new Random();
         private static string _defaultRandomStringChars = "abcdefghijklmnopqrstuvwxyz1234567890";
 
-        public static int GetRandomInt(int minValue = 0, int maxValue = 1000)
+        public static int GetRandomInt(int minValue = DefaultRanges.MIN_NUMERIC_VALUE, int maxValue = DefaultRanges.MAX_NUMERIC_VALUE)
         {
             return (int)GetRandomLong(minValue, maxValue);
         }
-        public static bool GetRandomBool()
+        public static bool GetRandomBoolean()
         {
             return GetRandomInt(1, 100)<50;
         }
@@ -79,14 +86,41 @@ namespace PeanutButter.RandomGenerators
             return Encoding.UTF8.GetBytes(str);
         }
 
-        internal static bool GetRandomBoolean()
-        {
-            return RandomValueGen.GetRandomInt(1, 100) < 50;
-        }
-
         public static string GetRandomEmail()
         {
             return String.Join("", new[] { GetRandomString(), "@", GetRandomString(), ".com" });
         }
+
+        public static string GetRandomFileName()
+        {
+            return String.Join(".", new[] { GetRandomString(10, 20), GetRandomString(3, 3) });
+        }
+
+        public static string GetRandomWords(int min = 10, int max = 50)
+        {
+            var actual = GetRandomInt(min, max);
+            var words = new List<string>();
+            for (var i = 0; i < actual; i++)
+            {
+                words.Add(GetRandomAlphaNumericString(1, 10));
+            }
+            return String.Join(" ", words);
+        }
+
+        public static string GetRandomHttpUrl()
+        {
+            return String.Join("/", new[] { "http:", "", GetRandomAlphaNumericString() + ".com", GetRandomAlphaNumericString() });
+        }
+
+        public static string GetRandomAlphaNumericString(int minLength = DefaultRanges.MINLENGTH_STRING, int maxLength = DefaultRanges.MAXLENGTH_STRING)
+        {
+            return GetRandomString(minLength, maxLength, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890");
+        }
+
+        public static string GetRandomAlphaString(int minLength = DefaultRanges.MINLENGTH_STRING, int maxLength = DefaultRanges.MAXLENGTH_STRING)
+        {
+            return GetRandomString(minLength, maxLength, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+        }
+
     }
 }

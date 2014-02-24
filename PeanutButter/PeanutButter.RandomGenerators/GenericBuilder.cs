@@ -14,23 +14,31 @@ namespace PeanutButter.RandomGenerators
 {
     public interface IGenericBuilder
     {
+        IGenericBuilder WithBuildLevel(int level);
         IGenericBuilder GenericWithRandomProps();
         object GenericBuild();
     }
-    public class GenericBuilder<TConcreteBuilder, TEntity> : IGenericBuilder, IBuilder<TEntity> where TConcreteBuilder: GenericBuilder<TConcreteBuilder, TEntity>, new()
-                                                                                  where TEntity: new()
+    public class GenericBuilder<TConcrete, TEntity> : IGenericBuilder, IBuilder<TEntity> where TConcrete: GenericBuilder<TConcrete, TEntity>, new()
+                                                                                          where TEntity: new()
     {
+        public static int MAX_RANDOM_PROPS_LEVEL = 10;
         private static List<Action<TEntity>> _defaultPropMods = new List<Action<TEntity>>();
         private List<Action<TEntity>> _propMods = new List<Action<TEntity>>();
 
-        public static TConcreteBuilder Create()
+        public static TConcrete Create()
         {
-            return new TConcreteBuilder();
+            return new TConcrete();
         }
 
         public IGenericBuilder GenericWithRandomProps()
         {
             return this.WithRandomProps() as IGenericBuilder;
+        }
+
+        public IGenericBuilder WithBuildLevel(int level)
+        {
+            this._buildLevel = level;
+            return this;
         }
 
         public object GenericBuild()
@@ -53,10 +61,10 @@ namespace PeanutButter.RandomGenerators
             _defaultPropMods.Add(action);
         }
 
-        public TConcreteBuilder WithProp(Action<TEntity> action)
+        public TConcrete WithProp(Action<TEntity> action)
         {
             this._propMods.Add(action);
-            return this as TConcreteBuilder;
+            return this as TConcrete;
         }
 
         public virtual TEntity Build()
@@ -69,10 +77,10 @@ namespace PeanutButter.RandomGenerators
             return entity;
         }
 
-        public virtual TConcreteBuilder WithRandomProps()
+        public virtual TConcrete WithRandomProps()
         {
             this.WithProp(e => this.SetRandomProps(e));
-            return this as TConcreteBuilder;
+            return this as TConcrete;
         }
 
         private static Object _lockObject = new Object();
@@ -93,8 +101,8 @@ namespace PeanutButter.RandomGenerators
         }
 
         private static Dictionary<Type, Type> _dynamicBuilders = new Dictionary<Type, Type>();
-        private static Dictionary<string, Action<TEntity>> _randomPropSettersField;
-        private static Dictionary<string, Action<TEntity>> _randomPropSetters
+        private static Dictionary<string, Action<TEntity, int>> _randomPropSettersField;
+        private static Dictionary<string, Action<TEntity, int>> _randomPropSetters
         {
             get
             {
@@ -103,7 +111,7 @@ namespace PeanutButter.RandomGenerators
                 {
                     if (_randomPropSettersField == null)
                     {
-                        _randomPropSettersField = new Dictionary<string, Action<TEntity>>();
+                        _randomPropSettersField = new Dictionary<string, Action<TEntity, int>>();
                         foreach (var prop in entityProps)
                         {
                             SetSetterForType(prop);
@@ -116,37 +124,33 @@ namespace PeanutButter.RandomGenerators
 
         private static void SetSetterForType(PropertyInfo prop, string typeName = null)
         {
+            if (!prop.CanWrite) return;
             typeName = typeName ?? prop.PropertyType.Name;
             switch (typeName.ToLower())
             {
-                case "boolean":
-                    _randomPropSettersField[prop.Name] = (e) => { prop.SetValue(e, RandomValueGen.GetRandomBoolean()); };
-                    break;
+                case "int32":
                 case "int64":
                 case "long":
-                    _randomPropSettersField[prop.Name] = (e) => { prop.SetValue(e, (Int64)RandomValueGen.GetRandomInt()); };
-                    break;
-                case "int32":
                 case "int":
-                    _randomPropSettersField[prop.Name] = (e) => { prop.SetValue(e, RandomValueGen.GetRandomInt()); };
+                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, RandomValueGen.GetRandomInt());
                     break;
                 case "float":
-                    _randomPropSettersField[prop.Name] = (e) => { prop.SetValue(e, (float)RandomValueGen.GetRandomDouble()); };
+                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, (float)RandomValueGen.GetRandomDouble());
                     break;
                 case "double":
-                    _randomPropSettersField[prop.Name] = (e) => { prop.SetValue(e, RandomValueGen.GetRandomDouble()); };
+                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, RandomValueGen.GetRandomDouble());
                     break;
                 case "decimal":
-                    _randomPropSettersField[prop.Name] = (e) => { prop.SetValue(e, RandomValueGen.GetRandomDecimal()); };
+                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, RandomValueGen.GetRandomDecimal());
                     break;
                 case "datetime":
-                    _randomPropSettersField[prop.Name] = (e) => { prop.SetValue(e, RandomValueGen.GetRandomDate()); };
+                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, RandomValueGen.GetRandomDate());
                     break;
                 case "guid":
-                    _randomPropSettersField[prop.Name] = (e) => { prop.SetValue(e, Guid.NewGuid()); };
+                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, Guid.NewGuid());
                     break;
                 case "string":
-                    _randomPropSettersField[prop.Name] = (e) => { prop.SetValue(e, RandomValueGen.GetRandomString()); };
+                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, RandomValueGen.GetRandomString());
                     break;
                 case "nullable`1":
                     var underlyingType = Nullable.GetUnderlyingType(prop.PropertyType);
@@ -154,62 +158,50 @@ namespace PeanutButter.RandomGenerators
                     break;
                 case "icollection`1":
                     break;
+                case "byte[]":
+                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, RandomValueGen.GetRandomBytes(128, 512));
+                    break;
+                case "boolean":
+                    if (prop.Name == "Enabled")
+                        _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, true);
+                    else
+                        _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, RandomValueGen.GetRandomBoolean());
+                    break;
                 default:
-                    if (!_dynamicBuilders.Keys.Any(k => k == prop.PropertyType))
+                    // TODO: search for existing generic builder as specified by user
+                    if (_dynamicBuilders.Keys.All(k => k != prop.PropertyType))
                         GenerateDynamicBuilder(prop);
-                    if (_dynamicBuilders.Keys.Any(k => k == prop.PropertyType))
+                    if (prop.CanWrite)
                     {
-                        _randomPropSettersField[prop.Name] = (e) =>
+                        _randomPropSettersField[prop.Name] = (e, i) =>
                         {
+                            if (i > MAX_RANDOM_PROPS_LEVEL) return;
                             var dynamicBuilder = Activator.CreateInstance(_dynamicBuilders[prop.PropertyType]) as IGenericBuilder;
-                            var obj = dynamicBuilder.GenericWithRandomProps().GenericBuild();
-                            prop.SetValue(e, obj);
-                            SetIDFieldsTheSame(e, obj);
+                            prop.SetValue(e, dynamicBuilder.GenericWithRandomProps().WithBuildLevel(i).GenericBuild());
                         };
                     }
                     break;
             }
         }
 
-        private static void SetIDFieldsTheSame(TEntity parent, object child)
-        {   // mocks relational mappings via fields ending with "id"
-            var propInfos = parent.GetType().GetProperties();
-            foreach (var propInfo in propInfos)
-            {
-                var name = propInfo.Name;
-                if (!name.ToLower().EndsWith("id")) continue;
-                var oprop = child.GetType().GetProperty(propInfo.Name);
-                if (oprop == null) continue;
-                try
-                {
-                    oprop.SetValue(child, propInfo.GetValue(parent));
-                } catch {}
-            }
-        }
-
         private static void GenerateDynamicBuilder(PropertyInfo prop)
         {
-            try
-            {
-                var t = typeof(GenericBuilder<,>);
-                var moduleName = String.Join("_", new[] { "DynamicEntityBuilders", prop.PropertyType.Name });
-                var modBuilder = _dynamicAssemblyBuilder.DefineDynamicModule(moduleName);
+            var t = typeof(GenericBuilder<,>);
+            var moduleName = String.Join("_", new[] { "DynamicEntityBuilders", prop.PropertyType.Name });
+            var modBuilder = _dynamicAssemblyBuilder.DefineDynamicModule(moduleName);
 
-                var typeBuilder = modBuilder.DefineType(prop.PropertyType.Name + "Builder", TypeAttributes.Public | TypeAttributes.Class);
-                // Typebuilder is a sub class of Type
-                typeBuilder.SetParent(t.MakeGenericType(typeBuilder, prop.PropertyType));
-                var dynamicBuilderType = typeBuilder.CreateType();
-                _dynamicBuilders[prop.PropertyType] = dynamicBuilderType;
-            }
-            catch (Exception ex) 
-            {
-                Debug.WriteLine("Unable to generate dynamic builder for type '" + prop.PropertyType + "': " + ex.Message);
-            }
+            var typeBuilder = modBuilder.DefineType(prop.PropertyType + "Builder", TypeAttributes.Public | TypeAttributes.Class);
+            // Typebuilder is a sub class of Type
+            typeBuilder.SetParent(t.MakeGenericType(typeBuilder, prop.PropertyType));
+            var dynamicBuilderType = typeBuilder.CreateType();
+            _dynamicBuilders[prop.PropertyType] = dynamicBuilderType;
         }
 
 
         private static Object _dynamicAssemblyLock = new object();
         private static AssemblyBuilder _dynamicAssemblyBuilderField;
+        private int _buildLevel;
+
         private static AssemblyBuilder _dynamicAssemblyBuilder
         {
             get
@@ -225,28 +217,18 @@ namespace PeanutButter.RandomGenerators
                 }
             }
         }
-        public void SetRandomProps(TEntity entity)
+        private void SetRandomProps(TEntity entity)
         {
             foreach (var prop in _EntityPropInfo)
             {
                 try
                 {
-                    _randomPropSetters[prop.Name](entity);
+                    _randomPropSetters[prop.Name](entity, this._buildLevel + 1);
                 }
                 catch
                 {
                     //throw new Exception("Missing propSetter for: " + prop.Name);
                 }
-            }
-        }
-
-        private static object _lock = new object();
-        private static Int64 _lastID = 1;
-        public Int64 GetUniqueID()
-        {
-            lock(_lock)
-            {
-                return _lastID++;
             }
         }
     }
