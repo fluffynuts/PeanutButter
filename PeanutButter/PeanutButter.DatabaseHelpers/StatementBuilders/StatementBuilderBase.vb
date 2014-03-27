@@ -1,6 +1,6 @@
 ﻿Public Class StatementBuilderBase
-    Protected _leftSquareBracket As String
-    Protected _rightSquareBracket As String
+    Protected _openObjectQuote As String
+    Protected _closeObjectQuote As String
     Protected _databaseProvider As DatabaseProviders
 
     Public Sub New
@@ -11,11 +11,11 @@
         _databaseProvider = provider
         Select Case provider
             Case DatabaseProviders.Firebird
-                _leftSquareBracket = ""
-                _rightSquareBracket = ""
+                _openObjectQuote = ""
+                _closeObjectQuote = ""
             Case Else
-                _leftSquareBracket = "["
-                _rightSquareBracket = "]"
+                _openObjectQuote = "["
+                _closeObjectQuote = "]"
         End Select
     End Sub
 

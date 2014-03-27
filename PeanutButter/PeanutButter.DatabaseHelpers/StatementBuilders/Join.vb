@@ -34,8 +34,8 @@
     End Sub
 
     Private Sub SetupCondition()
-        Dim localLeftField  = _leftSquareBracket + LeftTable + _rightSquareBracket + "." + _leftSquareBracket + LeftField + _rightSquareBracket
-        Dim localRightField  = _leftSquareBracket + RightTable + _rightSquareBracket + "." + _leftSquareBracket + RightField + _rightSquareBracket
+        Dim localLeftField  = _openObjectQuote + LeftTable + _closeObjectQuote + "." + _openObjectQuote + LeftField + _closeObjectQuote
+        Dim localRightField  = _openObjectQuote + RightTable + _closeObjectQuote + "." + _openObjectQuote + RightField + _closeObjectQuote
         Me.Condition = New Condition(localLeftField, EqualityOperator, localRightField, False)
         Me.Condition.UseDatabaseProvider(_databaseProvider)
     End Sub
@@ -46,9 +46,9 @@
         Me.SetupCondition()
         parts.Add(Me.Direction.ToString().ToLower())
         parts.Add(" join ")
-        parts.Add(_leftSquareBracket)
+        parts.Add(_openObjectQuote)
         parts.Add(Me.RightTable)
-        parts.Add(_rightSquareBracket)
+        parts.Add(_closeObjectQuote)
         parts.Add(" on ")
         parts.Add(Me.Condition.ToString())
         Return String.Join("", parts)

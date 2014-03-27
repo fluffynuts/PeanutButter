@@ -58,7 +58,7 @@ Public Class SelectStatementBuilder
     Private _orderBy As IOrderBy
     Public Function WithTable(name As String) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithTable
         If name.IndexOf("[") < 0 Then
-            name = String.Join("", New String() {_leftSquareBracket, name, _rightSquareBracket})
+            name = String.Join("", New String() {_openObjectQuote, name, _closeObjectQuote})
         End If
         _tableNames.Add(name)
         Return Me
@@ -213,17 +213,17 @@ Public Class SelectStatementBuilder
                                     sql.Add(fieldName)
                                 Else
                                     If fieldName.IndexOf("[") < 0 Then
-                                        sql.Add(_leftSquareBracket)
+                                        sql.Add(_openObjectQuote)
                                         sql.Add(fieldName)
-                                        sql.Add(_rightSquareBracket)
+                                        sql.Add(_closeObjectQuote)
                                     Else
                                         sql.Add(fieldName)
                                     End If
                                     If Not _aliases(fieldName) Is Nothing Then
                                         sql.Add(" as ")
-                                        sql.Add(_leftSquareBracket)
+                                        sql.Add(_openObjectQuote)
                                         sql.Add(_aliases(fieldName))
-                                        sql.Add(_rightSquareBracket)
+                                        sql.Add(_closeObjectQuote)
                                     End If
                                 End If
                             End Sub)

@@ -14,9 +14,9 @@
 
     Public Overrides Function ToString() As String
         If Me.Table Is Nothing Then
-            Return String.Join("", New String() {_leftSquareBracket, Me.Field, _rightSquareBracket})
+            Return String.Join("", New String() {_openObjectQuote, Me.Field, _closeObjectQuote})
         End If
-        Return String.Join("", New String() {_leftSquareBracket, Me.Table, _rightSquareBracket, ".", _leftSquareBracket, Me.Field, _rightSquareBracket})
+        Return String.Join("", New String() {_openObjectQuote, Me.Table, _closeObjectQuote, ".", _openObjectQuote, Me.Field, _closeObjectQuote})
     End Function
 
     Public Overrides Function Equals(obj As Object) As Boolean

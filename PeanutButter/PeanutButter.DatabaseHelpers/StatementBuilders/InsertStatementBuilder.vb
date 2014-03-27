@@ -39,9 +39,9 @@ Public Class InsertStatementBuilder
     Public Function Build() As String Implements IInsertStatementBuilder.Build
         CheckParameters()
         Dim sql As New List(Of String)
-        sql.Add(String.Format("insert into {0}", _leftSquareBracket))
+        sql.Add(String.Format("insert into {0}", _openObjectQuote))
         sql.Add(Me._table)
-        sql.Add(String.Format("{0} ", _rightSquareBracket))
+        sql.Add(String.Format("{0} ", _closeObjectQuote))
         Me.AddFieldsTo(sql)
         Return String.Join("", sql)
     End Function
@@ -54,9 +54,9 @@ Public Class InsertStatementBuilder
                 sql.Add(",")
             End If
             NotFirst = True
-            sql.Add(_leftSquareBracket)
+            sql.Add(_openObjectQuote)
             sql.Add(fld.Name)
-            sql.Add(_rightSquareBracket)
+            sql.Add(_closeObjectQuote)
         Next
         sql.Add(") values (")
         NotFirst = False

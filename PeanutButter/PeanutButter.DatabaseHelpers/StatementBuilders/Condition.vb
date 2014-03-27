@@ -96,7 +96,7 @@ Public Class Condition
     Public Overrides Function ToString() As String Implements ICondition.ToString
         Dim parts = New List(Of String)
 
-        If (FieldName.IndexOf(_leftSquareBracket) < 0) And LeftConditionIsField Then
+        If (FieldName.IndexOf(_openObjectQuote) < 0) And LeftConditionIsField Then
             parts.Add(Me.FieldQuote(FieldName))
         Else
             parts.Add(Me.FieldName)
@@ -117,10 +117,10 @@ Public Class Condition
     End Function
 
     Private Function FieldQuote(val As String) As String
-        If val.IndexOf(_leftSquareBracket) > -1 Then
+        If val.IndexOf(_openObjectQuote) > -1 Then
             Return val
         End If
-        Return String.Join("", New String() {_leftSquareBracket, val, _rightSquareBracket})
+        Return String.Join("", New String() {_openObjectQuote, val, _closeObjectQuote})
     End Function
 
     Public Sub New(_fieldName As String, _conditionOperator As EqualityOperators, _fieldValue As Int32)

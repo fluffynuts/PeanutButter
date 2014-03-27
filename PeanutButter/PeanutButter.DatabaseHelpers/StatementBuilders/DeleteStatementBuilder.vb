@@ -72,9 +72,9 @@ Public Class DeleteStatementBuilder
         CheckParameters()
         Dim parts = New List(Of String)
         parts.Add("delete from ")
-        parts.Add(_leftSquareBracket)
+        parts.Add(_openObjectQuote)
         parts.Add(_table)
-        parts.Add(_rightSquareBracket)
+        parts.Add(_closeObjectQuote)
         AddConditionsTo(parts)
         Return String.Join("", parts)
     End Function
