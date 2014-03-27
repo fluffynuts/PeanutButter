@@ -2,6 +2,7 @@
 Imports PeanutButter.Utils
 
 Public Interface IUpdateStatementBuilder
+    Function WithDatabaseProvider(provider As DatabaseProviders) As IUpdateStatementBuilder
     Function Build() As String
     Function WithField(col As String, val As String, Optional quote As Boolean = True) As IUpdateStatementBuilder
     Function WithField(col As String, val As Decimal, Optional format As String = Nothing) As IUpdateStatementBuilder
@@ -26,6 +27,7 @@ Public Interface IUpdateStatementBuilder
     Function ForAllRows() As IUpdateStatementBuilder
 End Interface
 Public Class UpdateStatementBuilder
+    Inherits StatementBuilderBase
     Implements IUpdateStatementBuilder
 
     Private _table As String
@@ -42,9 +44,11 @@ Public Class UpdateStatementBuilder
     Public Function Build() As String Implements IUpdateStatementBuilder.Build
         CheckBuildParameters()
         Dim sql As New List(Of String)
-        sql.Add("update [")
+        sql.Add("update ")
+        sql.Add(_leftSquareBracket)
         sql.Add(Me._table)
-        sql.Add("] set ")
+        sql.Add(_rightSqureBracket)
+        sql.Add(" set ")
         Me.AddFieldsTo(sql)
         Me.AddConditionTo(sql)
         Return String.Join("", sql)
@@ -57,9 +61,10 @@ Public Class UpdateStatementBuilder
                 sql.Add(", ")
             End If
             fld = Me._fields(i)
-            sql.Add("[")
+            sql.Add(_leftSquareBracket)
             sql.Add(fld.Name)
-            sql.Add("] = ")
+            sql.Add(_rightSqureBracket)
+            sql.Add(" = ")
             If fld.QuoteMe Then
                 sql.Add("'")
                 sql.Add(fld.Value.Replace("'", "''"))
@@ -78,7 +83,7 @@ Public Class UpdateStatementBuilder
     End Sub
 
     Public Function WithFieldCopy(srcField As String, dstField As String) As IUpdateStatementBuilder Implements IUpdateStatementBuilder.WithFieldCopy
-        Me._fields.Add(New FieldWithValue(dstField, "[" + srcField + "]", False))
+        Me._fields.Add(New FieldWithValue(dstField, _leftSquareBracket + srcField + _rightSqureBracket, False))
         Return Me
     End Function
     Public Function WithField(column As String, value As String, Optional quote As Boolean = True) As IUpdateStatementBuilder Implements IUpdateStatementBuilder.WithField
@@ -166,11 +171,14 @@ Public Class UpdateStatementBuilder
     End Function
 
     Public Function WithCondition(condition As ICondition) As IUpdateStatementBuilder Implements IUpdateStatementBuilder.WithCondition
+        condition.UseDatabaseProvider(_databaseProvider)
         Return Me.WithCondition(condition.ToString())
     End Function
 
     Public Function WithAllConditions(ParamArray conditions() As ICondition) As IUpdateStatementBuilder Implements IUpdateStatementBuilder.WithAllConditions
-        Return Me.WithCondition(New ConditionChain(CompoundCondition.BooleanOperators.OperatorAnd, conditions))
+        Dim conditionChain  = New ConditionChain(CompoundCondition.BooleanOperators.OperatorAnd, conditions)
+        conditionChain.UseDatabaseProvider(_databaseProvider)
+        Return Me.WithCondition(conditionChain)
     End Function
 
     Public Function WithField(fieldName As String, val As Long) As IUpdateStatementBuilder Implements IUpdateStatementBuilder.WithField
@@ -190,6 +198,11 @@ Public Class UpdateStatementBuilder
 
     Public Function WithField(col As String, val As Boolean) As IUpdateStatementBuilder Implements IUpdateStatementBuilder.WithField
         Me._fields.Add(new FieldWithValue(col, CInt(IIF(val, 1, 0)).ToString(), false))
+        return Me
+    End Function
+
+    Public Function WithDatabaseProvider(provider As DatabaseProviders) As IUpdateStatementBuilder Implements IUpdateStatementBuilder.WithDatabaseProvider
+        SetDatabaseProvider(provider)
         return Me
     End Function
 End Class

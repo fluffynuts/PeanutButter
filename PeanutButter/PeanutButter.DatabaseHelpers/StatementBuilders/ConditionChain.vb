@@ -28,6 +28,6 @@
     End Sub
 
     Public Sub UseDatabaseProvider(provider As DatabaseProviders) Implements ICondition.UseDatabaseProvider
-        UseDatabaseProvider(provider)
+        SetDatabaseProvider(provider)
     End Sub
 End Class

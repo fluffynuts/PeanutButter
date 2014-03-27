@@ -135,6 +135,21 @@ Public Class TestUpdateStatementBuilder
     End Sub
 
     <Test()>
+    Public Sub WithFieldCopyAndFBProvider_WhenSrcAndDestProvided_BuildReturnsExpectedUpdateStatement()
+        Dim tableName = RandomValueGen.GetRandomString(1),
+            srcCol = RandomValueGen.GetRandomString(1),
+            dstCol = RandomValueGen.GetRandomString(1),
+            condition = RandomValueGen.GetRandomString(1)
+        Dim statement = UpdateStatementBuilder.Create() _
+                        .WithDatabaseProvider(DatabaseProviders.Firebird) _
+                        .WithTable(tableName) _
+                        .WithFieldCopy(srcCol, dstCol) _
+                        .WithCondition(condition) _
+                        .Build()
+        Assert.AreEqual("update " + tableName + " set " + dstCol + " = " + srcCol + " where " + condition, statement)
+    End Sub
+
+    <Test()>
     Public Sub WithCondition_GivenCondition_BuildReturnsExpectedUpdateStatement()
         Dim tableName = RandomValueGen.GetRandomString(),
             col = RandomValueGen.GetRandomString(),
@@ -171,6 +186,33 @@ Public Class TestUpdateStatementBuilder
                                                                  Return c.ToString()
                                                              End Function))
         Assert.AreEqual("update [" + tableName + "] set [" + col + "] = '" + val + "' where (" + cstring + ")", statement)
+    End Sub
+
+    <Test()>
+    Public Sub WithAllConditionsAndFirebirdProvider_GivenConditions_BuildReturnsExpectedUpdateStatement()
+        Dim tableName = RandomValueGen.GetRandomString(),
+            col = RandomValueGen.GetRandomString(),
+            val = RandomValueGen.GetRandomString()
+        Dim conditions = New List(Of ICondition)()
+        Dim conditionCount = RandomValueGen.GetRandomInt(2, 5)
+        For i = 0 To conditionCount
+            Dim c = Substitute.For(Of ICondition)()
+            c.ToString().Returns(RandomValueGen.GetRandomString())
+            conditions.Add(c)
+        Next
+        Dim statement = UpdateStatementBuilder.Create() _
+                            .WithDatabaseProvider(DatabaseProviders.Firebird) _
+                            .WithTable(tableName) _
+                            .WithField(col, val) _
+                            .WithAllConditions(conditions.ToArray()) _
+                            .Build()
+        Dim cstring = String.Join(" and ", conditions.Select(Function(c)
+                                                                 Return c.ToString()
+                                                             End Function))
+        Assert.AreEqual("update " + tableName + " set " + col + " = '" + val + "' where (" + cstring + ")", statement)
+        for i = 0 to conditionCount
+            conditions(i).Received().UseDatabaseProvider(DatabaseProviders.Firebird)
+        Next
     End Sub
 
 
