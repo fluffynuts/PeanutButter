@@ -96,6 +96,7 @@
     <Compile Include="StatementBuilders\ReadOnlyDictionary.vb" />
     <Compile Include="StatementBuilders\SelectField.vb" />
     <Compile Include="StatementBuilders\SelectStatementBuilder.vb" />
+    <Compile Include="StatementBuilders\StatementBuilderBase.vb" />
     <Compile Include="StatementBuilders\UpdateStatementBuilder.vb" />
   </ItemGroup>
   <ItemGroup>

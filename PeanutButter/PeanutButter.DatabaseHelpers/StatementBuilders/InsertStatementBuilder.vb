@@ -22,19 +22,15 @@ Public Interface IInsertStatementBuilder
 End Interface
 
 Public Class InsertStatementBuilder
+    Inherits StatementBuilderBase
     Implements IInsertStatementBuilder
+
     Private _table As String
     Private ReadOnly _fields As New List(Of FieldWithValue)
-    Private _leftSquareBracket As String
-    Private _rightSqureBracket As String
 
     Public Shared Function Create() As IInsertStatementBuilder
         Return New InsertStatementBuilder()
     End Function
-
-    public Sub New ()
-        Me.WithDatabaseProvider(DatabaseProviders.Access)
-    End Sub
 
     Public Function WithTable(tableName As String) As IInsertStatementBuilder Implements IInsertStatementBuilder.WithTable
         Me._table = tableName
@@ -172,15 +168,8 @@ Public Class InsertStatementBuilder
         return Me.WithField(col, val, false)
     End Function
 
-    Public Function WithDatabaseProvider(provider As DatabaseProviders) As IInsertStatementBuilder Implements IInsertStatementBuilder.WithDatabaseProvider
-        Select Case provider
-            Case DatabaseProviders.Firebird
-                _leftSquareBracket = ""
-                _rightSqureBracket = ""
-            Case Else
-                _leftSquareBracket = "["
-                _rightSqureBracket = "]"
-        End Select
+    Public Overloads Function WithDatabaseProvider1(provider As DatabaseProviders) As IInsertStatementBuilder Implements IInsertStatementBuilder.WithDatabaseProvider
+        SetDatabaseProvider(provider)
         return Me
     End Function
 End Class

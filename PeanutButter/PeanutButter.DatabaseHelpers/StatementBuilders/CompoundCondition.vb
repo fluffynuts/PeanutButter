@@ -1,5 +1,7 @@
 ﻿Public Class CompoundCondition
+    Inherits StatementBuilderBase
     Implements ICondition
+
 
     Public Enum BooleanOperators
         OperatorAnd
@@ -31,6 +33,8 @@
     End Sub
 
     Public Overrides Function ToString() As String Implements ICondition.ToString
+        LeftCondition.UseDatabaseProvider(_databaseProvider)
+        RightCondition.UseDatabaseProvider(_databaseProvider)
         Return String.Join("", New String() { _
            "(", _
            Me.LeftCondition.ToString(), _
@@ -41,4 +45,8 @@
            ")" _
         })
     End Function
+
+    Public Sub UseDatabaseProvider(provider As DatabaseProviders) Implements ICondition.UseDatabaseProvider
+        MyBase.SetDatabaseProvider(provider)
+    End Sub
 End Class

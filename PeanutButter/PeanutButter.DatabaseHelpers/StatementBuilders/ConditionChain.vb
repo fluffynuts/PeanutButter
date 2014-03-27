@@ -1,4 +1,5 @@
 ﻿Public Class ConditionChain
+    Inherits StatementBuilderBase
     Implements ICondition
 
     Private _conditions As New List(Of ICondition)
@@ -8,6 +9,7 @@
         Dim parts = New List(Of String)
         Dim opString = CStr(IIf(Me._operator = CompoundCondition.BooleanOperators.OperatorAnd, " and ", " or "))
         For Each c In Me._conditions
+            c.UseDatabaseProvider(_databaseProvider)
             If parts.Count > 0 Then
                 parts.Add(opString)
             End If
@@ -25,4 +27,7 @@
         Next
     End Sub
 
+    Public Sub UseDatabaseProvider(provider As DatabaseProviders) Implements ICondition.UseDatabaseProvider
+        UseDatabaseProvider(provider)
+    End Sub
 End Class

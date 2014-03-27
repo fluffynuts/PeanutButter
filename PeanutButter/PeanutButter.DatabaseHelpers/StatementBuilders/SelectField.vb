@@ -1,4 +1,5 @@
 ﻿Public Class SelectField
+    Inherits StatementBuilderBase
     Public ReadOnly Table As String
     Public ReadOnly Field As String
     Public Sub New(fieldName As String)
@@ -13,9 +14,9 @@
 
     Public Overrides Function ToString() As String
         If Me.Table Is Nothing Then
-            Return String.Join("", New String() {"[", Me.Field, "]"})
+            Return String.Join("", New String() {_leftSquareBracket, Me.Field, _rightSqureBracket})
         End If
-        Return String.Join("", New String() {"[", Me.Table, "].[", Me.Field, "]"})
+        Return String.Join("", New String() {_leftSquareBracket, Me.Table, _rightSqureBracket, ".", _leftSquareBracket, Me.Field, _rightSqureBracket})
     End Function
 
     Public Overrides Function Equals(obj As Object) As Boolean
@@ -30,4 +31,7 @@
         Return Me.ToString().GetHashCode()
     End Function
 
+    Public Sub UseDatabaseProvider(ByVal provider As DatabaseProviders)
+        SetDatabaseProvider(provider)
+    End Sub
 End Class

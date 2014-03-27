@@ -1,4 +1,5 @@
 ﻿Public Interface ISelectStatementBuilder
+    Function WithDatabaseProvider(provider As DatabaseProviders) As ISelectStatementBuilder
     Function WithTable(ByVal name As String) As ISelectStatementBuilder
     Function WithField(ByVal name As String, Optional aliasAs As String = Nothing) As ISelectStatementBuilder
     Function WithField(ByVal field As SelectField) As ISelectStatementBuilder
@@ -35,6 +36,7 @@
     Function WithTop(rows As Integer) As ISelectStatementBuilder
 End Interface
 Public Class SelectStatementBuilder
+    Inherits StatementBuilderBase
     Implements ISelectStatementBuilder
 
     Dim _distinct As Boolean
@@ -56,7 +58,7 @@ Public Class SelectStatementBuilder
     Private _orderBy As IOrderBy
     Public Function WithTable(name As String) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithTable
         If name.IndexOf("[") < 0 Then
-            name = String.Join("", New String() {"[", name, "]"})
+            name = String.Join("", New String() {_leftSquareBracket, name, _rightSqureBracket})
         End If
         _tableNames.Add(name)
         Return Me
@@ -85,58 +87,62 @@ Public Class SelectStatementBuilder
     End Function
 
     Public Function WithCondition(fieldName As String, op As Condition.EqualityOperators, fieldValue As Date) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
-        Return Me.WithCondition(New Condition(fieldName, op, fieldValue))
+        Return Me.WithCondition(CreateCondition(fieldName, op, fieldValue))
     End Function
 
     Public Function WithCondition(fieldName As String, op As Condition.EqualityOperators, fieldValue As Decimal) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
-        Return Me.WithCondition(New Condition(fieldName, op, fieldValue))
+        Return Me.WithCondition(CreateCondition(fieldName, op, fieldValue))
     End Function
 
     Public Function WithCondition(fieldName As String, op As Condition.EqualityOperators, fieldValue As Double) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
-        Return Me.WithCondition(New Condition(fieldName, op, fieldValue))
+        Return Me.WithCondition(CreateCondition(fieldName, op, fieldValue))
     End Function
 
     Public Function WithCondition(fieldName As String, op As Condition.EqualityOperators, fieldValue As Integer) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
-        Return Me.WithCondition(New Condition(fieldName, op, fieldValue))
+        Return Me.WithCondition(CreateCondition(fieldName, op, fieldValue))
     End Function
 
     Public Function WithCondition(fieldName As String, op As Condition.EqualityOperators, fieldValue As Long) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
-        Return Me.WithCondition(New Condition(fieldName, op, fieldValue))
+        Return Me.WithCondition(CreateCondition(fieldName, op, fieldValue))
     End Function
 
     Public Function WithCondition(fieldName As String, op As Condition.EqualityOperators, fieldValue As Short) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
-        Return Me.WithCondition(New Condition(fieldName, op, fieldValue))
+        Return Me.WithCondition(CreateCondition(fieldName, op, fieldValue))
     End Function
 
     Public Function WithCondition(fieldName As String, op As Condition.EqualityOperators, fieldValue As String) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
-        Return Me.WithCondition(New Condition(fieldName, op, fieldValue))
+        Return Me.WithCondition(CreateCondition(fieldName, op, fieldValue))
     End Function
 
     Public Function WithCondition(field As SelectField, op As Condition.EqualityOperators, fieldValue As String) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
+        field.UseDatabaseProvider(_databaseProvider)
         Return Me.WithCondition(field.ToString(), op, fieldValue)
     End Function
 
     Public Function WithCondition(leftField As SelectField, op As Condition.EqualityOperators, rightField As SelectField) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
-        Return Me.WithCondition(New Condition(leftField, op, rightField))
+        Dim condition = CreateCondition(leftField, op, rightField)
+        Return Me.WithCondition(condition)
     End Function
 
     Public Function WithCondition(field As SelectField, op As Condition.EqualityOperators, fieldValue As Int64) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
-        Return Me.WithCondition(New Condition(field, op, fieldValue.ToString(), False))
+        Dim condition As Condition = CreateCondition(field, op, fieldValue.ToString())
+        Return Me.WithCondition(condition)
     End Function
+
     Public Function WithCondition(field As SelectField, op As Condition.EqualityOperators, fieldValue As Int32) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
-        Return Me.WithCondition(New Condition(field, op, fieldValue.ToString(), False))
+        Return Me.WithCondition(CreateCondition(field, op, fieldValue.ToString()))
     End Function
     Public Function WithCondition(field As SelectField, op As Condition.EqualityOperators, fieldValue As Int16) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
-        Return Me.WithCondition(New Condition(field, op, fieldValue.ToString(), False))
+        Return Me.WithCondition(CreateCondition(field, op, fieldValue.ToString()))
     End Function
     Public Function WithCondition(field As SelectField, op As Condition.EqualityOperators, fieldValue As Decimal) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
-        Return Me.WithCondition(New Condition(field, op, fieldValue.ToString(), False))
+        Return Me.WithCondition(CreateCondition(field, op, fieldValue.ToString()))
     End Function
     Public Function WithCondition(field As SelectField, op As Condition.EqualityOperators, fieldValue As Double) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
-        Return Me.WithCondition(New Condition(field, op, fieldValue.ToString(), False))
+        Return Me.WithCondition(CreateCondition(field, op, fieldValue.ToString()))
     End Function
     Public Function WithCondition(field As SelectField, op As Condition.EqualityOperators, fieldValue As DateTime) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
-        Return Me.WithCondition(New Condition(field, op, fieldValue.ToString("yyyy/MM/dd")))
+        Return Me.WithCondition(CreateCondition(field, op, fieldValue.ToString("yyyy/MM/dd"), True))
     End Function
 
     Public Function WithAllConditions(ParamArray conditions As ICondition()) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithAllConditions
@@ -152,7 +158,7 @@ Public Class SelectStatementBuilder
         Dim sql = New List(Of String)
         sql.Add("select ")
         If Me._distinct Then sql.Add("distinct ")
-        If Me._top.HasValue Then sql.Add("top " + Me._top.Value.ToString() + " ")
+        AddLeadingRowLimiterIfRequired(sql)
         Me.AddFieldsTo(sql)
         sql.Add(" from ")
         sql.Add(String.Join(",", _tableNames))
@@ -161,6 +167,12 @@ Public Class SelectStatementBuilder
         Me.AddOrdersTo(sql)
         Return String.Join("", sql)
     End Function
+
+    Private Sub AddLeadingRowLimiterIfRequired(ByVal sql As List(Of String))
+        If Not Me._top.HasValue Then Return
+        If _databaseProvider = DatabaseProviders.Firebird Then Throw new NotImplementedException("Row limiting is not implemented for Firebird -- yet!")
+        sql.Add("top " + Me._top.Value.ToString() + " ")
+    End Sub
 
     Private Sub AddOrdersTo(sql As List(Of String))
         If (Me._orderBy Is Nothing) Then Exit Sub
@@ -200,16 +212,17 @@ Public Class SelectStatementBuilder
                                     sql.Add(fieldName)
                                 Else
                                     If fieldName.IndexOf("[") < 0 Then
-                                        sql.Add("[")
+                                        sql.Add(_leftSquareBracket)
                                         sql.Add(fieldName)
-                                        sql.Add("]")
+                                        sql.Add(_rightSqureBracket)
                                     Else
                                         sql.Add(fieldName)
                                     End If
                                     If Not _aliases(fieldName) Is Nothing Then
-                                        sql.Add(" as [")
+                                        sql.Add(" as ")
+                                        sql.Add(_leftSquareBracket)
                                         sql.Add(_aliases(fieldName))
-                                        sql.Add("]")
+                                        sql.Add(_rightSqureBracket)
                                     End If
                                 End If
                             End Sub)
@@ -277,5 +290,10 @@ Public Class SelectStatementBuilder
             Me.WithField(fld)
         Next
         Return Me
+    End Function
+
+    Public Function WithDatabaseProvider(provider As DatabaseProviders) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithDatabaseProvider
+        SetDatabaseProvider(provider)
+        return Me
     End Function
 End Class

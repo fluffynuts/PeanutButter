@@ -44,6 +44,19 @@ Public Class TestDeleteStatementBuilder
     End Sub
 
     <Test()>
+    Public Sub Build_GivenTableNameAndConditionForFirebird_ReturnsExpectedSQLString()
+        Dim table = RandomValueGen.GetRandomString(),
+            conditionField = RandomValueGen.GetRandomString(),
+            conditionValue = RandomValueGen.GetRandomString()
+        Dim sql = DeleteStatementBuilder.Create() _
+                    .WithDatabaseProvider(DatabaseProviders.Firebird) _
+                    .WithTable(table) _
+                    .WithCondition(conditionField, Condition.EqualityOperators.Equals, conditionValue) _
+                    .Build()
+        Assert.AreEqual("delete from " + table + " where " + conditionField + "='" + conditionValue + "'", sql)
+    End Sub
+
+    <Test()>
     Public Sub Build_GivenTableNameAnd2Conditions_ReturnsExpectedSQLString()
         Dim table = RandomValueGen.GetRandomString(),
             conditionField1 = RandomValueGen.GetRandomString(),

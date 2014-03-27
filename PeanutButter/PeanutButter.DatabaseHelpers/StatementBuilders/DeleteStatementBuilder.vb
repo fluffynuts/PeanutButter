@@ -1,4 +1,5 @@
 ﻿Public Interface IDeleteStatementBuilder
+    Function WithDatabaseProvider(provider As DatabaseProviders) As IDeleteStatementBuilder
     Function Build() As String
     Function WithTable(table As String) As IDeleteStatementBuilder
     Function WithCondition(condition As String) As IDeleteStatementBuilder
@@ -15,6 +16,7 @@
     Function WithAllRows() As IDeleteStatementBuilder
 End Interface
 Public Class DeleteStatementBuilder
+    Inherits StatementBuilderBase
     Implements IDeleteStatementBuilder
 
     Public Shared Function Create() As DeleteStatementBuilder
@@ -27,39 +29,52 @@ Public Class DeleteStatementBuilder
     Private ReadOnly _conditions as List(Of String) = New List(Of String)
 
     Public Function WithCondition(fieldName As String, op As Condition.EqualityOperators, fieldValue As Date) As IDeleteStatementBuilder Implements IDeleteStatementBuilder.WithCondition
-        Return Me.WithCondition(New Condition(fieldName, op, fieldValue).ToString())
+        Dim condition As Condition = CreateCondition(fieldName, op, fieldValue)
+        Return Me.WithCondition(condition.ToString())
     End Function
 
     Public Function WithCondition(fieldName As String, op As Condition.EqualityOperators, fieldValue As Decimal) As IDeleteStatementBuilder Implements IDeleteStatementBuilder.WithCondition
-        Return Me.WithCondition(New Condition(fieldName, op, fieldValue).ToString())
+        Dim condition As Condition = CreateCondition(fieldName, op, fieldValue)
+        Return Me.WithCondition(condition.ToString())
     End Function
 
     Public Function WithCondition(fieldName As String, op As Condition.EqualityOperators, fieldValue As Double) As IDeleteStatementBuilder Implements IDeleteStatementBuilder.WithCondition
-        Return Me.WithCondition(New Condition(fieldName, op, fieldValue).ToString())
+        Dim condition As Condition = CreateCondition(fieldName, op, fieldValue)
+        Return Me.WithCondition(condition.ToString())
     End Function
 
     Public Function WithCondition(fieldName As String, op As Condition.EqualityOperators, fieldValue As Integer) As IDeleteStatementBuilder Implements IDeleteStatementBuilder.WithCondition
-        Return Me.WithCondition(New Condition(fieldName, op, fieldValue).ToString())
+        Dim condition As Condition = CreateCondition(fieldName, op, fieldValue)
+        Return Me.WithCondition(condition.ToString())
     End Function
 
     Public Function WithCondition(fieldName As String, op As Condition.EqualityOperators, fieldValue As Long) As IDeleteStatementBuilder Implements IDeleteStatementBuilder.WithCondition
-        Return Me.WithCondition(New Condition(fieldName, op, fieldValue).ToString())
+        Dim condition As Condition = CreateCondition(fieldName, op, fieldValue)
+        Return Me.WithCondition(condition.ToString())
     End Function
 
     Public Function WithCondition(fieldName As String, op As Condition.EqualityOperators, fieldValue As Short) As IDeleteStatementBuilder Implements IDeleteStatementBuilder.WithCondition
-        Return Me.WithCondition(New Condition(fieldName, op, fieldValue).ToString())
+        Dim condition As Condition = CreateCondition(fieldName, op, fieldValue)
+        Return Me.WithCondition(condition.ToString())
     End Function
 
     Public Function WithCondition(fieldName As String, op As Condition.EqualityOperators, fieldValue As String) As IDeleteStatementBuilder Implements IDeleteStatementBuilder.WithCondition
-        Return Me.WithCondition(New Condition(fieldName, op, fieldValue).ToString())
+        Dim condition As Condition = CreateCondition(fieldName, op, fieldValue)
+        Return Me.WithCondition(condition.ToString())
+    End Function
+
+    Public Function WithDatabaseProvider(ByVal provider As DatabaseProviders) As IDeleteStatementBuilder Implements IDeleteStatementBuilder.WithDatabaseProvider
+        SetDatabaseProvider(provider)
+        return Me
     End Function
 
     Public Function Build() As String Implements IDeleteStatementBuilder.Build
         CheckParameters()
         Dim parts = New List(Of String)
-        parts.Add("delete from [")
+        parts.Add("delete from ")
+        parts.Add(_leftSquareBracket)
         parts.Add(_table)
-        parts.Add("]")
+        parts.Add(_rightSqureBracket)
         AddConditionsTo(parts)
         Return String.Join("", parts)
     End Function
@@ -91,12 +106,15 @@ Public Class DeleteStatementBuilder
     End Function
 
     Public Function WithCondition(condition As ICondition) As IDeleteStatementBuilder Implements IDeleteStatementBuilder.WithCondition
+        condition.UseDatabaseProvider(_databaseProvider)
         Me._conditions.Add(condition.ToString())
         Return Me
     End Function
 
     Public Function WithAllConditions(ParamArray conditions As ICondition()) As IDeleteStatementBuilder Implements IDeleteStatementBuilder.WithAllConditions
-        Return Me.WithCondition(New ConditionChain(CompoundCondition.BooleanOperators.OperatorAnd, conditions))
+        Dim conditionChain  = New ConditionChain(CompoundCondition.BooleanOperators.OperatorAnd, conditions)
+        conditionChain.UseDatabaseProvider(_databaseProvider)
+        Return Me.WithCondition(conditionChain)
     End Function
 
     Public Function WithTable(table As String) As IDeleteStatementBuilder Implements IDeleteStatementBuilder.WithTable
@@ -110,7 +128,9 @@ Public Class DeleteStatementBuilder
     End Function
 
     Public Function WithCondition(fieldName As String, op As Condition.EqualityOperators, fieldValue As Boolean) As IDeleteStatementBuilder Implements IDeleteStatementBuilder.WithCondition
-        Me._conditions.Add(new Condition(fieldName, op, fieldValue).ToString())
+        Dim condition  = new Condition(fieldName, op, fieldValue)
+        condition.UseDatabaseProvider(_databaseProvider)
+        Me._conditions.Add(condition.ToString())
         Return Me
     End Function
 End Class

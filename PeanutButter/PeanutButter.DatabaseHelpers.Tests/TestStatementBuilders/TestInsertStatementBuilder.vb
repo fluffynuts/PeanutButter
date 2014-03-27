@@ -47,6 +47,19 @@ Public Class TestInsertStatementBuilder
     End Sub
 
     <Test()>
+    Public Sub Build_GivenTableNameAndSingleStringFieldAndFirebirdProvider_ReturnsExpectedString()
+        Dim tableName = RandomValueGen.GetRandomString(1),
+            fieldName = RandomValueGen.GetRandomString(1),
+            fieldValue = RandomValueGen.GetRandomString(1)
+        Dim sql = Create() _
+                  .WithDatabaseProvider(DatabaseProviders.Firebird) _
+                  .WithTable(tableName) _
+                  .WithField(fieldName, fieldValue) _
+                  .Build()
+        Assert.AreEqual("insert into " + tableName + " (" + fieldName + ") values ('" + fieldValue + "')", sql)
+    End Sub
+
+    <Test()>
     Public Sub Build_GivenTableNameAndSingleNullStringField_ReturnsExpectedString()
         Dim tableName = RandomValueGen.GetRandomString(1),
             fieldName = RandomValueGen.GetRandomString(1),

@@ -1,9 +1,12 @@
 ﻿Public Interface ICondition
+    Sub UseDatabaseProvider(provider As DatabaseProviders)
     Function ToString() As String
 End Interface
 
 Public Class Condition
+    Inherits StatementBuilderBase
     Implements ICondition
+
     Public Enum EqualityOperators
         Equals
         NotEquals
@@ -93,7 +96,7 @@ Public Class Condition
     Public Overrides Function ToString() As String Implements ICondition.ToString
         Dim parts = New List(Of String)
 
-        If (FieldName.IndexOf("[") < 0) And LeftConditionIsField Then
+        If (FieldName.IndexOf(_leftSquareBracket) < 0) And LeftConditionIsField Then
             parts.Add(Me.FieldQuote(FieldName))
         Else
             parts.Add(Me.FieldName)
@@ -114,10 +117,10 @@ Public Class Condition
     End Function
 
     Private Function FieldQuote(val As String) As String
-        If val.IndexOf("[") > -1 Then
+        If val.IndexOf(_leftSquareBracket) > -1 Then
             Return val
         End If
-        Return String.Join("", New String() {"[", val, "]"})
+        Return String.Join("", New String() {_leftSquareBracket, val, _rightSqureBracket})
     End Function
 
     Public Sub New(_fieldName As String, _conditionOperator As EqualityOperators, _fieldValue As Int32)
@@ -144,4 +147,7 @@ Public Class Condition
         Me.New(_fieldName, _conditionOperator, _fieldValue.ToString("yyyy/MM/dd HH:mm:ss"), True, True, False)
     End Sub
 
+    Public Sub UseDatabaseProvider(provider As DatabaseProviders) Implements ICondition.UseDatabaseProvider
+        SetDatabaseProvider(provider)
+    End Sub
 End Class

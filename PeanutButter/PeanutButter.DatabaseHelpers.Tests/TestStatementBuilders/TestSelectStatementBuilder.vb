@@ -34,6 +34,18 @@ Public Class TestSelectStatementBuilder
     End Sub
 
     <Test()>
+    Public Sub Build_GivenTableAndOneField_AndFirebirdProvider_ShouldReturnExpectedSelectStatement()
+        Dim table = RandomValueGen.GetRandomString(1),
+            field = RandomValueGen.GetRandomString(1)
+        Dim sql = Create() _
+                  .WithDatabaseProvider(DatabaseProviders.Firebird) _
+                  .WithTable(table) _
+                  .WithField(field) _
+                  .Build()
+        Assert.AreEqual("select " + field + " from " + table, sql)
+    End Sub
+
+    <Test()>
     Public Sub Build_GivenTableAndOneSelectField_ShouldReturnExpectedSelectStatement()
         Dim table = RandomValueGen.GetRandomString(),
             field = RandomValueGen.GetRandomString()
@@ -86,6 +98,20 @@ Public Class TestSelectStatementBuilder
                   .WithCondition(field, Condition.EqualityOperators.Equals, value) _
                   .Build()
         Assert.AreEqual("select [" + field + "] from [" + table + "] where [" + field + "]=" + value.ToString(), sql)
+    End Sub
+
+    <Test()>
+    Public Sub WithInt32ConditionAndFirebirdDB_GivenTableAndFieldAndOneWhereClause_ShouldReturnExpectedStatement()
+        Dim table = RandomValueGen.GetRandomString(1),
+            field = RandomValueGen.GetRandomString(1),
+            value = Int32.Parse(CStr(RandomValueGen.GetRandomInt()))
+        Dim sql = Create() _
+                  .WithDatabaseProvider(DatabaseProviders.Firebird) _
+                  .WithTable(table) _
+                  .WithField(field) _
+                  .WithCondition(field, Condition.EqualityOperators.Equals, value) _
+                  .Build()
+        Assert.AreEqual("select " + field + " from " + table + " where " + field + "=" + value.ToString(), sql)
     End Sub
 
 
