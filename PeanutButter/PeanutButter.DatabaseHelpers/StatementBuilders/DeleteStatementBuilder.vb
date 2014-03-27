@@ -74,7 +74,7 @@ Public Class DeleteStatementBuilder
         parts.Add("delete from ")
         parts.Add(_leftSquareBracket)
         parts.Add(_table)
-        parts.Add(_rightSqureBracket)
+        parts.Add(_rightSquareBracket)
         AddConditionsTo(parts)
         Return String.Join("", parts)
     End Function

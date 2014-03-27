@@ -209,6 +209,25 @@ Public Class TestSelectStatementBuilder
     End Sub
 
     <Test()>
+    Public Sub Build_GivenInnerJoinWithTablesAndFieldsOnlyWithFirebirdProvider_InfersEqualityOperator()
+        Dim field1 = RandomValueGen.GetRandomString(),
+            field2 = RandomValueGen.GetRandomString(),
+            joinField1 = RandomValueGen.GetRandomString(),
+            joinField2 = RandomValueGen.GetRandomString(),
+            table1 = RandomValueGen.GetRandomString(),
+            table2 = RandomValueGen.GetRandomString()
+        Dim sql = SelectStatementBuilder.Create() _
+                    .WithDatabaseProvider(DatabaseProviders.Firebird) _
+                    .WithTable(table1) _
+                    .WithField(field1) _
+                    .WithInnerJoin(table1, joinField1, table2, joinField2) _
+                    .WithField(field2) _
+                    .Build()
+        Dim expectedSql = "select " + field1 + "," + field2 + " from " + table1 + " inner join " + table2 + " on " + table1 + "." + joinField1 + "=" + table2 + "." + joinField2
+        Assert.AreEqual(expectedSql, sql)
+    End Sub
+
+    <Test()>
     Public Sub Build_GivenInnerJoinWithLeftTableLeftFieldAndRightTableOnly_InfersEqualityOperatorAndRightField()
         Dim field1 = RandomValueGen.GetRandomString(),
             field2 = RandomValueGen.GetRandomString(),

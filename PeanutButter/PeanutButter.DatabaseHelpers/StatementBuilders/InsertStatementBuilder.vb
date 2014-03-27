@@ -41,7 +41,7 @@ Public Class InsertStatementBuilder
         Dim sql As New List(Of String)
         sql.Add(String.Format("insert into {0}", _leftSquareBracket))
         sql.Add(Me._table)
-        sql.Add(String.Format("{0} ", _rightSqureBracket))
+        sql.Add(String.Format("{0} ", _rightSquareBracket))
         Me.AddFieldsTo(sql)
         Return String.Join("", sql)
     End Function
@@ -56,7 +56,7 @@ Public Class InsertStatementBuilder
             NotFirst = True
             sql.Add(_leftSquareBracket)
             sql.Add(fld.Name)
-            sql.Add(_rightSqureBracket)
+            sql.Add(_rightSquareBracket)
         Next
         sql.Add(") values (")
         NotFirst = False

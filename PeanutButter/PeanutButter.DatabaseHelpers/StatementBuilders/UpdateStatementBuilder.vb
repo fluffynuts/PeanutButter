@@ -47,7 +47,7 @@ Public Class UpdateStatementBuilder
         sql.Add("update ")
         sql.Add(_leftSquareBracket)
         sql.Add(Me._table)
-        sql.Add(_rightSqureBracket)
+        sql.Add(_rightSquareBracket)
         sql.Add(" set ")
         Me.AddFieldsTo(sql)
         Me.AddConditionTo(sql)
@@ -63,7 +63,7 @@ Public Class UpdateStatementBuilder
             fld = Me._fields(i)
             sql.Add(_leftSquareBracket)
             sql.Add(fld.Name)
-            sql.Add(_rightSqureBracket)
+            sql.Add(_rightSquareBracket)
             sql.Add(" = ")
             If fld.QuoteMe Then
                 sql.Add("'")
@@ -83,7 +83,7 @@ Public Class UpdateStatementBuilder
     End Sub
 
     Public Function WithFieldCopy(srcField As String, dstField As String) As IUpdateStatementBuilder Implements IUpdateStatementBuilder.WithFieldCopy
-        Me._fields.Add(New FieldWithValue(dstField, _leftSquareBracket + srcField + _rightSqureBracket, False))
+        Me._fields.Add(New FieldWithValue(dstField, _leftSquareBracket + srcField + _rightSquareBracket, False))
         Return Me
     End Function
     Public Function WithField(column As String, value As String, Optional quote As Boolean = True) As IUpdateStatementBuilder Implements IUpdateStatementBuilder.WithField

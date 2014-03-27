@@ -58,7 +58,7 @@ Public Class SelectStatementBuilder
     Private _orderBy As IOrderBy
     Public Function WithTable(name As String) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithTable
         If name.IndexOf("[") < 0 Then
-            name = String.Join("", New String() {_leftSquareBracket, name, _rightSqureBracket})
+            name = String.Join("", New String() {_leftSquareBracket, name, _rightSquareBracket})
         End If
         _tableNames.Add(name)
         Return Me
@@ -183,6 +183,7 @@ Public Class SelectStatementBuilder
     Private Sub AddJoinsTo(sql As List(Of String))
         _joins.ForEach(Sub(join)
                            sql.Add(" ")
+                           join.UseDatabaseProvider(_databaseProvider)
                            sql.Add(join.ToString())
                        End Sub)
     End Sub
@@ -214,7 +215,7 @@ Public Class SelectStatementBuilder
                                     If fieldName.IndexOf("[") < 0 Then
                                         sql.Add(_leftSquareBracket)
                                         sql.Add(fieldName)
-                                        sql.Add(_rightSqureBracket)
+                                        sql.Add(_rightSquareBracket)
                                     Else
                                         sql.Add(fieldName)
                                     End If
@@ -222,7 +223,7 @@ Public Class SelectStatementBuilder
                                         sql.Add(" as ")
                                         sql.Add(_leftSquareBracket)
                                         sql.Add(_aliases(fieldName))
-                                        sql.Add(_rightSqureBracket)
+                                        sql.Add(_rightSquareBracket)
                                     End If
                                 End If
                             End Sub)
@@ -246,7 +247,9 @@ Public Class SelectStatementBuilder
     End Function
 
     Public Function WithInnerJoin(leftTable As String, leftField As String, eq As Condition.EqualityOperators, rightTable As String, rightField As String) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithInnerJoin
-        Me._joins.Add(New Join(Join.JoinDirection.Inner, leftTable, leftField, eq, rightTable, rightField))
+        Dim joinObject  = New Join(Join.JoinDirection.Inner, leftTable, leftField, eq, rightTable, rightField)
+        joinObject.UseDatabaseProvider(_databaseProvider)
+        Me._joins.Add(joinObject)
         Return Me
     End Function
 

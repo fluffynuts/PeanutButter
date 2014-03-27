@@ -1,6 +1,6 @@
 ﻿Public Class StatementBuilderBase
     Protected _leftSquareBracket As String
-    Protected _rightSqureBracket As String
+    Protected _rightSquareBracket As String
     Protected _databaseProvider As DatabaseProviders
 
     Public Sub New
@@ -12,10 +12,10 @@
         Select Case provider
             Case DatabaseProviders.Firebird
                 _leftSquareBracket = ""
-                _rightSqureBracket = ""
+                _rightSquareBracket = ""
             Case Else
                 _leftSquareBracket = "["
-                _rightSqureBracket = "]"
+                _rightSquareBracket = "]"
         End Select
     End Sub
 

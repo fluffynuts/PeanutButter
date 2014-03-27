@@ -120,7 +120,7 @@ Public Class Condition
         If val.IndexOf(_leftSquareBracket) > -1 Then
             Return val
         End If
-        Return String.Join("", New String() {_leftSquareBracket, val, _rightSqureBracket})
+        Return String.Join("", New String() {_leftSquareBracket, val, _rightSquareBracket})
     End Function
 
     Public Sub New(_fieldName As String, _conditionOperator As EqualityOperators, _fieldValue As Int32)
