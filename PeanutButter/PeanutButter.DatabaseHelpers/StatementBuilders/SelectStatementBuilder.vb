@@ -28,6 +28,8 @@
     Function Build() As String
     Function WithInnerJoin(table1 As String, field1 As String, eq As Condition.EqualityOperators, table2 As String, field2 As String) As ISelectStatementBuilder
     Function WithInnerJoin(table1 As String, field1 As String, table2 As String, Optional field2 As String = Nothing) As ISelectStatementBuilder
+    Function WithLeftJoin(table1 As String, field1 As String, eq As Condition.EqualityOperators, table2 As String, field2 As String) As ISelectStatementBuilder
+    Function WithLeftJoin(table1 As String, field1 As String, table2 As String, Optional field2 As String = Nothing) As ISelectStatementBuilder
     Function OrderBy(orderByObj As OrderBy) As ISelectStatementBuilder
     Function OrderBy(fieldName As String, direction As OrderBy.Directions) As ISelectStatementBuilder
     Function OrderBy(tableName As String, fieldName As String, direction As OrderBy.Directions) As ISelectStatementBuilder
@@ -246,20 +248,6 @@ Public Class SelectStatementBuilder
         Return Me
     End Function
 
-    Public Function WithInnerJoin(leftTable As String, leftField As String, eq As Condition.EqualityOperators, rightTable As String, rightField As String) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithInnerJoin
-        Dim joinObject  = New Join(Join.JoinDirection.Inner, leftTable, leftField, eq, rightTable, rightField)
-        joinObject.UseDatabaseProvider(_databaseProvider)
-        Me._joins.Add(joinObject)
-        Return Me
-    End Function
-
-    Public Function WithInnerJoin(leftTable As String, leftField As String, rightTable As String, Optional rightField As String = Nothing) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithInnerJoin
-        If String.IsNullOrEmpty(rightField) Then
-            rightField = leftField
-        End If
-        Return Me.WithInnerJoin(leftTable, leftField, Condition.EqualityOperators.Equals, rightTable, rightField)
-    End Function
-
     Public Function OrderBy(orderByObj As OrderBy) As ISelectStatementBuilder Implements ISelectStatementBuilder.OrderBy
         Me._orderBy = orderByObj
         Return Me
@@ -298,5 +286,37 @@ Public Class SelectStatementBuilder
     Public Function WithDatabaseProvider(provider As DatabaseProviders) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithDatabaseProvider
         SetDatabaseProvider(provider)
         return Me
+    End Function
+
+    Public Function WithInnerJoin(leftTable As String, leftField As String, eq As Condition.EqualityOperators, rightTable As String, rightField As String) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithInnerJoin
+        Dim joinObject As Join = CreateJoinObjectFor(Join.JoinDirection.Inner, leftTable, leftField, eq, rightTable, rightField)
+        Me._joins.Add(joinObject)
+        Return Me
+    End Function
+
+    Private Function CreateJoinObjectFor(ByVal direction As Join.JoinDirection, ByVal leftTable As String, ByVal leftField As String, ByVal eq As Condition.EqualityOperators, ByVal rightTable As String, ByVal rightField As String) As Join
+        Dim joinObject  = New Join(direction, leftTable, leftField, eq, rightTable, rightField)
+        joinObject.UseDatabaseProvider(_databaseProvider)
+        Return joinObject
+    End Function
+
+    Public Function WithInnerJoin(leftTable As String, leftField As String, rightTable As String, Optional rightField As String = Nothing) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithInnerJoin
+        If String.IsNullOrEmpty(rightField) Then
+            rightField = leftField
+        End If
+        Return Me.WithInnerJoin(leftTable, leftField, Condition.EqualityOperators.Equals, rightTable, rightField)
+    End Function
+
+    Public Function WithLeftJoin(table1 As String, field1 As String, eq As Condition.EqualityOperators, table2 As String, field2 As String) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithLeftJoin
+        Dim joinObject = CreateJoinObjectFor(Join.JoinDirection.Left, table1, field1, eq, table2, field2)
+        Me._joins.Add(joinObject)
+        return Me
+    End Function
+
+    Public Function WithLeftJoin(table1 As String, field1 As String, table2 As String, Optional field2 As String = Nothing) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithLeftJoin
+        if String.IsNullOrEmpty(field2) Then
+            field2 = field1
+        End If
+        return WithLeftJoin(table1, field1, Condition.EqualityOperators.Equals, table2, field2)
     End Function
 End Class
