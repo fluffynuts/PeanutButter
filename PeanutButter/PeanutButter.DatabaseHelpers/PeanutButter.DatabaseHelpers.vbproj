@@ -65,6 +65,8 @@
     <Compile Include="ConnectionStringBuilder.vb" />
     <Compile Include="Executors\DataReaderBuilder.vb" />
     <Compile Include="Executors\ScalarExecutorBuilder.vb" />
+    <Compile Include="StatementBuilders\DatabaseProviders.vb" />
+    <Compile Include="StatementBuilders\InsertStatementBuilder.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
@@ -87,7 +89,6 @@
     <Compile Include="StatementBuilders\DataCopyStatementBuilder.vb" />
     <Compile Include="StatementBuilders\DeleteStatementBuilder.vb" />
     <Compile Include="StatementBuilders\FieldWithValue.vb" />
-    <Compile Include="StatementBuilders\InsertStatementBuilder.vb" />
     <Compile Include="StatementBuilders\Join.vb" />
     <Compile Include="StatementBuilders\MultiOrderBy.vb" />
     <Compile Include="StatementBuilders\OrderBy.vb" />

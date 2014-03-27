@@ -2,8 +2,11 @@
 Imports PeanutButter.Utils
 
 Public Interface IInsertStatementBuilder
+    Function WithDatabaseProvider(provider As DatabaseProviders) As IInsertStatementBuilder
     Function WithTable(tableName As String) As IInsertStatementBuilder
     Function WithField(col As String, val As String) As IInsertStatementBuilder
+    Function WithParameter(col As String, val As String) As IInsertStatementBuilder
+    Function WithField(col As String, val As String, quote As Boolean) As IInsertStatementBuilder
     Function WithField(col As String, val As Decimal, Optional format As String = "0.00") As IInsertStatementBuilder
     Function WithField(col As String, val As Nullable(Of Decimal), Optional format As String = "0.00") As IInsertStatementBuilder
     Function WithField(col As String, val As Long) As IInsertStatementBuilder
@@ -17,14 +20,22 @@ Public Interface IInsertStatementBuilder
     Function WithConditionalField(condition As Boolean, col As String, trueVal As Decimal?, Optional falseVal As Decimal? = Nothing) As IInsertStatementBuilder
     Function Build() As String
 End Interface
+
 Public Class InsertStatementBuilder
     Implements IInsertStatementBuilder
-
     Private _table As String
-    Private _fields As New List(Of FieldWithValue)
+    Private ReadOnly _fields As New List(Of FieldWithValue)
+    Private _leftSquareBracket As String
+    Private _rightSqureBracket As String
+
     Public Shared Function Create() As IInsertStatementBuilder
         Return New InsertStatementBuilder()
     End Function
+
+    public Sub New ()
+        Me.WithDatabaseProvider(DatabaseProviders.Access)
+    End Sub
+
     Public Function WithTable(tableName As String) As IInsertStatementBuilder Implements IInsertStatementBuilder.WithTable
         Me._table = tableName
         Return Me
@@ -32,9 +43,9 @@ Public Class InsertStatementBuilder
     Public Function Build() As String Implements IInsertStatementBuilder.Build
         CheckParameters()
         Dim sql As New List(Of String)
-        sql.Add("insert into [")
+        sql.Add(String.Format("insert into {0}", _leftSquareBracket))
         sql.Add(Me._table)
-        sql.Add("] ")
+        sql.Add(String.Format("{0} ", _rightSqureBracket))
         Me.AddFieldsTo(sql)
         Return String.Join("", sql)
     End Function
@@ -47,9 +58,9 @@ Public Class InsertStatementBuilder
                 sql.Add(",")
             End If
             NotFirst = True
-            sql.Add("[")
+            sql.Add(_leftSquareBracket)
             sql.Add(fld.Name)
-            sql.Add("]")
+            sql.Add(_rightSqureBracket)
         Next
         sql.Add(") values (")
         NotFirst = False
@@ -149,6 +160,27 @@ Public Class InsertStatementBuilder
 
     Public Function WithField(col As String, val As Boolean) As IInsertStatementBuilder Implements IInsertStatementBuilder.WithField
         Me._fields.Add(new FieldWithValue(col, CInt(IIf(val, 1, 0)).ToString(), false))
+        return Me
+    End Function
+
+    Public Function WithField(col As String, val As String, quote As Boolean) As IInsertStatementBuilder Implements IInsertStatementBuilder.WithField
+        Me._fields.Add(New FieldWithValue(col, val, quote))
+        return Me
+    End Function
+
+    Public Function WithParameter(col As String, val As String) As IInsertStatementBuilder Implements IInsertStatementBuilder.WithParameter
+        return Me.WithField(col, val, false)
+    End Function
+
+    Public Function WithDatabaseProvider(provider As DatabaseProviders) As IInsertStatementBuilder Implements IInsertStatementBuilder.WithDatabaseProvider
+        Select Case provider
+            Case DatabaseProviders.Firebird
+                _leftSquareBracket = ""
+                _rightSqureBracket = ""
+            Case Else
+                _leftSquareBracket = "["
+                _rightSqureBracket = "]"
+        End Select
         return Me
     End Function
 End Class
