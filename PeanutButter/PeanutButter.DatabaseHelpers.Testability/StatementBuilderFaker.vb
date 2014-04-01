@@ -1,5 +1,4 @@
 ﻿Imports System.Data.Common
-Imports RightControl.Data
 Imports NSubstitute
 
 Public Class BuilderFaker
