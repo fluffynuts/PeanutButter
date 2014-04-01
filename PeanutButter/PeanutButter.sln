@@ -40,9 +40,39 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{E2A2D6
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "PeautButter.DatabaseHelpers.Testability", "PeautButter.DatabaseHelpers.Testability\PeautButter.DatabaseHelpers.Testability.vbproj", "{252A1690-D6A1-43F4-AE63-5E34C3BBC02B}"
-EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "PeanutButter.DatabaseHelpers.Testability", "PeanutButter.DatabaseHelpers.Testability\PeanutButter.DatabaseHelpers.Testability.vbproj", "{3D2EEE6D-E118-41FA-BB34-A0B56C993775}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.DatabaseHelpers.NugetPackage", "PeanutButter.DatabaseHelpers.NugetPackage\PeanutButter.DatabaseHelpers.NugetPackage.csproj", "{0451BAEF-DF2E-4B98-8644-94EE9415E389}"
+	ProjectSection(ProjectDependencies) = postProject
+		{02DF2FD5-59E2-4EC8-80D1-E745D7D834C5} = {02DF2FD5-59E2-4EC8-80D1-E745D7D834C5}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.DatabaseHelpers.Testability.NugetPackage", "PeanutButter.DatabaseHelpers.Testability.NugetPackage\PeanutButter.DatabaseHelpers.Testability.NugetPackage.csproj", "{90A441DE-E1AA-4FE1-934E-DAD19DC5872D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3D2EEE6D-E118-41FA-BB34-A0B56C993775} = {3D2EEE6D-E118-41FA-BB34-A0B56C993775}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.RandomGenerators.NugetPackage", "PeanutButter.RandomGenerators.NugetPackage\PeanutButter.RandomGenerators.NugetPackage.csproj", "{54C192CB-A0F1-48F9-8D21-E5C805B328B2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CB22D9AE-A2A8-45D0-92B9-FADC687120F0} = {CB22D9AE-A2A8-45D0-92B9-FADC687120F0}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.ServiceShell.NugetPackage", "PeanutButter.ServiceShell.NugetPackage\PeanutButter.ServiceShell.NugetPackage.csproj", "{7E1F4E7A-60A5-45C0-AB9E-8742212D36C8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1349BF60-FED9-4288-AE22-50DEDC2F6AC7} = {1349BF60-FED9-4288-AE22-50DEDC2F6AC7}
+		{EF4F2F73-5126-4DE1-9729-AE758AAB5E0E} = {EF4F2F73-5126-4DE1-9729-AE758AAB5E0E}
+		{C97C82C9-8975-4367-8B5E-386F93B6130C} = {C97C82C9-8975-4367-8B5E-386F93B6130C}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.WindowsServiceManagement.NugetPackage", "PeanutButter.WindowsServiceManagement.NugetPackage\PeanutButter.WindowsServiceManagement.NugetPackage.csproj", "{1349BF60-FED9-4288-AE22-50DEDC2F6AC7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C97C82C9-8975-4367-8B5E-386F93B6130C} = {C97C82C9-8975-4367-8B5E-386F93B6130C}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.Utils.NugetPackage", "PeanutButter.Utils.NugetPackage\PeanutButter.Utils.NugetPackage.csproj", "{5D323453-10D1-48C0-B1B7-8B2DA0B9843F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EFC85343-95B4-48C3-BCBE-579EA4868C0A} = {EFC85343-95B4-48C3-BCBE-579EA4868C0A}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -141,18 +171,48 @@ Global
 		{06CFA7FB-6B07-45DF-896F-ECCEB6633E0B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{06CFA7FB-6B07-45DF-896F-ECCEB6633E0B}.Test|Any CPU.ActiveCfg = Release|Any CPU
 		{06CFA7FB-6B07-45DF-896F-ECCEB6633E0B}.Test|Any CPU.Build.0 = Release|Any CPU
-		{252A1690-D6A1-43F4-AE63-5E34C3BBC02B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{252A1690-D6A1-43F4-AE63-5E34C3BBC02B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{252A1690-D6A1-43F4-AE63-5E34C3BBC02B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{252A1690-D6A1-43F4-AE63-5E34C3BBC02B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{252A1690-D6A1-43F4-AE63-5E34C3BBC02B}.Test|Any CPU.ActiveCfg = Release|Any CPU
-		{252A1690-D6A1-43F4-AE63-5E34C3BBC02B}.Test|Any CPU.Build.0 = Release|Any CPU
 		{3D2EEE6D-E118-41FA-BB34-A0B56C993775}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3D2EEE6D-E118-41FA-BB34-A0B56C993775}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3D2EEE6D-E118-41FA-BB34-A0B56C993775}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3D2EEE6D-E118-41FA-BB34-A0B56C993775}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3D2EEE6D-E118-41FA-BB34-A0B56C993775}.Test|Any CPU.ActiveCfg = Release|Any CPU
 		{3D2EEE6D-E118-41FA-BB34-A0B56C993775}.Test|Any CPU.Build.0 = Release|Any CPU
+		{0451BAEF-DF2E-4B98-8644-94EE9415E389}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0451BAEF-DF2E-4B98-8644-94EE9415E389}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0451BAEF-DF2E-4B98-8644-94EE9415E389}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0451BAEF-DF2E-4B98-8644-94EE9415E389}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0451BAEF-DF2E-4B98-8644-94EE9415E389}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{0451BAEF-DF2E-4B98-8644-94EE9415E389}.Test|Any CPU.Build.0 = Release|Any CPU
+		{90A441DE-E1AA-4FE1-934E-DAD19DC5872D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90A441DE-E1AA-4FE1-934E-DAD19DC5872D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90A441DE-E1AA-4FE1-934E-DAD19DC5872D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90A441DE-E1AA-4FE1-934E-DAD19DC5872D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90A441DE-E1AA-4FE1-934E-DAD19DC5872D}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{90A441DE-E1AA-4FE1-934E-DAD19DC5872D}.Test|Any CPU.Build.0 = Release|Any CPU
+		{54C192CB-A0F1-48F9-8D21-E5C805B328B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54C192CB-A0F1-48F9-8D21-E5C805B328B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54C192CB-A0F1-48F9-8D21-E5C805B328B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54C192CB-A0F1-48F9-8D21-E5C805B328B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{54C192CB-A0F1-48F9-8D21-E5C805B328B2}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{54C192CB-A0F1-48F9-8D21-E5C805B328B2}.Test|Any CPU.Build.0 = Release|Any CPU
+		{7E1F4E7A-60A5-45C0-AB9E-8742212D36C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E1F4E7A-60A5-45C0-AB9E-8742212D36C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E1F4E7A-60A5-45C0-AB9E-8742212D36C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E1F4E7A-60A5-45C0-AB9E-8742212D36C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E1F4E7A-60A5-45C0-AB9E-8742212D36C8}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{7E1F4E7A-60A5-45C0-AB9E-8742212D36C8}.Test|Any CPU.Build.0 = Release|Any CPU
+		{1349BF60-FED9-4288-AE22-50DEDC2F6AC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1349BF60-FED9-4288-AE22-50DEDC2F6AC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1349BF60-FED9-4288-AE22-50DEDC2F6AC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1349BF60-FED9-4288-AE22-50DEDC2F6AC7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1349BF60-FED9-4288-AE22-50DEDC2F6AC7}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{1349BF60-FED9-4288-AE22-50DEDC2F6AC7}.Test|Any CPU.Build.0 = Release|Any CPU
+		{5D323453-10D1-48C0-B1B7-8B2DA0B9843F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D323453-10D1-48C0-B1B7-8B2DA0B9843F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D323453-10D1-48C0-B1B7-8B2DA0B9843F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D323453-10D1-48C0-B1B7-8B2DA0B9843F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D323453-10D1-48C0-B1B7-8B2DA0B9843F}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{5D323453-10D1-48C0-B1B7-8B2DA0B9843F}.Test|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
