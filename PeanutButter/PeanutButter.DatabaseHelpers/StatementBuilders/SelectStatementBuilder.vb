@@ -85,6 +85,7 @@ Public Class SelectStatementBuilder
     End Function
 
     Public Function WithCondition(condition As ICondition) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
+        condition.UseDatabaseProvider(_databaseProvider)
         return WithCondition(condition.ToString())
     End Function
 

@@ -461,6 +461,26 @@ Public Class TestSelectStatementBuilder
     End Sub
 
     <Test()>
+    Public Sub WithAllConditions_GivenSomeConditionsAndFirebirdProvider_ReturnsExpectedStatement()
+        Dim fld = RandomValueGen.GetRandomString(),
+            table = RandomValueGen.GetRandomString(),
+            c1 = New Condition(RandomValueGen.GetRandomString(), Condition.EqualityOperators.Equals, RandomValueGen.GetRandomString()),
+            c2 = New Condition(RandomValueGen.GetRandomString(), Condition.EqualityOperators.GreaterThan, RandomValueGen.GetRandomString()),
+            c3 = New Condition(RandomValueGen.GetRandomString(), Condition.EqualityOperators.LessThan, RandomValueGen.GetRandomString())
+        Dim sql = SelectStatementBuilder.Create() _
+                    .WithDatabaseProvider(DatabaseProviders.Firebird) _
+                    .WithTable(table) _
+                    .WithField(fld) _
+                    .WithAllConditions(c1, c2, c3) _
+                    .Build()
+        Assert.IsFalse(c1.ToString().Contains("["))
+        Assert.IsFalse(c1.ToString().Contains("]"))
+        Assert.IsFalse(c2.ToString().Contains("["))
+        Assert.IsFalse(c2.ToString().Contains("]"))
+        Assert.AreEqual("select " + fld + " from " + table + " where (" + c1.ToString() + " and " + c2.ToString() + " and " + c3.ToString() +")", sql)
+    End Sub
+
+    <Test()>
     Public Sub WithAnyConditions_GivenSomeConditions_ReturnsExpectedStatement()
         Dim fld = RandomValueGen.GetRandomString(),
             table = RandomValueGen.GetRandomString(),

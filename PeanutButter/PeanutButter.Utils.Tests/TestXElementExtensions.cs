@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,7 +19,7 @@ namespace PenautButter.Utils.Tests
         {
             // test setup
             var text = RandomValueGen.GetRandomString();
-            var tag = RandomValueGen.GetRandomAlphaNumericString();
+            var tag = RandomValueGen.GetRandomAlphaString();
             var el = new XElement(tag, new XText(text));
             
             // pre-conditions
@@ -35,9 +36,9 @@ namespace PenautButter.Utils.Tests
         public void Text_ReturnsMultipleTextNodesSeparatedWithNewlines()
         {
             // test setup
-            var t1 = RandomValueGen.GetRandomString();
-            var t2 = RandomValueGen.GetRandomString();
-            var tag = RandomValueGen.GetRandomAlphaNumericString();
+            var t1 = RandomValueGen.GetRandomAlphaString(10, 20);
+            var t2 = RandomValueGen.GetRandomAlphaString(10, 20);
+            var tag = RandomValueGen.GetRandomAlphaNumericString(8, 20);
             var el = new XElement(tag, new XText(t1), new XText(t2));
             
             // pre-conditions
@@ -46,6 +47,7 @@ namespace PenautButter.Utils.Tests
             var result = el.Text();
 
             // test result
+            Debug.WriteLine(result);
             var parts = result.Split('\n');
             Assert.AreEqual(2, parts.Length);
             Assert.AreEqual(t1, parts[0]);
