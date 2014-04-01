@@ -29,5 +29,8 @@
 
     Public Sub UseDatabaseProvider(provider As DatabaseProviders) Implements ICondition.UseDatabaseProvider
         SetDatabaseProvider(provider)
+        for each c In _conditions
+            c.UseDatabaseProvider(provider)
+        Next
     End Sub
 End Class

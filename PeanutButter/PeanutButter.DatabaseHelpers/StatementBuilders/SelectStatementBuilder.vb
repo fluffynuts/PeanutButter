@@ -58,10 +58,9 @@ Public Class SelectStatementBuilder
     Private _joins As New List(Of Join)
     Private _wheres As New List(Of String)
     Private _orderBy As IOrderBy
+    Private _iCondition As ICondition
+
     Public Function WithTable(name As String) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithTable
-        If name.IndexOf("[") < 0 Then
-            name = String.Join("", New String() {_openObjectQuote, name, _closeObjectQuote})
-        End If
         _tableNames.Add(name)
         Return Me
     End Function
@@ -80,13 +79,16 @@ Public Class SelectStatementBuilder
 
     Public Function WithCondition(clause As String) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
         _wheres.Clear()
+        _iCondition = Nothing
         _wheres.Add(clause)
         Return Me
     End Function
 
     Public Function WithCondition(condition As ICondition) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
         condition.UseDatabaseProvider(_databaseProvider)
-        return WithCondition(condition.ToString())
+        Dim result = WithCondition(condition.ToString())
+        _iCondition = condition
+        return result
     End Function
 
     Public Function WithCondition(fieldName As String, op As Condition.EqualityOperators, fieldValue As Date) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
@@ -164,7 +166,10 @@ Public Class SelectStatementBuilder
         AddLeadingRowLimiterIfRequired(sql)
         Me.AddFieldsTo(sql)
         sql.Add(" from ")
-        sql.Add(String.Join(",", _tableNames))
+        Dim quotedTableNames = _tableNames.Select(Function(tn)
+                                                      Return String.Join("", { _openObjectQuote, tn, _closeObjectQuote })
+                                                  End Function)
+        sql.Add(String.Join(",", quotedTableNames))
         Me.AddJoinsTo(sql)
         Me.AddConditionsTo(sql)
         Me.AddOrdersTo(sql)
@@ -286,6 +291,10 @@ Public Class SelectStatementBuilder
 
     Public Function WithDatabaseProvider(provider As DatabaseProviders) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithDatabaseProvider
         SetDatabaseProvider(provider)
+        If Not _iCondition Is Nothing Then
+            _iCondition.UseDatabaseProvider(provider)
+            WithCondition(_iCondition)
+        End If
         return Me
     End Function
 
