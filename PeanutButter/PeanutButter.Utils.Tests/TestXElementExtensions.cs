@@ -18,8 +18,8 @@ namespace PenautButter.Utils.Tests
         public void Text_ReturnsSingleTextNodeOfElement()
         {
             // test setup
-            var text = RandomValueGen.GetRandomString();
-            var tag = RandomValueGen.GetRandomAlphaString();
+            var text = RandomValueGen.GetRandomString(10, 20);
+            var tag = RandomValueGen.GetRandomAlphaString(10, 20);
             var el = new XElement(tag, new XText(text));
             
             // pre-conditions

@@ -64,7 +64,6 @@
   <ItemGroup>
     <Content Include="content\README.txt" />
     <Content Include="lib\net40\PeanutButter.ServiceShell.dll" />
-    <Content Include="lib\net40\PeanutButter.ServiceShell.pdb" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

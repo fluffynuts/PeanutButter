@@ -63,8 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="content\net40\GenericBuilderTests-ExampleUsage.cs.txt" />
-    <Content Include="lib\net40\PeanutButter.dll" />
-    <Content Include="lib\net40\PeanutButter.pdb" />
+    <Content Include="lib\net40\PeanutButter.RandomGenerators.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

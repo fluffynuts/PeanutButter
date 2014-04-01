@@ -1,6 +1,7 @@
 ﻿Imports PeanutButter.RandomGenerators
 Imports NUnit.Framework
 Imports PeanutButter.Utils
+Imports System.Reflection
 
 <TestFixture()>
 Public Class TestInsertStatementBuilder
@@ -88,12 +89,14 @@ Public Class TestInsertStatementBuilder
     Public Sub Build_GivenTableNameAndSingleDecimalField_ReturnsExpectedString()
         Dim tableName = RandomValueGen.GetRandomString(1),
             fieldName = RandomValueGen.GetRandomString(1),
-            fieldValue As Decimal = RandomValueGen.GetRandomInt()
+            fieldValue As Decimal = RandomValueGen.GetRandomDecimal()
         Dim sql = Create() _
                   .WithTable(tableName) _
                   .WithField(fieldName, fieldValue) _
                   .Build()
-        Assert.AreEqual("insert into [" + tableName + "] ([" + fieldName + "]) values (" + (New DecimalDecorator(fieldValue, "0.00")).ToString() + ")", sql)
+        Dim decimalDecorator  = New DecimalDecorator(fieldValue, "0.00")
+        Assert.IsFalse(decimalDecorator.ToString().Contains(","))
+        Assert.AreEqual("insert into [" + tableName + "] ([" + fieldName + "]) values (" + decimalDecorator.ToString() + ")", sql)
     End Sub
 
     <Test()>
