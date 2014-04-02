@@ -1,4 +1,6 @@
-﻿Public Interface ICondition
+﻿Imports PeanutButter.Utils
+
+Public Interface ICondition
     Sub UseDatabaseProvider(provider As DatabaseProviders)
     Function ToString() As String
 End Interface
@@ -132,7 +134,11 @@ Public Class Condition
     End Sub
 
     Public Sub New(_fieldName As String, _conditionOperator As EqualityOperators, _fieldValue As Decimal)
-        Me.New(_fieldName, _conditionOperator, _fieldValue.ToString(), False, True, False)
+        Me.New(_fieldName, _conditionOperator, new DecimalDecorator(_fieldValue).ToString(), False, True, False)
+    End Sub
+
+    Public Sub New (_fieldName as String, _conditionOperator as EqualityOperators, _fieldValue as Nullable(of Decimal))
+        Me.New(_fieldName, _conditionOperator, CStr(IIf(_fieldValue.HasValue, new DecimalDecorator(_fieldValue.Value).ToString(), "NULL")), false)
     End Sub
 
     Public Sub New(_fieldName As String, _conditionOperator As EqualityOperators, _fieldValue As Int64)

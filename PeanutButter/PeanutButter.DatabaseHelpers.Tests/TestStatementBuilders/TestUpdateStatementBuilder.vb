@@ -74,6 +74,48 @@ Public Class TestUpdateStatementBuilder
     End Sub
 
     <Test()>
+    Public Sub Build_GivenTableAndOneNullableDecimalFieldAndDecimalCondition_ReturnsValidUpdateStatement()
+        Dim TableName = RandomValueGen.GetRandomString(),
+            ColumnName = RandomValueGen.GetRandomString(),
+            FieldValue as Nullable(Of Decimal)= RandomValueGen.GetRandomDecimal(),
+            thisCondition = new Condition("condition_field", DatabaseHelpers.Condition.EqualityOperators.Equals, FieldValue.Value)
+        Dim builder = UpdateStatementBuilder.Create()
+        With builder
+            .WithTable(TableName)
+            .WithField(ColumnName, FieldValue)
+            .WithCondition(thisCondition)
+        End With
+        Dim statement = builder.Build()
+        Dim nfi = New NumberFormatInfo()
+        nfi.NumberDecimalSeparator = "."
+        nfi.CurrencyDecimalSeparator = "."
+        Dim dd = new DecimalDecorator(FieldValue.Value)
+        Assert.IsFalse(thisCondition.ToString().Contains(","))
+        Assert.AreEqual("update [" & TableName & "] set [" & ColumnName & "] = " & dd.ToString() & " where " & thisCondition.ToString(), statement)
+    End Sub
+
+    <Test()>
+    Public Sub Build_GivenTableAndOneNullableDecimalFieldAndNullableDecimalCondition_ReturnsValidUpdateStatement()
+        Dim TableName = RandomValueGen.GetRandomString(),
+            ColumnName = RandomValueGen.GetRandomString(),
+            FieldValue as Nullable(Of Decimal)= RandomValueGen.GetRandomDecimal(),
+            thisCondition = new Condition("condition_field", DatabaseHelpers.Condition.EqualityOperators.Equals, FieldValue)
+        Dim builder = UpdateStatementBuilder.Create()
+        With builder
+            .WithTable(TableName)
+            .WithField(ColumnName, FieldValue)
+            .WithCondition(thisCondition)
+        End With
+        Dim statement = builder.Build()
+        Dim nfi = New NumberFormatInfo()
+        nfi.NumberDecimalSeparator = "."
+        nfi.CurrencyDecimalSeparator = "."
+        Dim dd = new DecimalDecorator(FieldValue.Value)
+        Assert.IsFalse(thisCondition.ToString().Contains(","))
+        Assert.AreEqual("update [" & TableName & "] set [" & ColumnName & "] = " & dd.ToString() & " where " & thisCondition.ToString(), statement)
+    End Sub
+
+    <Test()>
     Public Sub Build_GivenTableAndOneNullableNullDecimalFieldAndCondition_ReturnsValidUpdateStatement()
         Dim TableName = RandomValueGen.GetRandomString(),
             ColumnName = RandomValueGen.GetRandomString(),
