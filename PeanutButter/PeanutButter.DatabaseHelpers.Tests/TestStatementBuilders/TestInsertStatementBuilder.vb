@@ -98,6 +98,19 @@ Public Class TestInsertStatementBuilder
         Assert.IsFalse(decimalDecorator.ToString().Contains(","))
         Assert.AreEqual("insert into [" + tableName + "] ([" + fieldName + "]) values (" + decimalDecorator.ToString() + ")", sql)
     End Sub
+    <Test()>
+    Public Sub Build_GivenTableNameAndSingleNullableDecimalField_ReturnsExpectedString()
+        Dim tableName = RandomValueGen.GetRandomString(1),
+            fieldName = RandomValueGen.GetRandomString(1),
+            fieldValue As Nullable(Of Decimal) = RandomValueGen.GetRandomDecimal()
+        Dim sql = Create() _
+                  .WithTable(tableName) _
+                  .WithField(fieldName, fieldValue) _
+                  .Build()
+        Dim decimalDecorator  = New DecimalDecorator(fieldValue.Value, "0.00")
+        Assert.IsFalse(decimalDecorator.ToString().Contains(","))
+        Assert.AreEqual("insert into [" + tableName + "] ([" + fieldName + "]) values (" + decimalDecorator.ToString() + ")", sql)
+    End Sub
 
     <Test()>
     Public Sub Build_GivenTableNameAndSingleNullIntegerField_ReturnsExpectedString()

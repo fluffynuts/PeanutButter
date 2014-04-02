@@ -87,7 +87,7 @@ Public Class InsertStatementBuilder
     End Function
     Public Function WithField(column As String, value As Nullable(Of Decimal), Optional format As String = "0.00") As IInsertStatementBuilder Implements IInsertStatementBuilder.WithField
         If (value.HasValue) Then
-            _fields.Add(New FieldWithValue(column, value.Value.ToString(format), False))
+            _fields.Add(New FieldWithValue(column, new DecimalDecorator(value.Value, format).ToString(), False))
         Else
             _fields.Add(New FieldWithValue(column, "NULL", False))
         End If
