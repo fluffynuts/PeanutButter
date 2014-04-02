@@ -1,4 +1,5 @@
 ﻿Public Class OrderBy
+    Inherits StatementBuilderBase
     Implements IOrderBy
     Public Enum Directions
         Ascending
@@ -39,7 +40,11 @@
 
     Private Function FieldQuote(str As String) as String
         If str.IndexOf("[") > -1 Then Return str
-        Return String.Join("", New String() {"[", str, "]"})
+        Return String.Join("", New String() {_openObjectQuote, str, _closeObjectQuote})
     End Function
+
+    Public Sub UseDatabaseProvider(provider As DatabaseProviders) Implements IOrderBy.UseDatabaseProvider
+        MyBase.SetDatabaseProvider(provider)
+    End Sub
 
 End Class

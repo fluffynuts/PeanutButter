@@ -1,5 +1,6 @@
 ﻿Public Interface IOrderBy
     Overloads Function ToString() As String
+    Sub UseDatabaseProvider(provider As DatabaseProviders)
 End Interface
 
 Public Class MultiOrderBy
@@ -23,4 +24,9 @@ Public Class MultiOrderBy
         Return String.Join(", ", result)
     End Function
 
+    Public Sub UseDatabaseProvider(provider As DatabaseProviders) Implements IOrderBy.UseDatabaseProvider
+        for each part In _parts
+            part.UseDatabaseProvider(provider)
+        Next
+    End Sub
 End Class

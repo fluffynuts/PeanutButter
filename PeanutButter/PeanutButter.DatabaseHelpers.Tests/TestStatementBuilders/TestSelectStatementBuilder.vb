@@ -445,6 +445,40 @@ Public Class TestSelectStatementBuilder
         Assert.AreEqual("select [" + fld + "] from [" + table + "] order by [" + otable + "].[" + ofld + "] " + CStr(IIf(direction = OrderBy.Directions.Ascending, "asc", "desc")), sql)
     End Sub
 
+    <TestCase(OrderBy.Directions.Ascending)>
+    <TestCase(OrderBy.Directions.Descending)>
+    Public Sub OrderBy_GivenFieldAndTableAndDirectionAndFirebirdProvider_AddsExpectedOrderByClauseToOutput(direction As OrderBy.Directions)
+        Dim ofld = RandomValueGen.GetRandomString(),
+            otable = RandomValueGen.GetRandomString(),
+            table = RandomValueGen.GetRandomString(),
+            fld = RandomValueGen.GetRandomString()
+        Dim sql = SelectStatementBuilder.Create() _
+                    .WithDatabaseProvider(DatabaseProviders.Firebird) _
+                    .WithTable(table) _
+                    .WithField(fld) _
+                    .OrderBy(otable, ofld, direction) _
+                    .Build()
+        Assert.AreEqual("select " + fld + " from " + table + " order by " + otable + "." + ofld + " " + CStr(IIf(direction = OrderBy.Directions.Ascending, "asc", "desc")), sql)
+    End Sub
+
+    <Test()>
+    Public Sub Build_WhenUsingSelectFieldConstructsOnFirebirdDatabaseProvider_ShouldProduceSqlWithoutBrackets()
+        ' this test is based on a real-world failure
+        Dim GetFilterConditions as Func(Of IEnumerable(Of ICondition)) = Function()
+                                                             return { new Condition("IS_PROCESSED", Condition.EqualityOperators.Equals, 0) }
+                                                         End Function
+        Dim table1  = "ZONE"
+        Dim sql = SelectStatementBuilder.Create() _
+                .WithDatabaseProvider(DatabaseProviders.Firebird) _
+                .WithTable(table1) _
+                .Distinct() _
+                .WithField(new SelectField(table1, "CTRL_SLA")) _
+                .WithInnerJoin(table1, "CTRL_SLA", "TRANSACK", _
+                    "CTRL_SLA") _
+                .WithAllConditions(GetFilterConditions().ToArray()).Build()
+        Assert.AreEqual("select distinct ZONE.CTRL_SLA from ZONE inner join TRANSACK on ZONE.CTRL_SLA=TRANSACK.CTRL_SLA where (IS_PROCESSED=0)",sql)
+    End Sub
+
     <Test()>
     Public Sub WithAllConditions_GivenSomeConditions_ReturnsExpectedStatement()
         Dim fld = RandomValueGen.GetRandomString(),

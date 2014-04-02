@@ -71,6 +71,7 @@ Public Class SelectStatementBuilder
     End Function
 
     Public Function WithField(field As SelectField) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithField
+        field.UseDatabaseProvider(_databaseProvider)
         Dim fieldName = field.ToString()
         _fieldNames.Add(fieldName)
         _aliases(fieldName) = Nothing
@@ -185,6 +186,7 @@ Public Class SelectStatementBuilder
     Private Sub AddOrdersTo(sql As List(Of String))
         If (Me._orderBy Is Nothing) Then Exit Sub
         sql.Add(" ")
+        _orderBy.UseDatabaseProvider(_databaseProvider)
         sql.Add(Me._orderBy.ToString())
     End Sub
 
