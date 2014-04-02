@@ -67,7 +67,9 @@ namespace PeanutButter.RandomGenerators
             var minTicks = minDate.Value.Ticks;
             var maxTicks = maxDate.Value.Ticks;
             var actualTicks = GetRandomLong(minTicks, maxTicks);
-            return new DateTime(actualTicks);
+            var rawDateTime = new DateTime(actualTicks);
+            var sanitised = new DateTime(rawDateTime.Year, rawDateTime.Month, rawDateTime.Day, rawDateTime.Hour, rawDateTime.Minute, rawDateTime.Second);
+            return sanitised;
         }
 
         public static double GetRandomDouble(double min = 0, double max = 10)
