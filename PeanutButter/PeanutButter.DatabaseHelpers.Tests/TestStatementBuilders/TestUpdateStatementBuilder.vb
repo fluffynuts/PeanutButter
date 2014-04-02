@@ -2,6 +2,7 @@
 Imports NUnit.Framework
 Imports System.Globalization
 Imports PeanutButter.RandomGenerators
+Imports PeanutButter.Utils
 
 <TestFixture()>
 Public Class TestUpdateStatementBuilder
@@ -48,7 +49,28 @@ Public Class TestUpdateStatementBuilder
         Dim nfi = New NumberFormatInfo()
         nfi.NumberDecimalSeparator = "."
         nfi.CurrencyDecimalSeparator = "."
-        Assert.AreEqual("update [" & TableName & "] set [" & ColumnName & "] = " & FieldValue.ToString(nfi) & " where " & Condition, statement)
+        dim dd = new DecimalDecorator(FieldValue)
+        Assert.AreEqual("update [" & TableName & "] set [" & ColumnName & "] = " & dd.ToString() & " where " & Condition, statement)
+    End Sub
+
+    <Test()>
+    Public Sub Build_GivenTableAndOneNullableDecimalFieldAndCondition_ReturnsValidUpdateStatement()
+        Dim TableName = RandomValueGen.GetRandomString(),
+            ColumnName = RandomValueGen.GetRandomString(),
+            FieldValue as Nullable(Of Decimal)= RandomValueGen.GetRandomDecimal(),
+            Condition = RandomValueGen.GetRandomString()
+        Dim builder = UpdateStatementBuilder.Create()
+        With builder
+            .WithTable(TableName)
+            .WithField(ColumnName, FieldValue)
+            .WithCondition(Condition)
+        End With
+        Dim statement = builder.Build()
+        Dim nfi = New NumberFormatInfo()
+        nfi.NumberDecimalSeparator = "."
+        nfi.CurrencyDecimalSeparator = "."
+        Dim dd = new DecimalDecorator(FieldValue.Value)
+        Assert.AreEqual("update [" & TableName & "] set [" & ColumnName & "] = " & dd.ToString() & " where " & Condition, statement)
     End Sub
 
     <Test()>
