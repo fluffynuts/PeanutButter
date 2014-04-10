@@ -284,5 +284,40 @@ namespace PenautButter.Utils.Tests
             Assert.AreEqual(src.prop, dst.prop);
             Assert.AreEqual(src.prop.prop, dst.prop.prop);
         }
+
+
+        [Test]
+        public void CopyPropertiesTo_DoesntBarfOnANullTargetThatIsComplex()
+        {
+            //---------------Set up test pack-------------------
+            var o1 = new Complex<string>();
+            var o2 = new Complex<string>();
+            o2.prop = null;
+            
+            //---------------Assert Precondition----------------
+            Assert.IsNull(o2.prop);
+
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(() => o1.CopyPropertiesTo(o2));
+
+            //---------------Test Result -----------------------
+        }
+        [Test]
+        public void CopyPropertiesTo_DoesntBarfOnANullSourceThatIsComplex()
+        {
+            //---------------Set up test pack-------------------
+            var o1 = new Complex<string>();
+            var o2 = new Complex<string>();
+            o1.prop = null;
+            
+            //---------------Assert Precondition----------------
+            Assert.IsNull(o1.prop);
+
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(() => o1.CopyPropertiesTo(o2));
+
+            //---------------Test Result -----------------------
+            Assert.IsNull(o2.prop);
+        }
     }
 }

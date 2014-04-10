@@ -64,6 +64,7 @@ namespace PeanutButter.Utils
 
         public static void CopyPropertiesTo(this object src, object dst, bool deep = true)
         {
+            if (src == null || dst == null) return;
             var srcPropInfos = src.GetType().GetProperties();
             var dstPropInfos = dst.GetType().GetProperties();
             foreach (var srcPropInfo in srcPropInfos)
@@ -79,8 +80,15 @@ namespace PeanutButter.Utils
                 }
                 else
                 {
-                    var targetVal = matchingTarget.GetValue(dst);
-                    srcVal.CopyPropertiesTo(targetVal);
+                    if (srcVal != null)
+                    {
+                        var targetVal = matchingTarget.GetValue(dst);
+                        srcVal.CopyPropertiesTo(targetVal);
+                    }
+                    else
+                    {
+                        matchingTarget.SetValue(dst, null);
+                    }
                 }
             }
         }
