@@ -85,6 +85,51 @@ namespace PenautButter.Utils.Tests
         }
 
         [Test]
+        public void AllPropertiesMatch_DoesntBarfOnBothNull()
+        {
+            //---------------Set up test pack-------------------
+            object o1 = null;
+            object o2 = null;
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = o1.AllPropertiesMatch(o2);
+
+            //---------------Test Result -----------------------
+            Assert.IsTrue(result);
+        }
+
+        [Test]
+        public void AllPropertiesMatch_DoesntBarfOnSourceNull()
+        {
+            //---------------Set up test pack-------------------
+            object o1 = null;
+            object o2 = new object();
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = o1.AllPropertiesMatch(o2);
+
+            //---------------Test Result -----------------------
+            Assert.IsFalse(result);
+        }
+
+        [Test]
+        public void AllPropertiesMatch_DoesntBarfOnTargetNull()
+        {
+            //---------------Set up test pack-------------------
+            object o2 = null;
+            object o1 = new object();
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = o1.AllPropertiesMatch(o2);
+
+            //---------------Test Result -----------------------
+            Assert.IsFalse(result);
+        }
+
+        [Test]
         public void AllPropertiesMatch_WhenComparingIdenticalPropertiesOfSimpleTypes_ShouldReturnTrue()
         {
             TestPropertyMatchingFor<int>();

@@ -28,6 +28,8 @@ namespace PeanutButter.Utils
         }
         public static bool AllPropertiesMatch(this object objSource, object objCompare)
         {
+            if (objSource == null && objCompare == null) return true;
+            if (objSource == null || objCompare == null) return false;
             var srcPropInfos = objSource.GetType().GetProperties();
             var comparePropInfos = objCompare.GetType().GetProperties();
             foreach (var srcProp in srcPropInfos)
