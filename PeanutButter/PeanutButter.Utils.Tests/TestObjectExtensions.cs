@@ -261,6 +261,15 @@ namespace PenautButter.Utils.Tests
             TestCopyFor<decimal>();
             TestCopyFor<DateTime>();
             TestCopyFor<bool>();
+            TestCopyFor<int?>();
+            TestCopyFor<byte?>();
+            TestCopyFor<char?>();
+            TestCopyFor<long?>();
+            TestCopyFor<float?>();
+            TestCopyFor<double?>();
+            TestCopyFor<decimal?>();
+            TestCopyFor<DateTime?>();
+            TestCopyFor<bool?>();
         }
 
         private static void TestCopyFor<T>()

@@ -69,14 +69,16 @@ namespace PeanutButter.Utils
             if (src == null || dst == null) return;
             var srcPropInfos = src.GetType().GetProperties();
             var dstPropInfos = dst.GetType().GetProperties();
+
             foreach (var srcPropInfo in srcPropInfos)
             {
                 if (!srcPropInfo.CanRead) continue;
                 var matchingTarget = dstPropInfos.FirstOrDefault(dp => dp.Name == srcPropInfo.Name && dp.PropertyType == srcPropInfo.PropertyType);
                 if (matchingTarget == null) continue;
                 if (!matchingTarget.CanWrite) continue;
+
                 var srcVal = srcPropInfo.GetValue(src);
-                if (!deep || _simpleTypes.Any(si => si == srcPropInfo.PropertyType))
+                if (!deep || IsSimpleTypeOrNullableOfSimpleType(srcPropInfo.PropertyType))
                 {
                     matchingTarget.SetValue(dst, srcVal);
                 }
@@ -93,6 +95,14 @@ namespace PeanutButter.Utils
                     }
                 }
             }
+        }
+
+        private static bool IsSimpleTypeOrNullableOfSimpleType(Type t)
+        {
+            return _simpleTypes.Any(si => si == t || 
+                                          (t.IsGenericType && 
+                                          t.GetGenericTypeDefinition() == typeof(Nullable<>) && 
+                                          Nullable.GetUnderlyingType(t) == si));
         }
 
         private static string StringOf(object srcValue)
