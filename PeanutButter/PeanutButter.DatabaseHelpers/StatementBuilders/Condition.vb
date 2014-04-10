@@ -36,12 +36,30 @@ Public Class Condition
         _operatorResolutions = New ReadOnlyDictionary(Of EqualityOperators, String)(operators)
     End Sub
 
-    Public ReadOnly FieldName As String
+    Private __fieldName as String
+    Public Property FieldName As String
+        Get
+            return __fieldName
+        End Get
+        Protected Set(value As String)
+            __fieldName = value
+        End Set
+    End Property
     Public ReadOnly EqualityOperator As EqualityOperators
-    Public ReadOnly Value As String
+    Private __value as String
+    Public Property Value As String
+        Get
+            return __value
+        End Get
+        Set(value As String)
+            __value = value
+        End Set
+    End Property
     Public ReadOnly QuoteValue As Boolean
     Public ReadOnly LeftConditionIsField As Boolean
     Public ReadOnly RightConditionIsField As Boolean
+    Private _leftField As SelectField
+    Private _rightField As SelectField
 
     Public Sub New(_fieldName As String, _conditionOperator As EqualityOperators, _fieldValue As String, Optional quote As Boolean = True, Optional _leftConditionIsField As Boolean = True, Optional _rightConditionIsField As Boolean = False)
         Me.FieldName = _fieldName
@@ -73,6 +91,7 @@ Public Class Condition
     End Sub
 
     Public Sub New(field As SelectField, op As EqualityOperators, value As String, Optional quote As Boolean = True)
+        Me._leftField = field
         Me.FieldName = field.ToString()
         Me.EqualityOperator = op
         Me.QuoteValue = quote
@@ -82,6 +101,8 @@ Public Class Condition
     End Sub
 
     Public Sub New(leftField As SelectField, op As EqualityOperators, rightField As SelectField)
+        Me._leftField = leftField
+        Me._rightField = rightField
         Me.FieldName = leftField.ToString()
         Me.LeftConditionIsField = True
         Me.EqualityOperator = op
@@ -155,5 +176,17 @@ Public Class Condition
 
     Public Sub UseDatabaseProvider(provider As DatabaseProviders) Implements ICondition.UseDatabaseProvider
         SetDatabaseProvider(provider)
+        ReevaluateSelectFields()
+    End Sub
+
+    Private Sub ReevaluateSelectFields()
+        if Not _leftField Is Nothing Then
+            _leftField.UseDatabaseProvider(_databaseProvider)
+            Me.FieldName = _leftField.ToString()
+        End If
+        if Not _rightField Is Nothing Then
+            _rightField.UseDatabaseProvider(_databaseProvider)
+            Me.Value = _rightField.ToString()
+        End If
     End Sub
 End Class

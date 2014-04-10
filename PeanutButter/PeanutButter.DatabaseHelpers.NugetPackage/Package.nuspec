@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>PeanutButter.DatabaseHelpers</id>
-    <version>1.0.12</version>
+    <version>1.0.13</version>
     <title>PeanutButter.DatabaseHelpers</title>
     <authors>Davyd McColl</authors>
     <owners>Davyd McColl</owners>
@@ -18,10 +18,10 @@
       as necessary to support other engines
     </summary>
     <language>en-US</language>
-    <projectUrl>https://nuget.org/packages/PeanutButter.DatabaseHelpers</projectUrl>
+    <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
     <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <licenseUrl>http://opensource.org/licenses/BSD-2-Clause</licenseUrl>
+    <licenseUrl>https://github.com/fluffynuts/PeanutButter/blob/master/LICENSE</licenseUrl>
     <copyright>Copyright  2014</copyright>
     <dependencies>
         <group targetFramework="net40">

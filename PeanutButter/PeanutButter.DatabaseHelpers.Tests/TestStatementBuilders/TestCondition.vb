@@ -115,4 +115,24 @@ Public Class TestCondition
         Dim c = New Condition(f, Condition.EqualityOperators.Equals, v)
         Assert.AreEqual("[" + f + "] is NULL", c.ToString())
     End Sub
+
+    <Test()>
+    Public Sub ConditionWithOneSelectField_RespectsDatabaseProvider
+        Dim f = RandomValueGen.GetRandomString(),
+            v = RandomValueGen.GetRandomString()
+        Dim c = new Condition(new SelectField(f), v)
+        Assert.AreEqual("[" + f + "]='" + v + "'", c.ToString())
+        c.UseDatabaseProvider(DatabaseProviders.Firebird)
+        Assert.AreEqual(f + "='" + v + "'", c.ToString())
+    End Sub
+
+    <Test()>
+    Public Sub ConditionWithSelectFields_RespectsDatabaseProvider
+        Dim f1 = RandomValueGen.GetRandomString(),
+            f2 = RandomValueGen.GetRandomString()
+        Dim c = new Condition(new SelectField(f1), new SelectField(f2))
+        Assert.AreEqual("[" + f1 + "]=[" + f2 + "]", c.ToString())
+        c.UseDatabaseProvider(DatabaseProviders.Firebird)
+        Assert.AreEqual(f1 + "=" + f2 + "", c.ToString())
+    End Sub
 End Class

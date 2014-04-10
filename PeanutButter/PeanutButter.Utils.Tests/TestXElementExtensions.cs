@@ -38,7 +38,7 @@ namespace PenautButter.Utils.Tests
             // test setup
             var t1 = RandomValueGen.GetRandomAlphaString(10, 20);
             var t2 = RandomValueGen.GetRandomAlphaString(10, 20);
-            var tag = RandomValueGen.GetRandomAlphaNumericString(8, 20);
+            var tag = RandomValueGen.GetRandomAlphaString(8, 20);
             var el = new XElement(tag, new XText(t1), new XText(t2));
             
             // pre-conditions
