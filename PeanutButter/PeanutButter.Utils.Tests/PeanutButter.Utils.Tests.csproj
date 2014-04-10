@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="TestDecimalDecorator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestObjectExtensions.cs" />
     <Compile Include="TestXElementExtensions.cs" />
   </ItemGroup>
   <ItemGroup>

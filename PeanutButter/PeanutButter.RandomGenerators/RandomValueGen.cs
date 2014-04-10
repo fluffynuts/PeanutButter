@@ -8,6 +8,33 @@ namespace PeanutButter.RandomGenerators
 {
     public class RandomValueGen
     {
+        public static object GetRandomValue<T>()
+        {
+            var tType = typeof(T);
+            if (tType.IsGenericType && tType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                tType = Nullable.GetUnderlyingType(tType);
+            if (tType == typeof(int))
+                return GetRandomInt();
+            if (tType == typeof(byte))
+                return (byte)GetRandomInt();
+            if (tType == typeof(char))
+                return (char)GetRandomInt();
+            if (tType == typeof(long))
+                return (long)GetRandomInt();
+            if (tType == typeof(float))
+                return (float)GetRandomDecimal();
+            if (tType == typeof(double))
+                return (double)GetRandomDecimal();
+            if (tType == typeof(decimal))
+                return GetRandomDecimal();
+            if (tType == typeof(DateTime))
+                return GetRandomDate();
+            if (tType == typeof(string))
+                return GetRandomString();
+            if (tType == typeof(bool))
+                return GetRandomBoolean();
+            throw new Exception("Can't get random value for type: '" + tType.Name + "': either too complex or I missed a simple type?");
+        }
         private class DefaultRanges
         {
             public const int MINLENGTH_STRING = 8;
