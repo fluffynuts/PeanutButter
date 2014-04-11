@@ -108,3 +108,9 @@ Backup*/
 UpgradeLog*.XML
 *.bak
 *.nupkg
+PeanutButter/PeanutButter.DatabaseHelpers.NugetPackage/lib/net40/PeanutButter.DatabaseHelpers.dll
+PeanutButter/PeanutButter.DatabaseHelpers.Testability.NugetPackage/lib/net40/PeanutButter.DatabaseHelpers.Testability.dll
+PeanutButter/PeanutButter.RandomGenerators.NugetPackage/lib/net40/PeanutButter.RandomGenerators.dll
+PeanutButter/PeanutButter.ServiceShell.NugetPackage/lib/net40/PeanutButter.ServiceShell.dll
+PeanutButter/PeanutButter.Utils.NugetPackage/lib/net40/PeanutButter.Utils.dll
+PeanutButter/PeanutButter.WindowsServiceManagement.NugetPackage/lib/net40/PeanutButter.Win32ServiceControl.dll

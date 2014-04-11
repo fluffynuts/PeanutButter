@@ -61,10 +61,16 @@ Public Class SelectStatementBuilder
     Private _iCondition As ICondition
 
     Public Function WithTable(name As String) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithTable
+        If _tableNames.Any(Function(tn)
+                               return tn.ToLower() = name.ToLower()
+                           End Function) Then Return Me
         _tableNames.Add(name)
         Return Me
     End Function
     Public Function WithField(name As String, Optional aliasAs As String = Nothing) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithField
+        If name = "*" And _fieldNames.Any(Function(fn)
+                                              return fn.ToLower() = name.ToLower()
+                                          End Function) Then Return Me
         _fieldNames.Add(name)
         _aliases(name) = aliasAs
         Return Me

@@ -598,4 +598,14 @@ Public Class TestSelectStatementBuilder
         Assert.AreEqual("select [" + f1 + "],[" + f2 + "],[" + f3 + "] from [" + table + "]", sql)
     End Sub
 
+    <Test()>
+    Public Sub WithAllFieldsFrom_MultipleCallsShouldNotCreateBrokenSql()
+        Dim table = RandomValueGen.GetRandomString()
+        Dim builder = SelectStatementBuilder.Create().WithAllFieldsFrom(table)
+        Dim sql1 = builder.Build()
+        builder.WithAllFieldsFrom(table)
+        Dim sql2 = builder.Build()
+        Assert.AreEqual(sql1, sql2)
+    End Sub
+
 End Class
