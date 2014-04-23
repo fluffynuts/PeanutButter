@@ -608,4 +608,26 @@ Public Class TestSelectStatementBuilder
         Assert.AreEqual(sql1, sql2)
     End Sub
 
+    ' TODO:
+    ' Access requires bracketing around join parts (and SQL Server tolerates them), so this should be implemented
+    <Test()>
+    <Ignore("PLEASE FIX ME")>
+    Public Sub InnerJoin_GivenTwoTablesToJoinAcross_ShouldProduceSqlWithBracketedJoinParts()
+        Dim t1 = RandomValueGen.GetRandomString(),
+            t2 = RandomValueGen.GetRandomString(),
+            t3 = RandomValueGen.GetRandomString(),
+            keyField = RandomValueGen.GetRandomString()
+        Dim builder = SelectStatementBuilder.Create() _
+                      .WithField(new SelectField(t1, keyField)) _
+                      .WithTable(t1) _
+                      .WithInnerJoin(t1, keyField, t2, keyField) _
+                      .WithInnerJoin(t1, keyField, t3, keyField)
+        Dim sql = builder.Build()
+        Dim expected = "select [" + t1 + "].[" + keyField + "] from (([" + t1 + "] inner join [" + t2 + "] on [" + t1 + "].[" + keyField + "]=[" _
+                            + t2 + "].[" + keyField + "]) inner join [" + t3 + "].[" + keyField + "] on [" + t1 + "].[" + keyField + "]=[" _
+                            + t3 + "].[" + keyField + "]"
+                            
+        Assert.AreEqual(expected, sql)
+    End Sub
+
 End Class
