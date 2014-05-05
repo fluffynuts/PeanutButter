@@ -6,7 +6,7 @@ Public Interface IDataReaderBuilder
     Function Build() As DbDataReader
     Function WithSql(sql As String) As IDataReaderBuilder
     Function WithSql(statementBuilder As ISelectStatementBuilder) As IDataReaderBuilder
-    Function WithConnection(conn As IDbConnection) As IDataReaderBuilder
+    Function WithConnectionFactory(connectionResolver as Func(Of IDbConnection)) as IDataReaderBuilder
 End Interface
 
 Public Class DataReaderBuilder
@@ -20,19 +20,22 @@ Public Class DataReaderBuilder
     Private _conn As IDbConnection
     Private _sql As String
     Private _selectBuilder As ISelectStatementBuilder
-    Dim _readers As New List(Of DbDataReader)
+    Private ReadOnly _readers As New List(Of DbDataReader)
+    Private _connectionResolver As Func(Of IDbConnection)
 
     Public Function Build() As DbDataReader Implements IDataReaderBuilder.Build
         Dim sql = Me.GetSQLString()
         If sql Is Nothing Then
             Throw New ArgumentException(Me.GetType().Name + " :: sql not set and no builder provided")
         End If
-        If _conn Is Nothing Then
-            Throw new Exception("No connection defined for DbDataReader.Build")
+
+        If _connectionResolver Is Nothing Then
+            Throw New Exception("No connection resolver defined for DbDataReader.Build")
         End If
+        Dim connection = _connectionResolver()
 
         Dim command = New OleDbCommand()
-        command.Connection = TryCast(_conn, OleDbConnection)
+        command.Connection = TryCast(connection, OleDbConnection)
         command.CommandText = sql
         Return command.ExecuteReader
     End Function
@@ -45,11 +48,6 @@ Public Class DataReaderBuilder
             Return _selectBuilder.Build()
         End If
         Return _sql
-    End Function
-
-    Public Function WithConnection(conn As IDbConnection) As IDataReaderBuilder Implements IDataReaderBuilder.WithConnection
-        _conn = conn
-        Return Me
     End Function
 
     Public Function WithSql(sql As String) As IDataReaderBuilder Implements IDataReaderBuilder.WithSql
@@ -74,4 +72,8 @@ Public Class DataReaderBuilder
         End SyncLock
     End Sub
 
+    Public Function WithConnectionFactory(connectionResolver As Func(Of IDbConnection)) As IDataReaderBuilder Implements IDataReaderBuilder.WithConnectionFactory
+        _connectionResolver = connectionResolver
+        Return Me
+    End Function
 End Class

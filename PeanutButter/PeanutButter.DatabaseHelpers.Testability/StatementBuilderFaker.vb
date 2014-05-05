@@ -78,7 +78,7 @@ Public Class BuilderFaker
         Dim builder = Substitute.For(Of IDataReaderBuilder)()
         builder.WithSql(Arg.Any(Of String)()).Returns(builder)
         builder.WithSql(Arg.Any(Of ISelectStatementBuilder)()).Returns(builder)
-        builder.WithConnection(Arg.Any(Of IDbConnection)()).Returns(builder)
+        builder.WithConnectionFactory(Arg.Any(Of Func(Of IDbConnection))()).Returns(builder)
         If withBuildDataReader Is Nothing Then Return builder
         builder.Build().Returns(withBuildDataReader)
         Return builder
