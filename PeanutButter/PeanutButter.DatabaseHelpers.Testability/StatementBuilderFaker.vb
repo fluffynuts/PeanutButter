@@ -108,7 +108,7 @@ Public Class BuilderFaker
 
     Public Shared Function CreateFakeScalarExecutorBuilder(Optional withConnection As IDbConnection = Nothing) As IScalarExecutorBuilder
         Dim builder = Substitute.For(Of IScalarExecutorBuilder)()
-        builder.WithConnection(Arg.Any(Of IDbConnection)()).Returns(builder)
+        builder.WithConnectionFactory(Arg.Any(Of Func(Of IDbConnection))()).Returns(builder)
         builder.WithSql(Arg.Any(Of String)()).Returns(builder)
         builder.WithSql(Arg.Any(Of IInsertStatementBuilder)()).Returns(builder)
         builder.WithSql(Arg.Any(Of IUpdateStatementBuilder)()).Returns(builder)
