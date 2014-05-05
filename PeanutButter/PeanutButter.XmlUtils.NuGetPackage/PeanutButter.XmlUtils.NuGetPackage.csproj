@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{5D323453-10D1-48C0-B1B7-8B2DA0B9843F}</ProjectGuid>
+    <ProjectGuid>{2109C6DD-2FC7-42B1-8D9C-351DEA69DE76}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PeanutButter.Utils.NugetPackage</RootNamespace>
-    <AssemblyName>PeanutButter.Utils.NugetPackage</AssemblyName>
+    <RootNamespace>PeanutButter.XmlUtils.NuGetPackage</RootNamespace>
+    <AssemblyName>PeanutButter.XmlUtils.NuGetPackage</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
@@ -65,7 +65,7 @@
     <Folder Include="src\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="lib\net40\PeanutButter.Utils.dll" />
+    <Content Include="lib\net40\PeanutButter.XmlUtils.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

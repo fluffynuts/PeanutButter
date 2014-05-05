@@ -2,12 +2,12 @@
 <package >
   <metadata>
     <id>PeanutButter.Utils</id>
-    <version>1.0.18</version>
+    <version>1.0.20</version>
     <title>PeanutButter.Utils</title>
     <authors>Davyd McColl</authors>
     <owners>Davyd McColl</owners>
     <description>
-      The miscellaneous utilities slice of the PeanutButter mini-suite
+      The miscellaneous utilities slice of the PeanutButter mini-suite (sans XML Utils)
     </description>
     <releaseNotes>
     </releaseNotes>

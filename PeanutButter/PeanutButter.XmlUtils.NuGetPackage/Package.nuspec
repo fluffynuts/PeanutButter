@@ -1,21 +1,17 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>PeanutButter.DatabaseHelpers</id>
+    <id>PeanutButter.XmlUtils</id>
     <version>1.0.20</version>
-    <title>PeanutButter.DatabaseHelpers</title>
+    <title>PeanutButter.XmlUtils</title>
     <authors>Davyd McColl</authors>
     <owners>Davyd McColl</owners>
     <description>
-      The Database Helpers component of the Peanut Butter mini-suite
+      The miscellaneous utilities slice of the PeanutButter mini-suite (XML-specific, so you'll need to reference System.Xml.Linq)
     </description>
     <releaseNotes>
     </releaseNotes>
     <summary>
-      Provides statement builders for Select, Insert, Update and Delete, compliant with MSSQL, SqlCE, Access, and, more
-      recently, Firebird. Also contains executors (for datareader and scalar exectution) compliant with Oledb connections
-      since the primary focus was support for apps with legacy ties into Access, but the idea is to be able to extend
-      as necessary to support other engines
     </summary>
     <language>en-US</language>
     <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
@@ -25,7 +21,6 @@
     <copyright>Copyright  2014</copyright>
     <dependencies>
         <group targetFramework="net40">
-          <dependency id="PeanutButter.Utils" version="1.0.0" />
         </group>
     </dependencies>
     <references></references>

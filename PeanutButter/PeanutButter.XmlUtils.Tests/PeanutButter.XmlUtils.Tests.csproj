@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{A7B7276C-B224-4289-8930-A821A4B03C90}</ProjectGuid>
+    <ProjectGuid>{117D2204-3AF6-4A14-BAA1-50FB9B77C6F0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PenautButter.Utils.Tests</RootNamespace>
-    <AssemblyName>PenautButter.Utils.Tests</AssemblyName>
+    <RootNamespace>PeanutButter.XmlUtils.Tests</RootNamespace>
+    <AssemblyName>PeanutButter.XmlUtils.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
@@ -44,9 +44,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="TestDecimalDecorator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestObjectExtensions.cs" />
+    <Compile Include="TestXElementExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -56,9 +55,9 @@
       <Project>{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}</Project>
       <Name>PeanutButter.RandomGenerators</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PeanutButter.Utils\PeanutButter.Utils.csproj">
-      <Project>{efc85343-95b4-48c3-bcbe-579ea4868c0a}</Project>
-      <Name>PeanutButter.Utils</Name>
+    <ProjectReference Include="..\PeanutButter.XmlUtils\PeanutButter.XmlUtils.csproj">
+      <Project>{D67739CD-944E-4E88-B313-0E091CEA185B}</Project>
+      <Name>PeanutButter.XmlUtils</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
