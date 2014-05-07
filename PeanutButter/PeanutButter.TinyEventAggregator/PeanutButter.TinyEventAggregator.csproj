@@ -7,8 +7,8 @@
     <ProjectGuid>{07D02ABA-ED94-47AD-83C0-F88CBEFDDCF0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TinyEventAggregator</RootNamespace>
-    <AssemblyName>TinyEventAggregator</AssemblyName>
+    <RootNamespace>PeanutButter.TinyEventAggregator</RootNamespace>
+    <AssemblyName>PeanutButter.TinyEventAggregator</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -55,11 +55,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EventBase.cs" />
@@ -68,6 +64,10 @@
     <Compile Include="Subscription.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>mkdir $(SolutionDir)$(ProjectName).NugetPackage\lib\net40
+copy $(TargetPath) $(SolutionDir)$(ProjectName).NugetPackage\lib\net40\</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

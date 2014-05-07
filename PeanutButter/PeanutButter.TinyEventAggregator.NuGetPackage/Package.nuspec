@@ -1,19 +1,22 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>PeanutButter.RandomGenerators</id>
-    <version>1.0.24</version>
-    <title>PeanutButter.RandomGenerators</title>
-    <authors>Davyd McColl</authors>
-    <owners>Davyd McColl</owners>
+    <id>PeanutButter.TinyEventAggregator.NuGetPackager</id>
+    <version>1.0.23</version>
+    <title>PeanutButter.TinyEventAggregator.NuGetPackager</title>
+    <authors>daf</authors>
+    <owners></owners>
     <description>
-      This is the random value generators slice of the PeanutButter mini-suite
+      A really tiny Event Aggregator
     </description>
     <releaseNotes>
     </releaseNotes>
     <summary>
-      RandomGenerators helps you with testing by providing random values not only for simple types
-      such as strings and numerics, but also with more complex types using GenericBuilder
+      Provides a very simple, unthreaded Event Aggregator implementation with a few convenient extras:
+      * one-time subscription
+      * limited-time subscription
+      * the ability to suspend and resume the eventing engine. Events raised during suspension are routed
+        once the engine is resumed
     </summary>
     <language>en-US</language>
     <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
@@ -23,6 +26,7 @@
     <copyright>Copyright  2014</copyright>
     <dependencies>
         <group targetFramework="net40">
+          <dependency id="log4net" version="1.2.10" />
         </group>
     </dependencies>
     <references></references>

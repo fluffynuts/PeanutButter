@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PeanutButter.TinyEventAggregator
 {
@@ -42,6 +40,18 @@ namespace PeanutButter.TinyEventAggregator
                 }
                 return match as TEvent;
             }
+        }
+
+        public void Unsuspend()
+        {
+            foreach (var ev in this._events)
+                ev.Suspend();
+        }
+
+        public void Suspend()
+        {
+            foreach (var ev in this._events)
+                ev.Unsuspend();
         }
     }
 }

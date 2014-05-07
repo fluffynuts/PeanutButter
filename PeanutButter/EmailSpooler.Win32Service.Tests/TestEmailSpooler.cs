@@ -7,7 +7,7 @@ using NUnit.Framework;
 using EmailSpooler.Win32Service.Models;
 using PeanutButter.RandomGenerators;
 using PeanutButter.ServiceShell;
-using PeanutButter.Testing;
+using PeanutButter.TestUtils.Generic;
 
 namespace EmailSpooler.Win32Service.Tests
 {

@@ -1,18 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NUnit.Framework;
 
-namespace PeanutButter.Testing
+namespace PeanutButter.TestUtils.Generic
 {
     public class PropertyAssert
     {
         public static void AreEqual(object obj1, object obj2, string obj1PropName, string obj2PropName = null)
         {
-            var originalObj1PropName = obj1PropName;
-            var originalObj2PropName = obj2PropName;
             if (obj2PropName == null)
             {
                 obj2PropName = obj1PropName;

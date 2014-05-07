@@ -76,7 +76,7 @@
   <ItemGroup>
     <ProjectReference Include="..\PeanutButter.TinyEventAggregator\PeanutButter.TinyEventAggregator.csproj">
       <Project>{07D02ABA-ED94-47AD-83C0-F88CBEFDDCF0}</Project>
-      <Name>TinyEventAggregator</Name>
+      <Name>PeanutButter.TinyEventAggregator</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

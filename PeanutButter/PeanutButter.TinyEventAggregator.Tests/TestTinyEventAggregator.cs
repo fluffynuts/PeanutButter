@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using PeanutButter.TinyEventAggregator;
 
-namespace PeanutButter.TinyEventAggregator.Tests
+namespace TinyEventAggregator.Tests
 {
     [TestFixture]
     public class TestTinyEventAggregator
@@ -58,5 +58,6 @@ namespace PeanutButter.TinyEventAggregator.Tests
             Assert.IsNotNull(ev2);
             Assert.AreEqual(ev1, ev2);
         }
+
     }
 }
