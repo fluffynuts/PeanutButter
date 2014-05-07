@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>PeanutButter.TestUtils.Generic.NugetPackage</id>
-    <version>1.0.24</version>
-    <title>PeanutButter.TestUtils.Generic.NugetPackage</title>
+    <id>PeanutButter.TestUtils.Generic</id>
+    <version>1.0.25</version>
+    <title>PeanutButter.TestUtils.Generic</title>
     <authors>daf</authors>
     <owners></owners>
     <description>
