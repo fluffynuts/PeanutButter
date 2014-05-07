@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>PeanutButter.TestUtils.Generic</id>
-    <version>1.0.25</version>
+    <version>1.0.26</version>
     <title>PeanutButter.TestUtils.Generic</title>
     <authors>daf</authors>
     <owners></owners>
@@ -22,7 +22,6 @@
     <copyright>Copyright  2014</copyright>
     <dependencies>
         <group targetFramework="net40">
-          <dependency id="log4net" version="1.2.10" />
         </group>
     </dependencies>
     <references></references>
