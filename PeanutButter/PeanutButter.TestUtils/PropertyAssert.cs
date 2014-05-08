@@ -6,6 +6,31 @@ namespace PeanutButter.TestUtils.Generic
 {
     public class PropertyAssert
     {
+        public static void AllPropertiesAreEqual(object obj1, object obj2)
+        {
+            var propInfos1 = obj1.GetType().GetProperties();
+            var propInfos2 = obj2.GetType().GetProperties();
+            if (propInfos1.Length != propInfos2.Length)
+                Assert.Fail("Property counts on objects of types '" + obj1.GetType().Name + "' and '" + obj2.GetType().Name + "' do not match");
+            foreach (var propInfo1 in propInfos1)
+            {
+                AreEqual(obj1, obj2, propInfo1.Name);
+            }
+        }
+
+        public static void MatchingPropertiesAreEqual(object obj1, object obj2)
+        {
+            var propInfos1 = obj1.GetType().GetProperties();
+            var propInfos2 = obj2.GetType().GetProperties();
+            var matchingProperties = propInfos1
+                                        .Where(pi1 => propInfos2.FirstOrDefault(pi2 => pi1.Name == pi2.Name) != null)
+                                        .Select(pi => pi.Name);
+            foreach (var propName in matchingProperties)
+            {
+                AreEqual(obj1, obj2, propName);
+            }
+        }
+
         public static void AreEqual(object obj1, object obj2, string obj1PropName, string obj2PropName = null)
         {
             if (obj2PropName == null)
@@ -28,6 +53,7 @@ namespace PeanutButter.TestUtils.Generic
             var type2 = obj2.GetType();
             var targetPropInfo = type2.GetProperty(obj2PropName);
             Assert.IsNotNull(targetPropInfo, PropNotFoundMessage(type2, obj2PropName));
+            Assert.AreEqual(srcPropInfo.PropertyType, targetPropInfo.PropertyType);
             Assert.AreEqual(srcPropInfo.GetValue(obj1), targetPropInfo.GetValue(obj2), obj1PropName + " => " + obj2PropName);
         }
 
