@@ -185,6 +185,41 @@ namespace PeanutButter.TestUtils.Generic.Tests
 
             //---------------Test Result -----------------------
         }
+
+        public class BaseClass
+        {
+            public virtual string Name { get; set; }
+        }
+        public class DerivedClass: BaseClass
+        {
+            public override string Name
+            {
+                get
+                {
+                    return "Some constant";
+                }
+            }
+        }
+
+        private void DoTest(BaseClass b1, BaseClass b2)
+        {
+            PropertyAssert.AllPropertiesAreEqual(b1, b2);
+        }
+
+        [Test]
+        public void AreEqual_IsNotConfusedByOverridingProperties()
+        {
+            //---------------Set up test pack-------------------
+            var d1 = new DerivedClass();
+            var d2 = new BaseClass() { Name = "Some constant" };
+            
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(() => DoTest(d1, d2));
+
+            //---------------Test Result -----------------------
+        }
     }
 
 }
