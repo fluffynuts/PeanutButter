@@ -185,8 +185,11 @@ Public Class SelectStatementBuilder
 
     Private Sub AddLeadingRowLimiterIfRequired(ByVal sql As List(Of String))
         If Not Me._top.HasValue Then Return
-        If _databaseProvider = DatabaseProviders.Firebird Then Throw new NotImplementedException("Row limiting is not implemented for Firebird -- yet!")
-        sql.Add("top " + Me._top.Value.ToString() + " ")
+        If _databaseProvider = DatabaseProviders.Firebird Then
+            sql.Add("first " + Me._top.Value.ToString() + " ")
+        else
+            sql.Add("top " + Me._top.Value.ToString() + " ")
+        End If
     End Sub
 
     Private Sub AddOrdersTo(sql As List(Of String))

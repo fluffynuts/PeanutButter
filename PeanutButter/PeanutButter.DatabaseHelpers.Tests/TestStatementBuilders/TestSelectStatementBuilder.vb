@@ -580,6 +580,15 @@ Public Class TestSelectStatementBuilder
     End Sub
 
     <Test()>
+    Public Sub Build_GivenTopAndFirebirdDatabaseProvider_ProducesQueryWithTopRequirement()
+        Dim table = RandomValueGen.GetRandomString(),
+            field = RandomValueGen.GetRandomString(),
+            topVal = RandomValueGen.GetRandomInt()
+        Dim sql = SelectStatementBuilder.Create().WithDatabaseProvider(DatabaseProviders.Firebird).WithTable(table).WithField(field).WithTop(topVal).Build()
+        Assert.AreEqual("select first " + topVal.ToString() + " " + field + " from " + table, sql)
+    End Sub
+
+    <Test()>
     Public Sub Build_GivenLike_ProducesQueryWithLike()
         Dim table = RandomValueGen.GetRandomString(),
             field = RandomValueGen.GetRandomString(),
