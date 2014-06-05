@@ -69,7 +69,7 @@ namespace PeanutButter.RandomGenerators
                 maxValue = swap;
             }
             var dec = _rand.NextDouble();
-            var range = maxValue - minValue;
+            var range = maxValue - minValue + 1;
             return minValue + (Int64)(range * dec);
         }
 
@@ -151,5 +151,20 @@ namespace PeanutButter.RandomGenerators
             return GetRandomString(minLength, maxLength, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
         }
 
+        public static T GetRandomEnum<T>() where T: struct, IConvertible
+        {
+            var type = typeof(T);
+            if (!type.IsEnum)
+                throw new ArgumentException("GetRandomEnum cannot be called on something other than an enum ('" + type.Name + "')");
+            var possible = Enum.GetValues(type).Cast<T>();
+            return GetRandomFrom(possible);
+        }
+
+        public static T GetRandomFrom<T>(IEnumerable<T> items)
+        {
+            var itemArray = items as T[] ?? items.ToArray();
+            var upper = itemArray.Count() - 1;
+            return itemArray.Skip(RandomValueGen.GetRandomInt(0, upper)).First();
+        }
     }
 }
