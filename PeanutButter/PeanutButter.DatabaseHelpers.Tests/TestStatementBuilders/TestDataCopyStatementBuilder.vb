@@ -18,7 +18,7 @@ Public Class TestDataCopyStatementBuilder
 
     <Test()>
     Public Sub Build_GivenNoSourceTable_ShouldThrow()
-        Dim ex = Assert.Throws(Of ArgumentException)(Function()
+        Dim ex = Assert.Throws(Of ArgumentException)(Function() as String
                                                          Return Create().Build()
                                                      End Function)
         StringAssert.Contains("source table not set", ex.Message)
@@ -26,7 +26,7 @@ Public Class TestDataCopyStatementBuilder
 
     <Test()>
     Public Sub Build_GivenSourceTableAndNoTargetTable_ShouldThrow()
-        Dim ex = Assert.Throws(Of ArgumentException)(Function()
+        Dim ex = Assert.Throws(Of ArgumentException)(Function() as String
                                                          Return Create() _
                                                                 .WithSourceTable(RandomValueGen.GetRandomString(1)) _
                                                                 .Build()
@@ -36,7 +36,7 @@ Public Class TestDataCopyStatementBuilder
 
     <Test()>
     Public Sub Build_GivenSourceAndTargetTableButNoFieldMappings_ShouldThrow()
-        Dim ex = Assert.Throws(Of ArgumentException)(Function()
+        Dim ex = Assert.Throws(Of ArgumentException)(Function() As String
                                                          Return Create() _
                                                              .WithSourceTable(RandomValueGen.GetRandomString(1)) _
                                                              .WithTargetTable(RandomValueGen.GetRandomString(1)) _

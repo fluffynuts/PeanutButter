@@ -1,19 +1,19 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>PeanutButter.ServiceShell</id>
+    <id>PeanutButter.INI</id>
     <version>1.0.31</version>
-    <title>PeanutButter.ServiceShell</title>
+    <title>PeanutButter.INI</title>
     <authors>Davyd McColl</authors>
-    <owners>Davyd McColl</owners>
+    <owners></owners>
     <description>
-      The Service Shell slice of the PeanutButter mini-suite
+      A basic INI file reader/writer class
     </description>
     <releaseNotes>
     </releaseNotes>
     <summary>
-      Provides a simple, easy-to-use shell base class for polling services which can install and uninstall itself. Please
-      reade the included README.txt for the (few) steps you need to do to use this project.
+      Provides easy-to-use access to INI files, both reading and writing. Data is exposed via a public Dictionary of Dictionaries. 
+      Supports the global "empty" section, quoted values and case-insenstive section and key lookups.
     </summary>
     <language>en-US</language>
     <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
@@ -23,9 +23,6 @@
     <copyright>Copyright  2014</copyright>
     <dependencies>
         <group targetFramework="net40">
-          <dependency id="PeanutButter.WindowsServiceManagement" version="1.0.0" />
-          <dependency id="CommandLineParser" version="1.9.71" />
-          <dependency id="log4net" version="2.0.3" />
         </group>
     </dependencies>
     <references></references>
