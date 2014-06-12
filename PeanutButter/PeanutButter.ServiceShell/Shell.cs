@@ -27,6 +27,7 @@ namespace PeanutButter.ServiceShell
         /// </summary>
         public int Interval { get; protected set; }
         public VersionInfo Version { get; private set; }
+        public bool RunningOnceFromCLI { get; set; }
 
         public string DisplayName 
         { 
@@ -123,6 +124,7 @@ namespace PeanutButter.ServiceShell
                 }
                 try
                 {
+                    instance.RunningOnceFromCLI = true;
                     instance.RunOnce();
                     return (int)CommandlineOptions.ExitCodes.Success;
                 }
@@ -307,7 +309,7 @@ namespace PeanutButter.ServiceShell
             }
         }
 
-        public void Log(string status)
+        public virtual void Log(string status)
         {
             GetLogger().Info(status);
         }
@@ -350,22 +352,22 @@ namespace PeanutButter.ServiceShell
             Log(String.Join(" ", new[] { this.DisplayName, "::", state }));
         }
 
-        public void LogDebug(string message)
+        public virtual void LogDebug(string message)
         {
             GetLogger().Debug(message);
         }
 
-        public void LogInfo(string message)
+        public virtual void LogInfo(string message)
         {
             GetLogger().Info(message);
         }
 
-        public void LogWarning(string message)
+        public virtual void LogWarning(string message)
         {
             GetLogger().Warn(message);
         }
 
-        public void LogFatal(string message)
+        public virtual void LogFatal(string message)
         {
             GetLogger().Fatal(message);
         }
@@ -392,7 +394,7 @@ namespace PeanutButter.ServiceShell
             GetLogger().Info(this.ServiceName + ": Exiting");
         }
 
-        private bool PausedThenStopped()
+        protected bool PausedThenStopped()
         {
             while (this.Paused && this.Running)
             {

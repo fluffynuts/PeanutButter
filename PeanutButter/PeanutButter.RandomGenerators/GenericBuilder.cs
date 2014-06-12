@@ -132,25 +132,25 @@ namespace PeanutButter.RandomGenerators
                 case "int64":
                 case "long":
                 case "int":
-                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, RandomValueGen.GetRandomInt());
+                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, RandomValueGen.GetRandomInt(), null);
                     break;
                 case "float":
-                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, (float)RandomValueGen.GetRandomDouble());
+                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, (float)RandomValueGen.GetRandomDouble(), null);
                     break;
                 case "double":
-                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, RandomValueGen.GetRandomDouble());
+                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, RandomValueGen.GetRandomDouble(), null);
                     break;
                 case "decimal":
-                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, RandomValueGen.GetRandomDecimal());
+                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, RandomValueGen.GetRandomDecimal(), null);
                     break;
                 case "datetime":
-                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, RandomValueGen.GetRandomDate());
+                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, RandomValueGen.GetRandomDate(), null);
                     break;
                 case "guid":
-                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, Guid.NewGuid());
+                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, Guid.NewGuid(), null);
                     break;
                 case "string":
-                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, RandomValueGen.GetRandomString());
+                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, RandomValueGen.GetRandomString(), null);
                     break;
                 case "nullable`1":
                     var underlyingType = Nullable.GetUnderlyingType(prop.PropertyType);
@@ -159,13 +159,13 @@ namespace PeanutButter.RandomGenerators
                 case "icollection`1":
                     break;
                 case "byte[]":
-                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, RandomValueGen.GetRandomBytes(128, 512));
+                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, RandomValueGen.GetRandomBytes(128, 512), null);
                     break;
                 case "boolean":
                     if (prop.Name == "Enabled")
-                        _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, true);
+                        _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, true, null);
                     else
-                        _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, RandomValueGen.GetRandomBoolean());
+                        _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, RandomValueGen.GetRandomBoolean(), null);
                     break;
                 default:
                     // TODO: search for existing generic builder as specified by user
@@ -177,7 +177,7 @@ namespace PeanutButter.RandomGenerators
                         {
                             if (i > MAX_RANDOM_PROPS_LEVEL) return;
                             var dynamicBuilder = Activator.CreateInstance(_dynamicBuilders[prop.PropertyType]) as IGenericBuilder;
-                            prop.SetValue(e, dynamicBuilder.GenericWithRandomProps().WithBuildLevel(i).GenericBuild());
+                            prop.SetValue(e, dynamicBuilder.GenericWithRandomProps().WithBuildLevel(i).GenericBuild(), null);
                         };
                     }
                     break;

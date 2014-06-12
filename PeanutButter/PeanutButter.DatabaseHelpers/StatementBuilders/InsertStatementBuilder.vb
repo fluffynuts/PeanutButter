@@ -14,6 +14,7 @@ Public Interface IInsertStatementBuilder
     Function WithField(col As String, val As DateTime) As IInsertStatementBuilder
     Function WithField(col As String, val As Nullable(Of DateTime)) As IInsertStatementBuilder
     Function WithField(col as String, val as Boolean) as IInsertStatementBuilder
+    Function WithField(field As FieldWithValue) As IInsertStatementBuilder
     Function WithNonBlankField(col As String, val As String) As IInsertStatementBuilder
     Function WithConditionalField(condition As Boolean, col As String, trueVal As String, Optional falseVal As String = Nothing) As IInsertStatementBuilder
     Function WithConditionalField(condition As Boolean, col As String, trueVal As Long?, Optional falseVal As Long? = Nothing) As IInsertStatementBuilder
@@ -170,6 +171,11 @@ Public Class InsertStatementBuilder
 
     Public Overloads Function WithDatabaseProvider1(provider As DatabaseProviders) As IInsertStatementBuilder Implements IInsertStatementBuilder.WithDatabaseProvider
         SetDatabaseProvider(provider)
+        return Me
+    End Function
+
+    Public Function WithField(field As FieldWithValue) As IInsertStatementBuilder Implements IInsertStatementBuilder.WithField
+        Me._fields.Add(field)
         return Me
     End Function
 End Class

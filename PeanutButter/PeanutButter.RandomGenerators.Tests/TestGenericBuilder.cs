@@ -102,7 +102,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 IEnumerable<TProperty> values = null;
                 try
                 {
-                    values = collection.Select(obj => (TProperty)propInfo.GetValue(obj)).ToArray();
+                    values = collection.Select(obj => (TProperty)propInfo.GetValue(obj, null)).ToArray();
                 }
                 catch (Exception ex)
                 {
