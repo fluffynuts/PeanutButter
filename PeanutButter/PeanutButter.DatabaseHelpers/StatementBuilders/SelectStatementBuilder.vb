@@ -231,7 +231,7 @@ Public Class SelectStatementBuilder
                                 If fieldName.IndexOf("*") >= 0 Or fieldName.IndexOf(" as ") >= 0 Then
                                     sql.Add(fieldName)
                                 Else
-                                    If fieldName.IndexOf("[") < 0 Then
+                                    If fieldName.IndexOf(_openObjectQuote) < 0 Then
                                         sql.Add(_openObjectQuote)
                                         sql.Add(fieldName)
                                         sql.Add(_closeObjectQuote)

@@ -53,7 +53,7 @@ Public Class TestDeleteStatementBuilder
                     .WithTable(table) _
                     .WithCondition(conditionField, Condition.EqualityOperators.Equals, conditionValue) _
                     .Build()
-        Assert.AreEqual("delete from " + table + " where " + conditionField + "='" + conditionValue + "'", sql)
+        Assert.AreEqual("delete from """ + table + """ where """ + conditionField + """='" + conditionValue + "'", sql)
     End Sub
 
     <Test()>
