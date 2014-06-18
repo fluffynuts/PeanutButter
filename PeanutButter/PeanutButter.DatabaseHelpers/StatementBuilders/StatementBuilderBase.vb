@@ -11,8 +11,8 @@
         _databaseProvider = provider
         Select Case provider
             Case DatabaseProviders.Firebird
-                _openObjectQuote = ""
-                _closeObjectQuote = ""
+                _openObjectQuote = """"
+                _closeObjectQuote = """"
             Case Else
                 _openObjectQuote = "["
                 _closeObjectQuote = "]"

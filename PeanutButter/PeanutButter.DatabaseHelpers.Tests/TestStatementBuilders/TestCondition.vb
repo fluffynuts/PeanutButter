@@ -123,7 +123,7 @@ Public Class TestCondition
         Dim c = new Condition(new SelectField(f), v)
         Assert.AreEqual("[" + f + "]='" + v + "'", c.ToString())
         c.UseDatabaseProvider(DatabaseProviders.Firebird)
-        Assert.AreEqual(f + "='" + v + "'", c.ToString())
+        Assert.AreEqual("""" + f + """='" + v + "'", c.ToString())
     End Sub
 
     <Test()>
@@ -133,6 +133,6 @@ Public Class TestCondition
         Dim c = new Condition(new SelectField(f1), new SelectField(f2))
         Assert.AreEqual("[" + f1 + "]=[" + f2 + "]", c.ToString())
         c.UseDatabaseProvider(DatabaseProviders.Firebird)
-        Assert.AreEqual(f1 + "=" + f2 + "", c.ToString())
+        Assert.AreEqual("""" + f1 + """=""" + f2 + """", c.ToString())
     End Sub
 End Class
