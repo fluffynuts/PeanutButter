@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30110.0
+VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.RandomGenerators", "PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj", "{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}"
 EndProject
@@ -89,6 +89,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TinyEventAggregator.NugetPackage", "PeanutButter.TinyEventAggregator.NuGetPackage\PeanutButter.TinyEventAggregator.NugetPackage.csproj", "{77DC46EB-600B-4761-A601-AEAC09D62594}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TestUtils.Generic.Tests", "PeanutButter.TestUtils.Generic.Tests\PeanutButter.TestUtils.Generic.Tests.csproj", "{B2384F64-BFCE-4FEF-8CD4-483137D56E5A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TrayIcon", "PeanutButter.TrayIcon\PeanutButter.TrayIcon.csproj", "{17CDFD2E-E3E0-4DDD-AD71-9AA8434705E7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TrayIcon.Tests", "PeanutButter.TrayIcon.Tests\PeanutButter.TrayIcon.Tests.csproj", "{394C0B79-0B29-426C-B990-474DA0303FB9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -376,6 +380,24 @@ Global
 		{B2384F64-BFCE-4FEF-8CD4-483137D56E5A}.Test|Any CPU.ActiveCfg = Release|Any CPU
 		{B2384F64-BFCE-4FEF-8CD4-483137D56E5A}.Test|Any CPU.Build.0 = Release|Any CPU
 		{B2384F64-BFCE-4FEF-8CD4-483137D56E5A}.Test|x86.ActiveCfg = Release|Any CPU
+		{17CDFD2E-E3E0-4DDD-AD71-9AA8434705E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17CDFD2E-E3E0-4DDD-AD71-9AA8434705E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17CDFD2E-E3E0-4DDD-AD71-9AA8434705E7}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{17CDFD2E-E3E0-4DDD-AD71-9AA8434705E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17CDFD2E-E3E0-4DDD-AD71-9AA8434705E7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17CDFD2E-E3E0-4DDD-AD71-9AA8434705E7}.Release|x86.ActiveCfg = Release|Any CPU
+		{17CDFD2E-E3E0-4DDD-AD71-9AA8434705E7}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{17CDFD2E-E3E0-4DDD-AD71-9AA8434705E7}.Test|Any CPU.Build.0 = Release|Any CPU
+		{17CDFD2E-E3E0-4DDD-AD71-9AA8434705E7}.Test|x86.ActiveCfg = Release|Any CPU
+		{394C0B79-0B29-426C-B990-474DA0303FB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{394C0B79-0B29-426C-B990-474DA0303FB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{394C0B79-0B29-426C-B990-474DA0303FB9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{394C0B79-0B29-426C-B990-474DA0303FB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{394C0B79-0B29-426C-B990-474DA0303FB9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{394C0B79-0B29-426C-B990-474DA0303FB9}.Release|x86.ActiveCfg = Release|Any CPU
+		{394C0B79-0B29-426C-B990-474DA0303FB9}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{394C0B79-0B29-426C-B990-474DA0303FB9}.Test|Any CPU.Build.0 = Release|Any CPU
+		{394C0B79-0B29-426C-B990-474DA0303FB9}.Test|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
