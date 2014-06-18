@@ -210,7 +210,7 @@ Public Class TestUpdateStatementBuilder
                         .WithFieldCopy(srcCol, dstCol) _
                         .WithCondition(condition) _
                         .Build()
-        Assert.AreEqual("update " + tableName + " set " + dstCol + " = " + srcCol + " where " + condition, statement)
+        Assert.AreEqual("update """ + tableName + """ set """ + dstCol + """ = """ + srcCol + """ where " + condition, statement)
     End Sub
 
     <Test()>
@@ -273,7 +273,7 @@ Public Class TestUpdateStatementBuilder
         Dim cstring = String.Join(" and ", conditions.Select(Function(c)
                                                                  Return c.ToString()
                                                              End Function))
-        Assert.AreEqual("update " + tableName + " set " + col + " = '" + val + "' where (" + cstring + ")", statement)
+        Assert.AreEqual("update """ + tableName + """ set """ + col + """ = '" + val + "' where (" + cstring + ")", statement)
         for i = 0 to conditionCount
             conditions(i).Received().UseDatabaseProvider(DatabaseProviders.Firebird)
         Next
