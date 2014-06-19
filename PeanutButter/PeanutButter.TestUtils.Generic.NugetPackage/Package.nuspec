@@ -1,16 +1,14 @@
-<?xml version="1.0"?>
-<package >
+<package>
   <metadata>
     <id>PeanutButter.TestUtils.Generic</id>
-    <version>1.0.29</version>
+    <version>1.0.44</version>
     <title>PeanutButter.TestUtils.Generic</title>
     <authors>daf</authors>
     <owners></owners>
     <description>
       Some generic test utilites. Ok, just one for now. This was split out of TestUtils so that other dependencies wouldn't be forced into consumer projects.
     </description>
-    <releaseNotes>
-    </releaseNotes>
+    <releaseNotes></releaseNotes>
     <summary>
       Includes PropertyAssert for asserting property value equality by name in tests so that you can TestCase out multiple property set/get ops
     </summary>
@@ -21,8 +19,7 @@
     <licenseUrl>https://github.com/fluffynuts/PeanutButter/blob/master/LICENSE</licenseUrl>
     <copyright>Copyright  2014</copyright>
     <dependencies>
-        <group targetFramework="net40">
-        </group>
+      <group targetFramework="net40"></group>
     </dependencies>
     <references></references>
     <tags></tags>

@@ -1,16 +1,14 @@
-<?xml version="1.0"?>
-<package >
+<package>
   <metadata>
     <id>PeanutButter.DatabaseHelpers</id>
-    <version>1.0.29</version>
+    <version>1.0.44</version>
     <title>PeanutButter.DatabaseHelpers</title>
     <authors>Davyd McColl</authors>
     <owners>Davyd McColl</owners>
     <description>
       The Database Helpers component of the Peanut Butter mini-suite
     </description>
-    <releaseNotes>
-    </releaseNotes>
+    <releaseNotes></releaseNotes>
     <summary>
       Provides statement builders for Select, Insert, Update and Delete, compliant with MSSQL, SqlCE, Access, and, more
       recently, Firebird. Also contains executors (for datareader and scalar exectution) compliant with Oledb connections
@@ -24,9 +22,9 @@
     <licenseUrl>https://github.com/fluffynuts/PeanutButter/blob/master/LICENSE</licenseUrl>
     <copyright>Copyright  2014</copyright>
     <dependencies>
-        <group targetFramework="net40">
-          <dependency id="PeanutButter.Utils" version="1.0.0" />
-        </group>
+      <group targetFramework="net40">
+        <dependency id="PeanutButter.Utils" />
+      </group>
     </dependencies>
     <references></references>
     <tags></tags>

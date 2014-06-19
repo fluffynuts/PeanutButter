@@ -1,22 +1,8 @@
 ﻿Public Class StatementBuilderBase
-    Protected _openObjectQuote As String
-    Protected _closeObjectQuote As String
-    Protected _databaseProvider As DatabaseProviders
-
+    Inherits StatementBuilderDatabaseProviderBase
+    
     Public Sub New
         SetDatabaseProvider(DatabaseProviders.Access)
-    End Sub
-
-    Protected Sub SetDatabaseProvider(provider As DatabaseProviders)
-        _databaseProvider = provider
-        Select Case provider
-            Case DatabaseProviders.Firebird
-                _openObjectQuote = ""
-                _closeObjectQuote = ""
-            Case Else
-                _openObjectQuote = "["
-                _closeObjectQuote = "]"
-        End Select
     End Sub
 
     Protected Function CreateCondition(ByVal fieldName As String, ByVal op As Condition.EqualityOperators, ByVal fieldValue As Date) As Condition

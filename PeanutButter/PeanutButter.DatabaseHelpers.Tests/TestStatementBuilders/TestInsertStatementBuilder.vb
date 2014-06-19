@@ -57,7 +57,7 @@ Public Class TestInsertStatementBuilder
                   .WithTable(tableName) _
                   .WithField(fieldName, fieldValue) _
                   .Build()
-        Assert.AreEqual("insert into " + tableName + " (" + fieldName + ") values ('" + fieldValue + "')", sql)
+        Assert.AreEqual("insert into """ + tableName + """ (""" + fieldName + """) values ('" + fieldValue + "')", sql)
     End Sub
 
     <Test()>
@@ -226,20 +226,37 @@ Public Class TestInsertStatementBuilder
         Assert.AreEqual("insert into [" + t + "] ([" + f1 + "]) values ('" + v1 + "')", sql)
     End Sub
 
-    <Test()>
-    Public Sub WithConditionalField_WHenConditionalIsFalseAndFalseFieldIsNotNothing_IncludesFalseField()
+    <TestCase(DatabaseProviders.Access)>
+    <TestCase(DatabaseProviders.SQLServer)>
+    <TestCase(DatabaseProviders.SQLite)>
+    Public Sub WithConditionalField_WHenConditionalIsFalseAndFalseFieldIsNotNothing_IncludesFalseField(provider As DatabaseProviders)
         Dim t = RandomValueGen.GetRandomString(),
             f1 = RandomValueGen.GetRandomString(),
             v1 = RandomValueGen.GetRandomString(),
             f2 = RandomValueGen.GetRandomString(),
             v2 = RandomValueGen.GetRandomString(),
             v3 = RandomValueGen.GetRandomString()
-        Dim sql = Create() _
+        Dim sql = Create().WithDatabaseProvider(provider) _
                     .WithTable(t) _
                     .WithField(f1, v1) _
                     .WithConditionalField(False, f2, v2, v3) _
                     .Build()
         Assert.AreEqual("insert into [" + t + "] ([" + f1 + "],[" + f2 + "]) values ('" + v1 + "','" + v3 + "')", sql)
+    End Sub
+    <Test()>
+    Public Sub Firebird_WithConditionalField_WHenConditionalIsFalseAndFalseFieldIsNotNothing_IncludesFalseField()
+        Dim t = RandomValueGen.GetRandomString(),
+            f1 = RandomValueGen.GetRandomString(),
+            v1 = RandomValueGen.GetRandomString(),
+            f2 = RandomValueGen.GetRandomString(),
+            v2 = RandomValueGen.GetRandomString(),
+            v3 = RandomValueGen.GetRandomString()
+        Dim sql = Create().WithDatabaseProvider(DatabaseProviders.Firebird) _
+                    .WithTable(t) _
+                    .WithField(f1, v1) _
+                    .WithConditionalField(False, f2, v2, v3) _
+                    .Build()
+        Assert.AreEqual("insert into """ + t + """ (""" + f1 + """,""" + f2 + """) values ('" + v1 + "','" + v3 + "')", sql)
     End Sub
 
 End Class

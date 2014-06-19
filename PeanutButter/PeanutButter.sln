@@ -83,16 +83,33 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.XmlUtils.Tests", "PeanutButter.XmlUtils.Tests\PeanutButter.XmlUtils.Tests.csproj", "{117D2204-3AF6-4A14-BAA1-50FB9B77C6F0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.XmlUtils.NuGetPackage", "PeanutButter.XmlUtils.NuGetPackage\PeanutButter.XmlUtils.NuGetPackage.csproj", "{2109C6DD-2FC7-42B1-8D9C-351DEA69DE76}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D67739CD-944E-4E88-B313-0E091CEA185B} = {D67739CD-944E-4E88-B313-0E091CEA185B}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TestUtils.Generic.NugetPackage", "PeanutButter.TestUtils.Generic.NugetPackage\PeanutButter.TestUtils.Generic.NugetPackage.csproj", "{8135DBBC-E388-4CEC-BDCC-B9C3DA7E28B7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6DDD7F9E-857A-442B-9148-05B34EA279C4} = {6DDD7F9E-857A-442B-9148-05B34EA279C4}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TinyEventAggregator.NugetPackage", "PeanutButter.TinyEventAggregator.NuGetPackage\PeanutButter.TinyEventAggregator.NugetPackage.csproj", "{77DC46EB-600B-4761-A601-AEAC09D62594}"
+	ProjectSection(ProjectDependencies) = postProject
+		{07D02ABA-ED94-47AD-83C0-F88CBEFDDCF0} = {07D02ABA-ED94-47AD-83C0-F88CBEFDDCF0}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TestUtils.Generic.Tests", "PeanutButter.TestUtils.Generic.Tests\PeanutButter.TestUtils.Generic.Tests.csproj", "{B2384F64-BFCE-4FEF-8CD4-483137D56E5A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TrayIcon", "PeanutButter.TrayIcon\PeanutButter.TrayIcon.csproj", "{17CDFD2E-E3E0-4DDD-AD71-9AA8434705E7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TrayIcon.Tests", "PeanutButter.TrayIcon.Tests\PeanutButter.TrayIcon.Tests.csproj", "{394C0B79-0B29-426C-B990-474DA0303FB9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.INI", "PeanutButter.INI\PeanutButter.INI.csproj", "{64644CCE-0CC9-4CE5-BF0E-E45E425F6339}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.INI.Tests", "PeanutButter.INI.Tests\PeanutButter.INI.Tests.csproj", "{E7E4E4BE-2C42-445F-8251-F2842557115E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.INI.NugetPackage", "PeanutButter.INI.NugetPackage\PeanutButter.INI.NugetPackage.csproj", "{C1407577-654E-4862-A15B-B8D1BA630363}"
+	ProjectSection(ProjectDependencies) = postProject
+		{64644CCE-0CC9-4CE5-BF0E-E45E425F6339} = {64644CCE-0CC9-4CE5-BF0E-E45E425F6339}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -398,6 +415,33 @@ Global
 		{394C0B79-0B29-426C-B990-474DA0303FB9}.Test|Any CPU.ActiveCfg = Release|Any CPU
 		{394C0B79-0B29-426C-B990-474DA0303FB9}.Test|Any CPU.Build.0 = Release|Any CPU
 		{394C0B79-0B29-426C-B990-474DA0303FB9}.Test|x86.ActiveCfg = Release|Any CPU
+		{64644CCE-0CC9-4CE5-BF0E-E45E425F6339}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64644CCE-0CC9-4CE5-BF0E-E45E425F6339}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64644CCE-0CC9-4CE5-BF0E-E45E425F6339}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{64644CCE-0CC9-4CE5-BF0E-E45E425F6339}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64644CCE-0CC9-4CE5-BF0E-E45E425F6339}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64644CCE-0CC9-4CE5-BF0E-E45E425F6339}.Release|x86.ActiveCfg = Release|Any CPU
+		{64644CCE-0CC9-4CE5-BF0E-E45E425F6339}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{64644CCE-0CC9-4CE5-BF0E-E45E425F6339}.Test|Any CPU.Build.0 = Release|Any CPU
+		{64644CCE-0CC9-4CE5-BF0E-E45E425F6339}.Test|x86.ActiveCfg = Release|Any CPU
+		{E7E4E4BE-2C42-445F-8251-F2842557115E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7E4E4BE-2C42-445F-8251-F2842557115E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7E4E4BE-2C42-445F-8251-F2842557115E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E7E4E4BE-2C42-445F-8251-F2842557115E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7E4E4BE-2C42-445F-8251-F2842557115E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7E4E4BE-2C42-445F-8251-F2842557115E}.Release|x86.ActiveCfg = Release|Any CPU
+		{E7E4E4BE-2C42-445F-8251-F2842557115E}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{E7E4E4BE-2C42-445F-8251-F2842557115E}.Test|Any CPU.Build.0 = Release|Any CPU
+		{E7E4E4BE-2C42-445F-8251-F2842557115E}.Test|x86.ActiveCfg = Release|Any CPU
+		{C1407577-654E-4862-A15B-B8D1BA630363}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1407577-654E-4862-A15B-B8D1BA630363}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1407577-654E-4862-A15B-B8D1BA630363}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C1407577-654E-4862-A15B-B8D1BA630363}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1407577-654E-4862-A15B-B8D1BA630363}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1407577-654E-4862-A15B-B8D1BA630363}.Release|x86.ActiveCfg = Release|Any CPU
+		{C1407577-654E-4862-A15B-B8D1BA630363}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{C1407577-654E-4862-A15B-B8D1BA630363}.Test|Any CPU.Build.0 = Release|Any CPU
+		{C1407577-654E-4862-A15B-B8D1BA630363}.Test|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

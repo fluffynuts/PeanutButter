@@ -45,8 +45,8 @@ namespace PeanutButter.Utils
                     Debug.WriteLine("Source property has type '" + srcProp.PropertyType.Name + "' but comparison property has type '" + comparePropInfo.PropertyType.Name + "'");
                     return false;
                 }
-                var srcValue = srcProp.GetValue(objSource);
-                var compareValue = comparePropInfo.GetValue(objCompare);
+                var srcValue = srcProp.GetValue(objSource, null);
+                var compareValue = comparePropInfo.GetValue(objCompare, null);
                 if (_simpleTypes.Any(st => st == srcProp.PropertyType))
                 {
                     var srcString = StringOf(srcValue);
@@ -77,21 +77,21 @@ namespace PeanutButter.Utils
                 if (matchingTarget == null) continue;
                 if (!matchingTarget.CanWrite) continue;
 
-                var srcVal = srcPropInfo.GetValue(src);
+                var srcVal = srcPropInfo.GetValue(src, null);
                 if (!deep || IsSimpleTypeOrNullableOfSimpleType(srcPropInfo.PropertyType))
                 {
-                    matchingTarget.SetValue(dst, srcVal);
+                    matchingTarget.SetValue(dst, srcVal, null);
                 }
                 else
                 {
                     if (srcVal != null)
                     {
-                        var targetVal = matchingTarget.GetValue(dst);
+                        var targetVal = matchingTarget.GetValue(dst,null);
                         srcVal.CopyPropertiesTo(targetVal);
                     }
                     else
                     {
-                        matchingTarget.SetValue(dst, null);
+                        matchingTarget.SetValue(dst, null, null);
                     }
                 }
             }

@@ -42,7 +42,7 @@ Public Class TestSelectStatementBuilder
                   .WithTable(table) _
                   .WithField(field) _
                   .Build()
-        Assert.AreEqual("select " + field + " from " + table, sql)
+        Assert.AreEqual("select """ + field + """ from """ + table + """", sql)
     End Sub
 
     <Test()>
@@ -111,7 +111,7 @@ Public Class TestSelectStatementBuilder
                   .WithField(field) _
                   .WithCondition(field, Condition.EqualityOperators.Equals, value) _
                   .Build()
-        Assert.AreEqual("select " + field + " from " + table + " where " + field + "=" + value.ToString(), sql)
+        Assert.AreEqual("select """ + field + """ from """ + table + """ where """ + field + """=" + value.ToString(), sql)
     End Sub
 
 
@@ -241,7 +241,7 @@ Public Class TestSelectStatementBuilder
                     .WithInnerJoin(table1, joinField1, table2, joinField2) _
                     .WithField(field2) _
                     .Build()
-        Dim expectedSql = "select " + field1 + "," + field2 + " from " + table1 + " inner join " + table2 + " on " + table1 + "." + joinField1 + "=" + table2 + "." + joinField2
+        Dim expectedSql = "select """ + field1 + """,""" + field2 + """ from """ + table1 + """ inner join """ + table2 + """ on """ + table1 + """.""" + joinField1 + """=""" + table2 + """.""" + joinField2 + """"
         Assert.AreEqual(expectedSql, sql)
     End Sub
 
@@ -458,7 +458,7 @@ Public Class TestSelectStatementBuilder
                     .WithField(fld) _
                     .OrderBy(otable, ofld, direction) _
                     .Build()
-        Assert.AreEqual("select " + fld + " from " + table + " order by " + otable + "." + ofld + " " + CStr(IIf(direction = OrderBy.Directions.Ascending, "asc", "desc")), sql)
+        Assert.AreEqual("select """ + fld + """ from """ + table + """ order by """ + otable + """.""" + ofld + """ " + CStr(IIf(direction = OrderBy.Directions.Ascending, "asc", "desc")), sql)
     End Sub
 
     <Test()>
@@ -476,7 +476,7 @@ Public Class TestSelectStatementBuilder
                 .WithInnerJoin(table1, "CTRL_SLA", "TRANSACK", _
                     "CTRL_SLA") _
                 .WithAllConditions(GetFilterConditions().ToArray()).Build()
-        Assert.AreEqual("select distinct ZONE.CTRL_SLA from ZONE inner join TRANSACK on ZONE.CTRL_SLA=TRANSACK.CTRL_SLA where (IS_PROCESSED=0)",sql)
+        Assert.AreEqual("select distinct ""ZONE"".""CTRL_SLA"" from ""ZONE"" inner join ""TRANSACK"" on ""ZONE"".""CTRL_SLA""=""TRANSACK"".""CTRL_SLA"" where (""IS_PROCESSED""=0)",sql)
     End Sub
 
     <Test()>
@@ -511,7 +511,7 @@ Public Class TestSelectStatementBuilder
         Assert.IsFalse(c1.ToString().Contains("]"))
         Assert.IsFalse(c2.ToString().Contains("["))
         Assert.IsFalse(c2.ToString().Contains("]"))
-        Assert.AreEqual("select " + fld + " from " + table + " where (" + c1.ToString() + " and " + c2.ToString() + " and " + c3.ToString() +")", sql)
+        Assert.AreEqual("select """ + fld + """ from """ + table + """ where (" + c1.ToString() + " and " + c2.ToString() + " and " + c3.ToString() +")", sql)
     End Sub
 
     <Test()>
@@ -531,7 +531,7 @@ Public Class TestSelectStatementBuilder
         Assert.IsFalse(c1.ToString().Contains("]"))
         Assert.IsFalse(c2.ToString().Contains("["))
         Assert.IsFalse(c2.ToString().Contains("]"))
-        Assert.AreEqual("select " + fld + " from " + table + " where (" + c1.ToString() + " and " + c2.ToString() + " and " + c3.ToString() +")", sql)
+        Assert.AreEqual("select """ + fld + """ from """ + table + """ where (" + c1.ToString() + " and " + c2.ToString() + " and " + c3.ToString() +")", sql)
     End Sub
 
     <Test()>
@@ -585,7 +585,7 @@ Public Class TestSelectStatementBuilder
             field = RandomValueGen.GetRandomString(),
             topVal = RandomValueGen.GetRandomInt()
         Dim sql = SelectStatementBuilder.Create().WithDatabaseProvider(DatabaseProviders.Firebird).WithTable(table).WithField(field).WithTop(topVal).Build()
-        Assert.AreEqual("select first " + topVal.ToString() + " " + field + " from " + table, sql)
+        Assert.AreEqual("select first " + topVal.ToString() + " """ + field + """ from """ + table + """", sql)
     End Sub
 
     <Test()>

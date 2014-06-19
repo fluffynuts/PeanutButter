@@ -1,16 +1,14 @@
-<?xml version="1.0"?>
-<package >
+<package>
   <metadata>
     <id>PeanutButter.ServiceShell</id>
-    <version>1.0.29</version>
+    <version>1.0.44</version>
     <title>PeanutButter.ServiceShell</title>
     <authors>Davyd McColl</authors>
     <owners>Davyd McColl</owners>
     <description>
       The Service Shell slice of the PeanutButter mini-suite
     </description>
-    <releaseNotes>
-    </releaseNotes>
+    <releaseNotes></releaseNotes>
     <summary>
       Provides a simple, easy-to-use shell base class for polling services which can install and uninstall itself. Please
       reade the included README.txt for the (few) steps you need to do to use this project.
@@ -22,11 +20,11 @@
     <licenseUrl>https://github.com/fluffynuts/PeanutButter/blob/master/LICENSE</licenseUrl>
     <copyright>Copyright  2014</copyright>
     <dependencies>
-        <group targetFramework="net40">
-          <dependency id="PeanutButter.WindowsServiceManagement" version="1.0.0" />
-          <dependency id="CommandLineParser" version="1.9.71" />
-          <dependency id="log4net" version="2.0.3" />
-        </group>
+      <group targetFramework="net40">
+        <dependency id="PeanutButter.WindowsServiceManagement" />
+        <dependency id="CommandLineParser" version="1.9.71" />
+        <dependency id="log4net" version="2.0.3" />
+      </group>
     </dependencies>
     <references></references>
     <tags></tags>

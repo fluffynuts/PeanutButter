@@ -1,16 +1,14 @@
-<?xml version="1.0"?>
-<package >
+<package>
   <metadata>
     <id>PeanutButter.RandomGenerators</id>
-    <version>1.0.29</version>
+    <version>1.0.44</version>
     <title>PeanutButter.RandomGenerators</title>
     <authors>Davyd McColl</authors>
     <owners>Davyd McColl</owners>
     <description>
       This is the random value generators slice of the PeanutButter mini-suite
     </description>
-    <releaseNotes>
-    </releaseNotes>
+    <releaseNotes></releaseNotes>
     <summary>
       RandomGenerators helps you with testing by providing random values not only for simple types
       such as strings and numerics, but also with more complex types using GenericBuilder
@@ -22,8 +20,7 @@
     <licenseUrl>https://github.com/fluffynuts/PeanutButter/blob/master/LICENSE</licenseUrl>
     <copyright>Copyright  2014</copyright>
     <dependencies>
-        <group targetFramework="net40">
-        </group>
+      <group targetFramework="net40"></group>
     </dependencies>
     <references></references>
     <tags></tags>

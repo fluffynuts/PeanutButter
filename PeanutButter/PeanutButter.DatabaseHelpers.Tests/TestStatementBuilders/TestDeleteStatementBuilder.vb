@@ -13,7 +13,7 @@ Public Class TestDeleteStatementBuilder
     End Sub
     <Test()>
     Public Sub Build_WhenNoTableSpecified_Throws()
-        Dim ex = Assert.Throws(Of ArgumentException)(Function()
+        Dim ex = Assert.Throws(Of ArgumentException)(Function() As String
                                                          Return DeleteStatementBuilder.Create() _
                                                                 .Build()
                                                      End Function)
@@ -23,7 +23,7 @@ Public Class TestDeleteStatementBuilder
     Public Sub Build_WhenTableSpecifiedAndNoConditionSpecified_Throws()
         ' if someone really wants to delete everything, they should add condition 1=1
         '   this at least makes the dev think about the code and helps to prevent accidents
-        Dim ex = Assert.Throws(Of ArgumentException)(Function()
+        Dim ex = Assert.Throws(Of ArgumentException)(Function() as String
                                                          Return DeleteStatementBuilder.Create() _
                                                                 .WithTable(RandomValueGen.GetRandomString()) _
                                                                 .Build()
@@ -53,7 +53,7 @@ Public Class TestDeleteStatementBuilder
                     .WithTable(table) _
                     .WithCondition(conditionField, Condition.EqualityOperators.Equals, conditionValue) _
                     .Build()
-        Assert.AreEqual("delete from " + table + " where " + conditionField + "='" + conditionValue + "'", sql)
+        Assert.AreEqual("delete from """ + table + """ where """ + conditionField + """='" + conditionValue + "'", sql)
     End Sub
 
     <Test()>

@@ -10,7 +10,8 @@
     <AssemblyName>PeanutButter.DatabaseHelpers</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>Windows</MyType>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -97,6 +98,7 @@
     <Compile Include="StatementBuilders\SelectField.vb" />
     <Compile Include="StatementBuilders\SelectStatementBuilder.vb" />
     <Compile Include="StatementBuilders\StatementBuilderBase.vb" />
+    <Compile Include="StatementBuilders\StatementBuilderDatabaseProviderBase.vb" />
     <Compile Include="StatementBuilders\UpdateStatementBuilder.vb" />
   </ItemGroup>
   <ItemGroup>

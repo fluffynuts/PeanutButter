@@ -1,16 +1,14 @@
-<?xml version="1.0"?>
-<package >
+<package>
   <metadata>
     <id>PeanutButter.WindowsServiceManagement</id>
-    <version>1.0.29</version>
+    <version>1.0.44</version>
     <title>PeanutButter.WindowsServiceManagement</title>
     <authors>Davyd McColl</authors>
     <owners>Davyd McColl</owners>
     <description>
       The Windows Service Management slice of the PeanutButter mini-suite
     </description>
-    <releaseNotes>
-    </releaseNotes>
+    <releaseNotes></releaseNotes>
     <summary>
       Provides Windows Service Management functionality:
       * start
@@ -27,8 +25,7 @@
     <licenseUrl>https://github.com/fluffynuts/PeanutButter/blob/master/LICENSE</licenseUrl>
     <copyright>Copyright  2014</copyright>
     <dependencies>
-        <group targetFramework="net40">
-        </group>
+      <group targetFramework="net40"></group>
     </dependencies>
     <references></references>
     <tags></tags>

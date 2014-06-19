@@ -18,7 +18,7 @@ Public Class TestDataCopyStatementBuilder
 
     <Test()>
     Public Sub Build_GivenNoSourceTable_ShouldThrow()
-        Dim ex = Assert.Throws(Of ArgumentException)(Function()
+        Dim ex = Assert.Throws(Of ArgumentException)(Function() as String
                                                          Return Create().Build()
                                                      End Function)
         StringAssert.Contains("source table not set", ex.Message)
@@ -26,7 +26,7 @@ Public Class TestDataCopyStatementBuilder
 
     <Test()>
     Public Sub Build_GivenSourceTableAndNoTargetTable_ShouldThrow()
-        Dim ex = Assert.Throws(Of ArgumentException)(Function()
+        Dim ex = Assert.Throws(Of ArgumentException)(Function() as String
                                                          Return Create() _
                                                                 .WithSourceTable(RandomValueGen.GetRandomString(1)) _
                                                                 .Build()
@@ -36,7 +36,7 @@ Public Class TestDataCopyStatementBuilder
 
     <Test()>
     Public Sub Build_GivenSourceAndTargetTableButNoFieldMappings_ShouldThrow()
-        Dim ex = Assert.Throws(Of ArgumentException)(Function()
+        Dim ex = Assert.Throws(Of ArgumentException)(Function() As String
                                                          Return Create() _
                                                              .WithSourceTable(RandomValueGen.GetRandomString(1)) _
                                                              .WithTargetTable(RandomValueGen.GetRandomString(1)) _
@@ -81,8 +81,10 @@ Public Class TestDataCopyStatementBuilder
              }), sql)
     End Sub
 
-    <Test()>
-    Public Sub Build_GivenSourceTargetAndTwoFieldMappingsAndCriteria_ShouldReturnExpectedString()
+    <TestCase(DatabaseProviders.Access)>
+    <TestCase(DatabaseProviders.SQLServer)>
+    <TestCase(DatabaseProviders.SQLite)>
+    Public Sub Build_GivenSourceTargetAndTwoFieldMappingsAndCriteria_ShouldReturnExpectedString(provider As DatabaseProviders)
         Dim src = RandomValueGen.GetRandomString(1, 5),
             target = RandomValueGen.GetRandomString(1, 5),
             srcField1 = RandomValueGen.GetRandomString(1, 5),
@@ -92,6 +94,7 @@ Public Class TestDataCopyStatementBuilder
             criteria = RandomValueGen.GetRandomString(1, 5)
 
         Dim sql = Create() _
+                  .WithDatabaseProvider(provider) _
                   .WithSourceTable(src) _
                   .WithTargetTable(target) _
                   .WithFieldMapping(srcField1, targetField1) _
@@ -104,4 +107,31 @@ Public Class TestDataCopyStatementBuilder
             " where ", criteria
              }), sql)
     End Sub
+
+    
+    <Test()>
+    Public Sub Build_GivenFirebirdProvider_ShouldBuildAppropriateSQLString()
+        Dim src = RandomValueGen.GetRandomString(1, 5),
+            target = RandomValueGen.GetRandomString(1, 5),
+            srcField1 = RandomValueGen.GetRandomString(1, 5),
+            targetField1 = RandomValueGen.GetRandomString(1, 5),
+            srcField2 = RandomValueGen.GetRandomString(1, 5),
+            targetField2 = RandomValueGen.GetRandomString(1, 5),
+            criteria = RandomValueGen.GetRandomString(1, 5)
+
+        Dim sql = Create() _
+                  .WithDatabaseProvider(DatabaseProviders.Firebird) _
+                  .WithSourceTable(src) _
+                  .WithTargetTable(target) _
+                  .WithFieldMapping(srcField1, targetField1) _
+                  .WithFieldMapping(srcField2, targetField2) _
+                  .WithCriteria(criteria) _
+                  .Build()
+        Assert.AreEqual(String.Join("", New String() { _
+            "insert into """, target, """ (""", targetField1, """,""", targetField2, _
+            """) select """, srcField1, """,""", srcField2, """ from """, src, """", _
+            " where ", criteria
+             }), sql)
+    End Sub
+
 End Class

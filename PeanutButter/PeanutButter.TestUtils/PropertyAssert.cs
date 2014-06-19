@@ -54,7 +54,7 @@ namespace PeanutButter.TestUtils.Generic
             var targetPropInfo = type2.GetProperty(obj2PropName);
             Assert.IsNotNull(targetPropInfo, PropNotFoundMessage(type2, obj2PropName));
             Assert.AreEqual(srcPropInfo.PropertyType, targetPropInfo.PropertyType, "Property types for '" + srcPropInfo.Name + "' do not match: " + srcPropInfo.PropertyType.Name + " vs " + targetPropInfo.PropertyType.Name);
-            Assert.AreEqual(srcPropInfo.GetValue(obj1), targetPropInfo.GetValue(obj2), obj1PropName + " => " + obj2PropName);
+            Assert.AreEqual(srcPropInfo.GetValue(obj1,null), targetPropInfo.GetValue(obj2, null), obj1PropName + " => " + obj2PropName);
         }
 
         public static object ResolveObject(object obj, ref string propName)
@@ -72,7 +72,7 @@ namespace PeanutButter.TestUtils.Generic
                 throw new Exception(String.Join("", new[] { "Unable to resolve property '", propName, 
                     "': can't find immediate property '", propParts[0], "' on object of type '", objType.Name, "'" }));
             }
-            var propVal = propInfo.GetValue(obj);
+            var propVal = propInfo.GetValue(obj, null);
             if (propVal == null && propName.IndexOf(".") > -1)
             {
                 throw new Exception(String.Join("", new[] { "Unable to traverse into property '", propName, "': current object is null" }));
@@ -92,7 +92,7 @@ namespace PeanutButter.TestUtils.Generic
             var type2 = obj2.GetType();
             var targetPropInfo = type2.GetProperty(T2PropertyName);
             Assert.IsNotNull(targetPropInfo, PropNotFoundMessage(type2, T2PropertyName));
-            Assert.AreNotEqual(srcPropInfo.GetValue(obj1), targetPropInfo.GetValue(obj2), T1PropertyName + " => " + T2PropertyName);
+            Assert.AreNotEqual(srcPropInfo.GetValue(obj1, null), targetPropInfo.GetValue(obj2, null), T1PropertyName + " => " + T2PropertyName);
         }
 
         private static string PropNotFoundMessage(Type type, string propName)
