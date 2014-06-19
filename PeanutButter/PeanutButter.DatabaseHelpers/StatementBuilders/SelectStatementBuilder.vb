@@ -22,6 +22,7 @@
     Function WithCondition(field As SelectField, op As Condition.EqualityOperators, fieldValue As Decimal) As ISelectStatementBuilder
     Function WithCondition(field As SelectField, op As Condition.EqualityOperators, fieldValue As Double) As ISelectStatementBuilder
     Function WithCondition(field As SelectField, op As Condition.EqualityOperators, fieldValue As DateTime) As ISelectStatementBuilder
+    Function WithCondition(field As String, op As Condition.EqualityOperators, fieldValue As Boolean) As ISelectStatementBuilder
     Function WithCondition(leftField As SelectField, op As Condition.EqualityOperators, rightField As SelectField) As ISelectStatementBuilder
     Function WithAllConditions(ParamArray conditions As ICondition()) As ISelectStatementBuilder
     Function WithAnyCondition(ParamArray conditions As ICondition()) As ISelectStatementBuilder
@@ -166,6 +167,10 @@ Public Class SelectStatementBuilder
         Return Me.WithCondition(New ConditionChain(CompoundCondition.BooleanOperators.OperatorOr, conditions))
     End Function
 
+    Public Function WithCondition(field As String, op As Condition.EqualityOperators, fieldValue As Boolean) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
+        Return Me.WithCondition(new Condition(field, op, CInt(IIf(fieldValue, 1, 0))))
+    End Function
+
     Public Function Build() As String Implements ISelectStatementBuilder.Build
         CheckParameters()
         Dim sql = New List(Of String)
@@ -284,7 +289,7 @@ Public Class SelectStatementBuilder
         Return Me
     End Function
 
-    Public Function OrderBy1(multi As MultiOrderBy) As ISelectStatementBuilder Implements ISelectStatementBuilder.OrderBy
+    Public Function OrderBy(multi As MultiOrderBy) As ISelectStatementBuilder Implements ISelectStatementBuilder.OrderBy
         Me._orderBy = multi
         Return Me
     End Function
@@ -341,4 +346,5 @@ Public Class SelectStatementBuilder
         End If
         return WithLeftJoin(table1, field1, Condition.EqualityOperators.Equals, table2, field2)
     End Function
+
 End Class

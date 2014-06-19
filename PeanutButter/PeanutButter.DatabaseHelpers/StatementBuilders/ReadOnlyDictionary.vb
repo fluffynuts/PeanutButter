@@ -3,7 +3,6 @@
 Public Class ReadOnlyDictionary(Of TKey, TValue)
     Implements IDictionary(Of TKey, TValue)
 
-
     Private _dictionary As IDictionary(Of TKey, TValue)
     Public Sub New()
         _dictionary = New Dictionary(Of TKey, TValue)()

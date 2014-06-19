@@ -143,7 +143,7 @@ Public Class InsertStatementBuilder
         Return Me
     End Function
 
-    Public Function WithConditionalField1(condition As Boolean, col As String, trueVal As Long?, Optional falseVal As Long? = Nothing) As IInsertStatementBuilder Implements IInsertStatementBuilder.WithConditionalField
+    Public Function WithConditionalField(condition As Boolean, col As String, trueVal As Long?, Optional falseVal As Long? = Nothing) As IInsertStatementBuilder Implements IInsertStatementBuilder.WithConditionalField
         If condition And Not trueVal Is Nothing Then Return Me.WithField(col, trueVal)
         If Not condition And Not falseVal Is Nothing Then Return Me.WithField(col, falseVal)
         Return Me
@@ -169,7 +169,7 @@ Public Class InsertStatementBuilder
         return Me.WithField(col, val, false)
     End Function
 
-    Public Overloads Function WithDatabaseProvider1(provider As DatabaseProviders) As IInsertStatementBuilder Implements IInsertStatementBuilder.WithDatabaseProvider
+    Public Overloads Function WithDatabaseProvider(provider As DatabaseProviders) As IInsertStatementBuilder Implements IInsertStatementBuilder.WithDatabaseProvider
         SetDatabaseProvider(provider)
         return Me
     End Function
