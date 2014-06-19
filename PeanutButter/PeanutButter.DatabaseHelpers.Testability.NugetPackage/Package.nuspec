@@ -1,16 +1,14 @@
-<?xml version="1.0"?>
-<package >
+<package>
   <metadata>
     <id>PeanutButter.DatabaseHelpers.Testability</id>
-    <version>1.0.39</version>
+    <version>1.0.44</version>
     <title>PeanutButter.DatabaseHelpers.Testability</title>
     <authors>Davyd McColl</authors>
     <owners>Davyd McColl</owners>
     <description>
       Helpers for testing when using PeanutButter.DatabaseHelpers
     </description>
-    <releaseNotes>
-    </releaseNotes>
+    <releaseNotes></releaseNotes>
     <summary>
       If you're using NSubstitute to test your project and you're using PeanutButter DatabaseHelpers' sql statement
       builders, you may wish to test against the interfaces for these builders. However, doing so is more work than
@@ -26,9 +24,9 @@
     <licenseUrl>https://github.com/fluffynuts/PeanutButter/blob/master/LICENSE</licenseUrl>
     <copyright>Copyright  2014</copyright>
     <dependencies>
-        <group targetFramework="net40">
-          <dependency id="PeanutButter.DatabaseHelpers" />
-        </group>
+      <group targetFramework="net40">
+        <dependency id="PeanutButter.DatabaseHelpers" />
+      </group>
     </dependencies>
     <references></references>
     <tags></tags>

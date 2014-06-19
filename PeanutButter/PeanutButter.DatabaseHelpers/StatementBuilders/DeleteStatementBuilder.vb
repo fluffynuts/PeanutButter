@@ -1,4 +1,5 @@
 ﻿Public Interface IDeleteStatementBuilder
+    Inherits IStatementBuilder
     Function WithDatabaseProvider(provider As DatabaseProviders) As IDeleteStatementBuilder
     Function Build() As String
     Function WithTable(table As String) As IDeleteStatementBuilder

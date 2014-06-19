@@ -1,4 +1,5 @@
 ﻿Public Interface ISelectStatementBuilder
+    Inherits IStatementBuilder
     Function WithDatabaseProvider(provider As DatabaseProviders) As ISelectStatementBuilder
     Function WithTable(ByVal name As String) As ISelectStatementBuilder
     Function WithField(ByVal name As String, Optional aliasAs As String = Nothing) As ISelectStatementBuilder

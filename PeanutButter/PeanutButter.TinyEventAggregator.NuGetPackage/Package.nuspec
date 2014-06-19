@@ -1,16 +1,14 @@
-<?xml version="1.0"?>
-<package >
+<package>
   <metadata>
     <id>PeanutButter.TinyEventAggregator</id>
-    <version>1.0.39</version>
+    <version>1.0.44</version>
     <title>PeanutButter.TinyEventAggregator</title>
     <authors>daf</authors>
     <owners></owners>
     <description>
       A really tiny Event Aggregator
     </description>
-    <releaseNotes>
-    </releaseNotes>
+    <releaseNotes></releaseNotes>
     <summary>
       Provides a very simple, unthreaded Event Aggregator implementation with a few convenient extras:
       * one-time subscription
@@ -25,8 +23,7 @@
     <licenseUrl>https://github.com/fluffynuts/PeanutButter/blob/master/LICENSE</licenseUrl>
     <copyright>Copyright  2014</copyright>
     <dependencies>
-        <group targetFramework="net40">
-        </group>
+      <group targetFramework="net40"></group>
     </dependencies>
     <references></references>
     <tags></tags>

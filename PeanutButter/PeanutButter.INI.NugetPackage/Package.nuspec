@@ -1,16 +1,14 @@
-<?xml version="1.0"?>
-<package >
+<package>
   <metadata>
     <id>PeanutButter.INI</id>
-    <version>1.0.39</version>
+    <version>1.0.44</version>
     <title>PeanutButter.INI</title>
     <authors>Davyd McColl</authors>
     <owners></owners>
     <description>
       A basic INI file reader/writer class
     </description>
-    <releaseNotes>
-    </releaseNotes>
+    <releaseNotes></releaseNotes>
     <summary>
       Provides easy-to-use access to INI files, both reading and writing. Data is exposed via a public Dictionary of Dictionaries. 
       Supports the global "empty" section, quoted values and case-insenstive section and key lookups.
@@ -22,8 +20,7 @@
     <licenseUrl>https://github.com/fluffynuts/PeanutButter/blob/master/LICENSE</licenseUrl>
     <copyright>Copyright  2014</copyright>
     <dependencies>
-        <group targetFramework="net40">
-        </group>
+      <group targetFramework="net40"></group>
     </dependencies>
     <references></references>
     <tags></tags>

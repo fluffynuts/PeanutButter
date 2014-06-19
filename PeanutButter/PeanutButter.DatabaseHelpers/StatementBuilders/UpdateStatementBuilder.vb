@@ -2,6 +2,7 @@
 Imports PeanutButter.Utils
 
 Public Interface IUpdateStatementBuilder
+    Inherits IStatementBuilder
     Function WithDatabaseProvider(provider As DatabaseProviders) As IUpdateStatementBuilder
     Function Build() As String
     Function WithField(col As String, val As String, Optional quote As Boolean = True) As IUpdateStatementBuilder

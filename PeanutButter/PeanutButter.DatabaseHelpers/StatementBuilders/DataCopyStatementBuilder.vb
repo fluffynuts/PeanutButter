@@ -3,15 +3,21 @@
     Function WithTargetTable(table As String) As IDataCopyStatementBuilder
     Function WithFieldMapping(sourceName As String, Optional destName As String = Nothing) As IDataCopyStatementBuilder
     Function WithCriteria(criteria As String) as IDataCopyStatementBuilder
+    Function WithDatabaseProvider(provider As DatabaseProviders) As IDataCopyStatementBuilder
     Function Build() As String
 End Interface
 
 Public Class DataCopyStatementBuilder
+    Inherits StatementBuilderDatabaseProviderBase
     Implements IDataCopyStatementBuilder
     Private _sourceTable As String
     Private _targetTable As String
     Private ReadOnly _fieldMappings as List(Of FieldMapping) = New List(Of FieldMapping)
     Private _criteria As String
+
+    public Sub New
+        Me.SetDatabaseProvider(DatabaseProviders.Access)
+    End Sub
 
     Private Class FieldMapping
         Public Source As String
@@ -29,13 +35,15 @@ Public Class DataCopyStatementBuilder
     Public Function Build() As String Implements IDataCopyStatementBuilder.Build
         CheckParameters()
         Dim parts = New List(Of String)
-        parts.Add("insert into [")
+        parts.Add("insert into ")
+        parts.Add(_openObjectQuote)
         parts.Add(_targetTable)
-        parts.Add("] ")
+        parts.Add(_closeObjectQuote + " ")
         Me.AddFieldsTo(parts)
-        parts.Add(" from [")
+        parts.Add(" from ")
+        parts.Add(_openObjectQuote)
         parts.Add(_sourceTable)
-        parts.Add("]")
+        parts.Add(_closeObjectQuote)
         If Not Me._criteria Is Nothing Then
             parts.Add(" where ")
             parts.Add(_criteria)
@@ -56,8 +64,8 @@ Public Class DataCopyStatementBuilder
                 post.Add(",")
             End If
             notFirst = True
-            pre.Add("[" + mapping.Target + "]")
-            post.Add("[" + mapping.Source + "]")
+            pre.Add(_openObjectQuote + mapping.Target + _closeObjectQuote)
+            post.Add(_openObjectQuote + mapping.Source + _closeObjectQuote)
         Next
         list.AddRange(pre)
         list.AddRange(post)
@@ -92,6 +100,11 @@ Public Class DataCopyStatementBuilder
 
     Public Function WithSourceTable(table As String) As IDataCopyStatementBuilder Implements IDataCopyStatementBuilder.WithSourceTable
         Me._sourceTable = table
+        Return Me
+    End Function
+
+    Public Function WithDatabaseProvider(provider As DatabaseProviders) As IDataCopyStatementBuilder Implements IDataCopyStatementBuilder.WithDatabaseProvider
+        MyBase.SetDatabaseProvider(provider)
         Return Me
     End Function
 End Class

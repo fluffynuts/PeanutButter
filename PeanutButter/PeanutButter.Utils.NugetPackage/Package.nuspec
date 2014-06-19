@@ -1,18 +1,15 @@
-<?xml version="1.0"?>
-<package >
+<package>
   <metadata>
     <id>PeanutButter.Utils</id>
-    <version>1.0.39</version>
+    <version>1.0.44</version>
     <title>PeanutButter.Utils</title>
     <authors>Davyd McColl</authors>
     <owners>Davyd McColl</owners>
     <description>
       The miscellaneous utilities slice of the PeanutButter mini-suite (sans XML Utils)
     </description>
-    <releaseNotes>
-    </releaseNotes>
-    <summary>
-    </summary>
+    <releaseNotes></releaseNotes>
+    <summary></summary>
     <language>en-US</language>
     <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
     <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
@@ -20,8 +17,7 @@
     <licenseUrl>https://github.com/fluffynuts/PeanutButter/blob/master/LICENSE</licenseUrl>
     <copyright>Copyright  2014</copyright>
     <dependencies>
-        <group targetFramework="net40">
-        </group>
+      <group targetFramework="net40"></group>
     </dependencies>
     <references></references>
     <tags></tags>
