@@ -102,6 +102,7 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TrayIcon", "PeanutButter.TrayIcon\PeanutButter.TrayIcon.csproj", "{17CDFD2E-E3E0-4DDD-AD71-9AA8434705E7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TrayIcon.Tests", "PeanutButter.TrayIcon.Tests\PeanutButter.TrayIcon.Tests.csproj", "{394C0B79-0B29-426C-B990-474DA0303FB9}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.INI", "PeanutButter.INI\PeanutButter.INI.csproj", "{64644CCE-0CC9-4CE5-BF0E-E45E425F6339}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.INI.Tests", "PeanutButter.INI.Tests\PeanutButter.INI.Tests.csproj", "{E7E4E4BE-2C42-445F-8251-F2842557115E}"
@@ -110,6 +111,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.INI.NugetPacka
 	ProjectSection(ProjectDependencies) = postProject
 		{64644CCE-0CC9-4CE5-BF0E-E45E425F6339} = {64644CCE-0CC9-4CE5-BF0E-E45E425F6339}
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TrayIcon.NugetPackage", "PeanutButter.TrayIcon.NugetPackage\PeanutButter.TrayIcon.NugetPackage.csproj", "{546F9C7A-0E73-4042-9CCC-F1292154B1BE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -442,6 +445,15 @@ Global
 		{C1407577-654E-4862-A15B-B8D1BA630363}.Test|Any CPU.ActiveCfg = Release|Any CPU
 		{C1407577-654E-4862-A15B-B8D1BA630363}.Test|Any CPU.Build.0 = Release|Any CPU
 		{C1407577-654E-4862-A15B-B8D1BA630363}.Test|x86.ActiveCfg = Release|Any CPU
+		{546F9C7A-0E73-4042-9CCC-F1292154B1BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{546F9C7A-0E73-4042-9CCC-F1292154B1BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{546F9C7A-0E73-4042-9CCC-F1292154B1BE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{546F9C7A-0E73-4042-9CCC-F1292154B1BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{546F9C7A-0E73-4042-9CCC-F1292154B1BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{546F9C7A-0E73-4042-9CCC-F1292154B1BE}.Release|x86.ActiveCfg = Release|Any CPU
+		{546F9C7A-0E73-4042-9CCC-F1292154B1BE}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{546F9C7A-0E73-4042-9CCC-F1292154B1BE}.Test|Any CPU.Build.0 = Release|Any CPU
+		{546F9C7A-0E73-4042-9CCC-F1292154B1BE}.Test|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

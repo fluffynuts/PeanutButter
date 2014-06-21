@@ -446,6 +446,25 @@ namespace PeanutButter.INI.Tests
             //---------------Test Result -----------------------
             Assert.IsFalse(result);
         }
+
+        [Test]
+        public void Construct_WhenGivenPathButFileDoesntExist_ShouldCreateFile()
+        {
+            //---------------Set up test pack-------------------
+            using (var tempFile = new AutoDeletingTempFile(".ini"))
+            {
+                File.Delete(tempFile.Path);
+                //---------------Assert Precondition----------------
+                Assert.IsFalse(File.Exists(tempFile.Path));
+
+                //---------------Execute Test ----------------------
+                var iniFile = new INIFile(tempFile.Path);
+
+                //---------------Test Result -----------------------
+                Assert.IsTrue(File.Exists(tempFile.Path));
+            }
+        }
+
     }
 
 }

@@ -77,12 +77,24 @@ namespace PeanutButter.INI
 
         private static IEnumerable<string> GetLinesFrom(string path)
         {
+            EnsureFolderExistsFor(path);
             if (!File.Exists(path))
-                return new string[] { };
+            {
+                using (File.Create(path))
+                {
+                }
+            }
             var lines = Encoding.UTF8.GetString(File.ReadAllBytes(path))
                                 .Split(new[] {"\n", "\r"}, StringSplitOptions.RemoveEmptyEntries)
                                 .Select(line => line.Trim());
             return lines;
+        }
+
+        private static void EnsureFolderExistsFor(string path)
+        {
+            var folder = Path.GetDirectoryName(path);
+            if (!Directory.Exists(folder))
+                Directory.CreateDirectory(folder);
         }
 
         public void AddSection(string section)
