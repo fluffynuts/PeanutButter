@@ -33,6 +33,8 @@ Public MustInherit Class StatementBuilderDatabaseProviderBase
             Case DatabaseProviders.Firebird
                 _openObjectQuote = """"
                 _closeObjectQuote = """"
+            Case DatabaseProviders.Unknown
+                Throw New Exception("DatabaseProvider configured as Unknown")
             Case Else
                 _openObjectQuote = "["
                 _closeObjectQuote = "]"

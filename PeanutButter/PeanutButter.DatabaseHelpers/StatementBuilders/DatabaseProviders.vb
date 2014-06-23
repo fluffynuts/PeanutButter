@@ -1,4 +1,5 @@
 Public Enum DatabaseProviders
+    Unknown
     SQLServer
     Access
     Firebird

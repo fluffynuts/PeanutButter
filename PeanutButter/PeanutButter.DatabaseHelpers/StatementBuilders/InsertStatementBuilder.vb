@@ -2,6 +2,7 @@
 Imports PeanutButter.Utils
 
 Public Interface IInsertStatementBuilder
+    Inherits IStatementBuilder
     Function WithDatabaseProvider(provider As DatabaseProviders) As IInsertStatementBuilder
     Function WithTable(tableName As String) As IInsertStatementBuilder
     Function WithField(col As String, val As String) As IInsertStatementBuilder
