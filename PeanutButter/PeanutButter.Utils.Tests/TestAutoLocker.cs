@@ -12,7 +12,7 @@ namespace PenautButter.Utils.Tests
     public class TestAutoLocker
     {
         [Test]
-        public void Construct_WhenGivenNullSemaphore_ShouldNotThrow()
+        public void Construct_WhenGivenNullSemaphore_ShouldThrow()
         {
             //---------------Set up test pack-------------------
 
@@ -26,7 +26,7 @@ namespace PenautButter.Utils.Tests
         }
 
         [Test]
-        public void Construct_WhenGivenNullMutex_ShouldNotThrow()
+        public void Construct_WhenGivenNullMutex_ShouldThrow()
         {
             //---------------Set up test pack-------------------
 
