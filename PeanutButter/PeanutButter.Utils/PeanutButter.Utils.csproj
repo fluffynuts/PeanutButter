@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="AutoDeleter.cs" />
     <Compile Include="AutoDisposer.cs" />
+    <Compile Include="AutoLocker.cs" />
     <Compile Include="DecimalDecorator.cs" />
     <Compile Include="ObjectExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
