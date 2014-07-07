@@ -38,6 +38,7 @@
     Function OrderBy(multi As MultiOrderBy) As ISelectStatementBuilder
     Function Distinct() As ISelectStatementBuilder
     Function WithTop(rows As Integer) As ISelectStatementBuilder
+    Function WithNoLock() As ISelectStatementBuilder
 End Interface
 Public Class SelectStatementBuilder
     Inherits StatementBuilderBase
@@ -61,6 +62,7 @@ Public Class SelectStatementBuilder
     Private _wheres As New List(Of String)
     Private _orderBy As IOrderBy
     Private _iCondition As ICondition
+    Private _noLock As Boolean
 
     Public Function WithTable(name As String) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithTable
         If _tableNames.Any(Function(tn)
@@ -179,14 +181,27 @@ Public Class SelectStatementBuilder
         AddLeadingRowLimiterIfRequired(sql)
         Me.AddFieldsTo(sql)
         sql.Add(" from ")
-        Dim quotedTableNames = _tableNames.Select(Function(tn)
-                                                      Return String.Join("", { _openObjectQuote, tn, _closeObjectQuote })
-                                                  End Function)
-        sql.Add(String.Join(",", quotedTableNames))
+        sql.Add(GetInitialTables())
         Me.AddJoinsTo(sql)
         Me.AddConditionsTo(sql)
         Me.AddOrdersTo(sql)
         Return String.Join("", sql)
+    End Function
+
+    Private Function GetInitialTables() As String
+
+        Dim quotedTableNames = _tableNames.Select(Function(tn)
+            Return String.Join("", { _openObjectQuote, tn, _closeObjectQuote })
+                                                     End Function)
+        Dim joinWith = ","
+        AddNoLockHintAsRequiredTo(joinWith)
+        Dim result  = String.Join(joinWith, quotedTableNames)
+        AddNoLockHintAsRequiredTo(result)
+        Return result
+    End Function
+
+    Private Function ShouldAddNoLockHint() As Boolean
+        Return _noLock And _databaseProvider = DatabaseProviders.SQLServer
     End Function
 
     Private Sub AddLeadingRowLimiterIfRequired(ByVal sql As List(Of String))
@@ -209,9 +224,24 @@ Public Class SelectStatementBuilder
         _joins.ForEach(Sub(join)
                            sql.Add(" ")
                            join.UseDatabaseProvider(_databaseProvider)
+                           join.SetNoLock(_noLock)
                            sql.Add(join.ToString())
                        End Sub)
     End Sub
+
+    Private Sub AddNoLockHintAsRequiredTo(ByRef str As String)
+        str += GetNoLockHintString()
+    End Sub
+
+    Private Function GetNoLockHintString() As String
+        If Not ShouldAddNoLockHint() Then Return ""
+        Select Case _databaseProvider
+            Case DatabaseProviders.SQLServer
+                return " WITH (NOLOCK)"
+            Case Else
+                return ""
+        End Select
+    End Function
 
 
     Private Sub CheckParameters()
@@ -347,4 +377,8 @@ Public Class SelectStatementBuilder
         return WithLeftJoin(table1, field1, Condition.EqualityOperators.Equals, table2, field2)
     End Function
 
+    Public Function WithNoLock() As ISelectStatementBuilder Implements ISelectStatementBuilder.WithNoLock
+        _noLock = True
+        return Me
+    End Function
 End Class
