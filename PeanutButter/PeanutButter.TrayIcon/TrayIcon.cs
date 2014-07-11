@@ -10,6 +10,7 @@ namespace PeanutButter.TrayIcon
 {
     public class TrayIcon: IDisposable
     {
+        public NotifyIcon NotifyIcon { get { return _notificationIcon; } }
 		private NotifyIcon _notificationIcon;
         private Icon _icon;
         private bool _showingDefaultBalloonTip;
