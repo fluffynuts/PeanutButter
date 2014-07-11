@@ -50,5 +50,19 @@ namespace PeanutButter.TrayIcon.Tests
             Application.Run();
         }
 
+        [Test]
+        public void ShouldExposeInternalNotificationIcon()
+        {
+            //---------------Set up test pack-------------------
+            
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var icon = new TrayIcon(Resource1.Happy_smiley_face);
+            Assert.IsNotNull(icon.NotifyIcon);
+
+            //---------------Test Result -----------------------
+        }
+
     }
 }
