@@ -53,7 +53,7 @@ namespace PeanutButter.INI.Tests
             {
             }
 
-            public Dictionary<string, Dictionary<string, string>> Data
+            public new Dictionary<string, Dictionary<string, string>> Data
             {
                 get { return base.Data; }
             }
