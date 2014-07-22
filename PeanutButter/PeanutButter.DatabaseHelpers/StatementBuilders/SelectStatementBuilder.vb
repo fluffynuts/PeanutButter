@@ -38,6 +38,7 @@
     Function OrderBy(multi As MultiOrderBy) As ISelectStatementBuilder
     Function Distinct() As ISelectStatementBuilder
     Function WithTop(rows As Integer) As ISelectStatementBuilder
+    Function WithNoLock() As ISelectStatementBuilder
 End Interface
 Public Class SelectStatementBuilder
     Inherits StatementBuilderBase
@@ -61,6 +62,7 @@ Public Class SelectStatementBuilder
     Private _wheres As New List(Of String)
     Private _orderBy As IOrderBy
     Private _iCondition As ICondition
+    Private _noLock As Boolean
 
     Public Function WithTable(name As String) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithTable
         If _tableNames.Any(Function(tn)
@@ -183,11 +185,20 @@ Public Class SelectStatementBuilder
                                                       Return String.Join("", { _openObjectQuote, tn, _closeObjectQuote })
                                                   End Function)
         sql.Add(String.Join(",", quotedTableNames))
+        AddNoLockHintTo(sql)
         Me.AddJoinsTo(sql)
         Me.AddConditionsTo(sql)
         Me.AddOrdersTo(sql)
         Return String.Join("", sql)
     End Function
+
+    Private Sub AddNoLockHintTo(ByVal sql As List(Of String))
+        Select Case _databaseProvider
+            Case DatabaseProviders.SQLServer
+                If _noLock Then sql.Add(" WITH (NOLOCK)")
+            Case Else
+        End Select
+    End Sub
 
     Private Sub AddLeadingRowLimiterIfRequired(ByVal sql As List(Of String))
         If Not Me._top.HasValue Then Return
@@ -347,4 +358,8 @@ Public Class SelectStatementBuilder
         return WithLeftJoin(table1, field1, Condition.EqualityOperators.Equals, table2, field2)
     End Function
 
+    Public Function WithNoLock() As ISelectStatementBuilder Implements ISelectStatementBuilder.WithNoLock
+        _noLock = True
+        return Me
+    End Function
 End Class

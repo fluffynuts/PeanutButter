@@ -126,9 +126,7 @@
       <Name>PeanutButter.Utils</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Testability\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>
     <PostBuildEvent>mkdir $(SolutionDir)\$(ProjectName).NugetPackage\lib\net40

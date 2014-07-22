@@ -42,6 +42,23 @@ namespace PeanutButter.INI.Tests
                 catch { }
             }
         }
+
+        private class INIFile_EXPOSES_Sections : INIFile
+        {
+            public INIFile_EXPOSES_Sections()
+            {
+            }
+
+            public INIFile_EXPOSES_Sections(string path) : base(path)
+            {
+            }
+
+            public Dictionary<string, Dictionary<string, string>> Data
+            {
+                get { return base.Data; }
+            }
+        }
+
         [Test]
         public void Construct_ShouldNotThrow()
         {
@@ -50,11 +67,11 @@ namespace PeanutButter.INI.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            INIFile iniFile = null;
-            Assert.DoesNotThrow(() => iniFile = new INIFile());
+            INIFile_EXPOSES_Sections iniFile = null;
+            Assert.DoesNotThrow(() => iniFile = new INIFile_EXPOSES_Sections());
 
             //---------------Test Result -----------------------
-            Assert.IsNotNull(iniFile.Sections);
+            Assert.IsNotNull(iniFile.Data);
         }
 
         [Test]
@@ -73,12 +90,12 @@ namespace PeanutButter.INI.Tests
                 Assert.IsTrue(File.Exists(tempFile.Path));
 
                 //---------------Execute Test ----------------------
-                var iniFile = new INIFile(tempFile.Path);
+                var iniFile = new INIFile_EXPOSES_Sections(tempFile.Path);
 
                 //---------------Test Result -----------------------
-                Assert.IsNotNull(iniFile.Sections);
-                Assert.IsTrue(iniFile.Sections.Keys.Contains(section));
-                Assert.AreEqual(iniFile.Sections[section][key], value);
+                Assert.IsNotNull(iniFile.Data);
+                Assert.IsTrue(iniFile.Data.Keys.Contains(section));
+                Assert.AreEqual(iniFile.Data[section][key], value);
             }
         }
 
@@ -103,27 +120,32 @@ namespace PeanutButter.INI.Tests
                 Assert.IsTrue(File.Exists(tempFile.Path));
 
                 //---------------Execute Test ----------------------
-                var iniFile = new INIFile(tempFile.Path);
+                var iniFile = new INIFile_EXPOSES_Sections(tempFile.Path);
 
                 //---------------Test Result -----------------------
-                Assert.IsNotNull(iniFile.Sections);
-                Assert.IsTrue(iniFile.Sections.Keys.Contains(section));
-                Assert.AreEqual(value, iniFile.Sections[section][key]);
+                Assert.IsNotNull(iniFile.Data);
+                Assert.IsTrue(iniFile.Data.Keys.Contains(section));
+                Assert.AreEqual(value, iniFile.Data[section][key]);
             }
+        }
+
+        private INIFile_EXPOSES_Sections Create(string path = null)
+        {
+            return new INIFile_EXPOSES_Sections(path);
         }
 
         [Test]
         public void AddSection_ShouldAddSectionToSections()
         {
             //---------------Set up test pack-------------------
-            var iniFile = new INIFile();
+            var iniFile = Create();
             var section = RandString();
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
             iniFile.AddSection(section);
             //---------------Test Result -----------------------
-            Assert.IsTrue(iniFile.Sections.Keys.Contains(section));
+            Assert.IsTrue(iniFile.Data.Keys.Contains(section));
         }
 
         [Test]
@@ -136,12 +158,12 @@ namespace PeanutButter.INI.Tests
                 //---------------Assert Precondition----------------
                 Assert.IsFalse(File.Exists(tempFile.Path));
                 //---------------Execute Test ----------------------
-                INIFile iniFile = null;
-                Assert.DoesNotThrow(() => iniFile = new INIFile(tempFile.Path));
+                INIFile_EXPOSES_Sections iniFile = null;
+                Assert.DoesNotThrow(() => iniFile = Create(tempFile.Path));
 
                 //---------------Test Result -----------------------
-                Assert.IsNotNull(iniFile.Sections);
-                Assert.IsFalse(iniFile.Sections.Keys.Any(k => k != ""));
+                Assert.IsNotNull(iniFile.Data);
+                Assert.IsFalse(iniFile.Data.Keys.Any(k => k != ""));
             }
         }
 
@@ -152,19 +174,19 @@ namespace PeanutButter.INI.Tests
             using (var tempFile = new AutoDeletingTempFile(".ini"))
             {
                 //---------------Assert Precondition----------------
-                var writer = new INIFile(tempFile.Path);
+                var writer = Create(tempFile.Path);
                 var section = RandString();
                 var key = RandString();
                 var value = RandString();
                 writer.AddSection(section);
-                writer.Sections[section][key] = value;
+                writer.Data[section][key] = value;
 
                 //---------------Execute Test ----------------------
                 writer.Persist(tempFile.Path);
-                var reader = new INIFile(tempFile.Path);
+                var reader = Create(tempFile.Path);
 
                 //---------------Test Result -----------------------
-                Assert.AreEqual(value, reader.Sections[section][key]);
+                Assert.AreEqual(value, reader.Data[section][key]);
             }
         }
 
@@ -175,19 +197,19 @@ namespace PeanutButter.INI.Tests
             using (var tempFile = new AutoDeletingTempFile(".ini"))
             {
                 //---------------Assert Precondition----------------
-                var writer = new INIFile(tempFile.Path);
+                var writer = Create(tempFile.Path);
                 var section = RandString();
                 var key = RandString();
                 var value = RandString();
                 writer.AddSection(section);
-                writer.Sections[section][key] = value;
+                writer.Data[section][key] = value;
 
                 //---------------Execute Test ----------------------
                 writer.Persist();
-                var reader = new INIFile(tempFile.Path);
+                var reader = Create(tempFile.Path);
 
                 //---------------Test Result -----------------------
-                Assert.AreEqual(value, reader.Sections[section][key]);
+                Assert.AreEqual(value, reader.Data[section][key]);
             }
         }
 
@@ -198,19 +220,19 @@ namespace PeanutButter.INI.Tests
             using (var tempFile = new AutoDeletingTempFile(".ini"))
             {
                 //---------------Assert Precondition----------------
-                var writer = new INIFile(tempFile.Path);
+                var writer = Create(tempFile.Path);
                 var section = "";
                 var key = RandString();
                 var value = RandString();
                 writer.AddSection(section);
-                writer.Sections[section][key] = value;
+                writer.Data[section][key] = value;
 
                 //---------------Execute Test ----------------------
                 writer.Persist();
-                var reader = new INIFile(tempFile.Path);
+                var reader = Create(tempFile.Path);
 
                 //---------------Test Result -----------------------
-                Assert.AreEqual(value, reader.Sections[section][key]);
+                Assert.AreEqual(value, reader.Data[section][key]);
             }
         }
 
@@ -219,12 +241,12 @@ namespace PeanutButter.INI.Tests
         {
             //---------------Set up test pack-------------------
             //---------------Assert Precondition----------------
-            var writer = new INIFile();
+            var writer = Create();
             var section = RandString();
             var key = RandString();
             var value = RandString();
             writer.AddSection(section);
-            writer.Sections[section][key] = value;
+            writer.Data[section][key] = value;
 
             //---------------Execute Test ----------------------
             var ex = Assert.Throws<ArgumentException>(() => writer.Persist());
@@ -254,13 +276,13 @@ namespace PeanutButter.INI.Tests
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                var iniFile = new INIFile(tempFile.Path);
+                var iniFile = Create(tempFile.Path);
 
                 //---------------Test Result -----------------------
-                Assert.AreEqual("C:\\tmp\\something.txt", iniFile.Sections["Section1"]["path"]);
-                Assert.AreEqual("Red", iniFile.Sections["Section1"]["color"]);
-                Assert.AreEqual("12", iniFile.Sections["section2"]["number"]);
-                Assert.AreEqual("Green", iniFile.Sections["Section2"]["season"]);
+                Assert.AreEqual("C:\\tmp\\something.txt", iniFile.Data["Section1"]["path"]);
+                Assert.AreEqual("Red", iniFile.Data["Section1"]["color"]);
+                Assert.AreEqual("12", iniFile.Data["section2"]["number"]);
+                Assert.AreEqual("Green", iniFile.Data["Section2"]["season"]);
             }
         }
 
@@ -271,15 +293,15 @@ namespace PeanutButter.INI.Tests
             var section = RandString();
             var key = RandString();
             var value = RandString();
-            var iniFile = new INIFile();
+            var iniFile = Create();
             //---------------Assert Precondition----------------
-            Assert.IsFalse(iniFile.Sections.Keys.Any(s => s == section));
+            Assert.IsFalse(iniFile.Data.Keys.Any(s => s == section));
 
             //---------------Execute Test ----------------------
             iniFile.SetValue(section, key, value);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(value, iniFile.Sections[section][key]);
+            Assert.AreEqual(value, iniFile.Data[section][key]);
         }
 
         [Test]
@@ -290,16 +312,16 @@ namespace PeanutButter.INI.Tests
             var key = RandString();
             var value1 = RandString();
             var value2 = RandString();
-            var iniFile = new INIFile();
+            var iniFile = Create();
             //---------------Assert Precondition----------------
-            Assert.IsFalse(iniFile.Sections.Keys.Any(s => s == section));
+            Assert.IsFalse(iniFile.Data.Keys.Any(s => s == section));
 
             //---------------Execute Test ----------------------
             iniFile.SetValue(section, key, value1);
             iniFile.SetValue(section, key, value2);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(value2, iniFile.Sections[section][key]);
+            Assert.AreEqual(value2, iniFile.Data[section][key]);
         }
 
         [Test]
@@ -309,11 +331,11 @@ namespace PeanutButter.INI.Tests
             var section = RandString();
             var key = RandString();
             var value = RandString();
-            var iniFile = new INIFile();
+            var iniFile = Create();
             iniFile.SetValue(section, key, value);
 
             //---------------Assert Precondition----------------
-            Assert.AreEqual(value, iniFile.Sections[section][key]);
+            Assert.AreEqual(value, iniFile.Data[section][key]);
             //---------------Execute Test ----------------------
             var result = iniFile.GetValue(section, key);
             //---------------Test Result -----------------------
@@ -328,11 +350,11 @@ namespace PeanutButter.INI.Tests
             var key = RandString();
             var value = RandString();
             var defaultValue = RandString();
-            var iniFile = new INIFile();
+            var iniFile = Create();
             iniFile.SetValue(section, key, value);
             var otherKey = key + RandString();
             //---------------Assert Precondition----------------
-            Assert.IsFalse(iniFile.Sections[section].Keys.Contains(otherKey));
+            Assert.IsFalse(iniFile.Data[section].Keys.Contains(otherKey));
             //---------------Execute Test ----------------------
             var result = iniFile.GetValue(section, otherKey, defaultValue);
             //---------------Test Result -----------------------
@@ -346,12 +368,12 @@ namespace PeanutButter.INI.Tests
             var key = RandString();
             var value = RandString();
             var defaultValue = RandString();
-            var iniFile = new INIFile();
+            var iniFile = Create();
             iniFile.SetValue(section, key, value);
             var otherKey = key + RandString();
             var otherSection = section + RandString();
             //---------------Assert Precondition----------------
-            Assert.IsFalse(iniFile.Sections.Keys.Contains(otherSection));
+            Assert.IsFalse(iniFile.Data.Keys.Contains(otherSection));
             //---------------Execute Test ----------------------
             var result = iniFile.GetValue(otherSection, otherKey, defaultValue);
             //---------------Test Result -----------------------
@@ -364,7 +386,7 @@ namespace PeanutButter.INI.Tests
             //---------------Set up test pack-------------------
             var section = RandString();
             var key = RandString();
-            var iniFile = new INIFile();
+            var iniFile = Create();
             iniFile.AddSection(section);
             //---------------Assert Precondition----------------
 
@@ -382,7 +404,7 @@ namespace PeanutButter.INI.Tests
             var section = RandString();
             var key = RandString();
             var value = RandString();
-            var iniFile = new INIFile();
+            var iniFile = Create();
             iniFile.AddSection(section);
             //---------------Assert Precondition----------------
 
@@ -400,7 +422,7 @@ namespace PeanutButter.INI.Tests
             var section = RandString();
             var key = RandString();
             var value = RandString();
-            var iniFile = new INIFile();
+            var iniFile = Create();
             iniFile.SetValue(section, key, value);
             //---------------Assert Precondition----------------
 
@@ -418,7 +440,7 @@ namespace PeanutButter.INI.Tests
             var section = RandString();
             var key = RandString();
             var value = RandString();
-            var iniFile = new INIFile();
+            var iniFile = Create();
             iniFile.SetValue(section, key, value);
             //---------------Assert Precondition----------------
 
@@ -436,7 +458,7 @@ namespace PeanutButter.INI.Tests
             var section = RandString();
             var key = RandString();
             var value = RandString();
-            var iniFile = new INIFile();
+            var iniFile = Create();
             iniFile.SetValue(section, key, value);
             //---------------Assert Precondition----------------
 
@@ -458,12 +480,117 @@ namespace PeanutButter.INI.Tests
                 Assert.IsFalse(File.Exists(tempFile.Path));
 
                 //---------------Execute Test ----------------------
-                var iniFile = new INIFile(tempFile.Path);
+                var iniFile = Create(tempFile.Path);
 
                 //---------------Test Result -----------------------
                 Assert.IsTrue(File.Exists(tempFile.Path));
             }
         }
+
+        [Test]
+        public void IndexedGetter_WhenSectionDoesntExist_ShouldCreateSection()
+        {
+            //---------------Set up test pack-------------------
+            var section = RandomValueGen.GetRandomString();
+            var key = RandomValueGen.GetRandomString();
+            var value = RandomValueGen.GetRandomString();
+
+            //---------------Assert Precondition----------------
+            using (var tempFile = new AutoDeletingTempFile(".ini"))
+            {
+                var ini = new INIFile(tempFile.Path);
+                ini[section][key] = value;
+                ini.Persist();
+
+                //---------------Execute Test ----------------------
+                var ini2 = new INIFile(tempFile.Path);
+                var result = ini2[section][key];
+
+                //---------------Test Result -----------------------
+                Assert.AreEqual(value, result);
+            }
+        }
+
+        [Test]
+        public void Construct_WhenSourceContainsComments_ShouldIgnoreCommentedParts()
+        {
+            using (var tempFile = new AutoDeletingTempFile(".ini"))
+            {
+                //---------------Set up test pack-------------------
+                var src = new[]
+                {
+                    "; created by some generator",
+                    "[general] ; general settings go here",
+                    ";this line should be ignored",
+                    "key=value ; this part of the line should be ignored"
+                };
+                File.WriteAllBytes(tempFile.Path, Encoding.UTF8.GetBytes(String.Join(Environment.NewLine, src)));
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var ini = Create(tempFile.Path);
+
+                //---------------Test Result -----------------------
+                Assert.AreEqual(1, ini.Data.Count);
+                Assert.AreEqual(1, ini["general"].Keys.Count);
+                Assert.AreEqual(1, ini["General"].Keys.Count);
+                Assert.AreEqual("value", ini["general"]["key"]);
+            }
+        }
+
+        [Test]
+        public void Parse_GivenStringContents_WhenSourceContainsComments_ShouldIgnoreCommentedParts()
+        {
+            //---------------Set up test pack-------------------
+            var src = new[]
+                {
+                    "; created by some generator",
+                    "[general] ; general settings go here",
+                    ";this line should be ignored",
+                    "key=value ; this part of the line should be ignored",
+                    "something="
+                };
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var ini = Create();
+            ini.Parse(String.Join(Environment.NewLine, src));
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(1, ini.Data.Count);
+            Assert.AreEqual(2, ini["general"].Keys.Count);
+            Assert.AreEqual(2, ini["General"].Keys.Count);
+            Assert.AreEqual("value", ini["general"]["key"]);
+            Assert.AreEqual("", ini["general"]["something"]);
+        }
+
+        [Test]
+        public void Sections_ShouldReturnSectionNames()
+        {
+            //---------------Set up test pack-------------------
+            var src = new[]
+                {
+                    "[general] ; general settings go here",
+                    "key=value ; this part of the line should be ignored",
+                    "something=",
+                    "[section1]",
+                    "[section2]"
+                };
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var ini = Create();
+            ini.Parse(String.Join(Environment.NewLine, src));
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(3, ini.Sections.Count());
+            CollectionAssert.AreEqual(new[] {"general", "section1", "section2"}, ini.Sections);
+        }
+
+
 
     }
 

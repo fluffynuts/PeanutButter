@@ -593,7 +593,10 @@ Public Class TestSelectStatementBuilder
         Dim table = RandomValueGen.GetRandomString(),
             field = RandomValueGen.GetRandomString(),
             val = RandomValueGen.GetRandomString()
-        Dim sql = SelectStatementBuilder.Create().WithTable(table).WithField(field).WithCondition(field, Condition.EqualityOperators.Like_, val).Build()
+        Dim sql = SelectStatementBuilder.Create() _
+                    .WithTable(table) _
+                    .WithField(field) _
+                    .WithCondition(field, Condition.EqualityOperators.Like_, val).Build()
         Assert.AreEqual("select [" + field + "] from [" + table + "] where [" + field + "] like '%" + val + "%'", sql)
     End Sub
 
@@ -637,6 +640,24 @@ Public Class TestSelectStatementBuilder
                             + t3 + "].[" + keyField + "]"
                             
         Assert.AreEqual(expected, sql)
+    End Sub
+
+    <TestCase(DatabaseProviders.Access, "")>
+    <TestCase(DatabaseProviders.Firebird, "")>
+    <TestCase(DatabaseProviders.SQLServer, " WITH (NOLOCK)")>
+    <TestCase(DatabaseProviders.SQLite, "")>
+    Public Sub WithNoLock_ShouldInsertRelevantNoLockPart(provider As DatabaseProviders, expectedPart As String)
+        Dim table = RandomValueGen.GetRandomString(),
+            f1 = RandomValueGen.GetRandomString(),
+            f2 = RandomValueGen.GetRandomString(),
+            f3 = RandomValueGen.GetRandomString()
+        Dim builder = SelectStatementBuilder.Create().WithDatabaseProvider(provider)
+        Dim l = builder.OpenObjectQuote
+        Dim r = builder.CloseObjectQuote
+        Dim sql = builder.WithNoLock().WithTable(table).WIthFIelds(f1, f2, f3).Build()
+        Dim expected = "select " + l + f1 + r + "," + l + f2 + r + "," + l + f3 + r + " from " + l + table + r + expectedPart
+        Assert.AreEqual(expected, sql)
+
     End Sub
 
 End Class

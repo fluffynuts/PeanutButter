@@ -8,8 +8,9 @@ namespace PeanutButter.INI
 {
     public interface IINIFile
     {
-        Dictionary<String, Dictionary<string, string>> Sections { get; }
-        void Parse(string path);
+        Dictionary<string, string> this[string index] { get; }
+        IEnumerable<string> Sections { get; }
+        void Load(string path);
         void AddSection(string section);
         void Persist(string path = null);
         void SetValue(string section, string key, string value);
@@ -20,26 +21,40 @@ namespace PeanutButter.INI
 
     public class INIFile : IINIFile
     {
-        private readonly List<string> _sections;
-        private string _path;
-        private readonly char[] _sectionTrimChars;
-        public Dictionary<String, Dictionary<string, string>> Sections { get; private set; }
-        public INIFile(string path = null)
+        public IEnumerable<string> Sections
         {
-            Sections = new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
-            _sections = new List<string>();
-            _sectionTrimChars = new[] { '[', ']' };
-            if (path != null)
-                Parse(path);
+            get { return Data.Keys; }
         }
 
-        public void Parse(string path)
+        private string _path;
+        private readonly char[] _sectionTrimChars;
+        protected Dictionary<String, Dictionary<string, string>> Data { get; set; }
+        public INIFile(string path = null)
+        {
+            Data = new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
+            _sectionTrimChars = new[] { '[', ']' };
+            if (path != null)
+                Load(path);
+        }
+
+
+        public void Load(string path)
         {
             _path = path;
-            ClearSections();
             var lines = GetLinesFrom(path);
+            Parse(lines);
+        }
+
+        public void Parse(string contents)
+        {
+            Parse(SplitIntoLines(contents));
+        }
+
+        private void Parse(IEnumerable<string> lines)
+        {
+            ClearSections();
             var currentSection = "";
-            foreach (var line in lines)
+            foreach (var line in lines.Select(RemoveComments).Where(l => !String.IsNullOrEmpty(l)))
             {
                 if (IsSectionHeading(line))
                 {
@@ -50,8 +65,35 @@ namespace PeanutButter.INI
                 var parts = line.Split('=');
                 var key = parts[0].Trim();
                 var value = String.Join("=", parts.Skip(1));
-                Sections[currentSection][key] = TrimOuterQuotesFrom(value);
+                this[currentSection][key] = TrimOuterQuotesFrom(value);
             }
+        }
+
+        private string RemoveComments(string line)
+        {
+            var parts = line.Split(';');
+            var toTake = 1;
+            while (toTake <= parts.Length && HaveUnmatchedQuotesIn(parts.Take(toTake)))
+                toTake++;
+            return String.Join(";", parts.Take(toTake)).Trim();
+        }
+
+        private bool HaveUnmatchedQuotesIn(IEnumerable<string> parts)
+        {
+            var joined = String.Join(";", parts);
+            var quoted = joined.Count(c => c == '"');
+            return quoted % 2 != 0;
+        }
+
+        public Dictionary<string, string> this[string index]
+        {
+            get
+            {
+                if (!Data.ContainsKey(index))
+                    AddSection(index);
+                return Data[index];
+            }
+            set { Data[index] = value; }
         }
 
         private string GetSectionNameFrom(string line)
@@ -66,8 +108,7 @@ namespace PeanutButter.INI
 
         private void ClearSections()
         {
-            Sections.Clear();
-            AddSection("");
+            Data.Clear();
         }
 
         private static Dictionary<string, string> CreateCaseInsensitiveStringsDictionary()
@@ -84,10 +125,16 @@ namespace PeanutButter.INI
                 {
                 }
             }
-            var lines = Encoding.UTF8.GetString(File.ReadAllBytes(path))
-                                .Split(new[] {"\n", "\r"}, StringSplitOptions.RemoveEmptyEntries)
-                                .Select(line => line.Trim());
+            var fileContents = Encoding.UTF8.GetString(File.ReadAllBytes(path));
+            var lines = SplitIntoLines(fileContents);
             return lines;
+        }
+
+        private static IEnumerable<string> SplitIntoLines(string fileContents)
+        {
+            return fileContents
+                .Split(new[] {"\n", "\r"}, StringSplitOptions.RemoveEmptyEntries)
+                .Select(line => line.Trim());
         }
 
         private static void EnsureFolderExistsFor(string path)
@@ -99,10 +146,9 @@ namespace PeanutButter.INI
 
         public void AddSection(string section)
         {
-            if (!Sections.Keys.Contains(section))
+            if (!Data.Keys.Contains(section))
             {
-                Sections[section] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-                _sections.Add(section);
+                Data[section] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             }
         }
 
@@ -118,11 +164,11 @@ namespace PeanutButter.INI
         {
             path = CheckPersistencePath(path);
             var lines = new List<string>();
-            foreach (var section in _sections)
+            foreach (var section in Sections)
             {
                 if (section.Length > 0)
                     lines.Add(String.Join("", new[] { "[", section, "]" }));
-                lines.AddRange(Sections[section].Keys.Select(key => String.Join("", new[] { key.Trim(), "=", "\"", Sections[section][key], "\"" })));
+                lines.AddRange(Data[section].Keys.Select(key => String.Join("", new[] { key.Trim(), "=", "\"", Data[section][key], "\"" })));
             }
             File.WriteAllBytes(path, Encoding.UTF8.GetBytes(String.Join(Environment.NewLine, lines)));
         }
@@ -139,24 +185,24 @@ namespace PeanutButter.INI
         public void SetValue(string section, string key, string value)
         {
             AddSection(section);
-            Sections[section][key] = value;
+            Data[section][key] = value;
         }
 
         public string GetValue(string section, string key, string defaultValue = null)
         {
-            if (Sections.Keys.All(s => s != section)) return defaultValue;
-            if (Sections[section].Keys.All(k => k != key)) return defaultValue;
-            return Sections[section][key];
+            if (Data.Keys.All(s => s != section)) return defaultValue;
+            if (Data[section].Keys.All(k => k != key)) return defaultValue;
+            return Data[section][key];
         }
 
         public bool HasSection(string section)
         {
-            return Sections.Keys.Contains(section);
+            return Data.Keys.Contains(section);
         }
 
         public bool HasSetting(string section, string key)
         {
-            return HasSection(section) && Sections[section].Keys.Contains(key);
+            return HasSection(section) && Data[section].Keys.Contains(key);
         }
     }
 }
