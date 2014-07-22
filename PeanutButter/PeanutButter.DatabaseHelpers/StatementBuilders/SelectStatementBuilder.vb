@@ -181,24 +181,28 @@ Public Class SelectStatementBuilder
         AddLeadingRowLimiterIfRequired(sql)
         Me.AddFieldsTo(sql)
         sql.Add(" from ")
-        Dim quotedTableNames = _tableNames.Select(Function(tn)
-                                                      Return String.Join("", { _openObjectQuote, tn, _closeObjectQuote })
-                                                  End Function)
-        sql.Add(String.Join(",", quotedTableNames))
-        AddNoLockHintTo(sql)
+        sql.Add(GetInitialTables())
         Me.AddJoinsTo(sql)
         Me.AddConditionsTo(sql)
         Me.AddOrdersTo(sql)
         Return String.Join("", sql)
     End Function
 
-    Private Sub AddNoLockHintTo(ByVal sql As List(Of String))
-        Select Case _databaseProvider
-            Case DatabaseProviders.SQLServer
-                If _noLock Then sql.Add(" WITH (NOLOCK)")
-            Case Else
-        End Select
-    End Sub
+    Private Function GetInitialTables() As String
+
+        Dim quotedTableNames = _tableNames.Select(Function(tn)
+            Return String.Join("", { _openObjectQuote, tn, _closeObjectQuote })
+                                                     End Function)
+        Dim joinWith = ","
+        AddNoLockHintAsRequiredTo(joinWith)
+        Dim result  = String.Join(joinWith, quotedTableNames)
+        AddNoLockHintAsRequiredTo(result)
+        Return result
+    End Function
+
+    Private Function ShouldAddNoLockHint() As Boolean
+        Return _noLock And _databaseProvider = DatabaseProviders.SQLServer
+    End Function
 
     Private Sub AddLeadingRowLimiterIfRequired(ByVal sql As List(Of String))
         If Not Me._top.HasValue Then Return
@@ -220,9 +224,24 @@ Public Class SelectStatementBuilder
         _joins.ForEach(Sub(join)
                            sql.Add(" ")
                            join.UseDatabaseProvider(_databaseProvider)
+                           join.SetNoLock(_noLock)
                            sql.Add(join.ToString())
                        End Sub)
     End Sub
+
+    Private Sub AddNoLockHintAsRequiredTo(ByRef str As String)
+        str += GetNoLockHintString()
+    End Sub
+
+    Private Function GetNoLockHintString() As String
+        If Not ShouldAddNoLockHint() Then Return ""
+        Select Case _databaseProvider
+            Case DatabaseProviders.SQLServer
+                return " WITH (NOLOCK)"
+            Case Else
+                return ""
+        End Select
+    End Function
 
 
     Private Sub CheckParameters()

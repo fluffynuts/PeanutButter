@@ -657,7 +657,51 @@ Public Class TestSelectStatementBuilder
         Dim sql = builder.WithNoLock().WithTable(table).WIthFIelds(f1, f2, f3).Build()
         Dim expected = "select " + l + f1 + r + "," + l + f2 + r + "," + l + f3 + r + " from " + l + table + r + expectedPart
         Assert.AreEqual(expected, sql)
+    End Sub
 
+    <Test()>
+    public Sub WithNoLock_WhenProviderIsSQLServer_ShouldAddNoLockHintsToAllTables()
+        Dim field1 = RandomValueGen.GetRandomString(),
+            field2 = RandomValueGen.GetRandomString(),
+            joinField1 = RandomValueGen.GetRandomString(),
+            joinField2 = RandomValueGen.GetRandomString(),
+            table1 = RandomValueGen.GetRandomString(),
+            table2 = RandomValueGen.GetRandomString()
+        Dim sql = SelectStatementBuilder.Create() _
+                    .WithDatabaseProvider(DatabaseProviders.SQLServer) _
+                    .WithNoLock() _
+                    .WithTable(table1) _
+                    .WithField(field1) _
+                    .WithLeftJoin(table1, joinField1, Condition.EqualityOperators.Equals, table2, joinField2) _
+                    .WithField(field2) _
+                    .Build()
+        Dim expectedSql = "select [" + field1 + "],[" + field2 + "] from [" + table1 + "] WITH (NOLOCK) left join [" + table2 + "] WITH (NOLOCK) on [" + table1 + "].[" + joinField1 + "]=[" + table2 + "].[" + joinField2 + "]"
+        Assert.AreEqual(expectedSql, sql)
+    End Sub
+
+
+    <TestCase(DatabaseProviders.Access)>
+    <TestCase(DatabaseProviders.Firebird)>
+    <TestCase(DatabaseProviders.SQLite)>
+    public Sub WithNoLock_WhenProviderIsNotSQLServer_ShouldNotAlterOutput(provider As DatabaseProviders)
+        Dim field1 = RandomValueGen.GetRandomString(),
+            field2 = RandomValueGen.GetRandomString(),
+            joinField1 = RandomValueGen.GetRandomString(),
+            joinField2 = RandomValueGen.GetRandomString(),
+            table1 = RandomValueGen.GetRandomString(),
+            table2 = RandomValueGen.GetRandomString()
+        Dim builder = SelectStatementBuilder.Create() _
+                    .WithDatabaseProvider(provider)
+        Dim sql = builder.WithNoLock() _
+                    .WithTable(table1) _
+                    .WithField(field1) _
+                    .WithLeftJoin(table1, joinField1, Condition.EqualityOperators.Equals, table2, joinField2) _
+                    .WithField(field2) _
+                    .Build()
+        Dim l = builder.OpenObjectQuote
+        Dim r = builder.CloseObjectQuote
+        Dim expectedSql = "select " + l + field1 + r + "," + l + field2 + r + " from " + l + table1 + r + " left join " + l + table2 + r + " on " + l + table1 + r + "." + l + joinField1 + r + "=" + l + table2 + r + "." + l + joinField2 + r
+        Assert.AreEqual(expectedSql, sql)
     End Sub
 
 End Class

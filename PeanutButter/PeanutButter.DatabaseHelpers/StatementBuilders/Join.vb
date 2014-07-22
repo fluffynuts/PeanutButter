@@ -1,5 +1,7 @@
 ﻿Public Class Join
     Inherits StatementBuilderBase
+    Private _noLock As Boolean
+
     Public Enum JoinDirection
         Left
         Inner
@@ -40,7 +42,6 @@
         Me.Condition.UseDatabaseProvider(_databaseProvider)
     End Sub
 
-
     Public Overrides Function ToString() As String
         Dim parts As New List(Of String)
         Me.SetupCondition()
@@ -49,8 +50,15 @@
         parts.Add(_openObjectQuote)
         parts.Add(Me.RightTable)
         parts.Add(_closeObjectQuote)
+        If _noLock AndAlso _databaseProvider = DatabaseProviders.SQLServer Then
+            parts.Add(" WITH (NOLOCK)")
+        End If
         parts.Add(" on ")
         parts.Add(Me.Condition.ToString())
         Return String.Join("", parts)
     End Function
+
+    Public Sub SetNoLock(ByVal noLock As Boolean)
+        _noLock = noLock
+    End Sub
 End Class
