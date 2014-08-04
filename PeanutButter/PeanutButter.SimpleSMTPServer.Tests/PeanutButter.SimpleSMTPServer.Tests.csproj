@@ -50,6 +50,20 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj">
+      <Project>{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}</Project>
+      <Name>PeanutButter.RandomGenerators</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PeanutButter.SimpleSMTPServer\PeanutButter.SimpleSMTPServer.csproj">
+      <Project>{6EB5D481-A1F0-4CBD-99EC-F9AFB8F0119C}</Project>
+      <Name>PeanutButter.SimpleSMTPServer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PeanutButter.SimpleTcpServer\PeanutButter.SimpleTcpServer.csproj">
+      <Project>{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}</Project>
+      <Name>PeanutButter.SimpleTcpServer</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

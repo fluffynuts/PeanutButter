@@ -43,6 +43,8 @@
     <Compile Include="HttpServer.cs" />
     <Compile Include="HttpServerBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TcpClientExtensions.cs" />
+    <Compile Include="TcpServerProcessor.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PeanutButter.SimpleTcpServer\PeanutButter.SimpleTcpServer.csproj">

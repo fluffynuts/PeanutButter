@@ -13,39 +13,10 @@ using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
 using PeanutButter.SimpleTcpServer;
 
 namespace PeanutButter.SimpleHTTPServer
 {
-    public abstract class TcpServerProcessor
-    {
-        public TcpClient TcpClient { get; protected set; }
-
-        protected TcpServerProcessor(TcpClient client)
-        {
-            this.TcpClient = client;
-        }
-
-        protected string ReadLineFrom(Stream stream) 
-        {
-            var data = new List<char>();
-            while (true) 
-            {
-                var thisChar = stream.ReadByte();
-                if (thisChar == '\n') break;
-                if (thisChar == '\r') continue;
-                if (thisChar < 0) 
-                { 
-                    Thread.Sleep(0); 
-                    continue; 
-                };
-                data.Add(Convert.ToChar(thisChar));
-            }            
-            return String.Join("", data);
-        }
-    }
-
     public class TcpIOWrapper : IDisposable
     {
         public Stream RawStream { get { return GetRawStream(); } }
@@ -158,8 +129,8 @@ namespace PeanutButter.SimpleHTTPServer
                 try
                 {
                     _outputStream = io.StreamWriter;
-                    ParseRequest(io.RawStream);
-                    ReadHeaders(io.RawStream);
+                    ParseRequest();
+                    ReadHeaders();
                     HandleRequest(io);
                 }
                 catch (Exception ex)
@@ -182,9 +153,9 @@ namespace PeanutButter.SimpleHTTPServer
                 HandlePOSTRequest(io.RawStream);
         }
 
-        public void ParseRequest(Stream stream) 
+        public void ParseRequest() 
         {
-            var request = ReadLineFrom(stream);
+            var request = this.TcpClient.ReadLine();
             var tokens = request.Split(' ');
             if (tokens.Length != 3) 
             {
@@ -216,10 +187,10 @@ namespace PeanutButter.SimpleHTTPServer
                                 }).ToDictionary(x => x.key, x => x.value);
         }
 
-        public void ReadHeaders(Stream stream) 
+        public void ReadHeaders() 
         {
             String line;
-            while ((line = ReadLineFrom(stream)) != null) {
+            while ((line = TcpClient.ReadLine()) != null) {
                 if (line.Equals("")) {
                     return;
                 }

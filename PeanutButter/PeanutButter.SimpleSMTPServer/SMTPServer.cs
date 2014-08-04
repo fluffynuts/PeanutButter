@@ -13,6 +13,9 @@ namespace PeanutButter.SimpleSMTPServer
         public SMTPServer(int port) : base(port)
         {
         }
+        public SMTPServer()
+        {
+        }
 
         protected override void Init()
         {
