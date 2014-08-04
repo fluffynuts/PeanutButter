@@ -4,14 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{EFC85343-95B4-48C3-BCBE-579EA4868C0A}</ProjectGuid>
+    <ProjectGuid>{A624CEE2-8727-41B8-A6E1-9D819F745ADD}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PeanutButter.Utils</RootNamespace>
-    <AssemblyName>PeanutButter.Utils</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <RootNamespace>PeanutButter.SimpleHTTPServer</RootNamespace>
+    <AssemblyName>PeanutButter.SimpleHTTPServer</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -40,19 +39,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AutoDeleter.cs" />
-    <Compile Include="AutoDisposer.cs" />
-    <Compile Include="AutoLocker.cs" />
-    <Compile Include="BinaryArrayExtensions.cs" />
-    <Compile Include="DecimalDecorator.cs" />
-    <Compile Include="ObjectExtensions.cs" />
+    <Compile Include="HttpProcessor.cs" />
+    <Compile Include="HttpServer.cs" />
+    <Compile Include="HttpServerBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PeanutButter.SimpleTcpServer\PeanutButter.SimpleTcpServer.csproj">
+      <Project>{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}</Project>
+      <Name>PeanutButter.SimpleTcpServer</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>mkdir $(SolutionDir)\$(ProjectName).NugetPackage\lib\net40
-copy $(TargetPath) $(SolutionDir)\$(ProjectName).NugetPackage\lib\net40\</PostBuildEvent>
-  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

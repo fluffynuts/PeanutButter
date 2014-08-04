@@ -4,14 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{EFC85343-95B4-48C3-BCBE-579EA4868C0A}</ProjectGuid>
+    <ProjectGuid>{6EB5D481-A1F0-4CBD-99EC-F9AFB8F0119C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PeanutButter.Utils</RootNamespace>
-    <AssemblyName>PeanutButter.Utils</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <RootNamespace>PeanutButter.SimpleSMTPServer</RootNamespace>
+    <AssemblyName>PeanutButter.SimpleSMTPServer</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -40,19 +39,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AutoDeleter.cs" />
-    <Compile Include="AutoDisposer.cs" />
-    <Compile Include="AutoLocker.cs" />
-    <Compile Include="BinaryArrayExtensions.cs" />
-    <Compile Include="DecimalDecorator.cs" />
-    <Compile Include="ObjectExtensions.cs" />
+    <Compile Include="SMTPServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>mkdir $(SolutionDir)\$(ProjectName).NugetPackage\lib\net40
-copy $(TargetPath) $(SolutionDir)\$(ProjectName).NugetPackage\lib\net40\</PostBuildEvent>
-  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
