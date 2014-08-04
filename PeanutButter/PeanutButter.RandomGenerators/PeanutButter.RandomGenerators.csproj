@@ -45,6 +45,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RandomValueGen.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PeanutButter.Utils\PeanutButter.Utils.csproj">
+      <Project>{EFC85343-95B4-48C3-BCBE-579EA4868C0A}</Project>
+      <Name>PeanutButter.Utils</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>mkdir $(SolutionDir)\$(ProjectName).NugetPackage\lib\net40

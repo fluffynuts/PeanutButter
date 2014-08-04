@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PeanutButter.Utils;
 
 namespace PeanutButter.RandomGenerators
 {
@@ -87,16 +88,53 @@ namespace PeanutButter.RandomGenerators
             return String.Join("", chars);
         }
 
-        public static DateTime GetRandomDate(DateTime? minDate = null, DateTime? maxDate = null)
+
+        public static DateTime GetRandomDate(DateTime? minDate = null, DateTime? maxDate = null, bool dateOnly = false, 
+                                                DateTime? minTime = null, DateTime? maxTime = null)
         {
-            if (!minDate.HasValue) minDate = new DateTime(1990, 1, 1);
-            if (!maxDate.HasValue) maxDate = new DateTime(2020, 12, 31);
-            var minTicks = minDate.Value.Ticks;
-            var maxTicks = maxDate.Value.Ticks;
+            var minTicks = (minDate.HasValue ? minDate.Value : new DateTime(1990, 1, 1)).Ticks;
+            var maxTicks = (maxDate.HasValue ? maxDate.Value : new DateTime(2020, 12, 31)).Ticks;
             var actualTicks = GetRandomLong(minTicks, maxTicks);
             var rawDateTime = new DateTime(actualTicks);
-            var sanitised = new DateTime(rawDateTime.Year, rawDateTime.Month, rawDateTime.Day, rawDateTime.Hour, rawDateTime.Minute, rawDateTime.Second);
-            return sanitised;
+            Func<int, int> zeroIfRequired = (value) => dateOnly ? 0 : value;
+            var sanitised = new DateTime(rawDateTime.Year, 
+                                            rawDateTime.Month, 
+                                            rawDateTime.Day, 
+                                            rawDateTime.Hour, 
+                                            rawDateTime.Minute, 
+                                            rawDateTime.Second);
+            return RangeCheckTimeOnRandomDate(minTime, maxTime, dateOnly ? sanitised.StartOfDay() : sanitised);
+        }
+
+        private static DateTime RangeCheckTimeOnRandomDate(DateTime? minTime, DateTime? maxTime, DateTime value)
+        {
+            if (!minTime.HasValue && !maxTime.HasValue)
+                return value;
+            var rangeStart = minTime.HasValue ? minTime.Value.AsTimeOnly() : value.StartOfDay().AsTimeOnly();
+            var rangeEnd = maxTime.HasValue ? maxTime.Value.AsTimeOnly() : value.EndOfDay().AsTimeOnly();
+            if (rangeStart > rangeEnd)
+            {
+                var swap = rangeEnd;
+                rangeEnd = rangeStart;
+                rangeStart = swap;
+            }
+            var minTimeTestValue = new DateTime(value.Year, value.Month, value.Day, rangeStart.Hour, rangeStart.Minute, rangeStart.Second, rangeStart.Millisecond);
+            var maxTimeTestValue = new DateTime(value.Year, value.Month, value.Day, rangeEnd.Hour, rangeEnd.Minute, rangeEnd.Second, rangeEnd.Millisecond);
+            var minDelta = minTimeTestValue - value;
+            var maxDelta = value - maxTimeTestValue;
+            if (minDelta.TotalMilliseconds > 0)
+            {
+                var maxAdd = rangeEnd - minTimeTestValue.AsTimeOnly();
+                var millisecondsToAdd = GetRandomLong((long) minDelta.TotalMilliseconds, (long) maxAdd.TotalMilliseconds);
+                value = value.AddMilliseconds(millisecondsToAdd);
+            }
+            else if (maxDelta.TotalMilliseconds > 0)
+            {
+                var maxSubtract = maxTimeTestValue.AsTimeOnly() - rangeStart;
+                var millisecondsToSubtract = GetRandomLong((long) maxDelta.TotalMilliseconds, (long) maxSubtract.TotalMilliseconds);
+                value = value.AddMilliseconds(-1*millisecondsToSubtract);
+            }
+            return value;
         }
 
         public static double GetRandomDouble(double min = 0, double max = 10)
@@ -165,6 +203,14 @@ namespace PeanutButter.RandomGenerators
             var itemArray = items as T[] ?? items.ToArray();
             var upper = itemArray.Count() - 1;
             return itemArray.Skip(RandomValueGen.GetRandomInt(0, upper)).First();
+        }
+
+        public static DateTime GetRandomTimeOn(DateTime theDate)
+        {
+            var min = new DateTime(theDate.Year, theDate.Month, theDate.Day, 0, 0, 0);
+            var max = new DateTime(theDate.Year, theDate.Month, theDate.Day, 0, 0, 0);
+            max = max.AddDays(1).AddMilliseconds(-1);
+            return GetRandomDate(min, max);
         }
     }
 }

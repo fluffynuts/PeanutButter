@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TestDateAssert.cs" />
     <Compile Include="TestPropertyAssert.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -59,6 +60,10 @@
     <ProjectReference Include="..\PeanutButter.TestUtils\PeanutButter.TestUtils.Generic.csproj">
       <Project>{6DDD7F9E-857A-442B-9148-05B34EA279C4}</Project>
       <Name>PeanutButter.TestUtils.Generic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PeanutButter.Utils\PeanutButter.Utils.csproj">
+      <Project>{EFC85343-95B4-48C3-BCBE-579EA4868C0A}</Project>
+      <Name>PeanutButter.Utils</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

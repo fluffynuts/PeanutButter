@@ -51,6 +51,7 @@
     <Compile Include="TestAutoDeleter.cs" />
     <Compile Include="TestAutoDisposer.cs" />
     <Compile Include="TestAutoLocker.cs" />
+    <Compile Include="TestDateTimeExtensions.cs" />
     <Compile Include="TestDecimalDecorator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestObjectExtensions.cs" />
