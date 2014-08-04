@@ -14,7 +14,11 @@ namespace PeanutButter.SimpleHTTPServer
 {
     public abstract class HttpServerBase : TcpServer
     {
-        public HttpServerBase(int port) : base(port)
+        protected HttpServerBase(int port) : base(port)
+        {
+        }
+
+        protected HttpServerBase()
         {
         }
 

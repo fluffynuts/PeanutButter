@@ -19,10 +19,17 @@ namespace PeanutButter.SimpleTcpServer
         TcpListener _listener;
         protected Task _task;
         protected CancellationTokenSource _cancellationTokenSource;
-        public TcpServer(int port)
+
+        protected TcpServer(): this(FindOpenRandomPort())
+        {
+        }
+
+        protected TcpServer(int port)
         {
             this.Port = port;
+            Init();
         }
+        protected abstract void Init();
 
         protected abstract IProcessor CreateProcessor(TcpClient client);
         public void Start() 
@@ -93,6 +100,28 @@ namespace PeanutButter.SimpleTcpServer
         public void Dispose()
         {
             Stop();
+        }
+
+        protected static int FindOpenRandomPort()
+        {
+            var rnd = new Random(DateTime.Now.Millisecond);
+            var tryThis = rnd.Next(5000, 50000);
+            var seekingPort = true;
+            while (seekingPort)
+            {
+                try
+                {
+                    var listener = new TcpListener(IPAddress.Any, tryThis);
+                    listener.Start();
+                    listener.Stop();
+                    seekingPort = false;
+                }
+                catch
+                {
+                    Thread.Sleep(rnd.Next(1, 50));
+                }
+            }
+            return tryThis;
         }
     }
 }

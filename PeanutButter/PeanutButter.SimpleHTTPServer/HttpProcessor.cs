@@ -18,8 +18,112 @@ using PeanutButter.SimpleTcpServer;
 
 namespace PeanutButter.SimpleHTTPServer
 {
+    public abstract class TcpServerProcessor
+    {
+        public TcpClient TcpClient { get; protected set; }
 
-    public class HttpProcessor : IProcessor
+        protected TcpServerProcessor(TcpClient client)
+        {
+            this.TcpClient = client;
+        }
+
+        protected string ReadLineFrom(Stream stream) 
+        {
+            var data = new List<char>();
+            while (true) 
+            {
+                var thisChar = stream.ReadByte();
+                if (thisChar == '\n') break;
+                if (thisChar == '\r') continue;
+                if (thisChar < 0) 
+                { 
+                    Thread.Sleep(0); 
+                    continue; 
+                };
+                data.Add(Convert.ToChar(thisChar));
+            }            
+            return String.Join("", data);
+        }
+    }
+
+    public class TcpIOWrapper : IDisposable
+    {
+        public Stream RawStream { get { return GetRawStream(); } }
+        public StreamWriter StreamWriter { get { return GetStreamWriter(); } }
+
+        private StreamWriter _outputStreamWriter;
+        private TcpClient _client;
+        private BufferedStream _rawStream;
+
+        public TcpIOWrapper(TcpClient client)
+        {
+            _client = client;
+        }
+
+        public void Dispose()
+        {
+            lock (this)
+            {
+                DisposeStreamWriter();
+                DisposeRawStream();
+                ShutdownClient();
+            }
+        }
+
+        private void ShutdownClient()
+        {
+            if (_client != null)
+            {
+                _client.Close();
+                _client = null;
+            }
+        }
+
+        private void DisposeStreamWriter()
+        {
+            if (_outputStreamWriter != null)
+            {
+                _outputStreamWriter.Flush();
+                _outputStreamWriter.Dispose();
+                _outputStreamWriter = null;
+            }
+        }
+
+        private void DisposeRawStream()
+        {
+            if (_rawStream != null)
+            {
+                _rawStream.Flush();
+                _rawStream.Dispose();
+                _rawStream = null;
+            }
+        }
+
+        private StreamWriter GetStreamWriter()
+        {
+            lock (this)
+            {
+                if (_client == null)
+                    return null;
+                if (_outputStreamWriter == null)
+                    _outputStreamWriter = new StreamWriter(RawStream);
+                return _outputStreamWriter;
+            }
+        }
+
+        private Stream GetRawStream()
+        {
+            lock (this)
+            {
+                if (_client == null) return null;
+                if (_rawStream == null)
+                    _rawStream = new BufferedStream(_client.GetStream());
+                return _rawStream;
+            }
+        }
+    }
+
+    public class HttpProcessor : TcpServerProcessor, IProcessor
     {
         private const int BUF_SIZE = 4096;
         private const string CONTENT_LENGTH_HEADER = "Content-Length";
@@ -29,8 +133,7 @@ namespace PeanutButter.SimpleHTTPServer
         private const string MIMETYPE_HTML = "text/html";
         private const int MAX_POST_SIZE = 10 * 1024 * 1024; // 10MB
 
-        public TcpClient Socket { get; set; }
-        public HttpServerBase Server { get; set; }
+        public HttpServerBase Server { get; protected set; }
 
         private StreamWriter _outputStream;
 
@@ -42,55 +145,41 @@ namespace PeanutButter.SimpleHTTPServer
         public Dictionary<string, string> HttpHeaders { get; private set; }
 
 
-        public HttpProcessor(TcpClient s, HttpServerBase server) 
+        public HttpProcessor(TcpClient tcpClient, HttpServerBase server) : base(tcpClient)
         {
-            this.Socket = s;
             this.Server = server;                   
             this.HttpHeaders = new Dictionary<string, string>();
         }
 
-        private string ReadLineFrom(Stream stream) 
-        {
-            int next_char;
-            string data = "";
-            while (true) {
-                next_char = stream.ReadByte();
-                if (next_char == '\n') { break; }
-                if (next_char == '\r') { continue; }
-                if (next_char == -1) { Thread.Sleep(1); continue; };
-                data += Convert.ToChar(next_char);
-            }            
-            return data;
-        }
-
         public void ProcessRequest() 
-        {                        
-            using (var inputStream = new BufferedStream(Socket.GetStream()))
+        {
+            using (var io = new TcpIOWrapper(TcpClient))
             {
-                using (_outputStream = new StreamWriter(new BufferedStream(Socket.GetStream())))
+                try
                 {
-                    try
-                    {
-                        ParseRequest(inputStream);
-                        ReadHeaders(inputStream);
-                        if (Method.Equals(METHOD_GET))
-                        {
-                            HandleGETRequest();
-                        }
-                        else if (Method.Equals(METHOD_POST))
-                        {
-                            HandlePostRequest(inputStream);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        WriteFailure();
-                        Debug.WriteLine("Unable to process request: " + e.Message);
-                    }
-                    _outputStream.Flush();
-                    Socket.Close();
+                    _outputStream = io.StreamWriter;
+                    ParseRequest(io.RawStream);
+                    ReadHeaders(io.RawStream);
+                    HandleRequest(io);
+                }
+                catch (Exception ex)
+                {
+                    WriteFailure();
+                    Debug.WriteLine("Unable to process request: " + ex.Message);
+                }
+                finally
+                {
+                    _outputStream = null;
                 }
             }
+        }
+
+        private void HandleRequest(TcpIOWrapper io)
+        {
+            if (Method.Equals(METHOD_GET))
+                HandleGETRequest();
+            else if (Method.Equals(METHOD_POST))
+                HandlePOSTRequest(io.RawStream);
         }
 
         public void ParseRequest(Stream stream) 
@@ -155,7 +244,7 @@ namespace PeanutButter.SimpleHTTPServer
             Server.HandleGETRequest(this);
         }
 
-        public void HandlePostRequest(Stream stream) 
+        public void HandlePOSTRequest(Stream stream) 
         {
             using (var ms = new MemoryStream())
             {

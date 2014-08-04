@@ -15,38 +15,23 @@ namespace PeanutButter.SimpleHTTPServer
     }
     public class HttpServer : HttpServerBase 
     {
-        private readonly List<Func<HttpProcessor, Stream, HttpServerPipelineResult>> _handlers;
+        private List<Func<HttpProcessor, Stream, HttpServerPipelineResult>> _handlers;
 
-        public HttpServer() : this(FindOpenRandomPort())
+        public HttpServer(int port)
+            : base(port)
         {
         }
 
-        private static int FindOpenRandomPort()
-        {
-            var rnd = new Random(DateTime.Now.Millisecond);
-            var tryThis = rnd.Next(5000, 50000);
-            var seekingPort = true;
-            while (seekingPort)
-            {
-                try
-                {
-                    var listener = new TcpListener(IPAddress.Any, tryThis);
-                    listener.Start();
-                    listener.Stop();
-                    seekingPort = false;
-                }
-                catch
-                {
-                    Thread.Sleep(rnd.Next(1, 50));
-                }
-            }
-            return tryThis;
+        public HttpServer()
+        { 
         }
 
-        public HttpServer(int port) : base(port) 
+
+        protected override void Init()
         {
             _handlers = new List<Func<HttpProcessor, Stream, HttpServerPipelineResult>>();
         }
+
         public void AddHandler(Func<HttpProcessor, Stream, HttpServerPipelineResult> handler)
         {
             _handlers.Add(handler);
@@ -118,7 +103,6 @@ namespace PeanutButter.SimpleHTTPServer
         {
             InvokeHandlersWith(p, inputData);
         }
-
     }
 
 
