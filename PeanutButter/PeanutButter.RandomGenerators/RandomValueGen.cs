@@ -96,7 +96,6 @@ namespace PeanutButter.RandomGenerators
             var maxTicks = (maxDate.HasValue ? maxDate.Value : new DateTime(2020, 12, 31)).Ticks;
             var actualTicks = GetRandomLong(minTicks, maxTicks);
             var rawDateTime = new DateTime(actualTicks);
-            Func<int, int> zeroIfRequired = (value) => dateOnly ? 0 : value;
             var sanitised = new DateTime(rawDateTime.Year, 
                                             rawDateTime.Month, 
                                             rawDateTime.Day, 
