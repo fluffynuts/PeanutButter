@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Xml.Linq;
 
 namespace PeanutButter.SimpleHTTPServer 
 {
@@ -17,15 +18,22 @@ namespace PeanutButter.SimpleHTTPServer
     {
         private List<Func<HttpProcessor, Stream, HttpServerPipelineResult>> _handlers;
 
-        public HttpServer(int port)
+        public HttpServer(int port, bool autoStart = true)
             : base(port)
         {
+            AutoStart(autoStart);
         }
 
-        public HttpServer()
-        { 
+        public HttpServer(bool autoStart = true)
+        {
+            AutoStart(autoStart);
         }
 
+        private void AutoStart(bool autoStart)
+        {
+            if (autoStart)
+                Start();
+        }
 
         protected override void Init()
         {
@@ -45,15 +53,14 @@ namespace PeanutButter.SimpleHTTPServer
 
         public string BaseUrl { get { return String.Format("http://localhost:{0}", this.Port); } }
 
-        public void AddFileHandler(Func<HttpProcessor, Stream, byte[]> handler)
+        public void AddFileHandler(Func<HttpProcessor, Stream, byte[]> handler, string contentType = "application/octet-stream")
         {
             AddHandler((p, s) =>
                 {
                     var data = handler(p, s);
                     if (data == null) return HttpServerPipelineResult.NotHandled;
-                    p.WriteSuccess("application/octet-stream", data);
+                    p.WriteSuccess(contentType, data);
                     return HttpServerPipelineResult.HandledExclusively;
-
                 });
         }
 
@@ -102,6 +109,24 @@ namespace PeanutButter.SimpleHTTPServer
         public override void HandlePOSTRequest(HttpProcessor p, Stream inputData)
         {
             InvokeHandlersWith(p, inputData);
+        }
+
+        public void ServeDocument(string path, XDocument doc)
+        {
+            AddDocumentHandler((p, s) =>
+                {
+                    if (p.Path != path) return null;
+                    return doc.ToString();
+                });
+        }
+
+        public void ServeFile(string path, byte[] data, string contentType = "application/octet-stream")
+        {
+            AddFileHandler((p, s) =>
+                {
+                    if (p.Path != path) return null;
+                    return data;
+                }, contentType);
         }
     }
 

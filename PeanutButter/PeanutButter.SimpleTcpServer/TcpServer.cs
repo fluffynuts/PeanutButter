@@ -19,13 +19,17 @@ namespace PeanutButter.SimpleTcpServer
         TcpListener _listener;
         protected Task _task;
         protected CancellationTokenSource _cancellationTokenSource;
+        private bool _portExplicitlySpecified;
 
-        protected TcpServer(): this(FindOpenRandomPort())
+        protected TcpServer()
         {
+            Port = FindOpenRandomPort();
+            Init();
         }
 
         protected TcpServer(int port)
         {
+            _portExplicitlySpecified = true;
             this.Port = port;
             Init();
         }
@@ -42,7 +46,23 @@ namespace PeanutButter.SimpleTcpServer
                                               {
                                                   if (_cancellationTokenSource.IsCancellationRequested) return;
                                                   _listener = new TcpListener(IPAddress.Any, Port);
-                                                  _listener.Start();
+                                                  var attempts = 0;
+                                                  while (true)
+                                                  {
+                                                      try
+                                                      {
+                                                          _listener.Start();
+                                                          break;
+                                                      }
+                                                      catch
+                                                      {
+                                                          if (_portExplicitlySpecified)
+                                                              throw new Exception("Can't listen on specified port '" + Port + "': probably already in use?");
+                                                          if (attempts++ > 50)
+                                                              throw new Exception("Can't find a port to listen on ):");
+                                                          Port = FindOpenRandomPort();
+                                                      }
+                                                  }
                                                   while (!_cancellationTokenSource.IsCancellationRequested) {
                                                       try
                                                       {

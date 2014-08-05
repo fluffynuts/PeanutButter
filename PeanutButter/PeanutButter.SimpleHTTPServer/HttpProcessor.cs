@@ -64,8 +64,12 @@ namespace PeanutButter.SimpleHTTPServer
         {
             if (_rawStream != null)
             {
-                _rawStream.Flush();
-                _rawStream.Dispose();
+                try
+                {
+                    _rawStream.Flush();
+                    _rawStream.Dispose();
+                }
+                catch { }
                 _rawStream = null;
             }
         }
