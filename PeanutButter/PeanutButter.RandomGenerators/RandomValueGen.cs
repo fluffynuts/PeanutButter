@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using PeanutButter.Utils;
 
 namespace PeanutButter.RandomGenerators
@@ -85,7 +84,7 @@ namespace PeanutButter.RandomGenerators
                 var pos = (int)GetRandomInt(0, charSetLength - 1);
                 chars.Add(charSet[pos]);
             }
-            return String.Join("", chars);
+            return String.Join("", chars.Select(c => c.ToString()).ToArray());
         }
 
 
@@ -170,7 +169,7 @@ namespace PeanutButter.RandomGenerators
             {
                 words.Add(GetRandomAlphaNumericString(1, 10));
             }
-            return String.Join(" ", words);
+            return String.Join(" ", words.ToArray());
         }
 
         public static string GetRandomHttpUrl()

@@ -50,7 +50,9 @@ namespace PeanutButter.Utils
         }
         public DecimalDecorator(string value)
         {
-            if (String.IsNullOrWhiteSpace(value))
+            if (value == null)
+                value = "0";
+            if (value.Trim() == String.Empty)
                 value = "0";
             value = value.Replace(" ", String.Empty);
             if (value.IndexOf(".") > -1)

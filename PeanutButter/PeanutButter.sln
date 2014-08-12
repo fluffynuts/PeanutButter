@@ -126,6 +126,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.SimpleSMTPServ
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.SimpleSMTPServer.Tests", "PeanutButter.SimpleSMTPServer.Tests\PeanutButter.SimpleSMTPServer.Tests.csproj", "{BB91FE3E-0074-4DC4-B376-32194BBF568E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.WindowsServiceManagement.Tests", "PeanutButter.WindowsServiceManagement.Tests\PeanutButter.WindowsServiceManagement.Tests.csproj", "{4E12F322-096E-4E42-BA86-4BDBC8492115}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -508,6 +510,15 @@ Global
 		{BB91FE3E-0074-4DC4-B376-32194BBF568E}.Test|Any CPU.ActiveCfg = Release|Any CPU
 		{BB91FE3E-0074-4DC4-B376-32194BBF568E}.Test|Any CPU.Build.0 = Release|Any CPU
 		{BB91FE3E-0074-4DC4-B376-32194BBF568E}.Test|x86.ActiveCfg = Release|Any CPU
+		{4E12F322-096E-4E42-BA86-4BDBC8492115}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E12F322-096E-4E42-BA86-4BDBC8492115}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E12F322-096E-4E42-BA86-4BDBC8492115}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4E12F322-096E-4E42-BA86-4BDBC8492115}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E12F322-096E-4E42-BA86-4BDBC8492115}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E12F322-096E-4E42-BA86-4BDBC8492115}.Release|x86.ActiveCfg = Release|Any CPU
+		{4E12F322-096E-4E42-BA86-4BDBC8492115}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{4E12F322-096E-4E42-BA86-4BDBC8492115}.Test|Any CPU.Build.0 = Release|Any CPU
+		{4E12F322-096E-4E42-BA86-4BDBC8492115}.Test|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

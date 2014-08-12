@@ -6,6 +6,7 @@ using System.IO;
 using System.Management;
 using System.Runtime.InteropServices;
 using System.Threading;
+using Microsoft.Win32;
 
 namespace PeanutButter.Win32ServiceControl
 {
@@ -15,6 +16,7 @@ namespace PeanutButter.Win32ServiceControl
         ServiceState State { get; }
         bool IsInstalled { get; }
         int ServiceStateExtraWaitSeconds { get; set; }
+        ServiceStartupTypes StartupType { get; }
 
         void Uninstall();
         void InstallAndStart();
@@ -23,7 +25,21 @@ namespace PeanutButter.Win32ServiceControl
         void Stop(bool wait = true);
         void Pause();
         void Continue();
+        void Disable();
+        void SetAutomaticStart();
+        void SetManualStart();
     }
+
+    public enum ServiceStartupTypes
+    {
+        Unknown = -1,
+        Boot = 0,
+        System = 1,
+        Automatic = 2,
+        Manual = 3,
+        Disabled = 4
+    }
+
     public class WindowsServiceUtilException : Exception
     {
         public WindowsServiceUtilException(string message)
@@ -431,6 +447,65 @@ namespace PeanutButter.Win32ServiceControl
                     String.Join(String.Empty, new string[] { "Failed to install with executable: " + this._serviceExe, "\nMore info:\n", win32Exception.Message }));
 
             return service;
+        }
+
+        public ServiceStartupTypes StartupType 
+        {
+            get 
+            { 
+                var regKey = GetServiceRegistryKey(); 
+                if (regKey == null) return ServiceStartupTypes.Unknown;
+                ServiceStartupTypes result;
+                try
+                {
+                    return
+                        (ServiceStartupTypes)
+                            Enum.Parse(typeof (ServiceStartupTypes), regKey.GetValue("Start").ToString(), true);
+                }
+                catch (Exception)
+                {
+                    return ServiceStartupTypes.Unknown;
+                }
+            }
+        }
+
+        public void Disable()
+        {
+            SetStartValue(ServiceStartupTypes.Disabled);
+        }
+
+        public void SetAutomaticStart()
+        {
+            SetStartValue(ServiceStartupTypes.Automatic);
+        }
+
+        public void SetManualStart()
+        {
+            SetStartValue(ServiceStartupTypes.Manual);
+        }
+
+
+        private void SetStartValue(ServiceStartupTypes value)
+        {
+            if (!IsInstalled) return;
+            var regKey = GetServiceRegistryKey();
+            if (regKey == null) throw new Exception("Unable to open service registry key for '" + ServiceName + "'");
+            regKey.SetValue("Start", value, RegistryValueKind.DWord);
+        }
+
+        private RegistryKey GetServiceRegistryKey()
+        {
+            try
+            {
+                var subKeypath = String.Join("\\", new[] { 
+                    "SYSTEM", "CurrentControlSet", "Services", ServiceName 
+                });
+                return Registry.LocalMachine.OpenSubKey(subKeypath, RegistryKeyPermissionCheck.ReadWriteSubTree);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         public void Start(bool wait = true)
