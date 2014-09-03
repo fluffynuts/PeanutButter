@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.RandomGenerators", "PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj", "{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}"
 EndProject
@@ -119,6 +119,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.SimpleHTTPServer.Tests", "PeanutButter.SimpleHTTPServer.Tests\PeanutButter.SimpleHTTPServer.Tests.csproj", "{717BEDB7-A70F-4BE3-8364-EBEAE9C3D64F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.SimpleHTTPServer.NugetPackage", "PeanutButter.SimpleHTTPServer.NugetPackage\PeanutButter.SimpleHTTPServer.NugetPackage.csproj", "{6D6B8665-19BF-49B0-867F-3D4383613122}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A624CEE2-8727-41B8-A6E1-9D819F745ADD} = {A624CEE2-8727-41B8-A6E1-9D819F745ADD}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.SimpleTcpServer", "PeanutButter.SimpleTcpServer\PeanutButter.SimpleTcpServer.csproj", "{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}"
 EndProject
