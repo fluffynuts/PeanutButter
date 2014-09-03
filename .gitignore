@@ -123,3 +123,4 @@ PeanutButter/PeanutButter.Utils.NugetPackage/lib/net35/PeanutButter.Utils.dll
 PeanutButter/PeanutButter.WindowsServiceManagement.NugetPackage/lib/net35/PeanutButter.Win32ServiceControl.dll
 PeanutButter/PeanutButter.XmlUtils.NuGetPackage/lib/net40/PeanutButter.XmlUtils.dll
 PeanutButter/PeanutButter.SimpleHTTPServer.NugetPackage/lib/net40/PeanutButter.SimpleHTTPServer.dll
+PeanutButter/PeanutButter.SimpleHTTPServer.NugetPackage/lib/net40/PeanutButter.SimpleTcpServer.dll
