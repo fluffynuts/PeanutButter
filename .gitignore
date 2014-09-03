@@ -114,3 +114,12 @@ PeanutButter/PeanutButter.RandomGenerators.NugetPackage/lib/net40/PeanutButter.R
 PeanutButter/PeanutButter.ServiceShell.NugetPackage/lib/net40/PeanutButter.ServiceShell.dll
 PeanutButter/PeanutButter.Utils.NugetPackage/lib/net40/PeanutButter.Utils.dll
 PeanutButter/PeanutButter.WindowsServiceManagement.NugetPackage/lib/net40/PeanutButter.Win32ServiceControl.dll
+PeanutButter/PeanutButter.INI.NugetPackage/lib/net40/PeanutButter.INI.dll
+PeanutButter/PeanutButter.RandomGenerators.NugetPackage/lib/net35/PeanutButter.RandomGenerators.dll
+PeanutButter/PeanutButter.TestUtils.Generic.NugetPackage/lib/net40/PeanutButter.TestUtils.Generic.dll
+PeanutButter/PeanutButter.TinyEventAggregator.NuGetPackage/lib/net40/PeanutButter.TinyEventAggregator.dll
+PeanutButter/PeanutButter.TrayIcon.NugetPackage/lib/net40/PeanutButter.TrayIcon.dll
+PeanutButter/PeanutButter.Utils.NugetPackage/lib/net35/PeanutButter.Utils.dll
+PeanutButter/PeanutButter.WindowsServiceManagement.NugetPackage/lib/net35/PeanutButter.Win32ServiceControl.dll
+PeanutButter/PeanutButter.XmlUtils.NuGetPackage/lib/net40/PeanutButter.XmlUtils.dll
+PeanutButter/PeanutButter.SimpleHTTPServer.NugetPackage/lib/net40/PeanutButter.SimpleHTTPServer.dll
