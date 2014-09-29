@@ -59,5 +59,33 @@ namespace PenautButter.Utils.Tests
             //---------------Test Result -----------------------
             disposable.Received(1).Dispose();
         }
+
+        public class SomeDisposable : IDisposable
+        {
+            public bool Disposed { get; private set; }
+
+            public void Dispose()
+            {
+                this.Disposed = true;
+            }
+        }
+
+        [Test]
+        public void Add_GenericVersion_ShouldReturnThing()
+        {
+            //---------------Set up test pack-------------------
+            var disposer = new AutoDisposer();
+            
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var thing = disposer.Add(new SomeDisposable());
+
+            //---------------Test Result -----------------------
+            Assert.IsInstanceOf<SomeDisposable>(thing);
+            Assert.IsFalse(thing.Disposed);
+            disposer.Dispose();
+            Assert.IsTrue(thing.Disposed);
+        }
     }
 }

@@ -20,6 +20,12 @@ namespace PeanutButter.Utils
             _toDispose.AddRange(toDispose);
         }
 
+        public T Add<T>(T toDispose) where T : IDisposable
+        {
+            _toDispose.Add(toDispose);
+            return toDispose;
+        }
+
         public void Dispose()
         {
             lock (this)
