@@ -30,6 +30,7 @@ namespace PeanutButter.Utils
         {
             lock (this)
             {
+                _toDispose.Reverse();
                 foreach (var disposable in _toDispose)
                 {
                     try

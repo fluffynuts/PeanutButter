@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using NSubstitute;
 using NUnit.Framework;
 using PeanutButter.Utils;
@@ -86,6 +87,40 @@ namespace PenautButter.Utils.Tests
             Assert.IsFalse(thing.Disposed);
             disposer.Dispose();
             Assert.IsTrue(thing.Disposed);
+        }
+
+        public class SomeDisposableWithCallback : IDisposable
+        {
+            private Action _toCall;
+
+            public SomeDisposableWithCallback(Action toCall)
+            {
+                _toCall = toCall;
+            }
+            public void Dispose()
+            {
+                _toCall();
+            }
+        }
+
+        [Test]
+        public void Dispose_ShouldDisposeOfRegisteredArticlesInReverseOrder()
+        {
+            //---------------Set up test pack-------------------
+            var calls = new List<int>();
+            using (var disposer = new AutoDisposer())
+            {
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                disposer.Add(new SomeDisposableWithCallback(() => calls.Add(1)));
+                disposer.Add(new SomeDisposableWithCallback(() => calls.Add(2)));
+
+                //---------------Test Result -----------------------
+            }
+            Assert.AreEqual(2, calls.Count);
+            Assert.AreEqual(2, calls[0]);
+            Assert.AreEqual(1, calls[1]);
         }
     }
 }
