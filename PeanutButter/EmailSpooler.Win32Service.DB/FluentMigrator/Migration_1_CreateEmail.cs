@@ -11,7 +11,7 @@ namespace EmailSpooler.Win32Service.DB.FluentMigrator
         {
             Create.Table(_Email.NAME)
                         .WithColumn(_Columns.EMAILID)
-                            .AsInt64().PrimaryKey().Identity()
+                            .AsGuid().PrimaryKey()
                         .WithColumn(_Columns.SENDER)
                             .AsString(Int32.MaxValue).Nullable()
                         .WithColumn(_Columns.SUBJECT)

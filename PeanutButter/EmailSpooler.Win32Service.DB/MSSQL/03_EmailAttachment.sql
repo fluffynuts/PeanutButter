@@ -1,6 +1,3 @@
-USE [EACH]
-GO
-
 /****** Object:  Table [dbo].[EmailAttachment]    Script Date: 2014-02-24 20:38:29 ******/
 SET ANSI_NULLS ON
 GO
@@ -12,8 +9,8 @@ SET ANSI_PADDING ON
 GO
 
 CREATE TABLE [dbo].[EmailAttachment](
-	[EmailAttachmentID] [bigint] IDENTITY(1,1) NOT NULL,
-	[EmailID] [bigint] NOT NULL,
+	[EmailAttachmentID] [uniqueidentifier] NOT NULL,
+	[EmailID] [uniqueidentifier] NOT NULL,
 	[Name] [nvarchar](260) NOT NULL,
 	[Inline] [bit] NOT NULL,
 	[ContentID] [nvarchar](260) NOT NULL,

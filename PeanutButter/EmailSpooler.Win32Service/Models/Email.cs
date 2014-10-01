@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace EmailSpooler.Win32Service.Models
@@ -10,7 +11,7 @@ namespace EmailSpooler.Win32Service.Models
             this.EmailRecipients = new List<EmailRecipient>();
         }
 
-        public long EmailID { get; set; }
+        public Guid EmailID { get; set; }
         public string Sender { get; set; }
         public string Subject { get; set; }
         public string Body { get; set; }
@@ -20,5 +21,6 @@ namespace EmailSpooler.Win32Service.Models
         public string LastError { get; set; }
         public virtual IList<EmailAttachment> EmailAttachments { get; set; }
         public virtual IList<EmailRecipient> EmailRecipients { get; set; }
+
     }
 }

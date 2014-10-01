@@ -19,9 +19,9 @@ namespace EACH.DB.Migrations.Migrations
         {
             Create.Table(_EmailAttachment.NAME)
                     .WithColumn(_Columns.EMAILATTACHMENTID)
-                        .AsInt64().PrimaryKey().Identity()
+                        .AsGuid().PrimaryKey()
                     .WithColumn(_Columns.EMAILID)
-                        .AsInt64().ForeignKey(_Email.NAME, _Email.Columns.EMAILID).NotNullable()
+                        .AsGuid().ForeignKey(_Email.NAME, _Email.Columns.EMAILID).NotNullable()
                     .WithColumn(_Columns.NAME)
                         .AsString(DataConstants.FieldSizes.MAX_PATH).NotNullable()
                     .WithColumn(_Columns.INLINE)

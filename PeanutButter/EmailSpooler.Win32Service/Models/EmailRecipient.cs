@@ -1,9 +1,11 @@
+using System;
+
 namespace EmailSpooler.Win32Service.Models
 {
     public partial class EmailRecipient
     {
-        public long EmailRecipientID { get; set; }
-        public long EmailID { get; set; }
+        public Guid EmailRecipientID { get; set; }
+        public Guid EmailID { get; set; }
         public string Recipient { get; set; }
         public bool PrimaryRecipient { get; set; }
         public bool CC { get; set; }

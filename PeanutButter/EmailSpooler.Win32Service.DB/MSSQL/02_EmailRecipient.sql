@@ -1,6 +1,3 @@
-USE [EACH]
-GO
-
 /****** Object:  Table [dbo].[EmailRecipient]    Script Date: 2014-02-24 20:38:33 ******/
 SET ANSI_NULLS ON
 GO
@@ -9,8 +6,8 @@ SET QUOTED_IDENTIFIER ON
 GO
 
 CREATE TABLE [dbo].[EmailRecipient](
-	[EmailRecipientID] [bigint] IDENTITY(1,1) NOT NULL,
-	[EmailID] [bigint] NOT NULL,
+	[EmailRecipientID] [uniqueidentifier] NOT NULL,
+	[EmailID] [uniqueidentifier] NOT NULL,
 	[Recipient] [nvarchar](max) NOT NULL,
 	[PrimaryRecipient] [bit] NOT NULL,
 	[CC] [bit] NOT NULL,

@@ -124,3 +124,4 @@ PeanutButter/PeanutButter.WindowsServiceManagement.NugetPackage/lib/net35/Peanut
 PeanutButter/PeanutButter.XmlUtils.NuGetPackage/lib/net40/PeanutButter.XmlUtils.dll
 PeanutButter/PeanutButter.SimpleHTTPServer.NugetPackage/lib/net40/PeanutButter.SimpleHTTPServer.dll
 PeanutButter/PeanutButter.SimpleHTTPServer.NugetPackage/lib/net40/PeanutButter.SimpleTcpServer.dll
+*.swp

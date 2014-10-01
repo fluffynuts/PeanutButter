@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿using System.Data.Common;
+using System.Data.Entity;
 using EACH.Data.Models.Mapping;
 using EmailSpooler.Win32Service.Models.Mapping;
 
@@ -18,6 +19,16 @@ namespace EmailSpooler.Win32Service.Models
         static EmailContext()
         {
             Database.SetInitializer<EmailContext>(null);
+        }
+
+        public EmailContext(DbConnection connection)
+            :base (connection,true)
+        {
+        }
+
+        public EmailContext(string connectionString)
+            : base(connectionString)
+        {
         }
 
         public EmailContext()

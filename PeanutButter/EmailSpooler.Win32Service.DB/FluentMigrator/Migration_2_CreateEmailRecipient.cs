@@ -18,9 +18,9 @@ namespace EACH.DB.Migrations.Migrations
         {
             Create.Table(_EmailRecipient.NAME)
                         .WithColumn(_Columns.EMAILRECIPIENTID)
-                            .AsInt64().PrimaryKey().Identity()
+                            .AsGuid().PrimaryKey()
                         .WithColumn(_Columns.EMAILID)
-                            .AsInt64().ForeignKey(_Email.NAME, _Email.Columns.EMAILID).NotNullable()
+                            .AsGuid().ForeignKey(_Email.NAME, _Email.Columns.EMAILID).NotNullable()
                         .WithColumn(_Columns.RECIPIENT)
                             .AsString(Int32.MaxValue).NotNullable()
                         .WithColumn(_Columns.PRIMARYRECIPIENT)
