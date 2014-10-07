@@ -1,7 +1,7 @@
 <package>
   <metadata>
     <id>PeanutButter.TestUtils.Generic</id>
-    <version>1.0.76</version>
+    <version>1.0.77</version>
     <title>PeanutButter.TestUtils.Generic</title>
     <authors>daf</authors>
     <owners></owners>
@@ -19,7 +19,10 @@
     <licenseUrl>https://github.com/fluffynuts/PeanutButter/blob/master/LICENSE</licenseUrl>
     <copyright>Copyright  2014</copyright>
     <dependencies>
-      <group targetFramework="net40"></group>
+      <group targetFramework="net40">
+        <dependency id="PeanutButter.Utils" />
+        <dependency id="NSubstitute" />
+      </group>
     </dependencies>
     <references></references>
     <tags></tags>
