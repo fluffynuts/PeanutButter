@@ -69,6 +69,8 @@ namespace PeanutButter.TestUtils.Generic
                 return type.Name;
         }
 
+        // TODO: implement ShouldBeAbstract
+
         public static void ShouldThrowWhenConstructorParameterIsNull(this Type type, string parameterName, Type expectedType)
         {
             var methodName = "ShouldExpectNonNullParameterFor";
