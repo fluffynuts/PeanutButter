@@ -4,7 +4,9 @@ using System.Data.SqlServerCe;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using NUnit.Framework;
+using PeanutButter.Utils;
 
 namespace PeanutButter.TestUtils.Generic.Tests
 {
@@ -86,6 +88,24 @@ namespace PeanutButter.TestUtils.Generic.Tests
                         }
                     }
                 }
+
+                //---------------Test Result -----------------------
+            }
+        }
+
+        [Test]
+        public void ShouldPlayNicelyInParallel()
+        {
+            //---------------Set up test pack-------------------
+            using (var disposer = new AutoDisposer())
+            {
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                Parallel.For(0, 100, i =>
+                    {
+                        disposer.Add(new TempDB());
+                    });
 
                 //---------------Test Result -----------------------
             }
