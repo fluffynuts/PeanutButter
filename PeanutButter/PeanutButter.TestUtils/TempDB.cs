@@ -21,9 +21,10 @@ namespace PeanutButter.TestUtils.Generic
         {
             using (new AutoLocker(_lock))
             {
-                DatabaseFile = Path.GetTempFileName();
-                if (File.Exists(DatabaseFile))
-                    File.Delete(DatabaseFile);
+                do
+                {
+                    DatabaseFile = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + ".db");
+                } while (File.Exists(DatabaseFile));
                 ConnectionString = String.Format("DataSource=\"{0}\";", DatabaseFile);
                 using (var engine = new SqlCeEngine(ConnectionString))
                 {
