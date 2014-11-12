@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Data.SqlServerCe;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using PeanutButter.Utils;
 
 namespace PeanutButter.TestUtils.Generic
 {
-    public class TempDB : IDisposable
+    public abstract class TempDB<TDatabaseConnection> : IDisposable where TDatabaseConnection: DbConnection
     {
         public string DatabaseFile { get; private set; }
         public string ConnectionString { get; private set; }
@@ -26,20 +24,25 @@ namespace PeanutButter.TestUtils.Generic
                     DatabaseFile = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + ".db");
                 } while (File.Exists(DatabaseFile));
                 ConnectionString = String.Format("DataSource=\"{0}\";", DatabaseFile);
-                using (var engine = new SqlCeEngine(ConnectionString))
-                {
-                    engine.CreateDatabase();
-                }
+                CreateDatabase();
             }
             _managedConnections = new List<DbConnection>();
             RunScripts(creationScripts);
         }
 
+        protected abstract void CreateDatabase();
+
         public DbConnection CreateConnection()
         {
-            var connection = new SqlCeConnection(ConnectionString);
-            connection.Open();
+            var connection = CreateOpenDatabaseConnection();
             _managedConnections.Add(connection);
+            return connection;
+        }
+
+        private DbConnection CreateOpenDatabaseConnection()
+        {
+            var connection = Activator.CreateInstance(typeof (TDatabaseConnection), ConnectionString) as DbConnection;
+            connection.Open();
             return connection;
         }
 
@@ -49,13 +52,12 @@ namespace PeanutButter.TestUtils.Generic
                 return;
             using (var disposer = new AutoDisposer())
             {
-                var conn = disposer.Add(new SqlCeConnection(this.ConnectionString));
-                conn.Open();
+                var conn = CreateOpenDatabaseConnection();
                 var cmd = disposer.Add(conn.CreateCommand());
                 Action<string> exec = s => {
-                                      cmd.CommandText = s;
-                                      cmd.ExecuteNonQuery();
-                                  };
+                                               cmd.CommandText = s;
+                                               cmd.ExecuteNonQuery();
+                };
                 foreach (var script in scripts)
                     exec(script);
             }
@@ -72,6 +74,12 @@ namespace PeanutButter.TestUtils.Generic
                 }
                 catch
                 {
+                    System.Diagnostics.Trace.WriteLine(string.Join("", new[]
+                    {
+                        "WARNING: Unable to delete temporary database at: ",
+                        DatabaseFile,
+                        "; probably still locked. Artifact will remain on disk."
+                    }));
                 }
                 foreach (var conn in _managedConnections)
                 {

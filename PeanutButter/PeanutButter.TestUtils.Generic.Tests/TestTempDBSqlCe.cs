@@ -11,7 +11,7 @@ using PeanutButter.Utils;
 namespace PeanutButter.TestUtils.Generic.Tests
 {
     [TestFixture]
-    public class TestTempDB
+    public class TestTempDBSqlCe
     {
         [Test]
         public void ShouldImplementIDisposable()
@@ -21,7 +21,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            typeof(TempDB).ShouldImplement<IDisposable>();
+            typeof(TempDBSqlCe).ShouldImplement<IDisposable>();
 
             //---------------Test Result -----------------------
         }
@@ -30,7 +30,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
         public void Construct_ShouldCreateTemporarySqlCeDatabase()
         {
             //---------------Set up test pack-------------------
-            using (var db = new TempDB())
+            using (var db = new TempDBSqlCe())
             {
                 //---------------Assert Precondition----------------
 
@@ -50,7 +50,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
         {
             //---------------Set up test pack-------------------
             string file = null;
-            using (var db = new TempDB())
+            using (var db = new TempDBSqlCe())
             {
                 //---------------Assert Precondition----------------
                 file = db.DatabaseFile;
@@ -69,7 +69,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             var createTable = "create table TheTable(id int primary key, name nvarchar(128));";
             var insertData = "insert into TheTable(id, name) values (1, 'one');";
             var selectData = "select name from TheTable where id = 1;";
-            using (var db = new TempDB(new[] { createTable, insertData }))
+            using (var db = new TempDBSqlCe(new[] { createTable, insertData }))
             {
                 //---------------Set up test pack-------------------
 
@@ -104,7 +104,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
                 //---------------Execute Test ----------------------
                 Parallel.For(0, 100, i =>
                     {
-                        disposer.Add(new TempDB());
+                        disposer.Add(new TempDBSqlCe());
                     });
 
                 //---------------Test Result -----------------------
