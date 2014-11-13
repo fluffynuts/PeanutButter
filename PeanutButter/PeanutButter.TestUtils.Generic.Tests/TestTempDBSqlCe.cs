@@ -76,6 +76,37 @@ namespace PeanutButter.TestUtils.Generic.Tests
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
+                using (var conn = new SqlCeConnection(db.ConnectionString))
+                {
+                    conn.Open();
+                    using (var cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = selectData;
+                        using (var rdr = cmd.ExecuteReader())
+                        {
+                            Assert.IsTrue(rdr.Read());
+                            Assert.AreEqual("one", rdr["name"].ToString());
+                        }
+                    }
+                }
+
+                //---------------Test Result -----------------------
+            }
+        }
+
+        [Test]
+        public void GetConnection_ShouldReturnValidConnection()
+        {
+            var createTable = "create table TheTable(id int primary key, name nvarchar(128));";
+            var insertData = "insert into TheTable(id, name) values (1, 'one');";
+            var selectData = "select name from TheTable where id = 1;";
+            using (var db = new TempDBSqlCe(new[] { createTable, insertData }))
+            {
+                //---------------Set up test pack-------------------
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
                 using (var conn = db.CreateConnection())
                 {
                     using (var cmd = conn.CreateCommand())
@@ -91,6 +122,37 @@ namespace PeanutButter.TestUtils.Generic.Tests
 
                 //---------------Test Result -----------------------
             }
+        }
+
+        [Test]
+        public void Dispose_ShouldCloseManagedConnectionsBeforeAttemptingToDeleteTheFile()
+        {
+            var createTable = "create table TheTable(id int primary key, name nvarchar(128));";
+            var insertData = "insert into TheTable(id, name) values (1, 'one');";
+            var selectData = "select name from TheTable where id = 1;";
+            string theFile = null;
+            using (var db = new TempDBSqlCe(new[] { createTable, insertData }))
+            {
+                theFile = db.DatabaseFile;
+                Assert.IsTrue(File.Exists(theFile));
+                //---------------Set up test pack-------------------
+
+                //---------------Assert Precondition----------------
+
+                var conn = db.CreateConnection();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = selectData;
+                    using (var rdr = cmd.ExecuteReader())
+                    {
+                        Assert.IsTrue(rdr.Read());
+                        Assert.AreEqual("one", rdr["name"].ToString());
+                    }
+                }
+                //---------------Execute Test ----------------------
+            }
+            //---------------Test Result -----------------------
+            Assert.IsFalse(File.Exists(theFile));
         }
 
         [Test]

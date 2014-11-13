@@ -34,7 +34,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
         public void Construct_WhenPortIsNotSpecified_ShouldChooseRandomPortBetween_5000_And_50000()
         {
             //---------------Set up test pack-------------------
-            for (var i = 0; i < 100; i++)
+            for (var i = 0; i < 50; i++)
                 using (var server = new HttpServer())
                 {
 

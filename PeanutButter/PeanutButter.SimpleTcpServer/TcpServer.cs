@@ -58,7 +58,7 @@ namespace PeanutButter.SimpleTcpServer
                                                       {
                                                           if (_portExplicitlySpecified)
                                                               throw new Exception("Can't listen on specified port '" + Port + "': probably already in use?");
-                                                          if (attempts++ > 50)
+                                                          if (attempts++ > 150)
                                                               throw new Exception("Can't find a port to listen on ):");
                                                           Port = FindOpenRandomPort();
                                                       }

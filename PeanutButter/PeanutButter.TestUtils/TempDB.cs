@@ -52,7 +52,7 @@ namespace PeanutButter.TestUtils.Generic
                 return;
             using (var disposer = new AutoDisposer())
             {
-                var conn = CreateOpenDatabaseConnection();
+                var conn = disposer.Add(CreateOpenDatabaseConnection());
                 var cmd = disposer.Add(conn.CreateCommand());
                 Action<string> exec = s => {
                                                cmd.CommandText = s;
@@ -67,25 +67,49 @@ namespace PeanutButter.TestUtils.Generic
         {
             lock (this)
             {
-                try
+                DisposeOfManagedConnections();
+                DeleteTemporaryDatabaseFile();
+            }
+        }
+
+        private void DeleteTemporaryDatabaseFile()
+        {
+            try
+            {
+                File.Delete(DatabaseFile);
+                DatabaseFile = null;
+            }
+            catch
+            {
+                System.Diagnostics.Trace.WriteLine(string.Join("", new[]
+                                                                   {
+                                                                       "WARNING: Unable to delete temporary database at: ",
+                                                                       DatabaseFile,
+                                                                       "; probably still locked. Artifact will remain on disk."
+                                                                   }));
+            }
+        }
+
+        private void Trace(string message)
+        {
+            System.Diagnostics.Trace.WriteLine(message);
+        }
+
+        private void DisposeOfManagedConnections()
+        {
+            Action<string, Action> TryDo = (heading, toRun) =>
+            {
+                try { toRun(); }
+                catch (Exception ex) 
                 {
-                    File.Delete(DatabaseFile);
-                    DatabaseFile = null;
-                }
-                catch
-                {
-                    System.Diagnostics.Trace.WriteLine(string.Join("", new[]
-                    {
-                        "WARNING: Unable to delete temporary database at: ",
-                        DatabaseFile,
-                        "; probably still locked. Artifact will remain on disk."
-                    }));
-                }
-                foreach (var conn in _managedConnections)
-                {
-                    try { conn.Dispose(); }
-                    catch { };
-                }
+                    Trace("Error whilst: " + heading);
+                    Trace(ex.Message); 
+                };
+            };
+            foreach (var conn in _managedConnections)
+            {
+                var localConnection = conn;
+                TryDo("disposing of managed connections", localConnection.Dispose);
             }
         }
     }
