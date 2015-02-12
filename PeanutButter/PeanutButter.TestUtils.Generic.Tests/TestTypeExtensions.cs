@@ -130,7 +130,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
         }
 
         [Test]
-        public void ShouldImplement_WhenTypeDoesImplementOtherType_ShouldNotThrow()
+        public void ShouldImplement_WhenTypeDoesImplementOtherInterface_ShouldNotThrow()
         {
             //---------------Set up test pack-------------------
             //---------------Assert Precondition----------------
@@ -141,6 +141,49 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Test Result -----------------------
         }
 
+        public class DoesImplementDerivative: DoesImplement
+        {
+        }
+
+        [Test]
+        public void ShouldImplement_WhenRequestedTypeIsAClass_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.Throws<AssertionException>(() => typeof(DoesImplementDerivative).ShouldImplement<DoesImplement>());
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
+        public void ShouldInheritFrom_WhenRequestedTypeIsABaseClass_ShouldNotThrow()
+        {
+            //---------------Set up test pack-------------------
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(() => typeof(DoesImplementDerivative).ShouldInheritFrom<DoesImplement>());
+
+            //---------------Test Result -----------------------
+        }
+
+
+        [Test]
+        public void ShouldInheritFrom_WhenRequestedTypeIsAnInterface_ShouldNotThrow()
+        {
+            //---------------Set up test pack-------------------
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.Throws<AssertionException>(() => typeof(DoesImplementDerivative).ShouldInheritFrom<Tests.IInterface>());
+
+            //---------------Test Result -----------------------
+        }
+
+
+
         [Test]
         public void ShouldImplementWithArguments_WhenTypeDoesNotImplementOtherType_ShouldThrow()
         {
@@ -149,7 +192,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<AssertionException>(() => t.ShouldImplement(typeof(IInterface)));
+            var ex = Assert.Throws<AssertionException>(() => t.ShouldBeAssignableFrom(typeof(IInterface)));
 
             //---------------Test Result -----------------------
             Assert.AreEqual("DoesNotImplement should implement IInterface", ex.Message);
@@ -162,7 +205,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => typeof(DoesImplement).ShouldImplement(typeof(IInterface)));
+            Assert.DoesNotThrow(() => typeof(DoesImplement).ShouldBeAssignableFrom(typeof(IInterface)));
 
             //---------------Test Result -----------------------
         }
@@ -201,7 +244,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => t.ShouldNotImplement(typeof(IInterface)));
+            Assert.DoesNotThrow(() => t.ShouldNotBeAssignableFrom(typeof(IInterface)));
 
             //---------------Test Result -----------------------
         }
@@ -213,34 +256,34 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<AssertionException>(() => typeof(DoesImplement).ShouldNotImplement(typeof(IInterface)));
+            var ex = Assert.Throws<AssertionException>(() => typeof(DoesImplement).ShouldNotBeAssignableFrom(typeof(IInterface)));
 
             //---------------Test Result -----------------------
             Assert.AreEqual("DoesImplement should not implement IInterface", ex.Message);
         }
 
         [Test]
-        public void ShouldIInheritFrom_WhenTypeDoesNotImplementOtherType_ShouldThrow()
+        public void ShouldIImplementm_WhenTypeDoesNotImplementOtherType_ShouldThrow()
         {
             //---------------Set up test pack-------------------
             var t = typeof(DoesNotImplement);
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<AssertionException>(t.ShouldInheritFrom<IInterface>);
+            var ex = Assert.Throws<AssertionException>(t.ShouldImplement<IInterface>);
 
             //---------------Test Result -----------------------
             Assert.AreEqual("DoesNotImplement should implement IInterface", ex.Message);
         }
 
         [Test]
-        public void ShouldInheritFrom_WhenTypeDoesImplementOtherType_ShouldNotThrow()
+        public void ShouldImplement_WhenTypeDoesImplementOtherType_ShouldNotThrow()
         {
             //---------------Set up test pack-------------------
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => typeof(DoesImplement).ShouldInheritFrom<IInterface>());
+            Assert.DoesNotThrow(() => typeof(DoesImplement).ShouldImplement<IInterface>());
 
             //---------------Test Result -----------------------
         }
@@ -274,6 +317,19 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Test Result -----------------------
             Assert.AreEqual("TestTypeExtensions+GenericType<String>", result);
         }
+
+        [Test]
+        public void Method_WhenCondition_ShouldExpectedBehaviour()
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+
+            //---------------Test Result -----------------------
+        }
+
 
         public class CanHaveNullParameter
         {

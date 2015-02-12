@@ -53,6 +53,16 @@ namespace PeanutButter.TestUtils.Generic.Tests
             using (var db = new TempDBSqlCe())
             {
                 //---------------Assert Precondition----------------
+                var conn = db.CreateConnection();
+                var cmd = conn.CreateCommand();
+                cmd.CommandText = "create table [test] ([id] int primary key identity, [name] nvarchar(128));";
+                cmd.ExecuteNonQuery();
+                cmd = conn.CreateCommand();
+                cmd.CommandText = "insert into [test] ([name]) values ('the name');";
+                cmd.ExecuteNonQuery();
+                cmd = conn.CreateCommand();
+                cmd.CommandText = "select * from [test];";
+                var rdr = cmd.ExecuteReader();
                 file = db.DatabaseFile;
                 Assert.IsTrue(File.Exists(file));
 

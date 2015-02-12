@@ -25,16 +25,18 @@ namespace PeanutButter.TestUtils.Generic
         public static void ShouldImplement<T>(this Type type)
         {
             var shouldImplementType = typeof(T);
-            type.ShouldImplement(shouldImplementType);
+            if (!shouldImplementType.IsInterface)
+                Assert.Fail(type.PrettyName() + " is not an interface");
+            type.ShouldBeAssignableFrom(shouldImplementType);
         }
 
         public static void ShouldInheritFrom<T>(this Type type)
         {
             // syntactic sugar
-            type.ShouldImplement<T>();
+            ShouldInheritFrom(type, typeof (T));
         }
 
-        public static void ShouldImplement(this Type type, Type shouldBeImplemented)
+        public static void ShouldBeAssignableFrom(this Type type, Type shouldBeImplemented)
         {
             if (!shouldBeImplemented.IsAssignableFrom(type))
                 Assert.Fail(type.PrettyName() + " should implement " + shouldBeImplemented.PrettyName());
@@ -43,13 +45,27 @@ namespace PeanutButter.TestUtils.Generic
         public static void ShouldNotImplement<T>(this Type type)
         {
             var shouldNotImplementType = typeof(T);
-            type.ShouldNotImplement(shouldNotImplementType);
+            type.ShouldNotBeAssignableFrom(shouldNotImplementType);
         }
 
-        public static void ShouldNotImplement(this Type type, Type shouldNotBeImplemented)
+        public static void ShouldNotBeAssignableFrom(this Type type, Type shouldNotBeImplemented)
         {
             if (shouldNotBeImplemented.IsAssignableFrom(type))
                 Assert.Fail(type.PrettyName() + " should not implement " + shouldNotBeImplemented.PrettyName());
+        }
+
+        public static void ShouldInheritFrom(this Type type, Type shouldBeAncestor)
+        {
+            if (shouldBeAncestor.IsInterface)
+                Assert.Fail(shouldBeAncestor.PrettyName() + " is not a class");
+            ShouldBeAssignableFrom(type, shouldBeAncestor);
+        }
+
+        public static void ShouldNotInheritFrom(this Type type, Type shouldNotBeAncestor)
+        {
+            if (shouldNotBeAncestor.IsInterface)
+                Assert.Fail(shouldNotBeAncestor.PrettyName() + " is not a class");
+            ShouldNotBeAssignableFrom(type, shouldNotBeAncestor);
         }
 
         public static string PrettyName(this Type type)
