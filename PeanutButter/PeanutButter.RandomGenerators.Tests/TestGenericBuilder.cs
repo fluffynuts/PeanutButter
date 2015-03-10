@@ -63,6 +63,9 @@ namespace PeanutButter.RandomGenerators.Tests
             public bool Flag { get; set; }
             public DateTime Created { get; set; }
             public decimal Cost { get; set; }
+            public double DoubleValue { get; set; }
+            public Single SingleValue { get; set; }
+            public float FloatValue { get; set; }
         }
 
         private class NotAsSimpleBuilder : GenericBuilder<NotAsSimpleBuilder, NotAsSimpleClass>
@@ -124,7 +127,7 @@ namespace PeanutButter.RandomGenerators.Tests
         public void WithRandomProps_SetsRandomValuesForAllProperties()
         {
             //---------------Set up test pack-------------------
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -141,6 +144,9 @@ namespace PeanutButter.RandomGenerators.Tests
             VarianceAssert.IsVariant<NotAsSimpleClass, bool>(randomItems, "Flag");
             VarianceAssert.IsVariant<NotAsSimpleClass, DateTime>(randomItems, "Created");
             VarianceAssert.IsVariant<NotAsSimpleClass, decimal>(randomItems, "Cost");
+            VarianceAssert.IsVariant<NotAsSimpleClass, Single>(randomItems, "SingleValue");
+            VarianceAssert.IsVariant<NotAsSimpleClass, double>(randomItems, "DoubleValue");
+            VarianceAssert.IsVariant<NotAsSimpleClass, float>(randomItems, "FloatValue");
         }
 
         private class BuilderInspector : GenericBuilder<BuilderInspector, SimpleClass>
