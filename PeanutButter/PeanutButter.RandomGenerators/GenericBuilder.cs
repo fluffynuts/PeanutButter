@@ -138,7 +138,7 @@ namespace PeanutButter.RandomGenerators
                     _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, (float)RandomValueGen.GetRandomDouble(float.MinValue, float.MaxValue), null);
                     break;
                 case "single":
-                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, Convert.ToSingle(RandomValueGen.GetRandomDouble(Single.MinValue, Single.MaxValue)), null);
+                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, Convert.ToSingle(RandomValueGen.GetRandomDouble(-4096, 4096)), null);
                     break;
                 case "double":
                     _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, RandomValueGen.GetRandomDouble(), null);
