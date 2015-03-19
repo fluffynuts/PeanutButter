@@ -67,9 +67,14 @@ namespace PeanutButter.RandomGenerators
             return this as TConcrete;
         }
 
+        public virtual TEntity ConstructEntity()
+        {
+            return new TEntity();
+        }
+
         public virtual TEntity Build()
         {
-            var entity = new TEntity();
+            var entity = ConstructEntity();
             foreach (var action in _defaultPropMods.Union(this._propMods))
             {
                 action(entity);

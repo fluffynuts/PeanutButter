@@ -1,15 +1,18 @@
 <package>
   <metadata>
-    <id>PeanutButter.XmlUtils</id>
+    <id>PeanutButter.FluentMigrator</id>
     <version>1.0.91</version>
-    <title>PeanutButter.XmlUtils</title>
+    <title>PeanutButter.FluentMigrator</title>
     <authors>Davyd McColl</authors>
-    <owners>Davyd McColl</owners>
+    <owners></owners>
     <description>
-      The miscellaneous utilities slice of the PeanutButter mini-suite (XML-specific, so you'll need to reference System.Xml.Linq)
+    A generic Migrations Runner for FluentMigrator so you can run in migrations within your application.
     </description>
     <releaseNotes></releaseNotes>
-    <summary></summary>
+    <summary>
+      A generic Migrations Runner for FluentMigrator so you can run in migrations within your application.
+      The generic parameter is a ProcessorFactory type as exposed by FluentMigrator.Runner
+    </summary>
     <language>en-US</language>
     <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
     <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
@@ -17,7 +20,10 @@
     <licenseUrl>https://github.com/fluffynuts/PeanutButter/blob/master/LICENSE</licenseUrl>
     <copyright>Copyright  2014</copyright>
     <dependencies>
-      <group targetFramework="net40"></group>
+      <group targetFramework="net40">
+        <dependency id="FluentMigrator" />
+        <dependency id="FluentMigrator.Tools" />
+      </group>
     </dependencies>
     <references></references>
     <tags></tags>

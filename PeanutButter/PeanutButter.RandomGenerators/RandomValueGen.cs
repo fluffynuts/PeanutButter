@@ -174,7 +174,7 @@ namespace PeanutButter.RandomGenerators
 
         public static string GetRandomHttpUrl()
         {
-            return String.Join("/", new[] { "http:", "", GetRandomAlphaNumericString() + ".com", GetRandomAlphaNumericString() });
+            return String.Join("/", new[] { "http:", "", GetRandomAlphaNumericString(3,12) + ".com", GetRandomAlphaNumericString(0,20) });
         }
 
         public static string GetRandomAlphaNumericString(int minLength = DefaultRanges.MINLENGTH_STRING, int maxLength = DefaultRanges.MAXLENGTH_STRING)
