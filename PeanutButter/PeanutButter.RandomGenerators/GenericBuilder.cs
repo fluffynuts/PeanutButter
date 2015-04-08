@@ -19,7 +19,6 @@ namespace PeanutButter.RandomGenerators
         object GenericBuild();
     }
     public class GenericBuilder<TConcrete, TEntity> : IGenericBuilder, IBuilder<TEntity> where TConcrete: GenericBuilder<TConcrete, TEntity>, new()
-                                                                                          where TEntity: new()
     {
         public static int MAX_RANDOM_PROPS_LEVEL = 10;
         private static List<Action<TEntity>> _defaultPropMods = new List<Action<TEntity>>();
@@ -69,7 +68,7 @@ namespace PeanutButter.RandomGenerators
 
         public virtual TEntity ConstructEntity()
         {
-            return new TEntity();
+            return (TEntity)Activator.CreateInstance(typeof (TEntity));
         }
 
         public virtual TEntity Build()
