@@ -8,14 +8,22 @@ namespace PeanutButter.Utils
 {
     public class AutoLocker: IDisposable
     {
-        private Semaphore _semaphore;
+        private Semaphore _fatty;
         private Mutex _mutex;
+        private SemaphoreSlim _slim;
 
         public AutoLocker(Semaphore semaphore)
         {
             if (semaphore == null) throw new ArgumentNullException("semaphore");
-            _semaphore = semaphore;
-            _semaphore.WaitOne();
+            _fatty = semaphore;
+            _fatty.WaitOne();
+        }
+
+        public AutoLocker(SemaphoreSlim semaphore)
+        {
+            if (semaphore == null) throw new ArgumentNullException("semaphore");
+            _slim = semaphore;
+            _slim.Wait();
         }
 
         public AutoLocker(Mutex mutex)
@@ -29,10 +37,15 @@ namespace PeanutButter.Utils
         {
             lock (this)
             {
-                if (_semaphore != null)
+                if (_fatty != null)
                 {
-                    _semaphore.Release();
-                    _semaphore = null;
+                    _fatty.Release();
+                    _fatty = null;
+                }
+                if (_slim != null)
+                {
+                    _slim.Release();
+                    _slim = null;
                 }
                 if (_mutex != null)
                 {

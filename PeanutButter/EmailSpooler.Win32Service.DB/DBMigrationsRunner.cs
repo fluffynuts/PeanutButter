@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using FluentMigrator;
 using FluentMigrator.Runner;
 using FluentMigrator.Runner.Announcers;
 using FluentMigrator.Runner.Initialization;
 using FluentMigrator.Runner.Processors;
-using FluentMigrator.Runner.Processors.SqlServer;
 
-namespace EACH.DB.Migrations
+namespace EmailSpooler.Win32Service.DB
 {
     public class DBMigrationsRunner<T> where T: MigrationProcessorFactory, new()
     {
