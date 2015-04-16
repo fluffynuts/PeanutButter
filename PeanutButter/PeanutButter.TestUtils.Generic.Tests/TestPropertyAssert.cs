@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
+using PeanutButter.Utils;
 
 namespace PeanutButter.TestUtils.Generic.Tests
 {
@@ -220,6 +221,30 @@ namespace PeanutButter.TestUtils.Generic.Tests
 
             //---------------Test Result -----------------------
         }
+
+        [Test]
+        public void AllPropertiesAreEqua_WhenGivenIgnoreList_ShouldHonorThatList()
+        {
+            //---------------Set up test pack-------------------
+            var d1 = new
+            {
+                prop = "prop",
+                ignoreMe = 1
+            };
+            var d2 = new
+            {
+                prop = d1.prop,
+                ignoreMe = d1.ignoreMe + 1
+            };
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(() => d1.AllPropertiesMatch(d2, "ignoreMe"));
+
+            //---------------Test Result -----------------------
+        }
+
     }
 
 }

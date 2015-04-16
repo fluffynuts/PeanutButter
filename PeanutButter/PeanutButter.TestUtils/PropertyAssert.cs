@@ -6,7 +6,7 @@ namespace PeanutButter.TestUtils.Generic
 {
     public class PropertyAssert
     {
-        public static void AllPropertiesAreEqual(object obj1, object obj2)
+        public static void AllPropertiesAreEqual(object obj1, object obj2, params string[] ignorePropertiesByName)
         {
             var propInfos1 = obj1.GetType().GetProperties();
             var propInfos2 = obj2.GetType().GetProperties();
@@ -14,6 +14,8 @@ namespace PeanutButter.TestUtils.Generic
                 Assert.Fail("Property counts on objects of types '" + obj1.GetType().Name + "' and '" + obj2.GetType().Name + "' do not match");
             foreach (var propInfo1 in propInfos1)
             {
+                if (ignorePropertiesByName.Contains(propInfo1.Name))
+                    continue;
                 AreEqual(obj1, obj2, propInfo1.Name);
             }
         }
