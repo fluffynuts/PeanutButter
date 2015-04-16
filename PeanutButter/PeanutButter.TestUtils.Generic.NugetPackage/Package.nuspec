@@ -1,7 +1,7 @@
 <package>
   <metadata>
     <id>PeanutButter.TestUtils.Generic</id>
-    <version>1.0.93</version>
+    <version>1.0.94</version>
     <title>PeanutButter.TestUtils.Generic</title>
     <authors>daf</authors>
     <owners></owners>
@@ -23,6 +23,7 @@
         <dependency id="System.Data.Sqlite" />
         <dependency id="PeanutButter.Utils" />
         <dependency id="NSubstitute" />
+        <dependency id="Microsoft.SqlServer.Compact" />
       </group>
     </dependencies>
     <references></references>

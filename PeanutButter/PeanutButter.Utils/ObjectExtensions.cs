@@ -25,7 +25,7 @@ namespace PeanutButter.Utils
                 typeof(DateTime)
             };
         }
-        public static bool AllPropertiesMatch(this object objSource, object objCompare)
+        public static bool AllPropertiesMatch(this object objSource, object objCompare, params string[] ignorePropertiesByName)
         {
             if (objSource == null && objCompare == null) return true;
             if (objSource == null || objCompare == null) return false;
@@ -33,6 +33,10 @@ namespace PeanutButter.Utils
             var comparePropInfos = objCompare.GetType().GetProperties();
             foreach (var srcProp in srcPropInfos)
             {
+                if (ignorePropertiesByName.Contains(srcProp.Name))
+                {
+                    continue;
+                }
                 var comparePropInfo = comparePropInfos.FirstOrDefault(pi => pi.Name == srcProp.Name);
                 if (comparePropInfo == null)
                 {

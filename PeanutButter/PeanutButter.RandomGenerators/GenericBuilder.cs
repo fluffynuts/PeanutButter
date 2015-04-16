@@ -204,6 +204,16 @@ namespace PeanutButter.RandomGenerators
             _dynamicBuilders[prop.PropertyType] = dynamicBuilderType;
         }
 
+        // TODO: expose the generic builder generator for use from consumers
+        //public static Type GenerateDynamicBuilder<TEntity>()
+        //{
+        //    var t = typeof (GenericBuilder<,>);
+        //    var entityType = typeof (TEntity);
+        //    var moduleName = String.Join("_", new[] {"DynamicEntityBuilders", entityType.Name});
+        //    var modBuilder = _dynamicAssemblyBuilder.DefineDynamicModule(moduleName);
+
+        //}
+
 
         private static Object _dynamicAssemblyLock = new object();
         private static AssemblyBuilder _dynamicAssemblyBuilderField;

@@ -191,6 +191,7 @@ namespace PenautButter.Utils.Tests
             //---------------Test Result -----------------------
             Assert.IsTrue(result);
         }
+
         [Test]
         public void AllPropertiesMatch_ComplexTypesAreTraversed_UnhappyCase()
         {
@@ -216,6 +217,84 @@ namespace PenautButter.Utils.Tests
             //---------------Test Result -----------------------
             Assert.IsFalse(result);
         }
+
+        [Test]
+        public void AllPropertiesMatch_WhenGivenOnePropertiesToIgnoreByName_ShouldIgnoreThosePropertiesInTheComparison()
+        {
+            //---------------Set up test pack-------------------
+            var o1 = new
+            {
+                testMe = "foo",
+                ignoreMe = 1
+            };
+            var o2 = new
+            {
+                testMe = o1.testMe,
+                ignoreMe = o1.ignoreMe + 1
+            };
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = o1.AllPropertiesMatch(o2, "ignoreMe");
+
+            //---------------Test Result -----------------------
+            Assert.IsTrue(result);
+        }
+
+        [Test]
+        public void AllPropertiesMatch_WhenGivenListOfPropertiesToIgnoreByName_ShouldIgnoreThosePropertiesInTheComparison()
+        {
+            //---------------Set up test pack-------------------
+            var o1 = new
+            {
+                testMe = "foo",
+                ignoreMe1 = 1,
+                ignoreMe2 = 2
+            };
+            var o2 = new
+            {
+                testMe = o1.testMe,
+                ignoreMe1 = o1.ignoreMe1 + 1,
+                ignoreMe2 = o1.ignoreMe1
+            };
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = o1.AllPropertiesMatch(o2, "ignoreMe1", "ignoreMe2");
+
+            //---------------Test Result -----------------------
+            Assert.IsTrue(result);
+        }
+
+
+        [Test]
+        public void AllPropertiesMatch_WhenGivenArrayOfPropertiesToIgnoreByName_ShouldIgnoreThosePropertiesInTheComparison()
+        {
+            //---------------Set up test pack-------------------
+            var o1 = new
+            {
+                testMe = "foo",
+                ignoreMe1 = 1,
+                ignoreMe2 = 2
+            };
+            var o2 = new
+            {
+                testMe = o1.testMe,
+                ignoreMe1 = o1.ignoreMe1 + 1,
+                ignoreMe2 = o1.ignoreMe1
+            };
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = o1.AllPropertiesMatch(o2, new[] { "ignoreMe1", "ignoreMe2" });
+
+            //---------------Test Result -----------------------
+            Assert.IsTrue(result);
+        }
+
 
         [Test]
         public void CopyPropertiesTo_GivenSimpleObjectDest_DoesNotThrow()
