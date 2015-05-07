@@ -191,7 +191,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                Parallel.For(0, 100, i =>
+                Parallel.For(0, 10, i =>
                 {
                     disposer.Add(new TempDBLocalDb());
                 });
