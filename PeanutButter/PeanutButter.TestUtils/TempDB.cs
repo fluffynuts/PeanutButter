@@ -11,11 +11,22 @@ namespace PeanutButter.TestUtils.Generic
     public abstract class TempDB<TDatabaseConnection> : IDisposable where TDatabaseConnection: DbConnection
     {
         public string DatabaseFile { get; private set; }
-        public string ConnectionString { get; private set; }
+        public string ConnectionString { get; protected set; }
         private static Semaphore _lock = new Semaphore(1, 1);
         private List<DbConnection> _managedConnections;
 
         public TempDB(params string[] creationScripts)
+        {
+            Init(creationScripts);
+        }
+
+        public TempDB(Action<object> beforeInit, params string[] creationScripts)
+        {
+            beforeInit(this);
+            Init(creationScripts);
+        }
+
+        protected virtual void Init(string[] creationScripts)
         {
             using (new AutoLocker(_lock))
             {
@@ -63,7 +74,7 @@ namespace PeanutButter.TestUtils.Generic
             }
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             lock (this)
             {
@@ -72,7 +83,7 @@ namespace PeanutButter.TestUtils.Generic
             }
         }
 
-        private void DeleteTemporaryDatabaseFile()
+        protected virtual void DeleteTemporaryDatabaseFile()
         {
             try
             {

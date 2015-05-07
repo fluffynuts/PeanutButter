@@ -74,6 +74,7 @@
     <Compile Include="TestDateAssert.cs" />
     <Compile Include="TestPropertyAssert.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestTempDBLocalDb.cs" />
     <Compile Include="TestTempDBSqlCe.cs" />
     <Compile Include="TestTempDBSqlite.cs" />
     <Compile Include="TestTypeExtensions.cs" />
