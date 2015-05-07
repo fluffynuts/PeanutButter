@@ -191,6 +191,8 @@ namespace PeanutButter.TestUtils.Generic.Tests
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
+                // localDb seems to take a little longer to spin up; reduced the parallel count to 10 to make 
+                //  running all tests viable
                 Parallel.For(0, 10, i =>
                 {
                     disposer.Add(new TempDBLocalDb());
