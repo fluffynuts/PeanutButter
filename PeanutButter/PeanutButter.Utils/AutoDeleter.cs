@@ -29,7 +29,10 @@ namespace PeanutButter.Utils
                 {
                     try
                     {
-                        File.Delete(f);
+                        if (Directory.Exists(f))
+                            Directory.Delete(f, true);
+                        else
+                            File.Delete(f);
                     }
                     catch { }
                 }

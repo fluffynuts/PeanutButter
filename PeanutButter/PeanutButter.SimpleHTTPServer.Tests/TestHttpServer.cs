@@ -169,6 +169,107 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             }
         }
 
+        [Test]
+        public void Download_GivenDownloadInfoAndOutputFolder_WhenDownloadUninterrupted_ShouldDownloadFileToOutputFolder()
+        {
+            using (var disposer = new AutoDisposer())
+            {
+                var deleter = disposer.Add(new AutoDeleter());
+                var tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+                var fileName = RandomValueGen.GetRandomAlphaNumericString(5, 10) + ".exe";
+                deleter.Add(tempFolder);
+                var expectedFile = Path.Combine(tempFolder, fileName);
+                var server = new HttpServer();
+                //---------------Set up test pack-------------------
+                var url = server.GetFullUrlFor(fileName);
+                var expectedBytes = RandomValueGen.GetRandomBytes(100, 200);
+                server.AddFileHandler((processor, stream) =>
+                {
+                    if (processor.FullUrl == "/" + fileName)
+                    {
+                        return expectedBytes;
+                    }
+                    processor.WriteStatusHeader(404, "File not found");
+                    return null;
+                });
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                Download(url, fileName, tempFolder);
+
+                //---------------Test Result -----------------------
+                Assert.IsTrue(File.Exists(expectedFile));
+                CollectionAssert.AreEquivalent(expectedBytes, File.ReadAllBytes(expectedFile));
+            }
+        }
+
+        private const string CONTENT_LENGTH_HEADER = "Content-Length";
+
+        public string Download(string url, string fileName, string destPath)
+        {
+            var outFile = Path.Combine(destPath, fileName);
+            var req = WebRequest.Create(url) as HttpWebRequest;
+            long existingSize = 0;
+            if (File.Exists(outFile))
+            {
+                var fullDownloadSize = GetContentLengthFor(url);
+                var finfo = new FileInfo(outFile);
+                existingSize = finfo.Length;
+                if (fullDownloadSize == existingSize)
+                {
+                    Console.WriteLine("Already fully downloaded");
+                    return outFile;
+                }
+                Console.WriteLine("Resuming download from byte: {0}", finfo.Length);
+                req.AddRange(finfo.Length);
+            }
+            req.Timeout = 90000;
+            using (var response = req.GetResponse())
+            {
+                var expectedSize = long.Parse(response.Headers[CONTENT_LENGTH_HEADER]);
+                Console.WriteLine("Should get {0} bytes to {1}", expectedSize, outFile);
+                DownloadFile(response, outFile, expectedSize, expectedSize + existingSize, existingSize);
+                return outFile;
+            }
+        }
+
+        private long GetContentLengthFor(string downloadUrl)
+        {
+            var req = WebRequest.Create(downloadUrl) as HttpWebRequest;
+            using (var response = req.GetResponse())
+            {
+                return long.Parse(response.Headers[CONTENT_LENGTH_HEADER]);
+            }
+        }
+        private void DownloadFile(WebResponse response, string outFile, long expectedSize, long totalSize, long offset)
+        {
+            var parentFolder = Path.GetDirectoryName(outFile);
+            if (!Directory.Exists(parentFolder))
+                Directory.CreateDirectory(parentFolder);
+            var started = DateTime.Now;
+            using (var reader = new BinaryReader(response.GetResponseStream()))
+            {
+                using (var outStream = new FileStream(outFile, FileMode.Append))
+                {
+                    var haveRead = 0;
+                    using (var writer = new BinaryWriter(outStream))
+                    {
+                        while (haveRead < expectedSize)
+                        {
+                            var toRead = expectedSize - haveRead;
+                            if (toRead > 8192)
+                                toRead = 8192;
+                            var readBuf = reader.ReadBytes((int)toRead);
+                            haveRead += readBuf.Length;
+                            writer.Write(readBuf, 0, readBuf.Length);
+                            writer.Flush();
+                        }
+                    }
+                }
+            }
+        }
+
         private byte[] DownloadResultFrom(HttpServer server, string path)
         {
             string contentType;
