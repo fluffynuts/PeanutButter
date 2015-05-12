@@ -14,6 +14,7 @@ namespace PeanutButter.SimpleHTTPServer
         Handled,
         NotHandled
     }
+    // TODO: allow easier way to throw 404 (or other web exception) from simple handlers (file/document handlers)
     public class HttpServer : HttpServerBase 
     {
         private List<Func<HttpProcessor, Stream, HttpServerPipelineResult>> _handlers;
@@ -91,6 +92,7 @@ namespace PeanutButter.SimpleHTTPServer
                     switch (pipelineResult)
                     {
                         case HttpServerPipelineResult.Handled:
+                            // TODO: allow more pipelining
                         case HttpServerPipelineResult.HandledExclusively:
                             handled = true;
                             break;
