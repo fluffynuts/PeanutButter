@@ -21,7 +21,7 @@ namespace PeanutButter.SimpleSMTPServer
         {
         }
 
-        protected override IProcessor CreateProcessor(TcpClient client)
+        protected override IProcessor CreateProcessorFor(TcpClient client)
         {
             return new SMTPProcessor(client, this);
         }

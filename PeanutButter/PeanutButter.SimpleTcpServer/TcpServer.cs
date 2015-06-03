@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.AccessControl;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,11 +16,12 @@ namespace PeanutButter.SimpleTcpServer
 
     public abstract class TcpServer : IDisposable
     {
+        public Action<string> LogAction { get; set; }
         public int Port { get; protected set; }
         TcpListener _listener;
-        protected Task _task;
-        protected CancellationTokenSource _cancellationTokenSource;
-        private bool _portExplicitlySpecified;
+        private Task _task;
+        private CancellationTokenSource _cancellationTokenSource;
+        private readonly bool _portExplicitlySpecified;
 
         protected TcpServer()
         {
@@ -33,51 +35,80 @@ namespace PeanutButter.SimpleTcpServer
             this.Port = port;
             Init();
         }
+
+        protected void Log(string message, params object[] parameters)
+        {
+            var logAction = LogAction;
+            if (logAction == null)
+                return;
+            try
+            {
+                logAction(string.Format(message, parameters));
+            }
+            catch { }
+        }
+
         protected abstract void Init();
 
-        protected abstract IProcessor CreateProcessor(TcpClient client);
+        protected abstract IProcessor CreateProcessorFor(TcpClient client);
         public void Start() 
         {
             lock (this)
             {
                 DoStop();
                 _cancellationTokenSource = new CancellationTokenSource();
-                _task = Task.Factory.StartNew((token) =>
+                var cancellationTokenSource = _cancellationTokenSource;
+                _listener = new TcpListener(IPAddress.Any, Port);
+                var attempts = 0;
+                while (!cancellationTokenSource.IsCancellationRequested)
+                {
+                    if (AttemptToBind(ref attempts)) break;
+                }
+                _task = Task.Run(() =>
                                               {
-                                                  if (_cancellationTokenSource.IsCancellationRequested) return;
-                                                  _listener = new TcpListener(IPAddress.Any, Port);
-                                                  var attempts = 0;
-                                                  while (true)
+                                                  if (cancellationTokenSource.IsCancellationRequested) return;
+                                                  while (!cancellationTokenSource.IsCancellationRequested) 
                                                   {
-                                                      try
-                                                      {
-                                                          _listener.Start();
-                                                          break;
-                                                      }
-                                                      catch
-                                                      {
-                                                          if (_portExplicitlySpecified)
-                                                              throw new Exception("Can't listen on specified port '" + Port + "': probably already in use?");
-                                                          if (attempts++ > 150)
-                                                              throw new Exception("Can't find a port to listen on ):");
-                                                          Port = FindOpenRandomPort();
-                                                      }
+                                                      AcceptClientRequests(cancellationTokenSource);
                                                   }
-                                                  while (!_cancellationTokenSource.IsCancellationRequested) {
-                                                      try
-                                                      {
-                                                          AcceptClient();
-                                                      }
-                                                      catch (Exception ex)
-                                                      {
-                                                          if (!_cancellationTokenSource.IsCancellationRequested)
-                                                          {
-                                                              LogException(ex);
-                                                          }
-                                                      }
-                                                  }
-                                              }, _cancellationTokenSource.Token);
+                                              }, cancellationTokenSource.Token);
             }
+        }
+
+        private void AcceptClientRequests(CancellationTokenSource cancellationTokenSource)
+        {
+            try
+            {
+                AcceptClient();
+            }
+            catch (Exception ex)
+            {
+                if (!cancellationTokenSource.IsCancellationRequested)
+                {
+                    LogException(ex);
+                }
+            }
+        }
+
+        private bool AttemptToBind(ref int attempts)
+        {
+            try
+            {
+                Log("Attempting to listen on port {0}; overall attempt {1}", Port, attempts);
+                _listener.Start();
+                Log(" --> success!");
+                return true;
+            }
+            catch
+            {
+                Log(" --> failed ):");
+                if (_portExplicitlySpecified)
+                    throw new Exception("Can't listen on specified port '" + Port + "': probably already in use?");
+                if (attempts++ > 150)
+                    throw new Exception("Can't find a port to listen on ):");
+                Port = FindOpenRandomPort();
+            }
+            return false;
         }
 
         private static void LogException(Exception ex)
@@ -90,10 +121,15 @@ namespace PeanutButter.SimpleTcpServer
         private void AcceptClient()
         {
             var s = _listener.AcceptTcpClient();
-            var processor = CreateProcessor(s);
-            var thread = new Thread(new ThreadStart(processor.ProcessRequest));
-            thread.Start();
-            Thread.Sleep(0);
+            var clientInfo = s.Client.RemoteEndPoint.ToString();
+            Log("Accepting incoming client request from {0}", clientInfo);
+            var processor = CreateProcessorFor(s);
+            Log("Spawning processor in background task...");
+            Task.Run(() =>
+            {
+                Log("Processing request for {0}", clientInfo);
+                    processor.ProcessRequest();
+            });
         }
 
         public void Stop()
@@ -106,14 +142,21 @@ namespace PeanutButter.SimpleTcpServer
 
         private void DoStop()
         {
-            if (_listener != null)
+            try
             {
-                _cancellationTokenSource.Cancel();
-                _listener.Stop();
-                _task.Wait();
-                _listener = null;
-                _task = null;
-                _cancellationTokenSource = null;
+                if (_listener != null)
+                {
+                    _cancellationTokenSource.Cancel();
+                    _listener.Stop();
+                    _task.Wait();
+                    _listener = null;
+                    _task = null;
+                    _cancellationTokenSource = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log("Internal DoStop fails: {0}", ex.Message);
             }
         }
 
@@ -122,7 +165,7 @@ namespace PeanutButter.SimpleTcpServer
             Stop();
         }
 
-        protected static int FindOpenRandomPort()
+        protected int FindOpenRandomPort()
         {
             var rnd = new Random(DateTime.Now.Millisecond);
             var tryThis = rnd.Next(5000, 50000);
@@ -131,9 +174,13 @@ namespace PeanutButter.SimpleTcpServer
             {
                 try
                 {
+                    Log("Attempting to bind to random port {0} on any available IP address", tryThis);
                     var listener = new TcpListener(IPAddress.Any, tryThis);
+                    Log("Attempt to listen...");
                     listener.Start();
+                    Log("Attempt to stop listening...");
                     listener.Stop();
+                    Log("HUZZAH! We have a port, squire! ({0})", tryThis);
                     seekingPort = false;
                 }
                 catch

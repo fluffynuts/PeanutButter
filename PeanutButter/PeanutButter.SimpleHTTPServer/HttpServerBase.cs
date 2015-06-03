@@ -22,7 +22,7 @@ namespace PeanutButter.SimpleHTTPServer
         {
         }
 
-        protected override IProcessor CreateProcessor(TcpClient client)
+        protected override IProcessor CreateProcessorFor(TcpClient client)
         {
             return new HttpProcessor(client, this);
         }

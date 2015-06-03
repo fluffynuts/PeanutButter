@@ -19,14 +19,16 @@ namespace PeanutButter.SimpleHTTPServer
     {
         private List<Func<HttpProcessor, Stream, HttpServerPipelineResult>> _handlers;
 
-        public HttpServer(int port, bool autoStart = true)
+        public HttpServer(int port, bool autoStart = true, Action<string> logAction = null)
             : base(port)
         {
+            LogAction = logAction;
             AutoStart(autoStart);
         }
 
-        public HttpServer(bool autoStart = true)
+        public HttpServer(bool autoStart = true, Action<string> logAction = null)
         {
+            LogAction = logAction;
             AutoStart(autoStart);
         }
 
@@ -57,27 +59,40 @@ namespace PeanutButter.SimpleHTTPServer
         public void AddFileHandler(Func<HttpProcessor, Stream, byte[]> handler, string contentType = "application/octet-stream")
         {
             AddHandler((p, s) =>
+            {
+                Log("Handling file request: {0}", p.FullUrl);
+                var data = handler(p, s);
+                if (data == null)
                 {
-                    var data = handler(p, s);
-                    if (data == null) return HttpServerPipelineResult.NotHandled;
-                    p.WriteSuccess(contentType, data);
-                    return HttpServerPipelineResult.HandledExclusively;
-                });
+                    Log(" --> no file handler set up for {0}", p.FullUrl);
+                    return HttpServerPipelineResult.NotHandled;
+                }
+                p.WriteSuccess(contentType, data);
+                Log(" --> Successful file handling for {0}", p.FullUrl);
+                return HttpServerPipelineResult.HandledExclusively;
+            });
         }
 
         public void AddDocumentHandler(Func<HttpProcessor, Stream, string> handler)
         {
             AddHandler((p, s) =>
                 {
+                    Log("Handling document request: {0}", p.FullUrl);
                     var doc = handler(p, s);
-                    if (doc == null) return HttpServerPipelineResult.NotHandled;
+                    if (doc == null)
+                    {
+                        Log(" --> no document handler set up for {0}", p.FullUrl);
+                        return HttpServerPipelineResult.NotHandled;
+                    }
                     p.WriteDocument(doc);
+                    Log(" --> Successful document handling for {0}", p.FullUrl);
                     return HttpServerPipelineResult.HandledExclusively;
                 });
         }
 
         public override void HandleGETRequest(HttpProcessor p)
         {
+            Log("Incoming GET request: {0}", p.FullUrl);
             InvokeHandlersWith(p, null);
         }
 
@@ -105,11 +120,15 @@ namespace PeanutButter.SimpleHTTPServer
                 }
             }
             if (!handled)
+            {
+                Log("No handlers found for {0}", p.FullUrl);
                 throw new Exception("Request was not handled by any registered handlers");
+            }
         }
 
         public override void HandlePOSTRequest(HttpProcessor p, Stream inputData)
         {
+            Log("Incoming POST request: {0}", p.FullUrl);
             InvokeHandlersWith(p, inputData);
         }
 
@@ -117,7 +136,9 @@ namespace PeanutButter.SimpleHTTPServer
         {
             AddDocumentHandler((p, s) =>
                 {
-                    if (p.Path != path) return null;
+                    if (p.Path != path)
+                        return null;
+                    Log("Serving document at {0}", p.FullUrl);
                     return doc.ToString();
                 });
         }
@@ -126,7 +147,9 @@ namespace PeanutButter.SimpleHTTPServer
         {
             AddFileHandler((p, s) =>
                 {
-                    if (p.Path != path) return null;
+                    if (p.Path != path) 
+                        return null;
+                    Log("Serving file at {0}", p.FullUrl);
                     return data;
                 }, contentType);
         }

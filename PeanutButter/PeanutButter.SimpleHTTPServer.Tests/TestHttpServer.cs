@@ -3,6 +3,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices;
+using System.Threading;
 using System.Xml.Linq;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
@@ -18,9 +20,8 @@ namespace PeanutButter.SimpleHTTPServer.Tests
         {
             var port = RandomValueGen.GetRandomInt(2000, 3000);
             //---------------Set up test pack-------------------
-            using (var server = new HttpServer(port))
+            using (var server = Create(port))
             {
-
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
@@ -35,7 +36,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
         {
             //---------------Set up test pack-------------------
             for (var i = 0; i < 50; i++)
-                using (var server = new HttpServer())
+                using (var server = Create())
                 {
 
                     //---------------Assert Precondition----------------
@@ -55,7 +56,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             //---------------Set up test pack-------------------
             var doc = "<html><head></head><body><p>" + RandomValueGen.GetRandomAlphaNumericString() + "</p></body></html>";
             const string theDocName = "index.html";
-            using (var server = new HttpServer())
+            using (var server = Create())
             {
                 //---------------Assert Precondition----------------
                 server.AddDocumentHandler((p, s) => p.Path == "/" + theDocName ? doc : null);
@@ -74,7 +75,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             //---------------Set up test pack-------------------
             var theFile = RandomValueGen.GetRandomBytes(100, 200);
             const string theFileName = "somefile.bin";
-            using (var server = new HttpServer())
+            using (var server = Create())
             {
                 //---------------Assert Precondition----------------
                 server.AddFileHandler((p, s) => p.Path == "/" + theFileName ? theFile : null);
@@ -88,7 +89,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
         [Test]
         public void ServeDocument_GivenPathAndDocument_ShouldServeForThatPath()
         {
-            using (var server = new HttpServer())
+            using (var server = Create())
             {
                 //---------------Set up test pack-------------------
                 var doc = new XDocument(new XElement("html", new XElement("body", new XElement("p", new XText(RandomValueGen.GetRandomString())))));
@@ -107,7 +108,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
         [Test]
         public void ServeDocument_GivenPathAndDocument_ShouldGive404ForOtherPaths()
         {
-            using (var server = new HttpServer())
+            using (var server = Create())
             {
                 //---------------Set up test pack-------------------
                 var doc = new XDocument(new XElement("html", new XElement("body", new XElement("p", new XText(RandomValueGen.GetRandomString())))));
@@ -128,7 +129,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
         [Test]
         public void ServeFile_GivenPathAndData_ShouldServeForThatPath()
         {
-            using (var server = new HttpServer())
+            using (var server = Create())
             {
                 //---------------Set up test pack-------------------
                 var data = RandomValueGen.GetRandomBytes(10, 100);
@@ -150,7 +151,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
         [Test]
         public void ServeFile_GivenPathAndData_ShouldGive404ForOtherPaths()
         {
-            using (var server = new HttpServer())
+            using (var server = Create())
             {
                 //---------------Set up test pack-------------------
                 var data = RandomValueGen.GetRandomBytes(10, 100);
@@ -179,7 +180,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                 var fileName = RandomValueGen.GetRandomAlphaNumericString(5, 10) + ".exe";
                 deleter.Add(tempFolder);
                 var expectedFile = Path.Combine(tempFolder, fileName);
-                var server = new HttpServer();
+                var server = Create();
                 //---------------Set up test pack-------------------
                 var url = server.GetFullUrlFor(fileName);
                 var expectedBytes = RandomValueGen.GetRandomBytes(100, 200);
@@ -202,6 +203,19 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                 Assert.IsTrue(File.Exists(expectedFile));
                 CollectionAssert.AreEquivalent(expectedBytes, File.ReadAllBytes(expectedFile));
             }
+        }
+
+        private HttpServer Create(int? port = null)
+        {
+            var result = CreateWithPort(port);
+            return result;
+        }
+
+        private HttpServer CreateWithPort(int? port)
+        {
+            return port.HasValue
+                ? new HttpServer(port.Value, logAction: Console.WriteLine)
+                : new HttpServer(logAction: Console.WriteLine);
         }
 
         private const string CONTENT_LENGTH_HEADER = "Content-Length";
