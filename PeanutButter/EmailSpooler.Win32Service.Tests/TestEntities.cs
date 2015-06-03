@@ -67,6 +67,7 @@ namespace EmailSpooler.Win32Service.Tests
                 }
                 catch (Exception ex)
                 {
+                    Console.WriteLine(ex.Message);
                     throw;
                 }
 

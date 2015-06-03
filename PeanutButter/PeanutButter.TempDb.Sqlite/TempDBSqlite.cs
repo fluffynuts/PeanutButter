@@ -1,6 +1,6 @@
 ﻿using System.Data.SQLite;
 
-namespace PeanutButter.TestUtils.Generic
+namespace PeanutButter.TempDb.Sqlite
 {
     public class TempDBSqlite : TempDB<SQLiteConnection>
     {

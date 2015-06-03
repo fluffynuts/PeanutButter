@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Data.SqlClient;
-using System.Data.SqlServerCe;
 using System.IO;
-using NUnit.Framework;
+using PeanutButter.TempDb;
 
 namespace PeanutButter.TestUtils.Generic
 {

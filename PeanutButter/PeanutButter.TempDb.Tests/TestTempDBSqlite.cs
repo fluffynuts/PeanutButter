@@ -3,6 +3,7 @@ using System.Data.SqlServerCe;
 using System.IO;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using PeanutButter.TempDb.Sqlite;
 using PeanutButter.Utils;
 
 namespace PeanutButter.TestUtils.Generic.Tests

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading;
 using PeanutButter.Utils;
 
-namespace PeanutButter.TestUtils.Generic
+namespace PeanutButter.TempDb
 {
     public abstract class TempDB<TDatabaseConnection> : IDisposable where TDatabaseConnection: DbConnection
     {

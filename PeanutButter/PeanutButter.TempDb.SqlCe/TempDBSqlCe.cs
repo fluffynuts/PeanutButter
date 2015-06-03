@@ -1,5 +1,5 @@
 ﻿using System.Data.SqlServerCe;
-using System.Text;
+using PeanutButter.TempDb;
 
 namespace PeanutButter.TestUtils.Generic
 {
