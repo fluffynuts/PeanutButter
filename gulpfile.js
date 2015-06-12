@@ -48,7 +48,8 @@ gulp.task('build', function() {
                 targets: ['Clean', 'Build'],
                 configuration: 'Debug',
                 stdout: true,
-                verbosity: 'minimal'
+                verbosity: 'minimal',
+                architecture: 'x86' // sqlite :/
             }));
 });
 

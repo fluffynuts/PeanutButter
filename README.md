@@ -37,6 +37,11 @@ provides some concrete examples of usage):
   - DecimalDecorator which provides relatively safe string/decimal
     interchange, irrespective of culture
   - XElementExtensions to make dealing with XElement text easier
+* On-the-fly HTTP server for testing when you simply need a WebRequest
+    to work
+* TempDb implementations (LocalDb, SqlCe and Sqlite) so you can run
+    tests which involve migrations and integration between your ORM
+    and the actual db
 * WindowsServiceManagement
   - provides functionality for query of & interaction with win32
     services using the native Win32 api, exposed in an easy-to-use
