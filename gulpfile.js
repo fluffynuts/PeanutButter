@@ -29,10 +29,15 @@ var determineNUnitRunnerPath = function() {
 }
 
 gulp.task('test', function() {
+    if (!fs.existsSync('buildreports')) {
+        fs.mkdir('buildreports');
+    }
     return gulp.src(['**/bin/Debug/**/*.Tests.dll'], { read: false })
                 .pipe(nunit({
                     executable: determineNUnitRunnerPath(),
-                    result: 'buildreports/nunit-result.xml'
+                    options: {
+                        result: 'buildreports/nunit-result.xml'
+                    }
                 }));
 });
 

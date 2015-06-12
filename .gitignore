@@ -127,3 +127,4 @@ PeanutButter/PeanutButter.SimpleHTTPServer.NugetPackage/lib/net40/PeanutButter.S
 *.swp
 *.swo
 node_modules
+buildreports
