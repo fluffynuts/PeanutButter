@@ -125,5 +125,5 @@ PeanutButter/PeanutButter.XmlUtils.NuGetPackage/lib/net40/PeanutButter.XmlUtils.
 PeanutButter/PeanutButter.SimpleHTTPServer.NugetPackage/lib/net40/PeanutButter.SimpleHTTPServer.dll
 PeanutButter/PeanutButter.SimpleHTTPServer.NugetPackage/lib/net40/PeanutButter.SimpleTcpServer.dll
 *.swp
+*.swo
 node_modules
->>>>>>> * bugfix for hanging SimpleHttpServer when port was already in use
