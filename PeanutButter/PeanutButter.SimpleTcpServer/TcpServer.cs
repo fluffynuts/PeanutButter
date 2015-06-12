@@ -15,18 +15,22 @@ namespace PeanutButter.SimpleTcpServer
 
     public abstract class TcpServer : IDisposable
     {
-        public int RandomPortMin { get; set; }
-        public int RandomPortMax { get; set; }
+        public Action<string> LogAction { get; set; }
         public int Port { get; protected set; }
+
         private TcpListener _listener;
         private Task _task;
         private CancellationTokenSource _cancellationTokenSource;
         private bool _portExplicitlySpecified;
         private object _lock = new object();
         private Random _random = new Random(DateTime.Now.Millisecond);
+        private int _randomPortMin;
+        private int _randomPortMax;
 
-        protected TcpServer()
+        protected TcpServer(int minPort = 5000, int maxPort = 50000)
         {
+            _randomPortMin = minPort;
+            _randomPortMax = maxPort;
             Port = FindOpenRandomPort();
             Init();
         }
@@ -39,13 +43,25 @@ namespace PeanutButter.SimpleTcpServer
         }
         protected abstract void Init();
 
-        protected abstract IProcessor CreateProcessor(TcpClient client);
+        protected void Log(string message, params object[] parameters)
+        {
+            var logAction = LogAction;
+            if (logAction == null)
+                return;
+            try
+            {
+                logAction(string.Format(message, parameters));
+            }
+            catch { }
+        }
+
+        protected abstract IProcessor CreateProcessorFor(TcpClient client);
         public void Start() 
         {
             lock (_lock)
             {
                 DoStop();
-                AttemptBind();
+                AttemptToBind();
                 ListenForClients();
             }
         }
@@ -75,7 +91,7 @@ namespace PeanutButter.SimpleTcpServer
             }, token);
         }
 
-        private void AttemptBind()
+        private void AttemptToBind()
         {
             _listener = new TcpListener(IPAddress.Any, Port);
             var attempts = 0;
@@ -83,11 +99,14 @@ namespace PeanutButter.SimpleTcpServer
             {
                 try
                 {
+                    Log("Attempting to listen on port {0}; overall attempt {1}", Port, attempts);
                     _listener.Start();
+                    Log(" --> success!");
                     break;
                 }
                 catch
                 {
+                    Log(" --> failed ):");
                     if (_portExplicitlySpecified)
                         throw new Exception("Can't listen on specified port '" + Port + "': probably already in use?");
                     if (attempts++ > 150)
@@ -98,11 +117,11 @@ namespace PeanutButter.SimpleTcpServer
             }
         }
 
-        private static void LogException(Exception ex)
+        private void LogException(Exception ex)
         {
-            Debug.WriteLine("Exception occurred whilst accepting client: " + ex.Message);
-            Debug.WriteLine("Stack trace follows");
-            Debug.WriteLine(ex.StackTrace);
+            Log("Exception occurred whilst accepting client: " + ex.Message);
+            Log("Stack trace follows");
+            Log(ex.StackTrace);
         }
 
         private void AcceptClient()
@@ -111,10 +130,15 @@ namespace PeanutButter.SimpleTcpServer
             if (listener == null)
                 return;
             var s = listener.AcceptTcpClient();
-            var processor = CreateProcessor(s);
-            var thread = new Thread(new ThreadStart(processor.ProcessRequest));
-            thread.Start();
-            Thread.Sleep(0);
+            var clientInfo = s.Client.RemoteEndPoint.ToString();
+            Log("Accepting incoming client request from {0}", clientInfo);
+            var processor = CreateProcessorFor(s);
+            Log("Spawning processor in background task...");
+            Task.Run(() =>
+            {
+                Log("Processing request for {0}", clientInfo);
+                processor.ProcessRequest();
+            });
         }
 
         public void Stop()
@@ -127,17 +151,24 @@ namespace PeanutButter.SimpleTcpServer
 
         private void DoStop()
         {
-            if (_listener != null)
+            try
             {
-                _cancellationTokenSource.Cancel();
-                _listener.Stop();
-                try {
-                    _task.Wait();
-                } catch { /* we can end up in here if the task is cancelled really early */}
+                if (_listener != null)
+                {
+                    _cancellationTokenSource.Cancel();
+                    _listener.Stop();
+                    try {
+                        _task.Wait();
+                    } catch { /* we can end up in here if the task is cancelled really early */}
 
-                _listener = null;
-                _task = null;
-                _cancellationTokenSource = null;
+                    _listener = null;
+                    _task = null;
+                    _cancellationTokenSource = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log("Internal DoStop() fails: {0}", ex.Message);
             }
         }
 
@@ -155,9 +186,13 @@ namespace PeanutButter.SimpleTcpServer
             {
                 try
                 {
+                    Log("Attempting to bind to random port {0} on any available IP address", tryThis);
                     var listener = new TcpListener(IPAddress.Any, tryThis);
+                    Log("Attempt to listen...");
                     listener.Start();
+                    Log("Attempt to stop listnening...");
                     listener.Stop();
+                    Log("HUZZAH! We have a port, squire! ({0})", tryThis);
                     seekingPort = false;
                 }
                 catch
@@ -171,8 +206,8 @@ namespace PeanutButter.SimpleTcpServer
         
         protected virtual int NextRandomPort()
         {
-            var minPort = RandomPortMin;
-            var maxPort = RandomPortMax;
+            var minPort = _randomPortMin;
+            var maxPort = _randomPortMax;
             if (minPort > maxPort)
             {
                 var swap = minPort;

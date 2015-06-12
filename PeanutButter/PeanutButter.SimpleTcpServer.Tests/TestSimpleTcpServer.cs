@@ -38,7 +38,7 @@ namespace PeanutButter.SimpleTcpServer.Tests
             {
             }
 
-            protected override IProcessor CreateProcessor(TcpClient client)
+            protected override IProcessor CreateProcessorFor(TcpClient client)
             {
                 throw new NotImplementedException();
             }
