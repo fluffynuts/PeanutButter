@@ -124,6 +124,11 @@ PeanutButter/PeanutButter.WindowsServiceManagement.NugetPackage/lib/net35/Peanut
 PeanutButter/PeanutButter.XmlUtils.NuGetPackage/lib/net40/PeanutButter.XmlUtils.dll
 PeanutButter/PeanutButter.SimpleHTTPServer.NugetPackage/lib/net40/PeanutButter.SimpleHTTPServer.dll
 PeanutButter/PeanutButter.SimpleHTTPServer.NugetPackage/lib/net40/PeanutButter.SimpleTcpServer.dll
+PeanutButter/PeanutButter.FluentMigrator.NugetPackage/lib/
+PeanutButter/PeanutButter.TempDb.LocalDb.NugetPackage/lib/
+PeanutButter/PeanutButter.TempDb.NugetPackage/lib/
+PeanutButter/PeanutButter.TempDb.SqlCe.NugetPackage/lib/
+PeanutButter/PeanutButter.TempDb.Sqlite.NugetPackage/lib/
 *.swp
 *.swo
 node_modules
