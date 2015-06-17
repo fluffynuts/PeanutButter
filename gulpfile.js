@@ -54,7 +54,6 @@ gulp.task('build', function() {
 });
 
 gulp.task('default', function(cb) {
-    runSequence('build', 'test');
-    cb();
+    runSequence('build', 'test', cb);
 });
 
