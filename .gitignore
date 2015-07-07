@@ -133,3 +133,4 @@ PeanutButter/PeanutButter.TempDb.Sqlite.NugetPackage/lib/
 *.swo
 node_modules
 buildreports
+.settings

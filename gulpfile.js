@@ -3,6 +3,7 @@ var msbuild = require('gulp-msbuild');
 var fs = require('fs')
 var nunit = require('gulp-nunit-runner');
 var runSequence = require('run-sequence');
+var dotCover = require('./gulp-dotcover');
 
 var determineNUnitRunnerPath = function() {
     var baseFolder = 'C:/Program Files (x86)';
@@ -53,7 +54,30 @@ gulp.task('build', function() {
             }));
 });
 
+gulp.task('clean', function() {
+    return gulp.src('**/*.sln')
+            .pipe(msbuild({
+                toolsVersion: 4.0,
+                targets: ['Clean'],
+                configuration: 'Debug',
+                stdout: true,
+                verbosity: 'normal'
+            }));
+});
+
+gulp.task('cover', function() {
+    return gulp.src('**/*.Tests.dll')
+             .pipe(dotCover({
+                 
+             }));
+});
+
 gulp.task('default', function(cb) {
-    runSequence('build', 'test', cb);
+    runSequence('build', 'cover', function(err) {
+        if (err) {
+            console.log(err);
+        }
+        cb();
+    });
 });
 

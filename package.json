@@ -3,12 +3,17 @@
   "version": "1.0.101",
   "description": "A bunch of tasty utilities for your .net sandwich\"",
   "dependencies": {
+    "event-stream": "^3.3.1",
     "gulp": "^3.9.0",
     "gulp-msbuild": "^0.2.11",
     "gulp-nunit-runner": "^0.4.1",
-    "run-sequence": "^1.1.0"
+    "gulp-util": "^3.0.6",
+    "run-sequence": "^1.1.0",
+    "through2": "^2.0.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "q": "^1.4.1"
+  },
   "scripts": {},
   "repository": {
     "type": "git",
