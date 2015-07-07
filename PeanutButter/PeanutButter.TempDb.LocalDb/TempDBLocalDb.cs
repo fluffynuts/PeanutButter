@@ -44,6 +44,7 @@ namespace PeanutButter.TestUtils.Generic
                     _dbName,
                     DatabaseFile);
                 cmd.ExecuteNonQuery();
+                cmd.CommandText = string.Format("ALTER DATABASE [{0}] SET TRUSTWORTHY ON", _dbName);
                 ConnectionString = string.Format(@"Data Source=(localdb)\{0};AttachDbFilename={1}; Initial Catalog={2};Integrated Security=True", 
                     InstanceName, DatabaseFile, _dbName);
             }
