@@ -1,7 +1,7 @@
 var gulp = require('gulp');
 var fs = require('fs');
 var nunit = require('gulp-nunit-runner');
-var testUtilFinder = require('./gulp-modules/testutil-finder');
+var testUtilFinder = require('./modules/testutil-finder');
 
 gulp.task('test', function() {
     if (!fs.existsSync('buildreports')) {

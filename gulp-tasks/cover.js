@@ -1,5 +1,5 @@
 var gulp = require('gulp');
-var dotCover = require('./gulp-modules/gulp-dotcover');
+var dotCover = require('./modules/gulp-dotcover');
 gulp.task('cover', function() {
     return gulp.src('**/*.Tests.dll')
              .pipe(dotCover({
