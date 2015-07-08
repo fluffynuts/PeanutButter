@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using PeanutButter.TempDb.Sqlite;
+using PeanutButter.TempDb.Tests;
 using PeanutButter.Utils;
 
 namespace PeanutButter.TestUtils.Generic.Tests
@@ -11,6 +12,23 @@ namespace PeanutButter.TestUtils.Generic.Tests
     [TestFixture]
     public class TestTempDBSqlite
     {
+        [TestFixtureSetUp]
+        public void TestFixtureSetUp()
+        {
+            File.WriteAllBytes("SQLite.Interop.dll", TestResources.SQLite_Interop_x86);
+        }
+
+        [TestFixtureTearDown]
+        public void TestFixtureTearDown()
+        {
+            try
+            {
+                File.Delete("SQLite.Interop.dll");
+            }
+            catch
+            {
+            }
+        }
         [Test]
         public void ShouldImplementIDisposable()
         {

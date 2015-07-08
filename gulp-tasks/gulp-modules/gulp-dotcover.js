@@ -18,8 +18,8 @@ function projectPathFor(path) {
 function dotCover(options) {
   options = options || { }
   options.exec = options.exec || {};
-  options.exec.dotCover = options.exec.dotCover || testUtilFinder.latestDotCover();//'C:/Program Files (x86)/JetBrains/dotCover/v3.1/Bin/dotCover.exe';
-  options.exec.nunit = options.exec.nunit || testUtilFinder.latestNUnit();
+  options.exec.dotCover = options.exec.dotCover || testUtilFinder.latestDotCover(options);
+  options.exec.nunit = options.exec.nunit || testUtilFinder.latestNUnit(options);
   options.baseFilters = options.baseFilters || '+:module=*;class=*;function=*;-:*.Tests';
   options.exclude = options.exclude || [];
   options.nunitOptions = options.nunitOptions || '/framework:net-4.5 /labels';
@@ -173,38 +173,28 @@ function run(name, executable, args, opts) {
     timeout: 0, 
     cwd: opts.cwd
   };
-  /*
-  var child = child_process.exec(batchFile, [], execOpts, function(error, stdout, sterr) {
-      console.log(stdout);
-      console.log(stderr);
-      if (error) {
-          deferred.reject({name: name, exitCode: error});
-          return;
-      }
-      deferred.resolve({name: name});
-  });
-  */
+  
   var child = child_process.spawn(executable, args, opts);
-child.on('error', function(err) {
+  child.on('error', function(err) {
     // delete temp batch file
     deferred.reject({
     name: name,
     error: err
     });
-})
-child.on('close', function(code) {
-    // delete temp batch file
-    if (code === 0) {
-    deferred.resolve({
-        name: name
-    });
-    } else {
-    deferred.reject({
-        name: name,
-        exitCode: code
-    });
-    }
-});
+  })
+  child.on('close', function(code) {
+      // delete temp batch file
+      if (code === 0) {
+      deferred.resolve({
+          name: name
+      });
+      } else {
+      deferred.reject({
+          name: name,
+          exitCode: code
+      });
+      }
+  });
   return deferred.promise;
 }
 
