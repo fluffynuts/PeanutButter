@@ -5,6 +5,7 @@ var fs = require('fs');
 var child_process = require('child_process');
 var q = require('q');
 var testUtilFinder = require('./testutil-finder');
+var tmp = require('tmp');
 
 var PLUGIN_NAME = 'gulp-dotcover';
 var DEBUG = true;
@@ -94,46 +95,45 @@ function trim() {
 }
 
 function runDotCoverWith(stream, testAssemblies, options) {
-  var assemblies = testAssemblies.map(function(file) {
-    return file.path.replace(/\\/g, '/');
-  });
-  if (assemblies.length === 0) {
-    return fail(stream, 'No test assemblies defined');
-  }
-  var dotCover = findDotCover(stream, options);
-  var nunit = findNunit(stream, options);
-  
-  var filterJoin = ';-:';
-  var filters = options.baseFilters;
-  if (options.exclude.length) {
-    filters = [filters, options.exclude.join(filterJoin)].join(filterJoin);
-  }
+    var assemblies = testAssemblies.map(function(file) {
+        return file.path.replace(/\\/g, '/');
+    });
+    if (assemblies.length === 0) {
+        return fail(stream, 'No test assemblies defined');
+    }
+    var dotCover = findDotCover(stream, options);
+    var nunit = findNunit(stream, options);
 
-  var nunitOptions = [ options.nunitOptions,
-                       '/xml=' + options.nunitOutput,
-                       '/noshadow',
-                       assemblies.join(' ')].join(' ');
-  var dotCoverOptions = ['cover',
-                          //'/TargetWorkingDir="' + process.cwd().replace(/\\/g, '/') + '"',
-                          '/TargetExecutable=' + nunit,
-                          '/AnalyseTargetArguments=False',
-                          '/Output=' + options.coverageOutput,
-                          '/Filters=' + filters,
-                          '/TargetArguments=' + nunitOptions 
-                          ];
-  var puts = function(str) {
-    gutil.log(gutil.colors.yellow(str));
-  };
-  var reportArgsFor = function(reportType) {
-    return ['report', 
+    var filterJoin = ';-:';
+    var filters = options.baseFilters;
+    if (options.exclude.length) {
+        filters = [filters, options.exclude.join(filterJoin)].join(filterJoin);
+    }
+
+    var nunitOptions = [ options.nunitOptions,
+        '/xml=' + options.nunitOutput,
+        '/noshadow',
+        assemblies.join(' ')].join(' ');
+    var dotCoverOptions = ['cover',
+        '/TargetExecutable=' + nunit,
+        '/AnalyseTargetArguments=False',
+        '/Output=' + options.coverageOutput,
+        '/Filters=' + filters,
+        '/TargetArguments=""' + nunitOptions + '""'
+    ];
+    var puts = function(str) {
+        gutil.log(gutil.colors.yellow(str));
+    };
+    var reportArgsFor = function(reportType) {
+        return ['report', 
             '/ReportType=' + reportType, 
             '/Source=' + options.coverageOutput,
             '/Output=' + options.coverageReportBase + '.' + reportType.toLowerCase()];
-  }
-	var opts = {
-		stdio: [process.stdin, process.stdout, process.stderr, 'pipe'],
-    cwd: process.cwd()
-	};
+    }
+    var opts = {
+        stdio: [process.stdin, process.stdout, process.stderr, 'pipe'],
+        cwd: process.cwd()
+    };
 
 
   puts('running testing with coverage...');
@@ -161,25 +161,50 @@ function run(name, executable, args, opts) {
     var cmd = ['"' + executable + '"', args.join(' ')].join(' ');
     console.log(cmd);
   }
+
+  var tempFile = tmp.fileSync({postfix: '.bat'});
+  var batchFile = tempFile.name;
+  var fullCommand = '"' + executable + '" ' + args.join(' ');
+  fs.writeFileSync(batchFile, fullCommand);
+  console.log('batch file: ' + batchFile);
+
+  var execOpts = {
+    maxBuffer: 4096 * 1024,
+    timeout: 0, 
+    cwd: opts.cwd
+  };
+  /*
+  var child = child_process.exec(batchFile, [], execOpts, function(error, stdout, sterr) {
+      console.log(stdout);
+      console.log(stderr);
+      if (error) {
+          deferred.reject({name: name, exitCode: error});
+          return;
+      }
+      deferred.resolve({name: name});
+  });
+  */
   var child = child_process.spawn(executable, args, opts);
-  child.on('error', function(err) {
+child.on('error', function(err) {
+    // delete temp batch file
     deferred.reject({
-      name: name,
-      error: err
+    name: name,
+    error: err
     });
-  })
-  child.on('close', function(code) {
+})
+child.on('close', function(code) {
+    // delete temp batch file
     if (code === 0) {
-      deferred.resolve({
+    deferred.resolve({
         name: name
-      });
+    });
     } else {
-      deferred.reject({
+    deferred.reject({
         name: name,
         exitCode: code
-      });
+    });
     }
-  });
+});
   return deferred.promise;
 }
 

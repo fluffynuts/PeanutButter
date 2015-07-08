@@ -50,7 +50,7 @@ gulp.task('cover', function() {
 });
 
 gulp.task('default', function(cb) {
-    runSequence('build', 'test', 'cover', function(err) {
+    runSequence('build', 'cover', function(err) {
         if (err) {
             console.log(err);
         }

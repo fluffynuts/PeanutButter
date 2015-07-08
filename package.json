@@ -9,7 +9,8 @@
     "gulp-nunit-runner": "^0.4.1",
     "gulp-util": "^3.0.6",
     "run-sequence": "^1.1.0",
-    "through2": "^2.0.0"
+    "through2": "^2.0.0",
+    "tmp": "0.0.26"
   },
   "devDependencies": {
     "q": "^1.4.1"
