@@ -45,12 +45,12 @@ gulp.task('clean', function() {
 gulp.task('cover', function() {
     return gulp.src('**/*.Tests.dll')
              .pipe(dotCover({
-                 
+                 debug: true
              }));
 });
 
 gulp.task('default', function(cb) {
-    runSequence('build', 'cover', function(err) {
+    runSequence('build', 'test', 'cover', function(err) {
         if (err) {
             console.log(err);
         }
