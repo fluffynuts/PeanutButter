@@ -50,13 +50,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TestAssemblyExtensions.cs" />
     <Compile Include="TestAutoDeleter.cs" />
     <Compile Include="TestAutoDisposer.cs" />
     <Compile Include="TestAutoLocker.cs" />
     <Compile Include="TestDateTimeExtensions.cs" />
     <Compile Include="TestDecimalDecorator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestExtensionsForIEnumerables.cs" />
     <Compile Include="TestObjectExtensions.cs" />
+    <Compile Include="TestStringExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

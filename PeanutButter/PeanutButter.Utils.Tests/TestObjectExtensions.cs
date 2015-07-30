@@ -452,5 +452,49 @@ namespace PenautButter.Utils.Tests
             //---------------Test Result -----------------------
             Assert.IsNull(o2.prop);
         }
+
+        [Test]
+        public void Get_WhenGivenNameOfPropertyWhichDoesNotExist_ShouldReturnDefaultValue()
+        {
+            //---------------Set up test pack-------------------
+            var o = new {};
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = o.Get("prop", 1);
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(1, result);
+        }
+
+        [Test]
+        public void Get_WhenGivenNameOfPropertyWhichDoesExist_ShouldReturnThatValue()
+        {
+            //---------------Set up test pack-------------------
+            var o = new {prop = 2};
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = o.Get("prop", 1);
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(2, result);
+        }
+
+        [Test]
+        public void Get_WhenGivenNamefPropertyWhichDoesExistAndIncorrectType_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            var o = new {prop = 2};
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.Throws<ArgumentException>(() => o.Get<string>("prop"));
+
+            //---------------Test Result -----------------------
+        }
     }
 }

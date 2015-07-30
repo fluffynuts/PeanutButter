@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 
 namespace PeanutButter.Utils
 {
@@ -111,6 +109,24 @@ namespace PeanutButter.Utils
         private static string StringOf(object srcValue)
         {
             return srcValue == null ? "[null]" : srcValue.ToString();
+        }
+
+        public static T Get<T>(this object src, string propertyName, T defaultValue = default(T))
+        {
+            var propInfo = src.GetType()
+                                .GetProperties()
+                                .FirstOrDefault(pi => pi.Name == propertyName);
+            if (propInfo == null)
+                return defaultValue;
+            if (!propInfo.PropertyType.IsAssignableTo<T>())
+                throw new ArgumentException(
+                    "Get<> must be invoked with a type to which the property value could be assigned");
+            return (T) propInfo.GetValue(src, null);
+        }
+
+        public static bool IsAssignableTo<T>(this Type type)
+        {
+            return type.IsAssignableFrom(typeof (T));
         }
     }
 }

@@ -210,5 +210,16 @@ namespace PeanutButter.RandomGenerators
             max = max.AddDays(1).AddMilliseconds(-1);
             return GetRandomDate(min, max);
         }
+
+        public static List<T> GetRandomList<T>(Func<T> generator, int minValues = 0, int maxValues = 10)
+        {
+            var howMany = RandomValueGen.GetRandomInt(minValues, maxValues);
+            var result = new List<T>();
+            for (var i = 0; i < howMany; i++)
+            {
+                result.Add(generator());
+            }
+            return result;
+        }
     }
 }

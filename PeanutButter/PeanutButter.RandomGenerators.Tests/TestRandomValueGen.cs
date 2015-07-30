@@ -253,6 +253,36 @@ namespace PeanutButter.RandomGenerators.Tests
             Assert.IsFalse(outOfRange.Any(), "One or more results had a time that was too late.");
         }
 
+        [Test]
+        public void GetRandomList_GivenGeneratorFunctionAndBoundaries_ShouldReturnListOfRandomSizeContainingOutputOfGeneratorPerItem()
+        {
+            //---------------Set up test pack-------------------
+            const int runs = RANDOM_TEST_CYCLES;
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            for (var i = 0; i < runs; i++)
+            {
+                var min = RandomValueGen.GetRandomInt(10, 100);
+                var max = RandomValueGen.GetRandomInt(10, 100);
+                if (min > max)
+                {
+                    var swap = min;
+                    min = max;
+                    max = swap;
+                }
+                var fill = RandomValueGen.GetRandomInt(1, 1024);
+                var result = RandomValueGen.GetRandomList(() => fill, min, max);
+
+
+                //---------------Test Result -----------------------
+                Assert.That(result.Count, Is.GreaterThanOrEqualTo(min));
+                Assert.That(result.Count, Is.LessThanOrEqualTo(max));
+                Assert.IsTrue(result.All(item => item == fill));
+            }
+        }
+
     }
 
 }

@@ -6,7 +6,7 @@ namespace PeanutButter.Utils
 {
     public static class ExtensionsForIEnumerables
     {
-        public static void Each<T>(this IEnumerable<T> collection, Action<T> toRun)
+        public static void ForEach<T>(this IEnumerable<T> collection, Action<T> toRun)
         {
             foreach (var item in collection)
                 toRun(item);
@@ -41,10 +41,25 @@ namespace PeanutButter.Utils
             return !collection.Any();
         }
 
-        public static void Repeat(int howManyTimes, Action toRun)
+        public static IEnumerable<T> EmptyIfNull<T>(this IEnumerable<T> collection)
         {
-            for (var i = 0; i < howManyTimes; i++)
-                toRun();
+            return collection ?? new List<T>();
         }
+
+        public static IEnumerable<T> Randomize<T>(this IEnumerable<T> input)
+        {
+            var rnd = new Random(DateTime.Now.Millisecond);
+            var copy = new List<T>(input);
+            var result = new List<T>();
+            while (copy.Count > 0)
+            {
+                var next = rnd.Next(copy.Count - 1);
+                var nextValue = copy[next];
+                copy.RemoveAt(next);
+                result.Add(nextValue);
+            }
+            return result;
+        }
+
     }
 }

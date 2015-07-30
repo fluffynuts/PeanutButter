@@ -1,4 +1,5 @@
 'use strict';
+var log = require('./log');
 var fs = require('fs');
 var programFilesFolder = 'C:/Program Files (x86)';
 function isUnstable(folderName) {
@@ -15,7 +16,7 @@ function finder(searchFolder, searchBin, options, searchBaseFolder) {
         var lcur = cur.toLowerCase();
         if (lcur.indexOf(lsearch) === 0) {
             if (ignoreBetas && isUnstable(lcur)) {
-                console.log('NOTICE: ingnoring unstable tool at: ' + cur);
+                log.notice('Ingnoring unstable tool at: ' + cur);
                 return acc;
             } 
             acc.push(cur);
@@ -29,7 +30,7 @@ function finder(searchFolder, searchBin, options, searchBaseFolder) {
     for (var i = possibles.length-1; i > -1; i--) {
         var runner = [searchBaseFolder, '/', possibles[i], searchBin].join('');
         if (fs.existsSync(runner)) {
-            console.log('Using ' + runner);
+            log.debug('Using ' + runner);
             return runner;
         }
     }
