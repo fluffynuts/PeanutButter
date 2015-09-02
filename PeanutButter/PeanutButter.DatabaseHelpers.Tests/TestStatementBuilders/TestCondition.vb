@@ -109,11 +109,19 @@ Public Class TestCondition
     End Sub
 
     <Test()>
-    Public Sub NullString()
+    Public Sub NullString_WithEquality()
         Dim f = RandomValueGen.GetRandomString(),
             v = DirectCast(Nothing, String)
         Dim c = New Condition(f, Condition.EqualityOperators.Equals, v)
         Assert.AreEqual("[" + f + "] is NULL", c.ToString())
+    End Sub
+
+    <Test()>
+    Public Sub NullString_WithInequality()
+        Dim f = RandomValueGen.GetRandomString(),
+            v = DirectCast(Nothing, String)
+        Dim c = New Condition(f, Condition.EqualityOperators.NotEquals, v)
+        Assert.AreEqual("[" + f + "] is NOT NULL", c.ToString())
     End Sub
 
     <Test()>

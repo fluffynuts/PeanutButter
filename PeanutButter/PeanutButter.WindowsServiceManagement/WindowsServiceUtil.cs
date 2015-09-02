@@ -455,7 +455,6 @@ namespace PeanutButter.Win32ServiceControl
             { 
                 var regKey = GetServiceRegistryKey(); 
                 if (regKey == null) return ServiceStartupTypes.Unknown;
-                ServiceStartupTypes result;
                 try
                 {
                     return

@@ -259,4 +259,23 @@ Public Class TestInsertStatementBuilder
         Assert.AreEqual("insert into """ + t + """ (""" + f1 + """,""" + f2 + """) values ('" + v1 + "','" + v3 + "')", sql)
     End Sub
 
+    <Test()>
+    Public Sub Sub_WithField_GivenStringValueWhichIsNull_ShouldAttemptToInsertNull()
+        Dim t = RandomValueGen.GetRandomString(),
+            f = RandomValueGen.GetRandomString(),
+            v = CType(Nothing, String)
+        Dim sql = Create().WithTable(t).WithField(f, v).Build()
+        Assert.AreEqual("insert into [" + t + "] ([" + f + "]) values (NULL)", sql)
+    End Sub
+
+    <Test()>
+    Public Sub Sub_WithField_GivenStringValueWhichIsEmpty_ShouldNOTAttemptToInsertNull()
+        Dim t = RandomValueGen.GetRandomString(),
+            f = RandomValueGen.GetRandomString(),
+            v = ""
+        Dim sql = Create().WithTable(t).WithField(f, v).Build()
+        Assert.AreEqual("insert into [" + t + "] ([" + f + "]) values ('')", sql)
+    End Sub
+
+
 End Class

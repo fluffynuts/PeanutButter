@@ -7,7 +7,7 @@
     End Function
     Public Sub New(fieldName As String, fieldValue As String, quote As Boolean)
         Me.Name = fieldName
-        If fieldValue = vbNullString Or fieldValue Is Nothing Then
+        If fieldValue Is Nothing Then
             Me.Value = "NULL"
             Me.QuoteMe = False
         Else

@@ -232,8 +232,13 @@ namespace PeanutButter.RandomGenerators.Tests
             RunCycles(() => results.Add(RandomValueGen.GetRandomDate(minTime: minTime)));
 
             //---------------Test Result -----------------------
-            var outOfRange = results.Where(d => d.MillisecondsSinceStartOfDay() < minTime.MillisecondsSinceStartOfDay()).ToArray();
-            Assert.IsFalse(outOfRange.Any(), "One or more results had a time that was too early.");
+            var outOfRange = results.Where(d => d.Ticks < minTime.Ticks).ToArray();
+            Assert.IsFalse(outOfRange.Any(), string.Join("\n", new[]
+            {
+                "One or more results had a time that was too early:",
+                "minTime: " + minTime.ToString("yyyy/MM/dd HH:mm:ss.ttt"),
+                "bad values: " + string.Join(",", outOfRange.Take(5))
+            }));
         }
 
         [Test]

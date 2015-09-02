@@ -590,8 +590,6 @@ namespace PeanutButter.INI.Tests
             CollectionAssert.AreEqual(new[] {"general", "section1", "section2"}, ini.Sections);
         }
 
-
-
     }
 
 }

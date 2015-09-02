@@ -125,7 +125,7 @@ Public Class Condition
             parts.Add(Me.FieldName)
         End If
         If Me.Value = "NULL" And Not Me.QuoteValue Then
-            parts.Add(" is ")
+            parts.Add(ResolveIsOperator())
         Else
             parts.Add(_operatorResolutions(Me.EqualityOperator))
         End If
@@ -137,6 +137,17 @@ Public Class Condition
             parts.Add(Me.Value)
         End If
         Return String.Join("", parts)
+    End Function
+
+    Private Function ResolveIsOperator() As String
+        Select Case EqualityOperator
+            Case EqualityOperators.Equals
+                Return " is "
+            Case EqualityOperators.NotEquals
+                Return " is NOT "
+            Case Else
+                Throw new Exception("Invalid equality operator " & EqualityOperator & " for NULL value")
+        End Select
     End Function
 
     Private Function FieldQuote(val As String) As String
