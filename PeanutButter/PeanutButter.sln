@@ -177,6 +177,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.Reflection", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.Reflection.Tests", "PeanutButter.Reflection.Tests\PeanutButter.Reflection.Tests.csproj", "{9EDEAB78-C721-4ACB-B01B-13133786429E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.Reflection.NugetPackage", "PeanutButter.Reflection.NugetPackage\PeanutButter.Reflection.NugetPackage.csproj", "{AD85D3BD-58B7-46C0-837B-7F9F0175E563}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -718,6 +720,17 @@ Global
 		{9EDEAB78-C721-4ACB-B01B-13133786429E}.Test|Any CPU.Build.0 = Release|Any CPU
 		{9EDEAB78-C721-4ACB-B01B-13133786429E}.Test|x86.ActiveCfg = Release|Any CPU
 		{9EDEAB78-C721-4ACB-B01B-13133786429E}.Test|x86.Build.0 = Release|Any CPU
+		{AD85D3BD-58B7-46C0-837B-7F9F0175E563}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD85D3BD-58B7-46C0-837B-7F9F0175E563}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AD85D3BD-58B7-46C0-837B-7F9F0175E563}.Debug|x86.Build.0 = Debug|Any CPU
+		{AD85D3BD-58B7-46C0-837B-7F9F0175E563}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD85D3BD-58B7-46C0-837B-7F9F0175E563}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD85D3BD-58B7-46C0-837B-7F9F0175E563}.Release|x86.ActiveCfg = Release|Any CPU
+		{AD85D3BD-58B7-46C0-837B-7F9F0175E563}.Release|x86.Build.0 = Release|Any CPU
+		{AD85D3BD-58B7-46C0-837B-7F9F0175E563}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{AD85D3BD-58B7-46C0-837B-7F9F0175E563}.Test|Any CPU.Build.0 = Release|Any CPU
+		{AD85D3BD-58B7-46C0-837B-7F9F0175E563}.Test|x86.ActiveCfg = Release|Any CPU
+		{AD85D3BD-58B7-46C0-837B-7F9F0175E563}.Test|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
