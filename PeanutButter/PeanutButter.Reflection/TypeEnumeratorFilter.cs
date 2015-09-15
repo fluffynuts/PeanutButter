@@ -55,7 +55,7 @@ namespace PeanutButter.Reflection
             return examineType.IsValueType && !examineType.IsEnum;
         }
 
-        private static bool IsClasses(Type examineType)
+        private static bool IsClass(Type examineType)
         {
             return examineType.IsClass;
         }
@@ -342,7 +342,7 @@ namespace PeanutButter.Reflection
 
         ITypeEnumeratorFilter ITypeEnumeratorFilterCriteria.Classes()
         {
-            Predicate<Type> operation = IsClasses;
+            Predicate<Type> operation = IsClass;
             AddOperation(operation);
             return this;
         }

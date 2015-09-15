@@ -481,11 +481,190 @@ namespace PeanutButter.Reflection.Tests
             CollectionAssert.DoesNotContain(enumerable, typeof(TestDiscoveryStruct));
         }
 
+        [Test]
+        public void FilterTypes_ValueTypes_ShouldReturnTypesIncludingTestDiscoveryStruct()
+        {
+            //---------------Set up test pack-------------------
+            AssemblyExplorer explorer = CreateExplorer();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            IEnumerable<Type> enumerable = explorer.FilterTypes().ValueTypes();
+            //---------------Test Result -----------------------
+            CollectionAssert.Contains(enumerable, typeof(TestDiscoveryStruct));
+        }
+
+        [Test]
+        public void FilterTypes_ValueTypes_ShouldReturnTypesIncludingTestDiscoveryEnum()
+        {
+            //---------------Set up test pack-------------------
+            AssemblyExplorer explorer = CreateExplorer();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            IEnumerable<Type> enumerable = explorer.FilterTypes().ValueTypes();
+            //---------------Test Result -----------------------
+            CollectionAssert.Contains(enumerable, typeof(TestDiscoveryEnum));
+        }
+
+        [Test]
+        public void FilterTypes_Static_ShouldReturnTypesIncludingTestDiscoveryStaticClass()
+        {
+            //---------------Set up test pack-------------------
+            AssemblyExplorer explorer = CreateExplorer();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            IEnumerable<Type> enumerable = explorer.FilterTypes().Static();
+            //---------------Test Result -----------------------
+            CollectionAssert.Contains(enumerable, typeof(TestDiscoveryStaticClass));
+        }
+
+        [Test]
+        public void FilterTypes_AndNotStatic_ShouldReturnTypesExcludingTestDiscoveryStaticClass()
+        {
+            //---------------Set up test pack-------------------
+            AssemblyExplorer explorer = CreateExplorer();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            IEnumerable<Type> enumerable = explorer.FilterTypes().Classes().AndNot.Static();
+            //---------------Test Result -----------------------
+            CollectionAssert.DoesNotContain(enumerable, typeof(TestDiscoveryStaticClass));
+        }
+
+        [Test]
+        public void FilterTypes_ComparingAndAreStaticResultsAgainstAndNotStaticResults_ShouldNotResultInSubset()
+        {
+            //---------------Set up test pack-------------------
+            AssemblyExplorer explorer = CreateExplorer();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            IEnumerable<Type> referenceTypes = explorer.FilterTypes().ReferenceTypes();
+            IEnumerable<Type> typesIncludingStatic = explorer.FilterTypes().Classes().AndAre.Static();
+            IEnumerable<Type> typesExcludingStatic = explorer.FilterTypes().Classes().AndNot.Static();
+            //---------------Test Result -----------------------
+            CollectionAssert.IsSubsetOf(typesIncludingStatic, referenceTypes);
+            CollectionAssert.IsSubsetOf(typesExcludingStatic, referenceTypes);
+            CollectionAssert.IsNotSubsetOf(typesExcludingStatic, typesIncludingStatic);
+        }
+
+        [Test]
+        public void FilterTypes_ConstructedWithNoParameters_ShouldReturnTypesIncludingTestPublicConstructorWithNoParametersClass()
+        {
+            //---------------Set up test pack-------------------
+            AssemblyExplorer explorer = CreateExplorer();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            IEnumerable<Type> result = explorer.FilterTypes().ReferenceTypes().AndAre.ConstructedWithNoParameters(MemberAccessibility.Public);
+            //---------------Test Result -----------------------
+            CollectionAssert.Contains(result, typeof(TestPublicConstructorWithNoParametersClass));
+        }
+
+        [Test]
+        public void FilterTypes_ConstructedWithNoParameters_GivenConstructorMustBePublicAccessibility_ShouldReturnTypesExcludingTestPublicConstructorWithNoParametersClass()
+        {
+            //---------------Set up test pack-------------------
+            AssemblyExplorer explorer = CreateExplorer();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            IEnumerable<Type> result = explorer.FilterTypes().ReferenceTypes().AndAre.ConstructedWithNoParameters(MemberAccessibility.Public);
+            //---------------Test Result -----------------------
+            CollectionAssert.DoesNotContain(result, typeof(TestInternalConstructorWithNoParametersClass));
+            CollectionAssert.Contains(result, typeof(TestPublicConstructorWithNoParametersClass));
+        }
+
+        [Test]
+        public void FilterTypes_AndNotConstructedWithNoParameters_ShouldReturnTypesExcludingTestPublicConstructorWithNoParametersClass()
+        {
+            //---------------Set up test pack-------------------
+            AssemblyExplorer explorer = CreateExplorer();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            IEnumerable<Type> result = explorer.FilterTypes().ReferenceTypes().AndNot.ConstructedWithNoParameters(MemberAccessibility.Public);
+            //---------------Test Result -----------------------
+            CollectionAssert.DoesNotContain(result, typeof(TestPublicConstructorWithNoParametersClass));
+        }
+
+        [Test]
+        public void FilterTypes_ConstructedWithParameters_ShouldReturnTypesIncludingTestPublicConstructorWithParametersClass()
+        {
+            //---------------Set up test pack-------------------
+            AssemblyExplorer explorer = CreateExplorer();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            IEnumerable<Type> result = explorer.FilterTypes().ReferenceTypes().AndAre.ConstructedWithParameters(MemberAccessibility.Public, typeof(string), typeof(int));
+            //---------------Test Result -----------------------
+            CollectionAssert.Contains(result, typeof(TestPublicConstructorWithParametersClass));
+        }
+
+        [Test]
+        public void FilterTypes_ConstructedWithParameters_GivenMatchingConstructorDoesNotSatisfyMinimumAccessibility_ShouldReturnTypesExcludingTestPublicConstructorWithParametersClass()
+        {
+            //---------------Set up test pack-------------------
+            AssemblyExplorer explorer = CreateExplorer();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            IEnumerable<Type> result = explorer.FilterTypes().ReferenceTypes().AndAre.ConstructedWithParameters(MemberAccessibility.Public, typeof(List<int>), typeof(int));
+            //---------------Test Result -----------------------
+            CollectionAssert.DoesNotContain(result, typeof(TestPublicConstructorWithParametersClass));
+        }
+
+        [Test]
+        public void FilterTypes_ConstructedWithParameters_GivenNoMatchingConstructorExists_ShouldReturnTypesExcludingTestPublicConstructorWithParametersClass()
+        {
+            //---------------Set up test pack-------------------
+            AssemblyExplorer explorer = CreateExplorer();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            IEnumerable<Type> result = explorer.FilterTypes().ReferenceTypes().AndAre.ConstructedWithParameters(MemberAccessibility.Public, typeof(List<string>), typeof(int));
+            //---------------Test Result -----------------------
+            CollectionAssert.DoesNotContain(result, typeof(TestPublicConstructorWithParametersClass));
+        }
+
+        private class TestPublicConstructorWithParametersClass
+        {
+            // ReSharper disable UnusedMember.Local
+            // ReSharper disable UnusedParameter.Local
+
+            public TestPublicConstructorWithParametersClass(string foo, int bar)
+            {
+                throw new NotImplementedException();
+            }
+
+            protected TestPublicConstructorWithParametersClass(List<int> foo, int bar)
+            {
+                throw new NotImplementedException();
+            }
+
+            // ReSharper restore UnusedParameter.Local
+            // ReSharper restore UnusedMember.Local
+        }
+
+        private class TestPublicConstructorWithNoParametersClass
+        {
+            public TestPublicConstructorWithNoParametersClass()
+            {
+                throw new NotImplementedException();
+            }
+
+        }
+
+        private class TestInternalConstructorWithNoParametersClass
+        {
+            internal TestInternalConstructorWithNoParametersClass()
+            {
+                throw new NotImplementedException();
+            }
+
+        }
+
         private static AssemblyExplorer CreateExplorer()
         {
             var result = new AssemblyExplorer();
             result.AddAssembly(typeof(TestAssemblyExplorer).Assembly);
             return result;
+        }
+
+        private static class TestDiscoveryStaticClass
+        {
+
         }
 
         private struct TestDiscoveryStruct
