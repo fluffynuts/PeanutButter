@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Optimization;
@@ -48,7 +45,7 @@ namespace PeanutButter.MVC.Tests
             //---------------Set up test pack-------------------
             var ctx = new ViewContext();
             ctx.Controller = Substitute.For<Controller>();
-            var valueProvider = Substitute.For<IValueProvider>();
+            var valueProvider = Substitute.For<System.Web.Mvc.IValueProvider>();
             var controllerName = RandomValueGen.GetRandomString();
             var actionName = RandomValueGen.GetRandomString();
             valueProvider.GetValue("Controller").Returns(new ValueProviderResult(controllerName, controllerName, CultureInfo.InvariantCulture));
@@ -77,7 +74,7 @@ namespace PeanutButter.MVC.Tests
             //---------------Set up test pack-------------------
             var ctx = new ViewContext();
             ctx.Controller = Substitute.For<Controller>();
-            var valueProvider = Substitute.For<IValueProvider>();
+            var valueProvider = Substitute.For<System.Web.Mvc.IValueProvider>();
             var controllerName = RandomValueGen.GetRandomString();
             var actionName = RandomValueGen.GetRandomString();
             valueProvider.GetValue("Controller").Returns(new ValueProviderResult(controllerName, controllerName, CultureInfo.InvariantCulture));
