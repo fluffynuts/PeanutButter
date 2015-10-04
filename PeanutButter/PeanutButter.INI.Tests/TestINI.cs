@@ -589,7 +589,10 @@ namespace PeanutButter.INI.Tests
             Assert.AreEqual(3, ini.Sections.Count());
             CollectionAssert.AreEqual(new[] {"general", "section1", "section2"}, ini.Sections);
         }
+<<<<<<< HEAD
 
+=======
+>>>>>>> * bump NSubstitute version -- this is most pertinent for consumers of PeanutButter.TestUtils.Generic
     }
 
 }
