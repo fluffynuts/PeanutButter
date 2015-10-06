@@ -203,6 +203,17 @@ namespace PeanutButter.RandomGenerators
             return itemArray.Skip(RandomValueGen.GetRandomInt(0, upper)).First();
         }
 
+        public static IEnumerable<T> GetRandomSelectionFrom<T>(IEnumerable<T> items)
+        {
+            if (items.Count() == 0)
+                return new T[] {};
+            var howMany = RandomValueGen.GetRandomInt(1, items.Count());
+            return Enumerable.Range(0, howMany)
+                    .Select(i => GetRandomFrom(items))
+                    .Distinct()
+                    .ToArray();
+        }  
+
         public static DateTime GetRandomTimeOn(DateTime theDate)
         {
             var min = new DateTime(theDate.Year, theDate.Month, theDate.Day, 0, 0, 0);

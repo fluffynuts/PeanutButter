@@ -121,6 +121,56 @@ namespace PeanutButter.RandomGenerators.Tests
             }
 
             //---------------Test Result -----------------------
+            Assert.IsTrue(results.All(r => items.Contains(r)));
+            Assert.IsTrue(items.All(i => results.Any(r => r == i)));
+        }
+
+        [Test]
+        public void GetRandomSelectionFrom_WhenGivenIEnumerableOfItems_ShouldReturnARandomCollectionFromTheCollection()
+        {
+            //---------------Set up test pack-------------------
+            var o1 = new object();
+            var o2 = new object();
+            var o3 = new object();
+            var items = new[] {o1, o2, o3};
+            var results = new List<IEnumerable<object>>();
+            const int runs = RANDOM_TEST_CYCLES;
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            for (var i = 0; i < runs; i++)
+            {
+                results.Add(RandomValueGen.GetRandomSelectionFrom(items));
+            }
+
+            //---------------Test Result -----------------------
+            var flattened = results.SelectMany(r => r);
+            Assert.IsTrue(flattened.All(f => items.Contains(f)));
+            var averageCount = results.Select(r => r.Count()).Average();
+            Assert.That(averageCount, Is.GreaterThan(1));
+            Assert.That(averageCount, Is.LessThan(items.Count()));
+        }
+
+        [Test]
+        public void GetRandomSelectionFrom_ShouldNotRepeatItems()
+        {
+            //---------------Set up test pack-------------------
+            var o1 = new object();
+            var o2 = new object();
+            var o3 = new object();
+            var items = new[] {o1, o2, o3};
+            const int runs = RANDOM_TEST_CYCLES;
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            for (var i = 0; i < runs; i++)
+            {
+                var result = RandomValueGen.GetRandomSelectionFrom(items);
+                //---------------Test Result -----------------------
+                CollectionAssert.AreEqual(result, result.Distinct());
+            }
+
         }
 
         private void RunCycles(Action toRun)
