@@ -170,37 +170,33 @@ namespace PeanutButter.RandomGenerators.Tests
                 //---------------Test Result -----------------------
                 CollectionAssert.AreEqual(result, result.Distinct());
             }
-
         }
 
-        private void RunCycles(Action toRun)
+        [Test]
+        public void GetRandomCollection_GivenFactoryFunction_ShouldInvokeItToCreateItems()
         {
-            for (var i = 0; i < RANDOM_TEST_CYCLES; i++)
-                toRun();
-        }
-
-        private class DateTimeRange
-        {
-            public DateTime MaxDate { get; private set; }
-            public DateTime MinDate { get; private set; }
-
-            public DateTimeRange(int minYear, int minMonth, int minDay, int maxYear, int maxMonth, int maxDay)
+            //---------------Set up test pack-------------------
+            const int runs = RANDOM_TEST_CYCLES;
+            var generatedValues = new List<int>();
+            Func<int> factory = () =>
             {
-                MinDate = new DateTime(minYear, minMonth, minDay, 0, 0, 0);
-                MaxDate = new DateTime(maxYear, maxMonth, maxDay, 0, 0, 0);
-                if (MinDate > MaxDate)
-                {
-                    var swap = MinDate;
-                    MinDate = MaxDate;
-                    MaxDate = swap;
-                }
+                var thisValue = RandomValueGen.GetRandomInt();
+                generatedValues.Add(thisValue);
+                return thisValue;
+            };
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            for (var i = 0; i < runs; i++)
+            {
+                var result = RandomValueGen.GetRandomCollection(factory);
+                //---------------Test Result -----------------------
+                CollectionAssert.AreEqual(generatedValues, result);
+                generatedValues.Clear();
             }
 
-            public bool InRange(DateTime value)
-            {
-                return value >= MinDate && value <= MaxDate;
-            }
         }
+
 
         [TestCase(1984, 4, 4, 2001, 1, 1)]
         [TestCase(1914, 4, 4, 2011, 1, 1)]
@@ -328,7 +324,7 @@ namespace PeanutButter.RandomGenerators.Tests
                     max = swap;
                 }
                 var fill = RandomValueGen.GetRandomInt(1, 1024);
-                var result = RandomValueGen.GetRandomList(() => fill, min, max);
+                var result = RandomValueGen.GetRandomCollection(() => fill, min, max);
 
 
                 //---------------Test Result -----------------------
@@ -338,6 +334,34 @@ namespace PeanutButter.RandomGenerators.Tests
             }
         }
 
+        private void RunCycles(Action toRun)
+        {
+            for (var i = 0; i < RANDOM_TEST_CYCLES; i++)
+                toRun();
+        }
+
+        private class DateTimeRange
+        {
+            public DateTime MaxDate { get; private set; }
+            public DateTime MinDate { get; private set; }
+
+            public DateTimeRange(int minYear, int minMonth, int minDay, int maxYear, int maxMonth, int maxDay)
+            {
+                MinDate = new DateTime(minYear, minMonth, minDay, 0, 0, 0);
+                MaxDate = new DateTime(maxYear, maxMonth, maxDay, 0, 0, 0);
+                if (MinDate > MaxDate)
+                {
+                    var swap = MinDate;
+                    MinDate = MaxDate;
+                    MaxDate = swap;
+                }
+            }
+
+            public bool InRange(DateTime value)
+            {
+                return value >= MinDate && value <= MaxDate;
+            }
+        }
     }
 
 }

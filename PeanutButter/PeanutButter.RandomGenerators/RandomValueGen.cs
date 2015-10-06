@@ -41,6 +41,8 @@ namespace PeanutButter.RandomGenerators
             public const int MAXLENGTH_STRING = -1;
             public const int MIN_NUMERIC_VALUE = 0;
             public const int MAX_NUMERIC_VALUE = 10;
+            public const int MIN_ITEMS = 0;
+            public const int MAX_ITEMS = 10;
         }
         private static readonly Random _rand = new Random();
         private static string _defaultRandomStringChars = "abcdefghijklmnopqrstuvwxyz1234567890";
@@ -135,12 +137,12 @@ namespace PeanutButter.RandomGenerators
             return value;
         }
 
-        public static double GetRandomDouble(double min = 0, double max = 10)
+        public static double GetRandomDouble(double min = 0, double max = DefaultRanges.MAX_NUMERIC_VALUE)
         {
             return (_rand.NextDouble() * (max - min)) + min;
         }
 
-        public static decimal GetRandomDecimal(decimal min = 0, decimal max = 10)
+        public static decimal GetRandomDecimal(decimal min = 0, decimal max = DefaultRanges.MAX_NUMERIC_VALUE)
         {
             return (decimal)(GetRandomDouble((double)min, (double)max));
         }
@@ -222,7 +224,7 @@ namespace PeanutButter.RandomGenerators
             return GetRandomDate(min, max);
         }
 
-        public static List<T> GetRandomList<T>(Func<T> generator, int minValues = 0, int maxValues = 10)
+        public static IEnumerable<T> GetRandomCollection<T>(Func<T> generator, int minValues = 0, int maxValues = DefaultRanges.MAX_ITEMS)
         {
             var howMany = RandomValueGen.GetRandomInt(minValues, maxValues);
             var result = new List<T>();

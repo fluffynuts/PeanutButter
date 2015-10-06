@@ -232,18 +232,18 @@ namespace PenautButter.Utils.Tests
         }
 
         [Test]
-        public void Randomize_ShouldReturnTheSameCollectionInADifferentOrder()
+        public void GetRandomCollection_ShouldReturnTheSameCollectionInADifferentOrder()
         {
             for (var i = 0; i < 10; i++)    // it's entirely possible that the random output is the same, so let's try up to 10 times
             {
                 //---------------Set up test pack-------------------
-                var src = RandomValueGen.GetRandomList(() => RandomValueGen.GetRandomString(), 3);
+                var src = RandomValueGen.GetRandomCollection(() => RandomValueGen.GetRandomString(), 3);
 
                 //---------------Assert Precondition----------------
                 CollectionAssert.IsNotEmpty(src);
 
                 //---------------Execute Test ----------------------
-                var result = src.Randomize();
+                var result = src.GetShuffledCopyOf();
 
                 //---------------Test Result -----------------------
                 CollectionAssert.AreEquivalent(result, src);

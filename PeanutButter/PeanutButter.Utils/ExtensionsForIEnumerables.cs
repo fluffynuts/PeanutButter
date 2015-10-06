@@ -46,7 +46,7 @@ namespace PeanutButter.Utils
             return collection ?? new List<T>();
         }
 
-        public static IEnumerable<T> Randomize<T>(this IEnumerable<T> input)
+        public static IEnumerable<T> GetShuffledCopyOf<T>(this IEnumerable<T> input)
         {
             var rnd = new Random(DateTime.Now.Millisecond);
             var copy = new List<T>(input);
