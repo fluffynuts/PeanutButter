@@ -173,6 +173,33 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [Test]
+        public void GetRandomSelectionFrom_ShouldProvideCollectionWithinRequiredRangeOfSize()
+        {
+            //---------------Set up test pack-------------------
+            var o1 = new object();
+            var o2 = new object();
+            var o3 = new object();
+            var o4 = new object();
+            var o5 = new object();
+            var o6 = new object();
+            var items = new[] {o1, o2, o3, o4, o5, o6};
+            var min = RandomValueGen.GetRandomInt(1, 3);
+            var max = RandomValueGen.GetRandomInt(3, items.Length);
+            const int runs = RANDOM_TEST_CYCLES;
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            for (var i = 0; i < runs; i++)
+            {
+                var result = RandomValueGen.GetRandomSelectionFrom(items, min, max);
+                //---------------Test Result -----------------------
+                Assert.That(result.Count(), Is.GreaterThanOrEqualTo(min));
+                Assert.That(result.Count(), Is.LessThanOrEqualTo(max));
+            }
+        }
+
+        [Test]
         public void GetRandomCollection_GivenFactoryFunction_ShouldInvokeItToCreateItems()
         {
             //---------------Set up test pack-------------------

@@ -205,11 +205,12 @@ namespace PeanutButter.RandomGenerators
             return itemArray.Skip(RandomValueGen.GetRandomInt(0, upper)).First();
         }
 
-        public static IEnumerable<T> GetRandomSelectionFrom<T>(IEnumerable<T> items)
+        public static IEnumerable<T> GetRandomSelectionFrom<T>(IEnumerable<T> items, 
+            int minValues = DefaultRanges.MIN_ITEMS, int maxValues = DefaultRanges.MAX_ITEMS)
         {
             if (items.Count() == 0)
                 return new T[] {};
-            var howMany = RandomValueGen.GetRandomInt(1, items.Count());
+            var howMany = RandomValueGen.GetRandomInt(minValues, maxValues);
             return Enumerable.Range(0, howMany)
                     .Select(i => GetRandomFrom(items))
                     .Distinct()
