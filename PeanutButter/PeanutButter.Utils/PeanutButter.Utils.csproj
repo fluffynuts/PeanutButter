@@ -47,6 +47,7 @@
     <Compile Include="BinaryArrayExtensions.cs" />
     <Compile Include="DateTimeExtensions.cs" />
     <Compile Include="DecimalDecorator.cs" />
+    <Compile Include="ExpressionHelper.cs" />
     <Compile Include="ExtensionsForIEnumerables.cs" />
     <Compile Include="ObjectExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
