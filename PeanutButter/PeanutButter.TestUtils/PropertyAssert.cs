@@ -33,32 +33,6 @@ namespace PeanutButter.TestUtils.Generic
             }
         }
 
-        public static void AreEqual(object obj1, object obj2, string obj1PropName, string obj2PropName = null)
-        {
-            if (obj2PropName == null)
-            {
-                obj2PropName = obj1PropName;
-            }
-            obj1 = ResolveObject(obj1, ref obj1PropName);
-            obj2 = ResolveObject(obj2, ref obj2PropName);
-            if (obj1 == null || obj2 == null)
-            {
-                if (obj1 == obj2)
-                {
-                    Assert.Fail("Both objects are null (" + obj1PropName + " => " + obj2PropName + ")");
-                }
-                Assert.Fail((obj1 == null ? "obj1" : "obj2") + " is null (" + obj1PropName + " => " + obj2PropName + ")");
-            }
-            var type1 = obj1.GetType();
-            var srcPropInfo = type1.GetProperty(obj1PropName);
-            Assert.IsNotNull(srcPropInfo, PropNotFoundMessage(type1, obj1PropName));
-            var type2 = obj2.GetType();
-            var targetPropInfo = type2.GetProperty(obj2PropName);
-            Assert.IsNotNull(targetPropInfo, PropNotFoundMessage(type2, obj2PropName));
-            Assert.AreEqual(srcPropInfo.PropertyType, targetPropInfo.PropertyType, "Property types for '" + srcPropInfo.Name + "' do not match: " + srcPropInfo.PropertyType.Name + " vs " + targetPropInfo.PropertyType.Name);
-            Assert.AreEqual(srcPropInfo.GetValue(obj1,null), targetPropInfo.GetValue(obj2, null), obj1PropName + " => " + obj2PropName);
-        }
-
         public static object ResolveObject(object obj, ref string propName)
         {
             var propParts = propName.Split(new[] { '.' });
@@ -82,19 +56,40 @@ namespace PeanutButter.TestUtils.Generic
             return ResolveObject(propVal, ref propName);
         }
 
+        public static void AreEqual(object obj1, object obj2, string obj1PropName, string obj2PropName = null)
+        {
+            PerformEqualityAssertionWith(obj1, obj2, obj1PropName, obj2PropName, Assert.AreEqual);
+        }
+
         public static void AreNotEqual<T1, T2>(T1 obj1, T2 obj2, string T1PropertyName, string T2PropertyName = null)
         {
-            if (T2PropertyName == null)
+            PerformEqualityAssertionWith(obj1, obj2, T1PropertyName, T2PropertyName, Assert.AreNotEqual);
+        }
+
+        private static void PerformEqualityAssertionWith(object obj1, object obj2, string obj1PropName, string obj2PropName, Action<object, object, string> finalAssertion)
+        {
+            if (obj2PropName == null)
             {
-                T2PropertyName = T1PropertyName;
+                obj2PropName = obj1PropName;
+            }
+            obj1 = ResolveObject(obj1, ref obj1PropName);
+            obj2 = ResolveObject(obj2, ref obj2PropName);
+            if (obj1 == null || obj2 == null)
+            {
+                if (obj1 == obj2)
+                {
+                    Assert.Fail("Both objects are null (" + obj1PropName + " => " + obj2PropName + ")");
+                }
+                Assert.Fail((obj1 == null ? "obj1" : "obj2") + " is null (" + obj1PropName + " => " + obj2PropName + ")");
             }
             var type1 = obj1.GetType();
-            var srcPropInfo = type1.GetProperty(T1PropertyName);
-            Assert.IsNotNull(srcPropInfo, PropNotFoundMessage(type1, T1PropertyName));
+            var srcPropInfo = type1.GetProperty(obj1PropName);
+            Assert.IsNotNull(srcPropInfo, PropNotFoundMessage(type1, obj1PropName));
             var type2 = obj2.GetType();
-            var targetPropInfo = type2.GetProperty(T2PropertyName);
-            Assert.IsNotNull(targetPropInfo, PropNotFoundMessage(type2, T2PropertyName));
-            Assert.AreNotEqual(srcPropInfo.GetValue(obj1, null), targetPropInfo.GetValue(obj2, null), T1PropertyName + " => " + T2PropertyName);
+            var targetPropInfo = type2.GetProperty(obj2PropName);
+            Assert.IsNotNull(targetPropInfo, PropNotFoundMessage(type2, obj2PropName));
+            Assert.AreEqual(srcPropInfo.PropertyType, targetPropInfo.PropertyType, "Property types for '" + srcPropInfo.Name + "' do not match: " + srcPropInfo.PropertyType.Name + " vs " + targetPropInfo.PropertyType.Name);
+            finalAssertion(srcPropInfo.GetValue(obj1, null), targetPropInfo.GetValue(obj2, null), obj1PropName + " => " + obj2PropName);
         }
 
         private static string PropNotFoundMessage(Type type, string propName)

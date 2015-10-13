@@ -30,6 +30,23 @@ namespace PeanutButter.TestUtils.Generic.Tests
         }
 
         [Test]
+        public void AreNotEqual_GivenTwoDifferentTypedObjects_AndPropertyNames_WhenPropertiesMatch_ShouldNotThrow()
+        {
+            //---------------Set up test pack-------------------
+            var obj1 = new { foo = "foo" };
+            var obj2 = new { bar = "foo" };
+
+            //---------------Assert Precondition----------------
+            Assert.AreNotEqual(obj1, obj2);
+            Assert.AreNotEqual(obj1.GetType(), obj2.GetType());
+            //---------------Execute Test ----------------------
+
+            Assert.Throws<AssertionException>(() => PropertyAssert.AreNotEqual(obj1, obj2, "foo", "bar"));
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
         public void AreEqual_GivenTwoObjectsWithNonMatchingPropertyValues_ShouldThrow()
         {
             //---------------Set up test pack-------------------
@@ -40,6 +57,21 @@ namespace PeanutButter.TestUtils.Generic.Tests
 
             //---------------Execute Test ----------------------
             Assert.Throws<AssertionException>(() => PropertyAssert.AreEqual(obj1, obj2, "foo", "bar"));
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
+        public void AreNotEqual_GivenTwoObjectsWithNonMatchingPropertyValues_ShouldNotThrow()
+        {
+            //---------------Set up test pack-------------------
+            var obj1 = new { foo = "foo" };
+            var obj2 = new { bar = "bar" };
+            
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(() => PropertyAssert.AreNotEqual(obj1, obj2, "foo", "bar"));
 
             //---------------Test Result -----------------------
         }
@@ -60,6 +92,21 @@ namespace PeanutButter.TestUtils.Generic.Tests
         }
 
         [Test]
+        public void AreNotEqual_GivenTwoObjectsWithNonMatchingPropertyTypes_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            var obj1 = new { foo = "1" };
+            var obj2 = new { bar = 1 };
+            
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.Throws<AssertionException>(() => PropertyAssert.AreNotEqual(obj1, obj2, "foo", "bar"));
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
         public void AreEqual_GivenTwoDifferentTypedObjects_AndJustOnePropertyName_ComparesTheSameNamedPropertyOnBoth()
         {
             //---------------Set up test pack-------------------
@@ -70,6 +117,20 @@ namespace PeanutButter.TestUtils.Generic.Tests
 
             //---------------Execute Test ----------------------
             Assert.DoesNotThrow(() => PropertyAssert.AreEqual(obj1, obj2, "foo"));
+
+            //---------------Test Result -----------------------
+        }
+        [Test]
+        public void AreNotEqual_GivenTwoDifferentTypedObjects_AndJustOnePropertyName_ComparesTheSameNamedPropertyOnBoth()
+        {
+            //---------------Set up test pack-------------------
+            var obj1 = new { foo = "foo" };
+            var obj2 = new { bar = "bar", foo = "foo1" };
+            
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(() => PropertyAssert.AreNotEqual(obj1, obj2, "foo"));
 
             //---------------Test Result -----------------------
         }
@@ -91,6 +152,55 @@ namespace PeanutButter.TestUtils.Generic.Tests
             StringAssert.Contains("Unable to find property", ex.Message);
             StringAssert.Contains(badName, ex.Message);
         }
+
+        [Test]
+        public void AreNotEqual_WhenPropertyNotFoundByName_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            var obj1 = new { foo = "foo" };
+            var obj2 = new { bar = "bar", foo = "foo" };
+            var badName = "foo1";
+            
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var ex = Assert.Throws<AssertionException>(() => PropertyAssert.AreNotEqual(obj1, obj2, badName));
+
+            //---------------Test Result -----------------------
+            StringAssert.Contains("Unable to find property", ex.Message);
+            StringAssert.Contains(badName, ex.Message);
+        }
+
+        [Test]
+        public void AreEqual_ShouldBeAbleToFollowPropertyPaths()
+        {
+            //---------------Set up test pack-------------------
+            var obj1 = new {foo = new {name = "bar"}};
+            var obj2 = new {foo = new {name = "bar"}};
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(() => PropertyAssert.AreEqual(obj1, obj2, "foo.name"));
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
+        public void AreNotEqual_ShouldBeAbleToFollowPropertyPaths()
+        {
+            //---------------Set up test pack-------------------
+            var obj1 = new {foo = new {name = "bar"}};
+            var obj2 = new {foo = new {name = "quuz"}};
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(() => PropertyAssert.AreNotEqual(obj1, obj2, "foo.name"));
+
+            //---------------Test Result -----------------------
+        }
+
 
         [Test]
         public void AllPropertiesAreEqual_ShouldCompareAllPropertiesAndNotThrowWhenTheyAllMatch()
