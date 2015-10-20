@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EnumerableExtensions.cs" />
     <Compile Include="GenericBuilder.cs" />
     <Compile Include="IBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
