@@ -328,8 +328,8 @@ namespace PeanutButter.RandomGenerators.Tests
 
 
                 //---------------Test Result -----------------------
-                Assert.That(result.Count, Is.GreaterThanOrEqualTo(min));
-                Assert.That(result.Count, Is.LessThanOrEqualTo(max));
+                Assert.That(result.Count(), Is.GreaterThanOrEqualTo(min));
+                Assert.That(result.Count(), Is.LessThanOrEqualTo(max));
                 Assert.IsTrue(result.All(item => item == fill));
             }
         }

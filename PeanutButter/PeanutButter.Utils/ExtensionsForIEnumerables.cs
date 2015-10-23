@@ -46,19 +46,14 @@ namespace PeanutButter.Utils
             return collection ?? new List<T>();
         }
 
-        public static IEnumerable<T> GetShuffledCopyOf<T>(this IEnumerable<T> input)
+        public static T[] And<T>(this IEnumerable<T> source, params T[] toAdd)
         {
-            var rnd = new Random(DateTime.Now.Millisecond);
-            var copy = new List<T>(input);
-            var result = new List<T>();
-            while (copy.Count > 0)
-            {
-                var next = rnd.Next(copy.Count - 1);
-                var nextValue = copy[next];
-                copy.RemoveAt(next);
-                result.Add(nextValue);
-            }
-            return result;
+            return source.Union(toAdd).ToArray();
+        }
+
+        public static T[] ButNot<T>(this IEnumerable<T> source, params T[] toRemove)
+        {
+            return source.Except(toRemove).ToArray();
         }
 
     }

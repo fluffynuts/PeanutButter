@@ -232,32 +232,34 @@ namespace PenautButter.Utils.Tests
         }
 
         [Test]
-        public void GetRandomCollection_ShouldReturnTheSameCollectionInADifferentOrder()
+        public void And_OperatingOnArrayOfType_ShouldReturnNewArrayWithAddedItems()
         {
-            for (var i = 0; i < 10; i++)    // it's entirely possible that the random output is the same, so let's try up to 10 times
-            {
-                //---------------Set up test pack-------------------
-                var src = RandomValueGen.GetRandomCollection(() => RandomValueGen.GetRandomString(), 3);
+            //---------------Set up test pack-------------------
+            var src = new[] {1, 2, 3};
 
-                //---------------Assert Precondition----------------
-                CollectionAssert.IsNotEmpty(src);
+            //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                var result = src.GetShuffledCopyOf();
+            //---------------Execute Test ----------------------
+            var result = src.And(4, 5);
 
-                //---------------Test Result -----------------------
-                CollectionAssert.AreEquivalent(result, src);
-                try
-                {
-                    CollectionAssert.AreNotEqual(result, src);
-                }
-                catch (Exception)
-                {
-                    if (i < 9)
-                        continue;
-                    throw;
-                }
-            }
+            //---------------Test Result -----------------------
+            CollectionAssert.AreEqual(new[] {1, 2, 3, 4, 5}, result);
         }
+
+        [Test]
+        public void ButNot_OperatingOnArrayOfType_ShouldReturnNewArrayWithAddedItems()
+        {
+            //---------------Set up test pack-------------------
+            var src = new[] {1, 2, 3};
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = src.ButNot(2);
+
+            //---------------Test Result -----------------------
+            CollectionAssert.AreEqual(new[] {1, 3 }, result);
+        }
+
     }
 }

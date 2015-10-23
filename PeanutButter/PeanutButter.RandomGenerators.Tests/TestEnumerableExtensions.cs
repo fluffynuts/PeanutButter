@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using PeanutButter.Utils;
 
 namespace PeanutButter.RandomGenerators.Tests
 {
@@ -62,6 +64,35 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Test Result -----------------------
             Assert.IsNotNull(result);
             CollectionAssert.IsEmpty(result);
+        }
+
+        [Test]
+        public void GetRandomCollection_ShouldReturnTheSameCollectionInADifferentOrder()
+        {
+            for (var i = 0; i < 10; i++)    // it's entirely possible that the random output is the same, so let's try up to 10 times
+            {
+                //---------------Set up test pack-------------------
+                var src = RandomValueGen.GetRandomCollection(() => RandomValueGen.GetRandomString(), 3);
+
+                //---------------Assert Precondition----------------
+                CollectionAssert.IsNotEmpty(src);
+
+                //---------------Execute Test ----------------------
+                var result = src.Randomize();
+
+                //---------------Test Result -----------------------
+                CollectionAssert.AreEquivalent(result, src);
+                try
+                {
+                    CollectionAssert.AreNotEqual(result, src);
+                }
+                catch (Exception)
+                {
+                    if (i < 9)
+                        continue;
+                    throw;
+                }
+            }
         }
 
 
