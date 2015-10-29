@@ -3,7 +3,7 @@
     Function WithDatabaseProvider(provider As DatabaseProviders) As ISelectStatementBuilder
     Function WithTable(ByVal name As String) As ISelectStatementBuilder
     Function WithField(ByVal name As String, Optional aliasAs As String = Nothing) As ISelectStatementBuilder
-    Function WithField(ByVal field As SelectField) As ISelectStatementBuilder
+    Function WithField(ByVal field As IField) As ISelectStatementBuilder
     Function WithFields(ParamArray fields() As String) As ISelectStatementBuilder
     Function WithAllFieldsFrom(table As String) As ISelectStatementBuilder
     Function WithCondition(condition As ICondition) As ISelectStatementBuilder
@@ -15,15 +15,15 @@
     Function WithCondition(fieldName As String, op As Condition.EqualityOperators, fieldValue As Decimal) As ISelectStatementBuilder
     Function WithCondition(fieldName As String, op As Condition.EqualityOperators, fieldValue As Double) As ISelectStatementBuilder
     Function WithCondition(fieldName As String, op As Condition.EqualityOperators, fieldValue As DateTime) As ISelectStatementBuilder
-    Function WithCondition(field As SelectField, op As Condition.EqualityOperators, fieldValue As String) As ISelectStatementBuilder
-    Function WithCondition(field As SelectField, op As Condition.EqualityOperators, fieldValue As Int64) As ISelectStatementBuilder
-    Function WithCondition(field As SelectField, op As Condition.EqualityOperators, fieldValue As Int32) As ISelectStatementBuilder
-    Function WithCondition(field As SelectField, op As Condition.EqualityOperators, fieldValue As Int16) As ISelectStatementBuilder
-    Function WithCondition(field As SelectField, op As Condition.EqualityOperators, fieldValue As Decimal) As ISelectStatementBuilder
-    Function WithCondition(field As SelectField, op As Condition.EqualityOperators, fieldValue As Double) As ISelectStatementBuilder
-    Function WithCondition(field As SelectField, op As Condition.EqualityOperators, fieldValue As DateTime) As ISelectStatementBuilder
+    Function WithCondition(field As IField, op As Condition.EqualityOperators, fieldValue As String) As ISelectStatementBuilder
+    Function WithCondition(field As IField, op As Condition.EqualityOperators, fieldValue As Int64) As ISelectStatementBuilder
+    Function WithCondition(field As IField, op As Condition.EqualityOperators, fieldValue As Int32) As ISelectStatementBuilder
+    Function WithCondition(field As IField, op As Condition.EqualityOperators, fieldValue As Int16) As ISelectStatementBuilder
+    Function WithCondition(field As IField, op As Condition.EqualityOperators, fieldValue As Decimal) As ISelectStatementBuilder
+    Function WithCondition(field As IField, op As Condition.EqualityOperators, fieldValue As Double) As ISelectStatementBuilder
+    Function WithCondition(field As IField, op As Condition.EqualityOperators, fieldValue As DateTime) As ISelectStatementBuilder
     Function WithCondition(field As String, op As Condition.EqualityOperators, fieldValue As Boolean) As ISelectStatementBuilder
-    Function WithCondition(leftField As SelectField, op As Condition.EqualityOperators, rightField As SelectField) As ISelectStatementBuilder
+    Function WithCondition(leftField As IField, op As Condition.EqualityOperators, rightField As IField) As ISelectStatementBuilder
     Function WithAllConditions(ParamArray conditions As ICondition()) As ISelectStatementBuilder
     Function WithAnyCondition(ParamArray conditions As ICondition()) As ISelectStatementBuilder
     Function WithComputedField(fieldName As String, functionName As ComputedField.ComputeFunctions, Optional fieldAlias As String = Nothing) As ISelectStatementBuilder
@@ -80,7 +80,7 @@ Public Class SelectStatementBuilder
         Return Me
     End Function
 
-    Public Function WithField(field As SelectField) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithField
+    Public Function WithField(field As IField) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithField
         field.UseDatabaseProvider(_databaseProvider)
         Dim fieldName = field.ToString()
         _fieldNames.Add(fieldName)
@@ -129,34 +129,34 @@ Public Class SelectStatementBuilder
         Return Me.WithCondition(CreateCondition(fieldName, op, fieldValue))
     End Function
 
-    Public Function WithCondition(field As SelectField, op As Condition.EqualityOperators, fieldValue As String) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
+    Public Function WithCondition(field As IField, op As Condition.EqualityOperators, fieldValue As String) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
         field.UseDatabaseProvider(_databaseProvider)
         Return Me.WithCondition(field.ToString(), op, fieldValue)
     End Function
 
-    Public Function WithCondition(leftField As SelectField, op As Condition.EqualityOperators, rightField As SelectField) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
+    Public Function WithCondition(leftField As IField, op As Condition.EqualityOperators, rightField As IField) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
         Dim condition = CreateCondition(leftField, op, rightField)
         Return Me.WithCondition(condition)
     End Function
 
-    Public Function WithCondition(field As SelectField, op As Condition.EqualityOperators, fieldValue As Int64) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
+    Public Function WithCondition(field As IField, op As Condition.EqualityOperators, fieldValue As Int64) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
         Dim condition As Condition = CreateCondition(field, op, fieldValue.ToString())
         Return Me.WithCondition(condition)
     End Function
 
-    Public Function WithCondition(field As SelectField, op As Condition.EqualityOperators, fieldValue As Int32) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
+    Public Function WithCondition(field As IField, op As Condition.EqualityOperators, fieldValue As Int32) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
         Return Me.WithCondition(CreateCondition(field, op, fieldValue.ToString()))
     End Function
-    Public Function WithCondition(field As SelectField, op As Condition.EqualityOperators, fieldValue As Int16) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
+    Public Function WithCondition(field As IField, op As Condition.EqualityOperators, fieldValue As Int16) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
         Return Me.WithCondition(CreateCondition(field, op, fieldValue.ToString()))
     End Function
-    Public Function WithCondition(field As SelectField, op As Condition.EqualityOperators, fieldValue As Decimal) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
+    Public Function WithCondition(field As IField, op As Condition.EqualityOperators, fieldValue As Decimal) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
         Return Me.WithCondition(CreateCondition(field, op, fieldValue.ToString()))
     End Function
-    Public Function WithCondition(field As SelectField, op As Condition.EqualityOperators, fieldValue As Double) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
+    Public Function WithCondition(field As IField, op As Condition.EqualityOperators, fieldValue As Double) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
         Return Me.WithCondition(CreateCondition(field, op, fieldValue.ToString()))
     End Function
-    Public Function WithCondition(field As SelectField, op As Condition.EqualityOperators, fieldValue As DateTime) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
+    Public Function WithCondition(field As IField, op As Condition.EqualityOperators, fieldValue As DateTime) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
         Return Me.WithCondition(CreateCondition(field, op, fieldValue.ToString("yyyy/MM/dd"), True))
     End Function
 

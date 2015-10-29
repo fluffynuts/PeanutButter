@@ -66,8 +66,10 @@
     <Compile Include="ConnectionStringBuilder.vb" />
     <Compile Include="Executors\DataReaderBuilder.vb" />
     <Compile Include="Executors\ScalarExecutorBuilder.vb" />
+    <Compile Include="StatementBuilders\ConcatenatedField.vb" />
     <Compile Include="StatementBuilders\ConditionExtensions.vb" />
     <Compile Include="StatementBuilders\DatabaseProviders.vb" />
+    <Compile Include="StatementBuilders\IField.vb" />
     <Compile Include="StatementBuilders\InsertStatementBuilder.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">

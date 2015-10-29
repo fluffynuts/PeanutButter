@@ -47,18 +47,18 @@
         Return condition
     End Function
 
-    Protected Function CreateCondition(ByVal leftField As SelectField, ByVal op As Condition.EqualityOperators, ByVal rightField As SelectField) As Condition
+    Protected Function CreateCondition(ByVal leftField As IField, ByVal op As Condition.EqualityOperators, ByVal rightField As IField) As Condition
         leftField.UseDatabaseProvider(_databaseProvider)
         Dim condition  = New Condition(leftField, op, rightField)
         condition.UseDatabaseProvider(_databaseProvider)
         Return condition
     End Function
 
-    Protected Function CreateCondition(ByVal field As SelectField, ByVal op As Condition.EqualityOperators, ByVal fieldValue As String) As Condition
+    Protected Function CreateCondition(ByVal field As IField, ByVal op As Condition.EqualityOperators, ByVal fieldValue As String) As Condition
         return CreateCondition(field, op, fieldValue, False)
     End Function
 
-    Protected Function CreateCondition(ByVal field As SelectField, ByVal op As Condition.EqualityOperators, ByVal fieldValue As String, quote As boolean) As Condition
+    Protected Function CreateCondition(ByVal field As IField, ByVal op As Condition.EqualityOperators, ByVal fieldValue As String, quote As boolean) As Condition
         field.UseDatabaseProvider(_databaseProvider)
         Dim condition  = New Condition(field, op, fieldValue, quote)
         condition.UseDatabaseProvider(_databaseProvider)

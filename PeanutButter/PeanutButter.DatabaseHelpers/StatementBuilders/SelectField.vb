@@ -1,5 +1,6 @@
 ﻿Public Class SelectField
     Inherits StatementBuilderBase
+    Implements IField
     Public ReadOnly Table As String
     Public ReadOnly Field As String
     Public Sub New(fieldName As String)
@@ -12,7 +13,7 @@
         Me.Field = fieldName
     End Sub
 
-    Public Overrides Function ToString() As String
+    Public Overrides Function ToString() As String Implements IField.ToString
         If Me.Table Is Nothing Then
             Return String.Join("", New String() {_openObjectQuote, Me.Field, _closeObjectQuote})
         End If
@@ -31,7 +32,7 @@
         Return Me.ToString().GetHashCode()
     End Function
 
-    Public Sub UseDatabaseProvider(ByVal provider As DatabaseProviders)
+    Public Sub UseDatabaseProvider(ByVal provider As DatabaseProviders) Implements IField.UseDatabaseProvider
         SetDatabaseProvider(provider)
     End Sub
 End Class

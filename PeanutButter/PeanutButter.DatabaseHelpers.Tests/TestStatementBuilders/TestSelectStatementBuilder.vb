@@ -161,7 +161,7 @@ Public Class TestSelectStatementBuilder
     End Sub
 
     <Test()>
-    Public Sub Build_GivenTableAndComputeField_ReturnsExpectedSql()
+    Public Sub Build_GivenTableAndComputedField_ReturnsExpectedSql()
         Dim field = RandomValueGen.GetRandomString(),
             fieldAlias = RandomValueGen.GetRandomString(),
             table = RandomValueGen.GetRandomString()

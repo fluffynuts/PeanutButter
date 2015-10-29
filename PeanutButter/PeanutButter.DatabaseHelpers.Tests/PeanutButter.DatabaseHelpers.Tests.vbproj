@@ -92,6 +92,8 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="TestStatementBuilders\TestCompoundCondition.vb" />
+    <Compile Include="TestStatementBuilders\TestComputedField.vb" />
+    <Compile Include="TestStatementBuilders\TestConcatenatedField.vb" />
     <Compile Include="TestStatementBuilders\TestCondition.vb" />
     <Compile Include="TestStatementBuilders\TestConditionChain.vb" />
     <Compile Include="TestStatementBuilders\TestConditionExtensions.vb" />

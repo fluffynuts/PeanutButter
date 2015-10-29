@@ -20,47 +20,47 @@ Public Module ConditionExtensions
     End Function
 
     <Extension()>
-    Public Function [And](ByVal first as ICondition, field As SelectField, fieldValue As String, Optional quote As Boolean = True) as ICondition
+    Public Function [And](ByVal first as ICondition, field As IField, fieldValue As String, Optional quote As Boolean = True) as ICondition
         return first.And(new Condition(field, fieldValue, quote))
     End Function
 
     <Extension()>
-    Public Function [And](ByVal first as ICondition, field As SelectField, op As Condition.EqualityOperators, value As String, Optional quote As Boolean = True) as ICondition
+    Public Function [And](ByVal first as ICondition, field As IField, op As Condition.EqualityOperators, value As String, Optional quote As Boolean = True) as ICondition
         return first.And(new Condition(field, op, value, quote))
     End Function
 
     <Extension()>
-    Public Function [And](ByVal first as ICondition, leftField As SelectField, op As Condition.EqualityOperators, rightField As SelectField) As ICondition
+    Public Function [And](ByVal first as ICondition, leftField As IField, op As Condition.EqualityOperators, rightField As IField) As ICondition
         return first.And(new Condition(leftField, op, rightField))
     End Function
 
     <Extension()>
-    Public Function [And](ByVal first as ICondition, leftField As SelectField, rightField As SelectField) as ICondition
+    Public Function [And](ByVal first as ICondition, leftField As IField, rightField As IField) as ICondition
         return first.And(new Condition(leftField, rightField))
     End Function
 
     <Extension()>
-    Public Function [And](ByVal first as ICondition, leftField As SelectField, op As Condition.EqualityOperators, val as Int64) as ICondition
+    Public Function [And](ByVal first as ICondition, leftField As IField, op As Condition.EqualityOperators, val as Int64) as ICondition
         return first.And(new Condition(leftField, op, val))
     End Function
 
     <Extension()>
-    Public Function [And](ByVal first as ICondition, leftField As SelectField, op As Condition.EqualityOperators, val as Decimal) as ICondition
+    Public Function [And](ByVal first as ICondition, leftField As IField, op As Condition.EqualityOperators, val as Decimal) as ICondition
         return first.And(new Condition(leftField, op, val))
     End Function
 
     <Extension()>
-    Public Function [And](ByVal first as ICondition, leftField As SelectField, op As Condition.EqualityOperators, val as Nullable(Of Decimal)) as ICondition
+    Public Function [And](ByVal first as ICondition, leftField As IField, op As Condition.EqualityOperators, val as Nullable(Of Decimal)) as ICondition
         return first.And(new Condition(leftField, op, val))
     End Function
 
     <Extension()>
-    Public Function [And](ByVal first as ICondition, leftField As SelectField, op As Condition.EqualityOperators, val as Double) as ICondition
+    Public Function [And](ByVal first as ICondition, leftField As IField, op As Condition.EqualityOperators, val as Double) as ICondition
         return first.And(new Condition(leftField, op, val))
     End Function
 
     <Extension()>
-    Public Function [And](ByVal first as ICondition, leftField As SelectField, op As Condition.EqualityOperators, val as DateTime) as ICondition
+    Public Function [And](ByVal first as ICondition, leftField As IField, op As Condition.EqualityOperators, val as DateTime) as ICondition
         return first.And(new Condition(leftField, op, val))
     End Function
 
@@ -70,23 +70,23 @@ Public Module ConditionExtensions
     End Function
 
     <Extension()>
-    Public Function [Or](ByVal first as ICondition, leftField As SelectField, rightField As SelectField) as ICondition
+    Public Function [Or](ByVal first as ICondition, leftField As IField, rightField As IField) as ICondition
         return first.Or(new Condition(leftField, rightField))
     End Function
 
     <Extension()>
-    Public Function [Or](ByVal first as ICondition, leftField As SelectField, op as Condition.EqualityOperators, rightField As SelectField) as ICondition
+    Public Function [Or](ByVal first as ICondition, leftField As IField, op as Condition.EqualityOperators, rightField As IField) as ICondition
         return first.Or(new Condition(leftField, op, rightField))
     End Function
 
 
     <Extension()>
-    Public Function [Or](ByVal first as ICondition, leftField As SelectField, rightField As string) as ICondition
+    Public Function [Or](ByVal first as ICondition, leftField As IField, rightField As string) as ICondition
         return first.Or(new Condition(leftField, rightField))
     End Function
 
     <Extension()>
-    Public Function [Or](ByVal first as ICondition, leftField As SelectField, op As Condition.EqualityOperators, rightField As string) as ICondition
+    Public Function [Or](ByVal first as ICondition, leftField As IField, op As Condition.EqualityOperators, rightField As string) as ICondition
         return first.Or(new Condition(leftField, op, rightField))
     End Function
 
@@ -105,37 +105,37 @@ Public Module ConditionExtensions
     End Function
 
     <Extension()>
-    Public Function [Or](ByVal first as ICondition, field As SelectField, fieldValue As String, Optional quote As Boolean = True) as ICondition
+    Public Function [Or](ByVal first as ICondition, field As IField, fieldValue As String, Optional quote As Boolean = True) as ICondition
         return first.Or(new Condition(field, fieldValue, quote))
     End Function
 
     <Extension()>
-    Public Function [Or](ByVal first as ICondition, field As SelectField, op As Condition.EqualityOperators, value As String, Optional quote As Boolean = True) as ICondition
+    Public Function [Or](ByVal first as ICondition, field As IField, op As Condition.EqualityOperators, value As String, Optional quote As Boolean = True) as ICondition
         return first.Or(new Condition(field, op, value, quote))
     End Function
 
     <Extension()>
-    Public Function [Or](ByVal first as ICondition, leftField As SelectField, op As Condition.EqualityOperators, val as Int64) as ICondition
+    Public Function [Or](ByVal first as ICondition, leftField As IField, op As Condition.EqualityOperators, val as Int64) as ICondition
         return first.Or(new Condition(leftField, op, val))
     End Function
 
     <Extension()>
-    Public Function [Or](ByVal first as ICondition, leftField As SelectField, op As Condition.EqualityOperators, val as Decimal) as ICondition
+    Public Function [Or](ByVal first as ICondition, leftField As IField, op As Condition.EqualityOperators, val as Decimal) as ICondition
         return first.Or(new Condition(leftField, op, val))
     End Function
 
     <Extension()>
-    Public Function [Or](ByVal first as ICondition, leftField As SelectField, op As Condition.EqualityOperators, val as Nullable(Of Decimal)) as ICondition
+    Public Function [Or](ByVal first as ICondition, leftField As IField, op As Condition.EqualityOperators, val as Nullable(Of Decimal)) as ICondition
         return first.Or(new Condition(leftField, op, val))
     End Function
 
     <Extension()>
-    Public Function [Or](ByVal first as ICondition, leftField As SelectField, op As Condition.EqualityOperators, val as Double) as ICondition
+    Public Function [Or](ByVal first as ICondition, leftField As IField, op As Condition.EqualityOperators, val as Double) as ICondition
         return first.Or(new Condition(leftField, op, val))
     End Function
 
     <Extension()>
-    Public Function [Or](ByVal first as ICondition, leftField As SelectField, op As Condition.EqualityOperators, val as DateTime) as ICondition
+    Public Function [Or](ByVal first as ICondition, leftField As IField, op As Condition.EqualityOperators, val as DateTime) as ICondition
         return first.Or(new Condition(leftField, op, val))
     End Function
 

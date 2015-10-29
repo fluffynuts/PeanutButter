@@ -67,8 +67,8 @@ Public Class Condition
     Public ReadOnly QuoteValue As Boolean
     Public ReadOnly LeftConditionIsField As Boolean
     Public ReadOnly RightConditionIsField As Boolean
-    Private _leftField As SelectField
-    Private _rightField As SelectField
+    Private _leftField As IField
+    Private _rightField As IField
 
     Public Sub New(_fieldName As String, _conditionOperator As EqualityOperators, _fieldValue As String, Optional quote As Boolean = True, Optional _leftConditionIsField As Boolean = True, Optional _rightConditionIsField As Boolean = False)
         Me.FieldName = _fieldName
@@ -95,11 +95,11 @@ Public Class Condition
         Me.New(_fieldName, op, CInt(IIf(_fieldValue, 1, 0)).ToString(), false)
     End Sub
 
-    Public Sub New(field As SelectField, _fieldValue As String, Optional quote As Boolean = True)
+    Public Sub New(field As IField, _fieldValue As String, Optional quote As Boolean = True)
         Me.New(field, EqualityOperators.Equals, _fieldValue, quote)
     End Sub
 
-    Public Sub New(field As SelectField, op As EqualityOperators, value As String, Optional quote As Boolean = True)
+    Public Sub New(field As IField, op As EqualityOperators, value As String, Optional quote As Boolean = True)
         Me._leftField = field
         Me.FieldName = field.ToString()
         Me.EqualityOperator = op
@@ -109,7 +109,7 @@ Public Class Condition
         Me.RightConditionIsField = False
     End Sub
 
-    Public Sub New(leftField As SelectField, op As EqualityOperators, rightField As SelectField)
+    Public Sub New(leftField As IField, op As EqualityOperators, rightField As IField)
         Me._leftField = leftField
         Me._rightField = rightField
         Me.FieldName = leftField.ToString()
@@ -120,7 +120,7 @@ Public Class Condition
         Me.RightConditionIsField = True
     End Sub
 
-    Public Sub New(leftField As SelectField, rightField As SelectField)
+    Public Sub New(leftField As IField, rightField As IField)
         Me.New(leftField, EqualityOperators.Equals, rightField)
     End Sub
 
@@ -170,7 +170,7 @@ Public Class Condition
         Me.New(_fieldName, _conditionOperator, _fieldValue.ToString(), False, True, False)
     End Sub
 
-    Public Sub New(field as SelectField, _conditionOperator As EqualityOperators, _fieldValue As Int64)
+    Public Sub New(field as IField, _conditionOperator As EqualityOperators, _fieldValue As Int64)
         Me.New(field, _conditionOperator, _fieldValue.ToString(), False)
     End Sub
 
@@ -178,7 +178,7 @@ Public Class Condition
         Me.New(_fieldName, _conditionOperator, new DecimalDecorator(_fieldValue).ToString(), False, True, False)
     End Sub
 
-    Public Sub New(field as SelectField, _conditionOperator As EqualityOperators, _fieldValue As Decimal)
+    Public Sub New(field as IField, _conditionOperator As EqualityOperators, _fieldValue As Decimal)
         Me.New(field, _conditionOperator, new DecimalDecorator(_fieldValue).ToString(), False)
     End Sub
 
@@ -186,7 +186,7 @@ Public Class Condition
         Me.New(_fieldName, _conditionOperator, CStr(IIf(_fieldValue.HasValue, new DecimalDecorator(_fieldValue.Value).ToString(), "NULL")), false)
     End Sub
 
-    Public Sub New (field as SelectField, _conditionOperator as EqualityOperators, _fieldValue as Nullable(of Decimal))
+    Public Sub New (field as IField, _conditionOperator as EqualityOperators, _fieldValue as Nullable(of Decimal))
         Me.New(field, _conditionOperator, CStr(IIf(_fieldValue.HasValue, new DecimalDecorator(_fieldValue.Value).ToString(), "NULL")), false)
     End Sub
 
@@ -194,7 +194,7 @@ Public Class Condition
         Me.New(_fieldName, _conditionOperator, _fieldValue.ToString(), False, True, False)
     End Sub
 
-    Public Sub New(field as SelectField, _conditionOperator As EqualityOperators, _fieldValue As Double)
+    Public Sub New(field as IField, _conditionOperator As EqualityOperators, _fieldValue As Double)
         Me.New(field, _conditionOperator, _fieldValue.ToString(), False)
     End Sub
 
@@ -202,7 +202,7 @@ Public Class Condition
         Me.New(_fieldName, _conditionOperator, _fieldValue.ToString("yyyy/MM/dd HH:mm:ss"), True, True, False)
     End Sub
 
-    Public Sub New(field as SelectField, _conditionOperator As EqualityOperators, _fieldValue As DateTime)
+    Public Sub New(field as IField, _conditionOperator As EqualityOperators, _fieldValue As DateTime)
         Me.New(field, _conditionOperator, _fieldValue.ToString("yyyy/MM/dd HH:mm:ss"), True)
     End Sub
 
