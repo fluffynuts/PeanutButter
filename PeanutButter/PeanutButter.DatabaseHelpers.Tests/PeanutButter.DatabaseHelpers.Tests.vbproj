@@ -94,6 +94,7 @@
     <Compile Include="TestStatementBuilders\TestCompoundCondition.vb" />
     <Compile Include="TestStatementBuilders\TestCondition.vb" />
     <Compile Include="TestStatementBuilders\TestConditionChain.vb" />
+    <Compile Include="TestStatementBuilders\TestConditionExtensions.vb" />
     <Compile Include="TestStatementBuilders\TestDataCopyStatementBuilder.vb" />
     <Compile Include="TestStatementBuilders\TestDeleteStatementBuilder.vb" />
     <Compile Include="TestStatementBuilders\TestInsertStatementBuilder.vb" />

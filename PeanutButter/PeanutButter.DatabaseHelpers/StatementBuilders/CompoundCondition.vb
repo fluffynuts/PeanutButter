@@ -47,6 +47,8 @@
     End Function
 
     Public Sub UseDatabaseProvider(provider As DatabaseProviders) Implements ICondition.UseDatabaseProvider
+        LeftCondition.UseDatabaseProvider(provider)
+        RightCondition.UseDatabaseProvider(provider)
         MyBase.SetDatabaseProvider(provider)
     End Sub
 End Class

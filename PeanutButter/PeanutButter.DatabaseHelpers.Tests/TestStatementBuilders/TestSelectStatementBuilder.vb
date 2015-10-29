@@ -1,5 +1,7 @@
-﻿Imports PeanutButter.RandomGenerators
+﻿Imports NSubstitute.Core.Arguments
+Imports PeanutButter.RandomGenerators
 Imports NUnit.Framework
+Imports PeanutButter.DatabaseHelpers
 
 <TestFixture()>
 Public Class TestSelectStatementBuilder
@@ -112,6 +114,22 @@ Public Class TestSelectStatementBuilder
                   .WithCondition(field, Condition.EqualityOperators.Equals, value) _
                   .Build()
         Assert.AreEqual("select """ + field + """ from """ + table + """ where """ + field + """=" + value.ToString(), sql)
+    End Sub
+
+    <Test()>
+    Public Sub WithCondition_WhenCalledTwice_ShouldAddConditionAsAnd()
+        Dim table = RandomValueGen.GetRandomString(1),
+            field1 = RandomValueGen.GetRandomString(1),
+            value1 = RandomValueGen.GetRandomString(1),
+            field2 = RandomValueGen.GetRandomString(1),
+            value2 = RandomValueGen.GetRandomString(1)
+        Dim sql = Create() _
+                    .WithAllFieldsFrom(table) _
+                    .WithCondition(field1, Condition.EqualityOperators.Equals, value1) _
+                    .WithCondition(field2, Condition.EqualityOperators.Equals, value2) _
+                    .Build()
+        Assert.AreEqual("select * from [" + table + "] where [" + field1 + "]='" + value1 + "' and [" + field2 + "]='" + value2 + "'", sql)
+
     End Sub
 
 
@@ -598,6 +616,78 @@ Public Class TestSelectStatementBuilder
                     .WithField(field) _
                     .WithCondition(field, Condition.EqualityOperators.Like_, val).Build()
         Assert.AreEqual("select [" + field + "] from [" + table + "] where [" + field + "] like '%" + val + "%'", sql)
+    End Sub
+
+    <Test()>
+    Public Sub Build_GivenLike_AndSelectField_ProducesQueryWithLike()
+        Dim table = RandomValueGen.GetRandomString(),
+            field = RandomValueGen.GetRandomString(),
+            val = RandomValueGen.GetRandomString()
+        Dim sql = SelectStatementBuilder.Create() _
+                    .WithTable(table) _
+                    .WithField(field) _
+                    .WithCondition(new SelectField(table, field), Condition.EqualityOperators.Like_, val).Build()
+        Assert.AreEqual("select [" + field + "] from [" + table + "] where [" + table + "].[" + field + "] like '%" + val + "%'", sql)
+    End Sub
+
+    <Test()>
+    Public Sub Build_GivenContains_ProducesQueryWithLike()
+        Dim table = RandomValueGen.GetRandomString(),
+            field = RandomValueGen.GetRandomString(),
+            val = RandomValueGen.GetRandomString()
+        Dim sql = SelectStatementBuilder.Create() _
+                    .WithTable(table) _
+                    .WithField(field) _
+                    .WithCondition(field, Condition.EqualityOperators.Contains, val).Build()
+        Assert.AreEqual("select [" + field + "] from [" + table + "] where [" + field + "] like '%" + val + "%'", sql)
+    End Sub
+
+    <Test()>
+    Public Sub Build_GivenContains_AndSelectField_ProducesQueryWithLike()
+        Dim table = RandomValueGen.GetRandomString(),
+            field = RandomValueGen.GetRandomString(),
+            val = RandomValueGen.GetRandomString()
+        Dim sql = SelectStatementBuilder.Create() _
+                    .WithTable(table) _
+                    .WithField(field) _
+                    .WithCondition(new SelectField(table, field), Condition.EqualityOperators.Contains, val).Build()
+        Assert.AreEqual("select [" + field + "] from [" + table + "] where [" + table + "].[" + field + "] like '%" + val + "%'", sql)
+    End Sub
+
+    <Test()>
+    Public Sub Build_GivenLikeProducesQueryWithLikeAndNoExtraPercentages()
+        Dim table = RandomValueGen.GetRandomString(),
+            field = RandomValueGen.GetRandomString(),
+            val = RandomValueGen.GetRandomString()
+        Dim sql = SelectStatementBuilder.Create() _
+                    .WithTable(table) _
+                    .WithField(field) _
+                    .WithCondition(field, Condition.EqualityOperators.Like, val).Build()
+        Assert.AreEqual("select [" + field + "] from [" + table + "] where [" + field + "] like '" + val + "'", sql)
+    End Sub
+
+    <Test()>
+    Public Sub Build_GivenStartsWithProducesQueryWithLikeAndOnlyEndPercentage()
+        Dim table = RandomValueGen.GetRandomString(),
+            field = RandomValueGen.GetRandomString(),
+            val = RandomValueGen.GetRandomString()
+        Dim sql = SelectStatementBuilder.Create() _
+                    .WithTable(table) _
+                    .WithField(field) _
+                    .WithCondition(field, Condition.EqualityOperators.StartsWith, val).Build()
+        Assert.AreEqual("select [" + field + "] from [" + table + "] where [" + field + "] like '" + val + "%'", sql)
+    End Sub
+
+    <Test()>
+    Public Sub Build_GivenEndsWithProducesQueryWithLikeAndOnlyStartPercentage()
+        Dim table = RandomValueGen.GetRandomString(),
+            field = RandomValueGen.GetRandomString(),
+            val = RandomValueGen.GetRandomString()
+        Dim sql = SelectStatementBuilder.Create() _
+                    .WithTable(table) _
+                    .WithField(field) _
+                    .WithCondition(field, Condition.EqualityOperators.EndsWith, val).Build()
+        Assert.AreEqual("select [" + field + "] from [" + table + "] where [" + field + "] like '%" + val + "'", sql)
     End Sub
 
     <Test()>

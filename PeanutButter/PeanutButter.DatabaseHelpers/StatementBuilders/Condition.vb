@@ -16,7 +16,12 @@ Public Class Condition
         GreaterThanOrEqualTo
         LessThan
         LessThanOrEqualTo
+        <Obsolete("Like_ is deprecated in favour of Contains with a raw Like, StartsWith and Endswith to also help")>
         Like_
+        [Like]
+        Contains
+        StartsWith
+        EndsWith
     End Enum
     Public Shared ReadOnly Property OperatorResolutions As IDictionary(Of EqualityOperators, String)
         Get
@@ -33,6 +38,10 @@ Public Class Condition
         operators(EqualityOperators.LessThan) = "<"
         operators(EqualityOperators.LessThanOrEqualTo) = "<="
         operators(EqualityOperators.Like_) = " like "
+        operators(EqualityOperators.Contains) = " like "
+        operators(EqualityOperators.StartsWith) = " like "
+        operators(EqualityOperators.EndsWith) = " like "
+        operators(EqualityOperators.Like) = " like "
         _operatorResolutions = New ReadOnlyDictionary(Of EqualityOperators, String)(operators)
     End Sub
 
@@ -67,8 +76,8 @@ Public Class Condition
         If _fieldValue Is Nothing Then
             Me.Value = "NULL"
             Me.QuoteValue = False
-        ElseIf _conditionOperator = EqualityOperators.Like_ Then
-            Me.Value = String.Join("", {"%", _fieldValue, "%"})
+        ElseIf _conditionOperator.IsLikeOperator() Then
+            Me.Value = String.Join("", {_conditionOperator.LeftWildcard(), _fieldValue, _conditionOperator.RightWildcard()})
             Me.QuoteValue = True
         Else
             Me.Value = _fieldValue
@@ -157,32 +166,44 @@ Public Class Condition
         Return String.Join("", New String() {_openObjectQuote, val, _closeObjectQuote})
     End Function
 
-    Public Sub New(_fieldName As String, _conditionOperator As EqualityOperators, _fieldValue As Int32)
+    Public Sub New(_fieldName As String, _conditionOperator As EqualityOperators, _fieldValue As Int64)
         Me.New(_fieldName, _conditionOperator, _fieldValue.ToString(), False, True, False)
     End Sub
 
-    Public Sub New(_fieldName As String, _conditionOperator As EqualityOperators, _fieldValue As Int16)
-        Me.New(_fieldName, _conditionOperator, _fieldValue.ToString(), False, True, False)
+    Public Sub New(field as SelectField, _conditionOperator As EqualityOperators, _fieldValue As Int64)
+        Me.New(field, _conditionOperator, _fieldValue.ToString(), False)
     End Sub
 
     Public Sub New(_fieldName As String, _conditionOperator As EqualityOperators, _fieldValue As Decimal)
         Me.New(_fieldName, _conditionOperator, new DecimalDecorator(_fieldValue).ToString(), False, True, False)
     End Sub
 
+    Public Sub New(field as SelectField, _conditionOperator As EqualityOperators, _fieldValue As Decimal)
+        Me.New(field, _conditionOperator, new DecimalDecorator(_fieldValue).ToString(), False)
+    End Sub
+
     Public Sub New (_fieldName as String, _conditionOperator as EqualityOperators, _fieldValue as Nullable(of Decimal))
         Me.New(_fieldName, _conditionOperator, CStr(IIf(_fieldValue.HasValue, new DecimalDecorator(_fieldValue.Value).ToString(), "NULL")), false)
     End Sub
 
-    Public Sub New(_fieldName As String, _conditionOperator As EqualityOperators, _fieldValue As Int64)
-        Me.New(_fieldName, _conditionOperator, _fieldValue.ToString(), False, True, False)
+    Public Sub New (field as SelectField, _conditionOperator as EqualityOperators, _fieldValue as Nullable(of Decimal))
+        Me.New(field, _conditionOperator, CStr(IIf(_fieldValue.HasValue, new DecimalDecorator(_fieldValue.Value).ToString(), "NULL")), false)
     End Sub
 
     Public Sub New(_fieldName As String, _conditionOperator As EqualityOperators, _fieldValue As Double)
         Me.New(_fieldName, _conditionOperator, _fieldValue.ToString(), False, True, False)
     End Sub
 
+    Public Sub New(field as SelectField, _conditionOperator As EqualityOperators, _fieldValue As Double)
+        Me.New(field, _conditionOperator, _fieldValue.ToString(), False)
+    End Sub
+
     Public Sub New(_fieldName As String, _conditionOperator As EqualityOperators, _fieldValue As DateTime)
         Me.New(_fieldName, _conditionOperator, _fieldValue.ToString("yyyy/MM/dd HH:mm:ss"), True, True, False)
+    End Sub
+
+    Public Sub New(field as SelectField, _conditionOperator As EqualityOperators, _fieldValue As DateTime)
+        Me.New(field, _conditionOperator, _fieldValue.ToString("yyyy/MM/dd HH:mm:ss"), True)
     End Sub
 
     Public Sub UseDatabaseProvider(provider As DatabaseProviders) Implements ICondition.UseDatabaseProvider

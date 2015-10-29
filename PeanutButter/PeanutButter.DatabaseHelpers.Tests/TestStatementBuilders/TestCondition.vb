@@ -11,11 +11,56 @@ Public Class TestCondition
     End Sub
 
     <Test()>
-    Public Sub Constructor_GivenFIeldAndNonQuotedValue_ProducesExpectedCondition()
+    Public Sub Constructor_GivenStringFieldAndNonQuotedValue_ProducesExpectedCondition()
         Dim fld = RandomValueGen.GetRandomString()
         Dim val = RandomValueGen.GetRandomInt()
         Dim c = New Condition(New SelectField(fld), Condition.EqualityOperators.Equals, val.ToString(), False)
         Assert.AreEqual("[" + fld + "]=" + val.ToString(), c.ToString())
+    End Sub
+
+    <Test()>
+    Public Sub Constructor_GivenSelectFieldInsteadOfFieldNameForInt64_ShouldProduceSameResults()
+        Dim fld = RandomValueGen.GetRandomString()
+        Dim val = RandomValueGen.GetRandomInt()
+        Dim expected = new Condition(new SelectField(fld), Condition.EqualityOperators.Equals, val.ToString(), False)
+        Dim test = New Condition(New SelectField(fld), Condition.EqualityOperators.Equals, val)
+        Assert.AreEqual(expected.ToString(), test.ToString())
+    End Sub
+
+    <Test()>
+    Public Sub Constructor_GivenSelectFieldInsteadOfFieldNameForDecimal_ShouldProduceSameResults()
+        Dim fld = RandomValueGen.GetRandomString()
+        Dim val = RandomValueGen.GetRandomDecimal()
+        Dim expected = new Condition(new SelectField(fld), Condition.EqualityOperators.Equals, val.ToString(), False)
+        Dim test = New Condition(New SelectField(fld), Condition.EqualityOperators.Equals, val)
+        Assert.AreEqual(expected.ToString(), test.ToString())
+    End Sub
+
+    <Test()>
+    Public Sub Constructor_GivenSelectFieldInsteadOfFieldNameForNullableDecimal_ShouldProduceSameResults()
+        Dim fld = RandomValueGen.GetRandomString()
+        Dim val as Nullable(Of Decimal) = RandomValueGen.GetRandomDecimal()
+        Dim expected = new Condition(new SelectField(fld), Condition.EqualityOperators.Equals, val.ToString(), False)
+        Dim test = New Condition(New SelectField(fld), Condition.EqualityOperators.Equals, val)
+        Assert.AreEqual(expected.ToString(), test.ToString())
+    End Sub
+
+    <Test()>
+    Public Sub Constructor_GivenSelectFieldInsteadOfFieldNameForDouble_ShouldProduceSameResults()
+        Dim fld = RandomValueGen.GetRandomString()
+        Dim val = RandomValueGen.GetRandomDouble()
+        Dim expected = new Condition(new SelectField(fld), Condition.EqualityOperators.Equals, val.ToString(), False)
+        Dim test = New Condition(New SelectField(fld), Condition.EqualityOperators.Equals, val)
+        Assert.AreEqual(expected.ToString(), test.ToString())
+    End Sub
+
+    <Test()>
+    Public Sub Constructor_GivenSelectFieldInsteadOfFieldNameForDateTime_ShouldProduceSameResults()
+        Dim fld = RandomValueGen.GetRandomString()
+        Dim val = RandomValueGen.GetRandomDate()
+        Dim expected = new Condition(new SelectField(fld), Condition.EqualityOperators.Equals, val.ToString("yyyy/MM/dd HH:mm:ss"), True)
+        Dim test = New Condition(New SelectField(fld), Condition.EqualityOperators.Equals, val)
+        Assert.AreEqual(expected.ToString(), test.ToString())
     End Sub
 
     <Test()>

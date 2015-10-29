@@ -8,6 +8,7 @@ using NUnit.Framework;
 namespace EmailSpooler.Win32Service.Tests
 {
     [TestFixture]
+    [Ignore]
     class TestEmailConfiguration
     {
         [Test]

@@ -89,8 +89,7 @@ Public Class SelectStatementBuilder
     End Function
 
     Public Function WithCondition(clause As String) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
-        _wheres.Clear()
-        _iCondition = Nothing
+        _iCondition = _iCondition.And(_iCondition)
         _wheres.Add(clause)
         Return Me
     End Function
@@ -253,9 +252,7 @@ Public Class SelectStatementBuilder
     Private Sub AddConditionsTo(ByVal sql As List(Of String))
         If _wheres.Count > 0 Then
             sql.Add(" where ")
-            _wheres.ForEach(Sub(clause)
-                                sql.Add(clause)
-                            End Sub)
+            sql.Add(string.Join(" and ", _wheres))
         End If
     End Sub
 
@@ -339,7 +336,7 @@ Public Class SelectStatementBuilder
     Public Function WithDatabaseProvider(provider As DatabaseProviders) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithDatabaseProvider
         SetDatabaseProvider(provider)
         If Not _iCondition Is Nothing Then
-            _iCondition.UseDatabaseProvider(provider)
+            _wheres.Clear()
             WithCondition(_iCondition)
         End If
         return Me
