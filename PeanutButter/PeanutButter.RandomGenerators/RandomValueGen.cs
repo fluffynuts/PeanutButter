@@ -210,11 +210,19 @@ namespace PeanutButter.RandomGenerators
         {
             if (items.Count() == 0)
                 return new T[] {};
+            if (minValues >= items.Count())
+                return items.Randomize();
+            if (maxValues > items.Count())
+                maxValues = items.Count();
             var howMany = RandomValueGen.GetRandomInt(minValues, maxValues);
-            return Enumerable.Range(0, howMany)
-                    .Select(i => GetRandomFrom(items))
-                    .Distinct()
-                    .ToArray();
+            var result = new List<T>();
+            while (result.Count < howMany)
+            {
+                var toAdd = GetRandomFrom(items);
+                if (!result.Contains(toAdd))
+                    result.Add(toAdd);
+            }
+            return result;
         }  
 
         public static DateTime GetRandomTimeOn(DateTime theDate)

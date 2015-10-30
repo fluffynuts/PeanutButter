@@ -1,5 +1,6 @@
 ﻿Imports NUnit.Framework
 Imports PeanutButter.RandomGenerators
+Imports PeanutButter.Utils
 
 Public Class TestCondition
     <Test()>
@@ -31,7 +32,7 @@ Public Class TestCondition
     Public Sub Constructor_GivenSelectFieldInsteadOfFieldNameForDecimal_ShouldProduceSameResults()
         Dim fld = RandomValueGen.GetRandomString()
         Dim val = RandomValueGen.GetRandomDecimal()
-        Dim expected = new Condition(new SelectField(fld), Condition.EqualityOperators.Equals, val.ToString(), False)
+        Dim expected = new Condition(new SelectField(fld), Condition.EqualityOperators.Equals, new DecimalDecorator(val).ToString(), False)
         Dim test = New Condition(New SelectField(fld), Condition.EqualityOperators.Equals, val)
         Assert.AreEqual(expected.ToString(), test.ToString())
     End Sub
@@ -40,7 +41,7 @@ Public Class TestCondition
     Public Sub Constructor_GivenSelectFieldInsteadOfFieldNameForNullableDecimal_ShouldProduceSameResults()
         Dim fld = RandomValueGen.GetRandomString()
         Dim val as Nullable(Of Decimal) = RandomValueGen.GetRandomDecimal()
-        Dim expected = new Condition(new SelectField(fld), Condition.EqualityOperators.Equals, val.ToString(), False)
+        Dim expected = new Condition(new SelectField(fld), Condition.EqualityOperators.Equals, new DecimalDecorator(Convert.ToDecimal(val)).ToString(), False)
         Dim test = New Condition(New SelectField(fld), Condition.EqualityOperators.Equals, val)
         Assert.AreEqual(expected.ToString(), test.ToString())
     End Sub
