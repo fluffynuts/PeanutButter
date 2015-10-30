@@ -173,7 +173,7 @@ Public Class TestSelectStatementBuilder
     End Sub
 
     <Test()>
-    Public Sub Build_GivenJoin_ReturnsExpectedSql()
+    Public Sub Build_GivenInnerJoin_ReturnsExpectedSql()
         Dim field1 = "field1",
             field2 = "field2",
             joinField1 = "joinField1",
@@ -191,7 +191,7 @@ Public Class TestSelectStatementBuilder
     End Sub
 
     <Test()>
-    Public Sub Build_GivenJoinWithRandomParts_ReturnsExpectedSql()
+    Public Sub Build_GivenInnerJoinWithRandomParts_ReturnsExpectedSql()
         Dim field1 = RandomValueGen.GetRandomString(),
             field2 = RandomValueGen.GetRandomString(),
             joinField1 = RandomValueGen.GetRandomString(),
@@ -278,6 +278,73 @@ Public Class TestSelectStatementBuilder
                     .Build()
         Dim expectedSql = "select [" + field1 + "],[" + field2 + "] from [" + table1 + "] inner join [" + table2 + "] on [" + table1 + "].[" + joinField1 + "]=[" + table2 + "].[" + joinField1 + "]"
         Assert.AreEqual(expectedSql, sql)
+    End Sub
+
+    <TestCase(JoinDirections.Inner, "inner")>
+    <TestCase(JoinDirections.Outer, "outer")>
+    <TestCase(JoinDirections.Left, "left")>
+    <TestCase(JoinDirections.Right, "right")>
+    Public Sub Build_UsingSimpleComplexJoin_ShouldProduceCorrectSQLFor_(direction as JoinDirections, joinStr As String)
+        Dim leftCol = RandomValueGen.GetRandomString(),
+            rightCol = RandomValueGen.GetRandomString(),
+            table1 = RandomValueGen.GetRandomString(),
+            table2 = RandomValueGen.GetRandomString()
+        Dim sql = SelectStatementBuilder.Create() _
+                    .WithAllFieldsFrom(table1) _
+                    .WithJoin(table1, table2, direction, New Condition(New SelectField(table1, leftCol), _
+                                                                       Condition.EqualityOperators.Equals, _
+                                                                       New SelectField(table2, rightCol))) _
+                    .Build() 
+        Dim expected = "select * from [" + table1 + "] " + joinStr + " join [" + table2 + "] on [" + table1 + "].[" + leftCol + "]=[" + table2 + "].[" + rightCol + "]"
+        Assert.AreEqual(expected, sql)
+    End Sub 
+
+    <TestCase(JoinDirections.Inner, "inner")>
+    <TestCase(JoinDirections.Outer, "outer")>
+    <TestCase(JoinDirections.Left, "left")>
+    <TestCase(JoinDirections.Right, "right")>
+    Public Sub Build_UsingLessSimpleComplexJoin_ShouldProduceCorrectSQLFor_(direction as JoinDirections, joinStr As String)
+        Dim leftCol = RandomValueGen.GetRandomString(),
+            rightCol = RandomValueGen.GetRandomString(),
+            leftCol2 = RandomValueGen.GetRandomString(),
+            rightCol2 = RandomValueGen.GetRandomString(),
+            table1 = RandomValueGen.GetRandomString(),
+            table2 = RandomValueGen.GetRandomString()
+        Dim sql = SelectStatementBuilder.Create() _
+                    .WithAllFieldsFrom(table1) _
+                    .WithJoin(table1, table2, direction, 
+                              New Condition(New SelectField(table1, leftCol), _
+                                                                       Condition.EqualityOperators.Equals, _
+                                                                       New SelectField(table2, rightCol)),
+                              New Condition(New SelectField(table1, leftCol2), _
+                                            Condition.EqualityOperators.Equals, _
+                                            new SelectField(table2, rightCol2))) _
+                    .Build() 
+        Dim expected = "select * from [" + table1 + "] " + joinStr + " join [" + table2 + "] on ([" + table1 + "].[" + _ 
+                        leftCol + "]=[" + table2 + "].[" + rightCol + "] and [" + table1 + "].[" + leftCol2 + "]=[" + _
+                        table2 + "].[" + rightCol2 + "])"
+        Assert.AreEqual(expected, sql)
+    End Sub 
+
+    <Test()>
+    Public Sub ComplexJoinSimilarToSpecificUseCase()
+        Dim contractId = "nContractID",
+            userId = "nUserId",
+            leftTable = "Contract",
+            rightTable = "ContractUser",
+            userIdVal = 93
+        Dim sql = SelectStatementBuilder.Create() _
+                    .WithAllFieldsFrom(leftTable) _
+                    .WithJoin(leftTable, rightTable, JoinDirections.Left, _
+                              New Condition(New SelectField(leftTable, contractId), _
+                                                Condition.EqualityOperators.Equals, _
+                                            New SelectField(rightTable, contractId)), _
+                              New Condition(New SelectField(leftTable, userId), _
+                                                Condition.EqualityOperators.Equals, _
+                                            userIdVal)) _
+                    .Build()
+        Dim expected = "select * from [Contract] left join [ContractUser] on ([Contract].[nContractID]=[ContractUser].[nContractID] and [Contract].[nUserId]=93)"
+        Assert.AreEqual(expected, sql)
     End Sub
 
     <Test()>
@@ -494,7 +561,7 @@ Public Class TestSelectStatementBuilder
                 .WithInnerJoin(table1, "CTRL_SLA", "TRANSACK", _
                     "CTRL_SLA") _
                 .WithAllConditions(GetFilterConditions().ToArray()).Build()
-        Assert.AreEqual("select distinct ""ZONE"".""CTRL_SLA"" from ""ZONE"" inner join ""TRANSACK"" on ""ZONE"".""CTRL_SLA""=""TRANSACK"".""CTRL_SLA"" where (""IS_PROCESSED""=0)",sql)
+        Assert.AreEqual("select distinct ""ZONE"".""CTRL_SLA"" from ""ZONE"" inner join ""TRANSACK"" on ""ZONE"".""CTRL_SLA""=""TRANSACK"".""CTRL_SLA"" where ""IS_PROCESSED""=0",sql)
     End Sub
 
     <Test()>

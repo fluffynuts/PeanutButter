@@ -94,6 +94,7 @@
     <Compile Include="StatementBuilders\DeleteStatementBuilder.vb" />
     <Compile Include="StatementBuilders\FieldWithValue.vb" />
     <Compile Include="StatementBuilders\Join.vb" />
+    <Compile Include="StatementBuilders\JoinDirections.vb" />
     <Compile Include="StatementBuilders\MultiOrderBy.vb" />
     <Compile Include="StatementBuilders\OrderBy.vb" />
     <Compile Include="StatementBuilders\RawCondition.vb" />

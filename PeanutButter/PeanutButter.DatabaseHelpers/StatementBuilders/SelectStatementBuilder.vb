@@ -1,4 +1,5 @@
-﻿Public Interface ISelectStatementBuilder
+﻿
+Public Interface ISelectStatementBuilder
     Inherits IStatementBuilder
     Function WithDatabaseProvider(provider As DatabaseProviders) As ISelectStatementBuilder
     Function WithTable(ByVal name As String) As ISelectStatementBuilder
@@ -32,6 +33,7 @@
     Function WithInnerJoin(table1 As String, field1 As String, table2 As String, Optional field2 As String = Nothing) As ISelectStatementBuilder
     Function WithLeftJoin(table1 As String, field1 As String, eq As Condition.EqualityOperators, table2 As String, field2 As String) As ISelectStatementBuilder
     Function WithLeftJoin(table1 As String, field1 As String, table2 As String, Optional field2 As String = Nothing) As ISelectStatementBuilder
+    Function WithJoin(table1 as String, table2 as String, direction as JoinDirections, ParamArray joinConditions() as ICondition) as ISelectStatementBuilder
     Function OrderBy(orderByObj As OrderBy) As ISelectStatementBuilder
     Function OrderBy(fieldName As String, direction As OrderBy.Directions) As ISelectStatementBuilder
     Function OrderBy(tableName As String, fieldName As String, direction As OrderBy.Directions) As ISelectStatementBuilder
@@ -342,13 +344,20 @@ Public Class SelectStatementBuilder
         return Me
     End Function
 
+    Public Function WithJoin(table1 As String, table2 As String, direction As JoinDirections, 
+                             ParamArray joinConditions As ICondition()) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithJoin
+        Dim joinObject = new Join(direction, table1, table2, joinConditions)
+        _joins.Add(joinObject)
+        Return Me
+    End Function
+
     Public Function WithInnerJoin(leftTable As String, leftField As String, eq As Condition.EqualityOperators, rightTable As String, rightField As String) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithInnerJoin
-        Dim joinObject As Join = CreateJoinObjectFor(Join.JoinDirection.Inner, leftTable, leftField, eq, rightTable, rightField)
+        Dim joinObject As Join = CreateJoinObjectFor(JoinDirections.Inner, leftTable, leftField, eq, rightTable, rightField)
         Me._joins.Add(joinObject)
         Return Me
     End Function
 
-    Private Function CreateJoinObjectFor(ByVal direction As Join.JoinDirection, ByVal leftTable As String, ByVal leftField As String, ByVal eq As Condition.EqualityOperators, ByVal rightTable As String, ByVal rightField As String) As Join
+    Private Function CreateJoinObjectFor(ByVal direction As JoinDirections, ByVal leftTable As String, ByVal leftField As String, ByVal eq As Condition.EqualityOperators, ByVal rightTable As String, ByVal rightField As String) As Join
         Dim joinObject  = New Join(direction, leftTable, leftField, eq, rightTable, rightField)
         joinObject.UseDatabaseProvider(_databaseProvider)
         Return joinObject
@@ -362,7 +371,7 @@ Public Class SelectStatementBuilder
     End Function
 
     Public Function WithLeftJoin(table1 As String, field1 As String, eq As Condition.EqualityOperators, table2 As String, field2 As String) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithLeftJoin
-        Dim joinObject = CreateJoinObjectFor(Join.JoinDirection.Left, table1, field1, eq, table2, field2)
+        Dim joinObject = CreateJoinObjectFor(JoinDirections.Left, table1, field1, eq, table2, field2)
         Me._joins.Add(joinObject)
         return Me
     End Function

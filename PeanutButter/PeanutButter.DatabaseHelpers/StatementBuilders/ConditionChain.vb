@@ -8,6 +8,8 @@
     Public Overrides Function ToString() As String Implements ICondition.ToString
         Dim parts = New List(Of String)
         Dim opString = CStr(IIf(Me._operator = CompoundCondition.BooleanOperators.OperatorAnd, " and ", " or "))
+        Dim leftBracket = CStr(IIf(_conditions.Count > 1, "(", ""))
+        Dim rightBracket = CStr(IIF(_conditions.Count > 1, ")", ""))
         For Each c In Me._conditions
             c.UseDatabaseProvider(_databaseProvider)
             If parts.Count > 0 Then
@@ -15,7 +17,7 @@
             End If
             parts.Add(c.ToString())
         Next
-        Return "(" + String.Join("", parts) + ")"
+        Return leftBracket + String.Join("", parts) + rightBracket
     End Function
 
     Public Sub New(op As CompoundCondition.BooleanOperators, ParamArray conditions As ICondition())
