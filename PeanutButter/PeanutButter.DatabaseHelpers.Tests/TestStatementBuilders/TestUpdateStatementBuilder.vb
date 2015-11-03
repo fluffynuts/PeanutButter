@@ -3,6 +3,7 @@ Imports NUnit.Framework
 Imports System.Globalization
 Imports PeanutButter.RandomGenerators
 Imports PeanutButter.Utils
+Imports PeanutButter.DatabaseHelpers
 
 <TestFixture()>
 Public Class TestUpdateStatementBuilder
@@ -78,7 +79,7 @@ Public Class TestUpdateStatementBuilder
         Dim TableName = RandomValueGen.GetRandomString(),
             ColumnName = RandomValueGen.GetRandomString(),
             FieldValue as Nullable(Of Decimal)= RandomValueGen.GetRandomDecimal(),
-            thisCondition = new Condition("condition_field", DatabaseHelpers.Condition.EqualityOperators.Equals, FieldValue.Value)
+            thisCondition = new Condition("condition_field", Condition.EqualityOperators.Equals, FieldValue.Value)
         Dim builder = UpdateStatementBuilder.Create()
         With builder
             .WithTable(TableName)
@@ -99,7 +100,7 @@ Public Class TestUpdateStatementBuilder
         Dim TableName = RandomValueGen.GetRandomString(),
             ColumnName = RandomValueGen.GetRandomString(),
             FieldValue as Nullable(Of Decimal)= RandomValueGen.GetRandomDecimal(),
-            thisCondition = new Condition("condition_field", DatabaseHelpers.Condition.EqualityOperators.Equals, FieldValue)
+            thisCondition = new Condition("condition_field", Condition.EqualityOperators.Equals, FieldValue)
         Dim builder = UpdateStatementBuilder.Create()
         With builder
             .WithTable(TableName)
@@ -167,6 +168,27 @@ Public Class TestUpdateStatementBuilder
                         .WithCondition(Condition, DatabaseHelpers.Condition.EqualityOperators.Equals, ConditionVal) _
                         .Build()
         Assert.AreEqual("update [" + tableName + "] set [" + columnName + "] = '" + valueString + "' where [" + Condition + "]='" + ConditionVal + "'", statement)
+    End Sub
+
+    <Test()>
+    Public Sub Build_GivenTableAndOneDateTimeFieldAndConditionPartsWithBooleanCondition_ReturnsValidUpdateStatement()
+        Dim tableName = RandomValueGen.GetRandomString(),
+            columnName = RandomValueGen.GetRandomString(),
+            FieldValue = DateTime.Now,
+            c1 = RandomValueGen.GetRandomString(),
+            ConditionVal = RandomValueGen.GetRandomBoolean(),
+            expected = CInt(IIf(ConditionVal, 1, 0))
+
+        Dim dfi = New DateTimeFormatInfo()
+        dfi.DateSeparator = "/"
+        dfi.TimeSeparator = ":"
+        Dim valueString = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss", dfi)
+        Dim statement = UpdateStatementBuilder.Create() _
+                        .WithTable(tableName) _
+                        .WithField(columnName, FieldValue) _
+                        .WithCondition(c1, Condition.EqualityOperators.Equals, ConditionVal) _
+                        .Build()
+        Assert.AreEqual("update [" + tableName + "] set [" + columnName + "] = '" + valueString + "' where [" + c1 + "]=" + expected.ToString(), statement)
     End Sub
 
     <Test()>

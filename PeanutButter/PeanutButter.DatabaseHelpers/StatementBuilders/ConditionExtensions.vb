@@ -65,6 +65,11 @@ Public Module ConditionExtensions
     End Function
 
     <Extension()>
+    Public Function [And](ByVal first as ICondition, rawString as String) as ICondition
+        return first.And(new Condition(rawString))
+    End Function
+
+    <Extension()>
     Public Function [Or](ByVal first As ICondition, ByVal second as ICondition) as ICondition
         Return new CompoundCondition(first, CompoundCondition.BooleanOperators.OperatorOr, second)
     End Function

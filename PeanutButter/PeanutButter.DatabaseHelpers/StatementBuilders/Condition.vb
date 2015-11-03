@@ -69,6 +69,7 @@ Public Class Condition
     Public ReadOnly RightConditionIsField As Boolean
     Private _leftField As IField
     Private _rightField As IField
+    Private _rawString As String
 
     Public Sub New(_fieldName As String, _conditionOperator As EqualityOperators, _fieldValue As String, Optional quote As Boolean = True, Optional _leftConditionIsField As Boolean = True, Optional _rightConditionIsField As Boolean = False)
         Me.FieldName = _fieldName
@@ -77,7 +78,7 @@ Public Class Condition
             Me.Value = "NULL"
             Me.QuoteValue = False
         ElseIf _conditionOperator.IsLikeOperator() Then
-            Me.Value = String.Join("", {_conditionOperator.LeftWildcard(), _fieldValue, _conditionOperator.RightWildcard()})
+            Me.Value = _fieldValue
             Me.QuoteValue = True
         Else
             Me.Value = _fieldValue
@@ -124,8 +125,14 @@ Public Class Condition
         Me.New(leftField, EqualityOperators.Equals, rightField)
     End Sub
 
+    Public Sub New (rawString as String)
+        _rawString = rawString
+    End Sub
 
     Public Overrides Function ToString() As String Implements ICondition.ToString
+        if _rawString IsNot Nothing
+            return _rawString
+        End If
         Dim parts = New List(Of String)
 
         If (FieldName.IndexOf(_openObjectQuote) < 0) And LeftConditionIsField Then
@@ -139,7 +146,7 @@ Public Class Condition
             parts.Add(_operatorResolutions(Me.EqualityOperator))
         End If
         If (Me.QuoteValue) Then
-            parts.AddRange(New String() {"'", Me.Value.Replace("'", "''"), "'"})
+            parts.AddRange(New String() {"'", EqualityOperator.LeftWildcard, Me.Value.Replace("'", "''"), EqualityOperator.RightWildcard, "'"})
         ElseIf RightConditionIsField Then
             parts.Add(FieldQuote(Me.Value))
         Else

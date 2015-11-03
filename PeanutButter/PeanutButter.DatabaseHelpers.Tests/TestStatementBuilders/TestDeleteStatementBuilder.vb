@@ -70,4 +70,25 @@ Public Class TestDeleteStatementBuilder
                     .Build()
         Assert.AreEqual("delete from [" + table + "] where [" + conditionField1 + "]='" + conditionValue1 + "' and [" + conditionField2 + "]='" + conditionValue2 + "'", sql)
     End Sub
+
+    <TestCase(Condition.EqualityOperators.Equals)>
+    <TestCase(Condition.EqualityOperators.GreaterThan)>
+    <TestCase(Condition.EqualityOperators.GreaterThanOrEqualTo)>
+    <TestCase(Condition.EqualityOperators.LessThan)>
+    <TestCase(Condition.EqualityOperators.LessThanOrEqualTo)>
+    <TestCase(Condition.EqualityOperators.NotEquals)>
+    Public Sub WithCondition_GivenFielName_AndBOoleanValue_ProducesExpectedResult(op As Condition.EqualityOperators)
+        Dim c = New Condition(RandomValueGen.GetRandomString(), op, RandomValueGen.GetRandomString()),
+            table = RandomValueGen.GetRandomString(),
+        	fld = RandomValueGen.GetRandomString(),
+        	value = RandomValueGen.GetRandomBoolean(),
+            expected = new Condition(fld, op, CInt(IIF(value, 1, 0)))
+        
+        Dim sql = DeleteStatementBuilder.Create() _
+                    .WithTable(table) _
+                    .WithCondition(fld, op, value) _
+                    .Build()
+        Assert.AreEqual("delete from [" + table + "] where " + expected.ToString(), sql)
+    End Sub
+
 End Class

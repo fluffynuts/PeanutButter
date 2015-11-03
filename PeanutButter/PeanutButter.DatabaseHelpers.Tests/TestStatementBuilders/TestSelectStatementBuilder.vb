@@ -9,7 +9,7 @@ Public Class TestSelectStatementBuilder
     Public Sub Create_ShouldReturnNewInstanceOfSelectStatementBuilder()
         Dim builder = SelectStatementBuilder.Create()
     End Sub
-    Private Function Create() As SelectStatementBuilder
+    Private Function Create() As ISelectStatementBuilder
         Return SelectStatementBuilder.Create()
     End Function
     <Test()>
@@ -128,7 +128,7 @@ Public Class TestSelectStatementBuilder
                     .WithCondition(field1, Condition.EqualityOperators.Equals, value1) _
                     .WithCondition(field2, Condition.EqualityOperators.Equals, value2) _
                     .Build()
-        Assert.AreEqual("select * from [" + table + "] where [" + field1 + "]='" + value1 + "' and [" + field2 + "]='" + value2 + "'", sql)
+        Assert.AreEqual("select * from [" + table + "] where ([" + field1 + "]='" + value1 + "' and [" + field2 + "]='" + value2 + "')", sql)
 
     End Sub
 
@@ -715,9 +715,10 @@ Public Class TestSelectStatementBuilder
             field = RandomValueGen.GetRandomString(),
             val = RandomValueGen.GetRandomString()
         Dim sql = SelectStatementBuilder.Create() _
-                    .WithTable(table) _
-                    .WithField(field) _
-                    .WithCondition(new SelectField(table, field), Condition.EqualityOperators.Contains, val).Build()
+            .WithTable(table)  _
+            .WithField(field) _
+            .WithCondition(New SelectField(table, field), Condition.EqualityOperators.Contains, val) _
+            .Build()
         Assert.AreEqual("select [" + field + "] from [" + table + "] where [" + table + "].[" + field + "] like '%" + val + "%'", sql)
     End Sub
 

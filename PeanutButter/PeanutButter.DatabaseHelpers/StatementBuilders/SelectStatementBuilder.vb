@@ -49,7 +49,7 @@ Public Class SelectStatementBuilder
     Dim _distinct As Boolean
     Dim _top As Integer?
 
-    Public Shared Function Create() As SelectStatementBuilder
+    Public Shared Function Create() As ISelectStatementBuilder
         Return New SelectStatementBuilder()
     End Function
 
@@ -57,11 +57,19 @@ Public Class SelectStatementBuilder
         Return Me.Build()
     End Function
 
+    Private Class RenderedCondition
+        Public Property WasRaw as Boolean
+        Public Property Value as String
+        public Sub New(value as String, raw as Boolean)
+            Me.Value = value
+            Me.WasRaw = raw
+        End Sub
+    End Class
+
     Private _tableNames As New List(Of String)
     Private _fieldNames As New List(Of String)
     Private _aliases As New Dictionary(Of String, String)
     Private _joins As New List(Of Join)
-    Private _wheres As New List(Of String)
     Private _orderBy As IOrderBy
     Private _iCondition As ICondition
     Private _noLock As Boolean
@@ -91,16 +99,21 @@ Public Class SelectStatementBuilder
     End Function
 
     Public Function WithCondition(clause As String) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
-        _iCondition = _iCondition.And(_iCondition)
-        _wheres.Add(clause)
-        Return Me
+        return SetOrAnd(new Condition(clause))
+    End Function
+
+    Private Function SetOrAnd(condition as ICondition) as ISelectStatementBuilder
+        if _iCondition Is Nothing Then
+            _iCondition = condition
+        Else 
+            _iCondition = _ICondition.And(condition)
+        End If
+        return Me
     End Function
 
     Public Function WithCondition(condition As ICondition) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
         condition.UseDatabaseProvider(_databaseProvider)
-        Dim result = WithCondition(condition.ToString())
-        _iCondition = condition
-        return result
+        Return SetOrAnd(condition)
     End Function
 
     Public Function WithCondition(fieldName As String, op As Condition.EqualityOperators, fieldValue As Date) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
@@ -132,8 +145,7 @@ Public Class SelectStatementBuilder
     End Function
 
     Public Function WithCondition(field As IField, op As Condition.EqualityOperators, fieldValue As String) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
-        field.UseDatabaseProvider(_databaseProvider)
-        Return Me.WithCondition(field.ToString(), op, fieldValue)
+        Return Me.WithCondition(new Condition(field, op, fieldValue))
     End Function
 
     Public Function WithCondition(leftField As IField, op As Condition.EqualityOperators, rightField As IField) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
@@ -252,10 +264,11 @@ Public Class SelectStatementBuilder
     End Sub
 
     Private Sub AddConditionsTo(ByVal sql As List(Of String))
-        If _wheres.Count > 0 Then
-            sql.Add(" where ")
-            sql.Add(string.Join(" and ", _wheres))
+        if _iCondition Is Nothing Then
+            Return
         End If
+        sql.Add(" where ")
+        sql.Add(_iCondition.ToString())
     End Sub
 
     Private Sub AddFieldsTo(ByVal sql As List(Of String))
@@ -337,9 +350,8 @@ Public Class SelectStatementBuilder
 
     Public Function WithDatabaseProvider(provider As DatabaseProviders) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithDatabaseProvider
         SetDatabaseProvider(provider)
-        If Not _iCondition Is Nothing Then
-            _wheres.Clear()
-            WithCondition(_iCondition)
+        If _iCondition IsNot Nothing Then
+            _iCondition.UseDatabaseProvider(provider)
         End If
         return Me
     End Function

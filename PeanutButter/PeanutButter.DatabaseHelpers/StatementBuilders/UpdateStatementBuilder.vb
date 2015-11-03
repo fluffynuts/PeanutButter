@@ -1,4 +1,5 @@
 ﻿Imports System.Globalization
+Imports PeanutButter.DatabaseHelpers
 Imports PeanutButter.Utils
 
 Public Interface IUpdateStatementBuilder
@@ -23,6 +24,7 @@ Public Interface IUpdateStatementBuilder
     Function WithCondition(fieldName As String, op As Condition.EqualityOperators, fieldValue As Decimal) As IUpdateStatementBuilder
     Function WithCondition(fieldName As String, op As Condition.EqualityOperators, fieldValue As Double) As IUpdateStatementBuilder
     Function WithCondition(fieldName As String, op As Condition.EqualityOperators, fieldValue As DateTime) As IUpdateStatementBuilder
+    Function WithCondition(fieldName As String, op As Condition.EqualityOperators, fieldValue As Boolean) As IUpdateStatementBuilder
     Function WithCondition(condition As ICondition) As IUpdateStatementBuilder
     Function WithAllConditions(ParamArray conditions() As ICondition) As IUpdateStatementBuilder
     Function ForAllRows() As IUpdateStatementBuilder
@@ -33,7 +35,7 @@ Public Class UpdateStatementBuilder
 
     Private _table As String
     Private _fields As List(Of FieldWithValue)
-    Private _condition As String
+    private _condition as ICondition
     Private _forAllRows As Boolean
 
     Public Shared Function Create() As UpdateStatementBuilder
@@ -79,7 +81,7 @@ Public Class UpdateStatementBuilder
     Private Sub AddConditionTo(sql As List(Of String))
         If Not _forAllRows Then
             sql.Add(" where ")
-            sql.Add(Me._condition)
+            sql.Add(_condition.ToString())
         End If
     End Sub
 
@@ -125,9 +127,19 @@ Public Class UpdateStatementBuilder
         Return Me
     End Function
     Public Function WithCondition(condition As String) As IUpdateStatementBuilder Implements IUpdateStatementBuilder.WithCondition
-        Me._condition = condition
+        SetOrAnd(new Condition(condition))
         Return Me
     End Function
+
+    Private Function SetOrAnd(condition As ICondition) As IUpdateStatementBuilder
+        if _condition Is Nothing Then
+            _condition = condition
+        Else 
+            _condition = _condition.And(condition)
+        End If
+        return Me
+    End Function
+
     Private Sub CheckBuildParameters()
         If String.IsNullOrEmpty(Me._table) Then
             Throw New ArgumentException(Me.MakeMessage("Table not set"))
@@ -135,7 +147,7 @@ Public Class UpdateStatementBuilder
         If Me._fields.Count = 0 Then
             Throw New ArgumentException(Me.MakeMessage("No fields specified"))
         End If
-        If String.IsNullOrEmpty(Me._condition) And Not _forAllRows Then
+        If _condition Is Nothing And Not _forAllRows Then
             Throw New ArgumentException(Me.MakeMessage("No condition specified"))
         End If
     End Sub
@@ -173,11 +185,11 @@ Public Class UpdateStatementBuilder
 
     Public Function WithCondition(condition As ICondition) As IUpdateStatementBuilder Implements IUpdateStatementBuilder.WithCondition
         condition.UseDatabaseProvider(_databaseProvider)
-        Return Me.WithCondition(condition.ToString())
+        Return SetOrAnd(condition)
     End Function
 
     Public Function WithAllConditions(ParamArray conditions() As ICondition) As IUpdateStatementBuilder Implements IUpdateStatementBuilder.WithAllConditions
-        Dim conditionChain  = New ConditionChain(CompoundCondition.BooleanOperators.OperatorAnd, conditions)
+        Dim conditionChain = New ConditionChain(CompoundCondition.BooleanOperators.OperatorAnd, conditions)
         conditionChain.UseDatabaseProvider(_databaseProvider)
         Return Me.WithCondition(conditionChain)
     End Function
@@ -204,6 +216,11 @@ Public Class UpdateStatementBuilder
 
     Public Function WithDatabaseProvider(provider As DatabaseProviders) As IUpdateStatementBuilder Implements IUpdateStatementBuilder.WithDatabaseProvider
         SetDatabaseProvider(provider)
+        return Me
+    End Function
+
+    Public Function WithCondition(fieldName As String, op As Condition.EqualityOperators, fieldValue As Boolean) As IUpdateStatementBuilder Implements IUpdateStatementBuilder.WithCondition
+        SetOrAnd(new Condition(fieldName, op, fieldValue))
         return Me
     End Function
 End Class
