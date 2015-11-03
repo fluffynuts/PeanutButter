@@ -32,7 +32,7 @@ Public Class TestUpdateStatementBuilder
             .WithCondition(Condition)
         End With
         Dim statement = builder.Build()
-        Assert.AreEqual("update [" & TableName & "] set [" & ColumnName & "] = '" & FieldValue & "' where " & Condition, statement)
+        Assert.AreEqual("update [" & TableName & "] set [" & ColumnName & "]='" & FieldValue & "' where " & Condition, statement)
     End Sub
     <Test()>
     Public Sub Build_GivenTableAndOneDecimalFieldAndCondition_ReturnsValidUpdateStatement()
@@ -51,7 +51,7 @@ Public Class TestUpdateStatementBuilder
         nfi.NumberDecimalSeparator = "."
         nfi.CurrencyDecimalSeparator = "."
         dim dd = new DecimalDecorator(FieldValue)
-        Assert.AreEqual("update [" & TableName & "] set [" & ColumnName & "] = " & dd.ToString() & " where " & Condition, statement)
+        Assert.AreEqual("update [" & TableName & "] set [" & ColumnName & "]=" & dd.ToString() & " where " & Condition, statement)
     End Sub
 
     <Test()>
@@ -71,7 +71,7 @@ Public Class TestUpdateStatementBuilder
         nfi.NumberDecimalSeparator = "."
         nfi.CurrencyDecimalSeparator = "."
         Dim dd = new DecimalDecorator(FieldValue.Value)
-        Assert.AreEqual("update [" & TableName & "] set [" & ColumnName & "] = " & dd.ToString() & " where " & Condition, statement)
+        Assert.AreEqual("update [" & TableName & "] set [" & ColumnName & "]=" & dd.ToString() & " where " & Condition, statement)
     End Sub
 
     <Test()>
@@ -92,7 +92,7 @@ Public Class TestUpdateStatementBuilder
         nfi.CurrencyDecimalSeparator = "."
         Dim dd = new DecimalDecorator(FieldValue.Value)
         Assert.IsFalse(thisCondition.ToString().Contains(","))
-        Assert.AreEqual("update [" & TableName & "] set [" & ColumnName & "] = " & dd.ToString() & " where " & thisCondition.ToString(), statement)
+        Assert.AreEqual("update [" & TableName & "] set [" & ColumnName & "]=" & dd.ToString() & " where " & thisCondition.ToString(), statement)
     End Sub
 
     <Test()>
@@ -113,7 +113,7 @@ Public Class TestUpdateStatementBuilder
         nfi.CurrencyDecimalSeparator = "."
         Dim dd = new DecimalDecorator(FieldValue.Value)
         Assert.IsFalse(thisCondition.ToString().Contains(","))
-        Assert.AreEqual("update [" & TableName & "] set [" & ColumnName & "] = " & dd.ToString() & " where " & thisCondition.ToString(), statement)
+        Assert.AreEqual("update [" & TableName & "] set [" & ColumnName & "]=" & dd.ToString() & " where " & thisCondition.ToString(), statement)
     End Sub
 
     <Test()>
@@ -129,7 +129,7 @@ Public Class TestUpdateStatementBuilder
             .WithCondition(Condition)
         End With
         Dim statement = builder.Build()
-        Assert.AreEqual("update [" & TableName & "] set [" & ColumnName & "] = NULL where " & Condition, statement)
+        Assert.AreEqual("update [" & TableName & "] set [" & ColumnName & "]=NULL where " & Condition, statement)
     End Sub
 
     <Test()>
@@ -147,7 +147,7 @@ Public Class TestUpdateStatementBuilder
                         .WithField(columnName, FieldValue) _
                         .WithCondition(Condition) _
                         .Build()
-        Assert.AreEqual("update [" + tableName + "] set [" + columnName + "] = '" + valueString + "' where " + Condition, statement)
+        Assert.AreEqual("update [" + tableName + "] set [" + columnName + "]='" + valueString + "' where " + Condition, statement)
     End Sub
 
     <Test()>
@@ -167,7 +167,7 @@ Public Class TestUpdateStatementBuilder
                         .WithField(columnName, FieldValue) _
                         .WithCondition(Condition, DatabaseHelpers.Condition.EqualityOperators.Equals, ConditionVal) _
                         .Build()
-        Assert.AreEqual("update [" + tableName + "] set [" + columnName + "] = '" + valueString + "' where [" + Condition + "]='" + ConditionVal + "'", statement)
+        Assert.AreEqual("update [" + tableName + "] set [" + columnName + "]='" + valueString + "' where [" + Condition + "]='" + ConditionVal + "'", statement)
     End Sub
 
     <Test()>
@@ -188,7 +188,7 @@ Public Class TestUpdateStatementBuilder
                         .WithField(columnName, FieldValue) _
                         .WithCondition(c1, Condition.EqualityOperators.Equals, ConditionVal) _
                         .Build()
-        Assert.AreEqual("update [" + tableName + "] set [" + columnName + "] = '" + valueString + "' where [" + c1 + "]=" + expected.ToString(), statement)
+        Assert.AreEqual("update [" + tableName + "] set [" + columnName + "]='" + valueString + "' where [" + c1 + "]=" + expected.ToString(), statement)
     End Sub
 
     <Test()>
@@ -203,7 +203,7 @@ Public Class TestUpdateStatementBuilder
                         .WithField(columnName, FieldValue) _
                         .WithCondition(Condition) _
                         .Build()
-        Assert.AreEqual("update [" + tableName + "] set [" + columnName + "] = NULL where " + Condition, statement)
+        Assert.AreEqual("update [" + tableName + "] set [" + columnName + "]=NULL where " + Condition, statement)
     End Sub
 
     <Test()>
@@ -217,7 +217,7 @@ Public Class TestUpdateStatementBuilder
                         .WithFieldCopy(srcCol, dstCol) _
                         .WithCondition(condition) _
                         .Build()
-        Assert.AreEqual("update [" + tableName + "] set [" + dstCol + "] = [" + srcCol + "] where " + condition, statement)
+        Assert.AreEqual("update [" + tableName + "] set [" + dstCol + "]=[" + srcCol + "] where " + condition, statement)
     End Sub
 
     <Test()>
@@ -232,7 +232,7 @@ Public Class TestUpdateStatementBuilder
                         .WithFieldCopy(srcCol, dstCol) _
                         .WithCondition(condition) _
                         .Build()
-        Assert.AreEqual("update """ + tableName + """ set """ + dstCol + """ = """ + srcCol + """ where " + condition, statement)
+        Assert.AreEqual("update """ + tableName + """ set """ + dstCol + """=""" + srcCol + """ where " + condition, statement)
     End Sub
 
     <Test()>
@@ -248,7 +248,7 @@ Public Class TestUpdateStatementBuilder
                         .WithField(col, val) _
                         .WithCondition(condition) _
                         .Build()
-        Assert.AreEqual("update [" + tableName + "] set [" + col + "] = '" + val + "' where " + fakeCondition, statement)
+        Assert.AreEqual("update [" + tableName + "] set [" + col + "]='" + val + "' where " + fakeCondition, statement)
     End Sub
 
     <Test()>
@@ -271,7 +271,7 @@ Public Class TestUpdateStatementBuilder
         Dim cstring = String.Join(" and ", conditions.Select(Function(c)
                                                                  Return c.ToString()
                                                              End Function))
-        Assert.AreEqual("update [" + tableName + "] set [" + col + "] = '" + val + "' where (" + cstring + ")", statement)
+        Assert.AreEqual("update [" + tableName + "] set [" + col + "]='" + val + "' where (" + cstring + ")", statement)
     End Sub
 
     <Test()>
@@ -295,11 +295,31 @@ Public Class TestUpdateStatementBuilder
         Dim cstring = String.Join(" and ", conditions.Select(Function(c)
                                                                  Return c.ToString()
                                                              End Function))
-        Assert.AreEqual("update """ + tableName + """ set """ + col + """ = '" + val + "' where (" + cstring + ")", statement)
+        Assert.AreEqual("update """ + tableName + """ set """ + col + """='" + val + "' where (" + cstring + ")", statement)
         for i = 0 to conditionCount
             conditions(i).Received().UseDatabaseProvider(DatabaseProviders.Firebird)
         Next
     End Sub
+
+    <Test()>
+    Public SUb WithCondition_WhenCalledTwice_Should_AND_conditionsTogether()
+        Dim table = RandomValueGen.GetRandomString(2),
+            cfld1 = RandomValueGen.GetRandomString(2),
+            cfld2 = RandomValueGen.GetRandomString(3),
+            cval1 = RandomValueGen.GetRandomInt(),
+            cval2 = RandomValueGen.GetRandomString(2),
+            target = RandomValueGen.GetRandomString(2),
+            val = RandomValueGen.GetRandomString(2)
+        DIm sql = UpdateStatementBuilder.Create() _
+                    .WithTable(table) _
+                    .WithField(target, val) _
+                    .WithCondition(cfld1, Condition.EqualityOperators.GreaterThan, cval1) _
+                    .WithCondition(cfld2, Condition.EqualityOperators.Equals, cval2) _
+                    .Build()
+        Dim expected = "update [" + table + "] set [" + target  + "]='" + val + "' where ([" + cfld1 + "]>" + cval1.ToString() _
+                        + " and [" + cfld2 + "]='" + cval2 + "')"
+        Assert.AreEqual(expected, sql)
+    End SUb
 
 
 End Class

@@ -67,7 +67,7 @@ Public Class UpdateStatementBuilder
             sql.Add(_openObjectQuote)
             sql.Add(fld.Name)
             sql.Add(_closeObjectQuote)
-            sql.Add(" = ")
+            sql.Add("=")
             If fld.QuoteMe Then
                 sql.Add("'")
                 sql.Add(fld.Value.Replace("'", "''"))
