@@ -862,4 +862,17 @@ Public Class TestSelectStatementBuilder
         Assert.AreEqual(expectedSql, sql)
     End Sub
 
+    <Test()>
+    Public Sub WithSubSelect_GivenISelectStatementBuilderAndAlias_ShouldProduceExpectedSQL()
+        dim table = RandomValueGen.GetRandomString(2),
+            subQueryAlias = RandomValueGen.GetRandomString(2)
+        Dim inner = SelectStatementBuilder.Create() _
+                        .WithAllFieldsFrom(table)
+        Dim sql = SelectStatementBuilder.Create() _
+                        .WithAllFieldsFrom(inner, subQueryAlias) _
+                        .Build()
+        dim expected = "select * from (select * from [" + table + "]) as [" + subQueryAlias + "]"
+        Assert.AreEqual(expected, sql)
+    End Sub
+
 End Class

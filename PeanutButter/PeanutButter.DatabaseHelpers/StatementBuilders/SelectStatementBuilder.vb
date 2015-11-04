@@ -7,6 +7,7 @@ Public Interface ISelectStatementBuilder
     Function WithField(ByVal field As IField) As ISelectStatementBuilder
     Function WithFields(ParamArray fields() As String) As ISelectStatementBuilder
     Function WithAllFieldsFrom(table As String) As ISelectStatementBuilder
+    Function WithAllFieldsFrom(subQueryBuilder as ISelectStatementBuilder, subQueryAlias as String) as ISelectStatementBuilder
     Function WithCondition(condition As ICondition) As ISelectStatementBuilder
     Function WithCondition(condition As String) As ISelectStatementBuilder
     Function WithCondition(fieldName As String, op As Condition.EqualityOperators, fieldValue As String) As ISelectStatementBuilder
@@ -66,9 +67,18 @@ Public Class SelectStatementBuilder
         End Sub
     End Class
 
+    Private Class SubQuery
+        Public ReadOnly SubQueryStatement as ISelectStatementBuilder
+        Public ReadOnly SubQueryAlias as String
+        public Sub New (stmt as ISelectStatementBuilder, sAlias as String)
+            SubQueryStatement = stmt
+            SubQueryAlias = sAlias
+        End Sub
+    End Class
+
+    Private _subQueries as new List(Of SubQuery)
     Private _tableNames As New List(Of String)
-    Private _fieldNames As New List(Of String)
-    Private _aliases As New Dictionary(Of String, String)
+    Private _fields As New List(Of IField)
     Private _joins As New List(Of Join)
     Private _orderBy As IOrderBy
     Private _iCondition As ICondition
@@ -82,19 +92,18 @@ Public Class SelectStatementBuilder
         Return Me
     End Function
     Public Function WithField(name As String, Optional aliasAs As String = Nothing) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithField
-        If name = "*" And _fieldNames.Any(Function(fn)
-                                              return fn.ToLower() = name.ToLower()
+        If name = "*" And _fields.Any(Function(fn)
+                                              return fn.ToString().ToLower() = name.ToLower()
                                           End Function) Then Return Me
-        _fieldNames.Add(name)
-        _aliases(name) = aliasAs
+        Dim selectField  = new SelectField(name)
+        selectField.SetAlias(aliasAs)
+        _fields.Add(selectField)
         Return Me
     End Function
 
     Public Function WithField(field As IField) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithField
         field.UseDatabaseProvider(_databaseProvider)
-        Dim fieldName = field.ToString()
-        _fieldNames.Add(fieldName)
-        _aliases(fieldName) = Nothing
+        _fields.Add(field)
         Return Me
     End Function
 
@@ -202,10 +211,11 @@ Public Class SelectStatementBuilder
     End Function
 
     Private Function GetInitialTables() As String
-
+        _subQueries.ForEach(Function(s) s.SubQueryStatement.WithDatabaseProvider(_databaseProvider))
         Dim quotedTableNames = _tableNames.Select(Function(tn)
             Return String.Join("", { _openObjectQuote, tn, _closeObjectQuote })
-                                                     End Function)
+                                                     End Function) _
+            .Union(_subQueries.Select(Function(s) "(" + s.SubQueryStatement.ToString() + ") as " + _openObjectQuote + s.SubQueryAlias + _closeObjectQuote))
         Dim joinWith = ","
         AddNoLockHintAsRequiredTo(joinWith)
         Dim result  = String.Join(joinWith, quotedTableNames)
@@ -258,8 +268,8 @@ Public Class SelectStatementBuilder
 
 
     Private Sub CheckParameters()
-        If _tableNames.Count = 0 Then
-            Throw New ArgumentException(Me.GetType().Name() + ": must specify at least one table before building")
+        If _tableNames.Count = 0 AndAlso _subQueries.Count = 0 Then
+            Throw New ArgumentException(Me.GetType().Name() + ": must specify at least one table or subquery before building")
         End If
     End Sub
 
@@ -273,26 +283,12 @@ Public Class SelectStatementBuilder
 
     Private Sub AddFieldsTo(ByVal sql As List(Of String))
         Dim addedFields = 0
-        _fieldNames.ForEach(Sub(fieldName)
+        _fields.ForEach(Sub(field)
+                                field.UseDatabaseProvider(_databaseProvider)
+                                Dim fieldName = field.ToString()
                                 sql.Add(CStr(IIf(addedFields = 0, "", ",")))
                                 addedFields += 1
-                                If fieldName.IndexOf("*") >= 0 Or fieldName.IndexOf(" as ") >= 0 Then
-                                    sql.Add(fieldName)
-                                Else
-                                    If fieldName.IndexOf(_openObjectQuote) < 0 Then
-                                        sql.Add(_openObjectQuote)
-                                        sql.Add(fieldName)
-                                        sql.Add(_closeObjectQuote)
-                                    Else
-                                        sql.Add(fieldName)
-                                    End If
-                                    If Not _aliases(fieldName) Is Nothing Then
-                                        sql.Add(" as ")
-                                        sql.Add(_openObjectQuote)
-                                        sql.Add(_aliases(fieldName))
-                                        sql.Add(_closeObjectQuote)
-                                    End If
-                                End If
+                                sql.Add(fieldName)
                             End Sub)
         If addedFields = 0 Then
             Throw New ArgumentException(Me.GetType().Name() + ": no fields specified for query")
@@ -304,12 +300,17 @@ Public Class SelectStatementBuilder
                     .WithField("*")
     End Function
 
+    Function WithAllFieldsFrom(subQuery as ISelectStatementBuilder, subQueryAlias as String) as ISelectStatementBuilder Implements ISelectStatementBuilder.WithAllFieldsFrom
+        _subQueries.Add(new SubQuery(subQuery, subQueryAlias))
+        return WithField(new SelectField("*"))
+    End Function
+
     Shared Function SelectAllFrom(table As String) As String
         Return Create().WithAllFieldsFrom(table).Build()
     End Function
 
     Public Function WithComputedField(fieldName As String, func As ComputedField.ComputeFunctions, Optional fieldAlias As String = Nothing) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithComputedField
-        _fieldNames.Add(New ComputedField(fieldName, func, fieldAlias).ToString())
+        _fields.Add(New ComputedField(fieldName, func, fieldAlias))
         Return Me
     End Function
 
@@ -353,6 +354,7 @@ Public Class SelectStatementBuilder
         If _iCondition IsNot Nothing Then
             _iCondition.UseDatabaseProvider(provider)
         End If
+        _subQueries.ForEach(Function(s) s.SubQueryStatement.WithDatabaseProvider(provider))
         return Me
     End Function
 
