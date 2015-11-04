@@ -1,10 +1,5 @@
 ﻿Imports PeanutButter.Utils
 
-Public Interface ICondition
-    Sub UseDatabaseProvider(provider As DatabaseProviders)
-    Function ToString() As String
-End Interface
-
 Public Class Condition
     Inherits StatementBuilderBase
     Implements ICondition
@@ -60,8 +55,8 @@ Public Class Condition
         Get
             return __value
         End Get
-        Set(value As String)
-            __value = value
+        Set(_value As String)
+            __value = _value
         End Set
     End Property
     Public ReadOnly QuoteValue As Boolean
