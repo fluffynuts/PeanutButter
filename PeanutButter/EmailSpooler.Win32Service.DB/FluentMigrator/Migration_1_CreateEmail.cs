@@ -1,7 +1,6 @@
 ﻿using System;
 using FluentMigrator;
-using _Email = EmailSpooler.Win32Service.DB.DataConstants.Tables.Email;
-using _Columns = EmailSpooler.Win32Service.DB.DataConstants.Tables.Email.Columns;
+using _Columns = EmailSpooler.Win32Service.DB.DataConstants.Tables.Emails.Columns;
 
 namespace EmailSpooler.Win32Service.DB.FluentMigrator
 {
@@ -9,9 +8,9 @@ namespace EmailSpooler.Win32Service.DB.FluentMigrator
     {
         public override void Up()
         {
-            Create.Table(_Email.NAME)
+            Create.Table(DataConstants.Tables.Emails.NAME)
                         .WithColumn(_Columns.EMAILID)
-                            .AsGuid().PrimaryKey()
+                            .AsInt32().PrimaryKey().Identity()
                         .WithColumn(_Columns.SENDER)
                             .AsString(Int32.MaxValue).Nullable()
                         .WithColumn(_Columns.SUBJECT)
@@ -27,7 +26,7 @@ namespace EmailSpooler.Win32Service.DB.FluentMigrator
                         .WithColumn(_Columns.LASTERROR)
                             .AsString(Int32.MaxValue).Nullable()
                         .WithDefaultColumns();
-            AddLastUpdatedTriggerFor(_Email.NAME, _Columns.EMAILID);
+            AddLastUpdatedTriggerFor(DataConstants.Tables.Emails.NAME, _Columns.EMAILID);
         }
 
         public override void Down()

@@ -1,36 +1,29 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EmailSpooler.Win32Service.DB.FluentMigrator;
 using FluentMigrator;
-using _EmailRecipient = EmailSpooler.Win32Service.DB.DataConstants.Tables.EmailRecipient;
-using _Columns = EmailSpooler.Win32Service.DB.DataConstants.Tables.EmailRecipient.Columns;
-using _Email = EmailSpooler.Win32Service.DB.DataConstants.Tables.Email;
+using _Columns = EmailSpooler.Win32Service.DB.DataConstants.Tables.EmailRecipients.Columns;
 
-namespace EACH.DB.Migrations.Migrations
+namespace EmailSpooler.Win32Service.DB.FluentMigrator
 {
     [Migration(2013120702)]
     public class Migration_2_CreateEmailRecipient: MigrationFoundation
     {
         public override void Up()
         {
-            Create.Table(_EmailRecipient.NAME)
+            Create.Table(DataConstants.Tables.EmailRecipients.NAME)
                         .WithColumn(_Columns.EMAILRECIPIENTID)
-                            .AsGuid().PrimaryKey()
+                            .AsInt32().PrimaryKey().Identity()
                         .WithColumn(_Columns.EMAILID)
-                            .AsGuid().ForeignKey(_Email.NAME, _Email.Columns.EMAILID).NotNullable()
+                            .AsInt32().ForeignKey(DataConstants.Tables.Emails.NAME, DataConstants.Tables.Emails.Columns.EMAILID).NotNullable()
                         .WithColumn(_Columns.RECIPIENT)
                             .AsString(Int32.MaxValue).NotNullable()
-                        .WithColumn(_Columns.PRIMARYRECIPIENT)
+                        .WithColumn(_Columns.IS_PRIMARYRECIPIENT)
                             .AsBoolean().NotNullable().WithDefaultValue(true)
-                        .WithColumn(_Columns.CC)
+                        .WithColumn(_Columns.IS_CC)
                             .AsBoolean().NotNullable().WithDefaultValue(false)
-                        .WithColumn(_Columns.BCC)
+                        .WithColumn(_Columns.IS_BCC)
                             .AsBoolean().NotNullable().WithDefaultValue(false)
                         .WithDefaultColumns();
-            AddLastUpdatedTriggerFor(_EmailRecipient.NAME, _Columns.EMAILRECIPIENTID);
+            AddLastUpdatedTriggerFor(DataConstants.Tables.EmailRecipients.NAME, _Columns.EMAILRECIPIENTID);
         }
 
         public override void Down()

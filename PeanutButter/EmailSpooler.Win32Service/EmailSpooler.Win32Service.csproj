@@ -84,16 +84,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Email.cs" />
-    <Compile Include="EmailConfiguration.cs" />
+    <Compile Include="SMTP\Email.cs" />
+    <Compile Include="SMTP\EmailAttachment.cs" />
+    <Compile Include="SMTP\EmailConfiguration.cs" />
     <Compile Include="EmailSpooler.cs" />
     <Compile Include="EmailSpoolerConfig.cs" />
     <Compile Include="EmailSpoolerDependencies.cs" />
-    <Compile Include="Models\EmailContext.cs" />
-    <Compile Include="Models\DTOBase.cs" />
-    <Compile Include="Models\Email.cs" />
-    <Compile Include="Models\EmailAttachment.cs" />
-    <Compile Include="Models\EmailRecipient.cs" />
     <Compile Include="Models\Mapping\EmailAttachmentMap.cs" />
     <Compile Include="Models\Mapping\EmailMap.cs" />
     <Compile Include="Models\Mapping\EmailRecipientMap.cs" />
@@ -102,6 +98,8 @@
     <Compile Include="EmailSpoolerService.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="SMTP\IEmail.cs" />
+    <Compile Include="SMTP\SmtpClientFacade.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
@@ -110,9 +108,17 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\EmailSpooler.Win32Service.DB\EmailSpooler.Win32Service.DB.csproj">
+      <Project>{3D515895-08FC-46B6-AB16-E2B9AC1AFFB3}</Project>
+      <Name>EmailSpooler.Win32Service.DB</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PeanutButter.ServiceShell\PeanutButter.ServiceShell.csproj">
       <Project>{ef4f2f73-5126-4de1-9729-ae758aab5e0e}</Project>
       <Name>PeanutButter.ServiceShell</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PeanutButter.Utils.Entity\PeanutButter.Utils.Entity.csproj">
+      <Project>{784A35AD-E6A9-46A4-945C-6D62C55503E0}</Project>
+      <Name>PeanutButter.Utils.Entity</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

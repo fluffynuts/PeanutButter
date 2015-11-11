@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EmailSpooler.Win32Service.Models;
+using EmailSpooler.Win32Service.DB.Entities;
+using EmailSpooler.Win32Service.SMTP;
 using PeanutButter.ServiceShell;
-using ServiceShell;
+using Email = EmailSpooler.Win32Service.DB.Entities.Email;
 
 namespace EmailSpooler.Win32Service
 {
@@ -99,7 +98,7 @@ namespace EmailSpooler.Win32Service
             }
         }
 
-        private void SendMessageFor(Models.Email message)
+        private void SendMessageFor(Email message)
         {
             using (var email = this._emailGenerator())
             {
@@ -126,7 +125,7 @@ namespace EmailSpooler.Win32Service
             }
         }
 
-        private static void SetupEmailFromMessage(Models.Email message, IEmail email)
+        private static void SetupEmailFromMessage(Email message, IEmail email)
         {
             AddAllRecipients(message, email);
             email.From = message.Sender;
@@ -135,7 +134,7 @@ namespace EmailSpooler.Win32Service
             AddAttachments(message, email);
         }
 
-        private static void AddAttachments(Models.Email message, IEmail email)
+        private static void AddAttachments(Email message, IEmail email)
         {
             foreach (var attachment in message.EmailAttachments.Where(a => a.Enabled))
             {
@@ -146,15 +145,15 @@ namespace EmailSpooler.Win32Service
             }
         }
 
-        private static void AddAllRecipients(Models.Email message, IEmail email)
+        private static void AddAllRecipients(Email message, IEmail email)
         {
             foreach (var recipient in message.EmailRecipients.Where(r => r.Enabled))
             {
-                if (recipient.PrimaryRecipient)
+                if (recipient.IsPrimaryRecipient)
                     email.AddRecipient(recipient.Recipient);
-                if (recipient.CC)
+                if (recipient.IsCC)
                     email.AddCC(recipient.Recipient);
-                if (recipient.BCC)
+                if (recipient.IsBCC)
                     email.AddBCC(recipient.Recipient);
             }
         }

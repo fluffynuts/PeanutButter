@@ -91,7 +91,6 @@
     <Compile Include="TestEmail.cs" />
     <Compile Include="TestEmailConfiguration.cs" />
     <Compile Include="TestEmailSpooler.cs" />
-    <Compile Include="TestEntities.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -114,9 +113,17 @@
       <Project>{ef4f2f73-5126-4de1-9729-ae758aab5e0e}</Project>
       <Name>PeanutButter.ServiceShell</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PeanutButter.TestUtils.Entity\PeanutButter.TestUtils.Entity.csproj">
+      <Project>{75448DD7-4A34-464D-BE4C-7FE41657EB41}</Project>
+      <Name>PeanutButter.TestUtils.Entity</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PeanutButter.TestUtils\PeanutButter.TestUtils.Generic.csproj">
       <Project>{6DDD7F9E-857A-442B-9148-05B34EA279C4}</Project>
       <Name>PeanutButter.TestUtils.Generic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PeanutButter.Utils.Entity\PeanutButter.Utils.Entity.csproj">
+      <Project>{784A35AD-E6A9-46A4-945C-6D62C55503E0}</Project>
+      <Name>PeanutButter.Utils.Entity</Name>
     </ProjectReference>
     <ProjectReference Include="..\PeanutButter.Utils\PeanutButter.Utils.csproj">
       <Project>{EFC85343-95B4-48C3-BCBE-579EA4868C0A}</Project>

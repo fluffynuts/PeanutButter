@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{75448DD7-4A34-464D-BE4C-7FE41657EB41}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>PeanutButter.TestUtils.Entity</RootNamespace>
+    <AssemblyName>PeanutButter.TestUtils.Entity</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net40\EntityFramework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net40\EntityFramework.SqlServer.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="nunit.framework, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DbContextExtensions.cs" />
+    <Compile Include="EntityPersistenceTestFixtureBase.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestFixtureWithTempDb.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PeanutButter.FluentMigrator\PeanutButter.FluentMigrator.csproj">
+      <Project>{6C7A1C15-555E-45A5-921E-F2A56A3D60F6}</Project>
+      <Name>PeanutButter.FluentMigrator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj">
+      <Project>{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}</Project>
+      <Name>PeanutButter.RandomGenerators</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PeanutButter.TempDb.LocalDb\PeanutButter.TempDb.LocalDb.csproj">
+      <Project>{DA294B3F-58C7-4255-B6AA-82C2393DA49F}</Project>
+      <Name>PeanutButter.TempDb.LocalDb</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PeanutButter.TempDb\PeanutButter.TempDb.csproj">
+      <Project>{265c672b-b6f6-40f8-9180-b0be5575abde}</Project>
+      <Name>PeanutButter.TempDb</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PeanutButter.TestUtils\PeanutButter.TestUtils.Generic.csproj">
+      <Project>{6DDD7F9E-857A-442B-9148-05B34EA279C4}</Project>
+      <Name>PeanutButter.TestUtils.Generic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PeanutButter.Utils.Entity\PeanutButter.Utils.Entity.csproj">
+      <Project>{784A35AD-E6A9-46A4-945C-6D62C55503E0}</Project>
+      <Name>PeanutButter.Utils.Entity</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PeanutButter.Utils\PeanutButter.Utils.csproj">
+      <Project>{EFC85343-95B4-48C3-BCBE-579EA4868C0A}</Project>
+      <Name>PeanutButter.Utils</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

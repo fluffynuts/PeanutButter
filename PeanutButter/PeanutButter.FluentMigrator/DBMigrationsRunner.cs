@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using FluentMigrator;
 using FluentMigrator.Runner;
 using FluentMigrator.Runner.Announcers;
@@ -13,7 +9,13 @@ using FluentMigrator.Runner.Processors;
 
 namespace PeanutButter.FluentMigrator
 {
-    public class DBMigrationsRunner<T> where T: MigrationProcessorFactory, new()
+    public interface IDBMigrationsRunner
+    {
+        void MigrateTo(int version);
+        void MigrateToLatest();
+    }
+
+    public class DBMigrationsRunner<T> : IDBMigrationsRunner where T: MigrationProcessorFactory, new()
     {
         private class MigrationOptions : IMigrationProcessorOptions
         {

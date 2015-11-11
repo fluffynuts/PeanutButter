@@ -103,5 +103,13 @@ namespace PeanutButter.TestUtils.Generic
             }
         }
 
+        public static string[] VirtualProperties(this Type type)
+        {
+            return type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(pi => pi.GetGetMethod().IsVirtual)
+                .Select(pi => pi.Name)
+                .ToArray();
+        }
+
     }
 }

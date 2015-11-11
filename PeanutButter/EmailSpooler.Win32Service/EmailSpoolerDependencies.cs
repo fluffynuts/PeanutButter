@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EmailSpooler.Win32Service.Models;
+using EmailSpooler.Win32Service.DB.Entities;
+using EmailSpooler.Win32Service.SMTP;
 using PeanutButter.ServiceShell;
-using ServiceShell;
+using Email = EmailSpooler.Win32Service.SMTP.Email;
 
 namespace EmailSpooler.Win32Service
 {

@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using PeanutButter.RandomGenerators;
+﻿using PeanutButter.RandomGenerators;
 
 namespace EmailSpooler.Win32Service.Tests.Builders
 {
-    public class EmailAttachmentBuilder: GenericBuilder<EmailAttachmentBuilder,Models.EmailAttachment>
+    public class EmailAttachmentBuilder: GenericBuilder<EmailAttachmentBuilder,DB.Entities.EmailAttachment>
     {
         public override EmailAttachmentBuilder WithRandomProps()
         {

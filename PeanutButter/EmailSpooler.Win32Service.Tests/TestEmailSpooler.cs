@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using EmailSpooler.Win32Service.DB.Entities;
 using EmailSpooler.Win32Service.Tests.Builders;
 using NSubstitute;
 using NUnit.Framework;
-using EmailSpooler.Win32Service.Models;
+using EmailSpooler.Win32Service.SMTP;
 using PeanutButter.RandomGenerators;
 using PeanutButter.ServiceShell;
 using PeanutButter.TestUtils.Generic;
+using EmailAttachment = EmailSpooler.Win32Service.SMTP.EmailAttachment;
 
 namespace EmailSpooler.Win32Service.Tests
 {
@@ -225,9 +227,9 @@ namespace EmailSpooler.Win32Service.Tests
             var dto = EmailBuilder.Create().WithRandomProps().WithRandomRecipient(2).Build();
             foreach (var recipient in dto.EmailRecipients)
             {
-                recipient.PrimaryRecipient = true;
-                recipient.CC = false;
-                recipient.BCC = false;
+                recipient.IsPrimaryRecipient = true;
+                recipient.IsCC = false;
+                recipient.IsBCC = false;
             }
             var ctx = SubstituteEmailContextBuilder.Create().WithEmails(dto).Build();
             var deps = IFakeEmailSpoolerDependenciesBuilder.Create()
@@ -235,7 +237,7 @@ namespace EmailSpooler.Win32Service.Tests
                         .WithEmailGenerator(func)
                         .Build();
             // pre-conditions
-            Assert.IsTrue(dto.EmailRecipients.Count(r => r.PrimaryRecipient && !r.CC && !r.BCC) == 2);
+            Assert.IsTrue(dto.EmailRecipients.Count(r => r.IsPrimaryRecipient && !r.IsCC && !r.IsBCC) == 2);
 
             // execute test
             using (var spooler = new EmailSpooler(deps))
@@ -265,7 +267,7 @@ namespace EmailSpooler.Win32Service.Tests
                         .WithEmailGenerator(func)
                         .Build();
             // pre-conditions
-            Assert.IsTrue(dto.EmailRecipients.Count(e => e.CC && !e.PrimaryRecipient && !e.BCC) > 1);
+            Assert.IsTrue(dto.EmailRecipients.Count(e => e.IsCC && !e.IsPrimaryRecipient && !e.IsBCC) > 1);
 
             // execute test
             using (var spooler = new EmailSpooler(deps))
@@ -295,7 +297,7 @@ namespace EmailSpooler.Win32Service.Tests
                         .WithEmailGenerator(func)
                         .Build();
             // pre-conditions
-            Assert.IsTrue(dto.EmailRecipients.Count(e => e.BCC && !e.PrimaryRecipient && !e.CC) > 1);
+            Assert.IsTrue(dto.EmailRecipients.Count(e => e.IsBCC && !e.IsPrimaryRecipient && !e.IsCC) > 1);
 
             // execute test
             using (var spooler = new EmailSpooler(deps))
@@ -319,15 +321,15 @@ namespace EmailSpooler.Win32Service.Tests
             var email = CreateSubstituteEmail();
             var func = EmailGeneratorWith(email);
             var dto = EmailBuilder.Create().WithRandomProps().WithRandomRecipient().Build();
-            dto.EmailRecipients.First().BCC = true;
-            dto.EmailRecipients.First().CC = true;
+            dto.EmailRecipients.First().IsBCC = true;
+            dto.EmailRecipients.First().IsCC = true;
             var ctx = SubstituteEmailContextBuilder.Create().WithEmails(dto).Build();
             var deps = IFakeEmailSpoolerDependenciesBuilder.Create()
                         .WithDbContext(ctx)
                         .WithEmailGenerator(func)
                         .Build();
             // pre-conditions
-            Assert.IsTrue(dto.EmailRecipients.Count(e => e.BCC && e.PrimaryRecipient && e.CC) == 1);
+            Assert.IsTrue(dto.EmailRecipients.Count(e => e.IsBCC && e.IsPrimaryRecipient && e.IsCC) == 1);
 
             // execute test
             using (var spooler = new EmailSpooler(deps))
@@ -353,8 +355,8 @@ namespace EmailSpooler.Win32Service.Tests
             var dto = EmailBuilder.Create().WithRandomProps().WithRandomRecipient().WithRandomAttachment(2).Build();
             dto.EmailAttachments.First().ContentID = null;
             dto.EmailAttachments.Last().ContentID = null;
-            dto.EmailRecipients.First().BCC = true;
-            dto.EmailRecipients.First().CC = true;
+            dto.EmailRecipients.First().IsBCC = true;
+            dto.EmailRecipients.First().IsCC = true;
             var ctx = SubstituteEmailContextBuilder.Create().WithEmails(dto).Build();
             var deps = IFakeEmailSpoolerDependenciesBuilder.Create()
                         .WithDbContext(ctx)
@@ -384,8 +386,8 @@ namespace EmailSpooler.Win32Service.Tests
             var email = CreateSubstituteEmail();
             var func = EmailGeneratorWith(email);
             var dto = EmailBuilder.Create().WithRandomProps().WithRandomRecipient().WithRandomAttachment(2).Build();
-            dto.EmailRecipients.First().BCC = true;
-            dto.EmailRecipients.First().CC = true;
+            dto.EmailRecipients.First().IsBCC = true;
+            dto.EmailRecipients.First().IsCC = true;
             var ctx = SubstituteEmailContextBuilder.Create().WithEmails(dto).Build();
             var deps = IFakeEmailSpoolerDependenciesBuilder.Create()
                         .WithDbContext(ctx)
@@ -415,8 +417,8 @@ namespace EmailSpooler.Win32Service.Tests
             var email = CreateSubstituteEmail();
             var func = EmailGeneratorWith(email);
             var dto = EmailBuilder.Create().WithRandomProps().WithRandomRecipient().WithRandomAttachment(2).Build();
-            dto.EmailRecipients.First().BCC = true;
-            dto.EmailRecipients.First().CC = true;
+            dto.EmailRecipients.First().IsBCC = true;
+            dto.EmailRecipients.First().IsCC = true;
             var ctx = SubstituteEmailContextBuilder.Create().WithEmails(dto).Build();
             var deps = IFakeEmailSpoolerDependenciesBuilder.Create()
                         .WithDbContext(ctx)
@@ -443,8 +445,8 @@ namespace EmailSpooler.Win32Service.Tests
             var email = CreateSubstituteEmail();
             var func = EmailGeneratorWith(email);
             var dto = EmailBuilder.Create().WithRandomProps().WithRandomRecipient().WithRandomAttachment(2).Build();
-            dto.EmailRecipients.First().BCC = true;
-            dto.EmailRecipients.First().CC = true;
+            dto.EmailRecipients.First().IsBCC = true;
+            dto.EmailRecipients.First().IsCC = true;
             dto.SendAt = DateTime.Now.AddYears(1);
             var ctx = SubstituteEmailContextBuilder.Create().WithEmails(dto).Build();
             var deps = IFakeEmailSpoolerDependenciesBuilder.Create()
@@ -473,8 +475,8 @@ namespace EmailSpooler.Win32Service.Tests
             var func = EmailGeneratorWith(email);
             var dto = EmailBuilder.Create().WithRandomProps().WithRandomRecipient().WithRandomAttachment(2).Build();
             var maxAttempts = RandomValueGen.GetRandomInt(3, 6);
-            dto.EmailRecipients.First().BCC = true;
-            dto.EmailRecipients.First().CC = true;
+            dto.EmailRecipients.First().IsBCC = true;
+            dto.EmailRecipients.First().IsCC = true;
             dto.SendAt = DateTime.Now.AddYears(-1);
             dto.SendAttempts = maxAttempts + 1;
             
@@ -505,8 +507,8 @@ namespace EmailSpooler.Win32Service.Tests
             var func = EmailGeneratorWith(email);
             var dto = EmailBuilder.Create().WithRandomProps().WithRandomRecipient().WithRandomAttachment(2).Build();
             var maxAttempts = RandomValueGen.GetRandomInt(3, 6);
-            dto.EmailRecipients.First().BCC = true;
-            dto.EmailRecipients.First().CC = true;
+            dto.EmailRecipients.First().IsBCC = true;
+            dto.EmailRecipients.First().IsCC = true;
             dto.SendAt = DateTime.Now.AddYears(-1);
             dto.Enabled = false;
             
@@ -535,8 +537,8 @@ namespace EmailSpooler.Win32Service.Tests
             var email = CreateSubstituteEmail();
             var func = EmailGeneratorWith(email);
             var dto = EmailBuilder.Create().WithRandomProps().WithRandomRecipient().WithRandomAttachment(2).Build();
-            dto.EmailRecipients.First().BCC = true;
-            dto.EmailRecipients.First().CC = true;
+            dto.EmailRecipients.First().IsBCC = true;
+            dto.EmailRecipients.First().IsCC = true;
             var ctx = SubstituteEmailContextBuilder.Create().WithEmails(dto).Build();
             var deps = IFakeEmailSpoolerDependenciesBuilder.Create()
                         .WithDbContext(ctx)
@@ -568,8 +570,8 @@ namespace EmailSpooler.Win32Service.Tests
             var errorMessage = RandomValueGen.GetRandomString();
             email.When(e => e.Send()).Do(ci => { throw new Exception(errorMessage); });
             var dto = EmailBuilder.Create().WithRandomProps().WithRandomRecipient().WithRandomAttachment(2).Build();
-            dto.EmailRecipients.First().BCC = true;
-            dto.EmailRecipients.First().CC = true;
+            dto.EmailRecipients.First().IsBCC = true;
+            dto.EmailRecipients.First().IsCC = true;
             var ctx = SubstituteEmailContextBuilder.Create().WithEmails(dto).Build();
             var deps = IFakeEmailSpoolerDependenciesBuilder.Create()
                         .WithDbContext(ctx)
@@ -610,8 +612,8 @@ namespace EmailSpooler.Win32Service.Tests
             var errorMessage = RandomValueGen.GetRandomString();
             email.When(e => e.Send()).Do(ci => { throw new Exception(errorMessage); });
             var dto = EmailBuilder.Create().WithRandomProps().WithRandomRecipient().WithRandomAttachment(2).Build();
-            dto.EmailRecipients.First().BCC = true;
-            dto.EmailRecipients.First().CC = true;
+            dto.EmailRecipients.First().IsBCC = true;
+            dto.EmailRecipients.First().IsCC = true;
             dto.SendAttempts = 1;
             var ctx = SubstituteEmailContextBuilder.Create().WithEmails(dto).Build();
             var deps = IFakeEmailSpoolerDependenciesBuilder.Create()

@@ -205,6 +205,18 @@ namespace PeanutButter.RandomGenerators
             return itemArray.Skip(RandomValueGen.GetRandomInt(0, upper)).First();
         }
 
+        public static T GetRandomFrom<T>(IEnumerable<T> items, params T[] butNot)
+        {
+            if (items.Count() < butNot.Length - 1)
+                throw new ArgumentException("Items collection does not contain enough items to apply the exclusion list, assuming the exclusions are actually in the source list");
+            T result;
+            do
+            {
+                result = GetRandomFrom(items);
+            } while (butNot.Contains(result));
+            return result;
+        }
+
         public static IEnumerable<T> GetRandomSelectionFrom<T>(IEnumerable<T> items, 
             int minValues = DefaultRanges.MIN_ITEMS, int maxValues = DefaultRanges.MAX_ITEMS)
         {

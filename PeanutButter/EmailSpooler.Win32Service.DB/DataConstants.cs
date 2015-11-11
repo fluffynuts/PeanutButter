@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace EmailSpooler.Win32Service.DB
+﻿namespace EmailSpooler.Win32Service.DB
 {
     public class DataConstants
     {
@@ -20,12 +14,12 @@ namespace EmailSpooler.Win32Service.DB
                 public const string LASTMODIFIED = "LastModified";
                 public const string ENABLED = "Enabled";
             }
-            public class Email
+            public class Emails
             {
-                public const string NAME = "Email";
+                public const string NAME = "Emails";
                 public class Columns : _Common_
                 {
-                    public const string EMAILID = "EmailID";
+                    public const string EMAILID = "EmailId";
                     public const string SENDER = "Sender";
                     public const string SUBJECT = "Subject";
                     public const string BODY = "Body";
@@ -35,26 +29,26 @@ namespace EmailSpooler.Win32Service.DB
                     public const string LASTERROR = "LastError";
                 }
             }
-            public class EmailRecipient
+            public class EmailRecipients
             {
-                public const string NAME = "EmailRecipient";
+                public const string NAME = "EmailRecipients";
                 public class Columns : _Common_
                 {
-                    public const string EMAILRECIPIENTID = "EmailRecipientID";
-                    public const string EMAILID = "EmailID";
+                    public const string EMAILRECIPIENTID = "EmailRecipientId";
+                    public const string EMAILID = "EmailId";
                     public const string RECIPIENT = "Recipient";
-                    public const string PRIMARYRECIPIENT = "PrimaryRecipient";
-                    public const string CC = "CC";
-                    public const string BCC = "BCC";
+                    public const string IS_PRIMARYRECIPIENT = "IsPrimaryRecipient";
+                    public const string IS_CC = "IsCC";
+                    public const string IS_BCC = "IsBCC";
                 }
             }
-            public class EmailAttachment
+            public class EmailAttachments
             {
-                public const string NAME = "EmailAttachment";
+                public const string NAME = "EmailAttachments";
                 public class Columns : _Common_
                 {
-                    public const string EMAILATTACHMENTID = "EmailAttachmentID";
-                    public const string EMAILID = "EmailID";
+                    public const string EMAILATTACHMENTID = "EmailAttachmentId";
+                    public const string EMAILID = "EmailId";
                     public const string NAME = "Name";
                     public const string INLINE = "Inline";
                     public const string CONTENTID = "ContentID";

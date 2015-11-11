@@ -7,7 +7,7 @@ using System.Net.Mail;
 using System.Net.Mime;
 using NSubstitute;
 using NUnit.Framework;
-using EmailSpooler.Win32Service.Models;
+using EmailSpooler.Win32Service.SMTP;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
 
@@ -53,10 +53,11 @@ namespace EmailSpooler.Win32Service.Tests
         private static IEmailConfiguration CreateRandomFallbackEmailConfiguration()
         {
             var randomConfig = Substitute.For<IEmailConfiguration>();
-            randomConfig.Host.ReturnsForAnyArgs(ci => RandomValueGen.GetRandomString());
-            randomConfig.Port.ReturnsForAnyArgs(ci => RandomValueGen.GetRandomInt(25, 1024));
-            randomConfig.UserName.ReturnsForAnyArgs(ci => RandomValueGen.GetRandomString());
-            randomConfig.Password.ReturnsForAnyArgs(ci => RandomValueGen.GetRandomString());
+            var host = RandomValueGen.GetRandomString();
+            randomConfig.Host.Returns(host);
+            randomConfig.Port.Returns(RandomValueGen.GetRandomInt(25, 1024));
+            randomConfig.UserName.Returns(RandomValueGen.GetRandomString());
+            randomConfig.Password.Returns(RandomValueGen.GetRandomString());
             return randomConfig;
         }
 

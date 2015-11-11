@@ -22,7 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -33,11 +33,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FluentMigrator">
-      <HintPath>..\packages\FluentMigrator.1.3.0.0\lib\40\FluentMigrator.dll</HintPath>
+    <Reference Include="FluentMigrator, Version=1.6.1.0, Culture=neutral, PublicKeyToken=aacfc7de5acabf05, processorArchitecture=MSIL">
+      <HintPath>..\packages\FluentMigrator.1.6.1\lib\40\FluentMigrator.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="FluentMigrator.Runner">
-      <HintPath>..\packages\FluentMigrator.1.1.2.1\tools\FluentMigrator.Runner.dll</HintPath>
+      <HintPath>..\..\..\COGS\WETS\source\WETS.Web\packages\FluentMigrator.Tools.1.6.0\tools\AnyCPU\40\FluentMigrator.Runner.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

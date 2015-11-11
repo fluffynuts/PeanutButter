@@ -1,8 +1,8 @@
 <package>
   <metadata>
-    <id>EmailSpooler.Win32Service.DB.NugetPackage</id>
-    <version>1.0.121</version>
-    <title>EmailSpooler.Win32Service.DB.NugetPackage</title>
+    <id>EmailSpooler.Win32Service.DB</id>
+    <version>1.0.125</version>
+    <title>EmailSpooler.Win32Service.DB</title>
     <authors>Davyd McColl</authors>
     <owners>Davyd McColl</owners>
     <description>
@@ -19,10 +19,10 @@
       you expect your project to provide a data source for the PeanutButter.EmailSpooler.Win32Service service.
     </summary>
     <language>en-US</language>
-    <projectUrl>https://nuget.org/packages/EmailSpooler.Win32Service.DB.NugetPackage</projectUrl>
+    <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
     <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <licenseUrl>http://opensource.org/licenses/Apache-2.0</licenseUrl>
+    <licenseUrl>https://github.com/fluffynuts/PeanutButter/blob/master/LICENSE</licenseUrl>
     <copyright>Copyright  2015</copyright>
     <dependencies>
       <group targetFramework="net40">

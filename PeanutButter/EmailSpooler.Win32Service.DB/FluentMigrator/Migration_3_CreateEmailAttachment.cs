@@ -1,27 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EmailSpooler.Win32Service.DB;
-using EmailSpooler.Win32Service.DB.FluentMigrator;
 using FluentMigrator;
-using _EmailAttachment = EmailSpooler.Win32Service.DB.DataConstants.Tables.EmailAttachment;
-using _Columns = EmailSpooler.Win32Service.DB.DataConstants.Tables.EmailAttachment.Columns;
-using _Email = EmailSpooler.Win32Service.DB.DataConstants.Tables.Email;
+using _Columns = EmailSpooler.Win32Service.DB.DataConstants.Tables.EmailAttachments.Columns;
 
-namespace EACH.DB.Migrations.Migrations
+namespace EmailSpooler.Win32Service.DB.FluentMigrator
 {
     [Migration(2013120703)]
     public class Migration_3_CreateEmailAttachment: MigrationFoundation
     {
         public override void Up()
         {
-            Create.Table(_EmailAttachment.NAME)
+            Create.Table(DataConstants.Tables.EmailAttachments.NAME)
                     .WithColumn(_Columns.EMAILATTACHMENTID)
-                        .AsGuid().PrimaryKey()
+                        .AsInt32().PrimaryKey().Identity()
                     .WithColumn(_Columns.EMAILID)
-                        .AsGuid().ForeignKey(_Email.NAME, _Email.Columns.EMAILID).NotNullable()
+                        .AsInt32().ForeignKey(DataConstants.Tables.Emails.NAME, DataConstants.Tables.Emails.Columns.EMAILID).NotNullable()
                     .WithColumn(_Columns.NAME)
                         .AsString(DataConstants.FieldSizes.MAX_PATH).NotNullable()
                     .WithColumn(_Columns.INLINE)
@@ -33,7 +25,7 @@ namespace EACH.DB.Migrations.Migrations
                     .WithColumn(_Columns.DATA)
                         .AsBinary(Int32.MaxValue).NotNullable()
                     .WithDefaultColumns();
-            AddLastUpdatedTriggerFor(_EmailAttachment.NAME, _Columns.EMAILATTACHMENTID);
+            AddLastUpdatedTriggerFor(DataConstants.Tables.EmailAttachments.NAME, _Columns.EMAILATTACHMENTID);
         }
 
         public override void Down()
