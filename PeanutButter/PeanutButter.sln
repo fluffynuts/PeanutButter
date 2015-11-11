@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.RandomGenerators", "PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj", "{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}"
 EndProject
@@ -172,6 +172,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TempDb.LocalDb
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.SimpleTcpServer.Tests", "PeanutButter.SimpleTcpServer.Tests\PeanutButter.SimpleTcpServer.Tests.csproj", "{CECB042E-0E45-4D6A-8D29-460D65254C7D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSpooler.Win32Service.DB.NugetPackage", "EmailSpooler.Win32Service.DB.NugetPackage\EmailSpooler.Win32Service.DB.NugetPackage.csproj", "{2F51855E-005F-4D7A-9418-31DE37CB3BA4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -690,6 +692,18 @@ Global
 		{CECB042E-0E45-4D6A-8D29-460D65254C7D}.Test|Any CPU.ActiveCfg = Release|Any CPU
 		{CECB042E-0E45-4D6A-8D29-460D65254C7D}.Test|Any CPU.Build.0 = Release|Any CPU
 		{CECB042E-0E45-4D6A-8D29-460D65254C7D}.Test|x86.ActiveCfg = Release|Any CPU
+		{2F51855E-005F-4D7A-9418-31DE37CB3BA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F51855E-005F-4D7A-9418-31DE37CB3BA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F51855E-005F-4D7A-9418-31DE37CB3BA4}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2F51855E-005F-4D7A-9418-31DE37CB3BA4}.Debug|x86.Build.0 = Debug|Any CPU
+		{2F51855E-005F-4D7A-9418-31DE37CB3BA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F51855E-005F-4D7A-9418-31DE37CB3BA4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F51855E-005F-4D7A-9418-31DE37CB3BA4}.Release|x86.ActiveCfg = Release|Any CPU
+		{2F51855E-005F-4D7A-9418-31DE37CB3BA4}.Release|x86.Build.0 = Release|Any CPU
+		{2F51855E-005F-4D7A-9418-31DE37CB3BA4}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{2F51855E-005F-4D7A-9418-31DE37CB3BA4}.Test|Any CPU.Build.0 = Release|Any CPU
+		{2F51855E-005F-4D7A-9418-31DE37CB3BA4}.Test|x86.ActiveCfg = Release|Any CPU
+		{2F51855E-005F-4D7A-9418-31DE37CB3BA4}.Test|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

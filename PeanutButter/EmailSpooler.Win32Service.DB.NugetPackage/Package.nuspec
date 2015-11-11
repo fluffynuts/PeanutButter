@@ -1,0 +1,41 @@
+<package>
+  <metadata>
+    <id>EmailSpooler.Win32Service.DB.NugetPackage</id>
+    <version>1.0.121</version>
+    <title>EmailSpooler.Win32Service.DB.NugetPackage</title>
+    <authors>Davyd McColl</authors>
+    <owners>Davyd McColl</owners>
+    <description>
+      Use this project to pull in the three required Fluent Migrations to make your database able to store emails
+      that the PeanutButter.EmailSpooler.Win32Service service can spool for you. You will need to inherit from the following
+      migrations and add those inherited versions to your migration strategy:
+      * Migration_1_CreateEmail
+      * Migration_2_CreateEmailRecipient
+      * Migration_3_CreateEmailAttachment
+    </description>
+    <releaseNotes></releaseNotes>
+    <summary>
+      Contains the Fluent Migrations to provide the tables necessary to run EmailSpooler.Win32Service. Do not install this unless
+      you expect your project to provide a data source for the PeanutButter.EmailSpooler.Win32Service service.
+    </summary>
+    <language>en-US</language>
+    <projectUrl>https://nuget.org/packages/EmailSpooler.Win32Service.DB.NugetPackage</projectUrl>
+    <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>http://opensource.org/licenses/Apache-2.0</licenseUrl>
+    <copyright>Copyright  2015</copyright>
+    <dependencies>
+      <group targetFramework="net40">
+        <dependency id="FluentMigrator" />
+        <dependency id="FluentMigrator.Tools" />
+      </group>
+    </dependencies>
+    <references></references>
+    <tags></tags>
+  </metadata>
+  <files>
+    <file src="lib\" target="lib" />
+    <file src="tools\" target="tools" />
+    <file src="content\" target="content" />
+  </files>
+</package>
