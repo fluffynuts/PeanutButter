@@ -3,9 +3,8 @@ using System.Data.Common;
 using System.Data.Entity;
 using System.Linq;
 using System.Reflection;
-using PeanutButter.Utils;
 
-namespace EntityUtilities
+namespace PeanutButter.Utils.Entity
 {
     public class DbContextWithAutomaticTrackingFields : DbContext
     {

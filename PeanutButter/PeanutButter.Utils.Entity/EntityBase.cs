@@ -1,6 +1,6 @@
 using System;
 
-namespace EntityUtilities
+namespace PeanutButter.Utils.Entity
 {
     public abstract class EntityBase
     {

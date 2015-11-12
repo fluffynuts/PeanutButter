@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using PeanutButter.Utils;
 
-namespace EntityUtilities
+namespace PeanutButter.Utils.Entity
 {
     public static class Extensions
     {

@@ -1,4 +1,4 @@
-using EntityUtilities;
+using PeanutButter.Utils.Entity;
 
 namespace EmailSpooler.Win32Service.DB.Entities
 {

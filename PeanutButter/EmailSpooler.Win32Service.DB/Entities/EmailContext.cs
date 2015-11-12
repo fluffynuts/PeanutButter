@@ -1,6 +1,6 @@
 ﻿using System.Data.Common;
 using System.Data.Entity;
-using EntityUtilities;
+using PeanutButter.Utils.Entity;
 
 namespace EmailSpooler.Win32Service.DB.Entities
 {

@@ -2,7 +2,6 @@
 using System.Linq;
 using EmailSpooler.Win32Service.DB.Entities;
 using EmailSpooler.Win32Service.DB.Tests;
-using EntityUtilities;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Entity;

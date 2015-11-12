@@ -1,11 +1,11 @@
 using System;
 using System.Data.Entity;
 using System.Linq;
-using EntityUtilities;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
+using PeanutButter.Utils.Entity;
 
 namespace PeanutButter.TestUtils.Entity
 {
