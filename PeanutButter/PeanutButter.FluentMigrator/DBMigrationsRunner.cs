@@ -11,7 +11,6 @@ namespace PeanutButter.FluentMigrator
 {
     public interface IDBMigrationsRunner
     {
-        void MigrateTo(int version);
         void MigrateToLatest();
     }
 
