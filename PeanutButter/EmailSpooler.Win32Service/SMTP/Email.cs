@@ -156,9 +156,9 @@ namespace EmailSpooler.Win32Service.SMTP
             }
         }
 
-        protected virtual SmtpClientFacade CreateSMTPClient()
+        protected virtual SmtpClient CreateSMTPClient()
         {
-            var client = new SmtpClientFacade()
+            var client = new SmtpClient()
             {
                 Host = this._config.Host,
                 Port = this._config.Port,

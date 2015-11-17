@@ -105,6 +105,8 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="appSettings.config" />
+    <None Include="ConnectionStrings.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

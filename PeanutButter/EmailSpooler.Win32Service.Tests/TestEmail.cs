@@ -626,7 +626,7 @@ namespace EmailSpooler.Win32Service.Tests
                 return _mailMessage;
             }
 
-            protected override SmtpClientFacade CreateSMTPClient()
+            protected override SmtpClient CreateSMTPClient()
             {
                 _calls.Add("CreateSMPTClient");
                 _smtpClient = Substitute.For<SmtpClientFacade>();

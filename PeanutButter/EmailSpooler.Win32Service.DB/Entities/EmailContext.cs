@@ -1,4 +1,4 @@
-﻿using System.Data.Common;
+using System.Data.Common;
 using System.Data.Entity;
 using PeanutButter.Utils.Entity;
 
@@ -31,7 +31,7 @@ namespace EmailSpooler.Win32Service.DB.Entities
         }
 
         public EmailContext()
-            : base("Name=EmailConnection")
+            : base("Name=DefaultConnection")
         {
         }
 
