@@ -39,9 +39,9 @@ namespace EmailSpooler.Win32Service.Tests
             {
                 this._disposables.Add(disposable);
             }
-            public new SmtpClient CreateSMTPClient()
+            public new ISmtpClient CreateSMTPClient()
             {
-                return base.CreateSMTPClient();
+                return Substitute.For<ISmtpClient>();
             }
 
         }
@@ -59,6 +59,39 @@ namespace EmailSpooler.Win32Service.Tests
             randomConfig.UserName.Returns(RandomValueGen.GetRandomString());
             randomConfig.Password.Returns(RandomValueGen.GetRandomString());
             return randomConfig;
+        }
+
+        public class Email_ExposesActualInternals: Email
+        {
+            public Email_ExposesActualInternals(IEmailConfiguration config) : base(config)
+            {
+            }
+
+            public new ISmtpClient CreateSMTPClient()
+            {
+                return base.CreateSMTPClient();
+            }
+
+            public new MailMessage CreateMessage()
+            {
+                return base.CreateMessage();
+            }
+        }
+
+        private Email_ExposesActualInternals CreateActualWithRandomRecipientAndSender(IEmailConfiguration config = null)
+        {
+            var email = new Email_ExposesActualInternals(config ?? CreateRandomConfig());
+            email.To.Add(RandomValueGen.GetRandomEmail());
+            email.From = RandomValueGen.GetRandomEmail();
+            return email;
+        }
+
+        private static IEmailConfiguration CreateRandomConfig()
+        {
+            var config = Substitute.For<IEmailConfiguration>();
+            config.Host.Returns("localhost");
+            config.Port.Returns(25);
+            return config;
         }
 
         private Email_ExposesInternals CreateWithRandomRecipientAndSender(IEmailConfiguration config = null)
@@ -510,7 +543,7 @@ namespace EmailSpooler.Win32Service.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            using (var email = CreateWithRandomRecipientAndSender())
+            using (var email = CreateActualWithRandomRecipientAndSender())
             {
                 email.AddAttachment(fileName, data, mimeType);
                 var message = email.CreateMessage();
@@ -523,7 +556,7 @@ namespace EmailSpooler.Win32Service.Tests
         public void CreateSMTPClient_ReturnsSMTPClientInstance()
         {
             //---------------Set up test pack-------------------
-            using (var email = CreateWithRandomRecipientAndSender())
+            using (var email = CreateActualWithRandomRecipientAndSender())
             {
                 //---------------Assert Precondition----------------
 
@@ -532,7 +565,7 @@ namespace EmailSpooler.Win32Service.Tests
 
                 //---------------Test Result -----------------------
                 Assert.IsNotNull(client);
-                Assert.IsInstanceOf<SmtpClient>(client);
+                Assert.IsInstanceOf<SmtpClientFacade>(client);
             }
         }
 
@@ -553,7 +586,7 @@ namespace EmailSpooler.Win32Service.Tests
         {
             //---------------Set up test pack-------------------
             var config = CreateRandomEmailConfig();
-            using (var email = CreateWithRandomRecipientAndSender(config))
+            using (var email = CreateActualWithRandomRecipientAndSender(config))
             {
                 //---------------Assert Precondition----------------
 
@@ -585,7 +618,7 @@ namespace EmailSpooler.Win32Service.Tests
         {
             //---------------Set up test pack-------------------
             var config = CreateRandomEmailConfig();
-            using (var email = CreateWithRandomRecipientAndSender(config))
+            using (var email = CreateActualWithRandomRecipientAndSender(config))
             {
                 //---------------Assert Precondition----------------
 
@@ -602,12 +635,12 @@ namespace EmailSpooler.Win32Service.Tests
         private class Email_ForTestingSendOperation : Email
         {
             private MailMessage _mailMessage;
-            private SmtpClientFacade _smtpClient;
+            private ISmtpClient _smtpClient;
             public string[] Calls { get { return _calls.ToArray(); } }
             private List<string> _calls = new List<string>();
 
             public MailMessage MailMessage { get { return _mailMessage; } }
-            public SmtpClientFacade SmtpClient { get { return _smtpClient; } }
+            public ISmtpClient SmtpClient { get { return _smtpClient; } }
 
             public Email_ForTestingSendOperation(IEmailConfiguration config)
                 : base(config)
@@ -626,17 +659,16 @@ namespace EmailSpooler.Win32Service.Tests
                 return _mailMessage;
             }
 
-            protected override SmtpClient CreateSMTPClient()
+            protected override ISmtpClient CreateSMTPClient()
             {
                 _calls.Add("CreateSMPTClient");
-                _smtpClient = Substitute.For<SmtpClientFacade>();
+                _smtpClient = Substitute.For<ISmtpClient>();
                 _smtpClient.When(c => c.Send(Arg.Any<MailMessage>())).Do(ci => { });
                 return _smtpClient;
             }
         }
 
         [Test]
-        [Ignore("Need to do a better job of faking out the send")]
         public void Send_PerformsCorrectOperationsInOrder()
         {
             //---------------Set up test pack-------------------

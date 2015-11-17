@@ -101,7 +101,7 @@
       <Project>{75448DD7-4A34-464D-BE4C-7FE41657EB41}</Project>
       <Name>PeanutButter.TestUtils.Entity</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PeanutButter.TestUtils\PeanutButter.TestUtils.Generic.csproj">
+    <ProjectReference Include="..\PeanutButter.TestUtils.Generic\PeanutButter.TestUtils.Generic.csproj">
       <Project>{6ddd7f9e-857a-442b-9148-05b34ea279c4}</Project>
       <Name>PeanutButter.TestUtils.Generic</Name>
     </ProjectReference>

@@ -81,8 +81,8 @@
       <Project>{265c672b-b6f6-40f8-9180-b0be5575abde}</Project>
       <Name>PeanutButter.TempDb</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PeanutButter.TestUtils\PeanutButter.TestUtils.Generic.csproj">
-      <Project>{6DDD7F9E-857A-442B-9148-05B34EA279C4}</Project>
+    <ProjectReference Include="..\PeanutButter.TestUtils.Generic\PeanutButter.TestUtils.Generic.csproj">
+      <Project>{6ddd7f9e-857a-442b-9148-05b34ea279c4}</Project>
       <Name>PeanutButter.TestUtils.Generic</Name>
     </ProjectReference>
     <ProjectReference Include="..\PeanutButter.Utils.Entity\PeanutButter.Utils.Entity.csproj">
