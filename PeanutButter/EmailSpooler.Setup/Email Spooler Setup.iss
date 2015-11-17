@@ -16,17 +16,21 @@ DefaultDirName={pf}\{#MyAppName}
 DisableDirPage=yes
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
-OutputBaseFilename=SetupEmailSpoolerService
+OutputBaseFilename=Setup-EmailSpoolerService
 Compression=lzma2
 SolidCompression=yes
-OutputDir=EmailSpooler.Setup
+OutputDir=.
 PrivilegesRequired=admin
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
-Source: "bin\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "bin\*.exe"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "bin\*.dll"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "bin\EmailSpooler.Win32Service.exe.config"; DestDir: "{app}"
+Source: "bin\appSettings.config"; DestDir: "{app}"; Flags: onlyifdoesntexist
+Source: "bin\ConnectionStrings.config"; DestDir: "{app}"; Flags: onlyifdoesntexist
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
