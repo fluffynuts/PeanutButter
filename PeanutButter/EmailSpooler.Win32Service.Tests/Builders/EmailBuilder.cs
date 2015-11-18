@@ -1,9 +1,10 @@
 ﻿using System;
+using EmailSpooler.Win32Service.Entity;
 using PeanutButter.RandomGenerators;
 
 namespace EmailSpooler.Win32Service.Tests.Builders
 {
-    public class EmailBuilder: GenericBuilder<EmailBuilder,DB.Entities.Email>
+    public class EmailBuilder: GenericBuilder<EmailBuilder,Email>
     {
         public override EmailBuilder WithRandomProps()
         {
@@ -27,7 +28,7 @@ namespace EmailSpooler.Win32Service.Tests.Builders
                     });
             return this;
         }
-        public static DB.Entities.Email BuildRandomWithRecipient()
+        public static Email BuildRandomWithRecipient()
         {
             return Create().WithRandomProps().WithRandomRecipient().Build();
         }

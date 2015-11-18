@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using EmailSpooler.Win32Service.DB.Entities;
+using EmailSpooler.Win32Service.Entity;
 using EmailSpooler.Win32Service.Tests.Builders;
 using NSubstitute;
 using NUnit.Framework;

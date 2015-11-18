@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using EmailSpooler.Win32Service.DB.Entities;
 using EmailSpooler.Win32Service.DB.Tests;
 using EmailSpooler.Win32Service.DB.Tests.Builders;
-using EmailSpooler.Win32Service.Tests.Builders;
+using EmailSpooler.Win32Service.Entity;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Entity;
-using PeanutButter.Utils;
-using EmailAttachmentBuilder = EmailSpooler.Win32Service.DB.Tests.Builders.EmailAttachmentBuilder;
-using EmailBuilder = EmailSpooler.Win32Service.DB.Tests.Builders.EmailBuilder;
 
 namespace PeanutButter.Utils.Entity.Tests
 {

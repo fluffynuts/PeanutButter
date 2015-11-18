@@ -1,4 +1,4 @@
-﻿using EmailSpooler.Win32Service.DB.Entities;
+﻿using EmailSpooler.Win32Service.Entity;
 using PeanutButter.RandomGenerators;
 
 namespace EmailSpooler.Win32Service.DB.Tests.Builders

@@ -2,7 +2,7 @@
 using System.Data.Entity;
 using System.Linq;
 using EACH.Tests.Builders;
-using EmailSpooler.Win32Service.DB.Entities;
+using EmailSpooler.Win32Service.Entity;
 using NSubstitute;
 using PeanutButter.RandomGenerators;
 
@@ -12,8 +12,8 @@ namespace EmailSpooler.Win32Service.Tests.Builders
     {
         public SubstituteEmailContextBuilder()
         {
-            this.WithEmails(IDbSetSubstituteBuilder<DB.Entities.Email>.BuildDefault())
-                .WithEmailAttachments(IDbSetSubstituteBuilder<DB.Entities.EmailAttachment>.BuildDefault())
+            this.WithEmails(IDbSetSubstituteBuilder<Email>.BuildDefault())
+                .WithEmailAttachments(IDbSetSubstituteBuilder<EmailAttachment>.BuildDefault())
                 .WithEmailRecipients(IDbSetSubstituteBuilder<EmailRecipient>.BuildDefault());
         }
         public IEmailContext Build()
@@ -25,13 +25,13 @@ namespace EmailSpooler.Win32Service.Tests.Builders
             return ctx;
         }
 
-        private IDbSet<DB.Entities.Email> _Emails;
-        public SubstituteEmailContextBuilder WithEmails(IDbSet<DB.Entities.Email> Emails)
+        private IDbSet<Email> _Emails;
+        public SubstituteEmailContextBuilder WithEmails(IDbSet<Email> Emails)
         {
             this._Emails = Emails;
             return this;
         }
-        public SubstituteEmailContextBuilder WithEmails(params DB.Entities.Email[] emails)
+        public SubstituteEmailContextBuilder WithEmails(params Email[] emails)
         {
             return AddIfNotThere(emails, this._Emails);
         }
@@ -56,13 +56,13 @@ namespace EmailSpooler.Win32Service.Tests.Builders
             return this;
         }
 
-        private IDbSet<DB.Entities.EmailAttachment> _EmailAttachments;
-        public SubstituteEmailContextBuilder WithEmailAttachments(IDbSet<DB.Entities.EmailAttachment> EmailAttachments)
+        private IDbSet<EmailAttachment> _EmailAttachments;
+        public SubstituteEmailContextBuilder WithEmailAttachments(IDbSet<EmailAttachment> EmailAttachments)
         {
             this._EmailAttachments = EmailAttachments;
             return this;
         }
-        public SubstituteEmailContextBuilder WithEmailAttachments(params DB.Entities.EmailAttachment[] attachments)
+        public SubstituteEmailContextBuilder WithEmailAttachments(params EmailAttachment[] attachments)
         {
             return AddIfNotThere(attachments, this._EmailAttachments);
         }

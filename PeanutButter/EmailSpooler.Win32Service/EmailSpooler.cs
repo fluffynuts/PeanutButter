@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using EmailSpooler.Win32Service.DB.Entities;
+using EmailSpooler.Win32Service.Entity;
 using EmailSpooler.Win32Service.SMTP;
 using PeanutButter.ServiceShell;
-using Email = EmailSpooler.Win32Service.DB.Entities.Email;
+using Email = EmailSpooler.Win32Service.Entity.Email;
 
 namespace EmailSpooler.Win32Service
 {

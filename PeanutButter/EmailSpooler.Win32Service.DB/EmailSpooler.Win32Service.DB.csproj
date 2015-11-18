@@ -63,10 +63,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataConstants.cs" />
-    <Compile Include="Entities\Email.cs" />
-    <Compile Include="Entities\EmailAttachment.cs" />
-    <Compile Include="Entities\EmailContext.cs" />
-    <Compile Include="Entities\EmailRecipient.cs" />
     <Compile Include="FluentMigrator\MigrationFoundation.cs" />
     <Compile Include="FluentMigrator\MigrationExtensions.cs" />
     <Compile Include="FluentMigrator\Migration_1_CreateEmail.cs" />

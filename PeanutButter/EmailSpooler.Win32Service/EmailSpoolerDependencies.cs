@@ -1,5 +1,5 @@
 ﻿using System;
-using EmailSpooler.Win32Service.DB.Entities;
+using EmailSpooler.Win32Service.Entity;
 using EmailSpooler.Win32Service.SMTP;
 using PeanutButter.ServiceShell;
 using Email = EmailSpooler.Win32Service.SMTP.Email;

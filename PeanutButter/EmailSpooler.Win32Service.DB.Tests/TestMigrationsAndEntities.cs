@@ -1,6 +1,6 @@
 ﻿using System;
-using EmailSpooler.Win32Service.DB.Entities;
 using EmailSpooler.Win32Service.DB.Tests.Builders;
+using EmailSpooler.Win32Service.Entity;
 using NUnit.Framework;
 using PeanutButter.TestUtils.Entity;
 using PeanutButter.TestUtils.Generic;
