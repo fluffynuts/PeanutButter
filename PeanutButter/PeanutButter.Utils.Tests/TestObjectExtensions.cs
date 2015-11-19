@@ -496,5 +496,26 @@ namespace PenautButter.Utils.Tests
 
             //---------------Test Result -----------------------
         }
+
+        [Test]
+        public void Get_ShouldBeAbleToResolveADotTree()
+        {
+            //---------------Set up test pack-------------------
+            var parent = new
+            {
+                child = new {
+                    prop = 2
+                }
+            };
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = parent.Get<int>("child.prop");
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(2, result);
+        }
+
     }
 }

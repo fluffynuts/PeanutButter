@@ -113,20 +113,51 @@ namespace PeanutButter.Utils
 
         public static T Get<T>(this object src, string propertyName, T defaultValue = default(T))
         {
-            var propInfo = src.GetType()
-                                .GetProperties()
-                                .FirstOrDefault(pi => pi.Name == propertyName);
-            if (propInfo == null)
+            var type = src.GetType();
+            var parts = propertyName.Split('.');
+            try
+            {
+                return ResolvePropertyValueFor<T>(src, propertyName, parts, type);
+            }
+            catch (PropertyNotFoundException)
+            {
                 return defaultValue;
-            if (!propInfo.PropertyType.IsAssignableTo<T>())
+            }
+        }
+
+        private static T ResolvePropertyValueFor<T>(object src, string propertyName, string[] parts, Type type)
+        {
+            var valueAsObject = parts.Aggregate(src, GetPropertyValue);
+            var valueType = valueAsObject.GetType();
+            if (!valueType.IsAssignableTo<T>())
                 throw new ArgumentException(
-                    "Get<> must be invoked with a type to which the property value could be assigned");
-            return (T) propInfo.GetValue(src, null);
+                    "Get<> must be invoked with a type to which the property value could be assigned ("
+                    + type.Name + "." + propertyName + " has type '" + valueType.Name
+                    + "', but expected '" + typeof(T).Name + "' or derivative");
+            return (T) valueAsObject;
+        }
+
+
+        private static object GetPropertyValue(object src, string propertyName)
+        {
+            var type = src.GetType();
+            var propInfo = type.GetProperties().FirstOrDefault(pi => pi.Name == propertyName);
+            if (propInfo == null)
+                throw new PropertyNotFoundException(type, propertyName);
+            return propInfo.GetValue(src, null);
         }
 
         public static bool IsAssignableTo<T>(this Type type)
         {
             return type.IsAssignableFrom(typeof (T));
+        }
+    }
+
+    internal class PropertyNotFoundException : Exception
+    {
+        public PropertyNotFoundException(Type type, string propertyName):
+            base("Property '" + propertyName + "' not found on type '" + type.Name + "'")
+        {
         }
     }
 }
