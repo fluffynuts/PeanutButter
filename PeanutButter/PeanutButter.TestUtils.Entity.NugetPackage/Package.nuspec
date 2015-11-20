@@ -1,7 +1,7 @@
 <package>
   <metadata>
     <id>PeanutButter.TestUtils.Entity</id>
-    <version>1.0.134</version>
+    <version>1.0.135</version>
     <title>PeanutButter.TestUtils.Entity</title>
     <authors>davyd</authors>
     <owners></owners>
@@ -27,15 +27,15 @@
     <copyright>Copyright  2015</copyright>
     <dependencies>
       <group targetFramework="net40">
-        <dependency id="EntityFramework" />
-        <dependency id="NUnit" />
-        <dependency id="PeanutButter.FluentMigrator" />
-        <dependency id="PeanutButter.RandomGenerators" />
-        <dependency id="PeanutButter.TempDb" />
-        <dependency id="PeanutButter.TempDb.LocalDb" />
-        <dependency id="PeanutButter.TestUtils.Generic" />
-        <dependency id="PeanutButter.Utils" />
-        <dependency id="PeanutButter.Utils.Entity" />
+        <dependency id="EntityFramework" version="" />
+        <dependency id="NUnit" version="" />
+        <dependency id="PeanutButter.FluentMigrator" version="" />
+        <dependency id="PeanutButter.RandomGenerators" version="" />
+        <dependency id="PeanutButter.TempDb" version="" />
+        <dependency id="PeanutButter.TempDb.LocalDb" version="" />
+        <dependency id="PeanutButter.TestUtils.Generic" version="" />
+        <dependency id="PeanutButter.Utils" version="" />
+        <dependency id="PeanutButter.Utils.Entity" version="" />
       </group>
     </dependencies>
     <references></references>
