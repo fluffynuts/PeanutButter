@@ -107,13 +107,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EmailSpooler.Win32Service.Entity\EmailSpooler.Win32Service.Entity.csproj">
-      <Project>{55c40403-0200-4757-b253-a9dcf56ed39f}</Project>
-      <Name>EmailSpooler.Win32Service.Entity</Name>
-    </ProjectReference>
     <ProjectReference Include="..\EmailSpooler.Win32Service.DB\EmailSpooler.Win32Service.DB.csproj">
       <Project>{3D515895-08FC-46B6-AB16-E2B9AC1AFFB3}</Project>
       <Name>EmailSpooler.Win32Service.DB</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EmailSpooler.Win32Service.Entity\EmailSpooler.Win32Service.Entity.csproj">
+      <Project>{55c40403-0200-4757-b253-a9dcf56ed39f}</Project>
+      <Name>EmailSpooler.Win32Service.Entity</Name>
     </ProjectReference>
     <ProjectReference Include="..\PeanutButter.ServiceShell\PeanutButter.ServiceShell.csproj">
       <Project>{ef4f2f73-5126-4de1-9729-ae758aab5e0e}</Project>

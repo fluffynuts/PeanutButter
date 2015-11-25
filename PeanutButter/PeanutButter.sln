@@ -187,6 +187,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSpooler.Win32Service.E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSpooler.Win32Service.Entity.NugetPackage", "EmailSpooler.Win32Service.Entity.NugetPackage\EmailSpooler.Win32Service.Entity.NugetPackage.csproj", "{F4207B11-BEA0-4411-9898-5F30E9336C54}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TestUtils.Entity.Tests", "PeanutButter.TestUtils.Entity.Tests\PeanutButter.TestUtils.Entity.Tests.csproj", "{509EDFE4-F72E-4A97-AA84-4985391493A1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -791,6 +793,18 @@ Global
 		{F4207B11-BEA0-4411-9898-5F30E9336C54}.Test|Any CPU.Build.0 = Release|Any CPU
 		{F4207B11-BEA0-4411-9898-5F30E9336C54}.Test|x86.ActiveCfg = Release|Any CPU
 		{F4207B11-BEA0-4411-9898-5F30E9336C54}.Test|x86.Build.0 = Release|Any CPU
+		{509EDFE4-F72E-4A97-AA84-4985391493A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{509EDFE4-F72E-4A97-AA84-4985391493A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{509EDFE4-F72E-4A97-AA84-4985391493A1}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{509EDFE4-F72E-4A97-AA84-4985391493A1}.Debug|x86.Build.0 = Debug|Any CPU
+		{509EDFE4-F72E-4A97-AA84-4985391493A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{509EDFE4-F72E-4A97-AA84-4985391493A1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{509EDFE4-F72E-4A97-AA84-4985391493A1}.Release|x86.ActiveCfg = Release|Any CPU
+		{509EDFE4-F72E-4A97-AA84-4985391493A1}.Release|x86.Build.0 = Release|Any CPU
+		{509EDFE4-F72E-4A97-AA84-4985391493A1}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{509EDFE4-F72E-4A97-AA84-4985391493A1}.Test|Any CPU.Build.0 = Release|Any CPU
+		{509EDFE4-F72E-4A97-AA84-4985391493A1}.Test|x86.ActiveCfg = Release|Any CPU
+		{509EDFE4-F72E-4A97-AA84-4985391493A1}.Test|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
