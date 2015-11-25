@@ -77,8 +77,8 @@ namespace PeanutButter.TestUtils.Entity
             {
                 var persisted = collectionNabber(ctx).First();
                 var entityType = typeof (TEntity);
-                var idProp = entityType.GetProperties().FirstOrDefault(pi => pi.Name == entityType.Name + "Id");
-                if (!ignoreProperties.Contains(idProp.Name))
+                var idProp = entityType.GetProperties().FirstOrDefault(pi => pi.Name.ToLower() == entityType.Name.ToLower() + "id");
+                if (idProp != null && !ignoreProperties.Contains(idProp.Name))
                     Assert.AreNotEqual((object) 0, idProp.GetValue(persisted));
                 if (customAssertions != null)
                 {
