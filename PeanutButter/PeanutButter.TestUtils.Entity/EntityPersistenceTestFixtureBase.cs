@@ -75,7 +75,8 @@ namespace PeanutButter.TestUtils.Entity
             }
             using (var ctx = GetContext())
             {
-                var persisted = collectionNabber(ctx).First();
+                var persisted = collectionNabber(ctx).FirstOrDefault();
+                Assert.IsNotNull(persisted, "No entity of type '" + typeof(TEntity).FullName + "' found in context after saving!");
                 var entityType = typeof (TEntity);
                 var idProp = entityType.GetProperties().FirstOrDefault(pi => pi.Name.ToLower() == entityType.Name.ToLower() + "id");
                 if (idProp != null && !ignoreProperties.Contains(idProp.Name))
