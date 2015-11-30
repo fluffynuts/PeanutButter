@@ -47,7 +47,7 @@ namespace PeanutButter.TestUtils.Entity
                 {
                     beforePersisting(ctx, sut);
                 }
-                Assert.IsFalse(collectionNabber(ctx).Any());
+                Assert.IsFalse(collectionNabber(ctx).Any(), "Some entities already exist. Please clear out your context before running this test");
                 //---------------Execute Test ----------------------
                 collectionNabber(ctx).Add(sut);
                 DbContextExtensions.SaveChangesWithErrorReporting(ctx);

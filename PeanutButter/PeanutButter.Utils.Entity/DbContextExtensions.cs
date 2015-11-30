@@ -5,7 +5,7 @@ using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Validation;
 using System.Linq;
 
-namespace PeanutButter.TestUtils.Entity
+namespace PeanutButter.Utils.Entity
 {
     public static class DbContextExtensions
     {

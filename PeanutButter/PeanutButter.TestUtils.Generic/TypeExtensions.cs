@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -109,6 +110,66 @@ namespace PeanutButter.TestUtils.Generic
                 .Where(pi => pi.GetGetMethod().IsVirtual)
                 .Select(pi => pi.Name)
                 .ToArray();
+        }
+        public static void ShouldHaveProperty(this Type type, string name, Type ofType = null, bool shouldBeVirtual = false)
+        {
+            var propertyInfo = GetPropertyForPath(type, name);
+            if (ofType != null && ofType != propertyInfo.PropertyType)
+                Assert.AreEqual(propertyInfo.PropertyType, ofType, "Found property '" + name + "' but not with expected type '" + ofType.PrettyName() + "'");
+            if (shouldBeVirtual)
+                Assert.IsTrue(propertyInfo.GetAccessors().First().IsVirtual);
+        }
+
+        public static string[] NonIntersectingPropertiesFor(this Type type, Type otherType)
+        {
+            var props1 = type.PropertyNames();
+            var props2 = otherType.PropertyNames();
+            return props1.Except(props2).Union(props2.Except(props1)).ToArray();
+        }
+
+        public static string[] IntersectinPropertiesFor(this Type type, Type otherType)
+        {
+            return type.PropertyNames()
+                .Intersect(otherType.PropertyNames())
+                .ToArray();
+        }
+
+        public static string[] PropertyNames(this Type type)
+        {
+            return type.GetProperties().Select(p => p.Name).ToArray();
+        }
+
+        public static PropertyInfo GetPropertyForPath(Type type, string name)
+        {
+            var propertyPath = name.Split('.');
+            var traversed = new List<string>();
+            PropertyInfo finalProperty = null;
+            foreach (var part in propertyPath)
+            {
+                traversed.Add(part);
+
+                var property = type
+                    .GetProperties()
+                    .FirstOrDefault(pi => pi.Name == part);
+                Assert.IsNotNull(property, "Could not find property '" + string.Join(".", traversed) + "' on type " + type.PrettyName());
+                if (traversed.Count == propertyPath.Length)
+                {
+                    finalProperty = property;
+                    break;
+                }
+                type = property.PropertyType;
+            }
+            return finalProperty;
+        }
+
+        public static void ShouldHaveProperty<T>(this Type type, string name)
+        {
+            type.ShouldHaveProperty(name, typeof(T));
+        }
+
+        public static T[] AsArray<T>(this T input)
+        {
+            return new[] {input};
         }
 
     }

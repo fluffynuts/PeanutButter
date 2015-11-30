@@ -32,7 +32,10 @@ Public Class Condition
         operators(EqualityOperators.GreaterThanOrEqualTo) = ">="
         operators(EqualityOperators.LessThan) = "<"
         operators(EqualityOperators.LessThanOrEqualTo) = "<="
+
+#Disable Warning BC40000 ' Type or member is obsolete
         operators(EqualityOperators.Like_) = " like "
+#Enable Warning BC40000 ' Type or member is obsolete
         operators(EqualityOperators.Contains) = " like "
         operators(EqualityOperators.StartsWith) = " like "
         operators(EqualityOperators.EndsWith) = " like "
