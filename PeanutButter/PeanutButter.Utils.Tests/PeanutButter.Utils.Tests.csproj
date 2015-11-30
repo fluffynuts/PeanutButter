@@ -54,6 +54,7 @@
     <Compile Include="TestAutoDeleter.cs" />
     <Compile Include="TestAutoDisposer.cs" />
     <Compile Include="TestAutoLocker.cs" />
+    <Compile Include="TestAutoResetter.cs" />
     <Compile Include="TestDateTimeExtensions.cs" />
     <Compile Include="TestDecimalDecorator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -69,6 +70,10 @@
     <ProjectReference Include="..\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj">
       <Project>{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}</Project>
       <Name>PeanutButter.RandomGenerators</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PeanutButter.TestUtils.Generic\PeanutButter.TestUtils.Generic.csproj">
+      <Project>{6ddd7f9e-857a-442b-9148-05b34ea279c4}</Project>
+      <Name>PeanutButter.TestUtils.Generic</Name>
     </ProjectReference>
     <ProjectReference Include="..\PeanutButter.Utils\PeanutButter.Utils.csproj">
       <Project>{efc85343-95b4-48c3-bcbe-579ea4868c0a}</Project>

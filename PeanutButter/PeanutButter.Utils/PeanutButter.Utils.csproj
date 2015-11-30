@@ -44,6 +44,7 @@
     <Compile Include="AutoDeleter.cs" />
     <Compile Include="AutoDisposer.cs" />
     <Compile Include="AutoLocker.cs" />
+    <Compile Include="AutoResetter.cs" />
     <Compile Include="BinaryArrayExtensions.cs" />
     <Compile Include="DateTimeExtensions.cs" />
     <Compile Include="DecimalDecorator.cs" />
