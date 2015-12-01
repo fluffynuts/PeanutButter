@@ -41,18 +41,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
         public int COMBlockListID { get; set; }
         public int COMBlockListReasonID { get; set; }
         public int COREClientID { get; set; }
-        //[Source] [nvarchar](250) NOT NULL,
-            //[SourceBy] [int] NULL,
-            //[Date] [datetime] NOT NULL,
-            //[COMBulkID] [int] NULL,
-            //[CORECustomerID] [int] NULL,
-            //[COREMemberID] [int] NULL,
-            //[Email] [nvarchar](200) NULL,
-            //[Mobile] [nvarchar](20) NULL,
-            //[DeviceKeyID] [nvarchar](100) NULL,
-            //[ReasonDescription] [nvarchar](2000) NOT NULL,
-            //[IsActive] [bit] NOT NULL,
-        }
+    }
 
     public class COMBlockListReason
     {

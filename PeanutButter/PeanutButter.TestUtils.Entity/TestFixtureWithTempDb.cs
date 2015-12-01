@@ -162,6 +162,7 @@ CREATE TABLE [AspNetUsers](
         [SetUp]
         public void _base_Setup()
         {
+            _runBeforeFirstGettingContext = true;
             if (_databaseLifetime == TempDatabaseLifetimes.Test)
             {
                 _lock.Wait();
@@ -172,7 +173,6 @@ CREATE TABLE [AspNetUsers](
         [TearDown]
         public void __base_Teardown()
         {
-            _runBeforeFirstGettingContext = true;
             if (_databaseLifetime == TempDatabaseLifetimes.Test)
             {
                 DisposeCurrentTempDb();

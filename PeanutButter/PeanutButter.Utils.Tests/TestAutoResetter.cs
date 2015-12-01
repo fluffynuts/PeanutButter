@@ -1,6 +1,7 @@
 using System;
 using NSubstitute;
 using NUnit.Framework;
+using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
 
@@ -84,6 +85,43 @@ namespace PenautButter.Utils.Tests
             //---------------Test Result -----------------------
             Assert.AreEqual(1, disposeCalls);
         }
+
+        [Test]
+        public void Construct_GivenFuncWhichReturnsT_ShouldProvideTValueToSecondFuncDuringDisposal()
+        {
+            //---------------Set up test pack-------------------
+            var initial = RandomValueGen.GetRandomInt();
+            var output = -1;
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            using (new AutoResetter<int>(() => initial, v => output = v))
+            {
+            }
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(initial, output);
+        }
+
+        [Test]
+        public void Dispose_ShouldOnlyCallActionOfT_Once()
+        {
+            //---------------Set up test pack-------------------
+            var disposeCalls = 0;
+            var sut = new AutoResetter<int>(() => 0, v => disposeCalls++);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            sut.Dispose();
+            Assert.AreEqual(1, disposeCalls);
+            sut.Dispose();
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(1, disposeCalls);
+        }
+
 
 
 

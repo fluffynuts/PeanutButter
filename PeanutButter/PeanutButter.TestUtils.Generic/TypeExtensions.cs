@@ -115,7 +115,7 @@ namespace PeanutButter.TestUtils.Generic
         {
             var propertyInfo = GetPropertyForPath(type, name);
             if (ofType != null && ofType != propertyInfo.PropertyType)
-                Assert.AreEqual(propertyInfo.PropertyType, ofType, "Found property '" + name + "' but not with expected type '" + ofType.PrettyName() + "'");
+                Assert.AreEqual(ofType, propertyInfo.PropertyType, "Found property '" + name + "' but not with expected type '" + ofType.PrettyName() + "'");
             if (shouldBeVirtual)
                 Assert.IsTrue(propertyInfo.GetAccessors().First().IsVirtual);
         }
