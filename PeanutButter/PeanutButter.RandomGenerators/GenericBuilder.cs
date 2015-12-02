@@ -223,13 +223,25 @@ namespace PeanutButter.RandomGenerators
                    ?? TryFindBuilderInAnyOtherAssemblyInAppDomainFor(propertyType);
         }
 
+        private static Type[] TryGetExportedTypesFrom(Assembly asm)
+        {
+            try
+            {
+                return asm.GetExportedTypes();
+            }
+            catch
+            {
+                return new Type[] {};
+            }
+        }
+
         private static Type TryFindBuilderInAnyOtherAssemblyInAppDomainFor(Type propertyType)
         {
             try
             {
                 var types = AppDomain.CurrentDomain.GetAssemblies()
                     .Where(a => a != propertyType.Assembly && !a.IsDynamic)
-                    .SelectMany(a => a.GetExportedTypes())
+                    .SelectMany(TryGetExportedTypesFrom)
                     .Where(t => t.IsBuilderFor(propertyType));
                 if (!types.Any())
                     return null;
