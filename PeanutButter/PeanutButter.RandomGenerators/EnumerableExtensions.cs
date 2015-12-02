@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using PeanutButter.RandomGenerators;
 
-namespace PeanutButter
+namespace PeanutButter.RandomGenerators
 {
     public static class EnumerableExtensions
     {

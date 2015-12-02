@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using EmailSpooler.Win32Service.Entity;
 using NUnit.Framework;
 
 namespace PeanutButter.RandomGenerators.Tests
@@ -268,13 +269,13 @@ namespace PeanutButter.RandomGenerators.Tests
             public override ChildBuilder WithRandomProps()
             {
                 return base.WithRandomProps()
-                    .WithProp(o => o.Id = 13);
+                    .WithProp(o => o.Id = 1337);
             }
         }
 
 
         [Test]
-        public void WithRandomProps_ShouldReuseKnownBuilders()
+        public void WithRandomProps_ShouldReuseKnownBuildersFromSameAssemblyAsType()
         {
             //---------------Set up test pack-------------------
 
@@ -282,9 +283,59 @@ namespace PeanutButter.RandomGenerators.Tests
 
             //---------------Execute Test ----------------------
             var result = ParentBuilder.BuildRandom();
-            Assert.AreEqual(13, result.Child.Id);
 
             //---------------Test Result -----------------------
+            Assert.AreEqual(1337, result.Child.Id);
+        }
+
+        public class EmailBuilder : GenericBuilder<EmailBuilder, Email>
+        {
+            public override EmailBuilder WithRandomProps()
+            {
+                return base.WithRandomProps()
+                    .WithProp(o => o.Subject = "local is lekker");
+            }
+        }
+
+        public class EmailRecipientBuilder : GenericBuilder<EmailRecipientBuilder, EmailRecipient>
+        {
+        }
+
+        [Test]
+        public void WithRandomProps_ShouldReuseKnownBuildersFromAllLoadedAssembliesWhenNoBuilderInTypesAssembly()
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = EmailRecipientBuilder.BuildRandom();
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual("local is lekker", result.Email.Subject);
+        }
+
+        [TestCase("foo", "foo", 0)]
+        [TestCase("bar", "foo", -1)]
+        [TestCase("foo", "bar", 1)]
+        [TestCase("foo.bar", "foo.bar", 0)]
+        [TestCase("foo.bar", "foo.bar.tests", -1)]
+        [TestCase("foo.bar", "foo.bar.tests.part2", -2)]
+        [TestCase("foo.bar.tests", "foo.bar", 1)]
+        [TestCase("foo.bar.tests.part2", "foo.bar", 2)]
+        public void MatchIndexFor_GivenArrays_ShouldReturnExpectedResult(string left, string right, int expected)
+        {
+            //---------------Set up test pack-------------------
+            var leftParts = left.Split('.');
+            var rightParts = right.Split('.');
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = leftParts.MatchIndexFor(rightParts);
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(expected, result);
         }
 
     }

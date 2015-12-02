@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>PeanutButter.RandomGenerators.Tests</RootNamespace>
     <AssemblyName>PeanutButter.RandomGenerators.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
@@ -23,6 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,6 +32,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
@@ -54,6 +56,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\EmailSpooler.Win32Service.Entity\EmailSpooler.Win32Service.Entity.csproj">
+      <Project>{55c40403-0200-4757-b253-a9dcf56ed39f}</Project>
+      <Name>EmailSpooler.Win32Service.Entity</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj">
       <Project>{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}</Project>
       <Name>PeanutButter.RandomGenerators</Name>
@@ -61,6 +67,10 @@
     <ProjectReference Include="..\PeanutButter.TestUtils.Generic\PeanutButter.TestUtils.Generic.csproj">
       <Project>{6ddd7f9e-857a-442b-9148-05b34ea279c4}</Project>
       <Name>PeanutButter.TestUtils.Generic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PeanutButter.Utils.Entity\PeanutButter.Utils.Entity.csproj">
+      <Project>{784a35ad-e6a9-46a4-945c-6d62c55503e0}</Project>
+      <Name>PeanutButter.Utils.Entity</Name>
     </ProjectReference>
     <ProjectReference Include="..\PeanutButter.Utils\PeanutButter.Utils.csproj">
       <Project>{EFC85343-95B4-48C3-BCBE-579EA4868C0A}</Project>

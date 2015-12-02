@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using PeanutButter.TestUtils.Generic;
 
 
 namespace PeanutButter.RandomGenerators
@@ -218,13 +219,58 @@ namespace PeanutButter.RandomGenerators
         private static Type TryFindExistingBuilderFor(Type propertyType)
         {
             // TODO: scour other assemblies for a possible builder (FUTURE, as required)
-            return TryFindBuilderInCurrentAssemblyFor(propertyType);
+            return TryFindBuilderInCurrentAssemblyFor(propertyType)
+                   ?? TryFindBuilderInAnyOtherAssemblyInAppDomainFor(propertyType);
+        }
+
+        private static Type TryFindBuilderInAnyOtherAssemblyInAppDomainFor(Type propertyType)
+        {
+            try
+            {
+                var types = AppDomain.CurrentDomain.GetAssemblies()
+                    .Where(a => a != propertyType.Assembly && !a.IsDynamic)
+                    .SelectMany(a => a.GetExportedTypes())
+                    .Where(t => t.IsBuilderFor(propertyType));
+                if (!types.Any())
+                    return null;
+                if (types.Count() == 1)
+                    return types.First();
+                return FindClosestNamespaceMatchFor(propertyType, types);
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine("Error whilst searching for user builder for type '" + propertyType.PrettyName() + "' in all loaded assemblies: " + ex.Message);
+                return null;
+            }
+        }
+
+        private static Type FindClosestNamespaceMatchFor(Type propertyType, IEnumerable<Type> types)
+        {
+            var seekNamespace = propertyType.Namespace.Split('.');
+            return types.Aggregate((Type) null, (acc, cur) =>
+            {
+                if (acc == null)
+                    return cur;
+                var accParts = acc.Namespace.Split('.');
+                var curParts = cur.Namespace.Split('.');
+                var accMatchIndex = seekNamespace.MatchIndexFor(accParts);
+                var curMatchIndex = seekNamespace.MatchIndexFor(curParts);
+                return accMatchIndex < curMatchIndex ? acc : cur;
+            });
         }
 
         private static Type TryFindBuilderInCurrentAssemblyFor(Type propType)
         {
-            return propType.Assembly.GetTypes()
-                .FirstOrDefault(t => t.IsBuilderFor(propType));
+            try
+            {
+                return propType.Assembly.GetTypes()
+                    .FirstOrDefault(t => t.IsBuilderFor(propType));
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine("Error whilst searching for user builder for type '" + propType.PrettyName() + "' in type's assembly: " + ex.Message);
+                return null;
+            }
         }
 
         private static Type GenerateDynamicBuilderFor(PropertyInfo prop)
@@ -284,39 +330,6 @@ namespace PeanutButter.RandomGenerators
                     //throw new Exception("Missing propSetter for: " + prop.Name);
                 }
             }
-        }
-    }
-
-    public static class BuilderFinderExtensions
-    {
-        private static Type _genericBuilderBaseType = typeof(GenericBuilder<,>);
-        private static Type _objectType = typeof(object);
-
-        public static bool IsBuilderFor(this Type t, Type toBuild)
-        {
-            var builderType = TryFindBuilderTypeInClassHeirachyFor(t, toBuild);
-            return builderType != null;
-        }
-
-        private static Type TryFindBuilderTypeInClassHeirachyFor(Type potentialBuilder, Type buildType)
-        {
-            var current = potentialBuilder;
-            while (current != _objectType && current != null)
-            {
-                if (current.IsGenericType)
-                {
-                    var genericBase = current.GetGenericTypeDefinition();
-                    if (genericBase == _genericBuilderBaseType)
-                        break;
-                }
-                current = current.BaseType;
-            }
-            if (current == _objectType || current == null)
-                return null;
-            var typeParameters = current.GetGenericArguments();
-            return typeParameters.Length > 1 && typeParameters[1] == buildType 
-                    ? current 
-                    : null;
         }
     }
 }
