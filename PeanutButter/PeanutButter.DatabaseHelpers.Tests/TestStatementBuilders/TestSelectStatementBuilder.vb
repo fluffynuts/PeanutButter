@@ -678,10 +678,13 @@ Public Class TestSelectStatementBuilder
         Dim table = RandomValueGen.GetRandomString(),
             field = RandomValueGen.GetRandomString(),
             val = RandomValueGen.GetRandomString()
+
+#Disable Warning BC40000 ' Type or member is obsolete
         Dim sql = SelectStatementBuilder.Create() _
                     .WithTable(table) _
                     .WithField(field) _
                     .WithCondition(field, Condition.EqualityOperators.Like_, val).Build()
+#Enable Warning BC40000 ' Type or member is obsolete
         Assert.AreEqual("select [" + field + "] from [" + table + "] where [" + field + "] like '%" + val + "%'", sql)
     End Sub
 
@@ -690,10 +693,13 @@ Public Class TestSelectStatementBuilder
         Dim table = RandomValueGen.GetRandomString(),
             field = RandomValueGen.GetRandomString(),
             val = RandomValueGen.GetRandomString()
+
+#Disable Warning BC40000 ' Type or member is obsolete
         Dim sql = SelectStatementBuilder.Create() _
                     .WithTable(table) _
                     .WithField(field) _
                     .WithCondition(new SelectField(table, field), Condition.EqualityOperators.Like_, val).Build()
+#Enable Warning BC40000 ' Type or member is obsolete
         Assert.AreEqual("select [" + field + "] from [" + table + "] where [" + table + "].[" + field + "] like '%" + val + "%'", sql)
     End Sub
 
