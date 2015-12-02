@@ -33,6 +33,7 @@ namespace EmailSpooler.Win32Service.DB.Tests
             ShouldBeAbleToPersist<EmailRecipientBuilder, EmailRecipient>(ctx => ctx.EmailRecipients,
                 (ctx, email) =>
                 {
+                    var foo = email;
                 }, (before, after) =>
                 {
                     PropertyAssert.AllPropertiesAreEqual(before.Email, after.Email, DefaultIgnoreFieldsFor<Email>());

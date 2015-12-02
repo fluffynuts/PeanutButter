@@ -105,6 +105,7 @@ namespace PeanutButter.RandomGenerators
         }
 
         private static Dictionary<Type, Type> _dynamicBuilders = new Dictionary<Type, Type>();
+        private static Dictionary<Type, Type> _userBuilders = new Dictionary<Type, Type>(); 
         private static Dictionary<string, Action<TEntity, int>> _randomPropSettersField;
         private static Dictionary<string, Action<TEntity, int>> _randomPropSetters
         {
@@ -175,15 +176,15 @@ namespace PeanutButter.RandomGenerators
                         _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, RandomValueGen.GetRandomBoolean(), null);
                     break;
                 default:
-                    // TODO: search for existing generic builder as specified by user
-                    if (_dynamicBuilders.Keys.All(k => k != prop.PropertyType))
-                        GenerateDynamicBuilder(prop);
+                    var builderType = TryFindUserBuilderFor(prop.PropertyType);
+                    if (builderType == null)
+                        builderType = FindOrCreateDynamicBuilderFor(prop);
                     if (prop.CanWrite)
                     {
                         _randomPropSettersField[prop.Name] = (e, i) =>
                         {
                             if (i > MAX_RANDOM_PROPS_LEVEL) return;
-                            var dynamicBuilder = Activator.CreateInstance(_dynamicBuilders[prop.PropertyType]) as IGenericBuilder;
+                            var dynamicBuilder = Activator.CreateInstance(builderType) as IGenericBuilder;
                             prop.SetValue(e, dynamicBuilder.GenericWithRandomProps().WithBuildLevel(i).GenericBuild(), null);
                         };
                     }
@@ -191,7 +192,42 @@ namespace PeanutButter.RandomGenerators
             }
         }
 
-        private static void GenerateDynamicBuilder(PropertyInfo prop)
+        private static Type FindOrCreateDynamicBuilderFor(PropertyInfo propInfo)
+        {
+            Type builderType = null;
+            if (_dynamicBuilders.TryGetValue(propInfo.PropertyType, out builderType))
+                return builderType;
+            return GenerateDynamicBuilderFor(propInfo);
+        }
+
+        private static Type TryFindUserBuilderFor(Type propertyType)
+        {
+            Type builderType = null;
+            if (!_userBuilders.TryGetValue(propertyType, out builderType))
+            {
+                var existingBuilder = TryFindExistingBuilderFor(propertyType);
+                if (existingBuilder != null)
+                {
+                    _userBuilders[propertyType] = builderType;
+                    builderType = existingBuilder;
+                }
+            }
+            return builderType;
+        }
+
+        private static Type TryFindExistingBuilderFor(Type propertyType)
+        {
+            // TODO: scour other assemblies for a possible builder (FUTURE, as required)
+            return TryFindBuilderInCurrentAssemblyFor(propertyType);
+        }
+
+        private static Type TryFindBuilderInCurrentAssemblyFor(Type propType)
+        {
+            return propType.Assembly.GetTypes()
+                .FirstOrDefault(t => t.IsBuilderFor(propType));
+        }
+
+        private static Type GenerateDynamicBuilderFor(PropertyInfo prop)
         {
             var t = typeof(GenericBuilder<,>);
             var moduleName = String.Join("_", new[] { "DynamicEntityBuilders", prop.PropertyType.Name });
@@ -202,6 +238,7 @@ namespace PeanutButter.RandomGenerators
             typeBuilder.SetParent(t.MakeGenericType(typeBuilder, prop.PropertyType));
             var dynamicBuilderType = typeBuilder.CreateType();
             _dynamicBuilders[prop.PropertyType] = dynamicBuilderType;
+            return dynamicBuilderType;
         }
 
         // TODO: expose the generic builder generator for use from consumers
@@ -247,6 +284,39 @@ namespace PeanutButter.RandomGenerators
                     //throw new Exception("Missing propSetter for: " + prop.Name);
                 }
             }
+        }
+    }
+
+    public static class BuilderFinderExtensions
+    {
+        private static Type _genericBuilderBaseType = typeof(GenericBuilder<,>);
+        private static Type _objectType = typeof(object);
+
+        public static bool IsBuilderFor(this Type t, Type toBuild)
+        {
+            var builderType = TryFindBuilderTypeInClassHeirachyFor(t, toBuild);
+            return builderType != null;
+        }
+
+        private static Type TryFindBuilderTypeInClassHeirachyFor(Type potentialBuilder, Type buildType)
+        {
+            var current = potentialBuilder;
+            while (current != _objectType && current != null)
+            {
+                if (current.IsGenericType)
+                {
+                    var genericBase = current.GetGenericTypeDefinition();
+                    if (genericBase == _genericBuilderBaseType)
+                        break;
+                }
+                current = current.BaseType;
+            }
+            if (current == _objectType || current == null)
+                return null;
+            var typeParameters = current.GetGenericArguments();
+            return typeParameters.Length > 1 && typeParameters[1] == buildType 
+                    ? current 
+                    : null;
         }
     }
 }

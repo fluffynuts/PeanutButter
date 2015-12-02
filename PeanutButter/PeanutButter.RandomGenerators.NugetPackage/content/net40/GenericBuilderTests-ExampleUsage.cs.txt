@@ -248,5 +248,44 @@ namespace PeanutButter.RandomGenerators.Tests
             var complexMembers2 = randomItems.Select(i => i.ComplexMember2);
             VarianceAssert.IsVariant<ComplexMember2, int>(complexMembers2, "Value");
         }
+
+        public class Parent
+        {
+            public Child Child { get; set; }
+        }
+
+        public class Child
+        {
+            public int Id { get; set; }
+        }
+
+        public class ParentBuilder: GenericBuilder<ParentBuilder, Parent>
+        {
+        }
+
+        public class ChildBuilder : GenericBuilder<ChildBuilder, Child>
+        {
+            public override ChildBuilder WithRandomProps()
+            {
+                return base.WithRandomProps()
+                    .WithProp(o => o.Id = 13);
+            }
+        }
+
+
+        [Test]
+        public void WithRandomProps_ShouldReuseKnownBuilders()
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = ParentBuilder.BuildRandom();
+            Assert.AreEqual(13, result.Child.Id);
+
+            //---------------Test Result -----------------------
+        }
+
     }
 }
