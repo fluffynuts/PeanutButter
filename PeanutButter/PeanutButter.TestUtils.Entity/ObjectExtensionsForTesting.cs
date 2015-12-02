@@ -13,7 +13,7 @@ namespace PeanutButter.TestUtils.Entity
     {
         public static void ShouldHaveMaxLengthOf<T>(this T item, int expectedMaxLength, Expression<Func<T, object>> expression)
         {
-            var propData = PropertyData.For(item, expression);
+            var propData = item.PropertyData(expression);
             var maxLengthAttribute = propData.CustomAttribute<MaxLengthAttribute>();
             var errorSuffix = ErrorSuffixFor<T>(propData.PropertyPath);
             if (maxLengthAttribute == null)
@@ -23,7 +23,7 @@ namespace PeanutButter.TestUtils.Entity
 
         public static void ShouldBeRequired<T>(this T item, Expression<Func<T, object>> expression)
         {
-            var propData = PropertyData.For(item, expression);
+            var propData = item.PropertyData(expression);
             var requiredAttribute = propData.CustomAttribute<RequiredAttribute>();
             if (requiredAttribute == null)
                 Assert.Fail("No Required attribute applied to " + ErrorSuffixFor<T>(propData.PropertyPath));
@@ -31,7 +31,7 @@ namespace PeanutButter.TestUtils.Entity
 
         public static void ShouldNotBeDatabaseGenerated<T>(this T item, Expression<Func<T, object>> expression)
         {
-            var propData = PropertyData.For(item, expression);
+            var propData = item.PropertyData(expression);
             var attrib = propData.CustomAttribute<DatabaseGeneratedAttribute>();
             Assert.IsNotNull(attrib, "No DatabaseGeneratedAttribute applied to " + ErrorSuffixFor<T>(propData.PropertyPath));
             Assert.AreEqual(DatabaseGeneratedOption.None, attrib.DatabaseGeneratedOption, 
@@ -40,7 +40,7 @@ namespace PeanutButter.TestUtils.Entity
 
         public static void ShouldHaveForeignKey<T>(this T item, string keyName, Expression<Func<T, object>> expression)
         {
-            var propData = PropertyData.For(item, expression);
+            var propData = item.PropertyData(expression);
             var attrib = propData.CustomAttribute<ForeignKeyAttribute>();
             Assert.IsNotNull(attrib, "No ForeignKey attribute applied to " + ErrorSuffixFor<T>(propData.PropertyPath));
             Assert.AreEqual(keyName, attrib.Name, "Incorrect ForeignKey value");

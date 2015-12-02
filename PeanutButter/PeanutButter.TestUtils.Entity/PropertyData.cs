@@ -15,6 +15,14 @@ namespace PeanutButter.TestUtils.Entity
         }
     }
 
+    public static class PropertyDataObjectExtension
+    {
+        public static PropertyData<T> PropertyData<T>(this T item, Expression<Func<T, object>> memberExpression)
+        {
+            return new PropertyData<T>(item, memberExpression);
+        }
+    }
+
     public class PropertyData<T>
     {
         public string PropertyPath { get; private set; }
