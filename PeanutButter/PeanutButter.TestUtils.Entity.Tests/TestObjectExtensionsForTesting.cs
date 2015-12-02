@@ -28,6 +28,12 @@ namespace PeanutButter.TestUtils.Entity.Tests
             [Required]
             public string RequiredProperty { get; set; }
             public string NotRequiredProperty { get; set; }
+
+            public int NotAForeignKey { get; set; }
+            [ForeignKey("foo")]
+            public int WrongForeinKey { get; set; }
+            [ForeignKey("SomeOtherID")]
+            public int ValidForeignKey { get; set; }
         }
 
         private SomePOCO Create()
@@ -138,6 +144,51 @@ namespace PeanutButter.TestUtils.Entity.Tests
 
             //---------------Test Result -----------------------
         }
+
+        [Test]
+        public void ShouldHaveForeignKey_WhenNoForeignKeyAttribute_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            var sut = Create();
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var ex = Assert.Throws<AssertionException>(() => sut.ShouldHaveForeignKey("SomeOtherID", o => o.NotAForeignKey));
+
+            //---------------Test Result -----------------------
+            StringAssert.Contains("no foreignkey attribute", ex.Message.ToLower());
+        }
+
+        [Test]
+        public void ShouldHaveForeignKey_WhenHasForeignKeyAttribute_ButIncorrectName_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            var sut = Create();
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var ex = Assert.Throws<AssertionException>(() => sut.ShouldHaveForeignKey("SomeOtherID", o => o.WrongForeinKey));
+
+            //---------------Test Result -----------------------
+            StringAssert.Contains("incorrect foreignkey", ex.Message.ToLower());
+        }
+
+        [Test]
+        public void ShouldHaveForeignKey_WhenHasForeignKeyAttribute_WithCorrectName_ShouldNotThrow()
+        {
+            //---------------Set up test pack-------------------
+            var sut = Create();
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(() =>sut.ShouldHaveForeignKey("SomeOtherID", o => o.ValidForeignKey));
+
+            //---------------Test Result -----------------------
+        }
+
 
 
     }
