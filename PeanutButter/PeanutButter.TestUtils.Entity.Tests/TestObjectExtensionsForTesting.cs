@@ -18,13 +18,16 @@ namespace PeanutButter.TestUtils.Entity.Tests
         {
             public int SomeGeneratedPOCOId { get; set; }
             [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-            public int SomeOtherNotGeneratedPOCOId { get; set; }
+            public int SomeIdentityPOCOId { get; set; }
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int SomeNotGeneratedPOCOId { get; set; }
 
             public string PropertyWithoutMaxLength { get; set; }
             [MaxLength(50)]
             public string PropertyWithMaxLength { get; set; }
+            [StringLength(13)]
+            public string PropertyWithStringLengthAttribute { get; set; }
+
             [Required]
             public string RequiredProperty { get; set; }
             public string NotRequiredProperty { get; set; }
@@ -34,6 +37,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
             public int WrongForeinKey { get; set; }
             [ForeignKey("SomeOtherID")]
             public int ValidForeignKey { get; set; }
+
         }
 
         private SomePOCO Create()
@@ -54,7 +58,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
             var ex = Assert.Throws<AssertionException>(() => sut.ShouldHaveMaxLengthOf(expected, o => o.PropertyWithoutMaxLength));
 
             //---------------Test Result -----------------------
-            StringAssert.Contains("no maxlength attribute", ex.Message.ToLower());
+            StringAssert.Contains("no maxlength or stringlength attribute", ex.Message.ToLower());
         }
 
         [Test]
@@ -83,6 +87,20 @@ namespace PeanutButter.TestUtils.Entity.Tests
 
             //---------------Execute Test ----------------------
             Assert.DoesNotThrow(() => sut.ShouldHaveMaxLengthOf(50, o => o.PropertyWithMaxLength));
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
+        public void ShouldHaveMaxLengthOf_WhenPropertyHasStringLengthAttributeWithSameValue_ShouldNotThrow()
+        {
+            //---------------Set up test pack-------------------
+            var sut = Create();
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(() => sut.ShouldHaveMaxLengthOf(13, o => o.PropertyWithStringLengthAttribute));
 
             //---------------Test Result -----------------------
         }
@@ -125,7 +143,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<AssertionException>(() => sut.ShouldNotBeDatabaseGenerated(o => o.SomeOtherNotGeneratedPOCOId));
+            var ex = Assert.Throws<AssertionException>(() => sut.ShouldNotBeDatabaseGenerated(o => o.SomeIdentityPOCOId));
 
             //---------------Test Result -----------------------
             StringAssert.Contains("expected [databasegenerated(databasegeneratedoption.none)]", ex.Message.ToLower());
@@ -189,7 +207,47 @@ namespace PeanutButter.TestUtils.Entity.Tests
             //---------------Test Result -----------------------
         }
 
+        [Test]
+        public void ShouldBeIdentity_WhenDoesNotHaveDatabaseGeneratedAttribute_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            var sut = Create();
+            //---------------Assert Precondition----------------
 
+            //---------------Execute Test ----------------------
+            var ex = Assert.Throws<AssertionException>(() => sut.ShouldBeIdentity(o => o.SomeGeneratedPOCOId));
+
+            //---------------Test Result -----------------------
+            StringAssert.Contains("no databasegeneratedattribute", ex.Message.ToLower());
+        }
+
+        [Test]
+        public void ShouldBeIdentity_WhenHasDatabaseGeneratedAttributeWithIncorrectOption_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            var sut = Create();
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var ex = Assert.Throws<AssertionException>(() => sut.ShouldBeIdentity(o => o.SomeNotGeneratedPOCOId));
+
+            //---------------Test Result -----------------------
+            StringAssert.Contains("expected [databasegenerated(databasegeneratedoption.identity)]", ex.Message.ToLower());
+        }
+
+        [Test]
+        public void ShouldBeIdentity_WhenHasDatabaseGeneratedAttributeWithCorrectOption_ShouldNotThrow()
+        {
+            //---------------Set up test pack-------------------
+            var sut = Create();
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(() => sut.ShouldBeIdentity(o => o.SomeIdentityPOCOId));
+
+            //---------------Test Result -----------------------
+        }
 
     }
 }

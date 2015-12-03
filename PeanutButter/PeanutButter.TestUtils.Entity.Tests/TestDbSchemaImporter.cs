@@ -86,7 +86,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
             using (var db = CreateTempDb())
             {
                 //---------------Set up test pack-------------------
-                var migrator = new DbSchemaImporter(db.ConnectionString);
+                var migrator = new DbSchemaImporter(db.ConnectionString, TestResources.dbscript);
 
                 //---------------Assert Precondition----------------
 
@@ -95,7 +95,6 @@ namespace PeanutButter.TestUtils.Entity.Tests
 
                 //---------------Test Result -----------------------
             }
-
         }
 
         [Test]
@@ -103,7 +102,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
         {
             //---------------Set up test pack-------------------
             var db = CreateTempDb();
-            var migrator = new DbSchemaImporter(db.ConnectionString);
+            var migrator = new DbSchemaImporter(db.ConnectionString, TestResources.dbscript);
             migrator.MigrateToLatest();
             Console.WriteLine(db.DatabaseFile);
             //---------------Assert Precondition----------------
@@ -151,9 +150,49 @@ namespace PeanutButter.TestUtils.Entity.Tests
             }
         }
 
-        private DbSchemaImporter Create(string connectionString = null)
+        [Test]
+        public void SplitPartsOutOf_GivenStringWithNo_GO_ShouldReturnIt()
         {
-            return new DbSchemaImporter(connectionString ?? RandomValueGen.GetRandomString(1));
+            //---------------Set up test pack-------------------
+            var sut = Create();
+            var input = RandomValueGen.GetRandomString();
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = sut.SplitPartsOutOf(input);
+
+            //---------------Test Result -----------------------
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1, result.Length);
+            Assert.AreEqual(input, result[0]);
+        }
+
+        [Test]
+        public void SplitPartsOutOf_GivenStringWithA_GO_ShouldReturnTheParts()
+        {
+            //---------------Set up test pack-------------------
+            var sut = Create();
+            var first = RandomValueGen.GetRandomString();
+            var second = RandomValueGen.GetRandomString();
+            var input = first + "\r\nGO\r\n" + second;
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = sut.SplitPartsOutOf(input);
+
+            //---------------Test Result -----------------------
+            Assert.IsNotNull(result);
+            Assert.AreEqual(2, result.Length);
+            Assert.AreEqual(first, result[0]);
+            Assert.AreEqual(second, result[1]);
+        }
+
+
+        private DbSchemaImporter Create(string connectionString = null,
+                                        string schema = null)
+        {
+            return new DbSchemaImporter(connectionString ?? RandomValueGen.GetRandomString(1),
+                                        schema ?? TestResources.dbscript);
         }
 
 

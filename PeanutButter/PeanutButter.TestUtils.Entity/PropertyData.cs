@@ -17,7 +17,7 @@ namespace PeanutButter.TestUtils.Entity
 
     public static class PropertyDataObjectExtension
     {
-        public static PropertyData<T> PropertyData<T>(this T item, Expression<Func<T, object>> memberExpression)
+        public static PropertyData<T> PropertyDataFor<T>(this T item, Expression<Func<T, object>> memberExpression)
         {
             return new PropertyData<T>(item, memberExpression);
         }
@@ -28,12 +28,14 @@ namespace PeanutButter.TestUtils.Entity
         public string PropertyPath { get; private set; }
         public PropertyInfo PropertyInfo { get; private set; }
         public IEnumerable<Attribute> CustomAttributes { get; private set; }
+        public Type ParentType { get; private set; }
 
         public PropertyData(T item, Expression<Func<T, object>> propertyExpression)
         {
             PropertyPath = ExpressionUtil.GetMemberPathFor(propertyExpression);
             PropertyInfo = item.GetPropertyInfoFor(PropertyPath);
             CustomAttributes = PropertyInfo.GetCustomAttributes();
+            ParentType = typeof(T);
         }
 
         public T CustomAttribute<T>() where T: Attribute

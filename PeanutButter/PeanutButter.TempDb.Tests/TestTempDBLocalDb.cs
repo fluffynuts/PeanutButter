@@ -3,6 +3,7 @@ using System.Data.SqlClient;
 using System.IO;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using PeanutButter.TempDb;
 using PeanutButter.Utils;
 
 namespace PeanutButter.TestUtils.Generic.Tests
@@ -27,6 +28,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
         public void Construct_ShouldCreateTemporaryLocalDbDatabase()
         {
             //---------------Set up test pack-------------------
+            TempDbHints.PreferredBasePath = "R:\\"; // hint at using my RamDrive; will fall back on %TEMP%
             using (var db = new TempDBLocalDb())
             {
                 //---------------Assert Precondition----------------

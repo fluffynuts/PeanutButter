@@ -11,23 +11,25 @@ namespace PeanutButter.TestUtils.Entity.Tests
     public class DbSchemaImporter : IDBMigrationsRunner
     {
         private string _connectionString;
+        private readonly string _schemaSql;
 
-        public DbSchemaImporter(string connectionString)
+        public DbSchemaImporter(string connectionString, string schemaSql)
         {
             _connectionString = connectionString;
+            _schemaSql = schemaSql;
         }
 
         public void MigrateToLatest()
         {
             using (var cmd = CreateConnection().CreateCommand())
             {
-                var parts = TestResources.dbscript.Split(new[] {"GO"}, StringSplitOptions.RemoveEmptyEntries);
+                var cleaned = CleanCommentsFrom(_schemaSql);
+                var parts = SplitPartsOutOf(cleaned);
                 parts.ForEach(part =>
                 {
-                    var sql = CleanCommentsFrom(part);
-                    if (string.IsNullOrEmpty(sql))
+                    if (string.IsNullOrEmpty(part))
                         return;
-                    cmd.CommandText = sql;
+                    cmd.CommandText = part;
                     try
                     {
                         cmd.ExecuteNonQuery();
@@ -38,6 +40,14 @@ namespace PeanutButter.TestUtils.Entity.Tests
                     }
                 });
             }
+        }
+
+        public  string[] SplitPartsOutOf(string schemaSql)
+        {
+            return schemaSql
+                        .Split(new[] {"GO"}, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(s => s.Trim())
+                        .ToArray();
         }
 
         public string CleanCommentsFrom(string input)

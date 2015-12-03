@@ -1,7 +1,4 @@
-﻿using System;
-using System.Text;
-using System.Threading.Tasks;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using PeanutButter.Utils.Entity;
 
@@ -14,7 +11,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
 
         public TestCOMBlockListReason()
         {
-            Configure(true, connectionString => new DbSchemaImporter(connectionString));
+            Configure(true, connectionString => new DbSchemaImporter(connectionString, TestResources.dbscript));
             RunBeforeFirstGettingContext(Clear);
         }
 

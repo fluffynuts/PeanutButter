@@ -13,17 +13,19 @@ namespace PeanutButter.TestUtils.Entity
     {
         public static void ShouldHaveMaxLengthOf<T>(this T item, int expectedMaxLength, Expression<Func<T, object>> expression)
         {
-            var propData = item.PropertyData(expression);
+            var propData = item.PropertyDataFor(expression);
             var maxLengthAttribute = propData.CustomAttribute<MaxLengthAttribute>();
+            var stringLengthAttribute = propData.CustomAttribute<StringLengthAttribute>();
             var errorSuffix = ErrorSuffixFor<T>(propData.PropertyPath);
-            if (maxLengthAttribute == null)
-                Assert.Fail("No MaxLength attribute applied to " + errorSuffix);
-            Assert.AreEqual(expectedMaxLength, maxLengthAttribute.Length, "Incorrect MaxLength value on " + errorSuffix);
+            if (maxLengthAttribute == null && stringLengthAttribute == null)
+                Assert.Fail("No MaxLength or StringLength attribute applied to " + errorSuffix);
+            var specifiedMaxLength = GetMaxLengthFrom<T>(maxLengthAttribute, stringLengthAttribute, propData);
+            Assert.AreEqual(expectedMaxLength, specifiedMaxLength, "Incorrect MaxLength value on " + errorSuffix);
         }
 
         public static void ShouldBeRequired<T>(this T item, Expression<Func<T, object>> expression)
         {
-            var propData = item.PropertyData(expression);
+            var propData = item.PropertyDataFor(expression);
             var requiredAttribute = propData.CustomAttribute<RequiredAttribute>();
             if (requiredAttribute == null)
                 Assert.Fail("No Required attribute applied to " + ErrorSuffixFor<T>(propData.PropertyPath));
@@ -31,24 +33,26 @@ namespace PeanutButter.TestUtils.Entity
 
         public static void ShouldNotBeDatabaseGenerated<T>(this T item, Expression<Func<T, object>> expression)
         {
-            var propData = item.PropertyData(expression);
+            var propData = item.PropertyDataFor(expression);
             var attrib = propData.CustomAttribute<DatabaseGeneratedAttribute>();
-            Assert.IsNotNull(attrib, "No DatabaseGeneratedAttribute applied to " + ErrorSuffixFor<T>(propData.PropertyPath));
-            Assert.AreEqual(DatabaseGeneratedOption.None, attrib.DatabaseGeneratedOption, 
-                "Expected [DatabaseGenerated(DatabaseGeneratedOption.None)] on " + ErrorSuffixFor<T>(propData.PropertyPath));
+            AssertHasDatabaseGeneratedattribute(attrib, propData);
+            AssertHasExpectedDatabaseGeneratedOption(DatabaseGeneratedOption.None, attrib, propData);
+        }
+
+        public static void ShouldBeIdentity<T>(this T item, Expression<Func<T, object>> expression)
+        {
+            var propData = item.PropertyDataFor(expression);
+            var attrib = propData.CustomAttribute<DatabaseGeneratedAttribute>();
+            AssertHasDatabaseGeneratedattribute(attrib, propData);
+            AssertHasExpectedDatabaseGeneratedOption(DatabaseGeneratedOption.Identity, attrib, propData);
         }
 
         public static void ShouldHaveForeignKey<T>(this T item, string keyName, Expression<Func<T, object>> expression)
         {
-            var propData = item.PropertyData(expression);
+            var propData = item.PropertyDataFor(expression);
             var attrib = propData.CustomAttribute<ForeignKeyAttribute>();
             Assert.IsNotNull(attrib, "No ForeignKey attribute applied to " + ErrorSuffixFor<T>(propData.PropertyPath));
             Assert.AreEqual(keyName, attrib.Name, "Incorrect ForeignKey value");
-        }
-
-        private static string ErrorSuffixFor<T>(string propertyPath)
-        {
-            return string.Format("property '{0}' on type '{1}'", propertyPath, typeof(T).PrettyName());
         }
 
         public static PropertyInfo GetPropertyInfoFor(this object item, string path)
@@ -61,6 +65,45 @@ namespace PeanutButter.TestUtils.Entity
                 item = pi.GetValue(item);
                 return pi;
             });
+        }
+
+        private static int GetMaxLengthFrom<T>(MaxLengthAttribute maxLengthAttribute, 
+            StringLengthAttribute stringLengthAttribute,
+            PropertyData<T> propData)
+        {
+            if (stringLengthAttribute == null)
+                return maxLengthAttribute.Length;
+            if (maxLengthAttribute == null)
+                return stringLengthAttribute.MaximumLength;
+            if (stringLengthAttribute.MaximumLength == maxLengthAttribute.Length)
+                return stringLengthAttribute.MaximumLength;
+            Assert.Fail(string.Join("",
+                "MaxLength and StringLength are both specified for '",
+                propData.PropertyPath,
+                "' on type '",
+                propData.ParentType.PrettyName(),
+                "' but disagree on the maximum length: ",
+                maxLengthAttribute.Length,
+                " vs ",
+                stringLengthAttribute.MaximumLength
+                ));
+            throw new Exception("Should not get here as we should have Assert.Failed");
+        }
+
+        private static string ErrorSuffixFor<T>(string propertyPath)
+        {
+            return string.Format("property '{0}' on type '{1}'", propertyPath, typeof(T).PrettyName());
+        }
+
+        private static void AssertHasExpectedDatabaseGeneratedOption<T>(DatabaseGeneratedOption databaseGeneratedOption, DatabaseGeneratedAttribute attrib, PropertyData<T> propData)
+        {
+            Assert.AreEqual(databaseGeneratedOption, attrib.DatabaseGeneratedOption,
+                "Expected [DatabaseGenerated(DatabaseGeneratedOption." + databaseGeneratedOption.ToString() + ")] on " + ErrorSuffixFor<T>(propData.PropertyPath));
+        }
+
+        private static void AssertHasDatabaseGeneratedattribute<T>(DatabaseGeneratedAttribute attrib, PropertyData<T> propData)
+        {
+            Assert.IsNotNull(attrib, "No DatabaseGeneratedAttribute applied to " + ErrorSuffixFor<T>(propData.PropertyPath));
         }
     }
 }

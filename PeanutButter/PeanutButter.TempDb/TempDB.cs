@@ -32,7 +32,7 @@ namespace PeanutButter.TempDb
             {
                 do
                 {
-                    DatabaseFile = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + ".db");
+                    DatabaseFile = Path.Combine(TempDbHints.PreferredBasePath, Guid.NewGuid().ToString() + ".db");
                 } while (File.Exists(DatabaseFile));
                 ConnectionString = String.Format("DataSource=\"{0}\";", DatabaseFile);
                 CreateDatabase();
