@@ -1,7 +1,7 @@
 using System;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
-using PeanutButter.TestUtils.Generic;
+using PeanutButter.TempDb.LocalDb;
 
 namespace PeanutButter.TestUtils.Entity.Tests
 {

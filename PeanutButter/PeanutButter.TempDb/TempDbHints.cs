@@ -5,6 +5,10 @@ namespace PeanutButter.TempDb
     public static class TempDbHints
     {
         private static object _pathLock = new object();
+        public static string DefaultBasePath
+        {
+            get { return Path.GetTempPath(); }
+        }
         public static string PreferredBasePath
         {
             get
@@ -22,6 +26,11 @@ namespace PeanutButter.TempDb
                     _preferredBasePath = value;
                 }
             }
+        }
+
+        public static bool UsingOverrideBasePath
+        {
+            get { return PreferredBasePath != Path.GetTempPath(); }
         }
 
         private static bool FolderExists(string preferredBasePath)

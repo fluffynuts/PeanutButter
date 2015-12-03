@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using PeanutButter.FluentMigrator;
+using PeanutButter.TempDb.LocalDb;
 using PeanutButter.TestUtils.Generic;
 
 namespace PeanutButter.TestUtils.Entity

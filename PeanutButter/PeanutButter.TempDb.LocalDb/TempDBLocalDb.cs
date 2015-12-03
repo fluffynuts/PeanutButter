@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Data.SqlClient;
 using System.IO;
-using PeanutButter.TempDb;
 
-namespace PeanutButter.TestUtils.Generic
+namespace PeanutButter.TempDb.LocalDb
 {
     public class TempDBLocalDb: TempDB<SqlConnection>
     {

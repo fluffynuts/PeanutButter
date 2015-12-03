@@ -4,13 +4,13 @@ using System.IO;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using PeanutButter.TempDb.Sqlite;
-using PeanutButter.TempDb.Tests;
+using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
 
-namespace PeanutButter.TestUtils.Generic.Tests
+namespace PeanutButter.TempDb.Tests
 {
     [TestFixture]
-    public class TestTempDBSqlite
+    public class TestTempDBSqlite: TempDBTestFixtureBase
     {
         [TestFixtureSetUp]
         public void TestFixtureSetUp()

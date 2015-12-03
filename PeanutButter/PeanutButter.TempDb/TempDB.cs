@@ -28,17 +28,35 @@ namespace PeanutButter.TempDb
 
         protected virtual void Init(string[] creationScripts)
         {
+            try
+            {
+                AttemptToCreateDatabaseWith(TempDbHints.PreferredBasePath);
+            }
+            catch (Exception ex)
+            {
+                if (TempDbHints.UsingOverrideBasePath)
+                {
+                    AttemptToCreateDatabaseWith(Path.GetTempPath());
+                    System.Diagnostics.Trace.WriteLine("An error was encountered whilst attempting to use the configured TempDbHints.PreferredBasePath: " + ex.Message);
+                    System.Diagnostics.Trace.WriteLine(" -> falling back on using %TEMP%");
+                    TempDbHints.PreferredBasePath = TempDbHints.DefaultBasePath;
+                }
+            }
+            _managedConnections = new List<DbConnection>();
+            RunScripts(creationScripts);
+        }
+
+        private void AttemptToCreateDatabaseWith(string basePath)
+        {
             using (new AutoLocker(_lock))
             {
                 do
                 {
-                    DatabaseFile = Path.Combine(TempDbHints.PreferredBasePath, Guid.NewGuid().ToString() + ".db");
+                    DatabaseFile = Path.Combine(basePath, Guid.NewGuid().ToString() + ".db");
                 } while (File.Exists(DatabaseFile));
                 ConnectionString = String.Format("DataSource=\"{0}\";", DatabaseFile);
                 CreateDatabase();
             }
-            _managedConnections = new List<DbConnection>();
-            RunScripts(creationScripts);
         }
 
         protected abstract void CreateDatabase();

@@ -3,12 +3,13 @@ using System.Data.SqlServerCe;
 using System.IO;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
 
-namespace PeanutButter.TestUtils.Generic.Tests
+namespace PeanutButter.TempDb.Tests
 {
     [TestFixture]
-    public class TestTempDBSqlCe
+    public class TestTempDBSqlCe: TempDBTestFixtureBase
     {
         [Test]
         public void ShouldImplementIDisposable()

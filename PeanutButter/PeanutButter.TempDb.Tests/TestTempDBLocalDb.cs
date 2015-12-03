@@ -3,13 +3,21 @@ using System.Data.SqlClient;
 using System.IO;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using PeanutButter.TempDb;
+using PeanutButter.TempDb.LocalDb;
 using PeanutButter.Utils;
+using PeanutButter.TestUtils.Generic;
 
-namespace PeanutButter.TestUtils.Generic.Tests
+namespace PeanutButter.TempDb.Tests
 {
+    public abstract class TempDBTestFixtureBase
+    {
+        static TempDBTestFixtureBase()
+        {
+            TempDbHints.PreferredBasePath = "R:\\PeanutButter.LocalDb.Tests";
+        }
+    }
     [TestFixture]
-    public class TestTempDBLocalDb
+    public class TestTempDBLocalDb: TempDBTestFixtureBase
     {
         [Test]
         public void ShouldImplementIDisposable()
@@ -28,7 +36,6 @@ namespace PeanutButter.TestUtils.Generic.Tests
         public void Construct_ShouldCreateTemporaryLocalDbDatabase()
         {
             //---------------Set up test pack-------------------
-            TempDbHints.PreferredBasePath = "R:\\"; // hint at using my RamDrive; will fall back on %TEMP%
             using (var db = new TempDBLocalDb())
             {
                 //---------------Assert Precondition----------------

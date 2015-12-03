@@ -38,9 +38,9 @@ namespace PeanutButter.TestUtils.Entity
             ParentType = typeof(T);
         }
 
-        public T CustomAttribute<T>() where T: Attribute
+        public TAttribute CustomAttribute<TAttribute>() where TAttribute: Attribute
         {
-            return CustomAttributes.OfType<T>().FirstOrDefault();
+            return CustomAttributes.OfType<TAttribute>().FirstOrDefault();
         }
     }
 }
