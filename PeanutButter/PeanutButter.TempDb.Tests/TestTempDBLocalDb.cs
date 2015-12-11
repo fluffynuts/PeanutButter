@@ -9,13 +9,6 @@ using PeanutButter.TestUtils.Generic;
 
 namespace PeanutButter.TempDb.Tests
 {
-    public abstract class TempDBTestFixtureBase
-    {
-        static TempDBTestFixtureBase()
-        {
-            TempDbHints.PreferredBasePath = "R:\\PeanutButter.LocalDb.Tests";
-        }
-    }
     [TestFixture]
     public class TestTempDBLocalDb: TempDBTestFixtureBase
     {
