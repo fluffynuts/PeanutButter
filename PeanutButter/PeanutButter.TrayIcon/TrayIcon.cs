@@ -3,14 +3,36 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Windows.Forms.VisualStyles;
 
 namespace PeanutButter.TrayIcon
 {
-    public class TrayIcon: IDisposable
+    public interface ITrayIcon
+    {
+        NotifyIcon NotifyIcon { get; }
+        int DefaultBalloonTipTimeout { get; set; }
+        Icon Icon { get; set; }
+        string DefaultTipText { get; set; }
+        string DefaultTipTitle { get; set; }
+        Action DefaultBalloonTipClickedAction { get; set; }
+        Action DefaultBalloonTipClosedAction { get; set; }
+
+        void ShowBalloonTipFor(int timeoutInMilliseconds, string title, string text, ToolTipIcon icon,
+            Action clickAction = null, Action closeAction = null);
+
+        MenuItem AddSubMenu(string text, MenuItem parent = null);
+        void AddMenuItem(string withText, Action withCallback, MenuItem parent = null);
+        void AddMenuSeparator(MenuItem subMenu = null);
+        void RemoveMenuItem(string withText);
+        MouseClickHandler AddMouseClickHandler(MouseClicks clicks, MouseButtons button, Action handler);
+        void RemoveMouseClickHandler(MouseClickHandler handler);
+
+        void Show();
+        void Hide();
+        void Dispose();
+    }
+
+    public class TrayIcon: IDisposable, ITrayIcon
     {
         public NotifyIcon NotifyIcon { get { return _notificationIcon; } }
 		private NotifyIcon _notificationIcon;
@@ -18,6 +40,7 @@ namespace PeanutButter.TrayIcon
         private bool _showingDefaultBalloonTip;
         public int DefaultBalloonTipTimeout { get; set; }
         private object _lock = new object();
+        private List<MouseClickHandler> _mouseClickHandlers = new List<MouseClickHandler>();
 
         public Icon Icon
         {
@@ -66,9 +89,175 @@ namespace PeanutButter.TrayIcon
             }
         }
 
+        private BalloonTipClickHandlerRegistration _balloonTipClickHandlers;
+
+        public void ShowBalloonTipFor(int timeoutInMilliseconds, string title, string text, ToolTipIcon icon,
+            Action clickAction = null, Action closeAction = null)
+        {
+            lock (this)
+            {
+                _balloonTipClickHandlers = new BalloonTipClickHandlerRegistration(clickAction, closeAction);
+            }
+            _notificationIcon.ShowBalloonTip(timeoutInMilliseconds, title, text, icon);
+        }
+
+        public MenuItem AddSubMenu(string text, MenuItem parent = null)
+        {
+            lock (_lock)
+            {
+                if (_notificationIcon == null) return null;
+                var menuItem = CreateMenuItemWithText(text);
+                AddMenuToParentOrRoot(parent, menuItem);
+                return menuItem;
+            }
+        }
+
+        public void AddMenuItem(string withText, Action withCallback, MenuItem parent = null)
+        {
+            lock(_lock)
+            {
+                if (_notificationIcon == null) return;
+                var menuItem = CreateMenuItemWithText(withText);
+                if (withCallback != null)
+                    menuItem.Click += (s, e) => withCallback();
+                AddMenuToParentOrRoot(parent, menuItem);
+            }
+        }
+
+        public void AddMenuSeparator(MenuItem subMenu = null)
+        {
+            AddSubMenu("-", subMenu);
+        }
+
+        public void RemoveMenuItem(string withText)
+        {
+            lock(_lock)
+            {
+                if (_notificationIcon == null) return;
+                var toRemove = FindMenusByText(withText);
+                foreach (var item in toRemove)
+                {
+                    item.Parent.MenuItems.Remove(item);
+                }
+            }
+        }
+
+        public void Show()
+		{
+			_notificationIcon.MouseClick += OnIconMouseClick;
+            _notificationIcon.MouseDoubleClick += OnIconMouseDoubleClick;
+			_notificationIcon.Icon = _icon;
+			_notificationIcon.Visible = true;
+		}
+
+        public void Hide()
+        {
+            _notificationIcon.Visible = false;
+        }
+
+        public void Dispose()
+		{
+            lock(_lock)
+            {
+                if (_notificationIcon != null)
+    			    _notificationIcon.Dispose();
+                _notificationIcon = null;
+            }
+		}
+
+        public MouseClickHandler AddMouseClickHandler(MouseClicks clicks, MouseButtons button, Action handler)
+        {
+            lock (_lock)
+            {
+                var handlerItem = new MouseClickHandler(clicks, button, handler);
+                _mouseClickHandlers.Add(handlerItem);
+                return handlerItem;
+            }
+        }
+
+        public void RemoveMouseClickHandler(MouseClickHandler handler)
+        {
+            lock (_lock)
+            {
+                _mouseClickHandlers.Remove(handler);
+            }
+        }
+
+        private void AddMenuToParentOrRoot(MenuItem parent, MenuItem menuItem)
+        {
+            var addTo = parent as Menu ?? _notificationIcon.ContextMenu;
+            addTo.MenuItems.Add(menuItem);
+        }
+
+        private void OnIconMouseClick(object sender, MouseEventArgs e)
+		{
+		    var handlers = FindHandlersFor(MouseClicks.Single, e.Button);
+		    RunMouseClickHandlers(handlers);
+		}
+
+        private void OnIconMouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            var handlers = FindHandlersFor(MouseClicks.Double, e.Button);
+            RunMouseClickHandlers(handlers);
+        }
+
+        private void RunMouseClickHandlers(MouseClickHandler[] handlers)
+        {
+            var exceptions = handlers
+                .Select(handler => TryDo(handler.Action))
+                .Where(ex => ex != null);
+            if (exceptions.Any())
+                throw new AggregateException(exceptions);
+        }
+
+        private Exception TryDo(Action action)
+        {
+            try
+            {
+                action();
+                return null;
+            }
+            catch (Exception ex)
+            {
+                return ex;
+            }
+        }
+
+        private MouseClickHandler[] FindHandlersFor(MouseClicks clicks, MouseButtons button)
+        {
+		    lock (_lock)
+		    {
+		        return _mouseClickHandlers
+                        .Where(o => o.Clicks == MouseClicks.Single && o.Button == button)
+                        .ToArray();
+		    }
+        }
+
+        private MenuItem[] FindMenusByText(string text)
+        {
+            var allMenuItems = FindAllMenuItems();
+            var matches = allMenuItems.Where(mi => mi.Text == text);
+            return matches.ToArray();
+        }
+
+        private List<MenuItem> FindAllMenuItems(List<MenuItem> foundSoFar = null, Menu parent = null)
+        {
+            foundSoFar = foundSoFar ?? new List<MenuItem>();
+            parent = parent ?? _notificationIcon.ContextMenu;
+            foreach (var item in parent.MenuItems)
+            {
+                var menuItem = item as MenuItem;
+                if (menuItem == null)
+                    continue;   // not sure what else we could find in here?
+                foundSoFar.Add(menuItem);
+                FindAllMenuItems(foundSoFar, menuItem);
+            }
+            return foundSoFar;
+        }
+
         private void Init(Icon icon)
         {
-            this._icon = icon;
+            _icon = icon;
             DefaultBalloonTipTimeout = 2000;
             _notificationIcon = new NotifyIcon();
             _notificationIcon.ContextMenu = new ContextMenu();
@@ -150,59 +339,6 @@ namespace PeanutButter.TrayIcon
             }
         }
 
-        private class BalloonTipClickHandlerRegistration
-        {
-            public Action ClickAction { get; protected set; }
-            public Action ClosedAction { get; protected set; }
-
-            public BalloonTipClickHandlerRegistration(Action clickAction = null, Action closedAction = null)
-            {
-                ClickAction = clickAction;
-                ClosedAction = closedAction;
-            }
-        }
-
-        private BalloonTipClickHandlerRegistration _balloonTipClickHandlers;
-
-        public void ShowBalloonTipFor(int timeoutInMilliseconds, string title, string text, ToolTipIcon icon,
-            Action clickAction = null, Action closeAction = null)
-        {
-            lock (this)
-            {
-                _balloonTipClickHandlers = new BalloonTipClickHandlerRegistration(clickAction, closeAction);
-            }
-            _notificationIcon.ShowBalloonTip(timeoutInMilliseconds, title, text, icon);
-        }
-
-        public MenuItem AddSubMenu(string text, MenuItem parent = null)
-        {
-            lock (_lock)
-            {
-                if (_notificationIcon == null) return null;
-                var menuItem = CreateMenuItemWithText(text);
-                AddMenuToParentOrRoot(parent, menuItem);
-                return menuItem;
-            }
-        }
-
-        private void AddMenuToParentOrRoot(MenuItem parent, MenuItem menuItem)
-        {
-            var addTo = parent as Menu ?? _notificationIcon.ContextMenu;
-            addTo.MenuItems.Add(menuItem);
-        }
-
-        public void AddMenuItem(string withText, Action withCallback, MenuItem parent = null)
-        {
-            lock(_lock)
-            {
-                if (_notificationIcon == null) return;
-                var menuItem = CreateMenuItemWithText(withText);
-                if (withCallback != null)
-                    menuItem.Click += (s, e) => withCallback();
-                AddMenuToParentOrRoot(parent, menuItem);
-            }
-        }
-
         private static MenuItem CreateMenuItemWithText(string withText)
         {
             return new MenuItem()
@@ -211,74 +347,6 @@ namespace PeanutButter.TrayIcon
             };
         }
 
-        public void AddMenuSeparator(MenuItem subMenu = null)
-        {
-            AddSubMenu("-", subMenu);
-        }
 
-        public void RemoveMenuItem(string withText)
-        {
-            lock(_lock)
-            {
-                if (_notificationIcon == null) return;
-                var toRemove = FindMenusByText(withText);
-                foreach (var item in toRemove)
-                {
-                    item.Parent.MenuItems.Remove(item);
-                }
-            }
-        }
-
-        private MenuItem[] FindMenusByText(string text)
-        {
-            var allMenuItems = FindAllMenuItems();
-            var matches = allMenuItems.Where(mi => mi.Text == text);
-            return matches.ToArray();
-        }
-
-        private List<MenuItem> FindAllMenuItems(List<MenuItem> foundSoFar = null, Menu parent = null)
-        {
-            foundSoFar = foundSoFar ?? new List<MenuItem>();
-            parent = parent ?? _notificationIcon.ContextMenu;
-            foreach (var item in parent.MenuItems)
-            {
-                var menuItem = item as MenuItem;
-                if (menuItem == null)
-                    continue;   // not sure what else we could find in here?
-                foundSoFar.Add(menuItem);
-                FindAllMenuItems(foundSoFar, menuItem);
-            }
-            return foundSoFar;
-        }
-
-        public void Show()
-		{
-			_notificationIcon.MouseClick += onIconMouseClick;
-			_notificationIcon.Icon = _icon;
-			_notificationIcon.Visible = true;
-		}
-
-        public void Hide()
-        {
-            _notificationIcon.Visible = false;
-        }
-
-        public void Dispose()
-		{
-            lock(_lock)
-            {
-                if (_notificationIcon != null)
-    			    _notificationIcon.Dispose();
-                _notificationIcon = null;
-            }
-		}
-
-		void onIconMouseClick(object sender, MouseEventArgs e)
-		{
-			if (e.Button == MouseButtons.Left)
-			{
-			}
-		}
-	}
-
+    }
 }

@@ -1,14 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using NUnit.Framework;
-using PeanutButter.TrayIcon;
+using PeanutButter.Utils;
 
 namespace PeanutButter.TrayIcon.Tests
 {
@@ -41,6 +35,26 @@ namespace PeanutButter.TrayIcon.Tests
             {
                 trayIcon.RemoveMenuItem("Sub Menu");
             }, sub);
+
+            var buttons = new[] {MouseButtons.Left, MouseButtons.Right, MouseButtons.Middle};
+            var handlers = new List<MouseClickHandler>();
+
+            new[] {MouseClicks.Single, MouseClicks.Double}.ForEach(mc =>
+            {
+                buttons.ForEach(button =>
+                {
+                    handlers.Add(trayIcon.AddMouseClickHandler(mc, button, () =>
+                    {
+                        trayIcon.ShowBalloonTipFor(500, "Mouse Click Handler", string.Format("Mouse click handler: {0} / {1}", mc, button), ToolTipIcon.Info);
+                    }));
+                });
+            });
+
+            trayIcon.AddMenuItem("Remove all mouse click handlers", () =>
+            {
+                handlers.ForEach(trayIcon.RemoveMouseClickHandler);
+            });
+
             trayIcon.AddMenuItem("Exit", () =>
             {
                 trayIcon.Hide();

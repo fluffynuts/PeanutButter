@@ -41,6 +41,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BalloonTipClickHandlerRegistration.cs" />
+    <Compile Include="MouseClickHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TrayIcon.cs" />
     <Compile Include="TrayIconAnimator.cs" />
