@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -15,6 +17,7 @@ namespace PeanutButter.TrayIcon
         private Icon _icon;
         private bool _showingDefaultBalloonTip;
         public int DefaultBalloonTipTimeout { get; set; }
+        private object _lock = new object();
 
         public Icon Icon
         {
@@ -171,41 +174,81 @@ namespace PeanutButter.TrayIcon
             _notificationIcon.ShowBalloonTip(timeoutInMilliseconds, title, text, icon);
         }
 
-
-        public void AddMenuItem(string withText, Action withCallback)
+        public MenuItem AddSubMenu(string text, MenuItem parent = null)
         {
-            lock(this)
+            lock (_lock)
             {
-                if (_notificationIcon == null) return;
-                var menuItem = new MenuItem()
-                               {
-                                   Text = withText
-                               };
-                if (withCallback != null)
-                    menuItem.Click += (s, e) => withCallback();
-                _notificationIcon.ContextMenu.MenuItems.Add(menuItem);
+                if (_notificationIcon == null) return null;
+                var menuItem = CreateMenuItemWithText(text);
+                AddMenuToParentOrRoot(parent, menuItem);
+                return menuItem;
             }
         }
 
-        public void AddMenuSeparator()
+        private void AddMenuToParentOrRoot(MenuItem parent, MenuItem menuItem)
         {
-            AddMenuItem("-", null);
+            var addTo = parent as Menu ?? _notificationIcon.ContextMenu;
+            addTo.MenuItems.Add(menuItem);
+        }
+
+        public void AddMenuItem(string withText, Action withCallback, MenuItem parent = null)
+        {
+            lock(_lock)
+            {
+                if (_notificationIcon == null) return;
+                var menuItem = CreateMenuItemWithText(withText);
+                if (withCallback != null)
+                    menuItem.Click += (s, e) => withCallback();
+                AddMenuToParentOrRoot(parent, menuItem);
+            }
+        }
+
+        private static MenuItem CreateMenuItemWithText(string withText)
+        {
+            return new MenuItem()
+            {
+                Text = withText
+            };
+        }
+
+        public void AddMenuSeparator(MenuItem subMenu = null)
+        {
+            AddSubMenu("-", subMenu);
         }
 
         public void RemoveMenuItem(string withText)
         {
-            lock(this)
+            lock(_lock)
             {
                 if (_notificationIcon == null) return;
-                foreach (MenuItem mi in _notificationIcon.ContextMenu.MenuItems)
+                var toRemove = FindMenusByText(withText);
+                foreach (var item in toRemove)
                 {
-                    if (mi.Text == withText)
-                    {
-                        _notificationIcon.ContextMenu.MenuItems.Remove(mi);
-                        return;
-                    }
+                    item.Parent.MenuItems.Remove(item);
                 }
             }
+        }
+
+        private MenuItem[] FindMenusByText(string text)
+        {
+            var allMenuItems = FindAllMenuItems();
+            var matches = allMenuItems.Where(mi => mi.Text == text);
+            return matches.ToArray();
+        }
+
+        private List<MenuItem> FindAllMenuItems(List<MenuItem> foundSoFar = null, Menu parent = null)
+        {
+            foundSoFar = foundSoFar ?? new List<MenuItem>();
+            parent = parent ?? _notificationIcon.ContextMenu;
+            foreach (var item in parent.MenuItems)
+            {
+                var menuItem = item as MenuItem;
+                if (menuItem == null)
+                    continue;   // not sure what else we could find in here?
+                foundSoFar.Add(menuItem);
+                FindAllMenuItems(foundSoFar, menuItem);
+            }
+            return foundSoFar;
         }
 
         public void Show()
@@ -222,7 +265,7 @@ namespace PeanutButter.TrayIcon
 
         public void Dispose()
 		{
-            lock(this)
+            lock(_lock)
             {
                 if (_notificationIcon != null)
     			    _notificationIcon.Dispose();
@@ -237,4 +280,5 @@ namespace PeanutButter.TrayIcon
 			}
 		}
 	}
+
 }

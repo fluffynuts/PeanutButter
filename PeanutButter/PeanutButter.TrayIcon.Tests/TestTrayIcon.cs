@@ -35,6 +35,12 @@ namespace PeanutButter.TrayIcon.Tests
                     () => MessageBox.Show("You clicked the balloon!"),
                     () => MessageBox.Show("You closed the balloon ):"));
             });
+            var sub = trayIcon.AddSubMenu("Sub Menu");
+            trayIcon.AddMenuItem("Item 1", () => { }, sub);
+            trayIcon.AddMenuItem("Destroy Sub", () =>
+            {
+                trayIcon.RemoveMenuItem("Sub Menu");
+            }, sub);
             trayIcon.AddMenuItem("Exit", () =>
             {
                 trayIcon.Hide();
