@@ -27,6 +27,10 @@ namespace PeanutButter.TrayIcon
         MouseClickHandler AddMouseClickHandler(MouseClicks clicks, MouseButtons button, Action handler);
         void RemoveMouseClickHandler(MouseClickHandler handler);
 
+        void Init(Icon icon);
+        void Init(Stream iconStream);
+        void Init(string pathToIcon);
+        void Init(Bitmap bitmap);
         void Show();
         void Hide();
         void Dispose();
@@ -60,36 +64,51 @@ namespace PeanutButter.TrayIcon
         public Action DefaultBalloonTipClickedAction { get; set; }
         public Action DefaultBalloonTipClosedAction { get; set; }
 
+        public TrayIcon()
+        {
+        }
+
         public TrayIcon(Icon icon)
+        {
+            Init(icon);
+        }
+
+        public TrayIcon(Bitmap icon)
         {
             Init(icon);
         }
 
         public TrayIcon(Stream iconImageStream)
         {
-            InitWithStream(iconImageStream);
+            Init(iconImageStream);
         }
 
-        private void InitWithStream(Stream iconImageStream)
+        public void Init(Stream iconImageStream)
         {
             var icon = new Icon(iconImageStream);
             Init(icon);
         }
 
-        public TrayIcon(Bitmap iconBitmap)
+        public TrayIcon(string pathToIcon)
         {
-            Init(Icon.FromHandle(iconBitmap.GetHicon()));
+            Init(pathToIcon);
         }
 
-        public TrayIcon(string pathToIcon)
+        public void Init(string pathToIcon)
         {
             using (var fileStream = new FileStream(pathToIcon, FileMode.Open, FileAccess.Read))
             {
-                InitWithStream(fileStream);
+                Init(fileStream);
             }
         }
 
+        public void Init(Bitmap bitmap)
+        {
+            Init(Icon.FromHandle(bitmap.GetHicon()));
+        }
+
         private BalloonTipClickHandlerRegistration _balloonTipClickHandlers;
+        private bool _alreadyInitialized;
 
         public void ShowBalloonTipFor(int timeoutInMilliseconds, string title, string text, ToolTipIcon icon,
             Action clickAction = null, Action closeAction = null)
@@ -255,8 +274,11 @@ namespace PeanutButter.TrayIcon
             return foundSoFar;
         }
 
-        private void Init(Icon icon)
+        public void Init(Icon icon)
         {
+            if (_alreadyInitialized)
+                throw new TrayIconAlreadyInitializedException();
+            _alreadyInitialized = true;
             _icon = icon;
             DefaultBalloonTipTimeout = 2000;
             _notificationIcon = new NotifyIcon();
@@ -348,5 +370,12 @@ namespace PeanutButter.TrayIcon
         }
 
 
+    }
+
+    public class TrayIconAlreadyInitializedException : Exception
+    {
+        public TrayIconAlreadyInitializedException() : base("This instance of the TrayIcon has already been initialized")
+        {
+        }
     }
 }

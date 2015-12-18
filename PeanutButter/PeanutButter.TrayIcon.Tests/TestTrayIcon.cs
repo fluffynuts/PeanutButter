@@ -15,7 +15,8 @@ namespace PeanutButter.TrayIcon.Tests
         public void AcceptanceTest_NotToBeRunAutomatically()
         {
             //---------------Set up test pack-------------------
-            var trayIcon = new TrayIcon(Resource1.Happy_smiley_face);
+            var trayIcon = new TrayIcon();
+            trayIcon.Init(Resource1.Happy_smiley_face);
             trayIcon.DefaultBalloonTipTimeout = 5000;
             trayIcon.DefaultTipText = "Default tip text";
             trayIcon.DefaultTipTitle = "Default tip title";
