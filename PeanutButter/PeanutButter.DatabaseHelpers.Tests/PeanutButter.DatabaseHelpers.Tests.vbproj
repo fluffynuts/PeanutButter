@@ -132,7 +132,7 @@
       <Name>PeanutButter.DatabaseHelpers</Name>
     </ProjectReference>
     <ProjectReference Include="..\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj">
-      <Project>{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}</Project>
+      <Project>{cb22d9ae-a2a8-45d0-92b9-fadc687120f0}</Project>
       <Name>PeanutButter.RandomGenerators</Name>
     </ProjectReference>
     <ProjectReference Include="..\PeanutButter.Utils\PeanutButter.Utils.csproj">
