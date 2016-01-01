@@ -9,13 +9,13 @@ namespace PeanutButter.TestUtils.Entity.Tests
     public class TestDbSchemaImporter
     {
         private TempDBLocalDb _migratedDb;
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void TestFixtureSetUp()
         {
             _migratedDb = CreateMigratedDb();
         }
 
-        [TestFixtureTearDown]
+        [OneTimeTearDown]
         public void TestFixtureTearDown()
         {
             _migratedDb.Dispose();

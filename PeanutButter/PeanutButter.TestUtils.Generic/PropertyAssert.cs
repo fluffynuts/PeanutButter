@@ -58,12 +58,12 @@ namespace PeanutButter.TestUtils.Generic
 
         public static void AreEqual(object obj1, object obj2, string obj1PropName, string obj2PropName = null)
         {
-            PerformEqualityAssertionWith(obj1, obj2, obj1PropName, obj2PropName, Assert.AreEqual);
+            PerformEqualityAssertionWith(obj1, obj2, obj1PropName, obj2PropName, (o1, o2, info) => Assert.AreEqual(o1, o2, info));
         }
 
         public static void AreNotEqual<T1, T2>(T1 obj1, T2 obj2, string T1PropertyName, string T2PropertyName = null)
         {
-            PerformEqualityAssertionWith(obj1, obj2, T1PropertyName, T2PropertyName, Assert.AreNotEqual);
+            PerformEqualityAssertionWith(obj1, obj2, T1PropertyName, T2PropertyName, (o1, o2, info) => Assert.AreNotEqual(o1, o2, info));
         }
 
         private static void PerformEqualityAssertionWith(object obj1, object obj2, string obj1PropName, string obj2PropName, Action<object, object, string> finalAssertion)

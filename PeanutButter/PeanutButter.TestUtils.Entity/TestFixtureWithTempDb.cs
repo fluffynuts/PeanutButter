@@ -181,12 +181,12 @@ CREATE TABLE [AspNetUsers](
             }
         }
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void __base_TestFixtureSetup()
         {
         }
 
-        [TestFixtureTearDown]
+        [OneTimeTearDown]
         public void __base_TestFixtureTearDown()
         {
             DisposeCurrentTempDb();

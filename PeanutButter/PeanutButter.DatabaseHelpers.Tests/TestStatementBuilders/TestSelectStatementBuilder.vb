@@ -15,13 +15,13 @@ Public Class TestSelectStatementBuilder
     <Test()>
     Public Sub WithTable_ShouldReturnBuilderInstance()
         Dim builder = Create()
-        Assert.AreEqual(builder, builder.WithTable(RandomValueGen.GetRandomString()))
+        Assert.IsTrue(builder Is builder.WithTable(RandomValueGen.GetRandomString()))
     End Sub
 
     <Test()>
     Public Sub WithField_ShouldReturnBuilderInstance()
         Dim builder = Create()
-        Assert.AreEqual(builder, builder.WithField(RandomValueGen.GetRandomString()))
+        Assert.IsTrue(builder is builder.WithField(RandomValueGen.GetRandomString()))
     End Sub
 
     <Test()>
@@ -74,7 +74,7 @@ Public Class TestSelectStatementBuilder
     <Test()>
     Public Sub WithCondition_ShouldReturnBuilderInstance()
         Dim builder = Create()
-        Assert.AreEqual(builder, builder.WithCondition(RandomValueGen.GetRandomString(1)))
+        Assert.IsTrue(builder is builder.WithCondition(RandomValueGen.GetRandomString(1)))
     End Sub
     <Test()>
     Public Sub WithStringCondition_GivenTableAndFieldAndOneWhereClause_ShouldReturnExpectedStatement()

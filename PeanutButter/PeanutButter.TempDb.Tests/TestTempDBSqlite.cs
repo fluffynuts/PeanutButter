@@ -12,13 +12,13 @@ namespace PeanutButter.TempDb.Tests
     [TestFixture]
     public class TestTempDBSqlite: TempDBTestFixtureBase
     {
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void TestFixtureSetUp()
         {
             File.WriteAllBytes("SQLite.Interop.dll", TestResources.SQLite_Interop_x86);
         }
 
-        [TestFixtureTearDown]
+        [OneTimeTearDown]
         public void TestFixtureTearDown()
         {
             try

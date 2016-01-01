@@ -34,7 +34,8 @@ function finder(searchFolder, searchBin, options, searchBaseFolder) {
             return runner;
         }
     }
-    throw 'not found';
+    return null;
+//    throw 'not found';
 }
 
 function findWrapper(func, name) {
@@ -52,12 +53,21 @@ function findWrapper(func, name) {
     }
 }
 
+function findNUnit3() {
+  var search = [programFilesFolder, 'NUnit.org', 'nunit-console', 'nunit3-console.exe'].join('/');
+  return fs.existsSync(search) ? search : null;
+}
+
 var testUtilFinder = {
     latestNUnit: function(options) {
         options = options || {};
         var runner = (options.x86 || ((options.platform || options.architecture) === 'x86')) ? '/bin/nunit-console-x86.exe' : '/bin/nunit-console.exe';
+        var runner3 = (options.x86 || ((options.platform || options.architecture) === 'x86')) ? '/bin/nunit3-console-x86.exe' : '/bin/nunit3-console.exe';
         return findWrapper(function() {
-            return finder('NUnit', runner, options);        
+            var result = findNUnit3() || finder('NUnit', runner, options);
+            if (result === null)
+              throw 'NUnit console runner not found )\':';
+            return result;
         });
     },
     latestDotCover: function(options) {

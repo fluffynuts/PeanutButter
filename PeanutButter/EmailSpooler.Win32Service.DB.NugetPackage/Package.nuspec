@@ -26,8 +26,9 @@
     <copyright>Copyright  2015</copyright>
     <dependencies>
       <group targetFramework="net40">
-        <dependency id="FluentMigrator" version="" />
-        <dependency id="FluentMigrator.Tools" version="" />
+        <dependency id="EntityFramework" version="[6.1.3,]" />
+        <dependency id="FluentMigrator" version="1.6.1" />
+        <dependency id="FluentMigrator.Tools" version="1.6.1" />
       </group>
     </dependencies>
     <references></references>
