@@ -148,22 +148,18 @@ Public Module ConditionExtensions
 
     <Extension()>
     public Function IsLikeOperator(ByVal op as Condition.EqualityOperators) As Boolean
-#Disable Warning BC40000 ' Type or member is obsolete
         Return op = Condition.EqualityOperators.Like_ Or _
                     op = Condition.EqualityOperators.Like or _
                     op = Condition.EqualityOperators.Contains or _
                     op = Condition.EqualityOperators.EndsWith or _
                     op = Condition.EqualityOperators.StartsWith
-#Enable Warning BC40000 ' Type or member is obsolete
     End Function
 
     <Extension()>
     Public Function LeftWildcard(op as Condition.EqualityOperators) As String
-#Disable Warning BC40000 ' Type or member is obsolete
         if op = Condition.EqualityOperators.Contains OrElse  _
             op = Condition.EqualityOperators.EndsWith OrElse  _
             op = Condition.EqualityOperators.Like_
-#Enable Warning BC40000 ' Type or member is obsolete
             return "%"
         End If
         return ""
@@ -171,11 +167,9 @@ Public Module ConditionExtensions
 
     <Extension()>
     Public Function RightWildcard(op as Condition.EqualityOperators) As String
-#Disable Warning BC40000 ' Type or member is obsolete
         if op = Condition.EqualityOperators.Contains OrElse  _
             op = Condition.EqualityOperators.StartsWith OrElse  _
             op = Condition.EqualityOperators.Like_
-#Enable Warning BC40000 ' Type or member is obsolete
             return "%"
         End If
         return ""

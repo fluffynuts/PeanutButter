@@ -18,7 +18,7 @@ Public Class Condition
         StartsWith
         EndsWith
     End Enum
-    Public Shared ReadOnly Property OperatorResolutions As IDictionary(Of EqualityOperators, String)
+    Public Shared ReadOnly Property OperatorResolutions As IDictionary(Of Condition.EqualityOperators, String)
         Get
             Return _operatorResolutions
         End Get
@@ -32,9 +32,7 @@ Public Class Condition
         operators(EqualityOperators.GreaterThanOrEqualTo) = ">="
         operators(EqualityOperators.LessThan) = "<"
         operators(EqualityOperators.LessThanOrEqualTo) = "<="
-#Disable Warning BC40000 ' Type or member is obsolete
         operators(EqualityOperators.Like_) = " like "
-#Enable Warning BC40000 ' Type or member is obsolete
         operators(EqualityOperators.Contains) = " like "
         operators(EqualityOperators.StartsWith) = " like "
         operators(EqualityOperators.EndsWith) = " like "

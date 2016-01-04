@@ -2,7 +2,7 @@ var gulp = require('gulp');
 var runSequence = require('run-sequence');
 
 gulp.task('default', function(cb) {
-    runSequence('build', 'test', function(err) {
+    runSequence('build', 'cover', function(err) {
         if (err) {
             console.log(err);
         }
