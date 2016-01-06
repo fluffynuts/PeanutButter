@@ -6,7 +6,7 @@ using System.Linq;
 using PeanutButter.FluentMigrator;
 using PeanutButter.Utils;
 
-namespace PeanutButter.TestUtils.Entity.Tests
+namespace PeanutButter.TestUtils.Entity
 {
     public class DbSchemaImporter : IDBMigrationsRunner
     {
