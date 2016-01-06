@@ -298,16 +298,13 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            RunCycles(() => results.Add(RandomValueGen.GetRandomDate(minTime: minTime)));
+            RunCycles(() => results.Add(RandomValueGen.GetRandomDate(minTime: minTime, maxTime: maxTime)));
 
             //---------------Test Result -----------------------
-            var outOfRange = results.Where(d => d.Ticks < minTime.Ticks).ToArray();
-            Assert.IsFalse(outOfRange.Any(), string.Join("\n", new[]
-            {
-                "One or more results had a time that was too early:",
-                "minTime: " + minTime.ToString("yyyy/MM/dd HH:mm:ss.ttt"),
-                "bad values: " + string.Join(",", outOfRange.Take(5))
-            }));
+            var outOfRangeLeft = results.Where(d => d.Ticks < minTime.Ticks).ToArray();
+            var outOfRangeRight = results.Where(d => d.Ticks < maxTime.Ticks).ToArray();
+            Assert.IsFalse(outOfRangeLeft.Any() && outOfRangeRight.Any(), 
+                                    GetErrorHelpFor(outOfRangeLeft, outOfRangeRight, minTime, maxTime));
         }
 
         [Test]
@@ -328,7 +325,7 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [Test]
-        public void GetRandomList_GivenGeneratorFunctionAndBoundaries_ShouldReturnListOfRandomSizeContainingOutputOfGeneratorPerItem()
+        public void GetRandomCollection_GivenGeneratorFunctionAndBoundaries_ShouldReturnListOfRandomSizeContainingOutputOfGeneratorPerItem()
         {
             //---------------Set up test pack-------------------
             const int runs = RANDOM_TEST_CYCLES;
@@ -357,10 +354,162 @@ namespace PeanutButter.RandomGenerators.Tests
             }
         }
 
+        [Test]
+        public void GetRandomAlphaNumericString_ShouldProduceRandomStringWithOnlyAlphaNumericCharacters()
+        {
+            var allResults = new List<Tuple<string, int, int>>();
+            RunCycles(() =>
+            {
+                //---------------Set up test pack-------------------
+                var minLength = RandomValueGen.GetRandomInt(1, 50);
+                var maxLength = RandomValueGen.GetRandomInt(minLength, minLength + 50);
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = RandomValueGen.GetRandomAlphaNumericString(minLength, maxLength);
+
+                allResults.Add(Tuple.Create(result, minLength, maxLength));
+
+            });
+            //---------------Test Result -----------------------
+            CollectionAssert.IsNotEmpty(allResults);
+            // collisions are possible, but should occur < 1%
+            var total = allResults.Count();
+            var unique = allResults.Select(o => o.Item1).Distinct().Count();
+            var delta = (decimal) (total - unique)/(decimal) total;
+            Assert.That(delta, Is.LessThan(1));
+
+            var tooShort = allResults.Where(r => r.Item1.Length < r.Item2);
+            var tooLong = allResults.Where(r => r.Item1.Length > r.Item3);
+            var alphaNumericChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+            var invalidCharacters = allResults.Where(r => r.Item1.Any(c => !alphaNumericChars.Contains(c)));
+            Assert.IsFalse(tooShort.Any() && tooLong.Any() && invalidCharacters.Any(), BuildErrorMessageFor(tooShort, tooLong, invalidCharacters));
+        }
+
+        [Test]
+        public void GetRandomAlphaString_ShouldProduceRandomStringWithOnlyAlphaCharacters()
+        {
+            var allResults = new List<Tuple<string, int, int>>();
+            RunCycles(() =>
+            {
+                //---------------Set up test pack-------------------
+                var minLength = RandomValueGen.GetRandomInt(1, 50);
+                var maxLength = RandomValueGen.GetRandomInt(minLength, minLength + 50);
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = RandomValueGen.GetRandomAlphaString(minLength, maxLength);
+
+                allResults.Add(Tuple.Create(result, minLength, maxLength));
+
+            });
+            //---------------Test Result -----------------------
+            CollectionAssert.IsNotEmpty(allResults);
+            // collisions are possible, but should occur < 1%
+            var total = allResults.Count();
+            var unique = allResults.Select(o => o.Item1).Distinct().Count();
+            var delta = (decimal) (total - unique)/(decimal) total;
+            Assert.That(delta, Is.LessThan(1));
+
+            var tooShort = allResults.Where(r => r.Item1.Length < r.Item2);
+            var tooLong = allResults.Where(r => r.Item1.Length > r.Item3);
+            var alphaNumericChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            var invalidCharacters = allResults.Where(r => r.Item1.Any(c => !alphaNumericChars.Contains(c)));
+            Assert.IsFalse(tooShort.Any() && tooLong.Any() && invalidCharacters.Any(), BuildErrorMessageFor(tooShort, tooLong, invalidCharacters));
+        }
+
+        [Test]
+        public void GetRandomNumericString_ShouldProduceRandomStringWithOnlyNumericCharacters()
+        {
+            var allResults = new List<Tuple<string, int, int>>();
+            RunCycles(() =>
+            {
+                //---------------Set up test pack-------------------
+                var minLength = RandomValueGen.GetRandomInt(1, 50);
+                var maxLength = RandomValueGen.GetRandomInt(minLength, minLength + 50);
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = RandomValueGen.GetRandomNumericString(minLength, maxLength);
+
+                allResults.Add(Tuple.Create(result, minLength, maxLength));
+
+            });
+            //---------------Test Result -----------------------
+            CollectionAssert.IsNotEmpty(allResults);
+            // collisions are possible, but should occur < 1%
+            var total = allResults.Count();
+            var unique = allResults.Select(o => o.Item1).Distinct().Count();
+            var delta = (decimal) (total - unique)/(decimal) total;
+            Assert.That(delta, Is.LessThan(1));
+
+            var tooShort = allResults.Where(r => r.Item1.Length < r.Item2);
+            var tooLong = allResults.Where(r => r.Item1.Length > r.Item3);
+            var alphaNumericChars = "1234567890";
+            var invalidCharacters = allResults.Where(r => r.Item1.Any(c => !alphaNumericChars.Contains(c)));
+            Assert.IsFalse(tooShort.Any() && tooLong.Any() && invalidCharacters.Any(), BuildErrorMessageFor(tooShort, tooLong, invalidCharacters));
+        }
+
+
+        private string BuildErrorMessageFor(IEnumerable<Tuple<string, int, int>> tooShort, IEnumerable<Tuple<string, int, int>> tooLong, IEnumerable<Tuple<string, int, int>> invalidCharacters)
+        {
+            var message = new List<string>();
+            if (tooShort.Any())
+            {
+                message.Add(string.Join("\n",
+                    "Some results were too short:",
+                    string.Join("\n\t", tooShort.Take(5).Select(i => $"{i.Item1}  (<{i.Item2})"))));
+            }
+            if (tooLong.Any())
+            {
+                message.Add(string.Join("\n",
+                    "Some results were too long:",
+                    string.Join("\n\t", tooLong.Take(5).Select(i => $"{i.Item1}  (>{i.Item3})"))));
+            }
+            if (invalidCharacters.Any())
+            {
+                message.Add(string.Join("\n",
+                    "Some results contained invalid characters:",
+                    string.Join("\n\t", invalidCharacters.Take(5).Select(i => i.Item1))));
+            }
+            return message.JoinWith("\n");
+        }
+
+
         private void RunCycles(Action toRun)
         {
             for (var i = 0; i < RANDOM_TEST_CYCLES; i++)
                 toRun();
+        }
+
+        private string GetErrorHelpFor(IEnumerable<DateTime> outOfRangeLeft, 
+            IEnumerable<DateTime> outOfRangeRight,
+            DateTime minTime,
+            DateTime maxTime)
+        {
+            var message = "";
+            if (outOfRangeLeft.Any())
+            {
+                message = string.Join("\n", new[]
+                {
+                    "One or more results had a time that was too early:",
+                    "minTime: " + minTime.ToString("yyyy/MM/dd HH:mm:ss.ttt"),
+                    "bad values: " + string.Join(",", outOfRangeLeft.Take(5))
+                });
+            }
+            if (outOfRangeRight.Any())
+            {
+                message += string.Join("\n", new[]
+                {
+                    "One or more results had a time that was too late:",
+                    "maxTime: " + maxTime.ToString("yyyy/MM/dd HH:mm:ss.ttt"),
+                    "bad values: " + string.Join(",", outOfRangeLeft.Take(5))
+                });
+            }
+            return message;
         }
 
         private class DateTimeRange

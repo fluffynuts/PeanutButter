@@ -189,6 +189,11 @@ namespace PeanutButter.RandomGenerators
             return GetRandomString(minLength, maxLength, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
         }
 
+        public static string GetRandomNumericString(int minLength = DefaultRanges.MINLENGTH_STRING, int maxLength = DefaultRanges.MAXLENGTH_STRING)
+        {
+            return GetRandomString(minLength, maxLength, "1234567890");
+        }
+
         public static T GetRandomEnum<T>() where T: struct, IConvertible
         {
             var type = typeof(T);
@@ -235,7 +240,7 @@ namespace PeanutButter.RandomGenerators
                     result.Add(toAdd);
             }
             return result;
-        }  
+        }
 
         public static DateTime GetRandomTimeOn(DateTime theDate)
         {
