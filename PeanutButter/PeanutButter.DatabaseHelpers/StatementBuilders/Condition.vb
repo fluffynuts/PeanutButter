@@ -223,4 +223,5 @@ Public Class Condition
             Me.Value = _rightField.ToString()
         End If
     End Sub
+
 End Class
