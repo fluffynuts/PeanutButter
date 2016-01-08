@@ -11,6 +11,7 @@ var log = require('./log');
 
 var PLUGIN_NAME = 'gulp-dotcover';
 var DEBUG = true;
+var DRY_RUN = false;
 
 var CWD = process.cwd();
 function projectPathFor(path) {
@@ -28,7 +29,8 @@ function dotCover(options) {
     options.nunitOutput = projectPathFor(options.nunitOutput || 'buildreports/nunit-result.xml');
     options.coverageReportBase = projectPathFor(options.coverageReportBase || 'buildreports/coverage');
     options.coverageOutput = projectPathFor(options.coverageOutput || 'buildreports/coveragesnapshot')
-    DEBUG = options.debug || false;
+    DEBUG = options.debug || options.dryRun || false;
+    DRY_RUN = options.dryRun || false;
 
     var mkdir = function(dir) {
         var parts = dir.split('/');
@@ -149,6 +151,14 @@ function runDotCoverWith(stream, testAssemblies, options) {
     };
 
 
+    if (DRY_RUN) {
+        log.info('would run testing with coverage with command:');
+        log.info('dotCover executable: ' + dotCover);
+        log.info(' dotCover arguments: ' + dotCoverOptions.join(' '));
+        log.info('   report arguments: ' + reportArgsFor('HTML').join(' '));
+        end(stream);
+        return;
+    }
     log.info('running testing with coverage...');
     spawn(dotCover, dotCoverOptions).then(function() {
         log.info('creating XML report');

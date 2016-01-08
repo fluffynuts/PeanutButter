@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.Design.Serialization;
 using System.IO;
-using System.Linq;
 using System.Text;
 using NUnit.Framework;
-using NUnit.Framework.Constraints;
 using PeanutButter.RandomGenerators;
-using PeanutButter.Utils;
 
-namespace PenautButter.Utils.Tests
+namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
     public class TestAutoDeleter

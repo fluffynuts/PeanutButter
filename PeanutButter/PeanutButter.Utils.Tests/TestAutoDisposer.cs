@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using NSubstitute;
 using NUnit.Framework;
-using PeanutButter.Utils;
 
-namespace PenautButter.Utils.Tests
+namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
     public class TestAutoDisposer

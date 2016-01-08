@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using NUnit.Framework;
-using PeanutButter.Utils;
+﻿using NUnit.Framework;
 
-namespace PenautButter.Utils.Tests
+namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
     public class TestExpressionHelper

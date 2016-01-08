@@ -7,8 +7,8 @@
     <ProjectGuid>{A7B7276C-B224-4289-8930-A821A4B03C90}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PenautButter.Utils.Tests</RootNamespace>
-    <AssemblyName>PenautButter.Utils.Tests</AssemblyName>
+    <RootNamespace>PeanutButter.Utils.Tests</RootNamespace>
+    <AssemblyName>PeanutButter.Utils.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>

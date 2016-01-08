@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
-using PeanutButter.Utils;
 
-namespace PenautButter.Utils.Tests
+namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
     public class TestDateTimeExtensions

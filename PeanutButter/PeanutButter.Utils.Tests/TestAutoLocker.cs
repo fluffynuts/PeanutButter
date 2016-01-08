@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using NUnit.Framework;
-using PeanutButter.Utils;
 
-namespace PenautButter.Utils.Tests
+namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
     public class TestAutoLockerFat

@@ -1,9 +1,7 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using PeanutButter.RandomGenerators;
-using PeanutButter.Utils;
 
-namespace PenautButter.Utils.Tests
+namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
     public class TestAssemblyExtensions
