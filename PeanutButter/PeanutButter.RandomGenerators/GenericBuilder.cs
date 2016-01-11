@@ -128,68 +128,104 @@ namespace PeanutButter.RandomGenerators
             }
         }
 
-        private static void SetSetterForType(PropertyInfo prop, string typeName = null)
+        private static Dictionary<Type, Func<PropertyInfo, Action<TEntity, int>>> _setters =
+            new Dictionary<Type, Func<PropertyInfo, Action<TEntity, int>>>()
+            {
+                { typeof (int), pi => ((e, i) => pi.SetValue(e, RandomValueGen.GetRandomInt(), null))},
+                { typeof (long), pi => ((e, i) => pi.SetValue(e, RandomValueGen.GetRandomInt(), null))},
+                { typeof (float), pi => ((e, i) => pi.SetValue(e, Convert.ToSingle(RandomValueGen.GetRandomDouble(float.MinValue, float.MaxValue), null))) },
+                { typeof (double), pi => ((e, i) => pi.SetValue(e, RandomValueGen.GetRandomDouble(), null))},
+                { typeof (decimal), pi => ((e, i) => pi.SetValue(e, RandomValueGen.GetRandomDecimal(), null))},
+                { typeof(DateTime), pi => ((e, i) => pi.SetValue(e, RandomValueGen.GetRandomDate(), null))},
+                { typeof(Guid), pi => ((e, i) => pi.SetValue(e, Guid.NewGuid(), null)) },
+                { typeof(string), CreateStringPropertyRandomSetterFor },
+                { typeof(bool), CreateBooleanPropertyRandomSetterFor },
+                { typeof(byte[]), pi => ((e, i) => pi.SetValue(e, RandomValueGen.GetRandomBytes(), null)) }
+            };
+
+        private static Action<TEntity, int> CreateStringPropertyRandomSetterFor(PropertyInfo pi)
+        {
+            if (MayBeEmail(pi))
+                return (e, i) => pi.SetValue(e, RandomValueGen.GetRandomEmail(), null);
+            if (MayBeUrl(pi))
+                return (e, i) => pi.SetValue(e, RandomValueGen.GetRandomHttpUrl(), null);
+            if (MayBePhone(pi))
+                return (e, i) => pi.SetValue(e, RandomValueGen.GetRandomNumericString(), null);
+            return (e, i) => pi.SetValue(e, RandomValueGen.GetRandomString(), null);
+        }
+
+        private static bool MayBePhone(PropertyInfo pi)
+        {
+            return pi != null &&
+                   (pi.Name.ToLower().Contains("phone") ||
+                    pi.Name.ToLower().StartsWith("tel") ||
+                    pi.Name.ToLower().Contains("mobile") ||
+                    pi.Name.ToLower().Contains("fax"));
+        }
+
+        private static bool MayBeUrl(PropertyInfo pi)
+        {
+            return pi != null &&
+                   (pi.Name.ToLower().Contains("url") ||
+                    pi.Name.ToLower().Contains("website"));
+        }
+
+        private static bool MayBeEmail(PropertyInfo pi)
+        {
+            return pi != null && pi.Name.ToLower().Contains("email");
+        }
+
+        private static Action<TEntity, int> CreateBooleanPropertyRandomSetterFor(PropertyInfo pi)
+        {
+            if (pi.Name == "Enabled")
+                return (e, i) => pi.SetValue(e, true, null);
+            return (e, i) => pi.SetValue(e, RandomValueGen.GetRandomBoolean(), null);
+        }
+
+        private static Type _nullableGeneric = typeof (Nullable<>);
+        private static Type _collectionGeneric = typeof (ICollection<>);
+
+        private static bool IsNullableType(Type type)
+        {
+            return type.IsGenericType &&
+                    type.GetGenericTypeDefinition() == _nullableGeneric;
+        }
+
+        private static bool IsCollectionType(Type type)
+        {
+            return type.IsGenericType &&
+                   type.GetGenericTypeDefinition() == _collectionGeneric;
+        }
+
+        private static void SetSetterForType(PropertyInfo prop, Type propertyType = null)
         {
             if (!prop.CanWrite) return;
-            typeName = typeName ?? prop.PropertyType.Name;
-            switch (typeName.ToLower())
+            propertyType = propertyType ?? prop.PropertyType;
+            if (IsCollectionType(propertyType))
+                return;
+
+            Func<PropertyInfo, Action<TEntity, int>> setterGenerator;
+            if (_setters.TryGetValue(propertyType, out setterGenerator))
+                _randomPropSetters[prop.Name] = setterGenerator(prop);
+            else if (IsNullableType(propertyType))
             {
-                case "int32":
-                case "int64":
-                case "long":
-                case "int":
-                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, RandomValueGen.GetRandomInt(), null);
-                    break;
-                case "float":
-                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, (float)RandomValueGen.GetRandomDouble(float.MinValue, float.MaxValue), null);
-                    break;
-                case "single":
-                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, Convert.ToSingle(RandomValueGen.GetRandomDouble(-4096, 4096)), null);
-                    break;
-                case "double":
-                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, RandomValueGen.GetRandomDouble(), null);
-                    break;
-                case "decimal":
-                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, RandomValueGen.GetRandomDecimal(), null);
-                    break;
-                case "datetime":
-                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, RandomValueGen.GetRandomDate(), null);
-                    break;
-                case "guid":
-                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, Guid.NewGuid(), null);
-                    break;
-                case "string":
-                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, RandomValueGen.GetRandomString(), null);
-                    break;
-                case "nullable`1":
-                    var underlyingType = Nullable.GetUnderlyingType(prop.PropertyType);
-                    SetSetterForType(prop, underlyingType.Name);
-                    break;
-                case "icollection`1":
-                    break;
-                case "byte[]":
-                    _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, RandomValueGen.GetRandomBytes(128, 512), null);
-                    break;
-                case "boolean":
-                    if (prop.Name == "Enabled")
-                        _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, true, null);
-                    else
-                        _randomPropSettersField[prop.Name] = (e, i) => prop.SetValue(e, RandomValueGen.GetRandomBoolean(), null);
-                    break;
-                default:
-                    var builderType = TryFindUserBuilderFor(prop.PropertyType);
-                    if (builderType == null)
-                        builderType = FindOrCreateDynamicBuilderFor(prop);
-                    if (prop.CanWrite)
+                var underlyingType = Nullable.GetUnderlyingType(propertyType);
+                SetSetterForType(prop, underlyingType);
+            }
+            else
+            {
+                var builderType = TryFindUserBuilderFor(prop.PropertyType);
+                if (builderType == null)
+                    builderType = FindOrCreateDynamicBuilderFor(prop);
+                if (prop.CanWrite)
+                {
+                    _randomPropSettersField[prop.Name] = (e, i) =>
                     {
-                        _randomPropSettersField[prop.Name] = (e, i) =>
-                        {
-                            if (i > MAX_RANDOM_PROPS_LEVEL) return;
-                            var dynamicBuilder = Activator.CreateInstance(builderType) as IGenericBuilder;
-                            prop.SetValue(e, dynamicBuilder.GenericWithRandomProps().WithBuildLevel(i).GenericBuild(), null);
-                        };
-                    }
-                    break;
+                        if (i > MAX_RANDOM_PROPS_LEVEL) return;
+                        var dynamicBuilder = Activator.CreateInstance(builderType) as IGenericBuilder;
+                        prop.SetValue(e, dynamicBuilder.GenericWithRandomProps().WithBuildLevel(i).GenericBuild(), null);
+                    };
+                }
             }
         }
 
@@ -337,8 +373,9 @@ namespace PeanutButter.RandomGenerators
                 {
                     _randomPropSetters[prop.Name](entity, this._buildLevel + 1);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    var foo = ex;
                     //throw new Exception("Missing propSetter for: " + prop.Name);
                 }
             }

@@ -65,8 +65,10 @@ namespace PeanutButter.RandomGenerators.Tests
             public DateTime Created { get; set; }
             public decimal Cost { get; set; }
             public double DoubleValue { get; set; }
-            public Single SingleValue { get; set; }
             public float FloatValue { get; set; }
+            public Guid GuidValue { get; set; }
+            public decimal? NullableDecimalValue { get; set; }
+            public byte[] ByteArrayValue { get; set; }
         }
 
         private class NotAsSimpleBuilder : GenericBuilder<NotAsSimpleBuilder, NotAsSimpleClass>
@@ -83,6 +85,7 @@ namespace PeanutButter.RandomGenerators.Tests
 
             //---------------Execute Test ----------------------
             var obj = NotAsSimpleBuilder.BuildDefault();
+            var rand = NotAsSimpleBuilder.BuildRandom();
 
             //---------------Test Result -----------------------
             Assert.IsNotNull(obj);
@@ -145,10 +148,100 @@ namespace PeanutButter.RandomGenerators.Tests
             VarianceAssert.IsVariant<NotAsSimpleClass, bool>(randomItems, "Flag");
             VarianceAssert.IsVariant<NotAsSimpleClass, DateTime>(randomItems, "Created");
             VarianceAssert.IsVariant<NotAsSimpleClass, decimal>(randomItems, "Cost");
-            VarianceAssert.IsVariant<NotAsSimpleClass, Single>(randomItems, "SingleValue");
             VarianceAssert.IsVariant<NotAsSimpleClass, double>(randomItems, "DoubleValue");
             VarianceAssert.IsVariant<NotAsSimpleClass, float>(randomItems, "FloatValue");
+            VarianceAssert.IsVariant<NotAsSimpleClass, Guid>(randomItems, "GuidValue");
+            VarianceAssert.IsVariant<NotAsSimpleClass, decimal?>(randomItems, "NullableDecimalValue");
+            VarianceAssert.IsVariant<NotAsSimpleClass, byte[]>(randomItems, "ByteArrayValue");
         }
+
+        public class TestCleverRandomStrings
+        {
+            public string Email { get; set; }
+            public string EmailAddress { get; set; }
+            public string Url { get; set; }
+            public string Website { get; set; }
+            public string Phone { get; set; }
+            public string Tel { get; set; }
+            public string Mobile { get; set; }
+            public string Fax { get; set; }
+        }
+
+        public class TestCleverRandomStringsBuilder: GenericBuilder<TestCleverRandomStringsBuilder, TestCleverRandomStrings>
+        {
+        }
+
+        [Test]
+        public void BuildRandom_ShouldAttemptToMakeUsefulStringValues()
+        {
+            //---------------Set up test pack-------------------
+            var sut = TestCleverRandomStringsBuilder.BuildRandom();
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.IsTrue(LooksLikeEmail(sut.Email), $"{sut.Email} does not look like an email address");
+            Assert.IsTrue(LooksLikeEmail(sut.EmailAddress), $"{sut.EmailAddress} does not look like an email address");
+            Assert.IsTrue(LooksLikeUrl(sut.Url), $"{sut.Url} does not look like a url");
+            Assert.IsTrue(LooksLikeUrl(sut.Website), $"{sut.Website} does not look like a url");
+            Assert.IsTrue(IsAllNumeric(sut.Phone), $"{sut.Phone} should be all numeric");
+            Assert.IsTrue(IsAllNumeric(sut.Tel), $"{sut.Tel} should be all numeric");
+            Assert.IsTrue(IsAllNumeric(sut.Mobile), $"{sut.Mobile} should be all numeric");
+            Assert.IsTrue(IsAllNumeric(sut.Fax), $"{sut.Fax} should be all numeric");
+
+            //---------------Test Result -----------------------
+        }
+
+        public class TestBooleans
+        {
+            public bool Enabled { get; set; }
+            public bool SomeOtherBoolean { get; set; }
+        }
+
+        public class TestBooleansBuilder: GenericBuilder<TestBooleansBuilder, TestBooleans>
+        {
+        }
+
+        [Test]
+        public void BuildRandom_ShouldSetBooleanEnabledPropertyToTrue()
+        {
+            // special rule which makes dealing with entities which have an Enabled flag
+            //  a little less tedious for the user
+            //---------------Set up test pack-------------------
+            var items = new List<TestBooleans>();
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            for (var i = 0; i < 1000; i++)
+            {
+                items.Add(TestBooleansBuilder.BuildRandom());
+            }
+
+            //---------------Test Result -----------------------
+            Assert.IsTrue(items.Select(i => i.Enabled).All(v => v));
+            VarianceAssert.IsVariant<TestBooleans, bool>(items, "SomeOtherBoolean");
+        }
+
+
+        private bool IsAllNumeric(string phone)
+        {
+            return phone.All(c => "0123456789".Contains(c));
+        }
+
+        private bool LooksLikeUrl(string url)
+        {
+            return !string.IsNullOrWhiteSpace(url) &&
+                   url.IndexOf("://") > 0 && url.IndexOf("://") < url.Length - 2;
+        }
+
+        private bool LooksLikeEmail(string email)
+        {
+            return !string.IsNullOrWhiteSpace(email) &&
+                   email.IndexOf("@") > 0 && email.IndexOf("@") < email.Length - 2 &&
+                   email.IndexOf(".") > 0 && email.IndexOf(".") < email.Length - 2;
+        }
+
 
         private class BuilderInspector : GenericBuilder<BuilderInspector, SimpleClass>
         {
