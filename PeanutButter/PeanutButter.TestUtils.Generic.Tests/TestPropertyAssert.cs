@@ -287,7 +287,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             var v3 = RandomValueGen.GetRandomDate();
 
             var obj1 = new { v1 = v1, v2 = v2, v3 = v3 };
-            var obj2 = new { v1 = v1, v2 = Decimal.Parse(v2.ToString()), v3 = v3, v4 = RandomValueGen.GetRandomBoolean() };
+            var obj2 = new { v1 = v1, v2 = decimal.Parse(v2.ToString()), v3 = v3, v4 = RandomValueGen.GetRandomBoolean() };
             
             //---------------Assert Precondition----------------
 

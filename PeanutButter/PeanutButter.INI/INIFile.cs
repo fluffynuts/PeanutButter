@@ -28,7 +28,7 @@ namespace PeanutButter.INI
 
         private string _path;
         private readonly char[] _sectionTrimChars;
-        protected Dictionary<String, Dictionary<string, string>> Data { get; set; }
+        protected Dictionary<string, Dictionary<string, string>> Data { get; set; }
         public INIFile(string path = null)
         {
             Data = new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
@@ -54,7 +54,7 @@ namespace PeanutButter.INI
         {
             ClearSections();
             var currentSection = "";
-            foreach (var line in lines.Select(RemoveComments).Where(l => !String.IsNullOrEmpty(l)))
+            foreach (var line in lines.Select(RemoveComments).Where(l => !string.IsNullOrEmpty(l)))
             {
                 if (IsSectionHeading(line))
                 {
@@ -64,7 +64,7 @@ namespace PeanutButter.INI
                 }
                 var parts = line.Split('=');
                 var key = parts[0].Trim();
-                var value = String.Join("=", parts.Skip(1));
+                var value = string.Join("=", parts.Skip(1));
                 this[currentSection][key] = TrimOuterQuotesFrom(value);
             }
         }
@@ -75,12 +75,12 @@ namespace PeanutButter.INI
             var toTake = 1;
             while (toTake <= parts.Length && HaveUnmatchedQuotesIn(parts.Take(toTake)))
                 toTake++;
-            return String.Join(";", parts.Take(toTake)).Trim();
+            return string.Join(";", parts.Take(toTake)).Trim();
         }
 
         private bool HaveUnmatchedQuotesIn(IEnumerable<string> parts)
         {
-            var joined = String.Join(";", parts);
+            var joined = string.Join(";", parts);
             var quoted = joined.Count(c => c == '"');
             return quoted % 2 != 0;
         }
@@ -167,10 +167,10 @@ namespace PeanutButter.INI
             foreach (var section in Sections)
             {
                 if (section.Length > 0)
-                    lines.Add(String.Join("", new[] { "[", section, "]" }));
-                lines.AddRange(Data[section].Keys.Select(key => String.Join("", new[] { key.Trim(), "=", "\"", Data[section][key], "\"" })));
+                    lines.Add(string.Join("", new[] { "[", section, "]" }));
+                lines.AddRange(Data[section].Keys.Select(key => string.Join("", new[] { key.Trim(), "=", "\"", Data[section][key], "\"" })));
             }
-            File.WriteAllBytes(path, Encoding.UTF8.GetBytes(String.Join(Environment.NewLine, lines)));
+            File.WriteAllBytes(path, Encoding.UTF8.GetBytes(string.Join(Environment.NewLine, lines)));
         }
 
         private string CheckPersistencePath(string path)

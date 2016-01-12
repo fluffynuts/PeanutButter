@@ -16,7 +16,7 @@ namespace PeanutButter.MVC
             bundleResolver = bundleResolver ?? BundleResolver.Current;
             scriptRenderer = scriptRenderer ?? Scripts.Render;
 
-            return new HtmlString(String.Join("\n", GetControllerScripts(viewContext, bundleResolver, scriptRenderer)
+            return new HtmlString(string.Join("\n", GetControllerScripts(viewContext, bundleResolver, scriptRenderer)
                                                     .Union(GetActionScripts(viewContext, bundleResolver, scriptRenderer))));
         }
 
@@ -54,7 +54,7 @@ namespace PeanutButter.MVC
         {
             var controller = GetControllerNameFor(viewContext);
             var action = GetActionNameFor(viewContext);
-            return String.Join("", new[] { BundleBase, controller, "/", action });
+            return string.Join("", new[] { BundleBase, controller, "/", action });
         }
 
         private static string GetControllerNameFor(ViewContext viewContext)

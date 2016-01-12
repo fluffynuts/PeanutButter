@@ -23,7 +23,7 @@ namespace EmailSpooler.Win32Service.DB.FluentMigrator
                     .WithColumn(_Columns.MIMETYPE)
                         .AsString(DataConstants.FieldSizes.MAX_PATH).NotNullable().WithDefaultValue("application/octet-stream")
                     .WithColumn(_Columns.DATA)
-                        .AsBinary(Int32.MaxValue).NotNullable()
+                        .AsBinary(int.MaxValue).NotNullable()
                     .WithDefaultColumns();
             AddLastUpdatedTriggerFor(DataConstants.Tables.EmailAttachments.NAME, _Columns.EMAILATTACHMENTID);
         }

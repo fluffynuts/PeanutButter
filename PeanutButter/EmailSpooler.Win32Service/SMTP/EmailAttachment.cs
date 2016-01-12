@@ -11,11 +11,11 @@ namespace EmailSpooler.Win32Service.SMTP
         public bool IsInline { get; private set; }
         public EmailAttachment(string name, byte[] data, string mimeType, bool isInline = false)
         {
-            this.Name = name;
-            this.Data = data;
-            this.MIMEType = mimeType;
-            this.ContentID = Guid.NewGuid().ToString();
-            this.IsInline = isInline;
+            Name = name;
+            Data = data;
+            MIMEType = mimeType;
+            ContentID = Guid.NewGuid().ToString();
+            IsInline = isInline;
         }
     }
 }

@@ -40,18 +40,18 @@ namespace PeanutButter.TestUtils.Generic
             {
                 return obj;
             }
-            propName = String.Join(".", propParts.Skip(1));
+            propName = string.Join(".", propParts.Skip(1));
             var objType = obj.GetType();
             var propInfo = objType.GetProperty(propParts[0]);
             if (propInfo == null)
             {
-                throw new Exception(String.Join("", new[] { "Unable to resolve property '", propName, 
+                throw new Exception(string.Join("", new[] { "Unable to resolve property '", propName, 
                     "': can't find immediate property '", propParts[0], "' on object of type '", objType.Name, "'" }));
             }
             var propVal = propInfo.GetValue(obj, null);
             if (propVal == null && propName.IndexOf(".") > -1)
             {
-                throw new Exception(String.Join("", new[] { "Unable to traverse into property '", propName, "': current object is null" }));
+                throw new Exception(string.Join("", new[] { "Unable to traverse into property '", propName, "': current object is null" }));
             }
             return ResolveObject(propVal, ref propName);
         }
@@ -94,7 +94,7 @@ namespace PeanutButter.TestUtils.Generic
 
         private static string PropNotFoundMessage(Type type, string propName)
         {
-            return String.Join("", new[] { "Unable to find property '", propName, "' on type '", type.Name, "'" });
+            return string.Join("", new[] { "Unable to find property '", propName, "' on type '", type.Name, "'" });
         }
     }
 }

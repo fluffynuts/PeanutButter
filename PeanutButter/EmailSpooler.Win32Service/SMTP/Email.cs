@@ -21,8 +21,8 @@ namespace EmailSpooler.Win32Service.SMTP
         public Email(IEmailConfiguration config)
         {
             if (config == null) throw new ArgumentNullException("config");
-            this._config = config;
-            this.SetDefaults();
+            _config = config;
+            SetDefaults();
         }
 
         public static Email Create()
@@ -32,13 +32,13 @@ namespace EmailSpooler.Win32Service.SMTP
 
         public string AddPDFAttachment(string fileName, byte[] data)
         {
-            return this.AddAttachment(fileName, data, "application/pdf");
+            return AddAttachment(fileName, data, "application/pdf");
         }
 
         public string AddAttachment(string fileName, byte[] data, string mimeType, bool isInline = false)
         {
             var emailAttachment = new EmailAttachment(fileName, data, mimeType, isInline);
-            this.Attachments.Add(emailAttachment);
+            Attachments.Add(emailAttachment);
             return emailAttachment.ContentID;
         }
 
@@ -46,7 +46,7 @@ namespace EmailSpooler.Win32Service.SMTP
         {
             var emailAttachment = new EmailAttachment(fileName, data, mimeType, true);
             emailAttachment.ContentID = contentId;
-            this.Attachments.Add(emailAttachment);
+            Attachments.Add(emailAttachment);
         }
 
         public string AddInlineImageAttachment(string fileName, byte[] data)
@@ -54,27 +54,27 @@ namespace EmailSpooler.Win32Service.SMTP
             var parts = fileName.Split(new[] { '.' });
             var extension = parts.Length > 1 ? parts[parts.Length-1].ToLower() : "jpeg";
             var mimeType = "image/" + extension;
-            return this.AddAttachment(fileName, data, mimeType, true);
+            return AddAttachment(fileName, data, mimeType, true);
         }
 
         public void AddRecipient(string email)
         {
-            this.To.Add(email);
+            To.Add(email);
         }
 
         public void AddCC(string email)
         {
-            this.CC.Add(email);
+            CC.Add(email);
         }
 
         public void AddBCC(string email)
         {
-            this.BCC.Add(email);
+            BCC.Add(email);
         }
 
         public void Send()
         {
-            this.CheckEmailParameters();
+            CheckEmailParameters();
             var message = CreateMessage();
             var client = CreateSMTPClient();
             client.Send(message);
@@ -84,59 +84,59 @@ namespace EmailSpooler.Win32Service.SMTP
         {
             lock (this)
             {
-                foreach (var d in this._disposables)
+                foreach (var d in _disposables)
                     d.Dispose();
-                this._disposables.Clear();
+                _disposables.Clear();
             }
         }
 
         private void SetDefaults()
         {
-            this.Body = "";
-            this.To = new List<string>();
-            this.CC = new List<string>();
-            this.BCC = new List<string>();
-            this.Subject = "";
-            this.Attachments = new List<EmailAttachment>();
+            Body = "";
+            To = new List<string>();
+            CC = new List<string>();
+            BCC = new List<string>();
+            Subject = "";
+            Attachments = new List<EmailAttachment>();
         }
 
         protected virtual void CheckEmailParameters()
         {
-            if (this.Body == null) throw new ArgumentException("Email body cannot be null");
-            if (this.Subject == null) throw new ArgumentException("Email subject cannot be null");
-            if (this.To.Count == 0) throw new ArgumentException("Email has no recipients");
-            if (String.IsNullOrWhiteSpace(this.From)) throw new ArgumentException("Email sender cannot be empty");
+            if (Body == null) throw new ArgumentException("Email body cannot be null");
+            if (Subject == null) throw new ArgumentException("Email subject cannot be null");
+            if (To.Count == 0) throw new ArgumentException("Email has no recipients");
+            if (string.IsNullOrWhiteSpace(From)) throw new ArgumentException("Email sender cannot be empty");
         }
 
         protected virtual MailMessage CreateMessage()
         {
             var message = new MailMessage()
             {
-                Subject = this.Subject,
-                IsBodyHtml = this.DetermineIfBodyIsHTML(),
-                Body = this.Body,
-                From = new MailAddress(this.From),
-                Sender = new MailAddress(this.From)
+                Subject = Subject,
+                IsBodyHtml = DetermineIfBodyIsHTML(),
+                Body = Body,
+                From = new MailAddress(From),
+                Sender = new MailAddress(From)
             };
-            this.AddRecipientsTo(message);
-            this.AddAttachmentsTo(message);
-            this._disposables.Add(message);
+            AddRecipientsTo(message);
+            AddAttachmentsTo(message);
+            _disposables.Add(message);
             return message;
         }
 
         private void AddRecipientsTo(MailMessage message)
         {
-            foreach (var address in this.To)
+            foreach (var address in To)
                 message.To.Add(address);
-            foreach (var address in this.CC)
+            foreach (var address in CC)
                 message.CC.Add(address);
-            foreach (var address in this.BCC)
+            foreach (var address in BCC)
                 message.Bcc.Add(address);
         }
 
         private void AddAttachmentsTo(MailMessage message)
         {
-            foreach (var attachment in this.Attachments)
+            foreach (var attachment in Attachments)
             {
                 var memStream = new MemoryStream(attachment.Data);
                 var mailAttachment = new Attachment(memStream, attachment.Name, attachment.MIMEType);
@@ -152,7 +152,7 @@ namespace EmailSpooler.Win32Service.SMTP
                     mailAttachment.ContentDisposition.DispositionType = DispositionTypeNames.Attachment;
                 }
                 message.Attachments.Add(mailAttachment);
-                this._disposables.Add(memStream);
+                _disposables.Add(memStream);
             }
         }
 
@@ -160,18 +160,18 @@ namespace EmailSpooler.Win32Service.SMTP
         {
             var client = new SmtpClientFacade()
             {
-                Host = this._config.Host,
-                Port = this._config.Port,
-                EnableSsl = this._config.SSLEnabled,
+                Host = _config.Host,
+                Port = _config.Port,
+                EnableSsl = _config.SSLEnabled,
                 UseDefaultCredentials = false,
-                Credentials = new NetworkCredential(this._config.UserName, this._config.Password)
+                Credentials = new NetworkCredential(_config.UserName, _config.Password)
             };
             return client;
         }
 
         protected bool DetermineIfBodyIsHTML()
         {
-            return (this.Body.IndexOf("<html") > -1 && this.Body.IndexOf("</html>") > -1);
+            return (Body.IndexOf("<html") > -1 && Body.IndexOf("</html>") > -1);
         }
 
     }

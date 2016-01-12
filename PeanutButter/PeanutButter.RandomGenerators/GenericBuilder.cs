@@ -33,18 +33,18 @@ namespace PeanutButter.RandomGenerators
 
         public IGenericBuilder GenericWithRandomProps()
         {
-            return this.WithRandomProps() as IGenericBuilder;
+            return WithRandomProps() as IGenericBuilder;
         }
 
         public IGenericBuilder WithBuildLevel(int level)
         {
-            this._buildLevel = level;
+            _buildLevel = level;
             return this;
         }
 
         public object GenericBuild()
         {
-            return this.Build();
+            return Build();
         }
 
         public static TEntity BuildDefault()
@@ -64,7 +64,7 @@ namespace PeanutButter.RandomGenerators
 
         public TConcrete WithProp(Action<TEntity> action)
         {
-            this._propMods.Add(action);
+            _propMods.Add(action);
             return this as TConcrete;
         }
 
@@ -76,7 +76,7 @@ namespace PeanutButter.RandomGenerators
         public virtual TEntity Build()
         {
             var entity = ConstructEntity();
-            foreach (var action in _defaultPropMods.Union(this._propMods))
+            foreach (var action in _defaultPropMods.Union(_propMods))
             {
                 action(entity);
             }
@@ -85,11 +85,11 @@ namespace PeanutButter.RandomGenerators
 
         public virtual TConcrete WithRandomProps()
         {
-            this.WithProp(e => this.SetRandomProps(e));
+            WithProp(e => SetRandomProps(e));
             return this as TConcrete;
         }
 
-        private static Object _lockObject = new Object();
+        private static object _lockObject = new object();
         private static PropertyInfo[] _EntityPropInfoField;
         private static PropertyInfo[] _EntityPropInfo
         {
@@ -323,7 +323,7 @@ namespace PeanutButter.RandomGenerators
         private static Type GenerateDynamicBuilderFor(PropertyInfo prop)
         {
             var t = typeof(GenericBuilder<,>);
-            var moduleName = String.Join("_", new[] { "DynamicEntityBuilders", prop.PropertyType.Name });
+            var moduleName = string.Join("_", new[] { "DynamicEntityBuilders", prop.PropertyType.Name });
             var modBuilder = _dynamicAssemblyBuilder.DefineDynamicModule(moduleName);
 
             var typeBuilder = modBuilder.DefineType(prop.PropertyType + "Builder", TypeAttributes.Public | TypeAttributes.Class);
@@ -334,7 +334,7 @@ namespace PeanutButter.RandomGenerators
             return dynamicBuilderType;
         }
 
-        private static Object _dynamicAssemblyLock = new object();
+        private static object _dynamicAssemblyLock = new object();
         private static AssemblyBuilder _dynamicAssemblyBuilderField;
         private int _buildLevel;
 
@@ -359,7 +359,7 @@ namespace PeanutButter.RandomGenerators
             {
                 try
                 {
-                    _randomPropSetters[prop.Name](entity, this._buildLevel + 1);
+                    _randomPropSetters[prop.Name](entity, _buildLevel + 1);
                 }
                 catch (Exception ex)
                 {

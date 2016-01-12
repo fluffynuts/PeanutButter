@@ -8,7 +8,7 @@ namespace PeanutButter.SimpleHTTPServer
 
         protected TcpServerProcessor(TcpClient client)
         {
-            this.TcpClient = client;
+            TcpClient = client;
         }
     }
 }

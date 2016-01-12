@@ -12,9 +12,9 @@ namespace PeanutButter.Utils
     //  culture -- but there are others)
     public class DecimalDecorator
     {
-        static object _lock = new object();
-        static NumberFormatInfo _numberFormatInfoField;
-        static NumberFormatInfo _numberFormatInfo
+        private static readonly object _lock = new object();
+        private static NumberFormatInfo _numberFormatInfoField;
+        private static NumberFormatInfo _numberFormatInfo
         {
             get
             {
@@ -27,9 +27,9 @@ namespace PeanutButter.Utils
                             CurrencyDecimalSeparator = ".",
                             NumberDecimalSeparator = ".",
                             PercentDecimalSeparator = ".",
-                            CurrencyGroupSeparator = "",
-                            NumberGroupSeparator = "",
-                            PercentGroupSeparator = ""
+                            CurrencyGroupSeparator = string.Empty,
+                            NumberGroupSeparator = string.Empty,
+                            PercentGroupSeparator = string.Empty
                         };
                     }
                     return _numberFormatInfoField;
@@ -37,44 +37,37 @@ namespace PeanutButter.Utils
             }
         }
 
-        private string _stringValue;
-        private decimal _decimalValue;
+        private readonly string _stringValue;
+        private readonly decimal _decimalValue;
 
         public DecimalDecorator(decimal value, string format = null)
         {
-            this._decimalValue = value;
-            if (format != null)
-                this._stringValue = value.ToString(format, _numberFormatInfo);
-            else
-                this._stringValue = value.ToString(_numberFormatInfo);
+            _decimalValue = value;
+            _stringValue = format != null 
+                                ? value.ToString(format, _numberFormatInfo) 
+                                : value.ToString(_numberFormatInfo);
         }
+
         public DecimalDecorator(string value)
         {
             if (value == null)
                 value = "0";
-            if (value.Trim() == String.Empty)
+            if (value.Trim() == string.Empty)
                 value = "0";
-            value = value.Replace(" ", String.Empty);
-            if (value.IndexOf(".") > -1)
-            {
-                value = value.Replace(",", "");
-            }
-            else
-            {
-                value = value.Replace(",", ".");
-            }
-            this._decimalValue = Decimal.Parse(value, _numberFormatInfo);
-            this._stringValue = value;
+            value = value.Replace(" ", string.Empty);
+            value = value.Replace(",", value.IndexOf(".", StringComparison.Ordinal) > -1 ? string.Empty : ".");
+            _decimalValue = decimal.Parse(value, _numberFormatInfo);
+            _stringValue = value;
         }
 
         public override string ToString()
         {
-            return this._stringValue;
+            return _stringValue;
         }
 
         public decimal ToDecimal()
         {
-            return this._decimalValue;
+            return _decimalValue;
         }
     }
 }

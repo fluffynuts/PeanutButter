@@ -112,18 +112,18 @@ namespace PeanutButter.SimpleHTTPServer
 
         private StreamWriter _outputStream;
 
-        public String Method { get; private set; }
-        public String FullUrl { get; private set; }
+        public string Method { get; private set; }
+        public string FullUrl { get; private set; }
         public string Path { get; private set; }
-        public String Protocol { get; private set; }
+        public string Protocol { get; private set; }
         public Dictionary<string, string> UrlParameters { get; set; }
         public Dictionary<string, string> HttpHeaders { get; private set; }
 
 
         public HttpProcessor(TcpClient tcpClient, HttpServerBase server) : base(tcpClient)
         {
-            this.Server = server;                   
-            this.HttpHeaders = new Dictionary<string, string>();
+            Server = server;                   
+            HttpHeaders = new Dictionary<string, string>();
         }
 
         public void ProcessRequest() 
@@ -159,7 +159,7 @@ namespace PeanutButter.SimpleHTTPServer
 
         public void ParseRequest() 
         {
-            var request = this.TcpClient.ReadLine();
+            var request = TcpClient.ReadLine();
             var tokens = request.Split(' ');
             if (tokens.Length != 3) 
             {
@@ -172,10 +172,10 @@ namespace PeanutButter.SimpleHTTPServer
                 UrlParameters = new Dictionary<string, string>();
             else
             {
-                var all = String.Join("?", parts.Skip(1));
+                var all = string.Join("?", parts.Skip(1));
                 UrlParameters = EncodedStringToDictionary(all);
             }
-            this.Path = parts.First();
+            Path = parts.First();
             Protocol = tokens[2];
         }
 
@@ -186,14 +186,14 @@ namespace PeanutButter.SimpleHTTPServer
                                 {
                                     var subParts = p.Split('=');
                                     var key = subParts.First();
-                                    var value = String.Join("=", subParts.Skip(1));
+                                    var value = string.Join("=", subParts.Skip(1));
                                     return new { key = key, value = value };
                                 }).ToDictionary(x => x.key, x => x.value);
         }
 
         public void ReadHeaders() 
         {
-            String line;
+            string line;
             while ((line = TcpClient.ReadLine()) != null) {
                 if (line.Equals("")) {
                     return;
@@ -223,13 +223,13 @@ namespace PeanutButter.SimpleHTTPServer
         {
             using (var ms = new MemoryStream())
             {
-                if (this.HttpHeaders.ContainsKey(CONTENT_LENGTH_HEADER))
+                if (HttpHeaders.ContainsKey(CONTENT_LENGTH_HEADER))
                 {
-                    var contentLength = Convert.ToInt32(this.HttpHeaders[CONTENT_LENGTH_HEADER]);
+                    var contentLength = Convert.ToInt32(HttpHeaders[CONTENT_LENGTH_HEADER]);
                     if (contentLength > MAX_POST_SIZE)
                     {
                         throw new Exception(
-                            String.Format("POST Content-Length({0}) too big for this simple server",
+                            string.Format("POST Content-Length({0}) too big for this simple server",
                                           contentLength));
                     }
                     var buf = new byte[BUF_SIZE];
@@ -310,7 +310,7 @@ namespace PeanutButter.SimpleHTTPServer
 
         public void WriteHeader(string header, string value)
         {
-            WriteResponseLine(String.Join(": ", new[] { header, value }));
+            WriteResponseLine(string.Join(": ", new[] { header, value }));
         }
 
         public void WriteHeader(string header, int value)
@@ -320,7 +320,7 @@ namespace PeanutButter.SimpleHTTPServer
 
         public void WriteStatusHeader(int errorCode, string message)
         {
-            WriteResponseLine(String.Join(" ", new[] { "HTTP/1.0", errorCode.ToString(), message }));
+            WriteResponseLine(string.Join(" ", new[] { "HTTP/1.0", errorCode.ToString(), message }));
         }
 
         public void WriteDataToStream(byte[] data)

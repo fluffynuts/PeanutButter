@@ -312,7 +312,7 @@ namespace PeanutButter.TrayIcon
 
         private void ShowDefaultBalloonTip(object sender, MouseEventArgs e)
         {
-            if (String.IsNullOrEmpty(DefaultTipText) || String.IsNullOrEmpty(DefaultTipTitle)) return;
+            if (string.IsNullOrEmpty(DefaultTipText) || string.IsNullOrEmpty(DefaultTipTitle)) return;
             lock (this)
             {
                 if (HaveRegisteredClickHandlers()) return;

@@ -31,16 +31,6 @@ namespace PeanutButter.Win32ServiceControl
         void SetManualStart();
     }
 
-    public enum ServiceStartupTypes
-    {
-        Unknown = -1,
-        Boot = 0,
-        System = 1,
-        Automatic = 2,
-        Manual = 3,
-        Disabled = 4
-    }
-
     public class WindowsServiceUtil : IWindowsServiceUtil
     {
         private const string _serviceNotInstalled = "Service not installed";
@@ -71,7 +61,7 @@ namespace PeanutButter.Win32ServiceControl
                 if (_serviceExe != null)
                     return _serviceExe;
 
-                var searcher = new ManagementObjectSearcher(String.Format("select PathName from Win32_Service where Name = '{0}'",
+                var searcher = new ManagementObjectSearcher(string.Format("select PathName from Win32_Service where Name = '{0}'",
                                                                            _serviceName.Replace("'", "''")));
                 var collection = searcher.Get();
                 if (collection.Count == 0)
@@ -91,7 +81,7 @@ namespace PeanutButter.Win32ServiceControl
 
         public static WindowsServiceUtil GetServiceByPath(string path)
         {
-            var searcher = new ManagementObjectSearcher(String.Join(String.Empty,
+            var searcher = new ManagementObjectSearcher(string.Join(string.Empty,
                 new string[] { "select Name from Win32_Service where PathName = '", path.Replace("'", "''").Replace("\\", "\\\\"), "'" }));
             var collection = searcher.Get();
             if (collection.Count == 0)
@@ -296,7 +286,7 @@ namespace PeanutButter.Win32ServiceControl
             var win32Exception = new Win32Exception(Marshal.GetLastWin32Error());
             if (service == IntPtr.Zero)
                 throw new ServiceOperationException(_serviceName, "Install", 
-                    String.Join(String.Empty, new string[] { "Failed to install with executable: " + _serviceExe, "\nMore info:\n", win32Exception.Message }));
+                    string.Join(string.Empty, new string[] { "Failed to install with executable: " + _serviceExe, "\nMore info:\n", win32Exception.Message }));
 
             return service;
         }
@@ -348,7 +338,7 @@ namespace PeanutButter.Win32ServiceControl
         {
             try
             {
-                var subKeypath = String.Join("\\", new[] { 
+                var subKeypath = string.Join("\\", new[] { 
                     "SYSTEM", "CurrentControlSet", "Services", ServiceName 
                 });
                 return Registry.LocalMachine.OpenSubKey(subKeypath, RegistryKeyPermissionCheck.ReadWriteSubTree);
@@ -543,7 +533,7 @@ namespace PeanutButter.Win32ServiceControl
 
         private string GenerateStopExceptionMessageWith(string subMessage, Exception ex)
         {
-            return String.Format("{0} {1} ({2})",
+            return string.Format("{0} {1} ({2})",
                 "Service responded to stop command",
                 subMessage,
                 ex.Message);
@@ -640,7 +630,7 @@ namespace PeanutButter.Win32ServiceControl
 
         private static int DetermineWaitTimeFor(Win32Api.SERVICE_STATUS status)
         {
-// Do not wait longer than the wait hint. A good interval is
+            // Do not wait longer than the wait hint. A good interval is
             // one tenth the wait hint, but no less than 1 second and no
             // more than 10 seconds.
             var waitTime = status.WaitHint/10;
@@ -706,83 +696,4 @@ namespace PeanutButter.Win32ServiceControl
         }
 
     }
-
-
-    public enum ServiceState
-    {
-        Unknown = -1, // The state cannot be (has not been) retrieved.
-        NotFound = 0, // The service is not known on the host server.
-        Stopped = 1,
-        StartPending = 2,
-        StopPending = 3,
-        Running = 4,
-        ContinuePending = 5,
-        PausePending = 6,
-        Paused = 7
-    }
-
-    [Flags]
-    public enum ScmAccessRights
-    {
-        Connect = 0x0001,
-        CreateService = 0x0002,
-        EnumerateService = 0x0004,
-        Lock = 0x0008,
-        QueryLockStatus = 0x0010,
-        ModifyBootConfig = 0x0020,
-        StandardRightsRequired = 0xF0000,
-
-        AllAccess = (StandardRightsRequired | Connect | CreateService |
-                     EnumerateService | Lock | QueryLockStatus | ModifyBootConfig)
-    }
-
-    [Flags]
-    public enum ServiceAccessRights
-    {
-        QueryConfig = 0x1,
-        ChangeConfig = 0x2,
-        QueryStatus = 0x4,
-        EnumerateDependants = 0x8,
-        Start = 0x10,
-        Stop = 0x20,
-        PauseContinue = 0x40,
-        Interrogate = 0x80,
-        UserDefinedControl = 0x100,
-        Delete = 0x00010000,
-        StandardRightsRequired = 0xF0000,
-
-        AllAccess = (StandardRightsRequired | QueryConfig | ChangeConfig |
-                     QueryStatus | EnumerateDependants | Start | Stop | PauseContinue |
-                     Interrogate | UserDefinedControl)
-    }
-
-    public enum ServiceBootFlag
-    {
-        Start = 0x00000000,
-        SystemStart = 0x00000001,
-        AutoStart = 0x00000002,
-        DemandStart = 0x00000003,
-        Disabled = 0x00000004
-    }
-
-    public enum ServiceControl
-    {
-        Stop = 0x00000001,
-        Pause = 0x00000002,
-        Continue = 0x00000003,
-        Interrogate = 0x00000004,
-        Shutdown = 0x00000005,
-        ParamChange = 0x00000006,
-        NetBindAdd = 0x00000007,
-        NetBindRemove = 0x00000008,
-        NetBindEnable = 0x00000009,
-        NetBindDisable = 0x0000000A
-    }
-
-    public enum ServiceError
-    {
-        Ignore = 0x00000000,
-        Normal = 0x00000001,
-        Severe = 0x00000002,
-        Critical = 0x00000003
-    }}
+}

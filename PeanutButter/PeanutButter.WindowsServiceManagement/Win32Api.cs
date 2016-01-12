@@ -55,7 +55,7 @@ namespace PeanutButter.Win32ServiceControl
         public static extern bool CloseServiceHandle(IntPtr hSCObject);
 
         [DllImport("advapi32.dll")]
-        public static extern int QueryServiceStatus(IntPtr hService, Win32Api.SERVICE_STATUS lpServiceStatus);
+        public static extern int QueryServiceStatus(IntPtr hService, SERVICE_STATUS lpServiceStatus);
 
         [DllImport("advapi32.dll")]
         public static extern bool QueryServiceStatusEx(IntPtr serviceHandle, int infoLevel, IntPtr buffer, int bufferSize, out int bytesNeeded);
@@ -65,7 +65,7 @@ namespace PeanutButter.Win32ServiceControl
         public static extern bool DeleteService(IntPtr hService);
 
         [DllImport("advapi32.dll")]
-        public static extern int ControlService(IntPtr hService, ServiceControl dwControl, Win32Api.SERVICE_STATUS lpServiceStatus);
+        public static extern int ControlService(IntPtr hService, ServiceControl dwControl, SERVICE_STATUS lpServiceStatus);
 
         [DllImport("advapi32.dll", SetLastError = true)]
         public static extern int StartService(IntPtr hService, int dwNumServiceArgs, int lpServiceArgVectors);

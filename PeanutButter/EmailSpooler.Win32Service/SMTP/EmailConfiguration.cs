@@ -22,11 +22,11 @@ namespace EmailSpooler.Win32Service
         public bool SSLEnabled { get; private set; }
         public EmailConfiguration(string host, int port, string userName, string password, bool sslEnabled)
         {
-            this.Host = host;
-            this.Port = port;
-            this.UserName = userName;
-            this.Password = password;
-            this.SSLEnabled = sslEnabled;
+            Host = host;
+            Port = port;
+            UserName = userName;
+            Password = password;
+            SSLEnabled = sslEnabled;
         }
 
         public static EmailConfiguration CreateFromAppConfig()
@@ -34,10 +34,10 @@ namespace EmailSpooler.Win32Service
             var appSettings = ConfigurationManager.AppSettings;
             return new EmailConfiguration(
                     appSettings["SMTPHost"],
-                    Int32.Parse(appSettings["SMTPPort"]),
+                    int.Parse(appSettings["SMTPPort"]),
                     appSettings["SMTPUserName"],
                     appSettings["SMTPPassword"],
-                    Boolean.Parse(appSettings["SMTPSSL"])
+                    bool.Parse(appSettings["SMTPSSL"])
                 );
         }
     }

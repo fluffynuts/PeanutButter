@@ -51,10 +51,10 @@ namespace PeanutButter.SimpleHTTPServer
         public string GetFullUrlFor(string relativeUrl)
         {
             var joinWith = relativeUrl.StartsWith("/") ? "" : "/";
-            return String.Join(joinWith, new[] { BaseUrl, relativeUrl });
+            return string.Join(joinWith, new[] { BaseUrl, relativeUrl });
         }
 
-        public string BaseUrl { get { return String.Format("http://localhost:{0}", this.Port); } }
+        public string BaseUrl { get { return string.Format("http://localhost:{0}", Port); } }
 
         public void AddFileHandler(Func<HttpProcessor, Stream, byte[]> handler, string contentType = "application/octet-stream")
         {

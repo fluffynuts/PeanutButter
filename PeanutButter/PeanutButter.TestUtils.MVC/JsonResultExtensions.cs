@@ -11,7 +11,7 @@ namespace PeanutButter.TestUtils.MVC
             if (propName == null)
                 return (T)data;
             var prop = data.GetType().GetProperty(propName);
-            if (prop == null) throw new Exception(String.Join(String.Empty, new[] { "Unable to find property '", propName, "' on provided jsonResult" }));
+            if (prop == null) throw new Exception(string.Join(string.Empty, new[] { "Unable to find property '", propName, "' on provided jsonResult" }));
             return (T)prop.GetValue(data, null);
         }
     }

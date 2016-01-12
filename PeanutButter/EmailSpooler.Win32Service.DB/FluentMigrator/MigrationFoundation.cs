@@ -44,13 +44,13 @@ namespace EmailSpooler.Win32Service.DB.FluentMigrator
             {
                 lock(this)
                 {
-                    this._override = value;
+                    _override = value;
                 }
             }
         }
         protected void AddLastUpdatedTriggerFor(string tableName, string idColumn = null)
         {
-            Execute.Sql(this.CreateLastModifiedTriggerSqlFor(tableName, idColumn));
+            Execute.Sql(CreateLastModifiedTriggerSqlFor(tableName, idColumn));
         }
 
         protected string CreateLastModifiedTriggerSqlFor(string tableName, string idCol)
@@ -61,7 +61,7 @@ namespace EmailSpooler.Win32Service.DB.FluentMigrator
                 var entityName = tableName;
                 if (entityName.EndsWith("s"))
                     entityName = entityName.Substring(0, entityName.Length-1);
-                idCol = String.Join("", new[] { entityName, "ID" });
+                idCol = string.Join("", new[] { entityName, "ID" });
             }
             lines.Add(Join("create trigger [dbo].[trLastUpdated_", tableName, "]"));
             lines.Add(Join("on [dbo].[",  tableName,  "]" ));
@@ -72,22 +72,22 @@ namespace EmailSpooler.Win32Service.DB.FluentMigrator
             lines.Add(Join("update [dbo].[", tableName, "] set LastModified = CURRENT_TIMESTAMP where [", 
                 idCol, "] in (select [", idCol, "] from inserted);"));
             lines.Add("end");
-            return String.Join("\n", lines);
+            return string.Join("\n", lines);
         }
 
         protected void EnableIdentityInsertFor(string table)
         {
-            Execute.Sql(String.Join("", new[] { "set IDENTITY_INSERT [", table, "] ON;" }));
+            Execute.Sql(string.Join("", new[] { "set IDENTITY_INSERT [", table, "] ON;" }));
         }
 
         protected void DisableIdentityInsertFor(string table)
         {
-            Execute.Sql(String.Join("", new[] { "set IDENTITY_INSERT [", table, "] OFF;" }));
+            Execute.Sql(string.Join("", new[] { "set IDENTITY_INSERT [", table, "] OFF;" }));
         }
 
         protected string Join(params string[] parts)
         {
-            return String.Join("", parts);
+            return string.Join("", parts);
         }
     }
 }

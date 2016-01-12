@@ -49,15 +49,15 @@ namespace ServiceShell
 
         public CommandlineOptions(string[] args, string helpHeading, string copyRightInformation = null)
         {
-            this.ExitCode = ExitCodes.CommandlineArgumentError;
+            ExitCode = ExitCodes.CommandlineArgumentError;
             if (Parser.Default.ParseArguments(args, this))
             {
-                if (this.ShowHelp)
+                if (ShowHelp)
                 {
                     ShowUsage(helpHeading, copyRightInformation);
                     return;
                 }
-                this.ExitCode = ExitCodes.Success;
+                ExitCode = ExitCodes.Success;
             }
             else
             {
@@ -69,12 +69,12 @@ namespace ServiceShell
         {
             var ht = new HelpText(helpHeading);
             ht.AddDashesToOption = true;
-            if (!String.IsNullOrWhiteSpace(copyRightInformation))
+            if (!string.IsNullOrWhiteSpace(copyRightInformation))
                 ht.Copyright = copyRightInformation;
             ht.AddOptions(this);
 
             Console.WriteLine(ht.ToString());
-            this.ExitCode = ExitCodes.ShowedHelp;
+            ExitCode = ExitCodes.ShowedHelp;
         }
 
     }

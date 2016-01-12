@@ -45,7 +45,7 @@ namespace PeanutButter.MVC.Tests
             //---------------Set up test pack-------------------
             var ctx = new ViewContext();
             ctx.Controller = Substitute.For<Controller>();
-            var valueProvider = Substitute.For<System.Web.Mvc.IValueProvider>();
+            var valueProvider = Substitute.For<IValueProvider>();
             var controllerName = RandomValueGen.GetRandomString();
             var actionName = RandomValueGen.GetRandomString();
             valueProvider.GetValue("Controller").Returns(new ValueProviderResult(controllerName, controllerName, CultureInfo.InvariantCulture));
@@ -60,7 +60,7 @@ namespace PeanutButter.MVC.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = AutoInclude.AutoIncludeScriptsFor(ctx, bundleResolver, (name) => new HtmlString(String.Format("<script src=\"{0}\"></script>", script)));
+            var result = AutoInclude.AutoIncludeScriptsFor(ctx, bundleResolver, (name) => new HtmlString(string.Format("<script src=\"{0}\"></script>", script)));
 
             //---------------Test Result -----------------------
             var parts = result.ToHtmlString().Split('\n');
@@ -74,7 +74,7 @@ namespace PeanutButter.MVC.Tests
             //---------------Set up test pack-------------------
             var ctx = new ViewContext();
             ctx.Controller = Substitute.For<Controller>();
-            var valueProvider = Substitute.For<System.Web.Mvc.IValueProvider>();
+            var valueProvider = Substitute.For<IValueProvider>();
             var controllerName = RandomValueGen.GetRandomString();
             var actionName = RandomValueGen.GetRandomString();
             valueProvider.GetValue("Controller").Returns(new ValueProviderResult(controllerName, controllerName, CultureInfo.InvariantCulture));
@@ -89,7 +89,7 @@ namespace PeanutButter.MVC.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = AutoInclude.AutoIncludeScriptsFor(ctx, bundleResolver, (name) => new HtmlString(String.Format("<script src=\"{0}\"></script>", script)));
+            var result = AutoInclude.AutoIncludeScriptsFor(ctx, bundleResolver, (name) => new HtmlString(string.Format("<script src=\"{0}\"></script>", script)));
 
             //---------------Test Result -----------------------
             var parts = result.ToHtmlString().Split('\n');
@@ -124,9 +124,9 @@ namespace PeanutButter.MVC.Tests
             //---------------Execute Test ----------------------
             var result = AutoInclude.AutoIncludeScriptsFor(ctx, bundleResolver, (names) =>
             {
-                return new HtmlString(String.Join("\n", bundleResolver
+                return new HtmlString(string.Join("\n", bundleResolver
                                                                 .GetBundleContents(names[0])
-                                                                .Select(script => String.Format("<script src=\"{0}\"></script>", script))));
+                                                                .Select(script => string.Format("<script src=\"{0}\"></script>", script))));
             });
 
             //---------------Test Result -----------------------

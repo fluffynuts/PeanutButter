@@ -39,11 +39,5 @@ namespace EmailSpooler.Win32Service.Entity
         public IDbSet<EmailAttachment> EmailAttachments { get; set; }
         public IDbSet<EmailRecipient> EmailRecipients { get; set; }
 
-        protected override void OnModelCreating(DbModelBuilder modelBuilder)
-        {
-            //modelBuilder.Configurations.Add(new EmailMap());
-            //modelBuilder.Configurations.Add(new EmailAttachmentMap());
-            //modelBuilder.Configurations.Add(new EmailRecipientMap());
-        }
     }
 }

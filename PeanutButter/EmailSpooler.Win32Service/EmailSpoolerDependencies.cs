@@ -16,11 +16,11 @@ namespace EmailSpooler.Win32Service
 
         public EmailSpoolerDependencies(ISimpleLogger logger)
         {
-            this._logger = logger;
-            this.DbContext = new EmailContext();
-            this.EmailConfig = EmailConfiguration.CreateFromAppConfig();
-            this.EmailSpoolerConfig = new EmailSpoolerConfig(logger);
-            this.EmailGenerator = () => new Email(this.EmailConfig);
+            _logger = logger;
+            DbContext = new EmailContext();
+            EmailConfig = EmailConfiguration.CreateFromAppConfig();
+            EmailSpoolerConfig = new EmailSpoolerConfig(logger);
+            EmailGenerator = () => new Email(EmailConfig);
         }
     }
 }

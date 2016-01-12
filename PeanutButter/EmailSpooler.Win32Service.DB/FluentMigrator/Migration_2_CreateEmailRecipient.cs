@@ -15,7 +15,7 @@ namespace EmailSpooler.Win32Service.DB.FluentMigrator
                         .WithColumn(_Columns.EMAILID)
                             .AsInt32().ForeignKey(DataConstants.Tables.Emails.NAME, DataConstants.Tables.Emails.Columns.EMAILID).NotNullable()
                         .WithColumn(_Columns.RECIPIENT)
-                            .AsString(Int32.MaxValue).NotNullable()
+                            .AsString(int.MaxValue).NotNullable()
                         .WithColumn(_Columns.IS_PRIMARYRECIPIENT)
                             .AsBoolean().NotNullable().WithDefaultValue(true)
                         .WithColumn(_Columns.IS_CC)

@@ -25,7 +25,7 @@ namespace PeanutButter.INI.Tests
 
             public void Write(IEnumerable<string> lines)
             {
-                Write(String.Join("\n", lines));
+                Write(string.Join("\n", lines));
             }
 
             public void Write(string data)
@@ -524,7 +524,7 @@ namespace PeanutButter.INI.Tests
                     ";this line should be ignored",
                     "key=value ; this part of the line should be ignored"
                 };
-                File.WriteAllBytes(tempFile.Path, Encoding.UTF8.GetBytes(String.Join(Environment.NewLine, src)));
+                File.WriteAllBytes(tempFile.Path, Encoding.UTF8.GetBytes(string.Join(Environment.NewLine, src)));
 
                 //---------------Assert Precondition----------------
 
@@ -556,7 +556,7 @@ namespace PeanutButter.INI.Tests
 
             //---------------Execute Test ----------------------
             var ini = Create();
-            ini.Parse(String.Join(Environment.NewLine, src));
+            ini.Parse(string.Join(Environment.NewLine, src));
 
             //---------------Test Result -----------------------
             Assert.AreEqual(1, ini.Data.Count);
@@ -583,7 +583,7 @@ namespace PeanutButter.INI.Tests
 
             //---------------Execute Test ----------------------
             var ini = Create();
-            ini.Parse(String.Join(Environment.NewLine, src));
+            ini.Parse(string.Join(Environment.NewLine, src));
 
             //---------------Test Result -----------------------
             Assert.AreEqual(3, ini.Sections.Count());

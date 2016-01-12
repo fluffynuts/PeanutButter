@@ -12,13 +12,13 @@ namespace PeanutButter.MVC
 
         public StyleBundleFacade(string name)
         {
-            this._actual = new StyleBundle(name);
+            _actual = new StyleBundle(name);
         }
 
         public Bundle Include(params string[] virtualPaths)
         {
-            this._includedPaths.AddRange(virtualPaths);
-            return this._actual.Include(virtualPaths);
+            _includedPaths.AddRange(virtualPaths);
+            return _actual.Include(virtualPaths);
         }
     }
 }

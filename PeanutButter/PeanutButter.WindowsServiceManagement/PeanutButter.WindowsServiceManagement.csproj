@@ -45,6 +45,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Exceptions\ServiceNotInstalledException.cs" />
     <Compile Include="Exceptions\ServiceOperationException.cs" />
+    <Compile Include="ScmAccessRights.cs" />
+    <Compile Include="ServiceAccessRights.cs" />
+    <Compile Include="ServiceBootFlag.cs" />
+    <Compile Include="ServiceControl.cs" />
+    <Compile Include="ServiceError.cs" />
+    <Compile Include="ServiceStartupTypes.cs" />
+    <Compile Include="ServiceState.cs" />
     <Compile Include="Win32Api.cs" />
     <Compile Include="WindowsServiceUtil.cs" />
     <Compile Include="Exceptions\WindowsServiceUtilException.cs" />

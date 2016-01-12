@@ -14,11 +14,11 @@ namespace EmailSpooler.Win32Service
         public int PurgeMessageWithAgeInDays { get; private set; }
         public EmailSpoolerConfig(ISimpleLogger logger)
         {
-            this.Logger = logger;
-            this.MaxSendAttempts = GetConfiguredIntVal("MaxSendAttempts", 5);
-            this.BackoffIntervalInMinutes = GetConfiguredIntVal("BackoffIntervalInMinutes", 2);
-            this.BackoffMultiplier = GetConfiguredIntVal("BackoffMultiplier", 2);
-            this.PurgeMessageWithAgeInDays = GetConfiguredIntVal("PurgeMessageWithAgeInDays", 30);
+            Logger = logger;
+            MaxSendAttempts = GetConfiguredIntVal("MaxSendAttempts", 5);
+            BackoffIntervalInMinutes = GetConfiguredIntVal("BackoffIntervalInMinutes", 2);
+            BackoffMultiplier = GetConfiguredIntVal("BackoffMultiplier", 2);
+            PurgeMessageWithAgeInDays = GetConfiguredIntVal("PurgeMessageWithAgeInDays", 30);
         }
 
         private int GetConfiguredIntVal(string keyName, int defaultValue)
@@ -26,15 +26,15 @@ namespace EmailSpooler.Win32Service
             var configured = ConfigurationManager.AppSettings[keyName];
             if (configured == null)
             {
-                this.Logger.LogInfo(String.Join("", new[] { 
+                Logger.LogInfo(string.Join("", new[] { 
                     "No configured value for '", keyName, "'; falling back on default value: '", defaultValue.ToString(), "'" 
                 }));
                 return defaultValue;
             }
             int configuredValue;
-            if (Int32.TryParse(configured, out configuredValue))
+            if (int.TryParse(configured, out configuredValue))
                 return configuredValue;
-            this.Logger.LogWarning(String.Join("", new[] {
+            Logger.LogWarning(string.Join("", new[] {
                 "Configured value of '", configured, "' cannot be parsed into an integer; falling back on default value '", defaultValue.ToString(), "'"
             }));
             return defaultValue;

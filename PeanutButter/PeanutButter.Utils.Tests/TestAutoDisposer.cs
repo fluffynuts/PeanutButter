@@ -66,7 +66,7 @@ namespace PeanutButter.Utils.Tests
 
             public void Dispose()
             {
-                this.Disposed = true;
+                Disposed = true;
             }
         }
 

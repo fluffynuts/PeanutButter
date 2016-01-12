@@ -74,8 +74,8 @@ namespace PeanutButter.TinyEventAggregator
 
         protected EventBase()
         {
-            this._subscriptions = new List<Subscription<TPayload>>();
-            this._eventName = this.GetType().Name;
+            _subscriptions = new List<Subscription<TPayload>>();
+            _eventName = GetType().Name;
         }
 
         public SubscriptionToken Subscribe(Action<TPayload> callback, 
@@ -84,7 +84,7 @@ namespace PeanutButter.TinyEventAggregator
             lock (this)
             {
                 var token = PerformSubscription(callback, 0);
-                Debug.WriteLine("Subscribing [{0}] indefinitely to event [{1}] ({2}:{3}:{4})", token, this.GetType().Name, sourceFile, requestingMethod, atLine);
+                Debug.WriteLine("Subscribing [{0}] indefinitely to event [{1}] ({2}:{3}:{4})", token, GetType().Name, sourceFile, requestingMethod, atLine);
                 return token;
             }
         }
@@ -128,7 +128,7 @@ namespace PeanutButter.TinyEventAggregator
             lock (this)
             {
                 var subscription = new Subscription<TPayload>(action, limit);
-                this._subscriptions.Add(subscription);
+                _subscriptions.Add(subscription);
                 RaiseSubscriptionAddedEventHandler(subscription.Token);
                 return subscription.Token;
             }
@@ -141,7 +141,7 @@ namespace PeanutButter.TinyEventAggregator
             {
                 WaitForSuspension();
                 var subscriptions = _subscriptions.ToArray();
-                Debug.WriteLine(String.Format("Publishing event [{0}] to {1} subscribers ({2}:{3}:{4})", 
+                Debug.WriteLine(string.Format("Publishing event [{0}] to {1} subscribers ({2}:{3}:{4})", 
                     _eventName, subscriptions.Length, sourceFile, requestingMethod, atLine));
                 foreach (var sub in subscriptions)
                 {
@@ -165,11 +165,11 @@ namespace PeanutButter.TinyEventAggregator
             if (token == null) throw new ArgumentNullException("token");
             lock (this)
             {
-                var match = this._subscriptions.FirstOrDefault(s => s.Token == token);
+                var match = _subscriptions.FirstOrDefault(s => s.Token == token);
                 if (match != null)
                 {
-                    Debug.WriteLine(String.Format("Unsubscribing [{0}] from event [{1}] ({2}:{3}:{4})", match.Token, _eventName, sourceFile, requestingMethod, atLine));
-                    this._subscriptions.Remove(match);
+                    Debug.WriteLine(string.Format("Unsubscribing [{0}] from event [{1}] ({2}:{3}:{4})", match.Token, _eventName, sourceFile, requestingMethod, atLine));
+                    _subscriptions.Remove(match);
                     RaiseSubscriptionRemovedEventHandler(match.Token);
                 }
             }

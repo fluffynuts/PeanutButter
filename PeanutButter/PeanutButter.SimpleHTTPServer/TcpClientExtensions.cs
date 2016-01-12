@@ -23,7 +23,7 @@ namespace PeanutButter.SimpleHTTPServer
                 };
                 data.Add(Convert.ToChar(thisChar));
             }            
-            return String.Join("", data);
+            return string.Join("", data);
         }
     }
 }

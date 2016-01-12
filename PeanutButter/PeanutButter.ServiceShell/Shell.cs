@@ -33,7 +33,7 @@ namespace PeanutButter.ServiceShell
         { 
             get
             {
-                if (String.IsNullOrWhiteSpace(_displayName))
+                if (string.IsNullOrWhiteSpace(_displayName))
                     throw new ServiceUnconfiguredException("DisplayName");
                 return _displayName;
             }
@@ -54,11 +54,12 @@ namespace PeanutButter.ServiceShell
                 _copyright = value ?? "";
             }
         }
+
         public new string ServiceName 
         {
             get
             {
-                if (String.IsNullOrWhiteSpace(_serviceName))
+                if (string.IsNullOrWhiteSpace(_serviceName))
                     throw new ServiceUnconfiguredException("ServiceName");
                 return _serviceName;
             }
@@ -67,8 +68,8 @@ namespace PeanutButter.ServiceShell
                 _serviceName = value;
             }
         }
-        protected string _serviceName;
-        protected string _displayName;
+        private string _serviceName;
+        private string _displayName;
 
         public class VersionInfo
         {
@@ -77,7 +78,7 @@ namespace PeanutButter.ServiceShell
             public int Build { get; set; }
             public override string ToString()
             {
-                return String.Join(".", new[] { Major, Minor, Build });
+                return string.Join(".", new[] { Major, Minor, Build });
             }
         }
 
@@ -164,7 +165,7 @@ namespace PeanutButter.ServiceShell
 
         private int StartMe()
         {
-            var existingServiceUtil = new WindowsServiceUtil(this.ServiceName);
+            var existingServiceUtil = new WindowsServiceUtil(ServiceName);
             if (!existingServiceUtil.IsInstalled)
             {
                 Console.WriteLine("Unable to start service: not installed");
@@ -213,7 +214,7 @@ namespace PeanutButter.ServiceShell
 
         private int StopMe(bool silentFail = false)
         {
-            var existingServiceUtil = new WindowsServiceUtil(this.ServiceName);
+            var existingServiceUtil = new WindowsServiceUtil(ServiceName);
             if (!existingServiceUtil.IsInstalled)
             {
                 return FailWith("Unable to stop service: not installed", silentFail);
@@ -250,7 +251,7 @@ namespace PeanutButter.ServiceShell
 
         private int InstallMe()
         {
-            var existingSvcUtil = new WindowsServiceUtil(this.ServiceName);
+            var existingSvcUtil = new WindowsServiceUtil(ServiceName);
             try
             {
                 if (existingSvcUtil.IsInstalled)
@@ -261,7 +262,7 @@ namespace PeanutButter.ServiceShell
                 Console.WriteLine("Service already installed at: " + existingSvcUtil.ServiceExe + " and I can't uninstall it: " + ex.Message);
                 return (int)CommandlineOptions.ExitCodes.InstallFailed;
             }
-            var svcUtil = new WindowsServiceUtil(this.ServiceName, this.DisplayName, new FileInfo(Environment.GetCommandLineArgs()[0]).FullName);
+            var svcUtil = new WindowsServiceUtil(ServiceName, DisplayName, new FileInfo(Environment.GetCommandLineArgs()[0]).FullName);
             try
             {
                 svcUtil.Install();
@@ -277,7 +278,7 @@ namespace PeanutButter.ServiceShell
 
         private int UninstallMe()
         {
-            var svcUtil = new WindowsServiceUtil(this.ServiceName);
+            var svcUtil = new WindowsServiceUtil(ServiceName);
             if (!svcUtil.IsInstalled)
             {
                 Console.WriteLine("Not installed!");
@@ -299,7 +300,7 @@ namespace PeanutButter.ServiceShell
         private int ShowVersion<T>() where T: Shell, new()
         {
             var svc = new T();
-            Console.WriteLine(String.Join(" ",
+            Console.WriteLine(string.Join(" ",
                                           new []
                                               {
                                                   Path.GetFileName(Environment.GetCommandLineArgs()[0]), "version:"
@@ -331,39 +332,39 @@ namespace PeanutButter.ServiceShell
         protected override void OnStart(string[] args)
         {
             LogState("Starting up");
-            var thread = new Thread(this.Run);
+            var thread = new Thread(Run);
             thread.Start();
         }
 
         protected override void OnStop()
         {
             LogState("Stopping");
-            this.Running = false;
-            this.Paused = false;
+            Running = false;
+            Paused = false;
         }
 
         protected override void OnPause()
         {
             LogState("Pausing");
-            this.Paused = true;
+            Paused = true;
         }
 
         protected override void OnShutdown()
         {
             LogState("Stopping due to system shutdown");
-            this.Running = false;
-            this.Paused = false;
+            Running = false;
+            Paused = false;
         }
 
         protected override void OnContinue()
         {
             LogState("Continuing");
-            this.Paused = false;
+            Paused = false;
         }
 
         private void LogState(string state)
         {
-            Log(String.Join(" ", new[] { this.DisplayName, "::", state }));
+            Log(string.Join(" ", new[] { DisplayName, "::", state }));
         }
 
         public virtual void LogDebug(string message)
@@ -388,43 +389,43 @@ namespace PeanutButter.ServiceShell
 
         protected void Run()
         {
-            this.Running = true;
+            Running = true;
             LogState("Running");
-            while (this.Running)
+            while (Running)
             {
                 if (PausedThenStopped())
                     break;
                 var lastRun = DateTime.Now;
                 try
                 {
-                    this.RunOnce();
+                    RunOnce();
                 }
                 catch (Exception ex)
                 {
-                    LogWarning("Exception running " + this.GetType().Name + ".RunOnce: " + ex.Message);
+                    LogWarning("Exception running " + GetType().Name + ".RunOnce: " + ex.Message);
                 }
                 WaitForIntervalFrom(lastRun);
             }
-            GetLogger().Info(this.ServiceName + ": Exiting");
+            GetLogger().Info(ServiceName + ": Exiting");
         }
 
         protected bool PausedThenStopped()
         {
-            while (this.Paused && this.Running)
+            while (Paused && Running)
             {
                 Thread.Sleep(500);
             }
-            return !this.Running;
+            return !Running;
         }
 
         private void WaitForIntervalFrom(DateTime lastRun)
         {
             var delta = DateTime.Now - lastRun;
-            while (delta.TotalSeconds < this.Interval)
+            while (delta.TotalSeconds < Interval)
             {
                 var granularity = 500;
                 Thread.Sleep(granularity);
-                if (!this.Running)
+                if (!Running)
                     break;
                 delta = DateTime.Now - lastRun;
             }
@@ -433,15 +434,7 @@ namespace PeanutButter.ServiceShell
         protected ILog GetLogger()
         {
             XmlConfigurator.Configure();
-            return LogManager.GetLogger(this.ServiceName);
-        }
-    }
-
-    public class ServiceUnconfiguredException : Exception
-    {
-        public ServiceUnconfiguredException(string property) 
-            : base("This service is not completely configured. Please set the " + property + " property value.")
-        {
+            return LogManager.GetLogger(ServiceName);
         }
     }
 }

@@ -20,10 +20,10 @@ namespace PeanutButter.TinyEventAggregator
         public int RemainingCalls { get; protected set; }
         public Subscription(Action<TPayload> receiver, int limit = 0)
         {
-            this.Receiver = receiver;
-            this.Token = new SubscriptionToken();
-            this.RemainingCalls = limit;
-            this._originalLimit = limit;
+            Receiver = receiver;
+            Token = new SubscriptionToken();
+            RemainingCalls = limit;
+            _originalLimit = limit;
         }
 
         public bool OnlyOneCallLeft()

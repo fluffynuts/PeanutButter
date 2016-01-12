@@ -6,9 +6,9 @@ namespace EmailSpooler.Win32Service
     {
         public EmailSpoolerService()
         {
-            this.ServiceName = "EmailSpooler";
-            this.DisplayName = "Email Spooler Service";
-            this.Interval = 10;
+            ServiceName = "EmailSpooler";
+            DisplayName = "Email Spooler Service";
+            Interval = 10;
         }
         protected override void RunOnce()
         {

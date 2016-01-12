@@ -202,7 +202,7 @@ namespace PeanutButter.RandomGenerators
         {
             var itemArray = items as T[] ?? items.ToArray();
             var upper = itemArray.Count() - 1;
-            return itemArray.Skip(RandomValueGen.GetRandomInt(0, upper)).First();
+            return itemArray.Skip(GetRandomInt(0, upper)).First();
         }
 
         public static T GetRandomFrom<T>(IEnumerable<T> items, params T[] butNot)
@@ -226,7 +226,7 @@ namespace PeanutButter.RandomGenerators
                 return items.Randomize();
             if (maxValues > items.Count())
                 maxValues = items.Count();
-            var howMany = RandomValueGen.GetRandomInt(minValues, maxValues);
+            var howMany = GetRandomInt(minValues, maxValues);
             var result = new List<T>();
             while (result.Count < howMany)
             {
@@ -247,7 +247,7 @@ namespace PeanutButter.RandomGenerators
 
         public static IEnumerable<T> GetRandomCollection<T>(Func<T> generator, int minValues = 0, int maxValues = DefaultRanges.MAX_ITEMS)
         {
-            var howMany = RandomValueGen.GetRandomInt(minValues, maxValues);
+            var howMany = GetRandomInt(minValues, maxValues);
             var result = new List<T>();
             for (var i = 0; i < howMany; i++)
             {

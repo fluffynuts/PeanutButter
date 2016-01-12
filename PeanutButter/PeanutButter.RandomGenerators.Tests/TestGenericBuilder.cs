@@ -104,7 +104,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 var type = typeof(TObject);
                 var propInfo = type.GetProperty(propertyName);
                 if (propInfo == null)
-                    throw new Exception(String.Join("", new[] { "Unable to find property '", propertyName, "' on type '", type.Name }));
+                    throw new Exception(string.Join("", new[] { "Unable to find property '", propertyName, "' on type '", type.Name }));
 
                 IEnumerable<TProperty> values = null;
                 try
@@ -113,7 +113,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 }
                 catch (Exception ex)
                 {
-                    Assert.Fail(String.Join("", new[] { "Unable to get list of property values for '", propertyName, "' of type '", typeof(TProperty).Name
+                    Assert.Fail(string.Join("", new[] { "Unable to get list of property values for '", propertyName, "' of type '", typeof(TProperty).Name
                         , "' from object of type '", type.Name, "': ", ex.Message }));
                 }
                 var totalCount = values.Count();
@@ -121,7 +121,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 {
                     if (values.Count(v => v.Equals(value)) == totalCount)
                     {
-                        Assert.Fail(String.Join("", new[] { "No variance for property '", propertyName, "' across ", totalCount.ToString(), " samples" }));
+                        Assert.Fail(string.Join("", new[] { "No variance for property '", propertyName, "' across ", totalCount.ToString(), " samples" }));
                     }
                 }
             }

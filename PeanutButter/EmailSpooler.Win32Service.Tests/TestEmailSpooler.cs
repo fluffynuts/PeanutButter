@@ -36,7 +36,7 @@ namespace EmailSpooler.Win32Service.Tests
                 var emailSpoolerConfig = Substitute.For<IEmailSpoolerConfig>();
                 emailSpoolerConfig.MaxSendAttempts.ReturnsForAnyArgs(ci => 5);
                 emailSpoolerConfig.BackoffMultiplier.ReturnsForAnyArgs(ci => 2);
-                this.WithEmailSpoolerConfig(emailSpoolerConfig)
+                WithEmailSpoolerConfig(emailSpoolerConfig)
                     .WithDbContext(SubstituteEmailContextBuilder.BuildDefault())
                     .WithEmailConfig(Substitute.For<IEmailConfiguration>())
                     .WithSimpleLogger(Substitute.For<ISimpleLogger>())
@@ -46,40 +46,40 @@ namespace EmailSpooler.Win32Service.Tests
             public IEmailSpoolerDependencies Build()
             {
                 var deps = Substitute.For<IEmailSpoolerDependencies>();
-                deps.EmailGenerator.ReturnsForAnyArgs(ci => this._EmailGenerator);
-                deps.DbContext.ReturnsForAnyArgs(ci => this._DbContext);
-                deps.EmailSpoolerConfig.ReturnsForAnyArgs(ci => this._Config);
-                deps.EmailConfig.ReturnsForAnyArgs(ci => this._EmailConfig);
+                deps.EmailGenerator.ReturnsForAnyArgs(ci => _EmailGenerator);
+                deps.DbContext.ReturnsForAnyArgs(ci => _DbContext);
+                deps.EmailSpoolerConfig.ReturnsForAnyArgs(ci => _Config);
+                deps.EmailConfig.ReturnsForAnyArgs(ci => _EmailConfig);
                 return deps;
             }
             private Func<IEmail> _EmailGenerator;
             public IFakeEmailSpoolerDependenciesBuilder WithEmailGenerator(Func<IEmail> EmailGenerator)
             {
-                this._EmailGenerator = EmailGenerator;
+                _EmailGenerator = EmailGenerator;
                 return this;
             }
             private IEmailContext _DbContext;
             public IFakeEmailSpoolerDependenciesBuilder WithDbContext(IEmailContext DbContext)
             {
-                this._DbContext = DbContext;
+                _DbContext = DbContext;
                 return this;
             }
             private IEmailSpoolerConfig _Config;
             public IFakeEmailSpoolerDependenciesBuilder WithEmailSpoolerConfig(IEmailSpoolerConfig Config)
             {
-                this._Config = Config;
+                _Config = Config;
                 return this;
             }
             private IEmailConfiguration _EmailConfig;
             public IFakeEmailSpoolerDependenciesBuilder WithEmailConfig(IEmailConfiguration EmailConfig)
             {
-                this._EmailConfig = EmailConfig;
+                _EmailConfig = EmailConfig;
                 return this;
             }
             private ISimpleLogger _SimpleLogger;
             public IFakeEmailSpoolerDependenciesBuilder WithSimpleLogger(ISimpleLogger SimpleLogger)
             {
-                this._SimpleLogger = SimpleLogger;
+                _SimpleLogger = SimpleLogger;
                 return this;
             }
 

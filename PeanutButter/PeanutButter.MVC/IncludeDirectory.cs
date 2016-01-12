@@ -13,9 +13,9 @@ namespace PeanutButter.MVC
         public bool SearchSubdirectories { get; private set; }
         public IncludeDirectory(string path, string searchPattern = null, bool searchSubDirectories = false)
         {
-            this.Path = path;
-            this.SearchPattern = searchPattern;
-            this.SearchSubdirectories = searchSubDirectories;
+            Path = path;
+            SearchPattern = searchPattern;
+            SearchSubdirectories = searchSubDirectories;
         }
     }
 }

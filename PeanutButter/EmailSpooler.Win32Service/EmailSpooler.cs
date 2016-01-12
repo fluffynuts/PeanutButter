@@ -35,9 +35,9 @@ namespace EmailSpooler.Win32Service
         public EmailSpooler(IEmailSpoolerDependencies dependencies)
         {
             CheckDependencies(dependencies);
-            this._dbContext = dependencies.DbContext;
-            this._emailGenerator = dependencies.EmailGenerator;
-            this._config = dependencies.EmailSpoolerConfig;
+            _dbContext = dependencies.DbContext;
+            _emailGenerator = dependencies.EmailGenerator;
+            _config = dependencies.EmailSpoolerConfig;
         }
 
         private static void CheckDependencies(IEmailSpoolerDependencies dependencies)
@@ -47,16 +47,16 @@ namespace EmailSpooler.Win32Service
             if (dependencies.EmailGenerator == null) missing.Add("emailGenerator");
             if (dependencies.EmailSpoolerConfig == null) missing.Add("emailSpoolerConfig");
             if (missing.Any())
-                throw new ArgumentNullException(String.Join(",", missing));
+                throw new ArgumentNullException(string.Join(",", missing));
         }
 
         public void Dispose()
         {
             lock (this)
             {
-                if (this._dbContext != null)
-                    this._dbContext.Dispose();
-                this._dbContext = null;
+                if (_dbContext != null)
+                    _dbContext.Dispose();
+                _dbContext = null;
             }
         }
 
@@ -68,60 +68,60 @@ namespace EmailSpooler.Win32Service
 
         private void PurgeOldSentAndUnsendableMail()
         {
-            var cutoff = DateTime.Now.AddDays(-this._config.PurgeMessageWithAgeInDays);
-            var toRemove = this._dbContext.Emails.Where(e => (e.Sent || e.SendAttempts >= this._config.MaxSendAttempts)
+            var cutoff = DateTime.Now.AddDays(-_config.PurgeMessageWithAgeInDays);
+            var toRemove = _dbContext.Emails.Where(e => (e.Sent || e.SendAttempts >= _config.MaxSendAttempts)
                                                             && (e.LastModified.HasValue && 
                                                                 e.LastModified.Value <= cutoff))
                                                                 .ToList();
             if (!toRemove.Any()) return;
-            this._config.Logger.LogInfo(String.Join("", new[] {
+            _config.Logger.LogInfo(string.Join("", new[] {
                 "Purging ", toRemove.Count().ToString(), " stale) messages"
             }));
             foreach (var email in toRemove)
-                this._dbContext.Emails.Remove(email);
-            this._dbContext.SaveChanges();
+                _dbContext.Emails.Remove(email);
+            _dbContext.SaveChanges();
         }
 
         private void AttemptToSendUnsentMail()
         {
-            var unsent = this._dbContext.Emails
+            var unsent = _dbContext.Emails
                 .Include(e => e.EmailRecipients)
                 .Include(e => e.EmailAttachments)
                 .Where(e => e.Enabled
                             && !e.Sent
                             && e.SendAt <= DateTime.Now
-                            && e.SendAttempts < this._config.MaxSendAttempts)
+                            && e.SendAttempts < _config.MaxSendAttempts)
                 .ToList();
             foreach (var message in unsent)
             {
-                this.SendMessageFor(message);
+                SendMessageFor(message);
             }
         }
 
         private void SendMessageFor(Email message)
         {
-            using (var email = this._emailGenerator())
+            using (var email = _emailGenerator())
             {
                 SetupEmailFromMessage(message, email);
-                this._config.Logger.LogInfo(String.Join("", new[] { "Attempting to send mail to '", email.To.FirstOrDefault() }));
+                _config.Logger.LogInfo(string.Join("", new[] { "Attempting to send mail to '", email.To.FirstOrDefault() }));
                 try
                 {
                     email.Send();
                     message.Sent = true;
-                    this._config.Logger.LogInfo(" => message sent");
+                    _config.Logger.LogInfo(" => message sent");
                 }
                 catch (Exception ex)
                 {
                     message.LastError = ex.Message;
                     message.SendAttempts++;
-                    var backoffBy = this._config.BackoffIntervalInMinutes * message.SendAttempts;
+                    var backoffBy = _config.BackoffIntervalInMinutes * message.SendAttempts;
                     if (message.SendAttempts > 1)
-                        backoffBy *= this._config.BackoffMultiplier;
+                        backoffBy *= _config.BackoffMultiplier;
                     message.SendAt = DateTime.Now.AddMinutes(backoffBy);
                     message.Sent = false;
-                    this._config.Logger.LogInfo("** Message not sent: " + ex.Message);
+                    _config.Logger.LogInfo("** Message not sent: " + ex.Message);
                 }
-                this._dbContext.SaveChanges();
+                _dbContext.SaveChanges();
             }
         }
 
@@ -138,7 +138,7 @@ namespace EmailSpooler.Win32Service
         {
             foreach (var attachment in message.EmailAttachments.Where(a => a.Enabled))
             {
-                if (String.IsNullOrEmpty(attachment.ContentID))
+                if (string.IsNullOrEmpty(attachment.ContentID))
                     email.AddAttachment(attachment.Name, attachment.Data, attachment.MIMEType);
                 else
                     email.AddAttachment(attachment.Name, attachment.Data, attachment.MIMEType, attachment.ContentID);

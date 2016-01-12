@@ -51,7 +51,7 @@ namespace PeanutButter.TempDb.LocalDb
 
         private string GetMasterConnectionString()
         {
-            return String.Format(_masterConnectionString, InstanceName);
+            return string.Format(_masterConnectionString, InstanceName);
         }
 
 
@@ -62,9 +62,9 @@ namespace PeanutButter.TempDb.LocalDb
                 connection.Open();
                 using (var cmd = connection.CreateCommand())
                 {
-                    cmd.CommandText = String.Format("alter database [{0}] set SINGLE_USER WITH ROLLBACK IMMEDIATE;", _dbName);
+                    cmd.CommandText = string.Format("alter database [{0}] set SINGLE_USER WITH ROLLBACK IMMEDIATE;", _dbName);
                     cmd.ExecuteNonQuery();
-                    cmd.CommandText = String.Format("drop database [{0}]", _dbName);
+                    cmd.CommandText = string.Format("drop database [{0}]", _dbName);
                     cmd.ExecuteNonQuery();
                 }
             }

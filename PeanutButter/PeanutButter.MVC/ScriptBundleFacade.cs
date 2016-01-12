@@ -14,25 +14,25 @@ namespace PeanutButter.MVC
         private List<string> _includedPaths = new List<string>();
         public ScriptBundleFacade(string name)
         {
-            this._actual = new ScriptBundle(name);
+            _actual = new ScriptBundle(name);
         }
 
         public Bundle IncludeDirectory(string directoryVirtualPath, string searchPattern)
         {
-            this._includedDirectories.Add(new IncludeDirectory(directoryVirtualPath, searchPattern));
-            return this._actual.IncludeDirectory(directoryVirtualPath, searchPattern);
+            _includedDirectories.Add(new IncludeDirectory(directoryVirtualPath, searchPattern));
+            return _actual.IncludeDirectory(directoryVirtualPath, searchPattern);
         }
 
         public Bundle IncludeDirectory(string directoryVirtualPath, string searchPattern, bool searchSubdirectories)
         {
-            this._includedDirectories.Add(new IncludeDirectory(directoryVirtualPath, searchPattern, searchSubdirectories));
-            return this._actual.IncludeDirectory(directoryVirtualPath, searchPattern, searchSubdirectories);
+            _includedDirectories.Add(new IncludeDirectory(directoryVirtualPath, searchPattern, searchSubdirectories));
+            return _actual.IncludeDirectory(directoryVirtualPath, searchPattern, searchSubdirectories);
         }
 
         public Bundle Include(params string[] relativePaths)
         {
-            this._includedPaths.AddRange(relativePaths);
-            return this._actual.Include(relativePaths);
+            _includedPaths.AddRange(relativePaths);
+            return _actual.Include(relativePaths);
         }
     }
 }

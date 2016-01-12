@@ -13,7 +13,7 @@ namespace PeanutButter.Utils
             var hash = md5.ComputeHash(data);
 
             var characters = hash.Select(t => t.ToString("X2")).ToList();
-            return String.Join("", characters.ToArray());
+            return string.Join("", characters.ToArray());
         }
 
         public static string ToUTF8String(this byte[] data)

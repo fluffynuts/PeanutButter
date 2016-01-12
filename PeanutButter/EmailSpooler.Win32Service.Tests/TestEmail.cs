@@ -37,7 +37,7 @@ namespace EmailSpooler.Win32Service.Tests
             public List<IDisposable> Disposables { get { return _disposables; } }
             public void AddDisposable(IDisposable disposable)
             {
-                this._disposables.Add(disposable);
+                _disposables.Add(disposable);
             }
             public new ISmtpClient CreateSMTPClient()
             {

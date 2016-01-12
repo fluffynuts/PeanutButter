@@ -22,12 +22,12 @@ namespace EACH.Tests.Builders
         }
         public IDbSetSubstituteBuilder()
         {
-            this.WithDataStore(new ObservableCollection<T>());
+            WithDataStore(new ObservableCollection<T>());
         }
 
         public IDbSetSubstituteBuilder<T> WithDataStore(ObservableCollection<T> collection)
         {
-            this._collection = collection;
+            _collection = collection;
             return this;
         }
 
@@ -36,14 +36,14 @@ namespace EACH.Tests.Builders
         {
             get
             {
-                if (this._asQueryable == null)
+                if (_asQueryable == null)
                 {
                     lock (this)
                     {
-                        this._asQueryable = this._collection.AsQueryable();
+                        _asQueryable = _collection.AsQueryable();
                     }
                 }
-                return this._asQueryable;
+                return _asQueryable;
             }
         }
         private IEnumerator<T> _enumerator;
@@ -51,14 +51,14 @@ namespace EACH.Tests.Builders
         {
             get
             {
-                if (this._enumerator == null)
+                if (_enumerator == null)
                 {
                     lock (this)
                     {
-                        this._enumerator = this._collection.GetEnumerator();
+                        _enumerator = _collection.GetEnumerator();
                     }
                 }
-                return this._enumerator;
+                return _enumerator;
             }
         }
 
@@ -69,39 +69,39 @@ namespace EACH.Tests.Builders
             MockAdd(dbset);
             MockRemove(dbset);
             MockAttach(dbset);
-            dbset.ElementType.Returns(this.AsQueryable.ElementType);
-            dbset.Expression.Returns(this.AsQueryable.Expression);
-            dbset.Provider.Returns(this.AsQueryable.Provider);
-            dbset.GetEnumerator().Returns(this._collection.GetEnumerator());
+            dbset.ElementType.Returns(AsQueryable.ElementType);
+            dbset.Expression.Returns(AsQueryable.Expression);
+            dbset.Provider.Returns(AsQueryable.Provider);
+            dbset.GetEnumerator().Returns(_collection.GetEnumerator());
 
             return dbset;
         }
 
         private void MockRemove(IDbSet<T> dbset)
         {
-            dbset.Remove(Arg.Any<T>()).ReturnsForAnyArgs(a => this.RemoveItem(a[0] as T));
+            dbset.Remove(Arg.Any<T>()).ReturnsForAnyArgs(a => RemoveItem(a[0] as T));
         }
 
         private void MockAttach(IDbSet<T> dbset)
         {
-            dbset.Attach(Arg.Any<T>()).ReturnsForAnyArgs(a => this.AddItem(a[0] as T));
+            dbset.Attach(Arg.Any<T>()).ReturnsForAnyArgs(a => AddItem(a[0] as T));
         }
 
         private void MockAdd(IDbSet<T> dbset)
         {
-            dbset.Add(Arg.Any<T>()).ReturnsForAnyArgs(a => this.AddItem(a[0] as T));
+            dbset.Add(Arg.Any<T>()).ReturnsForAnyArgs(a => AddItem(a[0] as T));
         }
 
         private T AddItem(T item)
         {
-            var existing = this._collection.FirstOrDefault(i => i == item);
+            var existing = _collection.FirstOrDefault(i => i == item);
             if (existing == null)
-                this._collection.Add(item);
+                _collection.Add(item);
             return item;
         }
         private T RemoveItem(T item)
         {
-            this._collection.Remove(item);
+            _collection.Remove(item);
             return item;
         }
     }
