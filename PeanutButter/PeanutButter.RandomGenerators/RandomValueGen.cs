@@ -8,34 +8,30 @@ namespace PeanutButter.RandomGenerators
 {
     public class RandomValueGen
     {
+        private static Dictionary<Type, Func<object>> _genericGenerators = new Dictionary<Type, Func<object>>()
+        {
+            { typeof(int), () => GetRandomInt() },
+            { typeof(byte), () => Convert.ToByte(GetRandomInt(0, 255)) },
+            { typeof(char), () => Convert.ToChar(GetRandomInt(0, 255)) },
+            { typeof(long), () => GetRandomLong() },
+            { typeof(float), () => Convert.ToSingle(GetRandomDecimal(decimal.MinValue, decimal.MaxValue)) },
+            { typeof(double), () => Convert.ToDouble(GetRandomDecimal(decimal.MinValue, decimal.MaxValue)) },
+            { typeof(decimal), () => GetRandomDecimal(decimal.MinValue, decimal.MaxValue) },
+            { typeof(DateTime), () => GetRandomDate() },
+            { typeof(string), () => GetRandomString() },
+            { typeof(bool), () => GetRandomBoolean() }
+        };
         public static object GetRandomValue<T>()
         {
-            var tType = typeof(T);
-            if (tType.IsGenericType && tType.GetGenericTypeDefinition() == typeof(Nullable<>))
-                tType = Nullable.GetUnderlyingType(tType);
-            if (tType == typeof(int))
-                return GetRandomInt();
-            if (tType == typeof(byte))
-                return (byte)GetRandomInt();
-            if (tType == typeof(char))
-                return (char)GetRandomInt();
-            if (tType == typeof(long))
-                return (long)GetRandomInt();
-            if (tType == typeof(float))
-                return (float)GetRandomDecimal();
-            if (tType == typeof(double))
-                return (double)GetRandomDecimal();
-            if (tType == typeof(decimal))
-                return GetRandomDecimal();
-            if (tType == typeof(DateTime))
-                return GetRandomDate();
-            if (tType == typeof(string))
-                return GetRandomString();
-            if (tType == typeof(bool))
-                return GetRandomBoolean();
-            throw new Exception("Can't get random value for type: '" + tType.Name + "': either too complex or I missed a simple type?");
+            var type = typeof(T);
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                type = Nullable.GetUnderlyingType(type);
+            Func<object> randomGenerator;
+            if (_genericGenerators.TryGetValue(type, out randomGenerator))
+                return (T)randomGenerator();
+            throw new Exception("Can't get random value for type: '" + type.Name + "': either too complex or I missed a simple type?");
         }
-        private class DefaultRanges
+        private static class DefaultRanges
         {
             public const int MINLENGTH_STRING = 8;
             public const int MAXLENGTH_STRING = -1;
@@ -56,13 +52,13 @@ namespace PeanutButter.RandomGenerators
             return GetRandomInt(1, 100)<50;
         }
 
-        static readonly string[] _mimeTypes = new[] { "text/plain", "text/html", "image/png", "application/pdf", "image/jpeg" };
+        private static readonly string[] MimeTypes = { "text/plain", "text/html", "image/png", "application/pdf", "image/jpeg" };
         public static string GetRandomMIMEType()
         {
-            var idx = GetRandomInt(0, _mimeTypes.Length - 1);
-            return _mimeTypes[idx];
+            var idx = GetRandomInt(0, MimeTypes.Length - 1);
+            return MimeTypes[idx];
         }
-        public static Int64 GetRandomLong(Int64 minValue = 0, Int64 maxValue = 1000)
+        public static long GetRandomLong(long minValue = 0, long maxValue = 1000)
         {
             if (minValue > maxValue)
             {
@@ -72,7 +68,7 @@ namespace PeanutButter.RandomGenerators
             }
             var dec = _rand.NextDouble();
             var range = maxValue - minValue + 1;
-            return minValue + (Int64)(range * dec);
+            return minValue + (long)(range * dec);
         }
 
         public static string GetRandomString(int minLength = 1, int maxLength = 32, string charSet = null)
@@ -83,12 +79,11 @@ namespace PeanutButter.RandomGenerators
             var charSetLength = charSet.Length;
             for (var i = 0; i < actualLength; i++)
             {
-                var pos = (int)GetRandomInt(0, charSetLength - 1);
+                var pos = GetRandomInt(0, charSetLength - 1);
                 chars.Add(charSet[pos]);
             }
-            return String.Join("", chars.Select(c => c.ToString()).ToArray());
+            return string.Join(string.Empty, chars.Select(c => c.ToString()).ToArray());
         }
-
 
         public static DateTime GetRandomDate(DateTime? minDate = null, DateTime? maxDate = null, bool dateOnly = false, 
                                                 DateTime? minTime = null, DateTime? maxTime = null)
@@ -144,7 +139,7 @@ namespace PeanutButter.RandomGenerators
 
         public static decimal GetRandomDecimal(decimal min = 0, decimal max = DefaultRanges.MAX_NUMERIC_VALUE)
         {
-            return (decimal)(GetRandomDouble((double)min, (double)max));
+            return (decimal)GetRandomDouble((double)min, (double)max);
         }
 
         public static byte[] GetRandomBytes(int minLength = 0, int maxLength = 1024)
@@ -155,12 +150,12 @@ namespace PeanutButter.RandomGenerators
 
         public static string GetRandomEmail()
         {
-            return String.Join("", new[] { GetRandomString(), "@", GetRandomString(), ".com" });
+            return string.Join(string.Empty, GetRandomString(), "@", GetRandomString(), ".com");
         }
 
         public static string GetRandomFileName()
         {
-            return String.Join(".", new[] { GetRandomString(10, 20), GetRandomString(3, 3) });
+            return string.Join(".", GetRandomString(10, 20), GetRandomString(3, 3));
         }
 
         public static string GetRandomWords(int min = 10, int max = 50)
@@ -171,12 +166,12 @@ namespace PeanutButter.RandomGenerators
             {
                 words.Add(GetRandomAlphaNumericString(1, 10));
             }
-            return String.Join(" ", words.ToArray());
+            return string.Join(" ", words.ToArray());
         }
 
         public static string GetRandomHttpUrl()
         {
-            return String.Join("/", new[] { "http:", "", GetRandomAlphaNumericString(3,12) + ".com", GetRandomAlphaNumericString(0,20) });
+            return string.Join("/", "http:", string.Empty, GetRandomAlphaNumericString(3,12) + ".com", GetRandomAlphaNumericString(0,20));
         }
 
         public static string GetRandomAlphaNumericString(int minLength = DefaultRanges.MINLENGTH_STRING, int maxLength = DefaultRanges.MAXLENGTH_STRING)

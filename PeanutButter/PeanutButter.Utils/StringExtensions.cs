@@ -23,5 +23,21 @@ namespace PeanutButter.Utils
                 return false;
             return _truthy.Any(item => item == input.ToLower());
         }
+
+        public static bool ContainsOneOf(this string src, params string[] search)
+        {
+            if (src == null)
+                return false;
+            src = src.ToLower();
+            return search.Any(s => src.Contains(s.ToLower()));
+        }
+
+        public static bool StartsWithOneOf(this string src, params string[] search)
+        {
+            if (src == null)
+                return false;
+            src = src.ToLower();
+            return search.Any(s => src.StartsWith(s.ToLower()));
+        }
     }
 }

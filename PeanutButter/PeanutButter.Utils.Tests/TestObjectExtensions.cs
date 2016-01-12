@@ -148,7 +148,7 @@ namespace PeanutButter.Utils.Tests
 
         private static void TestPropertyMatchingFor<T>()
         {
-//---------------Set up test pack-------------------
+            //---------------Set up test pack-------------------
             var propVal = (T)RandomValueGen.GetRandomValue<T>();
 
             //---------------Assert Precondition----------------

@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using PeanutButter.TestUtils.Generic;
+using PeanutButter.Utils;
 
 
 namespace PeanutButter.RandomGenerators
@@ -21,8 +22,8 @@ namespace PeanutButter.RandomGenerators
     }
     public class GenericBuilder<TConcrete, TEntity> : IGenericBuilder, IBuilder<TEntity> where TConcrete: GenericBuilder<TConcrete, TEntity>, new()
     {
-        public static int MAX_RANDOM_PROPS_LEVEL = 10;
-        private static List<Action<TEntity>> _defaultPropMods = new List<Action<TEntity>>();
+        public static int MaxRandomPropsLevel { get; set; } = 10;
+        private static readonly List<Action<TEntity>> _defaultPropMods = new List<Action<TEntity>>();
         private List<Action<TEntity>> _propMods = new List<Action<TEntity>>();
 
         public static TConcrete Create()
@@ -128,7 +129,7 @@ namespace PeanutButter.RandomGenerators
             }
         }
 
-        private static Dictionary<Type, Func<PropertyInfo, Action<TEntity, int>>> _setters =
+        private static readonly Dictionary<Type, Func<PropertyInfo, Action<TEntity, int>>> _simpleTypeSetters =
             new Dictionary<Type, Func<PropertyInfo, Action<TEntity, int>>>()
             {
                 { typeof (int), pi => ((e, i) => pi.SetValue(e, RandomValueGen.GetRandomInt(), null))},
@@ -157,17 +158,14 @@ namespace PeanutButter.RandomGenerators
         private static bool MayBePhone(PropertyInfo pi)
         {
             return pi != null &&
-                   (pi.Name.ToLower().Contains("phone") ||
-                    pi.Name.ToLower().StartsWith("tel") ||
-                    pi.Name.ToLower().Contains("mobile") ||
-                    pi.Name.ToLower().Contains("fax"));
+                   (pi.Name.ContainsOneOf("phone", "mobile", "fax") ||
+                    pi.Name.StartsWithOneOf("tel"));
         }
 
         private static bool MayBeUrl(PropertyInfo pi)
         {
             return pi != null &&
-                   (pi.Name.ToLower().Contains("url") ||
-                    pi.Name.ToLower().Contains("website"));
+                   pi.Name.ContainsOneOf("url", "website");
         }
 
         private static bool MayBeEmail(PropertyInfo pi)
@@ -205,7 +203,7 @@ namespace PeanutButter.RandomGenerators
                 return;
 
             Func<PropertyInfo, Action<TEntity, int>> setterGenerator;
-            if (_setters.TryGetValue(propertyType, out setterGenerator))
+            if (_simpleTypeSetters.TryGetValue(propertyType, out setterGenerator))
                 _randomPropSetters[prop.Name] = setterGenerator(prop);
             else if (IsNullableType(propertyType))
             {
@@ -214,19 +212,20 @@ namespace PeanutButter.RandomGenerators
             }
             else
             {
-                var builderType = TryFindUserBuilderFor(prop.PropertyType);
-                if (builderType == null)
-                    builderType = FindOrCreateDynamicBuilderFor(prop);
-                if (prop.CanWrite)
-                {
-                    _randomPropSettersField[prop.Name] = (e, i) =>
-                    {
-                        if (i > MAX_RANDOM_PROPS_LEVEL) return;
-                        var dynamicBuilder = Activator.CreateInstance(builderType) as IGenericBuilder;
-                        prop.SetValue(e, dynamicBuilder.GenericWithRandomProps().WithBuildLevel(i).GenericBuild(), null);
-                    };
-                }
+                SetupBuilderSetterFor(prop);
             }
+        }
+
+        private static void SetupBuilderSetterFor(PropertyInfo prop)
+        {
+            var builderType = TryFindUserBuilderFor(prop.PropertyType)
+                              ?? FindOrCreateDynamicBuilderFor(prop);
+            _randomPropSettersField[prop.Name] = (e, i) =>
+            {
+                if (i > MaxRandomPropsLevel) return;
+                var dynamicBuilder = Activator.CreateInstance(builderType) as IGenericBuilder;
+                prop.SetValue(e, dynamicBuilder.GenericWithRandomProps().WithBuildLevel(i).GenericBuild(), null);
+            };
         }
 
         private static Type FindOrCreateDynamicBuilderFor(PropertyInfo propInfo)
@@ -335,17 +334,6 @@ namespace PeanutButter.RandomGenerators
             return dynamicBuilderType;
         }
 
-        // TODO: expose the generic builder generator for use from consumers
-        //public static Type GenerateDynamicBuilder<TEntity>()
-        //{
-        //    var t = typeof (GenericBuilder<,>);
-        //    var entityType = typeof (TEntity);
-        //    var moduleName = String.Join("_", new[] {"DynamicEntityBuilders", entityType.Name});
-        //    var modBuilder = _dynamicAssemblyBuilder.DefineDynamicModule(moduleName);
-
-        //}
-
-
         private static Object _dynamicAssemblyLock = new object();
         private static AssemblyBuilder _dynamicAssemblyBuilderField;
         private int _buildLevel;
@@ -375,8 +363,7 @@ namespace PeanutButter.RandomGenerators
                 }
                 catch (Exception ex)
                 {
-                    var foo = ex;
-                    //throw new Exception("Missing propSetter for: " + prop.Name);
+                    Debug.WriteLine($"Unable to set random prop: {ex.Message}");
                 }
             }
         }
