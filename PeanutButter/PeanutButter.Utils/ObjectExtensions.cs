@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 
 namespace PeanutButter.Utils
 {
@@ -23,29 +25,18 @@ namespace PeanutButter.Utils
                 typeof(DateTime)
             };
         }
+
         public static bool AllPropertiesMatch(this object objSource, object objCompare, params string[] ignorePropertiesByName)
         {
             if (objSource == null && objCompare == null) return true;
             if (objSource == null || objCompare == null) return false;
             var srcPropInfos = objSource.GetType().GetProperties();
             var comparePropInfos = objCompare.GetType().GetProperties();
-            foreach (var srcProp in srcPropInfos)
+            foreach (var srcProp in srcPropInfos.Where(pi => !ignorePropertiesByName.Contains(pi.Name)))
             {
-                if (ignorePropertiesByName.Contains(srcProp.Name))
-                {
-                    continue;
-                }
-                var comparePropInfo = comparePropInfos.FirstOrDefault(pi => pi.Name == srcProp.Name);
+                var comparePropInfo = FindMatchingPropertyInfoFor(comparePropInfos, srcProp);
                 if (comparePropInfo == null)
-                {
-                    Debug.WriteLine("Unable to find comparison property with name: '" + srcProp.Name + "'");
                     return false;
-                }
-                if (comparePropInfo.PropertyType != srcProp.PropertyType)
-                {
-                    Debug.WriteLine("Source property has type '" + srcProp.PropertyType.Name + "' but comparison property has type '" + comparePropInfo.PropertyType.Name + "'");
-                    return false;
-                }
                 var srcValue = srcProp.GetValue(objSource, null);
                 var compareValue = comparePropInfo.GetValue(objCompare, null);
                 if (_simpleTypes.Any(st => st == srcProp.PropertyType))
@@ -57,6 +48,8 @@ namespace PeanutButter.Utils
                         Debug.WriteLine(srcProp.Name + " value mismatch: (" + srcString + ") vs (" + compareString + ")");
                         return false;
                     }
+                    if (!SimpleObjectsMatch(srcProp.Name, srcValue, compareValue))
+                        return false;
                     continue;
                 }
                 if (!srcValue.AllPropertiesMatch(compareValue))
@@ -65,18 +58,46 @@ namespace PeanutButter.Utils
             return true;
         }
 
+        private static bool SimpleObjectsMatch(string propertyName, object srcValue, object compareValue)
+        {
+            var srcString = StringOf(srcValue);
+            var compareString = StringOf(compareValue);
+            if (srcValue.ToString() != compareValue.ToString())
+            {
+                Debug.WriteLine(propertyName + " value mismatch: (" + srcString + ") vs (" + compareString + ")");
+                return false;
+            }
+            return true;
+        }
+
+        private static PropertyInfo FindMatchingPropertyInfoFor(IEnumerable<PropertyInfo> properties, PropertyInfo srcProp)
+        {
+            var comparePropInfo = properties.FirstOrDefault(pi => pi.Name == srcProp.Name);
+            if (comparePropInfo == null)
+            {
+                Debug.WriteLine("Unable to find comparison property with name: '" + srcProp.Name + "'");
+                return null;
+            }
+            if (comparePropInfo.PropertyType != srcProp.PropertyType)
+            {
+                Debug.WriteLine("Source property has type '" + srcProp.PropertyType.Name + "' but comparison property has type '" + comparePropInfo.PropertyType.Name + "'");
+                return null;
+            }
+            return comparePropInfo;
+        }
+
         public static void CopyPropertiesTo(this object src, object dst, bool deep = true)
         {
             if (src == null || dst == null) return;
             var srcPropInfos = src.GetType().GetProperties();
             var dstPropInfos = dst.GetType().GetProperties();
 
-            foreach (var srcPropInfo in srcPropInfos)
+            foreach (var srcPropInfo in srcPropInfos.Where(pi => pi.CanRead))
             {
-                if (!srcPropInfo.CanRead) continue;
-                var matchingTarget = dstPropInfos.FirstOrDefault(dp => dp.Name == srcPropInfo.Name && dp.PropertyType == srcPropInfo.PropertyType);
+                var matchingTarget = dstPropInfos.FirstOrDefault(dp => dp.Name == srcPropInfo.Name && 
+                                                                       dp.PropertyType == srcPropInfo.PropertyType &&
+                                                                       dp.CanWrite);
                 if (matchingTarget == null) continue;
-                if (!matchingTarget.CanWrite) continue;
 
                 var srcVal = srcPropInfo.GetValue(src, null);
                 if (!deep || IsSimpleTypeOrNullableOfSimpleType(srcPropInfo.PropertyType))
@@ -150,14 +171,6 @@ namespace PeanutButter.Utils
         public static bool IsAssignableTo<T>(this Type type)
         {
             return type.IsAssignableFrom(typeof (T));
-        }
-    }
-
-    internal class PropertyNotFoundException : Exception
-    {
-        public PropertyNotFoundException(Type type, string propertyName):
-            base("Property '" + propertyName + "' not found on type '" + type.Name + "'")
-        {
         }
     }
 }

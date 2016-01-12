@@ -86,36 +86,36 @@ namespace PeanutButter.ServiceShell
 
         protected Shell()
         {
-            this.Version = new VersionInfo();
-            this.Running = false;
-            this.Paused = false;
-            this.CanPauseAndContinue = true;
+            Version = new VersionInfo();
+            Running = false;
+            Paused = false;
+            CanPauseAndContinue = true;
         }
-
 
         public static int RunMain<T>(string[] args) where T: Shell, new()
         {
             var instance = new T();
+            var cliRunResult = CLIRunResultFor(args, instance);
+            if (cliRunResult.HasValue)
+                return cliRunResult.Value;
+            DisableConsoleLogging();
+
+            var servicesToRun = new ServiceBase[] { instance };
+            ServiceBase.Run(servicesToRun);
+            return 0;
+        }
+
+        private static int? CLIRunResultFor<T>(string[] args, T instance) where T: Shell, new()
+        {
             var cli = new CommandlineOptions(args, instance.DisplayName, instance.CopyrightInformation);
-            if (cli.ExitCode == CommandlineOptions.ExitCodes.ShowedHelp)
-                return (int)(cli.ExitCode);
-            if (cli.ShowVersion)
-                return instance.ShowVersion<T>();
-            if (cli.Uninstall)
-            {
-                instance.StopMe(true);
-                return instance.UninstallMe();
-            }
-            if (cli.Install)
-            {
-                var result = instance.InstallMe();
-                if (cli.StartService)
-                {
-                    return instance.StartMe();
-                }
-                else
-                    return result;
-            }
+            var runResult = PerformServiceShellTasksFor(instance, cli);
+            if (runResult.HasValue)
+                return runResult.Value;
+            return RunOnceResultFor(instance, cli);
+        }
+
+        private static int? RunOnceResultFor<T>(T instance, CommandlineOptions cli) where T: Shell, new()
+        {
             if (cli.RunOnce)
             {
                 if (cli.Wait > 0)
@@ -135,12 +135,26 @@ namespace PeanutButter.ServiceShell
                     return (int)CommandlineOptions.ExitCodes.Failure;
                 }
             }
+            return null;
+        }
 
-            DisableConsoleLogging();
-
-            var servicesToRun = new ServiceBase[] { instance };
-            ServiceBase.Run(servicesToRun);
-            return 0;
+        private static int? PerformServiceShellTasksFor<T>(T instance, CommandlineOptions cli) where T: Shell, new()
+        {
+            if (cli.ExitCode == CommandlineOptions.ExitCodes.ShowedHelp)
+                return (int)cli.ExitCode;
+            if (cli.ShowVersion)
+                return instance.ShowVersion<T>();
+            if (cli.Uninstall)
+            {
+                instance.StopMe(true);
+                return instance.UninstallMe();
+            }
+            if (cli.Install)
+            {
+                var result = instance.InstallMe();
+                return cli.StartService ? instance.StartMe() : result;
+            }
+            return null;
         }
 
         protected virtual void RunOnce()
