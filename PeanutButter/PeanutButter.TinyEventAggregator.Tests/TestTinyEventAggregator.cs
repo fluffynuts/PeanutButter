@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NUnit.Framework;
-using PeanutButter.TinyEventAggregator;
+﻿using NUnit.Framework;
 
-namespace TinyEventAggregator.Tests
+namespace PeanutButter.TinyEventAggregator.Tests
 {
     [TestFixture]
     public class TestTinyEventAggregator

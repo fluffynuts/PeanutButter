@@ -7,8 +7,8 @@
     <ProjectGuid>{ACB8C2F5-3C3D-4116-8A9C-5E7D8D7B0B83}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TinyEventAggregator.Tests</RootNamespace>
-    <AssemblyName>TinyEventAggregator.Tests</AssemblyName>
+    <RootNamespace>PeanutButter.TinyEventAggregator.Tests</RootNamespace>
+    <AssemblyName>PeanutButter.TinyEventAggregator.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
