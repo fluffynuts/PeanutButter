@@ -161,7 +161,7 @@ CREATE TABLE [AspNetUsers](
         }
 
         [SetUp]
-        public void _base_Setup()
+        public void TestFixtureWithTempDbBaseSetup()
         {
             _runBeforeFirstGettingContext = true;
             if (_databaseLifetime == TempDatabaseLifetimes.Test)
@@ -172,7 +172,7 @@ CREATE TABLE [AspNetUsers](
         }
 
         [TearDown]
-        public void __base_Teardown()
+        public void TestFixtureWithTempDbBaseTeardown()
         {
             if (_databaseLifetime == TempDatabaseLifetimes.Test)
             {
@@ -181,13 +181,8 @@ CREATE TABLE [AspNetUsers](
             }
         }
 
-        [OneTimeSetUp]
-        public void __base_TestFixtureSetup()
-        {
-        }
-
         [OneTimeTearDown]
-        public void __base_TestFixtureTearDown()
+        public void TestFixtureWithTempDbBaseOneTimeTearDown()
         {
             DisposeCurrentTempDb();
             Task.WaitAll(_disposeTasks.ToArray());

@@ -2,10 +2,6 @@
 
 namespace PeanutButter.TinyEventAggregator
 {
-    public class SubscriptionToken
-    {
-    }
-
     public class Subscription<TPayload>
     {
         public enum FuturePublicationsStates

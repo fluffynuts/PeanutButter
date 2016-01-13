@@ -73,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TestEventBase.cs" />
+    <Compile Include="TestSubscriptionToken.cs" />
     <Compile Include="TestTinyEventAggregator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

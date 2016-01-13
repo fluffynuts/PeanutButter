@@ -2,15 +2,16 @@
 
 namespace PeanutButter.Utils
 {
-    public class AutoResetter: IDisposable
+    public class AutoResetter<T>: IDisposable
     {
+        private readonly T _initialValue;
         private readonly object _lock = new object();
-        private Action _disposalAction;
+        private Action<T> _disposalAction;
 
-        public AutoResetter(Action constructionAction, Action disposalAction)
+        public AutoResetter(Func<T> start, Action<T> end)
         {
-            constructionAction();
-            _disposalAction = disposalAction;
+            _initialValue = start();
+            _disposalAction = end;
         }
 
         public void Dispose()
@@ -21,7 +22,7 @@ namespace PeanutButter.Utils
                     return;
                 try
                 {
-                    _disposalAction();
+                    _disposalAction(_initialValue);
                 }
                 finally
                 {
@@ -30,5 +31,4 @@ namespace PeanutButter.Utils
             }
         }
     }
-
 }

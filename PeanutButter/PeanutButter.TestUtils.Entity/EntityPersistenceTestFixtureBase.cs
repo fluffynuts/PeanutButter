@@ -16,8 +16,8 @@ namespace PeanutButter.TestUtils.Entity
         private const string LAST_MODIFIED = "LastModified";
         private const string ENABLED = "Enabled";
 
-        protected readonly string[] _ignoreFields = {CREATED, LAST_MODIFIED, ENABLED};
-        protected bool _logEntitySql = false;
+        private readonly string[] _ignoreFields = {CREATED, LAST_MODIFIED, ENABLED};
+        protected bool LogEntitySql { get; set; } = false;
 
         protected string[] DefaultIgnoreFieldsFor<T>()
         {
@@ -33,7 +33,7 @@ namespace PeanutButter.TestUtils.Entity
         {
             //---------------Set up test pack-------------------
             var sut = (new TBuilder()).WithRandomProps().Build();
-            using (var ctx = GetContext(_logEntitySql))
+            using (var ctx = GetContext(LogEntitySql))
             {
                 if (ctx is DbContextWithAutomaticTrackingFields)
                 {

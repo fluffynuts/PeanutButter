@@ -11,13 +11,13 @@ namespace PeanutButter.RandomGenerators
             var score = 0;
             for (var i = 0; i < shortest; i++)
             {
-                score += strcmp(src[i], other[i]);
+                score += StringCompare(src[i], other[i]);
             }
             score += (src.Length - other.Length);
             return score;
         }
 
-        private static int strcmp(string first, string second)
+        private static int StringCompare(string first, string second)
         {
             if (first == second)
                 return 0;

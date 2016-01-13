@@ -45,6 +45,7 @@
     <Compile Include="AutoDisposer.cs" />
     <Compile Include="AutoLocker.cs" />
     <Compile Include="AutoResetter.cs" />
+    <Compile Include="AutoResetterOfT.cs" />
     <Compile Include="BinaryArrayExtensions.cs" />
     <Compile Include="DateTimeExtensions.cs" />
     <Compile Include="DecimalDecorator.cs" />
