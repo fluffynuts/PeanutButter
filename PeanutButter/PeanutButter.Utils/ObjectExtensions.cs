@@ -30,41 +30,36 @@ namespace PeanutButter.Utils
         {
             if (objSource == null && objCompare == null) return true;
             if (objSource == null || objCompare == null) return false;
-            var srcPropInfos = objSource.GetType().GetProperties();
+            var srcPropInfos = objSource.GetType()
+                                        .GetProperties()
+                                        .Where(pi => !ignorePropertiesByName.Contains(pi.Name));
             var comparePropInfos = objCompare.GetType().GetProperties();
-            foreach (var srcProp in srcPropInfos.Where(pi => !ignorePropertiesByName.Contains(pi.Name)))
+            return srcPropInfos.Aggregate(true, (result, srcProp) =>
             {
-                var comparePropInfo = FindMatchingPropertyInfoFor(comparePropInfos, srcProp);
-                if (comparePropInfo == null)
+                if (!result) return false;
+                var compareProp = FindMatchingPropertyInfoFor(comparePropInfos, srcProp);
+                if (compareProp == null)
                     return false;
                 var srcValue = srcProp.GetValue(objSource, null);
-                var compareValue = comparePropInfo.GetValue(objCompare, null);
-                if (_simpleTypes.Any(st => st == srcProp.PropertyType))
-                {
-                    var srcString = StringOf(srcValue);
-                    var compareString = StringOf(compareValue);
-                    if (srcValue.ToString() != compareValue.ToString())
-                    {
-                        Debug.WriteLine(srcProp.Name + " value mismatch: (" + srcString + ") vs (" + compareString + ")");
-                        return false;
-                    }
-                    if (!SimpleObjectsMatch(srcProp.Name, srcValue, compareValue))
-                        return false;
-                    continue;
-                }
-                if (!srcValue.AllPropertiesMatch(compareValue))
-                    return false;
-            }
-            return true;
+                var compareValue = compareProp.GetValue(objCompare, null);
+                if (!CanPerformSimpleTypeMatchFor(srcProp))
+                    return srcValue.AllPropertiesMatch(compareValue);
+                return SimpleObjectsMatch(srcProp.Name, srcValue, compareValue);
+            });
+        }
+
+        private static bool CanPerformSimpleTypeMatchFor(PropertyInfo srcProp)
+        {
+            return _simpleTypes.Any(st => st == srcProp.PropertyType);
         }
 
         private static bool SimpleObjectsMatch(string propertyName, object srcValue, object compareValue)
         {
             var srcString = StringOf(srcValue);
             var compareString = StringOf(compareValue);
-            if (srcValue.ToString() != compareValue.ToString())
+            if (srcString != compareString)
             {
-                Debug.WriteLine(propertyName + " value mismatch: (" + srcString + ") vs (" + compareString + ")");
+                Debug.WriteLine(propertyName + " value mismatch: (" + (srcString ?? "NULL") + ") vs (" + (compareString ?? "NULL") + ")");
                 return false;
             }
             return true;
