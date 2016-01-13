@@ -240,6 +240,16 @@ namespace PeanutButter.RandomGenerators
         }
 
         private static Type _genericBuilderBaseType = typeof(GenericBuilder<,>);
+        private class TypeCallCounter
+        {
+            public Type Type { get; private set; }
+            public int CallCount { get; set; }
+            public TypeCallCounter(Type type)
+            {
+                Type = type;
+                CallCount = 1;
+            }
+        }
 
         private static bool HaveReenteredOwnRandomPropsTooManyTimesFor(StackFrame[] frames)
         {
