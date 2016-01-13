@@ -343,6 +343,52 @@ namespace PeanutButter.RandomGenerators.Tests
             VarianceAssert.IsVariant<ComplexMember2, int>(complexMembers2, "Value");
         }
 
+        [Test]
+        public void WhenUsingExistingBuildersWhichWouldCauseStackOverflow_ShouldAttemptToProtectAgainstStackOverflow()
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(() => ParentWithBuilderBuilder.BuildRandom());
+
+            //---------------Test Result -----------------------
+        }
+
+
+        public class ParentWithBuilder
+        {
+            public List<ChildWithBuilder> Children { get; set; }
+            public ParentWithBuilder()
+            {
+                Children = new List<ChildWithBuilder>();
+            }
+        }
+        public class ChildWithBuilder
+        {
+            public ParentWithBuilder Parent { get; set; }
+        }
+
+        public class ParentWithBuilderBuilder: GenericBuilder<ParentWithBuilderBuilder, ParentWithBuilder>
+        {
+            public override ParentWithBuilderBuilder WithRandomProps()
+            {
+                return base.WithRandomProps()
+                    .WithChild(ChildWithBuilderBuilder.BuildRandom());
+            }
+
+            private ParentWithBuilderBuilder WithChild(ChildWithBuilder child)
+            {
+                return WithProp(o => o.Children.Add(child));
+            }
+        }
+
+        public class ChildWithBuilderBuilder: GenericBuilder<ChildWithBuilderBuilder, ChildWithBuilder>
+        {
+        }
+
+
         public class Parent
         {
             public Child Child { get; set; }

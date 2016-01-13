@@ -33,7 +33,9 @@ namespace PeanutButter.RandomGenerators
 
         public IGenericBuilder GenericWithRandomProps()
         {
-            return WithRandomProps() as IGenericBuilder;
+            return _buildLevel > MaxRandomPropsLevel 
+                        ? this 
+                        : WithRandomProps();
         }
 
         public IGenericBuilder WithBuildLevel(int level)
@@ -85,7 +87,7 @@ namespace PeanutButter.RandomGenerators
 
         public virtual TConcrete WithRandomProps()
         {
-            WithProp(e => SetRandomProps(e));
+            WithProp(SetRandomProps);
             return this as TConcrete;
         }
 
@@ -222,10 +224,38 @@ namespace PeanutButter.RandomGenerators
                               ?? FindOrCreateDynamicBuilderFor(prop);
             _randomPropSettersField[prop.Name] = (e, i) =>
             {
-                if (i > MaxRandomPropsLevel) return;
+                if (TraversedTooManyTurtles(i)) return;
                 var dynamicBuilder = Activator.CreateInstance(builderType) as IGenericBuilder;
-                prop.SetValue(e, dynamicBuilder.GenericWithRandomProps().WithBuildLevel(i).GenericBuild(), null);
+                prop.SetValue(e, dynamicBuilder.WithBuildLevel(i).GenericWithRandomProps().GenericBuild(), null);
             };
+        }
+
+        private static bool TraversedTooManyTurtles(int i)
+        {
+            var stackTrace = new StackTrace();
+            var frames = stackTrace.GetFrames();
+            if (HaveReenteredOwnRandomPropsTooManyTimesFor(frames))
+                return true;
+            return i > MaxRandomPropsLevel;
+        }
+
+        private static Type _genericBuilderBaseType = typeof(GenericBuilder<,>);
+
+        private static bool HaveReenteredOwnRandomPropsTooManyTimesFor(StackFrame[] frames)
+        {
+            var level = frames.Aggregate(0, (acc, cur) =>
+            {
+                var thisMethod = cur.GetMethod();
+                var thisType = thisMethod.DeclaringType;
+                if (thisType.IsGenericType && 
+                        _genericBuilderBaseType.IsAssignableFrom(thisType) &&
+                        thisMethod.Name == "SetRandomProps")
+                {
+                    return acc + 1;
+                }
+                return acc;
+            });
+            return level >= MaxRandomPropsLevel;
         }
 
         private static Type FindOrCreateDynamicBuilderFor(PropertyInfo propInfo)
