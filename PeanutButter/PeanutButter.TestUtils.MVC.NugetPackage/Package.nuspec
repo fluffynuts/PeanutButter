@@ -1,0 +1,47 @@
+<package>
+  <metadata>
+    <id>PeanutButter.TestUtils.MVC.NugetPackage</id>
+    <version>1.0.1</version>
+    <title>PeanutButter.TestUtils.MVC.NugetPackage</title>
+    <authors>davyd</authors>
+    <owners></owners>
+    <description>
+      Contains utilities for facilitating easier testing of MVC projects:
+        - JsonResultExtensions let you .Get&lt;type&gt;("(property name)") on JsonResults
+            from an MVC controller action to easily fetch values from the Json result
+        - ControllerWithContextBuilder facilitates testing of controllers which require
+            a valid context, user, roles, etc. Use with your controller type:
+              var sut = ControllerWithContextBuilder&lt;MyControllerType&gt;.Create().Build();
+            In between the Create() and Build() use the available With*() methods to set up
+            user information, session state, cookies, form and url parameters
+    </description>
+    <releaseNotes></releaseNotes>
+    <summary>
+    Provides some utilities to facilitate easier MVC testing
+    </summary>
+    <language>en-US</language>
+    <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
+    <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/fluffynuts/PeanutButter/blob/master/LICENSE</licenseUrl>
+    <copyright>Copyright  2016</copyright>
+    <dependencies>
+      <group targetFramework="net40">
+        <dependency id="Microsoft.AspNet.Identity.Core" version="2.2.1" />
+        <dependency id="Microsoft.AspNet.Mvc" version="5.2.3" />
+        <dependency id="Microsoft.AspNet.Razor" version="3.2.3" />
+        <dependency id="Microsoft.AspNet.WebPages" version="3.2.3" />
+        <dependency id="Microsoft.Web.Infrastructure" version="1.0.0.0" />
+        <dependency id="Newtonsoft.Json" version="4.5.11" />
+        <dependency id="NSubstitute" version="1.9.2.0" />
+      </group>
+    </dependencies>
+    <references></references>
+    <tags></tags>
+  </metadata>
+  <files>
+    <file src="lib\" target="lib" />
+    <file src="tools\" target="tools" />
+    <file src="content\" target="content" />
+  </files>
+</package>

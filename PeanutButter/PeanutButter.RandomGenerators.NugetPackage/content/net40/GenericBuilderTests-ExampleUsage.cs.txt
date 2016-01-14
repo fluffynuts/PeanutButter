@@ -295,7 +295,7 @@ namespace PeanutButter.RandomGenerators.Tests
         public class ClassWithComplexMembers
         {
             public ComplexMember1 ComplexMember1 { get; set; }
-            public ComplexMember2 ComplexMember2 { get; set; }
+            public virtual ComplexMember2 ComplexMember2 { get; set; }
         }
 
         private class ClassWithComplexMembersBuilder : GenericBuilder<ClassWithComplexMembersBuilder, ClassWithComplexMembers>
@@ -335,6 +335,7 @@ namespace PeanutButter.RandomGenerators.Tests
             }
 
             //---------------Test Result -----------------------
+            Assert.AreEqual(RANDOM_TEST_CYCLES, randomItems.Count);
             VarianceAssert.IsVariant<ClassWithComplexMembers, ComplexMember1>(randomItems, "ComplexMember1");
             VarianceAssert.IsVariant<ClassWithComplexMembers, ComplexMember2>(randomItems, "ComplexMember2");
             var complexMembers1 = randomItems.Select(i => i.ComplexMember1);

@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.RandomGenerators", "PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj", "{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}"
 EndProject
@@ -188,6 +188,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSpooler.Win32Service.Entity.NugetPackage", "EmailSpooler.Win32Service.Entity.NugetPackage\EmailSpooler.Win32Service.Entity.NugetPackage.csproj", "{F4207B11-BEA0-4411-9898-5F30E9336C54}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TestUtils.Entity.Tests", "PeanutButter.TestUtils.Entity.Tests\PeanutButter.TestUtils.Entity.Tests.csproj", "{509EDFE4-F72E-4A97-AA84-4985391493A1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TestUtils.MVC.NugetPackage", "PeanutButter.TestUtils.MVC.NugetPackage\PeanutButter.TestUtils.MVC.NugetPackage.csproj", "{F334C2DB-A865-4AE8-84F7-2848AFD700EE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -802,6 +804,18 @@ Global
 		{509EDFE4-F72E-4A97-AA84-4985391493A1}.Test|Any CPU.Build.0 = Release|Any CPU
 		{509EDFE4-F72E-4A97-AA84-4985391493A1}.Test|x86.ActiveCfg = Release|Any CPU
 		{509EDFE4-F72E-4A97-AA84-4985391493A1}.Test|x86.Build.0 = Release|Any CPU
+		{F334C2DB-A865-4AE8-84F7-2848AFD700EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F334C2DB-A865-4AE8-84F7-2848AFD700EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F334C2DB-A865-4AE8-84F7-2848AFD700EE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F334C2DB-A865-4AE8-84F7-2848AFD700EE}.Debug|x86.Build.0 = Debug|Any CPU
+		{F334C2DB-A865-4AE8-84F7-2848AFD700EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F334C2DB-A865-4AE8-84F7-2848AFD700EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F334C2DB-A865-4AE8-84F7-2848AFD700EE}.Release|x86.ActiveCfg = Release|Any CPU
+		{F334C2DB-A865-4AE8-84F7-2848AFD700EE}.Release|x86.Build.0 = Release|Any CPU
+		{F334C2DB-A865-4AE8-84F7-2848AFD700EE}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{F334C2DB-A865-4AE8-84F7-2848AFD700EE}.Test|Any CPU.Build.0 = Release|Any CPU
+		{F334C2DB-A865-4AE8-84F7-2848AFD700EE}.Test|x86.ActiveCfg = Release|Any CPU
+		{F334C2DB-A865-4AE8-84F7-2848AFD700EE}.Test|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
