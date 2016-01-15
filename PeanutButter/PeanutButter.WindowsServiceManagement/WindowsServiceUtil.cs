@@ -199,8 +199,8 @@ namespace PeanutButter.Win32ServiceControl
                 Win32Api.CloseServiceHandle(scm);
             }
 
-            if(waitForUninstall)
-                SleepWhilstInstalled();
+            //if(waitForUninstall)
+            //    SleepWhilstInstalled();
         }
 
         private void SleepWhilstInstalled()
