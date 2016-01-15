@@ -19,7 +19,7 @@ namespace PeanutButter.Win32ServiceControl
         int ServiceStateExtraWaitSeconds { get; set; }
         ServiceStartupTypes StartupType { get; }
 
-        void Uninstall();
+        void Uninstall(bool waitForUninstall = false);
         void InstallAndStart();
         void Install();
         void Start(bool wait = true);
@@ -167,7 +167,7 @@ namespace PeanutButter.Win32ServiceControl
                 ServiceExe = defaultServiceExePath;
         }
 
-        public void Uninstall(bool waitForUninstall = true)
+        public void Uninstall(bool waitForUninstall = false)
         {
             IntPtr scm = OpenSCManager(ScmAccessRights.AllAccess);
 

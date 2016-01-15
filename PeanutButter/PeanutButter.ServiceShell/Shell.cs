@@ -255,7 +255,7 @@ namespace PeanutButter.ServiceShell
             try
             {
                 if (existingSvcUtil.IsInstalled)
-                    existingSvcUtil.Uninstall();
+                    existingSvcUtil.Uninstall(true);
             }
             catch (Exception ex)
             {
