@@ -4,6 +4,21 @@ using System.IO;
 
 namespace PeanutButter.TempDb.LocalDb
 {
+    /*
+    -- procedure to run if you have orphaned localdb temp databases
+    create procedure clear_temp_databases as
+    begin
+        declare @tmp table (cmd nvarchar(1024));
+        insert into @tmp (cmd) select 'drop database ' + name from sys.databases where name like 'tempdb_%';
+        declare @cmd nvarchar(1024);
+        while exists (select * from @tmp)
+        begin
+            select top 1 @cmd = cmd from @tmp;
+            delete from @tmp where cmd = @cmd;
+            exec(@cmd);
+        end;
+    end;
+    */
     public class TempDBLocalDb: TempDB<SqlConnection>
     {
         public string DatabaseName { get { return _dbName; } set { _dbName = value; } }

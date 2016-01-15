@@ -9,7 +9,7 @@ gulp.task('build', function() {
                 configuration: 'Debug',
                 stdout: true,
                 verbosity: 'minimal',
-                architecture: 'x64' // sqlite :/
+                architecture: 'x64'
             }));
 });
 

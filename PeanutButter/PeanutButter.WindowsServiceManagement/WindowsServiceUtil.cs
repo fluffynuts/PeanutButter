@@ -167,7 +167,7 @@ namespace PeanutButter.Win32ServiceControl
                 ServiceExe = defaultServiceExePath;
         }
 
-        public void Uninstall()
+        public void Uninstall(bool waitForUninstall = true)
         {
             IntPtr scm = OpenSCManager(ScmAccessRights.AllAccess);
 
@@ -176,7 +176,6 @@ namespace PeanutButter.Win32ServiceControl
                 IntPtr service = Win32Api.OpenService(scm, _serviceName, ServiceAccessRights.AllAccess);
                 if (service == IntPtr.Zero)
                     throw new ServiceNotInstalledException(_serviceName);
-
                 try
                 {
                     StopService(service);
@@ -199,6 +198,17 @@ namespace PeanutButter.Win32ServiceControl
             {
                 Win32Api.CloseServiceHandle(scm);
             }
+
+            if(waitForUninstall)
+                SleepWhilstInstalled();
+        }
+
+        private void SleepWhilstInstalled()
+        {
+            do
+            {
+                Thread.Sleep(1000);
+            } while (IsInstalled);
         }
 
         public int ServicePID
