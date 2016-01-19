@@ -31,6 +31,7 @@ namespace PeanutButter.RandomGenerators
                 return (T)randomGenerator();
             throw new Exception("Can't get random value for type: '" + type.Name + "': either too complex or I missed a simple type?");
         }
+
         private static class DefaultRanges
         {
             public const int MINLENGTH_STRING = 8;

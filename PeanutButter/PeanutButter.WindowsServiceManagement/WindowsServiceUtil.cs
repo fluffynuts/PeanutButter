@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Management;
 using System.Runtime.InteropServices;
+using System.ServiceProcess;
 using System.Threading;
 using Microsoft.Win32;
 using PeanutButter.Win32ServiceControl.Exceptions;
@@ -134,20 +136,33 @@ namespace PeanutButter.Win32ServiceControl
         {
             get
             {
-                IntPtr scm = OpenSCManager(ScmAccessRights.Connect);
-                var ret = false;
                 try
                 {
-                    IntPtr service = Win32Api.OpenService(scm, _serviceName, ServiceAccessRights.QueryStatus);
-                    ret = (service != IntPtr.Zero);
-                    Win32Api.CloseServiceHandle(service);
+                    var services = ServiceController.GetServices();
+                    return services.Any(s => s.ServiceName == _serviceName);
                 }
-                finally
+                catch
                 {
-                    Win32Api.CloseServiceHandle(scm);
+                    return Win32APIMethodForQueryingServiceInstalled();
                 }
-                return ret;
             }
+        }
+
+        private bool Win32APIMethodForQueryingServiceInstalled()
+        {
+            IntPtr scm = OpenSCManager(ScmAccessRights.Connect);
+            var ret = false;
+            try
+            {
+                IntPtr service = Win32Api.OpenService(scm, _serviceName, ServiceAccessRights.QueryStatus);
+                ret = (service != IntPtr.Zero);
+                Win32Api.CloseServiceHandle(service);
+            }
+            finally
+            {
+                Win32Api.CloseServiceHandle(scm);
+            }
+            return ret;
         }
 
         private uint _serviceStopTimeoutMS;
@@ -199,8 +214,8 @@ namespace PeanutButter.Win32ServiceControl
                 Win32Api.CloseServiceHandle(scm);
             }
 
-            //if(waitForUninstall)
-            //    SleepWhilstInstalled();
+            if (waitForUninstall)
+                SleepWhilstInstalled();
         }
 
         private void SleepWhilstInstalled()

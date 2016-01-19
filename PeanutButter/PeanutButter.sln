@@ -123,6 +123,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.SimpleTcpServer", "PeanutButter.SimpleTcpServer\PeanutButter.SimpleTcpServer.csproj", "{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.WindowsServiceManagement.Tests", "PeanutButter.WindowsServiceManagement.Tests\PeanutButter.WindowsServiceManagement.Tests.csproj", "{4E12F322-096E-4E42-BA86-4BDBC8492115}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3E03AC14-F3BE-4EFE-A37C-AE4B4DCFA458} = {3E03AC14-F3BE-4EFE-A37C-AE4B4DCFA458}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.FluentMigrator", "PeanutButter.FluentMigrator\PeanutButter.FluentMigrator.csproj", "{6C7A1C15-555E-45A5-921E-F2A56A3D60F6}"
 EndProject

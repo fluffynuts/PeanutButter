@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using EmailSpooler.Win32Service.Entity;
+using NSubstitute;
 using NUnit.Framework;
+using PeanutButter.Utils;
 
 namespace PeanutButter.RandomGenerators.Tests
 {
@@ -478,5 +480,106 @@ namespace PeanutButter.RandomGenerators.Tests
             Assert.AreEqual(expected, result);
         }
 
+        // real-world usage, has inner exception about defining duplicate dynamic module
+        public class FakeMessagePlatformSender
+        {
+            public string Address { get; set; }
+            public string ReplyTo { get; set; }
+        }
+        public class FakeMessagePlatformRecipient
+        {
+            public string RecipientType { get; set; }
+            public string RecipientIdentity { get; set; }
+            public string Address { get; set; }
+        }
+        public class FakeMessagePlatformData
+        {
+            public int ClientID { get; set; }
+            public IEnumerable<FakeMessagePlatformOption> Options { get; set; }
+        }
+
+        public class FakeMessageData
+        {
+            public FakeMessagePlatformSender Sender { get; set; }
+            public IEnumerable<FakeMessagePlatformRecipient> Recipients { get; set; }
+            public FakeMessagePlatformData Message { get; set; }
+            public IEnumerable<string> Protocols { get; set; }
+        }
+
+        public class FakeMessagePlatformOption
+        {
+            public string Name { get; set; }
+            public object Value { get; set; }
+        }
+
+        public class FakeMessagePlatformOptionBuilder: GenericBuilder<FakeMessagePlatformOptionBuilder, FakeMessagePlatformOption>
+        {
+        }
+
+        public class FakeMessageDataBuilder: GenericBuilder<FakeMessageDataBuilder, FakeMessageData>
+        {
+            public override FakeMessageDataBuilder WithRandomProps()
+            {
+                return base.WithRandomProps()
+                    .WithRandomOptions()
+                    .WithRandomRecipients()
+                    .WithRandomProtocols();
+            }
+
+            private FakeMessageDataBuilder WithRandomOptions()
+            {
+                return WithProp(o => o.Message.Options = RandomValueGen.GetRandomCollection(FakeMessagePlatformOptionBuilder.BuildRandom, 2));
+            }
+
+            public FakeMessageDataBuilder AsOneProtocolToOneRecipient()
+            {
+                return WithRandomProtocols(1, 1)
+                    .WithRandomRecipients(1, 1);
+            }
+
+            public FakeMessageDataBuilder WithRandomProtocols(int min = 1, int max = 10)
+            {
+                return WithProp(o => o.Protocols = RandomValueGen.GetRandomCollection(() => RandomValueGen.GetRandomString(), min, max));
+            }
+
+            public FakeMessageDataBuilder WithRandomRecipients(int min = 1, int max = 10)
+            {
+                return WithProp(o => o.Recipients = 
+                                    RandomValueGen.GetRandomCollection(FakeMessagePlatformRecipientBuilder.BuildRandom, min, max));
+            }
+
+            public FakeMessageDataBuilder WithOption(string name, string value)
+            {
+                return WithProp(o => o.Message.Options = o.Message.Options
+                                                                    .EmptyIfNull()
+                                                                    .And(new FakeMessagePlatformOption() {Name = name, Value = value}));
+            }
+        }
+
+        public class FakeMessagePlatformRecipientBuilder: GenericBuilder<FakeMessagePlatformRecipientBuilder, FakeMessagePlatformRecipient>
+        {
+        }
+
+        [Test]
+        public void ShouldNotThrow()
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var testData = FakeMessageDataBuilder.Create()
+                                .WithRandomProps()
+                                .WithOption("message", "hello world")
+                                .WithOption("user", "bob saget")
+                                .WithOption("AnotherOption", "wibble socks")
+                                .AsOneProtocolToOneRecipient()
+                                .Build();
+
+            //---------------Test Result -----------------------
+        }
+
+
+        //-- end real-world error example
     }
 }

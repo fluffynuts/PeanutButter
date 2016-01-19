@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -54,6 +57,49 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             var svc = new WindowsServiceUtil(RandomValueGen.GetRandomString(20, 30));
             //---------------Execute Test ----------------------
             Assert.IsFalse(svc.IsInstalled);
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
+        [Ignore("manually testing some stuff")]
+        public void InstallThing()
+        {
+            //---------------Set up test pack-------------------
+            var path = Path.Combine(Path.GetDirectoryName(GetType().Assembly.CodeBase), "test-service.exe");
+            var uri = new Uri(path);
+
+            //---------------Assert Precondition----------------
+            Assert.IsTrue(File.Exists(uri.LocalPath));
+
+            //---------------Execute Test ----------------------
+            var proc = new Process()
+            {
+                StartInfo = new ProcessStartInfo()
+                {
+                    FileName = uri.LocalPath,
+                    Arguments = "-i"
+                }
+            };
+            Assert.IsTrue(proc.Start());
+            proc.WaitForExit();
+
+            //---------------Test Result -----------------------
+        }
+
+
+        [Test]
+        [Ignore("manually testing something")]
+        public void ReinstallThing()
+        {
+            //---------------Set up test pack-------------------
+            var util = new WindowsServiceUtil("test-service");
+
+            //---------------Assert Precondition----------------
+            Assert.IsTrue(util.IsInstalled);
+
+            //---------------Execute Test ----------------------
+            util.Uninstall(true);
 
             //---------------Test Result -----------------------
         }
