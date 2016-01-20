@@ -8,7 +8,7 @@ using System.Web.Routing;
 using System.Web.SessionState;
 using Microsoft.AspNet.Identity;
 
-namespace MvcTestHelpers.Fakes
+namespace PeanutButter.TestUtils.MVC.Builders
 {
 
     public class FakeControllerContext : ControllerContext
@@ -71,7 +71,7 @@ namespace MvcTestHelpers.Fakes
 
         public static ClaimsPrincipal CreateClaimsPrincipalFor(string userName, string[] roles)
         {
-            var claims = CreateClaimsFor(userName ?? "", roles);
+            var claims = CreateClaimsFor(userName ?? string.Empty, roles);
             var claimsIdentity = new ClaimsIdentity(claims, 
                 DefaultAuthenticationTypes.ApplicationCookie,
                 ClaimTypes.Name,

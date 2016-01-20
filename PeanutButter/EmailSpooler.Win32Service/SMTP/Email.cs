@@ -92,11 +92,11 @@ namespace EmailSpooler.Win32Service.SMTP
 
         private void SetDefaults()
         {
-            Body = "";
+            Body = string.Empty;
             To = new List<string>();
             CC = new List<string>();
             BCC = new List<string>();
-            Subject = "";
+            Subject = string.Empty;
             Attachments = new List<EmailAttachment>();
         }
 

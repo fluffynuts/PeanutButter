@@ -54,7 +54,7 @@ namespace PeanutButter.MVC
         {
             var controller = GetControllerNameFor(viewContext);
             var action = GetActionNameFor(viewContext);
-            return string.Join("", new[] { BundleBase, controller, "/", action });
+            return string.Join(string.Empty, BundleBase, controller, "/", action);
         }
 
         private static string GetControllerNameFor(ViewContext viewContext)

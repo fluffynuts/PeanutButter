@@ -64,13 +64,10 @@ namespace PeanutButter.TempDb.LocalDb
                 using (SqlCommand cmd = connection.CreateCommand())
                 {
 
-                    cmd.CommandText = string.Format("CREATE DATABASE [{0}] ON (NAME = N'[{0}]', FILENAME = '{1}')",
-                        _databaseName,
-                        DatabaseFile);
+                    cmd.CommandText = $"CREATE DATABASE [{_databaseName}] ON (NAME = N'[{_databaseName}]', FILENAME = '{DatabaseFile}')";
                     cmd.ExecuteNonQuery();
-                    cmd.CommandText = string.Format("ALTER DATABASE [{0}] SET TRUSTWORTHY ON", _databaseName);
-                    ConnectionString = string.Format(@"Data Source=(localdb)\{0};AttachDbFilename={1}; Initial Catalog={2};Integrated Security=True", 
-                        InstanceName, DatabaseFile, _databaseName);
+                    cmd.CommandText = $"ALTER DATABASE [{_databaseName}] SET TRUSTWORTHY ON";
+                    ConnectionString = $@"Data Source=(localdb)\{InstanceName};AttachDbFilename={DatabaseFile}; Initial Catalog={_databaseName};Integrated Security=True";
                     cmd.ExecuteNonQuery();
                 }
             }

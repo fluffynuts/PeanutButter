@@ -73,7 +73,7 @@ namespace EmailSpooler.Win32Service
                                                                 e.LastModified.Value <= cutoff))
                                                                 .ToList();
             if (!toRemove.Any()) return;
-            _config.Logger.LogInfo(string.Join("", "Purging ", toRemove.Count().ToString(), " stale) messages"));
+            _config.Logger.LogInfo(string.Join(string.Empty, "Purging ", toRemove.Count.ToString(), " stale messages"));
             foreach (var email in toRemove)
                 _context.Emails.Remove(email);
             _context.SaveChanges();
@@ -100,7 +100,7 @@ namespace EmailSpooler.Win32Service
             using (var email = _emailGenerator())
             {
                 SetupEmailFromMessage(message, email);
-                _config.Logger.LogInfo(string.Join("", "Attempting to send mail to '", email.To.FirstOrDefault()));
+                _config.Logger.LogInfo(string.Join(string.Empty, "Attempting to send mail to '", email.To.FirstOrDefault()));
                 try
                 {
                     email.Send();

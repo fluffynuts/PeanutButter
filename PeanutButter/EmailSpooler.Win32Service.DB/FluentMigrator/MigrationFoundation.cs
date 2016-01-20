@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using FluentMigrator;
 using FluentMigrator.Builders.Execute;
 using FluentMigrator.Builders.Insert;
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace EmailSpooler.Win32Service.DB.FluentMigrator
 {
@@ -20,6 +20,7 @@ namespace EmailSpooler.Win32Service.DB.FluentMigrator
                     return base.Execute;
                 }
             }
+            // ReSharper disable once UnusedMember.Global
             set
             {
                 lock(this)
@@ -29,6 +30,7 @@ namespace EmailSpooler.Win32Service.DB.FluentMigrator
             }
         }
         private IInsertExpressionRoot _override;
+        // ReSharper disable once UnusedMember.Global
         public new IInsertExpressionRoot Insert
         {
             get
@@ -61,7 +63,7 @@ namespace EmailSpooler.Win32Service.DB.FluentMigrator
                 var entityName = tableName;
                 if (entityName.EndsWith("s"))
                     entityName = entityName.Substring(0, entityName.Length-1);
-                idCol = string.Join("", new[] { entityName, "ID" });
+                idCol = Join(entityName, "ID");
             }
             lines.Add(Join("create trigger [dbo].[trLastUpdated_", tableName, "]"));
             lines.Add(Join("on [dbo].[",  tableName,  "]" ));
@@ -75,19 +77,21 @@ namespace EmailSpooler.Win32Service.DB.FluentMigrator
             return string.Join("\n", lines);
         }
 
+        // ReSharper disable once UnusedMember.Global
         protected void EnableIdentityInsertFor(string table)
         {
-            Execute.Sql(string.Join("", new[] { "set IDENTITY_INSERT [", table, "] ON;" }));
+            Execute.Sql(Join("set IDENTITY_INSERT [", table, "] ON;"));
         }
 
+        // ReSharper disable once UnusedMember.Global
         protected void DisableIdentityInsertFor(string table)
         {
-            Execute.Sql(string.Join("", new[] { "set IDENTITY_INSERT [", table, "] OFF;" }));
+            Execute.Sql(Join("set IDENTITY_INSERT [", table, "] OFF;"));
         }
 
         protected string Join(params string[] parts)
         {
-            return string.Join("", parts);
+            return string.Join(string.Empty, parts);
         }
     }
 }

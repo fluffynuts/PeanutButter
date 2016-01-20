@@ -195,7 +195,7 @@ namespace PeanutButter.SimpleHTTPServer
         {
             string line;
             while ((line = TcpClient.ReadLine()) != null) {
-                if (line.Equals("")) {
+                if (line.Equals(string.Empty)) {
                     return;
                 }
                 
@@ -339,7 +339,7 @@ namespace PeanutButter.SimpleHTTPServer
 
         public void WriteEmptyLineToStream()
         {
-            WriteResponseLine("");
+            WriteResponseLine(string.Empty);
         }
 
         public void WriteResponseLine(string response)
@@ -349,7 +349,7 @@ namespace PeanutButter.SimpleHTTPServer
 
         public void WriteDocument(string document, string mimeType = MIMETYPE_HTML)
         {
-            WriteSuccess(MIMETYPE_HTML, Encoding.UTF8.GetBytes(document));
+            WriteSuccess(mimeType, Encoding.UTF8.GetBytes(document));
         }
     }
 

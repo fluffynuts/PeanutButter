@@ -10,9 +10,10 @@ using System.Web.Mvc;
 using System.Web.Routing;
 using System.Web.SessionState;
 using Microsoft.AspNet.Identity;
+using PeanutButter.TestUtils.MVC.Builders;
 using NSubstitute;
 
-namespace MvcTestHelpers.Fakes
+namespace PeanutButter.TestUtils.MVC.Builders
 {
     public class ControllerWithContextBuilder<T> where T: ControllerBase
     {
@@ -92,10 +93,7 @@ namespace MvcTestHelpers.Fakes
                 }
                 catch
                 {
-                    throw new Exception(string.Join("",
-                        "Controller builder function not defined to generate controller of type '",
-                        typeof (T).Name,
-                        "' and no default constructor available"));
+                    throw new Exception($"Controller builder function not defined to generate controller of type '{typeof(T).Name}' and no default constructor available"));
                 }
             }
             else

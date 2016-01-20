@@ -7,6 +7,7 @@ namespace EmailSpooler.Win32Service
 {
     public class EmailSpoolerConfig : IEmailSpoolerConfig
     {
+        // ReSharper disable once MemberCanBePrivate.Global
         public ISimpleLogger Logger { get; protected set; }
         public int MaxSendAttempts { get; private set; }
         public int BackoffIntervalInMinutes { get; private set; }
@@ -26,17 +27,13 @@ namespace EmailSpooler.Win32Service
             var configured = ConfigurationManager.AppSettings[keyName];
             if (configured == null)
             {
-                Logger.LogInfo(string.Join("", new[] { 
-                    "No configured value for '", keyName, "'; falling back on default value: '", defaultValue.ToString(), "'" 
-                }));
+                Logger.LogInfo($"No configured value for '{keyName}'; falling back on default value: '{defaultValue}'");
                 return defaultValue;
             }
             int configuredValue;
             if (int.TryParse(configured, out configuredValue))
                 return configuredValue;
-            Logger.LogWarning(string.Join("", new[] {
-                "Configured value of '", configured, "' cannot be parsed into an integer; falling back on default value '", defaultValue.ToString(), "'"
-            }));
+            Logger.LogWarning($"Configured value of '{configured}' cannot be parsed into an integer; falling back on default value '{defaultValue}'");
             return defaultValue;
         }
     }

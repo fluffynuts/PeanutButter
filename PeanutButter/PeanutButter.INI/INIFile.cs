@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+// ReSharper disable UnusedMemberInSuper.Global
 
-namespace PeanutButter.INI
+namespace PeanutButter.INIFile
 {
+    // ReSharper disable once InconsistentNaming
     public interface IINIFile
     {
         Dictionary<string, string> this[string index] { get; }
@@ -19,15 +21,14 @@ namespace PeanutButter.INI
         bool HasSetting(string section, string key);
     }
 
+    // ReSharper disable once InconsistentNaming
     public class INIFile : IINIFile
     {
-        public IEnumerable<string> Sections
-        {
-            get { return Data.Keys; }
-        }
+        public IEnumerable<string> Sections => Data.Keys;
 
         private string _path;
         private readonly char[] _sectionTrimChars;
+        // ReSharper disable once MemberCanBePrivate.Global
         protected Dictionary<string, Dictionary<string, string>> Data { get; set; }
         public INIFile(string path = null)
         {
@@ -53,7 +54,7 @@ namespace PeanutButter.INI
         private void Parse(IEnumerable<string> lines)
         {
             ClearSections();
-            var currentSection = "";
+            var currentSection = string.Empty;
             foreach (var line in lines.Select(RemoveComments).Where(l => !string.IsNullOrEmpty(l)))
             {
                 if (IsSectionHeading(line))
@@ -167,8 +168,8 @@ namespace PeanutButter.INI
             foreach (var section in Sections)
             {
                 if (section.Length > 0)
-                    lines.Add(string.Join("", new[] { "[", section, "]" }));
-                lines.AddRange(Data[section].Keys.Select(key => string.Join("", new[] { key.Trim(), "=", "\"", Data[section][key], "\"" })));
+                    lines.Add(string.Join(string.Empty, "[", section, "]"));
+                lines.AddRange(Data[section].Keys.Select(key => string.Join(string.Empty, key.Trim(), "=", "\"", Data[section][key], "\"")));
             }
             File.WriteAllBytes(path, Encoding.UTF8.GetBytes(string.Join(Environment.NewLine, lines)));
         }

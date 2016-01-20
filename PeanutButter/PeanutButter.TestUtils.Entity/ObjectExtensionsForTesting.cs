@@ -77,7 +77,7 @@ namespace PeanutButter.TestUtils.Entity
                 return stringLengthAttribute.MaximumLength;
             if (stringLengthAttribute.MaximumLength == maxLengthAttribute.Length)
                 return stringLengthAttribute.MaximumLength;
-            Assert.Fail(string.Join("",
+            Assert.Fail(string.Join(string.Empty,
                 "MaxLength and StringLength are both specified for '",
                 propData.PropertyPath,
                 "' on type '",

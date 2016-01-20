@@ -110,12 +110,8 @@ namespace PeanutButter.TempDb
             }
             catch
             {
-                System.Diagnostics.Trace.WriteLine(string.Join("", new[]
-                                                                   {
-                                                                       "WARNING: Unable to delete temporary database at: ",
-                                                                       DatabaseFile,
-                                                                       "; probably still locked. Artifact will remain on disk."
-                                                                   }));
+                System.Diagnostics.Trace.WriteLine(
+                    $"WARNING: Unable to delete temporary database at: {DatabaseFile}; probably still locked. Artifact will remain on disk.");
             }
         }
 

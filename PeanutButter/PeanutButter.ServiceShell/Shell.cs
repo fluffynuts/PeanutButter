@@ -47,11 +47,11 @@ namespace PeanutButter.ServiceShell
         { 
             get
             {
-                return _copyright ?? "";
+                return _copyright ?? string.Empty;
             }
             set
             {
-                _copyright = value ?? "";
+                _copyright = value ?? string.Empty;
             }
         }
 

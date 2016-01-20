@@ -43,6 +43,7 @@ namespace PeanutButter.SimpleHTTPServer
             _handlers = new List<Func<HttpProcessor, Stream, HttpServerPipelineResult>>();
         }
 
+        // ReSharper disable once MemberCanBePrivate.Global
         public void AddHandler(Func<HttpProcessor, Stream, HttpServerPipelineResult> handler)
         {
             _handlers.Add(handler);
@@ -50,11 +51,12 @@ namespace PeanutButter.SimpleHTTPServer
 
         public string GetFullUrlFor(string relativeUrl)
         {
-            var joinWith = relativeUrl.StartsWith("/") ? "" : "/";
-            return string.Join(joinWith, new[] { BaseUrl, relativeUrl });
+            var joinWith = relativeUrl.StartsWith("/") ? string.Empty : "/";
+            return string.Join(joinWith, BaseUrl, relativeUrl);
         }
 
-        public string BaseUrl { get { return string.Format("http://localhost:{0}", Port); } }
+        // ReSharper disable once MemberCanBePrivate.Global
+        public string BaseUrl => $"http://localhost:{Port}";
 
         public void AddFileHandler(Func<HttpProcessor, Stream, byte[]> handler, string contentType = "application/octet-stream")
         {

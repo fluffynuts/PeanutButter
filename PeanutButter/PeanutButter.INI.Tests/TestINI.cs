@@ -43,7 +43,7 @@ namespace PeanutButter.INI.Tests
             }
         }
 
-        private class INIFile_EXPOSES_Sections : INIFile
+        private class INIFile_EXPOSES_Sections : INIFile.INIFile
         {
             public INIFile_EXPOSES_Sections()
             {
@@ -498,12 +498,12 @@ namespace PeanutButter.INI.Tests
             //---------------Assert Precondition----------------
             using (var tempFile = new AutoDeletingTempFile(".ini"))
             {
-                var ini = new INIFile(tempFile.Path);
+                var ini = new INIFile.INIFile(tempFile.Path);
                 ini[section][key] = value;
                 ini.Persist();
 
                 //---------------Execute Test ----------------------
-                var ini2 = new INIFile(tempFile.Path);
+                var ini2 = new INIFile.INIFile(tempFile.Path);
                 var result = ini2[section][key];
 
                 //---------------Test Result -----------------------

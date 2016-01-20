@@ -4,7 +4,7 @@ using System.Security.Principal;
 using System.Web;
 using System.Web.SessionState;
 
-namespace MvcTestHelpers.Fakes
+namespace PeanutButter.TestUtils.MVC.Builders
 {
     /// <summary>
     /// Original code: http://stephenwalther.com/archive/2008/07/01/asp-net-mvc-tip-12-faking-the-controller-context

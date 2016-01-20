@@ -2,7 +2,7 @@
 using System.Security.Claims;
 using System.Security.Principal;
 
-namespace MvcTestHelpers.Fakes
+namespace PeanutButter.TestUtils.MVC.Builders
 {
     /// <summary>
     /// Original code: http://stephenwalther.com/archive/2008/07/01/asp-net-mvc-tip-12-faking-the-controller-context
