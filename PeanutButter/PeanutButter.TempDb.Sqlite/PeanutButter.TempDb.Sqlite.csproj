@@ -83,7 +83,8 @@
   <Import Project="..\packages\System.Data.SQLite.Core.1.0.97.0\build\net45\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.97.0\build\net45\System.Data.SQLite.Core.targets')" />
   <PropertyGroup>
     <PostBuildEvent>mkdir $(SolutionDir)\$(ProjectName).NugetPackage\lib\net40
-copy $(TargetPath) $(SolutionDir)\$(ProjectName).NugetPackage\lib\net40\</PostBuildEvent>
+copy $(TargetPath) $(SolutionDir)\$(ProjectName).NugetPackage\lib\net40\
+copy $(TargetDir)$(TargetName).pdb $(SolutionDir)$(ProjectName).NugetPackage\lib\net40</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

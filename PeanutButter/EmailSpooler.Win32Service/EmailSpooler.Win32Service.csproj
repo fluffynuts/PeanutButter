@@ -137,6 +137,7 @@
 mkdir "$(SolutionDIr)EmailSpooler.Setup\bin"
 copy "$(TargetDir)*.exe" "$(SolutionDir)EmailSpooler.Setup\bin"
 copy "$(TargetDir)*.dll" "$(SolutionDir)EmailSpooler.Setup\bin"
+copy $(TargetDir)$(TargetName).pdb $(SolutionDir)EmailSpooler.Setup\bin
 copy "$(TargetDir)*.config" "$(SolutionDir)EmailSpooler.Setup\bin"</PostBuildEvent>
   </PropertyGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

@@ -93,7 +93,7 @@ namespace PeanutButter.TestUtils.MVC.Builders
                 }
                 catch
                 {
-                    throw new Exception($"Controller builder function not defined to generate controller of type '{typeof(T).Name}' and no default constructor available"));
+                    throw new Exception($"Controller builder function not defined to generate controller of type '{typeof(T).Name}' and no default constructor available");
                 }
             }
             else

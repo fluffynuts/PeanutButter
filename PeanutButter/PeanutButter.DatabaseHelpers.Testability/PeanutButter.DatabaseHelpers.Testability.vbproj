@@ -124,8 +124,9 @@
     <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>mkdir $(SolutionDir)\PeanutButter.DatabaseHelpers.Testability.NugetPackage\lib\net40
-copy $(TargetPath) $(SolutionDir)\PeanutButter.DatabaseHelpers.Testability.NugetPackage\lib\net40</PostBuildEvent>
+    <PostBuildEvent>mkdir $(SolutionDir)\$(ProjectName).NugetPackage\lib\net40
+copy $(TargetPath) $(SolutionDir)\$(ProjectName).NugetPackage\lib\net40\
+copy $(TargetDir)$(TargetName).pdb $(SolutionDir)$(ProjectName).NugetPackage\lib\net40</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

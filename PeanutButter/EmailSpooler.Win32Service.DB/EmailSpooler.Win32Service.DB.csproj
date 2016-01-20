@@ -95,10 +95,15 @@
     <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
   </Target>
   <PropertyGroup>
-    <PreBuildEvent>mkdir $(SolutionDir)\$(ProjectName).NugetPackage\lib\net40
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>mkdir $(SolutionDir)\$(ProjectName).NugetPackage\lib\net40
 copy $(TargetPath) $(SolutionDir)\$(ProjectName).NugetPackage\lib\net40\
+copy $(TargetDir)$(TargetName).pdb $(SolutionDir)$(ProjectName).NugetPackage\lib\net40
 mkdir $(SolutionDir)\$(ProjectName).NugetPackage\content\MSSQL
-copy $(SolutionDir)\$(ProjectName)\MSSQL\* $(SolutionDir)\$(ProjectName).NugetPackage\content\MSSQL</PreBuildEvent>
+copy $(SolutionDir)\$(ProjectName)\MSSQL\* $(SolutionDir)\$(ProjectName).NugetPackage\content\MSSQL</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
