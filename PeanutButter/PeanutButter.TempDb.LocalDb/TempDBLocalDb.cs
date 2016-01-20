@@ -4,27 +4,36 @@ using System.IO;
 
 namespace PeanutButter.TempDb.LocalDb
 {
-    /*
-    -- procedure to run if you have orphaned localdb temp databases
-    create procedure clear_temp_databases as
-    begin
-        declare @tmp table (cmd nvarchar(1024));
-        insert into @tmp (cmd) select 'drop database ' + name from sys.databases where name like 'tempdb_%';
-        declare @cmd nvarchar(1024);
-        while exists (select * from @tmp)
-        begin
-            select top 1 @cmd = cmd from @tmp;
-            delete from @tmp where cmd = @cmd;
-            exec(@cmd);
-        end;
-    end;
-    */
+    //<summary>
+    //  LocalDb implementation of TempDb. TempDb will destroy the temporary database on disposal. However,
+    //      it is feasible that the Dispose method may not be called (eg aborting a test you're debugging),
+    //      so you can end up with orphaned tempdb databases registered against your localdb instance. Unlike
+    //      sqlite and SqlCe, where the file is the be-all and end-all of the database, localdb has a registration
+    //      mechanism, so deleting the file (ie, clearing out temp files) is not enough. The procedure below can
+    //      be run into your localdb master database and run at any time to purge orphaned tempdb_* databases
+    //-- procedure to run if you have orphaned localdb temp databases
+    //create procedure clear_temp_databases as
+    //begin
+    //    declare @tmp table (cmd nvarchar(1024));
+    //    insert into @tmp (cmd) select 'drop database ' + name from sys.databases where name like 'tempdb_%';
+    //    declare @cmd nvarchar(1024);
+    //    while exists (select * from @tmp)
+    //    begin
+    //        select top 1 @cmd = cmd from @tmp;
+    //        delete from @tmp where cmd = @cmd;
+    //        exec(@cmd);
+    //    end;
+    //end;
+    //</summary>
+
     public class TempDBLocalDb: TempDB<SqlConnection>
     {
-        public string DatabaseName { get { return _dbName; } set { _dbName = value; } }
-        private string _dbName;
-        public string InstanceName = "v11.0";
-        private const string _masterConnectionString = @"Data Source=(localdb)\{0};Initial Catalog=master;Integrated Security=True";
+        // ReSharper disable once MemberCanBePrivate.Global
+        public string DatabaseName { get { return _databaseName; } set { _databaseName = value; } }
+        private string _databaseName;
+        // ReSharper disable once MemberCanBePrivate.Global
+        public string InstanceName { get; set; } = "v11.0";
+        private const string MasterConnectionString = @"Data Source=(localdb)\{0};Initial Catalog=master;Integrated Security=True";
 
         public TempDBLocalDb()
         {
@@ -48,25 +57,37 @@ namespace PeanutButter.TempDb.LocalDb
 
         protected override void CreateDatabase()
         {
-            _dbName = _dbName ?? "tempdb_" + Guid.NewGuid().ToString().Replace("-", "").Replace("{", "").Replace("}", "");
+            _databaseName = _databaseName ?? "tempdb_" + CreateGuidString();
             using (var connection = new SqlConnection(GetMasterConnectionString()))
             {
                 connection.Open();
-                SqlCommand cmd = connection.CreateCommand();
-    
-                cmd.CommandText = string.Format("CREATE DATABASE [{0}] ON (NAME = N'[{0}]', FILENAME = '{1}')", 
-                    _dbName,
-                    DatabaseFile);
-                cmd.ExecuteNonQuery();
-                cmd.CommandText = string.Format("ALTER DATABASE [{0}] SET TRUSTWORTHY ON", _dbName);
-                ConnectionString = string.Format(@"Data Source=(localdb)\{0};AttachDbFilename={1}; Initial Catalog={2};Integrated Security=True", 
-                    InstanceName, DatabaseFile, _dbName);
+                using (SqlCommand cmd = connection.CreateCommand())
+                {
+
+                    cmd.CommandText = string.Format("CREATE DATABASE [{0}] ON (NAME = N'[{0}]', FILENAME = '{1}')",
+                        _databaseName,
+                        DatabaseFile);
+                    cmd.ExecuteNonQuery();
+                    cmd.CommandText = string.Format("ALTER DATABASE [{0}] SET TRUSTWORTHY ON", _databaseName);
+                    ConnectionString = string.Format(@"Data Source=(localdb)\{0};AttachDbFilename={1}; Initial Catalog={2};Integrated Security=True", 
+                        InstanceName, DatabaseFile, _databaseName);
+                    cmd.ExecuteNonQuery();
+                }
             }
+        }
+
+        private static string CreateGuidString()
+        {
+            return Guid.NewGuid()
+                .ToString()
+                .Replace("-", string.Empty)
+                .Replace("{", string.Empty)
+                .Replace("}", string.Empty);
         }
 
         private string GetMasterConnectionString()
         {
-            return string.Format(_masterConnectionString, InstanceName);
+            return string.Format(MasterConnectionString, InstanceName);
         }
 
 
@@ -77,9 +98,9 @@ namespace PeanutButter.TempDb.LocalDb
                 connection.Open();
                 using (var cmd = connection.CreateCommand())
                 {
-                    cmd.CommandText = string.Format("alter database [{0}] set SINGLE_USER WITH ROLLBACK IMMEDIATE;", _dbName);
+                    cmd.CommandText = string.Format("alter database [{0}] set SINGLE_USER WITH ROLLBACK IMMEDIATE;", _databaseName);
                     cmd.ExecuteNonQuery();
-                    cmd.CommandText = string.Format("drop database [{0}]", _dbName);
+                    cmd.CommandText = string.Format("drop database [{0}]", _databaseName);
                     cmd.ExecuteNonQuery();
                 }
             }

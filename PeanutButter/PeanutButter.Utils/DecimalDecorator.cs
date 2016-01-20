@@ -3,6 +3,7 @@ using System.Globalization;
 
 namespace PeanutButter.Utils
 {
+    // <summary>
     // Provides a relatively "safe" interchange between decimal and string
     //  notations for numbers, inspecting the input string to try to make the best
     //  decision based on the contents of the string instead of just relying on
@@ -10,6 +11,7 @@ namespace PeanutButter.Utils
     //  machines with different ideas of what constitutes "correct" decimal notation;
     //  a prime example being transport of decimals from Javascript into a ZA .net
     //  culture -- but there are others)
+    // </summary>
     public class DecimalDecorator
     {
         private static readonly object _lock = new object();
@@ -20,21 +22,22 @@ namespace PeanutButter.Utils
             {
                 lock(_lock)
                 {
-                    if (_numberFormatInfoField == null)
-                    {
-                        _numberFormatInfoField = new NumberFormatInfo()
-                        {
-                            CurrencyDecimalSeparator = ".",
-                            NumberDecimalSeparator = ".",
-                            PercentDecimalSeparator = ".",
-                            CurrencyGroupSeparator = string.Empty,
-                            NumberGroupSeparator = string.Empty,
-                            PercentGroupSeparator = string.Empty
-                        };
-                    }
-                    return _numberFormatInfoField;
+                    return _numberFormatInfoField ?? (_numberFormatInfoField = CreateNumberFormatInfo());
                 }
             }
+        }
+
+        private static NumberFormatInfo CreateNumberFormatInfo()
+        {
+            return new NumberFormatInfo()
+            {
+                CurrencyDecimalSeparator = ".",
+                NumberDecimalSeparator = ".",
+                PercentDecimalSeparator = ".",
+                CurrencyGroupSeparator = string.Empty,
+                NumberGroupSeparator = string.Empty,
+                PercentGroupSeparator = string.Empty
+            };
         }
 
         private readonly string _stringValue;

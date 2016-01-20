@@ -7,44 +7,44 @@ namespace PeanutButter.Utils.Entity
 {
     public static class Extensions
     {
-        public static IEnumerable<T> AddRange<T>(this IDbSet<T> dbSet, params T[] items) where T: class
+        public static IEnumerable<T> AddRange<T>(this IDbSet<T> collection, params T[] items) where T: class
         {
-            var concrete = dbSet as DbSet<T>;
+            var concrete = collection as DbSet<T>;
             if (concrete != null)
                 return concrete.AddRange(items);
-            items.ForEach(item => dbSet.Add(item));
+            items.ForEach(item => collection.Add(item));
             return items;
         }
 
-        public static IEnumerable<T> AddRange<T>(this IDbSet<T> dbSet, IEnumerable<T> items) where T : class
+        public static IEnumerable<T> AddRange<T>(this IDbSet<T> collection, IEnumerable<T> items) where T : class
         {
-            return dbSet.AddRange(items.ToArray());
+            return collection.AddRange(items.ToArray());
         }
 
-        public static IEnumerable<T> AddRange<T>(this ICollection<T> dbSet, params T[] items) where T: class
+        public static IEnumerable<T> AddRange<T>(this ICollection<T> collection, params T[] items) where T: class
         {
-            items.ForEach(item => dbSet.Add(item));
+            items.ForEach(collection.Add);
             return items;
         }
 
-        public static IEnumerable<T> AddRange<T>(this ICollection<T> dbSet, IEnumerable<T> items) where T: class
+        public static IEnumerable<T> AddRange<T>(this ICollection<T> collection, IEnumerable<T> items) where T: class
         {
-            dbSet.AddRange(items.ToArray());
+            collection.AddRange(items.ToArray());
             return items;
         }
 
-        public static IEnumerable<T> RemoveRange<T>(this IDbSet<T> dbSet, params T[] items) where T : class
+        public static IEnumerable<T> RemoveRange<T>(this IDbSet<T> collection, params T[] items) where T : class
         {
-            var concrete = dbSet as DbSet<T>;
+            var concrete = collection as DbSet<T>;
             if (concrete != null)
                 return concrete.RemoveRange(items);
-            items.ForEach(item => dbSet.Remove(item));
+            items.ForEach(item => collection.Remove(item));
             return items;
         }
 
-        public static IEnumerable<T> RemoveRange<T>(this IDbSet<T> dbSet, IEnumerable<T> items) where T : class
+        public static IEnumerable<T> RemoveRange<T>(this IDbSet<T> collection, IEnumerable<T> items) where T : class
         {
-            dbSet.RemoveRange(items.ToArray());
+            collection.RemoveRange(items.ToArray());
             return items;
         }
 
@@ -58,18 +58,18 @@ namespace PeanutButter.Utils.Entity
             return collection.RemoveRange(items.ToArray());
         }
 
-        public static void Clear<T>(this IDbSet<T> dbSet) where T : class
+        public static void Clear<T>(this IDbSet<T> collection) where T : class
         {
-            var entities = dbSet.ToArray();
-            dbSet.RemoveRange(entities);
+            var entities = collection.ToArray();
+            collection.RemoveRange(entities);
         }
 
-        public static T AddNew<T>(this IDbSet<T> dbSet, Action<T> initializer = null, Action<T> runAfterAdd = null) where T : class
+        public static T AddNew<T>(this IDbSet<T> collection, Action<T> initializer = null, Action<T> runAfterAdd = null) where T : class
         {
-            var entity = dbSet.Create();
+            var entity = collection.Create();
             if (initializer != null)
                 initializer(entity);
-            dbSet.Add(entity);
+            collection.Add(entity);
             if (runAfterAdd != null)
                 runAfterAdd(entity);
             return entity;
