@@ -100,8 +100,8 @@
   </PropertyGroup>
   <PropertyGroup>
     <PostBuildEvent>mkdir $(SolutionDir)\$(ProjectName).NugetPackage\lib\net40
+del /Q $(SolutionDir)\$(ProjectName).NugetPackage\lib\net40\*.*
 copy $(TargetPath) $(SolutionDir)\$(ProjectName).NugetPackage\lib\net40\
-copy $(TargetDir)$(TargetName).pdb $(SolutionDir)$(ProjectName).NugetPackage\lib\net40
 mkdir $(SolutionDir)\$(ProjectName).NugetPackage\content\MSSQL
 copy $(SolutionDir)\$(ProjectName)\MSSQL\* $(SolutionDir)\$(ProjectName).NugetPackage\content\MSSQL</PostBuildEvent>
   </PropertyGroup>

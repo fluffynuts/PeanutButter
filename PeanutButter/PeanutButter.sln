@@ -110,6 +110,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.INI.NugetPacka
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TrayIcon.NugetPackage", "PeanutButter.TrayIcon.NugetPackage\PeanutButter.TrayIcon.NugetPackage.csproj", "{546F9C7A-0E73-4042-9CCC-F1292154B1BE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{17CDFD2E-E3E0-4DDD-AD71-9AA8434705E7} = {17CDFD2E-E3E0-4DDD-AD71-9AA8434705E7}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.SimpleHTTPServer", "PeanutButter.SimpleHTTPServer\PeanutButter.SimpleHTTPServer.csproj", "{A624CEE2-8727-41B8-A6E1-9D819F745ADD}"
 EndProject
@@ -173,14 +176,23 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.Utils.Entity", "PeanutButter.Utils.Entity\PeanutButter.Utils.Entity.csproj", "{784A35AD-E6A9-46A4-945C-6D62C55503E0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.Utils.Entity.NugetPackage", "PeanutButter.Utils.Entity.NugetPackage\PeanutButter.Utils.Entity.NugetPackage.csproj", "{FE78C88F-4E40-4E88-9D1B-91692A4A670A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{784A35AD-E6A9-46A4-945C-6D62C55503E0} = {784A35AD-E6A9-46A4-945C-6D62C55503E0}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TestUtils.Entity", "PeanutButter.TestUtils.Entity\PeanutButter.TestUtils.Entity.csproj", "{75448DD7-4A34-464D-BE4C-7FE41657EB41}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TestUtils.Entity.NugetPackage", "PeanutButter.TestUtils.Entity.NugetPackage\PeanutButter.TestUtils.Entity.NugetPackage.csproj", "{FC9B4317-96F7-4444-BD3B-A086E0161A96}"
+	ProjectSection(ProjectDependencies) = postProject
+		{75448DD7-4A34-464D-BE4C-7FE41657EB41} = {75448DD7-4A34-464D-BE4C-7FE41657EB41}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.Utils.Entity.Tests", "PeanutButter.Utils.Entity.Tests\PeanutButter.Utils.Entity.Tests.csproj", "{9AEB4DF3-91A4-4672-978F-57C0769A6EE3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSpooler.Win32Service.DB.NugetPackage", "EmailSpooler.Win32Service.DB.NugetPackage\EmailSpooler.Win32Service.DB.NugetPackage.csproj", "{2F51855E-005F-4D7A-9418-31DE37CB3BA4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3D515895-08FC-46B6-AB16-E2B9AC1AFFB3} = {3D515895-08FC-46B6-AB16-E2B9AC1AFFB3}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSpooler.Win32Service.DB.Tests", "EmailSpooler.Win32Service.DB.Tests\EmailSpooler.Win32Service.DB.Tests.csproj", "{4FE6D51D-0CE8-4C07-80B1-F3C9BA4A9F21}"
 EndProject
@@ -189,10 +201,16 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSpooler.Win32Service.Entity", "EmailSpooler.Win32Service.Entity\EmailSpooler.Win32Service.Entity.csproj", "{55C40403-0200-4757-B253-A9DCF56ED39F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSpooler.Win32Service.Entity.NugetPackage", "EmailSpooler.Win32Service.Entity.NugetPackage\EmailSpooler.Win32Service.Entity.NugetPackage.csproj", "{F4207B11-BEA0-4411-9898-5F30E9336C54}"
+	ProjectSection(ProjectDependencies) = postProject
+		{55C40403-0200-4757-B253-A9DCF56ED39F} = {55C40403-0200-4757-B253-A9DCF56ED39F}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TestUtils.Entity.Tests", "PeanutButter.TestUtils.Entity.Tests\PeanutButter.TestUtils.Entity.Tests.csproj", "{509EDFE4-F72E-4A97-AA84-4985391493A1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TestUtils.MVC.NugetPackage", "PeanutButter.TestUtils.MVC.NugetPackage\PeanutButter.TestUtils.MVC.NugetPackage.csproj", "{F334C2DB-A865-4AE8-84F7-2848AFD700EE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{851DA54E-4FBF-4F02-9C65-52B22015415D} = {851DA54E-4FBF-4F02-9C65-52B22015415D}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestService", "TestService\TestService.csproj", "{3E03AC14-F3BE-4EFE-A37C-AE4B4DCFA458}"
 EndProject
