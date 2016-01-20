@@ -355,6 +355,23 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [Test]
+        public void GetRandomCollection_WhenMinEqualsMax_ShouldReturnExactlyThatSize()
+        {
+            //---------------Set up test pack-------------------
+            int max;
+            var min = max = RandomValueGen.GetRandomInt();
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = RandomValueGen.GetRandomCollection(() => RandomValueGen.GetRandomInt(), min, max);
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(min, result.Count());
+        }
+
+
+        [Test]
         public void GetRandomAlphaNumericString_ShouldProduceRandomStringWithOnlyAlphaNumericCharacters()
         {
             var allResults = new List<Tuple<string, int, int>>();

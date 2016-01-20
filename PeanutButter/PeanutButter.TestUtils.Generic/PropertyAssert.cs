@@ -45,7 +45,13 @@ namespace PeanutButter.TestUtils.Generic
             var propInfo = objType.GetProperty(propParts[0]);
             if (propInfo == null)
             {
-                throw new Exception(string.Join(string.Empty, "Unable to resolve property '", propName, "': can't find immediate property '", propParts[0], "' on object of type '", objType.Name, "'"));
+                throw new Exception(string.Join(string.Empty, 
+                                                "Unable to resolve property '", 
+                                                propName, 
+                                                "': can't find immediate property '", 
+                                                propParts[0], 
+                                                "' on object of type '", 
+                                                objType.Name, "'"));
             }
             var propVal = propInfo.GetValue(obj, null);
             if (propVal == null && propName.IndexOf(".", StringComparison.Ordinal) > -1)
@@ -87,7 +93,9 @@ namespace PeanutButter.TestUtils.Generic
             var type2 = obj2.GetType();
             var targetPropInfo = type2.GetProperty(obj2PropName);
             Assert.IsNotNull(targetPropInfo, PropNotFoundMessage(type2, obj2PropName));
-            Assert.AreEqual(srcPropInfo.PropertyType, targetPropInfo.PropertyType, "Property types for '" + srcPropInfo.Name + "' do not match: " + srcPropInfo.PropertyType.Name + " vs " + targetPropInfo.PropertyType.Name);
+            Assert.AreEqual(srcPropInfo.PropertyType, targetPropInfo.PropertyType, 
+                "Property types for '" + srcPropInfo.Name + "' do not match: " + 
+                srcPropInfo.PropertyType.Name + " vs " + targetPropInfo.PropertyType.Name);
             finalAssertion(srcPropInfo.GetValue(obj1, null), targetPropInfo.GetValue(obj2, null), obj1PropName + " => " + obj2PropName);
         }
 

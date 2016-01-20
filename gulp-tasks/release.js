@@ -1,6 +1,6 @@
 var gulp = require('gulp');
 var msbuild = require('gulp-msbuild');
-gulp.task('build-release', function() {
+gulp.task('release', function() {
     return gulp.src('**/*.sln')
             .pipe(msbuild({
                 errorOnFail: true,

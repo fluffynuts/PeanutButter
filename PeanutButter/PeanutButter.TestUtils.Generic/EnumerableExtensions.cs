@@ -26,5 +26,14 @@ namespace PeanutButter.TestUtils.Generic
                 return false;
             }
         }
+
+        public static bool IsEquivalentTo<T>(this IEnumerable<T> src, IEnumerable<T> other)
+        {
+            if (src == null && other == null) return true;
+            if (src == null || other == null) return false;
+            return src.Count() == other.Count() &&
+                   !src.Except(other).Any();
+        }  
+
     }
 }
