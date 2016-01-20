@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 
 namespace PeanutButter.Utils
 {
@@ -22,7 +21,6 @@ namespace PeanutButter.Utils
                     var instanceMethodExpression = unaryExpression.Operand as MethodCallExpression;
                     if (instanceMethodExpression != null)
                     {
-                        // TODO: make this able to traverse levels like with properties
                         return instanceMethodExpression.Method.Name;
                     }
                     throw new Exception("expression is not a member expression");

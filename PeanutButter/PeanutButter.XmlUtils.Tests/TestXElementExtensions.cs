@@ -6,7 +6,7 @@ using PeanutButter.RandomGenerators;
 namespace PeanutButter.XmlUtils.Tests
 {
     [TestFixture]
-    class TestXElementExtensions
+    public class TestXElementExtensions
     {
         [Test]
         public void Text_ReturnsSingleTextNodeOfElement()

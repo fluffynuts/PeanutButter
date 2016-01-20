@@ -11,7 +11,12 @@ namespace PeanutButter.TestUtils.Generic
             var propInfos1 = obj1.GetType().GetProperties();
             var propInfos2 = obj2.GetType().GetProperties();
             if (propInfos1.Length != propInfos2.Length)
-                Assert.Fail("Property counts on objects of types '" + obj1.GetType().Name + "' and '" + obj2.GetType().Name + "' do not match");
+                Assert.Fail(string.Join(string.Empty,
+                            "Property counts on objects of types '",
+                            obj1.GetType().Name,
+                            "' and '",
+                            obj2.GetType().Name,
+                            "' do not match"));
             foreach (var propInfo1 in propInfos1)
             {
                 if (ignorePropertiesByName.Contains(propInfo1.Name))

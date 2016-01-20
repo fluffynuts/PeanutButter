@@ -45,6 +45,7 @@
     <Compile Include="MouseClickHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TrayIcon.cs" />
+    <Compile Include="TrayIconAlreadyInitializedException.cs" />
     <Compile Include="TrayIconAnimator.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

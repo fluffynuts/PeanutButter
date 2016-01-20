@@ -9,7 +9,7 @@ namespace PeanutButter.MVC
 {
     public static class AutoInclude
     {
-        public static string BundleBase = "~/bundles/js/";
+        public static string BundleBase { get; set; } = "~/bundles/js/";
 
         public static IHtmlString AutoIncludeScriptsFor(ViewContext viewContext, IBundleResolver bundleResolver = null, Func<string[], IHtmlString> scriptRenderer = null)
         {

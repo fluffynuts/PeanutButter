@@ -86,7 +86,11 @@ namespace PeanutButter.TestUtils.Generic
                 return type.Name;
         }
 
-        // TODO: implement ShouldBeAbstract
+        public static void ShouldBeAbstract(this Type type)
+        {
+            if (!type.IsAbstract)
+                Assert.Fail(type.PrettyName() + " should be abstract");
+        }
 
         public static void ShouldThrowWhenConstructorParameterIsNull(this Type type, string parameterName, Type expectedType)
         {

@@ -17,10 +17,10 @@ namespace EmailSpooler.Win32Service.SMTP
         public string Subject { get; set; }
         public string Body { get; set; }
         public List<EmailAttachment> Attachments { get; private set; }
-        protected List<IDisposable> _disposables = new List<IDisposable>();
+        protected List<IDisposable> Disposables { get; set; } = new List<IDisposable>();
         public Email(IEmailConfiguration config)
         {
-            if (config == null) throw new ArgumentNullException("config");
+            if (config == null) throw new ArgumentNullException(nameof(config));
             _config = config;
             SetDefaults();
         }
@@ -84,9 +84,9 @@ namespace EmailSpooler.Win32Service.SMTP
         {
             lock (this)
             {
-                foreach (var d in _disposables)
+                foreach (var d in Disposables)
                     d.Dispose();
-                _disposables.Clear();
+                Disposables.Clear();
             }
         }
 
@@ -120,7 +120,7 @@ namespace EmailSpooler.Win32Service.SMTP
             };
             AddRecipientsTo(message);
             AddAttachmentsTo(message);
-            _disposables.Add(message);
+            Disposables.Add(message);
             return message;
         }
 
@@ -152,7 +152,7 @@ namespace EmailSpooler.Win32Service.SMTP
                     mailAttachment.ContentDisposition.DispositionType = DispositionTypeNames.Attachment;
                 }
                 message.Attachments.Add(mailAttachment);
-                _disposables.Add(memStream);
+                Disposables.Add(memStream);
             }
         }
 
@@ -171,7 +171,8 @@ namespace EmailSpooler.Win32Service.SMTP
 
         protected bool DetermineIfBodyIsHTML()
         {
-            return (Body.IndexOf("<html") > -1 && Body.IndexOf("</html>") > -1);
+            return Body.IndexOf("<html", StringComparison.Ordinal) > -1 && 
+                    Body.IndexOf("</html>", StringComparison.Ordinal) > -1;
         }
 
     }

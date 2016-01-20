@@ -38,14 +38,18 @@ namespace PeanutButter.Utils
             {
                 if (!result) return false;
                 var compareProp = FindMatchingPropertyInfoFor(comparePropInfos, srcProp);
-                if (compareProp == null)
-                    return false;
-                var srcValue = srcProp.GetValue(objSource, null);
-                var compareValue = compareProp.GetValue(objCompare, null);
-                if (!CanPerformSimpleTypeMatchFor(srcProp))
-                    return srcValue.AllPropertiesMatch(compareValue);
-                return SimpleObjectsMatch(srcProp.Name, srcValue, compareValue);
+                return compareProp != null &&
+                         PropertyValuesMatchFor(objSource, objCompare, srcProp, compareProp);
             });
+        }
+
+        private static bool PropertyValuesMatchFor(object objSource, object objCompare, PropertyInfo srcProp, PropertyInfo compareProp)
+        {
+            var srcValue = srcProp.GetValue(objSource, null);
+            var compareValue = compareProp.GetValue(objCompare, null);
+            return CanPerformSimpleTypeMatchFor(srcProp)
+                ? SimpleObjectsMatch(srcProp.Name, srcValue, compareValue)
+                : srcValue.AllPropertiesMatch(compareValue);
         }
 
         private static bool CanPerformSimpleTypeMatchFor(PropertyInfo srcProp)

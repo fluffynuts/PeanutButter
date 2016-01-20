@@ -386,5 +386,42 @@ namespace PeanutButter.TestUtils.Generic.Tests
             Assert.AreEqual("Parameter arg is expected to have type: 'Int32' but actually has type: 'String'", ex.Message);
         }
 
+        public abstract class AbstractThing
+        {
+        }
+
+        [Test]
+        public void ShouldBeAbstract_GivenAbstractType_ShouldNotThrow()
+        {
+            //---------------Set up test pack-------------------
+            var sut = typeof (AbstractThing);
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(() => sut.ShouldBeAbstract());
+
+            //---------------Test Result -----------------------
+        }
+
+        public class NotAnAbstractThing: AbstractThing
+        {
+        }
+
+        [Test]
+        public void ShouldBeAbstract_GivenNonAbstractType_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            var sut = typeof (NotAnAbstractThing);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var ex = Assert.Throws<AssertionException>(() => sut.ShouldBeAbstract());
+
+            //---------------Test Result -----------------------
+            StringAssert.Contains(sut.Name, ex.Message);
+            StringAssert.Contains("should be abstract", ex.Message);
+        }
+
     }
 }

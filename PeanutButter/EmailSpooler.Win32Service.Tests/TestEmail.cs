@@ -34,10 +34,10 @@ namespace EmailSpooler.Win32Service.Tests
             {
                 return base.CreateMessage();
             }
-            public List<IDisposable> Disposables { get { return _disposables; } }
+            public List<IDisposable> InternalDisposables { get { return Disposables; } }
             public void AddDisposable(IDisposable disposable)
             {
-                _disposables.Add(disposable);
+                Disposables.Add(disposable);
             }
             public new ISmtpClient CreateSMTPClient()
             {
@@ -511,10 +511,10 @@ namespace EmailSpooler.Win32Service.Tests
             using (var email = CreateWithRandomRecipientAndSender())
             {
                 email.AddAttachment(fileName, data, mimeType);
-                Assert.IsFalse(email.Disposables.Any());
+                Assert.IsFalse(email.InternalDisposables.Any());
                 email.CreateMessage();
                 //---------------Test Result -----------------------
-                Assert.AreEqual(1, email.Disposables.Count(d => d as MemoryStream != null));
+                Assert.AreEqual(1, email.InternalDisposables.Count(d => d as MemoryStream != null));
             }
         }
 
@@ -528,7 +528,7 @@ namespace EmailSpooler.Win32Service.Tests
                 //---------------Execute Test ----------------------
                 var message = email.CreateMessage();
                 //---------------Test Result -----------------------
-                Assert.IsTrue(email.Disposables.Any(d => d as MailMessage == message));
+                Assert.IsTrue(email.InternalDisposables.Any(d => d as MailMessage == message));
             }
         }
 
