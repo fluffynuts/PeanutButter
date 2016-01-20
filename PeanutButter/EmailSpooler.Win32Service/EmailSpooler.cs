@@ -28,14 +28,14 @@ namespace EmailSpooler.Win32Service
 
     public class EmailSpooler: IDisposable
     {
-        private IEmailContext _dbContext;
-        private Func<IEmail> _emailGenerator;
-        private IEmailSpoolerConfig _config;
+        private IEmailContext _context;
+        private readonly Func<IEmail> _emailGenerator;
+        private readonly IEmailSpoolerConfig _config;
 
         public EmailSpooler(IEmailSpoolerDependencies dependencies)
         {
             CheckDependencies(dependencies);
-            _dbContext = dependencies.DbContext;
+            _context = dependencies.DbContext;
             _emailGenerator = dependencies.EmailGenerator;
             _config = dependencies.EmailSpoolerConfig;
         }
@@ -54,9 +54,8 @@ namespace EmailSpooler.Win32Service
         {
             lock (this)
             {
-                if (_dbContext != null)
-                    _dbContext.Dispose();
-                _dbContext = null;
+                _context?.Dispose();
+                _context = null;
             }
         }
 
@@ -69,22 +68,20 @@ namespace EmailSpooler.Win32Service
         private void PurgeOldSentAndUnsendableMail()
         {
             var cutoff = DateTime.Now.AddDays(-_config.PurgeMessageWithAgeInDays);
-            var toRemove = _dbContext.Emails.Where(e => (e.Sent || e.SendAttempts >= _config.MaxSendAttempts)
+            var toRemove = _context.Emails.Where(e => (e.Sent || e.SendAttempts >= _config.MaxSendAttempts)
                                                             && (e.LastModified.HasValue && 
                                                                 e.LastModified.Value <= cutoff))
                                                                 .ToList();
             if (!toRemove.Any()) return;
-            _config.Logger.LogInfo(string.Join("", new[] {
-                "Purging ", toRemove.Count().ToString(), " stale) messages"
-            }));
+            _config.Logger.LogInfo(string.Join("", "Purging ", toRemove.Count().ToString(), " stale) messages"));
             foreach (var email in toRemove)
-                _dbContext.Emails.Remove(email);
-            _dbContext.SaveChanges();
+                _context.Emails.Remove(email);
+            _context.SaveChanges();
         }
 
         private void AttemptToSendUnsentMail()
         {
-            var unsent = _dbContext.Emails
+            var unsent = _context.Emails
                 .Include(e => e.EmailRecipients)
                 .Include(e => e.EmailAttachments)
                 .Where(e => e.Enabled
@@ -103,7 +100,7 @@ namespace EmailSpooler.Win32Service
             using (var email = _emailGenerator())
             {
                 SetupEmailFromMessage(message, email);
-                _config.Logger.LogInfo(string.Join("", new[] { "Attempting to send mail to '", email.To.FirstOrDefault() }));
+                _config.Logger.LogInfo(string.Join("", "Attempting to send mail to '", email.To.FirstOrDefault()));
                 try
                 {
                     email.Send();
@@ -121,7 +118,7 @@ namespace EmailSpooler.Win32Service
                     message.Sent = false;
                     _config.Logger.LogInfo("** Message not sent: " + ex.Message);
                 }
-                _dbContext.SaveChanges();
+                _context.SaveChanges();
             }
         }
 

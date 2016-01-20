@@ -111,11 +111,11 @@ namespace PeanutButter.TestUtils.Generic
                 .Select(pi => pi.Name)
                 .ToArray();
         }
-        public static void ShouldHaveProperty(this Type type, string name, Type ofType = null, bool shouldBeVirtual = false)
+        public static void ShouldHaveProperty(this Type type, string name, Type withType = null, bool shouldBeVirtual = false)
         {
             var propertyInfo = GetPropertyForPath(type, name);
-            if (ofType != null && ofType != propertyInfo.PropertyType)
-                Assert.AreEqual(ofType, propertyInfo.PropertyType, "Found property '" + name + "' but not with expected type '" + ofType.PrettyName() + "'");
+            if (withType != null && withType != propertyInfo.PropertyType)
+                Assert.AreEqual(withType, propertyInfo.PropertyType, "Found property '" + name + "' but not with expected type '" + withType.PrettyName() + "'");
             if (shouldBeVirtual)
                 Assert.IsTrue(propertyInfo.GetAccessors().First().IsVirtual);
         }

@@ -58,10 +58,10 @@ namespace PeanutButter.TestUtils.Entity
 
         protected virtual TDbContext GetContext(bool logSql = false)
         {
-            var dbConnection = _tempDb.CreateConnection();
+            var connection = _tempDb.CreateConnection();
             lock (_tempDb)
             {
-                var context = (TDbContext) Activator.CreateInstance(typeof(TDbContext), dbConnection);
+                var context = (TDbContext) Activator.CreateInstance(typeof(TDbContext), connection);
                 if (logSql)
                     context.Database.Log = s => System.Diagnostics.Debug.WriteLine((string) s);
                 if (_runBeforeFirstGettingContext)
