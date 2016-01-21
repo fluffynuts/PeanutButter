@@ -140,6 +140,20 @@ namespace PeanutButter.TestUtils.Generic
             type.ShouldNotHaveProperty(name, typeof (T));
         }
 
+        public static void ShouldHaveReadOnlyProperty(this Type type, string name, Type withType = null)
+        {
+            var propInfo = FindPropertyInfoForPath(type, name, Assert.Fail);
+            if (withType != null)
+                Assert.AreEqual(withType, propInfo.PropertyType, 
+                    $"Expected {type.Name}.{name} to have type {withType}, but found {propInfo.PropertyType}");
+            Assert.IsNull(propInfo.GetSetMethod(), $"Expected {type.Name}.{name} to be read-only");
+        }
+
+        public static void ShouldHaveReadOnlyProperty<T>(this Type type, string name)
+        {
+            type.ShouldHaveReadOnlyProperty(name, typeof (T));
+        }
+
         public static string[] NonIntersectingPropertiesFor(this Type type, Type otherType)
         {
             var props1 = type.PropertyNames();

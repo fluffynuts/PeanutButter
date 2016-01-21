@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
+using PeanutButter.TestUtils.Generic;
 
 namespace PeanutButter.MVC.Tests
 {
@@ -24,6 +25,23 @@ namespace PeanutButter.MVC.Tests
             Assert.AreEqual(expectedPattern, sut.SearchPattern);
             Assert.AreEqual(expectedSubdirectories, sut.SearchSubdirectories);
         }
+
+        [TestCase("Path")]
+        [TestCase("SearchPattern")]
+        [TestCase("SearchSubdirectories")]
+        public void PropertyShouldBeReadOnly_(string property)
+        {
+            //---------------Set up test pack-------------------
+            var sut = typeof (IncludeDirectory);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            sut.ShouldHaveReadOnlyProperty(property);
+
+            //---------------Test Result -----------------------
+        }
+
 
     }
 }

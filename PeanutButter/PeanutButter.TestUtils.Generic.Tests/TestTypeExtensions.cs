@@ -544,6 +544,75 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Test Result -----------------------
         }
 
+        public class ReadOnlyPropertyTestClass
+        {
+            public int ReadOnlyProperty { get; private set; }
+            public int ReadWriteProperty { get; set; }
+        }
+
+        [Test]
+        public void ShouldHaveReadOnlyProperty_WhenPropertyExistsAndIsReadOnly_ShouldNotThrow()
+        {
+            //---------------Set up test pack-------------------
+            var sut = typeof (ReadOnlyPropertyTestClass);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(() => sut.ShouldHaveReadOnlyProperty("ReadOnlyProperty"));
+            Assert.DoesNotThrow(() => sut.ShouldHaveReadOnlyProperty("ReadOnlyProperty", typeof(int)));
+            Assert.DoesNotThrow(() => sut.ShouldHaveReadOnlyProperty<int>("ReadOnlyProperty"));
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
+        public void ShouldHaveReadOnlyProperty_WhenPropertyExistsAndIsNotReadOnly_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            var sut = typeof (ReadOnlyPropertyTestClass);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.Throws<AssertionException>(() => sut.ShouldHaveReadOnlyProperty("ReadWriteProperty"));
+            Assert.Throws<AssertionException>(() => sut.ShouldHaveReadOnlyProperty("ReadWriteProperty", typeof(int)));
+            Assert.Throws<AssertionException>(() => sut.ShouldHaveReadOnlyProperty<int>("ReadWriteProperty"));
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
+        public void ShouldHaveReadOnlyProperty_WhenPropertyDoesNotExistByName_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            var sut = typeof (ReadOnlyPropertyTestClass);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.Throws<AssertionException>(() => sut.ShouldHaveReadOnlyProperty("SomeProperty"));
+            Assert.Throws<AssertionException>(() => sut.ShouldHaveReadOnlyProperty("SomeProperty", typeof(int)));
+            Assert.Throws<AssertionException>(() => sut.ShouldHaveReadOnlyProperty<int>("SomeProperty"));
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
+        public void ShouldHaveReadOnlyProperty_WhenPropertyExistsAndIsReadOnlyButHasDifferentType_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            var sut = typeof (ReadOnlyPropertyTestClass);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.Throws<AssertionException>(() => sut.ShouldHaveReadOnlyProperty("ReadOnlyProperty", typeof(string)));
+            Assert.Throws<AssertionException>(() => sut.ShouldHaveReadOnlyProperty<bool>("ReadOnlyProperty"));
+
+            //---------------Test Result -----------------------
+        }
+
 
     }
 }
