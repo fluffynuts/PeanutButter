@@ -115,6 +115,7 @@ namespace PeanutButter.TestUtils.Generic
                 .Select(pi => pi.Name)
                 .ToArray();
         }
+
         public static void ShouldHaveProperty(this Type type, string name, Type withType = null, bool shouldBeVirtual = false)
         {
             var propertyInfo = GetPropertyForPath(type, name);
@@ -122,6 +123,21 @@ namespace PeanutButter.TestUtils.Generic
                 Assert.AreEqual(withType, propertyInfo.PropertyType, "Found property '" + name + "' but not with expected type '" + withType.PrettyName() + "'");
             if (shouldBeVirtual)
                 Assert.IsTrue(propertyInfo.GetAccessors().First().IsVirtual);
+        }
+
+        public static void ShouldNotHaveProperty(this Type type, string name, Type withType = null)
+        {
+            Assert.IsNotNull(type, "Cannot interrogate properties on NULL type");
+            var propertyInfo = FindPropertyInfoForPath(type, name);
+            if (withType == null)
+                Assert.IsNull(propertyInfo, $"Expected not to find property {name} on type {type.Name}");
+            if (propertyInfo != null && propertyInfo.PropertyType == withType)
+                Assert.Fail($"Expected not to find property {name} with type {withType} on type {type.Name}");
+        }
+
+        public static void ShouldNotHaveProperty<T>(this Type type, string name)
+        {
+            type.ShouldNotHaveProperty(name, typeof (T));
         }
 
         public static string[] NonIntersectingPropertiesFor(this Type type, Type otherType)
@@ -145,7 +161,40 @@ namespace PeanutButter.TestUtils.Generic
 
         public static PropertyInfo GetPropertyForPath(Type type, string name)
         {
-            var propertyPath = name.Split('.');
+            //var propertyPath = name.Split('.');
+            //var traversed = new List<string>();
+            //PropertyInfo finalProperty = null;
+            //foreach (var part in propertyPath)
+            //{
+            //    traversed.Add(part);
+
+            //    var property = type
+            //        .GetProperties()
+            //        .FirstOrDefault(pi => pi.Name == part);
+            //    Assert.IsNotNull(property, "Could not find property '" + string.Join(".", traversed) + "' on type " + type.PrettyName());
+            //    if (traversed.Count == propertyPath.Length)
+            //    {
+            //        finalProperty = property;
+            //        break;
+            //    }
+            //    type = property.PropertyType;
+            //}
+            //return finalProperty;
+
+            string traversalFailure = null;
+            var propertyInfo = FindPropertyInfoForPath(type, name, s => traversalFailure = s);
+            return propertyInfo ?? ThrowForPropertyTraversalFailure(traversalFailure);
+        }
+
+        private static PropertyInfo ThrowForPropertyTraversalFailure(string traversalFailure)
+        {
+            throw new AssertionException(traversalFailure);
+        }
+
+        private static PropertyInfo FindPropertyInfoForPath(Type type, string path, Action<string> toCallWhenTraversalFails = null)
+        {
+            toCallWhenTraversalFails = toCallWhenTraversalFails ?? (s => { });
+            var propertyPath = path.Split('.');
             var traversed = new List<string>();
             PropertyInfo finalProperty = null;
             foreach (var part in propertyPath)
@@ -155,7 +204,11 @@ namespace PeanutButter.TestUtils.Generic
                 var property = type
                     .GetProperties()
                     .FirstOrDefault(pi => pi.Name == part);
-                Assert.IsNotNull(property, "Could not find property '" + string.Join(".", traversed) + "' on type " + type.PrettyName());
+                if (property == null)
+                {
+                    toCallWhenTraversalFails(string.Join(".", traversed));
+                    return null;
+                }
                 if (traversed.Count == propertyPath.Length)
                 {
                     finalProperty = property;

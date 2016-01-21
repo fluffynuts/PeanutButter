@@ -118,6 +118,10 @@
       <Project>{6DDD7F9E-857A-442B-9148-05B34EA279C4}</Project>
       <Name>PeanutButter.TestUtils.Generic</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PeanutButter.Utils\PeanutButter.Utils.csproj">
+      <Project>{EFC85343-95B4-48C3-BCBE-579EA4868C0A}</Project>
+      <Name>PeanutButter.Utils</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />

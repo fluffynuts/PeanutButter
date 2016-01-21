@@ -158,13 +158,19 @@ namespace PeanutButter.Utils
         }
 
 
-        private static object GetPropertyValue(object src, string propertyName)
+        public static object GetPropertyValue(this object src, string propertyName)
         {
             var type = src.GetType();
-            var propInfo = type.GetProperties().FirstOrDefault(pi => pi.Name == propertyName);
+            var propInfo = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).FirstOrDefault(pi => pi.Name == propertyName);
             if (propInfo == null)
                 throw new PropertyNotFoundException(type, propertyName);
             return propInfo.GetValue(src, null);
+        }
+
+        public static T GetPropertyValue<T>(this object src, string propertyName)
+        {
+            var objectResult = GetPropertyValue(src, propertyName);
+            return (T) objectResult;
         }
 
         public static bool IsAssignableTo<T>(this Type type)

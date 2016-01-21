@@ -423,5 +423,127 @@ namespace PeanutButter.TestUtils.Generic.Tests
             StringAssert.Contains("should be abstract", ex.Message);
         }
 
+        public class ClassWithAProperty
+        {
+            public int IntProperty { get; set; }
+        }
+
+        [Test]
+        public void ShouldHaveProperty_GivenValidNameOnly_WhenPropertyExists_ShouldNotThrow()
+        {
+            //---------------Set up test pack-------------------
+            var sut = typeof (ClassWithAProperty);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(() => sut.ShouldHaveProperty("IntProperty"));
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
+        public void ShouldHaveProperty_GivenInvalidNameOnly_WhenPropertyExists_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            var sut = typeof (ClassWithAProperty);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.Throws<AssertionException>(() => sut.ShouldHaveProperty("IntProperty1"));
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
+        public void ShouldHaveProperty_GivenValidNameAndType_WhenPropertyExistsWithExpectedType_ShouldNotThrow()
+        {
+            //---------------Set up test pack-------------------
+            var sut = typeof (ClassWithAProperty);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(() => sut.ShouldHaveProperty("IntProperty", typeof(int)));
+            Assert.DoesNotThrow(() => sut.ShouldHaveProperty<int>("IntProperty"));
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
+        public void ShouldHaveProperty_GivenValidNameAndInvalidType_WhenPropertyExistsWithDifferentType_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            var sut = typeof (ClassWithAProperty);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.Throws<AssertionException>(() => sut.ShouldHaveProperty("IntProperty", typeof(string)));
+            Assert.Throws<AssertionException>(() => sut.ShouldHaveProperty<string>("IntProperty"));
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
+        public void ShouldNotHaveProperty_GivenInvalidNameOnly_WhenPropertyDoesNotExist_ShouldNotThrow()
+        {
+            //---------------Set up test pack-------------------
+            var sut = typeof(ClassWithAProperty);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(() => sut.ShouldNotHaveProperty("StringProperty"));
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
+        public void ShouldNotHaveProperty_GivenNameOnly_WhenPropertyExists_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            var sut = typeof(ClassWithAProperty);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.Throws<AssertionException>(() => sut.ShouldNotHaveProperty("IntProperty"));
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
+        public void ShouldNotHaveProperty_GivenNameAndType_WhenPropertyExistsWithType_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            var sut = typeof(ClassWithAProperty);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.Throws<AssertionException>(() => sut.ShouldNotHaveProperty("IntProperty", typeof(int)));
+            Assert.Throws<AssertionException>(() => sut.ShouldNotHaveProperty<int>("IntProperty"));
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
+        public void ShouldNotHaveProperty_GivenValidNameAndType_WhenPropertyExistsWithDifferentType_ShouldNotThrow()
+        {
+            //---------------Set up test pack-------------------
+            var sut = typeof(ClassWithAProperty);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(() => sut.ShouldNotHaveProperty("IntProperty", typeof(string)));
+            Assert.DoesNotThrow(() => sut.ShouldNotHaveProperty<string>("IntProperty"));
+
+            //---------------Test Result -----------------------
+        }
+
+
     }
 }
