@@ -41,7 +41,5 @@ namespace PeanutButter.MVC.Tests
 
             //---------------Test Result -----------------------
         }
-
-
     }
 }

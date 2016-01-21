@@ -47,10 +47,18 @@ namespace ServiceShell
 
         public ExitCodes ExitCode { get; protected set; }
 
+        private Action<string> HelpWriter { get; set; } = Console.WriteLine;
+        internal IParser OptionsParser { get; set; } = new ParserFacade(Parser.Default);
+
         public CommandlineOptions(string[] args, string helpHeading, string copyRightInformation = null)
         {
+            Init(args, helpHeading, copyRightInformation);
+        }
+
+        private void Init(string[] args, string helpHeading, string copyRightInformation)
+        {
             ExitCode = ExitCodes.CommandlineArgumentError;
-            if (Parser.Default.ParseArguments(args, this))
+            if (OptionsParser.ParseArguments(args, this))
             {
                 if (ShowHelp)
                 {
@@ -65,17 +73,45 @@ namespace ServiceShell
             }
         }
 
+        internal CommandlineOptions(string[] args, string helpHeading, string copyRightInformation, 
+            Action<string> helpWriter, IParser parser)
+        {
+            HelpWriter = helpWriter;
+            OptionsParser = parser;
+            Init(args, helpHeading, copyRightInformation);
+        }
+
         private void ShowUsage(string helpHeading, string copyRightInformation)
         {
-            var ht = new HelpText(helpHeading);
-            ht.AddDashesToOption = true;
+            var ht = new HelpText(helpHeading) {AddDashesToOption = true};
             if (!string.IsNullOrWhiteSpace(copyRightInformation))
                 ht.Copyright = copyRightInformation;
             ht.AddOptions(this);
 
-            Console.WriteLine(ht.ToString());
+            HelpWriter(ht.ToString());
             ExitCode = ExitCodes.ShowedHelp;
         }
 
+    }
+
+    internal interface IParser
+    {
+        bool ParseArguments(string[] arguments, object optionsObject);
+    }
+
+    internal class ParserFacade: IParser
+    {
+        public Parser Actual => _actual;
+        private Parser _actual;
+
+        internal ParserFacade(Parser actual)
+        {
+            _actual = actual;
+        }
+
+        public bool ParseArguments(string[] arguments, object optionsObject)
+        {
+            return _actual.ParseArguments(arguments, optionsObject);
+        }
     }
 }

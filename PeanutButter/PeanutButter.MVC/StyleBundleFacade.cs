@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Web.Optimization;
 
 namespace PeanutButter.MVC
@@ -12,6 +13,8 @@ namespace PeanutButter.MVC
 
         public StyleBundleFacade(string name)
         {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("A StyleBundle name may not be null, empty or whitespace", nameof(name));
             _actual = new StyleBundle(name);
         }
 

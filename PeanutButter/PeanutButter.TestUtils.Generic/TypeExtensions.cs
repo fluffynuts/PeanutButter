@@ -175,26 +175,6 @@ namespace PeanutButter.TestUtils.Generic
 
         public static PropertyInfo GetPropertyForPath(Type type, string name)
         {
-            //var propertyPath = name.Split('.');
-            //var traversed = new List<string>();
-            //PropertyInfo finalProperty = null;
-            //foreach (var part in propertyPath)
-            //{
-            //    traversed.Add(part);
-
-            //    var property = type
-            //        .GetProperties()
-            //        .FirstOrDefault(pi => pi.Name == part);
-            //    Assert.IsNotNull(property, "Could not find property '" + string.Join(".", traversed) + "' on type " + type.PrettyName());
-            //    if (traversed.Count == propertyPath.Length)
-            //    {
-            //        finalProperty = property;
-            //        break;
-            //    }
-            //    type = property.PropertyType;
-            //}
-            //return finalProperty;
-
             string traversalFailure = null;
             var propertyInfo = FindPropertyInfoForPath(type, name, s => traversalFailure = s);
             return propertyInfo ?? ThrowForPropertyTraversalFailure(traversalFailure);
@@ -205,7 +185,7 @@ namespace PeanutButter.TestUtils.Generic
             throw new AssertionException(traversalFailure);
         }
 
-        private static PropertyInfo FindPropertyInfoForPath(Type type, string path, Action<string> toCallWhenTraversalFails = null)
+        public static PropertyInfo FindPropertyInfoForPath(this Type type, string path, Action<string> toCallWhenTraversalFails = null)
         {
             toCallWhenTraversalFails = toCallWhenTraversalFails ?? (s => { });
             var propertyPath = path.Split('.');

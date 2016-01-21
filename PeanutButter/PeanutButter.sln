@@ -214,6 +214,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TestUtils.MVC.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestService", "TestService\TestService.csproj", "{3E03AC14-F3BE-4EFE-A37C-AE4B4DCFA458}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.ServiceShell.Tests", "PeanutButter.ServiceShell.Tests\PeanutButter.ServiceShell.Tests.csproj", "{9DC70464-9FD9-4344-8161-B48A6F1F1BB1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -850,6 +852,18 @@ Global
 		{3E03AC14-F3BE-4EFE-A37C-AE4B4DCFA458}.Test|Any CPU.Build.0 = Release|Any CPU
 		{3E03AC14-F3BE-4EFE-A37C-AE4B4DCFA458}.Test|x86.ActiveCfg = Release|Any CPU
 		{3E03AC14-F3BE-4EFE-A37C-AE4B4DCFA458}.Test|x86.Build.0 = Release|Any CPU
+		{9DC70464-9FD9-4344-8161-B48A6F1F1BB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DC70464-9FD9-4344-8161-B48A6F1F1BB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DC70464-9FD9-4344-8161-B48A6F1F1BB1}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9DC70464-9FD9-4344-8161-B48A6F1F1BB1}.Debug|x86.Build.0 = Debug|Any CPU
+		{9DC70464-9FD9-4344-8161-B48A6F1F1BB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DC70464-9FD9-4344-8161-B48A6F1F1BB1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9DC70464-9FD9-4344-8161-B48A6F1F1BB1}.Release|x86.ActiveCfg = Release|Any CPU
+		{9DC70464-9FD9-4344-8161-B48A6F1F1BB1}.Release|x86.Build.0 = Release|Any CPU
+		{9DC70464-9FD9-4344-8161-B48A6F1F1BB1}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{9DC70464-9FD9-4344-8161-B48A6F1F1BB1}.Test|Any CPU.Build.0 = Release|Any CPU
+		{9DC70464-9FD9-4344-8161-B48A6F1F1BB1}.Test|x86.ActiveCfg = Release|Any CPU
+		{9DC70464-9FD9-4344-8161-B48A6F1F1BB1}.Test|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
