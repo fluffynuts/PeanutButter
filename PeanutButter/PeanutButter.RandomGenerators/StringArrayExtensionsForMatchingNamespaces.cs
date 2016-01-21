@@ -13,7 +13,7 @@ namespace PeanutButter.RandomGenerators
             {
                 score += StringCompare(src[i], other[i]);
             }
-            score += (src.Length - other.Length);
+            score += src.Length - other.Length;
             return score;
         }
 

@@ -8,7 +8,7 @@
         }
         public class Tables
         {
-            public abstract class _Common_
+            public abstract class CommonColumns
             {
                 public const string CREATED = "Created";
                 public const string LASTMODIFIED = "LastModified";
@@ -17,7 +17,7 @@
             public class Emails
             {
                 public const string NAME = "Emails";
-                public class Columns : _Common_
+                public class Columns : CommonColumns
                 {
                     public const string EMAILID = "EmailId";
                     public const string SENDER = "Sender";
@@ -32,7 +32,7 @@
             public class EmailRecipients
             {
                 public const string NAME = "EmailRecipients";
-                public class Columns : _Common_
+                public class Columns : CommonColumns
                 {
                     public const string EMAILRECIPIENTID = "EmailRecipientId";
                     public const string EMAILID = "EmailId";
@@ -45,7 +45,7 @@
             public class EmailAttachments
             {
                 public const string NAME = "EmailAttachments";
-                public class Columns : _Common_
+                public class Columns : CommonColumns
                 {
                     public const string EMAILATTACHMENTID = "EmailAttachmentId";
                     public const string EMAILID = "EmailId";

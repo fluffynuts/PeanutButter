@@ -10,7 +10,7 @@ namespace PeanutButter.TinyEventAggregator
             NotExpired,
             Expired
         }
-        private int _originalLimit;
+        private readonly int _originalLimit;
         public SubscriptionToken Token { get; protected set; }
         public Action<TPayload> Receiver { get; protected set; }
         public int RemainingCalls { get; protected set; }
@@ -26,7 +26,7 @@ namespace PeanutButter.TinyEventAggregator
         {
             lock (this)
             {
-                return (_originalLimit > 0 && RemainingCalls == 1);
+                return _originalLimit > 0 && RemainingCalls == 1;
             }
         }
         public void DecrementRemainingCallCount()

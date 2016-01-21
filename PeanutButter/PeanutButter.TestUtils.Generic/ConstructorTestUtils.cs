@@ -16,9 +16,10 @@ namespace PeanutButter.TestUtils.Generic
         public static void ShouldExpectNonNullParameterFor<TCheckingConstructorOf>(string parameterName, Type expectedParameterType)
         {
             var constructor = GetConstructorInfo<TCheckingConstructorOf>();
-            var parameters = GetConstructorParameters(parameterName, constructor);
+            var parameters = GetConstructorParameters(parameterName, constructor).ToArray();
             var parameter = parameters.FirstOrDefault(pi => pi.Name == parameterName);
-            Assert.IsNotNull(parameter, "Unknown parameter for constructor of " + (typeof(TCheckingConstructorOf).PrettyName()) + ": " + parameterName);
+            Assert.IsNotNull(parameter, 
+                $"Unknown parameter for constructor of {typeof(TCheckingConstructorOf).PrettyName()}: {parameterName}");
             if (parameter.ParameterType != expectedParameterType)
                 Assert.Fail(new[] 
                             { 
@@ -73,12 +74,21 @@ namespace PeanutButter.TestUtils.Generic
             }
         }
 
+        private static readonly Func<Type, bool>[] _typeMayBeSubstitutableIfPassesAnyOf =
+        {
+            type => type.IsAbstract,
+            type => type.IsInterface,
+            type => type.GetInterfaces().Any(),
+            type => type.IsClass,
+        };
+
         private static bool IsParameterSubstitutable(ParameterInfo parameterInfo)
         {
             var parameterType = parameterInfo.ParameterType;
-            return (parameterType.IsAbstract || parameterType.IsInterface
-                    || parameterType.GetInterfaces().Any() || parameterType.IsClass)
-                   && !parameterType.IsPrimitive;
+            if (parameterType.IsPrimitive)
+                return false;
+            return _typeMayBeSubstitutableIfPassesAnyOf.Aggregate(false, 
+                        (accumulator, currentFunc) => accumulator || currentFunc(parameterType));
         }
 
         private static object CreateParameterValue(string parameterName, ParameterInfo parameterInfo)
