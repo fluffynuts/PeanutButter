@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Web.Optimization;
 
 namespace PeanutButter.MVC
@@ -14,6 +15,8 @@ namespace PeanutButter.MVC
         private List<string> _includedPaths = new List<string>();
         public ScriptBundleFacade(string name)
         {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("A ScriptBundle name may not be null, empty or whitespace", nameof(name));
             _actual = new ScriptBundle(name);
         }
 

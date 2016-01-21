@@ -129,7 +129,7 @@ namespace PeanutButter.TempDb
                 {
                     Trace("Error whilst: " + heading);
                     Trace(ex.Message); 
-                };
+                }
             };
             foreach (var conn in _managedConnections)
             {

@@ -65,6 +65,7 @@
     <Compile Include="ObjectExtensionsForTesting.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PropertyData.cs" />
+    <Compile Include="PropertyDataGeneric.cs" />
     <Compile Include="PropertyDataObjectExtension.cs" />
     <Compile Include="TestFixtureWithTempDb.cs" />
     <Compile Include="TypeExtensions.cs" />

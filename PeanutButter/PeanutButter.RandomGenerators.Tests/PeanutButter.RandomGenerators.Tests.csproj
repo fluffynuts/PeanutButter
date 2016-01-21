@@ -56,6 +56,7 @@
     <Compile Include="TestBase.cs" />
     <Compile Include="TestEnumerableExtensions.cs" />
     <Compile Include="TestGenericBuilder.cs" />
+    <Compile Include="TestGenericBuilderInstanceCreationException.cs" />
     <Compile Include="TestRandomValueGen.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

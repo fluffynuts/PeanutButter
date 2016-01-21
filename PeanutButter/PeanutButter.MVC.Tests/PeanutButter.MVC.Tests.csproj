@@ -99,6 +99,7 @@
   <ItemGroup>
     <Compile Include="TestAutoInclude.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestScriptBundleFacade.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -112,6 +113,10 @@
     <ProjectReference Include="..\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj">
       <Project>{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}</Project>
       <Name>PeanutButter.RandomGenerators</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PeanutButter.TestUtils.Generic\PeanutButter.TestUtils.Generic.csproj">
+      <Project>{6DDD7F9E-857A-442B-9148-05B34EA279C4}</Project>
+      <Name>PeanutButter.TestUtils.Generic</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
