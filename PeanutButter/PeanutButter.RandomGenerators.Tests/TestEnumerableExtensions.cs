@@ -84,6 +84,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 try
                 {
                     CollectionAssert.AreNotEqual(result, src);
+                    return;
                 }
                 catch (Exception)
                 {

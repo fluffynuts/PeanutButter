@@ -8,6 +8,7 @@ using System.Threading;
 using System.Xml.Linq;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
+using PeanutButter.SimpleTcpServer;
 using PeanutButter.Utils;
 
 namespace PeanutButter.SimpleHTTPServer.Tests
@@ -18,17 +19,30 @@ namespace PeanutButter.SimpleHTTPServer.Tests
         [Test]
         public void Construct_WhenPortIsSpecified_ShouldUseThatPort()
         {
-            var port = RandomValueGen.GetRandomInt(2000, 3000);
-            //---------------Set up test pack-------------------
-            using (var server = Create(port))
+            const int maxTries = 20;
+            for (var i = 0; i < maxTries; i++)
             {
-                //---------------Assert Precondition----------------
+                var port = RandomValueGen.GetRandomInt(2000, 3000);
+                try
+                {
+                    //---------------Set up test pack-------------------
+                    using (var server = Create(port))
+                    {
+                        //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
+                        //---------------Execute Test ----------------------
 
-                //---------------Test Result -----------------------
-                Assert.AreEqual(port, server.Port);
+                        //---------------Test Result -----------------------
+                        Assert.AreEqual(port, server.Port);
+                    }
+                    return;
+                }
+                catch (PortUnavailableException)
+                {
+                    Console.WriteLine($"Port {port} is currently not available");
+                }
             }
+            Assert.Fail($"Unable to bind to any specified port in {maxTries} attempts");
         }
 
         [Test]

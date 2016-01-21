@@ -74,7 +74,7 @@ namespace PeanutButter.TestUtils.Generic
             }
         }
 
-        private static readonly Func<Type, bool>[] _typeMayBeSubstitutableIfPassesAnyOf =
+        private static readonly Func<Type, bool>[] TypeMayBeSubstitutableIfPassesAnyOf =
         {
             type => type.IsAbstract,
             type => type.IsInterface,
@@ -87,7 +87,7 @@ namespace PeanutButter.TestUtils.Generic
             var parameterType = parameterInfo.ParameterType;
             if (parameterType.IsPrimitive)
                 return false;
-            return _typeMayBeSubstitutableIfPassesAnyOf.Aggregate(false, 
+            return TypeMayBeSubstitutableIfPassesAnyOf.Aggregate(false, 
                         (accumulator, currentFunc) => accumulator || currentFunc(parameterType));
         }
 

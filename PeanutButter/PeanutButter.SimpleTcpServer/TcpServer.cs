@@ -108,9 +108,9 @@ namespace PeanutButter.SimpleTcpServer
                 {
                     Log(" --> failed ):");
                     if (_portExplicitlySpecified)
-                        throw new Exception("Can't listen on specified port '" + Port + "': probably already in use?");
+                        throw new PortUnavailableException(Port);
                     if (attempts++ > 150)
-                        throw new Exception("Can't find a port to listen on ):");
+                        throw new UnableToFindAvailablePortException();
                     Thread.Sleep(10); // back off the bind attempts briefly
                     Port = FindOpenRandomPort();
                 }
