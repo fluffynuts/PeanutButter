@@ -167,6 +167,4 @@ namespace PeanutButter.MVC.Tests
             return new ScriptBundleFacade(name ?? "~/" + RandomValueGen.GetRandomString());
         }
     }
-
-
 }
