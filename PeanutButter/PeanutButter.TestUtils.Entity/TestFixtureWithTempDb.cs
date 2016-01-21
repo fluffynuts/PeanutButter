@@ -77,41 +77,41 @@ namespace PeanutButter.TestUtils.Entity
         {
             _aspNetTables.Add(@"
 CREATE TABLE [AspNetRoles](
-	[Id] [nvarchar](128) NOT NULL,
-	[Name] [nvarchar](256) NOT NULL
+    [Id] [nvarchar](128) NOT NULL,
+    [Name] [nvarchar](256) NOT NULL
 )");
             _aspNetTables.Add(@"
 CREATE Table [AspNetUserClaims](
-	[Id] [int] IDENTITY(1,1) NOT NULL,
-	[UserId] [nvarchar](128) NOT NULL,
-	[ClaimType] [nvarchar](4000) NULL,
-	[ClaimValue] [nvarchar](4000) NULL
+    [Id] [int] IDENTITY(1,1) NOT NULL,
+    [UserId] [nvarchar](128) NOT NULL,
+    [ClaimType] [nvarchar](4000) NULL,
+    [ClaimValue] [nvarchar](4000) NULL
 )");
             _aspNetTables.Add(@"
 CREATE TABLE [AspNetUserLogins](
-	[LoginProvider] [nvarchar](128) NOT NULL,
-	[ProviderKey] [nvarchar](128) NOT NULL,
-	[UserId] [nvarchar](128) NOT NULL
+    [LoginProvider] [nvarchar](128) NOT NULL,
+    [ProviderKey] [nvarchar](128) NOT NULL,
+    [UserId] [nvarchar](128) NOT NULL
 )");
             _aspNetTables.Add(@"
 CREATE TABLE [AspNetUserRoles](
-	[UserId] [nvarchar](128) NOT NULL,
-	[RoleId] [nvarchar](128) NOT NULL
+    [UserId] [nvarchar](128) NOT NULL,
+    [RoleId] [nvarchar](128) NOT NULL
 )");
             _aspNetTables.Add(@"
 CREATE TABLE [AspNetUsers](
-	[Id] [nvarchar](128) NOT NULL,
-	[Email] [nvarchar](256) NULL,
-	[EmailConfirmed] [bit] NOT NULL,
-	[PasswordHash] [nvarchar](4000) NULL,
-	[SecurityStamp] [nvarchar](4000) NULL,
-	[PhoneNumber] [nvarchar](4000) NULL,
-	[PhoneNumberConfirmed] [bit] NOT NULL,
-	[TwoFactorEnabled] [bit] NOT NULL,
-	[LockoutEndDateUtc] [datetime] NULL,
-	[LockoutEnabled] [bit] NOT NULL,
-	[AccessFailedCount] [int] NOT NULL,
-	[UserName] [nvarchar](256) NOT NULL
+    [Id] [nvarchar](128) NOT NULL,
+    [Email] [nvarchar](256) NULL,
+    [EmailConfirmed] [bit] NOT NULL,
+    [PasswordHash] [nvarchar](4000) NULL,
+    [SecurityStamp] [nvarchar](4000) NULL,
+    [PhoneNumber] [nvarchar](4000) NULL,
+    [PhoneNumberConfirmed] [bit] NOT NULL,
+    [TwoFactorEnabled] [bit] NOT NULL,
+    [LockoutEndDateUtc] [datetime] NULL,
+    [LockoutEnabled] [bit] NOT NULL,
+    [AccessFailedCount] [int] NOT NULL,
+    [UserName] [nvarchar](256) NOT NULL
 )");
         }
 

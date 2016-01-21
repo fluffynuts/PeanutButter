@@ -51,6 +51,7 @@
     <Compile Include="ServiceBootFlag.cs" />
     <Compile Include="ServiceControl.cs" />
     <Compile Include="ServiceError.cs" />
+    <Compile Include="ServiceOperationNames.cs" />
     <Compile Include="ServiceStartupTypes.cs" />
     <Compile Include="ServiceState.cs" />
     <Compile Include="Win32Api.cs" />

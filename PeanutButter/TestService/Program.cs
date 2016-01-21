@@ -4,9 +4,9 @@ namespace TestService
 {
     public class Program
     {
-        static void Main(string[] args)
+        public static int Main(string[] args)
         {
-            Shell.RunMain<TotallyNotInterestingService>(args);
+            return Shell.RunMain<TotallyNotInterestingService>(args);
         }
     }
 }

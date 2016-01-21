@@ -39,7 +39,7 @@ namespace PeanutButter.TrayIcon
     public class TrayIcon: IDisposable, ITrayIcon
     {
         public NotifyIcon NotifyIcon { get { return _notificationIcon; } }
-		private NotifyIcon _notificationIcon;
+        private NotifyIcon _notificationIcon;
         private Icon _icon;
         private bool _showingDefaultBalloonTip;
         public int DefaultBalloonTipTimeout { get; set; }
@@ -340,7 +340,7 @@ namespace PeanutButter.TrayIcon
 
         private bool CustomBalloonTipHandlerExists_UNLOCKED()
         {
-            return (_balloonTipClickHandlers != null);
+            return _balloonTipClickHandlers != null;
         }
 
         private Action GetCustomBalloonTipClickAction()
@@ -368,7 +368,5 @@ namespace PeanutButter.TrayIcon
                 Text = withText
             };
         }
-
-
     }
 }

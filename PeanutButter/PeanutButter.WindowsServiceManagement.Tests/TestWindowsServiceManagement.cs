@@ -67,17 +67,17 @@ namespace PeanutButter.WindowsServiceManagement.Tests
         {
             //---------------Set up test pack-------------------
             var path = Path.Combine(Path.GetDirectoryName(GetType().Assembly.CodeBase), "test-service.exe");
-            var uri = new Uri(path);
+            var localPath = new Uri(path).LocalPath;
 
             //---------------Assert Precondition----------------
-            Assert.IsTrue(File.Exists(uri.LocalPath));
+            Assert.IsTrue(File.Exists(localPath));
 
             //---------------Execute Test ----------------------
             var proc = new Process()
             {
                 StartInfo = new ProcessStartInfo()
                 {
-                    FileName = uri.LocalPath,
+                    FileName = localPath,
                     Arguments = "-i"
                 }
             };
@@ -102,6 +102,24 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             util.Uninstall(true);
 
             //---------------Test Result -----------------------
+        }
+
+        [Test]
+        [Ignore("Run manually, may be system-specific")]
+        public void ServiceExe_ShouldReturnPathTo()
+        {
+            //---------------Set up test pack-------------------
+            var util = new WindowsServiceUtil("Themes");
+
+            //---------------Assert Precondition----------------
+            Assert.IsTrue(util.IsInstalled);
+
+            //---------------Execute Test ----------------------
+            var path = util.ServiceExe;
+
+            //---------------Test Result -----------------------
+            Assert.IsNotNull(path);
+            Assert.AreEqual("c:\\windows\\system32\\svchost.exe -k netsvcs", path.ToLower());
         }
 
 

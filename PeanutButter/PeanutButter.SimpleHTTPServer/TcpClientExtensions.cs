@@ -20,7 +20,7 @@ namespace PeanutButter.SimpleHTTPServer
                 { 
                     Thread.Sleep(0); 
                     continue; 
-                };
+                }
                 data.Add(Convert.ToChar(thisChar));
             }            
             return string.Join(string.Empty, data);
