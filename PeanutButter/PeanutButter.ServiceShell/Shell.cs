@@ -251,7 +251,13 @@ namespace PeanutButter.ServiceShell
 
         private int InstallMe()
         {
+            var myExePath = new FileInfo(Environment.GetCommandLineArgs()[0]).FullName;
             var existingSvcUtil = new WindowsServiceUtil(ServiceName);
+            if (existingSvcUtil.ServiceExe == myExePath)
+            {
+                Console.WriteLine("Service already installed correctly");
+                return (int) CommandlineOptions.ExitCodes.Success;
+            }
             try
             {
                 if (existingSvcUtil.IsInstalled)
@@ -262,7 +268,7 @@ namespace PeanutButter.ServiceShell
                 Console.WriteLine("Service already installed at: " + existingSvcUtil.ServiceExe + " and I can't uninstall it: " + ex.Message);
                 return (int)CommandlineOptions.ExitCodes.InstallFailed;
             }
-            var svcUtil = new WindowsServiceUtil(ServiceName, DisplayName, new FileInfo(Environment.GetCommandLineArgs()[0]).FullName);
+            var svcUtil = new WindowsServiceUtil(ServiceName, DisplayName, myExePath);
             try
             {
                 svcUtil.Install();
