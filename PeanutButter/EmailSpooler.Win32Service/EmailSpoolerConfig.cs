@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Specialized;
 using System.Configuration;
 using PeanutButter.ServiceShell;
 using ServiceShell;
@@ -7,6 +8,7 @@ namespace EmailSpooler.Win32Service
 {
     public class EmailSpoolerConfig : IEmailSpoolerConfig
     {
+        private NameValueCollection _appSettings;
         // ReSharper disable once MemberCanBePrivate.Global
         public ISimpleLogger Logger { get; protected set; }
         public int MaxSendAttempts { get; private set; }
@@ -15,6 +17,19 @@ namespace EmailSpooler.Win32Service
         public int PurgeMessageWithAgeInDays { get; private set; }
         public EmailSpoolerConfig(ISimpleLogger logger)
         {
+            _appSettings = ConfigurationManager.AppSettings;
+            Init(logger);
+        }
+
+        internal EmailSpoolerConfig(ISimpleLogger logger, NameValueCollection appSettings)
+        {
+            _appSettings = appSettings;
+            Init(logger);
+        }
+
+        private void Init(ISimpleLogger logger)
+        {
+            if (logger == null) throw new ArgumentNullException(nameof(logger));
             Logger = logger;
             MaxSendAttempts = GetConfiguredIntVal("MaxSendAttempts", 5);
             BackoffIntervalInMinutes = GetConfiguredIntVal("BackoffIntervalInMinutes", 2);
@@ -24,7 +39,7 @@ namespace EmailSpooler.Win32Service
 
         private int GetConfiguredIntVal(string keyName, int defaultValue)
         {
-            var configured = ConfigurationManager.AppSettings[keyName];
+            var configured = _appSettings[keyName];
             if (configured == null)
             {
                 Logger.LogInfo($"No configured value for '{keyName}'; falling back on default value: '{defaultValue}'");
@@ -36,5 +51,6 @@ namespace EmailSpooler.Win32Service
             Logger.LogWarning($"Configured value of '{configured}' cannot be parsed into an integer; falling back on default value '{defaultValue}'");
             return defaultValue;
         }
+
     }
 }
