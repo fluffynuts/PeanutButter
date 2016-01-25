@@ -67,7 +67,6 @@
     <Compile Include="PropertyData.cs" />
     <Compile Include="PropertyDataObjectExtension.cs" />
     <Compile Include="TestFixtureWithTempDb.cs" />
-    <Compile Include="TypeExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
