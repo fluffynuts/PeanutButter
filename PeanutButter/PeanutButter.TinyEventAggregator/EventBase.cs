@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading;
+﻿using System.Threading;
 
 namespace PeanutButter.TinyEventAggregator
 {
@@ -13,16 +8,8 @@ namespace PeanutButter.TinyEventAggregator
     public abstract class EventBase 
     {
         private object _suspensionLock = new object();
-        private bool _suspended = false;
+        internal bool _suspended = false;
         public void Unsuspend()
-        {
-            lock (_suspensionLock)
-            {
-                _suspended = true;
-            }
-        }
-
-        public void Suspend()
         {
             lock (_suspensionLock)
             {
@@ -30,7 +17,15 @@ namespace PeanutButter.TinyEventAggregator
             }
         }
 
-        protected void WaitForSuspension()
+        public void Suspend()
+        {
+            lock (_suspensionLock)
+            {
+                _suspended = true;
+            }
+        }
+
+        internal void WaitForSuspension()
         {
             while (true)
             {

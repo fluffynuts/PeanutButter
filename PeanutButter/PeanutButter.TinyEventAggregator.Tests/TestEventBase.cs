@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using NUnit.Framework;
 
 namespace PeanutButter.TinyEventAggregator.Tests
@@ -8,6 +10,7 @@ namespace PeanutButter.TinyEventAggregator.Tests
     {
         public class SomeEvent : EventBase<object>
         {
+            public bool Suspended { get { return _suspended; } }
         }
         [Test]
         public void Construct_DoesNotThrow()
@@ -222,6 +225,91 @@ namespace PeanutButter.TinyEventAggregator.Tests
             Assert.AreEqual(ev, eventSender);
             Assert.AreEqual(token, eventToken);
         }
+
+        [Test]
+        public void Suspend_ShouldSetSuspendedToTrue()
+        {
+            //---------------Set up test pack-------------------
+            var sut = Create();
+
+            //---------------Assert Precondition----------------
+            Assert.IsFalse(sut.Suspended);
+
+            //---------------Execute Test ----------------------
+            sut.Suspend();
+
+            //---------------Test Result -----------------------
+            Assert.IsTrue(sut.Suspended);
+        }
+
+        [Test]
+        public void Unsuspend_ShouldSetSuspendedToFalse()
+        {
+            //---------------Set up test pack-------------------
+            var sut = Create();
+            sut.Suspend();
+            //---------------Assert Precondition----------------
+            Assert.IsTrue(sut.Suspended);
+            //---------------Execute Test ----------------------
+            sut.Unsuspend();
+
+            //---------------Test Result -----------------------
+            Assert.IsFalse(sut.Suspended);
+        }
+
+        [Test]
+        public void WaitForSuspension_WhenNotSuspended_ShouldNotWait()
+        {
+            //---------------Set up test pack-------------------
+            var sut = Create();
+            //---------------Assert Precondition----------------
+            Assert.IsFalse(sut.Suspended);
+
+            //---------------Execute Test ----------------------
+            var beforeTest = DateTime.Now;
+            sut.WaitForSuspension();
+            var afterTest = DateTime.Now;
+
+            //---------------Test Result -----------------------
+            var delta = afterTest - beforeTest;
+            Assert.That(delta.TotalMilliseconds, Is.LessThanOrEqualTo(100));
+        }
+
+        [Test]
+        public void WaitForSuspension_WhenSuspended_ShouldNotProceedUntilUnsuspended()
+        {
+            //---------------Set up test pack-------------------
+            var sut = Create();
+            sut.Suspend();
+            //---------------Assert Precondition----------------
+            Assert.IsTrue(sut.Suspended);
+
+            //---------------Execute Test ----------------------
+            var barrier = new Barrier(2);
+            var called = false;
+            var task1 = Task.Run(() =>
+            {
+                barrier.SignalAndWait();
+                sut.WaitForSuspension();
+                called = true;
+            });
+            var task2 = Task.Run(() =>
+            {
+                barrier.SignalAndWait();
+                Thread.Sleep(1000);
+                Assert.IsFalse(called);
+                sut.Unsuspend();
+            });
+
+
+            //---------------Test Result -----------------------
+            Task.WaitAll(task1, task2);
+            Assert.IsTrue(called);
+        }
+
+
+
+
 
     }
 }
