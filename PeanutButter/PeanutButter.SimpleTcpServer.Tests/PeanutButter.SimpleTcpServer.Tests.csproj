@@ -45,13 +45,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TestPortUnavailableException.cs" />
     <Compile Include="TestSimpleTcpServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj">
+      <Project>{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}</Project>
+      <Name>PeanutButter.RandomGenerators</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PeanutButter.SimpleTcpServer\PeanutButter.SimpleTcpServer.csproj">
       <Project>{a53a9b36-1307-4dc2-8bcf-dfa3087c62e8}</Project>
       <Name>PeanutButter.SimpleTcpServer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PeanutButter.TestUtils.Generic\PeanutButter.TestUtils.Generic.csproj">
+      <Project>{6DDD7F9E-857A-442B-9148-05B34EA279C4}</Project>
+      <Name>PeanutButter.TestUtils.Generic</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
