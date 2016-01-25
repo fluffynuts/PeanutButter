@@ -1,5 +1,5 @@
 using System;
-using EmailSpooler.Win32Service.DB.Tests.Migrations;
+using EmailSpooler.Win32Service.DB.Tests.FluentMigrator;
 using FluentMigrator.Runner.Processors.SqlServer;
 using PeanutButter.FluentMigrator;
 

@@ -49,6 +49,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\FluentMigrator.Tools.1.6.1\tools\AnyCPU\40\FluentMigrator.Runner.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="nunit.framework, Version=3.0.5813.39031, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.3.0.1\lib\net45\nunit.framework.dll</HintPath>
       <Private>True</Private>
@@ -67,9 +68,10 @@
     <Compile Include="Builders\EmailBuilder.cs" />
     <Compile Include="Builders\EmailRecipientBuilder.cs" />
     <Compile Include="DbMigrationsRunnerSqlServer.cs" />
-    <Compile Include="Migrations\Migration_1_CreateEmail.cs" />
-    <Compile Include="Migrations\Migration_2_CreateEmailRecipient.cs" />
-    <Compile Include="Migrations\Migration_3_CreateEmailAttachment.cs" />
+    <Compile Include="FluentMigrator\Migration_1_CreateEmail.cs" />
+    <Compile Include="FluentMigrator\Migration_2_CreateEmailRecipient.cs" />
+    <Compile Include="FluentMigrator\Migration_3_CreateEmailAttachment.cs" />
+    <Compile Include="FluentMigrator\TestMigrationFoundation.cs" />
     <Compile Include="TestMigrationsAndEntities.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
