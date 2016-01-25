@@ -28,7 +28,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests.Exceptions
         {
             //---------------Set up test pack-------------------
             var expected = RandomValueGen.GetRandomString();
-            var sut = new ServiceNotInstalledException(expected);
+            var sut = new WindowsServiceUtilException(expected);
 
             //---------------Assert Precondition----------------
 
