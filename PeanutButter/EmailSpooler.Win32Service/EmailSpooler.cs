@@ -26,7 +26,12 @@ namespace EmailSpooler.Win32Service
         int PurgeMessageWithAgeInDays { get; }
     }
 
-    public class EmailSpooler: IDisposable
+    public interface IEmailSpooler: IDisposable
+    {
+        void Spool();
+    }
+
+    public class EmailSpooler: IEmailSpooler
     {
         private IEmailContext _context;
         private readonly Func<IEmail> _emailGenerator;
