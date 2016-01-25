@@ -55,6 +55,7 @@
     <Compile Include="TestCommandlineOptions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestParserFacade.cs" />
+    <Compile Include="TestServiceUnconfiguredException.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
