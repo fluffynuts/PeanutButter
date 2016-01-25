@@ -8,7 +8,7 @@ namespace EmailSpooler.Win32Service
 {
     public class EmailSpoolerDependencies: IEmailSpoolerDependencies
     {
-        private ISimpleLogger _logger;
+        public ISimpleLogger Logger { get; private set; }
         public IEmailContext DbContext { get; private set; }
         public Func<IEmail> EmailGenerator { get; private set; }
         public IEmailSpoolerConfig EmailSpoolerConfig { get; private set; }
@@ -16,7 +16,7 @@ namespace EmailSpooler.Win32Service
 
         public EmailSpoolerDependencies(ISimpleLogger logger)
         {
-            _logger = logger;
+            Logger = logger;
             DbContext = new EmailContext();
             EmailConfig = EmailConfiguration.CreateFromAppConfig();
             EmailSpoolerConfig = new EmailSpoolerConfig(logger);

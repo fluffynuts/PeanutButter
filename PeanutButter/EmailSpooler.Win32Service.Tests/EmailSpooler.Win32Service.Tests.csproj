@@ -93,6 +93,7 @@
     <Compile Include="TestEmail.cs" />
     <Compile Include="TestEmailConfiguration.cs" />
     <Compile Include="TestEmailSpooler.cs" />
+    <Compile Include="TestEmailSpoolerDependencies.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

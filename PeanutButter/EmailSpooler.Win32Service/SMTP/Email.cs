@@ -9,7 +9,7 @@ namespace EmailSpooler.Win32Service.SMTP
 {
     public class Email : IEmail
     {
-        private IEmailConfiguration _config;
+        public IEmailConfiguration EmailConfiguration { get; private set; }
         public List<string> To { get; protected set; }
         public List<string> CC { get; protected set; }
         public List<string> BCC { get; protected set; }
@@ -21,13 +21,13 @@ namespace EmailSpooler.Win32Service.SMTP
         public Email(IEmailConfiguration config)
         {
             if (config == null) throw new ArgumentNullException(nameof(config));
-            _config = config;
+            EmailConfiguration = config;
             SetDefaults();
         }
 
         public static Email Create()
         {
-            return new Email(EmailConfiguration.CreateFromAppConfig());
+            return new Email(Win32Service.EmailConfiguration.CreateFromAppConfig());
         }
 
         public string AddPDFAttachment(string fileName, byte[] data)
@@ -160,11 +160,11 @@ namespace EmailSpooler.Win32Service.SMTP
         {
             var client = new SmtpClientFacade()
             {
-                Host = _config.Host,
-                Port = _config.Port,
-                EnableSsl = _config.SSLEnabled,
+                Host = EmailConfiguration.Host,
+                Port = EmailConfiguration.Port,
+                EnableSsl = EmailConfiguration.SSLEnabled,
                 UseDefaultCredentials = false,
-                Credentials = new NetworkCredential(_config.UserName, _config.Password)
+                Credentials = new NetworkCredential(EmailConfiguration.UserName, EmailConfiguration.Password)
             };
             return client;
         }
