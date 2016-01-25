@@ -6,13 +6,13 @@ using PeanutButter.TestUtils.Generic;
 namespace PeanutButter.SimpleTcpServer.Tests
 {
     [TestFixture]
-    public class TestPortUnavailableException
+    public class TestUnableToFindAvailablePortException
     {
         [Test]
         public void Type_ShouldInheritFrom_Exception()
         {
             //---------------Set up test pack-------------------
-            var sut = typeof (PortUnavailableException);
+            var sut = typeof (UnableToFindAvailablePortException);
 
             //---------------Assert Precondition----------------
 
@@ -27,12 +27,12 @@ namespace PeanutButter.SimpleTcpServer.Tests
         {
             //---------------Set up test pack-------------------
             var port = RandomValueGen.GetRandomInt();
-            var expected = "Can't listen on specified port '" + port + "': probably already in use?";
+            var expected = "Can't find a port to listen on ):";
 
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var sut = new PortUnavailableException(port);
+            var sut = new UnableToFindAvailablePortException();
             var result = sut.Message;
 
             //---------------Test Result -----------------------
