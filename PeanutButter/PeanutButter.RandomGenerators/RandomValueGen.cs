@@ -257,17 +257,19 @@ namespace PeanutButter.RandomGenerators
             return result;
         }
 
-        private const int MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS = 1000;
-        public static T GetAnother<T>(T differentFromThisValue, Func<T> byUsingThisGenerator, Func<T,T,bool> comparisonFunc = null)
+        public const int MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS = 1000;
+        public static T GetAnother<T>(T differentFromThisValue, Func<T> byUsingThisGenerator, Func<T,T,bool> areEqual = null)
         {
-            comparisonFunc = comparisonFunc ?? 
-                                ((left, right) => left.Equals(right) && right.Equals(left));
-            var result = byUsingThisGenerator();
             var attempts = 0;
-            while (++attempts < MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS && 
-                    comparisonFunc(differentFromThisValue, result))
-                result = byUsingThisGenerator();
-            return result;
+            areEqual = areEqual ?? ((left, right) => left.Equals(right) && right.Equals(left));
+            do
+            {
+                var result = byUsingThisGenerator();
+                if (!areEqual(differentFromThisValue, result))
+                    return result;
+                if (++attempts >= MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS)
+                    throw new CannotGetAnotherDifferentRandomValueException<T>(differentFromThisValue);
+            } while (true);
         }
     }
 }

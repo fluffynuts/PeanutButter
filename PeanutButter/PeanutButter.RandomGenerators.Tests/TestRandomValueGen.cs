@@ -471,7 +471,7 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [Test]
-        public void GetAnother_GivenOriginalValueAndGenerator_ShouldReturnANewValue()
+        public void GetAnother_GivenOriginalValueAndGenerator_WhenCanGenerateNewValue_ShouldReturnANewValue()
         {
             RunCycles(() =>
             {
@@ -486,6 +486,38 @@ namespace PeanutButter.RandomGenerators.Tests
                 //---------------Test Result -----------------------
                 Assert.AreNotEqual(notThis, result);
             });
+        }
+
+        [Test]
+        public void GetAnother_GivenOriginalValueAndGenerator_WhenCannotGenerateNewValue_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            var notThis = RandomValueGen.GetRandomString(1, 1);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.Throws<CannotGetAnotherDifferentRandomValueException<string>>(() => RandomValueGen.GetAnother(notThis, () => notThis));
+
+            //---------------Test Result -----------------------
+
+        }
+
+        [Test]
+        public void GetAnother_GivenOriginalValueAndGenerator_WhenCannotGenerateNewValueBecauseOfComparisonFunc_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            var notThis = RandomValueGen.GetRandomString(1, 1);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.Throws<CannotGetAnotherDifferentRandomValueException<string>>(() => RandomValueGen.GetAnother(notThis, 
+                                                                                            () => RandomValueGen.GetRandomString(),
+                                                                                            (left, right) => true));
+
+            //---------------Test Result -----------------------
+
         }
 
 
@@ -571,5 +603,4 @@ namespace PeanutButter.RandomGenerators.Tests
             }
         }
     }
-
 }

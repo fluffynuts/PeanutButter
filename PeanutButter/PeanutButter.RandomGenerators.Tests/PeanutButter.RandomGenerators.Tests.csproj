@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TestBase.cs" />
+    <Compile Include="TestCannotGetAnotherDifferentRandomValueException.cs" />
     <Compile Include="TestEnumerableExtensions.cs" />
     <Compile Include="TestGenericBuilder.cs" />
     <Compile Include="TestGenericBuilderInstanceCreationException.cs" />

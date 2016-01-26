@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BuilderFinderExtensions.cs" />
+    <Compile Include="CannotGetAnotherDifferentRandomValueException.cs" />
     <Compile Include="EnumerableExtensions.cs" />
     <Compile Include="GenericBuilder.cs" />
     <Compile Include="GenericBuilderInstanceCreationException.cs" />
