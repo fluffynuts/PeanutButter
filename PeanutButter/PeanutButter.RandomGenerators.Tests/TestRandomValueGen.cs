@@ -470,6 +470,25 @@ namespace PeanutButter.RandomGenerators.Tests
             Assert.IsFalse(tooShort.Any() && tooLong.Any() && invalidCharacters.Any(), BuildErrorMessageFor(tooShort, tooLong, invalidCharacters));
         }
 
+        [Test]
+        public void GetAnother_GivenOriginalValueAndGenerator_ShouldReturnANewValue()
+        {
+            RunCycles(() =>
+            {
+                //---------------Set up test pack-------------------
+                var notThis = RandomValueGen.GetRandomString(1,1);
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = RandomValueGen.GetAnother(notThis, () => RandomValueGen.GetRandomString(1, 1));
+
+                //---------------Test Result -----------------------
+                Assert.AreNotEqual(notThis, result);
+            });
+        }
+
+
 
         private string BuildErrorMessageFor(IEnumerable<Tuple<string, int, int>> tooShort, IEnumerable<Tuple<string, int, int>> tooLong, IEnumerable<Tuple<string, int, int>> invalidCharacters)
         {

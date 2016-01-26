@@ -256,5 +256,18 @@ namespace PeanutButter.RandomGenerators
             }
             return result;
         }
+
+        private const int MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS = 1000;
+        public static T GetAnother<T>(T differentFromThisValue, Func<T> byUsingThisGenerator, Func<T,T,bool> comparisonFunc = null)
+        {
+            comparisonFunc = comparisonFunc ?? 
+                                ((left, right) => left.Equals(right) && right.Equals(left));
+            var result = byUsingThisGenerator();
+            var attempts = 0;
+            while (++attempts < MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS && 
+                    comparisonFunc(differentFromThisValue, result))
+                result = byUsingThisGenerator();
+            return result;
+        }
     }
 }
