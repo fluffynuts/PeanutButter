@@ -520,6 +520,42 @@ namespace PeanutButter.RandomGenerators.Tests
 
         }
 
+        [Test]
+        public void GetAnother_GivenOriginalValueCollectionAndGenerator_WhenCanGenerateNewValue_ShouldReturnThatValue()
+        {
+            RunCycles(() =>
+            {
+                //---------------Set up test pack-------------------
+                var notThis = "abcdefghijklmnopqrstuvwABCDEFGHIJKLMNOPQRSTUVW".ToCharArray().Select(c => c.ToString());
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = RandomValueGen.GetAnother(notThis, () => RandomValueGen.GetRandomString(1, 1));
+
+                //---------------Test Result -----------------------
+                Assert.IsFalse(notThis.Any(i => i == result));
+            });
+        }
+
+
+        [Test]
+        public void GetAnother_GivenOriginalValueCollectionAndGenerator_WhenCannotGenerateNewValueBecauseOfComparisonFunc_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            var notAnyOfThese = RandomValueGen.GetRandomCollection(() => RandomValueGen.GetRandomString(), 2);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.Throws<CannotGetAnotherDifferentRandomValueException<IEnumerable<string>>>(() => RandomValueGen.GetAnother(notAnyOfThese, 
+                                                                                            () => RandomValueGen.GetRandomString(),
+                                                                                            (left, right) => true));
+
+            //---------------Test Result -----------------------
+
+        }
+
 
 
         private string BuildErrorMessageFor(IEnumerable<Tuple<string, int, int>> tooShort, IEnumerable<Tuple<string, int, int>> tooLong, IEnumerable<Tuple<string, int, int>> invalidCharacters)

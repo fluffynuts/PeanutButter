@@ -36,6 +36,7 @@ namespace PeanutButter.RandomGenerators.Tests
             Assert.AreEqual(
                 $"Unable to get a value different from ${value} after ${RandomValueGen.MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS} attempts )':",
                 sut.Message);
+            Assert.AreEqual(sut.Value, value);
 
         }
 
@@ -54,6 +55,7 @@ namespace PeanutButter.RandomGenerators.Tests
             Assert.AreEqual(
                 $"Unable to get a value different from ${value} after ${RandomValueGen.MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS} attempts )':",
                 sut.Message);
+            Assert.AreEqual(sut.Value, value);
 
         }
 
@@ -72,6 +74,7 @@ namespace PeanutButter.RandomGenerators.Tests
             Assert.AreEqual(
                 $"Unable to get a value different from ${value} after ${RandomValueGen.MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS} attempts )':",
                 sut.Message);
+            Assert.AreEqual(sut.Value, value);
 
         }
 
@@ -90,6 +93,7 @@ namespace PeanutButter.RandomGenerators.Tests
             Assert.AreEqual(
                 $"Unable to get a value different from ${value} after ${RandomValueGen.MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS} attempts )':",
                 sut.Message);
+            Assert.AreEqual(sut.Value, value);
 
         }
 

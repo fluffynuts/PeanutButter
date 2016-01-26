@@ -260,15 +260,34 @@ namespace PeanutButter.RandomGenerators
         public const int MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS = 1000;
         public static T GetAnother<T>(T differentFromThisValue, Func<T> byUsingThisGenerator, Func<T,T,bool> areEqual = null)
         {
+            areEqual = areEqual ?? DefaultEqualityTest;
+            Func<T, bool> isANewValue = o => !areEqual(differentFromThisValue, o);
+            return GetANewRandomValueUsing(differentFromThisValue, byUsingThisGenerator, isANewValue);
+        }
+
+
+        public static T GetAnother<T>(IEnumerable<T> notAnyOfThese, Func<T> byUsingThisGenerator, Func<T,T,bool> areEqual = null)
+        {
+            areEqual = areEqual ?? DefaultEqualityTest;
+            Func<T, bool> isANewValue = o => notAnyOfThese.All(i => !areEqual(o, i));
+            return GetANewRandomValueUsing(notAnyOfThese, byUsingThisGenerator, isANewValue);
+        }
+
+        private static bool DefaultEqualityTest<T>(T left, T right)
+        {
+            return left.Equals(right) && right.Equals(left);
+        }
+
+        private static T1 GetANewRandomValueUsing<T1, T2>(T2 differentFromThisValue, Func<T1> byUsingThisGenerator, Func<T1, bool> isANewValue)
+        {
             var attempts = 0;
-            areEqual = areEqual ?? ((left, right) => left.Equals(right) && right.Equals(left));
             do
             {
                 var result = byUsingThisGenerator();
-                if (!areEqual(differentFromThisValue, result))
+                if (isANewValue(result))
                     return result;
                 if (++attempts >= MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS)
-                    throw new CannotGetAnotherDifferentRandomValueException<T>(differentFromThisValue);
+                    throw new CannotGetAnotherDifferentRandomValueException<T2>(differentFromThisValue);
             } while (true);
         }
     }
