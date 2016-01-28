@@ -219,9 +219,17 @@ namespace PeanutButter.RandomGenerators
             return true;
         }
 
+        private static bool SetterResultFor(Func<bool> finalFunc, string failMessage)
+        {
+            var result = finalFunc();
+            if (!result)
+                Trace.WriteLine(failMessage);
+            return result;
+        }
+
         private static bool IsNotWritable(PropertyInfo prop, Type propertyType)
         {
-            return !prop.CanWrite;
+            return SetterResultFor(() => !prop.CanWrite, $"{prop.Name} is not writable");
         }
 
         private static bool IsNullableType(Type type)
@@ -295,7 +303,7 @@ namespace PeanutButter.RandomGenerators
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error defining dynamic builder for property of type: {propInfo.PropertyType.Name}: " + ex.Message);
+                Trace.WriteLine($"Error defining dynamic builder for property of type: {propInfo.PropertyType.Name}: " + ex.Message);
                 return null;
             }
         }
@@ -410,7 +418,7 @@ namespace PeanutButter.RandomGenerators
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"Unable to set random prop: {ex.Message}");
+                    Trace.WriteLine($"Unable to set random prop: {ex.Message}");
                 }
             }
         }

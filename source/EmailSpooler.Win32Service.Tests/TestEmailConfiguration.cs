@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Configuration;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
@@ -15,7 +12,7 @@ using PeanutButter.Utils;
 namespace EmailSpooler.Win32Service.Tests
 {
     [TestFixture]
-    class TestEmailConfiguration
+    public class TestEmailConfiguration
     {
         [Test]
         [Ignore("Run manually as this test requires an app.config and will break when running in multiple-assembly Resharper session")]
@@ -41,6 +38,26 @@ namespace EmailSpooler.Win32Service.Tests
     [TestFixture]
     public class TestEmailSpoolerConfig
     {
+        [SetUp]
+        public void SetUp()
+        {
+            // set up app settings so we don't need them in a magic config file for testing
+            //  dot-cover seems to convince nunit to do the right thing, but nunit-runner by itself
+            //  is derping on using a config file; this is also more obvious (I think)
+            new Dictionary<string, string>()
+            {
+                {"MaxSendAttempts", "5"},
+                {"BackoffIntervalInMinutes", "2"},
+                {"BackoffMultiplier", "2"},
+                {"PurgeMessageWithAgeInDays", "30"},
+                { "SMTPHost", "TestHost"},
+                {"SMTPPort", "587"},
+                {"SMTPUserName", "TestUser"},
+                {"SMTPPassword", "TestPassword"},
+                {"SMTPSSL", "True"}
+            }.ForEach(kvp => ConfigurationManager.AppSettings[kvp.Key] = kvp.Value.ToString());
+        }
+
         [Test]
         public void Type_ShouldImplement_IEmailSpoolerConfig()
         {
@@ -133,7 +150,9 @@ namespace EmailSpooler.Win32Service.Tests
         public void Construct_RegularConstructor_ShouldUseAppSettings(string propertyName)
         {
             //---------------Set up test pack-------------------
-            var expected = Convert.ToInt32(ConfigurationManager.AppSettings[propertyName]);
+            var expected = RandomValueGen.GetRandomInt();
+            ConfigurationManager.AppSettings[propertyName] = expected.ToString();
+            //var expected = Convert.ToInt32(ConfigurationManager.AppSettings[propertyName]);
 
             //---------------Assert Precondition----------------
 
