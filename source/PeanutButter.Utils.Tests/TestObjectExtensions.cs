@@ -512,5 +512,46 @@ namespace PeanutButter.Utils.Tests
             Assert.AreEqual(2, result);
         }
 
+        [Test]
+        public void GetPropertyValue_ShouldReturnValueOfNamedProperty()
+        {
+            //---------------Set up test pack-------------------
+            var obj = new {id = RandomValueGen.GetRandomInt()};
+            var expected = obj.id;
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = obj.GetPropertyValue("id");
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(expected, result);
+        }
+
+        public class SomeSimpleType
+        {
+            public int Id { get; set; }
+        }
+
+        [Test]
+        public void SetPropertyValue_ShouldSetThePropertyValue()
+        {
+            //---------------Set up test pack-------------------
+            var obj = new SomeSimpleType() {Id = RandomValueGen.GetRandomInt(2, 5)};
+            var expected = RandomValueGen.GetRandomInt(10, 20);
+            const string propertyName = "Id";
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            obj.SetPropertyValue(propertyName, expected);
+            var result = obj.GetPropertyValue(propertyName);
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(expected, result);
+        }
+
+
+
     }
 }

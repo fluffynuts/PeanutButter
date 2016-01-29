@@ -177,5 +177,16 @@ namespace PeanutButter.Utils
         {
             return type.IsAssignableFrom(typeof (T));
         }
+
+        public static void SetPropertyValue(this object obj, string propertyName, object newValue)
+        {
+            var type = obj.GetType();   
+            var propInfo = type.GetProperty(propertyName);
+            if (propInfo == null)
+                throw new ArgumentException($"{type.Name} has no public property called {propertyName}");
+            if (!propInfo.CanWrite)
+                throw new ArgumentException($"{propertyName} on {type.Name} is read-only");
+            propInfo.SetValue(obj, newValue, null);
+        }
     }
 }
