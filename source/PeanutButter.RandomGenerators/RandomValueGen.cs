@@ -199,6 +199,15 @@ namespace PeanutButter.RandomGenerators
             return GetRandomFrom(possible);
         }
 
+        // not refactoring the above to use this as I don't want to pay the boxing/unboxing penalty
+        public static object GetRandomEnum(Type enumType)
+        {
+            if (!enumType.IsEnum)
+                throw new ArgumentException("GetRandomEnum cannot be called on something other than an enum ('" + enumType.Name + "')");
+            var possible = Enum.GetValues(enumType).Cast<object>();
+            return GetRandomFrom(possible);
+        }
+
         public static T GetRandomFrom<T>(IEnumerable<T> items)
         {
             var itemArray = items as T[] ?? items.ToArray();

@@ -74,7 +74,7 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [Test]
-        public void GetRandomEnum_WhenGivenEnumTypeSpecifier_ShouldReturnRandomValueFromEnumSelection()
+        public void GetRandomEnum_GENERIC_WhenGivenEnumTypeSpecifier_ShouldReturnRandomValueFromEnumSelection()
         {
             //---------------Set up test pack-------------------
             var results = new List<TestEnum>();
@@ -83,6 +83,32 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Execute Test ----------------------
 
             RunCycles(() => results.Add(RandomValueGen.GetRandomEnum<TestEnum>()));
+            //---------------Test Result -----------------------
+            var runs = results.Count;
+            var onePercent = (100 * results.Count(i => i == TestEnum.One)) / runs;
+            var twoPercent = (100 * results.Count(i => i == TestEnum.Two)) / runs;
+            var threePercent = (100 * results.Count(i => i == TestEnum.Three)) / runs;
+
+            var d1 = Math.Abs(twoPercent - onePercent);
+            var d2 = Math.Abs(threePercent - twoPercent);
+            var d3 = Math.Abs(threePercent - onePercent);
+
+            Assert.That(d1, Is.LessThan(10));
+            Assert.That(d2, Is.LessThan(10));
+            Assert.That(d3, Is.LessThan(10));
+        }
+
+        [Test]
+        public void GetRandomEnum_WITHTYPE_WhenGivenEnumTypeSpecifier_ShouldReturnRandomValueFromEnumSelection()
+        {
+            //---------------Set up test pack-------------------
+            var results = new List<TestEnum>();
+            var type = typeof (TestEnum);
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+
+            RunCycles(() => results.Add((TestEnum)RandomValueGen.GetRandomEnum(type)));
             //---------------Test Result -----------------------
             var runs = results.Count;
             var onePercent = (100 * results.Count(i => i == TestEnum.One)) / runs;

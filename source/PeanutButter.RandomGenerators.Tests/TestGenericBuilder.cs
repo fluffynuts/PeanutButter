@@ -59,6 +59,13 @@ namespace PeanutButter.RandomGenerators.Tests
             Assert.AreNotEqual(simple1, simple2);
         }
 
+        public enum SomeValues
+        {
+            One,
+            Two,
+            Three,
+            Four
+        }
         private class NotAsSimpleClass
         {
             public string Name { get; set; }
@@ -71,6 +78,7 @@ namespace PeanutButter.RandomGenerators.Tests
             public Guid GuidValue { get; set; }
             public decimal? NullableDecimalValue { get; set; }
             public byte[] ByteArrayValue { get; set; }
+            public SomeValues EnumValue { get; set; }
         }
 
         private class NotAsSimpleBuilder : GenericBuilder<NotAsSimpleBuilder, NotAsSimpleClass>
@@ -98,6 +106,7 @@ namespace PeanutButter.RandomGenerators.Tests
             Assert.AreEqual(blank.Created, obj.Created);
             Assert.AreEqual(blank.Cost, obj.Cost);
         }
+
 
         public class VarianceAssert
         {
@@ -155,6 +164,7 @@ namespace PeanutButter.RandomGenerators.Tests
             VarianceAssert.IsVariant<NotAsSimpleClass, Guid>(randomItems, "GuidValue");
             VarianceAssert.IsVariant<NotAsSimpleClass, decimal?>(randomItems, "NullableDecimalValue");
             VarianceAssert.IsVariant<NotAsSimpleClass, byte[]>(randomItems, "ByteArrayValue");
+            VarianceAssert.IsVariant<NotAsSimpleClass, SomeValues>(randomItems, "EnumValue");
         }
 
         public class TestCleverRandomStrings

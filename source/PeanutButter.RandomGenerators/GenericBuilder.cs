@@ -205,10 +205,22 @@ namespace PeanutButter.RandomGenerators
         {
             IsNotWritable,
             HaveSetSimpleSetterFor,
+            IsEnumType,
             IsCollectionType,
             HaveSetNullableTypeSetterFor,
             SetupBuilderSetterFor
         };
+
+        private static bool IsEnumType(PropertyInfo prop, Type propertyType)
+        {
+            if (!propertyType.IsEnum)
+                return false;
+            RandomPropSetters[prop.Name] = (entity, idx) =>
+            {
+                prop.SetValue(entity, RandomValueGen.GetRandomEnum(propertyType));
+            };
+            return true;
+        }
 
         private static bool HaveSetSimpleSetterFor(PropertyInfo prop, Type propertyType)
         {
