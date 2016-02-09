@@ -5,7 +5,7 @@ using System.Reflection.Emit;
 
 namespace PeanutButter.RandomGenerators
 {
-    public abstract class GenericBuilderStaticHouser
+    public abstract class GenericBuilderBase
     {
         // ReSharper disable once MemberCanBeProtected.Global
         // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global
@@ -43,6 +43,24 @@ namespace PeanutButter.RandomGenerators
         {
             return AppDomain.CurrentDomain.DefineDynamicAssembly(new AssemblyName(withName), AssemblyBuilderAccess.RunAndSave);
         }
+
+        internal static Type FindOrGenerateDynamicBuilderFor(Type type)
+        {
+            Type dynamicBuilderType;
+            if (DynamicBuilders.TryGetValue(type, out dynamicBuilderType))
+                return dynamicBuilderType;
+            var t = typeof(GenericBuilder<,>);
+            var moduleName = string.Join("_", "DynamicEntityBuilders", type.Name);
+            var modBuilder = DynamicAssemblyBuilder.DefineDynamicModule(moduleName);
+
+            var typeBuilder = modBuilder.DefineType(type.Name + "Builder", TypeAttributes.Public | TypeAttributes.Class);
+            // Typebuilder is a sub class of Type
+            typeBuilder.SetParent(t.MakeGenericType(typeBuilder, type));
+            dynamicBuilderType = typeBuilder.CreateType();
+            DynamicBuilders[type] = dynamicBuilderType;
+            return dynamicBuilderType;
+        }
+
 
     }
 }

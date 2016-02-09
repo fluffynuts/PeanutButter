@@ -47,7 +47,8 @@
     <Compile Include="EnumerableExtensions.cs" />
     <Compile Include="GenericBuilder.cs" />
     <Compile Include="GenericBuilderInstanceCreationException.cs" />
-    <Compile Include="GenericBuilderStaticHouser.cs" />
+    <Compile Include="GenericBuilderLocator.cs" />
+    <Compile Include="GenericBuilderBase.cs" />
     <Compile Include="IBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RandomValueGen.cs" />

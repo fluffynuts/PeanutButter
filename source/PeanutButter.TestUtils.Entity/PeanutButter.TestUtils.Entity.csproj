@@ -60,6 +60,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DbSchemaImporter.cs" />
+    <Compile Include="EntityPersistenceTestContext.cs" />
+    <Compile Include="EntityPersistenceTestContextBase.cs" />
+    <Compile Include="EntityPersistenceTester.cs" />
     <Compile Include="EntityPersistenceTestFixtureBase.cs" />
     <Compile Include="GenericEntityBuilder.cs" />
     <Compile Include="ObjectExtensionsForTesting.cs" />

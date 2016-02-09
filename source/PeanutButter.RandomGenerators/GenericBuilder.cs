@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
 
 
@@ -20,7 +19,7 @@ namespace PeanutButter.RandomGenerators
         object GenericBuild();
     }
 
-    public class GenericBuilder<TConcrete, TEntity> : GenericBuilderStaticHouser, IGenericBuilder, IBuilder<TEntity> where TConcrete: GenericBuilder<TConcrete, TEntity>//, new()
+    public class GenericBuilder<TConcrete, TEntity> : GenericBuilderBase, IGenericBuilder, IBuilder<TEntity> where TConcrete: GenericBuilder<TConcrete, TEntity>//, new()
     {
         private static readonly List<Action<TEntity>> DefaultPropMods = new List<Action<TEntity>>();
         private readonly List<Action<TEntity>> _propMods = new List<Action<TEntity>>();
@@ -320,103 +319,22 @@ namespace PeanutButter.RandomGenerators
             }
         }
 
+        private static Type GenerateDynamicBuilderFor(PropertyInfo prop)
+        {
+            return FindOrGenerateDynamicBuilderFor(prop.PropertyType);
+        }
+
         private static Type TryFindUserBuilderFor(Type propertyType)
         {
             Type builderType;
             if (!UserBuilders.TryGetValue(propertyType, out builderType))
             {
-                var existingBuilder = TryFindExistingBuilderFor(propertyType);
+                var existingBuilder = GenericBuilderLocator.TryFindExistingBuilderFor(propertyType);
                 if (existingBuilder == null) return null;
                 UserBuilders[propertyType] = existingBuilder;
                 builderType = existingBuilder;
             }
             return builderType;
-        }
-
-        private static Type TryFindExistingBuilderFor(Type propertyType)
-        {
-            // TODO: scour other assemblies for a possible builder (FUTURE, as required)
-            return TryFindBuilderInCurrentAssemblyFor(propertyType)
-                   ?? TryFindBuilderInAnyOtherAssemblyInAppDomainFor(propertyType);
-        }
-
-        private static Type[] TryGetExportedTypesFrom(Assembly asm)
-        {
-            try
-            {
-                return asm.GetExportedTypes();
-            }
-            catch
-            {
-                return new Type[] {};
-            }
-        }
-
-        private static Type TryFindBuilderInAnyOtherAssemblyInAppDomainFor(Type propertyType)
-        {
-            try
-            {
-                var types = AppDomain.CurrentDomain.GetAssemblies()
-                    .Where(a => a != propertyType.Assembly && !a.IsDynamic)
-                    .SelectMany(TryGetExportedTypesFrom)
-                    .Where(t => t.IsBuilderFor(propertyType))
-                    .ToArray();
-                if (!types.Any())
-                    return null;
-                return types.Length == 1 
-                        ? types.First() 
-                        : FindClosestNamespaceMatchFor(propertyType, types);
-            }
-            catch (Exception ex)
-            {
-                Trace.WriteLine("Error whilst searching for user builder for type '" + propertyType.PrettyName() + "' in all loaded assemblies: " + ex.Message);
-                return null;
-            }
-        }
-
-        private static Type FindClosestNamespaceMatchFor(Type propertyType, IEnumerable<Type> types)
-        {
-            if (propertyType?.Namespace == null)    // R# is convinced this might happen :/
-                return null;
-            var seekNamespace = propertyType.Namespace.Split('.');
-            return types.Aggregate((Type) null, (acc, cur) =>
-            {
-                if (acc?.Namespace == null || cur.Namespace == null)
-                    return cur;
-                var accParts = acc.Namespace.Split('.');
-                var curParts = cur.Namespace.Split('.');
-                var accMatchIndex = seekNamespace.MatchIndexFor(accParts);
-                var curMatchIndex = seekNamespace.MatchIndexFor(curParts);
-                return accMatchIndex < curMatchIndex ? acc : cur;
-            });
-        }
-
-        private static Type TryFindBuilderInCurrentAssemblyFor(Type propType)
-        {
-            try
-            {
-                return propType.Assembly.GetTypes()
-                    .FirstOrDefault(t => t.IsBuilderFor(propType));
-            }
-            catch (Exception ex)
-            {
-                Trace.WriteLine("Error whilst searching for user builder for type '" + propType.PrettyName() + "' in type's assembly: " + ex.Message);
-                return null;
-            }
-        }
-
-        private static Type GenerateDynamicBuilderFor(PropertyInfo prop)
-        {
-            var t = typeof(GenericBuilder<,>);
-            var moduleName = string.Join("_", "DynamicEntityBuilders", prop.PropertyType.Name);
-            var modBuilder = DynamicAssemblyBuilder.DefineDynamicModule(moduleName);
-
-            var typeBuilder = modBuilder.DefineType(prop.PropertyType + "Builder", TypeAttributes.Public | TypeAttributes.Class);
-            // Typebuilder is a sub class of Type
-            typeBuilder.SetParent(t.MakeGenericType(typeBuilder, prop.PropertyType));
-            var dynamicBuilderType = typeBuilder.CreateType();
-            DynamicBuilders[prop.PropertyType] = dynamicBuilderType;
-            return dynamicBuilderType;
         }
 
         private int _buildLevel;
