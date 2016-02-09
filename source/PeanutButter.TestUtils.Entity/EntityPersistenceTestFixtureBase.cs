@@ -24,7 +24,28 @@ namespace PeanutButter.TestUtils.Entity
             return _ignoreFields.And(typeof(T).VirtualProperties());
         }
 
-        public void ShouldBeAbleToPersist<TBuilder, TEntity>(Func<TDbContext, IDbSet<TEntity>>  collectionNabber, 
+        protected void ShouldBeAbleToPersist<TBuilder, TEntity>(Func<TDbContext, IDbSet<TEntity>>  collectionNabber, 
+            Action<TDbContext, TEntity> beforePersisting = null, 
+            Action<TEntity, TEntity> customAssertions = null,
+            params string[] ignoreProperties) 
+            where TBuilder: GenericBuilder<TBuilder, TEntity>, new()
+            where TEntity: class
+        {
+            EntityPersistenceTester.CreateFor<TEntity>()
+                .WithContext<TDbContext>(conn => GetContext())
+                .SuppressMissingMigratorMessage()
+                .WithTempDbFactory(CreateNewTempDb)
+                .WithCollection(collectionNabber)
+                .BeforePersisting((ctx, entity) =>
+                {
+                    beforePersisting?.Invoke(ctx, entity);
+                })
+                .AfterPersisting(customAssertions)
+                .WithIgnoredProperties(ignoreProperties)
+                .ShouldPersistAndRecall();
+        }
+
+        public void ShouldBeAbleToPersist_DEPRECATED<TBuilder, TEntity>(Func<TDbContext, IDbSet<TEntity>>  collectionNabber, 
             Action<TDbContext, TEntity> beforePersisting = null, 
             Action<TEntity, TEntity> customAssertions = null,
             params string[] ignoreProperties) 

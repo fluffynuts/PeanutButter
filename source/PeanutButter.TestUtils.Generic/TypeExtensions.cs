@@ -37,6 +37,11 @@ namespace PeanutButter.TestUtils.Generic
             ShouldInheritFrom(type, typeof (T));
         }
 
+        public static void ShouldBeAssignableFrom<TBase>(this Type type)
+        {
+            type.ShouldBeAssignableFrom(typeof (TBase));
+        }
+
         public static void ShouldBeAssignableFrom(this Type type, Type shouldBeImplemented)
         {
             if (!shouldBeImplemented.IsAssignableFrom(type))

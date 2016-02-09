@@ -77,5 +77,23 @@ namespace PeanutButter.TestUtils.Entity.Tests {
                 return ResourceManager.GetString("dbscript", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to create table [SomeEntityWithDecimalValue] (
+        ///    SomeEntityWithDecimalValueId int identity primary key,
+        ///    DecimalValue decimal not null,
+        ///    Created datetime not null default CURRENT_TIMESTAMP,
+        ///    Enabled bit not null default 1,
+        ///    LastUpdated datetime null
+        ///);
+        ///GO
+        ///
+        ///.
+        /// </summary>
+        internal static string entitypersistence {
+            get {
+                return ResourceManager.GetString("entitypersistence", resourceCulture);
+            }
+        }
     }
 }

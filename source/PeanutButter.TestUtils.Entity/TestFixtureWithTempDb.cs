@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using PeanutButter.FluentMigrator;
+using PeanutButter.TempDb;
 using PeanutButter.TempDb.LocalDb;
 using PeanutButter.TestUtils.Generic;
 
@@ -18,6 +19,8 @@ namespace PeanutButter.TestUtils.Entity
         private SemaphoreSlim _lock = new SemaphoreSlim(1,1);
         private static List<string> _aspNetTables = new List<string>();
         private readonly List<Action<TDbContext>> _toRunBeforeProvidingContext = new List<Action<TDbContext>>();
+        private List<Task> _disposeTasks = new List<Task>();
+        private bool _runBeforeFirstGettingContext = true;
 
         protected TestFixtureWithTempDb()
         {
@@ -64,12 +67,17 @@ namespace PeanutButter.TestUtils.Entity
                 var context = (TDbContext) Activator.CreateInstance(typeof(TDbContext), connection);
                 if (logSql)
                     context.Database.Log = s => System.Diagnostics.Debug.WriteLine((string) s);
-                if (_runBeforeFirstGettingContext)
-                {
-                    _runBeforeFirstGettingContext = false;
-                    _toRunBeforeProvidingContext.ForEach(action => action(context));
-                }
+                RunFirstTimeActionsOn(context);
                 return context;
+            }
+        }
+
+        protected void RunFirstTimeActionsOn(TDbContext context)
+        {
+            if (_runBeforeFirstGettingContext)
+            {
+                _runBeforeFirstGettingContext = false;
+                _toRunBeforeProvidingContext.ForEach(action => action(context));
             }
         }
 
@@ -115,11 +123,11 @@ CREATE TABLE [AspNetUsers](
 )");
         }
 
-        private TempDBLocalDb _tempDbActual;
+        private ITempDB _tempDbActual;
 
         private TempDatabaseLifetimes _databaseLifetime;
 
-        protected TempDBLocalDb _tempDb
+        protected ITempDB _tempDb
         {
             get
             {
@@ -130,11 +138,7 @@ CREATE TABLE [AspNetUsers](
             }
         }
 
-        private List<Task> _disposeTasks = new List<Task>();
-
-        private bool _runBeforeFirstGettingContext = true;
-
-        private TempDBLocalDb CreateNewTempDb()
+        protected ITempDB CreateNewTempDb()
         {
             var created = new TempDBLocalDb();
             if (_databaseShouldHaveASPNetTables)

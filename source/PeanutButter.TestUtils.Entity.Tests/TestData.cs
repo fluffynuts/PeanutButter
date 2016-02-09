@@ -41,6 +41,12 @@ namespace PeanutButter.TestUtils.Entity.Tests
         public int COMBlockListID { get; set; }
         public int COMBlockListReasonID { get; set; }
         public int COREClientID { get; set; }
+        public string Source { get; set; }
+        public DateTime Date { get; set; }
+        public string ReasonDescription { get; set; }
+        public bool IsActive { get; set; }
+
+        public virtual COMBlockListReason COMBlockListReason { get; set; }
     }
 
     public class COMBlockListReason

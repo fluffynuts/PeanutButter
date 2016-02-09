@@ -8,7 +8,15 @@ using PeanutButter.Utils;
 
 namespace PeanutButter.TempDb
 {
-    public abstract class TempDB<TDatabaseConnection> : IDisposable where TDatabaseConnection: DbConnection
+    // ReSharper disable once InconsistentNaming
+    public interface ITempDB : IDisposable
+    {
+        string DatabaseFile { get; }
+        string ConnectionString { get; }
+        DbConnection CreateConnection();
+    }
+
+    public abstract class TempDB<TDatabaseConnection> : ITempDB where TDatabaseConnection: DbConnection
     {
         public string DatabaseFile { get; private set; }
         public string ConnectionString { get; protected set; }
@@ -61,7 +69,7 @@ namespace PeanutButter.TempDb
 
         protected abstract void CreateDatabase();
 
-        public DbConnection CreateConnection()
+        public virtual DbConnection CreateConnection()
         {
             var connection = CreateOpenDatabaseConnection();
             _managedConnections.Add(connection);
