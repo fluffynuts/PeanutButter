@@ -268,7 +268,7 @@ namespace PeanutButter.RandomGenerators
             return GetRandomDate(min, max);
         }
 
-        public static IEnumerable<T> GetRandomCollection<T>(Func<T> generator, int minValues = 0, int maxValues = DefaultRanges.MAX_ITEMS)
+        public static IEnumerable<T> GetRandomCollection<T>(Func<T> generator, int minValues = DefaultRanges.MIN_ITEMS, int maxValues = DefaultRanges.MAX_ITEMS)
         {
             var howMany = GetRandomInt(minValues, maxValues);
             var result = new List<T>();
@@ -277,6 +277,11 @@ namespace PeanutButter.RandomGenerators
                 result.Add(generator());
             }
             return result;
+        }
+
+        public static IEnumerable<T> GetRandomCollection<T>(int minValues = DefaultRanges.MIN_ITEMS, int maxValues = DefaultRanges.MAX_ITEMS)
+        {
+            return GetRandomCollection(GetRandomValue<T>, minValues, maxValues);
         }
 
         public const int MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS = 1000;

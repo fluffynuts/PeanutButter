@@ -244,8 +244,30 @@ namespace PeanutButter.RandomGenerators.Tests
                 CollectionAssert.AreEqual(generatedValues, result);
                 generatedValues.Clear();
             }
-
         }
+
+        [Test]
+        public void GetRandomCollection_GenericInvoke_ShouldUseNinjaSuperPowersToCreateCollection()
+        {
+            //---------------Set up test pack-------------------
+            var minItems = RandomValueGen.GetRandomInt(1, 10);
+            var maxItems = RandomValueGen.GetRandomInt(11, 20);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = RandomValueGen.GetRandomCollection<SomePOCO>(minItems, maxItems);
+
+            //---------------Test Result -----------------------
+            Assert.IsNotNull(result);
+            CollectionAssert.IsNotEmpty(result);
+            Assert.IsTrue(result.All(r => r != null));
+            Assert.IsTrue(result.All(r => r.GetType() == typeof(SomePOCO)));
+            VarianceAssert.IsVariant<SomePOCO, int>(result, "Id");
+            VarianceAssert.IsVariant<SomePOCO, string>(result, "Name");
+            VarianceAssert.IsVariant<SomePOCO, DateTime>(result, "Date");
+        }
+
 
 
         [TestCase(1984, 4, 4, 2001, 1, 1)]
@@ -623,6 +645,39 @@ namespace PeanutButter.RandomGenerators.Tests
             VarianceAssert.IsVariant<SomePOCO,int>(items, "Id");
             VarianceAssert.IsVariant<SomePOCO,string>(items, "Name");
             VarianceAssert.IsVariant<SomePOCO,DateTime>(items, "Date");
+        }
+
+        public class SomePOCOWithBuilder: SomePOCO
+        {
+        }
+        public class SomePOCOWithBuilderBuilder: GenericBuilder<SomePOCOWithBuilderBuilder, SomePOCOWithBuilder>
+        {
+            public override SomePOCOWithBuilderBuilder WithRandomProps()
+            {
+                return base.WithRandomProps()
+                        .WithProp(o => o.Id = RandomValueGen.GetRandomInt(1000, 2000));
+            }
+        }
+
+        [Test]
+        public void GetRandomValue_GivenPOCOWithBuilderType_ShouldUseExistingBuilder()
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var item = RandomValueGen.GetRandomValue<SomePOCOWithBuilder>();
+
+            //---------------Test Result -----------------------
+            Assert.IsNotNull(item);
+            Assert.IsInstanceOf<SomePOCOWithBuilder>(item);
+            // assert that *something* was set
+            Assert.IsNotNull(item.Id);
+            Assert.That(item.Id.Value, Is.GreaterThanOrEqualTo(1000));
+            Assert.That(item.Id.Value, Is.LessThanOrEqualTo(2000));
+            Assert.IsNotNull(item.Name);
+            Assert.IsNotNull(item.Date);
         }
 
 
