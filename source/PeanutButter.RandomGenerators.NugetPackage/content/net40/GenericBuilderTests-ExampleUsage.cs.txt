@@ -560,7 +560,93 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Test Result -----------------------
         }
 
-
         //-- end real-world error example
+
+        public class SomePOCOWithCollection
+        {
+            public virtual ICollection<string> Strings { get; set; }
+        }
+        public class SomePOCOWithCollectionBuilder: GenericBuilder<SomePOCOWithCollectionBuilder, SomePOCOWithCollection>
+        {
+        }
+
+        [Test]
+        public void ICollectionShouldBeCreatedEmptyAndNotNull()
+        {
+            //---------------Set up test pack-------------------
+            var sut = SomePOCOWithCollectionBuilder.BuildRandom();
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = sut.Strings;
+
+            //---------------Test Result -----------------------
+            Assert.IsNotNull(result);
+            CollectionAssert.IsEmpty(result);
+        }
+
+        public class SomePOCOWithArray
+        {
+            public virtual string[] Strings { get; set; }
+        }
+        public class SomePOCOWithArrayBuilder: GenericBuilder<SomePOCOWithArrayBuilder, SomePOCOWithArray>
+        {
+        }
+
+        [Test]
+        public void ArrayShouldBeCreatedEmptyAndNotNull()
+        {
+            //---------------Set up test pack-------------------
+            var sut = SomePOCOWithArrayBuilder.BuildRandom();
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = sut.Strings;
+
+            //---------------Test Result -----------------------
+            Assert.IsNotNull(result);
+            CollectionAssert.IsEmpty(result);
+        }
+
+        public class SomePOCOWithList
+        {
+            public virtual List<string> Strings { get; set; }
+        }
+        public class SomePOCOWithListBuilder: GenericBuilder<SomePOCOWithListBuilder, SomePOCOWithList>
+        {
+        }
+
+        [Test]
+        public void ListShouldBeCreatedEmptyAndNotNull()
+        {
+            //---------------Set up test pack-------------------
+            var sut = SomePOCOWithListBuilder.BuildRandom();
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = sut.Strings;
+
+            //---------------Test Result -----------------------
+            Assert.IsNotNull(result);
+            CollectionAssert.IsEmpty(result);
+        }
+
+        [Test]
+        public void WhenUsing_WithFilledCollections_ShouldPutDataInCollections()
+        {
+            //---------------Set up test pack-------------------
+            var sut = SomePOCOWithListBuilder.Create().WithRandomProps().WithFilledCollections().Build();
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = sut.Strings;
+
+            //---------------Test Result -----------------------
+            Assert.IsNotNull(result);
+            CollectionAssert.IsNotEmpty(result);
+        }
+
+
     }
 }

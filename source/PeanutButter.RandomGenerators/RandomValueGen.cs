@@ -8,7 +8,7 @@ namespace PeanutButter.RandomGenerators
 {
     public class RandomValueGen
     {
-        private static Dictionary<Type, Func<object>> _genericGenerators = new Dictionary<Type, Func<object>>()
+        private static Dictionary<Type, Func<object>> _primitiveGenerators = new Dictionary<Type, Func<object>>()
         {
             { typeof(int), () => GetRandomInt() },
             { typeof(byte), () => Convert.ToByte(GetRandomInt(0, 255)) },
@@ -24,16 +24,31 @@ namespace PeanutButter.RandomGenerators
 
         public static T GetRandomValue<T>()
         {
-            var type = typeof(T);
+            //var type = typeof(T);
+            //if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            //    type = Nullable.GetUnderlyingType(type);
+            //Func<object> randomGenerator;
+            //if (_primitiveGenerators.TryGetValue(type, out randomGenerator))
+            //    return (T)randomGenerator();
+            //return (T)GetRandomValueForType(type);
+            return (T)GetRandomValue(typeof(T));
+        }
+
+        public static object GetRandomValue(Type type)
+        {
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
                 type = Nullable.GetUnderlyingType(type);
             Func<object> randomGenerator;
-            if (_genericGenerators.TryGetValue(type, out randomGenerator))
-                return (T)randomGenerator();
+            if (_primitiveGenerators.TryGetValue(type, out randomGenerator))
+                return randomGenerator();
+            return GetRandomValueForType(type);
+        }
+        private static object GetRandomValueForType(Type type)
+        {
             var builder = GetBuilderFor(type);
             if (builder == null)
                 throw new Exception("Can't get random value for type: '" + type.Name + "': either too complex or I missed a simple type?");
-            return (T)builder.GenericWithRandomProps().GenericBuild();
+            return builder.GenericWithRandomProps().GenericBuild();
         }
 
         private static IGenericBuilder GetBuilderFor(Type type)

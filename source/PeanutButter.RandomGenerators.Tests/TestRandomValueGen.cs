@@ -632,6 +632,72 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [Test]
+        public void GetRandomValue_GivenPOCOTypeArgument_ShouldUseOnTheFlyGenericBuilderToGiveBackRandomItem()
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var item = RandomValueGen.GetRandomValue(typeof(SomePOCO)) as SomePOCO;
+
+            //---------------Test Result -----------------------
+            Assert.IsNotNull(item);
+            Assert.IsInstanceOf<SomePOCO>(item);
+            // assert that *something* was set
+            Assert.IsNotNull(item.Id);
+            Assert.IsNotNull(item.Name);
+            Assert.IsNotNull(item.Date);
+        }
+
+        [TestCase(typeof(int))]
+        [TestCase(typeof(byte))]
+        [TestCase(typeof(char))]
+        [TestCase(typeof(long))]
+        [TestCase(typeof(float))]
+        [TestCase(typeof(double))]
+        [TestCase(typeof(decimal))]
+        [TestCase(typeof(DateTime))]
+        [TestCase(typeof(string))]
+        [TestCase(typeof(bool))]
+        public void GetRandomValue_GivenPrimitiveTypeArgument_ShouldUseRegularRVGMethods(Type type)
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var item = RandomValueGen.GetRandomValue(type);
+
+            //---------------Test Result -----------------------
+            Assert.IsNotNull(item);
+            Assert.IsInstanceOf(type, item);
+        }
+        [TestCase(typeof(int?))]
+        [TestCase(typeof(byte?))]
+        [TestCase(typeof(char?))]
+        [TestCase(typeof(long?))]
+        [TestCase(typeof(float?))]
+        [TestCase(typeof(double?))]
+        [TestCase(typeof(decimal?))]
+        [TestCase(typeof(DateTime?))]
+        [TestCase(typeof(bool?))]
+        public void GetRandomValue_GivenNullablePrimitiveTypeArgument_ShouldUseRegularRVGMethods(Type type)
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var item = RandomValueGen.GetRandomValue(type);
+
+            //---------------Test Result -----------------------
+            Assert.IsNotNull(item);
+            Assert.IsInstanceOf(type, item);
+        }
+
+
+        [Test]
         public void GetRandomValue_GivenPOCOType_ShouldHaveVariance()
         {
             //---------------Set up test pack-------------------

@@ -4,9 +4,11 @@
  * */
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using PeanutButter.Utils;
 
 
@@ -19,14 +21,14 @@ namespace PeanutButter.RandomGenerators
         object GenericBuild();
     }
 
-    public class GenericBuilder<TConcrete, TEntity> : GenericBuilderBase, IGenericBuilder, IBuilder<TEntity> where TConcrete: GenericBuilder<TConcrete, TEntity>//, new()
+    public class GenericBuilder<TBuilder, TEntity> : GenericBuilderBase, IGenericBuilder, IBuilder<TEntity> where TBuilder: GenericBuilder<TBuilder, TEntity>//, new()
     {
         private static readonly List<Action<TEntity>> DefaultPropMods = new List<Action<TEntity>>();
         private readonly List<Action<TEntity>> _propMods = new List<Action<TEntity>>();
 
-        public static TConcrete Create()
+        public static TBuilder Create()
         {
-            return Activator.CreateInstance<TConcrete>();
+            return Activator.CreateInstance<TBuilder>();
         }
 
         public IGenericBuilder GenericWithRandomProps()
@@ -63,10 +65,10 @@ namespace PeanutButter.RandomGenerators
             DefaultPropMods.Add(action);
         }
 
-        public TConcrete WithProp(Action<TEntity> action)
+        public TBuilder WithProp(Action<TEntity> action)
         {
             _propMods.Add(action);
-            return this as TConcrete;
+            return this as TBuilder;
         }
 
         // ReSharper disable once MemberCanBeProtected.Global
@@ -79,7 +81,7 @@ namespace PeanutButter.RandomGenerators
             }
             catch (Exception)
             {
-                throw new GenericBuilderInstanceCreationException(GetType(), typeof (TConcrete));
+                throw new GenericBuilderInstanceCreationException(GetType(), typeof (TBuilder));
             }
         }
 
@@ -93,10 +95,10 @@ namespace PeanutButter.RandomGenerators
             return entity;
         }
 
-        public virtual TConcrete WithRandomProps()
+        public virtual TBuilder WithRandomProps()
         {
             WithProp(SetRandomProps);
-            return this as TConcrete;
+            return this as TBuilder;
         }
 
         // ReSharper disable once StaticMemberInGenericType
@@ -186,9 +188,88 @@ namespace PeanutButter.RandomGenerators
 
         private static bool IsCollectionType(PropertyInfo propertyInfo, Type type)
         {
-            return type.IsArray ||
+            var isCollectionType = type.IsArray ||
                    (type.IsGenericType &&
                     CollectionGenerics.Contains(type.GetGenericTypeDefinition()));
+            //return isCollectionType;
+            // TODO: figure out the stack overflow introduced by cyclic references when enabling this
+            //  code below
+            if (!isCollectionType)
+                return false;
+            SetCollectionSetterFor(propertyInfo, type);
+            return true;
+        }
+
+        private static void SetCollectionSetterFor(PropertyInfo propertyInfo, Type type)
+        {
+            RandomPropSetters[propertyInfo.Name] = (e, i) => 
+            {
+                try
+                {
+                    var instance = CreateListContainerFor(propertyInfo);
+                    if (propertyInfo.PropertyType.IsArray)
+                    {
+                        instance = ConvertCollectionToArray(instance);
+                    }
+                    e.SetPropertyValue(propertyInfo.Name, instance);
+                }
+                catch (Exception ex)
+                {
+                    var foo = 1;
+                    throw;
+                }
+            };
+        }
+
+        private static object ConvertCollectionToArray(object instance)
+        {
+            var methodInfo = instance.GetType().GetMethod("ToArray");
+            instance = methodInfo.Invoke(instance, new object[] {});
+            return instance;
+        }
+
+        public virtual TBuilder WithFilledCollections()
+        {
+            return WithProp(o =>
+            {
+                // TODO: figure out why filling collections can cause an SO with cyclic classes
+                var collectionProperties = typeof(TEntity).GetProperties()
+                                                .Where(pi => IsCollectionType(pi, pi.PropertyType));
+                collectionProperties.ForEach(prop => FillCollection(o, prop));
+            });
+        }
+
+        private void FillCollection(object entity, PropertyInfo pi)
+        {
+            var container = CreateListContainerFor(pi);
+            FillContainer(container);
+            if (pi.PropertyType.IsArray)
+                container = ConvertCollectionToArray(container);
+            pi.SetValue(entity, container);
+        }
+
+        private static void FillContainer(object collectionInstance)
+        {
+            var innerType = collectionInstance.GetType().GetGenericArguments()[0];
+            var method = collectionInstance.GetType().GetMethod("Add");
+            var data = RandomValueGen.GetRandomCollection(() => RandomValueGen.GetRandomValue(innerType), 1);
+            data.ForEach(item => method.Invoke(collectionInstance, new object[] { item }));
+        }
+
+        private static object CreateListContainerFor(PropertyInfo propertyInfo)
+        {
+            var innerType = GetCollectionInnerTypeFor(propertyInfo);
+            var listType = typeof (List<>);
+            var specificType = listType.MakeGenericType(innerType);
+            var instance = Activator.CreateInstance(specificType);
+            return instance;
+        }
+
+        private static Type GetCollectionInnerTypeFor(PropertyInfo propertyInfo)
+        {
+            return propertyInfo.PropertyType.IsGenericType
+                    ? propertyInfo.PropertyType.GetGenericArguments()[0]
+                    : propertyInfo.PropertyType.GetElementType();
         }
 
         private static void SetSetterForType(PropertyInfo prop, Type propertyType = null)
@@ -265,7 +346,7 @@ namespace PeanutButter.RandomGenerators
                               ?? FindOrCreateDynamicBuilderFor(prop);
             if (builderType == null)
                 return false;
-            _randomPropSettersField[prop.Name] = (e, i) =>
+            RandomPropSetters[prop.Name] = (e, i) =>
             {
                 if (TraversedTooManyTurtles(i)) return;
                 var dynamicBuilder = Activator.CreateInstance(builderType) as IGenericBuilder;
@@ -353,4 +434,5 @@ namespace PeanutButter.RandomGenerators
             }
         }
     }
+
 }
