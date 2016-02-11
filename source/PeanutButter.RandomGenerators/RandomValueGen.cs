@@ -21,7 +21,8 @@ namespace PeanutButter.RandomGenerators
             { typeof(string), () => GetRandomString() },
             { typeof(bool), () => GetRandomBoolean() }
         };
-        public static object GetRandomValue<T>()
+
+        public static T GetRandomValue<T>()
         {
             var type = typeof(T);
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
@@ -29,7 +30,19 @@ namespace PeanutButter.RandomGenerators
             Func<object> randomGenerator;
             if (_genericGenerators.TryGetValue(type, out randomGenerator))
                 return (T)randomGenerator();
-            throw new Exception("Can't get random value for type: '" + type.Name + "': either too complex or I missed a simple type?");
+            var builder = GetBuilderFor(type);
+            if (builder == null)
+                throw new Exception("Can't get random value for type: '" + type.Name + "': either too complex or I missed a simple type?");
+            return (T)builder.GenericWithRandomProps().GenericBuild();
+        }
+
+        private static IGenericBuilder GetBuilderFor(Type type)
+        {
+            var builderType = GenericBuilderLocator.TryFindExistingBuilderFor(type)
+                            ?? GenericBuilderLocator.FindOrGenerateDynamicBuilderFor(type);
+            return builderType == null 
+                        ? null 
+                        : Activator.CreateInstance(builderType) as IGenericBuilder;
         }
 
         private static class DefaultRanges

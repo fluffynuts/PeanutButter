@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NSubstitute;
 using NUnit.Framework;
 using PeanutButter.Utils;
 
@@ -581,6 +582,49 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Test Result -----------------------
 
         }
+
+        public class SomePOCO
+        {
+            public int? Id { get; set; }
+            public string Name { get; set; }
+            public DateTime? Date { get; set; }
+        }
+
+        [Test]
+        public void GetRandomValue_GivenPOCOType_ShouldUseOnTheFlyGenericBuilderToGiveBackRandomItem()
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var item = RandomValueGen.GetRandomValue<SomePOCO>();
+
+            //---------------Test Result -----------------------
+            Assert.IsNotNull(item);
+            Assert.IsInstanceOf<SomePOCO>(item);
+            // assert that *something* was set
+            Assert.IsNotNull(item.Id);
+            Assert.IsNotNull(item.Name);
+            Assert.IsNotNull(item.Date);
+        }
+
+        [Test]
+        public void GetRandomValue_GivenPOCOType_ShouldHaveVariance()
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var items = RandomValueGen.GetRandomCollection(RandomValueGen.GetRandomValue<SomePOCO>, RANDOM_TEST_CYCLES, RANDOM_TEST_CYCLES);
+
+            //---------------Test Result -----------------------
+            VarianceAssert.IsVariant<SomePOCO,int>(items, "Id");
+            VarianceAssert.IsVariant<SomePOCO,string>(items, "Name");
+            VarianceAssert.IsVariant<SomePOCO,DateTime>(items, "Date");
+        }
+
 
 
 
