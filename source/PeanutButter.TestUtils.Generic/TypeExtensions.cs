@@ -228,5 +228,29 @@ namespace PeanutButter.TestUtils.Generic
             return new[] {input};
         }
 
+
+        public static bool IsNotCollection(this Type type)
+        {
+            return !type.IsCollection();
+        }
+
+        public static bool IsCollection(this Type type)
+        {
+            if (type == null)
+                return false;
+            return type.IsArray ||
+                   (type.IsGenericType &&
+                    CollectionGenerics.Contains(type.GetGenericTypeDefinition()));
+        }
+
+        private static readonly Type[] CollectionGenerics =
+        {
+            typeof(ICollection<>),
+            typeof(IEnumerable<>),
+            typeof(List<>),
+            typeof(IList<>),
+            typeof(IDictionary<,>),
+            typeof(Dictionary<,>)
+        };
     }
 }

@@ -14,6 +14,8 @@ namespace PeanutButter.TempDb
         string DatabaseFile { get; }
         string ConnectionString { get; }
         DbConnection CreateConnection();
+        // TODO: add in to interface
+        // string DatabaseName { get; }
     }
 
     public abstract class TempDB<TDatabaseConnection> : ITempDB where TDatabaseConnection: DbConnection

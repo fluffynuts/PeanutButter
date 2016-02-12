@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
 
 
@@ -188,13 +189,10 @@ namespace PeanutButter.RandomGenerators
 
         private static bool IsCollectionType(PropertyInfo propertyInfo, Type type)
         {
-            var isCollectionType = type.IsArray ||
-                   (type.IsGenericType &&
-                    CollectionGenerics.Contains(type.GetGenericTypeDefinition()));
             //return isCollectionType;
             // TODO: figure out the stack overflow introduced by cyclic references when enabling this
             //  code below
-            if (!isCollectionType)
+            if (type.IsNotCollection())
                 return false;
             SetCollectionSetterFor(propertyInfo, type);
             return true;

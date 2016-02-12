@@ -10,7 +10,7 @@ namespace PeanutButter.TinyEventAggregator.Tests
     {
         public class SomeEvent : EventBase<object>
         {
-            public bool Suspended { get { return _suspended; } }
+            public bool Suspended => IsSuspended;
         }
         [Test]
         public void Construct_DoesNotThrow()

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,23 +22,24 @@ namespace PeanutButter.TestUtils.Entity.Tests
             public string Name { get; set; }
         }
 
-        public class SomeChildEntity
-        {
-            public int SomeChildEntityId { get; set; }
-            [MaxLength(6)]
-            public string Name { get; set; }
-        }
         public class SomeParentEntity
         {
             public int SomeParentEntityId { get; set; }
-            public virtual SomeChildEntity Child { get; set; }
+            [MaxLength(6)]
+            public string Name { get; set; }
+            public ICollection<SomeChildEntity> Children { get; set; }
+        }
+        public class SomeChildEntity
+        {
+            public int SomeChildEntityId { get; set; }
+            public virtual SomeParentEntity Parent { get; set; }
         }
 
         public class SomeEntityBuilder: GenericEntityBuilder<SomeEntityBuilder, SomeEntity>
         {
         }
 
-        public class SomeParentEntityBuilder: GenericEntityBuilder<SomeParentEntityBuilder, SomeParentEntity>
+        public class SomeParentEntityBuilder: GenericEntityBuilder<SomeParentEntityBuilder, SomeChildEntity>
         {
         }
 
@@ -86,7 +88,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                var result = item.Child.Name.Length;
+                var result = item.Parent.Name.Length;
 
                 //---------------Test Result -----------------------
                 Assert.That(result, Is.LessThanOrEqualTo(6));

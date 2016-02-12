@@ -300,19 +300,19 @@ namespace PeanutButter.RandomGenerators
         }
 
         public const int MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS = 1000;
-        public static T GetAnother<T>(T differentFromThisValue, Func<T> byUsingThisGenerator, Func<T,T,bool> areEqual = null)
+        public static T GetAnother<T>(T differentFromThisValue, Func<T> usingThisGenerator, Func<T,T,bool> areEqual = null)
         {
             areEqual = areEqual ?? DefaultEqualityTest;
             Func<T, bool> isANewValue = o => !areEqual(differentFromThisValue, o);
-            return GetANewRandomValueUsing(differentFromThisValue, byUsingThisGenerator, isANewValue);
+            return GetANewRandomValueUsing(differentFromThisValue, usingThisGenerator, isANewValue);
         }
 
 
-        public static T GetAnother<T>(IEnumerable<T> notAnyOfThese, Func<T> byUsingThisGenerator, Func<T,T,bool> areEqual = null)
+        public static T GetAnother<T>(IEnumerable<T> notAnyOfThese, Func<T> usingThisGenerator, Func<T,T,bool> areEqual = null)
         {
             areEqual = areEqual ?? DefaultEqualityTest;
             Func<T, bool> isANewValue = o => notAnyOfThese.All(i => !areEqual(o, i));
-            return GetANewRandomValueUsing(notAnyOfThese, byUsingThisGenerator, isANewValue);
+            return GetANewRandomValueUsing(notAnyOfThese, usingThisGenerator, isANewValue);
         }
 
         private static bool DefaultEqualityTest<T>(T left, T right)
@@ -320,12 +320,12 @@ namespace PeanutButter.RandomGenerators
             return left.Equals(right) && right.Equals(left);
         }
 
-        private static T1 GetANewRandomValueUsing<T1, T2>(T2 differentFromThisValue, Func<T1> byUsingThisGenerator, Func<T1, bool> isANewValue)
+        private static T1 GetANewRandomValueUsing<T1, T2>(T2 differentFromThisValue, Func<T1> usingThisGenerator, Func<T1, bool> isANewValue)
         {
             var attempts = 0;
             do
             {
-                var result = byUsingThisGenerator();
+                var result = usingThisGenerator();
                 if (isANewValue(result))
                     return result;
                 if (++attempts >= MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS)

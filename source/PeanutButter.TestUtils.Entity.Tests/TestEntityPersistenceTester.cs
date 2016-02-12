@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.Entity;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NUnit.Framework;
 using PeanutButter.TempDb;
 using PeanutButter.TempDb.LocalDb;
@@ -29,7 +25,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
 
             //---------------Test Result -----------------------
             Assert.IsNotNull(result);
-            Assert.IsInstanceOf<EntityPersistenceTester<COMBlockListReason>>(result);
+            Assert.IsInstanceOf<EntityPersistenceTesterFor<COMBlockListReason>>(result);
         }
 
         [Test]

@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using PeanutButter.RandomGenerators;
+using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
 
 namespace PeanutButter.TestUtils.Entity
@@ -41,11 +42,17 @@ namespace PeanutButter.TestUtils.Entity
                 if (checkedProperties.Any(cp => cp.PropertyName == pi.Name && cp.Parent == obj))
                     return;
                 checkedProperties.Add(new CheckedProperty(obj, pi.Name));
-                if (pi.GetMethod.IsVirtual)
+                if (CanCheckMaxLengthsOn(pi))
                     CheckMaxLengths(pi.GetValue(obj), checkedProperties);
                 else
                     ConstrainMaxlengthStringOn(obj, pi);
             });
+        }
+
+        private bool CanCheckMaxLengthsOn(PropertyInfo propertyInfo)
+        {
+            return propertyInfo.GetMethod.IsVirtual &&
+                    propertyInfo.PropertyType.IsNotCollection();
         }
 
         private static Type _stringType = typeof(string);
@@ -71,7 +78,7 @@ namespace PeanutButter.TestUtils.Entity
             if (maxLengthAttrib != null)
                 return maxLengthAttrib.Length;
             var stringLengthAttrib = pi.GetCustomAttributes<StringLengthAttribute>().FirstOrDefault();
-            return stringLengthAttrib == null ? (int?)null : stringLengthAttrib.MaximumLength;
+            return stringLengthAttrib?.MaximumLength;
         }
     }
 }

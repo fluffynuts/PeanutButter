@@ -8,12 +8,12 @@ namespace PeanutButter.TinyEventAggregator
     public abstract class EventBase 
     {
         private object _suspensionLock = new object();
-        internal bool _suspended = false;
+        internal bool IsSuspended { get; private set; }
         public void Unsuspend()
         {
             lock (_suspensionLock)
             {
-                _suspended = false;
+                IsSuspended = false;
             }
         }
 
@@ -21,7 +21,7 @@ namespace PeanutButter.TinyEventAggregator
         {
             lock (_suspensionLock)
             {
-                _suspended = true;
+                IsSuspended = true;
             }
         }
 
@@ -31,7 +31,7 @@ namespace PeanutButter.TinyEventAggregator
             {
                 lock (_suspensionLock)
                 {
-                    if (!_suspended)
+                    if (!IsSuspended)
                         return;
                     Thread.Sleep(10);
                 }
