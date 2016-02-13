@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -27,42 +26,12 @@ namespace NugetPackageVersionIncrementer
             }
         }
 
-        public void SetMinimumPackageDependencyVersion(string packageId, string minimumVersion)
+        public void SetExistingPackageDependencyVersion(string packageId, string version)
         {
-            var currentVersion = _doc.GetDependencyVersionFor(packageId);
-            if (currentVersion == null)
+            if (_doc.GetDependencyVersionFor(packageId) == null)
                 return;
-            var version = new NuspecVersion(currentVersion)
-            {
-                Minimum = minimumVersion
-            };
-            _doc.SetDependencyVersionFor(packageId, version.ToString());
+            _doc.SetDependencyVersionFor(packageId, version);
         }
-    }
-
-    public class NuspecVersion
-    {
-        public string Minimum { get; set; }
-        public string Maximum { get; set; }
-        public NuspecVersion(string version)
-        {
-            if (!version.StartsWith("["))
-            {
-                Minimum = version;
-                Maximum = version;
-            }
-            var parts = version.Trim('[', ']').Split(',');
-            Minimum = parts.First();
-            Maximum = parts.Skip(1).FirstOrDefault();
-        }
-
-        public override string ToString()
-        {
-            if (Minimum == Maximum)
-                return Minimum;
-            return $"[{Minimum},{Maximum}]";
-        }
-
     }
 
     public static class NuspecXDocumentExtensions
@@ -70,7 +39,7 @@ namespace NugetPackageVersionIncrementer
         public static string GetDependencyVersionFor(this XDocument doc, string packageName)
         {
             var el = FindDependencyNodeFor(doc, packageName);
-            return el?.Value;
+            return el?.Attribute("version")?.Value;
         }
 
         public static XElement FindDependencyNodeFor(this XDocument doc, string packageName)
@@ -81,8 +50,7 @@ namespace NugetPackageVersionIncrementer
         public static void SetDependencyVersionFor(this XDocument doc, string packageName, string version)
         {
             var node = doc.FindDependencyNodeFor(packageName);
-            if (node == null) return;
-            node.Value = version;
+            node?.Attribute("version")?.SetValue(version);
         }
     }
 }

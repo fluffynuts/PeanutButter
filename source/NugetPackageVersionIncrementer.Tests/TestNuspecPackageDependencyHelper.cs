@@ -48,7 +48,7 @@ namespace NugetPackageVersionIncrementer.Tests
 
 
         [Test]
-        public void SetPackageDependencyVersion_WhenDependencyNotFound_ShouldNotChangeDocument()
+        public void SetExistingPackageDependencyVersion_WhenDependencyNotFound_ShouldNotChangeDocument()
         {
             //---------------Set up test pack-------------------
             var sut = Create();
@@ -57,15 +57,14 @@ namespace NugetPackageVersionIncrementer.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            sut.SetMinimumPackageDependencyVersion(RandomValueGen.GetRandomString(10, 20), RandomValueGen.GetRandomString());
+            sut.SetExistingPackageDependencyVersion(RandomValueGen.GetRandomString(10, 20), RandomValueGen.GetRandomString());
 
             //---------------Test Result -----------------------
             Assert.AreEqual(before, sut.NuspecXml);
         }
 
         [Test]
-        [Ignore("WIP")]
-        public void SetMinimumPackageDependencyVersion_GivenKnownPackageId_ShouldUpdateDocument()
+        public void SetExistingPackageDependencyVersion_GivenKnownPackageId_ShouldUpdateDocument()
         {
             //---------------Set up test pack-------------------
             var sut = Create();
@@ -80,10 +79,10 @@ namespace NugetPackageVersionIncrementer.Tests
             var entityVersion = entityDep.Attribute("version").Value;
             Assert.AreEqual("[6.1.3,]", entityVersion);
             Assert.AreEqual(entityVersion, docBefore.GetDependencyVersionFor("EntityFramework"));
-            var expected = "[7.0.1,]";
+            var expected = "7.0.1";
 
             //---------------Execute Test ----------------------
-            sut.SetMinimumPackageDependencyVersion("EntityFramework", expected);
+            sut.SetExistingPackageDependencyVersion("EntityFramework", "7.0.1");
 
             //---------------Test Result -----------------------
             Assert.AreNotEqual(before, sut.NuspecXml);
