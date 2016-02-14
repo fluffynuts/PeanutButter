@@ -1,28 +1,37 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 using System.Xml.XPath;
 
 namespace NugetPackageVersionIncrementer
 {
-    public class NuspecUtil
+    public interface INuspecUtil
     {
-        public string Version { get { return _versionIncrementor.Version; } }
-        public string PackageId { get; private set; }
-        public string NuspecXml { get; private set; }
-        private NuspecVersionIncrementer _versionIncrementor;
-        private NuspecReaderWriter _reader;
-        internal NuspecVersionIncrementer NuspecVersionIncrementer { get { return _versionIncrementor; } }
+        string Version { get; }
+        string PackageId { get; }
+        string NuspecXml { get; set; }
+        void IncrementVersion();
+        void SetPackageDependencyVersionIfExists(string packageId, string version);
+    }
 
-        public NuspecUtil(string nuspecPath)
+    public class NuspecUtil : INuspecUtil
+    {
+        public string Version { get; private set; }
+        public string PackageId { get; private set; }
+        public string NuspecXml
+        {
+            get { return _reader.NuspecXML; }
+            set { _reader.NuspecXML = value; }
+        }
+        private NuspecReaderWriter _reader;
+
+        public void LoadNuspecAt(string nuspecPath)
         {
             ValidatePath(nuspecPath);
             _reader = new NuspecReaderWriter(nuspecPath);
-            _versionIncrementor = new NuspecVersionIncrementer(_reader.NuspecXML);
+            var incrementer = new NuspecVersionIncrementer(_reader.NuspecXML);
+            Version = incrementer.Version;
             PackageId = GrokPackageIdFrom(_reader.NuspecXML);
         }
 
@@ -41,8 +50,22 @@ namespace NugetPackageVersionIncrementer
 
         public void IncrementVersion()
         {
-            _versionIncrementor.IncrementMinorVersion();
-            NuspecXml = _versionIncrementor.GetUpdatedNuspec();
+            var versionIncrementor = new NuspecVersionIncrementer(_reader.NuspecXML);
+            versionIncrementor.IncrementMinorVersion();
+            NuspecXml = versionIncrementor.GetUpdatedNuspec();
+            Version = versionIncrementor.Version;
+        }
+
+        public void SetPackageDependencyVersionIfExists(string packageId, string version)
+        {
+            var doc = XDocument.Parse(NuspecXml);
+            doc.SetDependencyVersionIfExistsFor(packageId, version);
+            NuspecXml = doc.ToString();
+        }
+
+        public void Persist()
+        {
+            _reader.Rewrite();
         }
     }
 }

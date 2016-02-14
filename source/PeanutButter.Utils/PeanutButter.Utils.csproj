@@ -46,6 +46,7 @@
     <Compile Include="AutoLocker.cs" />
     <Compile Include="AutoResetter.cs" />
     <Compile Include="AutoResetterOfT.cs" />
+    <Compile Include="AutoTempFile.cs" />
     <Compile Include="ByteArrayExtensions.cs" />
     <Compile Include="DateTimeExtensions.cs" />
     <Compile Include="DecimalDecorator.cs" />
