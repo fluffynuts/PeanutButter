@@ -213,8 +213,7 @@ namespace PeanutButter.RandomGenerators
                 }
                 catch (Exception ex)
                 {
-                    var foo = 1;
-                    throw;
+                    Debug.WriteLine($"Unable to set Collection Setter for {propertyInfo.Name}: {ex.GetType().Name} : {ex.Message}");
                 }
             };
         }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using NSubstitute;
 using NUnit.Framework;
 using PeanutButter.Utils;
@@ -98,11 +99,50 @@ namespace PeanutButter.TestUtils.Generic
             object parameterValue = null;
             if (parameterInfo.Name != parameterName)
             {
-                parameterValue = Substitute.For(new[] {parameterType}, new object[0]);
+                parameterValue = CreateSubstituteFor(parameterType);
             }
 
             return parameterValue;
         }
+
+        private static object CreateSubstituteFor(Type parameterType)
+        {
+            // TODO: use this as a starting point for working out dynamic shims so I
+            //   can perhaps decouple testing tools from specific versions of NSubstitute and NUnit
+            //var allTypes = AppDomain.CurrentDomain.GetAssemblies()
+            //                    .SelectMany(a => a.GetTypes())
+            //                    .OrderBy(t => t.Name)
+            //                    .Where(t => t.Name.ToLower().Contains("substitute"))
+            //                    .ToArray();
+
+            //var nsubType = AppDomain.CurrentDomain
+            //                        .GetAssemblies()
+            //                        .SelectMany(a => a.GetTypes())
+            //                        .Where(t => t.Name == "NSubstitute.Substitute")
+            //                        .FirstOrDefault();
+            //if (nsubType != null)
+            //{
+            //    var method = nsubType.GetMethod("For", BindingFlags.Static);
+            //    return method.Invoke(parameterType, new object[0]);
+            //}
+
+            return CreateSubstituteWithLinkedNSubstitute(parameterType);
+        }
+
+        private static object CreateSubstituteWithLinkedNSubstitute(Type parameterType)
+        {
+            return Substitute.For(new[] {parameterType}, new object[0]);
+        }
+
+        private static AssemblyBuilder _assembly;
+        private static ModuleBuilder _moduleBuilder;
+
+        private static ModuleBuilder GetModuleBuilder()
+        {
+            _assembly = _assembly ?? AppDomain.CurrentDomain.DefineDynamicAssembly(new AssemblyName("ConstructorTestUtilsProxyTypes"), AssemblyBuilderAccess.Run);
+            return _moduleBuilder ?? (_moduleBuilder = _assembly.DefineDynamicModule("ProxyTypes"));
+        }
+
 
         private static Exception InvokeConstructor(ConstructorInfo constructor, IEnumerable<object> parameterValues)
         {

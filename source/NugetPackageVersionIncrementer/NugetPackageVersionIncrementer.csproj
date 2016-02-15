@@ -54,12 +54,14 @@
     <Compile Include="NuspecUtil.cs" />
     <Compile Include="NuspecPackageDependencyHelper.cs" />
     <Compile Include="NuspecReaderWriter.cs" />
+    <Compile Include="NuspecUtilFactory.cs" />
     <Compile Include="NuspecVersion.cs" />
     <Compile Include="NuspecVersionCoordinator.cs" />
     <Compile Include="NuspecVersionIncrementer.cs" />
     <Compile Include="NuspecXDocumentExtensions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ResolvingContainer.cs" />
     <Compile Include="WindsorBootstrapper.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -67,6 +69,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\PeanutButter.Utils\PeanutButter.Utils.csproj">
+      <Project>{EFC85343-95B4-48C3-BCBE-579EA4868C0A}</Project>
+      <Name>PeanutButter.Utils</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PeanutButter.XmlUtils\PeanutButter.XmlUtils.csproj">
       <Project>{d67739cd-944e-4e88-b313-0e091cea185b}</Project>
       <Name>PeanutButter.XmlUtils</Name>

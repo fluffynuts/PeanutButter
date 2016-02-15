@@ -20,19 +20,8 @@ namespace NugetPackageVersionIncrementer
         {
             if (!Directory.Exists(basePath))
                 throw new ArgumentException(basePath + " not found", nameof(basePath));
-            AddNuspecsIn(basePath);
-            foreach (var dir in Directory.GetDirectories(basePath))
-            {
-                FindNuspecsUnder(dir);
-            }
+            _foundNuspecPaths.AddRange(Directory.EnumerateFileSystemEntries(basePath, "*.nuspec", SearchOption.AllDirectories));
         }
 
-        private void AddNuspecsIn(string FolderPath)
-        {
-            foreach (var file in Directory.GetFiles(FolderPath, "*.nuspec"))
-            {
-                _foundNuspecPaths.Add(file);
-            }
-        }
     }
 }

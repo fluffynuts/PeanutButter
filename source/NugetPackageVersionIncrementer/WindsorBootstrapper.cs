@@ -1,27 +1,42 @@
+using System.Linq;
+using System.Reflection;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
+using PeanutButter.Utils;
 
 namespace NugetPackageVersionIncrementer
 {
     public class WindsorBootstrapper
     {
-        public WindsorContainer Bootstrap()
+        public IResolvingContainer Bootstrap()
         {
             var container = new WindsorContainer();
-            container.RegisterTransient<INuspecUtil, NuspecUtil>();
-            return container;
+            container.RegisterAllOneToOneResolutionsAsTransientFrom(GetType().Assembly);
+            return new ResolvingContainer(container);
         }
     }
 
+
     public static class WindsorContainerBootstrapperExtensions
     {
-        public static void RegisterTransient<TService, TImplementation>(this WindsorContainer container)
-            where TImplementation: TService
-            where TService: class
+        public static void RegisterAllOneToOneResolutionsAsTransientFrom(this WindsorContainer container, params Assembly[] assemblies)
         {
-            container.Register(Component.For<TService>()
-                                .ImplementedBy<TImplementation>()
-                                .LifestyleTransient());
+            var allTypes = assemblies.SelectMany(a => a.GetTypes());
+            var allInterfaces = allTypes.Where(t => t.IsInterface);
+            var allImplementations = allTypes.Where(t => !t.IsInterface &&
+                                                    !t.IsAbstract &&
+                                                    !t.IsGenericType);
+            allInterfaces.ForEach(interfaceType =>
+            {
+                if (container.Kernel.HasComponent(interfaceType))
+                    return;
+                var implementingTypes = allImplementations.Where(interfaceType.IsAssignableFrom).ToArray();
+                if (implementingTypes.Length != 1)
+                    return;
+                container.Register(Component.For(interfaceType)
+                                    .ImplementedBy(implementingTypes.Single())
+                                    .LifestyleTransient());
+            });
         }
     }
 }

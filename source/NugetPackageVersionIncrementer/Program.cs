@@ -1,14 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NugetPackageVersionIncrementer
 {
     class Program
     {
         static void Main(string[] args)
+        {
+            var bootstrapper = new WindsorBootstrapper();
+            var container = bootstrapper.Bootstrap();
+            var coordinator = container.Resolve<INuspecVersionCoordinator>();
+            coordinator.LogAction = Console.WriteLine;
+            coordinator.IncrementVersionsUnder(args);
+        }
+
+        static void OldMain(string[] args)
         {
             foreach (var arg in args)
             {

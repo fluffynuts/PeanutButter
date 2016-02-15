@@ -9,21 +9,27 @@ namespace NugetPackageVersionIncrementer
     public interface INuspecUtil
     {
         string Version { get; }
+        string OriginalVersion { get; }
         string PackageId { get; }
         string NuspecXml { get; set; }
         void IncrementVersion();
         void SetPackageDependencyVersionIfExists(string packageId, string version);
+        void LoadNuspecAt(string nuspecPath);
+        void Persist();
     }
 
     public class NuspecUtil : INuspecUtil
     {
         public string Version { get; private set; }
+        public string OriginalVersion { get; private set; }
         public string PackageId { get; private set; }
+
         public string NuspecXml
         {
             get { return _reader.NuspecXML; }
             set { _reader.NuspecXML = value; }
         }
+
         private NuspecReaderWriter _reader;
 
         public void LoadNuspecAt(string nuspecPath)
@@ -31,7 +37,7 @@ namespace NugetPackageVersionIncrementer
             ValidatePath(nuspecPath);
             _reader = new NuspecReaderWriter(nuspecPath);
             var incrementer = new NuspecVersionIncrementer(_reader.NuspecXML);
-            Version = incrementer.Version;
+            Version = OriginalVersion = incrementer.Version;
             PackageId = GrokPackageIdFrom(_reader.NuspecXML);
         }
 

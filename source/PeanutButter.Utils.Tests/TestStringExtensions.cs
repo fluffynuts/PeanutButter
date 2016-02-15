@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System.Text;
+using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 
 namespace PeanutButter.Utils.Tests
@@ -83,5 +84,53 @@ namespace PeanutButter.Utils.Tests
             //---------------Test Result -----------------------
             Assert.AreEqual(expected, result);
         }
+
+        [Test]
+        public void AsBytes_WhenStringIsNull_ShouldReturnNull()
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = ((string)null).AsBytes();
+
+            //---------------Test Result -----------------------
+            Assert.IsNull(result);
+        }
+
+        [Test]
+        public void AsBytes_OperatingOnEmptyString_ShouldReturnEmptyByteArray()
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = string.Empty.AsBytes();
+
+            //---------------Test Result -----------------------
+            Assert.IsNotNull(result);
+            CollectionAssert.IsEmpty(result);
+        }
+
+        [Test]
+        public void AsBytes_OperatingOnNonEmptyString_ShouldReturnStringEncodedAsBytesFromUTF8()
+        {
+            //---------------Set up test pack-------------------
+            var input = RandomValueGen.GetRandomString(50, 100);
+            var expected = Encoding.UTF8.GetBytes(input);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = input.AsBytes();
+
+            //---------------Test Result -----------------------
+            CollectionAssert.AreEqual(expected, result);
+        }
+
+
+
     }
 }

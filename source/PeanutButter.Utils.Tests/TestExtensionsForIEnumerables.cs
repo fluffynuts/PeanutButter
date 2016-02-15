@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 
@@ -257,6 +258,135 @@ namespace PeanutButter.Utils.Tests
             //---------------Test Result -----------------------
             CollectionAssert.AreEqual(new[] {1, 3 }, result);
         }
+
+        [Test]
+        public void Flatten_GivenEmptyCollection_ShouldReturnEmptyCollection()
+        {
+            //---------------Set up test pack-------------------
+            var input = new List<List<int>>();
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = input.Flatten();
+
+            //---------------Test Result -----------------------
+            Assert.IsNotNull(result);
+            CollectionAssert.IsEmpty(result);
+        }
+
+        [Test]
+        public void Flatten_GivenCollectionWithOneItemInSubCollection_ShouldReturnFlattened()
+        {
+            //---------------Set up test pack-------------------
+            var input = new List<IEnumerable<int>>();
+            var expected = RandomValueGen.GetRandomCollection<int>(1,1);
+            input.Add(expected);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = input.Flatten();
+
+            //---------------Test Result -----------------------
+            Assert.IsNotNull(result);
+            CollectionAssert.IsNotEmpty(result);
+            CollectionAssert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public void Flatten_GivenCollectionWithMultipleItemsInMultipleSubCollections_ShouldReturnFlattened()
+        {
+            //---------------Set up test pack-------------------
+            var input = new List<IEnumerable<int>>();
+            var part1 = RandomValueGen.GetRandomCollection<int>();
+            var part2 = RandomValueGen.GetRandomCollection<int>();
+            var part3 = RandomValueGen.GetRandomCollection<int>();
+            var expected = new List<int>();
+            expected.AddRange(part1);
+            expected.AddRange(part2);
+            expected.AddRange(part3);
+            input.AddRange(new[] { part1, part2, part3 }); 
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = input.Flatten();
+
+            //---------------Test Result -----------------------
+            CollectionAssert.AreEquivalent(expected, result);
+        }
+
+        private class ItemWithNullableId
+        {
+            public int? Id { get; set; }
+            public static ItemWithNullableId For(int? value)
+            {
+                return new ItemWithNullableId() { Id = value };
+            }
+        }
+
+        [Test]
+        public void SelectNonNull_GivenCollectionOfObjectsWithNullableInts_ShouldReturnOnlyNonNullValues()
+        {
+            //---------------Set up test pack-------------------
+            var id1 = RandomValueGen.GetRandomInt();
+            var id2 = RandomValueGen.GetRandomInt();
+            var expected = new[] { id1, id2 };
+            var input = new[] 
+            {
+                ItemWithNullableId.For(id1),
+                ItemWithNullableId.For(null),
+                ItemWithNullableId.For(id2),
+                ItemWithNullableId.For(null)
+            };
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = input.SelectNonNull(o => o.Id);
+
+            //---------------Test Result -----------------------
+            CollectionAssert.AreEqual(expected, result);
+        }
+
+
+        public class Thing
+        {
+        }
+        public class ItemWithNullableThing
+        {
+            public Thing Thing { get; set; }
+            public static ItemWithNullableThing For(Thing thing)
+            {
+                return new ItemWithNullableThing() { Thing = thing };
+            }
+        }
+
+        [Test]
+        public void SelectNonNull_GivenCollectionOfObjectsWithNullableThings_ShouldReturnOnlyNonNullValues()
+        {
+            //---------------Set up test pack-------------------
+            var id1 = RandomValueGen.GetRandomValue<Thing>();
+            var id2 = RandomValueGen.GetRandomValue<Thing>();
+            var expected = new[] { id1, id2 };
+            var input = new[] 
+            {
+                ItemWithNullableThing.For(id1),
+                ItemWithNullableThing.For(null),
+                ItemWithNullableThing.For(id2),
+                ItemWithNullableThing.For(null)
+            };
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = input.SelectNonNull(o => o.Thing);
+
+            //---------------Test Result -----------------------
+            CollectionAssert.AreEqual(expected, result);
+        }
+
 
     }
 }

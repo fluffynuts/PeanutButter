@@ -12,19 +12,41 @@ namespace NugetPackageVersionIncrementer.Tests
     public class TestNuspecUtil
     {
         [Test]
-        public void Construct_GivenExistingNuspecPath_ShouldSetVersionProperty()
+        public void LoadNuspecAt_GivenExistingNuspecPath_ShouldSetVersionProperty()
         {
             //---------------Set up test pack-------------------
             var tempFile = Path.GetTempFileName();
             using (new AutoDeleter(tempFile))
             {
-                File.WriteAllBytes(tempFile, TestResources.package1);
-                var sut = CreateAndLoad(tempFile);
+                File.WriteAllBytes(tempFile, TestResources.package1.AsBytes());
+                var sut = Create();
                 var expected = "1.1.33";
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
+                sut.LoadNuspecAt(tempFile);
                 var result = sut.Version;
+
+                //---------------Test Result -----------------------
+                Assert.AreEqual(expected, result);
+            }
+        }
+
+        [Test]
+        public void LoadNuspecAt_GivenExistingNuspecPath_ShouldSetOriginalVersionProperty()
+        {
+            //---------------Set up test pack-------------------
+            var tempFile = Path.GetTempFileName();
+            using (new AutoDeleter(tempFile))
+            {
+                File.WriteAllBytes(tempFile, TestResources.package1.AsBytes());
+                var sut = Create();
+                var expected = "1.1.33";
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                sut.LoadNuspecAt(tempFile);
+                var result = sut.OriginalVersion;
 
                 //---------------Test Result -----------------------
                 Assert.AreEqual(expected, result);
@@ -39,12 +61,13 @@ namespace NugetPackageVersionIncrementer.Tests
             var tempFile = Path.GetTempFileName();
             using (new AutoDeleter(tempFile))
             {
-                File.WriteAllBytes(tempFile, TestResources.package1);
+                File.WriteAllBytes(tempFile, TestResources.package1.AsBytes());
                 var sut = CreateAndLoad(tempFile);
                 var expected = "1.1.34";
-                var xmlBefore = Encoding.UTF8.GetString(TestResources.package1);
+                var xmlBefore = Encoding.UTF8.GetString(TestResources.package1.AsBytes());
+                var originalVersion = sut.OriginalVersion;
                 //---------------Assert Precondition----------------
-                Assert.AreEqual(sut.Version, sut.Version);
+                Assert.AreEqual(sut.OriginalVersion, sut.Version);
 
                 //---------------Execute Test ----------------------
                 sut.IncrementVersion();
@@ -52,8 +75,9 @@ namespace NugetPackageVersionIncrementer.Tests
 
                 //---------------Test Result -----------------------
                 Assert.AreEqual(expected, result);
-                Assert.AreEqual(sut.Version, sut.Version);
+                Assert.AreNotEqual(sut.OriginalVersion, sut.Version);
                 Assert.AreNotEqual(xmlBefore, sut.NuspecXml);
+                Assert.AreEqual(originalVersion, sut.OriginalVersion);
                 // test that changes aren't persisted yet
                 var onDisk = Encoding.UTF8.GetString(File.ReadAllBytes(tempFile));
                 var doc = XDocument.Parse(onDisk);
@@ -71,10 +95,10 @@ namespace NugetPackageVersionIncrementer.Tests
             var tempFile = Path.GetTempFileName();
             using (new AutoDeleter(tempFile))
             {
-                File.WriteAllBytes(tempFile, TestResources.package1);
+                File.WriteAllBytes(tempFile, TestResources.package1.AsBytes());
                 var sut = CreateAndLoad(tempFile);
                 var expected = "1.1.34";
-                var xmlBefore = Encoding.UTF8.GetString(TestResources.package1);
+                var xmlBefore = Encoding.UTF8.GetString(TestResources.package1.AsBytes());
                 //---------------Assert Precondition----------------
                 Assert.AreEqual(sut.Version, sut.Version);
 
@@ -85,7 +109,6 @@ namespace NugetPackageVersionIncrementer.Tests
 
                 //---------------Test Result -----------------------
                 Assert.AreEqual(expected, result);
-                Assert.AreEqual(sut.Version, sut.Version);
                 Assert.AreNotEqual(xmlBefore, sut.NuspecXml);
                 var onDisk = Encoding.UTF8.GetString(File.ReadAllBytes(tempFile));
                 var doc = XDocument.Parse(onDisk);
@@ -103,10 +126,10 @@ namespace NugetPackageVersionIncrementer.Tests
             string newMethodArtifact;
             using (new AutoDeleter(tempFile))
             {
-                File.WriteAllBytes(tempFile, TestResources.package1);
+                File.WriteAllBytes(tempFile, TestResources.package1.AsBytes());
                 var sut = CreateAndLoad(tempFile);
                 var expected = "1.1.34";
-                var xmlBefore = Encoding.UTF8.GetString(TestResources.package1);
+                var xmlBefore = Encoding.UTF8.GetString(TestResources.package1.AsBytes());
                 //---------------Assert Precondition----------------
                 Assert.AreEqual(sut.Version, sut.Version);
 
@@ -117,7 +140,6 @@ namespace NugetPackageVersionIncrementer.Tests
 
                 //---------------Test Result -----------------------
                 Assert.AreEqual(expected, result);
-                Assert.AreEqual(sut.Version, sut.Version);
                 Assert.AreNotEqual(xmlBefore, sut.NuspecXml);
                 var onDisk = Encoding.UTF8.GetString(File.ReadAllBytes(tempFile));
                 newMethodArtifact = onDisk;
@@ -130,24 +152,25 @@ namespace NugetPackageVersionIncrementer.Tests
             using (var packageFile = new AutoTempFile(TestResources.package1))
             {
                 var legacy = new LegacyPackageVersionIncrementer();
-                legacy.IncrementVersionOn(packageFile.FileName);
-                var legacyArtifact = Encoding.UTF8.GetString(File.ReadAllBytes(packageFile.FileName));
+                legacy.IncrementVersionOn(packageFile.Path);
+                var legacyArtifact = Encoding.UTF8.GetString(File.ReadAllBytes(packageFile.Path));
                 Assert.AreEqual(legacyArtifact, newMethodArtifact);
             }
         }
 
         [Test]
-        public void PackageId_ShouldReturnPackageId()
+        public void LoadNuspecAt_ShouldSetPackageIdFromNuspec()
         {
             var tempFile = Path.GetTempFileName();
             using (new AutoDeleter(tempFile))
             {
-                File.WriteAllBytes(tempFile, TestResources.package1);
-                var sut = CreateAndLoad(tempFile);
+                File.WriteAllBytes(tempFile, TestResources.package1.AsBytes());
+                var sut = Create();
                 var expected = "PeanutButter.TestUtils.Entity";
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
+                sut.LoadNuspecAt(tempFile);
                 var result = sut.PackageId;
 
                 //---------------Test Result -----------------------
@@ -164,7 +187,7 @@ namespace NugetPackageVersionIncrementer.Tests
                 var doc = XDocument.Parse(packageFile.StringData);
                 var packageId = RandomValueGen.GetRandomString(10, 20);
                 var version = GetRandomVersionString();
-                var sut = CreateAndLoad(packageFile.FileName);
+                var sut = CreateAndLoad(packageFile.Path);
 
                 //---------------Assert Precondition----------------
                 Assert.IsNull(doc.GetDependencyVersionFor(packageId));
@@ -185,11 +208,16 @@ namespace NugetPackageVersionIncrementer.Tests
         }
 
 
-        private NuspecUtil CreateAndLoad(string path)
+        private INuspecUtil CreateAndLoad(string path)
         {
             var util = new NuspecUtil();
             util.LoadNuspecAt(path);
             return util;
+        }
+
+        private INuspecUtil Create()
+        {
+            return new NuspecUtil();
         }
     }
 }

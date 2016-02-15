@@ -56,5 +56,28 @@ namespace PeanutButter.Utils
             return source.Except(toRemove).ToArray();
         }
 
+        public static IEnumerable<T> Flatten<T>(this IEnumerable<IEnumerable<T>> collection)
+        {
+            return collection.SelectMany(o => o);
+        }
+
+        public static IEnumerable<TResult> SelectNonNull<TCollection,TResult>(this IEnumerable<TCollection> collection, 
+                                                                              Func<TCollection, TResult?> grabber = null) where TResult: struct
+        {
+            return collection
+                        .Select(grabber)
+                        .Where(i => i.HasValue)
+                        .Select(i => i.Value);
+        }
+
+        public static IEnumerable<TResult> SelectNonNull<TCollection,TResult>(this IEnumerable<TCollection> collection, 
+                                                                              Func<TCollection, TResult> grabber) where TResult: class
+        {
+            return collection
+                        .Select(grabber)
+                        .Where(i => i != null)
+                        .Select(i => i);
+        }
+
     }
 }

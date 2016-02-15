@@ -61,12 +61,43 @@ namespace NugetPackageVersionIncrementer.Tests {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
+        ///   Looks up a localized string similar to &lt;package&gt;
+        ///  &lt;metadata&gt;
+        ///    &lt;id&gt;PeanutButter.TestUtils.Entity&lt;/id&gt;
+        ///    &lt;version&gt;1.1.33&lt;/version&gt;
+        ///    &lt;title&gt;PeanutButter.TestUtils.Entity&lt;/title&gt;
+        ///    &lt;authors&gt;davyd&lt;/authors&gt;
+        ///    &lt;owners&gt;&lt;/owners&gt;
+        ///    &lt;description&gt;
+        ///    Contains classes to help with testing when entity and a SQL Server would be involved in production:
+        ///    * TestFixtureWithTempDb provides bootstrapping for tests which would use a temporary database (TempDBLocalDb)
+        ///    * EntityPersistenceTestFixtureBase provides helpers for the common [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static byte[] package1 {
+        internal static string package1 {
             get {
-                object obj = ResourceManager.GetObject("package1", resourceCulture);
-                return ((byte[])(obj));
+                return ResourceManager.GetString("package1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;package&gt;
+        ///  &lt;metadata&gt;
+        ///    &lt;id&gt;PeanutButter.DatabaseHelpers&lt;/id&gt;
+        ///    &lt;version&gt;1.1.33&lt;/version&gt;
+        ///    &lt;title&gt;PeanutButter.DatabaseHelpers&lt;/title&gt;
+        ///    &lt;authors&gt;Davyd McColl&lt;/authors&gt;
+        ///    &lt;owners&gt;Davyd McColl&lt;/owners&gt;
+        ///    &lt;description&gt;
+        ///      The Database Helpers component of the Peanut Butter mini-suite
+        ///    &lt;/description&gt;
+        ///    &lt;releaseNotes&gt;&lt;/releaseNotes&gt;
+        ///    &lt;summary&gt;
+        ///      Provides statement builders for Select, Insert, Update and Delete, compliant with MSSQL, SqlCE, Access, and, more
+        ///      recent [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string package2 {
+            get {
+                return ResourceManager.GetString("package2", resourceCulture);
             }
         }
     }

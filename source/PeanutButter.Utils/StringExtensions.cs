@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace PeanutButter.Utils
@@ -38,6 +39,13 @@ namespace PeanutButter.Utils
                 return false;
             src = src.ToLower();
             return search.Any(s => src.StartsWith(s.ToLower()));
+        }
+
+        public static byte[] AsBytes(this string src)
+        {
+            return src == null
+                    ? null
+                    : Encoding.UTF8.GetBytes(src);
         }
     }
 }

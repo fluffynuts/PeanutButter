@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using PeanutButter.Utils;
 
 namespace NugetPackageVersionIncrementer.Tests
 {
@@ -64,9 +65,9 @@ namespace NugetPackageVersionIncrementer.Tests
             Assert.AreEqual(expected, sut.Version);
         }
 
-        private NuspecVersionIncrementer Create(byte[] input)
+        private NuspecVersionIncrementer Create(string input)
         {
-            return new NuspecVersionIncrementer(Encoding.UTF8.GetString(input));
+            return new NuspecVersionIncrementer(input);
         }
     }
 }

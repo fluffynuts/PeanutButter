@@ -9,6 +9,7 @@ namespace EmailSpooler.Win32Service.Tests.Builders
         {
             return base.WithRandomProps()
                 .WithProp(a => a.Name = RandomValueGen.GetRandomFileName())
+                .WithProp(a => a.Data = RandomValueGen.GetRandomBytes(1))
                 .WithProp(a => a.Enabled = true);
         }
     }

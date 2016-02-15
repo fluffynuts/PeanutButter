@@ -33,8 +33,8 @@ namespace NugetPackageVersionIncrementer.Tests
         public void NuspecXml_ShouldReturnDocumentAsString()
         {
             //---------------Set up test pack-------------------
-            var sut = Create(TestResources.package1);
-            var expected = XDocument.Parse(Encoding.UTF8.GetString(TestResources.package1)).ToString();
+            var sut = Create(TestResources.package1.AsBytes());
+            var expected = XDocument.Parse(Encoding.UTF8.GetString(TestResources.package1.AsBytes())).ToString();
 
             //---------------Assert Precondition----------------
 
@@ -93,7 +93,7 @@ namespace NugetPackageVersionIncrementer.Tests
 
         private NuspecPackageDependencyHelper Create(byte[] data = null)
         {
-            return new NuspecPackageDependencyHelper(Encoding.UTF8.GetString(data ?? TestResources.package1));
+            return new NuspecPackageDependencyHelper(Encoding.UTF8.GetString(data ?? TestResources.package1.AsBytes()));
         }
     }
 }

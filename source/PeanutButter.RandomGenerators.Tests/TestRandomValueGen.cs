@@ -605,6 +605,28 @@ namespace PeanutButter.RandomGenerators.Tests
 
         }
 
+        [Test]
+        public void GetAnother_GivenNullValue_ShouldReturnValueFromGenerator()
+        {
+            //---------------Set up test pack-------------------
+            var strings = new Stack<string>();
+            var expected = RandomValueGen.GetRandomString();
+            var unexpected = RandomValueGen.GetAnother(expected, () => RandomValueGen.GetRandomString());
+            strings.Push(unexpected);
+            strings.Push(expected);
+            strings.Push(null);
+
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = RandomValueGen.GetAnother((string)null, () => strings.Pop());
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(expected, result);
+        }
+
+
         public class SomePOCO
         {
             public int? Id { get; set; }

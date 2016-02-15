@@ -317,6 +317,10 @@ namespace PeanutButter.RandomGenerators
 
         private static bool DefaultEqualityTest<T>(T left, T right)
         {
+            if (left == null && right == null)
+                return true;
+            if (left == null || right == null)
+                return false;
             return left.Equals(right) && right.Equals(left);
         }
 

@@ -7,6 +7,7 @@ namespace NugetPackageVersionIncrementer.Tests
     public class TestWindsorBootstrapper
     {
         [TestCase(typeof(INuspecUtil), typeof(NuspecUtil))]
+        [TestCase(typeof(INuspecVersionCoordinator), typeof(NuspecVersionCoordinator))]
         public void ShouldBeAbleToResolve_(Type interfaceType, Type expectedResolution)
         {
             //---------------Set up test pack-------------------
