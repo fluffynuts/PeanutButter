@@ -96,9 +96,8 @@ namespace NugetPackageVersionIncrementer.Tests
         }
 
         [Test]
-        public void Persist_ShouldPersistExactlyLikeLegacy()
+        public void IncrementVersion_then_Persist_ShouldPersistExactlyLikeLegacy()
         {
-            // not defensive enough -- assumes pass-through to 
             //---------------Set up test pack-------------------
             var tempFile = Path.GetTempFileName();
             string newMethodArtifact;

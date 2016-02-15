@@ -2,25 +2,24 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NugetPackageVersionIncrementer
 {
-    public class NuspecFinder
+    public interface INuspecFinder
     {
-        private readonly List<string> _foundNuspecPaths;
-        public IEnumerable<string> NuspecPaths { get { return _foundNuspecPaths; } }
-        public NuspecFinder(string basePath)
+        IEnumerable<string> NuspecPaths { get; }
+        void FindNuspecsUnder(string basePath);
+    }
+
+    public class NuspecFinder : INuspecFinder
+    {
+        public IEnumerable<string> NuspecPaths => _foundNuspecPaths ?? new string[] { }.AsEnumerable();
+        private List<string> _foundNuspecPaths = new List<string>();
+
+        public void FindNuspecsUnder(string basePath)
         {
             if (!Directory.Exists(basePath))
-                throw new ArgumentException(basePath + " not found", "basePath");
-            _foundNuspecPaths = new List<string>();
-            FindNuspecsUnder(basePath);
-        }
-
-        private void FindNuspecsUnder(string basePath)
-        {
+                throw new ArgumentException(basePath + " not found", nameof(basePath));
             AddNuspecsIn(basePath);
             foreach (var dir in Directory.GetDirectories(basePath))
             {

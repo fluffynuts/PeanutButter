@@ -55,6 +55,7 @@
     <Compile Include="NuspecPackageDependencyHelper.cs" />
     <Compile Include="NuspecReaderWriter.cs" />
     <Compile Include="NuspecVersion.cs" />
+    <Compile Include="NuspecVersionCoordinator.cs" />
     <Compile Include="NuspecVersionIncrementer.cs" />
     <Compile Include="NuspecXDocumentExtensions.cs" />
     <Compile Include="Program.cs" />

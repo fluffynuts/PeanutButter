@@ -12,7 +12,8 @@ namespace NugetPackageVersionIncrementer
         {
             foreach (var arg in args)
             {
-                var finder = new NuspecFinder(arg);
+                var finder = new NuspecFinder();
+                finder.FindNuspecsUnder(arg);
                 foreach (var path in finder.NuspecPaths)
                 {
                     try
