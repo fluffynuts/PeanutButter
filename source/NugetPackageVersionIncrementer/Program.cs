@@ -2,42 +2,21 @@
 
 namespace NugetPackageVersionIncrementer
 {
-    class Program
+    public class Program
     {
         static void Main(string[] args)
         {
-            var bootstrapper = new WindsorBootstrapper();
-            var container = bootstrapper.Bootstrap();
-            var coordinator = container.Resolve<INuspecVersionCoordinator>();
+            var coordinator = ResolveNuspecCoordinator();
             coordinator.LogAction = Console.WriteLine;
             coordinator.IncrementVersionsUnder(args);
         }
 
-        static void OldMain(string[] args)
+        private static INuspecVersionCoordinator ResolveNuspecCoordinator()
         {
-            foreach (var arg in args)
-            {
-                var finder = new NuspecFinder();
-                finder.FindNuspecsUnder(arg);
-                foreach (var path in finder.NuspecPaths)
-                {
-                    try
-                    {
-                        var readerWriter = new NuspecReaderWriter(path);
-                        var incrementer = new NuspecVersionIncrementer(readerWriter.NuspecXML);
-                        var beforeVersion = incrementer.Version;
-                        incrementer.IncrementMinorVersion();
-                        var afterVersion = incrementer.Version;
-                        readerWriter.NuspecXML = incrementer.GetUpdatedNuspec();
-                        readerWriter.Rewrite();
-                        Console.WriteLine("{0} : {1} => {2}", incrementer.PackageID, beforeVersion, afterVersion);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("Unable to increment version on '" + path + "'\n" + ex.Message);
-                    }
-                }
-            }
+            var bootstrapper = new WindsorBootstrapper();
+            var container = bootstrapper.Bootstrap();
+            var coordinator = container.Resolve<INuspecVersionCoordinator>();
+            return coordinator;
         }
     }
 }
