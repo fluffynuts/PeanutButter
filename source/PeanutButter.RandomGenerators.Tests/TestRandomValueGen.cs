@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using NSubstitute;
 using NUnit.Framework;
 using PeanutButter.Utils;
@@ -766,6 +767,24 @@ namespace PeanutButter.RandomGenerators.Tests
             Assert.That(item.Id.Value, Is.LessThanOrEqualTo(2000));
             Assert.IsNotNull(item.Name);
             Assert.IsNotNull(item.Date);
+        }
+
+        [Test]
+        [Ignore("Discovery purposes only")]
+        public void Discovery_WhatDoesEncodingGetString_DoWithNonPrintableCharacters()
+        {
+            //---------------Set up test pack-------------------
+            var bytes = RandomValueGen.GetRandomCollection(() => RandomValueGen.GetRandomInt(0, 255))
+                .Select(i => (byte) i)
+                .ToArray();
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = Encoding.UTF8.GetString(bytes);
+
+            //---------------Test Result -----------------------
+            Console.WriteLine(result);
+
         }
 
 
