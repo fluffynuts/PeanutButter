@@ -1,14 +1,32 @@
 ﻿using System;
+using System.Linq;
 
 namespace NugetPackageVersionIncrementer
 {
     public class Program
     {
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
-            var coordinator = ResolveNuspecCoordinator();
-            coordinator.LogAction = Console.WriteLine;
-            coordinator.IncrementVersionsUnder(args);
+            if (args.Contains("-v") || args.Contains("--version"))
+            {
+                Console.WriteLine("Version: 1.1");
+                return 0;
+            }
+            try
+            {
+                var coordinator = ResolveNuspecCoordinator();
+                coordinator.LogAction = Console.WriteLine;
+                coordinator.IncrementVersionsUnder(args);
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Ruh-Roh! Something went wrong, Shaggy!");
+                Console.WriteLine(ex.Message);
+                Console.WriteLine("Stack trace follows:");
+                Console.WriteLine(ex.StackTrace);
+                return -1;
+            }
         }
 
         private static INuspecVersionCoordinator ResolveNuspecCoordinator()
