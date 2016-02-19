@@ -770,7 +770,7 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [Test]
-        [Ignore("Discovery purposes only")]
+        [Ignore("Discovery purposes only; answer is that non-printables are fine")]
         public void Discovery_WhatDoesEncodingGetString_DoWithNonPrintableCharacters()
         {
             //---------------Set up test pack-------------------
@@ -787,6 +787,24 @@ namespace PeanutButter.RandomGenerators.Tests
 
         }
 
+
+        [Test]
+        public void GetRandomAlphaString_GivenMinLength_ShouldReturnValueOfAtLeastThatLength()
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            RunCycles(() =>
+            {
+                var minLength = RandomValueGen.GetRandomInt(10, 20);
+                var result = RandomValueGen.GetRandomAlphaNumericString(minLength);
+                Assert.That(result.Length, Is.GreaterThanOrEqualTo(minLength));
+            });
+
+            //---------------Test Result -----------------------
+        }
 
         [Test]
         public void GetRandomBytes_ShouldReturnBytesAcrossFullRange()
@@ -808,6 +826,45 @@ namespace PeanutButter.RandomGenerators.Tests
 
         }
 
+        [Test]
+        public void GetRandomString_ShouldProduceStringInRequiredLengthRange()
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            RunCycles(() =>
+            {
+                var minLength = RandomValueGen.GetRandomInt(10, 20);
+                var maxLength = RandomValueGen.GetRandomInt(21, 30);
+                var result = RandomValueGen.GetRandomString(minLength, maxLength);
+                Assert.That(result.Length, Is.GreaterThanOrEqualTo(minLength));
+                Assert.That(result.Length, Is.LessThanOrEqualTo(maxLength));
+            });
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
+        public void GetRandomString_GivenMinAndMaxLengthsSwapped_ShouldProduceStringWithinRequiredLengthRange()
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            RunCycles(() =>
+            {
+                var minLength = RandomValueGen.GetRandomInt(10, 20);
+                var maxLength = RandomValueGen.GetRandomInt(21, 30);
+                var result = RandomValueGen.GetRandomString(maxLength, minLength);
+                Assert.That(result.Length, Is.GreaterThanOrEqualTo(minLength));
+                Assert.That(result.Length, Is.LessThanOrEqualTo(maxLength));
+            });
+
+            //---------------Test Result -----------------------
+        }
 
 
 

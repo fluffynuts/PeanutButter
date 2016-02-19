@@ -63,7 +63,6 @@ namespace PeanutButter.RandomGenerators
         private static class DefaultRanges
         {
             public const int MINLENGTH_STRING = 8;
-            public const int MAXLENGTH_STRING = -1;
             public const int MINLENGTH_BYTES = 0;
             public const int MAXLENGTH_BYTES = 1024;
             public const int MIN_NUMERIC_VALUE = 0;
@@ -102,9 +101,10 @@ namespace PeanutButter.RandomGenerators
             return minValue + (long)(range * dec);
         }
 
-        public static string GetRandomString(int minLength = 1, int maxLength = 32, string charSet = null)
+        public static string GetRandomString(int minLength = DefaultRanges.MINLENGTH_STRING, int? maxLength = null, string charSet = null)
         {
-            var actualLength = GetRandomInt(minLength, maxLength);
+            var actualMaxLength = maxLength ?? minLength + DefaultRanges.MINLENGTH_STRING;
+            var actualLength = GetRandomInt(minLength, actualMaxLength);
             var chars = new List<char>();
             if (charSet == null) charSet = _defaultRandomStringChars;
             var charSetLength = charSet.Length;
@@ -206,17 +206,17 @@ namespace PeanutButter.RandomGenerators
             return string.Join("/", "http:", string.Empty, GetRandomAlphaNumericString(3,12) + ".com", GetRandomAlphaNumericString(0,20));
         }
 
-        public static string GetRandomAlphaNumericString(int minLength = DefaultRanges.MINLENGTH_STRING, int maxLength = DefaultRanges.MAXLENGTH_STRING)
+        public static string GetRandomAlphaNumericString(int minLength = DefaultRanges.MINLENGTH_STRING, int? maxLength = null)
         {
             return GetRandomString(minLength, maxLength, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890");
         }
 
-        public static string GetRandomAlphaString(int minLength = DefaultRanges.MINLENGTH_STRING, int maxLength = DefaultRanges.MAXLENGTH_STRING)
+        public static string GetRandomAlphaString(int minLength = DefaultRanges.MINLENGTH_STRING, int? maxLength = null)
         {
             return GetRandomString(minLength, maxLength, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
         }
 
-        public static string GetRandomNumericString(int minLength = DefaultRanges.MINLENGTH_STRING, int maxLength = DefaultRanges.MAXLENGTH_STRING)
+        public static string GetRandomNumericString(int minLength = DefaultRanges.MINLENGTH_STRING, int? maxLength = null)
         {
             return GetRandomString(minLength, maxLength, "1234567890");
         }

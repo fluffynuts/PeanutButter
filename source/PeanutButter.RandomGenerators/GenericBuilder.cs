@@ -316,6 +316,10 @@ namespace PeanutButter.RandomGenerators
             return result;
         }
 
+        // TODO: delay this check until we have an instance: the generic builder may
+        //  be created against a type which is implemented / overridden by another which
+        //  provides write access on the property. I'm specifically thinking about
+        //  builders doing funky stuff with interfaces...
         private static bool IsNotWritable(PropertyInfo prop, Type propertyType)
         {
             return SetterResultFor(() => !prop.CanWrite, $"{prop.Name} is not writable");
