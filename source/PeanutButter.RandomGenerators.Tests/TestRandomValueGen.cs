@@ -788,6 +788,27 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
 
+        [Test]
+        public void GetRandomBytes_ShouldReturnBytesAcrossFullRange()
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            for (var i = 0; i < 20; i++)
+            {
+                // look for full-range variance across an 8k block
+                var result = RandomValueGen.GetRandomBytes(8192, 8192);
+                if (result.Distinct().Count() == 256)
+                    return;
+            }
+            //---------------Test Result -----------------------
+            Assert.Fail("Couldn't find full range of bytes");
+
+        }
+
+
 
 
         private string BuildErrorMessageFor(IEnumerable<Tuple<string, int, int>> tooShort, IEnumerable<Tuple<string, int, int>> tooLong, IEnumerable<Tuple<string, int, int>> invalidCharacters)
