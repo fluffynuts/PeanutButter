@@ -64,6 +64,8 @@ namespace PeanutButter.RandomGenerators
         {
             public const int MINLENGTH_STRING = 8;
             public const int MAXLENGTH_STRING = -1;
+            public const int MINLENGTH_BYTES = 0;
+            public const int MAXLENGTH_BYTES = 1024;
             public const int MIN_NUMERIC_VALUE = 0;
             public const int MAX_NUMERIC_VALUE = 10;
             public const int MIN_ITEMS = 0;
@@ -171,10 +173,11 @@ namespace PeanutButter.RandomGenerators
             return (decimal)GetRandomDouble((double)min, (double)max);
         }
 
-        public static byte[] GetRandomBytes(int minLength = 0, int maxLength = 1024)
+        public static byte[] GetRandomBytes(int minLength = DefaultRanges.MINLENGTH_BYTES, int maxLength = DefaultRanges.MAXLENGTH_BYTES)
         {
-            var str = GetRandomString(minLength, maxLength);
-            return Encoding.UTF8.GetBytes(str);
+            var bytes = new byte[_rand.Next(minLength, maxLength)];
+            _rand.NextBytes(bytes);
+            return bytes;
         }
 
         public static string GetRandomEmail()
