@@ -31,6 +31,23 @@ namespace PeanutButter.RandomGenerators.Tests
             Assert.IsTrue(ints.Count(i => i == max) > 0);
         }
 
+        [Test]
+        public void GetRandomIntGeneric_GivenRangeOfIntegers_ReturnsRandomIntWithinRange()
+        {
+            //---------------Set up test pack-------------------
+            var ints = new List<int>();
+            
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            RunCycles(() => ints.Add(RandomValueGen.GetRandom<int>()));
+
+            //---------------Test Result -----------------------
+            VarianceAssert.IsVariant(ints);
+            Assert.IsTrue(ints.All(i => i >= RandomValueGen.DefaultRanges.MIN_INT_VALUE));
+            Assert.IsTrue(ints.All(i => i <= RandomValueGen.DefaultRanges.MAX_INT_VALUE));
+        }
+
         [TestCase(1, 100)]
         [TestCase(101, 250)]
         public void GetRandomLong_GivenRangeOfIntegers_ReturnsRandomIntWithinRange(int min, int max)
@@ -49,6 +66,23 @@ namespace PeanutButter.RandomGenerators.Tests
             Assert.IsTrue(ints.Distinct().Count() > 1);
         }
 
+        [Test]
+        public void GetRandomLongGeneric_GivenRangeOfIntegers_ReturnsRandomIntWithinRange()
+        {
+            //---------------Set up test pack-------------------
+            var ints = new List<long>();
+            
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            RunCycles(() => ints.Add(RandomValueGen.GetRandom<long>()));
+
+            //---------------Test Result -----------------------
+            VarianceAssert.IsVariant(ints);
+            Assert.IsTrue(ints.All(i => i >= RandomValueGen.DefaultRanges.MIN_LONG_VALUE));
+            Assert.IsTrue(ints.All(i => i <= RandomValueGen.DefaultRanges.MAX_LONG_VALUE));
+        }
+
         [TestCase(50, 100)]
         [TestCase(150, 400)]
         public void GetRandomString_GivenLengthLimits_ReturnsRandomStringsWithinLengthRange(int minLength, int maxLength)
@@ -64,6 +98,24 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Test Result -----------------------
             Assert.IsTrue(strings.All(s => s.Length >= minLength));
             Assert.IsTrue(strings.All(s => s.Length <= maxLength));
+            Assert.IsTrue(strings.Distinct().Count() > 1);
+        }
+
+        [TestCase(50, 100)]
+        [TestCase(150, 400)]
+        public void GetRandomStringGeneric_GivenLengthLimits_ReturnsRandomStringsWithinLengthRange(int minLength, int maxLength)
+        {
+            //---------------Set up test pack-------------------
+            var strings = new List<string>();
+            
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            RunCycles(() => strings.Add(RandomValueGen.GetRandom<string>()));
+
+            //---------------Test Result -----------------------
+            Assert.IsTrue(strings.All(s => s.Length >= RandomValueGen.DefaultRanges.MINLENGTH_STRING));
+            Assert.IsTrue(strings.All(s => s.Length <= RandomValueGen.DefaultRanges.MINLENGTH_STRING + RandomValueGen.DefaultRanges.MINLENGTH_STRING));
             Assert.IsTrue(strings.Distinct().Count() > 1);
         }
 
@@ -98,6 +150,20 @@ namespace PeanutButter.RandomGenerators.Tests
             Assert.That(d1, Is.LessThan(10));
             Assert.That(d2, Is.LessThan(10));
             Assert.That(d3, Is.LessThan(10));
+        }
+
+        [Test]
+        public void GetRandom_GENERIC_WithEnumType_WhenGivenEnumTypeSpecifier_ShouldReturnRandomValueFromEnumSelection()
+        {
+            //---------------Set up test pack-------------------
+            var results = new List<TestEnum>();
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+
+            RunCycles(() => results.Add(RandomValueGen.GetRandom<TestEnum>()));
+            //---------------Test Result -----------------------
+            VarianceAssert.IsVariant(results);
         }
 
         [Test]
@@ -672,14 +738,14 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [Test]
-        public void GetRandomValue_GivenPOCOType_ShouldUseOnTheFlyGenericBuilderToGiveBackRandomItem()
+        public void GetRandom_GivenPOCOType_ShouldUseOnTheFlyGenericBuilderToGiveBackRandomItem()
         {
             //---------------Set up test pack-------------------
 
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var item = RandomValueGen.GetRandomValue<SomePOCO>();
+            var item = RandomValueGen.GetRandom<SomePOCO>();
 
             //---------------Test Result -----------------------
             Assert.IsNotNull(item);
@@ -732,6 +798,7 @@ namespace PeanutButter.RandomGenerators.Tests
             Assert.IsNotNull(item);
             Assert.IsInstanceOf(type, item);
         }
+
         [TestCase(typeof(int?))]
         [TestCase(typeof(byte?))]
         [TestCase(typeof(char?))]

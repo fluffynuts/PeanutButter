@@ -22,15 +22,17 @@ namespace PeanutButter.RandomGenerators
             { typeof(bool), () => GetRandomBoolean() }
         };
 
+        [Obsolete("GetRandomValue<T> is deprecated in favor of the easier-reading GetRandom<T> and will be removed some time in the future")]
         public static T GetRandomValue<T>()
         {
-            //var type = typeof(T);
-            //if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
-            //    type = Nullable.GetUnderlyingType(type);
-            //Func<object> randomGenerator;
-            //if (_primitiveGenerators.TryGetValue(type, out randomGenerator))
-            //    return (T)randomGenerator();
-            //return (T)GetRandomValueForType(type);
+            return (T)GetRandomValue(typeof(T));
+        }
+
+        public static T GetRandom<T>()
+        {
+            var type = typeof(T);
+            if (type.IsEnum)
+                return (T)GetRandomEnum(type);
             return (T)GetRandomValue(typeof(T));
         }
 
@@ -60,20 +62,22 @@ namespace PeanutButter.RandomGenerators
                         : Activator.CreateInstance(builderType) as IGenericBuilder;
         }
 
-        private static class DefaultRanges
+        public static class DefaultRanges
         {
             public const int MINLENGTH_STRING = 8;
             public const int MINLENGTH_BYTES = 0;
             public const int MAXLENGTH_BYTES = 1024;
-            public const int MIN_NUMERIC_VALUE = 0;
-            public const int MAX_NUMERIC_VALUE = 10;
+            public const int MIN_INT_VALUE = 0;
+            public const int MAX_INT_VALUE = 10;
+            public const int MIN_LONG_VALUE = 0;
+            public const int MAX_LONG_VALUE = 1000;
             public const int MIN_ITEMS = 0;
             public const int MAX_ITEMS = 10;
         }
         private static readonly Random _rand = new Random();
         private static string _defaultRandomStringChars = "abcdefghijklmnopqrstuvwxyz1234567890";
 
-        public static int GetRandomInt(int minValue = DefaultRanges.MIN_NUMERIC_VALUE, int maxValue = DefaultRanges.MAX_NUMERIC_VALUE)
+        public static int GetRandomInt(int minValue = DefaultRanges.MIN_INT_VALUE, int maxValue = DefaultRanges.MAX_INT_VALUE)
         {
             return (int)GetRandomLong(minValue, maxValue);
         }
@@ -88,7 +92,7 @@ namespace PeanutButter.RandomGenerators
             var idx = GetRandomInt(0, MimeTypes.Length - 1);
             return MimeTypes[idx];
         }
-        public static long GetRandomLong(long minValue = 0, long maxValue = 1000)
+        public static long GetRandomLong(long minValue = DefaultRanges.MIN_LONG_VALUE, long maxValue = DefaultRanges.MAX_LONG_VALUE)
         {
             if (minValue > maxValue)
             {
@@ -163,12 +167,12 @@ namespace PeanutButter.RandomGenerators
             return value;
         }
 
-        public static double GetRandomDouble(double min = 0, double max = DefaultRanges.MAX_NUMERIC_VALUE)
+        public static double GetRandomDouble(double min = 0, double max = DefaultRanges.MAX_INT_VALUE)
         {
             return (_rand.NextDouble() * (max - min)) + min;
         }
 
-        public static decimal GetRandomDecimal(decimal min = 0, decimal max = DefaultRanges.MAX_NUMERIC_VALUE)
+        public static decimal GetRandomDecimal(decimal min = 0, decimal max = DefaultRanges.MAX_INT_VALUE)
         {
             return (decimal)GetRandomDouble((double)min, (double)max);
         }
