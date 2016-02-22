@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace NugetPackageVersionIncrementer
 {
-    public class Program
+    public static class Program
     {
         static int Main(string[] args)
         {
