@@ -59,6 +59,7 @@
     <Compile Include="TestGenericBuilderInstanceCreationException.cs" />
     <Compile Include="TestRandomValueGen.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestVarianceAssert.cs" />
     <Compile Include="VarianceAssert.cs" />
   </ItemGroup>
   <ItemGroup>

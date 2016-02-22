@@ -310,6 +310,15 @@ namespace PeanutButter.RandomGenerators
             return GetANewRandomValueUsing(differentFromThisValue, usingThisGenerator, isANewValue);
         }
 
+        public static T GetAnother<T>(T differentFromThis)
+        {
+            return GetAnother(differentFromThis, GetRandomValue<T>);
+        }
+
+        public static T GetAnother<T>(IEnumerable<T> notAnyOfThese)
+        {
+            return GetAnother(notAnyOfThese, GetRandomValue<T>);
+        } 
 
         public static T GetAnother<T>(IEnumerable<T> notAnyOfThese, Func<T> usingThisGenerator, Func<T,T,bool> areEqual = null)
         {
@@ -338,6 +347,12 @@ namespace PeanutButter.RandomGenerators
                 if (++attempts >= MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS)
                     throw new CannotGetAnotherDifferentRandomValueException<T2>(differentFromThisValue);
             } while (true);
+        }
+
+        public static string GetRandomIPV4Address()
+        {
+            var octets = GetRandomCollection(() => GetRandomInt(0, 255), 4, 4);
+            return string.Join(".", octets);
         }
     }
 }

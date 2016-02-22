@@ -539,6 +539,24 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [Test]
+        public void GetAnother_GivenOriginalValueAndNoGenerator_WhenCanGenerateNewValue_ShouldReturnANewValue()
+        {
+            RunCycles(() =>
+            {
+                //---------------Set up test pack-------------------
+                var notThis = RandomValueGen.GetRandomString(1,1);
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = RandomValueGen.GetAnother(notThis);
+
+                //---------------Test Result -----------------------
+                Assert.AreNotEqual(notThis, result);
+            });
+        }
+
+        [Test]
         public void GetAnother_GivenOriginalValueAndGenerator_WhenCannotGenerateNewValue_ShouldThrow()
         {
             //---------------Set up test pack-------------------
@@ -582,6 +600,24 @@ namespace PeanutButter.RandomGenerators.Tests
 
                 //---------------Execute Test ----------------------
                 var result = RandomValueGen.GetAnother(notThis, () => RandomValueGen.GetRandomString(1, 1));
+
+                //---------------Test Result -----------------------
+                Assert.IsFalse(notThis.Any(i => i == result));
+            });
+        }
+
+        [Test]
+        public void GetAnother_GivenOriginalValueCollectionAndNoGenerator_WhenCanGenerateNewValue_ShouldReturnThatValue()
+        {
+            RunCycles(() =>
+            {
+                //---------------Set up test pack-------------------
+                var notThis = "abcdefghijklmnopqrstuvwABCDEFGHIJKLMNOPQRSTUVW".ToCharArray().Select(c => c.ToString());
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = RandomValueGen.GetAnother(notThis);
 
                 //---------------Test Result -----------------------
                 Assert.IsFalse(notThis.Any(i => i == result));
@@ -866,6 +902,28 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Test Result -----------------------
         }
 
+        [Test]
+        public void GetRandomIPV4Address_ShouldReturnValidIPV4Addresses()
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var allResults = new List<string>();
+            RunCycles(() =>
+            {
+                var result = RandomValueGen.GetRandomIPV4Address();
+                allResults.Add(result);
+                var parts = result.Split('.');
+                Assert.AreEqual(4, parts.Length);
+                var ints = parts.Select(int.Parse);
+                Assert.IsTrue(ints.All(i => i >= 0 && i < 265));
+            });
+
+            //---------------Test Result -----------------------
+            VarianceAssert.IsVariant(allResults);
+        }
 
 
         private string BuildErrorMessageFor(IEnumerable<Tuple<string, int, int>> tooShort, IEnumerable<Tuple<string, int, int>> tooLong, IEnumerable<Tuple<string, int, int>> invalidCharacters)

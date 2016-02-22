@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using PeanutButter.Utils;
 
 namespace PeanutButter.RandomGenerators.Tests
 {
@@ -24,14 +25,15 @@ namespace PeanutButter.RandomGenerators.Tests
                 Assert.Fail(string.Join("", new[] { "Unable to get list of property values for '", propertyName, "' of type '", typeof(TProperty).Name
                     , "' from object of type '", type.Name, "': ", ex.Message }));
             }
-            var totalCount = values.Count();
-            foreach (var value in values)
-            {
-                if (values.Count(v => v.Equals(value)) == totalCount)
-                {
-                    Assert.Fail(string.Join("", new[] { "No variance for property '", propertyName, "' across ", totalCount.ToString(), " samples" }));
-                }
-            }
+            IsVariant(values, $"No variance for property '{propertyName}' across {{0}} samples");
         }
+
+        public static void IsVariant<TObject>(IEnumerable<TObject> collection, string failMessage = "No variance across {0} samples")
+        {
+            if (collection.Count() < 2)
+                return;
+            if (collection.Distinct().Count() == 1)
+                Assert.Fail(failMessage, collection.Count());
+        } 
     }
 }
