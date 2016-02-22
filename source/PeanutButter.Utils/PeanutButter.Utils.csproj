@@ -53,6 +53,8 @@
     <Compile Include="DecimalDecorator.cs" />
     <Compile Include="ExpressionUtil.cs" />
     <Compile Include="ExtensionsForIEnumerables.cs" />
+    <Compile Include="ILocalDbFactory.cs" />
+    <Compile Include="LocalDbFactory.cs" />
     <Compile Include="ObjectExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PropertyNotFoundException.cs" />
