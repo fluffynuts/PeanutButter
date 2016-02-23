@@ -353,7 +353,7 @@ namespace PeanutButter.RandomGenerators
             } while (true);
         }
 
-        public static string GetRandomIPV4Address()
+        public static string GetRandomIPv4Address()
         {
             var octets = GetRandomCollection(() => GetRandomInt(0, 255), 4, 4);
             return string.Join(".", octets);

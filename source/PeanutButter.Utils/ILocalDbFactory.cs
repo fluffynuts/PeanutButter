@@ -2,6 +2,6 @@ namespace PeanutButter.Utils
 {
     public interface  ILocalDbFactory
     {
-        void CreateDatabase(string dbName, string dbFile);
+        void CreateDatabase(string databaseName, string databaseFile);
     }
 }

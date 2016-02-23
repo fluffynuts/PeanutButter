@@ -16,7 +16,7 @@ namespace PeanutButter.Utils
             InstanceName = instanceName;
         }
 
-        public void CreateDatabase(string dbName, string dbFile)
+        public void CreateDatabase(string databaseName, string databaseFile)
         {
             using (var connection = new SqlConnection(GetMasterConnectionString()))
             {
@@ -24,15 +24,15 @@ namespace PeanutButter.Utils
                 using (SqlCommand cmd = connection.CreateCommand())
                 {
 
-                    cmd.CommandText = $"CREATE DATABASE [{dbName}] ON (NAME = N'[{dbName}]', FILENAME = '{dbFile}')";
+                    cmd.CommandText = $"CREATE DATABASE [{databaseName}] ON (NAME = N'[{databaseName}]', FILENAME = '{databaseFile}')";
                     cmd.ExecuteNonQuery();
-                    cmd.CommandText = $"ALTER DATABASE [{dbName}] SET TRUSTWORTHY ON";
+                    cmd.CommandText = $"ALTER DATABASE [{databaseName}] SET TRUSTWORTHY ON";
                     cmd.ExecuteNonQuery();
                 }
             }
         }
 
-        private string GetMasterConnectionString()
+        public string GetMasterConnectionString()
         {
             return string.Format(MasterConnectionString, InstanceName);
         }

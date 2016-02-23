@@ -41,6 +41,25 @@ namespace PeanutButter.Utils.Tests
             //---------------Test Result -----------------------
         }
 
+        [Test]
+        public void Construct_GivenInstanceName_ShouldUseThatName()
+        {
+            //---------------Set up test pack-------------------
+            var instanceName = RandomValueGen.GetRandomString();
+            var sut = new LocalDbFactory(instanceName);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.AreEqual(instanceName, sut.InstanceName);
+            var connectionString = sut.GetMasterConnectionString();
+
+
+            //---------------Test Result -----------------------
+            StringAssert.Contains(instanceName, connectionString);
+        }
+
+
 
         [Test]
         public void CreateDatabase_GivenFileNameAndDatabaseName_ShouldCreateDatabase()

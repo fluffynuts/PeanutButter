@@ -980,7 +980,7 @@ namespace PeanutButter.RandomGenerators.Tests
             var allResults = new List<string>();
             RunCycles(() =>
             {
-                var result = RandomValueGen.GetRandomIPV4Address();
+                var result = RandomValueGen.GetRandomIPv4Address();
                 allResults.Add(result);
                 var parts = result.Split('.');
                 Assert.AreEqual(4, parts.Length);
