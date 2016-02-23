@@ -92,8 +92,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>mkdir $(SolutionDir)\PeanutButter.RandomGenerators.NugetPackage\content\net40
-copy $(ProjectDir)TestGenericBuilder.cs $(SolutionDir)\PeanutButter.RandomGenerators.NugetPackage\content\net40\GenericBuilderTests-ExampleUsage.cs.txt</PostBuildEvent>
+    <PostBuildEvent>mkdir $(SolutionDir)\PeanutButter.RandomGenerators.NugetPackage\content\net40</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

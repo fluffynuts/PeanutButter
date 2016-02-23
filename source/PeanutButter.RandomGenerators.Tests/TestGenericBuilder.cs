@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using EmailSpooler.Win32Service.Entity;
-using NSubstitute;
 using NUnit.Framework;
 using PeanutButter.Utils;
 

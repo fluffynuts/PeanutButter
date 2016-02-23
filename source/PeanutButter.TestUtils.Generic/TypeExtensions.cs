@@ -182,12 +182,12 @@ namespace PeanutButter.TestUtils.Generic
         {
             string traversalFailure = null;
             var propertyInfo = FindPropertyInfoForPath(type, name, s => traversalFailure = s);
-            return propertyInfo ?? ThrowForPropertyTraversalFailure(traversalFailure);
+            return propertyInfo ?? ThrowForPropertyTraversalFailure(type, traversalFailure);
         }
 
-        private static PropertyInfo ThrowForPropertyTraversalFailure(string traversalFailure)
+        private static PropertyInfo ThrowForPropertyTraversalFailure(Type type, string traversalFailure)
         {
-            throw new AssertionException(traversalFailure);
+            throw new AssertionException($"Unable to traverse property {traversalFailure} on type {type.Name}");
         }
 
         public static PropertyInfo FindPropertyInfoForPath(this Type type, string path, Action<string> toCallWhenTraversalFails = null)
