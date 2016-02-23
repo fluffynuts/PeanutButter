@@ -54,7 +54,7 @@ namespace NugetPackageVersionIncrementer
 
         public void IncrementMinorVersion()
         {
-            if (String.IsNullOrEmpty(Version))
+            if (string.IsNullOrEmpty(Version))
             {
                 Version = "0.0.1";
                 return;
@@ -62,9 +62,8 @@ namespace NugetPackageVersionIncrementer
             var versionNumbers = GetVersionAsNumbers();
             var minor = versionNumbers.Last();
             var preMinor = versionNumbers.Reverse().Skip(1).Reverse();
-            var incremented = new List<int>(preMinor);
-            incremented.Add(minor+1);
-            Version = String.Join(".", incremented);
+            var incremented = new List<int>(preMinor) {minor + 1};
+            Version = string.Join(".", incremented);
         }
 
         private IEnumerable<int> GetVersionAsNumbers()
@@ -75,7 +74,7 @@ namespace NugetPackageVersionIncrementer
         private int GetIntFrom(string part)
         {
             int result;
-            if (Int32.TryParse(part, out result))
+            if (int.TryParse(part, out result))
                 return result;
             return 0;
         }
