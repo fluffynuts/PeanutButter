@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NSubstitute;
 using NUnit.Framework;
 using PeanutButter.Utils;
 
@@ -970,7 +969,7 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [Test]
-        public void GetRandomIPV4Address_ShouldReturnValidIPV4Addresses()
+        public void GetRandomIPv4Address_ShouldReturnValidIPV4Addresses()
         {
             //---------------Set up test pack-------------------
 
@@ -991,6 +990,29 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Test Result -----------------------
             VarianceAssert.IsVariant(allResults);
         }
+
+        [Test]
+        public void GetRandomHostName_ShouldReturnRandomHostName()
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var allResults = new List<string>();
+            RunCycles(() =>
+            {
+                var result = RandomValueGen.GetRandomHostname();
+                Assert.IsNotNull(result);
+                var parts = result.Split('.');
+                Assert.IsTrue(parts.All(p => p.Length > 0));
+                allResults.Add(result);
+            });
+
+            //---------------Test Result -----------------------
+            VarianceAssert.IsVariant(allResults);
+        }
+
 
 
         private string BuildErrorMessageFor(IEnumerable<Tuple<string, int, int>> tooShort, IEnumerable<Tuple<string, int, int>> tooLong, IEnumerable<Tuple<string, int, int>> invalidCharacters)

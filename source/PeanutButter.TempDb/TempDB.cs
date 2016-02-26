@@ -21,7 +21,7 @@ namespace PeanutButter.TempDb
     public abstract class TempDB<TDatabaseConnection> : ITempDB where TDatabaseConnection: DbConnection
     {
         public string DatabaseFile { get; private set; }
-        public string ConnectionString { get; protected set; }
+        public string ConnectionString { get { return GenerateConnectionString(); } }
         private static Semaphore _lock = new Semaphore(1, 1);
         private List<DbConnection> _managedConnections;
 
@@ -64,9 +64,13 @@ namespace PeanutButter.TempDb
                 {
                     DatabaseFile = Path.Combine(basePath, Guid.NewGuid().ToString() + ".db");
                 } while (File.Exists(DatabaseFile));
-                ConnectionString = string.Format("DataSource=\"{0}\";", DatabaseFile);
                 CreateDatabase();
             }
+        }
+
+        protected virtual string GenerateConnectionString()
+        {
+            return $"DataSource=\"{DatabaseFile}\"";
         }
 
         protected abstract void CreateDatabase();

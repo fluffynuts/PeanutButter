@@ -4,7 +4,7 @@ namespace PeanutButter.Utils
 {
     public class LocalDbFactory: ILocalDbFactory
     {
-        public string InstanceName { get; set; } = "v11.0";
+        public string InstanceName { get; set; }
         private const string MasterConnectionString = @"Data Source=(localdb)\{0};Initial Catalog=master;Integrated Security=True";
 
         public LocalDbFactory()
@@ -34,7 +34,8 @@ namespace PeanutButter.Utils
 
         public string GetMasterConnectionString()
         {
-            return string.Format(MasterConnectionString, InstanceName);
+            return string.Format(MasterConnectionString, 
+                InstanceName ?? new LocalDbInstanceEnumerator().FindHighestDefaultInstance());
         }
 
     }

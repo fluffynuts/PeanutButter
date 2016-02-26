@@ -79,6 +79,10 @@
     <Compile Include="TestTempDBSqlite.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj">
+      <Project>{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}</Project>
+      <Name>PeanutButter.RandomGenerators</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PeanutButter.TempDb.LocalDb\PeanutButter.TempDb.LocalDb.csproj">
       <Project>{DA294B3F-58C7-4255-B6AA-82C2393DA49F}</Project>
       <Name>PeanutButter.TempDb.LocalDb</Name>

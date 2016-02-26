@@ -65,6 +65,7 @@
     <Compile Include="TestExpressionHelper.cs" />
     <Compile Include="TestExtensionsForIEnumerables.cs" />
     <Compile Include="TestLocalDbFactory.cs" />
+    <Compile Include="TestLocalDbInstanceEnumerator.cs" />
     <Compile Include="TestObjectExtensions.cs" />
     <Compile Include="TestStringExtensions.cs" />
   </ItemGroup>

@@ -3,6 +3,7 @@ using System.Data.SqlClient;
 using System.IO;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using PeanutButter.RandomGenerators;
 using PeanutButter.TempDb.LocalDb;
 using PeanutButter.Utils;
 using PeanutButter.TestUtils.Generic;
@@ -48,7 +49,8 @@ namespace PeanutButter.TempDb.Tests
         public void Construct_ShouldBeAbleToCreateDbByName()
         {
             //---------------Set up test pack-------------------
-            using (var db = new TempDBLocalDb("foo", "v11.0"))
+            var dbName = RandomValueGen.GetRandomAlphaString(5, 10);
+            using (var db = new TempDBLocalDb(dbName, null))
             {
                 //---------------Assert Precondition----------------
 

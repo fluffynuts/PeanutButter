@@ -358,5 +358,10 @@ namespace PeanutButter.RandomGenerators
             var octets = GetRandomCollection(() => GetRandomInt(0, 255), 4, 4);
             return string.Join(".", octets);
         }
+
+        public static string GetRandomHostname()
+        {
+            return string.Join(".", GetRandomCollection<string>(2));
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data.SqlClient;
 using System.IO;
+using PeanutButter.Utils;
 
 namespace PeanutButter.TempDb.LocalDb
 {
@@ -32,7 +33,12 @@ namespace PeanutButter.TempDb.LocalDb
         public string DatabaseName { get { return _databaseName; } set { _databaseName = value; } }
         private string _databaseName;
         // ReSharper disable once MemberCanBePrivate.Global
-        public string InstanceName { get; set; } = "v11.0";
+        private string _instanceName;
+        public string InstanceName
+        {
+            get { return _instanceName ?? new LocalDbInstanceEnumerator().FindHighestDefaultInstance(); }
+            set { _instanceName = value; }
+        }
         private const string MasterConnectionString = @"Data Source=(localdb)\{0};Initial Catalog=master;Integrated Security=True";
 
         public TempDBLocalDb()
@@ -44,7 +50,7 @@ namespace PeanutButter.TempDb.LocalDb
         }
 
 
-        public TempDBLocalDb(string dbName, string instanceName = "v11.0", params string[] creationScripts)
+        public TempDBLocalDb(string dbName, string instanceName = null, params string[] creationScripts)
             : base(db => SetupInstance(db as TempDBLocalDb, dbName, instanceName), creationScripts)
         {
         }
@@ -58,7 +64,7 @@ namespace PeanutButter.TempDb.LocalDb
         protected override void CreateDatabase()
         {
             _databaseName = _databaseName ?? "tempdb_" + CreateGuidString();
-            using (var connection = new SqlConnection(GetMasterConnectionString()))
+            using (var connection = new SqlConnection(GenerateMasterConnectionString()))
             {
                 connection.Open();
                 using (SqlCommand cmd = connection.CreateCommand())
@@ -67,10 +73,15 @@ namespace PeanutButter.TempDb.LocalDb
                     cmd.CommandText = $"CREATE DATABASE [{_databaseName}] ON (NAME = N'[{_databaseName}]', FILENAME = '{DatabaseFile}')";
                     cmd.ExecuteNonQuery();
                     cmd.CommandText = $"ALTER DATABASE [{_databaseName}] SET TRUSTWORTHY ON";
-                    ConnectionString = $@"Data Source=(localdb)\{InstanceName};AttachDbFilename={DatabaseFile}; Initial Catalog={_databaseName};Integrated Security=True";
+                    //ConnectionString = $@"Data Source=(localdb)\{InstanceName};AttachDbFilename={DatabaseFile}; Initial Catalog={_databaseName};Integrated Security=True";
                     cmd.ExecuteNonQuery();
                 }
             }
+        }
+
+        private string GenerateMasterConnectionString()
+        {
+            return String.Format(MasterConnectionString, InstanceName);
         }
 
         private static string CreateGuidString()
@@ -82,15 +93,15 @@ namespace PeanutButter.TempDb.LocalDb
                 .Replace("}", string.Empty);
         }
 
-        private string GetMasterConnectionString()
+        protected override string GenerateConnectionString()
         {
-            return string.Format(MasterConnectionString, InstanceName);
+            return $@"Data Source=(localdb)\{InstanceName};AttachDbFilename={DatabaseFile}; Initial Catalog={_databaseName};Integrated Security=True";
         }
 
 
         protected override void DeleteTemporaryDatabaseFile()
         {
-            using (var connection = new SqlConnection(GetMasterConnectionString()))
+            using (var connection = new SqlConnection(GenerateMasterConnectionString()))
             {
                 connection.Open();
                 using (var cmd = connection.CreateCommand())

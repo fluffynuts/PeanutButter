@@ -47,6 +47,10 @@
       <Project>{265C672B-B6F6-40F8-9180-B0BE5575ABDE}</Project>
       <Name>PeanutButter.TempDb</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PeanutButter.Utils\PeanutButter.Utils.csproj">
+      <Project>{EFC85343-95B4-48C3-BCBE-579EA4868C0A}</Project>
+      <Name>PeanutButter.Utils</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
