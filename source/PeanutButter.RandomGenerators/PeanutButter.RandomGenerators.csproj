@@ -66,7 +66,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>mkdir $(SolutionDir)\$(ProjectName).NugetPackage\lib\net40
+    <PostBuildEvent>if not exist mkdir $(SolutionDir)\$(ProjectName).NugetPackage\lib\net40
 del /Q $(SolutionDir)\$(ProjectName).NugetPackage\lib\net40\*.*
 copy $(TargetPath) $(SolutionDir)\$(ProjectName).NugetPackage\lib\net40\</PostBuildEvent>
   </PropertyGroup>

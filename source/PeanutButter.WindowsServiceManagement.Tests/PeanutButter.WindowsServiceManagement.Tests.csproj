@@ -54,6 +54,7 @@
     <Compile Include="Exceptions\TestServiceNotInstalledException.cs" />
     <Compile Include="Exceptions\TestWindowsServiceUtilException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestServiceOperationException.cs" />
     <Compile Include="TestWindowsServiceManagement.cs" />
   </ItemGroup>
   <ItemGroup>

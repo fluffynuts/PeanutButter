@@ -47,5 +47,11 @@ namespace PeanutButter.Utils
                     ? null
                     : Encoding.UTF8.GetBytes(src);
         }
+
+        public static bool IsInteger(this string src)
+        {
+            int value;
+            return int.TryParse(src, out value);
+        }
     }
 }

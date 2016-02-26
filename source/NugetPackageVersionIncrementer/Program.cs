@@ -5,7 +5,7 @@ namespace NugetPackageVersionIncrementer
 {
     public static class Program
     {
-        static int Main(string[] args)
+        public static int Main(string[] args)
         {
             if (args.Contains("-v") || args.Contains("--version"))
             {

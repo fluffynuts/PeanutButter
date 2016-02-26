@@ -363,5 +363,20 @@ namespace PeanutButter.RandomGenerators
         {
             return string.Join(".", GetRandomCollection<string>(2));
         }
+
+        public static string GetRandomVersionString(int partCount = 3)
+        {
+            return string.Join(".", GetRandomCollection<int>(partCount, partCount));
+        }
+
+        public static Version GetRandomVersion()
+        {
+            return new Version(
+                GetRandomInt(),
+                GetRandomInt(),
+                GetRandomInt(),
+                GetRandomInt()
+            );
+        }
     }
 }

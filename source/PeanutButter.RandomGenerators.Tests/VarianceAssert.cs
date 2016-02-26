@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using PeanutButter.Utils;
 
 namespace PeanutButter.RandomGenerators.Tests
 {
@@ -28,11 +27,11 @@ namespace PeanutButter.RandomGenerators.Tests
             IsVariant(values, $"No variance for property '{propertyName}' across {{0}} samples");
         }
 
-        public static void IsVariant<TObject>(IEnumerable<TObject> collection, string failMessage = "No variance across {0} samples")
+        public static void IsVariant<TObject>(IEnumerable<TObject> collection, string failMessage = "No variance across {0} samples", IEqualityComparer<TObject> comparer = null)
         {
             if (collection.Count() < 2)
                 return;
-            if (collection.Distinct().Count() == 1)
+            if (collection.Distinct(comparer).Count() == 1)
                 Assert.Fail(failMessage, collection.Count());
         } 
     }

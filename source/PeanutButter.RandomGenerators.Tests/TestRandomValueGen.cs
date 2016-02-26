@@ -1006,6 +1006,66 @@ namespace PeanutButter.RandomGenerators.Tests
                 Assert.IsNotNull(result);
                 var parts = result.Split('.');
                 Assert.IsTrue(parts.All(p => p.Length > 0));
+            });
+            
+            //---------------Test Result -----------------------
+            VarianceAssert.IsVariant(allResults);
+        }
+
+        public void GetRandomVersionString_GivenNoParameters_ShouldReturnVersionWithThreeIntegerParts()
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var allResults = new List<string>();
+            RunCycles(() =>
+            {
+                var result = RandomValueGen.GetRandomVersionString();
+                var parts = result.Split('.');
+                Assert.AreEqual(3, parts.Length);
+                Assert.IsTrue(parts.All(p => p.IsInteger()));
+            });
+
+            //---------------Test Result -----------------------
+            VarianceAssert.IsVariant(allResults);
+        }
+
+        [Test]
+        public void GetRandomVersionString_GivenPartsCount_ShouldReturnVersionWithThatManyParts()
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var allResults = new List<string>();
+            RunCycles(() =>
+            {
+                var partCount = RandomValueGen.GetRandomInt(2, 7);
+                var result = RandomValueGen.GetRandomVersionString(partCount);
+                var parts = result.Split('.');
+                Assert.AreEqual(partCount, parts.Length);
+                Assert.IsTrue(parts.All(p => p.IsInteger()));
+            });
+
+            //---------------Test Result -----------------------
+            VarianceAssert.IsVariant(allResults);
+        }
+
+        [Test]
+        public void GetRandomVersion_ShouldReturnRandomDotNetVersionInfo()
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var allResults = new List<Version>();
+            RunCycles(() =>
+            {
+                var result = RandomValueGen.GetRandomVersion();
                 allResults.Add(result);
             });
 

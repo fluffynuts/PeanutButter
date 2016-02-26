@@ -2,7 +2,6 @@ using System;
 using System.Data.Common;
 using System.Data.Entity;
 using System.Linq;
-using System.Reflection;
 
 namespace PeanutButter.Utils.Entity
 {
@@ -52,26 +51,6 @@ namespace PeanutButter.Utils.Entity
                 Console.WriteLine(ex.Message);
                 throw;
             }
-        }
-
-        private static DateTime _minDate = new DateTime(1900, 1, 1);
-
-        private static PropertyInfo[] SetTimestampsOn(object entity, DateTime currentTime)
-        {
-            var propertyInfos = entity.GetType().GetProperties();
-            var createdPropInfo = propertyInfos.FirstOrDefault(pi => pi.Name == "Created");
-            if (createdPropInfo != null)
-            {
-                var currentValue = (DateTime)createdPropInfo.GetValue(entity);
-                if (currentValue < _minDate)
-                    createdPropInfo.SetValue(entity, currentTime);
-            }
-            var propInfo = propertyInfos.FirstOrDefault(pi => pi.Name == "LastModified");
-            if (propInfo != null)
-            {
-                propInfo.SetValue(entity, currentTime);
-            }
-            return propertyInfos;
         }
     }
 }

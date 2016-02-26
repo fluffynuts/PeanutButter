@@ -130,6 +130,37 @@ namespace PeanutButter.Utils.Tests
             CollectionAssert.AreEqual(expected, result);
         }
 
+        [Test]
+        public void IsInteger_WhenStringIsInteger_ShouldReturnTrue()
+        {
+            //---------------Set up test pack-------------------
+            var input = RandomValueGen.GetRandomInt().ToString();
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = input.IsInteger();
+
+            //---------------Test Result -----------------------
+            Assert.IsTrue(result);
+        }
+
+        [Test]
+        public void IsInteger_WhenStringIsNotInteger_ShouldReturnFalse()
+        {
+            //---------------Set up test pack-------------------
+            var input = RandomValueGen.GetRandomAlphaString();
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = input.IsInteger();
+
+            //---------------Test Result -----------------------
+            Assert.IsFalse(result);
+        }
+
+
 
 
     }
