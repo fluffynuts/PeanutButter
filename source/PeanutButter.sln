@@ -216,6 +216,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NugetPackageVersionIncremen
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NugetPackageVersionIncrementer.Tests", "NugetPackageVersionIncrementer.Tests\NugetPackageVersionIncrementer.Tests.csproj", "{6CF1E2C3-9BF5-4291-89F9-1F6B348F1BBE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.SimpleTcpServer.NugetPackage", "PeanutButter.SimpleTcpServer.NugetPackage\PeanutButter.SimpleTcpServer.NugetPackage.csproj", "{29BEC5D3-74AB-41B4-B806-A0C93C5C57EC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -900,6 +902,18 @@ Global
 		{6CF1E2C3-9BF5-4291-89F9-1F6B348F1BBE}.Test|Any CPU.Build.0 = Release|Any CPU
 		{6CF1E2C3-9BF5-4291-89F9-1F6B348F1BBE}.Test|x86.ActiveCfg = Release|Any CPU
 		{6CF1E2C3-9BF5-4291-89F9-1F6B348F1BBE}.Test|x86.Build.0 = Release|Any CPU
+		{29BEC5D3-74AB-41B4-B806-A0C93C5C57EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29BEC5D3-74AB-41B4-B806-A0C93C5C57EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29BEC5D3-74AB-41B4-B806-A0C93C5C57EC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{29BEC5D3-74AB-41B4-B806-A0C93C5C57EC}.Debug|x86.Build.0 = Debug|Any CPU
+		{29BEC5D3-74AB-41B4-B806-A0C93C5C57EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29BEC5D3-74AB-41B4-B806-A0C93C5C57EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{29BEC5D3-74AB-41B4-B806-A0C93C5C57EC}.Release|x86.ActiveCfg = Release|Any CPU
+		{29BEC5D3-74AB-41B4-B806-A0C93C5C57EC}.Release|x86.Build.0 = Release|Any CPU
+		{29BEC5D3-74AB-41B4-B806-A0C93C5C57EC}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{29BEC5D3-74AB-41B4-B806-A0C93C5C57EC}.Test|Any CPU.Build.0 = Release|Any CPU
+		{29BEC5D3-74AB-41B4-B806-A0C93C5C57EC}.Test|x86.ActiveCfg = Release|Any CPU
+		{29BEC5D3-74AB-41B4-B806-A0C93C5C57EC}.Test|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
