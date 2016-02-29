@@ -1,0 +1,39 @@
+<package>
+  <metadata>
+    <id>PeanutButter.Utils.Windsor</id>
+    <version>1.2.0</version>
+    <title>PeanutButter.Utils.Windsor</title>
+    <authors>Davyd McColl</authors>
+    <owners></owners>
+    <description>
+    Some utilities for using Castle.Windsor in your projects
+    </description>
+    <releaseNotes></releaseNotes>
+    <summary>
+    Provides some commonly-replicated logic when dealing with Windsor
+      - extension method for IWindsorContainer to register all one-to-one resolutions in given assemblies
+      - extension method to register all MVC controllers from within an assembly (by ancestry class name and assembly,
+          so you don't need to import System.Web.Mvc to use other methods in this package)
+    </summary>
+    <language>en-US</language>
+    <projectUrl>https://nuget.org/packages/PeanutButter.Utils.Windsor.NugetPackage</projectUrl>
+    <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>http://opensource.org/licenses/Apache-2.0</licenseUrl>
+    <copyright>Copyright  2016</copyright>
+    <dependencies>
+      <group targetFramework="net45">
+        <dependency id="Castle.Core" version="3.3.0" />
+        <dependency id="Castle.Windsor" version="3.3.0" />
+        <dependency id="PeanutButter.Utils" version="1.2.0" />
+      </group>
+    </dependencies>
+    <references></references>
+    <tags></tags>
+  </metadata>
+  <files>
+    <file src="lib\" target="lib" />
+    <file src="tools\" target="tools" />
+    <file src="content\" target="content" />
+  </files>
+</package>

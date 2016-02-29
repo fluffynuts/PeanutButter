@@ -1,0 +1,35 @@
+<package>
+  <metadata>
+    <id>EmailSpooler.Win32Service.Entity</id>
+    <version>1.2.0</version>
+    <title>EmailSpooler.Win32Service.Entity</title>
+    <authors>davyd</authors>
+    <owners></owners>
+    <description>
+    Provides the Entity POCO classes for sharing data access with the EmailSpooler.Win32Service service
+    </description>
+    <releaseNotes></releaseNotes>
+    <summary>
+    Provides the Entity POCO classes for sharing data access with the EmailSpooler.Win32Service service
+    </summary>
+    <language>en-US</language>
+    <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
+    <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/fluffynuts/PeanutButter/blob/master/LICENSE</licenseUrl>
+    <copyright>Copyright  2015</copyright>
+    <dependencies>
+      <group targetFramework="net45">
+        <dependency id="EntityFramework" version="" />
+        <dependency id="PeanutButter.Utils.Entity" version="1.2.0" />
+      </group>
+    </dependencies>
+    <references></references>
+    <tags></tags>
+  </metadata>
+  <files>
+    <file src="lib\" target="lib" />
+    <file src="tools\" target="tools" />
+    <file src="content\" target="content" />
+  </files>
+</package>

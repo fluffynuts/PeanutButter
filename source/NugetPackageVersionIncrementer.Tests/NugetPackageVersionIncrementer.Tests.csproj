@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NugetPackageVersionIncrementer.Tests</RootNamespace>
     <AssemblyName>NugetPackageVersionIncrementer.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -80,27 +81,25 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\NugetPackageVersionIncrementer\NugetPackageVersionIncrementer.csproj">
       <Project>{D74720A9-686C-4A62-A57B-2CD085C3BE46}</Project>
       <Name>NugetPackageVersionIncrementer</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj">
+    <ProjectReference Include="..\TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj">
       <Project>{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}</Project>
       <Name>PeanutButter.RandomGenerators</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PeanutButter.TestUtils.Generic\PeanutButter.TestUtils.Generic.csproj">
+    <ProjectReference Include="..\TestUtils\PeanutButter.TestUtils.Generic\PeanutButter.TestUtils.Generic.csproj">
       <Project>{6DDD7F9E-857A-442B-9148-05B34EA279C4}</Project>
       <Name>PeanutButter.TestUtils.Generic</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PeanutButter.Utils\PeanutButter.Utils.csproj">
+    <ProjectReference Include="..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj">
       <Project>{EFC85343-95B4-48C3-BCBE-579EA4868C0A}</Project>
       <Name>PeanutButter.Utils</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="Resources\package1.xml" />
   </ItemGroup>
   <ItemGroup>

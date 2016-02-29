@@ -1,0 +1,36 @@
+<package>
+  <metadata>
+    <id>PeanutButter.FluentMigrator</id>
+    <version>1.2.0</version>
+    <title>PeanutButter.FluentMigrator</title>
+    <authors>Davyd McColl</authors>
+    <owners></owners>
+    <description>
+    A generic Migrations Runner for FluentMigrator so you can run in migrations within your application.
+    </description>
+    <releaseNotes></releaseNotes>
+    <summary>
+      A generic Migrations Runner for FluentMigrator so you can run in migrations within your application.
+      The generic parameter is a ProcessorFactory type as exposed by FluentMigrator.Runner
+    </summary>
+    <language>en-US</language>
+    <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
+    <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/fluffynuts/PeanutButter/blob/master/LICENSE</licenseUrl>
+    <copyright>Copyright  2014</copyright>
+    <dependencies>
+      <group targetFramework="net45">
+        <dependency id="FluentMigrator" version="1.6.1" />
+        <dependency id="FluentMigrator.Tools" version="1.6.1" />
+      </group>
+    </dependencies>
+    <references></references>
+    <tags></tags>
+  </metadata>
+  <files>
+    <file src="lib\" target="lib" />
+    <file src="tools\" target="tools" />
+    <file src="content\" target="content" />
+  </files>
+</package>

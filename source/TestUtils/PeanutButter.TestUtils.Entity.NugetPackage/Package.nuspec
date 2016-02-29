@@ -1,0 +1,49 @@
+<package>
+  <metadata>
+    <id>PeanutButter.TestUtils.Entity</id>
+    <version>1.2.0</version>
+    <title>PeanutButter.TestUtils.Entity</title>
+    <authors>Davyd McColl</authors>
+    <owners></owners>
+    <description>
+    Contains classes to help with testing when entity and a SQL Server would be involved in production:
+    * TestFixtureWithTempDb provides bootstrapping for tests which would use a temporary database (TempDBLocalDb)
+    * EntityPersistenceTestFixtureBase provides helpers for the common test of persisting and recalling entities
+      to test that mappings (automatic or manual) work as expected
+    * DbContextExtensions adds SaveChangesWithErrorReporting(), an extension method for DbContext derivatives
+      to provide more information within tests as to why a test is failing (such information is usually buried within
+      the exception maze that Entity provides)
+    </description>
+    <releaseNotes></releaseNotes>
+    <summary>
+    Some utilities to make testing of Entity persistence and repositories which rely on having an actual context
+    a little less tedious
+    </summary>
+    <language>en-US</language>
+    <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
+    <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/fluffynuts/PeanutButter/blob/master/LICENSE</licenseUrl>
+    <copyright>Copyright  2015</copyright>
+    <dependencies>
+      <group targetFramework="net45">
+        <dependency id="EntityFramework" version="[6.1.3,]" />
+        <dependency id="Nunit" version="[3.0.1,]" />
+        <dependency id="PeanutButter.FluentMigrator" version="1.2.0" />
+        <dependency id="PeanutButter.RandomGenerators" version="1.2.0" />
+        <dependency id="PeanutButter.TempDb" version="1.2.0" />
+        <dependency id="PeanutButter.TempDb.LocalDb" version="1.2.0" />
+        <dependency id="PeanutButter.TestUtils.Generic" version="1.2.0" />
+        <dependency id="PeanutButter.Utils" version="1.2.0" />
+        <dependency id="PeanutButter.Utils.Entity" version="1.2.0" />
+      </group>
+    </dependencies>
+    <references></references>
+    <tags></tags>
+  </metadata>
+  <files>
+    <file src="lib\" target="lib" />
+    <file src="tools\" target="tools" />
+    <file src="content\" target="content" />
+  </files>
+</package>

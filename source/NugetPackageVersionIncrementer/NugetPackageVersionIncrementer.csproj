@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NugetPackageVersionIncrementer</RootNamespace>
     <AssemblyName>NugetPackageVersionIncrementer</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -70,15 +70,15 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PeanutButter.Utils.Windsor\PeanutButter.Utils.Windsor.csproj">
+    <ProjectReference Include="..\Utils\PeanutButter.Utils.Windsor\PeanutButter.Utils.Windsor.csproj">
       <Project>{FA4CE84F-C024-4643-B692-378DE0F9BE24}</Project>
       <Name>PeanutButter.Utils.Windsor</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PeanutButter.Utils\PeanutButter.Utils.csproj">
+    <ProjectReference Include="..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj">
       <Project>{EFC85343-95B4-48C3-BCBE-579EA4868C0A}</Project>
       <Name>PeanutButter.Utils</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PeanutButter.XmlUtils\PeanutButter.XmlUtils.csproj">
+    <ProjectReference Include="..\Utils\PeanutButter.XmlUtils\PeanutButter.XmlUtils.csproj">
       <Project>{d67739cd-944e-4e88-b313-0e091cea185b}</Project>
       <Name>PeanutButter.XmlUtils</Name>
     </ProjectReference>

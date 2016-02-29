@@ -1,0 +1,36 @@
+<package>
+  <metadata>
+    <id>PeanutButter.TestUtils.Generic</id>
+    <version>1.2.0</version>
+    <title>PeanutButter.TestUtils.Generic</title>
+    <authors>daf</authors>
+    <owners></owners>
+    <description>
+      Some generic test utilites. Ok, just one for now. This was split out of TestUtils so that other dependencies wouldn't be forced into consumer projects.
+    </description>
+    <releaseNotes></releaseNotes>
+    <summary>
+      Includes PropertyAssert for asserting property value equality by name in tests so that you can TestCase out multiple property set/get ops
+    </summary>
+    <language>en-US</language>
+    <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
+    <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/fluffynuts/PeanutButter/blob/master/LICENSE</licenseUrl>
+    <copyright>Copyright  2014</copyright>
+    <dependencies>
+      <group targetFramework="net45">
+        <dependency id="PeanutButter.Utils" version="1.2.0" />
+        <dependency id="Nunit" version="[3.0.1,]" />
+        <dependency id="NSubstitute" version="[1.9.1.0,]" />
+      </group>
+    </dependencies>
+    <references></references>
+    <tags></tags>
+  </metadata>
+  <files>
+    <file src="lib\" target="lib" />
+    <file src="tools\" target="tools" />
+    <file src="content\" target="content" />
+  </files>
+</package>

@@ -1,0 +1,35 @@
+<package>
+  <metadata>
+    <id>PeanutButter.TempDb.SqlCe</id>
+    <version>1.2.0</version>
+    <title>PeanutButter.TempDb.SqlCe</title>
+    <authors>Davyd McColl</authors>
+    <owners></owners>
+    <description>
+	The SqlCe TempDb&lt;&gt; implementation
+    </description>
+    <releaseNotes></releaseNotes>
+    <summary>
+	Use this if you need an automagic temporary SqlCe database, for example in testing.
+    </summary>
+    <language>en-US</language>
+    <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
+    <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/fluffynuts/PeanutButter/blob/master/LICENSE</licenseUrl>
+    <copyright>Copyright  2015</copyright>
+    <dependencies>
+      <group targetFramework="net45">
+        <dependency id="PeanutButter.TempDb" version="1.2.0" />
+        <dependency id="Microsoft.SqlServer.Compact" version="" />
+      </group>
+    </dependencies>
+    <references></references>
+    <tags></tags>
+  </metadata>
+  <files>
+    <file src="lib\" target="lib" />
+    <file src="tools\" target="tools" />
+    <file src="content\" target="content" />
+  </files>
+</package>

@@ -3,226 +3,246 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.RandomGenerators", "PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj", "{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.RandomGenerators", "TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj", "{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TestUtils.MVC", "PeanutButter.TestUtils.MVC\PeanutButter.TestUtils.MVC.csproj", "{851DA54E-4FBF-4F02-9C65-52B22015415D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TestUtils.MVC", "TestUtils\PeanutButter.TestUtils.MVC\PeanutButter.TestUtils.MVC.csproj", "{851DA54E-4FBF-4F02-9C65-52B22015415D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.MVC", "PeanutButter.MVC\PeanutButter.MVC.csproj", "{BB13BD1A-730D-43B0-82FE-738399D3D21A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.MVC", "Utils\PeanutButter.MVC\PeanutButter.MVC.csproj", "{BB13BD1A-730D-43B0-82FE-738399D3D21A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.MVC.Tests", "PeanutButter.MVC.Tests\PeanutButter.MVC.Tests.csproj", "{FCA96984-2E9E-44CC-8038-BB3F171343CF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.MVC.Tests", "Utils\PeanutButter.MVC.Tests\PeanutButter.MVC.Tests.csproj", "{FCA96984-2E9E-44CC-8038-BB3F171343CF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.RandomGenerators.Tests", "PeanutButter.RandomGenerators.Tests\PeanutButter.RandomGenerators.Tests.csproj", "{3885D69D-15A3-4DAB-AC23-D292E1AB8128}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.RandomGenerators.Tests", "TestUtils\PeanutButter.RandomGenerators.Tests\PeanutButter.RandomGenerators.Tests.csproj", "{3885D69D-15A3-4DAB-AC23-D292E1AB8128}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.ServiceShell", "PeanutButter.ServiceShell\PeanutButter.ServiceShell.csproj", "{EF4F2F73-5126-4DE1-9729-AE758AAB5E0E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.ServiceShell", "Win32Service\PeanutButter.ServiceShell\PeanutButter.ServiceShell.csproj", "{EF4F2F73-5126-4DE1-9729-AE758AAB5E0E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSpooler.Win32Service", "EmailSpooler.Win32Service\EmailSpooler.Win32Service.csproj", "{74B3F773-06A9-4D1D-BEE9-A152DE005006}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSpooler.Win32Service", "EmailSpooler\EmailSpooler.Win32Service\EmailSpooler.Win32Service.csproj", "{74B3F773-06A9-4D1D-BEE9-A152DE005006}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.WindowsServiceManagement", "PeanutButter.WindowsServiceManagement\PeanutButter.WindowsServiceManagement.csproj", "{C97C82C9-8975-4367-8B5E-386F93B6130C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.WindowsServiceManagement", "Win32Service\PeanutButter.WindowsServiceManagement\PeanutButter.WindowsServiceManagement.csproj", "{C97C82C9-8975-4367-8B5E-386F93B6130C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSpooler.Win32Service.DB", "EmailSpooler.Win32Service.DB\EmailSpooler.Win32Service.DB.csproj", "{3D515895-08FC-46B6-AB16-E2B9AC1AFFB3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSpooler.Win32Service.DB", "EmailSpooler\EmailSpooler.Win32Service.DB\EmailSpooler.Win32Service.DB.csproj", "{3D515895-08FC-46B6-AB16-E2B9AC1AFFB3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSpooler.Win32Service.Tests", "EmailSpooler.Win32Service.Tests\EmailSpooler.Win32Service.Tests.csproj", "{B848B10D-7434-48B4-A190-86A125F1C7C4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSpooler.Win32Service.Tests", "EmailSpooler\EmailSpooler.Win32Service.Tests\EmailSpooler.Win32Service.Tests.csproj", "{B848B10D-7434-48B4-A190-86A125F1C7C4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.Utils", "PeanutButter.Utils\PeanutButter.Utils.csproj", "{EFC85343-95B4-48C3-BCBE-579EA4868C0A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.Utils", "Utils\PeanutButter.Utils\PeanutButter.Utils.csproj", "{EFC85343-95B4-48C3-BCBE-579EA4868C0A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.Utils.Tests", "PeanutButter.Utils.Tests\PeanutButter.Utils.Tests.csproj", "{A7B7276C-B224-4289-8930-A821A4B03C90}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.Utils.Tests", "Utils\PeanutButter.Utils.Tests\PeanutButter.Utils.Tests.csproj", "{A7B7276C-B224-4289-8930-A821A4B03C90}"
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "PeanutButter.DatabaseHelpers", "PeanutButter.DatabaseHelpers\PeanutButter.DatabaseHelpers.vbproj", "{02DF2FD5-59E2-4EC8-80D1-E745D7D834C5}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "PeanutButter.DatabaseHelpers", "DatabaseHelpers\PeanutButter.DatabaseHelpers\PeanutButter.DatabaseHelpers.vbproj", "{02DF2FD5-59E2-4EC8-80D1-E745D7D834C5}"
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "PeanutButter.DatabaseHelpers.Tests", "PeanutButter.DatabaseHelpers.Tests\PeanutButter.DatabaseHelpers.Tests.vbproj", "{06CFA7FB-6B07-45DF-896F-ECCEB6633E0B}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "PeanutButter.DatabaseHelpers.Tests", "DatabaseHelpers\PeanutButter.DatabaseHelpers.Tests\PeanutButter.DatabaseHelpers.Tests.vbproj", "{06CFA7FB-6B07-45DF-896F-ECCEB6633E0B}"
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "PeanutButter.DatabaseHelpers.Testability", "PeanutButter.DatabaseHelpers.Testability\PeanutButter.DatabaseHelpers.Testability.vbproj", "{3D2EEE6D-E118-41FA-BB34-A0B56C993775}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "PeanutButter.DatabaseHelpers.Testability", "DatabaseHelpers\PeanutButter.DatabaseHelpers.Testability\PeanutButter.DatabaseHelpers.Testability.vbproj", "{3D2EEE6D-E118-41FA-BB34-A0B56C993775}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.DatabaseHelpers.NugetPackage", "PeanutButter.DatabaseHelpers.NugetPackage\PeanutButter.DatabaseHelpers.NugetPackage.csproj", "{0451BAEF-DF2E-4B98-8644-94EE9415E389}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.DatabaseHelpers.NugetPackage", "DatabaseHelpers\PeanutButter.DatabaseHelpers.NugetPackage\PeanutButter.DatabaseHelpers.NugetPackage.csproj", "{0451BAEF-DF2E-4B98-8644-94EE9415E389}"
 	ProjectSection(ProjectDependencies) = postProject
 		{02DF2FD5-59E2-4EC8-80D1-E745D7D834C5} = {02DF2FD5-59E2-4EC8-80D1-E745D7D834C5}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.DatabaseHelpers.Testability.NugetPackage", "PeanutButter.DatabaseHelpers.Testability.NugetPackage\PeanutButter.DatabaseHelpers.Testability.NugetPackage.csproj", "{90A441DE-E1AA-4FE1-934E-DAD19DC5872D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.DatabaseHelpers.Testability.NugetPackage", "DatabaseHelpers\PeanutButter.DatabaseHelpers.Testability.NugetPackage\PeanutButter.DatabaseHelpers.Testability.NugetPackage.csproj", "{90A441DE-E1AA-4FE1-934E-DAD19DC5872D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{3D2EEE6D-E118-41FA-BB34-A0B56C993775} = {3D2EEE6D-E118-41FA-BB34-A0B56C993775}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.RandomGenerators.NugetPackage", "PeanutButter.RandomGenerators.NugetPackage\PeanutButter.RandomGenerators.NugetPackage.csproj", "{54C192CB-A0F1-48F9-8D21-E5C805B328B2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.RandomGenerators.NugetPackage", "TestUtils\PeanutButter.RandomGenerators.NugetPackage\PeanutButter.RandomGenerators.NugetPackage.csproj", "{54C192CB-A0F1-48F9-8D21-E5C805B328B2}"
 	ProjectSection(ProjectDependencies) = postProject
 		{CB22D9AE-A2A8-45D0-92B9-FADC687120F0} = {CB22D9AE-A2A8-45D0-92B9-FADC687120F0}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.ServiceShell.NugetPackage", "PeanutButter.ServiceShell.NugetPackage\PeanutButter.ServiceShell.NugetPackage.csproj", "{7E1F4E7A-60A5-45C0-AB9E-8742212D36C8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.ServiceShell.NugetPackage", "Win32Service\PeanutButter.ServiceShell.NugetPackage\PeanutButter.ServiceShell.NugetPackage.csproj", "{7E1F4E7A-60A5-45C0-AB9E-8742212D36C8}"
 	ProjectSection(ProjectDependencies) = postProject
 		{1349BF60-FED9-4288-AE22-50DEDC2F6AC7} = {1349BF60-FED9-4288-AE22-50DEDC2F6AC7}
 		{EF4F2F73-5126-4DE1-9729-AE758AAB5E0E} = {EF4F2F73-5126-4DE1-9729-AE758AAB5E0E}
 		{C97C82C9-8975-4367-8B5E-386F93B6130C} = {C97C82C9-8975-4367-8B5E-386F93B6130C}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.WindowsServiceManagement.NugetPackage", "PeanutButter.WindowsServiceManagement.NugetPackage\PeanutButter.WindowsServiceManagement.NugetPackage.csproj", "{1349BF60-FED9-4288-AE22-50DEDC2F6AC7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.WindowsServiceManagement.NugetPackage", "Win32Service\PeanutButter.WindowsServiceManagement.NugetPackage\PeanutButter.WindowsServiceManagement.NugetPackage.csproj", "{1349BF60-FED9-4288-AE22-50DEDC2F6AC7}"
 	ProjectSection(ProjectDependencies) = postProject
 		{C97C82C9-8975-4367-8B5E-386F93B6130C} = {C97C82C9-8975-4367-8B5E-386F93B6130C}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.Utils.NugetPackage", "PeanutButter.Utils.NugetPackage\PeanutButter.Utils.NugetPackage.csproj", "{5D323453-10D1-48C0-B1B7-8B2DA0B9843F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.Utils.NugetPackage", "Utils\PeanutButter.Utils.NugetPackage\PeanutButter.Utils.NugetPackage.csproj", "{5D323453-10D1-48C0-B1B7-8B2DA0B9843F}"
 	ProjectSection(ProjectDependencies) = postProject
 		{EFC85343-95B4-48C3-BCBE-579EA4868C0A} = {EFC85343-95B4-48C3-BCBE-579EA4868C0A}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TinyEventAggregator", "PeanutButter.TinyEventAggregator\PeanutButter.TinyEventAggregator.csproj", "{07D02ABA-ED94-47AD-83C0-F88CBEFDDCF0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TinyEventAggregator", "Utils\PeanutButter.TinyEventAggregator\PeanutButter.TinyEventAggregator.csproj", "{07D02ABA-ED94-47AD-83C0-F88CBEFDDCF0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TinyEventAggregator.Tests", "PeanutButter.TinyEventAggregator.Tests\PeanutButter.TinyEventAggregator.Tests.csproj", "{ACB8C2F5-3C3D-4116-8A9C-5E7D8D7B0B83}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TinyEventAggregator.Tests", "Utils\PeanutButter.TinyEventAggregator.Tests\PeanutButter.TinyEventAggregator.Tests.csproj", "{ACB8C2F5-3C3D-4116-8A9C-5E7D8D7B0B83}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.XmlUtils", "PeanutButter.XmlUtils\PeanutButter.XmlUtils.csproj", "{D67739CD-944E-4E88-B313-0E091CEA185B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.XmlUtils", "Utils\PeanutButter.XmlUtils\PeanutButter.XmlUtils.csproj", "{D67739CD-944E-4E88-B313-0E091CEA185B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.XmlUtils.Tests", "PeanutButter.XmlUtils.Tests\PeanutButter.XmlUtils.Tests.csproj", "{117D2204-3AF6-4A14-BAA1-50FB9B77C6F0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.XmlUtils.Tests", "Utils\PeanutButter.XmlUtils.Tests\PeanutButter.XmlUtils.Tests.csproj", "{117D2204-3AF6-4A14-BAA1-50FB9B77C6F0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.XmlUtils.NuGetPackage", "PeanutButter.XmlUtils.NuGetPackage\PeanutButter.XmlUtils.NuGetPackage.csproj", "{2109C6DD-2FC7-42B1-8D9C-351DEA69DE76}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.XmlUtils.NuGetPackage", "Utils\PeanutButter.XmlUtils.NuGetPackage\PeanutButter.XmlUtils.NuGetPackage.csproj", "{2109C6DD-2FC7-42B1-8D9C-351DEA69DE76}"
 	ProjectSection(ProjectDependencies) = postProject
 		{D67739CD-944E-4E88-B313-0E091CEA185B} = {D67739CD-944E-4E88-B313-0E091CEA185B}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TestUtils.Generic.NugetPackage", "PeanutButter.TestUtils.Generic.NugetPackage\PeanutButter.TestUtils.Generic.NugetPackage.csproj", "{8135DBBC-E388-4CEC-BDCC-B9C3DA7E28B7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TestUtils.Generic.NugetPackage", "TestUtils\PeanutButter.TestUtils.Generic.NugetPackage\PeanutButter.TestUtils.Generic.NugetPackage.csproj", "{8135DBBC-E388-4CEC-BDCC-B9C3DA7E28B7}"
 	ProjectSection(ProjectDependencies) = postProject
 		{6DDD7F9E-857A-442B-9148-05B34EA279C4} = {6DDD7F9E-857A-442B-9148-05B34EA279C4}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TinyEventAggregator.NugetPackage", "PeanutButter.TinyEventAggregator.NuGetPackage\PeanutButter.TinyEventAggregator.NugetPackage.csproj", "{77DC46EB-600B-4761-A601-AEAC09D62594}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TinyEventAggregator.NugetPackage", "Utils\PeanutButter.TinyEventAggregator.NuGetPackage\PeanutButter.TinyEventAggregator.NugetPackage.csproj", "{77DC46EB-600B-4761-A601-AEAC09D62594}"
 	ProjectSection(ProjectDependencies) = postProject
 		{07D02ABA-ED94-47AD-83C0-F88CBEFDDCF0} = {07D02ABA-ED94-47AD-83C0-F88CBEFDDCF0}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TestUtils.Generic.Tests", "PeanutButter.TestUtils.Generic.Tests\PeanutButter.TestUtils.Generic.Tests.csproj", "{B2384F64-BFCE-4FEF-8CD4-483137D56E5A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TestUtils.Generic.Tests", "TestUtils\PeanutButter.TestUtils.Generic.Tests\PeanutButter.TestUtils.Generic.Tests.csproj", "{B2384F64-BFCE-4FEF-8CD4-483137D56E5A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TrayIcon", "PeanutButter.TrayIcon\PeanutButter.TrayIcon.csproj", "{17CDFD2E-E3E0-4DDD-AD71-9AA8434705E7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TrayIcon", "Utils\PeanutButter.TrayIcon\PeanutButter.TrayIcon.csproj", "{17CDFD2E-E3E0-4DDD-AD71-9AA8434705E7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TrayIcon.Tests", "PeanutButter.TrayIcon.Tests\PeanutButter.TrayIcon.Tests.csproj", "{394C0B79-0B29-426C-B990-474DA0303FB9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TrayIcon.Tests", "Utils\PeanutButter.TrayIcon.Tests\PeanutButter.TrayIcon.Tests.csproj", "{394C0B79-0B29-426C-B990-474DA0303FB9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.INI", "PeanutButter.INI\PeanutButter.INI.csproj", "{64644CCE-0CC9-4CE5-BF0E-E45E425F6339}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.INI", "INI\PeanutButter.INI\PeanutButter.INI.csproj", "{64644CCE-0CC9-4CE5-BF0E-E45E425F6339}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.INI.Tests", "PeanutButter.INI.Tests\PeanutButter.INI.Tests.csproj", "{E7E4E4BE-2C42-445F-8251-F2842557115E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.INI.Tests", "INI\PeanutButter.INI.Tests\PeanutButter.INI.Tests.csproj", "{E7E4E4BE-2C42-445F-8251-F2842557115E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.INI.NugetPackage", "PeanutButter.INI.NugetPackage\PeanutButter.INI.NugetPackage.csproj", "{C1407577-654E-4862-A15B-B8D1BA630363}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.INI.NugetPackage", "INI\PeanutButter.INI.NugetPackage\PeanutButter.INI.NugetPackage.csproj", "{C1407577-654E-4862-A15B-B8D1BA630363}"
 	ProjectSection(ProjectDependencies) = postProject
 		{64644CCE-0CC9-4CE5-BF0E-E45E425F6339} = {64644CCE-0CC9-4CE5-BF0E-E45E425F6339}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TrayIcon.NugetPackage", "PeanutButter.TrayIcon.NugetPackage\PeanutButter.TrayIcon.NugetPackage.csproj", "{546F9C7A-0E73-4042-9CCC-F1292154B1BE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TrayIcon.NugetPackage", "Utils\PeanutButter.TrayIcon.NugetPackage\PeanutButter.TrayIcon.NugetPackage.csproj", "{546F9C7A-0E73-4042-9CCC-F1292154B1BE}"
 	ProjectSection(ProjectDependencies) = postProject
 		{17CDFD2E-E3E0-4DDD-AD71-9AA8434705E7} = {17CDFD2E-E3E0-4DDD-AD71-9AA8434705E7}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.SimpleHTTPServer", "PeanutButter.SimpleHTTPServer\PeanutButter.SimpleHTTPServer.csproj", "{A624CEE2-8727-41B8-A6E1-9D819F745ADD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.SimpleHTTPServer", "SimpleServers\PeanutButter.SimpleHTTPServer\PeanutButter.SimpleHTTPServer.csproj", "{A624CEE2-8727-41B8-A6E1-9D819F745ADD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.SimpleHTTPServer.Tests", "PeanutButter.SimpleHTTPServer.Tests\PeanutButter.SimpleHTTPServer.Tests.csproj", "{717BEDB7-A70F-4BE3-8364-EBEAE9C3D64F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.SimpleHTTPServer.Tests", "SimpleServers\PeanutButter.SimpleHTTPServer.Tests\PeanutButter.SimpleHTTPServer.Tests.csproj", "{717BEDB7-A70F-4BE3-8364-EBEAE9C3D64F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.SimpleHTTPServer.NugetPackage", "PeanutButter.SimpleHTTPServer.NugetPackage\PeanutButter.SimpleHTTPServer.NugetPackage.csproj", "{6D6B8665-19BF-49B0-867F-3D4383613122}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.SimpleHTTPServer.NugetPackage", "SimpleServers\PeanutButter.SimpleHTTPServer.NugetPackage\PeanutButter.SimpleHTTPServer.NugetPackage.csproj", "{6D6B8665-19BF-49B0-867F-3D4383613122}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A624CEE2-8727-41B8-A6E1-9D819F745ADD} = {A624CEE2-8727-41B8-A6E1-9D819F745ADD}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.SimpleTcpServer", "PeanutButter.SimpleTcpServer\PeanutButter.SimpleTcpServer.csproj", "{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.SimpleTcpServer", "SimpleServers\PeanutButter.SimpleTcpServer\PeanutButter.SimpleTcpServer.csproj", "{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.WindowsServiceManagement.Tests", "PeanutButter.WindowsServiceManagement.Tests\PeanutButter.WindowsServiceManagement.Tests.csproj", "{4E12F322-096E-4E42-BA86-4BDBC8492115}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.WindowsServiceManagement.Tests", "Win32Service\PeanutButter.WindowsServiceManagement.Tests\PeanutButter.WindowsServiceManagement.Tests.csproj", "{4E12F322-096E-4E42-BA86-4BDBC8492115}"
 	ProjectSection(ProjectDependencies) = postProject
 		{3E03AC14-F3BE-4EFE-A37C-AE4B4DCFA458} = {3E03AC14-F3BE-4EFE-A37C-AE4B4DCFA458}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.FluentMigrator", "PeanutButter.FluentMigrator\PeanutButter.FluentMigrator.csproj", "{6C7A1C15-555E-45A5-921E-F2A56A3D60F6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.FluentMigrator", "Utils\PeanutButter.FluentMigrator\PeanutButter.FluentMigrator.csproj", "{6C7A1C15-555E-45A5-921E-F2A56A3D60F6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.FluentMigrator.NugetPackage", "PeanutButter.FluentMigrator.NugetPackage\PeanutButter.FluentMigrator.NugetPackage.csproj", "{8642135E-EB50-4D86-82D0-0FE71C953ABE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.FluentMigrator.NugetPackage", "Utils\PeanutButter.FluentMigrator.NugetPackage\PeanutButter.FluentMigrator.NugetPackage.csproj", "{8642135E-EB50-4D86-82D0-0FE71C953ABE}"
 	ProjectSection(ProjectDependencies) = postProject
 		{6C7A1C15-555E-45A5-921E-F2A56A3D60F6} = {6C7A1C15-555E-45A5-921E-F2A56A3D60F6}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.NetUtils", "PeanutButter.NetUtils\PeanutButter.NetUtils.csproj", "{6855EB1F-F435-470A-A722-381D01415193}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.NetUtils", "Utils\PeanutButter.NetUtils\PeanutButter.NetUtils.csproj", "{6855EB1F-F435-470A-A722-381D01415193}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.NetUtils.Tests", "PeanutButter.NetUtils.Tests\PeanutButter.NetUtils.Tests.csproj", "{87B1AA14-40C5-4D04-BE99-4337D634AB99}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.NetUtils.Tests", "Utils\PeanutButter.NetUtils.Tests\PeanutButter.NetUtils.Tests.csproj", "{87B1AA14-40C5-4D04-BE99-4337D634AB99}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TempDb", "PeanutButter.TempDb\PeanutButter.TempDb.csproj", "{265C672B-B6F6-40F8-9180-B0BE5575ABDE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TempDb", "TempDb\PeanutButter.TempDb\PeanutButter.TempDb.csproj", "{265C672B-B6F6-40F8-9180-B0BE5575ABDE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TempDb.SqlCe", "PeanutButter.TempDb.SqlCe\PeanutButter.TempDb.SqlCe.csproj", "{94857B1A-5627-4B0F-9C75-32D39C3FF674}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TempDb.SqlCe", "TempDb\PeanutButter.TempDb.SqlCe\PeanutButter.TempDb.SqlCe.csproj", "{94857B1A-5627-4B0F-9C75-32D39C3FF674}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TempDb.Sqlite", "PeanutButter.TempDb.Sqlite\PeanutButter.TempDb.Sqlite.csproj", "{344CB4A3-74F0-4559-A786-423E6888DB4B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TempDb.Sqlite", "TempDb\PeanutButter.TempDb.Sqlite\PeanutButter.TempDb.Sqlite.csproj", "{344CB4A3-74F0-4559-A786-423E6888DB4B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TempDb.LocalDb", "PeanutButter.TempDb.LocalDb\PeanutButter.TempDb.LocalDb.csproj", "{DA294B3F-58C7-4255-B6AA-82C2393DA49F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TempDb.LocalDb", "TempDb\PeanutButter.TempDb.LocalDb\PeanutButter.TempDb.LocalDb.csproj", "{DA294B3F-58C7-4255-B6AA-82C2393DA49F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TempDb.Tests", "PeanutButter.TempDb.Tests\PeanutButter.TempDb.Tests.csproj", "{685D9EE7-16ED-42B2-A7BB-087D788FC6FC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TempDb.Tests", "TempDb\PeanutButter.TempDb.Tests\PeanutButter.TempDb.Tests.csproj", "{685D9EE7-16ED-42B2-A7BB-087D788FC6FC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TempDb.NugetPackage", "PeanutButter.TempDb.NugetPackage\PeanutButter.TempDb.NugetPackage.csproj", "{4F184A1D-FB06-47DA-93E1-2B45287ED20A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TempDb.NugetPackage", "TempDb\PeanutButter.TempDb.NugetPackage\PeanutButter.TempDb.NugetPackage.csproj", "{4F184A1D-FB06-47DA-93E1-2B45287ED20A}"
 	ProjectSection(ProjectDependencies) = postProject
 		{265C672B-B6F6-40F8-9180-B0BE5575ABDE} = {265C672B-B6F6-40F8-9180-B0BE5575ABDE}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TempDb.Sqlite.NugetPackage", "PeanutButter.TempDb.Sqlite.NugetPackage\PeanutButter.TempDb.Sqlite.NugetPackage.csproj", "{C163F724-12D5-4CBF-AE53-0C191D1182EE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TempDb.Sqlite.NugetPackage", "TempDb\PeanutButter.TempDb.Sqlite.NugetPackage\PeanutButter.TempDb.Sqlite.NugetPackage.csproj", "{C163F724-12D5-4CBF-AE53-0C191D1182EE}"
 	ProjectSection(ProjectDependencies) = postProject
 		{344CB4A3-74F0-4559-A786-423E6888DB4B} = {344CB4A3-74F0-4559-A786-423E6888DB4B}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TempDb.SqlCe.NugetPackage", "PeanutButter.TempDb.SqlCe.NugetPackage\PeanutButter.TempDb.SqlCe.NugetPackage.csproj", "{9D67635C-858F-4CCC-92B5-932CCFA772FC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TempDb.SqlCe.NugetPackage", "TempDb\PeanutButter.TempDb.SqlCe.NugetPackage\PeanutButter.TempDb.SqlCe.NugetPackage.csproj", "{9D67635C-858F-4CCC-92B5-932CCFA772FC}"
 	ProjectSection(ProjectDependencies) = postProject
 		{94857B1A-5627-4B0F-9C75-32D39C3FF674} = {94857B1A-5627-4B0F-9C75-32D39C3FF674}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TempDb.LocalDb.NugetPackage", "PeanutButter.TempDb.LocalDb.NugetPackage\PeanutButter.TempDb.LocalDb.NugetPackage.csproj", "{4945FA7B-1F7E-4928-94FE-05E4CB96F7C0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TempDb.LocalDb.NugetPackage", "TempDb\PeanutButter.TempDb.LocalDb.NugetPackage\PeanutButter.TempDb.LocalDb.NugetPackage.csproj", "{4945FA7B-1F7E-4928-94FE-05E4CB96F7C0}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DA294B3F-58C7-4255-B6AA-82C2393DA49F} = {DA294B3F-58C7-4255-B6AA-82C2393DA49F}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.SimpleTcpServer.Tests", "PeanutButter.SimpleTcpServer.Tests\PeanutButter.SimpleTcpServer.Tests.csproj", "{CECB042E-0E45-4D6A-8D29-460D65254C7D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.SimpleTcpServer.Tests", "SimpleServers\PeanutButter.SimpleTcpServer.Tests\PeanutButter.SimpleTcpServer.Tests.csproj", "{CECB042E-0E45-4D6A-8D29-460D65254C7D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.Utils.Entity", "PeanutButter.Utils.Entity\PeanutButter.Utils.Entity.csproj", "{784A35AD-E6A9-46A4-945C-6D62C55503E0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.Utils.Entity", "Utils\PeanutButter.Utils.Entity\PeanutButter.Utils.Entity.csproj", "{784A35AD-E6A9-46A4-945C-6D62C55503E0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.Utils.Entity.NugetPackage", "PeanutButter.Utils.Entity.NugetPackage\PeanutButter.Utils.Entity.NugetPackage.csproj", "{FE78C88F-4E40-4E88-9D1B-91692A4A670A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.Utils.Entity.NugetPackage", "Utils\PeanutButter.Utils.Entity.NugetPackage\PeanutButter.Utils.Entity.NugetPackage.csproj", "{FE78C88F-4E40-4E88-9D1B-91692A4A670A}"
 	ProjectSection(ProjectDependencies) = postProject
 		{784A35AD-E6A9-46A4-945C-6D62C55503E0} = {784A35AD-E6A9-46A4-945C-6D62C55503E0}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TestUtils.Entity", "PeanutButter.TestUtils.Entity\PeanutButter.TestUtils.Entity.csproj", "{75448DD7-4A34-464D-BE4C-7FE41657EB41}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TestUtils.Entity", "TestUtils\PeanutButter.TestUtils.Entity\PeanutButter.TestUtils.Entity.csproj", "{75448DD7-4A34-464D-BE4C-7FE41657EB41}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TestUtils.Entity.NugetPackage", "PeanutButter.TestUtils.Entity.NugetPackage\PeanutButter.TestUtils.Entity.NugetPackage.csproj", "{FC9B4317-96F7-4444-BD3B-A086E0161A96}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TestUtils.Entity.NugetPackage", "TestUtils\PeanutButter.TestUtils.Entity.NugetPackage\PeanutButter.TestUtils.Entity.NugetPackage.csproj", "{FC9B4317-96F7-4444-BD3B-A086E0161A96}"
 	ProjectSection(ProjectDependencies) = postProject
 		{75448DD7-4A34-464D-BE4C-7FE41657EB41} = {75448DD7-4A34-464D-BE4C-7FE41657EB41}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.Utils.Entity.Tests", "PeanutButter.Utils.Entity.Tests\PeanutButter.Utils.Entity.Tests.csproj", "{9AEB4DF3-91A4-4672-978F-57C0769A6EE3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.Utils.Entity.Tests", "Utils\PeanutButter.Utils.Entity.Tests\PeanutButter.Utils.Entity.Tests.csproj", "{9AEB4DF3-91A4-4672-978F-57C0769A6EE3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSpooler.Win32Service.DB.NugetPackage", "EmailSpooler.Win32Service.DB.NugetPackage\EmailSpooler.Win32Service.DB.NugetPackage.csproj", "{2F51855E-005F-4D7A-9418-31DE37CB3BA4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSpooler.Win32Service.DB.NugetPackage", "EmailSpooler\EmailSpooler.Win32Service.DB.NugetPackage\EmailSpooler.Win32Service.DB.NugetPackage.csproj", "{2F51855E-005F-4D7A-9418-31DE37CB3BA4}"
 	ProjectSection(ProjectDependencies) = postProject
 		{3D515895-08FC-46B6-AB16-E2B9AC1AFFB3} = {3D515895-08FC-46B6-AB16-E2B9AC1AFFB3}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSpooler.Win32Service.DB.Tests", "EmailSpooler.Win32Service.DB.Tests\EmailSpooler.Win32Service.DB.Tests.csproj", "{4FE6D51D-0CE8-4C07-80B1-F3C9BA4A9F21}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSpooler.Win32Service.DB.Tests", "EmailSpooler\EmailSpooler.Win32Service.DB.Tests\EmailSpooler.Win32Service.DB.Tests.csproj", "{4FE6D51D-0CE8-4C07-80B1-F3C9BA4A9F21}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TestUtils.Generic", "PeanutButter.TestUtils.Generic\PeanutButter.TestUtils.Generic.csproj", "{6DDD7F9E-857A-442B-9148-05B34EA279C4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TestUtils.Generic", "TestUtils\PeanutButter.TestUtils.Generic\PeanutButter.TestUtils.Generic.csproj", "{6DDD7F9E-857A-442B-9148-05B34EA279C4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSpooler.Win32Service.Entity", "EmailSpooler.Win32Service.Entity\EmailSpooler.Win32Service.Entity.csproj", "{55C40403-0200-4757-B253-A9DCF56ED39F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSpooler.Win32Service.Entity", "EmailSpooler\EmailSpooler.Win32Service.Entity\EmailSpooler.Win32Service.Entity.csproj", "{55C40403-0200-4757-B253-A9DCF56ED39F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSpooler.Win32Service.Entity.NugetPackage", "EmailSpooler.Win32Service.Entity.NugetPackage\EmailSpooler.Win32Service.Entity.NugetPackage.csproj", "{F4207B11-BEA0-4411-9898-5F30E9336C54}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSpooler.Win32Service.Entity.NugetPackage", "EmailSpooler\EmailSpooler.Win32Service.Entity.NugetPackage\EmailSpooler.Win32Service.Entity.NugetPackage.csproj", "{F4207B11-BEA0-4411-9898-5F30E9336C54}"
 	ProjectSection(ProjectDependencies) = postProject
 		{55C40403-0200-4757-B253-A9DCF56ED39F} = {55C40403-0200-4757-B253-A9DCF56ED39F}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TestUtils.Entity.Tests", "PeanutButter.TestUtils.Entity.Tests\PeanutButter.TestUtils.Entity.Tests.csproj", "{509EDFE4-F72E-4A97-AA84-4985391493A1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TestUtils.Entity.Tests", "TestUtils\PeanutButter.TestUtils.Entity.Tests\PeanutButter.TestUtils.Entity.Tests.csproj", "{509EDFE4-F72E-4A97-AA84-4985391493A1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TestUtils.MVC.NugetPackage", "PeanutButter.TestUtils.MVC.NugetPackage\PeanutButter.TestUtils.MVC.NugetPackage.csproj", "{F334C2DB-A865-4AE8-84F7-2848AFD700EE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TestUtils.MVC.NugetPackage", "TestUtils\PeanutButter.TestUtils.MVC.NugetPackage\PeanutButter.TestUtils.MVC.NugetPackage.csproj", "{F334C2DB-A865-4AE8-84F7-2848AFD700EE}"
 	ProjectSection(ProjectDependencies) = postProject
 		{851DA54E-4FBF-4F02-9C65-52B22015415D} = {851DA54E-4FBF-4F02-9C65-52B22015415D}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestService", "TestService\TestService.csproj", "{3E03AC14-F3BE-4EFE-A37C-AE4B4DCFA458}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestService", "Win32Service\TestService\TestService.csproj", "{3E03AC14-F3BE-4EFE-A37C-AE4B4DCFA458}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.ServiceShell.Tests", "PeanutButter.ServiceShell.Tests\PeanutButter.ServiceShell.Tests.csproj", "{9DC70464-9FD9-4344-8161-B48A6F1F1BB1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.ServiceShell.Tests", "Win32Service\PeanutButter.ServiceShell.Tests\PeanutButter.ServiceShell.Tests.csproj", "{9DC70464-9FD9-4344-8161-B48A6F1F1BB1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSpooler.Win32Service.Entity.Tests", "EmailSpooler.Win32Service.Entity.Tests\EmailSpooler.Win32Service.Entity.Tests.csproj", "{8266F888-8880-497B-9C9E-409293C87091}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSpooler.Win32Service.Entity.Tests", "EmailSpooler\EmailSpooler.Win32Service.Entity.Tests\EmailSpooler.Win32Service.Entity.Tests.csproj", "{8266F888-8880-497B-9C9E-409293C87091}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NugetPackageVersionIncrementer", "NugetPackageVersionIncrementer\NugetPackageVersionIncrementer.csproj", "{D74720A9-686C-4A62-A57B-2CD085C3BE46}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NugetPackageVersionIncrementer.Tests", "NugetPackageVersionIncrementer.Tests\NugetPackageVersionIncrementer.Tests.csproj", "{6CF1E2C3-9BF5-4291-89F9-1F6B348F1BBE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.SimpleTcpServer.NugetPackage", "PeanutButter.SimpleTcpServer.NugetPackage\PeanutButter.SimpleTcpServer.NugetPackage.csproj", "{29BEC5D3-74AB-41B4-B806-A0C93C5C57EC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.SimpleTcpServer.NugetPackage", "SimpleServers\PeanutButter.SimpleTcpServer.NugetPackage\PeanutButter.SimpleTcpServer.NugetPackage.csproj", "{29BEC5D3-74AB-41B4-B806-A0C93C5C57EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.Utils.Windsor", "PeanutButter.Utils.Windsor\PeanutButter.Utils.Windsor.csproj", "{FA4CE84F-C024-4643-B692-378DE0F9BE24}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.Utils.Windsor", "Utils\PeanutButter.Utils.Windsor\PeanutButter.Utils.Windsor.csproj", "{FA4CE84F-C024-4643-B692-378DE0F9BE24}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.Utils.Windsor.Tests", "PeanutButter.Utils.Windsor.Tests\PeanutButter.Utils.Windsor.Tests.csproj", "{EAF8B88C-0973-406B-AC49-6F500819F716}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.Utils.Windsor.Tests", "Utils\PeanutButter.Utils.Windsor.Tests\PeanutButter.Utils.Windsor.Tests.csproj", "{EAF8B88C-0973-406B-AC49-6F500819F716}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.Utils.Windsor.NugetPackage", "PeanutButter.Utils.Windsor.NugetPackage\PeanutButter.Utils.Windsor.NugetPackage.csproj", "{D3F6A4F3-69FF-441E-96FB-9294D0A5FEC2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.Utils.Windsor.NugetPackage", "Utils\PeanutButter.Utils.Windsor.NugetPackage\PeanutButter.Utils.Windsor.NugetPackage.csproj", "{D3F6A4F3-69FF-441E-96FB-9294D0A5FEC2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EmailSpooler", "EmailSpooler", "{9B31C32E-B3EA-48FD-BA55-98EB934190DE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DatabaseHelpers", "DatabaseHelpers", "{043F0990-6BA2-4BD4-8572-9516C9E6EBAD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TempDb", "TempDb", "{97A4C748-447E-4690-9E4C-6BC7CE5B3F70}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SimpleServers", "SimpleServers", "{7989B238-E58D-4660-A0E8-4AFA0FFEB6FD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utils", "Utils", "{62FEA3E5-A1E5-470D-AF65-C3E7465AF046}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestUtils", "TestUtils", "{991C5C7C-A1F8-42B1-8CDA-F782B0F62980}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Win32Service", "Win32Service", "{F16ADAF9-3992-4A86-93DB-53813CF5434A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "INI", "INI", "{0CCE1C28-358A-4CB3-A675-EBA50E75B50E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TinyEventAggregator", "TinyEventAggregator", "{11CDA103-25E1-47ED-B7C5-B9D9E111C147}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TrayIcon", "TrayIcon", "{1F229960-08DC-47ED-9DFF-7138D92DE512}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -957,5 +977,80 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{CB22D9AE-A2A8-45D0-92B9-FADC687120F0} = {991C5C7C-A1F8-42B1-8CDA-F782B0F62980}
+		{851DA54E-4FBF-4F02-9C65-52B22015415D} = {991C5C7C-A1F8-42B1-8CDA-F782B0F62980}
+		{BB13BD1A-730D-43B0-82FE-738399D3D21A} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
+		{FCA96984-2E9E-44CC-8038-BB3F171343CF} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
+		{3885D69D-15A3-4DAB-AC23-D292E1AB8128} = {991C5C7C-A1F8-42B1-8CDA-F782B0F62980}
+		{EF4F2F73-5126-4DE1-9729-AE758AAB5E0E} = {F16ADAF9-3992-4A86-93DB-53813CF5434A}
+		{74B3F773-06A9-4D1D-BEE9-A152DE005006} = {9B31C32E-B3EA-48FD-BA55-98EB934190DE}
+		{C97C82C9-8975-4367-8B5E-386F93B6130C} = {F16ADAF9-3992-4A86-93DB-53813CF5434A}
+		{3D515895-08FC-46B6-AB16-E2B9AC1AFFB3} = {9B31C32E-B3EA-48FD-BA55-98EB934190DE}
+		{B848B10D-7434-48B4-A190-86A125F1C7C4} = {9B31C32E-B3EA-48FD-BA55-98EB934190DE}
+		{EFC85343-95B4-48C3-BCBE-579EA4868C0A} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
+		{A7B7276C-B224-4289-8930-A821A4B03C90} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
+		{02DF2FD5-59E2-4EC8-80D1-E745D7D834C5} = {043F0990-6BA2-4BD4-8572-9516C9E6EBAD}
+		{06CFA7FB-6B07-45DF-896F-ECCEB6633E0B} = {043F0990-6BA2-4BD4-8572-9516C9E6EBAD}
+		{3D2EEE6D-E118-41FA-BB34-A0B56C993775} = {043F0990-6BA2-4BD4-8572-9516C9E6EBAD}
+		{0451BAEF-DF2E-4B98-8644-94EE9415E389} = {043F0990-6BA2-4BD4-8572-9516C9E6EBAD}
+		{90A441DE-E1AA-4FE1-934E-DAD19DC5872D} = {043F0990-6BA2-4BD4-8572-9516C9E6EBAD}
+		{54C192CB-A0F1-48F9-8D21-E5C805B328B2} = {991C5C7C-A1F8-42B1-8CDA-F782B0F62980}
+		{7E1F4E7A-60A5-45C0-AB9E-8742212D36C8} = {F16ADAF9-3992-4A86-93DB-53813CF5434A}
+		{1349BF60-FED9-4288-AE22-50DEDC2F6AC7} = {F16ADAF9-3992-4A86-93DB-53813CF5434A}
+		{5D323453-10D1-48C0-B1B7-8B2DA0B9843F} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
+		{07D02ABA-ED94-47AD-83C0-F88CBEFDDCF0} = {11CDA103-25E1-47ED-B7C5-B9D9E111C147}
+		{ACB8C2F5-3C3D-4116-8A9C-5E7D8D7B0B83} = {11CDA103-25E1-47ED-B7C5-B9D9E111C147}
+		{D67739CD-944E-4E88-B313-0E091CEA185B} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
+		{117D2204-3AF6-4A14-BAA1-50FB9B77C6F0} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
+		{2109C6DD-2FC7-42B1-8D9C-351DEA69DE76} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
+		{8135DBBC-E388-4CEC-BDCC-B9C3DA7E28B7} = {991C5C7C-A1F8-42B1-8CDA-F782B0F62980}
+		{77DC46EB-600B-4761-A601-AEAC09D62594} = {11CDA103-25E1-47ED-B7C5-B9D9E111C147}
+		{B2384F64-BFCE-4FEF-8CD4-483137D56E5A} = {991C5C7C-A1F8-42B1-8CDA-F782B0F62980}
+		{17CDFD2E-E3E0-4DDD-AD71-9AA8434705E7} = {1F229960-08DC-47ED-9DFF-7138D92DE512}
+		{394C0B79-0B29-426C-B990-474DA0303FB9} = {1F229960-08DC-47ED-9DFF-7138D92DE512}
+		{64644CCE-0CC9-4CE5-BF0E-E45E425F6339} = {0CCE1C28-358A-4CB3-A675-EBA50E75B50E}
+		{E7E4E4BE-2C42-445F-8251-F2842557115E} = {0CCE1C28-358A-4CB3-A675-EBA50E75B50E}
+		{C1407577-654E-4862-A15B-B8D1BA630363} = {0CCE1C28-358A-4CB3-A675-EBA50E75B50E}
+		{546F9C7A-0E73-4042-9CCC-F1292154B1BE} = {1F229960-08DC-47ED-9DFF-7138D92DE512}
+		{A624CEE2-8727-41B8-A6E1-9D819F745ADD} = {7989B238-E58D-4660-A0E8-4AFA0FFEB6FD}
+		{717BEDB7-A70F-4BE3-8364-EBEAE9C3D64F} = {7989B238-E58D-4660-A0E8-4AFA0FFEB6FD}
+		{6D6B8665-19BF-49B0-867F-3D4383613122} = {7989B238-E58D-4660-A0E8-4AFA0FFEB6FD}
+		{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8} = {7989B238-E58D-4660-A0E8-4AFA0FFEB6FD}
+		{4E12F322-096E-4E42-BA86-4BDBC8492115} = {F16ADAF9-3992-4A86-93DB-53813CF5434A}
+		{6C7A1C15-555E-45A5-921E-F2A56A3D60F6} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
+		{8642135E-EB50-4D86-82D0-0FE71C953ABE} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
+		{6855EB1F-F435-470A-A722-381D01415193} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
+		{87B1AA14-40C5-4D04-BE99-4337D634AB99} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
+		{265C672B-B6F6-40F8-9180-B0BE5575ABDE} = {97A4C748-447E-4690-9E4C-6BC7CE5B3F70}
+		{94857B1A-5627-4B0F-9C75-32D39C3FF674} = {97A4C748-447E-4690-9E4C-6BC7CE5B3F70}
+		{344CB4A3-74F0-4559-A786-423E6888DB4B} = {97A4C748-447E-4690-9E4C-6BC7CE5B3F70}
+		{DA294B3F-58C7-4255-B6AA-82C2393DA49F} = {97A4C748-447E-4690-9E4C-6BC7CE5B3F70}
+		{685D9EE7-16ED-42B2-A7BB-087D788FC6FC} = {97A4C748-447E-4690-9E4C-6BC7CE5B3F70}
+		{4F184A1D-FB06-47DA-93E1-2B45287ED20A} = {97A4C748-447E-4690-9E4C-6BC7CE5B3F70}
+		{C163F724-12D5-4CBF-AE53-0C191D1182EE} = {97A4C748-447E-4690-9E4C-6BC7CE5B3F70}
+		{9D67635C-858F-4CCC-92B5-932CCFA772FC} = {97A4C748-447E-4690-9E4C-6BC7CE5B3F70}
+		{4945FA7B-1F7E-4928-94FE-05E4CB96F7C0} = {97A4C748-447E-4690-9E4C-6BC7CE5B3F70}
+		{CECB042E-0E45-4D6A-8D29-460D65254C7D} = {7989B238-E58D-4660-A0E8-4AFA0FFEB6FD}
+		{784A35AD-E6A9-46A4-945C-6D62C55503E0} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
+		{FE78C88F-4E40-4E88-9D1B-91692A4A670A} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
+		{75448DD7-4A34-464D-BE4C-7FE41657EB41} = {991C5C7C-A1F8-42B1-8CDA-F782B0F62980}
+		{FC9B4317-96F7-4444-BD3B-A086E0161A96} = {991C5C7C-A1F8-42B1-8CDA-F782B0F62980}
+		{9AEB4DF3-91A4-4672-978F-57C0769A6EE3} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
+		{2F51855E-005F-4D7A-9418-31DE37CB3BA4} = {9B31C32E-B3EA-48FD-BA55-98EB934190DE}
+		{4FE6D51D-0CE8-4C07-80B1-F3C9BA4A9F21} = {9B31C32E-B3EA-48FD-BA55-98EB934190DE}
+		{6DDD7F9E-857A-442B-9148-05B34EA279C4} = {991C5C7C-A1F8-42B1-8CDA-F782B0F62980}
+		{55C40403-0200-4757-B253-A9DCF56ED39F} = {9B31C32E-B3EA-48FD-BA55-98EB934190DE}
+		{F4207B11-BEA0-4411-9898-5F30E9336C54} = {9B31C32E-B3EA-48FD-BA55-98EB934190DE}
+		{509EDFE4-F72E-4A97-AA84-4985391493A1} = {991C5C7C-A1F8-42B1-8CDA-F782B0F62980}
+		{F334C2DB-A865-4AE8-84F7-2848AFD700EE} = {991C5C7C-A1F8-42B1-8CDA-F782B0F62980}
+		{3E03AC14-F3BE-4EFE-A37C-AE4B4DCFA458} = {F16ADAF9-3992-4A86-93DB-53813CF5434A}
+		{9DC70464-9FD9-4344-8161-B48A6F1F1BB1} = {F16ADAF9-3992-4A86-93DB-53813CF5434A}
+		{8266F888-8880-497B-9C9E-409293C87091} = {9B31C32E-B3EA-48FD-BA55-98EB934190DE}
+		{29BEC5D3-74AB-41B4-B806-A0C93C5C57EC} = {7989B238-E58D-4660-A0E8-4AFA0FFEB6FD}
+		{FA4CE84F-C024-4643-B692-378DE0F9BE24} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
+		{EAF8B88C-0973-406B-AC49-6F500819F716} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
+		{D3F6A4F3-69FF-441E-96FB-9294D0A5FEC2} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
 	EndGlobalSection
 EndGlobal

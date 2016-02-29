@@ -1,0 +1,32 @@
+<package>
+  <metadata>
+    <id>PeanutButter.TrayIcon</id>
+    <version>1.2.0</version>
+    <title>PeanutButter.TrayIcon</title>
+    <authors>Davyd McColl</authors>
+    <owners></owners>
+    <description>
+      The SysTray component of the PeanutButter library.
+    </description>
+    <releaseNotes></releaseNotes>
+    <summary>
+      A Library to facilitate easy tray icon usage, including managing tray icon animation, given frames to "play".
+    </summary>
+    <language>en-US</language>
+    <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
+    <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/fluffynuts/PeanutButter/blob/master/LICENSE</licenseUrl>
+    <copyright>Copyright  2014</copyright>
+    <dependencies>
+      <group targetFramework="net45"></group>
+    </dependencies>
+    <references></references>
+    <tags></tags>
+  </metadata>
+  <files>
+    <file src="lib\" target="lib" />
+    <file src="tools\" target="tools" />
+    <file src="content\" target="content" />
+  </files>
+</package>
