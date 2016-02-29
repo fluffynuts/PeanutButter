@@ -1,4 +1,5 @@
 using Castle.Windsor;
+using PeanutButter.Utils.Windsor;
 
 namespace NugetPackageVersionIncrementer
 {

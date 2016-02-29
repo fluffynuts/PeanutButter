@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NugetPackageVersionIncrementer</RootNamespace>
     <AssemblyName>NugetPackageVersionIncrementer</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -63,13 +64,16 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResolvingContainer.cs" />
     <Compile Include="WindsorBootstrapper.cs" />
-    <Compile Include="WindsorContainerBootstrapperExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\PeanutButter.Utils.Windsor\PeanutButter.Utils.Windsor.csproj">
+      <Project>{FA4CE84F-C024-4643-B692-378DE0F9BE24}</Project>
+      <Name>PeanutButter.Utils.Windsor</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PeanutButter.Utils\PeanutButter.Utils.csproj">
       <Project>{EFC85343-95B4-48C3-BCBE-579EA4868C0A}</Project>
       <Name>PeanutButter.Utils</Name>

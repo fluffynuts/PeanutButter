@@ -68,6 +68,7 @@
     <Compile Include="TestLocalDbInstanceEnumerator.cs" />
     <Compile Include="TestObjectExtensions.cs" />
     <Compile Include="TestStringExtensions.cs" />
+    <Compile Include="TestTypeExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
