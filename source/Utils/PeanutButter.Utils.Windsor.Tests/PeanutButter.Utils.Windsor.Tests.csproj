@@ -85,6 +85,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TestClasses\ISingletonService.cs" />
+    <Compile Include="TestClasses\SingletonService.cs" />
     <Compile Include="TestClasses\AbstractImplementsInterfaceWithOneResolution.cs" />
     <Compile Include="TestClasses\AbstractImplementsInterfaceWithOneResolutionAbstract.cs" />
     <Compile Include="TestClasses\AccountController.cs" />
@@ -106,6 +108,10 @@
     <ProjectReference Include="..\PeanutButter.Utils.Windsor\PeanutButter.Utils.Windsor.csproj">
       <Project>{FA4CE84F-C024-4643-B692-378DE0F9BE24}</Project>
       <Name>PeanutButter.Utils.Windsor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PeanutButter.Utils\PeanutButter.Utils.csproj">
+      <Project>{EFC85343-95B4-48C3-BCBE-579EA4868C0A}</Project>
+      <Name>PeanutButter.Utils</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -41,6 +41,33 @@ namespace PeanutButter.Utils.Windsor
             controllerTypes.ForEach(t => container.Register(Component.For(t).ImplementedBy(t).LifestyleTransient()));
         }
 
+        public static void RegisterSingleton<TService, TImplementation>(this IWindsorContainer container)
+            where TService: class
+            where TImplementation: TService
+        {
+            container.Register(Component.For<TService>()
+                                    .ImplementedBy<TImplementation>()
+                                    .LifestyleSingleton());
+        }
+
+        public static void RegisterTransient<TService, TImplementation>(this IWindsorContainer container)
+            where TService: class
+            where TImplementation: TService
+        {
+            container.Register(Component.For<TService>()
+                                        .ImplementedBy<TImplementation>()
+                                        .LifestyleTransient());
+        }
+
+        public static void RegisterPerWebRequest<TService, TImplementation>(this IWindsorContainer container)
+            where TService: class
+            where TImplementation: TService
+        {
+            container.Register(Component.For<TService>()
+                                        .ImplementedBy<TImplementation>()
+                                        .LifestylePerWebRequest());
+        }
+
         private static bool IsBasedOnMvcController(Type type)
         {
             return type.Ancestry()

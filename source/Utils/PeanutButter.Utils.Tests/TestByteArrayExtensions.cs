@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.Utils.Tests
 {
@@ -30,7 +31,7 @@ namespace PeanutButter.Utils.Tests
         public void ToMD5Sum_OperatingOnByteArray_ShouldReturnCorrectMd5()
         {
             //---------------Set up test pack-------------------
-            var input = RandomValueGen.GetRandomBytes(10);
+            var input = GetRandomBytes(10);
             var md5 = System.Security.Cryptography.MD5.Create();
             var hash = md5.ComputeHash(input);
 
@@ -83,7 +84,7 @@ namespace PeanutButter.Utils.Tests
         public void ToUTF8String_GivenByteArrayWhichIsAString_ShouldReturnCorrectResult()
         {
             //---------------Set up test pack-------------------
-            var expected = RandomValueGen.GetRandomString(10, 20);
+            var expected = GetRandomString(10, 20);
             var asBytes = Encoding.UTF8.GetBytes(expected);
 
             //---------------Assert Precondition----------------

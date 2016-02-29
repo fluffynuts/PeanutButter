@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Castle.MicroKernel;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
@@ -164,10 +166,79 @@ namespace PeanutButter.Utils.Windsor.Tests
         }
 
 
+        [Test]
+        public void RegisterSingleton_ShouldRegisterServiceAsSingleton()
+        {
+            //---------------Set up test pack-------------------
+            var container = Create();
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            container.RegisterSingleton<ISingletonService, SingletonService>();
+            var result1 = container.Resolve<ISingletonService>();
+            var result2 = container.Resolve<ISingletonService>();
+
+            //---------------Test Result -----------------------
+            Assert.IsNotNull(result1);
+            Assert.IsNotNull(result2);
+            Assert.IsInstanceOf<SingletonService>(result1);
+            Assert.IsInstanceOf<SingletonService>(result2);
+            Assert.AreEqual(result1, result2);
+        }
+
+        [Test]
+        public void RegisterTransient_ShouldRegisterServiceAsTransient()
+        {
+            //---------------Set up test pack-------------------
+            var container = Create();
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            container.RegisterTransient<IInterfaceWithMultipleResolutions, ImplementsInterfaceWithMultipleResolutions1>();
+            var result1 = container.Resolve<IInterfaceWithMultipleResolutions>();
+            var result2 = container.Resolve<IInterfaceWithMultipleResolutions>();
+
+            //---------------Test Result -----------------------
+            Assert.IsNotNull(result1);
+            Assert.IsNotNull(result2);
+            Assert.IsInstanceOf<ImplementsInterfaceWithMultipleResolutions1>(result1);
+            Assert.IsInstanceOf<ImplementsInterfaceWithMultipleResolutions1>(result2);
+            Assert.AreNotEqual(result1, result2);
+        }
+
+        [Test]
+        public void RegisterPerWebRequest_ShouldRegisterPerWebRequest()
+        {
+            // TODO: actually prove PerWebRequest lifestyle...
+            //---------------Set up test pack-------------------
+            var container = Substitute.For<IWindsorContainer>();
+            var registrations = new List<IRegistration>();
+            container.Register(Arg.Any<IRegistration>())
+                .Returns(ci =>
+                {
+                    registrations.Add((ci.Args()[0] as IRegistration[])[0]);
+                    return container;
+                });
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            container.RegisterPerWebRequest<ISingletonService, SingletonService>();
+
+            //---------------Test Result -----------------------
+            var registration = registrations.Single();
+            Assert.IsNotNull(registration);
+            var lifestyle = registration.Get<Castle.MicroKernel.Registration.Lifestyle.LifestyleGroup<ISingletonService>>("LifeStyle");
+            //lifestyle.PerWebRequest.
+            Assert.IsNotNull(lifestyle);
+        }
 
 
 
-        private static WindsorContainer Create()
+
+        private static IWindsorContainer Create()
         {
             return new WindsorContainer();
         }
