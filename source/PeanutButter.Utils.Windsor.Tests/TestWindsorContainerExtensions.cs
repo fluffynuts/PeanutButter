@@ -56,7 +56,7 @@ namespace PeanutButter.Utils.Windsor.Tests
         }
 
         [Test]
-        public void RegisterAllOneToOneResolutionsAsTransientFrom_ShouldRegisterOneToOneResolution()
+        public void RegisterAllOneToOneResolutionsAsTransientFrom_ShouldRegisterOneToOneResolution_IgnoringAbstract()
         {
             //---------------Set up test pack-------------------
             var container = Create();
@@ -86,7 +86,37 @@ namespace PeanutButter.Utils.Windsor.Tests
             Assert.DoesNotThrow(() => container.RegisterAllOneToOneResolutionsAsTransientFrom(GetType().Assembly));
 
             //---------------Test Result -----------------------
-            
+        }
+
+        [Test]
+        public void RegisterAllOneToOneResolutionsAsTransientFrom_ShouldNotRegisterInterfacesImplementingInterfaces()
+        {
+            //---------------Set up test pack-------------------
+            var container = Create();
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            container.RegisterAllOneToOneResolutionsAsTransientFrom(GetType().Assembly);
+
+            //---------------Test Result -----------------------
+            Assert.Throws<ComponentNotFoundException>(() => container.Resolve<IInterfaceWithOneResolutionInheritor>());
+        }
+
+        [Test]
+        public void RegisterAllOneToOneResulitionsAsTransientFrom_ShouldNotRegisterAbstractClasses()
+        {
+            //---------------Set up test pack-------------------
+            var container = Create();
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            container.RegisterAllOneToOneResolutionsAsTransientFrom(GetType().Assembly);
+
+            //---------------Test Result -----------------------
+            Assert.Throws<ComponentNotFoundException>(() => container.Resolve<IInterfaceForAbstractClass>());
+
         }
 
         [Test]

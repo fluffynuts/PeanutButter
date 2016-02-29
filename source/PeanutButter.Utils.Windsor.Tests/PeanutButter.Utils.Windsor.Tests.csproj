@@ -84,12 +84,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TestClasses\AbstractImplementsInterfaceWithOneResolution.cs" />
+    <Compile Include="TestClasses\AbstractImplementsInterfaceWithOneResolutionAbstract.cs" />
     <Compile Include="TestClasses\AccountController.cs" />
     <Compile Include="TestClasses\HomeController.cs" />
+    <Compile Include="TestClasses\IInterfaceForAbstractClass.cs" />
     <Compile Include="TestClasses\IInterfaceForSingleton.cs" />
     <Compile Include="TestClasses\IInterfaceWithMultipleResolutions.cs" />
     <Compile Include="TestClasses\IInterfaceWithNoResolutions.cs" />
     <Compile Include="TestClasses\IInterfaceWithOneResolution.cs" />
+    <Compile Include="TestClasses\IInterfaceWithOneResolutionInheritor.cs" />
     <Compile Include="TestClasses\ImplementsInterfaceForSingleton.cs" />
     <Compile Include="TestClasses\ImplementsInterfaceWithMultipleResolutions1.cs" />
     <Compile Include="TestClasses\ImplementsInterfaceWithMultipleResolutions2.cs" />
