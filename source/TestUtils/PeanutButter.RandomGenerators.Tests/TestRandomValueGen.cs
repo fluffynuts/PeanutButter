@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -1067,6 +1067,31 @@ namespace PeanutButter.RandomGenerators.Tests
             {
                 var result = RandomValueGen.GetRandomVersion();
                 allResults.Add(result);
+            });
+
+            //---------------Test Result -----------------------
+            VarianceAssert.IsVariant(allResults);
+        }
+
+        [Test]
+        public void GetRandomFoldername_ShouldProduceVariantPath()
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var allResults = new List<string>();
+            RunCycles(() =>
+            {
+                var thisResult = RandomValueGen.GetRandomWindowsPath();
+                var parts = thisResult.Split('\\');
+                Assert.That(parts.Length, Is.GreaterThan(1));
+                Assert.That(parts.Length, Is.LessThan(6));
+                Assert.That(thisResult.Length, Is.LessThan(248));
+                Assert.That(parts[0].Length == 2);
+                Assert.That(parts[0].EndsWith(":"));
+                StringAssert.Contains(parts[0].First().ToString(), "ABCDEGHIJKLMNOPQRSTUVWXYZ");
             });
 
             //---------------Test Result -----------------------

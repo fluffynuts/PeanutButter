@@ -55,6 +55,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj">
+      <Project>{EFC85343-95B4-48C3-BCBE-579EA4868C0A}</Project>
+      <Name>PeanutButter.Utils</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PeanutButter.INI\PeanutButter.INI.csproj">
       <Project>{64644CCE-0CC9-4CE5-BF0E-E45E425F6339}</Project>
       <Name>PeanutButter.INI</Name>

@@ -1,14 +1,16 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
 using PeanutButter.Utils;
+// ReSharper disable UnusedMember.Global
+// ReSharper disable ClassNeverInstantiated.Global
 
 namespace PeanutButter.RandomGenerators
 {
     public class RandomValueGen
     {
-        private static Dictionary<Type, Func<object>> _primitiveGenerators = new Dictionary<Type, Func<object>>()
+        private static readonly Dictionary<Type, Func<object>> PrimitiveGenerators = new Dictionary<Type, Func<object>>()
         {
             { typeof(int), () => GetRandomInt() },
             { typeof(byte), () => Convert.ToByte(GetRandomInt(0, 255)) },
@@ -35,7 +37,7 @@ namespace PeanutButter.RandomGenerators
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
                 type = Nullable.GetUnderlyingType(type);
             Func<object> randomGenerator;
-            if (_primitiveGenerators.TryGetValue(type, out randomGenerator))
+            if (PrimitiveGenerators.TryGetValue(type, out randomGenerator))
                 return randomGenerator();
             return GetRandomValueForType(type);
         }
@@ -68,8 +70,8 @@ namespace PeanutButter.RandomGenerators
             public const int MIN_ITEMS = 0;
             public const int MAX_ITEMS = 10;
         }
-        private static readonly Random _rand = new Random();
-        private static string _defaultRandomStringChars = "abcdefghijklmnopqrstuvwxyz1234567890";
+        private static readonly Random Rand = new Random();
+        private const string DEFAULT_RANDOM_STRING_CHARS = "abcdefghijklmnopqrstuvwxyz1234567890";
 
         public static int GetRandomInt(int minValue = DefaultRanges.MIN_INT_VALUE, int maxValue = DefaultRanges.MAX_INT_VALUE)
         {
@@ -81,6 +83,7 @@ namespace PeanutButter.RandomGenerators
         }
 
         private static readonly string[] MimeTypes = { "text/plain", "text/html", "image/png", "application/pdf", "image/jpeg" };
+        // ReSharper disable once InconsistentNaming
         public static string GetRandomMIMEType()
         {
             var idx = GetRandomInt(0, MimeTypes.Length - 1);
@@ -94,7 +97,7 @@ namespace PeanutButter.RandomGenerators
                 minValue = maxValue;
                 maxValue = swap;
             }
-            var dec = _rand.NextDouble();
+            var dec = Rand.NextDouble();
             var range = maxValue - minValue + 1;
             return minValue + (long)(range * dec);
         }
@@ -104,7 +107,7 @@ namespace PeanutButter.RandomGenerators
             var actualMaxLength = maxLength ?? minLength + DefaultRanges.MINLENGTH_STRING;
             var actualLength = GetRandomInt(minLength, actualMaxLength);
             var chars = new List<char>();
-            if (charSet == null) charSet = _defaultRandomStringChars;
+            if (charSet == null) charSet = DEFAULT_RANDOM_STRING_CHARS;
             var charSetLength = charSet.Length;
             for (var i = 0; i < actualLength; i++)
             {
@@ -117,8 +120,8 @@ namespace PeanutButter.RandomGenerators
         public static DateTime GetRandomDate(DateTime? minDate = null, DateTime? maxDate = null, bool dateOnly = false, 
                                                 DateTime? minTime = null, DateTime? maxTime = null)
         {
-            var minTicks = (minDate.HasValue ? minDate.Value : new DateTime(1990, 1, 1)).Ticks;
-            var maxTicks = (maxDate.HasValue ? maxDate.Value : new DateTime(2020, 12, 31)).Ticks;
+            var minTicks = (minDate ?? new DateTime(1990, 1, 1)).Ticks;
+            var maxTicks = (maxDate ?? new DateTime(2020, 12, 31)).Ticks;
             var actualTicks = GetRandomLong(minTicks, maxTicks);
             var rawDateTime = new DateTime(actualTicks);
             var sanitised = new DateTime(rawDateTime.Year, 
@@ -134,8 +137,8 @@ namespace PeanutButter.RandomGenerators
         {
             if (!minTime.HasValue && !maxTime.HasValue)
                 return value;
-            var rangeStart = minTime.HasValue ? minTime.Value.AsTimeOnly() : value.StartOfDay().AsTimeOnly();
-            var rangeEnd = maxTime.HasValue ? maxTime.Value.AsTimeOnly() : value.EndOfDay().AsTimeOnly();
+            var rangeStart = minTime?.AsTimeOnly() ?? value.StartOfDay().AsTimeOnly();
+            var rangeEnd = maxTime?.AsTimeOnly() ?? value.EndOfDay().AsTimeOnly();
             if (rangeStart > rangeEnd)
             {
                 var swap = rangeEnd;
@@ -163,7 +166,7 @@ namespace PeanutButter.RandomGenerators
 
         public static double GetRandomDouble(double min = 0, double max = DefaultRanges.MAX_INT_VALUE)
         {
-            return (_rand.NextDouble() * (max - min)) + min;
+            return (Rand.NextDouble() * (max - min)) + min;
         }
 
         public static decimal GetRandomDecimal(decimal min = 0, decimal max = DefaultRanges.MAX_INT_VALUE)
@@ -173,8 +176,8 @@ namespace PeanutButter.RandomGenerators
 
         public static byte[] GetRandomBytes(int minLength = DefaultRanges.MINLENGTH_BYTES, int maxLength = DefaultRanges.MAXLENGTH_BYTES)
         {
-            var bytes = new byte[_rand.Next(minLength, maxLength)];
-            _rand.NextBytes(bytes);
+            var bytes = new byte[Rand.Next(minLength, maxLength)];
+            Rand.NextBytes(bytes);
             return bytes;
         }
 
@@ -186,6 +189,13 @@ namespace PeanutButter.RandomGenerators
         public static string GetRandomFileName()
         {
             return string.Join(".", GetRandomString(10, 20), GetRandomString(3, 3));
+        }
+        public static string GetRandomWindowsPath()
+        {
+            var folders = GetRandomCollection<string>(1, 4);
+            var drive = GetRandomString(1,1, "ABCDEGHIJKLMNOPQRSTUVWXYZ") + ":";
+            return string.Join(Path.DirectorySeparatorChar.ToString(),
+                new[] { drive }.And(folders.ToArray()));
         }
 
         public static string GetRandomWords(int min = 10, int max = 50)
@@ -240,18 +250,19 @@ namespace PeanutButter.RandomGenerators
         public static T GetRandomFrom<T>(IEnumerable<T> items)
         {
             var itemArray = items as T[] ?? items.ToArray();
-            var upper = itemArray.Count() - 1;
+            var upper = itemArray.Length - 1;
             return itemArray.Skip(GetRandomInt(0, upper)).First();
         }
 
         public static T GetRandomFrom<T>(IEnumerable<T> items, params T[] butNot)
         {
-            if (items.Count() < butNot.Length - 1)
+            var itemsArray = items as T[] ?? items.ToArray();
+            if (itemsArray.Length < butNot.Length - 1)
                 throw new ArgumentException("Items collection does not contain enough items to apply the exclusion list, assuming the exclusions are actually in the source list");
             T result;
             do
             {
-                result = GetRandomFrom(items);
+                result = GetRandomFrom(itemsArray);
             } while (butNot.Contains(result));
             return result;
         }
@@ -259,17 +270,18 @@ namespace PeanutButter.RandomGenerators
         public static IEnumerable<T> GetRandomSelectionFrom<T>(IEnumerable<T> items, 
             int minValues = DefaultRanges.MIN_ITEMS, int maxValues = DefaultRanges.MAX_ITEMS)
         {
-            if (items.Count() == 0)
+            var itemArray = items as T[] ?? items.ToArray();
+            if (itemArray.Length == 0)
                 return new T[] {};
-            if (minValues >= items.Count())
-                return items.Randomize();
-            if (maxValues > items.Count())
-                maxValues = items.Count();
+            if (minValues >= itemArray.Length)
+                return itemArray.Randomize();
+            if (maxValues > itemArray.Length)
+                maxValues = itemArray.Length;
             var howMany = GetRandomInt(minValues, maxValues);
             var result = new List<T>();
             while (result.Count < howMany)
             {
-                var toAdd = GetRandomFrom(items);
+                var toAdd = GetRandomFrom(itemArray);
                 if (!result.Contains(toAdd))
                     result.Add(toAdd);
             }
