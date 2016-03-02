@@ -80,6 +80,6 @@ namespace PeanutButter.Utils.Windsor
         private const string CONTROLLER_ASSEMBLY = CONTROLLER_NAMESPACE + ",";
 
         private static ArgumentException NoAssembliesException => 
-                new ArgumentException("No assemblies provided to search for one-to-one registrations");
+                new ArgumentException("No assemblies provided to search for registrations");
     }
 }

@@ -230,7 +230,7 @@ namespace PeanutButter.Utils.Windsor.Tests
             //---------------Test Result -----------------------
             var registration = registrations.Single();
             Assert.IsNotNull(registration);
-            var lifestyle = registration.Get<Castle.MicroKernel.Registration.Lifestyle.LifestyleGroup<ISingletonService>>("LifeStyle");
+            var lifestyle = registration.GetOrDefault<Castle.MicroKernel.Registration.Lifestyle.LifestyleGroup<ISingletonService>>("LifeStyle");
             //lifestyle.PerWebRequest.
             Assert.IsNotNull(lifestyle);
         }
