@@ -1,16 +1,29 @@
 <package>
   <metadata>
     <id>PeanutButter.TestUtils.Generic</id>
-    <version>1.2.2</version>>
+    <version>1.2.3</version>
     <title>PeanutButter.TestUtils.Generic</title>
     <authors>daf</authors>
     <owners></owners>
     <description>
-      Some generic test utilites. Ok, just one for now. This was split out of TestUtils so that other dependencies wouldn't be forced into consumer projects.
+      Some generic test utilites.
     </description>
     <releaseNotes></releaseNotes>
     <summary>
-      Includes PropertyAssert for asserting property value equality by name in tests so that you can TestCase out multiple property set/get ops
+      Includes 
+      * PropertyAssert for asserting property value equality by name in tests so that you can TestCase out multiple property set/get ops
+      * ConstructorTestUtils for quick, easy testing of DI constructors
+      * EnumerableExtensions for comparing items inside different collections which have different
+          refs for DTOs, for example,
+      * DecimalExtensions for testing against decimal values with tolerances (eg when using random decimals
+          which go through a layer which truncates, such as a database)
+      * TypeExtensions, for helpers like
+          .ShouldInheritFrom / ShouldImplement
+          .Should(/Not)HaveProperty
+          .VirtualProperties (gets a string array of virtual property names)
+          .PropertyNames
+          .IntersectingProperties
+          (and more)
     </summary>
     <language>en-US</language>
     <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
@@ -20,7 +33,7 @@
     <copyright>Copyright  2014</copyright>
     <dependencies>
       <group targetFramework="net40">
-        <dependency id="PeanutButter.Utils" version="1.1.44" />
+        <dependency id="PeanutButter.Utils" version="1.2.3" />
         <dependency id="Nunit" version="[3.0.1,]" />
         <dependency id="NSubstitute" version="[1.9.1.0,]" />
       </group>

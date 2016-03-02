@@ -158,9 +158,9 @@
     <PostBuildEvent>mkdir "$(SolutionDir)EmailSpooler\EmailSpooler.Setup"
 mkdir "$(SolutionDIr)EmailSpooler\EmailSpooler.Setup\bin"
 copy "$(TargetDir)*.exe" "$(SolutionDir)EmailSpooler\EmailSpooler.Setup\bin"
-copy "$(TargetDir)*.dll" "$(SolutionDir)EmailSpooler.Setup\bin"
-copy $(TargetDir)$(TargetName).pdb $(SolutionDir)EmailSpooler.Setup\bin
-copy "$(TargetDir)*.config" "$(SolutionDir)EmailSpooler.Setup\bin"</PostBuildEvent>
+copy "$(TargetDir)*.dll" "$(SolutionDir)EmailSpooler\EmailSpooler.Setup\bin"
+copy $(TargetDir)$(TargetName).pdb $(SolutionDir)EmailSpooler\EmailSpooler.Setup\bin
+copy "$(TargetDir)*.config" "$(SolutionDir)EmailSpooler\EmailSpooler.Setup\bin"</PostBuildEvent>
   </PropertyGroup>
   <Import Project="..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

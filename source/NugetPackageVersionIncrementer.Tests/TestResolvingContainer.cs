@@ -43,7 +43,7 @@ namespace NugetPackageVersionIncrementer.Tests
         public interface ITestInterface
         {
         }
-        public class TestClass: ITestInterface
+        public class TestClass : ITestInterface
         {
         }
 
@@ -59,7 +59,7 @@ namespace NugetPackageVersionIncrementer.Tests
 
             //---------------Execute Test ----------------------
             var result = sut.Resolve<ITestInterface>();
-            
+
             //---------------Test Result -----------------------
             container.Received().Resolve<ITestInterface>();
             Assert.AreEqual(expected, result);
@@ -78,7 +78,7 @@ namespace NugetPackageVersionIncrementer.Tests
 
             //---------------Execute Test ----------------------
             var result = sut.Resolve(serviceType);
-            
+
             //---------------Test Result -----------------------
             container.Received().Resolve(serviceType);
             Assert.AreEqual(expected, result);
