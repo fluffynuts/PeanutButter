@@ -449,7 +449,7 @@ namespace PeanutButter.Utils.Tests
         }
 
         [Test]
-        public void Get_WhenGivenNameOfPropertyWhichDoesNotExist_ShouldReturnDefaultValue()
+        public void GetOrDefault_WhenGivenNameOfPropertyWhichDoesNotExist_ShouldReturnDefaultValue()
         {
             //---------------Set up test pack-------------------
             var o = new {};
@@ -457,11 +457,26 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = o.Get("prop", 1);
+            var result = o.GetOrDefault("prop", 1);
 
             //---------------Test Result -----------------------
             Assert.AreEqual(1, result);
         }
+
+        [Test]
+        public void Get_WhenGivenNameOfPropertyWhichDoesNotExist_ShouldThrow_PropertyNotFoundException()
+        {
+            //---------------Set up test pack-------------------
+            var o = new { };
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.Throws<PropertyNotFoundException>(() => o.Get<bool>("prop"));
+
+            //---------------Test Result -----------------------
+        }
+
 
         [Test]
         public void Get_WhenGivenNameOfPropertyWhichDoesExist_ShouldReturnThatValue()
@@ -472,7 +487,7 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = o.Get("prop", 1);
+            var result = o.GetOrDefault("prop", 1);
 
             //---------------Test Result -----------------------
             Assert.AreEqual(2, result);
@@ -487,7 +502,7 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<ArgumentException>(() => o.Get<string>("prop"));
+            Assert.Throws<ArgumentException>(() => o.GetOrDefault<string>("prop"));
 
             //---------------Test Result -----------------------
         }
@@ -506,7 +521,7 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = parent.Get<int>("child.prop");
+            var result = parent.GetOrDefault<int>("child.prop");
 
             //---------------Test Result -----------------------
             Assert.AreEqual(2, result);

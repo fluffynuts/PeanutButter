@@ -131,13 +131,17 @@ namespace PeanutButter.Utils
             return srcValue == null ? "[null]" : srcValue.ToString();
         }
 
-        public static T Get<T>(this object src, string propertyName, T defaultValue = default(T))
+        public static T Get<T>(this object src, string propertyPath)
         {
             var type = src.GetType();
-            var parts = propertyName.Split('.');
+            return ResolvePropertyValueFor<T>(src, propertyPath, type);
+        }
+
+        public static T GetOrDefault<T>(this object src, string propertyPath, T defaultValue = default(T))
+        {
             try
             {
-                return ResolvePropertyValueFor<T>(src, propertyName, parts, type);
+                return Get<T>(src, propertyPath);
             }
             catch (PropertyNotFoundException)
             {
@@ -145,14 +149,15 @@ namespace PeanutButter.Utils
             }
         }
 
-        private static T ResolvePropertyValueFor<T>(object src, string propertyName, string[] parts, Type type)
+        private static T ResolvePropertyValueFor<T>(object src, string propertyPath, Type type)
         {
+            var parts = propertyPath.Split('.');
             var valueAsObject = parts.Aggregate(src, GetPropertyValue);
             var valueType = valueAsObject.GetType();
             if (!valueType.IsAssignableTo<T>())
                 throw new ArgumentException(
                     "Get<> must be invoked with a type to which the property value could be assigned ("
-                    + type.Name + "." + propertyName + " has type '" + valueType.Name
+                    + type.Name + "." + propertyPath + " has type '" + valueType.Name
                     + "', but expected '" + typeof(T).Name + "' or derivative");
             return (T) valueAsObject;
         }
