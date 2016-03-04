@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using NUnit.Framework;
-using PeanutButter.RandomGenerators;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.Utils.Tests
 {
@@ -41,9 +40,9 @@ namespace PeanutButter.Utils.Tests
             var result = new List<int>();
             var src = new[]
             {
-                RandomValueGen.GetRandomInt(),
-                RandomValueGen.GetRandomInt(),
-                RandomValueGen.GetRandomInt()
+                GetRandomInt(),
+                GetRandomInt(),
+                GetRandomInt()
             };
 
             //---------------Assert Precondition----------------
@@ -171,7 +170,7 @@ namespace PeanutButter.Utils.Tests
         {
             //---------------Set up test pack-------------------
             var src = new int[] {1, 2, 3};
-            var delimiter = RandomValueGen.GetRandomString(2, 3);
+            var delimiter = GetRandomString(2, 3);
             var expected = "1" + delimiter + "2" + delimiter + "3";
 
             //---------------Assert Precondition----------------
@@ -280,7 +279,7 @@ namespace PeanutButter.Utils.Tests
         {
             //---------------Set up test pack-------------------
             var input = new List<IEnumerable<int>>();
-            var expected = RandomValueGen.GetRandomCollection<int>(1,1);
+            var expected = GetRandomCollection<int>(1,1);
             input.Add(expected);
 
             //---------------Assert Precondition----------------
@@ -299,9 +298,9 @@ namespace PeanutButter.Utils.Tests
         {
             //---------------Set up test pack-------------------
             var input = new List<IEnumerable<int>>();
-            var part1 = RandomValueGen.GetRandomCollection<int>();
-            var part2 = RandomValueGen.GetRandomCollection<int>();
-            var part3 = RandomValueGen.GetRandomCollection<int>();
+            var part1 = GetRandomCollection<int>();
+            var part2 = GetRandomCollection<int>();
+            var part3 = GetRandomCollection<int>();
             var expected = new List<int>();
             expected.AddRange(part1);
             expected.AddRange(part2);
@@ -330,8 +329,8 @@ namespace PeanutButter.Utils.Tests
         public void SelectNonNull_GivenCollectionOfObjectsWithNullableInts_ShouldReturnOnlyNonNullValues()
         {
             //---------------Set up test pack-------------------
-            var id1 = RandomValueGen.GetRandomInt();
-            var id2 = RandomValueGen.GetRandomInt();
+            var id1 = GetRandomInt();
+            var id2 = GetRandomInt();
             var expected = new[] { id1, id2 };
             var input = new[] 
             {
@@ -367,8 +366,8 @@ namespace PeanutButter.Utils.Tests
         public void SelectNonNull_GivenCollectionOfObjectsWithNullableThings_ShouldReturnOnlyNonNullValues()
         {
             //---------------Set up test pack-------------------
-            var id1 = RandomValueGen.GetRandom<Thing>();
-            var id2 = RandomValueGen.GetRandom<Thing>();
+            var id1 = GetRandom<Thing>();
+            var id2 = GetRandom<Thing>();
             var expected = new[] { id1, id2 };
             var input = new[] 
             {
@@ -385,6 +384,65 @@ namespace PeanutButter.Utils.Tests
 
             //---------------Test Result -----------------------
             CollectionAssert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public void AsText_OperatingOnStringArray_ShouldReturnTextBlockWithEnvironmentNewlines()
+        {
+            //---------------Set up test pack-------------------
+            var input = GetRandomCollection<string>(2,4);
+            var expected = string.Join(Environment.NewLine, input);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = input.AsText();
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(expected, result);
+        }
+
+        public class SomethingWithNiceToString
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public override string ToString()
+            {
+                return $"{Id} :: {Name}";
+            }
+        }
+
+        [Test]
+        public void AsText_OperatingOnArrayOfObjects_ShouldReturnTextBlockWithStringRepresentations()
+        {
+            //---------------Set up test pack-------------------
+            var input = GetRandomCollection<SomethingWithNiceToString>(2,4);
+            var expected = string.Join(Environment.NewLine, input);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = input.AsText();
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public void AsText_GivenAlternativeDelimiter_ShouldUseIt()
+        {
+            //---------------Set up test pack-------------------
+            var input = GetRandomCollection<int>(3,6);
+            var delimiter = GetRandomString(1);
+            var expected = string.Join(delimiter, input);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = input.AsText(delimiter);
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(expected, result);
         }
 
 

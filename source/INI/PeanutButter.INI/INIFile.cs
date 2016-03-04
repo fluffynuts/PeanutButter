@@ -65,7 +65,7 @@ namespace PeanutButter.INIFile
                 }
                 var parts = line.Split('=');
                 var key = parts[0].Trim();
-                var value = string.Join("=", parts.Skip(1));
+                var value = parts.Count() > 1 ? string.Join("=", parts.Skip(1)) : null;
                 this[currentSection][key] = TrimOuterQuotesFrom(value);
             }
         }
@@ -155,7 +155,7 @@ namespace PeanutButter.INIFile
 
         private string TrimOuterQuotesFrom(string value)
         {
-            if (value.Length < 2) return value;
+            if (value == null || value.Length < 2) return value;
             if (value.StartsWith("\"") && value.EndsWith("\""))
                 return value.Substring(1, value.Length - 2);
             return value.Trim();
@@ -169,9 +169,18 @@ namespace PeanutButter.INIFile
             {
                 if (section.Length > 0)
                     lines.Add(string.Join(string.Empty, "[", section, "]"));
-                lines.AddRange(Data[section].Keys.Select(key => string.Join(string.Empty, key.Trim(), "=", "\"", Data[section][key], "\"")));
+                lines.AddRange(Data[section]
+                                    .Keys
+                                    .Select(key => LineFor(section, key)));
             }
             File.WriteAllBytes(path, Encoding.UTF8.GetBytes(string.Join(Environment.NewLine, lines)));
+        }
+
+        private string LineFor(string section, string key)
+        {
+            var dataValue = Data[section][key];
+            var writeValue = dataValue == null ? "" : "=\"" + dataValue + "\"";
+            return string.Join(string.Empty, key.Trim(), writeValue);
         }
 
         private string CheckPersistencePath(string path)

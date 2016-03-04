@@ -4,7 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
-using PeanutButter.RandomGenerators;
+using PeanutButter.Utils;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.INI.Tests
 {
@@ -97,11 +98,6 @@ namespace PeanutButter.INI.Tests
                 Assert.IsTrue(iniFile.Data.Keys.Contains(section));
                 Assert.AreEqual(iniFile.Data[section][key], value);
             }
-        }
-
-        private static string RandString()
-        {
-            return RandomValueGen.GetRandomAlphaString(1, 10);
         }
 
         [Test]
@@ -360,6 +356,7 @@ namespace PeanutButter.INI.Tests
             //---------------Test Result -----------------------
             Assert.AreEqual(defaultValue, result);
         }
+
         [Test]
         public void GetValue_GivenUnKnownSectionWithUnknownKeyAndDefault_ShouldReturnDefaultValue()
         {
@@ -491,9 +488,9 @@ namespace PeanutButter.INI.Tests
         public void IndexedGetter_WhenSectionDoesntExist_ShouldCreateSection()
         {
             //---------------Set up test pack-------------------
-            var section = RandomValueGen.GetRandomString();
-            var key = RandomValueGen.GetRandomString();
-            var value = RandomValueGen.GetRandomString();
+            var section = GetRandomString();
+            var key = GetRandomString();
+            var value = GetRandomString();
 
             //---------------Assert Precondition----------------
             using (var tempFile = new AutoDeletingTempFile(".ini"))
@@ -588,6 +585,69 @@ namespace PeanutButter.INI.Tests
             //---------------Test Result -----------------------
             Assert.AreEqual(3, ini.Sections.Count());
             CollectionAssert.AreEqual(new[] {"general", "section1", "section2"}, ini.Sections);
+        }
+
+        [Test]
+        public void SectionWithKeysOnly_ShouldHaveKeysAndNullValues()
+        {
+            //---------------Set up test pack-------------------
+            var key1 = GetRandomString();
+            var key2 = GetRandomString();
+            var src = new[]
+            {
+                "[section]",
+                key1,
+                key2
+            };
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var sut = Create();
+            sut.Parse(src.AsText());
+
+            //---------------Test Result -----------------------
+            var data = sut["section"];
+            Assert.AreEqual(key1, data.Keys.First());
+            Assert.IsNull(data[key1]);
+            Assert.AreEqual(key2, data.Keys.Last());
+            Assert.IsNull(data[key2]);
+        }
+
+        [Test]
+        public void SectionWithKeysOnly_WhenPersisting_ShouldNotAddTrailingEqualitySign()
+        {
+            //---------------Set up test pack-------------------
+            var key1 = GetRandomString();
+            var key2 = GetRandomString();
+            var src = new[]
+            {
+                "[section]",
+                key1,
+                key2
+            };
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var sut = Create();
+            sut.Parse(src.AsText());
+            using (var tempFile = new AutoTempFile())
+            {
+                sut.Persist(tempFile.Path);
+
+                //---------------Test Result -----------------------
+                var outputData = File.ReadAllLines(tempFile.Path);
+                Assert.AreEqual("[section]", outputData[0]);
+                Assert.AreEqual(key1, outputData[1]);
+                Assert.AreEqual(key2, outputData[2]);
+            }
+        }
+
+
+        private static string RandString()
+        {
+            return GetRandomAlphaString(1, 10);
         }
     }
 

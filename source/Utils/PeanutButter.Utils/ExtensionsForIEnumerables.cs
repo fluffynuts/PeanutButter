@@ -79,5 +79,10 @@ namespace PeanutButter.Utils
                         .Select(i => i);
         }
 
+        public static string AsText<T>(this IEnumerable<T> input, string delimiter = null)
+        {
+            return input.JoinWith(delimiter ?? Environment.NewLine);
+        }
+
     }
 }
