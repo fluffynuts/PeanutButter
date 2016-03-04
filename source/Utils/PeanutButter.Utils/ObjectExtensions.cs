@@ -8,11 +8,11 @@ namespace PeanutButter.Utils
 {
     public static class ObjectExtensions
     {
-        private static Type[] _simpleTypes;
+        private static readonly Type[] SimpleTypes;
 
         static ObjectExtensions()
         {
-            _simpleTypes = new[] {
+            SimpleTypes = new[] {
                 typeof(int),
                 typeof(char),
                 typeof(byte),
@@ -54,7 +54,7 @@ namespace PeanutButter.Utils
 
         private static bool CanPerformSimpleTypeMatchFor(PropertyInfo srcProp)
         {
-            return _simpleTypes.Any(st => st == srcProp.PropertyType);
+            return SimpleTypes.Any(st => st == srcProp.PropertyType);
         }
 
         private static bool SimpleObjectsMatch(string propertyName, object srcValue, object compareValue)
@@ -120,7 +120,7 @@ namespace PeanutButter.Utils
 
         private static bool IsSimpleTypeOrNullableOfSimpleType(Type t)
         {
-            return _simpleTypes.Any(si => si == t || 
+            return SimpleTypes.Any(si => si == t || 
                                           (t.IsGenericType && 
                                           t.GetGenericTypeDefinition() == typeof(Nullable<>) && 
                                           Nullable.GetUnderlyingType(t) == si));
