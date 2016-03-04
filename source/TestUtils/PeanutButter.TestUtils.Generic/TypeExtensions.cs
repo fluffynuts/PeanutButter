@@ -67,6 +67,10 @@ namespace PeanutButter.TestUtils.Generic
             ShouldBeAssignableFrom(type, shouldBeAncestor);
         }
 
+        public static void ShouldNotInheritFrom<T>(this Type type)
+        {
+            type.ShouldNotInheritFrom(typeof(T));
+        }
         public static void ShouldNotInheritFrom(this Type type, Type shouldNotBeAncestor)
         {
             if (shouldNotBeAncestor.IsInterface)
@@ -223,9 +227,13 @@ namespace PeanutButter.TestUtils.Generic
             type.ShouldHaveProperty(name, typeof(T));
         }
 
-        public static T[] AsArray<T>(this T input)
+        public static void ShouldHaveNonPublicMethod(this Type type, string name)
         {
-            return new[] {input};
+            var methodInfo = type.GetMethod(name, BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if (methodInfo == null)
+                Assert.Fail($"Method not found: {name}");
+            if (methodInfo.IsPublic)
+                Assert.Fail($"Expected method '{name}' not to be public");
         }
 
 

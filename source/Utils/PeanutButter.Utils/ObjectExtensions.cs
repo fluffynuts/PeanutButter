@@ -149,6 +149,12 @@ namespace PeanutButter.Utils
             }
         }
 
+        public static T[] AsArray<T>(this T input)
+        {
+            return new[] {input};
+        }
+
+
         private static T ResolvePropertyValueFor<T>(object src, string propertyPath, Type type)
         {
             var parts = propertyPath.Split('.');

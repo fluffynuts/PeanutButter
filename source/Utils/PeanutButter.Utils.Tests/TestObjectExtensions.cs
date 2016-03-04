@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using NUnit.Framework;
+using NUnit.Framework.Internal;
 using PeanutButter.RandomGenerators;
 
 namespace PeanutButter.Utils.Tests
@@ -564,6 +566,23 @@ namespace PeanutButter.Utils.Tests
 
             //---------------Test Result -----------------------
             Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public void AsArray_ShouldWrapObjectInArray()
+        {
+            //---------------Set up test pack-------------------
+            var sut = new object();
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = sut.AsArray();
+
+            //---------------Test Result -----------------------
+            Assert.IsNotNull(result);
+            CollectionAssert.IsNotEmpty(result);
+            Assert.AreEqual(sut, result.Single());
         }
 
 

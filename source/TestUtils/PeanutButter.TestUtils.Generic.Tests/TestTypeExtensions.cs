@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using NUnit.Framework;
-using PeanutButter.RandomGenerators;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.TestUtils.Generic.Tests
 {
@@ -33,7 +30,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = t.HasActionMethodWithName(RandomValueGen.GetRandomAlphaString(2, 10));
+            var result = t.HasActionMethodWithName(GetRandomAlphaString(2, 10));
 
             //---------------Test Result -----------------------
             Assert.IsFalse(result);
@@ -71,7 +68,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
         {
             //---------------Set up test pack-------------------
             var t = typeof(HasNoActions);
-            var actionName = RandomValueGen.GetRandomAlphaString(2, 10);
+            var actionName = GetRandomAlphaString(2, 10);
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -168,6 +165,42 @@ namespace PeanutButter.TestUtils.Generic.Tests
 
             //---------------Test Result -----------------------
         }
+
+        public class AncesterClass
+        {
+        }
+        public class DescendantClass: AncesterClass
+        {
+        }
+
+        [Test]
+        public void ShouldNotInheritFrom_generic_WhenRequestedTypeIsInTheInheritenceHeirachy_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            var sut = typeof(DescendantClass);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.Throws<AssertionException>(() => sut.ShouldNotInheritFrom<AncesterClass>());
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
+        public void ShouldNotInheritFrom_WhenRequestedTypeIsInTheInheritenceHeirachy_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            var sut = typeof(DescendantClass);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.Throws<AssertionException>(() => sut.ShouldNotInheritFrom(typeof(AncesterClass)));
+
+            //---------------Test Result -----------------------
+        }
+
 
 
         [Test]
@@ -611,6 +644,66 @@ namespace PeanutButter.TestUtils.Generic.Tests
             Assert.Throws<AssertionException>(() => sut.ShouldHaveReadOnlyProperty<bool>("ReadOnlyProperty"));
 
             //---------------Test Result -----------------------
+        }
+
+        public class ClassForTestingMethodAssertions
+        {
+            public void MethodA()
+            {
+            }
+            internal void MethodB()
+            {
+            }
+        }
+
+        [Test]
+        public void ShouldHaveNonPublicMethod_OperatingOnType_GivenMethodName_WhenDoesNotHaveMethodAtAll_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            var sut = typeof(ClassForTestingMethodAssertions);
+            var search = GetRandomString(10, 15);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var ex = Assert.Throws<AssertionException>(() => sut.ShouldHaveNonPublicMethod(search));
+
+            //---------------Test Result -----------------------
+            StringAssert.Contains("Method not found", ex.Message);
+            StringAssert.Contains(search, ex.Message);
+
+        }
+
+        [Test]
+        public void ShouldHaveNonPublicMethod_OperatingOnType_GivenMethodName_WhenSearchMethodIsPublic_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            var sut = typeof(ClassForTestingMethodAssertions);
+            var search = "MethodA";
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var ex = Assert.Throws<AssertionException>(() => sut.ShouldHaveNonPublicMethod(search));
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual($"Expected method '{search}' not to be public", ex.Message);
+        }
+
+        [Test]
+        public void ShouldHaveNonPublicMethod_OperatingOnType_GivenMethodName_WhenSearchMethodIsNotPublic_ShouldNotThrow()
+        {
+            //---------------Set up test pack-------------------
+            var sut = typeof(ClassForTestingMethodAssertions);
+            var search = "MethodB";
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(() => sut.ShouldHaveNonPublicMethod(search));
+
+            //---------------Test Result -----------------------
+
         }
 
 
