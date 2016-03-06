@@ -1,6 +1,6 @@
 ﻿using System.Text;
 using NUnit.Framework;
-using PeanutButter.RandomGenerators;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.Utils.Tests
 {
@@ -36,7 +36,7 @@ namespace PeanutButter.Utils.Tests
             //  var other = empty || right; // result is 'foo'
             //---------------Set up test pack-------------------
             string src = null;
-            var other = RandomValueGen.GetRandomString(1, 20);
+            var other = GetRandomString(1, 20);
 
             //---------------Assert Precondition----------------
 
@@ -52,8 +52,8 @@ namespace PeanutButter.Utils.Tests
         {
             //---------------Set up test pack-------------------
             string start = null;
-            var expected = RandomValueGen.GetRandomString(1, 10);
-            var unexpected = RandomValueGen.GetRandomString(11, 20);
+            var expected = GetRandomString(1, 10);
+            var unexpected = GetRandomString(11, 20);
 
             //---------------Assert Precondition----------------
 
@@ -118,7 +118,7 @@ namespace PeanutButter.Utils.Tests
         public void AsBytes_OperatingOnNonEmptyString_ShouldReturnStringEncodedAsBytesFromUTF8()
         {
             //---------------Set up test pack-------------------
-            var input = RandomValueGen.GetRandomString(50, 100);
+            var input = GetRandomString(50, 100);
             var expected = Encoding.UTF8.GetBytes(input);
 
             //---------------Assert Precondition----------------
@@ -134,7 +134,7 @@ namespace PeanutButter.Utils.Tests
         public void IsInteger_WhenStringIsInteger_ShouldReturnTrue()
         {
             //---------------Set up test pack-------------------
-            var input = RandomValueGen.GetRandomInt().ToString();
+            var input = GetRandomInt().ToString();
 
             //---------------Assert Precondition----------------
 
@@ -149,7 +149,7 @@ namespace PeanutButter.Utils.Tests
         public void IsInteger_WhenStringIsNotInteger_ShouldReturnFalse()
         {
             //---------------Set up test pack-------------------
-            var input = RandomValueGen.GetRandomAlphaString();
+            var input = GetRandomAlphaString();
 
             //---------------Assert Precondition----------------
 
@@ -158,7 +158,43 @@ namespace PeanutButter.Utils.Tests
 
             //---------------Test Result -----------------------
             Assert.IsFalse(result);
+            
         }
+
+        [Test]
+        public void AsInteger_WhenStringIsInteger_ShouldReturnThatIntegerValue()
+        {
+            //---------------Set up test pack-------------------
+            var expected = GetRandomInt(10, 100);
+            var input = expected.ToString();
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = input.AsInteger();
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(expected, result);
+        }
+
+        [TestCase("a")]
+        [TestCase("")]
+        [TestCase("\r\n")]
+        [TestCase(null)]
+        public void AsInteger_WhenStringIsNotInteger_ShouldReturnZero_(string input)
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = input.AsInteger();
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(0, result);
+        }
+
+
 
 
 

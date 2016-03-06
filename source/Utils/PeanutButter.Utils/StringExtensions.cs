@@ -53,5 +53,12 @@ namespace PeanutButter.Utils
             int value;
             return int.TryParse(src, out value);
         }
+
+        public static int AsInteger(this string value)
+        {
+            int result;
+            int.TryParse(value, out result);
+            return result;
+        }
     }
 }

@@ -872,8 +872,7 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [Test]
-        [Ignore("Discovery purposes only; answer is that non-printables are fine")]
-        public void Discovery_WhatDoesEncodingGetString_DoWithNonPrintableCharacters()
+        public void Discovery_EncodingNonPrintableCharacters_ShouldNotThrow()
         {
             //---------------Set up test pack-------------------
             var bytes = RandomValueGen.GetRandomCollection(() => RandomValueGen.GetRandomInt(0, 255))
