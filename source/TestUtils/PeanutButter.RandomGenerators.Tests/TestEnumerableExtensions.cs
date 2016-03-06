@@ -66,7 +66,7 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [Test]
-        public void GetRandomCollection_ShouldReturnTheSameCollectionInADifferentOrder()
+        public void Randomize_ShouldReturnTheSameCollectionInADifferentOrder()
         {
             for (var i = 0; i < 10; i++)    // it's entirely possible that the random output is the same, so let's try up to 10 times
             {

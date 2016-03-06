@@ -35,5 +35,11 @@ namespace PeanutButter.TestUtils.Generic
                    !src.Except(other).Any();
         }  
 
+        public static void ShouldHaveUnique<T>(this IEnumerable<T> src, Func<T, bool> matcher)
+        {
+            if (!src.HasUnique(matcher))
+                Assert.Fail("Expected single unique result");
+        } 
+
     }
 }

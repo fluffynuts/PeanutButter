@@ -84,5 +84,11 @@ namespace PeanutButter.Utils
             return input.JoinWith(delimiter ?? Environment.NewLine);
         }
 
+        public static bool HasUnique<T>(this IEnumerable<T> input, Func<T, bool> matcher)
+        {
+            var matches = input.Where(matcher);
+            return matches.Count() == 1;
+        }
+
     }
 }

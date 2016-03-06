@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using NUnit.Framework;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.TestUtils.Generic.Tests
 {
@@ -155,6 +156,50 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Test Result -----------------------
             Assert.IsTrue(result1);
             Assert.IsTrue(result2);
+        }
+
+        [Test]
+        public void ShouldHaveUnique_WhenHasNoMatches_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            var input = new[] { true, true, true };
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.Throws<AssertionException>(() => input.ShouldHaveUnique(v => v == false));
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
+        public void ShouldHaveUnique_WhenMultipleNoMatches_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            var input = new[] { 1.2m, 1.2m, .15m};
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.Throws<AssertionException>(() => input.ShouldHaveUnique(v => v == 1.2m));
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
+        public void ShouldHaveUnique_WhenHaveOneMatch_ShouldNotThrow()
+        {
+            //---------------Set up test pack-------------------
+            var singular = GetRandomString(4,6);
+            var plural = GetRandomString(2,3);
+            var input = new[] { plural, singular, plural };
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(() => input.ShouldHaveUnique(s => s == singular));
+
+            //---------------Test Result -----------------------
         }
 
     }

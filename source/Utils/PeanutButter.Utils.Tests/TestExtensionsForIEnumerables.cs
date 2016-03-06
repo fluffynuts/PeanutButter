@@ -445,6 +445,50 @@ namespace PeanutButter.Utils.Tests
             Assert.AreEqual(expected, result);
         }
 
+        [Test]
+        public void HasUnique_WhenNoMatchesForLambda_ShouldReturnFalse()
+        {
+            //---------------Set up test pack-------------------
+            var input = new[] { 1,2,3 };
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.IsFalse(input.HasUnique(i => i == 4));
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
+        public void HasUnique_WhenMultipleMatchesForLambda_ShouldReturnFalse()
+        {
+            //---------------Set up test pack-------------------
+            var input = new[] { "a", "a", "b", "c" };
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.IsFalse(input.HasUnique(i => i == "a"));
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
+        public void HasUnique_WhenOneMatchesForLambda_ShouldReturnTrue()
+        {
+            //---------------Set up test pack-------------------
+            var input = new[] { "a", "a", "b", "c" };
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.IsTrue(input.HasUnique(i => i == "b"));
+
+            //---------------Test Result -----------------------
+        }
+
+
+
 
     }
 }
