@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -57,8 +59,31 @@ namespace PeanutButter.Utils
         public static int AsInteger(this string value)
         {
             int result;
-            int.TryParse(value, out result);
+            var interestingPart = GetLeadingIntegerCharsFrom(value ?? string.Empty);
+            int.TryParse(interestingPart, out result);
             return result;
+        }
+
+        private static string GetLeadingIntegerCharsFrom(string value)
+        {
+            var collected = new List<string>();
+            var intMarker = 0;
+            value.ForEach(c =>
+            {
+                if (intMarker > 1)
+                    return;
+                var asString = c.ToString();
+                if ("1234567890".Contains(asString))
+                {
+                    intMarker = 1;
+                    collected.Add(asString);
+                }
+                else if (intMarker == 1)
+                {
+                    intMarker++;
+                }
+            });
+            return collected.JoinWith(string.Empty);
         }
     }
 }

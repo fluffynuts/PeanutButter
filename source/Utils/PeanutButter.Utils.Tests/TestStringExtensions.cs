@@ -177,6 +177,69 @@ namespace PeanutButter.Utils.Tests
             Assert.AreEqual(expected, result);
         }
 
+        [Test]
+        public void AsInteger_WhenStringIsFloatingPointWithPeriod_ShouldReturnTruncatedIntPart()
+        {
+            //---------------Set up test pack-------------------
+            var input = "1.2";
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = input.AsInteger();
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(1, result);
+        }
+
+        [Test]
+        public void AsInteger_WhenStringIsFloatingPointWithComma_ShouldReturnTruncatedIntPart()
+        {
+            //---------------Set up test pack-------------------
+            var input = "1,2";
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = input.AsInteger();
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(1, result);
+        }
+
+        [Test]
+        public void AsInteger_WhenStringHasAlphaPart_ShouldReturnIntPartOfBeginning()
+        {
+            //---------------Set up test pack-------------------
+            var input = "2ab4";
+            var expected = 2;
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = input.AsInteger();
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(expected, result);
+        }
+
+
+        [Test]
+        public void AsInteger_WhenStringHasLeadingAlphaPart_ShouldReturnIntPartOfBeginning()
+        {
+            //---------------Set up test pack-------------------
+            var input = "woof42meow4";
+            var expected = 42;
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = input.AsInteger();
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(expected, result);
+        }
+
         [TestCase("a")]
         [TestCase("")]
         [TestCase("\r\n")]
