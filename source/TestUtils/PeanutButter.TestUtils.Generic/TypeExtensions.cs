@@ -80,6 +80,8 @@ namespace PeanutButter.TestUtils.Generic
 
         public static string PrettyName(this Type type)
         {
+            if (type == null)
+                return "(null Type)";
             if (type.IsGenericType)
             {
                 if (type.GetGenericTypeDefinition() == typeof(Nullable<>))

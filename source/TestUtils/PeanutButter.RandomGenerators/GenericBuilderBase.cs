@@ -46,6 +46,8 @@ namespace PeanutButter.RandomGenerators
 
         internal static Type FindOrGenerateDynamicBuilderFor(Type type)
         {
+            if (type == null)
+                return null;
             Type dynamicBuilderType;
             if (DynamicBuilders.TryGetValue(type, out dynamicBuilderType))
                 return dynamicBuilderType;

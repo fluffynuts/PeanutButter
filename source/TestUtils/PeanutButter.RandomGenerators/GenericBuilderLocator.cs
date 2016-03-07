@@ -9,9 +9,14 @@ namespace PeanutButter.RandomGenerators
 {
     public static class GenericBuilderLocator
     {
+        public static Type GetBuilderFor(Type type)
+        {
+            return TryFindExistingBuilderFor(type)
+                    ?? FindOrGenerateDynamicBuilderFor(type);
+        }
+
         public static Type TryFindExistingBuilderFor(Type type)
         {
-            // TODO: scour other assemblies for a possible builder (FUTURE, as required)
             return TryFindBuilderInCurrentAssemblyFor(type)
                    ?? TryFindBuilderInAnyOtherAssemblyInAppDomainFor(type);
         }
@@ -82,7 +87,7 @@ namespace PeanutButter.RandomGenerators
                 var curParts = cur.Namespace.Split('.');
                 var accMatchIndex = seekNamespace.MatchIndexFor(accParts);
                 var curMatchIndex = seekNamespace.MatchIndexFor(curParts);
-                return accMatchIndex < curMatchIndex ? acc : cur;
+                return accMatchIndex > curMatchIndex ? acc : cur;
             });
         }
     }

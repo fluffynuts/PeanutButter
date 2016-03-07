@@ -68,6 +68,14 @@
       <Project>{55c40403-0200-4757-b253-a9dcf56ed39f}</Project>
       <Name>EmailSpooler.Win32Service.Entity</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\GenericBuilderTestArtifactBuilders\GenericBuilderTestArtifactBuilders.csproj">
+      <Project>{94DF996D-AB59-4A67-9FB8-EC9DB0E75F49}</Project>
+      <Name>GenericBuilderTestArtifactBuilders</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\GenericBuilderTestArtifactEntities\GenericBuilderTestArtifactEntities.csproj">
+      <Project>{979F6293-9F94-4DAB-92AA-531E42C32F95}</Project>
+      <Name>GenericBuilderTestArtifactEntities</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj">
       <Project>{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}</Project>
       <Name>PeanutButter.RandomGenerators</Name>
