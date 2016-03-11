@@ -35,7 +35,7 @@ Public Interface ISelectStatementBuilder
     Function WithLeftJoin(table1 As String, field1 As String, eq As Condition.EqualityOperators, table2 As String, field2 As String) As ISelectStatementBuilder
     Function WithLeftJoin(table1 As String, field1 As String, table2 As String, Optional field2 As String = Nothing) As ISelectStatementBuilder
     Function WithJoin(table1 as String, table2 as String, direction as JoinDirections, ParamArray joinConditions() as ICondition) as ISelectStatementBuilder
-    Function OrderBy(orderByObj As OrderBy) As ISelectStatementBuilder
+    Function OrderBy(orderByObj As IOrderBy) As ISelectStatementBuilder
     Function OrderBy(fieldName As String, direction As OrderBy.Directions) As ISelectStatementBuilder
     Function OrderBy(tableName As String, fieldName As String, direction As OrderBy.Directions) As ISelectStatementBuilder
     Function OrderBy(multi As MultiOrderBy) As ISelectStatementBuilder
@@ -314,7 +314,7 @@ Public Class SelectStatementBuilder
         Return Me
     End Function
 
-    Public Function OrderBy(orderByObj As OrderBy) As ISelectStatementBuilder Implements ISelectStatementBuilder.OrderBy
+    Public Function OrderBy(orderByObj As IOrderBy) As ISelectStatementBuilder Implements ISelectStatementBuilder.OrderBy
         Me._orderBy = orderByObj
         Return Me
     End Function
