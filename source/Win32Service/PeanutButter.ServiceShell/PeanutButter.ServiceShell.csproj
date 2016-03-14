@@ -59,6 +59,7 @@
     <Compile Include="Shell.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="ShellTestFailureException.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

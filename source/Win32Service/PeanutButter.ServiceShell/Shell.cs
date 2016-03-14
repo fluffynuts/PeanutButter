@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.ServiceProcess;
 using System.Threading;
 using log4net;
@@ -95,6 +96,8 @@ namespace PeanutButter.ServiceShell
 
         public static int RunMain<T>(string[] args) where T: Shell, new()
         {
+            if (InTestModeFor<T>(args))
+                return -1;
             var instance = new T();
             var cliRunResult = CLIRunResultFor(args, instance);
             if (cliRunResult.HasValue)
@@ -441,6 +444,60 @@ namespace PeanutButter.ServiceShell
         {
             XmlConfigurator.Configure();
             return LogManager.GetLogger(ServiceName);
+        }
+
+        // test enablers
+        private static bool _testModeEnabled;
+        private static Type _testClass;
+        private static string[] _testArgs;
+
+        public static void StartTesting()
+        {
+            _testModeEnabled = true;
+        }
+
+        private static bool InTestModeFor<T>(string[] args)
+        {
+            if (!_testModeEnabled)
+                return false;
+            if (_testClass != null)
+                throw new Exception($"Already have run for {_testClass.Name}");
+            _testClass = typeof(T);
+            _testArgs = args;
+            return true;
+        }
+
+        public static void ShouldHaveRunMainFor<T>(string[] args)
+        {
+            try
+            {
+                if (_testModeEnabled &&
+                    _testClass == typeof(T) &&
+                    AllMatch(_testArgs, args))
+                {
+                    return;
+                }
+                var allArgs = string.Join(" ", args);
+                throw new ShellTestFailureException($"Expected to run for type {typeof(T).Name} with args {allArgs}");
+            }
+            finally
+            {
+                ResetTestMode();
+            }
+        }
+
+        public static void ResetTestMode()
+        {
+            _testModeEnabled = false;
+            _testClass = null;
+            _testArgs = null;
+        }
+
+        private static bool AllMatch(string[] testArgs, string[] args)
+        {
+            if (testArgs.Length != args.Length)
+                return false;
+            return !testArgs.Where((t, i) => t != args[i]).Any();
         }
     }
 }

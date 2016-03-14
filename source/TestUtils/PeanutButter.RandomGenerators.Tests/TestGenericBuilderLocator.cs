@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
 using GenericBuilderTestArtifactBuilders;
 using GenericBuilderTestArtifactEntities;
 using GenericBuilderTestArtifactEntities.Sub1;
 using NUnit.Framework;
-using PeanutButter.Utils;
 
 namespace PeanutButter.RandomGenerators.Tests
 {
