@@ -1,34 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.ServiceShell.Tests
 {
-    public class SomeService: Shell
-    {
-        public SomeService()
-        {
-            ServiceName = "SomeService";
-            DisplayName = "SomeService";
-        }
-    }
-
-    public class AnotherService: Shell
-    {
-    }
-
-    public class Program
-    {
-        public static int Main(string[] args)
-        {
-            return Shell.RunMain<SomeService>(args);
-        }
-    }
-
     [TestFixture]
     public class TestShell
     {

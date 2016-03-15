@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AnotherEntityWithoutBuilder.cs" />
+    <Compile Include="InternalClass.cs" />
     <Compile Include="SomeEntityWithBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SomeEntityWithoutBuilder.cs" />

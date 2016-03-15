@@ -34,7 +34,7 @@ namespace PeanutButter.RandomGenerators
             {
                 lock (DynamicAssemblyLock)
                 {
-                    return _dynamicAssemblyBuilderField ?? (_dynamicAssemblyBuilderField = DefineDynamicAssembly("DynamicEntityBuilders"));
+                    return _dynamicAssemblyBuilderField ?? (_dynamicAssemblyBuilderField = DefineDynamicAssembly("PeanutButter.RandomGenerators.GeneratedBuilders"));
                 }
             }
         }
