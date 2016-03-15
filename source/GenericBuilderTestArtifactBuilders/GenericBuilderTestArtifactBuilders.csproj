@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AnotherInternalClass.cs" />
     <Compile Include="SomeEntityWithBuilderBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sub1\AnotherEntityWithBuilderBuilder.cs" />

@@ -58,11 +58,17 @@ namespace PeanutButter.RandomGenerators
             var typeBuilder = modBuilder.DefineType(type.Name + "Builder", TypeAttributes.Public | TypeAttributes.Class);
             // Typebuilder is a sub class of Type
             typeBuilder.SetParent(t.MakeGenericType(typeBuilder, type));
-            dynamicBuilderType = typeBuilder.CreateType();
+            try
+            {
+                dynamicBuilderType = typeBuilder.CreateType();
+            }
+            catch (TypeLoadException ex)
+            {
+                throw new UnableToCreateDynamicBuilderException(type, ex);
+            }
             DynamicBuilders[type] = dynamicBuilderType;
             return dynamicBuilderType;
         }
-
 
     }
 }
