@@ -120,6 +120,12 @@ namespace PeanutButter.RandomGenerators
         public static DateTime GetRandomDate(DateTime? minDate = null, DateTime? maxDate = null, bool dateOnly = false, 
                                                 DateTime? minTime = null, DateTime? maxTime = null)
         {
+            return GetRandomDate(DateTimeKind.Local, minDate, maxDate, dateOnly, minTime, maxTime);
+        }
+
+        public static DateTime GetRandomDate(DateTimeKind kind, DateTime? minDate = null, DateTime? maxDate = null, bool dateOnly = false, 
+                                                DateTime? minTime = null, DateTime? maxTime = null)
+        {
             var minTicks = (minDate ?? new DateTime(1990, 1, 1)).Ticks;
             var maxTicks = (maxDate ?? new DateTime(2020, 12, 31)).Ticks;
             var actualTicks = GetRandomLong(minTicks, maxTicks);
@@ -129,7 +135,9 @@ namespace PeanutButter.RandomGenerators
                                             rawDateTime.Day, 
                                             rawDateTime.Hour, 
                                             rawDateTime.Minute, 
-                                            rawDateTime.Second);
+                                            rawDateTime.Second,
+                                            rawDateTime.Millisecond,
+                                            kind);
             return RangeCheckTimeOnRandomDate(minTime, maxTime, dateOnly ? sanitised.StartOfDay() : sanitised);
         }
 
