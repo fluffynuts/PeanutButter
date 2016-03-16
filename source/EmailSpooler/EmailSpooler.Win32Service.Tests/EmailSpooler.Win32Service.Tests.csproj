@@ -92,6 +92,7 @@
     <Compile Include="TestEmailSpooler.cs" />
     <Compile Include="TestEmailSpoolerDependencies.cs" />
     <Compile Include="TestEmailSpoolerService.cs" />
+    <Compile Include="TestProgram.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
