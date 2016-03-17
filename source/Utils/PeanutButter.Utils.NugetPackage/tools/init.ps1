@@ -6,3 +6,4 @@ param($installPath, $toolsPath, $package, $project)
 # $toolsPath is the path to the tools directory in the folder where the package is installed.
 # $package is a reference to the package object.
 # $project is null in init.ps1
+Import-Module (Join-Path $toolsPath UpdatePeanutButter.psm1)
