@@ -48,26 +48,29 @@ namespace PeanutButter.RandomGenerators
         {
             if (type == null)
                 return null;
-            Type dynamicBuilderType;
-            if (DynamicBuilders.TryGetValue(type, out dynamicBuilderType))
-                return dynamicBuilderType;
-            var t = typeof(GenericBuilder<,>);
-            var moduleName = string.Join("_", "DynamicEntityBuilders", type.Name);
-            var modBuilder = DynamicAssemblyBuilder.DefineDynamicModule(moduleName);
+            lock(DynamicBuilders)
+            {
+                Type dynamicBuilderType;
+                if (DynamicBuilders.TryGetValue(type, out dynamicBuilderType))
+                    return dynamicBuilderType;
+                var t = typeof(GenericBuilder<,>);
+                var moduleName = string.Join("_", "DynamicEntityBuilders", type.Name);
+                var modBuilder = DynamicAssemblyBuilder.DefineDynamicModule(moduleName);
 
-            var typeBuilder = modBuilder.DefineType(type.Name + "Builder", TypeAttributes.Public | TypeAttributes.Class);
-            // Typebuilder is a sub class of Type
-            typeBuilder.SetParent(t.MakeGenericType(typeBuilder, type));
-            try
-            {
-                dynamicBuilderType = typeBuilder.CreateType();
+                var typeBuilder = modBuilder.DefineType(type.Name + "Builder", TypeAttributes.Public | TypeAttributes.Class);
+                // Typebuilder is a sub class of Type
+                typeBuilder.SetParent(t.MakeGenericType(typeBuilder, type));
+                try
+                {
+                    dynamicBuilderType = typeBuilder.CreateType();
+                }
+                catch (TypeLoadException ex)
+                {
+                    throw new UnableToCreateDynamicBuilderException(type, ex);
+                }
+                DynamicBuilders[type] = dynamicBuilderType;
+                return dynamicBuilderType;
             }
-            catch (TypeLoadException ex)
-            {
-                throw new UnableToCreateDynamicBuilderException(type, ex);
-            }
-            DynamicBuilders[type] = dynamicBuilderType;
-            return dynamicBuilderType;
         }
 
     }

@@ -1,12 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.Entity;
+using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using PeanutButter.TempDb;
 using PeanutButter.TempDb.LocalDb;
 using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
 using PeanutButter.Utils.Entity;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.TestUtils.Entity.Tests
 {
@@ -385,6 +389,107 @@ namespace PeanutButter.TestUtils.Entity.Tests
                 .ShouldPersistAndRecall();
 
             //---------------Test Result -----------------------
+        }
+
+
+        [Test]
+        public void UsingDefaultDeltaOf2Ms_ShouldAllowTestItemDateTimePropertyValuesToDifferByThatDelta()
+        {
+            // Pre-amble: I've noticed that, periodically, a test against an entity
+            //  with a DateTime field will fail: the persisted entity will come back 
+            //  with the field different by one (rarely two) milliseconds. Mostly, 
+            //  in production, timestamps are only used to seconds precision, so mostly,
+            //  we don't actually care. The point of this test is to fail on the few that do
+            //  when we're not catering for the delta. The plan is:
+            //  1) add a WithAllowedDateTimeDelta method which takes a timespan
+            //          - so the consumer can specify exactly how fine to make the
+            //              allowance
+            //  2) default to using an allowed delta which covers the observed test flops (so
+            //      probably 2 ms)
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var exceptions = new List<Exception>();
+            Parallel.For(0, 5, (i, state) =>
+            {
+                // at least one of these should hit the issue
+                try
+                {
+                    EntityPersistenceTester.CreateFor<SomeEntityWithDateTimeValue>()
+                        .WithContext<ContextForDateTimeDeltaTesting>()
+                        .SuppressMissingMigratorMessage()
+                        .ShouldPersistAndRecall();
+                }
+                catch (Exception ex)
+                {
+                    state.Stop();
+                    exceptions.Add(ex);
+                }
+            });
+
+            //---------------Test Result -----------------------
+            if (exceptions.Any())
+                exceptions.ForEach(e => Console.WriteLine(e.Message));
+            CollectionAssert.IsEmpty(exceptions);
+        }
+
+        [Test]
+        public void WithAllowedDateTimeDelta_GivenDelta_WhenDeltaIsExceeded_ShouldThrow()
+        {
+            // Pre-amble: I've noticed that, periodically, a test against an entity
+            //  with a DateTime field will fail: the persisted entity will come back 
+            //  with the field different by one (rarely two) milliseconds. Mostly, 
+            //  in production, timestamps are only used to seconds precision, so mostly,
+            //  we don't actually care. The point of this test is to fail on the few that do
+            //  when we're not catering for the delta. The plan is:
+            //  1) add a WithAllowedDateTimeDelta method which takes a timespan
+            //          - so the consumer can specify exactly how fine to make the
+            //              allowance
+            //  2) default to using an allowed delta which covers the observed test flops (so
+            //      probably 2 ms)
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var exceptions = new List<Exception>();
+            Parallel.For(0, 15, (i, state) =>
+            {
+                // at least one of these should hit the issue
+                try
+                {
+                    EntityPersistenceTester.CreateFor<SomeEntityWithDateTimeValue>()
+                        .WithContext<ContextForDateTimeDeltaTesting>()
+                        .WithAllowedDateTimePropertyDelta(new TimeSpan(0,0,0,0,1))  // there should be at least one 2ms delta
+                        .SuppressMissingMigratorMessage()
+                        .ShouldPersistAndRecall();
+                }
+                catch (Exception ex)
+                {
+                    state.Stop();
+                    exceptions.Add(ex);
+                }
+            });
+
+            //---------------Test Result -----------------------
+            CollectionAssert.IsNotEmpty(exceptions);
+        }
+
+        public class SomeEntityWithDateTimeValue
+        {
+            public int SomeEntityWithDateTimeValueId { get; set; }
+            public DateTime TimeStamp { get; set; }
+        }
+
+        public class ContextForDateTimeDeltaTesting: DbContext
+        {
+            public IDbSet<SomeEntityWithDateTimeValue> StuffAndThings { get; set; }
+         
+            public ContextForDateTimeDeltaTesting(DbConnection connection): base(connection, false)
+            {
+            }
         }
 
 

@@ -61,6 +61,7 @@
   <ItemGroup>
     <Compile Include="DbSchemaImporter.cs" />
     <Compile Include="EntityPersistenceFluentState.cs" />
+    <Compile Include="EntityPersistenceFluentStateConstants.cs" />
     <Compile Include="EntityPersistenceTestContextBase.cs" />
     <Compile Include="EntityPersistenceTester.cs" />
     <Compile Include="EntityPersistenceTesterFor.cs" />

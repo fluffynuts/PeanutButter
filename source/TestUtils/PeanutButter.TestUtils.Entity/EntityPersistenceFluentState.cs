@@ -32,11 +32,15 @@ namespace PeanutButter.TestUtils.Entity
         private Action<string> _contextLogAction;
         // ReSharper disable once StaticMemberInGenericType
         private static readonly IEnumerable<PropertyInfo> DecimalProps;
+        private static readonly IEnumerable<PropertyInfo> DateTimeProps;
         private Func<string, IDBMigrationsRunner> _migrationsRunnerFactory;
         private Func<ITempDB> _tempDbFactoryFunction;
         private ITempDB _sharedDatabase;
         private Action<string> _logAction;
         private bool _suppressMigrationsWarning = false;
+        private TimeSpan _allowedDateTimeDelta;
+
+        // ReSharper disable once StaticMemberInGenericType
 
         public EntityPersistenceFluentState(Func<TEntity> entityFactory, Func<DbConnection, TContext> contextFactory = null)
         {
@@ -44,14 +48,19 @@ namespace PeanutButter.TestUtils.Entity
             _contextFactory = contextFactory ?? CreateContext;
             _entityFactory = BuildWithBuilder;
             _logAction = Console.WriteLine;
+            _allowedDateTimeDelta = EntityPersistenceFluentStateConstants.TwoMilliseconds;
         }
 
         static EntityPersistenceFluentState()
         {
-            DecimalProps = typeof (TEntity)
-                .GetProperties()
+            var allProperties = typeof (TEntity)
+                                    .GetProperties();
+            DecimalProps = allProperties
                 .Where(pi => pi.PropertyType == typeof (decimal));
-        } 
+            DateTimeProps = allProperties
+                .Where(pi => pi.PropertyType == typeof(DateTime));
+        }
+
 
         public EntityPersistenceFluentState<TContext, TEntity> WithDbMigrator(Func<string, IDBMigrationsRunner> migrationsRunnerFactory)
         {
@@ -98,6 +107,12 @@ namespace PeanutButter.TestUtils.Entity
         public EntityPersistenceFluentState<TContext, TEntity> WithLogAction(Action<string> logAction)
         {
             _logAction = logAction;
+            return this;
+        } 
+
+        public EntityPersistenceFluentState<TContext, TEntity> WithAllowedDateTimePropertyDelta(TimeSpan timeSpan)
+        {
+            _allowedDateTimeDelta = timeSpan;
             return this;
         } 
 
@@ -162,10 +177,23 @@ namespace PeanutButter.TestUtils.Entity
 
                 _runAfterPersisting?.Invoke(sut, persisted);
 
-                var ignoreAndDecimals = toIgnore.Union(DecimalProps.Select(pi => pi.Name)).ToArray();
-                PropertyAssert.AllPropertiesAreEqual(persisted, sut, ignoreAndDecimals);
+                var ignoreAndCrankyProperties = toIgnore.Union(DecimalProps.Union(DateTimeProps).Select(pi => pi.Name)).ToArray();
+                PropertyAssert.AllPropertiesAreEqual(persisted, sut, ignoreAndCrankyProperties);
                 TestDecimalPropertiesOn(sut, persisted);
+                TestDateTimePropertiesOn(sut, persisted);
             }
+        }
+
+        private void TestDateTimePropertiesOn(TEntity sut, TEntity persisted)
+        {
+            var allowed = Math.Abs(_allowedDateTimeDelta.TotalMilliseconds);
+            DateTimeProps.ForEach(pi =>
+            {
+                var beforeValue = (DateTime)pi.GetValue(sut);
+                var afterValue = (DateTime)pi.GetValue(persisted);
+                var delta = Math.Abs((beforeValue - afterValue).TotalMilliseconds);
+                Assert.That(delta, Is.LessThanOrEqualTo(allowed), $"Property mismatch: expected {pi.Name} to persist and recall with an accuracy within {allowed} ms");
+            });
         }
 
         private TEntity GetPersistedEntityFrom(TContext ctx)
