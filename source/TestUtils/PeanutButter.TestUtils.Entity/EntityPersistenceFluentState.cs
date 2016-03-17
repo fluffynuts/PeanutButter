@@ -48,7 +48,7 @@ namespace PeanutButter.TestUtils.Entity
             _contextFactory = contextFactory ?? CreateContext;
             _entityFactory = BuildWithBuilder;
             _logAction = Console.WriteLine;
-            _allowedDateTimeDelta = EntityPersistenceFluentStateConstants.TwoMilliseconds;
+            _allowedDateTimeDelta = EntityPersistenceFluentStateConstants.TwoMillseconds;
         }
 
         static EntityPersistenceFluentState()
@@ -56,9 +56,9 @@ namespace PeanutButter.TestUtils.Entity
             var allProperties = typeof (TEntity)
                                     .GetProperties();
             DecimalProps = allProperties
-                .Where(pi => pi.PropertyType == typeof (decimal));
+                .Where(pi => pi.PropertyType == typeof(decimal) || pi.PropertyType == typeof(decimal?));
             DateTimeProps = allProperties
-                .Where(pi => pi.PropertyType == typeof(DateTime));
+                .Where(pi => pi.PropertyType == typeof(DateTime) || pi.PropertyType == typeof(DateTime?));
         }
 
 
@@ -189,26 +189,36 @@ namespace PeanutButter.TestUtils.Entity
             var allowed = Math.Abs(_allowedDateTimeDelta.TotalMilliseconds);
             DateTimeProps.ForEach(pi =>
             {
-                var beforeValue = (DateTime)pi.GetValue(sut);
-                var afterValue = (DateTime)pi.GetValue(persisted);
-                var delta = Math.Abs((beforeValue - afterValue).TotalMilliseconds);
-                Assert.That(delta, Is.LessThanOrEqualTo(allowed), $"Property mismatch: expected {pi.Name} to persist and recall with an accuracy within {allowed} ms");
+                var beforeValue = (DateTime?)pi.GetValue(sut);
+                var afterValue = (DateTime?)pi.GetValue(persisted);
+                if (beforeValue.HasValue && afterValue.HasValue)
+                {
+                    var delta = Math.Abs((beforeValue.Value - afterValue.Value).TotalMilliseconds);
+                    Assert.That(delta, Is.LessThanOrEqualTo(allowed), $"Property mismatch: expected {pi.Name} to persist and recall with an accuracy within {allowed} ms");
+                }
+                else if (beforeValue.HasValue != afterValue.HasValue)
+                {
+                    Assert.Fail($"Property mismatch for {pi.Name}: expected {beforeValue} but got {afterValue}");
+                }
             });
-        }
-
-        private TEntity GetPersistedEntityFrom(TContext ctx)
-        {
-            return GetCollection(ctx).FirstOrDefault();
         }
 
         private static void TestDecimalPropertiesOn(TEntity sut, TEntity persisted)
         {
             foreach (var pi in DecimalProps)
             {
-                var sutValue = (decimal) pi.GetValue(sut);
-                var persistedValue = (decimal) pi.GetValue(persisted);
-                persistedValue.ShouldMatch(sutValue);
+                var beforeValue = (decimal?) pi.GetValue(sut);
+                var afterValue = (decimal?) pi.GetValue(persisted);
+                if (beforeValue.HasValue && afterValue.HasValue)
+                    afterValue.Value.ShouldMatch(beforeValue.Value);
+                else if (beforeValue.HasValue != afterValue.HasValue)
+                    Assert.Fail($"Property mismatch for {pi.Name}: expected {beforeValue} but got {afterValue}");
             }
+        }
+
+        private TEntity GetPersistedEntityFrom(TContext ctx)
+        {
+            return GetCollection(ctx).FirstOrDefault();
         }
 
         private void AttemptToPersistWith(TEntity sut, List<string> toIgnore)

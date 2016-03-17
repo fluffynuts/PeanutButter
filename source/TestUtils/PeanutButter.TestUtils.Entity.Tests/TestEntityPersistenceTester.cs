@@ -481,6 +481,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
         {
             public int SomeEntityWithDateTimeValueId { get; set; }
             public DateTime TimeStamp { get; set; }
+            public DateTime? NullableTimeStamp { get; set; }
         }
 
         public class ContextForDateTimeDeltaTesting: DbContext
@@ -497,6 +498,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
         {
             public int SomeEntityWithDecimalValueId { get; set; }
             public decimal DecimalValue { get; set; }
+            public decimal? NullableDecimalValue { get; set; }
         }
 
         public class EntityPersistenceContext: DbContextWithAutomaticTrackingFields
