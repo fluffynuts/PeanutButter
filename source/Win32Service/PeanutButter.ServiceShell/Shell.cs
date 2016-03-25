@@ -440,9 +440,14 @@ namespace PeanutButter.ServiceShell
             }
         }
 
+        private bool _haveConfiguredLogging;
         protected ILog GetLogger()
         {
-            XmlConfigurator.Configure();
+            if (!_haveConfiguredLogging)
+            {
+                XmlConfigurator.Configure();
+                _haveConfiguredLogging = true;
+            }
             return LogManager.GetLogger(ServiceName);
         }
 
