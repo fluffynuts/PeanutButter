@@ -8,17 +8,34 @@ namespace PeanutButter.FileSystem
     {
         public IEnumerable<string> List(string path, string searchPattern = "*")
         {
-            var startIndex = path.Length + 1;
-            return Directory.EnumerateDirectories(path, searchPattern)
-                            .Select(p => p.Substring(startIndex))
-                            .Union(ListFiles(path, searchPattern));
+            return ListFolders(path, searchPattern)
+                    .Union(ListFiles(path, searchPattern));
         }
 
         public IEnumerable<string> ListFiles(string path, string searchPattern = "*")
         {
+            return ListFilesInternal(path, searchPattern, SearchOption.TopDirectoryOnly);
+        }
+
+        public IEnumerable<string> ListFolders(string path, string searchPattern = "*")
+        {
             var startIndex = path.Length + 1;
-            return Directory.EnumerateFiles(path, searchPattern)
+            return Directory.EnumerateDirectories(path, searchPattern)
                             .Select(p => p.Substring(startIndex));
+        }
+
+        public IEnumerable<string> ListFilesRecursive(string path, string searchPattern = "*")
+        {
+            return ListFilesInternal(path, searchPattern, SearchOption.AllDirectories);
+        }
+
+        private static IEnumerable<string> ListFilesInternal(string path, 
+                                                                string searchPattern,
+                                                                SearchOption searchOption)
+        {
+            var startIndex = path.Length + 1;
+            return Directory.EnumerateFiles(path, searchPattern, searchOption)
+                .Select(p => p.Substring(startIndex));
         }
     }
 }

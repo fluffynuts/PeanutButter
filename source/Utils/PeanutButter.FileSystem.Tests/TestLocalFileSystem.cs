@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using NUnit.Framework;
 using PeanutButter.TestUtils.Generic;
@@ -157,7 +158,7 @@ namespace PeanutButter.FileSystem.Tests
 
 
         [Test]
-        public void ListFiles_GivenPathAndSearchPatther_ShouldReturnListOfMatchingFilesInPath()
+        public void ListFiles_GivenPathAndSearchPattern_ShouldReturnListOfMatchingFilesInPath()
         {
             //---------------Set up test pack-------------------
             using (var folder = new AutoTempFolder())
@@ -184,6 +185,128 @@ namespace PeanutButter.FileSystem.Tests
             }
         }
 
+
+        [Test]
+        public void ListFolders_GivenPath_ShouldReturnOnlyFoldersFromPath()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                var expected = GetRandomString();
+                var unexpected = GetAnother(expected);
+                Directory.CreateDirectory(Path.Combine(folder.Path, expected));
+                File.WriteAllBytes(Path.Combine(folder.Path, unexpected), GetRandomBytes());
+                var sut = Create();
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = sut.ListFolders(folder.Path);
+
+                //---------------Test Result -----------------------
+                CollectionAssert.Contains(result, expected);
+                CollectionAssert.DoesNotContain(result, unexpected);
+            }
+        }
+
+
+        [Test]
+        public void ListFolders_GivenPathAndSearchPattern_ShouldReturnListOfMatchingFoldersInPath()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                var ext = GetRandomString(3, 3);
+                var otherExt = GetAnother(ext, () => GetRandomString(3, 3));
+                var matchFolders = GetRandomCollection(() => GetRandomString(2, 4) + "." + ext, 3, 5);
+                var nonMatchFolders = GetRandomCollection(() => GetRandomString(2, 4) + "." + otherExt, 3, 5);
+                matchFolders.Union(nonMatchFolders).ForEach(f =>
+                    Directory.CreateDirectory(Path.Combine(folder.Path, f)));
+                var unexpected = GetAnother(matchFolders, () => GetRandomString(2, 4) + "." + ext);
+                File.WriteAllBytes(Path.Combine(folder.Path, unexpected), GetRandomBytes());
+                var sut = Create();
+                //---------------Assert Precondition----------------
+                Assert.IsTrue(matchFolders.Union(nonMatchFolders).All(f => Directory.Exists(Path.Combine(folder.Path, f))));
+
+                //---------------Execute Test ----------------------
+                var result = sut.ListFolders(folder.Path, "*." + ext);
+
+                //---------------Test Result -----------------------
+                Assert.IsTrue(matchFolders.All(f => result.Contains(f)));
+                Assert.IsFalse(result.Contains(unexpected));
+                Assert.IsFalse(nonMatchFolders.Any(f => result.Contains(f)));
+            }
+        }
+
+        [Test]
+        public void ListFilesRecursive_GivenPath_ShouldReturnOnlyFilesFromPathAndBelow()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                var expected = GetRandomString();
+                var unexpected = GetAnother(expected);
+                Directory.CreateDirectory(Path.Combine(folder.Path, unexpected));
+                var expected2 = Path.Combine(unexpected, GetRandomString());
+                File.WriteAllBytes(Path.Combine(folder.Path, expected), GetRandomBytes());
+                File.WriteAllBytes(Path.Combine(folder.Path, expected2), GetRandomBytes());
+                var sut = Create();
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = sut.ListFilesRecursive(folder.Path);
+
+                //---------------Test Result -----------------------
+                CollectionAssert.Contains(result, expected);
+                CollectionAssert.Contains(result, expected2);
+                CollectionAssert.DoesNotContain(result, unexpected);
+            }
+        }
+
+
+        [Test]
+        public void ListFilesRecursive_GivenPathAndSearchPattern_ShouldReturnListOfMatchingFilesInPath()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                var ext = GetRandomString(3, 3);
+                var otherExt = GetAnother(ext, () => GetRandomString(3, 3));
+                var matchFiles = GetRandomCollection(() => GetRandomString(2, 4) + "." + ext, 3, 5);
+                var nonMatchFiles = GetRandomCollection(() => GetRandomString(2, 4) + "." + otherExt, 3, 5);
+                var subMatchFiles = new List<string>();
+                matchFiles.ForEach(f =>
+                {
+                    var subFolder = GetRandomString();
+                    Directory.CreateDirectory(Path.Combine(folder.Path, subFolder));
+                    var subPath = Path.Combine(subFolder, f);
+                    subMatchFiles.Add(subPath);
+                    File.WriteAllBytes(Path.Combine(folder.Path, subPath), GetRandomBytes());
+                });
+                var subNonMatchFiles = new List<string>();
+                nonMatchFiles.ForEach(f =>
+                {
+                    var subFolder = GetRandomString();
+                    Directory.CreateDirectory(Path.Combine(folder.Path, subFolder));
+                    var subPath = Path.Combine(subFolder, f);
+                    subNonMatchFiles.Add(subPath);
+                    File.WriteAllBytes(Path.Combine(folder.Path, subPath), GetRandomBytes());
+                });
+                var unexpected = GetAnother(matchFiles, () => GetRandomString(2, 4) + "." + ext);
+                Directory.CreateDirectory(Path.Combine(folder.Path, unexpected));
+                var sut = Create();
+                //---------------Assert Precondition----------------
+                Assert.IsTrue(subMatchFiles.Union(subNonMatchFiles)
+                                .All(f => File.Exists(Path.Combine(folder.Path, f))));
+
+                //---------------Execute Test ----------------------
+                var result = sut.ListFilesRecursive(folder.Path, "*." + ext);
+
+                //---------------Test Result -----------------------
+                Assert.IsTrue(subMatchFiles.All(f => result.Contains(f)));
+                Assert.IsFalse(result.Contains(unexpected));
+                Assert.IsFalse(subNonMatchFiles.Any(f => result.Contains(f)));
+            }
+        }
 
 
         private IFileSystem Create()
