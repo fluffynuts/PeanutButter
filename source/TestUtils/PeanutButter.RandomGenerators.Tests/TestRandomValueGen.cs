@@ -390,7 +390,7 @@ namespace PeanutButter.RandomGenerators.Tests
             Assert.AreEqual(RANDOM_TEST_CYCLES, results.Count);
             Assert.IsTrue(results.All(d => d >= range.MinDate), "One or more results is less than the minimum date");
             Assert.IsTrue(results.All(d => d <= range.MaxDate), "One or more results is greater than the maximum date");
-            Assert.IsTrue(results.All(d => d.Millisecond == 0), "Milliseconds should be zeroed on random dates");
+            Assert.IsTrue(results.All(d => d.Microseconds() == 0), "Microseconds should be zeroed on random dates");
         }
 
         [Test]
@@ -1249,7 +1249,6 @@ namespace PeanutButter.RandomGenerators.Tests
             Assert.AreEqual(type, sut.Type);
             Assert.AreEqual(innerException, sut.InnerException);
         }
-
-
     }
+
 }

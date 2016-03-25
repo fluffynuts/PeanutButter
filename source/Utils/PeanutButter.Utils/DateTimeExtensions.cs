@@ -85,5 +85,10 @@ namespace PeanutButter.Utils
         {
             return new DateTime(years, months, days, hours, minutes, seconds, microseconds, kind);
         }
+
+        public static int Microseconds(this DateTime value)
+        {
+            return int.Parse(value.ToString("ffffff").Substring(3));
+        }
     }
 }

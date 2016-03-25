@@ -4,6 +4,7 @@ using EmailSpooler.Win32Service.Entity;
 using NUnit.Framework;
 using PeanutButter.TestUtils.Entity;
 using PeanutButter.TestUtils.Generic;
+using PeanutButter.Utils;
 
 namespace EmailSpooler.Win32Service.DB.Tests
 {
@@ -19,12 +20,11 @@ namespace EmailSpooler.Win32Service.DB.Tests
         [Test]
         public void Email_ShouldBeAbleToPersistAndRecall()
         {
-            ShouldBeAbleToPersist<EmailBuilder, Email>(ctx => ctx.Emails,
-                (ctx, email) =>
-                {
-                }, (before, after) =>
-                {
-                }, DefaultIgnoreFieldsFor<Email>());
+
+            EntityPersistenceTester.CreateFor<Email>()
+                    .WithContext<EmailContext>()
+                    .WithDbMigrator(cs => new DbMigrationsRunnerSqlServer(cs, s => { }))
+                    .ShouldPersistAndRecall();
         }
 
         [Test]
@@ -33,10 +33,10 @@ namespace EmailSpooler.Win32Service.DB.Tests
             ShouldBeAbleToPersist<EmailRecipientBuilder, EmailRecipient>(ctx => ctx.EmailRecipients,
                 (ctx, email) =>
                 {
-                    var foo = email;
                 }, (before, after) =>
                 {
-                    PropertyAssert.AllPropertiesAreEqual(before.Email, after.Email, DefaultIgnoreFieldsFor<Email>());
+                    PropertyAssert.AllPropertiesAreEqual(before.Email, after.Email, 
+                        DefaultIgnoreFieldsFor<Email>().And("SendAt"));
                 }, DefaultIgnoreFieldsFor<EmailRecipient>());
         }
 
@@ -48,7 +48,9 @@ namespace EmailSpooler.Win32Service.DB.Tests
                 {
                 }, (before, after) =>
                 {
-                    PropertyAssert.AllPropertiesAreEqual(before.Email, after.Email, DefaultIgnoreFieldsFor<Email>());
+                    PropertyAssert.AllPropertiesAreEqual(before.Email, after.Email, 
+                            DefaultIgnoreFieldsFor<Email>().And("SendAt"));
+
                 }, DefaultIgnoreFieldsFor<EmailAttachment>());
         }
 

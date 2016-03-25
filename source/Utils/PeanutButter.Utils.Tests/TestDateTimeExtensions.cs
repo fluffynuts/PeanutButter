@@ -253,6 +253,26 @@ namespace PeanutButter.Utils.Tests
             Assert.AreEqual(expected, result);
         }
 
+        [Test]
+        public void Microseconds_ShouldReturnMicrosecondsOnDateTime()
+        {
+            //---------------Set up test pack-------------------
+            var d = DateTime.Now;
+            var decimalPart = d.ToString("ffffff");
+            var lastThree = decimalPart.Substring(3);
+
+            //---------------Assert Precondition----------------
+            Assert.AreEqual(3, lastThree.Length);
+            var expected = int.Parse(lastThree);
+
+            //---------------Execute Test ----------------------
+            var result = d.Microseconds();
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(expected, result);
+        }
+
+
         private string zeroPad(int value, int places = 2)
         {
             var result = value.ToString();

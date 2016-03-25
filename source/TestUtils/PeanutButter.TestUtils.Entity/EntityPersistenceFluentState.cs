@@ -48,7 +48,7 @@ namespace PeanutButter.TestUtils.Entity
             _contextFactory = contextFactory ?? CreateContext;
             _entityFactory = BuildWithBuilder;
             _logAction = Console.WriteLine;
-            _allowedDateTimeDelta = EntityPersistenceFluentStateConstants.TenMillseconds;
+            _allowedDateTimeDelta = EntityPersistenceFluentStateConstants.FiftyMilliseconds;
         }
 
         static EntityPersistenceFluentState()

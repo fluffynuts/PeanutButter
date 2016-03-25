@@ -133,6 +133,57 @@ namespace PeanutButter.FileSystem.Tests
             }
         }
 
+        [Test]
+        public void ListFiles_GivenPath_ShouldReturnOnlyFilesFromPath()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                var expected = GetRandomString();
+                var unexpected = GetAnother(expected);
+                Directory.CreateDirectory(Path.Combine(folder.Path, unexpected));
+                File.WriteAllBytes(Path.Combine(folder.Path, expected), GetRandomBytes());
+                var sut = Create();
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = sut.ListFiles(folder.Path);
+
+                //---------------Test Result -----------------------
+                CollectionAssert.Contains(result, expected);
+                CollectionAssert.DoesNotContain(result, unexpected);
+            }
+        }
+
+
+        [Test]
+        public void ListFiles_GivenPathAndSearchPatther_ShouldReturnListOfMatchingFilesInPath()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                var ext = GetRandomString(3,3);
+                var otherExt = GetAnother(ext, () => GetRandomString(3,3));
+                var matchFiles = GetRandomCollection(() => GetRandomString(2,4) + "." + ext, 3, 5);
+                var nonMatchFiles = GetRandomCollection(() => GetRandomString(2,4) + "." + otherExt, 3, 5);
+                matchFiles.Union(nonMatchFiles).ForEach(f =>
+                    File.WriteAllBytes(Path.Combine(folder.Path, f), GetRandomBytes()));
+                var unexpected = GetAnother(matchFiles, () => GetRandomString(2,4) + "." + ext);
+                Directory.CreateDirectory(Path.Combine(folder.Path, unexpected));
+                var sut = Create();
+                //---------------Assert Precondition----------------
+                Assert.IsTrue(matchFiles.Union(nonMatchFiles).All(f => File.Exists(Path.Combine(folder.Path, f))));
+
+                //---------------Execute Test ----------------------
+                var result = sut.ListFiles(folder.Path, "*." + ext);
+
+                //---------------Test Result -----------------------
+                Assert.IsTrue(matchFiles.All(f => result.Contains(f)));
+                Assert.IsFalse(result.Contains(unexpected));
+                Assert.IsFalse(nonMatchFiles.Any(f => result.Contains(f)));
+            }
+        }
+
 
 
         private IFileSystem Create()
