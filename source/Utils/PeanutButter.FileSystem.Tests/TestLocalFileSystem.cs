@@ -13,18 +13,39 @@ namespace PeanutButter.FileSystem.Tests
     public class TestLocalFileSystem
     {
         [Test]
-        [Ignore("WIP")]
         public void GetCurrentDirectory_WhenNoDirectorySet_ShouldReturnSameDirectoryAsOuterScope()
         {
             //---------------Set up test pack-------------------
+            var expected = Directory.GetCurrentDirectory();
+            var sut = Create();
 
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
+            var result = sut.GetCurrentDirectory();
 
             //---------------Test Result -----------------------
-            Assert.Fail("Test Not Yet Implemented");
+            Assert.AreEqual(expected, result);
         }
+
+        [Test]
+        public void SetCurrentDirectory_ShouldStoreCurrentDirectoryAndReturnViaGetCurrentDirectory()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                var sut = Create();
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                sut.SetCurrentDirectory(folder.Path);
+                var result = sut.GetCurrentDirectory();
+
+                //---------------Test Result -----------------------
+                Assert.AreEqual(folder.Path, result);
+            }
+        }
+
 
 
         [Test]
@@ -55,7 +76,7 @@ namespace PeanutButter.FileSystem.Tests
         }
 
         [Test]
-        public void List_GivenNoArguments_ShouldListAllFilesAndDirectoriesInGivenPath()
+        public void List_GivenNoArguments_ShouldListAllFilesAndDirectoriesInCurrentPath()
         {
             //---------------Set up test pack-------------------
             using (var folder = new AutoTempFolder())
@@ -71,6 +92,7 @@ namespace PeanutButter.FileSystem.Tests
                 File.WriteAllBytes(Path.Combine(folder.Path, file2), GetRandomBytes());
 
                 var sut = Create();
+                sut.SetCurrentDirectory(folder.Path);
 
                 //---------------Assert Precondition----------------
                 Assert.IsTrue(Directory.Exists(Path.Combine(folder.Path, sub1)));
@@ -79,7 +101,7 @@ namespace PeanutButter.FileSystem.Tests
                 Assert.IsTrue(File.Exists(Path.Combine(folder.Path, file2)));
 
                 //---------------Execute Test ----------------------
-                var result = sut.List(folder.Path);
+                var result = sut.List();
 
                 //---------------Test Result -----------------------
                 CollectionAssert.Contains(result, sub1);
@@ -107,6 +129,7 @@ namespace PeanutButter.FileSystem.Tests
                 File.WriteAllBytes(Path.Combine(folder.Path, matchFile), GetRandomBytes());
                 File.WriteAllBytes(Path.Combine(folder.Path, nonMatchFile), GetRandomBytes());
                 var sut = Create();
+                sut.SetCurrentDirectory(folder.Path);
 
                 //---------------Assert Precondition----------------
                 Assert.IsTrue(Directory.Exists(Path.Combine(folder.Path, matchDirectory)));
@@ -115,7 +138,7 @@ namespace PeanutButter.FileSystem.Tests
                 Assert.IsTrue(File.Exists(Path.Combine(folder.Path, nonMatchFile)));
 
                 //---------------Execute Test ----------------------
-                var result = sut.List(folder.Path, matchPrefix + "*");
+                var result = sut.List(matchPrefix + "*");
 
                 //---------------Test Result -----------------------
                 CollectionAssert.Contains(result, matchDirectory);
@@ -138,11 +161,12 @@ namespace PeanutButter.FileSystem.Tests
                 matchFiles.Union(nonMatchFiles).ForEach(f =>
                     File.WriteAllBytes(Path.Combine(folder.Path, f), GetRandomBytes()));
                 var sut = Create();
+                sut.SetCurrentDirectory(folder.Path);
                 //---------------Assert Precondition----------------
                 Assert.IsTrue(matchFiles.Union(nonMatchFiles).All(f => File.Exists(Path.Combine(folder.Path, f))));
 
                 //---------------Execute Test ----------------------
-                var result = sut.List(folder.Path, "*." + ext);
+                var result = sut.List("*." + ext);
 
                 //---------------Test Result -----------------------
                 Assert.IsTrue(matchFiles.All(f => result.Contains(f)));
@@ -158,10 +182,11 @@ namespace PeanutButter.FileSystem.Tests
             {
                 var expected = CreateRandomFileTreeIn(folder.Path);
                 var sut = Create();
+                sut.SetCurrentDirectory(folder.Path);
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                var result = sut.ListRecursive(folder.Path);
+                var result = sut.ListRecursive();
 
                 //---------------Test Result -----------------------
                 CollectionAssert.AreEquivalent(expected, result);
@@ -179,10 +204,11 @@ namespace PeanutButter.FileSystem.Tests
                 var expected = Directory.EnumerateFileSystemEntries(folder.Path, "*a*", SearchOption.AllDirectories)
                                     .Select(p => p.Substring(folder.Path.Length + 1));;
                 var sut = Create();
+                sut.SetCurrentDirectory(folder.Path);
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                var result = sut.ListRecursive(folder.Path, search);
+                var result = sut.ListRecursive(search);
 
                 //---------------Test Result -----------------------
                 CollectionAssert.AreEquivalent(expected, result);
@@ -200,10 +226,11 @@ namespace PeanutButter.FileSystem.Tests
                 Directory.CreateDirectory(Path.Combine(folder.Path, unexpected));
                 File.WriteAllBytes(Path.Combine(folder.Path, expected), GetRandomBytes());
                 var sut = Create();
+                sut.SetCurrentDirectory(folder.Path);
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                var result = sut.ListFiles(folder.Path);
+                var result = sut.ListFiles();
 
                 //---------------Test Result -----------------------
                 CollectionAssert.Contains(result, expected);
@@ -226,11 +253,12 @@ namespace PeanutButter.FileSystem.Tests
                 var unexpected = GetAnother(matchFiles, () => GetRandomString(2,4) + "." + ext);
                 Directory.CreateDirectory(Path.Combine(folder.Path, unexpected));
                 var sut = Create();
+                sut.SetCurrentDirectory(folder.Path);
                 //---------------Assert Precondition----------------
                 Assert.IsTrue(matchFiles.Union(nonMatchFiles).All(f => File.Exists(Path.Combine(folder.Path, f))));
 
                 //---------------Execute Test ----------------------
-                var result = sut.ListFiles(folder.Path, "*." + ext);
+                var result = sut.ListFiles("*." + ext);
 
                 //---------------Test Result -----------------------
                 Assert.IsTrue(matchFiles.All(f => result.Contains(f)));
@@ -250,10 +278,11 @@ namespace PeanutButter.FileSystem.Tests
                 Directory.CreateDirectory(Path.Combine(folder.Path, expected));
                 File.WriteAllBytes(Path.Combine(folder.Path, unexpected), GetRandomBytes());
                 var sut = Create();
+                sut.SetCurrentDirectory(folder.Path);
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                var result = sut.ListDirectories(folder.Path);
+                var result = sut.ListDirectories();
 
                 //---------------Test Result -----------------------
                 CollectionAssert.Contains(result, expected);
@@ -276,11 +305,12 @@ namespace PeanutButter.FileSystem.Tests
                 var unexpected = GetAnother(matchDirectories, () => GetRandomString(2, 4) + "." + ext);
                 File.WriteAllBytes(Path.Combine(folder.Path, unexpected), GetRandomBytes());
                 var sut = Create();
+                sut.SetCurrentDirectory(folder.Path);
                 //---------------Assert Precondition----------------
                 Assert.IsTrue(matchDirectories.Union(nonMatchDirectories).All(f => Directory.Exists(Path.Combine(folder.Path, f))));
 
                 //---------------Execute Test ----------------------
-                var result = sut.ListDirectories(folder.Path, "*." + ext);
+                var result = sut.ListDirectories("*." + ext);
 
                 //---------------Test Result -----------------------
                 Assert.IsTrue(matchDirectories.All(f => result.Contains(f)));
@@ -302,10 +332,11 @@ namespace PeanutButter.FileSystem.Tests
                 File.WriteAllBytes(Path.Combine(folder.Path, expected), GetRandomBytes());
                 File.WriteAllBytes(Path.Combine(folder.Path, expected2), GetRandomBytes());
                 var sut = Create();
+                sut.SetCurrentDirectory(folder.Path);
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                var result = sut.ListFilesRecursive(folder.Path);
+                var result = sut.ListFilesRecursive();
 
                 //---------------Test Result -----------------------
                 CollectionAssert.Contains(result, expected);
@@ -345,12 +376,13 @@ namespace PeanutButter.FileSystem.Tests
                 var unexpected = GetAnother(matchFiles, () => GetRandomString(2, 4) + "." + ext);
                 Directory.CreateDirectory(Path.Combine(folder.Path, unexpected));
                 var sut = Create();
+                sut.SetCurrentDirectory(folder.Path);
                 //---------------Assert Precondition----------------
                 Assert.IsTrue(subMatchFiles.Union(subNonMatchFiles)
                                 .All(f => File.Exists(Path.Combine(folder.Path, f))));
 
                 //---------------Execute Test ----------------------
-                var result = sut.ListFilesRecursive(folder.Path, "*." + ext);
+                var result = sut.ListFilesRecursive("*." + ext);
 
                 //---------------Test Result -----------------------
                 Assert.IsTrue(subMatchFiles.All(f => result.Contains(f)));
@@ -369,11 +401,12 @@ namespace PeanutButter.FileSystem.Tests
                 var expected = fileTree
                                     .Where(p => Directory.Exists(Path.Combine(folder.Path, p)));
                 var sut = Create();
+                sut.SetCurrentDirectory(folder.Path);
                 //---------------Assert Precondition----------------
                 Assert.IsTrue(expected.All(f => Directory.Exists(Path.Combine(folder.Path, f))));
 
                 //---------------Execute Test ----------------------
-                var result = sut.ListDirectoriesRecursive(folder.Path);
+                var result = sut.ListDirectoriesRecursive();
 
                 //---------------Test Result -----------------------
                 CollectionAssert.AreEquivalent(expected, result);
