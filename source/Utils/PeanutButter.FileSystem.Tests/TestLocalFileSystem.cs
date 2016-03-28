@@ -151,7 +151,7 @@ namespace PeanutButter.FileSystem.Tests
         }
 
         [Test]
-        public void List_GivenPathAndFileExtensionMatch_ShouldFineMatchingFiles()
+        public void List_FileExtensionMatch_ShouldFindMatchingFiles()
         {
             //---------------Set up test pack-------------------
             using (var folder = new AutoTempFolder())
@@ -177,7 +177,7 @@ namespace PeanutButter.FileSystem.Tests
         }
 
         [Test]
-        public void ListRecursive_GivenPath_ShouldReturnAllFilesAndDirectoriesUnderThatPath()
+        public void ListRecursive_ShouldReturnAllFilesAndDirectoriesUnderThatPath()
         {
             //---------------Set up test pack-------------------
             using (var folder = new AutoTempFolder())
@@ -196,7 +196,7 @@ namespace PeanutButter.FileSystem.Tests
         }
 
         [Test]
-        public void ListRecursive_GivenPathAndSearchPatther_ShouldReturnAllFilesAndDirectoriesUnderThatPathWhichMatchTheSearchPattern()
+        public void ListRecursive_AndSearchPattern_ShouldReturnAllFilesAndDirectoriesUnderThatPathWhichMatchTheSearchPattern()
         {
             //---------------Set up test pack-------------------
             using (var folder = new AutoTempFolder())
@@ -218,7 +218,7 @@ namespace PeanutButter.FileSystem.Tests
         }
 
         [Test]
-        public void ListFiles_GivenPath_ShouldReturnOnlyFilesFromPath()
+        public void ListFiles_GivenNoArguments_ShouldReturnOnlyFilesFromPath()
         {
             //---------------Set up test pack-------------------
             using (var folder = new AutoTempFolder())
@@ -241,7 +241,7 @@ namespace PeanutButter.FileSystem.Tests
         }
 
         [Test]
-        public void ListFiles_GivenPathAndSearchPattern_ShouldReturnListOfMatchingFilesInPath()
+        public void ListFiles_SearchPattern_ShouldReturnListOfMatchingFilesInPath()
         {
             //---------------Set up test pack-------------------
             using (var folder = new AutoTempFolder())
@@ -270,7 +270,7 @@ namespace PeanutButter.FileSystem.Tests
         }
 
         [Test]
-        public void ListDirectories_GivenPath_ShouldReturnOnlyDirectoriesFromPath()
+        public void ListDirectories_GivenNoArguments_ShouldReturnOnlyDirectoriesFromPath()
         {
             //---------------Set up test pack-------------------
             using (var folder = new AutoTempFolder())
@@ -293,7 +293,7 @@ namespace PeanutButter.FileSystem.Tests
         }
 
         [Test]
-        public void ListDirectories_GivenPathAndSearchPattern_ShouldReturnListOfMatchingDirectoriesInPath()
+        public void ListDirectories_GivenSearchPattern_ShouldReturnListOfMatchingDirectoriesInPath()
         {
             //---------------Set up test pack-------------------
             using (var folder = new AutoTempFolder())
@@ -322,7 +322,7 @@ namespace PeanutButter.FileSystem.Tests
         }
 
         [Test]
-        public void ListFilesRecursive_GivenPath_ShouldReturnOnlyFilesFromPathAndBelow()
+        public void ListFilesRecursive_ShouldReturnOnlyFilesFromPathAndBelow()
         {
             //---------------Set up test pack-------------------
             using (var folder = new AutoTempFolder())
@@ -348,7 +348,7 @@ namespace PeanutButter.FileSystem.Tests
         }
 
         [Test]
-        public void ListFilesRecursive_GivenPathAndSearchPattern_ShouldReturnListOfMatchingFilesInPath()
+        public void ListFilesRecursive_SearchPattern_ShouldReturnListOfMatchingFilesInPath()
         {
             //---------------Set up test pack-------------------
             using (var folder = new AutoTempFolder())
@@ -394,7 +394,7 @@ namespace PeanutButter.FileSystem.Tests
         }
 
         [Test]
-        public void ListDirectoriesRecursive_GivenPath_ShouldReturnAllDirectoriesUnderThatPath()
+        public void ListDirectoriesRecursive_GivenNoArguments_ShouldReturnAllDirectoriesUnderThatPath()
         {
             //---------------Set up test pack-------------------
             using (var folder = new AutoTempFolder())
@@ -414,6 +414,209 @@ namespace PeanutButter.FileSystem.Tests
                 CollectionAssert.AreEquivalent(expected, result);
             }
         }
+
+        [Test]
+        public void Delete_GivenUnknownPath_ShouldDoNothing()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                //---------------Assert Precondition----------------
+                var fileName = GetRandomString();
+                var sut = Create();
+                sut.SetCurrentDirectory(folder.Path);
+                //---------------Execute Test ----------------------
+
+                Assert.DoesNotThrow(() => sut.Delete(fileName));
+
+                //---------------Test Result -----------------------
+            }
+        }
+
+        [Test]
+        public void Delete_GivenExistingFileName_ShouldDeleteIt()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                var fileName = CreateRandomFileIn(folder.Path);
+                var sut = Create();
+                sut.SetCurrentDirectory(folder.Path);
+                //---------------Assert Precondition----------------
+                var fullPath = Path.Combine(folder.Path, fileName);
+                Assert.IsTrue(File.Exists(fullPath));
+
+                //---------------Execute Test ----------------------
+                sut.Delete(fileName);
+
+                //---------------Test Result -----------------------
+                Assert.IsFalse(File.Exists(fullPath));
+            }
+        }
+
+        [Test]
+        public void Delete_GivenExistingEmptyFolderPath_ShouldDeleteIt()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                var folderName = CreateRandomFolderIn(folder.Path);
+                var sut = Create();
+                sut.SetCurrentDirectory(folder.Path);
+
+                //---------------Assert Precondition----------------
+                var fullPath = Path.Combine(folder.Path, folderName);
+                Assert.IsTrue(Directory.Exists(fullPath));
+
+                //---------------Execute Test ----------------------
+                sut.Delete(folderName);
+
+                //---------------Test Result -----------------------
+                Assert.IsFalse(Directory.Exists(fullPath));
+            }
+        }
+
+        [Test]
+        public void Delete_GivenFolderPathContainingFile_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                var folderName = CreateRandomFolderIn(folder.Path);
+                CreateRandomFileIn(Path.Combine(folder.Path, folderName));
+                var sut = Create();
+                sut.SetCurrentDirectory(folder.Path);
+                var fullPath = Path.Combine(folder.Path, folderName);
+
+                //---------------Assert Precondition----------------
+                Assert.IsTrue(Directory.Exists(fullPath));
+                Assert.IsTrue(Directory.EnumerateFiles(fullPath).Any());
+
+                //---------------Execute Test ----------------------
+                Assert.Throws<IOException>(() => sut.Delete(folderName));
+
+                //---------------Test Result -----------------------
+                Assert.IsTrue(Directory.Exists(fullPath));
+                Assert.IsTrue(Directory.EnumerateFiles(fullPath).Any());
+            }
+        }
+
+        [Test]
+        public void Delete_GivenFolderPathContainingFolder_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                var folderName = CreateRandomFolderIn(folder.Path);
+                CreateRandomFolderIn(Path.Combine(folder.Path, folderName));
+                var sut = Create();
+                sut.SetCurrentDirectory(folder.Path);
+                var fullPath = Path.Combine(folder.Path, folderName);
+
+                //---------------Assert Precondition----------------
+                Assert.IsTrue(Directory.Exists(fullPath));
+                Assert.IsTrue(Directory.EnumerateDirectories(fullPath).Any());
+
+                //---------------Execute Test ----------------------
+                Assert.Throws<IOException>(() => sut.Delete(folderName));
+
+                //---------------Test Result -----------------------
+                Assert.IsTrue(Directory.Exists(fullPath));
+                Assert.IsTrue(Directory.EnumerateDirectories(fullPath).Any());
+            }
+        }
+
+        [Test]
+        public void DeleteRecursive_GivenUnknownPath_ShouldNotThrow()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                var toDelete = GetRandomString();
+                var sut = Create();
+                sut.SetCurrentDirectory(folder.Path);
+
+                //---------------Assert Precondition----------------
+                var fullPath = Path.Combine(folder.Path, toDelete);
+                Assert.IsFalse(File.Exists(fullPath));
+                Assert.IsFalse(Directory.Exists(fullPath));
+
+                //---------------Execute Test ----------------------
+                Assert.DoesNotThrow(() => sut.DeleteRecursive(toDelete));
+
+                //---------------Test Result -----------------------
+            }
+        }
+
+        [Test]
+        public void DeleteRecursive_GivenPathOfFile_ShouldDeleteIt()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                var toDelete = CreateRandomFileIn(folder.Path);
+                var sut = Create();
+                sut.SetCurrentDirectory(folder.Path);
+
+                //---------------Assert Precondition----------------
+                var fullPath = Path.Combine(folder.Path, toDelete);
+                Assert.IsTrue(File.Exists(fullPath));
+
+                //---------------Execute Test ----------------------
+                Assert.DoesNotThrow(() => sut.DeleteRecursive(toDelete));
+
+                //---------------Test Result -----------------------
+                Assert.IsFalse(File.Exists(fullPath));
+            }
+        }
+
+
+        [Test]
+        public void DeleteRecursive_GivenPathOfEmptyFolder_ShouldDeleteIt()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                var toDelete = CreateRandomFolderIn(folder.Path);
+                var sut = Create();
+                sut.SetCurrentDirectory(folder.Path);
+
+                //---------------Assert Precondition----------------
+                var fullPath = Path.Combine(folder.Path, toDelete);
+                Assert.IsTrue(Directory.Exists(fullPath));
+
+                //---------------Execute Test ----------------------
+                Assert.DoesNotThrow(() => sut.DeleteRecursive(toDelete));
+
+                //---------------Test Result -----------------------
+                Assert.IsFalse(Directory.Exists(fullPath));
+            }
+        }
+
+
+        [Test]
+        public void DeleteRecursive_GivenPathOfNonEmptyFolder_ShouldDeleteIt()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                var toDelete = CreateRandomFolderIn(folder.Path);
+                CreateRandomFileTreeIn(Path.Combine(folder.Path, toDelete));
+                var sut = Create();
+                sut.SetCurrentDirectory(folder.Path);
+
+                //---------------Assert Precondition----------------
+                var fullPath = Path.Combine(folder.Path, toDelete);
+                Assert.IsTrue(Directory.Exists(fullPath));
+
+                //---------------Execute Test ----------------------
+                Assert.DoesNotThrow(() => sut.DeleteRecursive(toDelete));
+
+                //---------------Test Result -----------------------
+                Assert.IsFalse(Directory.Exists(fullPath));
+            }
+        }
+
 
         private IFileSystem Create()
         {

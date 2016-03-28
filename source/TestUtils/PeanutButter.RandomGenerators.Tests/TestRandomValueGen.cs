@@ -1142,6 +1142,24 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [Test]
+        public void CreateRandomFolderIn_GivenExistingPath_ShouldCreateFolderInThere()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = CreateRandomFolderIn(folder.Path);
+
+                //---------------Test Result -----------------------
+                Assert.IsNotNull(result);
+                Assert.IsTrue(Directory.Exists(Path.Combine(folder.Path, result)));
+            }
+        }
+
+
+        [Test]
         public void CreateRandomFoldersIn_GivenPath_ShouldCreateSomeRandomFoldersThereAndReturnTheRelativePaths()
         {
             //---------------Set up test pack-------------------

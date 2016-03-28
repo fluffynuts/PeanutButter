@@ -58,6 +58,25 @@ namespace PeanutButter.FileSystem
             _currentDirectory = path;
         }
 
+        public void Delete(string path)
+        {
+            DeleteInternal(path, false);
+        }
+
+        public void DeleteRecursive(string path)
+        {
+            DeleteInternal(path, true);
+        }
+
+        private void DeleteInternal(string path, bool recursive)
+        {
+            path = Path.Combine(_currentDirectory, path);
+            if (File.Exists(path))
+                File.Delete(path);
+            else if (Directory.Exists(path))
+                Directory.Delete(path, recursive);
+        }
+
         private static IEnumerable<string> ListDirectoriesInternal(string path, 
                                                                 string searchPattern,
                                                                 SearchOption searchOption)

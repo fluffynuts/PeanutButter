@@ -393,6 +393,17 @@ namespace PeanutButter.RandomGenerators
             );
         }
 
+        public static string CreateRandomFolderIn(string path)
+        {
+            string folderName;
+            do
+            {
+                folderName = GetRandomString();
+            } while (Directory.Exists(Path.Combine(path, folderName)));
+            Directory.CreateDirectory(Path.Combine(path, folderName));
+            return folderName;
+        }
+
         public static IEnumerable<string> CreateRandomFoldersIn(string path, int depth = 2)
         {
             var toCreate = GetRandomCollection<string>(1).ToList();
