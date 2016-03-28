@@ -1,11 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using NUnit.Framework;
 using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+// ReSharper disable ObjectCreationAsStatement
+// ReSharper disable PossibleMultipleEnumeration
+// ReSharper disable AccessToDisposedClosure
 
 namespace PeanutButter.FileSystem.Tests
 {
@@ -202,7 +204,7 @@ namespace PeanutButter.FileSystem.Tests
                 CreateRandomFileTreeIn(folder.Path);
                 var search = "*a*";
                 var expected = Directory.EnumerateFileSystemEntries(folder.Path, "*a*", SearchOption.AllDirectories)
-                                    .Select(p => p.Substring(folder.Path.Length + 1));;
+                                    .Select(p => p.Substring(folder.Path.Length + 1));
                 var sut = Create();
                 sut.SetCurrentDirectory(folder.Path);
                 //---------------Assert Precondition----------------
