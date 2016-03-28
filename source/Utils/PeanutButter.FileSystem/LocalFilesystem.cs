@@ -19,14 +19,26 @@ namespace PeanutButter.FileSystem
 
         public IEnumerable<string> ListFolders(string path, string searchPattern = "*")
         {
-            var startIndex = path.Length + 1;
-            return Directory.EnumerateDirectories(path, searchPattern)
-                            .Select(p => p.Substring(startIndex));
+            return ListFoldersInternal(path, searchPattern, SearchOption.TopDirectoryOnly);
         }
 
         public IEnumerable<string> ListFilesRecursive(string path, string searchPattern = "*")
         {
             return ListFilesInternal(path, searchPattern, SearchOption.AllDirectories);
+        }
+
+        public IEnumerable<string> ListFoldersRecursive(string path, string searchPattern = "*")
+        {
+            return ListFoldersInternal(path, searchPattern, SearchOption.AllDirectories);
+        }
+
+        private static IEnumerable<string> ListFoldersInternal(string path, 
+                                                                string searchPattern,
+                                                                SearchOption searchOption)
+        {
+            var startIndex = path.Length + 1;
+            return Directory.EnumerateDirectories(path, searchPattern, searchOption)
+                .Select(p => p.Substring(startIndex));
         }
 
         private static IEnumerable<string> ListFilesInternal(string path, 

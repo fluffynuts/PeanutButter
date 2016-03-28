@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using GenericBuilderTestArtifactBuilders;
@@ -1138,6 +1139,118 @@ namespace PeanutButter.RandomGenerators.Tests
             Assert.Throws<UnableToCreateDynamicBuilderException>(() => GetRandom<AnotherInternalClass>());
 
             //---------------Test Result -----------------------
+        }
+
+        [Test]
+        public void CreateRandomFoldersIn_GivenPath_ShouldCreateSomeRandomFoldersThereAndReturnTheRelativePaths()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = CreateRandomFoldersIn(folder.Path);
+
+                //---------------Test Result -----------------------
+                Assert.IsNotNull(result);
+                CollectionAssert.IsNotEmpty(result);
+                result.All(r => Directory.Exists(r));
+                CollectionAssert.AreEquivalent(result, result.Distinct());
+                result.All(r => !r.Contains(Path.DirectorySeparatorChar));
+                var existing = Directory.EnumerateDirectories(folder.Path, "*", SearchOption.AllDirectories)
+                                    .Select(p => p.Substring(folder.Path.Length + 1));
+                CollectionAssert.AreEquivalent(existing, result);
+            }
+        }
+
+        [Test]
+        public void CreateRandomFoldersIn_GivenPathAndDepth_ShouldCreateSomeRandomFoldersThereAndReturnTheRelativePaths()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                //---------------Assert Precondition----------------
+                var depth = GetRandomInt(2,3);
+
+                //---------------Execute Test ----------------------
+                var result = CreateRandomFoldersIn(folder.Path, depth);
+
+                //---------------Test Result -----------------------
+                Assert.IsNotNull(result);
+                CollectionAssert.IsNotEmpty(result);
+                result.All(r => Directory.Exists(r));
+                CollectionAssert.AreEquivalent(result, result.Distinct());
+                var depths = result.Select(r => r.Split(Path.DirectorySeparatorChar).Length);
+                depths.All(d => d <= depth);
+                depths.Any(d => d > 1);
+            }
+        }
+
+        [Test]
+        public void CreateRandomFileIn_GivenPath_ShouldReturnNameOfFileCreatedThereWithRandomContents()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                //---------------Assert Precondition----------------
+            
+                //---------------Execute Test ----------------------
+                var result = CreateRandomFileIn(folder.Path);
+
+                //---------------Test Result -----------------------
+                Assert.IsNotNull(result);
+                Assert.IsTrue(File.Exists(Path.Combine(folder.Path, result)));
+                CollectionAssert.IsNotEmpty(File.ReadAllBytes(Path.Combine(folder.Path, result)));
+            }
+        }
+
+        [Test]
+        public void CreateRandomTextFileIn_GivenPath_ShouldReturnNameOfFileCreatedThereWithRandomContents()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                //---------------Assert Precondition----------------
+            
+                //---------------Execute Test ----------------------
+                var result = CreateRandomTextFileIn(folder.Path);
+
+                //---------------Test Result -----------------------
+                Assert.IsNotNull(result);
+                Assert.IsTrue(File.Exists(Path.Combine(folder.Path, result)));
+                var lines = File.ReadAllLines(Path.Combine(folder.Path, result));
+                CollectionAssert.IsNotEmpty(lines);
+                Assert.IsTrue(lines.All(l =>
+                {
+                    return l.All(c => !Char.IsControl(c));
+                }));
+            }
+        }
+
+        [Test]
+        public void CreateRandomFileTreeIn_GivenPath_ShouldCreateFilesAndFoldersAndReturnTheirRelativePaths()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = CreateRandomFileTreeIn(folder.Path);
+
+                //---------------Test Result -----------------------
+                Assert.IsNotNull(result);
+                CollectionAssert.IsNotEmpty(result);
+                Assert.IsTrue(result.Any(r => PathExists(Path.Combine(folder.Path, r))));
+                Assert.IsTrue(result.Any(r => File.Exists(Path.Combine(folder.Path, r))), "No files found");
+                Assert.IsTrue(result.Any(r => Directory.Exists(Path.Combine(folder.Path, r))), "No folders found");
+            }
+        }
+
+        private bool PathExists(string path)
+        {
+            return File.Exists(path) || Directory.Exists(path);
         }
 
 

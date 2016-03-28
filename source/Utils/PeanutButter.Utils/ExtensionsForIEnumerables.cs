@@ -90,5 +90,13 @@ namespace PeanutButter.Utils
             return matches.Count() == 1;
         }
 
+        public static void TimesDo(this int howMany, Action toRun)
+        {
+            if (howMany < 0)
+                throw new ArgumentException("TimesDo must be called on positive integer", nameof(howMany));
+            for (var i = 0; i < howMany; i++)
+                toRun();
+        }
+
     }
 }

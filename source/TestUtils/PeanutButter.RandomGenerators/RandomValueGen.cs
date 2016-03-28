@@ -392,5 +392,51 @@ namespace PeanutButter.RandomGenerators
                 GetRandomInt()
             );
         }
+
+        public static IEnumerable<string> CreateRandomFoldersIn(string path, int depth = 2)
+        {
+            var toCreate = GetRandomCollection<string>(1).ToList();
+            toCreate.ToArray().ForEach(f =>
+            {
+                Directory.CreateDirectory(Path.Combine(path, f));
+                if (depth > 1)
+                {
+                    toCreate.AddRange(CreateRandomFoldersIn(Path.Combine(path, f), depth-1)
+                                        .Select(sub => Path.Combine(f, sub)));
+                }
+            });
+            return toCreate;
+        }
+
+        public static string CreateRandomFileIn(string path)
+        {
+            var fileName = GetRandomString();
+            File.WriteAllBytes(Path.Combine(path, fileName), GetRandomBytes());
+            return fileName;
+        }
+
+        public static string CreateRandomTextFileIn(string path)
+        {
+            var fileName = GetRandomString();
+            var lines = GetRandomCollection<string>();
+            File.WriteAllLines(Path.Combine(path, fileName), lines);
+            return fileName;
+        }
+
+        public static IEnumerable<string> CreateRandomFileTreeIn(string path, int depth = 2)
+        {
+            var folders = CreateRandomFoldersIn(path, depth);
+            var result = new List<string>(folders);
+            folders.ForEach(f =>
+            {
+                var numberOfFiles = GetRandomInt(1);
+                numberOfFiles.TimesDo(() =>
+                {
+                    var createdFile = CreateRandomFileIn(Path.Combine(path, f));
+                    result.Add(Path.Combine(f, createdFile))    ;
+                });
+            });
+            return result;
+        }
     }
 }

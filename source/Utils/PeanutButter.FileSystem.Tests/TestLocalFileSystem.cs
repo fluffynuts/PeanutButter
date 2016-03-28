@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using NUnit.Framework;
@@ -135,6 +136,20 @@ namespace PeanutButter.FileSystem.Tests
         }
 
         [Test]
+        [Ignore("WIP")]
+        public void ListRecursive_GivenPathAndSearchPatt()
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+
+            //---------------Test Result -----------------------
+            Assert.Fail("Test Not Yet Implemented");
+        }
+
+        [Test]
         public void ListFiles_GivenPath_ShouldReturnOnlyFilesFromPath()
         {
             //---------------Set up test pack-------------------
@@ -155,7 +170,6 @@ namespace PeanutButter.FileSystem.Tests
                 CollectionAssert.DoesNotContain(result, unexpected);
             }
         }
-
 
         [Test]
         public void ListFiles_GivenPathAndSearchPattern_ShouldReturnListOfMatchingFilesInPath()
@@ -185,7 +199,6 @@ namespace PeanutButter.FileSystem.Tests
             }
         }
 
-
         [Test]
         public void ListFolders_GivenPath_ShouldReturnOnlyFoldersFromPath()
         {
@@ -207,7 +220,6 @@ namespace PeanutButter.FileSystem.Tests
                 CollectionAssert.DoesNotContain(result, unexpected);
             }
         }
-
 
         [Test]
         public void ListFolders_GivenPathAndSearchPattern_ShouldReturnListOfMatchingFoldersInPath()
@@ -262,7 +274,6 @@ namespace PeanutButter.FileSystem.Tests
             }
         }
 
-
         [Test]
         public void ListFilesRecursive_GivenPathAndSearchPattern_ShouldReturnListOfMatchingFilesInPath()
         {
@@ -308,6 +319,26 @@ namespace PeanutButter.FileSystem.Tests
             }
         }
 
+        [Test]
+        public void ListFoldersRecursive_GivenPath_ShouldReturnAllFoldersUnderThatPath()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                var fileTree = CreateRandomFileTreeIn(folder.Path);
+                var expected = fileTree
+                                    .Where(p => Directory.Exists(Path.Combine(folder.Path, p)));
+                var sut = Create();
+                //---------------Assert Precondition----------------
+                Assert.IsTrue(expected.All(f => Directory.Exists(Path.Combine(folder.Path, f))));
+
+                //---------------Execute Test ----------------------
+                var result = sut.ListFoldersRecursive(folder.Path);
+
+                //---------------Test Result -----------------------
+                CollectionAssert.AreEquivalent(expected, result);
+            }
+        }
 
         private IFileSystem Create()
         {

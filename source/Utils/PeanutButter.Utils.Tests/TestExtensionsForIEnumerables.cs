@@ -488,6 +488,54 @@ namespace PeanutButter.Utils.Tests
         }
 
 
+        [Test]
+        public void TimesDo_OperatingOnZero_ShouldNotRunAction()
+        {
+            //---------------Set up test pack-------------------
+            var calls = 0;
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            0.TimesDo(() => calls++);
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(0, calls);
+        }
+
+        [Test]
+        public void TimesDo_OperatingOnPositiveInteger_ShouldRunActionThatManyTimes()
+        {
+            //---------------Set up test pack-------------------
+            var calls = 0;
+            var howMany = GetRandomInt(1, 20);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            howMany.TimesDo(() => calls++);
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(howMany, calls);
+        }
+
+        [Test]
+        public void TimesDo_OperatingOnNegativeInteger_ShouldThrowArgumentException()
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var ex = Assert.Throws<ArgumentException>(() => (-1).TimesDo(() => { }));
+
+            //---------------Test Result -----------------------
+            StringAssert.Contains("positive integer", ex.Message);
+            Assert.AreEqual("howMany", ex.ParamName);
+        }
+
+
+
+
 
 
     }

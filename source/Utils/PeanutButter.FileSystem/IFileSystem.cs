@@ -8,5 +8,6 @@ namespace PeanutButter.FileSystem
         IEnumerable<string> ListFiles(string path, string searchPattern = "*");
         IEnumerable<string> ListFolders(string path, string searchPattern = "*");
         IEnumerable<string> ListFilesRecursive(string path, string searchPattern = "*");
+        IEnumerable<string> ListFoldersRecursive(string path, string searchPattern = "*");
     }
 }
