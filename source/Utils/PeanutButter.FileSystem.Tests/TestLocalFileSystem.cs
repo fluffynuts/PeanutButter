@@ -13,6 +13,21 @@ namespace PeanutButter.FileSystem.Tests
     public class TestLocalFileSystem
     {
         [Test]
+        [Ignore("WIP")]
+        public void GetCurrentDirectory_WhenNoDirectorySet_ShouldReturnSameDirectoryAsOuterScope()
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+
+            //---------------Test Result -----------------------
+            Assert.Fail("Test Not Yet Implemented");
+        }
+
+
+        [Test]
         public void Type_ShouldImplent_IFileSystem()
         {
             //---------------Set up test pack-------------------
@@ -40,7 +55,7 @@ namespace PeanutButter.FileSystem.Tests
         }
 
         [Test]
-        public void List_GivenNoArguments_ShouldListAllFilesAndFoldersInGivenPath()
+        public void List_GivenNoArguments_ShouldListAllFilesAndDirectoriesInGivenPath()
         {
             //---------------Set up test pack-------------------
             using (var folder = new AutoTempFolder())
@@ -75,27 +90,27 @@ namespace PeanutButter.FileSystem.Tests
         }
 
         [Test]
-        public void List_GivenSearchPattern_ShouldReturnOnlyMatchingFoldersAndFiles()
+        public void List_GivenSearchPattern_ShouldReturnOnlyMatchingDirectoriesAndFiles()
         {
             //---------------Set up test pack-------------------
             using (var folder = new AutoTempFolder())
             {
                 var matchPrefix = GetRandomString(3,5);
                 var nonMatchPrefix = GetAnother(matchPrefix);
-                var matchFolder = matchPrefix + GetRandomString();
+                var matchDirectory = matchPrefix + GetRandomString();
                 var matchFile = matchPrefix + GetRandomString();
-                var nonMatchFolder = nonMatchPrefix + GetRandomString();
+                var nonMatchDirectory = nonMatchPrefix + GetRandomString();
                 var nonMatchFile = nonMatchPrefix + GetRandomString();
 
-                Directory.CreateDirectory(Path.Combine(folder.Path, matchFolder));
-                Directory.CreateDirectory(Path.Combine(folder.Path, nonMatchFolder));
+                Directory.CreateDirectory(Path.Combine(folder.Path, matchDirectory));
+                Directory.CreateDirectory(Path.Combine(folder.Path, nonMatchDirectory));
                 File.WriteAllBytes(Path.Combine(folder.Path, matchFile), GetRandomBytes());
                 File.WriteAllBytes(Path.Combine(folder.Path, nonMatchFile), GetRandomBytes());
                 var sut = Create();
 
                 //---------------Assert Precondition----------------
-                Assert.IsTrue(Directory.Exists(Path.Combine(folder.Path, matchFolder)));
-                Assert.IsTrue(Directory.Exists(Path.Combine(folder.Path, nonMatchFolder)));
+                Assert.IsTrue(Directory.Exists(Path.Combine(folder.Path, matchDirectory)));
+                Assert.IsTrue(Directory.Exists(Path.Combine(folder.Path, nonMatchDirectory)));
                 Assert.IsTrue(File.Exists(Path.Combine(folder.Path, matchFile)));
                 Assert.IsTrue(File.Exists(Path.Combine(folder.Path, nonMatchFile)));
 
@@ -103,9 +118,9 @@ namespace PeanutButter.FileSystem.Tests
                 var result = sut.List(folder.Path, matchPrefix + "*");
 
                 //---------------Test Result -----------------------
-                CollectionAssert.Contains(result, matchFolder);
+                CollectionAssert.Contains(result, matchDirectory);
                 CollectionAssert.Contains(result, matchFile);
-                CollectionAssert.DoesNotContain(result, nonMatchFolder);
+                CollectionAssert.DoesNotContain(result, nonMatchDirectory);
                 CollectionAssert.DoesNotContain(result, nonMatchFile);
             }
         }
@@ -136,7 +151,7 @@ namespace PeanutButter.FileSystem.Tests
         }
 
         [Test]
-        public void ListRecursive_GivenPath_ShouldReturnAllFilesAndFoldersUnderThatPath()
+        public void ListRecursive_GivenPath_ShouldReturnAllFilesAndDirectoriesUnderThatPath()
         {
             //---------------Set up test pack-------------------
             using (var folder = new AutoTempFolder())
@@ -154,7 +169,7 @@ namespace PeanutButter.FileSystem.Tests
         }
 
         [Test]
-        public void ListRecursive_GivenPathAndSearchPatther_ShouldReturnAllFilesAndFoldersUnderThatPathWhichMatchTheSearchPattern()
+        public void ListRecursive_GivenPathAndSearchPatther_ShouldReturnAllFilesAndDirectoriesUnderThatPathWhichMatchTheSearchPattern()
         {
             //---------------Set up test pack-------------------
             using (var folder = new AutoTempFolder())
@@ -225,7 +240,7 @@ namespace PeanutButter.FileSystem.Tests
         }
 
         [Test]
-        public void ListFolders_GivenPath_ShouldReturnOnlyFoldersFromPath()
+        public void ListDirectories_GivenPath_ShouldReturnOnlyDirectoriesFromPath()
         {
             //---------------Set up test pack-------------------
             using (var folder = new AutoTempFolder())
@@ -238,7 +253,7 @@ namespace PeanutButter.FileSystem.Tests
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                var result = sut.ListFolders(folder.Path);
+                var result = sut.ListDirectories(folder.Path);
 
                 //---------------Test Result -----------------------
                 CollectionAssert.Contains(result, expected);
@@ -247,30 +262,30 @@ namespace PeanutButter.FileSystem.Tests
         }
 
         [Test]
-        public void ListFolders_GivenPathAndSearchPattern_ShouldReturnListOfMatchingFoldersInPath()
+        public void ListDirectories_GivenPathAndSearchPattern_ShouldReturnListOfMatchingDirectoriesInPath()
         {
             //---------------Set up test pack-------------------
             using (var folder = new AutoTempFolder())
             {
                 var ext = GetRandomString(3, 3);
                 var otherExt = GetAnother(ext, () => GetRandomString(3, 3));
-                var matchFolders = GetRandomCollection(() => GetRandomString(2, 4) + "." + ext, 3, 5);
-                var nonMatchFolders = GetRandomCollection(() => GetRandomString(2, 4) + "." + otherExt, 3, 5);
-                matchFolders.Union(nonMatchFolders).ForEach(f =>
+                var matchDirectories = GetRandomCollection(() => GetRandomString(2, 4) + "." + ext, 3, 5);
+                var nonMatchDirectories = GetRandomCollection(() => GetRandomString(2, 4) + "." + otherExt, 3, 5);
+                matchDirectories.Union(nonMatchDirectories).ForEach(f =>
                     Directory.CreateDirectory(Path.Combine(folder.Path, f)));
-                var unexpected = GetAnother(matchFolders, () => GetRandomString(2, 4) + "." + ext);
+                var unexpected = GetAnother(matchDirectories, () => GetRandomString(2, 4) + "." + ext);
                 File.WriteAllBytes(Path.Combine(folder.Path, unexpected), GetRandomBytes());
                 var sut = Create();
                 //---------------Assert Precondition----------------
-                Assert.IsTrue(matchFolders.Union(nonMatchFolders).All(f => Directory.Exists(Path.Combine(folder.Path, f))));
+                Assert.IsTrue(matchDirectories.Union(nonMatchDirectories).All(f => Directory.Exists(Path.Combine(folder.Path, f))));
 
                 //---------------Execute Test ----------------------
-                var result = sut.ListFolders(folder.Path, "*." + ext);
+                var result = sut.ListDirectories(folder.Path, "*." + ext);
 
                 //---------------Test Result -----------------------
-                Assert.IsTrue(matchFolders.All(f => result.Contains(f)));
+                Assert.IsTrue(matchDirectories.All(f => result.Contains(f)));
                 Assert.IsFalse(result.Contains(unexpected));
-                Assert.IsFalse(nonMatchFolders.Any(f => result.Contains(f)));
+                Assert.IsFalse(nonMatchDirectories.Any(f => result.Contains(f)));
             }
         }
 
@@ -312,18 +327,18 @@ namespace PeanutButter.FileSystem.Tests
                 var subMatchFiles = new List<string>();
                 matchFiles.ForEach(f =>
                 {
-                    var subFolder = GetRandomString();
-                    Directory.CreateDirectory(Path.Combine(folder.Path, subFolder));
-                    var subPath = Path.Combine(subFolder, f);
+                    var subDirectory = GetRandomString();
+                    Directory.CreateDirectory(Path.Combine(folder.Path, subDirectory));
+                    var subPath = Path.Combine(subDirectory, f);
                     subMatchFiles.Add(subPath);
                     File.WriteAllBytes(Path.Combine(folder.Path, subPath), GetRandomBytes());
                 });
                 var subNonMatchFiles = new List<string>();
                 nonMatchFiles.ForEach(f =>
                 {
-                    var subFolder = GetRandomString();
-                    Directory.CreateDirectory(Path.Combine(folder.Path, subFolder));
-                    var subPath = Path.Combine(subFolder, f);
+                    var subDirectory = GetRandomString();
+                    Directory.CreateDirectory(Path.Combine(folder.Path, subDirectory));
+                    var subPath = Path.Combine(subDirectory, f);
                     subNonMatchFiles.Add(subPath);
                     File.WriteAllBytes(Path.Combine(folder.Path, subPath), GetRandomBytes());
                 });
@@ -345,7 +360,7 @@ namespace PeanutButter.FileSystem.Tests
         }
 
         [Test]
-        public void ListFoldersRecursive_GivenPath_ShouldReturnAllFoldersUnderThatPath()
+        public void ListDirectoriesRecursive_GivenPath_ShouldReturnAllDirectoriesUnderThatPath()
         {
             //---------------Set up test pack-------------------
             using (var folder = new AutoTempFolder())
@@ -358,7 +373,7 @@ namespace PeanutButter.FileSystem.Tests
                 Assert.IsTrue(expected.All(f => Directory.Exists(Path.Combine(folder.Path, f))));
 
                 //---------------Execute Test ----------------------
-                var result = sut.ListFoldersRecursive(folder.Path);
+                var result = sut.ListDirectoriesRecursive(folder.Path);
 
                 //---------------Test Result -----------------------
                 CollectionAssert.AreEquivalent(expected, result);

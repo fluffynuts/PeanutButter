@@ -8,8 +8,6 @@ namespace PeanutButter.FileSystem
     {
         public IEnumerable<string> List(string path, string searchPattern = "*")
         {
-            //return ListFolders(path, searchPattern)
-            //        .Union(ListFiles(path, searchPattern));
             var startIndex = path.Length + 1;
             return Directory.EnumerateFileSystemEntries(path, searchPattern, SearchOption.TopDirectoryOnly)
                             .Select(p => p.Substring(startIndex));
@@ -20,9 +18,9 @@ namespace PeanutButter.FileSystem
             return ListFilesInternal(path, searchPattern, SearchOption.TopDirectoryOnly);
         }
 
-        public IEnumerable<string> ListFolders(string path, string searchPattern = "*")
+        public IEnumerable<string> ListDirectories(string path, string searchPattern = "*")
         {
-            return ListFoldersInternal(path, searchPattern, SearchOption.TopDirectoryOnly);
+            return ListDirectoriesInternal(path, searchPattern, SearchOption.TopDirectoryOnly);
         }
 
         public IEnumerable<string> ListRecursive(string path, string searchPattern = "*")
@@ -37,12 +35,12 @@ namespace PeanutButter.FileSystem
             return ListFilesInternal(path, searchPattern, SearchOption.AllDirectories);
         }
 
-        public IEnumerable<string> ListFoldersRecursive(string path, string searchPattern = "*")
+        public IEnumerable<string> ListDirectoriesRecursive(string path, string searchPattern = "*")
         {
-            return ListFoldersInternal(path, searchPattern, SearchOption.AllDirectories);
+            return ListDirectoriesInternal(path, searchPattern, SearchOption.AllDirectories);
         }
 
-        private static IEnumerable<string> ListFoldersInternal(string path, 
+        private static IEnumerable<string> ListDirectoriesInternal(string path, 
                                                                 string searchPattern,
                                                                 SearchOption searchOption)
         {
