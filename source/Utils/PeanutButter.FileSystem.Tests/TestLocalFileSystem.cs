@@ -136,17 +136,42 @@ namespace PeanutButter.FileSystem.Tests
         }
 
         [Test]
-        [Ignore("WIP")]
-        public void ListRecursive_GivenPathAndSearchPatt()
+        public void ListRecursive_GivenPath_ShouldReturnAllFilesAndFoldersUnderThatPath()
         {
             //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                var expected = CreateRandomFileTreeIn(folder.Path);
+                var sut = Create();
+                //---------------Assert Precondition----------------
 
-            //---------------Assert Precondition----------------
+                //---------------Execute Test ----------------------
+                var result = sut.ListRecursive(folder.Path);
 
-            //---------------Execute Test ----------------------
+                //---------------Test Result -----------------------
+                CollectionAssert.AreEquivalent(expected, result);
+            }
+        }
 
-            //---------------Test Result -----------------------
-            Assert.Fail("Test Not Yet Implemented");
+        [Test]
+        public void ListRecursive_GivenPathAndSearchPatther_ShouldReturnAllFilesAndFoldersUnderThatPathWhichMatchTheSearchPattern()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                CreateRandomFileTreeIn(folder.Path);
+                var search = "*a*";
+                var expected = Directory.EnumerateFileSystemEntries(folder.Path, "*a*", SearchOption.AllDirectories)
+                                    .Select(p => p.Substring(folder.Path.Length + 1));;
+                var sut = Create();
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = sut.ListRecursive(folder.Path, search);
+
+                //---------------Test Result -----------------------
+                CollectionAssert.AreEquivalent(expected, result);
+            }
         }
 
         [Test]
