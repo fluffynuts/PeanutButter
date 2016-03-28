@@ -14,5 +14,7 @@ namespace PeanutButter.FileSystem
         void SetCurrentDirectory(string path);
         void Delete(string path);
         void DeleteRecursive(string path);
+        void Copy(string sourceAbsolutePath);
+        void Copy(string sourceAbsolutePath, string targetRelativePath);
     }
 }

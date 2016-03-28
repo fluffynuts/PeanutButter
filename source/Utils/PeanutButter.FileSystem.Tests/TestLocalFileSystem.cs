@@ -617,6 +617,111 @@ namespace PeanutButter.FileSystem.Tests
             }
         }
 
+        [Test]
+        public void Copy_GivenUnknownSource_ShouldThrowException()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                var srcFolder = CreateRandomFolderIn(folder.Path);
+                var dstFolder = CreateRandomFolderIn(folder.Path);
+                var srcFile = Path.Combine(folder.Path, srcFolder, GetRandomString());
+                var sut = Create();
+                sut.SetCurrentDirectory(Path.Combine(folder.Path, dstFolder));
+
+                //---------------Assert Precondition----------------
+                var fullSourcePath = Path.Combine(folder.Path, srcFile);
+                Assert.IsFalse(File.Exists(fullSourcePath));
+
+                //---------------Execute Test ----------------------
+                Assert.Throws<FileNotFoundException>(() => sut.Copy(fullSourcePath));
+
+                //---------------Test Result -----------------------
+            }
+        }
+
+        [Test]
+        public void Copy_GivenFileSource_WhenDestinationIsFolder_ShouldCopyIntoFolderWithSameName()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                var srcFolder = CreateRandomFolderIn(folder.Path);
+                var srcFile = CreateRandomFileIn(Path.Combine(folder.Path, srcFolder));
+                var dstFolder = CreateRandomFolderIn(folder.Path);
+                var sut = Create();
+                sut.SetCurrentDirectory(Path.Combine(folder.Path, dstFolder));
+                var expected = Path.Combine(folder.Path, dstFolder, Path.GetFileName(srcFile));
+                var fullSourcePath = Path.Combine(folder.Path, srcFolder, srcFile);
+
+                //---------------Assert Precondition----------------
+                Assert.IsFalse(File.Exists(expected));
+
+                //---------------Execute Test ----------------------
+                sut.Copy(fullSourcePath);
+
+                //---------------Test Result -----------------------
+                Assert.IsTrue(File.Exists(expected), "File not found after copy");
+            }
+        }
+
+        [Test]
+        public void Copy_GivenFileSource_WhenDestinationDoesNotExistButDestinationFolderDoesExist_ShouldCopyIntoFolderWithProvidedName()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                var srcFolder = CreateRandomFolderIn(folder.Path);
+                var srcFile = CreateRandomFileIn(Path.Combine(folder.Path, srcFolder));
+                var dstFolder = CreateRandomFolderIn(folder.Path);
+                var dstFile = GetRandomString();
+                var sut = Create();
+                sut.SetCurrentDirectory(Path.Combine(folder.Path));
+                var expected = Path.Combine(folder.Path, dstFolder, dstFile);
+                var fullSourcePath = Path.Combine(folder.Path, srcFolder, srcFile);
+
+                //---------------Assert Precondition----------------
+                Assert.IsFalse(File.Exists(expected));
+
+                //---------------Execute Test ----------------------
+                sut.Copy(fullSourcePath, Path.Combine(dstFolder, dstFile));
+
+                //---------------Test Result -----------------------
+                Assert.IsTrue(File.Exists(expected), "File not found after copy");
+                CollectionAssert.AreEqual(File.ReadAllBytes(fullSourcePath),
+                                          File.ReadAllBytes(expected));
+            }
+        }
+
+        [Test]
+        public void Copy_GivenSourceFile_WhenDestinationDoesNotExistAndSupportingFoldersAreMissing_ShouldCreateThemAndCopy()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                var srcFolder = CreateRandomFolderIn(folder.Path);
+                var srcFile = CreateRandomFileIn(Path.Combine(folder.Path, srcFolder));
+                var dstPath = Path.Combine(GetRandomCollection<string>(3,5).ToArray());
+                var sut = Create();
+                sut.SetCurrentDirectory(folder.Path);
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var sourceFileFullPath = Path.Combine(folder.Path, srcFolder, srcFile);
+                sut.Copy(sourceFileFullPath,
+                            dstPath);
+
+                //---------------Test Result -----------------------
+                Assert.IsTrue(File.Exists(Path.Combine(folder.Path, dstPath)));
+                CollectionAssert.AreEqual(File.ReadAllBytes(sourceFileFullPath),
+                                            File.ReadAllBytes(Path.Combine(folder.Path, dstPath)));
+            }
+        }
+
+
+
+
 
         private IFileSystem Create()
         {
