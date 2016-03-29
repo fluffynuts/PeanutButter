@@ -15,7 +15,14 @@ using PeanutButter.Utils.Entity;
 
 namespace PeanutButter.TestUtils.Entity
 {
-    public class EntityPersistenceFluentState<TContext, TEntity> where TContext: DbContext
+    public class EntityPersistenceFluentStateBase
+    {
+        protected static List<ITempDB> SharedDatabasesWhichHaveBeenMigrated { get; } = new List<ITempDB>();
+        protected static readonly object SharedMigrationsLock = new object();
+    }
+
+    public class EntityPersistenceFluentState<TContext, TEntity> : EntityPersistenceFluentStateBase 
+                                                                 where TContext : DbContext
                                                                  where TEntity: class
     {
         private readonly Func<DbConnection, TContext> _contextFactory;
@@ -283,17 +290,37 @@ namespace PeanutButter.TestUtils.Entity
 
         private ITempDB GetTempDb()
         {
-            return _tempDb ?? (_tempDb = _sharedDatabase ?? CreateTempDb());
+            return _tempDb ?? (_tempDb = GetSharedDatabase() ?? CreateTempDb());
         }
+
+
+        private ITempDB GetSharedDatabase()
+        {
+            if (_sharedDatabase == null)
+                return null;
+            lock(SharedMigrationsLock)
+            {
+                if (SharedDatabasesWhichHaveBeenMigrated.Contains(_sharedDatabase))
+                    return _sharedDatabase;
+                SharedDatabasesWhichHaveBeenMigrated.Add(_sharedDatabase);
+                return MigrateUpOn(_sharedDatabase);
+            }
+        }
+        
 
         private ITempDB CreateTempDb()
         {
             var db = _tempDbFactoryFunction?.Invoke() ?? new TempDBLocalDb();
+            return MigrateUpOn(db);
+        }
+
+        private ITempDB MigrateUpOn(ITempDB db)
+        {
             if (_migrationsRunnerFactory == null)
             {
                 if (!_suppressMigrationsWarning)
                     _logAction(
-@"WARNING: running tests without specified DBMigrationsRunner. 
+                        @"WARNING: running tests without specified DBMigrationsRunner. 
 
 EntityFramework will perform migrations, which probably won't test what you want to. 
 

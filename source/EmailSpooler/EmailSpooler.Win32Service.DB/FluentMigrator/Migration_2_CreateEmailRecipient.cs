@@ -1,5 +1,4 @@
-﻿using System;
-using FluentMigrator;
+﻿using FluentMigrator;
 using _Columns = EmailSpooler.Win32Service.DB.DataConstants.Tables.EmailRecipients.Columns;
 
 namespace EmailSpooler.Win32Service.DB.FluentMigrator

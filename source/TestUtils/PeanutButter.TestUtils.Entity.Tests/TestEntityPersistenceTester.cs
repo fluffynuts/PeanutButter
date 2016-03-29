@@ -5,6 +5,7 @@ using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using PeanutButter.FluentMigrator;
 using PeanutButter.TempDb;
 using PeanutButter.TempDb.LocalDb;
 using PeanutButter.TestUtils.Generic;
@@ -477,6 +478,41 @@ namespace PeanutButter.TestUtils.Entity.Tests
             CollectionAssert.IsNotEmpty(exceptions);
         }
 
+        [Test]
+        public void WhenUsingSharedDatabaseAndMigrator_ShouldOnlyMigrateTheFirstTime()
+        {
+            using (var db = new TempDBLocalDb())
+            {
+                var sql = @"
+create table SomeEntityWithDecimalValue (
+    SomeEntityWithDecimalValueId int identity primary key,
+    DecimalValue decimal NOT NULL,
+    NullableDecimalValue decimal);";
+                EntityPersistenceTester.CreateFor<SomeEntityWithDecimalValue>()
+                    .WithContext<EntityPersistenceContext>()
+                    .WithDbMigrator(cs => new DbSchemaImporter(cs, sql))
+                    .WithSharedDatabase(db)
+                    .ShouldPersistAndRecall();
+
+                // need to clear for the test to work again
+                using (var ctx = new EntityPersistenceContext(db.CreateConnection()))
+                {
+                    ctx.StuffAndThings.Clear();
+                    ctx.SaveChangesWithErrorReporting();
+                }
+
+                Assert.DoesNotThrow(() =>
+                {
+                    EntityPersistenceTester.CreateFor<SomeEntityWithDecimalValue>()
+                        .WithContext<EntityPersistenceContext>()
+                        .WithDbMigrator(cs => new DbSchemaImporter(cs, sql))
+                        .WithSharedDatabase(db)
+                        .ShouldPersistAndRecall();
+                });
+            }
+        }
+
+
         public class SomeEntityWithDateTimeValue
         {
             public int SomeEntityWithDateTimeValueId { get; set; }
@@ -503,7 +539,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
 
         public class EntityPersistenceContext: DbContextWithAutomaticTrackingFields
         {
-            private IDbSet<SomeEntityWithDecimalValue> StuffAndThings { get; set; }
+            public IDbSet<SomeEntityWithDecimalValue> StuffAndThings { get; set; }
 
             public EntityPersistenceContext(string nameOrConnectionString) : base(nameOrConnectionString)
             {
