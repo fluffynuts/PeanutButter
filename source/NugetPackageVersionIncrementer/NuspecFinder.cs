@@ -14,7 +14,7 @@ namespace NugetPackageVersionIncrementer
     public class NuspecFinder : INuspecFinder
     {
         public IEnumerable<string> NuspecPaths => _foundNuspecPaths ?? new string[] { }.AsEnumerable();
-        private List<string> _foundNuspecPaths = new List<string>();
+        private readonly List<string> _foundNuspecPaths = new List<string>();
 
         public void FindNuspecsUnder(string basePath)
         {
