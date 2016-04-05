@@ -1,12 +1,22 @@
 ﻿function Update-PeanutButter() {
 	param(
 		[parameter(mandatory=$false)]
-		$version
+		[string]
+		$version,
+		[parameter(mandatory=$false)]
+		[switch]
+		$dummy
 	)
+	if ($dummy) {
+		Write-Host "(dummy operation requested)"
+	}
 	if (!$version) {
-    write-host "Searching for latest version..."
+		write-host "Searching for latest version..."
 		$version = (find-package -exactmatch peanutbutter.utils).Version
 		write-host " -> $version"
+	}
+	if ($dummy) {
+		return
 	}
 	$projects = get-project -all
 	foreach ($project in $projects) {
