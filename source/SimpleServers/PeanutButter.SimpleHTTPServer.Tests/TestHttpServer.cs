@@ -6,8 +6,10 @@ using System.Net;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Xml.Linq;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 using PeanutButter.SimpleTcpServer;
 using PeanutButter.Utils;
 
@@ -72,8 +74,8 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             const string theDocName = "index.html";
             using (var server = Create())
             {
-                //---------------Assert Precondition----------------
                 server.AddDocumentHandler((p, s) => p.Path == "/" + theDocName ? doc : null);
+                //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
                 var result = DownloadResultFrom(server, theDocName).ToUTF8String();
@@ -82,6 +84,36 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                 Assert.AreEqual(doc, result);
             }
         }
+
+        public class SimpleData
+        {
+            public string SomeProperty { get; set; }
+        }
+
+        [Test]
+        public void AddJsonDocumentHandler_ShouldServeJsonDocument()
+        {
+            //---------------Set up test pack-------------------
+            var expected = GetRandomString();
+            var data = new SimpleData { SomeProperty = expected };
+            var route = "api/foo";
+            using (var server = Create())
+            {
+                string contentType = null;
+                server.AddJsonDocumentHandler((p, s) => p.Path == "/" + route ? data : null);
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+
+                var stringResult = DownloadResultFrom(server, route, out contentType).ToUTF8String();
+
+                //---------------Test Result -----------------------
+                var resultAsObject = JsonConvert.DeserializeObject<SimpleData>(stringResult);
+                Assert.IsNotNull(resultAsObject);
+                Assert.AreEqual(expected, resultAsObject.SomeProperty);
+            }
+        }
+
 
         [Test]
         public void Start_WhenConfiguredToServeFile_ShouldReturnTheFileContents()
@@ -112,10 +144,35 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                var result = DownloadResultFrom(server, "/index.html");
+                string contentType = null;
+                var result = DownloadResultFrom(server, "/index.html", out contentType);
 
                 //---------------Test Result -----------------------
                 Assert.AreEqual(doc.ToString(), result.ToUTF8String());
+                Assert.AreEqual("text/html", contentType);
+            }
+        }
+
+        [Test]
+        public void ServeJsonDocument_GivenPathAndDocument_ShouldServeForThatPath()
+        {
+            using (var server = Create())
+            {
+                //---------------Set up test pack-------------------
+                var obj = GetRandom<SimpleData>();
+                server.ServeJsonDocument("/api/query", obj);
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                string contentType = null;
+                var result = DownloadResultFrom(server, "/api/query", out contentType);
+
+                //---------------Test Result -----------------------
+                var resultAsObject = JsonConvert.DeserializeObject<SimpleData>(result.ToUTF8String());
+                Assert.IsNotNull(result);
+                Assert.AreEqual(obj.SomeProperty, resultAsObject.SomeProperty);
+                Assert.AreEqual("application/json", contentType);
             }
         }
 

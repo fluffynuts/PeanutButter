@@ -24,7 +24,8 @@ namespace PeanutButter.SimpleHTTPServer
         private const string CONTENT_TYPE_HEADER = "Content-Type";
         private const string METHOD_GET = "GET";
         private const string METHOD_POST = "POST";
-        private const string MIMETYPE_HTML = "text/html";
+        public const string MIMETYPE_HTML = "text/html";
+        public const string MIMETYPE_JSON = "application/json";
         private const int MAX_POST_SIZE = 10 * 1024 * 1024; // 10MB
 
         public HttpServerBase Server { get; protected set; }

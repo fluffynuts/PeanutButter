@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Xml.Linq;
+using Newtonsoft.Json;
 
 namespace PeanutButter.SimpleHTTPServer 
 {
@@ -77,19 +78,35 @@ namespace PeanutButter.SimpleHTTPServer
 
         public void AddDocumentHandler(Func<HttpProcessor, Stream, string> handler)
         {
+            HandleDocumentRequestWith(handler, "html", null, HttpProcessor.MIMETYPE_HTML);
+        }
+
+        public void AddJsonDocumentHandler(Func<HttpProcessor, Stream, object> handler)
+        {
+            HandleDocumentRequestWith(handler, "json", o => JsonConvert.SerializeObject(o), HttpProcessor.MIMETYPE_JSON);
+        }
+
+        private void HandleDocumentRequestWith(Func<HttpProcessor, Stream, object> handler, 
+                                                string documentTypeForLogging, 
+                                                Func<object, string> stringProcessor, 
+                                                string mimeType)
+        {
             AddHandler((p, s) =>
+            {
+                Log($"Handling {documentTypeForLogging} document request: {0}", p.FullUrl);
+                var doc = handler(p, s);
+                if (doc == null)
                 {
-                    Log("Handling document request: {0}", p.FullUrl);
-                    var doc = handler(p, s);
-                    if (doc == null)
-                    {
-                        Log(" --> no document handler set up for {0}", p.FullUrl);
-                        return HttpServerPipelineResult.NotHandled;
-                    }
-                    p.WriteDocument(doc);
-                    Log(" --> Successful document handling for {0}", p.FullUrl);
-                    return HttpServerPipelineResult.HandledExclusively;
-                });
+                    Log($" --> no {documentTypeForLogging} document handler set up for {0}", p.FullUrl);
+                    return HttpServerPipelineResult.NotHandled;
+                }
+                var asString = doc as string;
+                if (asString == null)
+                    asString = stringProcessor(doc);
+                p.WriteDocument(asString, mimeType);
+                Log($" --> Successful {documentTypeForLogging} document handling for {0}", p.FullUrl);
+                return HttpServerPipelineResult.HandledExclusively;
+            });
         }
 
         public override void HandleGETRequest(HttpProcessor p)
@@ -140,9 +157,20 @@ namespace PeanutButter.SimpleHTTPServer
                 {
                     if (p.Path != path)
                         return null;
-                    Log("Serving document at {0}", p.FullUrl);
+                    Log("Serving html document at {0}", p.FullUrl);
                     return doc.ToString();
                 });
+        }
+
+        public void ServeJsonDocument(string path, object data)
+        {
+            AddJsonDocumentHandler((p, s) =>
+            {
+                if (p.Path != path)
+                    return null;
+                Log("Serving JSON document at {0}", p.FullUrl);
+                return data;
+            });
         }
 
         public void ServeFile(string path, byte[] data, string contentType = "application/octet-stream")
