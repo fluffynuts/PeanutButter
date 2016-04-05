@@ -48,7 +48,7 @@ namespace PeanutButter.Utils
 
         public static T[] And<T>(this IEnumerable<T> source, params T[] toAdd)
         {
-            return source.Union(toAdd).ToArray();
+            return source.Concat(toAdd).ToArray();
         }
 
         public static T[] ButNot<T>(this IEnumerable<T> source, params T[] toRemove)

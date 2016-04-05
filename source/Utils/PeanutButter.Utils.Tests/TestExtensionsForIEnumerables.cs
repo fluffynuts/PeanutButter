@@ -244,6 +244,21 @@ namespace PeanutButter.Utils.Tests
         }
 
         [Test]
+        public void And_OperatingOnArrayOfType_ShouldReturnNewArrayWithALLAddedItems()
+        {
+            //---------------Set up test pack-------------------
+            var src = new[] {1, 2, 3, 4, 5};
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = src.And(4, 5);
+
+            //---------------Test Result -----------------------
+            CollectionAssert.AreEqual(new[] {1, 2, 3, 4, 5, 4, 5}, result);
+        }
+
+        [Test]
         public void ButNot_OperatingOnArrayOfType_ShouldReturnNewArrayWithAddedItems()
         {
             //---------------Set up test pack-------------------
