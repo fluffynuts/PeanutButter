@@ -8,6 +8,7 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 // ReSharper disable ObjectCreationAsStatement
 // ReSharper disable PossibleMultipleEnumeration
 // ReSharper disable AccessToDisposedClosure
+// ReSharper disable AssignNullToNotNullAttribute
 
 namespace PeanutButter.FileSystem.Tests
 {
@@ -641,7 +642,7 @@ namespace PeanutButter.FileSystem.Tests
         }
 
         [Test]
-        public void Copy_GivenFileSource_WhenDestinationIsFolder_ShouldCopyIntoFolderWithSameName()
+        public void Copy_GivenSourceOnly_ShouldCopyIntoFileSystemCurrentFolder()
         {
             //---------------Set up test pack-------------------
             using (var folder = new AutoTempFolder())
@@ -666,7 +667,7 @@ namespace PeanutButter.FileSystem.Tests
         }
 
         [Test]
-        public void Copy_GivenFileSource_WhenDestinationDoesNotExistButDestinationFolderDoesExist_ShouldCopyIntoFolderWithProvidedName()
+        public void Copy_GivenSourceAndRelativeDestination_WhenDestinationDoesNotExistButDestinationFolderDoesExist_ShouldCopyIntoFolderWithProvidedName()
         {
             //---------------Set up test pack-------------------
             using (var folder = new AutoTempFolder())
@@ -709,8 +710,7 @@ namespace PeanutButter.FileSystem.Tests
 
                 //---------------Execute Test ----------------------
                 var sourceFileFullPath = Path.Combine(folder.Path, srcFolder, srcFile);
-                sut.Copy(sourceFileFullPath,
-                            dstPath);
+                sut.Copy(sourceFileFullPath, dstPath);
 
                 //---------------Test Result -----------------------
                 Assert.IsTrue(File.Exists(Path.Combine(folder.Path, dstPath)));
@@ -719,7 +719,168 @@ namespace PeanutButter.FileSystem.Tests
             }
         }
 
+        [Test]
+        public void CopyFile_GivenOnlySource_WhenPathIsRelativeInAnotherFolder_ShouldCopyToLocalFolder()
+        {
+            //---------------Set up test pack-------------------
+            using (var root = new AutoTempFolder())
+            {
+                var localFolder = Path.Combine(root.Path, CreateRandomFolderIn(root.Path));
+                var otherSub = CreateRandomFolderIn(root.Path);
+                var otherFolder = Path.Combine(root.Path, otherSub);
+                var fileName = CreateRandomFileIn(otherFolder);
+                var source = Path.Combine("..", otherSub, fileName);
+                var sut = Create();
+                sut.SetCurrentDirectory(localFolder);
+                var expectedPath = Path.Combine(localFolder, fileName);
 
+                //---------------Assert Precondition----------------
+                Assert.IsFalse(File.Exists(expectedPath));
+
+                //---------------Execute Test ----------------------
+                sut.Copy(source);
+
+                //---------------Test Result -----------------------
+                Assert.IsTrue(File.Exists(expectedPath));
+                CollectionAssert.AreEqual(File.ReadAllBytes(Path.Combine(otherFolder, fileName)),
+                    File.ReadAllBytes(expectedPath));
+            }
+        }
+
+        [Test]
+        public void OpenReader_GivenRelativePath_WhenFileDoesNotExist_ShouldReturnNull()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                var fileName = GetRandomFileName();
+                var sut = Create();
+                sut.SetCurrentDirectory(folder.Path);
+
+                //---------------Assert Precondition----------------
+                Assert.IsFalse(File.Exists(Path.Combine(folder.Path, fileName)));
+
+                //---------------Execute Test ----------------------
+                var result = sut.OpenReader(fileName);
+
+                //---------------Test Result -----------------------
+                Assert.IsNull(result);
+            }
+        }
+
+        [Test]
+        public void OpenReader_GivenRelativePath_WhenFileExists_ShouldReturnStreamThatCanReadFileContents()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                var fileName = CreateRandomFileIn(folder.Path);
+                var sut = Create();
+                sut.SetCurrentDirectory(folder.Path);
+                var expected = File.ReadAllBytes(Path.Combine(folder.Path, fileName));
+
+                //---------------Assert Precondition----------------
+                Assert.IsTrue(File.Exists(Path.Combine(folder.Path, fileName)));
+
+                //---------------Execute Test ----------------------
+                using (var result = sut.OpenReader(fileName))
+                {
+                    //---------------Test Result -----------------------
+                    var buffer = new byte[result.Length];
+                    result.Read(buffer, 0, buffer.Length);
+                    CollectionAssert.AreEqual(expected, buffer);
+                }
+            }
+        }
+
+        [Test]
+        public void OpenReader_GivenAbsoluteRelativePath_WhenFileDoesNotExist_ShouldReturnNull()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            using (var otherFolder = new AutoTempFolder())
+            {
+                var fileName = GetRandomFileName();
+                var sut = Create();
+                sut.SetCurrentDirectory(folder.Path);
+
+                //---------------Assert Precondition----------------
+                Assert.IsFalse(File.Exists(Path.Combine(folder.Path, fileName)));
+
+                //---------------Execute Test ----------------------
+                var result = sut.OpenReader(Path.Combine(otherFolder.Path, fileName));
+
+                //---------------Test Result -----------------------
+                Assert.IsNull(result);
+            }
+        }
+
+        [Test]
+        public void OpenReader_GivenAbsolutePath_WhenFileExists_ShouldReturnStreamThatCanReadFileContents()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            using (var otherFolder = new AutoTempFolder())
+            {
+                var fileName = CreateRandomFileIn(folder.Path);
+                var sut = Create();
+                sut.SetCurrentDirectory(otherFolder.Path);
+                var expected = File.ReadAllBytes(Path.Combine(folder.Path, fileName));
+
+                //---------------Assert Precondition----------------
+                Assert.IsTrue(File.Exists(Path.Combine(folder.Path, fileName)));
+
+                //---------------Execute Test ----------------------
+                using (var result = sut.OpenReader(Path.Combine(folder.Path, fileName)))
+                {
+                    //---------------Test Result -----------------------
+                    var buffer = new byte[result.Length];
+                    result.Read(buffer, 0, buffer.Length);
+                    CollectionAssert.AreEqual(expected, buffer);
+                }
+            }
+        }
+
+        [Test]
+        public void OpenWriter_GivenRelativePath_WhenOutputFolderExists_ShouldReturnWritableStreamToFile()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                var targetFolder = CreateRandomFolderIn(folder.Path);
+                var targetPath = Path.Combine(targetFolder, GetRandomFileName());
+                var absolutePath = Path.Combine(folder.Path, targetPath);
+                var sut = Create();
+                sut.SetCurrentDirectory(folder.Path);
+                var expected = GetRandomBytes();
+
+                //---------------Assert Precondition----------------
+                Assert.IsFalse(File.Exists(absolutePath));
+
+                //---------------Execute Test ----------------------
+                using (var stream = sut.OpenWriter(targetPath))
+                {
+                    stream.Write(expected, 0, expected.Length);
+                }
+                //---------------Test Result -----------------------
+                var persisted = File.ReadAllBytes(absolutePath);
+                CollectionAssert.AreEqual(expected, persisted);
+            }
+        }
+
+        [Test]
+        [Ignore("WIP")]
+        public void Open_GivenRelativePath_ShouldOpenReadWrite()
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+
+            //---------------Test Result -----------------------
+            Assert.Fail("Test Not Yet Implemented");
+        }
 
 
 

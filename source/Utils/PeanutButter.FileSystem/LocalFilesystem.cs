@@ -68,17 +68,38 @@ namespace PeanutButter.FileSystem
             DeleteInternal(path, true);
         }
 
-        public void Copy(string sourceAbsolutePath)
+        public void Copy(string sourcePath)
         {
-            Copy(sourceAbsolutePath, Path.GetFileName(sourceAbsolutePath));
+            Copy(GetFullPathFor(sourcePath), Path.GetFileName(sourcePath));
         }
 
-        public void Copy(string sourceAbsolutePath, string targetRelativePath)
+        public void Copy(string sourcePath, string targetRelativePath)
         {
             var currentPath = _currentDirectory;
             var absoluteTarget = Path.Combine(currentPath, targetRelativePath);
             EnsureFolderExists(Path.GetDirectoryName(absoluteTarget));
-            File.Copy(sourceAbsolutePath, absoluteTarget);
+            File.Copy(sourcePath, absoluteTarget);
+        }
+
+        public Stream OpenReader(string path)
+        {
+            var fullPath = GetFullPathFor(path);
+            return File.Exists(fullPath)
+                        ? File.OpenRead(fullPath)
+                        : null;
+        }
+
+        public Stream OpenWriter(string path)
+        {
+            var fullPath = GetFullPathFor(path);
+            return File.OpenWrite(fullPath);
+        }
+
+        public string GetFullPathFor(string relativePath)
+        {
+            return Path.IsPathRooted(relativePath) 
+                        ? relativePath 
+                        : Path.Combine(_currentDirectory, relativePath);
         }
 
         private void EnsureFolderExists(string folderPath)

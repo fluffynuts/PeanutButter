@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 
 namespace PeanutButter.FileSystem
 {
@@ -14,7 +15,9 @@ namespace PeanutButter.FileSystem
         void SetCurrentDirectory(string path);
         void Delete(string path);
         void DeleteRecursive(string path);
-        void Copy(string sourceAbsolutePath);
-        void Copy(string sourceAbsolutePath, string targetRelativePath);
+        void Copy(string sourcePath);
+        void Copy(string sourcePath, string targetRelativePath);
+        Stream OpenReader(string path);
+        Stream OpenWriter(string path);
     }
 }
