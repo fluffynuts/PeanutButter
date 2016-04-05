@@ -16,6 +16,7 @@
 		write-host " -> $version"
 	}
 	if ($dummy) {
+		Write-Host "Would update PeanutButter libraries to $version..."
 		return
 	}
 	$projects = get-project -all
