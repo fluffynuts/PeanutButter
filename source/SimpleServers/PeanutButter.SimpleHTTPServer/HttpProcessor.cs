@@ -17,16 +17,20 @@ using PeanutButter.SimpleTcpServer;
 
 namespace PeanutButter.SimpleHTTPServer
 {
+    public static class HttpConstants
+    {
+        public const string CONTENT_LENGTH_HEADER = "Content-Length";
+        public const string CONTENT_TYPE_HEADER = "Content-Type";
+        public const string METHOD_GET = "GET";
+        public const string METHOD_POST = "POST";
+        public const string MIMETYPE_HTML = "text/html";
+        public const string MIMETYPE_JSON = "application/json";
+        public const string MIMETYPE_BYTES = "application/octet-stream";
+        public const int MAX_POST_SIZE = 10 * 1024 * 1024; // 10MB
+    }
     public class HttpProcessor : TcpServerProcessor, IProcessor
     {
         private const int BUF_SIZE = 4096;
-        private const string CONTENT_LENGTH_HEADER = "Content-Length";
-        private const string CONTENT_TYPE_HEADER = "Content-Type";
-        private const string METHOD_GET = "GET";
-        private const string METHOD_POST = "POST";
-        public const string MIMETYPE_HTML = "text/html";
-        public const string MIMETYPE_JSON = "application/json";
-        private const int MAX_POST_SIZE = 10 * 1024 * 1024; // 10MB
 
         public HttpServerBase Server { get; protected set; }
 
@@ -71,9 +75,9 @@ namespace PeanutButter.SimpleHTTPServer
 
         private void HandleRequest(TcpIoWrapper io)
         {
-            if (Method.Equals(METHOD_GET))
+            if (Method.Equals(HttpConstants.METHOD_GET))
                 HandleGETRequest();
-            else if (Method.Equals(METHOD_POST))
+            else if (Method.Equals(HttpConstants.METHOD_POST))
                 HandlePOSTRequest(io.RawStream);
         }
 
@@ -143,10 +147,10 @@ namespace PeanutButter.SimpleHTTPServer
         {
             using (var ms = new MemoryStream())
             {
-                if (HttpHeaders.ContainsKey(CONTENT_LENGTH_HEADER))
+                if (HttpHeaders.ContainsKey(HttpConstants.CONTENT_LENGTH_HEADER))
                 {
-                    var contentLength = Convert.ToInt32(HttpHeaders[CONTENT_LENGTH_HEADER]);
-                    if (contentLength > MAX_POST_SIZE)
+                    var contentLength = Convert.ToInt32(HttpHeaders[HttpConstants.CONTENT_LENGTH_HEADER]);
+                    if (contentLength > HttpConstants.MAX_POST_SIZE)
                     {
                         throw new Exception(
                             string.Format("POST Content-Length({0}) too big for this simple server",
@@ -181,8 +185,8 @@ namespace PeanutButter.SimpleHTTPServer
 
         private void ParseFormElementsIfRequired(MemoryStream ms)
         {
-            if (!HttpHeaders.ContainsKey(CONTENT_TYPE_HEADER)) return;
-            if (HttpHeaders[CONTENT_TYPE_HEADER] != "application/x-www-form-urlencoded") return;
+            if (!HttpHeaders.ContainsKey(HttpConstants.CONTENT_TYPE_HEADER)) return;
+            if (HttpHeaders[HttpConstants.CONTENT_TYPE_HEADER] != "application/x-www-form-urlencoded") return;
             try
             {
                 var formData = Encoding.UTF8.GetString(ms.ToArray());
@@ -195,7 +199,7 @@ namespace PeanutButter.SimpleHTTPServer
 
         public Dictionary<string, string> FormData { get; set; }
 
-        public void WriteSuccess(string mimeType=MIMETYPE_HTML, byte[] data = null) 
+        public void WriteSuccess(string mimeType= HttpConstants.MIMETYPE_HTML, byte[] data = null) 
         {
             WriteOKStatusHeader();
             WriteMIMETypeHeader(mimeType);
@@ -210,7 +214,7 @@ namespace PeanutButter.SimpleHTTPServer
 
         public void WriteMIMETypeHeader(string mimeType)
         {
-            WriteResponseLine(CONTENT_TYPE_HEADER + ": " + mimeType);
+            WriteResponseLine(HttpConstants.CONTENT_TYPE_HEADER + ": " + mimeType);
         }
 
         public void WriteOKStatusHeader()
@@ -267,7 +271,7 @@ namespace PeanutButter.SimpleHTTPServer
             _outputStream.WriteLine(response);
         }
 
-        public void WriteDocument(string document, string mimeType = MIMETYPE_HTML)
+        public void WriteDocument(string document, string mimeType = HttpConstants.MIMETYPE_HTML)
         {
             WriteSuccess(mimeType, Encoding.UTF8.GetBytes(document));
         }

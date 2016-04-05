@@ -153,6 +153,39 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             }
         }
 
+        [TestCase(HttpMethods.Get)]
+        [TestCase(HttpMethods.Post)]
+        public void ServeDocument_GivenPathAndDocumentAndVerb_ShouldServeForThatPathAndDocumentAndVerb(HttpMethods serveMethod)
+        {
+            using (var server = Create())
+            {
+                //---------------Set up test pack-------------------
+                var invalidMethod = serveMethod == HttpMethods.Get ? HttpMethods.Post : HttpMethods.Get;
+                var doc = new XDocument(new XElement("html", new XElement("body", new XElement("p", new XText(RandomValueGen.GetRandomString())))));
+                var path = "/index.html";
+                server.ServeDocument(path, doc, serveMethod);
+
+                //---------------Assert Precondition----------------
+                Assert.AreNotEqual(serveMethod, invalidMethod);
+
+                //---------------Execute Test ----------------------
+                Console.WriteLine("Attempt to download path: " + path);
+                string contentType = null;
+                var ex = Assert.Throws<WebException>(() => DownloadResultFrom(server, invalidMethod, path, out contentType));
+                var webResponse = ex.Response as HttpWebResponse;
+                Assert.IsNotNull(webResponse, ex.Message);
+                var statusCode = webResponse.StatusCode;
+                Assert.AreEqual(HttpStatusCode.NotFound, statusCode);
+                contentType = null;
+                var result = DownloadResultFrom(server, serveMethod, path, out contentType);
+
+                //---------------Test Result -----------------------
+                Assert.AreEqual(doc.ToString(), result.ToUTF8String());
+                Assert.AreEqual("text/html", contentType);
+            }
+
+        }
+
         [Test]
         public void ServeJsonDocument_GivenPathAndDocument_ShouldServeForThatPath()
         {
@@ -167,6 +200,34 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                 //---------------Execute Test ----------------------
                 string contentType = null;
                 var result = DownloadResultFrom(server, "/api/query", out contentType);
+
+                //---------------Test Result -----------------------
+                var resultAsObject = JsonConvert.DeserializeObject<SimpleData>(result.ToUTF8String());
+                Assert.IsNotNull(result);
+                Assert.AreEqual(obj.SomeProperty, resultAsObject.SomeProperty);
+                Assert.AreEqual("application/json", contentType);
+            }
+        }
+
+        [TestCase(HttpMethods.Get)]
+        [TestCase(HttpMethods.Post)]
+        public void ServeJsonDocument_GivenPathAndDocumentAndVerb_ShouldServeForThatPathAndVerbOnly(HttpMethods valid)
+        {
+            using (var server = Create())
+            {
+                //---------------Set up test pack-------------------
+                var invalid = valid == HttpMethods.Get ? HttpMethods.Post : HttpMethods.Get;
+                var obj = GetRandom<SimpleData>();
+                var path = "/api/" + GetRandomString();
+                server.ServeJsonDocument(path, obj, valid);
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                string contentType = null;
+                Assert.Throws<WebException>(() => DownloadResultFrom(server, invalid, path, out contentType));
+                contentType = null;
+                var result = DownloadResultFrom(server, valid, path, out contentType);
 
                 //---------------Test Result -----------------------
                 var resultAsObject = JsonConvert.DeserializeObject<SimpleData>(result.ToUTF8String());
@@ -361,9 +422,10 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             return DownloadResultFrom(server, path, out contentType);
         }
 
-        private byte[] DownloadResultFrom(HttpServer server, string path, out string contentType)
+        private byte[] DownloadResultFrom(HttpServer server, HttpMethods method, string path, out string contentType)
         {
             var request = WebRequest.Create(server.GetFullUrlFor(path));
+            request.Method = method.ToString().ToUpper();
             var response = request.GetResponse();
             const string contentTypeHeader = "Content-Type";
             var hasContentTypeHeader = response.Headers.AllKeys.Contains(contentTypeHeader);
@@ -374,6 +436,11 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                 s.CopyTo(memStream);
                 return memStream.ToArray();
             }
+        }
+
+        private byte[] DownloadResultFrom(HttpServer server, string path, out string contentType)
+        {
+            return DownloadResultFrom(server, HttpMethods.Get, path, out contentType);
         }
     }
 

@@ -15,6 +15,16 @@ namespace PeanutButter.SimpleHTTPServer
         Handled,
         NotHandled
     }
+
+    public enum HttpMethods
+    {
+        Any,
+        Get,
+        Post,
+        Put,
+        Delete
+    }
+
     // TODO: allow easier way to throw 404 (or other web exception) from simple handlers (file/document handlers)
     public class HttpServer : HttpServerBase 
     {
@@ -59,7 +69,7 @@ namespace PeanutButter.SimpleHTTPServer
         // ReSharper disable once MemberCanBePrivate.Global
         public string BaseUrl => $"http://localhost:{Port}";
 
-        public void AddFileHandler(Func<HttpProcessor, Stream, byte[]> handler, string contentType = "application/octet-stream")
+        public void AddFileHandler(Func<HttpProcessor, Stream, byte[]> handler, string contentType = HttpConstants.MIMETYPE_BYTES)
         {
             AddHandler((p, s) =>
             {
@@ -78,12 +88,12 @@ namespace PeanutButter.SimpleHTTPServer
 
         public void AddDocumentHandler(Func<HttpProcessor, Stream, string> handler)
         {
-            HandleDocumentRequestWith(handler, "html", null, HttpProcessor.MIMETYPE_HTML);
+            HandleDocumentRequestWith(handler, "html", null, HttpConstants.MIMETYPE_HTML);
         }
 
         public void AddJsonDocumentHandler(Func<HttpProcessor, Stream, object> handler)
         {
-            HandleDocumentRequestWith(handler, "json", o => JsonConvert.SerializeObject(o), HttpProcessor.MIMETYPE_JSON);
+            HandleDocumentRequestWith(handler, "json", o => JsonConvert.SerializeObject(o), HttpConstants.MIMETYPE_JSON);
         }
 
         private void HandleDocumentRequestWith(Func<HttpProcessor, Stream, object> handler, 
@@ -151,22 +161,22 @@ namespace PeanutButter.SimpleHTTPServer
             InvokeHandlersWith(p, inputData);
         }
 
-        public void ServeDocument(string path, XDocument doc)
+        public void ServeDocument(string path, XDocument doc, HttpMethods method = HttpMethods.Any)
         {
             AddDocumentHandler((p, s) =>
                 {
-                    if (p.Path != path)
+                    if (p.Path != path || !method.Matches(p.Method))
                         return null;
                     Log("Serving html document at {0}", p.FullUrl);
                     return doc.ToString();
                 });
         }
 
-        public void ServeJsonDocument(string path, object data)
+        public void ServeJsonDocument(string path, object data, HttpMethods method = HttpMethods.Any)
         {
             AddJsonDocumentHandler((p, s) =>
             {
-                if (p.Path != path)
+                if (p.Path != path || !method.Matches(p.Method))
                     return null;
                 Log("Serving JSON document at {0}", p.FullUrl);
                 return data;
@@ -185,6 +195,18 @@ namespace PeanutButter.SimpleHTTPServer
         }
     }
 
+    public static class HttpMethodsExtensions
+    {
+        public static bool Matches(this HttpMethods method, HttpMethods otherMethod)
+        {
+            return method == HttpMethods.Any || method == otherMethod;
+        }
+
+        public static bool Matches(this HttpMethods method, string otherMethod)
+        {
+            return method == HttpMethods.Any || method.ToString().ToUpper() == (otherMethod ?? "").ToUpper();
+        }
+    }
 
 }
 

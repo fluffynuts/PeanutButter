@@ -27,7 +27,7 @@ namespace PeanutButter.SimpleTcpServer
         private int _randomPortMin;
         private int _randomPortMax;
 
-        protected TcpServer(int minPort = 5000, int maxPort = 50000)
+        protected TcpServer(int minPort = 5000, int maxPort = 32000)
         {
             _randomPortMin = minPort;
             _randomPortMax = maxPort;
