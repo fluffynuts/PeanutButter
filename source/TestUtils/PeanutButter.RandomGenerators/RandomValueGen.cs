@@ -429,7 +429,7 @@ namespace PeanutButter.RandomGenerators
         public static string CreateRandomTextFileIn(string path)
         {
             var fileName = GetRandomString();
-            var lines = GetRandomCollection<string>();
+            var lines = GetRandomCollection<string>(1);
             File.WriteAllLines(Path.Combine(path, fileName), lines);
             return fileName;
         }
