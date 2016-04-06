@@ -107,7 +107,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
 
                 //---------------Execute Test ----------------------
 
-                var stringResult = DownloadResultFrom(server, route, out contentType).ToUTF8String();
+                var stringResult = DownloadResultFrom(server, route, null, out contentType).ToUTF8String();
 
                 //---------------Test Result -----------------------
                 var resultAsObject = JsonConvert.DeserializeObject<SimpleData>(stringResult);
@@ -147,7 +147,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
 
                 //---------------Execute Test ----------------------
                 string contentType;
-                var result = DownloadResultFrom(server, "/index.html", out contentType);
+                var result = DownloadResultFrom(server, "/index.html", null, out contentType);
 
                 //---------------Test Result -----------------------
                 Assert.AreEqual(doc.ToString(), result.ToUTF8String());
@@ -173,12 +173,12 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                 //---------------Execute Test ----------------------
                 Console.WriteLine("Attempt to download path: " + path);
                 string contentType;
-                var ex = Assert.Throws<WebException>(() => DownloadResultFrom(server, invalidMethod, path, out contentType));
+                var ex = Assert.Throws<WebException>(() => DownloadResultFrom(server, invalidMethod, path, null, out contentType));
                 var webResponse = ex.Response as HttpWebResponse;
                 Assert.IsNotNull(webResponse, ex.Message);
                 var statusCode = webResponse.StatusCode;
                 Assert.AreEqual(HttpStatusCode.NotFound, statusCode);
-                var result = DownloadResultFrom(server, serveMethod, path, out contentType);
+                var result = DownloadResultFrom(server, serveMethod, path, null, out contentType);
 
                 //---------------Test Result -----------------------
                 Assert.AreEqual(doc.ToString(), result.ToUTF8String());
@@ -200,7 +200,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
 
                 //---------------Execute Test ----------------------
                 string contentType;
-                var result = DownloadResultFrom(server, "/api/query", out contentType);
+                var result = DownloadResultFrom(server, "/api/query", null, out contentType);
 
                 //---------------Test Result -----------------------
                 var resultAsObject = JsonConvert.DeserializeObject<SimpleData>(result.ToUTF8String());
@@ -226,8 +226,8 @@ namespace PeanutButter.SimpleHTTPServer.Tests
 
                 //---------------Execute Test ----------------------
                 string contentType;
-                Assert.Throws<WebException>(() => DownloadResultFrom(server, invalid, path, out contentType));
-                var result = DownloadResultFrom(server, valid, path, out contentType);
+                Assert.Throws<WebException>(() => DownloadResultFrom(server, invalid, path, null, out contentType));
+                var result = DownloadResultFrom(server, valid, path, null, out contentType);
 
                 //---------------Test Result -----------------------
                 var resultAsObject = JsonConvert.DeserializeObject<SimpleData>(result.ToUTF8String());
@@ -272,7 +272,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
 
                 //---------------Execute Test ----------------------
                 string servedType;
-                var result = DownloadResultFrom(server, "/file.bin", out servedType);
+                var result = DownloadResultFrom(server, "/file.bin", null, out servedType);
 
                 //---------------Test Result -----------------------
                 CollectionAssert.AreEqual(data, result);
@@ -392,11 +392,16 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                 server.RequestLogAction = requestLogs.Add;
                 var path = "/index.html";
                 server.ServeDocument(path, new XDocument());
+                var key = "X-" + GetRandomString();
+                var headers = new Dictionary<string, string>()
+                {
+                    { key, GetRandomString() }
+                };
                 //---------------Assert Precondition----------------
                 CollectionAssert.IsEmpty(requestLogs);
 
                 //---------------Execute Test ----------------------
-                DownloadResultFrom(server, path);
+                DownloadResultFrom(server, path, headers);
 
                 //---------------Test Result -----------------------
                 var log = requestLogs.Single();
@@ -404,6 +409,8 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                 Assert.AreEqual(HttpStatusCode.OK, log.StatusCode);
                 Assert.AreEqual("GET", log.Method);
                 Assert.AreEqual("OK", log.Message);
+                Assert.IsTrue(log.Headers.ContainsKey(key));
+                Assert.AreEqual(headers[key], log.Headers[key]);
             }
         }
 
@@ -487,16 +494,17 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             }
         }
 
-        private byte[] DownloadResultFrom(HttpServer server, string path)
+        private byte[] DownloadResultFrom(HttpServer server, string path, Dictionary<string, string> addHeaders = null)
         {
             string contentType;
-            return DownloadResultFrom(server, path, out contentType);
+            return DownloadResultFrom(server, path, addHeaders, out contentType);
         }
 
-        private byte[] DownloadResultFrom(HttpServer server, HttpMethods method, string path, out string contentType)
+        private byte[] DownloadResultFrom(HttpServer server, HttpMethods method, string path, Dictionary<string, string> addHeaders, out string contentType)
         {
             var request = WebRequest.Create(server.GetFullUrlFor(path));
             request.Method = method.ToString().ToUpper();
+            addHeaders?.ForEach(kvp => request.Headers[kvp.Key] = kvp.Value);
             var response = request.GetResponse();
             const string contentTypeHeader = "Content-Type";
             var hasContentTypeHeader = response.Headers.AllKeys.Contains(contentTypeHeader);
@@ -509,9 +517,10 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             }
         }
 
-        private byte[] DownloadResultFrom(HttpServer server, string path, out string contentType)
+
+        private byte[] DownloadResultFrom(HttpServer server, string path, Dictionary<string, string> addHeaders, out string contentType)
         {
-            return DownloadResultFrom(server, HttpMethods.Get, path, out contentType);
+            return DownloadResultFrom(server, HttpMethods.Get, path, addHeaders, out contentType);
         }
     }
 

@@ -248,7 +248,7 @@ namespace PeanutButter.SimpleHTTPServer
             var action = RequestLogAction;
             if (action == null)
                 return;
-            action(new RequestLogItem(Path, code, Method, message));
+            action(new RequestLogItem(Path, code, Method, message, HttpHeaders));
         }
 
         public void WriteDataToStream(byte[] data)
