@@ -68,6 +68,90 @@ namespace PeanutButter.Utils.Tests
             Assert.AreEqual(typeof(InheritedType), result[2]);
         }
 
+        public class ClassWithConstants
+        {
+            public const string CONSTANT1 = "Constant1";
+            public const string CONSTANT2 = "Constant2";
+            public const int CONSTANT3 = 1;
+            public const bool CONSTANT4 = false;
+        }
+
+        [Test]
+        public void GetAllConstants_OperatingOnType_ShouldReturnDictionaryOfConstants()
+        {
+            //---------------Set up test pack-------------------
+            var type = typeof(ClassWithConstants);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = type.GetAllConstants();
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(result["CONSTANT1"], ClassWithConstants.CONSTANT1);
+            Assert.AreEqual(result["CONSTANT2"], ClassWithConstants.CONSTANT2);
+            Assert.AreEqual(result["CONSTANT3"], ClassWithConstants.CONSTANT3);
+            Assert.AreEqual(result["CONSTANT4"], ClassWithConstants.CONSTANT4);
+        }
+
+        [Test]
+        public void GetAllConstants_OperatingOnType_WithGenericParameter_ShouldReturnDictionaryOfConstantsOfThatType()
+        {
+            //---------------Set up test pack-------------------
+            var type = typeof(ClassWithConstants);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = type.GetAllConstants<string>();
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(result["CONSTANT1"], ClassWithConstants.CONSTANT1);
+            Assert.AreEqual(result["CONSTANT2"], ClassWithConstants.CONSTANT2);
+        }
+
+        [Test]
+        public void GetAllConstantValues_ShouldListAllConstantsOfThatType()
+        {
+            //---------------Set up test pack-------------------
+            var type = typeof(ClassWithConstants);
+            var expected = new object[]
+            {
+                "Constant1",
+                "Constant2",
+                1,
+                false
+            };
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = type.GetAllConstantValues();
+
+            //---------------Test Result -----------------------
+            CollectionAssert.AreEquivalent(expected, result);
+        }
+
+        [Test]
+        public void GetAllConstantValues_OfGenericType_ShouldListAllConstantsOfThatType()
+        {
+            //---------------Set up test pack-------------------
+            var type = typeof(ClassWithConstants);
+            var expected = new[]
+            {
+                "Constant1",
+                "Constant2"
+            };
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = type.GetAllConstantValues<string>();
+
+            //---------------Test Result -----------------------
+            CollectionAssert.AreEquivalent(expected, result);
+        }
 
     }
 }
