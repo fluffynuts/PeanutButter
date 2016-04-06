@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.RandomGenerators", "TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj", "{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}"
 EndProject
@@ -251,6 +251,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.FileSystem", "Utils\PeanutButter.FileSystem\PeanutButter.FileSystem.csproj", "{8F3337F2-7D5D-4D62-83F6-E3D57755B1BF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.FileSystem.Tests", "Utils\PeanutButter.FileSystem.Tests\PeanutButter.FileSystem.Tests.csproj", "{4F8864F9-1ABB-4672-8F53-19892C2A506F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.SimpleHTTPServer.Testability", "SimpleServers\PeanutButter.SimpleHTTPServer.Testability\PeanutButter.SimpleHTTPServer.Testability.csproj", "{4B5261A4-6222-421B-9552-BF33A7E39A36}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.SimpleHTTPServer.Testability.Tests", "SimpleServers\PeanutButter.SimpleHTTPServer.Testability.Tests\PeanutButter.SimpleHTTPServer.Testability.Tests.csproj", "{FDD6A9C3-4563-455E-A8DC-67608B35551D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.SimpleHTTPServer.Testability.NugetPackage", "SimpleServers\PeanutButter.SimpleHTTPServer.Testability.NugetPackage\PeanutButter.SimpleHTTPServer.Testability.NugetPackage.csproj", "{A4E9F8A8-9BE6-42C7-A739-E0592ECCAB04}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -1030,6 +1036,42 @@ Global
 		{4F8864F9-1ABB-4672-8F53-19892C2A506F}.Test|Any CPU.Build.0 = Release|Any CPU
 		{4F8864F9-1ABB-4672-8F53-19892C2A506F}.Test|x86.ActiveCfg = Release|Any CPU
 		{4F8864F9-1ABB-4672-8F53-19892C2A506F}.Test|x86.Build.0 = Release|Any CPU
+		{4B5261A4-6222-421B-9552-BF33A7E39A36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B5261A4-6222-421B-9552-BF33A7E39A36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B5261A4-6222-421B-9552-BF33A7E39A36}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4B5261A4-6222-421B-9552-BF33A7E39A36}.Debug|x86.Build.0 = Debug|Any CPU
+		{4B5261A4-6222-421B-9552-BF33A7E39A36}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B5261A4-6222-421B-9552-BF33A7E39A36}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B5261A4-6222-421B-9552-BF33A7E39A36}.Release|x86.ActiveCfg = Release|Any CPU
+		{4B5261A4-6222-421B-9552-BF33A7E39A36}.Release|x86.Build.0 = Release|Any CPU
+		{4B5261A4-6222-421B-9552-BF33A7E39A36}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{4B5261A4-6222-421B-9552-BF33A7E39A36}.Test|Any CPU.Build.0 = Release|Any CPU
+		{4B5261A4-6222-421B-9552-BF33A7E39A36}.Test|x86.ActiveCfg = Release|Any CPU
+		{4B5261A4-6222-421B-9552-BF33A7E39A36}.Test|x86.Build.0 = Release|Any CPU
+		{FDD6A9C3-4563-455E-A8DC-67608B35551D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDD6A9C3-4563-455E-A8DC-67608B35551D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDD6A9C3-4563-455E-A8DC-67608B35551D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FDD6A9C3-4563-455E-A8DC-67608B35551D}.Debug|x86.Build.0 = Debug|Any CPU
+		{FDD6A9C3-4563-455E-A8DC-67608B35551D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDD6A9C3-4563-455E-A8DC-67608B35551D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDD6A9C3-4563-455E-A8DC-67608B35551D}.Release|x86.ActiveCfg = Release|Any CPU
+		{FDD6A9C3-4563-455E-A8DC-67608B35551D}.Release|x86.Build.0 = Release|Any CPU
+		{FDD6A9C3-4563-455E-A8DC-67608B35551D}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{FDD6A9C3-4563-455E-A8DC-67608B35551D}.Test|Any CPU.Build.0 = Release|Any CPU
+		{FDD6A9C3-4563-455E-A8DC-67608B35551D}.Test|x86.ActiveCfg = Release|Any CPU
+		{FDD6A9C3-4563-455E-A8DC-67608B35551D}.Test|x86.Build.0 = Release|Any CPU
+		{A4E9F8A8-9BE6-42C7-A739-E0592ECCAB04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4E9F8A8-9BE6-42C7-A739-E0592ECCAB04}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4E9F8A8-9BE6-42C7-A739-E0592ECCAB04}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A4E9F8A8-9BE6-42C7-A739-E0592ECCAB04}.Debug|x86.Build.0 = Debug|Any CPU
+		{A4E9F8A8-9BE6-42C7-A739-E0592ECCAB04}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4E9F8A8-9BE6-42C7-A739-E0592ECCAB04}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4E9F8A8-9BE6-42C7-A739-E0592ECCAB04}.Release|x86.ActiveCfg = Release|Any CPU
+		{A4E9F8A8-9BE6-42C7-A739-E0592ECCAB04}.Release|x86.Build.0 = Release|Any CPU
+		{A4E9F8A8-9BE6-42C7-A739-E0592ECCAB04}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{A4E9F8A8-9BE6-42C7-A739-E0592ECCAB04}.Test|Any CPU.Build.0 = Release|Any CPU
+		{A4E9F8A8-9BE6-42C7-A739-E0592ECCAB04}.Test|x86.ActiveCfg = Release|Any CPU
+		{A4E9F8A8-9BE6-42C7-A739-E0592ECCAB04}.Test|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1112,5 +1154,8 @@ Global
 		{94DF996D-AB59-4A67-9FB8-EC9DB0E75F49} = {991C5C7C-A1F8-42B1-8CDA-F782B0F62980}
 		{8F3337F2-7D5D-4D62-83F6-E3D57755B1BF} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
 		{4F8864F9-1ABB-4672-8F53-19892C2A506F} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
+		{4B5261A4-6222-421B-9552-BF33A7E39A36} = {7989B238-E58D-4660-A0E8-4AFA0FFEB6FD}
+		{FDD6A9C3-4563-455E-A8DC-67608B35551D} = {7989B238-E58D-4660-A0E8-4AFA0FFEB6FD}
+		{A4E9F8A8-9BE6-42C7-A739-E0592ECCAB04} = {7989B238-E58D-4660-A0E8-4AFA0FFEB6FD}
 	EndGlobalSection
 EndGlobal
