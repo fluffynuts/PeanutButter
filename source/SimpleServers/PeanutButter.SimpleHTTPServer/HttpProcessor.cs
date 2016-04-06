@@ -8,33 +8,19 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using PeanutButter.SimpleTcpServer;
 
 namespace PeanutButter.SimpleHTTPServer
 {
-    public static class HttpConstants
-    {
-        public const string CONTENT_LENGTH_HEADER = "Content-Length";
-        public const string CONTENT_TYPE_HEADER = "Content-Type";
-        public const string METHOD_GET = "GET";
-        public const string METHOD_POST = "POST";
-        public const string MIMETYPE_HTML = "text/html";
-        public const string MIMETYPE_JSON = "application/json";
-        public const string MIMETYPE_BYTES = "application/octet-stream";
-        public const int MAX_POST_SIZE = 10 * 1024 * 1024; // 10MB
-        public const int HTTP_CODE_NOTFOUND = 404;
-        public const string HTTP_STATUS_NOTFOUND = "File not found";
-        public const int HTTP_CODE_INTERNALERROR = 500;
-        public const string HTTP_STATUS_INTERNALERROR = "An internal error occurred";
-    }
     public class HttpProcessor : TcpServerProcessor, IProcessor
     {
-        public Action<string> LogAction = s => Debug.WriteLine(s);
+        public Action<string> LogAction => Server.LogAction;
+        public Action<RequestLogItem> RequestLogAction => Server.RequestLogAction;
         private const int BUF_SIZE = 4096;
 
         public HttpServerBase Server { get; protected set; }
@@ -68,11 +54,11 @@ namespace PeanutButter.SimpleHTTPServer
                 }
                 catch(FileNotFoundException)
                 {
-                    WriteFailure(HttpConstants.HTTP_CODE_NOTFOUND, HttpConstants.HTTP_STATUS_NOTFOUND);
+                    WriteFailure(HttpStatusCode.NotFound, HttpConstants.HTTP_STATUS_NOTFOUND);
                 }
                 catch (Exception ex)
                 {
-                    WriteFailure(HttpConstants.HTTP_CODE_INTERNALERROR, $"{HttpConstants.HTTP_STATUS_INTERNALERROR}: {ex.Message}");
+                    WriteFailure(HttpStatusCode.InternalServerError, $"{HttpConstants.HTTP_STATUS_INTERNALERROR}: {ex.Message}");
                     LogAction("Unable to process request: " + ex.Message);
                 }
                 finally
@@ -228,7 +214,7 @@ namespace PeanutButter.SimpleHTTPServer
 
         public void WriteOKStatusHeader()
         {
-            WriteStatusHeader(200, "OK");
+            WriteStatusHeader(HttpStatusCode.OK, "OK");
         }
 
         public void WriteContentLengthHeader(int length)
@@ -251,9 +237,18 @@ namespace PeanutButter.SimpleHTTPServer
             WriteHeader(header, value.ToString());
         }
 
-        public void WriteStatusHeader(int errorCode, string message)
+        public void WriteStatusHeader(HttpStatusCode code, string message = null)
         {
-            WriteResponseLine(string.Join(" ", new[] { "HTTP/1.0", errorCode.ToString(), message }));
+            LogRequest(code, message);
+            WriteResponseLine(string.Join(" ", "HTTP/1.0", ((int)code).ToString(), message ?? code.ToString()));
+        }
+
+        private void LogRequest(HttpStatusCode code, string message)
+        {
+            var action = RequestLogAction;
+            if (action == null)
+                return;
+            action(new RequestLogItem(Path, code, message));
         }
 
         public void WriteDataToStream(byte[] data)
@@ -264,9 +259,8 @@ namespace PeanutButter.SimpleHTTPServer
             _outputStream.BaseStream.Flush();
         }
 
-        public void WriteFailure(int code, string message)
+        public void WriteFailure(HttpStatusCode code, string message)
         {
-            //WriteStatusHeader(404, "File not found");
             WriteStatusHeader(code, message);
             WriteConnectionClosesAfterCommsHeader();
             WriteEmptyLineToStream();

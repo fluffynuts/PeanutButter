@@ -6,6 +6,7 @@
  * http://www.codeproject.com/info/cpol10.aspx 
  */
 
+using System;
 using System.IO;
 using System.Net.Sockets;
 using PeanutButter.SimpleTcpServer;
@@ -14,6 +15,7 @@ namespace PeanutButter.SimpleHTTPServer
 {
     public abstract class HttpServerBase : TcpServer
     {
+        public Action<RequestLogItem> RequestLogAction { get; set; } = null;
         protected HttpServerBase(int port) : base(port)
         {
         }
@@ -24,7 +26,7 @@ namespace PeanutButter.SimpleHTTPServer
 
         protected override IProcessor CreateProcessorFor(TcpClient client)
         {
-            return new HttpProcessor(client, this) { LogAction = LogAction };
+            return new HttpProcessor(client, this);
         }
 
         public abstract void HandleGETRequest(HttpProcessor p);

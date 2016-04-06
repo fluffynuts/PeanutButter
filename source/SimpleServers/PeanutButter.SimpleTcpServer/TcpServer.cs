@@ -15,7 +15,7 @@ namespace PeanutButter.SimpleTcpServer
 
     public abstract class TcpServer : IDisposable
     {
-        public Action<string> LogAction { get; set; }
+        public Action<string> LogAction { get; set; } = Console.WriteLine;
         public int Port { get; protected set; }
 
         private TcpListener _listener;

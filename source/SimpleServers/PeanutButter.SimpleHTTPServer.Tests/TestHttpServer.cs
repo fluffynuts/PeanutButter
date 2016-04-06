@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
 using System.Xml.Linq;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -14,6 +10,10 @@ using PeanutButter.RandomGenerators;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using PeanutButter.SimpleTcpServer;
 using PeanutButter.Utils;
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedMethodReturnValue.Global
+// ReSharper disable PossibleNullReferenceException
+// ReSharper disable AssignNullToNotNullAttribute
 
 namespace PeanutButter.SimpleHTTPServer.Tests
 {
@@ -26,7 +26,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             const int maxTries = 20;
             for (var i = 0; i < maxTries; i++)
             {
-                var port = RandomValueGen.GetRandomInt(2000, 3000);
+                var port = GetRandomInt(2000, 3000);
                 try
                 {
                     //---------------Set up test pack-------------------
@@ -72,7 +72,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
         public void Start_WhenConfiguredToServeXDocument_ShouldServeDocument()
         {
             //---------------Set up test pack-------------------
-            var doc = "<html><head></head><body><p>" + RandomValueGen.GetRandomAlphaNumericString() + "</p></body></html>";
+            var doc = "<html><head></head><body><p>" + GetRandomAlphaNumericString() + "</p></body></html>";
             const string theDocName = "index.html";
             using (var server = Create())
             {
@@ -101,7 +101,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             var route = "api/foo";
             using (var server = Create())
             {
-                string contentType = null;
+                string contentType;
                 server.AddJsonDocumentHandler((p, s) => p.Path == "/" + route ? data : null);
                 //---------------Assert Precondition----------------
 
@@ -121,7 +121,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
         public void Start_WhenConfiguredToServeFile_ShouldReturnTheFileContents()
         {
             //---------------Set up test pack-------------------
-            var theFile = RandomValueGen.GetRandomBytes(100, 200);
+            var theFile = GetRandomBytes(100, 200);
             const string theFileName = "somefile.bin";
             using (var server = Create())
             {
@@ -140,13 +140,13 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             using (var server = Create())
             {
                 //---------------Set up test pack-------------------
-                var doc = new XDocument(new XElement("html", new XElement("body", new XElement("p", new XText(RandomValueGen.GetRandomString())))));
+                var doc = new XDocument(new XElement("html", new XElement("body", new XElement("p", new XText(GetRandomString())))));
                 server.ServeDocument("/index.html", doc);
 
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                string contentType = null;
+                string contentType;
                 var result = DownloadResultFrom(server, "/index.html", out contentType);
 
                 //---------------Test Result -----------------------
@@ -163,7 +163,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             {
                 //---------------Set up test pack-------------------
                 var invalidMethod = serveMethod == HttpMethods.Get ? HttpMethods.Post : HttpMethods.Get;
-                var doc = new XDocument(new XElement("html", new XElement("body", new XElement("p", new XText(RandomValueGen.GetRandomString())))));
+                var doc = new XDocument(new XElement("html", new XElement("body", new XElement("p", new XText(GetRandomString())))));
                 var path = "/index.html";
                 server.ServeDocument(path, doc, serveMethod);
 
@@ -172,13 +172,12 @@ namespace PeanutButter.SimpleHTTPServer.Tests
 
                 //---------------Execute Test ----------------------
                 Console.WriteLine("Attempt to download path: " + path);
-                string contentType = null;
+                string contentType;
                 var ex = Assert.Throws<WebException>(() => DownloadResultFrom(server, invalidMethod, path, out contentType));
                 var webResponse = ex.Response as HttpWebResponse;
                 Assert.IsNotNull(webResponse, ex.Message);
                 var statusCode = webResponse.StatusCode;
                 Assert.AreEqual(HttpStatusCode.NotFound, statusCode);
-                contentType = null;
                 var result = DownloadResultFrom(server, serveMethod, path, out contentType);
 
                 //---------------Test Result -----------------------
@@ -200,7 +199,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                string contentType = null;
+                string contentType;
                 var result = DownloadResultFrom(server, "/api/query", out contentType);
 
                 //---------------Test Result -----------------------
@@ -226,9 +225,8 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                string contentType = null;
+                string contentType;
                 Assert.Throws<WebException>(() => DownloadResultFrom(server, invalid, path, out contentType));
-                contentType = null;
                 var result = DownloadResultFrom(server, valid, path, out contentType);
 
                 //---------------Test Result -----------------------
@@ -245,7 +243,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             using (var server = Create())
             {
                 //---------------Set up test pack-------------------
-                var doc = new XDocument(new XElement("html", new XElement("body", new XElement("p", new XText(RandomValueGen.GetRandomString())))));
+                var doc = new XDocument(new XElement("html", new XElement("body", new XElement("p", new XText(GetRandomString())))));
                 server.ServeDocument("/index.html", doc);
 
                 //---------------Assert Precondition----------------
@@ -266,14 +264,14 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             using (var server = Create())
             {
                 //---------------Set up test pack-------------------
-                var data = RandomValueGen.GetRandomBytes(10, 100);
-                var contentType = "text/" + RandomValueGen.GetRandomFrom(new[] { "xml", "html", "javascript", "plain" });
+                var data = GetRandomBytes(10, 100);
+                var contentType = "text/" + GetRandomFrom(new[] { "xml", "html", "javascript", "plain" });
                 server.ServeFile("/file.bin", data, contentType);
 
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                string servedType = null;
+                string servedType;
                 var result = DownloadResultFrom(server, "/file.bin", out servedType);
 
                 //---------------Test Result -----------------------
@@ -288,8 +286,8 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             using (var server = Create())
             {
                 //---------------Set up test pack-------------------
-                var data = RandomValueGen.GetRandomBytes(10, 100);
-                var contentType = "text/" + RandomValueGen.GetRandomFrom(new[] { "xml", "html", "javascript", "plain" });
+                var data = GetRandomBytes(10, 100);
+                var contentType = "text/" + GetRandomFrom(new[] { "xml", "html", "javascript", "plain" });
                 server.ServeFile("/file.bin", data, contentType);
 
                 //---------------Assert Precondition----------------
@@ -311,20 +309,20 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             {
                 var deleter = disposer.Add(new AutoDeleter());
                 var tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-                var fileName = RandomValueGen.GetRandomAlphaNumericString(5, 10) + ".exe";
+                var fileName = GetRandomAlphaNumericString(5, 10) + ".exe";
                 deleter.Add(tempFolder);
                 var expectedFile = Path.Combine(tempFolder, fileName);
                 var server = Create();
                 //---------------Set up test pack-------------------
                 var url = server.GetFullUrlFor(fileName);
-                var expectedBytes = RandomValueGen.GetRandomBytes(100, 200);
+                var expectedBytes = GetRandomBytes(100, 200);
                 server.AddFileHandler((processor, stream) =>
                 {
                     if (processor.FullUrl == "/" + fileName)
                     {
                         return expectedBytes;
                     }
-                    processor.WriteStatusHeader(404, "File not found");
+                    processor.WriteStatusHeader(HttpStatusCode.NotFound, "File not found");
                     return null;
                 });
 
@@ -384,6 +382,28 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             }
         }
 
+        [Test]
+        public void RequestLogAction_ShouldLogRequests()
+        {
+            //---------------Set up test pack-------------------
+            using (var server = Create())
+            {
+                var requestLogs = new List<RequestLogItem>();
+                server.RequestLogAction = requestLogs.Add;
+                var path = "/index.html";
+                server.ServeDocument(path, new XDocument());
+                //---------------Assert Precondition----------------
+                CollectionAssert.IsEmpty(requestLogs);
+
+                //---------------Execute Test ----------------------
+                DownloadResultFrom(server, path);
+
+                //---------------Test Result -----------------------
+                var log = requestLogs.Single();
+                Assert.AreEqual(path, log.Path);
+                Assert.AreEqual(HttpStatusCode.OK, log.StatusCode);
+            }
+        }
 
 
         private HttpServer Create(int? port = null)
@@ -439,6 +459,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
         }
         private void DownloadFile(WebResponse response, string outFile, long expectedSize, long totalSize, long offset)
         {
+            if (totalSize <= 0) throw new ArgumentOutOfRangeException(nameof(totalSize));
             var parentFolder = Path.GetDirectoryName(outFile);
             if (!Directory.Exists(parentFolder))
                 Directory.CreateDirectory(parentFolder);
