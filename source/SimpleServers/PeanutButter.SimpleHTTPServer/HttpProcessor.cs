@@ -27,9 +27,14 @@ namespace PeanutButter.SimpleHTTPServer
         public const string MIMETYPE_JSON = "application/json";
         public const string MIMETYPE_BYTES = "application/octet-stream";
         public const int MAX_POST_SIZE = 10 * 1024 * 1024; // 10MB
+        public const int HTTP_CODE_NOTFOUND = 404;
+        public const string HTTP_STATUS_NOTFOUND = "File not found";
+        public const int HTTP_CODE_INTERNALERROR = 500;
+        public const string HTTP_STATUS_INTERNALERROR = "An internal error occurred";
     }
     public class HttpProcessor : TcpServerProcessor, IProcessor
     {
+        public Action<string> LogAction = s => Debug.WriteLine(s);
         private const int BUF_SIZE = 4096;
 
         public HttpServerBase Server { get; protected set; }
@@ -61,10 +66,14 @@ namespace PeanutButter.SimpleHTTPServer
                     ReadHeaders();
                     HandleRequest(io);
                 }
+                catch(FileNotFoundException)
+                {
+                    WriteFailure(HttpConstants.HTTP_CODE_NOTFOUND, HttpConstants.HTTP_STATUS_NOTFOUND);
+                }
                 catch (Exception ex)
                 {
-                    WriteFailure();
-                    Debug.WriteLine("Unable to process request: " + ex.Message);
+                    WriteFailure(HttpConstants.HTTP_CODE_INTERNALERROR, $"{HttpConstants.HTTP_STATUS_INTERNALERROR}: {ex.Message}");
+                    LogAction("Unable to process request: " + ex.Message);
                 }
                 finally
                 {
@@ -111,7 +120,7 @@ namespace PeanutButter.SimpleHTTPServer
                                     var subParts = p.Split('=');
                                     var key = subParts.First();
                                     var value = string.Join("=", subParts.Skip(1));
-                                    return new { key = key, value = value };
+                                    return new {key, value };
                                 }).ToDictionary(x => x.key, x => x.value);
         }
 
@@ -153,8 +162,8 @@ namespace PeanutButter.SimpleHTTPServer
                     if (contentLength > HttpConstants.MAX_POST_SIZE)
                     {
                         throw new Exception(
-                            string.Format("POST Content-Length({0}) too big for this simple server",
-                                          contentLength));
+                            $"POST Content-Length({contentLength}) too big for this simple server"
+                        );
                     }
                     var buf = new byte[BUF_SIZE];
                     var toRead = contentLength;
@@ -255,8 +264,10 @@ namespace PeanutButter.SimpleHTTPServer
             _outputStream.BaseStream.Flush();
         }
 
-        public void WriteFailure() {
-            WriteStatusHeader(404, "File not found");
+        public void WriteFailure(int code, string message)
+        {
+            //WriteStatusHeader(404, "File not found");
+            WriteStatusHeader(code, message);
             WriteConnectionClosesAfterCommsHeader();
             WriteEmptyLineToStream();
         }

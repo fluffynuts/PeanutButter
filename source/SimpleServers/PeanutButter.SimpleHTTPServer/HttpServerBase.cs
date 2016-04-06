@@ -24,7 +24,7 @@ namespace PeanutButter.SimpleHTTPServer
 
         protected override IProcessor CreateProcessorFor(TcpClient client)
         {
-            return new HttpProcessor(client, this);
+            return new HttpProcessor(client, this) { LogAction = LogAction };
         }
 
         public abstract void HandleGETRequest(HttpProcessor p);

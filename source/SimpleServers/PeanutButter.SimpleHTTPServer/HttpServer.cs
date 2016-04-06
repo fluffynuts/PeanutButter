@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
-using System.Net.Sockets;
-using System.Threading;
 using System.Xml.Linq;
 using Newtonsoft.Json;
 
@@ -29,6 +26,8 @@ namespace PeanutButter.SimpleHTTPServer
     public class HttpServer : HttpServerBase 
     {
         private List<Func<HttpProcessor, Stream, HttpServerPipelineResult>> _handlers;
+
+        public Func<object, string> JsonSerializer = o => JsonConvert.SerializeObject(o);
 
         public HttpServer(int port, bool autoStart = true, Action<string> logAction = null)
             : base(port)
@@ -93,7 +92,7 @@ namespace PeanutButter.SimpleHTTPServer
 
         public void AddJsonDocumentHandler(Func<HttpProcessor, Stream, object> handler)
         {
-            HandleDocumentRequestWith(handler, "json", o => JsonConvert.SerializeObject(o), HttpConstants.MIMETYPE_JSON);
+            HandleDocumentRequestWith(handler, "json", o => JsonSerializer(o), HttpConstants.MIMETYPE_JSON);
         }
 
         private void HandleDocumentRequestWith(Func<HttpProcessor, Stream, object> handler, 
@@ -103,7 +102,7 @@ namespace PeanutButter.SimpleHTTPServer
         {
             AddHandler((p, s) =>
             {
-                Log($"Handling {documentTypeForLogging} document request: {0}", p.FullUrl);
+                Log($"Handling {documentTypeForLogging} document request: {p.FullUrl}");
                 var doc = handler(p, s);
                 if (doc == null)
                 {
@@ -112,9 +111,18 @@ namespace PeanutButter.SimpleHTTPServer
                 }
                 var asString = doc as string;
                 if (asString == null)
-                    asString = stringProcessor(doc);
+                {
+                    try
+                    {
+                        asString = stringProcessor(doc);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log($"Unable to process request to string result: {ex.Message}");
+                    }
+                }
                 p.WriteDocument(asString, mimeType);
-                Log($" --> Successful {documentTypeForLogging} document handling for {0}", p.FullUrl);
+                Log($" --> Successful {documentTypeForLogging} document handling for {p.FullUrl}");
                 return HttpServerPipelineResult.HandledExclusively;
             });
         }
@@ -130,28 +138,22 @@ namespace PeanutButter.SimpleHTTPServer
             var handled = false;
             foreach (var handler in _handlers)
             {
-                try
+                var pipelineResult = handler(p, stream);
+                switch (pipelineResult)
                 {
-                    var pipelineResult = handler(p, stream);
-                    switch (pipelineResult)
-                    {
-                        case HttpServerPipelineResult.Handled:
-                            // TODO: allow more pipelining
-                        case HttpServerPipelineResult.HandledExclusively:
-                            handled = true;
-                            break;
-                    }
-                    if (pipelineResult == HttpServerPipelineResult.HandledExclusively)
+                    case HttpServerPipelineResult.Handled:
+                        // TODO: allow more pipelining
+                    case HttpServerPipelineResult.HandledExclusively:
+                        handled = true;
                         break;
                 }
-                catch
-                {
-                }
+                if (pipelineResult == HttpServerPipelineResult.HandledExclusively)
+                    break;
             }
             if (!handled)
             {
                 Log("No handlers found for {0}", p.FullUrl);
-                throw new Exception("Request was not handled by any registered handlers");
+                throw new FileNotFoundException("Request was not handled by any registered handlers");
             }
         }
 

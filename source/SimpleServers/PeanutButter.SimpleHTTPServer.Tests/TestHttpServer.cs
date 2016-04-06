@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading;
 using System.Xml.Linq;
 using Newtonsoft.Json;
@@ -337,6 +339,53 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             }
         }
 
+        [Test]
+        public void WhenNoHandlerClaimsPath_ShouldReturn404()
+        {
+            //---------------Set up test pack-------------------
+            using (var server = Create())
+            {
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var ex = Assert.Throws<WebException>(() => DownloadResultFrom(server, "/index.html"));
+
+                //---------------Test Result -----------------------
+                var response = ex.Response as HttpWebResponse;
+                Assert.IsNotNull(response);
+                Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
+            }
+        }
+
+        [Test]
+        public void WhenHandlerThrows_ShouldReturn500()
+        {
+            //---------------Set up test pack-------------------
+            using (var server = Create())
+            {
+                var message = GetRandomString();
+                var logs = new List<string>();
+                server.LogAction = logs.Add;
+                server.AddDocumentHandler((p,s) =>
+                {
+                    throw new Exception(message);
+                });
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var ex = Assert.Throws<WebException>(() => DownloadResultFrom(server, "/index.html"));
+
+                //---------------Test Result -----------------------
+                var response = ex.Response as HttpWebResponse;
+                Assert.IsNotNull(response);
+                Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);
+                Assert.IsTrue(logs.Any(l => l.Contains(message)));
+            }
+        }
+
+
+
         private HttpServer Create(int? port = null)
         {
             var result = CreateWithPort(port);
@@ -393,7 +442,6 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             var parentFolder = Path.GetDirectoryName(outFile);
             if (!Directory.Exists(parentFolder))
                 Directory.CreateDirectory(parentFolder);
-            var started = DateTime.Now;
             using (var reader = new BinaryReader(response.GetResponseStream()))
             {
                 using (var outStream = new FileStream(outFile, FileMode.Append))
