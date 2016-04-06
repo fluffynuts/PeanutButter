@@ -402,6 +402,8 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                 var log = requestLogs.Single();
                 Assert.AreEqual(path, log.Path);
                 Assert.AreEqual(HttpStatusCode.OK, log.StatusCode);
+                Assert.AreEqual("GET", log.Method);
+                Assert.AreEqual("OK", log.Message);
             }
         }
 

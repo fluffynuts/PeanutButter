@@ -19,15 +19,17 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             var path = GetRandomString();
             var code = GetRandom<HttpStatusCode>();
             var message = GetRandomString();
+            var method = GetRandomString();
 
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var sut = new RequestLogItem(path, code, message);
+            var sut = new RequestLogItem(path, code, method, message);
 
             //---------------Test Result -----------------------
             Assert.AreEqual(path, sut.Path);
             Assert.AreEqual(code, sut.StatusCode);
+            Assert.AreEqual(method, sut.Method);
             Assert.AreEqual(message, sut.Message);
         }
 
@@ -37,15 +39,17 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             //---------------Set up test pack-------------------
             var path = GetRandomString();
             var code = GetRandom<HttpStatusCode>();
+            var method = GetRandomString();
 
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var sut = new RequestLogItem(path, code, null);
+            var sut = new RequestLogItem(path, code, method, null);
 
             //---------------Test Result -----------------------
             Assert.AreEqual(path, sut.Path);
             Assert.AreEqual(code, sut.StatusCode);
+            Assert.AreEqual(method, sut.Method);
             Assert.AreEqual(code.ToString(), sut.Message);
         }
 
