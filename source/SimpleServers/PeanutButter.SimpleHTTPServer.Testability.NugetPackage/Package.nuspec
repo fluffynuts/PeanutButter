@@ -1,8 +1,7 @@
-<?xml version="1.0"?>
-<package >
+<package>
   <metadata>
     <id>PeanutButter.SimpleHTTPServer.Testability</id>
-    <version>1.2.33</version>
+    <version>1.2.34</version>
     <title>PeanutButter.SimpleHTTPServer.Testability</title>
     <authors>Davyd McColl</authors>
     <owners></owners>
@@ -12,8 +11,7 @@
         - test for requests
         - test for headers
     </description>
-    <releaseNotes>
-    </releaseNotes>
+    <releaseNotes></releaseNotes>
     <summary>
       Some extensions to ease testability when using PeanutButter.SimpleHTTPServer.HttpServer in your tests.
     </summary>
@@ -26,8 +24,8 @@
     <dependencies>
       <group targetFramework="net40">
         <dependency id="NUnit" version="3.2.0" />
-        <dependency id="PeanutButter.SimpleTcpServer" version="1.2.33" />
-        <dependency id="PeanutButter.SimpleHTTPServer" version="1.2.33" />
+        <dependency id="PeanutButter.SimpleTcpServer" version="1.2.34" />
+        <dependency id="PeanutButter.SimpleHTTPServer" version="1.2.34" />
       </group>
     </dependencies>
     <references></references>
