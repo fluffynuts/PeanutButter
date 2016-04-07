@@ -6,7 +6,6 @@ using System.Net;
 using System.Xml.Linq;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using PeanutButter.RandomGenerators;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using PeanutButter.SimpleTcpServer;
 using PeanutButter.Utils;
@@ -188,6 +187,27 @@ namespace PeanutButter.SimpleHTTPServer.Tests
         }
 
         [Test]
+        public void ServeDocument_WhenConfiguredToServeXDocumentFromPathWithParameters_ShouldServeDocument()
+        {
+            //---------------Set up test pack-------------------
+            var doc = XDocument.Parse("<html><head></head><body><p>" + GetRandomAlphaNumericString() + "</p></body></html>");
+            const string theDocName = "/index?foo=bar";
+            using (var server = Create())
+            {
+                server.ServeDocument(theDocName, doc, HttpMethods.Get);
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = DownloadResultFrom(server, theDocName).ToUTF8String();
+
+                //---------------Test Result -----------------------
+                Assert.AreEqual(doc.ToString(SaveOptions.DisableFormatting), 
+                                XDocument.Parse(result).ToString(SaveOptions.DisableFormatting));
+            }
+        }
+
+
+        [Test]
         public void ServeJsonDocument_GivenPathAndDocument_ShouldServeForThatPath()
         {
             using (var server = Create())
@@ -201,6 +221,30 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                 //---------------Execute Test ----------------------
                 string contentType;
                 var result = DownloadResultFrom(server, "/api/query", null, out contentType);
+
+                //---------------Test Result -----------------------
+                var resultAsObject = JsonConvert.DeserializeObject<SimpleData>(result.ToUTF8String());
+                Assert.IsNotNull(result);
+                Assert.AreEqual(obj.SomeProperty, resultAsObject.SomeProperty);
+                Assert.AreEqual("application/json", contentType);
+            }
+        }
+
+        [Test]
+        public void ServeJsonDocument_GivenPathWithParametersAndDocument_ShouldServeForThatPathWithParameters()
+        {
+            using (var server = Create())
+            {
+                //---------------Set up test pack-------------------
+                var obj = GetRandom<SimpleData>();
+                var path = "/api/query?option=value";
+                server.ServeJsonDocument(path, obj);
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                string contentType;
+                var result = DownloadResultFrom(server, path, null, out contentType);
 
                 //---------------Test Result -----------------------
                 var resultAsObject = JsonConvert.DeserializeObject<SimpleData>(result.ToUTF8String());

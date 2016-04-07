@@ -163,11 +163,11 @@ namespace PeanutButter.SimpleHTTPServer
             InvokeHandlersWith(p, inputData);
         }
 
-        public void ServeDocument(string path, XDocument doc, HttpMethods method = HttpMethods.Any)
+        public void ServeDocument(string queryPath, XDocument doc, HttpMethods method = HttpMethods.Any)
         {
             AddDocumentHandler((p, s) =>
                 {
-                    if (p.Path != path || !method.Matches(p.Method))
+                    if (p.FullUrl != queryPath || !method.Matches(p.Method))
                         return null;
                     Log("Serving html document at {0}", p.FullUrl);
                     return doc.ToString();
@@ -178,7 +178,7 @@ namespace PeanutButter.SimpleHTTPServer
         {
             AddJsonDocumentHandler((p, s) =>
             {
-                if (p.Path != path || !method.Matches(p.Method))
+                if (p.FullUrl != path || !method.Matches(p.Method))
                     return null;
                 Log("Serving JSON document at {0}", p.FullUrl);
                 return data;
