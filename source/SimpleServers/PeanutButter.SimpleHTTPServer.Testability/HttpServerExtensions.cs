@@ -47,10 +47,33 @@ namespace PeanutButter.SimpleHTTPServer.Testability
         private static RequestLogItem GetSingleRequestFor(HttpServer server, string path, HttpMethods method)
         {
             var requests = server.GetRequestLogsMatching(path, method);
+            if (requests.Count() > 1)
+            {
+                Assert.Fail(string.Join(Environment.NewLine,
+                    "Expected to get one request matching",
+                    method.ToString().ToUpper() + " " + path,
+                    "But got none. ",
+                    GetAllRequestsAsLinesFor(server)));
+            }
             Assert.AreEqual(1, requests.Count(), $"Should have received only one request for {path}");
             var request = requests.FirstOrDefault();
             Assert.IsNotNull(request, $"Got no requests matching path {path}");
             return request;
+        }
+
+        private static string GetAllRequestsAsLinesFor(HttpServer server)
+        {
+            var allRequests = server.GetRequestLogsMatching(o => true);
+            if (allRequests.IsEmpty()) return null;
+            return string.Join(Environment.NewLine,
+                "Got the following requests: ",
+                string.Join(Environment.NewLine, allRequests.Select(AsReadableLine))
+            );
+        }
+
+        private static object AsReadableLine(RequestLogItem arg)
+        {
+            return $"{arg.Method.ToUpper()} {arg.Path}";
         }
 
         public static IEnumerable<RequestLogItem> GetRequestLogsMatching(this HttpServer server, Func<RequestLogItem, bool> matcher)
