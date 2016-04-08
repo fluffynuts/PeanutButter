@@ -22,15 +22,35 @@ namespace PeanutButter.SimpleHTTPServer.Testability
                             server.RequestErrorFor($"No request matching path {path} and method {method}."));
         }
 
+        public static void ShouldNotHaveReceivedRequestFor(this HttpServer server, string path, HttpMethods method = HttpMethods.Any)
+        {
+            Assert.IsFalse(server.GetRequestLogsMatching(path, method).Any(), 
+                            server.RequestErrorFor($"Should have no requests matching path {path} and method {method}."));
+        }
+
         public static void ShouldHaveHadHeaderFor(this HttpServer server, string path, HttpMethods method, string header, string expectedValue)
         {
-            var requests = server.GetRequestLogsMatching(path, method);
-            Assert.AreEqual(1, requests.Count(), $"Should have received only one request for {path}");
-            var request = requests.Single();
+            var request = GetSingleRequestFor(server, path, method);
             if (!request.Headers.ContainsKey(header))
                 Assert.Fail($"Missing required header {header}");
             if (expectedValue != request.Headers[header])
                 Assert.Fail($"Header {header} had unexpected value {request.Headers[header]}. Should have been {expectedValue}");
+        }
+
+        public static void ShouldNotHaveHadHeaderFor(this HttpServer server, string path, HttpMethods method, string header, string expectedValue)
+        {
+            var request = GetSingleRequestFor(server, path, method);
+            if (request.Headers.ContainsKey(header) && (expectedValue == request.Headers[header]))
+                Assert.Fail($"Header {header} had should not have had value {request.Headers[header]}.");
+        }
+
+        private static RequestLogItem GetSingleRequestFor(HttpServer server, string path, HttpMethods method)
+        {
+            var requests = server.GetRequestLogsMatching(path, method);
+            Assert.AreEqual(1, requests.Count(), $"Should have received only one request for {path}");
+            var request = requests.FirstOrDefault();
+            Assert.IsNotNull(request, $"Got no requests matching path {path}");
+            return request;
         }
 
         public static IEnumerable<RequestLogItem> GetRequestLogsMatching(this HttpServer server, Func<RequestLogItem, bool> matcher)

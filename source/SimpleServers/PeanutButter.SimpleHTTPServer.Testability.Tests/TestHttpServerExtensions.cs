@@ -155,6 +155,43 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
             }
         }
 
+        [TestCase("GET", HttpMethods.Post)]
+        [TestCase("POST", HttpMethods.Get)]
+        public void ShouldNotHaveReceivedRequestFor_GivenPathAndMethod_ShouldNotThrowWhenHaveNotReceivedMatchingRequest_(string method, HttpMethods httpMethod)
+        {
+            //---------------Set up test pack-------------------
+            using (var server = Create())
+            {
+                var path = "/" + GetRandomString();
+                RequestSuppressed(server, path, method);
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                Assert.DoesNotThrow(() => server.ShouldNotHaveReceivedRequestFor(path, httpMethod));
+
+                //---------------Test Result -----------------------
+            }
+        }
+
+        [TestCase("GET", HttpMethods.Get)]
+        [TestCase("POST", HttpMethods.Post)]
+        public void ShouldNotHaveReceivedRequestFor_GivenPathAndMethod_ShouldThrowWhenHaveReceivedMatchingRequestWithParameters_(string method, HttpMethods httpMethod)
+        {
+            //---------------Set up test pack-------------------
+            using (var server = Create())
+            {
+                var path = "/" + GetRandomString() + "?" + GetRandomString() + "=" + GetRandomString();
+                RequestSuppressed(server, path, method);
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                Assert.Throws<AssertionException>(() => server.ShouldNotHaveReceivedRequestFor(path, httpMethod));
+
+                //---------------Test Result -----------------------
+            }
+        }
+
+
         [Test]
         public void ShouldHaveHeaderFor_GivenHeaderAndValue_WhenHaveMatch_ShouldThrow()
         {
@@ -219,6 +256,99 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
 
                 //---------------Execute Test ----------------------
                 Assert.Throws<AssertionException>(() => server.ShouldHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1));
+
+                //---------------Test Result -----------------------
+            }
+        }
+
+        [Test]
+        public void ShouldNotHaveHeaderFor_GivenHeaderAndValue_WhenDontHaveThatHeaderAndValue_ShouldNotThrow()
+        {
+            //---------------Set up test pack-------------------
+            using (var server = Create())
+            {
+                var path = "/" + GetRandomString();
+                var expectedHeader1 = "X-" + GetRandomString();
+                var expectedValue1 = GetRandomString();
+                var headers = new Dictionary<string, string>()
+                {
+                    { expectedHeader1 + GetRandomString(), GetAnother(expectedValue1) + GetRandomString() }
+                };
+                RequestSuppressed(server, path, "GET", headers);
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                Assert.DoesNotThrow(() => server.ShouldNotHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1));
+
+                //---------------Test Result -----------------------
+            }
+        }
+
+        [Test]
+        public void ShouldNotHaveHeaderFor_GivenHeaderAndValue_WhenDontHaveThatHeader_ShouldNotThrow()
+        {
+            //---------------Set up test pack-------------------
+            using (var server = Create())
+            {
+                var path = "/" + GetRandomString();
+                var expectedHeader1 = "X-" + GetRandomString();
+                var expectedValue1 = GetRandomString();
+                var headers = new Dictionary<string, string>()
+                {
+                    { expectedHeader1 + GetRandomString(), GetAnother(expectedValue1) }
+                };
+                RequestSuppressed(server, path, "GET", headers);
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                Assert.DoesNotThrow(() => server.ShouldNotHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1));
+
+                //---------------Test Result -----------------------
+            }
+        }
+
+        [Test]
+        public void ShouldNotHaveHeaderFor_GivenHeaderAndValue_WhenDontHaveThatHeaderValue_ShouldNotThrow()
+        {
+            //---------------Set up test pack-------------------
+            using (var server = Create())
+            {
+                var path = "/" + GetRandomString();
+                var expectedHeader1 = "X-" + GetRandomString();
+                var expectedValue1 = GetRandomString();
+                var headers = new Dictionary<string, string>()
+                {
+                    { expectedHeader1, GetAnother(expectedValue1) + GetRandomString() }
+                };
+                RequestSuppressed(server, path, "GET", headers);
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                Assert.DoesNotThrow(() => server.ShouldNotHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1));
+
+                //---------------Test Result -----------------------
+            }
+        }
+
+
+        [Test]
+        public void ShouldNotHaveHeaderFor_GivenHeaderAndValue_WhenHaveHeaderAndValue_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            using (var server = Create())
+            {
+                var path = "/" + GetRandomString();
+                var expectedHeader1 = "X-" + GetRandomString();
+                var expectedValue1 = GetRandomString();
+                var headers = new Dictionary<string, string>()
+                {
+                    { expectedHeader1, expectedValue1 }
+                };
+                RequestSuppressed(server, path, "GET", headers);
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                Assert.Throws<AssertionException>(() => server.ShouldNotHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1));
 
                 //---------------Test Result -----------------------
             }
