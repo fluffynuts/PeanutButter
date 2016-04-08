@@ -119,6 +119,23 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
                 //---------------Test Result -----------------------
             }
         }
+        [TestCase("GET", HttpMethods.Get)]
+        [TestCase("POST", HttpMethods.Post)]
+        public void ShouldHaveReceivedRequestFor_GivenPathAndMethod_ShouldNotThrowWhenHaveReceivedMatchingRequestWithParameters_(string method, HttpMethods httpMethod)
+        {
+            //---------------Set up test pack-------------------
+            using (var server = Create())
+            {
+                var path = "/" + GetRandomString() + "?" + GetRandomString() + "=" + GetRandomString();
+                RequestSuppressed(server, path, method);
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                Assert.DoesNotThrow(() => server.ShouldHaveReceivedRequestFor(path, httpMethod));
+
+                //---------------Test Result -----------------------
+            }
+        }
 
         [TestCase("GET", HttpMethods.Post)]
         [TestCase("POST", HttpMethods.Get)]
