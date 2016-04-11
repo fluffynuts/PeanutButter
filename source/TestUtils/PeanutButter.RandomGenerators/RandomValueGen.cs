@@ -126,6 +126,12 @@ namespace PeanutButter.RandomGenerators
         public static DateTime GetRandomDate(DateTimeKind kind, DateTime? minDate = null, DateTime? maxDate = null, bool dateOnly = false, 
                                                 DateTime? minTime = null, DateTime? maxTime = null)
         {
+            if (dateOnly)
+            {
+                minDate = minDate?.StartOfDay().AddDays(1);
+                maxDate = maxDate?.StartOfDay();
+            }
+
             var minTicks = (minDate ?? new DateTime(1990, 1, 1)).Ticks;
             var maxTicks = (maxDate ?? new DateTime(2020, 12, 31)).Ticks;
             var actualTicks = GetRandomLong(minTicks, maxTicks);
@@ -141,35 +147,33 @@ namespace PeanutButter.RandomGenerators
             return RangeCheckTimeOnRandomDate(minTime, maxTime, dateOnly ? sanitised.StartOfDay() : sanitised);
         }
 
-        private static DateTime RangeCheckTimeOnRandomDate(DateTime? minTime, DateTime? maxTime, DateTime value)
+        public static DateRange GetRandomDateRange(DateTime? minDate = null, DateTime? maxDate = null, bool dateOnly = false,
+                                                    DateTime? minTime = null, DateTime? maxTime = null)
         {
-            if (!minTime.HasValue && !maxTime.HasValue)
-                return value;
-            var rangeStart = minTime?.AsTimeOnly() ?? value.StartOfDay().AsTimeOnly();
-            var rangeEnd = maxTime?.AsTimeOnly() ?? value.EndOfDay().AsTimeOnly();
-            if (rangeStart > rangeEnd)
+            return GetRandomDateRange(DateTimeKind.Local, minDate, maxDate, dateOnly, minTime, maxTime);
+        }
+
+        public static DateRange GetRandomDateRange(DateTimeKind kind, DateTime? minDate = null, DateTime? maxDate = null, bool dateOnly = false,
+                                                    DateTime? minTime = null, DateTime? maxTime = null)
+        {
+            var fromDate = GetRandomDate(kind, minDate, maxDate, dateOnly, minTime, maxTime);
+            var toDate = GetRandomDate(kind, minDate, maxDate, dateOnly, minTime, maxTime);
+            return new DateRange(fromDate, toDate);
+        }
+
+        internal static DateTime RangeCheckTimeOnRandomDate(DateTime? minTime, DateTime? maxTime, DateTime value)
+        {
+            minTime = new DateTime(value.Year, value.Month, value.Day, minTime?.Hour ?? 0, minTime?.Minute ?? 0, minTime?.Second ?? 0);
+            maxTime = new DateTime(value.Year, value.Month, value.Day, maxTime?.Hour ?? 23, maxTime?.Minute ?? 59, maxTime?.Second ?? 59);
+            if (minTime > maxTime)
             {
-                var swap = rangeEnd;
-                rangeEnd = rangeStart;
-                rangeStart = swap;
+                var swap = minTime;
+                minTime = maxTime;
+                maxTime = swap;
             }
-            var minTimeTestValue = new DateTime(value.Year, value.Month, value.Day, rangeStart.Hour, rangeStart.Minute, rangeStart.Second, rangeStart.Millisecond);
-            var maxTimeTestValue = new DateTime(value.Year, value.Month, value.Day, rangeEnd.Hour, rangeEnd.Minute, rangeEnd.Second, rangeEnd.Millisecond);
-            var minDelta = minTimeTestValue - value;
-            var maxDelta = value - maxTimeTestValue;
-            if (minDelta.TotalMilliseconds > 0)
-            {
-                var maxAdd = rangeEnd - minTimeTestValue.AsTimeOnly();
-                var millisecondsToAdd = GetRandomLong((long) minDelta.TotalMilliseconds, (long) maxAdd.TotalMilliseconds);
-                value = value.AddMilliseconds(millisecondsToAdd);
-            }
-            else if (maxDelta.TotalMilliseconds > 0)
-            {
-                var maxSubtract = maxTimeTestValue.AsTimeOnly() - rangeStart;
-                var millisecondsToSubtract = GetRandomLong((long) maxDelta.TotalMilliseconds, (long) maxSubtract.TotalMilliseconds);
-                value = value.AddMilliseconds(-1*millisecondsToSubtract);
-            }
-            return value;
+            return value > maxTime || value < minTime
+                    ? GetRandomDate(minTime, maxTime)
+                    : value;
         }
 
         public static double GetRandomDouble(double min = 0, double max = DefaultRanges.MAX_INT_VALUE)
@@ -321,10 +325,10 @@ namespace PeanutButter.RandomGenerators
         }
 
         public const int MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS = 1000;
-        public static T GetAnother<T>(T differentFromThisValue, Func<T> usingThisGenerator, Func<T,T,bool> areEqual = null)
+        public static T GetAnother<T>(T differentFromThisValue, Func<T> usingThisGenerator, Func<T,T,bool> shouldRegenerateIf = null)
         {
-            areEqual = areEqual ?? DefaultEqualityTest;
-            Func<T, bool> isANewValue = o => !areEqual(differentFromThisValue, o);
+            shouldRegenerateIf = shouldRegenerateIf ?? DefaultEqualityTest;
+            Func<T, bool> isANewValue = o => !shouldRegenerateIf(differentFromThisValue, o);
             return GetANewRandomValueUsing(differentFromThisValue, usingThisGenerator, isANewValue);
         }
 

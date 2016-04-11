@@ -54,12 +54,14 @@
   <ItemGroup>
     <Compile Include="TestBase.cs" />
     <Compile Include="TestCannotGetAnotherDifferentRandomValueException.cs" />
+    <Compile Include="TestDateTimeRange.cs" />
     <Compile Include="TestEnumerableExtensions.cs" />
     <Compile Include="TestGenericBuilder.cs" />
     <Compile Include="TestGenericBuilderInstanceCreationException.cs" />
     <Compile Include="TestGenericBuilderLocator.cs" />
     <Compile Include="TestRandomValueGen.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestUnableToCreateDynamicBuilderException.cs" />
     <Compile Include="TestVarianceAssert.cs" />
     <Compile Include="VarianceAssert.cs" />
   </ItemGroup>
