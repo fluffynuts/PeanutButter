@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 using PeanutButter.RandomGenerators;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.Utils.Tests
 {
@@ -584,6 +586,87 @@ namespace PeanutButter.Utils.Tests
             CollectionAssert.IsNotEmpty(result);
             Assert.AreEqual(sut, result.Single());
         }
+
+        public class SimpleDto
+        {
+            public string Name { get; set; }
+        }
+
+        public class ParentDto
+        {
+            public SimpleDto Child { get; set; }
+        }
+
+        public class GrandParentDto
+        {
+            public ParentDto Parent { get; set; }
+        }
+
+        [Test]
+        public void SetPropertyValue_ShouldBeAbleToSetImmediateProperty()
+        {
+            //---------------Set up test pack-------------------
+            var obj = new SimpleDto() { Name = GetRandomString() };
+            var expected = GetAnother(obj.Name);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            obj.SetPropertyValue("Name", expected);
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(expected, obj.Name);
+        }
+
+        [Test]
+        public void SetPropertyValue_ShouldBeAbleToSetDottedProperty()
+        {
+            //---------------Set up test pack-------------------
+            var obj = new ParentDto()
+            {
+                Child = new SimpleDto()
+                {
+                    Name = GetRandomString()
+                }
+            };
+            var expected = GetRandomString();
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            obj.SetPropertyValue("Child.Name", expected);
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(expected, obj.Child.Name);
+        }
+
+
+        [Test]
+        public void SetPropertyValue_ShouldBeAbleToSetDottedPropertyFurtherDOwn()
+        {
+            //---------------Set up test pack-------------------
+            var obj = new GrandParentDto()
+            {
+                Parent = new ParentDto()
+                {
+                    Child = new SimpleDto()
+                    {
+                        Name = GetRandomString()
+                    }
+                }
+            };
+            var expected = GetRandomString();
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            obj.SetPropertyValue("Parent.Child.Name", expected);
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(expected, obj.Parent.Child.Name);
+        }
+
+
 
 
 

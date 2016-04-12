@@ -178,6 +178,37 @@ namespace PeanutButter.Utils
             return propInfo.GetValue(src, null);
         }
 
+        public static void SetPropertyValue(this object obj, string propertyPath, object newValue)
+        {
+            //var type = obj.GetType();   
+            //var propInfo = type.GetProperty(propertyName);
+            //if (propInfo == null)
+            //    throw new ArgumentException($"{type.Name} has no public property called {propertyName}");
+            //if (!propInfo.CanWrite)
+            //    throw new ArgumentException($"{propertyName} on {type.Name} is read-only");
+            //propInfo.SetValue(obj, newValue, null);
+            var queue = new Queue<string>(propertyPath.Split('.'));
+            object propValue = obj;
+            while (queue.Count > 0)
+            {
+                var current = queue.Dequeue();
+                var type = propValue.GetType();
+                var propInfo = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                                    .FirstOrDefault(pi => pi.Name == current);
+                if (propInfo == null)
+                    throw new PropertyNotFoundException(type, current);
+                if (queue.Count == 0)
+                {
+                    propInfo.SetValue(propValue, newValue);
+                    return;
+                }
+                propValue = propInfo.GetValue(propValue);
+            }
+
+            throw new PropertyNotFoundException(obj.GetType(), propertyPath);
+
+        }
+
         public static T GetPropertyValue<T>(this object src, string propertyName)
         {
             var objectResult = GetPropertyValue(src, propertyName);
@@ -187,17 +218,6 @@ namespace PeanutButter.Utils
         public static bool IsAssignableTo<T>(this Type type)
         {
             return type.IsAssignableFrom(typeof (T));
-        }
-
-        public static void SetPropertyValue(this object obj, string propertyName, object newValue)
-        {
-            var type = obj.GetType();   
-            var propInfo = type.GetProperty(propertyName);
-            if (propInfo == null)
-                throw new ArgumentException($"{type.Name} has no public property called {propertyName}");
-            if (!propInfo.CanWrite)
-                throw new ArgumentException($"{propertyName} on {type.Name} is read-only");
-            propInfo.SetValue(obj, newValue, null);
         }
     }
 }
