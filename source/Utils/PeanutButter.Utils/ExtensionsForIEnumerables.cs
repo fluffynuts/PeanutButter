@@ -98,5 +98,25 @@ namespace PeanutButter.Utils
                 toRun();
         }
 
+        public static T Second<T>(this IEnumerable<T> src)
+        {
+            return src.FirstAfter(1);
+        } 
+
+        public static T Third<T>(this IEnumerable<T> src)
+        {
+            return src.FirstAfter(2);
+        } 
+
+        public static T FirstAfter<T>(this IEnumerable<T> src, int toSkip)
+        {
+            return src.Skip(toSkip).First();
+        }
+
+        public static T FirstOrDefaultAfter<T>(this IEnumerable<T> src, int toSkip)
+        {
+            return src.Skip(toSkip).FirstOrDefault();
+        } 
+
     }
 }

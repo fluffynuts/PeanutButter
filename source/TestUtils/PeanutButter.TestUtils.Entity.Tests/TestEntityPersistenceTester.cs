@@ -483,11 +483,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
         {
             using (var db = new TempDBLocalDb())
             {
-                var sql = @"
-create table SomeEntityWithDecimalValue (
-    SomeEntityWithDecimalValueId int identity primary key,
-    DecimalValue decimal NOT NULL,
-    NullableDecimalValue decimal);";
+                var sql = ENTITY_PERSISTENCE_CONTEXT_SQL;
                 EntityPersistenceTester.CreateFor<SomeEntityWithDecimalValue>()
                     .WithContext<EntityPersistenceContext>()
                     .WithDbMigrator(cs => new DbSchemaImporter(cs, sql))
@@ -497,7 +493,7 @@ create table SomeEntityWithDecimalValue (
                 // need to clear for the test to work again
                 using (var ctx = new EntityPersistenceContext(db.CreateConnection()))
                 {
-                    ctx.StuffAndThings.Clear();
+                    ctx.EntitiesWithDecimalValues.Clear();
                     ctx.SaveChangesWithErrorReporting();
                 }
 
@@ -511,6 +507,42 @@ create table SomeEntityWithDecimalValue (
                 });
             }
         }
+
+        private const string ENTITY_PERSISTENCE_CONTEXT_SQL = @"
+create table SomeEntityWithDecimalValue (
+    SomeEntityWithDecimalValueId int identity primary key,
+    DecimalValue decimal NOT NULL,
+    NullableDecimalValue decimal);";
+
+        private const string ENTITY_PERSISTENCE_CONTEXT_WITH_DATA_SQL = ENTITY_PERSISTENCE_CONTEXT_SQL +
+            "\nGO\ninsert into SomeEntityWithDecimalValue (DecimalValue, NullableDecimalValue) values (1, 2);";
+
+        [Test]
+        public void WhenMigrationsCreateEntitiesButRunBeforeClearsThemOut_ShouldNotFailBecauseOfExistingEntities()
+        {
+            //---------------Set up test pack-------------------
+            using (var db = new TempDBLocalDb())
+            {
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                Assert.DoesNotThrow(() =>
+                EntityPersistenceTester.CreateFor<SomeEntityWithDecimalValue>()
+                    .WithContext<EntityPersistenceContext>()
+                    .WithDbMigrator(cs => new DbSchemaImporter(cs, ENTITY_PERSISTENCE_CONTEXT_WITH_DATA_SQL))
+                    .WithSharedDatabase(db)
+                    .BeforePersisting((ctx, entity) =>
+                    {
+                        ctx.EntitiesWithDecimalValues.Clear();
+                        ctx.SaveChangesWithErrorReporting();
+                    })
+                    .ShouldPersistAndRecall()
+                );
+
+                //---------------Test Result -----------------------
+            }
+        }
+
 
 
         public class SomeEntityWithDateTimeValue
@@ -539,7 +571,7 @@ create table SomeEntityWithDecimalValue (
 
         public class EntityPersistenceContext: DbContextWithAutomaticTrackingFields
         {
-            public IDbSet<SomeEntityWithDecimalValue> StuffAndThings { get; set; }
+            public IDbSet<SomeEntityWithDecimalValue> EntitiesWithDecimalValues { get; set; }
 
             public EntityPersistenceContext(string nameOrConnectionString) : base(nameOrConnectionString)
             {

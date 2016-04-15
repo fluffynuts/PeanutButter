@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
@@ -330,6 +331,189 @@ namespace PeanutButter.Utils.Tests
             //---------------Test Result -----------------------
             CollectionAssert.AreEquivalent(expected, result);
         }
+
+        [Test]
+        public void Second_WhenOnlyHaveOneItemInCollection_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            var input = new[] { 1 };
+            var expectedMessage = GetOutOfRangeMessage();
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var ex = Assert.Throws<InvalidOperationException>(() => input.Second());
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(expectedMessage, ex.Message);
+        }
+
+        [Test]
+        public void Second_WhenHave2OrMoreItemsInCollection_ShouldReturnSecond()
+        {
+            //---------------Set up test pack-------------------
+            var collection = GetRandomCollection<string>(2);
+            var expected = collection.ToArray()[1];
+
+            //---------------Assert Precondition----------------
+            Assert.That(collection.Count(), Is.GreaterThanOrEqualTo(2));
+
+            //---------------Execute Test ----------------------
+            var item = collection.Second();
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(expected, item);
+        }
+
+
+        [Test]
+        public void Third_WhenOnlyHaveOneItemInCollection_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            var input = new[] { 1 };
+            var expectedMessage = GetOutOfRangeMessage();
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var ex = Assert.Throws<InvalidOperationException>(() => input.Second());
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(expectedMessage, ex.Message);
+        }
+
+        [Test]
+        public void Third_WhenHave2OrMoreItemsInCollection_ShouldReturnThird()
+        {
+            //---------------Set up test pack-------------------
+            var collection = GetRandomCollection<string>(3);
+            var expected = collection.ToArray()[2];
+
+            //---------------Assert Precondition----------------
+            Assert.That(collection.Count(), Is.GreaterThanOrEqualTo(3));
+
+            //---------------Execute Test ----------------------
+            var item = collection.Third();
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(expected, item);
+        }
+
+        [Test]
+        public void FirstAfter_OperatingOnInsufficientCollection_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            var collection = GetRandomCollection<int>(2,5);
+            var skip = GetRandomInt(6, 100);
+            var expectedMessage = GetOutOfRangeMessage();
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var ex = Assert.Throws<InvalidOperationException>(() => collection.FirstAfter(skip));
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(expectedMessage, ex.Message);
+        }
+
+
+        [Test]
+        public void FirstAfter_GivenSkipZero_ShouldReturnFirstElement()
+        {
+            //---------------Set up test pack-------------------
+            var collection = GetRandomCollection<int>(10, 20).ToArray();
+            var expected = collection[0];
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = collection.FirstAfter(0);
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public void FirstAfter_OperatingOnSufficientCollection_ShouldReturnRequestedElement()
+        {
+            //---------------Set up test pack-------------------
+            var collection = GetRandomCollection<int>(10, 20).ToArray();
+            var skip = GetRandomInt(2,8);
+            var expected = collection[skip];
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = collection.FirstAfter(skip);
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public void FirstOrDefaultAfter_OperatingOnInsufficientCollectionOfInt_ShouldReturnDefaultForType()
+        {
+            //---------------Set up test pack-------------------
+            var collection = GetRandomCollection<int>(2,5);
+            var skip = GetRandomInt(6, 100);
+            var expected = default(int);
+
+            //---------------Assert Precondition----------------
+            Assert.That(skip, Is.GreaterThan(collection.Count()));
+
+            //---------------Execute Test ----------------------
+            var result = collection.FirstOrDefaultAfter(skip);
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(expected, result);
+        }
+
+        public class SomeType
+        {
+        }
+
+        [Test]
+        public void FirstOrDefaultAfter_OperatingOnInsufficientCollectionOfComplexType_ShouldReturnDefaultForType()
+        {
+            //---------------Set up test pack-------------------
+            var collection = GetRandomCollection<SomeType>(2,5);
+            var skip = GetRandomInt(6, 100);
+            var expected = default(SomeType);
+
+            //---------------Assert Precondition----------------
+            Assert.That(skip, Is.GreaterThan(collection.Count()));
+
+            //---------------Execute Test ----------------------
+            var result = collection.FirstOrDefaultAfter(skip);
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(expected, result);
+        }
+
+
+        [Test]
+        public void FirstOrDefaultAfter_OperatingOnSufficientCollection_ShouldReturnRequestedElement()
+        {
+            //---------------Set up test pack-------------------
+            var collection = GetRandomCollection<int>(10, 20);
+            var skip = GetRandomInt(2,8);
+            var expected = collection.ToArray()[skip];
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = collection.FirstOrDefaultAfter(skip);
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(expected, result);
+        }
+
+        private string GetOutOfRangeMessage()
+        {
+            var reference = Assert.Throws<InvalidOperationException>(() => new int[0].First());
+            return reference.Message;
+        }
+
 
         private class ItemWithNullableId
         {
