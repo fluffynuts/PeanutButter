@@ -3,6 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+// ReSharper disable ExpressionIsAlwaysNull
+// ReSharper disable CollectionNeverUpdated.Local
+// ReSharper disable PossibleMultipleEnumeration
+// ReSharper disable ClassNeverInstantiated.Global
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace PeanutButter.Utils.Tests
 {
@@ -107,7 +113,7 @@ namespace PeanutButter.Utils.Tests
         public void IsSameAs_OperatingOnCollection_WhenBothContainSameElements_ShouldReturnTrue()
         {
             //---------------Set up test pack-------------------
-            var first = new int[] { 1 };
+            var first = new[] { 1 };
             var second = new List<int>(new[] { 1 });
 
             //---------------Assert Precondition----------------
@@ -123,7 +129,7 @@ namespace PeanutButter.Utils.Tests
         public void IsSameAs_OperatingOnCollection_WhenBothContainSameElementsInDifferentOrder_ShouldReturnTrue()
         {
             //---------------Set up test pack-------------------
-            var first = new int[] { 1, 2 };
+            var first = new[] { 1, 2 };
             var second = new List<int>(new[] { 2, 1 });
 
             //---------------Assert Precondition----------------
@@ -139,7 +145,7 @@ namespace PeanutButter.Utils.Tests
         public void IsSameAs_OperatingOnCollection_WhenBothContainDifferentElements_ShouldReturnFalse()
         {
             //---------------Set up test pack-------------------
-            var first = new int[] { 1 };
+            var first = new[] { 1 };
             var second = new List<int>(new[] { 2, 1 });
 
             //---------------Assert Precondition----------------
@@ -170,7 +176,7 @@ namespace PeanutButter.Utils.Tests
         public void JoinWith_OperatingOnCollection_WhenCollectionIsNotEmpty_ShouldReturnCollectionJoinedWithGivenDelimiter()
         {
             //---------------Set up test pack-------------------
-            var src = new int[] {1, 2, 3};
+            var src = new[] {1, 2, 3};
             var delimiter = GetRandomString(2, 3);
             var expected = "1" + delimiter + "2" + delimiter + "3";
 
@@ -510,6 +516,7 @@ namespace PeanutButter.Utils.Tests
 
         private string GetOutOfRangeMessage()
         {
+            // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
             var reference = Assert.Throws<InvalidOperationException>(() => new int[0].First());
             return reference.Message;
         }
@@ -517,6 +524,7 @@ namespace PeanutButter.Utils.Tests
 
         private class ItemWithNullableId
         {
+            // ReSharper disable once MemberCanBePrivate.Local
             public int? Id { get; set; }
             public static ItemWithNullableId For(int? value)
             {
