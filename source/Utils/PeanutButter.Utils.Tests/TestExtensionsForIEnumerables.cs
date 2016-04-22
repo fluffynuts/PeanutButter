@@ -740,6 +740,39 @@ namespace PeanutButter.Utils.Tests
             Assert.AreEqual("howMany", ex.ParamName);
         }
 
+        [Test]
+        public void TimesDo_OperatingOnNegativeIntegerWithActionAcceptingIndex_ShouldThrowArgumentException()
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var ex = Assert.Throws<ArgumentException>(() => (-1).TimesDo(i => { }));
+
+            //---------------Test Result -----------------------
+            StringAssert.Contains("positive integer", ex.Message);
+            Assert.AreEqual("howMany", ex.ParamName);
+        }
+
+        [Test]
+        public void TimesDo_GivenActionAcceptingInteger_ShouldFeedIndex()
+        {
+            //---------------Set up test pack-------------------
+            var howMany = GetRandomInt();
+            var result = new List<int>();
+            var expected = new List<int>();
+            for (var i = 0; i < howMany; i++)
+                expected.Add(i);
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            howMany.TimesDo(i => result.Add(i));
+
+            //---------------Test Result -----------------------
+            CollectionAssert.AreEquivalent(expected, result);
+        }
+
 
 
 

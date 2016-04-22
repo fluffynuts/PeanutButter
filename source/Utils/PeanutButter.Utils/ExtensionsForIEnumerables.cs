@@ -92,10 +92,15 @@ namespace PeanutButter.Utils
 
         public static void TimesDo(this int howMany, Action toRun)
         {
+            howMany.TimesDo(i => toRun());
+        }
+
+        public static void TimesDo(this int howMany, Action<int> toRun)
+        {
             if (howMany < 0)
                 throw new ArgumentException("TimesDo must be called on positive integer", nameof(howMany));
             for (var i = 0; i < howMany; i++)
-                toRun();
+                toRun(i);
         }
 
         public static T Second<T>(this IEnumerable<T> src)
