@@ -1,12 +1,12 @@
 <package>
   <metadata>
     <id>PeanutButter.TempDb.LocalDb</id>
-    <version>1.2.44</version>
+    <version>1.2.45</version>
     <title>PeanutButter.TempDb.LocalDb</title>
     <authors>Davyd</authors>
     <owners></owners>
     <description>
-	The LocalDb TempDb&lt;&gt; implementation
+	The LocalDb TempDb implementation
     </description>
     <releaseNotes></releaseNotes>
     <summary>
@@ -20,7 +20,7 @@
     <copyright>Copyright  2015</copyright>
     <dependencies>
       <group targetFramework="net40">
-        <dependency id="PeanutButter.TempDb" version="1.2.44" />
+        <dependency id="PeanutButter.TempDb" version="1.2.45" />
       </group>
     </dependencies>
     <references></references>
