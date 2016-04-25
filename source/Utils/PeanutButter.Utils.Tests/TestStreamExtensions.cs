@@ -1,5 +1,6 @@
 using System.IO;
 using System.Linq;
+using System.Text;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
@@ -195,6 +196,26 @@ namespace PeanutButter.Utils.Tests
             }
         }
 
+        [Test]
+        public void AsString_GivenStreamWithStringAndNullPadding_ShouldReturnString()
+        {
+            //---------------Set up test pack-------------------
+            var expected = GetRandomString();
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            using (var memStream = new MemoryStream(new byte[1024], true))
+            {
+                //---------------Test Result -----------------------
+                memStream.WriteAllBytes(Encoding.UTF8.GetBytes(expected));
+                memStream.Rewind();
+                var result = memStream.AsString();
+                Assert.IsNotNull(result);
+                Assert.AreEqual(expected, result);
+            }
+
+        }
 
 
 

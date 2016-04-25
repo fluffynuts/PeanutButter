@@ -7,13 +7,10 @@
     <owners></owners>
     <description>
       Contains utilities for facilitating easier testing of MVC projects:
-        - JsonResultExtensions let you .Get&lt;type&gt;("(property name)") on JsonResults
+        - JsonResultExtensions let you .Get("(property name)") on JsonResults
             from an MVC controller action to easily fetch values from the Json result
         - ControllerWithContextBuilder facilitates testing of controllers which require
-            a valid context, user, roles, etc. Use with your controller type:
-              var sut = ControllerWithContextBuilder&lt;MyControllerType&gt;.Create().Build();
-            In between the Create() and Build() use the available With*() methods to set up
-            user information, session state, cookies, form and url parameters
+            a valid context, user, roles, etc. 
     </description>
     <releaseNotes></releaseNotes>
     <summary>

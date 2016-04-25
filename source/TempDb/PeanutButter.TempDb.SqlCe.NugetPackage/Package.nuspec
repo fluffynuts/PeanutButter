@@ -6,7 +6,7 @@
     <authors>Davyd McColl</authors>
     <owners></owners>
     <description>
-	The SqlCe TempDb&lt;&gt; implementation
+	The SqlCe TempDb implementation
     </description>
     <releaseNotes></releaseNotes>
     <summary>
@@ -21,7 +21,7 @@
     <dependencies>
       <group targetFramework="net40">
         <dependency id="PeanutButter.TempDb" version="1.2.45" />
-        <dependency id="Microsoft.SqlServer.Compact" version="" />
+        <dependency id="Microsoft.SqlServer.Compact" version="4.0.8876.1" />
       </group>
     </dependencies>
     <references></references>

@@ -164,16 +164,38 @@ namespace PeanutButter.INIFile
         public void Persist(string path = null)
         {
             path = CheckPersistencePath(path);
+            var lines = GetLinesForCurrentData();
+            File.WriteAllBytes(path, Encoding.UTF8.GetBytes(string.Join(Environment.NewLine, lines)));
+        }
+
+        public void Persist(Stream toStream)
+        {
+            var lines = GetLinesForCurrentData();
+            var shouldAddNewline = false;
+            var newLine = Encoding.UTF8.GetBytes(Environment.NewLine);
+            lines.ForEach(l =>
+            {
+                if (shouldAddNewline)
+                    toStream.Write(newLine, 0, newLine.Length);
+                else
+                    shouldAddNewline = true;
+                var lineAsBytes = Encoding.UTF8.GetBytes(l);
+                toStream.Write(lineAsBytes, 0, lineAsBytes.Length);
+            });
+        }
+
+        private List<string> GetLinesForCurrentData()
+        {
             var lines = new List<string>();
             foreach (var section in Sections)
             {
                 if (section.Length > 0)
                     lines.Add(string.Join(string.Empty, "[", section, "]"));
                 lines.AddRange(Data[section]
-                                    .Keys
-                                    .Select(key => LineFor(section, key)));
+                    .Keys
+                    .Select(key => LineFor(section, key)));
             }
-            File.WriteAllBytes(path, Encoding.UTF8.GetBytes(string.Join(Environment.NewLine, lines)));
+            return lines;
         }
 
         private string LineFor(string section, string key)

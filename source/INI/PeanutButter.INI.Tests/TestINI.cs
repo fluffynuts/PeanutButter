@@ -644,6 +644,54 @@ namespace PeanutButter.INI.Tests
             }
         }
 
+        [Test]
+        public void Persist_GivenStream_ShouldWriteOutToStream()
+        {
+            //---------------Set up test pack-------------------
+            var sut = Create();
+            sut.AddSection("general");
+            sut["general"]["foo"] = "bar";
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            using (var memStream = new MemoryStream(new byte[1024], true))
+            {
+                sut.Persist(memStream);
+                //---------------Test Result -----------------------
+                var resultBytes = memStream.ReadAllBytes();
+                var result = Encoding.UTF8.GetString(resultBytes);
+                var firstNull = result.IndexOf('\0');
+                result = result.Substring(0, firstNull);
+                var newIni = Create();
+                newIni.Parse(result);
+                Assert.AreEqual("bar", newIni["general"]["foo"]);
+            }
+        }
+
+
+        [Test]
+        [Ignore("WIP: would like a persist-to-stream method first")]
+        public void ParseAndPersist_ShouldRetainComments()
+        {
+            //---------------Set up test pack-------------------
+            var input = 
+@"
+[general]
+; this is the general section
+foo=bar
+";
+            var sut = Create();
+            sut.Parse(input);
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+
+            //---------------Test Result -----------------------
+            Assert.Fail("Test Not Yet Implemented");
+        }
+
+
 
         private static string RandString()
         {

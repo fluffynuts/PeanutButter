@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace PeanutButter.Utils
 {
@@ -40,6 +36,16 @@ namespace PeanutButter.Utils
             dst.Write(data, 0, data.Length);
         }
 
+        public static string AsString(this Stream src, Encoding encoding = null)
+        {
+            var buffer = src.ReadAllBytes();
+            encoding = encoding ?? Encoding.UTF8;
+            var asString = encoding.GetString(buffer);
+            var firstNull = asString.IndexOf('\0');
+            if (firstNull == -1) firstNull = asString.Length;
+            return asString.Substring(0, firstNull);
+        }
+
         private static byte[] ReadAllBytesFrom(Stream src)
         {
             src.Rewind();
@@ -47,5 +53,6 @@ namespace PeanutButter.Utils
             src.Read(buffer, 0, buffer.Length);
             return buffer;
         }
+
     }
 }
