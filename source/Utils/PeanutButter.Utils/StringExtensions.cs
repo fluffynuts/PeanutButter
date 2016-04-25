@@ -64,6 +64,16 @@ namespace PeanutButter.Utils
             return result;
         }
 
+        public static bool IsNullOrWhitespace(this string value)
+        {
+            return string.IsNullOrWhiteSpace(value);
+        }
+
+        public static bool IsNullOrEmpty(this string value)
+        {
+            return string.IsNullOrEmpty(value);
+        }
+
         private static string GetLeadingIntegerCharsFrom(string value)
         {
             var collected = new List<string>();
@@ -85,5 +95,6 @@ namespace PeanutButter.Utils
             });
             return collected.JoinWith(string.Empty);
         }
+
     }
 }

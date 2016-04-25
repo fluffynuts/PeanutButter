@@ -258,9 +258,90 @@ namespace PeanutButter.Utils.Tests
         }
 
 
+        private static readonly string[] NullOrWhitespaceStrings =
+        {
+            null,
+            "\t",
+            "\r",
+            "\n"
+        };
+
+        [TestCaseSource(nameof(NullOrWhitespaceStrings))]
+        public void IsNullOrWhitespace_ShouldReturnTrueWhenActingOnNullOrWhitespaceString_(string src)
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = src.IsNullOrWhitespace();
+
+            //---------------Test Result -----------------------
+            Assert.IsTrue(result);
+        }
+
+        [Test]
+        public void IsNullOrWhitespace_ShouldReturnFalse_WhenOperatingOnNonWhitespaceString()
+        {
+            //---------------Set up test pack-------------------
+            var src = GetRandomString();
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = src.IsNullOrWhitespace();
+
+            //---------------Test Result -----------------------
+            Assert.IsFalse(result);
+        }
+
+        [TestCase(null)]
+        [TestCase("")]
+        public void IsNullOrEmpty_ShouldReturnTrue_WhenOperatingOnString_(string src)
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = src.IsNullOrEmpty();
+
+            //---------------Test Result -----------------------
+            Assert.IsTrue(result);
+        }
 
 
+        [TestCase("\t")]
+        [TestCase("\n")]
+        [TestCase("\r")]
+        public void IsNullOrEmpty_ShouldReturnFalse_WhenOperatingOnWhitespaceString_(string src)
+        {
+            //---------------Set up test pack-------------------
 
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = src.IsNullOrEmpty();
+
+            //---------------Test Result -----------------------
+            Assert.IsFalse(result);
+        }
+
+
+        [Test]
+        public void IsNullOrEmpty_ShouldReturnFalse_WhenOperatingOnNonWhitespaceString()
+        {
+            //---------------Set up test pack-------------------
+            var input = GetRandomString();
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = input.IsNullOrEmpty();
+
+            //---------------Test Result -----------------------
+            Assert.IsFalse(result);
+        }
 
     }
 }
