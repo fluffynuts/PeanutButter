@@ -29,10 +29,13 @@ namespace PeanutButter.INIFile
         private string _path;
         private readonly char[] _sectionTrimChars;
         // ReSharper disable once MemberCanBePrivate.Global
-        protected Dictionary<string, Dictionary<string, string>> Data { get; set; }
+        protected Dictionary<string, Dictionary<string, string>> Data { get; } = CreateCaseInsensitiveDictionary();
+        private Dictionary<string, Dictionary<string, string>> Comments { get; } = CreateCaseInsensitiveDictionary();
+
+        private const string SECTION_COMMENT_KEY = "="; // bit of a hack: this can never be a key name in a section
+
         public INIFile(string path = null)
         {
-            Data = new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
             _sectionTrimChars = new[] { '[', ']' };
             if (path != null)
                 Load(path);
@@ -51,41 +54,6 @@ namespace PeanutButter.INIFile
             Parse(SplitIntoLines(contents));
         }
 
-        private void Parse(IEnumerable<string> lines)
-        {
-            ClearSections();
-            var currentSection = string.Empty;
-            foreach (var line in lines.Select(RemoveComments).Where(l => !string.IsNullOrEmpty(l)))
-            {
-                if (IsSectionHeading(line))
-                {
-                    currentSection = GetSectionNameFrom(line);
-                    AddSection(currentSection);
-                    continue;
-                }
-                var parts = line.Split('=');
-                var key = parts[0].Trim();
-                var value = parts.Count() > 1 ? string.Join("=", parts.Skip(1)) : null;
-                this[currentSection][key] = TrimOuterQuotesFrom(value);
-            }
-        }
-
-        private string RemoveComments(string line)
-        {
-            var parts = line.Split(';');
-            var toTake = 1;
-            while (toTake <= parts.Length && HaveUnmatchedQuotesIn(parts.Take(toTake)))
-                toTake++;
-            return string.Join(";", parts.Take(toTake)).Trim();
-        }
-
-        private bool HaveUnmatchedQuotesIn(IEnumerable<string> parts)
-        {
-            var joined = string.Join(";", parts);
-            var quoted = joined.Count(c => c == '"');
-            return quoted % 2 != 0;
-        }
-
         public Dictionary<string, string> this[string index]
         {
             get
@@ -95,6 +63,79 @@ namespace PeanutButter.INIFile
                 return Data[index];
             }
             set { Data[index] = value; }
+        }
+
+        private static Dictionary<string, Dictionary<string, string>> CreateCaseInsensitiveDictionary()
+        {
+            return new Dictionary<string, Dictionary<string, string>>(StringComparer.CurrentCultureIgnoreCase);
+        }
+
+        private void Parse(IEnumerable<string> lines)
+        {
+            ClearSections();
+            var currentSection = string.Empty;
+            var recentComments = new List<string>();
+            foreach (var line in lines.Where(l => !string.IsNullOrEmpty(l)))
+            {
+                var dataAndComment = SplitCommentFrom(line);
+                var dataPart = dataAndComment.Item1;
+                if (!string.IsNullOrWhiteSpace(dataAndComment.Item2))
+                    recentComments.Add(dataAndComment.Item2);
+                if (string.IsNullOrWhiteSpace(dataPart))
+                    continue;
+                if (IsSectionHeading(dataPart))
+                {
+                    currentSection = GetSectionNameFrom(dataPart);
+                    AddSection(currentSection);
+                    StoreCommentsForSection(currentSection, recentComments);
+                    continue;
+                }
+                var parts = dataPart.Split('=');
+                var key = parts[0].Trim();
+                var value = parts.Count() > 1 ? string.Join("=", parts.Skip(1)) : null;
+                this[currentSection][key] = TrimOuterQuotesFrom(value);
+                StoreCommentsForItem(currentSection, key, recentComments);
+            }
+        }
+
+        private void StoreCommentsForSection(string section, List<string> recentComments)
+        {
+            StoreCommentsForItem(section, SECTION_COMMENT_KEY, recentComments);
+        }
+
+        private void StoreCommentsForItem(string section, string key, List<string> recentComments)
+        {
+            if (!recentComments.Any()) return;
+            var sectionComments = Comments.ContainsKey(section)
+                                    ? Comments[section]
+                                    : CreateCommentsForSection(section);
+            sectionComments[key] = string.Join(Environment.NewLine + ";", recentComments);
+            recentComments.Clear();
+        }
+
+        private Dictionary<string, string> CreateCommentsForSection(string section)
+        {
+            var result = new Dictionary<string, string>();
+            Comments[section] = result;
+            return result;
+        }
+
+        private Tuple<string, string> SplitCommentFrom(string line)
+        {
+            var parts = line.Split(';');
+            var toTake = 1;
+            while (toTake <= parts.Length && HaveUnmatchedQuotesIn(parts.Take(toTake)))
+                toTake++;
+            var dataPart = string.Join(";", parts.Take(toTake)).Trim();
+            var commentPart = string.Join(";", parts.Skip(toTake));
+            return Tuple.Create(dataPart, commentPart);
+        }
+
+        private bool HaveUnmatchedQuotesIn(IEnumerable<string> parts)
+        {
+            var joined = string.Join(";", parts);
+            var quoted = joined.Count(c => c == '"');
+            return quoted % 2 != 0;
         }
 
         private string GetSectionNameFrom(string line)
@@ -189,6 +230,7 @@ namespace PeanutButter.INIFile
             var lines = new List<string>();
             foreach (var section in Sections)
             {
+                AddCommentsTo(lines, section, SECTION_COMMENT_KEY);
                 if (section.Length > 0)
                     lines.Add(string.Join(string.Empty, "[", section, "]"));
                 lines.AddRange(Data[section]
@@ -198,11 +240,21 @@ namespace PeanutButter.INIFile
             return lines;
         }
 
+        private void AddCommentsTo(List<string> lines, string forSection, string forKey)
+        {
+            if (Comments.ContainsKey(forSection) && Comments[forSection].ContainsKey(forKey))
+                lines.Add(";" + Comments[forSection][forKey]);
+        }
+
+
         private string LineFor(string section, string key)
         {
+            var lines = new List<string>();
+            AddCommentsTo(lines, section, key);
             var dataValue = Data[section][key];
             var writeValue = dataValue == null ? "" : "=\"" + dataValue + "\"";
-            return string.Join(string.Empty, key.Trim(), writeValue);
+            lines.Add(string.Join(string.Empty, key.Trim(), writeValue));
+            return string.Join(Environment.NewLine, lines);
         }
 
         private string CheckPersistencePath(string path)

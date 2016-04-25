@@ -671,8 +671,7 @@ namespace PeanutButter.INI.Tests
 
 
         [Test]
-        [Ignore("WIP: would like a persist-to-stream method first")]
-        public void ParseAndPersist_ShouldRetainComments()
+        public void ParseAndPersist_ShouldRetainCommentsAboveSetting()
         {
             //---------------Set up test pack-------------------
             var input = 
@@ -686,9 +685,94 @@ foo=bar
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
+            using (var memStream = new MemoryStream(new byte[1024], true))
+            {
+                //---------------Test Result -----------------------
+                sut.Persist(memStream);
+                var lines = memStream.AsString().Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                Assert.IsTrue(lines.Any(l => l == "; this is the general section"));
+            }
 
-            //---------------Test Result -----------------------
-            Assert.Fail("Test Not Yet Implemented");
+        }
+
+        [Test]
+        public void ParseAndPersist_ShouldRetainMultilineCommentsAboveSetting()
+        {
+            //---------------Set up test pack-------------------
+            var input = 
+@"
+[general]
+; this is the general section
+; this is the general section again!
+foo=bar
+";
+            var sut = Create();
+            sut.Parse(input);
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            using (var memStream = new MemoryStream(new byte[1024], true))
+            {
+                //---------------Test Result -----------------------
+                sut.Persist(memStream);
+                var lines = memStream.AsString().Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                Assert.IsTrue(lines.Any(l => l == "; this is the general section"));
+                Assert.IsTrue(lines.Any(l => l == "; this is the general section again!"));
+            }
+
+        }
+
+        [Test]
+        public void ParseAndPersist_ShouldRetainCommentsAboveSection()
+        {
+            //---------------Set up test pack-------------------
+            var input = 
+@"
+; this is the general section
+[general]
+foo=bar
+";
+            var sut = Create();
+            sut.Parse(input);
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            using (var memStream = new MemoryStream(new byte[1024], true))
+            {
+                //---------------Test Result -----------------------
+                sut.Persist(memStream);
+                var lines = memStream.AsString().Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                Assert.IsTrue(lines.Any(l => l == "; this is the general section"));
+            }
+
+        }
+
+
+        [Test]
+        public void ParseAndPersist_ShouldRetainMultiLineCommentsAboveSection()
+        {
+            //---------------Set up test pack-------------------
+            var input = 
+@"
+; this is the general section
+; this is the general section again!
+[general]
+foo=bar
+";
+            var sut = Create();
+            sut.Parse(input);
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            using (var memStream = new MemoryStream(new byte[1024], true))
+            {
+                //---------------Test Result -----------------------
+                sut.Persist(memStream);
+                var lines = memStream.AsString().Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                Assert.IsTrue(lines.Any(l => l == "; this is the general section"));
+                Assert.IsTrue(lines.Any(l => l == "; this is the general section again!"));
+            }
+
         }
 
 
