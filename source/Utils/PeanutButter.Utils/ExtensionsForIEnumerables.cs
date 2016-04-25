@@ -12,6 +12,15 @@ namespace PeanutButter.Utils
                 toRun(item);
         }
 
+        public static void ForEach<T>(this IEnumerable<T> collection, Action<T, int> toRunWithIndex)
+        {
+            var idx = 0;
+            collection.ForEach(o =>
+            {
+                toRunWithIndex(o, idx++);
+            });
+        } 
+
         public static bool IsSameAs<T>(this IEnumerable<T> collection, IEnumerable<T> otherCollection)
         {
             if (collection == null && otherCollection == null) return true;

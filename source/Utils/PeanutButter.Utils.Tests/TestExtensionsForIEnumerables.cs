@@ -774,6 +774,32 @@ namespace PeanutButter.Utils.Tests
         }
 
 
+        [Test]
+        public void ForEach_GivenCollectionAndActionWithTwoParameters_ShouldPopulateSecondParameterWithIndex()
+        {
+            //---------------Set up test pack-------------------
+            var input = GetRandomCollection<int>(5,15);
+            var collectedIndexes = new List<int>();
+            var collectedItems = new List<int>();
+            var expected = new List<int>();
+            for (var i = 0; i < input.Count(); i++)
+                expected.Add(i);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            input.ForEach((item, idx) =>
+            {
+                collectedItems.Add(item);
+                collectedIndexes.Add(idx);
+            });
+
+            //---------------Test Result -----------------------
+            CollectionAssert.AreEqual(input, collectedItems);
+            CollectionAssert.AreEqual(expected, collectedIndexes);
+        }
+
+
 
 
 
