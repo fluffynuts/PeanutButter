@@ -23,7 +23,7 @@
     <copyright>Copyright  2016</copyright>
     <dependencies>
       <group targetFramework="net40">
-        <dependency id="NUnit" version="3.2.0" />
+        <dependency id="NUnit" version="3.2.1" />
         <dependency id="PeanutButter.SimpleTcpServer" version="1.2.46" />
         <dependency id="PeanutButter.SimpleHTTPServer" version="1.2.46" />
       </group>

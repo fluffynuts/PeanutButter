@@ -34,7 +34,7 @@
     <dependencies>
       <group targetFramework="net40">
         <dependency id="PeanutButter.Utils" version="1.2.46" />
-        <dependency id="Nunit" version="3.2.0" />
+        <dependency id="NUnit" version="3.2.1" />
         <dependency id="NSubstitute" version="1.10.0.0" />
       </group>
     </dependencies>
