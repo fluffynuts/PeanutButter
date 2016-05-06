@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.TestUtils.Generic
 {
@@ -251,6 +252,14 @@ namespace PeanutButter.TestUtils.Generic
             return type.IsArray ||
                    (type.IsGenericType &&
                     CollectionGenerics.Contains(type.GetGenericTypeDefinition()));
+        }
+
+        public static bool CanBeAssignedNull(this Type type)
+        {
+            // accepted answer from
+            // http://stackoverflow.com/questions/1770181/determine-if-reflected-property-can-be-assigned-null#1770232
+            // conveniently located as an extension method
+            return !type.IsValueType || Nullable.GetUnderlyingType(type) != null;
         }
 
         private static readonly Type[] CollectionGenerics =

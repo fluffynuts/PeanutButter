@@ -1,10 +1,12 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using NUnit.Framework;
+using PeanutButter.TempDb.LocalDb;
 using PeanutButter.TestUtils.Generic;
 
 namespace PeanutButter.TestUtils.Entity
@@ -67,6 +69,30 @@ namespace PeanutButter.TestUtils.Entity
             });
         }
 
+        public static void ShouldHaveIDbSetFor<TEntity>(this Type contextType)
+        {
+            var propInfo = contextType.GetProperties()
+                                .FirstOrDefault(IsIDbSetFor<TEntity>);
+            if (propInfo == null)
+                Assert.Fail($"Expected context of type {contextType.PrettyName()} to have IDbSet<{typeof(TEntity)}>");
+        }
+
+        public static void ShouldHaveNullInitializer<T>(this T context) where T: DbContext
+        {
+            using (var db = new TempDBLocalDb())
+            {
+            }
+        }
+
+
+        private static readonly Type IDbSetGenericType = typeof(IDbSet<>);
+
+        private static bool IsIDbSetFor<TEntity>(PropertyInfo propInfo)
+        {
+            var searchType = IDbSetGenericType.MakeGenericType(typeof(TEntity));
+            return searchType.IsAssignableFrom(propInfo.PropertyType);
+        }
+
         private static int GetMaxLengthFrom<T>(MaxLengthAttribute maxLengthAttribute, 
             StringLengthAttribute stringLengthAttribute,
             PropertyData<T> propData)
@@ -105,5 +131,6 @@ namespace PeanutButter.TestUtils.Entity
         {
             Assert.IsNotNull(attrib, "No DatabaseGeneratedAttribute applied to " + ErrorSuffixFor<T>(propData.PropertyPath));
         }
+
     }
 }

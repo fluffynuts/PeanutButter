@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -247,6 +248,69 @@ namespace PeanutButter.TestUtils.Entity.Tests
             Assert.DoesNotThrow(() => sut.ShouldBeIdentity(o => o.SomeIdentityPOCOId));
 
             //---------------Test Result -----------------------
+        }
+
+        [Test]
+        public void ShouldHaveIDbSetFor_OperatingOnType_WhenDoesNotHaveIDbSetForRequiredPoco_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            var sut = typeof(ISomeContextInterface);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.Throws<AssertionException>(() => sut.ShouldHaveIDbSetFor<AnotherPOCO>());
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
+        public void ShouldHaveIDbSetFor_OperatingOnType_WhenDoesHaveIDbSetForRequiredPoco_ShouldNotThrow()
+        {
+            //---------------Set up test pack-------------------
+            var sut = typeof(ISomeContextInterface);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(() => sut.ShouldHaveIDbSetFor<SomePOCO>());
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
+        [Ignore("WIP")]
+        public void ShouldHaveNullInitializer_OperatingOnTypeWhereEFMigrationsAreAllowed_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            var sut = new ContextWithDefaultMigrations();
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.Throws<AssertionException>(() => sut.ShouldHaveNullInitializer());
+
+            //---------------Test Result -----------------------
+        }
+
+
+        public class AnotherPOCO
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+        public interface ISomeContextInterface
+        {
+            IDbSet<SomePOCO> SomePocos { get; set; }
+        }
+        public class ContextWithDefaultMigrations: DbContext
+        {
+        }
+        public class ContextWithNoMigrations: DbContext
+        {
+            static ContextWithNoMigrations()
+            {
+                Database.SetInitializer<ContextWithNoMigrations>(null);
+            }
         }
 
     }

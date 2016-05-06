@@ -6,11 +6,11 @@
     <authors>Davyd McColl</authors>
     <owners></owners>
     <description>
-	A base package for PeanutButter.TempDb.* packages. This provides the generic TempDb&lt;&gt; base class
+	A base package for PeanutButter.TempDb.* packages. This provides the generic TempDb base class
     </description>
     <releaseNotes></releaseNotes>
     <summary>
-	Provides only the base generic TempDb&lt;&gt; class. Please install the specific flavour of TempDb you want instead (which
+	Provides only the base generic TempDb class. Please install the specific flavour of TempDb you want instead (which
 	should pull in this package):
 	* PeanutButter.TempDb.SqlCe
 	* PeanutButter.TempDb.Sqlite

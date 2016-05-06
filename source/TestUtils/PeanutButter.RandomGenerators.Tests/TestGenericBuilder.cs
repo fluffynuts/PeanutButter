@@ -644,6 +644,21 @@ namespace PeanutButter.RandomGenerators.Tests
             CollectionAssert.IsNotEmpty(result);
         }
 
+        [Test]
+        [Ignore("TODO: implement random field maker")]
+        public void WithRandomFields_ShouldPopulateFieldsWithRandomValues()
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+
+            //---------------Test Result -----------------------
+            Assert.Fail("Test Not Yet Implemented");
+        }
+
+
 
     }
 }

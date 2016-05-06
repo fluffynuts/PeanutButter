@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.IO;
 using System.Linq;
+using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
 // ReSharper disable UnusedMember.Global
 // ReSharper disable ClassNeverInstantiated.Global

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using PeanutButter.TestUtils.Generic;
 
 namespace PeanutButter.Utils.Tests
 {
@@ -152,6 +153,48 @@ namespace PeanutButter.Utils.Tests
             //---------------Test Result -----------------------
             CollectionAssert.AreEquivalent(expected, result);
         }
+
+        public enum SomeEnums
+        {
+        }
+        public struct SomeStruct
+        {
+        }
+        [TestCase(typeof(int))]
+        [TestCase(typeof(bool))]
+        [TestCase(typeof(SomeEnums))]
+        [TestCase(typeof(SomeStruct))]
+        public void CanBeAssignedNull_OperatingOnNonNullableType_ShouldReturnFalse(Type t)
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = t.CanBeAssignedNull();
+
+            //---------------Test Result -----------------------
+            Assert.IsFalse(result);
+        }
+
+        [TestCase(typeof(ClassWithConstants))]
+        [TestCase(typeof(int[]))]
+        [TestCase(typeof(int?))]
+        [TestCase(typeof(string))]
+        public void CanBeAssignedNull_OperatingOnNullableType_ShouldReturnTrue(Type t)
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = t.CanBeAssignedNull();
+
+            //---------------Test Result -----------------------
+            Assert.IsTrue(result);
+        }
+
+
 
     }
 }

@@ -1489,7 +1489,6 @@ namespace PeanutButter.RandomGenerators.Tests
             });
         }
 
-
         private bool PathExists(string path)
         {
             return File.Exists(path) || Directory.Exists(path);
