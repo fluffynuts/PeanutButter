@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace PeanutButter.FileSystem
@@ -19,5 +20,7 @@ namespace PeanutButter.FileSystem
         void Copy(string sourcePath, string targetRelativePath);
         Stream OpenReader(string path);
         Stream OpenWriter(string path);
+        Stream Open(string targetPath);
+        void Move(string source, string target, bool overwrite = false);
     }
 }

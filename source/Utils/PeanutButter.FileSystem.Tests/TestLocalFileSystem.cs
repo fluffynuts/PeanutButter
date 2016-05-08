@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Management;
 using NUnit.Framework;
 using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
@@ -869,17 +871,208 @@ namespace PeanutButter.FileSystem.Tests
         }
 
         [Test]
-        [Ignore("WIP")]
         public void Open_GivenRelativePath_ShouldOpenReadWrite()
         {
             //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                var targetFolder = CreateRandomFolderIn(folder.Path);
+                var targetPath = Path.Combine(targetFolder, GetRandomFileName());
+                var sut = Create();
+                sut.SetCurrentDirectory(folder.Path);
+                var original = GetRandomBytes();
+                var append = GetRandomBytes();
+                var absolutePath = Path.Combine(folder.Path, targetPath);
+                File.WriteAllBytes(absolutePath, original);
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                using (var stream = sut.Open(targetPath))
+                {
+                    var inFile = stream.ReadAllBytes();
+                    stream.Position = stream.Length;
+                    stream.Append(append);
+                }
+
+                //---------------Test Result -----------------------
+                using (var stream = File.Open(absolutePath, FileMode.Open, FileAccess.ReadWrite))
+                {
+                    var expected = original.And(append);
+                    var inFile = stream.ReadAllBytes();
+                    CollectionAssert.AreEqual(expected, inFile);
+                }
+            }
+        }
+
+        [Test]
+        public void Move_GivenRelativeSourceAndDestination_WhenDestinationDoesNotExist_CanRenameToMove_ShouldRename()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                var sourceFolder = CreateRandomFolderIn(folder.Path);
+                var sourceFileName = CreateRandomFileIn(Path.Combine(folder.Path, sourceFolder));
+                var sourceRelativePath = Path.Combine(sourceFolder, sourceFileName);
+                var sourceAbsolutePath = Path.Combine(folder.Path, sourceRelativePath);
+                var sourceData = File.ReadAllBytes(sourceAbsolutePath);
+                var destinationFolder = GetAnother(sourceFolder);
+                var target = Path.Combine(destinationFolder, GetRandomString());
+                var targetAbsolutePath = Path.Combine(folder.Path, target);
+                var sut = Create();
+                sut.SetCurrentDirectory(folder.Path);
+
+                //---------------Assert Precondition----------------
+                Assert.IsFalse(File.Exists(targetAbsolutePath));
+
+                //---------------Execute Test ----------------------
+                sut.Move(sourceRelativePath, target);
+
+                //---------------Test Result -----------------------
+                Assert.IsFalse(File.Exists(sourceAbsolutePath));
+                Assert.IsTrue(File.Exists(targetAbsolutePath));
+                var resultData = File.ReadAllBytes(targetAbsolutePath);
+                CollectionAssert.AreEqual(sourceData, resultData);
+            }
+        }
+
+        [Test]
+        public void Move_GivenRelativeSourceAndDestination_WhenDestinationExists_AndOverwriteLeftAsFalse_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                var sourceFolder = CreateRandomFolderIn(folder.Path);
+                var sourceFileName = CreateRandomFileIn(Path.Combine(folder.Path, sourceFolder));
+                var sourceRelativePath = Path.Combine(sourceFolder, sourceFileName);
+                var sourceAbsolutePath = Path.Combine(folder.Path, sourceRelativePath);
+                var sourceData = File.ReadAllBytes(sourceAbsolutePath);
+                var destinationFolder = GetAnother(sourceFolder);
+                var target = Path.Combine(destinationFolder, GetRandomString());
+                var targetAbsolutePath = Path.Combine(folder.Path, target);
+                Directory.CreateDirectory(Path.GetDirectoryName(targetAbsolutePath));
+                File.WriteAllBytes(targetAbsolutePath, GetRandomBytes());
+                var sut = Create();
+                sut.SetCurrentDirectory(folder.Path);
+
+                //---------------Assert Precondition----------------
+                Assert.IsTrue(File.Exists(targetAbsolutePath));
+
+                //---------------Execute Test ----------------------
+                Assert.Throws<IOException>(() => sut.Move(sourceRelativePath, target));
+
+                //---------------Test Result -----------------------
+            }
+        }
+
+
+        [Test]
+        public void Move_GivenRelativeSourceAndDestination_WhenDestinationExists_AndOverwriteSetTrue_ShouldOverwrite()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                var sourceFolder = CreateRandomFolderIn(folder.Path);
+                var sourceFileName = CreateRandomFileIn(Path.Combine(folder.Path, sourceFolder));
+                var sourceRelativePath = Path.Combine(sourceFolder, sourceFileName);
+                var sourceAbsolutePath = Path.Combine(folder.Path, sourceRelativePath);
+                var sourceData = File.ReadAllBytes(sourceAbsolutePath);
+                var destinationFolder = GetAnother(sourceFolder);
+                var target = Path.Combine(destinationFolder, GetRandomString());
+                var targetAbsolutePath = Path.Combine(folder.Path, target);
+                Directory.CreateDirectory(Path.GetDirectoryName(targetAbsolutePath));
+                File.WriteAllBytes(targetAbsolutePath, GetRandomBytes());
+                var sut = Create();
+                sut.SetCurrentDirectory(folder.Path);
+
+                //---------------Assert Precondition----------------
+                Assert.IsTrue(File.Exists(targetAbsolutePath));
+
+                //---------------Execute Test ----------------------
+                Assert.DoesNotThrow(() => sut.Move(sourceRelativePath, target, true));
+
+                //---------------Test Result -----------------------
+                Assert.IsFalse(File.Exists(sourceAbsolutePath));
+                Assert.IsTrue(File.Exists(targetAbsolutePath));
+                var resultData = File.ReadAllBytes(targetAbsolutePath);
+                CollectionAssert.AreEqual(sourceData, resultData);
+            }
+        }
+
+
+        [Test]
+        [Ignore("WIP: need to be able to reliably, repeatably, CI-style reproduce this")]
+        public void Move_GivenRelativeSourceAndDestination_WhenDestinationExistsOnAnotherVolume_AndOverwriteSetTrue_ShouldOverwrite()
+        {
+            //---------------Set up test pack-------------------
+            using (var folder = new AutoTempFolder())
+            {
+                var sourceFolder = CreateRandomFolderIn(folder.Path);
+                var sourceFileName = CreateRandomFileIn(Path.Combine(folder.Path, sourceFolder));
+                var sourceRelativePath = Path.Combine(sourceFolder, sourceFileName);
+                var sourceAbsolutePath = Path.Combine(folder.Path, sourceRelativePath);
+                var sourceData = File.ReadAllBytes(sourceAbsolutePath);
+                var destinationFolder = "\\\\speedy\\move_test";
+                var target = Path.Combine(destinationFolder, GetRandomString());
+                var targetAbsolutePath = Path.Combine(folder.Path, target);
+                Directory.CreateDirectory(Path.GetDirectoryName(targetAbsolutePath));
+                File.WriteAllBytes(targetAbsolutePath, GetRandomBytes());
+                var sut = Create();
+                sut.SetCurrentDirectory(folder.Path);
+
+                //---------------Assert Precondition----------------
+                Assert.IsTrue(File.Exists(targetAbsolutePath));
+
+                //---------------Execute Test ----------------------
+                Assert.DoesNotThrow(() => sut.Move(sourceRelativePath, target, true));
+
+                //---------------Test Result -----------------------
+                Assert.IsFalse(File.Exists(sourceAbsolutePath));
+                Assert.IsTrue(File.Exists(targetAbsolutePath));
+                var resultData = File.ReadAllBytes(targetAbsolutePath);
+                CollectionAssert.AreEqual(sourceData, resultData);
+            }
+        }
+
+        [Test]
+        [Ignore("Testing share code")]
+        public void CreateShare()
+        {
+            //---------------Set up test pack-------------------
+            var folder = Path.Combine("C:\\tmp", GetRandomString());
+            Directory.CreateDirectory(folder);
+            var shareName = CreateTemporaryShareForFolder(folder);
+            Console.WriteLine(shareName);
 
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
 
             //---------------Test Result -----------------------
-            Assert.Fail("Test Not Yet Implemented");
+        }
+
+        [Test]
+        [Ignore("Testing share code")]
+        public void DeleteShare()
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var share = WindowsShare.GetShareByName("otno5553");
+            share.Delete();
+
+            //---------------Test Result -----------------------
+        }
+
+
+
+        private string CreateTemporaryShareForFolder(string folder)
+        {
+            var shareName = GetRandomString(5,10);
+            WindowsShare.Create(folder, shareName, WindowsShare.ShareType.DiskDrive, 2, "Temporary share for testing", null);
+            return shareName;
         }
 
 

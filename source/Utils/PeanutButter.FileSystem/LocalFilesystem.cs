@@ -95,6 +95,22 @@ namespace PeanutButter.FileSystem
             return File.OpenWrite(fullPath);
         }
 
+        public Stream Open(string targetPath)
+        {
+            return File.Open(GetFullPathFor(targetPath), FileMode.Open, FileAccess.ReadWrite);
+        }
+
+        public void Move(string source, string target, bool overwrite = false)
+        {
+            var absoluteSource = GetFullPathFor(source);
+            var absoluteTarget = GetFullPathFor(target);
+            var targetFolder = Path.GetDirectoryName(absoluteTarget);
+            EnsureFolderExists(targetFolder);
+            if (overwrite && File.Exists(absoluteTarget))
+                File.Delete(absoluteTarget);
+            File.Move(absoluteSource, absoluteTarget);
+        }
+
         public string GetFullPathFor(string relativePath)
         {
             return Path.IsPathRooted(relativePath) 

@@ -30,5 +30,6 @@ namespace PeanutButter.Utils
                 _autoDeleter = null;
             }
         }
+
     }
 }
