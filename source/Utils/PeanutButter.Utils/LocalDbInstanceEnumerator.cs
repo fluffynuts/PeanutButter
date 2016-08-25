@@ -37,7 +37,7 @@ namespace PeanutButter.Utils
             }
             catch (Exception)
             {
-                Debug.WriteLine($"WARNING: Unable to determin actual LocalDb instances; falling back on '{fallback}'");
+                Debug.WriteLine($"WARNING: Unable to determine actual LocalDb instances; falling back on '{fallback}'");
                 return fallback;
             }
         }

@@ -73,7 +73,6 @@ namespace PeanutButter.TempDb.LocalDb
                     cmd.CommandText = $"CREATE DATABASE [{_databaseName}] ON (NAME = N'[{_databaseName}]', FILENAME = '{DatabaseFile}')";
                     cmd.ExecuteNonQuery();
                     cmd.CommandText = $"ALTER DATABASE [{_databaseName}] SET TRUSTWORTHY ON";
-                    //ConnectionString = $@"Data Source=(localdb)\{InstanceName};AttachDbFilename={DatabaseFile}; Initial Catalog={_databaseName};Integrated Security=True";
                     cmd.ExecuteNonQuery();
                 }
             }
