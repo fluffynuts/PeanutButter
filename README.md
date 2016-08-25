@@ -33,6 +33,12 @@ provides some concrete examples of usage):
     class to simplify testing MVC actions which return JsonResults
   - PeanutButter.MVC, which provides facades and interfaces to make
     script and style bundles testable
+  - PeanutButter.TestUtils.Entity provides mechanisms for testing
+    your EF-based project code against temporary databases
+    so you can be sure that the code you deploy will work as expected.
+    This library is supported by PeanutButter.TempDb, so you can test
+    (out of the box) against LocalDb, Sqlite and SQLCE. You can also
+    provide your own TempDb<> implmentation
 * Arbitrary utils
   - DecimalDecorator which provides relatively safe string/decimal
     interchange, irrespective of culture
@@ -80,3 +86,11 @@ on tests because the windows service management would be hit too hard
 or often. But it does work (:) And some are libraries to help with
 testing, so you'll soon find that they work as expected.
 
+<center>A shout out to:
+
+![Jetbrains Logo](logo_JetBrains_4.png)
+</center>
+The work on PeanutButter would have been a lot more effort without
+ReSharper from JetBrains. The good people at JetBrains have provided
+free licensing for all of their products for open-source projects like
+this one. To learn more about JetBrains products, please [visit them](http://jetbrains.com)

@@ -136,3 +136,4 @@ buildreports
 .settings
 lib/
 .sonar
+source/.idea*
