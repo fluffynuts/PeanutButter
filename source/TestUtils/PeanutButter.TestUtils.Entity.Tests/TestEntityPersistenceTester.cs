@@ -455,24 +455,32 @@ namespace PeanutButter.TestUtils.Entity.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
+            var attempts = 0;
             var exceptions = new List<Exception>();
-            Parallel.For(0, 15, (i, state) =>
+            while (attempts++ < 10)
             {
-                // at least one of these should hit the issue
-                try
+                Parallel.For(0, 4, (i, state) =>
                 {
-                    EntityPersistenceTester.CreateFor<SomeEntityWithDateTimeValue>()
-                        .WithContext<ContextForDateTimeDeltaTesting>()
-                        .WithAllowedDateTimePropertyDelta(new TimeSpan(0,0,0,0,1))  // there should be at least one 2ms delta
-                        .SuppressMissingMigratorMessage()
-                        .ShouldPersistAndRecall();
-                }
-                catch (Exception ex)
+                    // at least one of these should hit the issue
+                    try
+                    {
+                        EntityPersistenceTester.CreateFor<SomeEntityWithDateTimeValue>()
+                            .WithContext<ContextForDateTimeDeltaTesting>()
+                            .WithAllowedDateTimePropertyDelta(new TimeSpan(0, 0, 0, 0, 1))  // there should be at least one 2ms delta
+                            .SuppressMissingMigratorMessage()
+                            .ShouldPersistAndRecall();
+                    }
+                    catch (Exception ex)
+                    {
+                        state.Stop();
+                        exceptions.Add(ex);
+                    }
+                });
+                if (exceptions.Any())
                 {
-                    state.Stop();
-                    exceptions.Add(ex);
+                    break;
                 }
-            });
+            }
 
             //---------------Test Result -----------------------
             CollectionAssert.IsNotEmpty(exceptions);
@@ -552,24 +560,24 @@ create table SomeEntityWithDecimalValue (
             public DateTime? NullableTimeStamp { get; set; }
         }
 
-        public class ContextForDateTimeDeltaTesting: DbContext
+        public class ContextForDateTimeDeltaTesting : DbContext
         {
             public IDbSet<SomeEntityWithDateTimeValue> StuffAndThings { get; set; }
-         
-            public ContextForDateTimeDeltaTesting(DbConnection connection): base(connection, false)
+
+            public ContextForDateTimeDeltaTesting(DbConnection connection) : base(connection, false)
             {
             }
         }
 
 
-        public class SomeEntityWithDecimalValue: EntityBase
+        public class SomeEntityWithDecimalValue : EntityBase
         {
             public int SomeEntityWithDecimalValueId { get; set; }
             public decimal DecimalValue { get; set; }
             public decimal? NullableDecimalValue { get; set; }
         }
 
-        public class EntityPersistenceContext: DbContextWithAutomaticTrackingFields
+        public class EntityPersistenceContext : DbContextWithAutomaticTrackingFields
         {
             public IDbSet<SomeEntityWithDecimalValue> EntitiesWithDecimalValues { get; set; }
 
@@ -592,7 +600,7 @@ create table SomeEntityWithDecimalValue (
             AssertCanRead(tempDb, $"select * from {tableName};");
         }
 
-        private class TempDbWithCallInformation: TempDBLocalDb
+        private class TempDbWithCallInformation : TempDBLocalDb
         {
             public int DisposeCalls { get; private set; }
             public int CreateConnectionCalls { get; private set; }
