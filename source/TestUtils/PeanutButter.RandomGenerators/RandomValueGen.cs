@@ -55,8 +55,8 @@ namespace PeanutButter.RandomGenerators
         {
             var builderType = GenericBuilderLocator.TryFindExistingBuilderFor(type)
                             ?? GenericBuilderLocator.FindOrGenerateDynamicBuilderFor(type);
-            return builderType == null 
-                        ? null 
+            return builderType == null
+                        ? null
                         : Activator.CreateInstance(builderType) as IGenericBuilder;
         }
 
@@ -119,34 +119,43 @@ namespace PeanutButter.RandomGenerators
             return string.Join(string.Empty, chars.Select(c => c.ToString()).ToArray());
         }
 
-        public static DateTime GetRandomDate(DateTime? minDate = null, DateTime? maxDate = null, bool dateOnly = false, 
+        public static DateTime GetRandomDate(DateTime? minDate = null, DateTime? maxDate = null, bool dateOnly = false,
                                                 DateTime? minTime = null, DateTime? maxTime = null)
         {
             return GetRandomDate(DateTimeKind.Local, minDate, maxDate, dateOnly, minTime, maxTime);
         }
 
-        public static DateTime GetRandomDate(DateTimeKind kind, DateTime? minDate = null, DateTime? maxDate = null, bool dateOnly = false, 
+        public static DateTime GetRandomDate(DateTimeKind kind, DateTime? minDate = null, DateTime? maxDate = null, bool dateOnly = false,
                                                 DateTime? minTime = null, DateTime? maxTime = null)
         {
+            var dateRangeLower = new DateTime(1990, 1, 1);
+            const int dateRangeYears = 30;
+
             if (dateOnly)
             {
-                minDate = minDate?.StartOfDay().AddDays(1);
-                maxDate = maxDate?.StartOfDay();
+                minDate = minDate?.AddTicks(-1).AddDays(1).StartOfDay();
+                maxDate = maxDate?.StartOfDay().AddDays(1).AddTicks(-1);
+                if (minDate > maxDate)
+                {
+                    minDate = minDate?.AddDays(-1);
+                }
             }
 
-            var minTicks = (minDate ?? new DateTime(1990, 1, 1)).Ticks;
-            var maxTicks = (maxDate ?? new DateTime(2020, 12, 31)).Ticks;
+            var minTicks = (minDate ?? maxDate?.AddYears(-dateRangeYears) ?? dateRangeLower).Ticks;
+            var maxTicks = (maxDate ?? new DateTime(minTicks).AddYears(dateRangeYears)).Ticks;
             var actualTicks = GetRandomLong(minTicks, maxTicks);
             var rawDateTime = new DateTime(actualTicks);
-            var sanitised = new DateTime(rawDateTime.Year, 
-                                            rawDateTime.Month, 
-                                            rawDateTime.Day, 
-                                            rawDateTime.Hour, 
-                                            rawDateTime.Minute, 
-                                            rawDateTime.Second,
-                                            rawDateTime.Millisecond,
-                                            kind);
-            return RangeCheckTimeOnRandomDate(minTime, maxTime, dateOnly ? sanitised.StartOfDay() : sanitised);
+            var sanitised = new DateTime(rawDateTime.Year,
+                                         rawDateTime.Month,
+                                         rawDateTime.Day,
+                                         rawDateTime.Hour,
+                                         rawDateTime.Minute,
+                                         rawDateTime.Second,
+                                         rawDateTime.Millisecond,
+                                         kind);
+            return dateOnly
+                ? sanitised.StartOfDay()
+                : RangeCheckTimeOnRandomDate(minTime, maxTime, sanitised);
         }
 
         public static DateRange GetRandomDateRange(DateTime? minDate = null, DateTime? maxDate = null, bool dateOnly = false,
@@ -165,8 +174,10 @@ namespace PeanutButter.RandomGenerators
 
         internal static DateTime RangeCheckTimeOnRandomDate(DateTime? minTime, DateTime? maxTime, DateTime value)
         {
-            minTime = new DateTime(value.Year, value.Month, value.Day, minTime?.Hour ?? 0, minTime?.Minute ?? 0, minTime?.Second ?? 0);
-            maxTime = new DateTime(value.Year, value.Month, value.Day, maxTime?.Hour ?? 23, maxTime?.Minute ?? 59, maxTime?.Second ?? 59);
+            var baseDate = new DateTime(value.Year, value.Month, value.Day);
+            minTime = baseDate.Add(minTime?.TimeOfDay ?? TimeSpan.Zero);
+            maxTime = baseDate.Add(maxTime?.TimeOfDay ?? TimeSpan.FromDays(1).Subtract(TimeSpan.FromTicks(1)));
+
             if (minTime > maxTime)
             {
                 var swap = minTime;
@@ -281,7 +292,7 @@ namespace PeanutButter.RandomGenerators
             return result;
         }
 
-        public static IEnumerable<T> GetRandomSelectionFrom<T>(IEnumerable<T> items, 
+        public static IEnumerable<T> GetRandomSelectionFrom<T>(IEnumerable<T> items,
             int minValues = DefaultRanges.MIN_ITEMS, int maxValues = DefaultRanges.MAX_ITEMS)
         {
             var itemArray = items as T[] ?? items.ToArray();
@@ -342,7 +353,7 @@ namespace PeanutButter.RandomGenerators
         public static T GetAnother<T>(IEnumerable<T> notAnyOfThese)
         {
             return GetAnother(notAnyOfThese, GetRandom<T>);
-        } 
+        }
 
         public static T GetAnother<T>(IEnumerable<T> notAnyOfThese, Func<T> usingThisGenerator, Func<T,T,bool> areEqual = null)
         {
