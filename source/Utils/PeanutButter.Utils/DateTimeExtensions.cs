@@ -81,9 +81,9 @@ namespace PeanutButter.Utils
                                             int hours = 0, 
                                             int minutes = 0, 
                                             int seconds = 0, 
-                                            int microseconds = 0)
+                                            int milliseconds = 0)
         {
-            return new DateTime(years, months, days, hours, minutes, seconds, microseconds, kind);
+            return new DateTime(years, months, days, hours, minutes, seconds, milliseconds, kind);
         }
 
         public static int Microseconds(this DateTime value)
