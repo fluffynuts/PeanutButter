@@ -122,7 +122,7 @@ namespace PeanutButter.Utils.Windsor.Tests
         }
 
         [Test]
-        public void RegisterAllControllersFrom_GivenNoAssemblies_ShouldThrow()
+        public void RegisterAllMvcControllersFrom_GivenNoAssemblies_ShouldThrow()
         {
             //---------------Set up test pack-------------------
             var container = Create();
@@ -130,13 +130,13 @@ namespace PeanutButter.Utils.Windsor.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<ArgumentException>(() =>container.RegisterAllControllersFrom());
+            Assert.Throws<ArgumentException>(() =>container.RegisterAllMvcControllersFrom());
 
             //---------------Test Result -----------------------
         }
 
         [Test]
-        public void RegisterAllControllersFrom_GivenAssemblyWithNoControllers_ShouldNotThrow()
+        public void RegisterAllMvcControllersFrom_GivenAssemblyWithNoControllers_ShouldNotThrow()
         {
             //---------------Set up test pack-------------------
             var container = Create();
@@ -144,13 +144,13 @@ namespace PeanutButter.Utils.Windsor.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() =>container.RegisterAllControllersFrom(typeof(WindsorContainerExtensions).Assembly));
+            Assert.DoesNotThrow(() =>container.RegisterAllMvcControllersFrom(typeof(WindsorContainerExtensions).Assembly));
 
             //---------------Test Result -----------------------
         }
 
         [Test]
-        public void RegisterAllControllersFrom_GivenAssemblyContainingControllerClasses_ShouldRegisterThem()
+        public void RegisterAllMvcControllersFrom_GivenAssemblyContainingControllerClasses_ShouldRegisterThem()
         {
             //---------------Set up test pack-------------------
             var container = Create();
@@ -158,11 +158,54 @@ namespace PeanutButter.Utils.Windsor.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => container.RegisterAllControllersFrom(GetType().Assembly));
+            Assert.DoesNotThrow(() => container.RegisterAllMvcControllersFrom(GetType().Assembly));
 
             //---------------Test Result -----------------------
             Assert.IsInstanceOf<HomeController>(container.Resolve<HomeController>());
             Assert.IsInstanceOf<AccountController>(container.Resolve<AccountController>());
+        }
+
+        [Test]
+        public void RegisterAllApiControllersFrom_GivenNoAssemblies_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            var container = Create();
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.Throws<ArgumentException>(() =>container.RegisterAllApiControllersFrom());
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
+        public void RegisterAllApiControllersFrom_GivenAssemblyWithNoControllers_ShouldNotThrow()
+        {
+            //---------------Set up test pack-------------------
+            var container = Create();
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(() =>container.RegisterAllApiControllersFrom(typeof(WindsorContainerExtensions).Assembly));
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
+        public void RegisterAllApiControllersFrom_GivenAssemblyContainingControllerClasses_ShouldRegisterThem()
+        {
+            //---------------Set up test pack-------------------
+            var container = Create();
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(() => container.RegisterAllApiControllersFrom(GetType().Assembly));
+
+            //---------------Test Result -----------------------
+            Assert.IsInstanceOf<SomeApiController>(container.Resolve<SomeApiController>());
         }
 
 

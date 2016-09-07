@@ -33,11 +33,25 @@ namespace PeanutButter.Utils.Windsor
             });
         }
 
+        [Obsolete("Please use RegisterAllMvcControllersFrom instead")]
         public static void RegisterAllControllersFrom(this IWindsorContainer container, params Assembly[] assemblies)
+        {
+            container.RegisterAllMvcControllersFrom(assemblies);
+        }
+
+        public static void RegisterAllMvcControllersFrom(this IWindsorContainer container, params Assembly[] assemblies)
         {
             if (assemblies.IsEmpty())
                 throw NoAssembliesException;
             var controllerTypes = assemblies.SelectMany(a => a.GetTypes().Where(IsBasedOnMvcController));
+            controllerTypes.ForEach(t => container.Register(Component.For(t).ImplementedBy(t).LifestyleTransient()));
+        }
+
+        public static void RegisterAllApiControllersFrom(this IWindsorContainer container, params Assembly[] assemblies)
+        {
+            if (assemblies.IsEmpty())
+                throw NoAssembliesException;
+            var controllerTypes = assemblies.SelectMany(a => a.GetTypes().Where(IsBasedOnApiController));
             controllerTypes.ForEach(t => container.Register(Component.For(t).ImplementedBy(t).LifestyleTransient()));
         }
 
@@ -68,16 +82,27 @@ namespace PeanutButter.Utils.Windsor
                                         .LifestylePerWebRequest());
         }
 
+        private const string API_CONTROLLER_NAMESPACE = "System.Web.Http";
+        private const string API_CONTROLLER_ASSEMBLY = API_CONTROLLER_NAMESPACE + ",";
+
+        private static bool IsBasedOnApiController(Type type)
+        {
+            return type.Ancestry()
+                .Any(t => t.Name == "ApiController" &&
+                          t.Namespace == API_CONTROLLER_NAMESPACE &&
+                          t.Assembly.FullName.StartsWith(API_CONTROLLER_ASSEMBLY));
+        }
+
+        private const string MVC_CONTROLLER_NAMESPACE = "System.Web.Mvc";
+        private const string MVC_CONTROLLER_ASSEMBLY = MVC_CONTROLLER_NAMESPACE + ",";
+
         private static bool IsBasedOnMvcController(Type type)
         {
             return type.Ancestry()
                         .Any(t => t.Name == "Controller" &&
-                                    t.Namespace == CONTROLLER_NAMESPACE &&
-                                    t.Assembly.FullName.StartsWith(CONTROLLER_ASSEMBLY));
+                                    t.Namespace == MVC_CONTROLLER_NAMESPACE &&
+                                    t.Assembly.FullName.StartsWith(MVC_CONTROLLER_ASSEMBLY));
         }
-
-        private const string CONTROLLER_NAMESPACE = "System.Web.Mvc";
-        private const string CONTROLLER_ASSEMBLY = CONTROLLER_NAMESPACE + ",";
 
         private static ArgumentException NoAssembliesException => 
                 new ArgumentException("No assemblies provided to search for registrations");
