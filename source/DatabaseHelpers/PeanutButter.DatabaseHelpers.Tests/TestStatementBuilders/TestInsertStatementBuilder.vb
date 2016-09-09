@@ -46,7 +46,7 @@ Namespace TestStatementBuilders
                     .WithTable(tableName) _
                     .WithField(fieldName, fieldValue) _
                     .Build()
-            Assert.AreEqual("insert into [" + tableName + "] ([" + fieldName + "]) values ('" + fieldValue + "')", sql)
+            Assert.AreEqual("insert into [" & tableName & "] ([" & fieldName & "]) values ('" & fieldValue & "')", sql)
         End Sub
 
         <Test()>
@@ -59,7 +59,7 @@ Namespace TestStatementBuilders
                     .WithTable(tableName) _
                     .WithField(fieldName, fieldValue) _
                     .Build()
-            Assert.AreEqual("insert into """ + tableName + """ (""" + fieldName + """) values ('" + fieldValue + "')", sql)
+            Assert.AreEqual("insert into """ & tableName & """ (""" & fieldName & """) values ('" & fieldValue & "')", sql)
         End Sub
 
         <Test()>
@@ -71,7 +71,7 @@ Namespace TestStatementBuilders
                     .WithTable(tableName) _
                     .WithField(fieldName, fieldValue) _
                     .Build()
-            Assert.AreEqual("insert into [" + tableName + "] ([" + fieldName + "]) values (NULL)", sql)
+            Assert.AreEqual("insert into [" & tableName & "] ([" & fieldName & "]) values (NULL)", sql)
         End Sub
 
 
@@ -84,7 +84,7 @@ Namespace TestStatementBuilders
                     .WithTable(tableName) _
                     .WithField(fieldName, fieldValue) _
                     .Build()
-            Assert.AreEqual("insert into [" + tableName + "] ([" + fieldName + "]) values (" + fieldValue.ToString() + ")", sql)
+            Assert.AreEqual("insert into [" & tableName & "] ([" & fieldName & "]) values (" & fieldValue.ToString() & ")", sql)
         End Sub
 
         <Test()>
@@ -98,7 +98,7 @@ Namespace TestStatementBuilders
                     .Build()
             Dim decimalDecorator  = New DecimalDecorator(fieldValue, "0.00")
             Assert.IsFalse(decimalDecorator.ToString().Contains(","))
-            Assert.AreEqual("insert into [" + tableName + "] ([" + fieldName + "]) values (" + decimalDecorator.ToString() + ")", sql)
+            Assert.AreEqual("insert into [" & tableName & "] ([" & fieldName & "]) values (" & decimalDecorator.ToString() & ")", sql)
         End Sub
         <Test()>
         Public Sub Build_GivenTableNameAndSingleNullableDecimalField_ReturnsExpectedString()
@@ -111,7 +111,7 @@ Namespace TestStatementBuilders
                     .Build()
             Dim decimalDecorator  = New DecimalDecorator(fieldValue.Value, "0.00")
             Assert.IsFalse(decimalDecorator.ToString().Contains(","))
-            Assert.AreEqual("insert into [" + tableName + "] ([" + fieldName + "]) values (" + decimalDecorator.ToString() + ")", sql)
+            Assert.AreEqual("insert into [" & tableName & "] ([" & fieldName & "]) values (" & decimalDecorator.ToString() & ")", sql)
         End Sub
 
         <Test()>
@@ -123,7 +123,7 @@ Namespace TestStatementBuilders
                     .WithTable(tableName) _
                     .WithField(fieldName, fieldValue) _
                     .Build()
-            Assert.AreEqual("insert into [" + tableName + "] ([" + fieldName + "]) values (NULL)", sql)
+            Assert.AreEqual("insert into [" & tableName & "] ([" & fieldName & "]) values (NULL)", sql)
         End Sub
 
         <Test()>
@@ -135,7 +135,7 @@ Namespace TestStatementBuilders
                     .WithTable(tableName) _
                     .WithField(fieldName, fieldValue) _
                     .Build()
-            Assert.AreEqual("insert into [" + tableName + "] ([" + fieldName + "]) values (NULL)", sql)
+            Assert.AreEqual("insert into [" & tableName & "] ([" & fieldName & "]) values (NULL)", sql)
         End Sub
 
         <Test()>
@@ -147,7 +147,7 @@ Namespace TestStatementBuilders
                     .WithTable(tableName) _
                     .WithField(fieldName, fieldValue) _
                     .Build()
-            Assert.AreEqual("insert into [" + tableName + "] ([" + fieldName + "]) values ('" + fieldValue.ToString("yyyy-MM-dd HH:mm:ss") + "')", sql)
+            Assert.AreEqual("insert into [" & tableName & "] ([" & fieldName & "]) values ('" & fieldValue.ToString("yyyy-MM-dd HH:mm:ss") & "')", sql)
         End Sub
 
         <Test()>
@@ -159,7 +159,7 @@ Namespace TestStatementBuilders
                     .WithTable(tableName) _
                     .WithField(fieldName, fieldValue) _
                     .Build()
-            Assert.AreEqual("insert into [" + tableName + "] ([" + fieldName + "]) values (NULL)", sql)
+            Assert.AreEqual("insert into [" & tableName & "] ([" & fieldName & "]) values (NULL)", sql)
         End Sub
 
         <Test()>
@@ -174,7 +174,7 @@ Namespace TestStatementBuilders
                     .WithField(f1, v1) _
                     .WithField(f2, v2) _
                     .Build()
-            Assert.AreEqual("insert into [" + t + "] ([" + f1 + "],[" + f2 + "]) values ('" + v1 + "','" + v2 + "')", sql)
+            Assert.AreEqual("insert into [" & t & "] ([" & f1 & "],[" & f2 & "]) values ('" & v1 & "','" & v2 & "')", sql)
         End Sub
 
         <TestCase(Nothing)>
@@ -195,7 +195,7 @@ Namespace TestStatementBuilders
                     .WithNonBlankField(f2, val) _
                     .Build()
             ' assert test results
-            Assert.AreEqual("insert into [" + t + "] ([" + f1 + "]) values ('" + v1 + "')", sql)
+            Assert.AreEqual("insert into [" & t & "] ([" & f1 & "]) values ('" & v1 & "')", sql)
         End Sub
 
         <Test()>
@@ -210,7 +210,7 @@ Namespace TestStatementBuilders
                     .WithField(f1, v1) _
                     .WithConditionalField(True, f2, v2) _
                     .Build()
-            Assert.AreEqual("insert into [" + t + "] ([" + f1 + "],[" + f2 + "]) values ('" + v1 + "','" + v2 + "')", sql)
+            Assert.AreEqual("insert into [" & t & "] ([" & f1 & "],[" & f2 & "]) values ('" & v1 & "','" & v2 & "')", sql)
         End Sub
 
         <Test()>
@@ -225,7 +225,7 @@ Namespace TestStatementBuilders
                     .WithField(f1, v1) _
                     .WithConditionalField(False, f2, v2) _
                     .Build()
-            Assert.AreEqual("insert into [" + t + "] ([" + f1 + "]) values ('" + v1 + "')", sql)
+            Assert.AreEqual("insert into [" & t & "] ([" & f1 & "]) values ('" & v1 & "')", sql)
         End Sub
 
         <TestCase(DatabaseProviders.Access)>
@@ -243,7 +243,7 @@ Namespace TestStatementBuilders
                     .WithField(f1, v1) _
                     .WithConditionalField(False, f2, v2, v3) _
                     .Build()
-            Assert.AreEqual("insert into [" + t + "] ([" + f1 + "],[" + f2 + "]) values ('" + v1 + "','" + v3 + "')", sql)
+            Assert.AreEqual("insert into [" & t & "] ([" & f1 & "],[" & f2 & "]) values ('" & v1 & "','" & v3 & "')", sql)
         End Sub
         <Test()>
         Public Sub Firebird_WithConditionalField_WHenConditionalIsFalseAndFalseFieldIsNotNothing_IncludesFalseField()
@@ -258,7 +258,7 @@ Namespace TestStatementBuilders
                     .WithField(f1, v1) _
                     .WithConditionalField(False, f2, v2, v3) _
                     .Build()
-            Assert.AreEqual("insert into """ + t + """ (""" + f1 + """,""" + f2 + """) values ('" + v1 + "','" + v3 + "')", sql)
+            Assert.AreEqual("insert into """ & t & """ (""" & f1 & """,""" & f2 & """) values ('" & v1 & "','" & v3 & "')", sql)
         End Sub
 
         <Test()>
@@ -267,7 +267,7 @@ Namespace TestStatementBuilders
                 f = RandomValueGen.GetRandomString(),
                 v = CType(Nothing, String)
             Dim sql = Create().WithTable(t).WithField(f, v).Build()
-            Assert.AreEqual("insert into [" + t + "] ([" + f + "]) values (NULL)", sql)
+            Assert.AreEqual("insert into [" & t & "] ([" & f & "]) values (NULL)", sql)
         End Sub
 
         <Test()>
@@ -276,7 +276,7 @@ Namespace TestStatementBuilders
                 f = RandomValueGen.GetRandomString(),
                 v = ""
             Dim sql = Create().WithTable(t).WithField(f, v).Build()
-            Assert.AreEqual("insert into [" + t + "] ([" + f + "]) values ('')", sql)
+            Assert.AreEqual("insert into [" & t & "] ([" & f & "]) values ('')", sql)
         End Sub
 
 

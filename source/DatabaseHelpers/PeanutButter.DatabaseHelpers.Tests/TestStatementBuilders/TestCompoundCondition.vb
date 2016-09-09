@@ -26,7 +26,7 @@ Namespace TestStatementBuilders
             Dim left = New Condition(RandomValueGen.GetRandomString(), leftOp, RandomValueGen.GetRandomString())
             Dim right = New Condition(RandomValueGen.GetRandomString(), rightOp, RandomValueGen.GetRandomString())
             Dim cc = New CompoundCondition(left, boolOp, right)
-            Assert.AreEqual("(" + left.ToString() + " " + CompoundCondition.OperatorResolutions(boolOp) + " " + right.ToString() + ")", cc.ToString())
+            Assert.AreEqual("(" & left.ToString() & " " & CompoundCondition.OperatorResolutions(boolOp) & " " & right.ToString() & ")", cc.ToString())
         End Sub
 
         Private Function RS() As String
@@ -43,7 +43,7 @@ Namespace TestStatementBuilders
                                               CompoundCondition.BooleanOperators.OperatorAnd, _
                                               New Condition(RS(), Condition.EqualityOperators.GreaterThanOrEqualTo, RS()))
             Dim cc = New CompoundCondition(left, logicalOp, right)
-            Assert.AreEqual("(" + left.ToString() + " " + CompoundCondition.OperatorResolutions(logicalOp) + " " + right.ToString() + ")", cc.ToString())
+            Assert.AreEqual("(" & left.ToString() & " " & CompoundCondition.OperatorResolutions(logicalOp) & " " & right.ToString() & ")", cc.ToString())
         End Sub
 
         <TestCase(CompoundCondition.BooleanOperators.OperatorOr)>
@@ -57,7 +57,7 @@ Namespace TestStatementBuilders
                                               New Condition("col4", Condition.EqualityOperators.Equals, "val4"))
             Dim cc = New CompoundCondition(left, op, right)
             Dim interOp = CStr(IIf(op = CompoundCondition.BooleanOperators.OperatorAnd, " and ", " or "))
-            Assert.AreEqual("(([col1]='val1' and [col2]='val2')" + interOp + "([col3]='val3' and [col4]='val4'))", cc.ToString())
+            Assert.AreEqual("(([col1]='val1' and [col2]='val2')" & interOp & "([col3]='val3' and [col4]='val4'))", cc.ToString())
         End Sub
 
 

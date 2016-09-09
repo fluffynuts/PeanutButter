@@ -17,7 +17,7 @@
             End If
             parts.Add(c.ToString())
         Next
-        Return leftBracket + String.Join("", parts) + rightBracket
+        Return leftBracket & String.Join("", parts) & rightBracket
     End Function
 
     Public Sub New(op As CompoundCondition.BooleanOperators, ParamArray conditions As ICondition())

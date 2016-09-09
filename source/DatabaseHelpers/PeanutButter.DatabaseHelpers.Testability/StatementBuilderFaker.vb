@@ -74,6 +74,7 @@ Public Class BuilderFaker
         Return builder
     End Function
 
+' ReSharper disable once MemberCanBePrivate.Global
     Public Shared Function CreateFakeDataReaderBuilder(Optional withBuildDataReader As DbDataReader = Nothing) As IDataReaderBuilder
         Dim builder = Substitute.For(Of IDataReaderBuilder)()
         builder.WithSql(Arg.Any(Of String)()).Returns(builder)

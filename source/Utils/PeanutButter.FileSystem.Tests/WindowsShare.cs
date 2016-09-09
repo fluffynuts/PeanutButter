@@ -197,7 +197,7 @@ namespace PeanutButter.FileSystem.Tests
             secDescriptor["ControlFlags"] = 4; //SE_DACL_PRESENT 
             secDescriptor["DACL"] = new object[] { adminACE };
 
-            object result = _winShareObject.InvokeMethod("SetShareInfo", new object[] { Int32.MaxValue, this.Description, secDescriptor });
+            object result = _winShareObject.InvokeMethod("SetShareInfo", new object[] { int.MaxValue, Description, secDescriptor });
             uint r = Convert.ToUInt32(result);
 
             return (MethodStatus)r;

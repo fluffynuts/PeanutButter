@@ -18,7 +18,7 @@
         End Get
     End Property
 
-    Private Shared _operatorResolutions As IDictionary(Of BooleanOperators, String)
+    Private Shared ReadOnly _operatorResolutions As IDictionary(Of BooleanOperators, String)
     Shared Sub New()
         Dim opRes = New Dictionary(Of BooleanOperators, String)
         opRes(BooleanOperators.OperatorAnd) = "and"

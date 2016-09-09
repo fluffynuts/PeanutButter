@@ -52,6 +52,7 @@ Module ISelectStatementBuilderExtensions
         Return HasCondition(builder, expectedFieldName, expectedOperator, valueMatcher)
     End Function
 
+' ReSharper disable once MemberCanBePrivate.Global
     Public Function HasCondition(ByVal builder As ISelectStatementBuilder, expectedFieldName As String, expectedOperator As Condition.EqualityOperators, valueComparer As Func(Of Object, Boolean))
         Dim conditionCall = builder.ReceivedCalls().FirstOrDefault(Function(theCall)
                                                                        Dim args = theCall.GetArguments()

@@ -1,5 +1,6 @@
 ﻿
 
+' ReSharper disable once CheckNamespace
 Public Class ComputedField
     Inherits StatementBuilderBase
     Implements IField
@@ -9,17 +10,26 @@ Public Class ComputedField
         Coalesce
         Count
     End Enum
+' ReSharper disable FieldCanBeMadeReadOnly.Global
+' ReSharper disable MemberCanBePrivate.Global
     Public FieldName As String
     Public ComputeFunction As ComputeFunctions
     Public FieldAlias As String
-    public Sub New(field as IField, _computeFunction as ComputeFunctions, Optional _alias As String = Nothing)
-        Me.New(field.ToString(), _computeFunction, _alias)
+' ReSharper restore FieldCanBeMadeReadOnly.Global
+' ReSharper disable once UnusedMember.Global
+    public Sub New(field as IField, computeFunction as ComputeFunctions)
+        Me.New(field, computeFunction, string.Empty)
     End Sub
 
-    Public Sub New(_fieldName As String, _computeFunction As ComputeFunctions, Optional _alias As String = Nothing)
-        FieldName = _fieldName
-        ComputeFunction = _computeFunction
-        FieldAlias = CStr(IIf(_alias Is Nothing, _fieldName, _alias))
+    public Sub New(field as IField, computeFunction as ComputeFunctions, fieldAlias As String)
+        Me.New(field.ToString(), computeFunction, fieldAlias)
+    End Sub
+' ReSharper restore MemberCanBePrivate.Global
+
+    Public Sub New(fieldName As String, computeFunction As ComputeFunctions, Optional fieldAlias As String = Nothing)
+        Me.FieldName = fieldName
+        Me.ComputeFunction = computeFunction
+        Me.FieldAlias = CStr(IIf(fieldAlias Is Nothing, fieldName, fieldAlias))
     End Sub
 
     Public Overrides Function ToString() As String Implements IField.ToString

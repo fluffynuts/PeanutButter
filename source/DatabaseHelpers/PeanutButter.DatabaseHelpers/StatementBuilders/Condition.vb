@@ -11,8 +11,6 @@ Public Class Condition
         GreaterThanOrEqualTo
         LessThan
         LessThanOrEqualTo
-        <Obsolete("Like_ is deprecated in favour of Contains with a raw Like, StartsWith and Endswith to also help")>
-        Like_
         [Like]
         Contains
         StartsWith
@@ -32,7 +30,6 @@ Public Class Condition
         operators(EqualityOperators.GreaterThanOrEqualTo) = ">="
         operators(EqualityOperators.LessThan) = "<"
         operators(EqualityOperators.LessThanOrEqualTo) = "<="
-        operators(EqualityOperators.Like_) = " like "
         operators(EqualityOperators.Contains) = " like "
         operators(EqualityOperators.StartsWith) = " like "
         operators(EqualityOperators.EndsWith) = " like "

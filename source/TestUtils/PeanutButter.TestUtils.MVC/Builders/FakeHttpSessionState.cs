@@ -26,7 +26,7 @@ namespace PeanutButter.TestUtils.MVC.Builders
 
         public override void Clear()
         {
-            this.ClearWasCalled = true;
+            ClearWasCalled = true;
             _sessionItems.Clear();
         }
 

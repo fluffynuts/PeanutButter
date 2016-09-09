@@ -26,7 +26,7 @@ Public Class DataReaderBuilder
     Public Function Build() As DbDataReader Implements IDataReaderBuilder.Build
         Dim sql = Me.GetSQLString()
         If sql Is Nothing Then
-            Throw New ArgumentException(Me.GetType().Name + " :: sql not set and no builder provided")
+            Throw New ArgumentException(Me.GetType().Name & " :: sql not set and no builder provided")
         End If
 
         If _connectionResolver Is Nothing Then

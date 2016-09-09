@@ -86,7 +86,7 @@ Public Class UpdateStatementBuilder
     End Sub
 
     Public Function WithFieldCopy(srcField As String, dstField As String) As IUpdateStatementBuilder Implements IUpdateStatementBuilder.WithFieldCopy
-        Me._fields.Add(New FieldWithValue(dstField, _openObjectQuote + srcField + _closeObjectQuote, False))
+        Me._fields.Add(New FieldWithValue(dstField, _openObjectQuote & srcField & _closeObjectQuote, False))
         Return Me
     End Function
     Public Function WithField(column As String, value As String, Optional quote As Boolean = True) As IUpdateStatementBuilder Implements IUpdateStatementBuilder.WithField

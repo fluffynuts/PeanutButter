@@ -42,7 +42,7 @@ Namespace TestStatementBuilders
                     .WithTable(table) _
                     .WithCondition(conditionField, Condition.EqualityOperators.Equals, conditionValue) _
                     .Build()
-            Assert.AreEqual("delete from [" + table + "] where [" + conditionField + "]='" + conditionValue + "'", sql)
+            Assert.AreEqual("delete from [" & table & "] where [" & conditionField & "]='" & conditionValue & "'", sql)
         End Sub
 
         <Test()>
@@ -55,7 +55,7 @@ Namespace TestStatementBuilders
                     .WithTable(table) _
                     .WithCondition(conditionField, Condition.EqualityOperators.Equals, conditionValue) _
                     .Build()
-            Assert.AreEqual("delete from """ + table + """ where """ + conditionField + """='" + conditionValue + "'", sql)
+            Assert.AreEqual("delete from """ & table & """ where """ & conditionField & """='" & conditionValue & "'", sql)
         End Sub
 
         <Test()>
@@ -70,7 +70,7 @@ Namespace TestStatementBuilders
                     .WithCondition(conditionField1, Condition.EqualityOperators.Equals, conditionValue1) _
                     .WithCondition(conditionField2, Condition.EqualityOperators.Equals, conditionValue2) _
                     .Build()
-            Assert.AreEqual("delete from [" + table + "] where [" + conditionField1 + "]='" + conditionValue1 + "' and [" + conditionField2 + "]='" + conditionValue2 + "'", sql)
+            Assert.AreEqual("delete from [" & table & "] where [" & conditionField1 & "]='" & conditionValue1 & "' and [" & conditionField2 & "]='" & conditionValue2 & "'", sql)
         End Sub
 
         <TestCase(Condition.EqualityOperators.Equals)>
@@ -90,7 +90,7 @@ Namespace TestStatementBuilders
                     .WithTable(table) _
                     .WithCondition(fld, op, value) _
                     .Build()
-            Assert.AreEqual("delete from [" + table + "] where " + expected.ToString(), sql)
+            Assert.AreEqual("delete from [" & table & "] where " & expected.ToString(), sql)
         End Sub
 
     End Class

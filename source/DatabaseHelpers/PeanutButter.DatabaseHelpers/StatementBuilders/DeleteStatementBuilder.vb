@@ -95,10 +95,10 @@ Public Class DeleteStatementBuilder
 
     Private Sub CheckParameters()
         If Me._table Is Nothing Then
-            Throw New ArgumentException(Me.GetType().Name + ": no table specified")
+            Throw New ArgumentException(Me.GetType().Name & ": no table specified")
         End If
         If Not _allRows And Me._conditions.Count = 0 Then
-            Throw New ArgumentException(Me.GetType().Name + ": no condition(s) specified")
+            Throw New ArgumentException(Me.GetType().Name & ": no condition(s) specified")
         End If
     End Sub
     Public Function WithCondition(condition As String) As IDeleteStatementBuilder Implements IDeleteStatementBuilder.WithCondition

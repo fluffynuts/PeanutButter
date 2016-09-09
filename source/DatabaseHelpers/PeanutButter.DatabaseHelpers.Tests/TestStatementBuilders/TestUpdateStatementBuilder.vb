@@ -149,7 +149,7 @@ Namespace TestStatementBuilders
                     .WithField(columnName, FieldValue) _
                     .WithCondition(Condition) _
                     .Build()
-            Assert.AreEqual("update [" + tableName + "] set [" + columnName + "]='" + valueString + "' where " + Condition, statement)
+            Assert.AreEqual("update [" & tableName & "] set [" & columnName & "]='" & valueString & "' where " & Condition, statement)
         End Sub
 
         <Test()>
@@ -169,7 +169,7 @@ Namespace TestStatementBuilders
                     .WithField(columnName, FieldValue) _
                     .WithCondition(Condition, DatabaseHelpers.Condition.EqualityOperators.Equals, ConditionVal) _
                     .Build()
-            Assert.AreEqual("update [" + tableName + "] set [" + columnName + "]='" + valueString + "' where [" + Condition + "]='" + ConditionVal + "'", statement)
+            Assert.AreEqual("update [" & tableName & "] set [" & columnName & "]='" & valueString & "' where [" & Condition & "]='" & ConditionVal & "'", statement)
         End Sub
 
         <Test()>
@@ -190,7 +190,7 @@ Namespace TestStatementBuilders
                     .WithField(columnName, FieldValue) _
                     .WithCondition(c1, Condition.EqualityOperators.Equals, ConditionVal) _
                     .Build()
-            Assert.AreEqual("update [" + tableName + "] set [" + columnName + "]='" + valueString + "' where [" + c1 + "]=" + expected.ToString(), statement)
+            Assert.AreEqual("update [" & tableName & "] set [" & columnName & "]='" & valueString & "' where [" & c1 & "]=" & expected.ToString(), statement)
         End Sub
 
         <Test()>
@@ -205,7 +205,7 @@ Namespace TestStatementBuilders
                     .WithField(columnName, FieldValue) _
                     .WithCondition(Condition) _
                     .Build()
-            Assert.AreEqual("update [" + tableName + "] set [" + columnName + "]=NULL where " + Condition, statement)
+            Assert.AreEqual("update [" & tableName & "] set [" & columnName & "]=NULL where " & Condition, statement)
         End Sub
 
         <Test()>
@@ -219,7 +219,7 @@ Namespace TestStatementBuilders
                     .WithFieldCopy(srcCol, dstCol) _
                     .WithCondition(condition) _
                     .Build()
-            Assert.AreEqual("update [" + tableName + "] set [" + dstCol + "]=[" + srcCol + "] where " + condition, statement)
+            Assert.AreEqual("update [" & tableName & "] set [" & dstCol & "]=[" & srcCol & "] where " & condition, statement)
         End Sub
 
         <Test()>
@@ -234,7 +234,7 @@ Namespace TestStatementBuilders
                     .WithFieldCopy(srcCol, dstCol) _
                     .WithCondition(condition) _
                     .Build()
-            Assert.AreEqual("update """ + tableName + """ set """ + dstCol + """=""" + srcCol + """ where " + condition, statement)
+            Assert.AreEqual("update """ & tableName & """ set """ & dstCol & """=""" & srcCol & """ where " & condition, statement)
         End Sub
 
         <Test()>
@@ -250,7 +250,7 @@ Namespace TestStatementBuilders
                     .WithField(col, val) _
                     .WithCondition(condition) _
                     .Build()
-            Assert.AreEqual("update [" + tableName + "] set [" + col + "]='" + val + "' where " + fakeCondition, statement)
+            Assert.AreEqual("update [" & tableName & "] set [" & col & "]='" & val & "' where " & fakeCondition, statement)
         End Sub
 
         <Test()>
@@ -273,7 +273,7 @@ Namespace TestStatementBuilders
             Dim cstring = String.Join(" and ", conditions.Select(Function(c)
                 Return c.ToString()
                                                                     End Function))
-            Assert.AreEqual("update [" + tableName + "] set [" + col + "]='" + val + "' where (" + cstring + ")", statement)
+            Assert.AreEqual("update [" & tableName & "] set [" & col & "]='" & val & "' where (" & cstring & ")", statement)
         End Sub
 
         <Test()>
@@ -297,7 +297,7 @@ Namespace TestStatementBuilders
             Dim cstring = String.Join(" and ", conditions.Select(Function(c)
                 Return c.ToString()
                                                                     End Function))
-            Assert.AreEqual("update """ + tableName + """ set """ + col + """='" + val + "' where (" + cstring + ")", statement)
+            Assert.AreEqual("update """ & tableName & """ set """ & col & """='" & val & "' where (" & cstring & ")", statement)
             for i = 0 to conditionCount
                 conditions(i).Received().UseDatabaseProvider(DatabaseProviders.Firebird)
             Next
@@ -318,8 +318,8 @@ Namespace TestStatementBuilders
                     .WithCondition(cfld1, Condition.EqualityOperators.GreaterThan, cval1) _
                     .WithCondition(cfld2, Condition.EqualityOperators.Equals, cval2) _
                     .Build()
-            Dim expected = "update [" + table + "] set [" + target  + "]='" + val + "' where ([" + cfld1 + "]>" + cval1.ToString() _
-                           + " and [" + cfld2 + "]='" + cval2 + "')"
+            Dim expected = "update [" & table & "] set [" & target  & "]='" & val & "' where ([" & cfld1 & "]>" & cval1.ToString() _
+                           & " and [" & cfld2 & "]='" & cval2 & "')"
             Assert.AreEqual(expected, sql)
         End SUb
 

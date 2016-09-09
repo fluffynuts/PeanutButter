@@ -148,8 +148,7 @@ Public Module ConditionExtensions
 
     <Extension()>
     public Function IsLikeOperator(ByVal op as Condition.EqualityOperators) As Boolean
-        Return op = Condition.EqualityOperators.Like_ Or _
-                    op = Condition.EqualityOperators.Like or _
+        Return op = Condition.EqualityOperators.Like or _
                     op = Condition.EqualityOperators.Contains or _
                     op = Condition.EqualityOperators.EndsWith or _
                     op = Condition.EqualityOperators.StartsWith
@@ -158,8 +157,7 @@ Public Module ConditionExtensions
     <Extension()>
     Public Function LeftWildcard(op as Condition.EqualityOperators) As String
         if op = Condition.EqualityOperators.Contains OrElse  _
-            op = Condition.EqualityOperators.EndsWith OrElse  _
-            op = Condition.EqualityOperators.Like_
+            op = Condition.EqualityOperators.EndsWith Then
             return "%"
         End If
         return ""
@@ -168,8 +166,7 @@ Public Module ConditionExtensions
     <Extension()>
     Public Function RightWildcard(op as Condition.EqualityOperators) As String
         if op = Condition.EqualityOperators.Contains OrElse  _
-            op = Condition.EqualityOperators.StartsWith OrElse  _
-            op = Condition.EqualityOperators.Like_
+            op = Condition.EqualityOperators.StartsWith Then
             return "%"
         End If
         return ""
