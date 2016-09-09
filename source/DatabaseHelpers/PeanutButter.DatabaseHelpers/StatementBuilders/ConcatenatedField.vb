@@ -29,7 +29,7 @@ Public class ConcatenatedField
             field.UseDatabaseProvider(_databaseProvider)
             parts.Add(field.ToString())
         Next
-        Return string.Join("+", parts) & " as " & _alias.ToString()
+        Return string.Join("+", parts) + " as " + _alias.ToString()
     End Function
 
     Public Sub UseDatabaseProvider(provider As DatabaseProviders) Implements IField.UseDatabaseProvider

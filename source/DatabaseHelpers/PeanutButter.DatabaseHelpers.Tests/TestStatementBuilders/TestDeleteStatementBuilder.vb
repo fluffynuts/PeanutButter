@@ -42,7 +42,7 @@ Namespace TestStatementBuilders
                     .WithTable(table) _
                     .WithCondition(conditionField, Condition.EqualityOperators.Equals, conditionValue) _
                     .Build()
-            Assert.AreEqual("delete from [" & table & "] where [" & conditionField & "]='" & conditionValue & "'", sql)
+            Assert.AreEqual("delete from [" + table + "] where [" + conditionField + "]='" + conditionValue + "'", sql)
         End Sub
 
         <Test()>
@@ -55,7 +55,7 @@ Namespace TestStatementBuilders
                     .WithTable(table) _
                     .WithCondition(conditionField, Condition.EqualityOperators.Equals, conditionValue) _
                     .Build()
-            Assert.AreEqual("delete from """ & table & """ where """ & conditionField & """='" & conditionValue & "'", sql)
+            Assert.AreEqual("delete from """ + table + """ where """ + conditionField + """='" + conditionValue + "'", sql)
         End Sub
 
         <Test()>
@@ -70,7 +70,7 @@ Namespace TestStatementBuilders
                     .WithCondition(conditionField1, Condition.EqualityOperators.Equals, conditionValue1) _
                     .WithCondition(conditionField2, Condition.EqualityOperators.Equals, conditionValue2) _
                     .Build()
-            Assert.AreEqual("delete from [" & table & "] where [" & conditionField1 & "]='" & conditionValue1 & "' and [" & conditionField2 & "]='" & conditionValue2 & "'", sql)
+            Assert.AreEqual("delete from [" + table + "] where [" + conditionField1 + "]='" + conditionValue1 + "' and [" + conditionField2 + "]='" + conditionValue2 + "'", sql)
         End Sub
 
         <TestCase(Condition.EqualityOperators.Equals)>
@@ -79,9 +79,8 @@ Namespace TestStatementBuilders
         <TestCase(Condition.EqualityOperators.LessThan)>
         <TestCase(Condition.EqualityOperators.LessThanOrEqualTo)>
         <TestCase(Condition.EqualityOperators.NotEquals)>
-        Public Sub WithCondition_GivenFielName_AndBOoleanValue_ProducesExpectedResult(op As Condition.EqualityOperators)
-            Dim c = New Condition(RandomValueGen.GetRandomString(), op, RandomValueGen.GetRandomString()),
-                table = RandomValueGen.GetRandomString(),
+        Public Sub WithCondition_GivenFielName_AndBooleanValue_ProducesExpectedResult(op As Condition.EqualityOperators)
+            Dim table = RandomValueGen.GetRandomString(),
                 fld = RandomValueGen.GetRandomString(),
                 value = RandomValueGen.GetRandomBoolean(),
                 expected = new Condition(fld, op, CInt(IIF(value, 1, 0)))
@@ -90,7 +89,7 @@ Namespace TestStatementBuilders
                     .WithTable(table) _
                     .WithCondition(fld, op, value) _
                     .Build()
-            Assert.AreEqual("delete from [" & table & "] where " & expected.ToString(), sql)
+            Assert.AreEqual("delete from [" + table + "] where " + expected.ToString(), sql)
         End Sub
 
     End Class

@@ -14,7 +14,7 @@ Namespace TestStatementBuilders
             Dim _alias = RandomValueGen.GetRandomString(2)
             Dim sut = new ComputedField(fieldName, fn, _alias)
             Dim result = sut.ToString()
-            Assert.AreEqual(str & "([" & fieldName & "]) as [" & _alias & "]", result)
+            Assert.AreEqual(str + "([" + fieldName + "]) as [" + _alias + "]", result)
         End Sub
     End Class
 End NameSpace

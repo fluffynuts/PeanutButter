@@ -1,8 +1,13 @@
 ﻿Imports System.Data.Common
 Imports NSubstitute
 
+' ReSharper disable UnusedMember.Global
+' ReSharper disable MemberCanBePrivate.Global
 Public Class BuilderFaker
-    Public Shared Function CreateFakeSelectStatementBuilder(Optional withBuildSql As String = Nothing) As ISelectStatementBuilder
+    Public Shared Function CreateFakeSelectStatementBuilder() as ISelectStatementBuilder
+        return CreateFakeSelectStatementBuilder(Nothing)
+    End Function
+    Public Shared Function CreateFakeSelectStatementBuilder(withBuildSql As String) As ISelectStatementBuilder
         Dim builder = Substitute.For(Of ISelectStatementBuilder)()
         builder.Distinct().Returns(builder)
         builder.WithTable(Arg.Any(Of String)).Returns(builder)
@@ -30,13 +35,17 @@ Public Class BuilderFaker
         builder.WithAllFieldsFrom(Arg.Any(Of String)()).Returns(builder)
         builder.WithAllConditions(Arg.Any(Of Condition)()).Returns(builder)
         builder.WithAllConditions(Arg.Any(Of Condition)(), Arg.Any(Of Condition)()).Returns(builder)
-        If Not withBuildSql Is Nothing Then
+        If withBuildSql IsNot Nothing Then
             builder.Build.Returns(withBuildSql)
         End If
         Return builder
     End Function
 
-    Public Shared Function CreateFakeUpdateStatementBuilder(Optional withBuildSql As String = Nothing) As IUpdateStatementBuilder
+    Public Shared Function CreateFakeUpdateStatementBuilder() as IUpdateStatementBuilder
+        Return CreateFakeUpdateStatementBuilder(Nothing)
+    End Function
+
+    Public Shared Function CreateFakeUpdateStatementBuilder(withBuildSql As String) As IUpdateStatementBuilder
         Dim builder = Substitute.For(Of IUpdateStatementBuilder)()
         builder.WithTable(Arg.Any(Of String)()).Returns(builder)
         builder.WithField(Arg.Any(Of String)(), Arg.Any(Of String)()).Returns(builder)
@@ -51,13 +60,17 @@ Public Class BuilderFaker
         builder.WithCondition(Arg.Any(Of String)(), Arg.Any(Of Condition.EqualityOperators)(), Arg.Any(Of Int32)()).Returns(builder)
         builder.WithCondition(Arg.Any(Of String)).Returns(builder)
         builder.WithAllConditions(Arg.Any(Of ICondition), Arg.Any(Of ICondition)()).Returns(builder)
-        If Not withBuildSql Is Nothing Then
+        If withBuildSql IsNot Nothing Then
             builder.Build.Returns(withBuildSql)
         End If
         Return builder
     End Function
 
-    Public Shared Function CreateFakeInsertStatementBuilder(Optional withBuildSql As String = Nothing) As IInsertStatementBuilder
+    Public Shared Function CreateFakeInsertStatementBuilder() As IInsertStatementBuilder
+        return CreateFakeInsertStatementBuilder(Nothing)
+    End Function
+
+    Public Shared Function CreateFakeInsertStatementBuilder(withBuildSql As String) As IInsertStatementBuilder
         Dim builder = Substitute.For(Of IInsertStatementBuilder)()
         builder.WithTable(Arg.Any(Of String)()).Returns(builder)
         builder.WithField(Arg.Any(Of String)(), Arg.Any(Of String)()).Returns(builder)
@@ -68,14 +81,17 @@ Public Class BuilderFaker
         builder.WithField(Arg.Any(Of String)(), Arg.Any(Of Int64)()).Returns(builder)
         builder.WithField(Arg.Any(Of String)(), Arg.Any(Of Int32)()).Returns(builder)
         builder.WithField(Arg.Any(Of String)(), Arg.Any(Of Int16)()).Returns(builder)
-        If Not withBuildSql Is Nothing Then
+        If withBuildSql IsNot Nothing Then
             builder.Build.Returns(withBuildSql)
         End If
         Return builder
     End Function
 
-' ReSharper disable once MemberCanBePrivate.Global
-    Public Shared Function CreateFakeDataReaderBuilder(Optional withBuildDataReader As DbDataReader = Nothing) As IDataReaderBuilder
+    Public Shared Function CreateFakeDataReaderBuilder() As IDataReaderBuilder
+        Return CreateFakeDataReaderBuilder(DirectCast(Nothing, DbDataReader))
+    End Function
+
+    Public Shared Function CreateFakeDataReaderBuilder(withBuildDataReader As DbDataReader) As IDataReaderBuilder
         Dim builder = Substitute.For(Of IDataReaderBuilder)()
         builder.WithSql(Arg.Any(Of String)()).Returns(builder)
         builder.WithSql(Arg.Any(Of ISelectStatementBuilder)()).Returns(builder)
@@ -107,7 +123,7 @@ Public Class BuilderFaker
         Return CreateFakeDataReaderBuilder(reader)
     End Function
 
-    Public Shared Function CreateFakeScalarExecutorBuilder(Optional withConnection As IDbConnection = Nothing) As IScalarExecutorBuilder
+    Public Shared Function CreateFakeScalarExecutorBuilder() As IScalarExecutorBuilder
         Dim builder = Substitute.For(Of IScalarExecutorBuilder)()
         builder.WithConnectionFactory(Arg.Any(Of Func(Of IDbConnection))()).Returns(builder)
         builder.WithSql(Arg.Any(Of String)()).Returns(builder)
@@ -118,3 +134,5 @@ Public Class BuilderFaker
     End Function
 
 End Class
+' ReSharper restore UnusedMember.Global
+' ReSharper restore MemberCanBePrivate.Global

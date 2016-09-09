@@ -11,7 +11,7 @@ Namespace TestStatementBuilders
                 field2 = RandomValueGen.GetRandomString(3),
                 _alias = RandomValueGen.GetRandomString(2)
             Dim sut = new ConcatenatedField(_alias, field1, field2)
-            Assert.AreEqual("[" & field1 & "]+[" & field2 & "] as [" & _alias & "]", sut.ToString())
+            Assert.AreEqual("[" + field1 + "]+[" + field2 + "] as [" + _alias + "]", sut.ToString())
         End Sub
 
         <Test()>
@@ -20,7 +20,7 @@ Namespace TestStatementBuilders
                 field2 = New SelectField(RandomValueGen.GetRandomString(2)),
                 _alias = RandomValueGen.GetRandomString(2)
             Dim sut = new ConcatenatedField(_alias, field1, field2)
-            Assert.AreEqual(field1.ToString() & "+" & field2.ToString() & " as [" & _alias & "]", sut.ToString())
+            Assert.AreEqual(field1.ToString() + "+" + field2.ToString() + " as [" + _alias + "]", sut.ToString())
 
         End Sub
     End Class

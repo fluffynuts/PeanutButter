@@ -38,7 +38,7 @@ Public Class DataCopyStatementBuilder
         parts.Add("insert into ")
         parts.Add(_openObjectQuote)
         parts.Add(_targetTable)
-        parts.Add(_closeObjectQuote & " ")
+        parts.Add(_closeObjectQuote + " ")
         Me.AddFieldsTo(parts)
         parts.Add(" from ")
         parts.Add(_openObjectQuote)
@@ -64,8 +64,8 @@ Public Class DataCopyStatementBuilder
                 post.Add(",")
             End If
             notFirst = True
-            pre.Add(_openObjectQuote & mapping.Target & _closeObjectQuote)
-            post.Add(_openObjectQuote & mapping.Source & _closeObjectQuote)
+            pre.Add(_openObjectQuote + mapping.Target + _closeObjectQuote)
+            post.Add(_openObjectQuote + mapping.Source + _closeObjectQuote)
         Next
         list.AddRange(pre)
         list.AddRange(post)
@@ -73,13 +73,13 @@ Public Class DataCopyStatementBuilder
 
     Private Sub CheckParameters()
         If Me._sourceTable Is Nothing Then
-            Throw New ArgumentException(Me.GetType().Name & ": source table not set")
+            Throw New ArgumentException(Me.GetType().Name + ": source table not set")
         End If
         If Me._targetTable Is Nothing Then
-            Throw New ArgumentException(Me.GetType().Name & ": target table not set")
+            Throw New ArgumentException(Me.GetType().Name + ": target table not set")
         End If
         If Me._fieldMappings.Count = 0 Then
-            Throw New ArgumentException(Me.GetType().Name & ": no fields set")
+            Throw New ArgumentException(Me.GetType().Name + ": no fields set")
         End If
     End Sub
 

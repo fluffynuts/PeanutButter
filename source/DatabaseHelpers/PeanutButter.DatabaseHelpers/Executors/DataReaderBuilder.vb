@@ -9,15 +9,16 @@ Public Interface IDataReaderBuilder
     Function WithConnectionFactory(connectionResolver as Func(Of IDbConnection)) as IDataReaderBuilder
 End Interface
 
+' ReSharper disable once UnusedMember.Global
 Public Class DataReaderBuilder
     Implements IDataReaderBuilder
     Implements IDisposable
 
+' ReSharper disable once UnusedMember.Global
     Public Shared Function Create() As DataReaderBuilder
         Return New DataReaderBuilder()
     End Function
 
-    Private _conn As IDbConnection
     Private _sql As String
     Private _selectBuilder As ISelectStatementBuilder
     Private ReadOnly _readers As New List(Of DbDataReader)

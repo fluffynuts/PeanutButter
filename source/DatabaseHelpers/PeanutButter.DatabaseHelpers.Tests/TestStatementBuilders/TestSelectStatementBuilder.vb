@@ -1,6 +1,4 @@
-﻿Imports NSubstitute.Core.Arguments
-Imports NUnit.Framework
-Imports PeanutButter.DatabaseHelpers
+﻿Imports NUnit.Framework
 Imports PeanutButter.RandomGenerators
 
 Namespace TestStatementBuilders
@@ -9,7 +7,9 @@ Namespace TestStatementBuilders
     Public Class TestSelectStatementBuilder
         <Test()>
         Public Sub Create_ShouldReturnNewInstanceOfSelectStatementBuilder()
-            Dim builder = SelectStatementBuilder.Create()
+            Dim builder1 = SelectStatementBuilder.Create()
+            Dim builder2 = SelectStatementBuilder.Create()
+            Assert.AreNotEqual(builder1, builder2)
         End Sub
         Private Function Create() As ISelectStatementBuilder
             Return SelectStatementBuilder.Create()
@@ -34,7 +34,7 @@ Namespace TestStatementBuilders
                     .WithTable(table) _
                     .WithField(field) _
                     .Build()
-            Assert.AreEqual("select [" & field & "] from [" & table & "]", sql)
+            Assert.AreEqual("select [" + field + "] from [" + table + "]", sql)
         End Sub
 
         <Test()>
@@ -46,7 +46,7 @@ Namespace TestStatementBuilders
                     .WithTable(table) _
                     .WithField(field) _
                     .Build()
-            Assert.AreEqual("select """ & field & """ from """ & table & """", sql)
+            Assert.AreEqual("select """ + field + """ from """ + table + """", sql)
         End Sub
 
         <Test()>
@@ -57,7 +57,7 @@ Namespace TestStatementBuilders
                     .WithTable(table) _
                     .WithField(New SelectField(table, field)) _
                     .Build()
-            Assert.AreEqual("select [" & table & "].[" & field & "] from [" & table & "]", sql)
+            Assert.AreEqual("select [" + table + "].[" + field + "] from [" + table + "]", sql)
         End Sub
 
         <Test()>
@@ -70,7 +70,7 @@ Namespace TestStatementBuilders
                     .WithField(f1) _
                     .WithField(f2) _
                     .Build()
-            Assert.AreEqual("select [" & f1 & "],[" & f2 & "] from [" & table & "]", sql)
+            Assert.AreEqual("select [" + f1 + "],[" + f2 + "] from [" + table + "]", sql)
         End Sub
 
         <Test()>
@@ -88,7 +88,7 @@ Namespace TestStatementBuilders
                     .WithField(field) _
                     .WithCondition(clause) _
                     .Build()
-            Assert.AreEqual("select [" & field & "] from [" & table & "] where " & clause, sql)
+            Assert.AreEqual("select [" + field + "] from [" + table + "] where " + clause, sql)
         End Sub
 
         <Test()>
@@ -101,7 +101,7 @@ Namespace TestStatementBuilders
                     .WithField(field) _
                     .WithCondition(field, Condition.EqualityOperators.Equals, value) _
                     .Build()
-            Assert.AreEqual("select [" & field & "] from [" & table & "] where [" & field & "]=" & value.ToString(), sql)
+            Assert.AreEqual("select [" + field + "] from [" + table + "] where [" + field + "]=" + value.ToString(), sql)
         End Sub
 
         <Test()>
@@ -115,7 +115,7 @@ Namespace TestStatementBuilders
                     .WithField(field) _
                     .WithCondition(field, Condition.EqualityOperators.Equals, value) _
                     .Build()
-            Assert.AreEqual("select """ & field & """ from """ & table & """ where """ & field & """=" & value.ToString(), sql)
+            Assert.AreEqual("select """ + field + """ from """ + table + """ where """ + field + """=" + value.ToString(), sql)
         End Sub
 
         <Test()>
@@ -130,7 +130,7 @@ Namespace TestStatementBuilders
                     .WithCondition(field1, Condition.EqualityOperators.Equals, value1) _
                     .WithCondition(field2, Condition.EqualityOperators.Equals, value2) _
                     .Build()
-            Assert.AreEqual("select * from [" & table & "] where ([" & field1 & "]='" & value1 & "' and [" & field2 & "]='" & value2 & "')", sql)
+            Assert.AreEqual("select * from [" + table + "] where ([" + field1 + "]='" + value1 + "' and [" + field2 + "]='" + value2 + "')", sql)
 
         End Sub
 
@@ -143,7 +143,7 @@ Namespace TestStatementBuilders
                     .WithTable(table) _
                     .WithField(field) _
                     .Build()
-            Assert.AreEqual("select * from [" & table & "]", sql)
+            Assert.AreEqual("select * from [" + table + "]", sql)
         End Sub
 
         <Test()>
@@ -152,14 +152,14 @@ Namespace TestStatementBuilders
             Dim sql = Create() _
                     .WithAllFieldsFrom(table) _
                     .Build()
-            Assert.AreEqual("select * from [" & table & "]", sql)
+            Assert.AreEqual("select * from [" + table + "]", sql)
         End Sub
 
         <Test()>
         Public Sub SelectAllFrom_Returns_WithAllFields_Query()
             Dim table = RandomValueGen.GetRandomString()
             Dim sql = SelectStatementBuilder.SelectAllFrom(table)
-            Assert.AreEqual("select * from [" & table & "]", sql)
+            Assert.AreEqual("select * from [" + table + "]", sql)
         End Sub
 
         <Test()>
@@ -171,7 +171,7 @@ Namespace TestStatementBuilders
                     .WithTable(table) _
                     .WithComputedField(field, ComputedField.ComputeFunctions.Max, fieldAlias) _
                     .Build()
-            Assert.AreEqual("select Max([" & field & "]) as [" & fieldAlias & "] from [" & table & "]", sql)
+            Assert.AreEqual("select Max([" + field + "]) as [" + fieldAlias + "] from [" + table + "]", sql)
         End Sub
 
         <Test()>
@@ -188,7 +188,7 @@ Namespace TestStatementBuilders
                     .WithInnerJoin(table1, joinField1, Condition.EqualityOperators.Equals, table2, joinField2) _
                     .WithField(field2) _
                     .Build()
-            Dim expectedSql = "select [" & field1 & "],[" & field2 & "] from [" & table1 & "] inner join [" & table2 & "] on [" & table1 & "].[" & joinField1 & "]=[" & table2 & "].[" & joinField2 & "]"
+            Dim expectedSql = "select [" + field1 + "],[" + field2 + "] from [" + table1 + "] inner join [" + table2 + "] on [" + table1 + "].[" + joinField1 + "]=[" + table2 + "].[" + joinField2 + "]"
             Assert.AreEqual(expectedSql, sql)
         End Sub
 
@@ -206,7 +206,7 @@ Namespace TestStatementBuilders
                     .WithInnerJoin(table1, joinField1, Condition.EqualityOperators.Equals, table2, joinField2) _
                     .WithField(field2) _
                     .Build()
-            Dim expectedSql = "select [" & field1 & "],[" & field2 & "] from [" & table1 & "] inner join [" & table2 & "] on [" & table1 & "].[" & joinField1 & "]=[" & table2 & "].[" & joinField2 & "]"
+            Dim expectedSql = "select [" + field1 + "],[" + field2 + "] from [" + table1 + "] inner join [" + table2 + "] on [" + table1 + "].[" + joinField1 + "]=[" + table2 + "].[" + joinField2 + "]"
             Assert.AreEqual(expectedSql, sql)
         End Sub
 
@@ -224,7 +224,7 @@ Namespace TestStatementBuilders
                     .WithLeftJoin(table1, joinField1, Condition.EqualityOperators.Equals, table2, joinField2) _
                     .WithField(field2) _
                     .Build()
-            Dim expectedSql = "select [" & field1 & "],[" & field2 & "] from [" & table1 & "] left join [" & table2 & "] on [" & table1 & "].[" & joinField1 & "]=[" & table2 & "].[" & joinField2 & "]"
+            Dim expectedSql = "select [" + field1 + "],[" + field2 + "] from [" + table1 + "] left join [" + table2 + "] on [" + table1 + "].[" + joinField1 + "]=[" + table2 + "].[" + joinField2 + "]"
             Assert.AreEqual(expectedSql, sql)
         End Sub
 
@@ -242,7 +242,7 @@ Namespace TestStatementBuilders
                     .WithInnerJoin(table1, joinField1, table2, joinField2) _
                     .WithField(field2) _
                     .Build()
-            Dim expectedSql = "select [" & field1 & "],[" & field2 & "] from [" & table1 & "] inner join [" & table2 & "] on [" & table1 & "].[" & joinField1 & "]=[" & table2 & "].[" & joinField2 & "]"
+            Dim expectedSql = "select [" + field1 + "],[" + field2 + "] from [" + table1 + "] inner join [" + table2 + "] on [" + table1 + "].[" + joinField1 + "]=[" + table2 + "].[" + joinField2 + "]"
             Assert.AreEqual(expectedSql, sql)
         End Sub
 
@@ -261,7 +261,7 @@ Namespace TestStatementBuilders
                     .WithInnerJoin(table1, joinField1, table2, joinField2) _
                     .WithField(field2) _
                     .Build()
-            Dim expectedSql = "select """ & field1 & """,""" & field2 & """ from """ & table1 & """ inner join """ & table2 & """ on """ & table1 & """.""" & joinField1 & """=""" & table2 & """.""" & joinField2 & """"
+            Dim expectedSql = "select """ + field1 + """,""" + field2 + """ from """ + table1 + """ inner join """ + table2 + """ on """ + table1 + """.""" + joinField1 + """=""" + table2 + """.""" + joinField2 + """"
             Assert.AreEqual(expectedSql, sql)
         End Sub
 
@@ -278,7 +278,7 @@ Namespace TestStatementBuilders
                     .WithInnerJoin(table1, joinField1, table2) _
                     .WithField(field2) _
                     .Build()
-            Dim expectedSql = "select [" & field1 & "],[" & field2 & "] from [" & table1 & "] inner join [" & table2 & "] on [" & table1 & "].[" & joinField1 & "]=[" & table2 & "].[" & joinField1 & "]"
+            Dim expectedSql = "select [" + field1 + "],[" + field2 + "] from [" + table1 + "] inner join [" + table2 + "] on [" + table1 + "].[" + joinField1 + "]=[" + table2 + "].[" + joinField1 + "]"
             Assert.AreEqual(expectedSql, sql)
         End Sub
 
@@ -297,7 +297,7 @@ Namespace TestStatementBuilders
                                                                        Condition.EqualityOperators.Equals, _
                                                                        New SelectField(table2, rightCol))) _
                     .Build() 
-            Dim expected = "select * from [" & table1 & "] " & joinStr & " join [" & table2 & "] on [" & table1 & "].[" & leftCol & "]=[" & table2 & "].[" & rightCol & "]"
+            Dim expected = "select * from [" + table1 + "] " + joinStr + " join [" + table2 + "] on [" + table1 + "].[" + leftCol + "]=[" + table2 + "].[" + rightCol + "]"
             Assert.AreEqual(expected, sql)
         End Sub 
 
@@ -322,9 +322,9 @@ Namespace TestStatementBuilders
                                             Condition.EqualityOperators.Equals, _
                                             new SelectField(table2, rightCol2))) _
                     .Build() 
-            Dim expected = "select * from [" & table1 & "] " & joinStr & " join [" & table2 & "] on ([" & table1 & "].[" & _ 
-                           leftCol & "]=[" & table2 & "].[" & rightCol & "] and [" & table1 & "].[" & leftCol2 & "]=[" & _
-                           table2 & "].[" & rightCol2 & "])"
+            Dim expected = "select * from [" + table1 + "] " + joinStr + " join [" + table2 + "] on ([" + table1 + "].[" + _ 
+                           leftCol + "]=[" + table2 + "].[" + rightCol + "] and [" + table1 + "].[" + leftCol2 + "]=[" + _
+                           table2 + "].[" + rightCol2 + "])"
             Assert.AreEqual(expected, sql)
         End Sub 
 
@@ -358,7 +358,7 @@ Namespace TestStatementBuilders
                     .WithField(fld.Field) _
                     .WithCondition(fld, Condition.EqualityOperators.Equals, val) _
                     .Build()
-            Assert.AreEqual("select [" & fld.Field & "] from [" & fld.Table & "] where " & fld.ToString() & "='" & val & "'", sql)
+            Assert.AreEqual("select [" + fld.Field + "] from [" + fld.Table + "] where " + fld.ToString() + "='" + val + "'", sql)
         End Sub
 
         <Test()>
@@ -371,7 +371,7 @@ Namespace TestStatementBuilders
                     .WithField(f1.Field) _
                     .WithCondition(f1, Condition.EqualityOperators.Equals, f2) _
                     .Build()
-            Assert.AreEqual("select [" & f1.Field & "] from [" & f1.Table & "],[" & f2.Table & "] where " & f1.ToString() & "=" & f2.ToString(), sql)
+            Assert.AreEqual("select [" + f1.Field + "] from [" + f1.Table + "],[" + f2.Table + "] where " + f1.ToString() + "=" + f2.ToString(), sql)
         End Sub
 
         <Test()>
@@ -383,7 +383,7 @@ Namespace TestStatementBuilders
                     .WithField(fld.Field) _
                     .WithCondition(fld, Condition.EqualityOperators.Equals, val) _
                     .Build()
-            Assert.AreEqual("select [" & fld.Field & "] from [" & fld.Table & "] where " & fld.ToString() & "=" & val.ToString(), sql)
+            Assert.AreEqual("select [" + fld.Field + "] from [" + fld.Table + "] where " + fld.ToString() + "=" + val.ToString(), sql)
         End Sub
 
         <TestCase(Condition.EqualityOperators.Equals)>
@@ -400,7 +400,7 @@ Namespace TestStatementBuilders
                     .WithField(fld.Field) _
                     .WithCondition(fld, op, val) _
                     .Build()
-            Assert.AreEqual("select [" & fld.Field & "] from [" & fld.Table & "] where " & fld.ToString() & Condition.OperatorResolutions(op) & val.ToString(), sql)
+            Assert.AreEqual("select [" + fld.Field + "] from [" + fld.Table + "] where " + fld.ToString() + Condition.OperatorResolutions(op) + val.ToString(), sql)
         End Sub
 
         <TestCase(Condition.EqualityOperators.Equals)>
@@ -417,7 +417,7 @@ Namespace TestStatementBuilders
                     .WithField(fld.Field) _
                     .WithCondition(fld, op, val) _
                     .Build()
-            Assert.AreEqual("select [" & fld.Field & "] from [" & fld.Table & "] where " & fld.ToString() & Condition.OperatorResolutions(op) & val.ToString(), sql)
+            Assert.AreEqual("select [" + fld.Field + "] from [" + fld.Table + "] where " + fld.ToString() + Condition.OperatorResolutions(op) + val.ToString(), sql)
         End Sub
 
         <TestCase(Condition.EqualityOperators.Equals)>
@@ -434,7 +434,7 @@ Namespace TestStatementBuilders
                     .WithField(fld.Field) _
                     .WithCondition(fld, op, val) _
                     .Build()
-            Assert.AreEqual("select [" & fld.Field & "] from [" & fld.Table & "] where " & fld.ToString() & Condition.OperatorResolutions(op) & val.ToString(), sql)
+            Assert.AreEqual("select [" + fld.Field + "] from [" + fld.Table + "] where " + fld.ToString() + Condition.OperatorResolutions(op) + val.ToString(), sql)
         End Sub
 
         <TestCase(Condition.EqualityOperators.Equals)>
@@ -451,7 +451,7 @@ Namespace TestStatementBuilders
                     .WithField(fld.Field) _
                     .WithCondition(fld, op, val) _
                     .Build()
-            Assert.AreEqual("select [" & fld.Field & "] from [" & fld.Table & "] where " & fld.ToString() & Condition.OperatorResolutions(op) & val.ToString(), sql)
+            Assert.AreEqual("select [" + fld.Field + "] from [" + fld.Table + "] where " + fld.ToString() + Condition.OperatorResolutions(op) + val.ToString(), sql)
         End Sub
 
         <TestCase(Condition.EqualityOperators.Equals)>
@@ -468,7 +468,7 @@ Namespace TestStatementBuilders
                     .WithField(fld.Field) _
                     .WithCondition(fld, op, val) _
                     .Build()
-            Assert.AreEqual("select [" & fld.Field & "] from [" & fld.Table & "] where " & fld.ToString() & Condition.OperatorResolutions(op) & "'" & val.ToString("yyyy/MM/dd") & "'", sql)
+            Assert.AreEqual("select [" + fld.Field + "] from [" + fld.Table + "] where " + fld.ToString() + Condition.OperatorResolutions(op) + "'" + val.ToString("yyyy/MM/dd") + "'", sql)
         End Sub
 
         <TestCase(Condition.EqualityOperators.Equals)>
@@ -486,7 +486,7 @@ Namespace TestStatementBuilders
                     .WithField(fld) _
                     .WithCondition(c) _
                     .Build()
-            Assert.AreEqual("select [" & fld & "] from [" & table & "] where " & c.ToString(), sql)
+            Assert.AreEqual("select [" + fld + "] from [" + table + "] where " + c.ToString(), sql)
         End Sub
 
         <TestCase(OrderBy.Directions.Descending)>
@@ -500,7 +500,7 @@ Namespace TestStatementBuilders
                     .WithField(fld) _
                     .OrderBy(o) _
                     .Build()
-            Assert.AreEqual("select [" & fld & "] from [" & table & "] " & o.ToString(), sql)
+            Assert.AreEqual("select [" + fld + "] from [" + table + "] " + o.ToString(), sql)
         End Sub
 
         <TestCase(OrderBy.Directions.Ascending)>
@@ -514,7 +514,7 @@ Namespace TestStatementBuilders
                     .WithField(fld) _
                     .OrderBy(ofld, direction) _
                     .Build()
-            Assert.AreEqual("select [" & fld & "] from [" & table & "] order by [" & ofld & "] " & CStr(IIf(direction = OrderBy.Directions.Ascending, "asc", "desc")), sql)
+            Assert.AreEqual("select [" + fld + "] from [" + table + "] order by [" + ofld + "] " + CStr(IIf(direction = OrderBy.Directions.Ascending, "asc", "desc")), sql)
         End Sub
 
         <TestCase(OrderBy.Directions.Ascending)>
@@ -529,7 +529,7 @@ Namespace TestStatementBuilders
                     .WithField(fld) _
                     .OrderBy(otable, ofld, direction) _
                     .Build()
-            Assert.AreEqual("select [" & fld & "] from [" & table & "] order by [" & otable & "].[" & ofld & "] " & CStr(IIf(direction = OrderBy.Directions.Ascending, "asc", "desc")), sql)
+            Assert.AreEqual("select [" + fld + "] from [" + table + "] order by [" + otable + "].[" + ofld + "] " + CStr(IIf(direction = OrderBy.Directions.Ascending, "asc", "desc")), sql)
         End Sub
 
         <TestCase(OrderBy.Directions.Ascending)>
@@ -545,12 +545,13 @@ Namespace TestStatementBuilders
                     .WithField(fld) _
                     .OrderBy(otable, ofld, direction) _
                     .Build()
-            Assert.AreEqual("select """ & fld & """ from """ & table & """ order by """ & otable & """.""" & ofld & """ " & CStr(IIf(direction = OrderBy.Directions.Ascending, "asc", "desc")), sql)
+            Assert.AreEqual("select """ + fld + """ from """ + table + """ order by """ + otable + """.""" + ofld + """ " + CStr(IIf(direction = OrderBy.Directions.Ascending, "asc", "desc")), sql)
         End Sub
 
         <Test()>
         Public Sub Build_WhenUsingSelectFieldConstructsOnFirebirdDatabaseProvider_ShouldProduceSqlWithoutBrackets()
             ' this test is based on a real-world failure
+' ReSharper disable once InconsistentNaming
             Dim GetFilterConditions as Func(Of IEnumerable(Of ICondition)) = Function()
                 return { new Condition("IS_PROCESSED", Condition.EqualityOperators.Equals, 0) }
                     End Function
@@ -578,7 +579,7 @@ Namespace TestStatementBuilders
                     .WithField(fld) _
                     .WithAllConditions(c1, c2, c3) _
                     .Build()
-            Assert.AreEqual("select [" & fld & "] from [" & table & "] where (" & c1.ToString() & " and " & c2.ToString() & " and " & c3.ToString() &")", sql)
+            Assert.AreEqual("select [" + fld + "] from [" + table + "] where (" + c1.ToString() + " and " + c2.ToString() + " and " + c3.ToString() +")", sql)
         End Sub
 
         <Test()>
@@ -598,7 +599,7 @@ Namespace TestStatementBuilders
             Assert.IsFalse(c1.ToString().Contains("]"))
             Assert.IsFalse(c2.ToString().Contains("["))
             Assert.IsFalse(c2.ToString().Contains("]"))
-            Assert.AreEqual("select """ & fld & """ from """ & table & """ where (" & c1.ToString() & " and " & c2.ToString() & " and " & c3.ToString() &")", sql)
+            Assert.AreEqual("select """ + fld + """ from """ + table + """ where (" + c1.ToString() + " and " + c2.ToString() + " and " + c3.ToString() +")", sql)
         End Sub
 
         <Test()>
@@ -618,7 +619,7 @@ Namespace TestStatementBuilders
             Assert.IsFalse(c1.ToString().Contains("]"))
             Assert.IsFalse(c2.ToString().Contains("["))
             Assert.IsFalse(c2.ToString().Contains("]"))
-            Assert.AreEqual("select """ & fld & """ from """ & table & """ where (" & c1.ToString() & " and " & c2.ToString() & " and " & c3.ToString() &")", sql)
+            Assert.AreEqual("select """ + fld + """ from """ + table + """ where (" + c1.ToString() + " and " + c2.ToString() + " and " + c3.ToString() +")", sql)
         End Sub
 
         <Test()>
@@ -633,7 +634,7 @@ Namespace TestStatementBuilders
                     .WithField(fld) _
                     .WithAnyCondition(c1, c2, c3) _
                     .Build()
-            Assert.AreEqual("select [" & fld & "] from [" & table & "] where (" & c1.ToString() & " or " & c2.ToString() & " or " & c3.ToString() & ")", sql)
+            Assert.AreEqual("select [" + fld + "] from [" + table + "] where (" + c1.ToString() + " or " + c2.ToString() + " or " + c3.ToString() + ")", sql)
         End Sub
 
         <Test()>
@@ -644,7 +645,7 @@ Namespace TestStatementBuilders
             ' perform test
             Dim sql = SelectStatementBuilder.Create().Distinct().WithAllFieldsFrom(table).Build()
             ' assert test results
-            Assert.AreEqual("select distinct * from [" & table & "]", sql)
+            Assert.AreEqual("select distinct * from [" + table + "]", sql)
         End Sub
 
         <Test()>
@@ -654,7 +655,7 @@ Namespace TestStatementBuilders
                 aliasAs = RandomValueGen.GetRandomString()
             Dim sql = SelectStatementBuilder.Create().WithTable(table).WithField(field, aliasAs).Build()
 
-            Assert.AreEqual("select [" & field & "] as [" & aliasAs & "] from [" & table & "]", sql)
+            Assert.AreEqual("select [" + field + "] as [" + aliasAs + "] from [" + table + "]", sql)
         End Sub
 
         <Test()>
@@ -663,7 +664,7 @@ Namespace TestStatementBuilders
                 field = RandomValueGen.GetRandomString(),
                 topVal = RandomValueGen.GetRandomInt()
             Dim sql = SelectStatementBuilder.Create().WithTable(table).WithField(field).WithTop(topVal).Build()
-            Assert.AreEqual("select top " & topVal.ToString() & " [" & field & "] from [" & table & "]", sql)
+            Assert.AreEqual("select top " + topVal.ToString() + " [" + field + "] from [" + table + "]", sql)
         End Sub
 
         <Test()>
@@ -672,7 +673,7 @@ Namespace TestStatementBuilders
                 field = RandomValueGen.GetRandomString(),
                 topVal = RandomValueGen.GetRandomInt()
             Dim sql = SelectStatementBuilder.Create().WithDatabaseProvider(DatabaseProviders.Firebird).WithTable(table).WithField(field).WithTop(topVal).Build()
-            Assert.AreEqual("select first " & topVal.ToString() & " """ & field & """ from """ & table & """", sql)
+            Assert.AreEqual("select first " + topVal.ToString() + " """ + field + """ from """ + table + """", sql)
         End Sub
 
         <Test()>
@@ -684,7 +685,7 @@ Namespace TestStatementBuilders
                     .WithTable(table) _
                     .WithField(field) _
                     .WithCondition(field, Condition.EqualityOperators.Contains, val).Build()
-            Assert.AreEqual("select [" & field & "] from [" & table & "] where [" & field & "] like '%" & val & "%'", sql)
+            Assert.AreEqual("select [" + field + "] from [" + table + "] where [" + field + "] like '%" + val + "%'", sql)
         End Sub
 
         <Test()>
@@ -697,7 +698,7 @@ Namespace TestStatementBuilders
                     .WithField(field) _
                     .WithCondition(New SelectField(table, field), Condition.EqualityOperators.Contains, val) _
                     .Build()
-            Assert.AreEqual("select [" & field & "] from [" & table & "] where [" & table & "].[" & field & "] like '%" & val & "%'", sql)
+            Assert.AreEqual("select [" + field + "] from [" + table + "] where [" + table + "].[" + field + "] like '%" + val + "%'", sql)
         End Sub
 
         <Test()>
@@ -709,7 +710,7 @@ Namespace TestStatementBuilders
                     .WithTable(table) _
                     .WithField(field) _
                     .WithCondition(field, Condition.EqualityOperators.Like, val).Build()
-            Assert.AreEqual("select [" & field & "] from [" & table & "] where [" & field & "] like '" & val & "'", sql)
+            Assert.AreEqual("select [" + field + "] from [" + table + "] where [" + field + "] like '" + val + "'", sql)
         End Sub
 
         <Test()>
@@ -721,7 +722,7 @@ Namespace TestStatementBuilders
                     .WithTable(table) _
                     .WithField(field) _
                     .WithCondition(field, Condition.EqualityOperators.StartsWith, val).Build()
-            Assert.AreEqual("select [" & field & "] from [" & table & "] where [" & field & "] like '" & val & "%'", sql)
+            Assert.AreEqual("select [" + field + "] from [" + table + "] where [" + field + "] like '" + val + "%'", sql)
         End Sub
 
         <Test()>
@@ -733,7 +734,7 @@ Namespace TestStatementBuilders
                     .WithTable(table) _
                     .WithField(field) _
                     .WithCondition(field, Condition.EqualityOperators.EndsWith, val).Build()
-            Assert.AreEqual("select [" & field & "] from [" & table & "] where [" & field & "] like '%" & val & "'", sql)
+            Assert.AreEqual("select [" + field + "] from [" + table + "] where [" + field + "] like '%" + val + "'", sql)
         End Sub
 
         <Test()>
@@ -743,7 +744,7 @@ Namespace TestStatementBuilders
                 f2 = RandomValueGen.GetRandomString(),
                 f3 = RandomValueGen.GetRandomString()
             Dim sql = SelectStatementBuilder.Create().WithTable(table).WIthFIelds(f1, f2, f3).Build()
-            Assert.AreEqual("select [" & f1 & "],[" & f2 & "],[" & f3 & "] from [" & table & "]", sql)
+            Assert.AreEqual("select [" + f1 + "],[" + f2 + "],[" + f3 + "] from [" + table + "]", sql)
         End Sub
 
         <Test()>
@@ -771,9 +772,9 @@ Namespace TestStatementBuilders
                     .WithInnerJoin(t1, keyField, t2, keyField) _
                     .WithInnerJoin(t1, keyField, t3, keyField)
             Dim sql = builder.Build()
-            Dim expected = "select [" & t1 & "].[" & keyField & "] from (([" & t1 & "] inner join [" & t2 & "] on [" & t1 & "].[" & keyField & "]=[" _
-                           & t2 & "].[" & keyField & "]) inner join [" & t3 & "].[" & keyField & "] on [" & t1 & "].[" & keyField & "]=[" _
-                           & t3 & "].[" & keyField & "]"
+            Dim expected = "select [" + t1 + "].[" + keyField + "] from (([" + t1 + "] inner join [" + t2 + "] on [" + t1 + "].[" + keyField + "]=[" _
+                           + t2 + "].[" + keyField + "]) inner join [" + t3 + "].[" + keyField + "] on [" + t1 + "].[" + keyField + "]=[" _
+                           + t3 + "].[" + keyField + "]"
                             
             Assert.AreEqual(expected, sql)
         End Sub
@@ -791,7 +792,7 @@ Namespace TestStatementBuilders
             Dim l = builder.OpenObjectQuote
             Dim r = builder.CloseObjectQuote
             Dim sql = builder.WithNoLock().WithTable(table).WIthFIelds(f1, f2, f3).Build()
-            Dim expected = "select " & l & f1 & r & "," & l & f2 & r & "," & l & f3 & r & " from " & l & table & r & expectedPart
+            Dim expected = "select " + l + f1 + r + "," + l + f2 + r + "," + l + f3 + r + " from " + l + table + r + expectedPart
             Assert.AreEqual(expected, sql)
         End Sub
 
@@ -811,7 +812,7 @@ Namespace TestStatementBuilders
                     .WithLeftJoin(table1, joinField1, Condition.EqualityOperators.Equals, table2, joinField2) _
                     .WithField(field2) _
                     .Build()
-            Dim expectedSql = "select [" & field1 & "],[" & field2 & "] from [" & table1 & "] WITH (NOLOCK) left join [" & table2 & "] WITH (NOLOCK) on [" & table1 & "].[" & joinField1 & "]=[" & table2 & "].[" & joinField2 & "]"
+            Dim expectedSql = "select [" + field1 + "],[" + field2 + "] from [" + table1 + "] WITH (NOLOCK) left join [" + table2 + "] WITH (NOLOCK) on [" + table1 + "].[" + joinField1 + "]=[" + table2 + "].[" + joinField2 + "]"
             Assert.AreEqual(expectedSql, sql)
         End Sub
 
@@ -836,7 +837,7 @@ Namespace TestStatementBuilders
                     .Build()
             Dim l = builder.OpenObjectQuote
             Dim r = builder.CloseObjectQuote
-            Dim expectedSql = "select " & l & field1 & r & "," & l & field2 & r & " from " & l & table1 & r & " left join " & l & table2 & r & " on " & l & table1 & r & "." & l & joinField1 & r & "=" & l & table2 & r & "." & l & joinField2 & r
+            Dim expectedSql = "select " + l + field1 + r + "," + l + field2 + r + " from " + l + table1 + r + " left join " + l + table2 + r + " on " + l + table1 + r + "." + l + joinField1 + r + "=" + l + table2 + r + "." + l + joinField2 + r
             Assert.AreEqual(expectedSql, sql)
         End Sub
 
@@ -849,7 +850,7 @@ Namespace TestStatementBuilders
             Dim sql = SelectStatementBuilder.Create() _
                     .WithAllFieldsFrom(inner, subQueryAlias) _
                     .Build()
-            dim expected = "select * from (select * from [" & table & "]) as [" & subQueryAlias & "]"
+            dim expected = "select * from (select * from [" + table + "]) as [" + subQueryAlias + "]"
             Assert.AreEqual(expected, sql)
         End Sub
 

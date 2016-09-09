@@ -14,7 +14,7 @@ Namespace TestStatementBuilders
             Dim left = New Condition(field1, Condition.EqualityOperators.Equals, value1)
             Dim right = New Condition(field2, Condition.EqualityOperators.Equals, value2)
             Dim result = left.And(right)
-            Assert.AreEqual("([" & field1 & "]='" & value1 & "' and [" & field2 & "]='" & value2 & "')", result.ToString())
+            Assert.AreEqual("([" + field1 + "]='" + value1 + "' and [" + field2 + "]='" + value2 + "')", result.ToString())
         End Sub
 
         <Test()>
@@ -27,7 +27,7 @@ Namespace TestStatementBuilders
             Dim left = New Condition(field1, Condition.EqualityOperators.Equals, value1)
             Dim right = New Condition(field2, Condition.EqualityOperators.Equals, value2)
             Dim result = left.Or(right)
-            Assert.AreEqual("([" & field1 & "]='" & value1 & "' or [" & field2 & "]='" & value2 & "')", result.ToString())
+            Assert.AreEqual("([" + field1 + "]='" + value1 + "' or [" + field2 + "]='" + value2 + "')", result.ToString())
         End Sub
 
         <Test()>
@@ -39,7 +39,7 @@ Namespace TestStatementBuilders
             Dim left = New Condition(field1, Condition.EqualityOperators.Equals, value1)
             Dim right = New Condition(field2, Condition.EqualityOperators.Equals, value2)
             Dim result = left.And(right).Or(right.And(left))
-            Dim expected = "(([" & field1 & "]='" & value1 & "' and [" & field2 & "]='" & value2 & "') or ([" & field2 & "]='" & value2 & "' and [" & field1 & "]='" & value1 & "'))"
+            Dim expected = "(([" + field1 + "]='" + value1 + "' and [" + field2 + "]='" + value2 + "') or ([" + field2 + "]='" + value2 + "' and [" + field1 + "]='" + value1 + "'))"
             Assert.AreEqual(expected, result.ToString())
         End Sub
 

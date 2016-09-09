@@ -215,7 +215,7 @@ Public Class SelectStatementBuilder
         Dim quotedTableNames = _tableNames.Select(Function(tn)
             Return String.Join("", { _openObjectQuote, tn, _closeObjectQuote })
                                                      End Function) _
-            .Union(_subQueries.Select(Function(s) "(" & s.SubQueryStatement.ToString() & ") as " & _openObjectQuote & s.SubQueryAlias & _closeObjectQuote))
+            .Union(_subQueries.Select(Function(s) "(" + s.SubQueryStatement.ToString() + ") as " + _openObjectQuote + s.SubQueryAlias + _closeObjectQuote))
         Dim joinWith = ","
         AddNoLockHintAsRequiredTo(joinWith)
         Dim result  = String.Join(joinWith, quotedTableNames)
@@ -230,9 +230,9 @@ Public Class SelectStatementBuilder
     Private Sub AddLeadingRowLimiterIfRequired(ByVal sql As List(Of String))
         If Not Me._top.HasValue Then Return
         If _databaseProvider = DatabaseProviders.Firebird Then
-            sql.Add("first " & Me._top.Value.ToString() & " ")
+            sql.Add("first " + Me._top.Value.ToString() + " ")
         else
-            sql.Add("top " & Me._top.Value.ToString() & " ")
+            sql.Add("top " + Me._top.Value.ToString() + " ")
         End If
     End Sub
 
@@ -269,7 +269,7 @@ Public Class SelectStatementBuilder
 
     Private Sub CheckParameters()
         If _tableNames.Count = 0 AndAlso _subQueries.Count = 0 Then
-            Throw New ArgumentException(Me.GetType().Name() & ": must specify at least one table or subquery before building")
+            Throw New ArgumentException(Me.GetType().Name() + ": must specify at least one table or subquery before building")
         End If
     End Sub
 
@@ -291,7 +291,7 @@ Public Class SelectStatementBuilder
                                 sql.Add(fieldName)
                             End Sub)
         If addedFields = 0 Then
-            Throw New ArgumentException(Me.GetType().Name() & ": no fields specified for query")
+            Throw New ArgumentException(Me.GetType().Name() + ": no fields specified for query")
         End If
     End Sub
 

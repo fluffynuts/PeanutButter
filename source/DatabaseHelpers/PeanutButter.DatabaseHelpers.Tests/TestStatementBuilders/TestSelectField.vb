@@ -9,7 +9,7 @@ Namespace TestStatementBuilders
         Public Sub Constructor_GivenFieldNameOnly_ToStringIsExpected()
             Dim fld = RandomValueGen.GetRandomString()
             Dim sf = New SelectField(fld)
-            Assert.AreEqual("[" & fld & "]", sf.ToString())
+            Assert.AreEqual("[" + fld + "]", sf.ToString())
         End Sub
 
         <Test()>
@@ -17,7 +17,7 @@ Namespace TestStatementBuilders
             Dim table = RandomValueGen.GetRandomString(),
                 field = RandomValueGen.GetRandomString()
             Dim selectField = New SelectField(table, field)
-            Assert.AreEqual("[" & table & "].[" & field & "]", selectField.ToString())
+            Assert.AreEqual("[" + table + "].[" + field + "]", selectField.ToString())
         End Sub
 
         <Test()>
@@ -26,7 +26,7 @@ Namespace TestStatementBuilders
                 a = RandomValueGen.GetRandomString(2)
             Dim sut = New SelectField(field)
             sut.SetAlias(a)
-            dim expected = "[" & field & "] as [" & a & "]"
+            dim expected = "[" + field + "] as [" + a + "]"
             Assert.AreEqual(expected, sut.ToString())
         End Sub
 
@@ -35,7 +35,7 @@ Namespace TestStatementBuilders
             Dim field = RandomValueGen.GetRandomString(2)
             Dim sut = New SelectField(field)
             sut.SetAlias(Nothing)
-            dim expected = "[" & field & "]"
+            dim expected = "[" + field + "]"
             Assert.AreEqual(expected, sut.ToString())
         End Sub
 
@@ -50,7 +50,7 @@ Namespace TestStatementBuilders
         Public Sub WhenFieldIsStarWithTable_ShouldNotQuoteField()
             Dim table = RandomValueGen.GetRandomString(2)
             Dim sut = new SelectField(table, "*")
-            Dim expected = "[" & table & "].*"
+            Dim expected = "[" + table + "].*"
             Assert.AreEqual(expected, sut.ToString())
         End Sub
     End Class

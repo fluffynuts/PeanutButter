@@ -1,10 +1,12 @@
 ﻿Imports System.Runtime.CompilerServices
 Imports NSubstitute
 
+' ReSharper disable once InconsistentNaming
+' ReSharper disable UnusedMember.Global
 Module ISelectStatementBuilderExtensions
     <Extension()>
     Public Function HasAllConditions(ByVal builder As ISelectStatementBuilder, ParamArray expectedConditions As ICondition())
-        If Not TryCast(builder, SelectStatementBuilder) Is Nothing Then Throw New Exception("HasAllConditions extension method is not meant for concrete implementation of SelectStatementBuilder")
+        If TryCast(builder, SelectStatementBuilder) IsNot Nothing Then Throw New Exception("HasAllConditions extension method is not meant for concrete implementation of SelectStatementBuilder")
         Dim conditionCall = builder.ReceivedCalls().FirstOrDefault(Function(theCall)
                                                                        Dim args = theCall.GetArguments()
                                                                        If args.Length = 0 Then Return False
@@ -65,6 +67,7 @@ Module ISelectStatementBuilderExtensions
                                                                            Return False
                                                                        End Try
                                                                    End Function)
-        Return Not conditionCall Is Nothing
+        Return conditionCall IsNot Nothing
     End Function
 End Module
+' ReSharper restore UnusedMember.Global
