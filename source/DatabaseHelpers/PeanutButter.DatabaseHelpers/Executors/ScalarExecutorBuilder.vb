@@ -1,4 +1,6 @@
-﻿
+﻿' ReSharper disable UnusedMember.Global
+' ReSharper disable UnusedMemberInSuper.Global
+
 Imports System.Data.OleDb
 
 Public Class InsertFailsException
@@ -109,3 +111,6 @@ Public Class ScalarExecutorBuilder
         Me._deleteBuilder = del
     End Sub
 End Class
+
+' ReSharper restore UnusedMember.Global
+' ReSharper restore UnusedMemberInSuper.Global

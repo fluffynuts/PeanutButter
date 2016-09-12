@@ -1,4 +1,6 @@
-﻿Public Interface IConnectionStringBuilder
+﻿' ReSharper disable UnusedMember.Global
+' ReSharper disable UnusedMemberInSuper.Global
+Public Interface IConnectionStringBuilder
     Function Build() As String
     Function WithProvider(provider As String) As IConnectionStringBuilder
     Function WithSource(source As String) As IConnectionStringBuilder
@@ -42,3 +44,5 @@ Public Class ConnectionStringBuilder
     End Function
 
 End Class
+' ReSharper restore UnusedMember.Global
+' ReSharper restore UnusedMemberInSuper.Global
