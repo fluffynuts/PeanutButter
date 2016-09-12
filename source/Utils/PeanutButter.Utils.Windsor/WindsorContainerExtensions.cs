@@ -27,9 +27,11 @@ namespace PeanutButter.Utils.Windsor
                                             .ToArray();
                 if (implementingTypes.Length != 1)
                     return;
+                var implementation = implementingTypes.Single();
                 container.Register(Component.For(interfaceType)
-                    .ImplementedBy(implementingTypes.Single())
-                    .LifestyleTransient());
+                    .ImplementedBy(implementation)
+                    .LifestyleTransient()
+                    .Named(Guid.NewGuid().ToString("N")));
             });
         }
 
@@ -56,8 +58,8 @@ namespace PeanutButter.Utils.Windsor
         }
 
         public static void RegisterSingleton<TService, TImplementation>(this IWindsorContainer container)
-            where TService: class
-            where TImplementation: TService
+            where TService : class
+            where TImplementation : TService
         {
             container.Register(Component.For<TService>()
                                     .ImplementedBy<TImplementation>()
@@ -72,8 +74,8 @@ namespace PeanutButter.Utils.Windsor
         }
 
         public static void RegisterTransient<TService, TImplementation>(this IWindsorContainer container)
-            where TService: class
-            where TImplementation: TService
+            where TService : class
+            where TImplementation : TService
         {
             container.Register(Component.For<TService>()
                                         .ImplementedBy<TImplementation>()
@@ -81,15 +83,15 @@ namespace PeanutButter.Utils.Windsor
         }
 
         public static void RegisterPerWebRequest<TService, TImplementation>(this IWindsorContainer container)
-            where TService: class
-            where TImplementation: TService
+            where TService : class
+            where TImplementation : TService
         {
             container.Register(Component.For<TService>()
                                         .ImplementedBy<TImplementation>()
                                         .LifestylePerWebRequest());
         }
 
-        public static void RegisterInstance<TService>(this IWindsorContainer container, TService instance) where TService: class
+        public static void RegisterInstance<TService>(this IWindsorContainer container, TService instance) where TService : class
         {
             container.Register(Component.For<TService>().Instance(instance));
         }
@@ -116,7 +118,7 @@ namespace PeanutButter.Utils.Windsor
                                     t.Assembly.FullName.StartsWith(MVC_CONTROLLER_ASSEMBLY));
         }
 
-        private static ArgumentException NoAssembliesException => 
+        private static ArgumentException NoAssembliesException =>
                 new ArgumentException("No assemblies provided to search for registrations");
     }
 }

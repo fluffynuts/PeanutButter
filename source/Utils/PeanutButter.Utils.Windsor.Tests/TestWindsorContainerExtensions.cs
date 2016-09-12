@@ -90,6 +90,34 @@ namespace PeanutButter.Utils.Windsor.Tests
             //---------------Test Result -----------------------
         }
 
+        private interface InterfacePart1
+        {
+        }
+
+        private interface InterfacePart2
+        {
+        }
+
+        private class Implementation: InterfacePart1, InterfacePart2
+        {
+        }
+
+
+        [Test]
+        public void RegisterAllOneToOneResolutionsAsTransientFrom_WhenImplementationAlreadyRegisteredForDifferentService_ShouldNotAttemptToReRegister()
+        {
+            //---------------Set up test pack-------------------
+            var container = Create();
+            container.RegisterTransient<InterfacePart1, Implementation>();
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            // Castle Windsor chucks if you try to register the same service twice
+            Assert.DoesNotThrow(() => container.RegisterAllOneToOneResolutionsAsTransientFrom(GetType().Assembly));
+
+            //---------------Test Result -----------------------
+        }
+
         [Test]
         public void RegisterAllOneToOneResolutionsAsTransientFrom_ShouldNotRegisterInterfacesImplementingInterfaces()
         {
@@ -130,7 +158,7 @@ namespace PeanutButter.Utils.Windsor.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<ArgumentException>(() =>container.RegisterAllMvcControllersFrom());
+            Assert.Throws<ArgumentException>(() => container.RegisterAllMvcControllersFrom());
 
             //---------------Test Result -----------------------
         }
@@ -144,7 +172,7 @@ namespace PeanutButter.Utils.Windsor.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() =>container.RegisterAllMvcControllersFrom(typeof(WindsorContainerExtensions).Assembly));
+            Assert.DoesNotThrow(() => container.RegisterAllMvcControllersFrom(typeof(WindsorContainerExtensions).Assembly));
 
             //---------------Test Result -----------------------
         }
@@ -174,7 +202,7 @@ namespace PeanutButter.Utils.Windsor.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<ArgumentException>(() =>container.RegisterAllApiControllersFrom());
+            Assert.Throws<ArgumentException>(() => container.RegisterAllApiControllersFrom());
 
             //---------------Test Result -----------------------
         }
@@ -188,7 +216,7 @@ namespace PeanutButter.Utils.Windsor.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() =>container.RegisterAllApiControllersFrom(typeof(WindsorContainerExtensions).Assembly));
+            Assert.DoesNotThrow(() => container.RegisterAllApiControllersFrom(typeof(WindsorContainerExtensions).Assembly));
 
             //---------------Test Result -----------------------
         }
@@ -303,7 +331,7 @@ namespace PeanutButter.Utils.Windsor.Tests
         {
         }
 
-        private class DependencyForSingleInstance: IDependencyForSingleInstance
+        private class DependencyForSingleInstance : IDependencyForSingleInstance
         {
         }
 
@@ -327,7 +355,7 @@ namespace PeanutButter.Utils.Windsor.Tests
             Assert.AreEqual(result1, result2);
             Assert.AreEqual(result1, instance);
             Assert.AreEqual(result2, instance);
-            
+
         }
 
 
