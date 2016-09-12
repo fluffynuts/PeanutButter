@@ -46,7 +46,7 @@ Public Class ScalarExecutorBuilder
             If _connFactory Is Nothing Then
                 throw new Exception("No connection factory defined for ScalarExecutorBuilder.Execute")
             End If
-            sqlStatement = Me.GetSqlString()
+            sqlStatement = GetSqlString()
             If sqlStatement Is Nothing Then Throw New ArgumentException(Me.GetType().Name, ":: sql not set")
             Dim cmd = New OleDbCommand
             Dim conn = _connFactory()
@@ -63,10 +63,10 @@ Public Class ScalarExecutorBuilder
     End Function
 
     Private Function GetSqlString() As String
-        If Not _sql Is Nothing Then Return _sql
-        If Not _updateBuilder Is Nothing Then Return _updateBuilder.Build()
-        If Not _insertBuilder Is Nothing Then Return _insertBuilder.Build()
-        If Not _deleteBuilder Is Nothing Then Return _deleteBuilder.Build()
+        If _sql IsNot Nothing Then Return _sql
+        If _updateBuilder IsNot Nothing Then Return _updateBuilder.Build()
+        If _insertBuilder IsNot Nothing Then Return _insertBuilder.Build()
+        If _deleteBuilder IsNot Nothing Then Return _deleteBuilder.Build()
         Return Nothing
     End Function
 

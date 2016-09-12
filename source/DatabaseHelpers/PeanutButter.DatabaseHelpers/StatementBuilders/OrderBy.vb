@@ -11,13 +11,13 @@
     Public Property Table As String
     Public Property PartialOrder As Boolean
 
-    Public Sub New(fieldName As String, direction As OrderBy.Directions)
+    Public Sub New(fieldName As String, direction As Directions)
         Me.Field = fieldName
         Me.Table = Nothing
         Me.Direction = direction
     End Sub
 
-    Public Sub New(tableName As String, fieldName As String, direction As OrderBy.Directions)
+    Public Sub New(tableName As String, fieldName As String, direction As Directions)
         Me.Table = tableName
         Me.Field = fieldName
         Me.Direction = direction

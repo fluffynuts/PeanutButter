@@ -16,7 +16,7 @@ Public Class Condition
         StartsWith
         EndsWith
     End Enum
-    Public Shared ReadOnly Property OperatorResolutions As IDictionary(Of Condition.EqualityOperators, String)
+    Public Shared ReadOnly Property OperatorResolutions As IDictionary(Of EqualityOperators, String)
         Get
             Return _operatorResolutions
         End Get
