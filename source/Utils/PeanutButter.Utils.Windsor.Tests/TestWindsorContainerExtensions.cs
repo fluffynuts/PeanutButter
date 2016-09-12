@@ -278,6 +278,36 @@ namespace PeanutButter.Utils.Windsor.Tests
             Assert.IsNotNull(lifestyle);
         }
 
+        private interface IDependencyForSingleInstance
+        {
+        }
+
+        private class DependencyForSingleInstance: IDependencyForSingleInstance
+        {
+        }
+
+        [Test]
+        public void RegisterInstance_ShouldRegisterSingleProvidedInstanceForResolution()
+        {
+            //---------------Set up test pack-------------------
+            var container = new WindsorContainer();
+            var instance = new DependencyForSingleInstance();
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            container.RegisterInstance<IDependencyForSingleInstance>(instance);
+            var result1 = container.Resolve<IDependencyForSingleInstance>();
+            var result2 = container.Resolve<IDependencyForSingleInstance>();
+
+            //---------------Test Result -----------------------
+            Assert.IsNotNull(result1);
+            Assert.IsNotNull(result2);
+            Assert.AreEqual(result1, result2);
+            Assert.AreEqual(result1, instance);
+            Assert.AreEqual(result2, instance);
+            
+        }
 
 
 
