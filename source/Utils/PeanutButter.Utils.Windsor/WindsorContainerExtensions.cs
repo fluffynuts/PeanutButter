@@ -64,6 +64,13 @@ namespace PeanutButter.Utils.Windsor
                                     .LifestyleSingleton());
         }
 
+        public static void RegisterSingleton(this IWindsorContainer container, Type serviceType, Type implementationType)
+        {
+            container.Register(Component.For(serviceType)
+                                    .ImplementedBy(implementationType)
+                                    .LifestyleSingleton());
+        }
+
         public static void RegisterTransient<TService, TImplementation>(this IWindsorContainer container)
             where TService: class
             where TImplementation: TService

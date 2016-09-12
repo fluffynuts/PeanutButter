@@ -210,7 +210,7 @@ namespace PeanutButter.Utils.Windsor.Tests
 
 
         [Test]
-        public void RegisterSingleton_ShouldRegisterServiceAsSingleton()
+        public void RegisterSingleton_Generic_ShouldRegisterServiceAsSingleton()
         {
             //---------------Set up test pack-------------------
             var container = Create();
@@ -219,6 +219,27 @@ namespace PeanutButter.Utils.Windsor.Tests
 
             //---------------Execute Test ----------------------
             container.RegisterSingleton<ISingletonService, SingletonService>();
+            var result1 = container.Resolve<ISingletonService>();
+            var result2 = container.Resolve<ISingletonService>();
+
+            //---------------Test Result -----------------------
+            Assert.IsNotNull(result1);
+            Assert.IsNotNull(result2);
+            Assert.IsInstanceOf<SingletonService>(result1);
+            Assert.IsInstanceOf<SingletonService>(result2);
+            Assert.AreEqual(result1, result2);
+        }
+
+        [Test]
+        public void RegisterSingleton_GivenTwoTypes_ShouldRegisterServiceAsSingleton()
+        {
+            //---------------Set up test pack-------------------
+            var container = Create();
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            container.RegisterSingleton(typeof(ISingletonService), typeof(SingletonService));
             var result1 = container.Resolve<ISingletonService>();
             var result2 = container.Resolve<ISingletonService>();
 
