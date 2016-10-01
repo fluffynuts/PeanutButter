@@ -4,7 +4,7 @@
     "gulp": "^3.9.0",
     "gulp-debug": "^2.0.1",
     "gulp-ignore": "^1.2.1",
-    "gulp-msbuild": "^0.2.11",
+    "gulp-msbuild": "^0.4.0",
     "gulp-nunit-runner": "^0.4.1",
     "gulp-util": "^3.0.6",
     "jasmine-core": "^2.3.4",

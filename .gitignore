@@ -137,3 +137,4 @@ buildreports
 lib/
 .sonar
 source/.idea*
+*.un~
