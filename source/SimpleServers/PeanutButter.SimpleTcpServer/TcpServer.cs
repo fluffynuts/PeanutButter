@@ -190,7 +190,7 @@ namespace PeanutButter.SimpleTcpServer
                     var listener = new TcpListener(IPAddress.Any, tryThis);
                     Log("Attempt to listen...");
                     listener.Start();
-                    Log("Attempt to stop listnening...");
+                    Log("Attempt to stop listening...");
                     listener.Stop();
                     Log("HUZZAH! We have a port, squire! ({0})", tryThis);
                     seekingPort = false;

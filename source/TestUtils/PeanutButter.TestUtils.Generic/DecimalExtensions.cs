@@ -4,7 +4,12 @@ namespace PeanutButter.TestUtils.Generic
 {
     public static class DecimalExtensions
     {
-        public static void ShouldMatch(this decimal someValue, decimal otherValue, int toPlaces = 2)
+        public static void ShouldMatch(this decimal someValue, decimal otherValue)
+        {
+            ShouldMatch(someValue, otherValue, 2);
+        }
+
+        public static void ShouldMatch(this decimal someValue, decimal otherValue, int toPlaces)
         {
             if (toPlaces < 1)
             {
@@ -19,7 +24,7 @@ namespace PeanutButter.TestUtils.Generic
 
         private static string GetTruncatedStringValueFor(decimal someValue, string format)
         {
-            var someValueAsString = string.Format("{0:0.00000000000000000000}", someValue);
+            var someValueAsString = $"{someValue:0.00000000000000000000}";
             var expectedLength = string.Format(format, someValue).Length;
             return someValueAsString.Substring(0, expectedLength);
         }
