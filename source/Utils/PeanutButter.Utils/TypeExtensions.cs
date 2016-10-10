@@ -46,5 +46,11 @@ namespace PeanutButter.Utils
             return type.GetAllConstantValues()
                         .OfType<T>();
         } 
+
+        public static bool HasDefaultConstructor(this Type type)
+        {
+            return type.GetConstructors()
+                        .Any(c => c.GetParameters().Length == 0);
+        }
     }
 }

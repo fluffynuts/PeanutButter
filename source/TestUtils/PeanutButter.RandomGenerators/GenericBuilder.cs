@@ -2,6 +2,7 @@
  * author: Davyd McColl (davydm@gmail.com)
  * license: BSD
  * */
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -22,10 +23,26 @@ namespace PeanutButter.RandomGenerators
         object GenericBuild();
     }
 
-    public class GenericBuilder<TBuilder, TEntity> : GenericBuilderBase, IGenericBuilder, IBuilder<TEntity> where TBuilder: GenericBuilder<TBuilder, TEntity>//, new()
+    public class GenericBuilder<TBuilder, TEntity> : GenericBuilderBase, IGenericBuilder, IBuilder<TEntity>
+        where TBuilder : GenericBuilder<TBuilder, TEntity> //, new()
     {
         private static readonly List<Action<TEntity>> DefaultPropMods = new List<Action<TEntity>>();
         private readonly List<Action<TEntity>> _propMods = new List<Action<TEntity>>();
+        private static Type _constructingTypeBackingField = typeof(TEntity);
+
+        private static Type _constructingType
+        {
+            get { return _constructingTypeBackingField; }
+            set
+            {
+                lock (LockObject)
+                {
+                    _constructingTypeBackingField = value;
+                    _randomPropSettersField = null;
+                    _entityPropInfoField = null;
+                }
+            }
+        }
 
         public static TBuilder Create()
         {
@@ -34,9 +51,9 @@ namespace PeanutButter.RandomGenerators
 
         public IGenericBuilder GenericWithRandomProps()
         {
-            return _buildLevel > MaxRandomPropsLevel 
-                        ? this 
-                        : WithRandomProps();
+            return _buildLevel > MaxRandomPropsLevel
+                ? this
+                : WithRandomProps();
         }
 
         public IGenericBuilder WithBuildLevel(int level)
@@ -78,12 +95,116 @@ namespace PeanutButter.RandomGenerators
         {
             try
             {
-                return Activator.CreateInstance<TEntity>();
+                return AttemptToConstructEntity();
             }
             catch (Exception)
             {
-                throw new GenericBuilderInstanceCreationException(GetType(), typeof (TBuilder));
+                throw new GenericBuilderInstanceCreationException(GetType(), typeof(TEntity));
             }
+        }
+
+        private static TEntity AttemptToConstructEntity()
+        {
+            try
+            {
+                return ConstructInCurrentDomain<TEntity>(_constructingType);
+            }
+            catch (MissingMethodException ex)
+            {
+                try
+                {
+                    var constructed = AttemptToConstructWithImplementingType<TEntity>();
+                    _constructingType = constructed.GetType();
+                    return constructed;
+                }
+                catch (Exception)
+                {
+                    try
+                    {
+                        return AttemptToCreateSubstituteFor<TEntity>();
+                    }
+                    catch (Exception)
+                    {
+                        throw ex;
+                    }
+                }
+            }
+        }
+
+        private static T AttemptToCreateSubstituteFor<T>()
+        {
+            var loadedNsubstitute = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == "NSubstitute");
+            if (loadedNsubstitute == null)
+                throw new Exception("no nsub )':");
+            var subType = loadedNsubstitute.GetTypes().FirstOrDefault(t => t.Name == "Substitute");
+            if (subType == null)
+                throw new Exception("bad nsub )':");
+            var genericMethod = subType.GetMethods().FirstOrDefault(m => m.Name == "For" && IsObjectParams(m.GetParameters()));
+            var specificMethod = genericMethod.MakeGenericMethod(typeof(T));
+            return (T)specificMethod.Invoke(null, new object[] { new object[] { } });
+        }
+
+        private static bool IsObjectParams(ParameterInfo[] parameterInfos)
+        {
+            return parameterInfos.Length == 1 && parameterInfos[0].ParameterType == typeof(object[]);
+        }
+
+        private static TEntity AttemptToConstructWithImplementingType<TEntity>()
+        {
+            try
+            {
+                return TryCreateConcreteInstanceFromSameAssemblyAs<TEntity>();
+            }
+            catch
+            {
+                return TryCreateConcreteInstanceFromAnyAssembly<TEntity>();
+            }
+        }
+
+        private static TInterface TryCreateConcreteInstanceFromSameAssemblyAs<TInterface>()
+        {
+            var assembly = typeof(TInterface).Assembly;
+            var type = FindImplementingTypeFor<TInterface>(new[] { assembly });
+            if (type == null)
+                throw new TypeLoadException();
+            return ConstructInCurrentDomain<TInterface>(type);
+        }
+
+        private static TInterface TryCreateConcreteInstanceFromAnyAssembly<TInterface>()
+        {
+            var type = FindImplementingTypeFor<TInterface>(AppDomain.CurrentDomain.GetAssemblies());
+            if (type == null)
+                throw new TypeLoadException();
+            return ConstructInCurrentDomain<TInterface>(type);
+        }
+
+        private static TInterface ConstructInCurrentDomain<TInterface>(Type type)
+        {
+            var handle = Activator.CreateInstance(
+                AppDomain.CurrentDomain,
+                type.Assembly.FullName,
+                type.FullName);
+            return (TInterface)handle.Unwrap();
+        }
+
+        private static Type FindImplementingTypeFor<TInterface>(IEnumerable<Assembly> assemblies)
+        {
+            var interfaceType = typeof(TInterface);
+            return assemblies.SelectMany(a =>
+                {
+                    try
+                    {
+                        return a.GetExportedTypes();
+                    }
+                    catch
+                    {
+                        return new Type[] { };
+                    }
+                })
+                .FirstOrDefault(t => interfaceType.IsAssignableFrom(t) &&
+                                     t.IsClass &&
+                                     !t.IsAbstract &&
+                                     t.HasDefaultConstructor());
         }
 
         public virtual TEntity Build()
@@ -112,7 +233,7 @@ namespace PeanutButter.RandomGenerators
             {
                 lock (LockObject)
                 {
-                    return _entityPropInfoField ?? (_entityPropInfoField = typeof (TEntity).GetProperties());
+                    return _entityPropInfoField ?? (_entityPropInfoField = _constructingType.GetProperties());
                 }
             }
         }
@@ -189,7 +310,6 @@ namespace PeanutButter.RandomGenerators
 
         private static bool IsCollectionType(PropertyInfo propertyInfo, Type type)
         {
-            //return isCollectionType;
             // TODO: figure out the stack overflow introduced by cyclic references when enabling this
             //  code below
             if (type.IsNotCollection())
@@ -200,7 +320,7 @@ namespace PeanutButter.RandomGenerators
 
         private static void SetCollectionSetterFor(PropertyInfo propertyInfo, Type type)
         {
-            RandomPropSetters[propertyInfo.Name] = (e, i) => 
+            RandomPropSetters[propertyInfo.Name] = (e, i) =>
             {
                 try
                 {
@@ -221,7 +341,7 @@ namespace PeanutButter.RandomGenerators
         private static object ConvertCollectionToArray(object instance)
         {
             var methodInfo = instance.GetType().GetMethod("ToArray");
-            instance = methodInfo.Invoke(instance, new object[] {});
+            instance = methodInfo.Invoke(instance, new object[] { });
             return instance;
         }
 
@@ -256,7 +376,7 @@ namespace PeanutButter.RandomGenerators
         private static object CreateListContainerFor(PropertyInfo propertyInfo)
         {
             var innerType = GetCollectionInnerTypeFor(propertyInfo);
-            var listType = typeof (List<>);
+            var listType = typeof(List<>);
             var specificType = listType.MakeGenericType(innerType);
             var instance = Activator.CreateInstance(specificType);
             return instance;
@@ -271,14 +391,26 @@ namespace PeanutButter.RandomGenerators
 
         private static void SetSetterForType(PropertyInfo prop, Type propertyType = null)
         {
-            PropertySetterStrategies.Aggregate(false,
-                (accumulator, currentFunc) => accumulator || currentFunc(prop, propertyType ?? prop.PropertyType));
+            //            PropertySetterStrategies.Aggregate(false,
+            //                (accumulator, currentFunc) => accumulator || currentFunc(prop, propertyType ?? prop.PropertyType));
+            foreach (var setter in _propertySetterStrategies)
+            {
+                if (setter(prop, propertyType ?? prop.PropertyType))
+                    return;
+            }
+
         }
+
 
         // whilst the collection itself does not reference a type parameter,
         //  HaveSetSimpleSetterFor does, so this collection must be per-generic-definition
         // ReSharper disable once StaticMemberInGenericType
-        private static readonly Func<PropertyInfo, Type, bool>[] PropertySetterStrategies =
+
+        // SUPPRESSED ON PURPOSE (:
+#pragma warning disable S2743 // Static fields should not be used in generic types
+        // ReSharper disable once StaticMemberInGenericType
+        private static readonly Func<PropertyInfo, Type, bool>[] _propertySetterStrategies =
+#pragma warning restore S2743 // Static fields should not be used in generic types
         {
             IsNotWritable,
             HaveSetSimpleSetterFor,
@@ -374,7 +506,7 @@ namespace PeanutButter.RandomGenerators
                 var thisMethod = cur.GetMethod();
                 var thisType = thisMethod.DeclaringType;
                 if (thisType != null &&
-                        thisType.IsGenericType && 
+                        thisType.IsGenericType &&
                         GenericBuilderBaseType.IsAssignableFrom(thisType) &&
                         thisMethod.Name == "SetRandomProps")
                 {

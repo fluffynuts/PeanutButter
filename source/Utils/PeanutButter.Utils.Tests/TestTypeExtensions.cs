@@ -194,6 +194,72 @@ namespace PeanutButter.Utils.Tests
             Assert.IsTrue(result);
         }
 
+        public class TypeWithDefaultConstructor
+        {
+        }
+
+        [Test]
+        public void HasDefaultConstructor_OperatingOnTypeWithDefaultConstructorOnly_ShouldReturnTrue()
+        {
+            //---------------Set up test pack-------------------
+            var type = typeof(TypeWithDefaultConstructor);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = type.HasDefaultConstructor();
+
+            //---------------Test Result -----------------------
+            Assert.IsTrue(result);
+        }
+
+        public class TypeWithoutDefaultConstructor
+        {
+            public TypeWithoutDefaultConstructor(int id)
+            {
+            }
+        }
+
+        [Test]
+        public void HasDefaultConstructor_OperatingOnTypeWithoutDefaultConstructor_ShouldReturnFalse()
+        {
+            //---------------Set up test pack-------------------
+            var type = typeof(TypeWithoutDefaultConstructor);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = type.HasDefaultConstructor();
+
+            //---------------Test Result -----------------------
+            Assert.IsFalse(result);
+        }
+
+        public class TypeWithDefaultAndParameteredConstructor
+        {
+            public TypeWithDefaultAndParameteredConstructor()
+            {
+            }
+            public TypeWithDefaultAndParameteredConstructor(int id)
+            {
+            }
+        }
+
+        [Test]
+        public void HasDefaultConstructor_OperatingOnTypeWithDefaultConstructorAndParameteredConstructor_ShouldReturnTrue()
+        {
+            //---------------Set up test pack-------------------
+            var type = typeof(TypeWithDefaultAndParameteredConstructor);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = type.HasDefaultConstructor();
+
+            //---------------Test Result -----------------------
+            Assert.IsTrue(result);
+        }
+
 
 
     }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using EmailSpooler.Win32Service.Entity;
+using NSubstitute;
 using NUnit.Framework;
 using PeanutButter.Utils;
 
@@ -642,6 +643,87 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Test Result -----------------------
             Assert.IsNotNull(result);
             CollectionAssert.IsNotEmpty(result);
+        }
+
+        public interface IInterfaceWithNoImplementation
+        {
+            int Id { get; set; }
+            string Name { get; set; }
+        }
+
+        public class SomeInterfaceWithNoImplementationBuilder: 
+            GenericBuilder<SomeInterfaceWithNoImplementationBuilder, IInterfaceWithNoImplementation>
+        {
+        }
+
+
+        [Test]
+        public void Build_WhenUsingAgainstNotImplementedInterface_WhenNSubstituteInLoadedAssemblies_ShouldConstruct()
+        {
+            //---------------Set up test pack-------------------
+            var someSub = Substitute.For<IInterfaceWithNoImplementation>();
+            Assert.IsNotNull(someSub, "This is constructed just to force NSubstitute into the picture");
+            IInterfaceWithNoImplementation result = null;
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(() =>
+                result = SomeInterfaceWithNoImplementationBuilder.BuildRandom()
+            );
+
+            //---------------Test Result -----------------------
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result.Name);
+        }
+
+        public interface IImplementedInterface
+        {
+            int Id { get; set; }
+            string Name { get; set; }
+        }
+        public class ImplementingClassWithConstructorParams: IImplementedInterface
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public ImplementingClassWithConstructorParams(int id, string name)
+            {
+                Id = id;
+                Name = name;
+            }
+        }
+        public class SomeImplementingClass: IImplementedInterface
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+        public class SomeImplementingClassBuilder:
+            GenericBuilder<SomeImplementingClassBuilder, IImplementedInterface>
+        {
+        }
+
+        [Test]
+        public void Build_WhenUsingAgainstInteface_WithSingleImplementationWithParameterLessConstructor_ShouldUseIt()
+        {
+            //---------------Set up test pack-------------------
+            var interfaceType = typeof(IImplementedInterface);
+            var concrete = typeof(SomeImplementingClass);
+            var types = GetType()
+                            .Assembly
+                            .ExportedTypes
+                            .Where(t => interfaceType.IsAssignableFrom(t))
+                            .ToArray();
+            CollectionAssert.Contains(types, concrete);
+            Assert.IsTrue(concrete.IsClass);
+            Assert.IsFalse(concrete.IsAbstract);
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = SomeImplementingClassBuilder.BuildRandom();
+
+            //---------------Test Result -----------------------
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOf<SomeImplementingClass>(result);
         }
 
         [Test]

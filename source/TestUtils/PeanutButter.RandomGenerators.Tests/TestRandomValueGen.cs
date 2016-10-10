@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using GenericBuilderTestArtifactBuilders;
 using GenericBuilderTestArtifactEntities;
+using NSubstitute;
 using NUnit.Framework;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
@@ -1567,7 +1568,33 @@ namespace PeanutButter.RandomGenerators.Tests
                 //---------------Test Result -----------------------
                 Assert.That(result.TimeOfDay, Is.LessThanOrEqualTo(maxTime.TimeOfDay));
             });
+
         }
+
+        public interface IInterfaceToGetRandomOf
+        {
+            string Name { get; }
+        }
+
+        public class ImplementingType: IInterfaceToGetRandomOf
+        {
+            public string Name { get; set; }
+        }
+
+        [Test]
+        public void GetRandomOfType_GivenInterfaceType_WhenImplementationWithDefaultConstructorCanBefound_ShouldReturnInstance_AndPreferAccessModifiersFromInstance()
+        {
+            //---------------Set up test pack-------------------
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = RandomValueGen.GetRandom<IInterfaceToGetRandomOf>();
+
+            //---------------Test Result -----------------------
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result.Name);
+        }
+
 
         private bool PathExists(string path)
         {

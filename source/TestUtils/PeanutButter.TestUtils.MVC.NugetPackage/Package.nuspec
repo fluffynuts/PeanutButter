@@ -1,9 +1,9 @@
 <package>
   <metadata>
-    <id>PeanutButter.TestUtils.MVC.NugetPackage</id>
-    <version>1.2.51</version>
-    <title>PeanutButter.TestUtils.MVC.NugetPackage</title>
-    <authors>davyd</authors>
+    <id>PeanutButter.TestUtils.MVC</id>
+    <version>1.2.53</version>
+    <title>PeanutButter.TestUtils.MVC</title>
+    <authors>Davyd McColl</authors>
     <owners></owners>
     <description>
       Contains utilities for facilitating easier testing of MVC projects:
@@ -14,7 +14,7 @@
     </description>
     <releaseNotes></releaseNotes>
     <summary>
-    Provides some utilities to facilitate easier MVC testing
+    (deprecated until I can figure out a way to effectively not tie this to a specific release of MVC)
     </summary>
     <language>en-US</language>
     <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
