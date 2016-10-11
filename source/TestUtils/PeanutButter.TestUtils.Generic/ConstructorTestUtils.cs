@@ -126,7 +126,19 @@ namespace PeanutButter.TestUtils.Generic
             //    return method.Invoke(parameterType, new object[0]);
             //}
 
-            return CreateSubstituteWithLinkedNSubstitute(parameterType);
+            try
+            {
+                return CreateSubstituteWithLinkedNSubstitute(parameterType);
+            }
+            catch
+            {
+                var handle = Activator.CreateInstance(
+                    AppDomain.CurrentDomain, 
+                    parameterType.Assembly.FullName,
+                    parameterType.FullName
+                );
+                return handle.Unwrap();
+            }
         }
 
         private static object CreateSubstituteWithLinkedNSubstitute(Type parameterType)

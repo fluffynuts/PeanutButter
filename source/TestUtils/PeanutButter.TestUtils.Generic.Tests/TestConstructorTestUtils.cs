@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using NUnit.Framework;
 
 namespace PeanutButter.TestUtils.Generic.Tests
@@ -191,7 +188,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
                 ConstructorTestUtils
                     .ShouldExpectNonNullParameterFor
                     <ClassWithConstructorWithMultipleSubstitutableParametersImplementingAnInterfaceThatThrowsCorrectExceptions>(
-                        parameterName, typeof(SubstitutableClassImplementingAnInterface )));
+                        parameterName, typeof(SubstitutableClassImplementingAnInterface)));
             //---------------Test Result -----------------------
         }
 
@@ -203,7 +200,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
         public void CheckForException_WhenParameterTypeDoesNotMatchExpectedType_ShouldThrowAssertionException()
         {
             //---------------Set up test pack-------------------
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -214,6 +211,35 @@ namespace PeanutButter.TestUtils.Generic.Tests
             StringAssert.Contains(typeof(ISomeOtherInterface).PrettyName(), ex.Message);
             StringAssert.Contains(typeof(IInterface).PrettyName(), ex.Message);
         }
+
+        public class ClassWithMixedConstructor
+        {
+            private readonly ISomeOtherInterface _someDependency;
+
+            public ClassWithMixedConstructor(
+                Guid id,
+                ISomeOtherInterface someDependency
+            )
+            {
+                if (someDependency == null) throw new ArgumentNullException(nameof(someDependency));
+                _someDependency = someDependency;
+            }
+        }
+        [Test]
+        public void WorkingWithClassWhereOneConstructorParameterIsNotAClass()
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            ConstructorTestUtils.ShouldExpectNonNullParameterFor<
+                ClassWithMixedConstructor
+            >("someDependency", typeof(ISomeOtherInterface));
+
+            //---------------Test Result -----------------------
+        }
+
 
         class ClassWithConstructorWithSubstitutableParameterThatThrowsCorrectExceptions
         {
@@ -308,14 +334,14 @@ namespace PeanutButter.TestUtils.Generic.Tests
     }
 
     public abstract class SubstitutableAbstractClass
-    {}
+    { }
 
     public class SubstitutableClassImplementingAnInterface : IInterface
-    {}
+    { }
 
     public interface IInterface
-    {}
+    { }
 
     public struct RandomStruct
-    {}
+    { }
 }
