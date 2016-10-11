@@ -661,8 +661,6 @@ namespace PeanutButter.RandomGenerators.Tests
         public void Build_WhenUsingAgainstNotImplementedInterface_WhenNSubstituteInLoadedAssemblies_ShouldConstruct()
         {
             //---------------Set up test pack-------------------
-            var someSub = Substitute.For<IInterfaceWithNoImplementation>();
-            Assert.IsNotNull(someSub, "This is constructed just to force NSubstitute into the picture");
             IInterfaceWithNoImplementation result = null;
 
             //---------------Assert Precondition----------------

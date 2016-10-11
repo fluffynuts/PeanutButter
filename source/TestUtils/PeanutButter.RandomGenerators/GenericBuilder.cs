@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -133,7 +134,7 @@ namespace PeanutButter.RandomGenerators
 
         private static T AttemptToCreateSubstituteFor<T>()
         {
-            var loadedNsubstitute = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == "NSubstitute");
+            var loadedNsubstitute = FindOrLoadNSubstitute<T>();
             if (loadedNsubstitute == null)
                 throw new Exception("no nsub )':");
             var subType = loadedNsubstitute.GetTypes().FirstOrDefault(t => t.Name == "Substitute");
@@ -141,7 +142,35 @@ namespace PeanutButter.RandomGenerators
                 throw new Exception("bad nsub )':");
             var genericMethod = subType.GetMethods().FirstOrDefault(m => m.Name == "For" && IsObjectParams(m.GetParameters()));
             var specificMethod = genericMethod.MakeGenericMethod(typeof(T));
-            return (T)specificMethod.Invoke(null, new object[] { new object[] { } });
+            return (T) specificMethod.Invoke(null, new object[] {new object[] {}});
+        }
+
+        private static Assembly FindOrLoadNSubstitute<T>(bool retrying = false)
+        {
+            var loadedNsubstitute = AppDomain.CurrentDomain.GetAssemblies()
+                .FirstOrDefault(a => a.GetName().Name == "NSubstitute");
+            if (loadedNsubstitute == null && !retrying)
+            {
+                AttemptToLoadNSubstitute<T>();
+                return FindOrLoadNSubstitute<T>(true);
+            }
+            return loadedNsubstitute;
+        }
+
+        private static void AttemptToLoadNSubstitute<T>()
+        {
+            var codeBase = new Uri(typeof(T).Assembly.CodeBase).LocalPath;
+            if (!File.Exists(codeBase))
+                return;
+            var folder = Path.GetDirectoryName(codeBase);
+            var search = Path.Combine(folder, "NSubstitute.dll");
+            if (!File.Exists(search))
+                return;
+            try
+            {
+                Assembly.Load(File.ReadAllBytes(search));
+            }
+            catch (Exception e) { var foo = e; /* Nothing much to be done here anyway */ }
         }
 
         private static bool IsObjectParams(ParameterInfo[] parameterInfos)
