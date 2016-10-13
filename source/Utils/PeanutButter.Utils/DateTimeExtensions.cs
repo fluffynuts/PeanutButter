@@ -4,6 +4,23 @@ namespace PeanutButter.Utils
 {
     public static class DateTimeExtensions
     {
+        public static bool IsWithinRange(this DateTime value,
+            DateTime start,
+            DateTime end
+        )
+        {
+            var test = value.ToUniversalTime();
+            var testStart = start.ToUniversalTime();
+            var testEnd = end.ToUniversalTime();
+            if (testStart > testEnd)
+            {
+                var swap = testStart;
+                testStart = testEnd;
+                testEnd = swap;
+            }
+            return test >= testStart.ToUniversalTime() &&
+                    test <= testEnd.ToUniversalTime();
+        }
         public static string AsHoursAndMinutes(this DateTime value)
         {
             return value.ToString("HH:mm");

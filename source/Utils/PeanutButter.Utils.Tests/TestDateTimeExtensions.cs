@@ -272,6 +272,75 @@ namespace PeanutButter.Utils.Tests
             Assert.AreEqual(expected, result);
         }
 
+        [Test]
+        public void IsWithinRange_GivenBothDatesAreBeforeSubject_ShouldReturnFalse()
+        {
+            //--------------- Arrange -------------------
+            var subject = GetRandomDate();
+            var start = subject.AddDays(-100);
+            var end = subject.AddDays(-99);
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = subject.IsWithinRange(start, end);
+
+            //--------------- Assert -----------------------
+            Assert.IsFalse(result);
+        }
+
+        [Test]
+        public void IsWithinRange_GivenBothDatesAreAfterSubject_ShouldReturnFalse()
+        {
+            //--------------- Arrange -------------------
+            var subject = GetRandomDate();
+            var start = subject.AddDays(100);
+            var end = subject.AddDays(99);
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = subject.IsWithinRange(start, end);
+
+            //--------------- Assert -----------------------
+            Assert.IsFalse(result);
+        }
+
+        [Test]
+        public void IsWithinRange_GivenSubjectIsInRange_ShouldReturnTrue()
+        {
+            //--------------- Arrange -------------------
+            var subject = GetRandomDate();
+            var start = subject.AddDays(-1);
+            var end = subject.AddDays(2);
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = subject.IsWithinRange(start, end);
+
+            //--------------- Assert -----------------------
+            Assert.IsTrue(result);
+        }
+
+        [Test]
+        public void IsWithinRange_GivenSubjectIsInRange_WhenRangeIsInverted_ShouldReturnTrue()
+        {
+            //--------------- Arrange -------------------
+            var subject = GetRandomDate();
+            var start = subject.AddDays(2);
+            var end = subject.AddDays(-1);
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = subject.IsWithinRange(start, end);
+
+            //--------------- Assert -----------------------
+            Assert.IsTrue(result);
+        }
+
+
 
         private string zeroPad(int value, int places = 2)
         {
