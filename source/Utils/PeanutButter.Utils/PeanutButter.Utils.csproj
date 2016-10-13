@@ -53,6 +53,7 @@
     <Compile Include="ByteArrayExtensions.cs" />
     <Compile Include="DateTimeExtensions.cs" />
     <Compile Include="DecimalDecorator.cs" />
+    <Compile Include="DeepEqualityTester.cs" />
     <Compile Include="ExpressionUtil.cs" />
     <Compile Include="ExtensionsForIEnumerables.cs" />
     <Compile Include="ILocalDbFactory.cs" />

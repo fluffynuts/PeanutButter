@@ -15,11 +15,11 @@ namespace PeanutButter.Utils.Tests
         public void AllPropertiesMatch_GivenSourceWithNoPropsAndDestWithNoProps_ShouldReturnTrue()
         {
             //---------------Set up test pack-------------------
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = (new object()).AllPropertiesMatch(new object());
+            var result = (new object()).DeepEquals(new object());
 
             //---------------Test Result -----------------------
             Assert.IsTrue(result);
@@ -29,12 +29,12 @@ namespace PeanutButter.Utils.Tests
         public void AllPropertiesMatch_GivenTwoObjectsBothWithTheSamePropertyNameAndValue_ShouldReturnTrue()
         {
             //---------------Set up test pack-------------------
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
             var randomString = RandomValueGen.GetRandomString();
-            var result = (new { prop = randomString }).AllPropertiesMatch(new { prop = randomString });
+            var result = (new { prop = randomString }).DeepEquals(new { prop = randomString });
 
             //---------------Test Result -----------------------
             Assert.IsTrue(result);
@@ -49,7 +49,7 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = (new { prop = rs }).AllPropertiesMatch(new { prop = rs, bar = RandomValueGen.GetRandomString() });
+            var result = (new { prop = rs }).DeepEquals(new { prop = rs, bar = RandomValueGen.GetRandomString() });
 
             //---------------Test Result -----------------------
             Assert.IsTrue(result);
@@ -59,11 +59,11 @@ namespace PeanutButter.Utils.Tests
         public void AllPropertiesMatch_WhenDestinationIsMissingProperty_ReturnsFalse()
         {
             //---------------Set up test pack-------------------
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = (new { prop = RandomValueGen.GetRandomString() }).AllPropertiesMatch(new object());
+            var result = (new { prop = RandomValueGen.GetRandomString() }).DeepEquals(new object());
 
             //---------------Test Result -----------------------
             Assert.IsFalse(result);
@@ -77,7 +77,7 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = (new { prop = propVal }).AllPropertiesMatch(new { prop = propVal + RandomValueGen.GetRandomString(1, 10) });
+            var result = (new { prop = propVal }).DeepEquals(new { prop = propVal + RandomValueGen.GetRandomString(1, 10) });
 
             //---------------Test Result -----------------------
             Assert.IsFalse(result);
@@ -92,7 +92,7 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = o1.AllPropertiesMatch(o2);
+            var result = o1.DeepEquals(o2);
 
             //---------------Test Result -----------------------
             Assert.IsTrue(result);
@@ -107,7 +107,7 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = o1.AllPropertiesMatch(o2);
+            var result = o1.DeepEquals(o2);
 
             //---------------Test Result -----------------------
             Assert.IsFalse(result);
@@ -122,7 +122,7 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = o1.AllPropertiesMatch(o2);
+            var result = o1.DeepEquals(o2);
 
             //---------------Test Result -----------------------
             Assert.IsFalse(result);
@@ -158,7 +158,7 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = (new {prop = propVal}).AllPropertiesMatch(new {prop = propVal});
+            var result = (new { prop = propVal }).DeepEquals(new { prop = propVal });
 
             //---------------Test Result -----------------------
             Assert.IsTrue(result);
@@ -169,14 +169,12 @@ namespace PeanutButter.Utils.Tests
         {
             //---------------Set up test pack-------------------
             var propVal = RandomValueGen.GetRandomString();
-            var o1 = new
-            {
+            var o1 = new {
                 prop = new {
                     bar = propVal
                 }
             };
-            var o2 = new
-            {
+            var o2 = new {
                 prop = new {
                     bar = propVal
                 }
@@ -185,7 +183,7 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = o1.AllPropertiesMatch(o2);
+            var result = o1.DeepEquals(o2);
 
             //---------------Test Result -----------------------
             Assert.IsTrue(result);
@@ -195,14 +193,12 @@ namespace PeanutButter.Utils.Tests
         public void AllPropertiesMatch_ComplexTypesAreTraversed_UnhappyCase()
         {
             //---------------Set up test pack-------------------
-            var o1 = new
-            {
+            var o1 = new {
                 prop = new {
                     bar = RandomValueGen.GetRandomString(1, 10)
                 }
             };
-            var o2 = new
-            {
+            var o2 = new {
                 prop = new {
                     bar = RandomValueGen.GetRandomString(11, 20)
                 }
@@ -211,7 +207,7 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = o1.AllPropertiesMatch(o2);
+            var result = o1.DeepEquals(o2);
 
             //---------------Test Result -----------------------
             Assert.IsFalse(result);
@@ -221,13 +217,11 @@ namespace PeanutButter.Utils.Tests
         public void AllPropertiesMatch_WhenGivenOnePropertiesToIgnoreByName_ShouldIgnoreThosePropertiesInTheComparison()
         {
             //---------------Set up test pack-------------------
-            var o1 = new
-            {
+            var o1 = new {
                 testMe = "foo",
                 ignoreMe = 1
             };
-            var o2 = new
-            {
+            var o2 = new {
                 testMe = o1.testMe,
                 ignoreMe = o1.ignoreMe + 1
             };
@@ -235,7 +229,7 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = o1.AllPropertiesMatch(o2, "ignoreMe");
+            var result = o1.DeepEquals(o2, "ignoreMe");
 
             //---------------Test Result -----------------------
             Assert.IsTrue(result);
@@ -245,14 +239,12 @@ namespace PeanutButter.Utils.Tests
         public void AllPropertiesMatch_WhenGivenListOfPropertiesToIgnoreByName_ShouldIgnoreThosePropertiesInTheComparison()
         {
             //---------------Set up test pack-------------------
-            var o1 = new
-            {
+            var o1 = new {
                 testMe = "foo",
                 ignoreMe1 = 1,
                 ignoreMe2 = 2
             };
-            var o2 = new
-            {
+            var o2 = new {
                 testMe = o1.testMe,
                 ignoreMe1 = o1.ignoreMe1 + 1,
                 ignoreMe2 = o1.ignoreMe1
@@ -261,7 +253,7 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = o1.AllPropertiesMatch(o2, "ignoreMe1", "ignoreMe2");
+            var result = o1.DeepEquals(o2, "ignoreMe1", "ignoreMe2");
 
             //---------------Test Result -----------------------
             Assert.IsTrue(result);
@@ -272,14 +264,12 @@ namespace PeanutButter.Utils.Tests
         public void AllPropertiesMatch_WhenGivenArrayOfPropertiesToIgnoreByName_ShouldIgnoreThosePropertiesInTheComparison()
         {
             //---------------Set up test pack-------------------
-            var o1 = new
-            {
+            var o1 = new {
                 testMe = "foo",
                 ignoreMe1 = 1,
                 ignoreMe2 = 2
             };
-            var o2 = new
-            {
+            var o2 = new {
                 testMe = o1.testMe,
                 ignoreMe1 = o1.ignoreMe1 + 1,
                 ignoreMe2 = o1.ignoreMe1
@@ -288,7 +278,7 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = o1.AllPropertiesMatch(o2, new[] { "ignoreMe1", "ignoreMe2" });
+            var result = o1.DeepEquals(o2, new[] { "ignoreMe1", "ignoreMe2" });
 
             //---------------Test Result -----------------------
             Assert.IsTrue(result);
@@ -299,11 +289,10 @@ namespace PeanutButter.Utils.Tests
         public void CopyPropertiesTo_GivenSimpleObjectDest_DoesNotThrow()
         {
             //---------------Set up test pack-------------------
-            var src = new
-            {
+            var src = new {
                 prop = RandomValueGen.GetRandomString()
             };
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -322,7 +311,7 @@ namespace PeanutButter.Utils.Tests
 
             public void Randomize()
             {
-                prop = (T) RandomValueGen.GetRandom<T>();
+                prop = (T)RandomValueGen.GetRandom<T>();
             }
         }
 
@@ -352,7 +341,7 @@ namespace PeanutButter.Utils.Tests
 
         private static void TestCopyFor<T>()
         {
-//---------------Set up test pack-------------------
+            //---------------Set up test pack-------------------
 
             //---------------Assert Precondition----------------
 
@@ -425,7 +414,7 @@ namespace PeanutButter.Utils.Tests
             var o1 = new Complex<string>();
             var o2 = new Complex<string>();
             o2.prop = null;
-            
+
             //---------------Assert Precondition----------------
             Assert.IsNull(o2.prop);
 
@@ -441,7 +430,7 @@ namespace PeanutButter.Utils.Tests
             var o1 = new Complex<string>();
             var o2 = new Complex<string>();
             o1.prop = null;
-            
+
             //---------------Assert Precondition----------------
             Assert.IsNull(o1.prop);
 
@@ -456,7 +445,7 @@ namespace PeanutButter.Utils.Tests
         public void GetOrDefault_WhenGivenNameOfPropertyWhichDoesNotExist_ShouldReturnDefaultValue()
         {
             //---------------Set up test pack-------------------
-            var o = new {};
+            var o = new { };
 
             //---------------Assert Precondition----------------
 
@@ -486,7 +475,7 @@ namespace PeanutButter.Utils.Tests
         public void Get_WhenGivenNameOfPropertyWhichDoesExist_ShouldReturnThatValue()
         {
             //---------------Set up test pack-------------------
-            var o = new {prop = 2};
+            var o = new { prop = 2 };
 
             //---------------Assert Precondition----------------
 
@@ -501,7 +490,7 @@ namespace PeanutButter.Utils.Tests
         public void Get_WhenGivenNamefPropertyWhichDoesExistAndIncorrectType_ShouldThrow()
         {
             //---------------Set up test pack-------------------
-            var o = new {prop = 2};
+            var o = new { prop = 2 };
 
             //---------------Assert Precondition----------------
 
@@ -515,8 +504,7 @@ namespace PeanutButter.Utils.Tests
         public void Get_ShouldBeAbleToResolveADotTree()
         {
             //---------------Set up test pack-------------------
-            var parent = new
-            {
+            var parent = new {
                 child = new {
                     prop = 2
                 }
@@ -535,7 +523,7 @@ namespace PeanutButter.Utils.Tests
         public void GetPropertyValue_ShouldReturnValueOfNamedProperty()
         {
             //---------------Set up test pack-------------------
-            var obj = new {id = RandomValueGen.GetRandomInt()};
+            var obj = new { id = RandomValueGen.GetRandomInt() };
             var expected = obj.id;
 
             //---------------Assert Precondition----------------
@@ -556,7 +544,7 @@ namespace PeanutButter.Utils.Tests
         public void SetPropertyValue_ShouldSetThePropertyValue()
         {
             //---------------Set up test pack-------------------
-            var obj = new SomeSimpleType() {Id = RandomValueGen.GetRandomInt(2, 5)};
+            var obj = new SomeSimpleType() { Id = RandomValueGen.GetRandomInt(2, 5) };
             var expected = RandomValueGen.GetRandomInt(10, 20);
             const string propertyName = "Id";
 
@@ -666,9 +654,300 @@ namespace PeanutButter.Utils.Tests
             Assert.AreEqual(expected, obj.Parent.Child.Name);
         }
 
+        public class ThingWithCollection<T>
+        {
+            public IEnumerable<T> Collection { get; set; }
+        }
+
+        [Test]
+        public void AllPropertiesMatch_WhenCollectionsMatch_ShouldReturnTrue()
+        {
+            //--------------- Arrange -------------------
+            var item = new ThingWithCollection<int>()
+            {
+                Collection = new int[] { 1, 2 }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = item.DeepEquals(item);
+
+            //--------------- Assert -----------------------
+            Assert.IsTrue(result);
+        }
+
+        [Test]
+        public void AllPropertiesMatch_WhenCollectionsMisMatchByCount_ShouldReturnFalse()
+        {
+            //--------------- Arrange -------------------
+            var item1 = new ThingWithCollection<int>()
+            {
+                Collection = new int[] { 1, 2 }
+            };
+            var item2 = new ThingWithCollection<int>()
+            {
+                Collection = new int[] { 1, 2, 3 }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = item1.DeepEquals(item2);
+
+            //--------------- Assert -----------------------
+            Assert.IsFalse(result);
+        }
+
+        [Test]
+        public void AllPropertiesMatch_WhenCollectionsMisMatchByValue_ShouldReturnFalse()
+        {
+            //--------------- Arrange -------------------
+            var item1 = new ThingWithCollection<int>()
+            {
+                Collection = new int[] { 1, 2 }
+            };
+            var item2 = new ThingWithCollection<int>()
+            {
+                Collection = new int[] { 1, 1 }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = item1.DeepEquals(item2);
+
+            //--------------- Assert -----------------------
+            Assert.IsFalse(result);
+        }
+
+        [Test]
+        public void DeepEquals_ShouldNotStackOverflowLikeInTheWild()
+        {
+            //--------------- Arrange -------------------
+            var item = GetRandom<ITravelRequest>();
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            Assert.DoesNotThrow(() => item.DeepEquals(item));
+
+            //--------------- Assert -----------------------
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        [TestCase("foo")]
+        [TestCase(123)]
+        [TestCase(1.23)]
+        public void DeepEquals_GivenTwoEqualPrimitiveTypes_ShouldReturnTrue_(object value)
+        {
+            //--------------- Arrange -------------------
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = value.DeepEquals(value);
+
+            //--------------- Assert -----------------------
+            Assert.IsTrue(result);
+        }
+
+
+        private class SomeBaseClass
+        {
+            public int Id { get; set; }
+        }
+
+        private class SomeDerivedClass : SomeBaseClass
+        {
+            public string Name { get; set; }
+        }
+
+        [Test]
+        public void DeepEquals_InheritedPropertiesShouldMatter()
+        {
+            //--------------- Arrange -------------------
+            var item1 = new SomeDerivedClass() { Id = 1, Name = "Bob" };
+            var item2 = new SomeDerivedClass() { Id = 2, Name = "Bob" };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = item1.DeepEquals(item2);
+
+            //--------------- Assert -----------------------
+            Assert.IsFalse(result);
+        }
+
+        public class Parent
+        {
+            public IEnumerable<Child> Children { get; set; }
+        }
+
+        public class Child
+        {
+            public Parent Parent { get; set ; }
+        }
+
+        [Test]
+        public void DeepEquals_ShouldNotStackOverflowWithCircularReferences_Level1()
+        {
+            //--------------- Arrange -------------------
+            var parent = new Parent();
+            var child = new Child() { Parent = parent };
+            parent.Children = new[] { child };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            Assert.DoesNotThrow(() => parent.DeepEquals(parent));
+
+            //--------------- Assert -----------------------
+        }
+
+        public class Node
+        {
+            public IEnumerable<Node> Children { get; set; }
+        }
+
+        [Test]
+        public void DeepEquals_ShouldNotStackOverflowWithCircularReferences_Level2()
+        {
+            //--------------- Arrange -------------------
+            var n2 = new Node();
+            var n1 = new Node() { Children = new[] { n2 } };
+            var n3 = new Node() { Children = new[] { n1 } };
+            n2.Children = new[] { n3 };
+
+            // n1 => n2 =>  n3 => n1 ....
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            Assert.DoesNotThrow(() => n1.DeepEquals(n1));
+
+            //--------------- Assert -----------------------
+        }
+
+        [Test]
+        public void DeepEquals_ShouldNotStackOverflowWithCircularReferences_Level2_v2()
+        {
+            //--------------- Arrange -------------------
+            var n2 = new Node();
+            var n1 = new Node() { Children = new[] { n2 } };
+            var n3 = new Node() { Children = new[] { n1 } };
+            n2.Children = new[] { n3 };
+
+            // n1 => n2 =>  n3 => n1 ....
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            Assert.DoesNotThrow(() => n1.DeepEquals(n2));
+
+            //--------------- Assert -----------------------
+        }
 
 
 
+        public enum TravelRequestStatuses
+        {
+            Created,
+            QuotesRequired,
+            ApprovalRequired,
+            Rejected,
+            Approved,
+            Cancelled
+        }
+
+        public interface ITravelRequestDetails
+        {
+            DateTime Initiated { get; set; }
+            string DepartingFrom { get; set; }
+            string TravellingTo { get; set; }
+            DateTime ExpectedDeparture { get; set; }
+            string PreferredDepartureTime { get; set; }
+            DateTime ExpectedReturn { get; set; }
+            string PreferredReturnTime { get; set; }
+            string Reason { get; set; }
+            bool CarRequired { get; set; }
+            bool AccomodationRequired { get; set; }
+            string AccommodationRequiredNotes { get; set; }
+        }
+        public interface IActor
+        {
+            Guid Id { get; set; }
+            string Name { get; set; }
+        }
+        public interface ITraveller : IActor
+        {
+            string IdNumber { get; set; }
+            string[] PassportNumbers { get; set; }
+            string MealPreferences { get; set; }    // Halaal? Vegan?
+            string TravelPreferences { get; set; }  // seats near emergency exits for more leg-room?
+        }
+        public interface ITravelQuote
+        {
+            Guid TravelRequestId { get; set; }
+            Guid AddedById { get; set; }
+            Guid QuoteId { get; set; }
+            decimal Cost { get; set; }
+            // try to lower the input requirements for the user at this point
+            //  - ideally that person can copy/paste from an email
+            string Details { get; set; }
+            bool AcceptedByTraveller { get; set; }
+        }
+        public interface IComment
+        {
+            Guid CommenterId { get; set; }
+            string CommentText { get; set; }
+            DateTime CommentedAt { get; set; }
+        }
+
+        public interface ITravelRequest
+        {
+            Guid Id { get; set; }
+            IActor CurrentlyAssignedTo { get; set; }
+            ITraveller Traveller { get; set; }
+            ITravelRequestDetails Details { get; set; }
+
+            TravelRequestStatuses RequestStatus { get; set; }
+            IEnumerable<ITravelQuote> Quotes { get; set; }
+            IEnumerable<IComment> Comments { get; set; }
+        }
+        public class TravelRequestDetails : ITravelRequestDetails
+        {
+            public DateTime Initiated { get; set; }
+            public string DepartingFrom { get; set; }
+            public string TravellingTo { get; set; }
+            public DateTime ExpectedDeparture { get; set; }
+            public string PreferredDepartureTime { get; set; }
+            public DateTime ExpectedReturn { get; set; }
+            public string PreferredReturnTime { get; set; }
+            public string Reason { get; set; }
+            public bool CarRequired { get; set; }
+            public bool AccomodationRequired { get; set; }
+            public string AccommodationRequiredNotes { get; set; }
+        }
+
+        public class TravelRequest : ITravelRequest
+        {
+            public Guid Id { get; set; }
+            public IActor CurrentlyAssignedTo { get; set; }
+            public ITraveller Traveller { get; set; }
+            public ITravelRequestDetails Details { get; set; }
+            public TravelRequestStatuses RequestStatus { get; set; }
+            public IEnumerable<ITravelQuote> Quotes { get; set; }
+            public IEnumerable<IComment> Comments { get; set; }
+
+            public TravelRequest()
+            {
+                // drop this when this becomes an actual db entity
+                Quotes = new List<ITravelQuote>();
+                Comments = new List<IComment>();
+                Details = new TravelRequestDetails();
+            }
+        }
 
     }
 }

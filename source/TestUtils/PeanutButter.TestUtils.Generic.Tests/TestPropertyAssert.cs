@@ -345,7 +345,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => d1.AllPropertiesMatch(d2, "ignoreMe"));
+            Assert.DoesNotThrow(() => d1.DeepEquals(d2, "ignoreMe"));
 
             //---------------Test Result -----------------------
         }

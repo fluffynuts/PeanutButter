@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
@@ -8,11 +7,11 @@ namespace PeanutButter.Utils
 {
     public static class ObjectExtensions
     {
-        private static readonly Type[] SimpleTypes;
+        private static readonly Type[] PrimitiveTypes;
 
         static ObjectExtensions()
         {
-            SimpleTypes = new[] {
+            PrimitiveTypes = new[] {
                 typeof(int),
                 typeof(char),
                 typeof(byte),
@@ -26,63 +25,25 @@ namespace PeanutButter.Utils
             };
         }
 
+        [Obsolete("AllPropertiesMatch has been deprecated in favour of the more powerful DeepEquals")]
         public static bool AllPropertiesMatch(this object objSource, object objCompare, params string[] ignorePropertiesByName)
         {
-            if (objSource == null && objCompare == null) return true;
-            if (objSource == null || objCompare == null) return false;
-            var srcPropInfos = objSource.GetType()
-                                        .GetProperties()
-                                        .Where(pi => !ignorePropertiesByName.Contains(pi.Name));
-            var comparePropInfos = objCompare.GetType().GetProperties();
-            return srcPropInfos.Aggregate(true, (result, srcProp) =>
-            {
-                if (!result) return false;
-                var compareProp = FindMatchingPropertyInfoFor(comparePropInfos, srcProp);
-                return compareProp != null &&
-                         PropertyValuesMatchFor(objSource, objCompare, srcProp, compareProp);
-            });
+            return objSource.DeepEquals(objCompare, ignorePropertiesByName);
         }
 
-        private static bool PropertyValuesMatchFor(object objSource, object objCompare, PropertyInfo srcProp, PropertyInfo compareProp)
+        public static bool DeepEquals(this object objSource, object objCompare, params string[] ignorePropertiesByName)
         {
-            var srcValue = srcProp.GetValue(objSource, null);
-            var compareValue = compareProp.GetValue(objCompare, null);
-            return CanPerformSimpleTypeMatchFor(srcProp)
-                ? SimpleObjectsMatch(srcProp.Name, srcValue, compareValue)
-                : srcValue.AllPropertiesMatch(compareValue);
+            return new DeepEqualityTester(
+                objSource,
+                objCompare,
+                ignorePropertiesByName
+            ).AreDeepEqual();
         }
 
-        private static bool CanPerformSimpleTypeMatchFor(PropertyInfo srcProp)
-        {
-            return SimpleTypes.Any(st => st == srcProp.PropertyType);
-        }
 
-        private static bool SimpleObjectsMatch(string propertyName, object srcValue, object compareValue)
+        public static bool ContainsOneLike<T1, T2>(this IEnumerable<T1> collection, T2 value)
         {
-            var srcString = StringOf(srcValue);
-            var compareString = StringOf(compareValue);
-            if (srcString != compareString)
-            {
-                Debug.WriteLine(propertyName + " value mismatch: (" + (srcString ?? "NULL") + ") vs (" + (compareString ?? "NULL") + ")");
-                return false;
-            }
-            return true;
-        }
-
-        private static PropertyInfo FindMatchingPropertyInfoFor(IEnumerable<PropertyInfo> properties, PropertyInfo srcProp)
-        {
-            var comparePropInfo = properties.FirstOrDefault(pi => pi.Name == srcProp.Name);
-            if (comparePropInfo == null)
-            {
-                Debug.WriteLine("Unable to find comparison property with name: '" + srcProp.Name + "'");
-                return null;
-            }
-            if (comparePropInfo.PropertyType != srcProp.PropertyType)
-            {
-                Debug.WriteLine("Source property has type '" + srcProp.PropertyType.Name + "' but comparison property has type '" + comparePropInfo.PropertyType.Name + "'");
-                return null;
-            }
-            return comparePropInfo;
+            return collection.Any(i => i.DeepEquals(value));
         }
 
         public static void CopyPropertiesTo(this object src, object dst, bool deep = true)
@@ -120,15 +81,10 @@ namespace PeanutButter.Utils
 
         private static bool IsSimpleTypeOrNullableOfSimpleType(Type t)
         {
-            return SimpleTypes.Any(si => si == t || 
+            return PrimitiveTypes.Any(si => si == t || 
                                           (t.IsGenericType && 
                                           t.GetGenericTypeDefinition() == typeof(Nullable<>) && 
                                           Nullable.GetUnderlyingType(t) == si));
-        }
-
-        private static string StringOf(object srcValue)
-        {
-            return srcValue == null ? "[null]" : srcValue.ToString();
         }
 
         public static T Get<T>(this object src, string propertyPath)
@@ -178,17 +134,9 @@ namespace PeanutButter.Utils
             return propInfo.GetValue(src, null);
         }
 
-        public static void SetPropertyValue(this object obj, string propertyPath, object newValue)
+        public static void SetPropertyValue(this object propValue, string propertyPath, object newValue)
         {
-            //var type = obj.GetType();   
-            //var propInfo = type.GetProperty(propertyName);
-            //if (propInfo == null)
-            //    throw new ArgumentException($"{type.Name} has no public property called {propertyName}");
-            //if (!propInfo.CanWrite)
-            //    throw new ArgumentException($"{propertyName} on {type.Name} is read-only");
-            //propInfo.SetValue(obj, newValue, null);
             var queue = new Queue<string>(propertyPath.Split('.'));
-            object propValue = obj;
             while (queue.Count > 0)
             {
                 var current = queue.Dequeue();
@@ -204,9 +152,7 @@ namespace PeanutButter.Utils
                 }
                 propValue = propInfo.GetValue(propValue);
             }
-
-            throw new PropertyNotFoundException(obj.GetType(), propertyPath);
-
+            throw new PropertyNotFoundException(propValue.GetType(), propertyPath);
         }
 
         public static T GetPropertyValue<T>(this object src, string propertyName)
