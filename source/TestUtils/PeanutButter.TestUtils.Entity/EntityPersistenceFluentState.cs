@@ -185,7 +185,7 @@ namespace PeanutButter.TestUtils.Entity
                 _runAfterPersisting?.Invoke(sut, persisted);
 
                 var ignoreAndCrankyProperties = toIgnore.Union(DecimalProps.Union(DateTimeProps).Select(pi => pi.Name)).ToArray();
-                PropertyAssert.DeepEquals(persisted, sut, ignoreAndCrankyProperties);
+                PropertyAssert.AreDeepEqual(persisted, sut, ignoreAndCrankyProperties);
                 TestDecimalPropertiesOn(sut, persisted);
                 TestDateTimePropertiesOn(sut, persisted);
             }

@@ -211,7 +211,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => PropertyAssert.DeepEquals(obj1, obj2));
+            Assert.DoesNotThrow(() => PropertyAssert.AreDeepEqual(obj1, obj2));
 
             //---------------Test Result -----------------------
         }
@@ -230,7 +230,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<AssertionException>(() => PropertyAssert.DeepEquals(obj1, obj2));
+            Assert.Throws<AssertionException>(() => PropertyAssert.AreDeepEqual(obj1, obj2));
 
             //---------------Test Result -----------------------
         }
@@ -309,7 +309,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
 
         private void DoTest(BaseClass b1, BaseClass b2)
         {
-            PropertyAssert.DeepEquals(b1, b2);
+            PropertyAssert.AreDeepEqual(b1, b2);
         }
 
         [Test]

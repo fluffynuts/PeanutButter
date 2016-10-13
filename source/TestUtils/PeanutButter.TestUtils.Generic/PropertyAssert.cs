@@ -7,19 +7,19 @@ namespace PeanutButter.TestUtils.Generic
 {
     public class PropertyAssert
     {
-        [Obsolete("PropertyAssert.AllPropertiesAreEqual has been obsoleted in favour of PropertyAssert.DeepEquals")]
+        [Obsolete("PropertyAssert.AllPropertiesAreEqual has been obsoleted in favour of PropertyAssert.AreDeepEqual")]
         public static void AllPropertiesAreEqual(object obj1, object obj2, params string[] ignorePropertiesByName)
         {
-            PropertyAssert.DeepEquals(obj1, obj2, ignorePropertiesByName);
+            PropertyAssert.AreDeepEqual(obj1, obj2, ignorePropertiesByName);
         }
 
-        [Obsolete("PropertyAssert.MatchingPropertiesAreEqual has been obsoleted in favour of PropertyAssert.DeepSubEquals")]
+        [Obsolete("PropertyAssert.MatchingPropertiesAreEqual has been obsoleted in favour of PropertyAssert.IntersectionEquals")]
         public static void MatchingPropertiesAreEqual(object obj1, object obj2)
         {
             PropertyAssert.IntersectionEquals(obj1, obj2);
         }
 
-        public static void DeepEquals(object obj1, object obj2, params string[] ignorePropertiesByName)
+        public static void AreDeepEqual(object obj1, object obj2, params string[] ignorePropertiesByName)
         {
             var tester = new DeepEqualityTester(obj1, obj2, ignorePropertiesByName);
             if (!tester.AreDeepEqual())
