@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using NUnit.Framework;
+using PeanutButter.Utils;
 
 namespace PeanutButter.TestUtils.Generic
 {
@@ -8,21 +9,9 @@ namespace PeanutButter.TestUtils.Generic
     {
         public static void AllPropertiesAreEqual(object obj1, object obj2, params string[] ignorePropertiesByName)
         {
-            var propInfos1 = obj1.GetType().GetProperties();
-            var propInfos2 = obj2.GetType().GetProperties();
-            if (propInfos1.Length != propInfos2.Length)
-                Assert.Fail(string.Join(string.Empty,
-                            "Property counts on objects of types '",
-                            obj1.GetType().Name,
-                            "' and '",
-                            obj2.GetType().Name,
-                            "' do not match"));
-            foreach (var propInfo1 in propInfos1)
-            {
-                if (ignorePropertiesByName.Contains(propInfo1.Name))
-                    continue;
-                AreEqual(obj1, obj2, propInfo1.Name);
-            }
+            var tester = new DeepEqualityTester(obj1, obj2, ignorePropertiesByName);
+            if (!tester.AreDeepEqual())
+                throw new AssertionException(string.Join("\n", tester.Errors));
         }
 
         public static void MatchingPropertiesAreEqual(object obj1, object obj2)
@@ -32,10 +21,15 @@ namespace PeanutButter.TestUtils.Generic
             var matchingProperties = propInfos1
                                         .Where(pi1 => propInfos2.FirstOrDefault(pi2 => pi1.Name == pi2.Name) != null)
                                         .Select(pi => pi.Name);
-            foreach (var propName in matchingProperties)
-            {
-                AreEqual(obj1, obj2, propName);
-            }
+            var ignoreProps = propInfos1.Select(pi => pi.Name)
+                                        .Union(propInfos2.Select(pi => pi.Name))
+                                        .Distinct()
+                                        .Except(matchingProperties)
+                                        .ToArray();
+            var tester = new DeepEqualityTester(obj1, obj2, ignoreProps);
+            if (tester.AreDeepEqual())
+                return;
+            throw new AssertionException(string.Join("\n", tester.Errors));
         }
 
         public static object ResolveObject(object obj, ref string propName)

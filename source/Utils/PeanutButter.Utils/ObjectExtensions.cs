@@ -25,7 +25,7 @@ namespace PeanutButter.Utils
             };
         }
 
-        [Obsolete("AllPropertiesMatch has been deprecated in favour of the more powerful DeepEquals")]
+        [Obsolete("AllPropertiesMatch has been deprecated in favour of the more powerful DeepEquals; use DeepSubEquals if your source properties are potentially a subset of the comparison properties")]
         public static bool AllPropertiesMatch(this object objSource, object objCompare, params string[] ignorePropertiesByName)
         {
             return objSource.DeepEquals(objCompare, ignorePropertiesByName);
@@ -38,6 +38,17 @@ namespace PeanutButter.Utils
                 objCompare,
                 ignorePropertiesByName
             ).AreDeepEqual();
+        }
+
+        public static bool DeepSubEquals(this object objSource, object objCompare, params string[] ignorePropertiesByName)
+        {
+            var tester = new DeepEqualityTester(
+                objSource,
+                objCompare,
+                ignorePropertiesByName
+            );
+            tester.FailOnMissingProperties = false;
+            return tester.AreDeepEqual();
         }
 
 

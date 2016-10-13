@@ -12,7 +12,7 @@ namespace PeanutButter.Utils.Tests
     public class TestObjectExtensions
     {
         [Test]
-        public void AllPropertiesMatch_GivenSourceWithNoPropsAndDestWithNoProps_ShouldReturnTrue()
+        public void DeepEquals_GivenSourceWithNoPropsAndDestWithNoProps_ShouldReturnTrue()
         {
             //---------------Set up test pack-------------------
 
@@ -26,7 +26,7 @@ namespace PeanutButter.Utils.Tests
         }
 
         [Test]
-        public void AllPropertiesMatch_GivenTwoObjectsBothWithTheSamePropertyNameAndValue_ShouldReturnTrue()
+        public void DeepEquals_GivenTwoObjectsBothWithTheSamePropertyNameAndValue_ShouldReturnTrue()
         {
             //---------------Set up test pack-------------------
 
@@ -41,7 +41,7 @@ namespace PeanutButter.Utils.Tests
         }
 
         [Test]
-        public void AllPropertiesMatch_WhenDestinationHasMorePropertiesButSameNamedOnesMatch_ReturnsTrue()
+        public void DeepSubEquals_WhenDestinationHasMorePropertiesButSameNamedOnesMatch_ReturnsTrue()
         {
             //---------------Set up test pack-------------------
             var rs = RandomValueGen.GetRandomString();
@@ -49,42 +49,44 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = (new { prop = rs }).DeepEquals(new { prop = rs, bar = RandomValueGen.GetRandomString() });
+            var result = (new { prop = rs }).DeepSubEquals(new { prop = rs, bar = RandomValueGen.GetRandomString() });
 
             //---------------Test Result -----------------------
             Assert.IsTrue(result);
         }
 
         [Test]
-        public void AllPropertiesMatch_WhenDestinationIsMissingProperty_ReturnsFalse()
+        public void DeepSubEquals_WhenDestinationIsMissingProperty_ReturnsFalse()
         {
             //---------------Set up test pack-------------------
 
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = (new { prop = RandomValueGen.GetRandomString() }).DeepEquals(new object());
+            var result = (new { prop = RandomValueGen.GetRandomString() })
+                .DeepSubEquals(new object());
 
             //---------------Test Result -----------------------
             Assert.IsFalse(result);
         }
 
         [Test]
-        public void AllPropertiesMatch_WhenStringPropertyDoesntMatch_ReturnsFalse()
+        public void DeepEquals_WhenStringPropertyDoesntMatch_ReturnsFalse()
         {
             //---------------Set up test pack-------------------
             var propVal = RandomValueGen.GetRandomString();
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = (new { prop = propVal }).DeepEquals(new { prop = propVal + RandomValueGen.GetRandomString(1, 10) });
+            var result = (new { prop = propVal })
+                .DeepEquals(new { prop = propVal + RandomValueGen.GetRandomString(1, 10) });
 
             //---------------Test Result -----------------------
             Assert.IsFalse(result);
         }
 
         [Test]
-        public void AllPropertiesMatch_DoesntBarfOnBothNull()
+        public void DeepEquals_DoesntBarfOnBothNull()
         {
             //---------------Set up test pack-------------------
             object o1 = null;
@@ -99,7 +101,7 @@ namespace PeanutButter.Utils.Tests
         }
 
         [Test]
-        public void AllPropertiesMatch_DoesntBarfOnSourceNull()
+        public void DeepEquals_DoesntBarfOnSourceNull()
         {
             //---------------Set up test pack-------------------
             object o1 = null;
@@ -114,7 +116,7 @@ namespace PeanutButter.Utils.Tests
         }
 
         [Test]
-        public void AllPropertiesMatch_DoesntBarfOnTargetNull()
+        public void DeepEquals_DoesntBarfOnTargetNull()
         {
             //---------------Set up test pack-------------------
             object o2 = null;
@@ -129,7 +131,7 @@ namespace PeanutButter.Utils.Tests
         }
 
         [Test]
-        public void AllPropertiesMatch_WhenComparingIdenticalPropertiesOfSimpleTypes_ShouldReturnTrue()
+        public void DeepEquals_WhenComparingIdenticalPropertiesOfSimpleTypes_ShouldReturnTrue()
         {
             TestPropertyMatchingFor<int>();
             TestPropertyMatchingFor<long>();
@@ -165,7 +167,7 @@ namespace PeanutButter.Utils.Tests
         }
 
         [Test]
-        public void AllPropertiesMatch_ComplexTypesAreTraversed_HappyCase()
+        public void DeepEquals_ComplexTypesAreTraversed_HappyCase()
         {
             //---------------Set up test pack-------------------
             var propVal = RandomValueGen.GetRandomString();
@@ -190,7 +192,7 @@ namespace PeanutButter.Utils.Tests
         }
 
         [Test]
-        public void AllPropertiesMatch_ComplexTypesAreTraversed_UnhappyCase()
+        public void DeepEquals_ComplexTypesAreTraversed_UnhappyCase()
         {
             //---------------Set up test pack-------------------
             var o1 = new {
@@ -214,7 +216,7 @@ namespace PeanutButter.Utils.Tests
         }
 
         [Test]
-        public void AllPropertiesMatch_WhenGivenOnePropertiesToIgnoreByName_ShouldIgnoreThosePropertiesInTheComparison()
+        public void DeepEquals_WhenGivenOnePropertiesToIgnoreByName_ShouldIgnoreThosePropertiesInTheComparison()
         {
             //---------------Set up test pack-------------------
             var o1 = new {
@@ -236,7 +238,7 @@ namespace PeanutButter.Utils.Tests
         }
 
         [Test]
-        public void AllPropertiesMatch_WhenGivenListOfPropertiesToIgnoreByName_ShouldIgnoreThosePropertiesInTheComparison()
+        public void DeepEquals_WhenGivenListOfPropertiesToIgnoreByName_ShouldIgnoreThosePropertiesInTheComparison()
         {
             //---------------Set up test pack-------------------
             var o1 = new {
@@ -261,7 +263,7 @@ namespace PeanutButter.Utils.Tests
 
 
         [Test]
-        public void AllPropertiesMatch_WhenGivenArrayOfPropertiesToIgnoreByName_ShouldIgnoreThosePropertiesInTheComparison()
+        public void DeepEquals_WhenGivenArrayOfPropertiesToIgnoreByName_ShouldIgnoreThosePropertiesInTheComparison()
         {
             //---------------Set up test pack-------------------
             var o1 = new {

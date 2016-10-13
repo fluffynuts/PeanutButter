@@ -30,19 +30,49 @@ namespace PeanutButter.Utils
         private readonly string[] _ignorePropertiesByName;
         private Dictionary<object, object> _pendingComparisons;
 
+        public bool RecordErrors { get; set; }
+        public bool FailOnMissingProperties { get; set; }
+        public IEnumerable<string> Errors
+        {
+            get { return _errors.ToArray(); }
+        }
+        private List<string> _errors;
+
         public DeepEqualityTester(object objSource, object objCompare, params string[] ignorePropertiesByName)
         {
             _objSource = objSource;
             _objCompare = objCompare;
             _ignorePropertiesByName = ignorePropertiesByName;
+            FailOnMissingProperties = true;
+            ClearErrors();
+        }
+
+        private void ClearErrors()
+        {
+            _errors = new List<string>();
         }
 
         public bool AreDeepEqual()
         {
             ClearPendingOperations();
             var result = AreDeepEqualInternal(_objSource, _objCompare);
+            RecordPrimitiveErrorIfRequiredFor(result);
             ClearPendingOperations();
             return result;
+        }
+
+        private void RecordPrimitiveErrorIfRequiredFor(bool result)
+        {
+            if (!result &&
+                RecordErrors &&
+                IsSimpleTypeOrNullableOfSimpleType(_objSource?.GetType()) &&
+                IsSimpleTypeOrNullableOfSimpleType(_objCompare?.GetType()))
+                AddError("Primitive values differ");
+        }
+
+        private void AddError(string message)
+        {
+            _errors.Add(message);
         }
 
         private bool AreDeepEqualInternal(
@@ -73,7 +103,8 @@ namespace PeanutButter.Utils
 
         private bool IsSimpleTypeOrNullableOfSimpleType(Type t)
         {
-            return PrimitiveTypes.Any(si => si == t ||
+            return t != null &&
+                    PrimitiveTypes.Any(si => si == t ||
                                             (t.IsGenericType &&
                                              t.GetGenericTypeDefinition() == typeof(Nullable<>) &&
                                              Nullable.GetUnderlyingType(t) == si));
@@ -91,12 +122,12 @@ namespace PeanutButter.Utils
             var comparePropInfo = properties.FirstOrDefault(pi => pi.Name == srcProp.Name);
             if (comparePropInfo == null)
             {
-                Debug.WriteLine("Unable to find comparison property with name: '" + srcProp.Name + "'");
+                AddError("Unable to find comparison property with name: '" + srcProp.Name + "'");
                 return null;
             }
             if (comparePropInfo.PropertyType != srcProp.PropertyType)
             {
-                Debug.WriteLine("Source property has type '" + srcProp.PropertyType.Name + "' but comparison property has type '" + comparePropInfo.PropertyType.Name + "'");
+                AddError("Source property has type '" + srcProp.PropertyType.Name + "' but comparison property has type '" + comparePropInfo.PropertyType.Name + "'");
                 return null;
             }
             return comparePropInfo;
@@ -114,8 +145,17 @@ namespace PeanutButter.Utils
                 return true;    // let other comparisons continue
             var srcPropInfos = sourceType
                 .GetProperties()
-                .Where(pi => !_ignorePropertiesByName.Contains(pi.Name));
-            var comparePropInfos = compareType.GetProperties();
+                .Where(pi => !_ignorePropertiesByName.Contains(pi.Name))
+                .ToArray();
+            var comparePropInfos = compareType.GetProperties()
+                                    .Where(pi => !_ignorePropertiesByName.Contains(pi.Name))
+                                    .ToArray();
+            if (FailOnMissingProperties && srcPropInfos.Length != comparePropInfos.Length)
+            {
+                if (RecordErrors)
+                    AddError("Property count mismatch");
+                return false;
+            }
             return srcPropInfos.Aggregate(true, (result, srcProp) =>
             {
                 if (!result) return false;
@@ -140,9 +180,14 @@ namespace PeanutButter.Utils
         {
             var srcValue = srcProp.GetValue(objSource);
             var compareValue = compareProp.GetValue(objCompare, null);
-            return CanPerformSimpleTypeMatchFor(srcProp)
+            var result = CanPerformSimpleTypeMatchFor(srcProp)
                 ? AreDeepEqualInternal(srcValue, compareValue)
                 : MatchPropertiesOrCollection(srcValue, compareValue);
+            if (RecordErrors)
+            {
+                AddError($"Property value mismatch for {srcProp.Name}: {objSource} vs {objCompare}");
+            }
+            return result;
         }
 
         private bool MatchPropertiesOrCollection(object srcValue, object compareValue)
