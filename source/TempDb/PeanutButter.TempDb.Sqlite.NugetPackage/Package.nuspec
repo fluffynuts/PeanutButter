@@ -21,7 +21,8 @@
     <dependencies>
       <group targetFramework="net40">
         <dependency id="PeanutButter.TempDb" version="1.2.56" />
-        <dependency id="System.Data.Sqlite" version="" />
+        <dependency id="System.Data.SQLite" version="1.0.97.0" />
+        <dependency id="System.Data.SQLite.Core" version="1.0.97.0" />
       </group>
     </dependencies>
     <references></references>
