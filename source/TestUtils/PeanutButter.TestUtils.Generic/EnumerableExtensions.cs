@@ -10,21 +10,21 @@ namespace PeanutButter.TestUtils.Generic
     {
         public static void ShouldMatchDataIn<T>(this IEnumerable<T> src, IEnumerable<T> other)
         {
-            src.ForEach(item => Assert.IsTrue(other.Any(otherItem => Matches<T>(item, otherItem))));
-            other.ForEach(item => Assert.IsTrue(src.Any(otherItem => Matches<T>(item, otherItem))));
+            src.ForEach(item => Assert.IsTrue(
+                other.Any(
+                    otherItem => item.DeepEquals(otherItem)
+                )
+               )
+            );
+
+            other.ForEach(item => Assert.IsTrue(
+                src.Any(otherItem => otherItem.DeepEquals(item))));
         }
 
+        [Obsolete("Please use DeepEquals from PeanutButter.Utils instead")]
         public static bool Matches<T>(this T src, T other)
         {
-            try
-            {
-                PropertyAssert.AllPropertiesAreEqual(src, other);
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
+            return src.DeepEquals(other);
         }
 
         public static bool IsEquivalentTo<T>(this IEnumerable<T> src, IEnumerable<T> other)

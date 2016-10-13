@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using NUnit.Framework;
+using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.TestUtils.Generic.Tests
@@ -30,8 +32,40 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
+            var ex = Assert.Throws<AssertionException>(() => left.ShouldMatchDataIn(right));
+            Assert.Throws<AssertionException>(() => right.ShouldMatchDataIn(left));
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
+        public void ShouldMatchDataIn_OperatingOnCollectionsOfSameLengthButDifferentData_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            var left = new[] {IntWrapper.For(2) };
+            var right = new[] {IntWrapper.For(1) };
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
             Assert.Throws<AssertionException>(() => left.ShouldMatchDataIn(right));
             Assert.Throws<AssertionException>(() => right.ShouldMatchDataIn(left));
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
+        public void ShouldMatchDataIn_OperatingOnCollectionsOfSameLengthAndSameData_ShouldNotThrow()
+        {
+            //---------------Set up test pack-------------------
+            var left = new[] {IntWrapper.For(1) };
+            var right = new[] {IntWrapper.For(1) };
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(() => left.ShouldMatchDataIn(right));
+            Assert.DoesNotThrow(() => right.ShouldMatchDataIn(left));
 
             //---------------Test Result -----------------------
         }

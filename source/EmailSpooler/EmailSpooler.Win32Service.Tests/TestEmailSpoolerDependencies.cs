@@ -56,7 +56,7 @@ namespace EmailSpooler.Win32Service.Tests
             //---------------Test Result -----------------------
             Assert.IsNotNull(result);
             Assert.IsInstanceOf<EmailConfiguration>(result);
-            PropertyAssert.AllPropertiesAreEqual(expected, result);
+            PropertyAssert.DeepEquals(expected, result);
         }
 
         [Test]
@@ -75,7 +75,7 @@ namespace EmailSpooler.Win32Service.Tests
             //---------------Test Result -----------------------
             Assert.IsNotNull(expected);
             Assert.IsInstanceOf<EmailSpoolerConfig>(result);
-            PropertyAssert.AllPropertiesAreEqual(expected, result);
+            PropertyAssert.DeepEquals(expected, result);
         }
 
 
