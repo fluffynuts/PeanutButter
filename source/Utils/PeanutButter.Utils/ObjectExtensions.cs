@@ -57,7 +57,12 @@ namespace PeanutButter.Utils
             return collection.Any(i => i.DeepEquals(value));
         }
 
-        public static void CopyPropertiesTo(this object src, object dst, bool deep = true)
+        public static void CopyPropertiesTo(this object src, object dst)
+        {
+            src.CopyPropertiesTo(dst, true);
+        }
+
+        public static void CopyPropertiesTo(this object src, object dst, bool deep)
         {
             if (src == null || dst == null) return;
             var srcPropInfos = src.GetType().GetProperties();
