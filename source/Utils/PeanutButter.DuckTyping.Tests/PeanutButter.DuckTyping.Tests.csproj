@@ -44,16 +44,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="TestTypeBuilder.cs" />
+    <Compile Include="TestTypeMaker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj">
+      <Project>{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}</Project>
+      <Name>PeanutButter.RandomGenerators</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PeanutButter.DuckTyping\PeanutButter.DuckTyping.csproj">
       <Project>{DE67B50B-6CD0-49C8-9D3C-953B80E08FDC}</Project>
       <Name>PeanutButter.DuckTyping</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PeanutButter.Utils\PeanutButter.Utils.csproj">
+      <Project>{EFC85343-95B4-48C3-BCBE-579EA4868C0A}</Project>
+      <Name>PeanutButter.Utils</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

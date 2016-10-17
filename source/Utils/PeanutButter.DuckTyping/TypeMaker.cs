@@ -28,8 +28,61 @@ namespace PeanutButter.DuckTyping
             typeBuilder.AddInterfaceImplementation(interfaceType);
 
             AddAllProperties(typeBuilder, interfaceType);
+            AddDefaultConstructor(typeBuilder);
+            AddWrappingConstructor(typeBuilder, interfaceType);
 
             return typeBuilder.CreateType();
+        }
+
+        private void AddDefaultConstructor(TypeBuilder typeBuilder)
+        {
+            var ctor = typeBuilder.DefineConstructor(
+                MethodAttributes.Public,
+                CallingConventions.Standard,
+                new Type[0]);
+            var generator = ctor.GetILGenerator();
+            generator.Emit(OpCodes.Ret);
+        }
+
+        private void AddWrappingConstructor(
+            TypeBuilder typeBuilder,
+            Type interfaceType)
+        {
+            var ctorBuilder = typeBuilder.DefineConstructor(
+                                    MethodAttributes.Public, 
+                                    CallingConventions.Standard, 
+                                    new[] {typeof(object)});
+            var backingField = typeBuilder.DefineField("_actual", interfaceType, FieldAttributes.Private);
+            var ilGenerator = ctorBuilder.GetILGenerator();
+            ilGenerator.Emit(OpCodes.Ldarg_0);
+            ilGenerator.Emit(OpCodes.Ldarg_1);
+            ilGenerator.Emit(OpCodes.Stfld, backingField);
+            ilGenerator.Emit(OpCodes.Ret);
+
+        }
+
+        // TODO: get on to this when property pass-through works
+        private int AddAllMethods(TypeBuilder typeBuilder, Type interfaceType)
+        {
+            var methodInfos = interfaceType.GetMethods();
+            foreach (var methodInfo in methodInfos)
+            {
+                AddMethod(interfaceType, typeBuilder, methodInfo);
+            }
+            return methodInfos.Length;
+        }
+
+        private void AddMethod(Type interfaceType, TypeBuilder typeBuilder, MethodInfo methodInfo)
+        {
+            var methodBuilder = typeBuilder.DefineMethod(methodInfo.Name,
+                _propertyGetterSetterMethodAttributes, methodInfo.ReturnType, 
+                    methodInfo.GetParameters().Select(p => p.ParameterType).ToArray());
+            var ilGenerator = methodBuilder.GetILGenerator();
+            ImplementInterfaceMethodAsRequired(interfaceType, typeBuilder, methodInfo.Name, methodBuilder);
+
+            var callThroughMi = GetType().GetMethod("CallThrough", BindingFlags.Static | BindingFlags.NonPublic);
+            ilGenerator.Emit(OpCodes.Call, callThroughMi);
+            ilGenerator.Emit(OpCodes.Ret);
         }
 
         private void AddAllProperties(TypeBuilder typeBuilder, Type interfaceType)
