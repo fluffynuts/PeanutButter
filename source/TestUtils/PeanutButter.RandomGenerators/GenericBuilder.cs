@@ -424,8 +424,6 @@ namespace PeanutButter.RandomGenerators
 
         private static void SetSetterForType(PropertyInfo prop, Type propertyType = null)
         {
-            //            PropertySetterStrategies.Aggregate(false,
-            //                (accumulator, currentFunc) => accumulator || currentFunc(prop, propertyType ?? prop.PropertyType));
             foreach (var setter in _propertySetterStrategies)
             {
                 if (setter(prop, propertyType ?? prop.PropertyType))
@@ -433,7 +431,6 @@ namespace PeanutButter.RandomGenerators
             }
 
         }
-
 
         // whilst the collection itself does not reference a type parameter,
         //  HaveSetSimpleSetterFor does, so this collection must be per-generic-definition
