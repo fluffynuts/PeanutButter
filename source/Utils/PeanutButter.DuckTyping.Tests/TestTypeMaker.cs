@@ -60,7 +60,7 @@ namespace PeanutButter.DuckTyping.Tests
             Expect(instance.Name, Is.EqualTo(expectedName));
         }
 
-        public class Quack1
+        public class Sample1 // "implements" ISample1
         {
             public string Name { get; set; }
         }
@@ -76,7 +76,7 @@ namespace PeanutButter.DuckTyping.Tests
         {
             //--------------- Arrange -------------------
             var sut = Create();
-            var toWrap = new Quack1();
+            var toWrap = new Sample1();
 
             //--------------- Assume ----------------
 
@@ -88,12 +88,11 @@ namespace PeanutButter.DuckTyping.Tests
         }
 
         [Test]
-        [Ignore("WIP")]
         public void MakeTypeImplementing_GivenObjectToWrap_ShouldPassPropertyGetThrough()
         {
             //--------------- Arrange -------------------
             var sut = Create();
-            var toWrap = new Quack1();
+            var toWrap = new Sample1();
             var expected = GetRandomString(2, 5);
 
             //--------------- Assume ----------------
