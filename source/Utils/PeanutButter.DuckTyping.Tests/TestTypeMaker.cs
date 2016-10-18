@@ -106,6 +106,81 @@ namespace PeanutButter.DuckTyping.Tests
             Expect(toWrap.Name, Is.EqualTo(expected));
         }
 
+        public interface ISample4
+        {
+            Sample1 Sample { get; set; }
+        }
+
+        [Test]
+        public void MakeTypeImplementing_ShouldBeAbleToImplementNonPrimitiveProperties()
+        {
+            //--------------- Arrange -------------------
+            var sut = Create();
+            var type = sut.MakeTypeImplementing<ISample4>();
+            var expected = new Sample1();
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var instance = CreateInstanceOf(type);
+
+            //--------------- Assert -----------------------
+            instance.SetPropertyValue("Sample", expected);
+            var result = instance.GetPropertyValue("Sample");
+            Expect(result, Is.EqualTo(expected));
+        }
+
+        public class ToWrapSample1
+        {
+            public Sample1 Sample { get; set ; }
+        }
+
+        [Test]
+        public void MakeTypeImplementing_ShouldBeAbleToImplementWrappedNonPrimitiveProperties()
+        {
+            //--------------- Arrange -------------------
+            var sut = Create();
+            var toWrap = new ToWrapSample1()
+            {
+                Sample = new Sample1()
+            };
+            var type = sut.MakeTypeImplementing<ISample4>();
+            var expected = new Sample1();
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var instance = CreateInstanceOf(type, toWrap);
+
+            //--------------- Assert -----------------------
+            instance.SetPropertyValue("Sample", expected);
+            var result = toWrap.Sample;
+            Expect(result, Is.EqualTo(expected));
+        }
+
+        public class ToWrapSample1ReadOnly
+        {
+            public Sample1 Sample { get; }
+        }
+
+        [Test]
+        public void MakeTypeImplementing_WhenAttemptingToSetReadOnlyPropertyOnWrappedObject_ShouldThrow_ReadOnlyPropertyException()
+        {
+            //--------------- Arrange -------------------
+            var sut = Create();
+            var toWrap = new ToWrapSample1ReadOnly();
+            var type = sut.MakeTypeImplementing<ISample4>();
+            var expected = new Sample1();
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var instance = (ISample4)CreateInstanceOf(type, toWrap);
+
+            //--------------- Assert -----------------------
+            Expect(() => instance.Sample = expected, Throws.Exception.InstanceOf<ReadOnlyPropertyException>());
+        }
+
 
 
         private object CreateInstanceOf(Type type, params object[] constructorArgs)

@@ -12,8 +12,32 @@ namespace PeanutButter.DuckTyping
 
     public class PropertyNotFoundException : Exception
     {
-        public PropertyNotFoundException(Type parent, string propertyName)
-            : base($"Property {propertyName} not found on type {parent.Name}")
+        public PropertyNotFoundException(Type owningType, string propertyName)
+            : base($"Property {propertyName} not found on type {owningType.Name}")
+        {
+        }
+    }
+
+    public class BackingFieldForPropertyNotFoundException : Exception
+    {
+        public BackingFieldForPropertyNotFoundException(Type owningType, string propertyName)
+            : base($"Property {propertyName} not found on type {owningType.Name}")
+        {
+        }
+    }
+
+    public class ReadOnlyPropertyException: Exception
+    {
+        public ReadOnlyPropertyException(Type owningType, string propertyName)
+            : base($"Property {propertyName} on type {owningType.Name} is read-only")
+        {
+        }
+    }
+
+    public class WriteOnlyPropertyException: Exception
+    {
+        public WriteOnlyPropertyException(Type owningType, string propertyName)
+            : base($"Property {propertyName} on type {owningType.Name} is read-only")
         {
         }
     }
@@ -61,6 +85,10 @@ namespace PeanutButter.DuckTyping
             }
 
             var propInfo = FindPropertyInfoFor(propertyName);
+            if (!propInfo.CanWrite)
+            {
+                throw new ReadOnlyPropertyException(_wrappedType, propertyName);
+            }
             propInfo.SetValue(_wrapped, newValue);
         }
 
@@ -89,7 +117,7 @@ namespace PeanutButter.DuckTyping
             var seek = "_" + propertyName;
             var fieldInfo = _fieldInfos.FirstOrDefault(fi => fi.Name.ToLower() == seek.ToLower());
             if (fieldInfo == null)
-                throw new PropertyNotFoundException(_wrappedType, propertyName);
+                throw new BackingFieldForPropertyNotFoundException(_wrappedType, propertyName);
             return fieldInfo;
         }
     }
