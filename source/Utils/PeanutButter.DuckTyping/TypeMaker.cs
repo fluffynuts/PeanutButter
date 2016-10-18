@@ -145,10 +145,11 @@ namespace PeanutButter.DuckTyping
             var interfaceType = typeof(T);
             if (!interfaceType.IsInterface)
                 throw new InvalidOperationException("MakeTypeImplementing<T> requires an interface for the type parameter");
-            var moduleName = string.Join("_", "Generated", interfaceType.Name);
+            var identifier = (Guid.NewGuid().ToString("N"));
+            var moduleName = string.Join("_", "Generated", interfaceType.Name, identifier);
             var modBuilder = DynamicAssemblyBuilder.DefineDynamicModule(moduleName);
 
-            var generatedTypeName = interfaceType.Name + "_Duck";
+            var generatedTypeName = interfaceType.Name + "_Duck_" + identifier;
             var typeBuilder = modBuilder.DefineType(generatedTypeName, TypeAttributes.Public);
 
             var attribConstructor = typeof(IsADuckAttribute).GetConstructor(new Type[0]);
