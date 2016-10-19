@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -47,8 +48,9 @@ namespace PeanutButter.DuckTyping
 
 
             var shimField = AddShimField(typeBuilder);
-            AddAllPropertiesAsShimmable(typeBuilder, interfaceType, shimField);
-            AddAllMethodsAsShimmable(typeBuilder, interfaceType, shimField);
+            var allInterfaceTypes = GetAllInterfacesFor(interfaceType);
+            AddAllPropertiesAsShimmable(typeBuilder, allInterfaceTypes, shimField);
+            AddAllMethodsAsShimmable(typeBuilder, allInterfaceTypes, shimField);
             AddDefaultConstructor(typeBuilder, shimField);
             AddWrappingConstructor(typeBuilder, shimField);
 
@@ -126,13 +128,13 @@ namespace PeanutButter.DuckTyping
 
         private void AddAllMethodsAsShimmable(
             TypeBuilder typeBuilder, 
-            Type interfaceType,
+            Type[] interfaceTypes,
             FieldBuilder shimField)
         {
-            var methodInfos = interfaceType.GetMethods().Where(MethodIsNotSpecial).ToArray();
+            var methodInfos = GetAllMethodsFor(interfaceTypes);
             foreach (var methodInfo in methodInfos)
             {
-                AddMethod(interfaceType, typeBuilder, methodInfo, shimField);
+                AddMethod(interfaceTypes[0], typeBuilder, methodInfo, shimField);
             }
         }
 
@@ -236,13 +238,58 @@ namespace PeanutButter.DuckTyping
 
         private void AddAllPropertiesAsShimmable(
             TypeBuilder typeBuilder,
-            Type interfaceType,
+            Type[] interfaceTypes,
             FieldBuilder shimField)
         {
-            foreach (var prop in interfaceType.GetProperties())
+            var allProperties = GetAllPropertiesFor(interfaceTypes);
+            foreach (var prop in allProperties)
             {
-                AddShimmableProperty(interfaceType, typeBuilder, prop, shimField);
+                AddShimmableProperty(interfaceTypes[0], typeBuilder, prop, shimField);
             }
+        }
+
+        public class PropertyInfoEqualityComparer: IEqualityComparer<PropertyInfo>
+        {
+            public bool Equals(PropertyInfo x, PropertyInfo y)
+            {
+                return x.Name == y.Name &&
+                       x.PropertyType == y.PropertyType;
+            }
+
+            public int GetHashCode(PropertyInfo obj)
+            {
+                return obj.GetHashCode();
+            }
+        }
+
+        private PropertyInfo[] GetAllPropertiesFor(Type[] allImplementedInterfaces)
+        {
+            return GetAllFor(allImplementedInterfaces,
+                t => t.GetProperties());
+        }
+
+        private MethodInfo[] GetAllMethodsFor(Type[] allImplementedInterfaces)
+        {
+            return GetAllFor(allImplementedInterfaces, 
+                        t => t.GetMethods().Where(MethodIsNotSpecial));
+        }
+
+        private T[] GetAllFor<T>(Type[] interfaces, Func<Type, IEnumerable<T>> fetcher)
+        {
+            return interfaces
+                        .Select(fetcher)
+                        .SelectMany(a => a)
+                        .ToArray();
+        }
+
+        private static Type[] GetAllInterfacesFor(Type interfaceType)
+        {
+            var result = new List<Type> {interfaceType};
+            foreach (var type in interfaceType.GetInterfaces())
+            {
+                result.AddRange(GetAllInterfacesFor(type));
+            }
+            return result.ToArray();
         }
 
         private static void AddShimmableProperty(

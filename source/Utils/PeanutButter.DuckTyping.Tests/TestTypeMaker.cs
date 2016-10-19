@@ -3,6 +3,9 @@ using NUnit.Framework;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 // ReSharper disable UnusedAutoPropertyAccessor.Global
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedMember.Global
+// ReSharper disable UnassignedGetOnlyAutoProperty
 
 namespace PeanutButter.DuckTyping.Tests
 {
@@ -67,7 +70,6 @@ namespace PeanutButter.DuckTyping.Tests
         {
             string Name { get; }
         }
-        // TODO: implement type from all interfaces, including inherited ones
 
         [Test]
         public void MakeTypeImplementing_ShouldCreateConstructorRequiringObjectToWrap()
@@ -333,6 +335,48 @@ namespace PeanutButter.DuckTyping.Tests
             Expect(result, Is.EqualTo(expected));
         }
 
+
+        public interface IInherited: ISample1
+        {
+        }
+
+        [Test]
+        public void MakeTypeImplementing_ShouldBeAbleToImplementAllInheritedInterfacePropertiess()
+        {
+            //--------------- Arrange -------------------
+            var sut = Create();
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var type = sut.MakeTypeImplementing<IInherited>();
+            var instance = CreateInstanceOf(type);
+
+            //--------------- Assert -----------------------
+            Expect(instance, Is.InstanceOf<IInherited>());
+            Expect(instance, Is.InstanceOf<ISample1>());
+        }
+
+        public interface IInheritedWithMethod: IArgsNonVoid
+        {
+        }
+
+        [Test]
+        public void MakeTypeImplementing_ShouldBeAbleToImplementAllInheritedInterfaceMethods()
+        {
+            //--------------- Arrange -------------------
+            var sut = Create();
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var type = sut.MakeTypeImplementing<IInheritedWithMethod>();
+            var instance = CreateInstanceOf(type);
+
+            //--------------- Assert -----------------------
+            Expect(instance, Is.InstanceOf<IInheritedWithMethod>());
+            Expect(instance, Is.InstanceOf<IArgsNonVoid>());
+        }
 
 
 
