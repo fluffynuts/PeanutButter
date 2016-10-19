@@ -1,5 +1,6 @@
 ﻿using System;
 using NUnit.Framework;
+using PeanutButter.DuckTyping.Exceptions;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -378,6 +379,29 @@ namespace PeanutButter.DuckTyping.Tests
             Expect(instance, Is.InstanceOf<IArgsNonVoid>());
         }
 
+        [Test]
+        [Ignore("WIP")]
+        public void MakeTypeImplementing_GivenFuzzyIsTrue_ShouldMakeFuzzyType()
+        {
+            //--------------- Arrange -------------------
+            var sut = Create();
+            var toWrap = new ToWrapSample1()
+            {
+                Sample = new Sample1()
+            };
+            var type = sut.MakeFuzzyTypeImplementing<ISample4>();
+            var expected = new Sample1();
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var instance = CreateInstanceOf(type, toWrap);
+
+            //--------------- Assert -----------------------
+            instance.SetPropertyValue("sample", expected);
+            var result = toWrap.Sample;
+            Expect(result, Is.EqualTo(expected));
+        }
 
 
         private object CreateInstanceOf(Type type, params object[] constructorArgs)

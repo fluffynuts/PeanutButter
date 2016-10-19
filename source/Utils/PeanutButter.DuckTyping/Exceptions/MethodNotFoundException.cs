@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PeanutButter.DuckTyping
+namespace PeanutButter.DuckTyping.Exceptions
 {
     public class MethodNotFoundException : NotImplementedException
     {

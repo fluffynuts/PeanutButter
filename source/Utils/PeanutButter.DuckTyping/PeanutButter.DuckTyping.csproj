@@ -40,6 +40,10 @@
     <Compile Include="Exceptions\MethodNotFoundException.cs" />
     <Compile Include="Exceptions\PropertyNotFoundException.cs" />
     <Compile Include="Exceptions\ReadOnlyPropertyException.cs" />
+    <Compile Include="Exceptions\UnresolveableParameterOrderMismatchException.cs" />
+    <Compile Include="Extensions\DuckTypingHelperExtensions.cs" />
+    <Compile Include="Extensions\DuckTypingObjectExtensions.cs" />
+    <Compile Include="Exceptions\ParameterCountMismatchException.cs" />
     <Compile Include="ShimSham.cs" />
     <Compile Include="TypeMaker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -44,6 +44,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\TestDuckTypingObjectExtensions.cs" />
+    <Compile Include="TestShimSham.cs" />
     <Compile Include="TestTypeMaker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

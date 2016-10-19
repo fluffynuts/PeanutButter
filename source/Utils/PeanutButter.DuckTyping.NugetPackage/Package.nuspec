@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>PeanutButter.DuckTyping</id>
+    <version>1.2.59</version>
+    <title>PeanutButter.DuckTyping</title>
+    <authors>Davyd McColl</authors>
+    <owners></owners>
+    <description>
+      A package to facilitate duck-typing through an object extension DuckAs&lt;&gt;
+    </description>
+    <releaseNotes>
+    </releaseNotes>
+    <summary>
+      A package to facilitate duck-typing through an object extension DuckAs&lt;&gt;
+    </summary>
+    <language>en-US</language>
+    <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
+    <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/fluffynuts/PeanutButter/blob/master/LICENSE</licenseUrl>
+    <copyright>Copyright  2016</copyright>
+    <dependencies>
+        <group targetFramework="net40">
+        </group>
+    </dependencies>
+    <references></references>
+    <tags></tags>
+  </metadata>
+  <files>
+    <file src="lib\" target="lib" />
+    <file src="tools\" target="tools" />
+    <file src="content\" target="content" />
+  </files>
+</package>

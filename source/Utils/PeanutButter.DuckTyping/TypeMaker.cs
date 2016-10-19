@@ -13,11 +13,12 @@ namespace PeanutButter.DuckTyping
     public interface ITypeMaker
     {
         Type MakeTypeImplementing<T>();
+        Type MakeFuzzyTypeImplementing<T>();
     }
     public class TypeMaker : ITypeMaker
     {
         private static readonly Type _shimType = typeof(ShimSham);
-        private static readonly ConstructorInfo _shimConstructor = _shimType.GetConstructor(new[] { typeof(object) });
+        private static readonly ConstructorInfo _shimConstructor = _shimType.GetConstructor(new[] { typeof(object), typeof(bool) });
         private static readonly ConstructorInfo _objectConstructor = typeof(object).GetConstructor(new Type[0]);
         private static readonly MethodInfo _shimGetPropertyValueMethod = 
             _shimType.GetMethod("GetPropertyValue");
@@ -29,6 +30,16 @@ namespace PeanutButter.DuckTyping
             _shimType.GetMethod("CallThroughVoid");
 
         public Type MakeTypeImplementing<T>()
+        {
+            return MakeTypeImplementing<T>(false);
+        }
+
+        public Type MakeFuzzyTypeImplementing<T>()
+        {
+            return MakeTypeImplementing<T>(true);
+        }
+
+        protected Type MakeTypeImplementing<T>(bool isFuzzy)
         {
             var interfaceType = typeof(T);
             if (!interfaceType.IsInterface)
@@ -51,8 +62,8 @@ namespace PeanutButter.DuckTyping
             var allInterfaceTypes = GetAllInterfacesFor(interfaceType);
             AddAllPropertiesAsShimmable(typeBuilder, allInterfaceTypes, shimField);
             AddAllMethodsAsShimmable(typeBuilder, allInterfaceTypes, shimField);
-            AddDefaultConstructor(typeBuilder, shimField);
-            AddWrappingConstructor(typeBuilder, shimField);
+            AddDefaultConstructor(typeBuilder, shimField, isFuzzy);
+            AddWrappingConstructor(typeBuilder, shimField, isFuzzy);
 
             return typeBuilder.CreateType();
         }
@@ -62,7 +73,10 @@ namespace PeanutButter.DuckTyping
             return typeBuilder.DefineField("_shim", _shimType, FieldAttributes.Private);
         }
 
-        private void AddDefaultConstructor(TypeBuilder typeBuilder, FieldBuilder shimField)
+        private void AddDefaultConstructor(
+            TypeBuilder typeBuilder, 
+            FieldBuilder shimField,
+            bool isFuzzy)
         {
             var ctor = typeBuilder.DefineConstructor(
                 MethodAttributes.Public,
@@ -71,7 +85,7 @@ namespace PeanutButter.DuckTyping
             var il = ctor.GetILGenerator();
             CallBaseObjectConstructor(il);
 
-            var result = CreateWrappingShimForThisWith(il);
+            var result = CreateWrappingShimForThisWith(il, isFuzzy);
 
             StoreShimInFieldWith(shimField, il, result);
 
@@ -80,7 +94,8 @@ namespace PeanutButter.DuckTyping
 
         private void AddWrappingConstructor(
             TypeBuilder typeBuilder,
-            FieldBuilder shimField
+            FieldBuilder shimField,
+            bool isFuzzy
         )
         {
             var ctorBuilder = typeBuilder.DefineConstructor(
@@ -89,7 +104,7 @@ namespace PeanutButter.DuckTyping
                 new[] { typeof(object) });
             var il = ctorBuilder.GetILGenerator();
             CallBaseObjectConstructor(il);
-            var result = CreateWrappingShimForArg1With(il);
+            var result = CreateWrappingShimForArg1With(il, isFuzzy);
             StoreShimInFieldWith(shimField, il, result);
             ImplementMethodReturnWith(il);
         }
@@ -101,20 +116,21 @@ namespace PeanutButter.DuckTyping
             generator.Emit(OpCodes.Stfld, shimField);
         }
 
-        private static LocalBuilder CreateWrappingShimForArg1With(ILGenerator il)
+        private static LocalBuilder CreateWrappingShimForArg1With(ILGenerator il, bool isFuzzy)
         {
-            return CreateWrappingShimFor(OpCodes.Ldarg_1, il);
+            return CreateWrappingShimFor(OpCodes.Ldarg_1, il, isFuzzy);
         }
 
-        private static LocalBuilder CreateWrappingShimForThisWith(ILGenerator il)
+        private static LocalBuilder CreateWrappingShimForThisWith(ILGenerator il, bool isFuzzy)
         {
-            return CreateWrappingShimFor(OpCodes.Ldarg_0, il);
+            return CreateWrappingShimFor(OpCodes.Ldarg_0, il, isFuzzy);
         }
 
-        private static LocalBuilder CreateWrappingShimFor(OpCode code, ILGenerator il)
+        private static LocalBuilder CreateWrappingShimFor(OpCode code, ILGenerator il, bool isFuzzy)
         {
             var result = il.DeclareLocal(typeof(ShimSham));
             il.Emit(code);
+            il.Emit(isFuzzy ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
             il.Emit(OpCodes.Newobj, _shimConstructor);
             il.Emit(OpCodes.Stloc, result);
             return result;
