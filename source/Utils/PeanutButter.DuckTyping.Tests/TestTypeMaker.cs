@@ -179,6 +179,161 @@ namespace PeanutButter.DuckTyping.Tests
             Expect(() => instance.Sample = expected, Throws.Exception.InstanceOf<ReadOnlyPropertyException>());
         }
 
+        public interface IVoidVoid
+        {
+            void Moo();
+        }
+
+        [Test]
+        public void MakeTypeImplementing_ShouldBeAbleToImplementSimpleVoidVoidMethod()
+        {
+            //--------------- Arrange -------------------
+            var sut = Create();
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var type = sut.MakeTypeImplementing<IVoidVoid>();
+            var instance = CreateInstanceOf(type);
+
+            //--------------- Assert -----------------------
+            Expect(instance, Is.InstanceOf<IVoidVoid>());
+        }
+
+        public class VoidVoidImpl
+        {
+            public bool Called { get; private set; }
+            public void Moo()
+            {
+                Called = true;
+            }
+        }
+
+        [Test]
+        public void MakeTypeImplementing_ShouldBeAbleToImplementCallThroughToSimpleVoidVoidMethod()
+        {
+            //--------------- Arrange -------------------
+            var sut = Create();
+            var toWrap = new VoidVoidImpl();
+
+            //--------------- Assume ----------------
+            Expect(toWrap.Called, Is.False);
+
+            //--------------- Act ----------------------
+            var type = sut.MakeTypeImplementing<IVoidVoid>();
+            var instance = (IVoidVoid)CreateInstanceOf(type, toWrap);
+            instance.Moo();
+
+            //--------------- Assert -----------------------
+            Expect(toWrap.Called, Is.True);
+        }
+
+        public interface IVoidArgs
+        {
+            void Moo(string pitch, int howMany);
+        }
+
+        [Test]
+        public void MakeTypeImplementing_ShouldBeAbleToImplementVoidArgsMethod()
+        {
+            //--------------- Arrange -------------------
+            var sut = Create();
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var type = sut.MakeTypeImplementing<IVoidArgs>();
+            var instance = CreateInstanceOf(type);
+
+            //--------------- Assert -----------------------
+            Expect(instance, Is.InstanceOf<IVoidArgs>());
+        }
+
+        public class VoidArgsImpl
+        {
+            public string Pitch { get; private set; }
+            public int HowMany { get; private set; }
+            public void Moo(string pitch, int howMany)
+            {
+                Pitch = pitch;
+                HowMany = howMany;
+            }
+        }
+
+        [Test]
+        public void MakeTypeImplementing_ShouldBeAbleToImplementPassThroughToVoidArgsMethod()
+        {
+            //--------------- Arrange -------------------
+            var sut = Create();
+            var toWrap = new VoidArgsImpl();
+            var expectedPitch = GetRandomString(2, 6);
+            var expectedCount = GetRandomInt(2);
+
+            //--------------- Assume ----------------
+            Expect(toWrap.Pitch, Is.Null);
+            Expect(toWrap.HowMany, Is.EqualTo(0));
+
+            //--------------- Act ----------------------
+            var type = sut.MakeTypeImplementing<IVoidArgs>();
+            var instance = (IVoidArgs)CreateInstanceOf(type, toWrap);
+            instance.Moo(expectedPitch, expectedCount);
+
+            //--------------- Assert -----------------------
+            Expect(toWrap.Pitch, Is.EqualTo(expectedPitch));
+            Expect(toWrap.HowMany, Is.EqualTo(expectedCount));
+        }
+
+        public interface IArgsNonVoid
+        {
+            int Add(int a, int b);
+        }
+
+        [Test]
+        public void MakeTypeImplementing_ShouldBeAbleToImplementMethodWithArgsAndReturnValue()
+        {
+            //--------------- Arrange -------------------
+            var sut = Create();
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var type = sut.MakeTypeImplementing<IArgsNonVoid>();
+            var instance = CreateInstanceOf(type);
+
+            //--------------- Assert -----------------------
+            Expect(instance, Is.InstanceOf<IArgsNonVoid>());
+        }
+
+        public class ArgsNonVoidImpl
+        {
+            public int Add(int a, int b)
+            {
+                return a + b;
+            }
+        }
+
+        [Test]
+        public void MakeTypeImplementing_ImplementedTypeShouldBeAbleToWrapTypeWithMethodWithArgsAndReturnValue()
+        {
+            //--------------- Arrange -------------------
+            var sut = Create();
+            var type = sut.MakeTypeImplementing<IArgsNonVoid>();
+            var toWrap = new ArgsNonVoidImpl();
+            var first = GetRandomInt();
+            var second = GetRandomInt();
+            var expected = toWrap.Add(first, second);
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var instance = (IArgsNonVoid)CreateInstanceOf(type, toWrap);
+            var result = instance.Add(first, second);
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.EqualTo(expected));
+        }
+
+
 
 
         private object CreateInstanceOf(Type type, params object[] constructorArgs)

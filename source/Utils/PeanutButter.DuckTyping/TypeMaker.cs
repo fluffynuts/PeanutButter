@@ -1,127 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Threading;
 
 namespace PeanutButter.DuckTyping
 {
-
-    public class PropertyNotFoundException : Exception
-    {
-        public PropertyNotFoundException(Type owningType, string propertyName)
-            : base($"Property {propertyName} not found on type {owningType.Name}")
-        {
-        }
-    }
-
-    public class BackingFieldForPropertyNotFoundException : Exception
-    {
-        public BackingFieldForPropertyNotFoundException(Type owningType, string propertyName)
-            : base($"Property {propertyName} not found on type {owningType.Name}")
-        {
-        }
-    }
-
-    public class ReadOnlyPropertyException: Exception
-    {
-        public ReadOnlyPropertyException(Type owningType, string propertyName)
-            : base($"Property {propertyName} on type {owningType.Name} is read-only")
-        {
-        }
-    }
-
-    public class WriteOnlyPropertyException: Exception
-    {
-        public WriteOnlyPropertyException(Type owningType, string propertyName)
-            : base($"Property {propertyName} on type {owningType.Name} is read-only")
-        {
-        }
-    }
-    public class ShimSham
-    {
-        private readonly object _wrapped;
-        private readonly PropertyInfo[] _propertyInfos;
-        private readonly Type _wrappedType;
-        private readonly bool _wrappingADuck;
-        private readonly FieldInfo[] _fieldInfos;
-
-        public ShimSham(object toWrap)
-        {
-            _wrapped = toWrap;
-            _wrappedType = toWrap.GetType();
-            _wrappingADuck = IsObjectADuck();
-            _propertyInfos = _wrappedType.GetProperties(BindingFlags.Instance | BindingFlags.Public);
-            if (_wrappingADuck)
-                _fieldInfos = _wrappedType.GetFields(BindingFlags.Instance | BindingFlags.NonPublic);
-        }
-
-        private bool IsObjectADuck()
-        {
-            return _wrappedType.GetCustomAttributes(true).OfType<IsADuckAttribute>().Any();
-        }
-
-        public object GetPropertyValue(string propertyName)
-        {
-            if (_wrappingADuck)
-            {
-                return FieldValueFor(propertyName);
-            }
-
-            var propInfo = FindPropertyInfoFor(propertyName);
-            return propInfo.GetValue(_wrapped);
-        }
-
-        public void SetPropertyValue(string propertyName, object newValue)
-        {
-
-            if (_wrappingADuck)
-            {
-                SetFieldValue(propertyName, newValue);
-                return;
-            }
-
-            var propInfo = FindPropertyInfoFor(propertyName);
-            if (!propInfo.CanWrite)
-            {
-                throw new ReadOnlyPropertyException(_wrappedType, propertyName);
-            }
-            propInfo.SetValue(_wrapped, newValue);
-        }
-
-        private PropertyInfo FindPropertyInfoFor(string propertyName)
-        {
-            var propInfo = _propertyInfos.FirstOrDefault(pi => pi.Name.ToLower() == propertyName.ToLower());
-            if (propInfo == null)
-                throw new PropertyNotFoundException(_wrappedType, propertyName);
-            return propInfo;
-        }
-
-        private void SetFieldValue(string propertyName, object newValue)
-        {
-            var fieldInfo = FindPrivateBackingFieldFor(propertyName);
-            fieldInfo.SetValue(_wrapped, newValue);
-        }
-
-        private object FieldValueFor(string propertyName)
-        {
-            var fieldInfo = FindPrivateBackingFieldFor(propertyName);
-            return fieldInfo.GetValue(_wrapped);
-        }
-
-        private FieldInfo FindPrivateBackingFieldFor(string propertyName)
-        {
-            var seek = "_" + propertyName;
-            var fieldInfo = _fieldInfos.FirstOrDefault(fi => fi.Name.ToLower() == seek.ToLower());
-            if (fieldInfo == null)
-                throw new BackingFieldForPropertyNotFoundException(_wrappedType, propertyName);
-            return fieldInfo;
-        }
-    }
-
     public class IsADuckAttribute : Attribute
     {
     }
@@ -139,6 +22,10 @@ namespace PeanutButter.DuckTyping
             _shimType.GetMethod("GetPropertyValue");
         private static readonly MethodInfo _shimSetPropertyValueMethod = 
             _shimType.GetMethod("SetPropertyValue");
+        private static readonly MethodInfo _shimCallThroughMethod =
+            _shimType.GetMethod("CallThrough");
+        private static readonly MethodInfo _shimCallThroughVoidMethod =
+            _shimType.GetMethod("CallThroughVoid");
 
         public Type MakeTypeImplementing<T>()
         {
@@ -160,7 +47,8 @@ namespace PeanutButter.DuckTyping
 
 
             var shimField = AddShimField(typeBuilder);
-            AddAllProperties(typeBuilder, interfaceType, shimField);
+            AddAllPropertiesAsShimmable(typeBuilder, interfaceType, shimField);
+            AddAllMethodsAsShimmable(typeBuilder, interfaceType, shimField);
             AddDefaultConstructor(typeBuilder, shimField);
             AddWrappingConstructor(typeBuilder, shimField);
 
@@ -185,7 +73,7 @@ namespace PeanutButter.DuckTyping
 
             StoreShimInFieldWith(shimField, il, result);
 
-            MethodReturn(il);
+            ImplementMethodReturnWith(il);
         }
 
         private void AddWrappingConstructor(
@@ -201,7 +89,7 @@ namespace PeanutButter.DuckTyping
             CallBaseObjectConstructor(il);
             var result = CreateWrappingShimForArg1With(il);
             StoreShimInFieldWith(shimField, il, result);
-            MethodReturn(il);
+            ImplementMethodReturnWith(il);
         }
 
         private static void StoreShimInFieldWith(FieldBuilder shimField, ILGenerator generator, LocalBuilder result)
@@ -236,49 +124,134 @@ namespace PeanutButter.DuckTyping
             generator.Emit(OpCodes.Call, _objectConstructor);
         }
 
-        // TODO: get on to this when property pass-through works
-        private int AddAllMethods(TypeBuilder typeBuilder, Type interfaceType)
+        private void AddAllMethodsAsShimmable(
+            TypeBuilder typeBuilder, 
+            Type interfaceType,
+            FieldBuilder shimField)
         {
-            var methodInfos = interfaceType.GetMethods();
+            var methodInfos = interfaceType.GetMethods().Where(MethodIsNotSpecial).ToArray();
             foreach (var methodInfo in methodInfos)
             {
-                AddMethod(interfaceType, typeBuilder, methodInfo);
+                AddMethod(interfaceType, typeBuilder, methodInfo, shimField);
             }
-            return methodInfos.Length;
         }
 
-        private void AddMethod(Type interfaceType, TypeBuilder typeBuilder, MethodInfo methodInfo)
+        private static bool MethodIsNotSpecial(MethodInfo mi)
+        {
+            return ((int)mi.Attributes & (int)MethodAttributes.SpecialName) != (int)MethodAttributes.SpecialName;
+        }
+
+        private void AddMethod(
+            Type interfaceType, 
+            TypeBuilder typeBuilder, 
+            MethodInfo methodInfo,
+            FieldBuilder shimField)
         {
             var methodBuilder = typeBuilder.DefineMethod(methodInfo.Name,
                 _propertyGetterSetterMethodAttributes, methodInfo.ReturnType,
                     methodInfo.GetParameters().Select(p => p.ParameterType).ToArray());
-            var ilGenerator = methodBuilder.GetILGenerator();
-            ImplementInterfaceMethodAsRequired(interfaceType, typeBuilder, methodInfo.Name, methodBuilder);
+            var il = methodBuilder.GetILGenerator();
+            if (methodInfo.ReturnType == typeof(void))
+                ImplementVoidReturnCallThroughWith(methodInfo, shimField, il);
+            else
+                ImplementNonVoidReturnCallThroughWith(methodInfo, shimField, il);
 
-            var callThroughMi = GetType().GetMethod("CallThrough", BindingFlags.Static | BindingFlags.NonPublic);
-            ilGenerator.Emit(OpCodes.Call, callThroughMi);
-            ilGenerator.Emit(OpCodes.Ret);
+            ImplementMethodReturnWith(il);
+            ImplementInterfaceMethodAsRequired(interfaceType, typeBuilder, methodInfo.Name, methodBuilder);
         }
 
-        private void AddAllProperties(
+        private static void ImplementVoidReturnCallThroughWith(
+            MethodInfo methodInfo,
+            FieldBuilder shimField,
+            ILGenerator il
+        )
+        {
+            ImplementCallThroughWith(_shimCallThroughVoidMethod, methodInfo, shimField, il);
+        }
+
+        private static void ImplementNonVoidReturnCallThroughWith(
+            MethodInfo methodInfo, 
+            FieldBuilder shimField, 
+            ILGenerator il
+        )
+        {
+
+            ImplementCallThroughWith(_shimCallThroughMethod, methodInfo, shimField, il);
+            il.Emit(OpCodes.Unbox_Any, methodInfo.ReturnType);
+        }
+
+        private static void ImplementCallThroughWith(
+            MethodInfo shimMethod,
+            MethodInfo callThroughMethod,
+            FieldBuilder shimField,
+            ILGenerator il
+        )
+        {
+            var methodParameters = callThroughMethod.GetParameters();
+            var boxedParameters = DeclareArray<object>(il, methodParameters.Length);
+
+            LoadMethodArgumentsIntoArray(il, boxedParameters, methodParameters);
+
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Ldfld, shimField);
+            il.Emit(OpCodes.Ldstr, callThroughMethod.Name);
+            il.Emit(OpCodes.Ldloc, boxedParameters);
+
+            il.Emit(OpCodes.Call, shimMethod);
+        }
+
+        private static void LoadMethodArgumentsIntoArray(ILGenerator il, LocalBuilder boxedParameters, ParameterInfo[] methodParameters)
+        {
+            var boxed = il.DeclareLocal(typeof(object));
+
+            var idx = 0;
+            foreach (var param in methodParameters)
+            {
+                il.Emit(OpCodes.Ldarg, idx + 1);
+                il.Emit(OpCodes.Box, param.ParameterType);
+                il.Emit(OpCodes.Stloc, boxed);
+
+                SetRefTypeArrayItem(il, boxedParameters, idx, boxed);
+
+                idx++;
+            }
+        }
+
+        private static void SetRefTypeArrayItem(ILGenerator il, LocalBuilder array, int idx, LocalBuilder local)
+        {
+            il.Emit(OpCodes.Ldloc, array);
+            il.Emit(OpCodes.Ldc_I4, idx);
+            il.Emit(OpCodes.Ldloc, local);
+            il.Emit(OpCodes.Stelem_Ref);
+        }
+
+        private static LocalBuilder DeclareArray<T>(ILGenerator il, int elements)
+        {
+            var array = il.DeclareLocal(typeof(T[]));
+            il.Emit(OpCodes.Ldc_I4, elements);
+            il.Emit(OpCodes.Newarr, typeof(T));
+            il.Emit(OpCodes.Stloc, array);
+            return array;
+        }
+
+        private void AddAllPropertiesAsShimmable(
             TypeBuilder typeBuilder,
             Type interfaceType,
             FieldBuilder shimField)
         {
             foreach (var prop in interfaceType.GetProperties())
             {
-                AddProperty(interfaceType, typeBuilder, prop, shimField);
+                AddShimmableProperty(interfaceType, typeBuilder, prop, shimField);
             }
         }
 
-        private static void AddProperty(
+        private static void AddShimmableProperty(
             Type interfaceType,
             TypeBuilder typeBuilder,
             PropertyInfo prop,
             FieldBuilder shimField)
         {
-            var backingField = typeBuilder.DefineField("_" + prop.Name, prop.PropertyType, FieldAttributes.Private);
-
+            DefineBackingFieldForDuckDucks(typeBuilder, prop);
             var propBuilder = typeBuilder.DefineProperty(
                                     prop.Name,
                                     PropertyAttributes.HasDefault,
@@ -286,11 +259,15 @@ namespace PeanutButter.DuckTyping
                                     null);
 
             var getMethod = MakeShimGetMethodFor(interfaceType, typeBuilder, prop, shimField);
-//            var setMethod = MakeSetMethodOnBackingFieldFor(interfaceType, typeBuilder, prop, backingField);
-            var setMethod = MakeShimSetMethodFor(interfaceType, typeBuilder, prop, shimField, backingField);
+            var setMethod = MakeShimSetMethodFor(interfaceType, typeBuilder, prop, shimField);
 
             propBuilder.SetSetMethod(setMethod);
             propBuilder.SetGetMethod(getMethod);
+        }
+
+        private static void DefineBackingFieldForDuckDucks(TypeBuilder typeBuilder, PropertyInfo prop)
+        {
+            typeBuilder.DefineField("_" + prop.Name, prop.PropertyType, FieldAttributes.Private);
         }
 
         private static MethodBuilder MakeShimGetMethodFor(
@@ -344,8 +321,7 @@ namespace PeanutButter.DuckTyping
             Type interfaceType,
             TypeBuilder typeBuilder,
             PropertyInfo prop,
-            FieldBuilder shimField,
-            FieldBuilder backingField
+            FieldBuilder shimField
         )
         {
             var methodName = "set_" + prop.Name;
@@ -358,19 +334,13 @@ namespace PeanutButter.DuckTyping
             il.Emit(OpCodes.Box, prop.PropertyType);
             il.Emit(OpCodes.Stloc, boxed);
 
-            var propertyName = prop.Name;
             il.Emit(OpCodes.Ldarg_0);
             il.Emit(OpCodes.Ldfld, shimField);
-            il.Emit(OpCodes.Ldstr, propertyName);
+            il.Emit(OpCodes.Ldstr, prop.Name);
             il.Emit(OpCodes.Ldloc, boxed);
             il.Emit(OpCodes.Call, _shimSetPropertyValueMethod);
-//            il.Emit(OpCodes.Stloc, local);
 
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Ldarg_1);
-            il.Emit(OpCodes.Stfld, backingField);
-
-            MethodReturn(il);
+            ImplementMethodReturnWith(il);
 
             ImplementInterfaceMethodAsRequired(
                 interfaceType,
@@ -381,41 +351,20 @@ namespace PeanutButter.DuckTyping
             return setMethod;
         }
 
-
-        private static MethodBuilder MakeSetMethodOnBackingFieldFor(
-            Type interfaceType,
-            TypeBuilder typeBuilder,
-            PropertyInfo prop,
-            FieldBuilder backingField)
-        {
-            var methodName = "set_" + prop.Name;
-            var setMethod = typeBuilder.DefineMethod(methodName,
-                _propertyGetterSetterMethodAttributes, null, new[] { prop.PropertyType });
-            var il = setMethod.GetILGenerator();
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Ldarg_1);
-            il.Emit(OpCodes.Stfld, backingField);
-            MethodReturn(il);
-
-            ImplementInterfaceMethodAsRequired(
-                interfaceType,
-                typeBuilder,
-                methodName,
-                setMethod);
-
-            return setMethod;
-        }
-
-        private static void MethodReturn(ILGenerator setIlGenerator)
+        private static void ImplementMethodReturnWith(ILGenerator setIlGenerator)
         {
             setIlGenerator.Emit(OpCodes.Ret);
         }
 
-        private static void ImplementInterfaceMethodAsRequired(Type interfaceType, TypeBuilder typeBuilder, string methodName, MethodBuilder setMethod)
+        private static void ImplementInterfaceMethodAsRequired(
+            Type interfaceType, 
+            TypeBuilder typeBuilder, 
+            string methodName, 
+            MethodBuilder methodImplementation)
         {
             var interfaceMethod = interfaceType.GetMethod(methodName);
             if (interfaceMethod != null)
-                typeBuilder.DefineMethodOverride(setMethod, interfaceMethod);
+                typeBuilder.DefineMethodOverride(methodImplementation, interfaceMethod);
         }
 
         private static readonly MethodAttributes _propertyGetterSetterMethodAttributes =
