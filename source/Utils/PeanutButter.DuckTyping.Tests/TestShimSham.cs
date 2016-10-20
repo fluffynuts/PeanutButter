@@ -174,14 +174,81 @@ namespace PeanutButter.DuckTyping.Tests
 
         }
 
+        public interface IFarmAnimal
+        {
+            int Legs { get; set; }
+        }
+
+        public interface ISingleAnimalFarm
+        {
+            IFarmAnimal Animal { get; set ; }
+        }
 
 
 
+        [Test]
+        public void GettingPropertyValuesFromNestedMismatchingTypes()
+        {
+            //--------------- Arrange -------------------
+            var toWrap = new
+            {
+                Animal = new { Legs = 4 }
+            };
+            var sut = Create(toWrap, typeof(ISingleAnimalFarm), false);
 
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = sut.GetPropertyValue("Animal") as IFarmAnimal;
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.Not.Null);
+            // ReSharper disable once PossibleNullReferenceException
+            Expect(result.Legs, Is.EqualTo(4));
+        }
+
+        public class SomeSingleAnimalFarm
+        {
+            public object Animal { get; set; }
+        }
+
+        public class SomeArbitraryAnimal
+        {
+            public int Legs { get; set; }
+        }
+
+        [Test]
+        public void SettingPropertyValuesOnNestedMismatchingTypes()
+        {
+            //--------------- Arrange -------------------
+            var toWrap = new SomeSingleAnimalFarm() { Animal = new SomeArbitraryAnimal() { Legs = 4 } };
+            var sut = Create(toWrap, typeof(ISingleAnimalFarm), false);
+            var newAnimal = new SomeArbitraryAnimal() { Legs = 100 };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            sut.SetPropertyValue("Animal", newAnimal);
+            var result = sut.GetPropertyValue("Animal") as IFarmAnimal;
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.Not.Null);
+            // ReSharper disable once PossibleNullReferenceException
+            Expect(result.Legs, Is.EqualTo(100));
+            result.Legs = 123;
+            var newResult = sut.GetPropertyValue("Animal") as IFarmAnimal;
+            Expect(newResult.Legs, Is.EqualTo(123));
+        }
+
+
+        private ShimSham Create(object toWrap, Type toMimick, bool isFuzzy = false)
+        {
+            return new ShimSham(toWrap, toMimick, isFuzzy);
+        }
 
         private ShimSham Create(Cow toWrap, bool fuzzy)
         {
-            return new ShimSham(toWrap, fuzzy);
+            return new ShimSham(toWrap, toWrap.GetType(), fuzzy);
         }
     }
 }

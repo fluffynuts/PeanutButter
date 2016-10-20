@@ -51,38 +51,54 @@ namespace PeanutButter.DuckTyping
         // ReSharper disable once MemberCanBePrivate.Global
         public bool IsFuzzy { get; }
         private readonly object _wrapped;
+        private readonly Type _interfaceToMimick;
         private readonly Type _wrappedType;
         private readonly bool _wrappingADuck;
 
-        private static readonly Dictionary<Type,  PropertyInfoContainer> _propertyInfos = new Dictionary<Type, PropertyInfoContainer>();
-        private static readonly Dictionary<Type,  MethodInfoContainer> _methodInfos = new Dictionary<Type, MethodInfoContainer>();
+        private static readonly Dictionary<Type, PropertyInfoContainer> _propertyInfos = new Dictionary<Type, PropertyInfoContainer>();
+        private static readonly Dictionary<Type, MethodInfoContainer> _methodInfos = new Dictionary<Type, MethodInfoContainer>();
         private static readonly Dictionary<Type, Dictionary<string, FieldInfo>> _fieldInfos = new Dictionary<Type, Dictionary<string, FieldInfo>>();
+        private static readonly MethodInfo _getDefaultMethodGeneric = typeof(ShimSham).GetMethod("GetDefaultFor");
+
         private Dictionary<string, PropertyInfo> _localPropertyInfos;
         private Dictionary<string, FieldInfo> _localFieldInfos;
         private Dictionary<string, MethodInfo> _localMethodInfos;
-
-        // ReSharper disable once IntroduceOptionalParameters.Global
-        // ReSharper disable once UnusedMember.Global
-        public ShimSham(object toWrap): this(toWrap, false)
-        {
-        }
+        private readonly Dictionary<string, object> _shimmedProperties = new Dictionary<string, object>();
+        private TypeMaker _typeMaker;
+        private readonly MethodInfo _genericMakeType = typeof(TypeMaker).GetMethod("MakeTypeImplementing");
+        private readonly MethodInfo _genericFuzzyMakeType = typeof(TypeMaker).GetMethod("MakeFuzzyTypeImplementing");
+        private PropertyInfoContainer _mimickedPropInfos;
+        private Dictionary<string, PropertyInfo> _localMimickPropertyInfos;
 
         // ReSharper disable once MemberCanBePrivate.Global
-        public ShimSham(object toWrap, bool isFuzzy)
+        public ShimSham(object toWrap, Type interfaceToMimick, bool isFuzzy)
         {
+            if (interfaceToMimick == null) throw new ArgumentNullException(nameof(interfaceToMimick));
             IsFuzzy = isFuzzy;
             _wrapped = toWrap;
+            _interfaceToMimick = interfaceToMimick;
             _wrappedType = toWrap.GetType();
             _wrappingADuck = IsObjectADuck();
             StaticallyCachePropertyInfosFor(_wrappedType, _wrappingADuck);
+            StaticallyCachePropertInfosFor(_interfaceToMimick);
             StaticallyCacheMethodInfosFor(_wrappedType);
             LocallyCachePropertyInfos();
             LocallyCacheMethodInfos();
+            LocallyCacheMimickedPropertyInfos();
+        }
+
+        private void StaticallyCachePropertInfosFor(Type interfaceToMimick)
+        {
+            _mimickedPropInfos = new PropertyInfoContainer(
+                interfaceToMimick.GetProperties(BindingFlags.Instance | 
+                                                    BindingFlags.FlattenHierarchy | 
+                                                    BindingFlags.Public)
+            );
         }
 
         private void StaticallyCacheMethodInfosFor(Type wrappedType)
         {
-            lock(_methodInfos)
+            lock (_methodInfos)
             {
                 if (_methodInfos.ContainsKey(wrappedType))
                     return;
@@ -100,13 +116,62 @@ namespace PeanutButter.DuckTyping
             {
                 return FieldValueFor(propertyName);
             }
-
+            object shimmed;
+            if (_shimmedProperties.TryGetValue(propertyName, out shimmed))
+                return shimmed;
             var propInfo = FindPropertyInfoFor(propertyName);
             if (!propInfo.CanRead)
             {
                 throw new WriteOnlyPropertyException(_wrappedType, propertyName);
             }
-            return propInfo.GetValue(_wrapped);
+            return DuckIfRequired(propInfo, propertyName);
+        }
+
+        private object DuckIfRequired(PropertyInfo wrappedPropertyInfo, string propertyName)
+        {
+            object existingShim;
+            if (_shimmedProperties.TryGetValue(propertyName, out existingShim))
+                return existingShim;
+
+            var propValue = wrappedPropertyInfo.GetValue(_wrapped);
+
+            var correctType = _localMimickPropertyInfos[propertyName].PropertyType;
+            if (propValue == null)
+            {
+                return GetDefaultValueFor(correctType);
+            }
+            var propValueType = propValue.GetType();
+            if (correctType.IsAssignableFrom(propValueType))
+                return propValue;
+            if (correctType.IsPrimitive)
+                return GetDefaultValueFor(correctType); // underlying primitive mismatch; TODO: try convert?
+
+            var duckType = MakeTypeToImplement(correctType);
+            var instance = Activator.CreateInstance(duckType, new[] { propValue });
+            _shimmedProperties[propertyName] = instance;
+            return instance;
+        }
+
+        private Type MakeTypeToImplement(Type type)
+        {
+            var typeMaker = (_typeMaker ?? (_typeMaker = new TypeMaker()));
+            var genericMethod = IsFuzzy ? _genericFuzzyMakeType : _genericMakeType;
+            var specific = genericMethod.MakeGenericMethod(type);
+            return specific.Invoke(typeMaker, null) as Type;
+        }
+
+        private static object GetDefaultValueFor(Type correctType)
+        {
+            return _getDefaultMethodGeneric
+                                .MakeGenericMethod(correctType)
+                                .Invoke(null, null);
+
+        }
+
+        // ReSharper disable once UnusedMember.Local
+        private static T GetDefaultFor<T>()
+        {
+            return default(T);
         }
 
         // ReSharper disable once UnusedMember.Global
@@ -124,7 +189,21 @@ namespace PeanutButter.DuckTyping
             {
                 throw new ReadOnlyPropertyException(_wrappedType, propertyName);
             }
-            propInfo.SetValue(_wrapped, newValue);
+            var mimickedPropInfo = _localMimickPropertyInfos[propertyName];
+            var newValueType = newValue?.GetType();
+            if (newValueType == null)
+            {
+                propInfo.SetValue(_wrapped, GetDefaultValueFor(mimickedPropInfo.PropertyType));
+                return;
+            }
+            if (mimickedPropInfo.PropertyType.IsAssignableFrom(newValueType))
+            {
+                propInfo.SetValue(_wrapped, newValue);
+                return;
+            }
+            var duckType = MakeTypeToImplement(mimickedPropInfo.PropertyType);
+            var instance = Activator.CreateInstance(duckType, new[] { newValue } );
+            _shimmedProperties[propertyName] = instance;
         }
 
         // ReSharper disable once UnusedMember.Global
@@ -146,12 +225,12 @@ namespace PeanutButter.DuckTyping
                 throw new MethodNotFoundException(_wrappedType, methodName);
             if (IsFuzzy)
                 parameters = AttemptToOrderCorrectly(parameters, methodInfo);
-            var result =  methodInfo.Invoke(_wrapped, parameters);
+            var result = methodInfo.Invoke(_wrapped, parameters);
             return result;
         }
 
         private object[] AttemptToOrderCorrectly(
-            object[] parameters, 
+            object[] parameters,
             MethodInfo methodInfo)
         {
             var methodParameters = methodInfo.GetParameters();
@@ -197,11 +276,18 @@ namespace PeanutButter.DuckTyping
 
         private void LocallyCachePropertyInfos()
         {
-            _localPropertyInfos = IsFuzzy 
+            _localPropertyInfos = IsFuzzy
                                     ? _propertyInfos[_wrappedType].FuzzyPropertyInfos
                                     : _propertyInfos[_wrappedType].PropertyInfos;
             if (_wrappingADuck)
                 _localFieldInfos = _fieldInfos[_wrappedType];
+        }
+
+        public void LocallyCacheMimickedPropertyInfos()
+        {
+            _localMimickPropertyInfos = IsFuzzy
+                                       ? _mimickedPropInfos.FuzzyPropertyInfos
+                                       : _mimickedPropInfos.PropertyInfos;
         }
 
         private void LocallyCacheMethodInfos()
@@ -237,6 +323,11 @@ namespace PeanutButter.DuckTyping
 
         private PropertyInfo FindPropertyInfoFor(string propertyName)
         {
+            object shimmed;
+            if (_shimmedProperties.TryGetValue(propertyName, out shimmed))
+            {
+                return _localMimickPropertyInfos[propertyName];
+            }
             PropertyInfo propInfo;
             if (!_localPropertyInfos.TryGetValue(propertyName, out propInfo))
                 throw new PropertyNotFoundException(_wrappedType, propertyName);

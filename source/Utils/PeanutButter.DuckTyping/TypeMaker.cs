@@ -18,7 +18,7 @@ namespace PeanutButter.DuckTyping
     public class TypeMaker : ITypeMaker
     {
         private static readonly Type _shimType = typeof(ShimSham);
-        private static readonly ConstructorInfo _shimConstructor = _shimType.GetConstructor(new[] { typeof(object), typeof(bool) });
+        private static readonly ConstructorInfo _shimConstructor = _shimType.GetConstructor(new[] { typeof(object), typeof(Type), typeof(bool) });
         private static readonly ConstructorInfo _objectConstructor = typeof(object).GetConstructor(new Type[0]);
         private static readonly MethodInfo _shimGetPropertyValueMethod = 
             _shimType.GetMethod("GetPropertyValue");
@@ -62,8 +62,8 @@ namespace PeanutButter.DuckTyping
             var allInterfaceTypes = GetAllInterfacesFor(interfaceType);
             AddAllPropertiesAsShimmable(typeBuilder, allInterfaceTypes, shimField);
             AddAllMethodsAsShimmable(typeBuilder, allInterfaceTypes, shimField);
-            AddDefaultConstructor(typeBuilder, shimField, isFuzzy);
-            AddWrappingConstructor(typeBuilder, shimField, isFuzzy);
+            AddDefaultConstructor(typeBuilder, shimField, interfaceType, isFuzzy);
+            AddWrappingConstructor(typeBuilder, shimField, interfaceType, isFuzzy);
 
             return typeBuilder.CreateType();
         }
@@ -76,6 +76,7 @@ namespace PeanutButter.DuckTyping
         private void AddDefaultConstructor(
             TypeBuilder typeBuilder, 
             FieldBuilder shimField,
+            Type interfaceType,
             bool isFuzzy)
         {
             var ctor = typeBuilder.DefineConstructor(
@@ -85,7 +86,7 @@ namespace PeanutButter.DuckTyping
             var il = ctor.GetILGenerator();
             CallBaseObjectConstructor(il);
 
-            var result = CreateWrappingShimForThisWith(il, isFuzzy);
+            var result = CreateWrappingShimForThisWith(il, interfaceType, isFuzzy);
 
             StoreShimInFieldWith(shimField, il, result);
 
@@ -95,6 +96,7 @@ namespace PeanutButter.DuckTyping
         private void AddWrappingConstructor(
             TypeBuilder typeBuilder,
             FieldBuilder shimField,
+            Type interfaceType,
             bool isFuzzy
         )
         {
@@ -104,7 +106,7 @@ namespace PeanutButter.DuckTyping
                 new[] { typeof(object) });
             var il = ctorBuilder.GetILGenerator();
             CallBaseObjectConstructor(il);
-            var result = CreateWrappingShimForArg1With(il, isFuzzy);
+            var result = CreateWrappingShimForArg1With(il, interfaceType, isFuzzy);
             StoreShimInFieldWith(shimField, il, result);
             ImplementMethodReturnWith(il);
         }
@@ -116,20 +118,21 @@ namespace PeanutButter.DuckTyping
             generator.Emit(OpCodes.Stfld, shimField);
         }
 
-        private static LocalBuilder CreateWrappingShimForArg1With(ILGenerator il, bool isFuzzy)
+        private static LocalBuilder CreateWrappingShimForArg1With(ILGenerator il, Type interfaceType, bool isFuzzy)
         {
-            return CreateWrappingShimFor(OpCodes.Ldarg_1, il, isFuzzy);
+            return CreateWrappingShimFor(OpCodes.Ldarg_1, il, interfaceType, isFuzzy);
         }
 
-        private static LocalBuilder CreateWrappingShimForThisWith(ILGenerator il, bool isFuzzy)
+        private static LocalBuilder CreateWrappingShimForThisWith(ILGenerator il, Type interfaceType, bool isFuzzy)
         {
-            return CreateWrappingShimFor(OpCodes.Ldarg_0, il, isFuzzy);
+            return CreateWrappingShimFor(OpCodes.Ldarg_0, il, interfaceType, isFuzzy);
         }
 
-        private static LocalBuilder CreateWrappingShimFor(OpCode code, ILGenerator il, bool isFuzzy)
+        private static LocalBuilder CreateWrappingShimFor(OpCode code, ILGenerator il, Type interfaceType, bool isFuzzy)
         {
             var result = il.DeclareLocal(typeof(ShimSham));
             il.Emit(code);
+            il.Emit(OpCodes.Ldtoken, interfaceType);
             il.Emit(isFuzzy ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
             il.Emit(OpCodes.Newobj, _shimConstructor);
             il.Emit(OpCodes.Stloc, result);

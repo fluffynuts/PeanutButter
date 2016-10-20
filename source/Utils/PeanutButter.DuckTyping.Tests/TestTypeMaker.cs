@@ -137,7 +137,7 @@ namespace PeanutButter.DuckTyping.Tests
         }
 
         [Test]
-        public void MakeTypeImplementing_ShouldBeAbleToImplementWrappedNonPrimitiveProperties()
+        public void MakeTypeImplementing_ShouldBeAbleToImplementWrappedNonPrimitivePropertiesForGet()
         {
             //--------------- Arrange -------------------
             var sut = Create();
