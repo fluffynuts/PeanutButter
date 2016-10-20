@@ -65,6 +65,17 @@ namespace PeanutButter.DuckTyping.Extensions
             }
         }
 
+        internal static Type[] GetAllImplementedInterfaces(this Type interfaceType)
+        {
+            var result = new List<Type> {interfaceType};
+            foreach (var type in interfaceType.GetInterfaces())
+            {
+                result.AddRange(type.GetAllImplementedInterfaces());
+            }
+            return result.ToArray();
+        }
+
+
         private static void CacheMethodInfosIfRequired(Type type)
         {
             if (!_methodCache.ContainsKey(type))

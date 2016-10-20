@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using PeanutButter.DuckTyping.Exceptions;
+using PeanutButter.DuckTyping.Extensions;
 
 namespace PeanutButter.DuckTyping
 {
@@ -88,9 +89,10 @@ namespace PeanutButter.DuckTyping
         private void StaticallyCachePropertInfosFor(Type interfaceToMimick)
         {
             _mimickedPropInfos = new PropertyInfoContainer(
-                interfaceToMimick.GetProperties(BindingFlags.Instance | 
-                                                    BindingFlags.FlattenHierarchy | 
-                                                    BindingFlags.Public)
+                interfaceToMimick.GetAllImplementedInterfaces()
+                    .Select(i => i.GetProperties(BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.Public))
+                    .SelectMany(c => c)
+                    .ToArray()
             );
         }
 

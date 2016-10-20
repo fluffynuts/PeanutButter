@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using PeanutButter.DuckTyping.Extensions;
 
 namespace PeanutButter.DuckTyping
 {
@@ -39,7 +40,7 @@ namespace PeanutButter.DuckTyping
             return MakeTypeImplementing<T>(true);
         }
 
-        protected Type MakeTypeImplementing<T>(bool isFuzzy)
+        private Type MakeTypeImplementing<T>(bool isFuzzy)
         {
             var interfaceType = typeof(T);
             if (!interfaceType.IsInterface)
@@ -52,6 +53,8 @@ namespace PeanutButter.DuckTyping
             var typeBuilder = modBuilder.DefineType(generatedTypeName, TypeAttributes.Public);
 
             var attribConstructor = typeof(IsADuckAttribute).GetConstructor(new Type[0]);
+            // we have full control over the constructor; testing for null is a waste of time.
+            // ReSharper disable once AssignNullToNotNullAttribute
             var attribBuilder = new CustomAttributeBuilder(attribConstructor, new object[0]);
             typeBuilder.SetCustomAttribute(attribBuilder);
 
@@ -59,7 +62,7 @@ namespace PeanutButter.DuckTyping
 
 
             var shimField = AddShimField(typeBuilder);
-            var allInterfaceTypes = GetAllInterfacesFor(interfaceType);
+            var allInterfaceTypes = interfaceType.GetAllImplementedInterfaces();
             AddAllPropertiesAsShimmable(typeBuilder, allInterfaceTypes, shimField);
             AddAllMethodsAsShimmable(typeBuilder, allInterfaceTypes, shimField);
             AddDefaultConstructor(typeBuilder, shimField, interfaceType, isFuzzy);
@@ -267,20 +270,6 @@ namespace PeanutButter.DuckTyping
             }
         }
 
-        public class PropertyInfoEqualityComparer: IEqualityComparer<PropertyInfo>
-        {
-            public bool Equals(PropertyInfo x, PropertyInfo y)
-            {
-                return x.Name == y.Name &&
-                       x.PropertyType == y.PropertyType;
-            }
-
-            public int GetHashCode(PropertyInfo obj)
-            {
-                return obj.GetHashCode();
-            }
-        }
-
         private PropertyInfo[] GetAllPropertiesFor(Type[] allImplementedInterfaces)
         {
             return GetAllFor(allImplementedInterfaces,
@@ -299,16 +288,6 @@ namespace PeanutButter.DuckTyping
                         .Select(fetcher)
                         .SelectMany(a => a)
                         .ToArray();
-        }
-
-        private static Type[] GetAllInterfacesFor(Type interfaceType)
-        {
-            var result = new List<Type> {interfaceType};
-            foreach (var type in interfaceType.GetInterfaces())
-            {
-                result.AddRange(GetAllInterfacesFor(type));
-            }
-            return result.ToArray();
         }
 
         private static void AddShimmableProperty(

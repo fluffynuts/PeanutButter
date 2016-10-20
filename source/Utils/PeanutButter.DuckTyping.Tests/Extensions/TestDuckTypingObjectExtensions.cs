@@ -9,7 +9,7 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 namespace PeanutButter.DuckTyping.Tests.Extensions
 {
     [TestFixture]
-    public class TestDuckTypingObjectExtensions: AssertionHelper
+    public class TestDuckTypingObjectExtensions : AssertionHelper
     {
         public interface IHasReadOnlyName
         {
@@ -195,8 +195,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             //--------------- Arrange -------------------
             var expected = GetRandomString();
             Func<object> makeSource = () =>
-                new
-                {
+                new {
                     Name = expected
                 };
             var src = makeSource();
@@ -216,8 +215,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         {
             //--------------- Arrange -------------------
             Func<object> makeSource = () =>
-                new
-                {
+                new {
                     Name = GetRandomString()
                 };
             var src = makeSource();
@@ -273,10 +271,9 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         public void FuzzyDuckAs_OperatingOnObjectWhichFuzzyMatchesProperties_ShouldReturnFuzzyDuck()
         {
             //--------------- Arrange -------------------
-            var src = new
-                {
-                    nAmE = GetRandomString()
-                } as object;
+            var src = new {
+                nAmE = GetRandomString()
+            } as object;
 
             //--------------- Assume ----------------
 
@@ -286,6 +283,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             //--------------- Assert -----------------------
             Expect(result, Is.Not.Null);
         }
+
+
 
         [Test]
         public void FuzzyDuckAs_OperatingOnObjectWithFuzzyMatchingMethods_ShouldReturnFuzzyDuck()
@@ -300,6 +299,39 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
             //--------------- Assert -----------------------
             Expect(result, Is.Not.Null);
+        }
+
+
+        public interface IActivityParameters<T>
+        {
+            Guid ActorId { get; }
+            Guid TaskId { get; }
+            T Payload { get; }
+        }
+
+        public interface ISomeActivityParameters : IActivityParameters<Guid>
+        {
+        }
+
+        [Test]
+        public void DuckAs_ShouldNotBeConfusedByInterfaceInheritence()
+        {
+            //--------------- Arrange -------------------
+            var src = new {
+                ActorId = Guid.NewGuid(),
+                TaskId = Guid.NewGuid(),
+                Payload = Guid.NewGuid()
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = src.DuckAs<ISomeActivityParameters>();
+
+            //--------------- Assert -----------------------
+            Expect(() => result.ActorId, Throws.Nothing);
+            Expect(() => result.TaskId, Throws.Nothing);
+            Expect(() => result.Payload, Throws.Nothing);
         }
 
 
