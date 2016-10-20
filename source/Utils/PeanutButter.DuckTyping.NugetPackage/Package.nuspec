@@ -1,16 +1,14 @@
-<?xml version="1.0"?>
-<package >
+<package>
   <metadata>
     <id>PeanutButter.DuckTyping</id>
-    <version>1.2.59</version>
+    <version>1.2.60</version>
     <title>PeanutButter.DuckTyping</title>
     <authors>Davyd McColl</authors>
     <owners></owners>
     <description>
       A package to facilitate duck-typing through an object extension DuckAs&lt;&gt;
     </description>
-    <releaseNotes>
-    </releaseNotes>
+    <releaseNotes></releaseNotes>
     <summary>
       A package to facilitate duck-typing through an object extension DuckAs&lt;&gt;
     </summary>
@@ -21,8 +19,7 @@
     <licenseUrl>https://github.com/fluffynuts/PeanutButter/blob/master/LICENSE</licenseUrl>
     <copyright>Copyright  2016</copyright>
     <dependencies>
-        <group targetFramework="net40">
-        </group>
+      <group targetFramework="net40"></group>
     </dependencies>
     <references></references>
     <tags></tags>
