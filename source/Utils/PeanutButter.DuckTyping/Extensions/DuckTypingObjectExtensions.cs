@@ -13,27 +13,51 @@ namespace PeanutButter.DuckTyping.Extensions
     {
         public static bool CanDuckAs<T>(this object src)
         {
+            return CanDuckAs<T>(src, false);
+        }
+
+        public static bool CanFuzzyDuckAs<T>(this object src)
+        {
+            return CanDuckAs<T>(src, true);
+        }
+
+        private static bool CanDuckAs<T>(this object src, bool allowFuzzy)
+        {
             var type = typeof(T);
-            var expectedProperties = type.FindProperties();
+            var expectedProperties = allowFuzzy ? type.FindFuzzyProperties() :type.FindProperties();
             var srcType = src.GetType();
-            var srcProperties = srcType.FindProperties();
+            var srcProperties = allowFuzzy ? srcType.FindFuzzyProperties() : srcType.FindProperties();
             if (!srcProperties.IsSuperSetOf(expectedProperties))
                 return false;
-            var expectedMethods = type.FindMethods();
-            var srcMethods = srcType.FindMethods();
+            var expectedMethods = allowFuzzy ? type.FindFuzzyMethods() : type.FindMethods();
+            var srcMethods = allowFuzzy ? srcType.FindFuzzyMethods() : srcType.FindMethods();
             return srcMethods.IsSuperSetOf(expectedMethods);
         }
 
         public static T DuckAs<T>(this object src) where T: class
         {
-            if (src == null || !src.CanDuckAs<T>())
-                return null;
-            var duckType = FindOrCreateDuckTypeFor<T>(false);
+            return src.DuckAs<T>(false);
+        }
+
+        public static T FuzzyDuckAs<T>(this object src) where T: class
+        {
+            return src.DuckAs<T>(true);
+        }
+
+        internal static T DuckAs<T>(this object src, bool allowFuzzy) where T: class
+        {
+            if (src == null) return null;
+            var duckable = allowFuzzy ? src.CanFuzzyDuckAs<T>() : src.CanDuckAs<T>();
+            if (!duckable) return null;
+
+            var duckType = FindOrCreateDuckTypeFor<T>(allowFuzzy);
             return (T)Activator.CreateInstance(duckType, src);
+            
         }
 
         private static readonly Dictionary<Type, TypePair> _duckTypes 
             = new Dictionary<Type, TypePair>();
+
         private static Type FindOrCreateDuckTypeFor<T>(bool isFuzzy)
         {
             var key = typeof(T);

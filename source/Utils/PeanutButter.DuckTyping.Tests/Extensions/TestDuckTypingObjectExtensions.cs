@@ -2,6 +2,9 @@
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Extensions;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedMember.Global
+// ReSharper disable UnassignedGetOnlyAutoProperty
 
 namespace PeanutButter.DuckTyping.Tests.Extensions
 {
@@ -97,7 +100,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             Expect(result2, Is.True);
         }
 
-        interface ICow
+        public interface ICow
         {
             void Moo();
         }
@@ -147,8 +150,10 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
         public class AutoCow
         {
+            // ReSharper disable once UnusedParameter.Global
             public void Moo(int howManyTimes)
             {
+                /* Empty on purpose */
             }
         }
 
@@ -177,6 +182,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
+            // ReSharper disable once ExpressionIsAlwaysNull
             var result = src.DuckAs<ICow>();
 
             //--------------- Assert -----------------------
@@ -224,7 +230,77 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             Expect(result, Is.Null);
         }
 
+        [Test]
+        public void CanFuzzyDuckAs_OperatingOnSimilarPropertiedThing_ShouldReturnTrue()
+        {
+            //--------------- Arrange -------------------
+            var thing = new { nAmE = GetRandomString() } as object;
 
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = thing.CanFuzzyDuckAs<IHasReadOnlyName>();
+
+            //--------------- Assert -----------------------
+            Assert.IsTrue(result);
+        }
+
+        public class LowerCaseCow
+        {
+            // ReSharper disable once InconsistentNaming
+            public void moo()
+            {
+            }
+        }
+
+        [Test]
+        public void CanFuzzyDuckAs_OperatingOnSimilarThingWithMethods_ShouldReturnTrue()
+        {
+            //--------------- Arrange -------------------
+            var cow = new LowerCaseCow();
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = cow.CanFuzzyDuckAs<ICow>();
+
+            //--------------- Assert -----------------------
+            Assert.IsTrue(result);
+        }
+
+
+        [Test]
+        public void FuzzyDuckAs_OperatingOnObjectWhichFuzzyMatchesProperties_ShouldReturnFuzzyDuck()
+        {
+            //--------------- Arrange -------------------
+            var src = new
+                {
+                    nAmE = GetRandomString()
+                } as object;
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = src.FuzzyDuckAs<IHasReadOnlyName>();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.Not.Null);
+        }
+
+        [Test]
+        public void FuzzyDuckAs_OperatingOnObjectWithFuzzyMatchingMethods_ShouldReturnFuzzyDuck()
+        {
+            //--------------- Arrange -------------------
+            var src = new LowerCaseCow();
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = src.FuzzyDuckAs<ICow>();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.Not.Null);
+        }
 
 
 

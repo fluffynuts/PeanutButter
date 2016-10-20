@@ -8,53 +8,78 @@ namespace PeanutButter.DuckTyping.Extensions
 {
     internal static class DuckTypingHelperExtensions
     {
-        private static readonly Dictionary<Type, Dictionary<string, PropertyInfo>> _propertyCache =
-            new Dictionary<Type, Dictionary<string, PropertyInfo>>();
-        private static readonly Dictionary<Type, Dictionary<string, MethodInfo>> _methodCache =
-            new Dictionary<Type, Dictionary<string, MethodInfo>>();
+        private static readonly Dictionary<Type, PropertyInfoContainer> _propertyCache =
+            new Dictionary<Type, PropertyInfoContainer>();
+        private static readonly Dictionary<Type, MethodInfoContainer> _methodCache =
+            new Dictionary<Type, MethodInfoContainer>();
         internal static Dictionary<string, PropertyInfo> FindProperties(this Type type)
         {
             lock (_propertyCache)
             {
-                if (!_propertyCache.ContainsKey(type))
-                {
-                    _propertyCache[type] = GetPropertiesFor(type);
-                }
-                return _propertyCache[type];
+                CachePropertiesIfRequired(type);
+                return _propertyCache[type].PropertyInfos;
+            }
+        }
+
+        private static void CachePropertiesIfRequired(Type type)
+        {
+            if (!_propertyCache.ContainsKey(type))
+            {
+                _propertyCache[type] = GetPropertiesFor(type);
+            }
+        }
+
+        internal static Dictionary<string, PropertyInfo> FindFuzzyProperties(this Type type)
+        {
+            lock (_propertyCache)
+            {
+                CachePropertiesIfRequired(type);
+                return _propertyCache[type].FuzzyPropertyInfos;
             }
         }
 
         private static readonly BindingFlags _seekFlags = 
             BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy;
 
-        private static Dictionary<string, PropertyInfo> GetPropertiesFor(Type type)
+        private static PropertyInfoContainer GetPropertiesFor(Type type)
         {
-            return type.GetProperties(_seekFlags)
-                .ToDictionary(
-                    pi => pi.Name,
-                    pi => pi
-                );
+            return new PropertyInfoContainer(type.GetProperties(_seekFlags));
         }
 
         internal static Dictionary<string, MethodInfo> FindMethods(this Type type)
         {
             lock(_methodCache)
             {
-                if (!_methodCache.ContainsKey(type))
-                {
-                    _methodCache[type] = GetMethodsFor(type);
-                }
-                return _methodCache[type];
+                CacheMethodInfosIfRequired(type);
+                return _methodCache[type].MethodInfos;
+            }
+        }
+        internal static Dictionary<string, MethodInfo> FindFuzzyMethods(
+            this Type type
+        )
+        {
+            lock(_methodCache)
+            {
+                CacheMethodInfosIfRequired(type);
+                return _methodCache[type].FuzzyMethodInfos;
             }
         }
 
-        private static Dictionary<string, MethodInfo> GetMethodsFor(Type type)
+        private static void CacheMethodInfosIfRequired(Type type)
         {
-            return type.GetMethods(_seekFlags)
-                .ToDictionary(
-                    pi => pi.Name,
-                    pi => pi
-                );
+            if (!_methodCache.ContainsKey(type))
+            {
+                _methodCache[type] = GetMethodsFor(type);
+            }
+        }
+
+        private static MethodInfoContainer GetMethodsFor(Type type)
+        {
+            return new MethodInfoContainer(
+                type.GetMethods(_seekFlags)
+                    .Where(mi => !mi.IsSpecial())
+                    .ToArray()
+            );
         }
 
         internal static bool IsSuperSetOf(
@@ -63,6 +88,7 @@ namespace PeanutButter.DuckTyping.Extensions
         {
             return other.All(kvp => src.HasPropertyMatching(kvp.Value));
         }
+
 
         internal static bool IsSuperSetOf(
             this Dictionary<string, MethodInfo> src,
@@ -115,6 +141,10 @@ namespace PeanutButter.DuckTyping.Extensions
             }
             return true;
         }
-
+        
+        internal static bool IsSpecial(this MethodInfo methodInfo)
+        {
+            return ((int)methodInfo.Attributes & (int)MethodAttributes.SpecialName) == (int)MethodAttributes.SpecialName;
+        }
     }
 }

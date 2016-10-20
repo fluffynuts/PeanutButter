@@ -51,7 +51,6 @@ namespace PeanutButter.DuckTyping
         // ReSharper disable once MemberCanBePrivate.Global
         public bool IsFuzzy { get; }
         private readonly object _wrapped;
-        private readonly Type _interfaceToMimick;
         private readonly Type _wrappedType;
         private readonly bool _wrappingADuck;
 
@@ -76,11 +75,10 @@ namespace PeanutButter.DuckTyping
             if (interfaceToMimick == null) throw new ArgumentNullException(nameof(interfaceToMimick));
             IsFuzzy = isFuzzy;
             _wrapped = toWrap;
-            _interfaceToMimick = interfaceToMimick;
             _wrappedType = toWrap.GetType();
             _wrappingADuck = IsObjectADuck();
             StaticallyCachePropertyInfosFor(_wrappedType, _wrappingADuck);
-            StaticallyCachePropertInfosFor(_interfaceToMimick);
+            StaticallyCachePropertInfosFor(interfaceToMimick);
             StaticallyCacheMethodInfosFor(_wrappedType);
             LocallyCachePropertyInfos();
             LocallyCacheMethodInfos();
