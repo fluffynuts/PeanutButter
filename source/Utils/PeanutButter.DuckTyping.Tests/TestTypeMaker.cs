@@ -11,7 +11,7 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 namespace PeanutButter.DuckTyping.Tests
 {
     [TestFixture]
-    public class TestTypeMaker: AssertionHelper
+    public class TestTypeMaker : AssertionHelper
     {
         public interface ISample1
         {
@@ -133,7 +133,7 @@ namespace PeanutButter.DuckTyping.Tests
 
         public class ToWrapSample1
         {
-            public Sample1 Sample { get; set ; }
+            public Sample1 Sample { get; set; }
         }
 
         [Test]
@@ -337,7 +337,7 @@ namespace PeanutButter.DuckTyping.Tests
         }
 
 
-        public interface IInherited: ISample1
+        public interface IInherited : ISample1
         {
         }
 
@@ -358,7 +358,7 @@ namespace PeanutButter.DuckTyping.Tests
             Expect(instance, Is.InstanceOf<ISample1>());
         }
 
-        public interface IInheritedWithMethod: IArgsNonVoid
+        public interface IInheritedWithMethod : IArgsNonVoid
         {
         }
 
@@ -379,15 +379,19 @@ namespace PeanutButter.DuckTyping.Tests
             Expect(instance, Is.InstanceOf<IArgsNonVoid>());
         }
 
+        public class ToWrapSample1CaseInsensitive
+        {
+            public Sample1 sAmple { get; set; }
+        }
+
         [Test]
-        [Ignore("WIP")]
         public void MakeTypeImplementing_GivenFuzzyIsTrue_ShouldMakeFuzzyType()
         {
             //--------------- Arrange -------------------
             var sut = Create();
-            var toWrap = new ToWrapSample1()
+            var toWrap = new ToWrapSample1CaseInsensitive()
             {
-                Sample = new Sample1()
+                sAmple = new Sample1()
             };
             var type = sut.MakeFuzzyTypeImplementing<ISample4>();
             var expected = new Sample1();
@@ -395,11 +399,11 @@ namespace PeanutButter.DuckTyping.Tests
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var instance = CreateInstanceOf(type, toWrap);
+            var instance = (ISample4)CreateInstanceOf(type, toWrap);
+            instance.Sample = expected;
 
             //--------------- Assert -----------------------
-            instance.SetPropertyValue("sample", expected);
-            var result = toWrap.Sample;
+            var result = toWrap.sAmple;
             Expect(result, Is.EqualTo(expected));
         }
 
