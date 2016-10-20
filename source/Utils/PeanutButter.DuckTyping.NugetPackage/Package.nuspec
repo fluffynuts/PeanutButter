@@ -6,11 +6,13 @@
     <authors>Davyd McColl</authors>
     <owners></owners>
     <description>
-      A package to facilitate duck-typing through an object extension DuckAs&lt;&gt;
+      A package to facilitate duck-typing through an object extension DuckAs&lt;&gt;.
+      There is also a FuzzyDuckAs&gt;&lt; facility for more case-insensitive ducking
     </description>
     <releaseNotes></releaseNotes>
     <summary>
-      A package to facilitate duck-typing through an object extension DuckAs&lt;&gt;
+      A package to facilitate duck-typing through an object extension DuckAs&lt;&gt;.
+      There is also a FuzzyDuckAs&gt;&lt; facility for more case-insensitive ducking
     </summary>
     <language>en-US</language>
     <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
