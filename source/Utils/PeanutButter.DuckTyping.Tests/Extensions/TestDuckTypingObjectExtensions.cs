@@ -302,12 +302,6 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
 
-        public interface IActivityParameters<T>
-        {
-            Guid ActorId { get; }
-            Guid TaskId { get; }
-            T Payload { get; }
-        }
 
         public interface ISomeActivityParameters : IActivityParameters<Guid>
         {
@@ -332,6 +326,61 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             Expect(() => result.ActorId, Throws.Nothing);
             Expect(() => result.TaskId, Throws.Nothing);
             Expect(() => result.Payload, Throws.Nothing);
+        }
+
+        public interface IActivityParameters
+        {
+            Guid ActorId { get; }
+            Guid TaskId { get; }
+            void DoNothing();
+        }
+        public interface IActivityParameters<T> : IActivityParameters
+        {
+            T Payload { get; }
+        }
+        public interface ISpecificActivityParameters : IActivityParameters<string>
+        {
+        }
+        public class ActivityParameters : IActivityParameters
+        {
+            public Guid ActorId { get; }
+            public Guid TaskId { get; }
+            public void DoNothing()
+            {
+                /* does nothing */
+            }
+
+            public ActivityParameters(Guid actorId, Guid taskId)
+            {
+                ActorId = actorId;
+                TaskId = taskId;
+            }
+        }
+
+        public class ActivityParameters<T> : ActivityParameters, IActivityParameters<T>
+        {
+            public T Payload { get; set; }
+
+            public ActivityParameters(Guid actorId, Guid taskId, T payload)
+                : base(actorId, taskId)
+            {
+                Payload = payload;
+            }
+        }
+
+        [Test]
+        public void DuckAs_WildConfusion()
+        {
+            //--------------- Arrange -------------------
+            var instance = new ActivityParameters<string>(Guid.Empty, Guid.Empty, "foo");
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = instance.DuckAs<ISpecificActivityParameters>();
+
+            //--------------- Assert -----------------------
+            Assert.IsNotNull(result);
         }
 
 

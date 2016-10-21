@@ -7,46 +7,6 @@ using PeanutButter.DuckTyping.Extensions;
 
 namespace PeanutButter.DuckTyping
 {
-    public class PropertyInfoContainer
-    {
-        public Dictionary<string, PropertyInfo> PropertyInfos { get; }
-        public Dictionary<string, PropertyInfo> FuzzyPropertyInfos { get; }
-        public PropertyInfoContainer(
-            PropertyInfo[] propertyInfos
-        )
-        {
-            PropertyInfos = propertyInfos.ToDictionary(
-                pi => pi.Name,
-                pi => pi,
-                StringComparer.InvariantCulture
-            );
-            FuzzyPropertyInfos = propertyInfos.ToDictionary(
-                pi => pi.Name,
-                pi => pi,
-                StringComparer.OrdinalIgnoreCase
-            );
-        }
-    }
-    public class MethodInfoContainer
-    {
-        public Dictionary<string, MethodInfo> MethodInfos { get; }
-        public Dictionary<string, MethodInfo> FuzzyMethodInfos { get; }
-        public MethodInfoContainer(
-            MethodInfo[] methodInfos
-        )
-        {
-            MethodInfos = methodInfos.ToDictionary(
-                pi => pi.Name,
-                pi => pi,
-                StringComparer.InvariantCulture
-            );
-            FuzzyMethodInfos = methodInfos.ToDictionary(
-                pi => pi.Name,
-                pi => pi,
-                StringComparer.OrdinalIgnoreCase
-            );
-        }
-    }
     public class ShimSham
     {
         // ReSharper disable once MemberCanBePrivate.Global

@@ -44,6 +44,10 @@
     <Compile Include="Extensions\DuckTypingHelperExtensions.cs" />
     <Compile Include="Extensions\DuckTypingObjectExtensions.cs" />
     <Compile Include="Exceptions\ParameterCountMismatchException.cs" />
+    <Compile Include="MethodInfoComparer.cs" />
+    <Compile Include="MethodInfoContainer.cs" />
+    <Compile Include="PropertyInfoComparer.cs" />
+    <Compile Include="PropertyInfoContainer.cs" />
     <Compile Include="ShimSham.cs" />
     <Compile Include="TypeMaker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
