@@ -1,13 +1,13 @@
 <package>
   <metadata>
     <id>PeanutButter.DuckTyping</id>
-    <version>1.2.63</version>
+    <version>1.2.64</version>
     <title>PeanutButter.DuckTyping</title>
     <authors>Davyd McColl</authors>
     <owners></owners>
     <description>
       A package to facilitate duck-typing through an object extension DuckAs&lt;&gt;.
-      There is also a FuzzyDuckAs&gt;&lt; facility for more case-insensitive ducking.
+      There is also a FuzzyDuckAs&lt;&gt; facility for more case-insensitive ducking.
       At no point is there use of DynamicObjects, which hurt performance.
       Property read/write as well as methods are ducked, with the current caveat
       that ref and out parameters may not behave as expected.
