@@ -301,8 +301,6 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             Expect(result, Is.Not.Null);
         }
 
-
-
         public interface ISomeActivityParameters : IActivityParameters<Guid>
         {
         }
