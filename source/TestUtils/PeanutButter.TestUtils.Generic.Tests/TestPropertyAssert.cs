@@ -268,7 +268,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<AssertionException>(() => PropertyAssert.MatchingPropertiesAreEqual(obj1, obj2));
+            Assert.Throws<AssertionException>(() => PropertyAssert.IntersectionEquals(obj1, obj2));
 
             //---------------Test Result -----------------------
         }
@@ -287,7 +287,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<AssertionException>(() => PropertyAssert.MatchingPropertiesAreEqual(obj1, obj2));
+            Assert.Throws<AssertionException>(() => PropertyAssert.IntersectionEquals(obj1, obj2));
 
             //---------------Test Result -----------------------
         }

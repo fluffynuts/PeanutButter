@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Text.RegularExpressions;
@@ -15,8 +17,45 @@ using NSubstitute;
 
 namespace PeanutButter.TestUtils.MVC.Builders
 {
-    public class ControllerWithContextBuilder<T> where T: ControllerBase
+    public static class MvcTypeShim
     {
+        private static Dictionary<string, Type> _mvcTypes = new Dictionary<string, Type>();
+        static MvcTypeShim()
+        {
+            var mvcAsm = AppDomain.CurrentDomain.GetAssemblies()
+                                    .FirstOrDefault(a => a.GetName()?.Name?.ToLower() == "system.web.mvc");
+            if (mvcAsm == null)
+            {
+                var asmPath = new Uri(typeof(ControllerWithContextBuilder<>).Assembly.CodeBase).LocalPath;
+                var toLoad = Path.Combine(Path.GetDirectoryName(asmPath), "System.Web.Mvc.dll");
+                if (!File.Exists(toLoad))
+                    throw new InvalidOperationException("Can't load System.Web.Mvc locally");
+                mvcAsm = Assembly.Load(File.ReadAllBytes(asmPath));
+            }
+            RegisterType(mvcAsm.GetTypes(), "ControllerContext");
+        }
+
+        private static void RegisterType(Type[] types, string typeName)
+        {
+            var type = types.FirstOrDefault(t => t.Name?.ToLower() == typeName?.ToLower());
+            _mvcTypes[typeName] = type;
+        }
+
+        public static object Spawn(string typeName, params object[] constructorParams)
+        {
+            var spawnType = _mvcTypes[typeName];
+            return Activator.CreateInstance(spawnType, constructorParams);
+        }
+    }
+
+    public interface IControllerLike
+    {
+        object ControllerContext { get; set; }
+    }
+
+    public class ControllerWithContextBuilder<T> // where T: ControllerBase
+    {
+
         private string _userName;
         private Guid _userGuid;
         private List<string> _roles;
@@ -58,8 +97,10 @@ namespace PeanutButter.TestUtils.MVC.Builders
                 _queryStringParameters,
                 _cookies,
                 _sessionState);
-            controller.ControllerContext = new ControllerContext(httpContext, _routeData, controller);
-            return controller;
+            var propInfo = controller.GetType().GetProperty("ControllerContext");
+            var context = MvcTypeShim.Spawn("ControllerContext", httpContext, _routeData, controller);
+            propInfo.SetValue(controller, context);
+            return (T)controller;
         }
 
         public ControllerWithContextBuilder<T> WithPrincipal(IPrincipal principal)
@@ -82,9 +123,9 @@ namespace PeanutButter.TestUtils.MVC.Builders
             return new ClaimsPrincipal(claimsIdentity);
         }
 
-        private T SpawnControllerInstance()
+        private object SpawnControllerInstance()
         {
-            T controller = null;
+            object controller = null;
             if (_controllerFactoryFunc == null)
             {
                 try
