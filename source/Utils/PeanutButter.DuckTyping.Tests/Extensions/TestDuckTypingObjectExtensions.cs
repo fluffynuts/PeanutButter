@@ -381,6 +381,12 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             Assert.IsNotNull(result);
         }
 
+        public interface ICreateMe
+        {
+            int Id { get; set; }
+            string Name { get; set; }
+        }
+
 
 
     }

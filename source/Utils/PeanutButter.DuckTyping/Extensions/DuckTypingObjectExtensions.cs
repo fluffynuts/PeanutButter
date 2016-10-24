@@ -21,6 +21,16 @@ namespace PeanutButter.DuckTyping.Extensions
             return CanDuckAs<T>(src, true);
         }
 
+        public static T DuckAs<T>(this object src) where T: class
+        {
+            return src.DuckAs<T>(false);
+        }
+
+        public static T FuzzyDuckAs<T>(this object src) where T: class
+        {
+            return src.DuckAs<T>(true);
+        }
+
         private static bool CanDuckAs<T>(this object src, bool allowFuzzy)
         {
             var type = typeof(T);
@@ -32,16 +42,6 @@ namespace PeanutButter.DuckTyping.Extensions
             var expectedMethods = allowFuzzy ? type.FindFuzzyMethods() : type.FindMethods();
             var srcMethods = allowFuzzy ? srcType.FindFuzzyMethods() : srcType.FindMethods();
             return srcMethods.IsSuperSetOf(expectedMethods);
-        }
-
-        public static T DuckAs<T>(this object src) where T: class
-        {
-            return src.DuckAs<T>(false);
-        }
-
-        public static T FuzzyDuckAs<T>(this object src) where T: class
-        {
-            return src.DuckAs<T>(true);
         }
 
         internal static T DuckAs<T>(this object src, bool allowFuzzy) where T: class

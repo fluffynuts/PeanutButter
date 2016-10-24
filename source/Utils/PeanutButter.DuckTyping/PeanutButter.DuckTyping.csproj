@@ -49,6 +49,7 @@
     <Compile Include="PropertyInfoComparer.cs" />
     <Compile Include="PropertyInfoContainer.cs" />
     <Compile Include="ShimSham.cs" />
+    <Compile Include="Create.cs" />
     <Compile Include="TypeMaker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Exceptions\WriteOnlyPropertyException.cs" />

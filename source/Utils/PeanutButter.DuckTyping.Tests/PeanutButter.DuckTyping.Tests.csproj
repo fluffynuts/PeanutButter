@@ -47,6 +47,7 @@
     <Compile Include="Extensions\TestDuckTypingObjectExtensions.cs" />
     <Compile Include="TestPropertyInfoContainer.cs" />
     <Compile Include="TestShimSham.cs" />
+    <Compile Include="TestCreate.cs" />
     <Compile Include="TestTypeMaker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
