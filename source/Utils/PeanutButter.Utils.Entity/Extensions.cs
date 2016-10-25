@@ -29,8 +29,9 @@ namespace PeanutButter.Utils.Entity
 
         public static IEnumerable<T> AddRange<T>(this ICollection<T> collection, IEnumerable<T> items) where T: class
         {
-            collection.AddRange(items.ToArray());
-            return items;
+            var asArray = items.ToArray();
+            collection.AddRange(asArray);
+            return asArray;
         }
 
         public static IEnumerable<T> RemoveRange<T>(this IDbSet<T> collection, params T[] items) where T : class
@@ -44,13 +45,17 @@ namespace PeanutButter.Utils.Entity
 
         public static IEnumerable<T> RemoveRange<T>(this IDbSet<T> collection, IEnumerable<T> items) where T : class
         {
-            collection.RemoveRange(items.ToArray());
-            return items;
+            var asArray = items.ToArray();
+            collection.RemoveRange(asArray);
+            return asArray;
         }
 
         public static int RemoveRange<T>(this ICollection<T> collection, params T[] items) where T : class
         {
+            // ReSharper disable once RedundantAssignment
+#pragma warning disable S1854 // Dead stores should be removed
             return items.Aggregate(0, (acc, cur) => acc += collection.Remove(cur) ? 1 : 0);
+#pragma warning restore S1854 // Dead stores should be removed
         }
 
         public static int RemoveRange<T>(this ICollection<T> collection, IEnumerable<T> items) where T : class

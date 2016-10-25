@@ -13,7 +13,7 @@ namespace PeanutButter.Utils
                 toRun(item);
         }
 
-        public static async Task ForEach<T>(this IEnumerable<T> collection, Func<T, Task> toRun)
+        public static async Task ForEachAsync<T>(this IEnumerable<T> collection, Func<T, Task> toRun)
         {
             foreach (var item in collection)
                 await toRun(item);
@@ -28,10 +28,10 @@ namespace PeanutButter.Utils
             });
         } 
 
-        public static async Task ForEach<T>(this IEnumerable<T> collection, Func<T, int, Task> toRunWithIndex)
+        public static async Task ForEachAsync<T>(this IEnumerable<T> collection, Func<T, int, Task> toRunWithIndex)
         {
             var idx = 0;
-            await collection.ForEach(async (o) =>
+            await collection.ForEachAsync(async (o) =>
             {
                 await toRunWithIndex(o, idx++);
             });

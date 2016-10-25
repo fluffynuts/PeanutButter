@@ -810,7 +810,7 @@ namespace PeanutButter.Utils.Tests
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            await collection.ForEach(async(i) => await Task.Run(() => collector.Add(i)));
+            await collection.ForEachAsync(async(i) => await Task.Run(() => collector.Add(i)));
 
             //--------------- Assert -----------------------
             Expect(collector, Is.EqualTo(collection));
@@ -828,7 +828,7 @@ namespace PeanutButter.Utils.Tests
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            await collection.ForEach(async(x, y) => await Task.Run(() =>
+            await collection.ForEachAsync(async(x, y) => await Task.Run(() =>
             {
                 collector.Add(x);
                 indexes.Add(y);

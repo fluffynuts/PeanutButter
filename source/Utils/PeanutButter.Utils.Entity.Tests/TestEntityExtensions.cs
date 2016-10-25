@@ -372,6 +372,27 @@ namespace PeanutButter.Utils.Entity.Tests
         }
 
 
+        [Test]
+        public void RemoveRange_ShouldReturnNumberOfElementsRemoved()
+        {
+            //--------------- Arrange -------------------
+            var list = new List<object>() { new object(), new object(), new object() };
+            var collection = list as ICollection<object>;
+            var range = new[] { list[0], list[2] };
+            var remaining = list[1];
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = collection.RemoveRange(range);
+
+            //--------------- Assert -----------------------
+            Assert.AreEqual(2, result);
+            Assert.AreEqual(1, list.Count);
+            Assert.AreEqual(remaining, list[0]);
+        }
+
+
 
 
         public IEnumerable<T> EnumerableFor<T>(params T[] items)
