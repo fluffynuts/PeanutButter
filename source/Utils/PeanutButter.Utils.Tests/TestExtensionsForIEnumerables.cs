@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 // ReSharper disable ExpressionIsAlwaysNull
@@ -13,7 +14,7 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
-    public class TestExtensionsForIEnumerables
+    public class TestExtensionsForIEnumerables: AssertionHelper
     {
         [Test]
         public void ForEach_OperatingOnNullCollection_ShouldThrowArgumentNullException()
@@ -799,6 +800,45 @@ namespace PeanutButter.Utils.Tests
             CollectionAssert.AreEqual(expected, collectedIndexes);
         }
 
+        [Test]
+        public async Task ForEach_ShouldBeAbleToDoAsync()
+        {
+            //--------------- Arrange -------------------
+            var collection = GetRandomCollection<int>(200);
+            var collector = new List<int>();
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            await collection.ForEach(async(i) => await Task.Run(() => collector.Add(i)));
+
+            //--------------- Assert -----------------------
+            Expect(collector, Is.EqualTo(collection));
+        }
+
+
+        [Test]
+        public async Task ForEach_WithIndex_ShouldBeAbleToDoAsync()
+        {
+            //--------------- Arrange -------------------
+            var collection = GetRandomCollection<int>(200);
+            var collector = new List<int>();
+            var indexes = new List<int>();
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            await collection.ForEach(async(x, y) => await Task.Run(() =>
+            {
+                collector.Add(x);
+                indexes.Add(y);
+            }));
+
+            //--------------- Assert -----------------------
+            Expect(collector, Is.EqualTo(collection));
+            Expect(indexes, Has.Count.EqualTo(collection.Count()));
+            indexes.ForEach((x, y) => Expect(x, Is.EqualTo(y)));
+        }
 
 
 

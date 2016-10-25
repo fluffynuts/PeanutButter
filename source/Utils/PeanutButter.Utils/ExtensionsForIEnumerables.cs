@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace PeanutButter.Utils
 {
@@ -12,6 +13,12 @@ namespace PeanutButter.Utils
                 toRun(item);
         }
 
+        public static async Task ForEach<T>(this IEnumerable<T> collection, Func<T, Task> toRun)
+        {
+            foreach (var item in collection)
+                await toRun(item);
+        } 
+
         public static void ForEach<T>(this IEnumerable<T> collection, Action<T, int> toRunWithIndex)
         {
             var idx = 0;
@@ -20,6 +27,15 @@ namespace PeanutButter.Utils
                 toRunWithIndex(o, idx++);
             });
         } 
+
+        public static async Task ForEach<T>(this IEnumerable<T> collection, Func<T, int, Task> toRunWithIndex)
+        {
+            var idx = 0;
+            await collection.ForEach(async (o) =>
+            {
+                await toRunWithIndex(o, idx++);
+            });
+        }
 
         public static bool IsSameAs<T>(this IEnumerable<T> collection, IEnumerable<T> otherCollection)
         {
