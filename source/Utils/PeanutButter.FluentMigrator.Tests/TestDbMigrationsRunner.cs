@@ -141,11 +141,11 @@ namespace PeanutButter.FluentMigrator.Tests
             ExpectScriptsCanSupportDatabase(result);
         }
 
-        private static DBMigrationsDumper<MigrationDumpingFactoryForSqlServer> Create(IMigrationDumperOptions options = null)
+        private static DBMigrationsDumper<MigrationsDumpingFactoryForSqlServer> Create(IMigrationDumperOptions options = null)
         {
             return options == null
-                    ? new DBMigrationsDumper<MigrationDumpingFactoryForSqlServer>()
-                    : new DBMigrationsDumper<MigrationDumpingFactoryForSqlServer>(options);
+                    ? new DBMigrationsDumper<MigrationsDumpingFactoryForSqlServer>()
+                    : new DBMigrationsDumper<MigrationsDumpingFactoryForSqlServer>(options);
         }
 
         public class MigrationDumperOptions: IMigrationDumperOptions

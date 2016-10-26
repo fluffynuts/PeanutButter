@@ -6,10 +6,10 @@ using FluentMigrator.Runner.Processors.SqlServer;
 
 namespace PeanutButter.FluentMigrator.MigrationDumping.Examples
 {
-    public class MigrationDumpingFactoryForSqlServer :
+    public class MigrationsDumpingFactoryForSqlServer :
         MigrationDumpingFactoryBase<SqlServerProcessor>
     {
-        public MigrationDumpingFactoryForSqlServer() : base(CreateProcessor)
+        public MigrationsDumpingFactoryForSqlServer() : base(CreateProcessor)
         {
         }
 
