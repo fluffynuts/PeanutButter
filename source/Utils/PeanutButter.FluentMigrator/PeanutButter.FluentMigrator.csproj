@@ -61,7 +61,7 @@
     <Compile Include="Fakes\FakeDbReader.cs" />
     <Compile Include="Fakes\FakeDbTransaction.cs" />
     <Compile Include="MigrationDumping\MigrationDumpingFactoryBase.cs" />
-    <Compile Include="MigrationDumping\Examples\MigrationDumpingFactorySqlServer.cs" />
+    <Compile Include="MigrationDumping\Examples\MigrationDumpingFactoryForSqlServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
