@@ -33,13 +33,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FluentMigrator, Version=1.6.1.0, Culture=neutral, PublicKeyToken=aacfc7de5acabf05, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\FluentMigrator.1.6.1\lib\40\FluentMigrator.dll</HintPath>
+    <Reference Include="FluentMigrator, Version=1.6.2.0, Culture=neutral, PublicKeyToken=aacfc7de5acabf05, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\FluentMigrator.1.6.2\lib\40\FluentMigrator.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="FluentMigrator.Runner, Version=1.6.0.0, Culture=neutral, PublicKeyToken=aacfc7de5acabf05, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SolutionDir)\packages\FluentMigrator.Tools.1.6.1\tools\AnyCPU\40\FluentMigrator.Runner.dll</HintPath>
+    <Reference Include="FluentMigrator.Runner, Version=1.6.2.0, Culture=neutral, PublicKeyToken=aacfc7de5acabf05, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\FluentMigrator.Runner.1.6.2\lib\40\FluentMigrator.Runner.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -50,7 +50,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MigrationDumping\AnnouncerMessageRecorder.cs" />
+    <Compile Include="MigrationDumping\DBMigrationsDumper.cs" />
     <Compile Include="DBMigrationsRunner.cs" />
+    <Compile Include="Fakes\FakeDbCommand.cs" />
+    <Compile Include="Fakes\FakeDbConnection.cs" />
+    <Compile Include="Fakes\FakeDbConnectionFactory.cs" />
+    <Compile Include="Fakes\FakeDbDataAdapter.cs" />
+    <Compile Include="Fakes\FakeDbParameter.cs" />
+    <Compile Include="Fakes\FakeDbReader.cs" />
+    <Compile Include="Fakes\FakeDbTransaction.cs" />
+    <Compile Include="MigrationDumping\MigrationDumpingFactoryBase.cs" />
+    <Compile Include="MigrationDumping\Examples\MigrationDumpingFactorySqlServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

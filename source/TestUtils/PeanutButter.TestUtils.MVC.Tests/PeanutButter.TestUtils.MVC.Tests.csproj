@@ -79,7 +79,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TestUtils\PeanutButter.TestUtils.MVC\PeanutButter.TestUtils.MVC.csproj">
+    <ProjectReference Include="..\PeanutButter.TestUtils.MVC\PeanutButter.TestUtils.MVC.csproj">
       <Project>{851DA54E-4FBF-4F02-9C65-52B22015415D}</Project>
       <Name>PeanutButter.TestUtils.MVC</Name>
     </ProjectReference>

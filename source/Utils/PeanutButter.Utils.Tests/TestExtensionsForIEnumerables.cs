@@ -840,9 +840,5 @@ namespace PeanutButter.Utils.Tests
             indexes.ForEach((x, y) => Expect(x, Is.EqualTo(y)));
         }
 
-
-
-
-
     }
 }

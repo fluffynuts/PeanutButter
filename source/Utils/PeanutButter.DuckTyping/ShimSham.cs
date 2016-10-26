@@ -128,11 +128,14 @@ namespace PeanutButter.DuckTyping
 
         }
 
+
         // ReSharper disable once UnusedMember.Local
+#pragma warning disable S1144 // Unused private types or members should be removed
         private static T GetDefaultFor<T>()
         {
             return default(T);
         }
+#pragma warning restore S1144 // Unused private types or members should be removed
 
         // ReSharper disable once UnusedMember.Global
         public void SetPropertyValue(string propertyName, object newValue)

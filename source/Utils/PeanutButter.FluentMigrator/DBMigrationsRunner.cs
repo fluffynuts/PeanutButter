@@ -33,7 +33,10 @@ namespace PeanutButter.FluentMigrator
         private readonly string _connectionString;
         private readonly Action<string> _textWriterAction;
 
-        public DBMigrationsRunner(Assembly assemblyToLoadMigrationsFrom, string connectionString, Action<string> textWriterAction = null)
+        public DBMigrationsRunner(
+            Assembly assemblyToLoadMigrationsFrom, 
+            string connectionString, 
+            Action<string> textWriterAction = null)
         {
             _assemblyToLoadMigrationsFrom = assemblyToLoadMigrationsFrom;
             _connectionString = connectionString;
@@ -52,9 +55,15 @@ namespace PeanutButter.FluentMigrator
 
         private void DoMigration(Action<MigrationRunner> call)
         {
-            var announcer = new TextWriterAnnouncer(_textWriterAction);
-            var context = new RunnerContext(announcer);
             var options = new MigrationOptions();
+            DoMigrationsWithOptions(options, call);
+        }
+
+        private void DoMigrationsWithOptions(MigrationOptions options, Action<MigrationRunner> call)
+        {
+            var announcer = new TextWriterAnnouncer(_textWriterAction);
+            announcer.ShowSql = true;
+            var context = new RunnerContext(announcer);
             var factory = new T();
             var processor = factory.Create(_connectionString, announcer, options);
             var runner = new MigrationRunner(_assemblyToLoadMigrationsFrom, context, processor);
