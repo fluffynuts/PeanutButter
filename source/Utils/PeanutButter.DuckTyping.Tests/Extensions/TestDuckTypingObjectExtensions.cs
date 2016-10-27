@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Extensions;
 using static PeanutButter.RandomGenerators.RandomValueGen;
@@ -326,6 +327,62 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             Expect(() => result.Payload, Throws.Nothing);
         }
 
+        public interface IInterfaceWithPayload
+        {
+            object Payload { get; set ; }
+        }
+
+        [Test]
+        public void DuckAs_ShouldNotSmashPropertiesOnObjectType()
+        {
+            //--------------- Arrange -------------------
+            var input = new {
+                Payload = new {
+                    Id = 1,
+                    Name = "Moosicle"
+                }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = input.DuckAs<IInterfaceWithPayload>();
+
+            //--------------- Assert -----------------------
+            var props = result.Payload.GetType().GetProperties();
+            Expect(props.Select(p => p.Name), Does.Contain("Id"));
+            Expect(props.Select(p => p.Name), Does.Contain("Name"));
+        }
+
+        public interface IInterfaceWithInterfacedPayload
+        {
+            IInterfaceWithPayload OuterPayload { get; set; }
+        }
+
+        [Test]
+        public void DuckAs_ShouldNotAllowNonDuckableSubType()
+        {
+            //--------------- Arrange -------------------
+            var input = new {
+                OuterPayload = new {
+                    Color = "Red"
+                }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = input.DuckAs<IInterfaceWithInterfacedPayload>();
+
+            //--------------- Assert -----------------------
+            Assert.IsNotNull(result);
+            var outerPayload = result.OuterPayload;
+            var foo = outerPayload;
+            Assert.IsNull(result.OuterPayload);
+        }
+
+
+
         public interface IActivityParameters
         {
             Guid ActorId { get; }
@@ -367,7 +424,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
         [Test]
-        public void DuckAs_WildConfusion()
+        public void DuckAs_IssueSeenInWildShouldNotHappen()
         {
             //--------------- Arrange -------------------
             var instance = new ActivityParameters<string>(Guid.Empty, Guid.Empty, "foo");

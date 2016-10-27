@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -19,12 +18,12 @@ namespace PeanutButter.DuckTyping
             PropertyInfos = distinct.ToDictionary(
                 pi => pi.Name,
                 pi => pi,
-                StringComparer.InvariantCulture
+                Comparers.NonFuzzyComparer
             );
             FuzzyPropertyInfos = distinct.ToDictionary(
                 pi => pi.Name,
                 pi => pi,
-                StringComparer.OrdinalIgnoreCase
+                Comparers.FuzzyComparer
             );
         }
     }

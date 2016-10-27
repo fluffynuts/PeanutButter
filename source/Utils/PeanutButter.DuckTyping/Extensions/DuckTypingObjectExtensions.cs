@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.DuckTyping.Extensions
@@ -34,14 +37,40 @@ namespace PeanutButter.DuckTyping.Extensions
         private static bool CanDuckAs<T>(this object src, bool allowFuzzy)
         {
             var type = typeof(T);
-            var expectedProperties = allowFuzzy ? type.FindFuzzyProperties() :type.FindProperties();
             var srcType = src.GetType();
+
+            return type.CanDuckAs(srcType, allowFuzzy);
+        }
+
+        private static readonly string[] _objectMethodNames = 
+            typeof(object).GetMethods().Select(m => m.Name).ToArray();
+
+        internal static bool CanDuckAs(
+            this Type type,
+            Type srcType,
+            bool allowFuzzy
+        )
+        {
+            var expectedProperties = allowFuzzy ? type.FindFuzzyProperties() :type.FindProperties();
+            var expectedPrimitives = expectedProperties.GetPrimitiveProperties(allowFuzzy);
             var srcProperties = allowFuzzy ? srcType.FindFuzzyProperties() : srcType.FindProperties();
-            if (!srcProperties.IsSuperSetOf(expectedProperties))
+            var srcPrimitives = srcProperties.GetPrimitiveProperties(allowFuzzy);
+            if (!srcPrimitives.IsPrimitiveSuperSetOf(expectedPrimitives))
                 return false;
             var expectedMethods = allowFuzzy ? type.FindFuzzyMethods() : type.FindMethods();
+            if (srcType.IsInterface)
+                expectedMethods = expectedMethods.Except(_objectMethodNames);
             var srcMethods = allowFuzzy ? srcType.FindFuzzyMethods() : srcType.FindMethods();
             return srcMethods.IsSuperSetOf(expectedMethods);
+        }
+
+        private static Dictionary<string, MethodInfo> Except(
+            this Dictionary<string, MethodInfo> src,
+            IEnumerable<string> others 
+        )
+        {
+            return src.Where(kvp => !others.Contains(kvp.Key))
+                        .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
 
         internal static T DuckAs<T>(this object src, bool allowFuzzy) where T: class

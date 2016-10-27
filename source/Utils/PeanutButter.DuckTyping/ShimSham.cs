@@ -24,6 +24,7 @@ namespace PeanutButter.DuckTyping
         private Dictionary<string, FieldInfo> _localFieldInfos;
         private Dictionary<string, MethodInfo> _localMethodInfos;
         private readonly Dictionary<string, object> _shimmedProperties = new Dictionary<string, object>();
+        private readonly HashSet<string> _unshimmableProperties = new HashSet<string>();
         private TypeMaker _typeMaker;
         private readonly MethodInfo _genericMakeType = typeof(TypeMaker).GetMethod("MakeTypeImplementing");
         private readonly MethodInfo _genericFuzzyMakeType = typeof(TypeMaker).GetMethod("MakeFuzzyTypeImplementing");
@@ -103,13 +104,24 @@ namespace PeanutButter.DuckTyping
             var propValueType = propValue.GetType();
             if (correctType.IsAssignableFrom(propValueType))
                 return propValue;
-            if (correctType.IsPrimitive)
+            if (correctType.ShouldTreatAsPrimitive())
                 return GetDefaultValueFor(correctType); // underlying primitive mismatch; TODO: try convert?
-
+            if (CannotShim(propertyName, propValueType, correctType))
+                return null;
             var duckType = MakeTypeToImplement(correctType);
             var instance = Activator.CreateInstance(duckType, new[] { propValue });
             _shimmedProperties[propertyName] = instance;
             return instance;
+        }
+
+        private bool CannotShim(string propertyName, Type srcType, Type targetType)
+        {
+            if (_unshimmableProperties.Contains(propertyName))
+                return true;
+            var result = !srcType.CanDuckAs(targetType, IsFuzzy);
+            if (result)
+                _unshimmableProperties.Add(propertyName);
+            return result;
         }
 
         private Type MakeTypeToImplement(Type type)

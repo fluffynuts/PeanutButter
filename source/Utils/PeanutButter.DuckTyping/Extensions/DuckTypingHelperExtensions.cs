@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -38,7 +39,7 @@ namespace PeanutButter.DuckTyping.Extensions
             }
         }
 
-        private static readonly BindingFlags _seekFlags = 
+        private static readonly BindingFlags _seekFlags =
             BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy;
 
         private static PropertyInfoContainer GetPropertiesFor(Type type)
@@ -48,7 +49,7 @@ namespace PeanutButter.DuckTyping.Extensions
 
         internal static Dictionary<string, MethodInfo> FindMethods(this Type type)
         {
-            lock(_methodCache)
+            lock (_methodCache)
             {
                 CacheMethodInfosIfRequired(type);
                 return _methodCache[type].MethodInfos;
@@ -58,7 +59,7 @@ namespace PeanutButter.DuckTyping.Extensions
             this Type type
         )
         {
-            lock(_methodCache)
+            lock (_methodCache)
             {
                 CacheMethodInfosIfRequired(type);
                 return _methodCache[type].FuzzyMethodInfos;
@@ -67,7 +68,7 @@ namespace PeanutButter.DuckTyping.Extensions
 
         internal static Type[] GetAllImplementedInterfaces(this Type interfaceType)
         {
-            var result = new List<Type> {interfaceType};
+            var result = new List<Type> { interfaceType };
             foreach (var type in interfaceType.GetInterfaces())
             {
                 result.AddRange(type.GetAllImplementedInterfaces());
@@ -93,11 +94,12 @@ namespace PeanutButter.DuckTyping.Extensions
             );
         }
 
-        internal static bool IsSuperSetOf(
+        internal static bool IsPrimitiveSuperSetOf(
             this Dictionary<string, PropertyInfo> src,
-            Dictionary<string, PropertyInfo> other)
+            Dictionary<string, PropertyInfo> other
+        )
         {
-            return other.All(kvp => src.HasPropertyMatching(kvp.Value));
+            return other.All(kvp => src.HasNonComplexPropertyMatching(kvp.Value));
         }
 
 
@@ -108,21 +110,53 @@ namespace PeanutButter.DuckTyping.Extensions
             return other.All(kvp => src.HasMethodMatching(kvp.Value));
         }
 
-        internal static bool HasPropertyMatching(
-            this Dictionary<string, PropertyInfo>  haystack,
+
+        static readonly HashSet<Type> _treatAsPrimitives = new HashSet<Type>(new[] {
+            typeof(string),
+            typeof(DateTime),
+            typeof(DateTimeOffset),
+            typeof(TimeSpan)
+        });
+
+        internal static Dictionary<string, PropertyInfo> GetPrimitiveProperties(
+            this Dictionary<string, PropertyInfo> props,
+            bool allowFuzzy
+        )
+        {
+            // this will cause oddness with structs. Will have to do for now
+            return props.Where(kvp => kvp.Value.PropertyType.ShouldTreatAsPrimitive())
+                        .ToDictionary(
+                            kvp => kvp.Key, 
+                            kvp => kvp.Value,
+                            allowFuzzy 
+                                ? Comparers.FuzzyComparer
+                                : Comparers.NonFuzzyComparer);
+        }
+
+        internal static bool ShouldTreatAsPrimitive(this Type type)
+        {
+            return type.IsPrimitive || // types .net thinks are primitive
+                    type.IsValueType || // includes enums, structs, https://msdn.microsoft.com/en-us/library/s1ax56ch.aspx
+                    _treatAsPrimitives.Contains(type); // catch cases like strings and Date(/Time) containers
+        }
+
+        internal static bool HasNonComplexPropertyMatching(
+            this Dictionary<string, PropertyInfo> haystack,
             PropertyInfo needle
         )
         {
             PropertyInfo matchByName;
             if (!haystack.TryGetValue(needle.Name, out matchByName))
                 return false;
+            if (!matchByName.PropertyType.ShouldTreatAsPrimitive())
+                return true;
             return matchByName.PropertyType == needle.PropertyType &&
                    (!needle.CanRead || matchByName.CanRead) &&
                    (!needle.CanWrite || matchByName.CanWrite);
         }
 
         internal static bool HasMethodMatching(
-            this Dictionary<string, MethodInfo>  haystack,
+            this Dictionary<string, MethodInfo> haystack,
             MethodInfo needle
         )
         {
@@ -152,7 +186,7 @@ namespace PeanutButter.DuckTyping.Extensions
             }
             return true;
         }
-        
+
         internal static bool IsSpecial(this MethodInfo methodInfo)
         {
             return ((int)methodInfo.Attributes & (int)MethodAttributes.SpecialName) == (int)MethodAttributes.SpecialName;

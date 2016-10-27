@@ -21,7 +21,9 @@ namespace PeanutButter.Utils
                 typeof(double),
                 typeof(decimal),
                 typeof(bool),
-                typeof(DateTime)
+                typeof(DateTime),
+                typeof(DateTimeOffset),
+                typeof(TimeSpan)
             };
         }
 
