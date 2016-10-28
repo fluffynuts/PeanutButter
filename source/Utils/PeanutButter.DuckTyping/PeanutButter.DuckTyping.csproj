@@ -39,6 +39,8 @@
     <Compile Include="AutoConversion\IConverter.cs" />
     <Compile Include="AutoConversion\Converters\GenericStringConverter.cs" />
     <Compile Include="Comparers.cs" />
+    <Compile Include="DefaultPropertyInfoFetcher.cs" />
+    <Compile Include="DictionaryPropertyFetcher.cs" />
     <Compile Include="Exceptions\BackingFieldForPropertyNotFoundException.cs" />
     <Compile Include="Exceptions\MethodNotFoundException.cs" />
     <Compile Include="Exceptions\PropertyNotFoundException.cs" />
@@ -48,6 +50,7 @@
     <Compile Include="Extensions\DuckTypingHelperExtensions.cs" />
     <Compile Include="Extensions\DuckTypingObjectExtensions.cs" />
     <Compile Include="Exceptions\ParameterCountMismatchException.cs" />
+    <Compile Include="IPropertyInfoFetcher.cs" />
     <Compile Include="MethodInfoComparer.cs" />
     <Compile Include="MethodInfoContainer.cs" />
     <Compile Include="PropertyInfoComparer.cs" />

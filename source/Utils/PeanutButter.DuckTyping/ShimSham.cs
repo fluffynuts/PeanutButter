@@ -13,6 +13,7 @@ namespace PeanutButter.DuckTyping
         // ReSharper disable once MemberCanBePrivate.Global
         public bool IsFuzzy { get; }
         private readonly object _wrapped;
+        private readonly IPropertyInfoFetcher _propertyInfoFetcher;
         private readonly Type _wrappedType;
         private readonly bool _wrappingADuck;
 
@@ -34,10 +35,21 @@ namespace PeanutButter.DuckTyping
 
         // ReSharper disable once MemberCanBePrivate.Global
         public ShimSham(object toWrap, Type interfaceToMimick, bool isFuzzy)
+            : this(toWrap, interfaceToMimick, isFuzzy, new DefaultPropertyInfoFetcher())
+        {
+        }
+
+        public ShimSham(
+            object toWrap,
+            Type interfaceToMimick,
+            bool isFuzzy,
+            IPropertyInfoFetcher propertyInfoFetcher)
         {
             if (interfaceToMimick == null) throw new ArgumentNullException(nameof(interfaceToMimick));
+            if (propertyInfoFetcher == null) throw new ArgumentNullException(nameof(propertyInfoFetcher));
             IsFuzzy = isFuzzy;
             _wrapped = toWrap;
+            _propertyInfoFetcher = propertyInfoFetcher;
             _wrappedType = toWrap.GetType();
             _wrappingADuck = IsObjectADuck();
             StaticallyCachePropertyInfosFor(_wrappedType, _wrappingADuck);
@@ -52,7 +64,7 @@ namespace PeanutButter.DuckTyping
         {
             _mimickedPropInfos = new PropertyInfoContainer(
                 interfaceToMimick.GetAllImplementedInterfaces()
-                    .Select(i => i.GetProperties(BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.Public))
+                    .Select(i => _propertyInfoFetcher.GetProperties(i, BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.Public))
                     .SelectMany(c => c)
                     .ToArray()
             );
@@ -300,14 +312,15 @@ namespace PeanutButter.DuckTyping
                                 : _methodInfos[_wrappedType].MethodInfos;
         }
 
-        private static void StaticallyCachePropertyInfosFor(Type toCacheFor, bool cacheFieldInfosToo)
+        private void StaticallyCachePropertyInfosFor(Type toCacheFor, bool cacheFieldInfosToo)
         {
             lock (_propertyInfos)
             {
                 if (_propertyInfos.ContainsKey(toCacheFor))
                     return;
-                _propertyInfos[toCacheFor] = new PropertyInfoContainer(toCacheFor
-                                    .GetProperties(BindingFlags.Instance | BindingFlags.Public));
+                _propertyInfos[toCacheFor] = new PropertyInfoContainer(
+                    _propertyInfoFetcher.GetProperties(toCacheFor,
+                        BindingFlags.Instance | BindingFlags.Public));
                 if (!cacheFieldInfosToo)
                     return;
                 _fieldInfos[toCacheFor] = toCacheFor

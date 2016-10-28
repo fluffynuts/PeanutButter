@@ -53,7 +53,7 @@ namespace PeanutButter.DuckTyping.Extensions
             bool allowFuzzy
         )
         {
-            var expectedProperties = allowFuzzy ? type.FindFuzzyProperties() :type.FindProperties();
+            var expectedProperties = allowFuzzy ? type.FindFuzzyProperties() : type.FindProperties();
             var expectedPrimitives = expectedProperties.GetPrimitiveProperties(allowFuzzy);
             var srcProperties = allowFuzzy ? srcType.FindFuzzyProperties() : srcType.FindProperties();
             var srcPrimitives = srcProperties.GetPrimitiveProperties(allowFuzzy);

@@ -13,28 +13,43 @@ namespace PeanutButter.DuckTyping.Extensions
             new Dictionary<Type, PropertyInfoContainer>();
         private static readonly Dictionary<Type, MethodInfoContainer> _methodCache =
             new Dictionary<Type, MethodInfoContainer>();
+
+        private static readonly IPropertyInfoFetcher _fetcher = new DefaultPropertyInfoFetcher();
+
         internal static Dictionary<string, PropertyInfo> FindProperties(this Type type)
+        {
+            return type.FindProperties(_fetcher);
+        }
+
+        internal static Dictionary<string, PropertyInfo> FindProperties(
+            this Type type,
+            IPropertyInfoFetcher fetcher)
         {
             lock (_propertyCache)
             {
-                CachePropertiesIfRequired(type);
+                CachePropertiesIfRequired(type, fetcher);
                 return _propertyCache[type].PropertyInfos;
             }
         }
 
-        private static void CachePropertiesIfRequired(Type type)
+        private static void CachePropertiesIfRequired(Type type, IPropertyInfoFetcher fetcher)
         {
             if (!_propertyCache.ContainsKey(type))
             {
-                _propertyCache[type] = GetPropertiesFor(type);
+                _propertyCache[type] = GetPropertiesFor(type, fetcher);
             }
         }
 
         internal static Dictionary<string, PropertyInfo> FindFuzzyProperties(this Type type)
         {
+            return FindFuzzyProperties(type, new DefaultPropertyInfoFetcher());
+        }
+
+        internal static Dictionary<string, PropertyInfo> FindFuzzyProperties(this Type type, IPropertyInfoFetcher fetcher)
+        {
             lock (_propertyCache)
             {
-                CachePropertiesIfRequired(type);
+                CachePropertiesIfRequired(type, fetcher);
                 return _propertyCache[type].FuzzyPropertyInfos;
             }
         }
@@ -42,13 +57,14 @@ namespace PeanutButter.DuckTyping.Extensions
         private static readonly BindingFlags _seekFlags =
             BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy;
 
-        private static PropertyInfoContainer GetPropertiesFor(Type type)
+        private static PropertyInfoContainer GetPropertiesFor(Type type, IPropertyInfoFetcher fetcher)
         {
-            return new PropertyInfoContainer(
-                type.GetAllImplementedInterfaces()
-                            .Select(i => i.GetProperties(_seekFlags))
-                            .SelectMany(p => p)
-                    .ToArray());
+            var immediateProperties = fetcher.GetProperties(type, _seekFlags);
+            var interfaceProperties = type.GetAllImplementedInterfaces()
+                .Select(itype => fetcher.GetProperties(itype, _seekFlags))
+                .SelectMany(p => p);
+            var all = immediateProperties.Union(interfaceProperties).ToArray();
+            return new PropertyInfoContainer(all);
         }
 
         internal static Dictionary<string, MethodInfo> FindMethods(this Type type)

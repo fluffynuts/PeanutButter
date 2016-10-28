@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Linq;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Extensions;
+using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMember.Global
@@ -441,7 +444,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         public void FuzzyDuckAs_WhenReadingProperty_ShouldBeAbleToConvertBetweenGuidAndString()
         {
             //--------------- Arrange -------------------
-            var input = new {
+            var input = new WithGuidId() {
                 id = Guid.NewGuid()
             };
             var expected = input.id.ToString();
@@ -561,6 +564,27 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             Expect(result, Is.False);
         }
 
+        [Test]
+        [Ignore("needs some thought")]
+        public void DuckingAJObject()
+        {
+            //--------------- Arrange -------------------
+            var input = new JObject();
+            var expected = Guid.NewGuid();
+            input["actorId"] = expected;
+            var stored = input["actorId"];
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = input.FuzzyDuckAs<IHasAnActorId>();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.Not.Null);
+            Expect(result.ActorId, Is.EqualTo(expected));
+        }
+
+
+
 
 
         public interface IActivityParameters
@@ -623,8 +647,5 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             int Id { get; set; }
             string Name { get; set; }
         }
-
-
-
     }
 }
