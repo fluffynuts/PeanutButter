@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace PeanutButter.DuckTyping
@@ -10,12 +11,12 @@ namespace PeanutButter.DuckTyping
             if (x == null && y == null) return true;
             if (x == null || y == null) return false;
             return x.Name == y.Name &&
-                   x.DeclaringType == y.DeclaringType;
+                   x.PropertyType == y.PropertyType;
         }
 
         public int GetHashCode(PropertyInfo obj)
         {
-            return obj?.GetHashCode() ?? 0;
+            return Tuple.Create(obj.Name, obj.PropertyType).GetHashCode();
         }
     }
 }

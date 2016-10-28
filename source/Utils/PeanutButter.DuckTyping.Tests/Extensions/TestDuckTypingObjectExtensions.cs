@@ -329,7 +329,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
         public interface IInterfaceWithPayload
         {
-            object Payload { get; set ; }
+            object Payload { get; set; }
         }
 
         [Test]
@@ -474,7 +474,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         {
             //--------------- Arrange -------------------
             var expected = Guid.NewGuid();
-            var input = new WithStringId() {
+            var input = new WithStringId()
+            {
                 id = expected.ToString()
             };
 
@@ -495,7 +496,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             //--------------- Arrange -------------------
             var newValue = Guid.NewGuid();
             var expected = newValue.ToString();
-            var input = new WithStringId() {
+            var input = new WithStringId()
+            {
                 id = GetRandomString()
             };
 
@@ -509,6 +511,33 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             ducked.Id = newValue;
             Expect(input.id, Is.EqualTo(expected));
             Expect(ducked.Id, Is.EqualTo(newValue));
+        }
+
+        public interface IHasAnActorId
+        {
+            Guid ActorId { get; }
+        }
+        public interface IActivityParametersInherited : IHasAnActorId
+        {
+            Guid TaskId { get; }
+        }
+
+        [Test]
+        public void CanFuzzyDuckAs_ShouldFailWhenExpectedToFail()
+        {
+            //--------------- Arrange -------------------
+            var parameters = new {
+                travellerId = new Guid(),   // should be actorId!
+                taskId = new Guid()
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = parameters.CanFuzzyDuckAs<IActivityParametersInherited>();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.False);
         }
 
 

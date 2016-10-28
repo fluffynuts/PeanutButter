@@ -44,7 +44,11 @@ namespace PeanutButter.DuckTyping.Extensions
 
         private static PropertyInfoContainer GetPropertiesFor(Type type)
         {
-            return new PropertyInfoContainer(type.GetProperties(_seekFlags));
+            return new PropertyInfoContainer(
+                type.GetAllImplementedInterfaces()
+                            .Select(i => i.GetProperties(_seekFlags))
+                            .SelectMany(p => p)
+                    .ToArray());
         }
 
         internal static Dictionary<string, MethodInfo> FindMethods(this Type type)
