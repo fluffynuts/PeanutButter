@@ -434,7 +434,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
         public interface IWithStringId
         {
-            string Id { get; }
+            string Id { get; set; }
         }
 
         [Test]
@@ -490,7 +490,6 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
         [Test]
-        [Ignore("WIP: ShimSham needs work")]
         public void FuzzyDuckAs_WhenWritingProperty_ShouldBeAbleToConvertFromGuidToString()
         {
             //--------------- Arrange -------------------
@@ -512,6 +511,28 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             Expect(input.id, Is.EqualTo(expected));
             Expect(ducked.Id, Is.EqualTo(newValue));
         }
+
+        [Test]
+        public void FuzzyDuckAs_WhenWritingProperty_ShouldBeAbleToConvertFromValidGuidStringToGuid()
+        {
+            //--------------- Arrange -------------------
+            var newGuid = Guid.NewGuid();
+            var newValue = newGuid.ToString();
+            var input = new WithGuidId();
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var ducked = input.FuzzyDuckAs<IWithStringId>();
+
+            //--------------- Assert -----------------------
+            Expect(ducked, Is.Not.Null);
+            ducked.Id = newValue;
+            Expect(ducked.Id, Is.EqualTo(newValue));
+            Expect(input.id, Is.EqualTo(newGuid));
+        }
+
+
 
         public interface IHasAnActorId
         {
