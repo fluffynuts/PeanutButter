@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using PeanutButter.DuckTyping.AutoConversion;
 
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -55,13 +57,43 @@ namespace PeanutButter.DuckTyping.Extensions
             var expectedPrimitives = expectedProperties.GetPrimitiveProperties(allowFuzzy);
             var srcProperties = allowFuzzy ? srcType.FindFuzzyProperties() : srcType.FindProperties();
             var srcPrimitives = srcProperties.GetPrimitiveProperties(allowFuzzy);
-            if (!srcPrimitives.IsPrimitiveSuperSetOf(expectedPrimitives))
-                return false;
+
+            var mismatches = srcPrimitives.FindPrimitivePropertyMismatches(expectedPrimitives, allowFuzzy);
+            if (mismatches.Any())
+            {
+                var missing = mismatches
+                                .Where(kvp => !srcPrimitives.ContainsKey(kvp.Key));
+                if (missing.Any())
+                    return false;
+                var accessMismatches = mismatches.Where(kvp => 
+                    !expectedPrimitives[kvp.Key].IsNoMoreRestrictiveThan(srcPrimitives[kvp.Key]));
+                if (accessMismatches.Any())
+                    return false;
+                if (!allowFuzzy)
+                    return false;
+                if (!HaveConvertersFor(mismatches, expectedPrimitives))
+                    return false;
+            }
+
             var expectedMethods = allowFuzzy ? type.FindFuzzyMethods() : type.FindMethods();
             if (srcType.IsInterface)
                 expectedMethods = expectedMethods.Except(_objectMethodNames);
             var srcMethods = allowFuzzy ? srcType.FindFuzzyMethods() : srcType.FindMethods();
             return srcMethods.IsSuperSetOf(expectedMethods);
+        }
+
+        private static bool HaveConvertersFor(
+            Dictionary<string, PropertyInfo> mismatches, 
+            Dictionary<string, PropertyInfo> expectedPrimitives)
+        {
+            foreach (var kvp in mismatches)
+            {
+                var srcType = kvp.Value.PropertyType;
+                var targetType = expectedPrimitives[kvp.Key].PropertyType;
+                if (ConverterLocator.GetConverter(srcType, targetType) == null)
+                    return false;
+            }
+            return true;
         }
 
         private static Dictionary<string, MethodInfo> Except(

@@ -94,12 +94,25 @@ namespace PeanutButter.DuckTyping.Extensions
             );
         }
 
+        internal static Dictionary<string, PropertyInfo> FindPrimitivePropertyMismatches(
+            this Dictionary<string, PropertyInfo> src,
+            Dictionary<string, PropertyInfo> other,
+            bool allowFuzzy
+        )
+        {
+            return other.Where(kvp => !src.HasNonComplexPropertyMatching(kvp.Value))
+                .ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => kvp.Value,
+                    allowFuzzy ? Comparers.FuzzyComparer : Comparers.NonFuzzyComparer);
+        }
+
         internal static bool IsPrimitiveSuperSetOf(
             this Dictionary<string, PropertyInfo> src,
             Dictionary<string, PropertyInfo> other
         )
         {
-            return other.All(kvp => src.HasNonComplexPropertyMatching(kvp.Value));
+            return !src.FindPrimitivePropertyMismatches(other, true).Any();
         }
 
 
@@ -113,6 +126,7 @@ namespace PeanutButter.DuckTyping.Extensions
 
         static readonly HashSet<Type> _treatAsPrimitives = new HashSet<Type>(new[] {
             typeof(string),
+            typeof(Guid),
             typeof(DateTime),
             typeof(DateTimeOffset),
             typeof(TimeSpan)
@@ -126,9 +140,9 @@ namespace PeanutButter.DuckTyping.Extensions
             // this will cause oddness with structs. Will have to do for now
             return props.Where(kvp => kvp.Value.PropertyType.ShouldTreatAsPrimitive())
                         .ToDictionary(
-                            kvp => kvp.Key, 
+                            kvp => kvp.Key,
                             kvp => kvp.Value,
-                            allowFuzzy 
+                            allowFuzzy
                                 ? Comparers.FuzzyComparer
                                 : Comparers.NonFuzzyComparer);
         }
@@ -151,8 +165,32 @@ namespace PeanutButter.DuckTyping.Extensions
             if (!matchByName.PropertyType.ShouldTreatAsPrimitive())
                 return true;
             return matchByName.PropertyType == needle.PropertyType &&
-                   (!needle.CanRead || matchByName.CanRead) &&
-                   (!needle.CanWrite || matchByName.CanWrite);
+                    needle.IsNoMoreRestrictiveThan(matchByName);
+//                   (!needle.CanRead || matchByName.CanRead) &&
+//                   (!needle.CanWrite || matchByName.CanWrite);
+        }
+
+        internal static bool IsNoMoreRestrictiveThan(
+            this PropertyInfo src,
+            PropertyInfo target
+        )
+        {
+            return (!src.CanRead || target.CanRead) &&
+                    (!src.CanWrite || target.CanWrite);
+        }
+
+        internal static bool IsTryParseMethod(
+            this MethodInfo mi
+        )
+        {
+            if (mi.Name != "TryParse")
+                return false;
+            var parameters = mi.GetParameters();
+            if (parameters.Length != 2)
+                return false;
+            if (parameters[0].ParameterType != typeof(string))
+                return false;
+            return parameters[1].IsOut;
         }
 
         internal static bool HasMethodMatching(

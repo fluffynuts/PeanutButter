@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using PeanutButter.DuckTyping.AutoConversion;
 using PeanutButter.DuckTyping.Exceptions;
 using PeanutButter.DuckTyping.Extensions;
 
@@ -18,7 +19,7 @@ namespace PeanutButter.DuckTyping
         private static readonly Dictionary<Type, PropertyInfoContainer> _propertyInfos = new Dictionary<Type, PropertyInfoContainer>();
         private static readonly Dictionary<Type, MethodInfoContainer> _methodInfos = new Dictionary<Type, MethodInfoContainer>();
         private static readonly Dictionary<Type, Dictionary<string, FieldInfo>> _fieldInfos = new Dictionary<Type, Dictionary<string, FieldInfo>>();
-        private static readonly MethodInfo _getDefaultMethodGeneric = typeof(ShimSham).GetMethod("GetDefaultFor");
+        private static readonly MethodInfo _getDefaultMethodGeneric = typeof(ShimSham).GetMethod("GetDefaultFor", BindingFlags.NonPublic | BindingFlags.Static);
 
         private Dictionary<string, PropertyInfo> _localPropertyInfos;
         private Dictionary<string, FieldInfo> _localFieldInfos;
@@ -104,14 +105,27 @@ namespace PeanutButter.DuckTyping
             var propValueType = propValue.GetType();
             if (correctType.IsAssignableFrom(propValueType))
                 return propValue;
+            var converter = ConverterLocator.GetConverter(propValueType, correctType);
+            if (converter != null)
+                return ConvertWith(converter, propValue, correctType);
             if (correctType.ShouldTreatAsPrimitive())
-                return GetDefaultValueFor(correctType); // underlying primitive mismatch; TODO: try convert?
+                return GetDefaultValueFor(correctType);
             if (CannotShim(propertyName, propValueType, correctType))
                 return null;
             var duckType = MakeTypeToImplement(correctType);
             var instance = Activator.CreateInstance(duckType, new[] { propValue });
             _shimmedProperties[propertyName] = instance;
             return instance;
+        }
+
+        private object ConvertWith(
+            IConverter converter, 
+            object propValue, 
+            Type toType)
+        {
+            var convertMethod = converter.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public)
+                                    .Single(mi => mi.Name == "Convert" && mi.ReturnType == toType);
+            return convertMethod.Invoke(converter, new object[] { propValue });
         }
 
         private bool CannotShim(string propertyName, Type srcType, Type targetType)
@@ -173,12 +187,26 @@ namespace PeanutButter.DuckTyping
             }
             if (mimickedPropInfo.PropertyType.IsAssignableFrom(newValueType))
             {
-                propInfo.SetValue(_wrapped, newValue);
+                TrySetValue(newValue, newValueType, propInfo);
                 return;
             }
             var duckType = MakeTypeToImplement(mimickedPropInfo.PropertyType);
-            var instance = Activator.CreateInstance(duckType, new[] { newValue } );
+            var instance = Activator.CreateInstance(duckType, new[] { newValue });
             _shimmedProperties[propertyName] = instance;
+        }
+
+        private void TrySetValue(object newValue, Type newValueType, PropertyInfo propInfo)
+        {
+            if (propInfo.PropertyType.IsAssignableFrom(newValueType))
+            {
+                propInfo.SetValue(_wrapped, newValue);
+                return;
+            }
+            var converter = ConverterLocator.GetConverter(newValueType, propInfo.PropertyType);
+            if (converter == null)
+                throw new InvalidOperationException($"Unable to set property: no converter for {newValueType.Name} => {propInfo.PropertyType.Name}");
+            var converted = ConvertWith(converter, newValue, propInfo.PropertyType);
+            propInfo.SetValue(_wrapped, converted);
         }
 
         // ReSharper disable once UnusedMember.Global

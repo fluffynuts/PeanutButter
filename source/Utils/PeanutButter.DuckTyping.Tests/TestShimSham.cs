@@ -240,6 +240,56 @@ namespace PeanutButter.DuckTyping.Tests
             Expect(newResult.Legs, Is.EqualTo(123));
         }
 
+        public interface IHasGuidId {
+            Guid Id { get; }
+        }
+
+        [Test]
+        public void WhenFuzzy_GetPropertyValue_ShouldBeAbleToConvertFromSource_Guid_ToTarget_String()
+        {
+            //--------------- Arrange -------------------
+            var guid = Guid.NewGuid();
+            var toWrap = new {
+                Id = guid.ToString()
+            };
+            var sut = Create(toWrap, typeof(IHasGuidId), true);
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = sut.GetPropertyValue("Id");
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.EqualTo(guid));
+        }
+
+        public class WithStringId
+        {
+            public string id { get; set ; }
+        }
+        public interface IHasReadWriteGuidId {
+            Guid Id { get; set; }
+        }
+
+        [Test]
+        public void WhenFuzzy_SetPropertyValue_ShouldBeAbleToConvertFromSouce_Guid_ToTarget_String()
+        {
+            //--------------- Arrange -------------------
+            var guid = Guid.NewGuid();
+            var toWrap = new WithStringId();
+            var sut = Create(toWrap, typeof(IHasReadWriteGuidId), true);
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            sut.SetPropertyValue("id", guid);
+
+            //--------------- Assert -----------------------
+            Expect(toWrap.id, Is.EqualTo(guid.ToString()));
+        }
+
+
+
 
         private ShimSham Create(object toWrap, Type toMimick, bool isFuzzy = false)
         {

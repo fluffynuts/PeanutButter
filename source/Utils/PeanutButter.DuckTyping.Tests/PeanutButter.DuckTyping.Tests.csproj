@@ -44,6 +44,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AutoConversion\Converters\TestGenericStringConverter.cs" />
+    <Compile Include="AutoConversion\TestConverterLocator.cs" />
     <Compile Include="Extensions\TestDuckTypingObjectExtensions.cs" />
     <Compile Include="TestPropertyInfoContainer.cs" />
     <Compile Include="TestShimSham.cs" />
@@ -59,6 +61,10 @@
       <Project>{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}</Project>
       <Name>PeanutButter.RandomGenerators</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\TestUtils\PeanutButter.TestUtils.Generic\PeanutButter.TestUtils.Generic.csproj">
+      <Project>{6DDD7F9E-857A-442B-9148-05B34EA279C4}</Project>
+      <Name>PeanutButter.TestUtils.Generic</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PeanutButter.DuckTyping\PeanutButter.DuckTyping.csproj">
       <Project>{DE67B50B-6CD0-49C8-9D3C-953B80E08FDC}</Project>
       <Name>PeanutButter.DuckTyping</Name>
@@ -68,6 +74,7 @@
       <Name>PeanutButter.Utils</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

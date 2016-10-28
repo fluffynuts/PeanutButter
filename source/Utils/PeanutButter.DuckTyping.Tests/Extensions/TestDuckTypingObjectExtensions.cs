@@ -376,9 +376,139 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
             //--------------- Assert -----------------------
             Assert.IsNotNull(result);
-            var outerPayload = result.OuterPayload;
-            var foo = outerPayload;
             Assert.IsNull(result.OuterPayload);
+        }
+
+        public interface IObjectIdentifier
+        {
+            object Identifier { get; }
+        }
+        public interface IGuidIdentifier
+        {
+            Guid Identifier { get; }
+        }
+
+        [Test]
+        public void CanDuckAs_ShouldNotTreatGuidAsObject()
+        {
+            //--------------- Arrange -------------------
+            var inputWithGuid = new {
+                Identifier = new Guid(),
+            };
+            var inputWithObject = new {
+                Identifier = new object()
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            Expect(inputWithGuid.CanDuckAs<IObjectIdentifier>(), Is.True);
+            Expect(inputWithGuid.CanDuckAs<IGuidIdentifier>(), Is.True);
+            Expect(inputWithObject.CanDuckAs<IGuidIdentifier>(), Is.False);
+            Expect(inputWithObject.CanDuckAs<IObjectIdentifier>(), Is.True);
+
+            //--------------- Assert -----------------------
+        }
+
+        [Test]
+        public void CanFuzzyDuckAs_ShouldNotTreatGuidAsObject()
+        {
+            //--------------- Arrange -------------------
+            var inputWithGuid = new {
+                identifier = new Guid(),
+            };
+            var inputWithObject = new {
+                identifier = new object()
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            Expect(inputWithGuid.CanFuzzyDuckAs<IObjectIdentifier>(), Is.True);
+            Expect(inputWithGuid.CanFuzzyDuckAs<IGuidIdentifier>(), Is.True);
+            Expect(inputWithObject.CanFuzzyDuckAs<IGuidIdentifier>(), Is.False);
+            Expect(inputWithObject.CanFuzzyDuckAs<IObjectIdentifier>(), Is.True);
+
+            //--------------- Assert -----------------------
+        }
+
+        public interface IWithStringId
+        {
+            string Id { get; }
+        }
+
+        [Test]
+        public void FuzzyDuckAs_WhenReadingProperty_ShouldBeAbleToConvertBetweenGuidAndString()
+        {
+            //--------------- Arrange -------------------
+            var input = new {
+                id = Guid.NewGuid()
+            };
+            var expected = input.id.ToString();
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var ducked = input.FuzzyDuckAs<IWithStringId>();
+
+            //--------------- Assert -----------------------
+            Assert.IsNotNull(ducked);
+            Expect(ducked.Id, Is.EqualTo(expected));
+        }
+
+        public interface IWithGuidId
+        {
+            Guid Id { get; set; }
+        }
+        public class WithGuidId
+        {
+            public Guid id { get; set; }
+        }
+        public class WithStringId
+        {
+            public string id { get; set; }
+        }
+
+        [Test]
+        public void FuzzyDuckAs_WhenReadingProperty_ShouldBeAbleToConvertFromStringToGuid()
+        {
+            //--------------- Arrange -------------------
+            var expected = Guid.NewGuid();
+            var input = new WithStringId() {
+                id = expected.ToString()
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var ducked = input.FuzzyDuckAs<IWithGuidId>();
+
+            //--------------- Assert -----------------------
+            Expect(ducked, Is.Not.Null);
+            Expect(ducked.Id, Is.EqualTo(expected));
+        }
+
+        [Test]
+        [Ignore("WIP: ShimSham needs work")]
+        public void FuzzyDuckAs_WhenWritingProperty_ShouldBeAbleToConvertFromGuidToString()
+        {
+            //--------------- Arrange -------------------
+            var newValue = Guid.NewGuid();
+            var expected = newValue.ToString();
+            var input = new WithStringId() {
+                id = GetRandomString()
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var ducked = input.FuzzyDuckAs<IWithGuidId>();
+
+            //--------------- Assert -----------------------
+            Expect(ducked, Is.Not.Null);
+            ducked.Id = newValue;
+            Expect(input.id, Is.EqualTo(expected));
+            Expect(ducked.Id, Is.EqualTo(newValue));
         }
 
 
