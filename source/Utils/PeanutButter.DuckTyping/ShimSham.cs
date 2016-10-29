@@ -8,10 +8,61 @@ using PeanutButter.DuckTyping.Extensions;
 
 namespace PeanutButter.DuckTyping
 {
-    public class ShimSham
+    public interface IShimSham
+    {
+        object GetPropertyValue(string propertyName);
+        void SetPropertyValue(string propertyName, object newValue);
+        void CallThroughVoid(string methodName, params object[] parameters);
+        object CallThrough(string methodName, object[] parameters);
+    }
+
+    public abstract class ShimShamBase
+    {
+        private static readonly MethodInfo _getDefaultMethodGeneric = typeof(ShimShamBase).GetMethod("GetDefaultFor", BindingFlags.NonPublic | BindingFlags.Static);
+        protected TypeMaker _typeMaker;
+        protected readonly MethodInfo _genericMakeType = typeof(TypeMaker).GetMethod("MakeTypeImplementing");
+        protected readonly MethodInfo _genericFuzzyMakeType = typeof(TypeMaker).GetMethod("MakeFuzzyTypeImplementing");
+        protected static object GetDefaultValueFor(Type correctType)
+        {
+            return _getDefaultMethodGeneric
+                                .MakeGenericMethod(correctType)
+                                .Invoke(null, null);
+
+        }
+
+        // ReSharper disable once UnusedMember.Local
+#pragma warning disable S1144 // Unused private types or members should be removed
+        private static T GetDefaultFor<T>()
+        {
+            return default(T);
+        }
+#pragma warning restore S1144 // Unused private types or members should be removed
+
+        protected object ConvertWith(
+            IConverter converter, 
+            object propValue, 
+            Type toType)
+        {
+            var convertMethod = converter.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public)
+                                    .Single(mi => mi.Name == "Convert" && mi.ReturnType == toType);
+            // ReSharper disable once RedundantExplicitArrayCreation
+            return convertMethod.Invoke(converter, new object[] { propValue });
+        }
+
+        protected Type MakeTypeToImplement(Type type, bool isFuzzy)
+        {
+            var typeMaker = (_typeMaker ?? (_typeMaker = new TypeMaker()));
+            var genericMethod = isFuzzy ? _genericFuzzyMakeType : _genericMakeType;
+            var specific = genericMethod.MakeGenericMethod(type);
+            return specific.Invoke(typeMaker, null) as Type;
+        }
+
+    }
+
+    public class ShimSham : ShimShamBase, IShimSham
     {
         // ReSharper disable once MemberCanBePrivate.Global
-        public bool IsFuzzy { get; }
+        private bool _isFuzzy { get; }
         private readonly object _wrapped;
         private readonly IPropertyInfoFetcher _propertyInfoFetcher;
         private readonly Type _wrappedType;
@@ -20,16 +71,12 @@ namespace PeanutButter.DuckTyping
         private static readonly Dictionary<Type, PropertyInfoContainer> _propertyInfos = new Dictionary<Type, PropertyInfoContainer>();
         private static readonly Dictionary<Type, MethodInfoContainer> _methodInfos = new Dictionary<Type, MethodInfoContainer>();
         private static readonly Dictionary<Type, Dictionary<string, FieldInfo>> _fieldInfos = new Dictionary<Type, Dictionary<string, FieldInfo>>();
-        private static readonly MethodInfo _getDefaultMethodGeneric = typeof(ShimSham).GetMethod("GetDefaultFor", BindingFlags.NonPublic | BindingFlags.Static);
 
         private Dictionary<string, PropertyInfo> _localPropertyInfos;
         private Dictionary<string, FieldInfo> _localFieldInfos;
         private Dictionary<string, MethodInfo> _localMethodInfos;
         private readonly Dictionary<string, object> _shimmedProperties = new Dictionary<string, object>();
         private readonly HashSet<string> _unshimmableProperties = new HashSet<string>();
-        private TypeMaker _typeMaker;
-        private readonly MethodInfo _genericMakeType = typeof(TypeMaker).GetMethod("MakeTypeImplementing");
-        private readonly MethodInfo _genericFuzzyMakeType = typeof(TypeMaker).GetMethod("MakeFuzzyTypeImplementing");
         private PropertyInfoContainer _mimickedPropInfos;
         private Dictionary<string, PropertyInfo> _localMimickPropertyInfos;
 
@@ -47,12 +94,12 @@ namespace PeanutButter.DuckTyping
         {
             if (interfaceToMimick == null) throw new ArgumentNullException(nameof(interfaceToMimick));
             if (propertyInfoFetcher == null) throw new ArgumentNullException(nameof(propertyInfoFetcher));
-            IsFuzzy = isFuzzy;
+            _isFuzzy = isFuzzy;
             _wrapped = toWrap;
             _propertyInfoFetcher = propertyInfoFetcher;
             _wrappedType = toWrap.GetType();
             _wrappingADuck = IsObjectADuck();
-            StaticallyCachePropertyInfosFor(_wrappedType, _wrappingADuck);
+            StaticallyCachePropertyInfosFor(toWrap, _wrappingADuck);
             StaticallyCachePropertInfosFor(interfaceToMimick);
             StaticallyCacheMethodInfosFor(_wrappedType);
             LocallyCachePropertyInfos();
@@ -62,9 +109,11 @@ namespace PeanutButter.DuckTyping
 
         private void StaticallyCachePropertInfosFor(Type interfaceToMimick)
         {
+            var bindingFlags = BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.Public;
             _mimickedPropInfos = new PropertyInfoContainer(
                 interfaceToMimick.GetAllImplementedInterfaces()
-                    .Select(i => _propertyInfoFetcher.GetProperties(i, BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.Public))
+                    .Select(i => _propertyInfoFetcher
+                                    .GetProperties(i, bindingFlags))
                     .SelectMany(c => c)
                     .ToArray()
             );
@@ -124,56 +173,21 @@ namespace PeanutButter.DuckTyping
                 return GetDefaultValueFor(correctType);
             if (CannotShim(propertyName, propValueType, correctType))
                 return null;
-            var duckType = MakeTypeToImplement(correctType);
+            var duckType = MakeTypeToImplement(correctType, _isFuzzy);
             var instance = Activator.CreateInstance(duckType, new[] { propValue });
             _shimmedProperties[propertyName] = instance;
             return instance;
-        }
-
-        private object ConvertWith(
-            IConverter converter, 
-            object propValue, 
-            Type toType)
-        {
-            var convertMethod = converter.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public)
-                                    .Single(mi => mi.Name == "Convert" && mi.ReturnType == toType);
-            return convertMethod.Invoke(converter, new object[] { propValue });
         }
 
         private bool CannotShim(string propertyName, Type srcType, Type targetType)
         {
             if (_unshimmableProperties.Contains(propertyName))
                 return true;
-            var result = !srcType.CanDuckAs(targetType, IsFuzzy);
+            var result = !srcType.CanDuckAs(targetType, _isFuzzy);
             if (result)
                 _unshimmableProperties.Add(propertyName);
             return result;
         }
-
-        private Type MakeTypeToImplement(Type type)
-        {
-            var typeMaker = (_typeMaker ?? (_typeMaker = new TypeMaker()));
-            var genericMethod = IsFuzzy ? _genericFuzzyMakeType : _genericMakeType;
-            var specific = genericMethod.MakeGenericMethod(type);
-            return specific.Invoke(typeMaker, null) as Type;
-        }
-
-        private static object GetDefaultValueFor(Type correctType)
-        {
-            return _getDefaultMethodGeneric
-                                .MakeGenericMethod(correctType)
-                                .Invoke(null, null);
-
-        }
-
-
-        // ReSharper disable once UnusedMember.Local
-#pragma warning disable S1144 // Unused private types or members should be removed
-        private static T GetDefaultFor<T>()
-        {
-            return default(T);
-        }
-#pragma warning restore S1144 // Unused private types or members should be removed
 
         // ReSharper disable once UnusedMember.Global
         public void SetPropertyValue(string propertyName, object newValue)
@@ -202,7 +216,7 @@ namespace PeanutButter.DuckTyping
                 TrySetValue(newValue, newValueType, propInfo);
                 return;
             }
-            var duckType = MakeTypeToImplement(mimickedPropInfo.PropertyType);
+            var duckType = MakeTypeToImplement(mimickedPropInfo.PropertyType, _isFuzzy);
             var instance = Activator.CreateInstance(duckType, new[] { newValue });
             _shimmedProperties[propertyName] = instance;
         }
@@ -238,7 +252,7 @@ namespace PeanutButter.DuckTyping
             MethodInfo methodInfo;
             if (!_localMethodInfos.TryGetValue(methodName, out methodInfo))
                 throw new MethodNotFoundException(_wrappedType, methodName);
-            if (IsFuzzy)
+            if (_isFuzzy)
                 parameters = AttemptToOrderCorrectly(parameters, methodInfo);
             var result = methodInfo.Invoke(_wrapped, parameters);
             return result;
@@ -291,39 +305,41 @@ namespace PeanutButter.DuckTyping
 
         private void LocallyCachePropertyInfos()
         {
-            _localPropertyInfos = IsFuzzy
+            _localPropertyInfos = _isFuzzy
                                     ? _propertyInfos[_wrappedType].FuzzyPropertyInfos
                                     : _propertyInfos[_wrappedType].PropertyInfos;
             if (_wrappingADuck)
                 _localFieldInfos = _fieldInfos[_wrappedType];
         }
 
-        public void LocallyCacheMimickedPropertyInfos()
+        private void LocallyCacheMimickedPropertyInfos()
         {
-            _localMimickPropertyInfos = IsFuzzy
+            _localMimickPropertyInfos = _isFuzzy
                                        ? _mimickedPropInfos.FuzzyPropertyInfos
                                        : _mimickedPropInfos.PropertyInfos;
         }
 
         private void LocallyCacheMethodInfos()
         {
-            _localMethodInfos = IsFuzzy
+            _localMethodInfos = _isFuzzy
                                 ? _methodInfos[_wrappedType].FuzzyMethodInfos
                                 : _methodInfos[_wrappedType].MethodInfos;
         }
 
-        private void StaticallyCachePropertyInfosFor(Type toCacheFor, bool cacheFieldInfosToo)
+        private void StaticallyCachePropertyInfosFor(object toCacheFor, bool cacheFieldInfosToo)
         {
             lock (_propertyInfos)
             {
-                if (_propertyInfos.ContainsKey(toCacheFor))
+                var type = toCacheFor.GetType();
+                if (_propertyInfos.ContainsKey(type))
                     return;
-                _propertyInfos[toCacheFor] = new PropertyInfoContainer(
-                    _propertyInfoFetcher.GetProperties(toCacheFor,
-                        BindingFlags.Instance | BindingFlags.Public));
+                _propertyInfos[type] = new PropertyInfoContainer(
+                    _propertyInfoFetcher
+                        .GetPropertiesFor(toCacheFor,
+                            BindingFlags.Instance | BindingFlags.Public));
                 if (!cacheFieldInfosToo)
                     return;
-                _fieldInfos[toCacheFor] = toCacheFor
+                _fieldInfos[type] = type
                                 .GetFields(BindingFlags.Instance | BindingFlags.NonPublic)
                                 .ToDictionary(
                                     fi => fi.Name,

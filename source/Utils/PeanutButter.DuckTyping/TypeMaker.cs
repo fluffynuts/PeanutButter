@@ -19,7 +19,13 @@ namespace PeanutButter.DuckTyping
     public class TypeMaker : ITypeMaker
     {
         private static readonly Type _shimType = typeof(ShimSham);
-        private static readonly ConstructorInfo _shimConstructor = _shimType.GetConstructor(new[] { typeof(object), typeof(Type), typeof(bool) });
+        private static readonly Type _dictionaryShim = typeof(DictionaryShimSham);
+        private static readonly ConstructorInfo _shimConstructor = _shimType.GetConstructor(
+            new[] { typeof(object), typeof(Type), typeof(bool) }
+        );
+        private static readonly ConstructorInfo _dictionaryShimConstructor =
+            _dictionaryShim.GetConstructor(new[] 
+                {typeof(Dictionary<string, object>), typeof(Type) });
         private static readonly ConstructorInfo _objectConstructor = typeof(object).GetConstructor(new Type[0]);
         private static readonly MethodInfo _shimGetPropertyValueMethod = 
             _shimType.GetMethod("GetPropertyValue");
@@ -67,6 +73,7 @@ namespace PeanutButter.DuckTyping
             AddAllMethodsAsShimmable(typeBuilder, allInterfaceTypes, shimField);
             AddDefaultConstructor(typeBuilder, shimField, interfaceType, isFuzzy);
             AddWrappingConstructor(typeBuilder, shimField, interfaceType, isFuzzy);
+            AddDictionaryWrappingConstructor(typeBuilder, shimField, interfaceType);
 
             return typeBuilder.CreateType();
         }
@@ -114,6 +121,33 @@ namespace PeanutButter.DuckTyping
             ImplementMethodReturnWith(il);
         }
 
+        private void AddDictionaryWrappingConstructor(
+            TypeBuilder typeBuilder,
+            FieldBuilder shimField,
+            Type interfaceType
+        )
+        {
+            var ctorBuilder = typeBuilder.DefineConstructor(
+                MethodAttributes.Public,
+                CallingConventions.Standard,
+                new[] {typeof(Dictionary<string, object>)});
+            var il = ctorBuilder.GetILGenerator();
+            CallBaseObjectConstructor(il);
+            var result = CreateWrappingDictionaryShimFor(il, interfaceType);
+            StoreShimInFieldWith(shimField, il, result);
+            ImplementMethodReturnWith(il);
+        }
+
+        private static LocalBuilder CreateWrappingDictionaryShimFor(ILGenerator il, Type interfaceType)
+        {
+            var result = il.DeclareLocal(typeof(IShimSham));
+            il.Emit(OpCodes.Ldarg_1);
+            il.Emit(OpCodes.Ldtoken, interfaceType);
+            il.Emit(OpCodes.Newobj, _dictionaryShimConstructor);
+            il.Emit(OpCodes.Stloc, result);
+            return result;
+        }
+
         private static void StoreShimInFieldWith(FieldBuilder shimField, ILGenerator generator, LocalBuilder result)
         {
             generator.Emit(OpCodes.Ldarg_0);
@@ -133,7 +167,7 @@ namespace PeanutButter.DuckTyping
 
         private static LocalBuilder CreateWrappingShimFor(OpCode code, ILGenerator il, Type interfaceType, bool isFuzzy)
         {
-            var result = il.DeclareLocal(typeof(ShimSham));
+            var result = il.DeclareLocal(typeof(IShimSham));
             il.Emit(code);
             il.Emit(OpCodes.Ldtoken, interfaceType);
             il.Emit(isFuzzy ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);

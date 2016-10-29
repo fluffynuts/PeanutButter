@@ -41,6 +41,7 @@
     <Compile Include="Comparers.cs" />
     <Compile Include="DefaultPropertyInfoFetcher.cs" />
     <Compile Include="DictionaryPropertyFetcher.cs" />
+    <Compile Include="DictionaryShimSham.cs" />
     <Compile Include="Exceptions\BackingFieldForPropertyNotFoundException.cs" />
     <Compile Include="Exceptions\MethodNotFoundException.cs" />
     <Compile Include="Exceptions\PropertyNotFoundException.cs" />

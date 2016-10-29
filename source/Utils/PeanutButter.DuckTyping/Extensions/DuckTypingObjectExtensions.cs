@@ -44,7 +44,7 @@ namespace PeanutButter.DuckTyping.Extensions
             return type.CanDuckAs(srcType, allowFuzzy);
         }
 
-        private static readonly string[] _objectMethodNames = 
+        private static readonly string[] ObjectMethodNames = 
             typeof(object).GetMethods().Select(m => m.Name).ToArray();
 
         internal static bool CanDuckAs(
@@ -53,7 +53,9 @@ namespace PeanutButter.DuckTyping.Extensions
             bool allowFuzzy
         )
         {
-            var expectedProperties = allowFuzzy ? type.FindFuzzyProperties() : type.FindProperties();
+            var expectedProperties = allowFuzzy 
+                                        ? type.FindFuzzyProperties() 
+                                        : type.FindProperties();
             var expectedPrimitives = expectedProperties.GetPrimitiveProperties(allowFuzzy);
             var srcProperties = allowFuzzy ? srcType.FindFuzzyProperties() : srcType.FindProperties();
             var srcPrimitives = srcProperties.GetPrimitiveProperties(allowFuzzy);
@@ -77,7 +79,7 @@ namespace PeanutButter.DuckTyping.Extensions
 
             var expectedMethods = allowFuzzy ? type.FindFuzzyMethods() : type.FindMethods();
             if (srcType.IsInterface)
-                expectedMethods = expectedMethods.Except(_objectMethodNames);
+                expectedMethods = expectedMethods.Except(ObjectMethodNames);
             var srcMethods = allowFuzzy ? srcType.FindFuzzyMethods() : srcType.FindMethods();
             return srcMethods.IsSuperSetOf(expectedMethods);
         }

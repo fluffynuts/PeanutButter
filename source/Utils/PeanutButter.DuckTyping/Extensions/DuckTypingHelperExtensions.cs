@@ -14,11 +14,10 @@ namespace PeanutButter.DuckTyping.Extensions
         private static readonly Dictionary<Type, MethodInfoContainer> _methodCache =
             new Dictionary<Type, MethodInfoContainer>();
 
-        private static readonly IPropertyInfoFetcher _fetcher = new DefaultPropertyInfoFetcher();
-
+        private static readonly IPropertyInfoFetcher _defaultPropertyInfoFetcher = new DefaultPropertyInfoFetcher();
         internal static Dictionary<string, PropertyInfo> FindProperties(this Type type)
         {
-            return type.FindProperties(_fetcher);
+            return type.FindProperties(_defaultPropertyInfoFetcher);
         }
 
         internal static Dictionary<string, PropertyInfo> FindProperties(
@@ -42,7 +41,7 @@ namespace PeanutButter.DuckTyping.Extensions
 
         internal static Dictionary<string, PropertyInfo> FindFuzzyProperties(this Type type)
         {
-            return FindFuzzyProperties(type, new DefaultPropertyInfoFetcher());
+            return FindFuzzyProperties(type, _defaultPropertyInfoFetcher);
         }
 
         internal static Dictionary<string, PropertyInfo> FindFuzzyProperties(this Type type, IPropertyInfoFetcher fetcher)

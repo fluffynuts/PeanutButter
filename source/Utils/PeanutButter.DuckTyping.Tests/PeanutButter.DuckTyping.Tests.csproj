@@ -52,6 +52,7 @@
     <Compile Include="AutoConversion\TestConverterLocator.cs" />
     <Compile Include="Extensions\TestDictionaryPropertyInfoFetcher.cs" />
     <Compile Include="Extensions\TestDuckTypingObjectExtensions.cs" />
+    <Compile Include="TestDictionaryShimSham.cs" />
     <Compile Include="TestPropertyInfoContainer.cs" />
     <Compile Include="TestShimSham.cs" />
     <Compile Include="TestCreate.cs" />

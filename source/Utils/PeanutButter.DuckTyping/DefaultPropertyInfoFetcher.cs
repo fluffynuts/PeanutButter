@@ -9,5 +9,10 @@ namespace PeanutButter.DuckTyping
         {
             return srcType.GetProperties(bindingFlags);
         }
+
+        public PropertyInfo[] GetPropertiesFor(object obj, BindingFlags bindingFlags)
+        {
+            return GetProperties(obj.GetType(), bindingFlags);
+        }
     }
 }
