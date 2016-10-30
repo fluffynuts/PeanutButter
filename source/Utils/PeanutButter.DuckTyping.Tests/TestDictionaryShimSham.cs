@@ -5,6 +5,7 @@ using NUnit.Framework;
 using PeanutButter.DuckTyping.Exceptions;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 // ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable PossibleNullReferenceException
 
 namespace PeanutButter.DuckTyping.Tests
 {
@@ -201,7 +202,6 @@ namespace PeanutButter.DuckTyping.Tests
         }
 
         [Test]
-        [Ignore("WIP")]
         public void GetPropertyValue_WhenHaveSubInterface_ShouldShim()
         {
             //--------------- Arrange -------------------
@@ -222,6 +222,31 @@ namespace PeanutButter.DuckTyping.Tests
             Expect(castResult, Is.Not.Null);
             Expect(castResult.Id, Is.EqualTo(expected));
         }
+
+        [Test]
+        public void SetPropertyValue_WhenHaveSubInterface_ShouldSetOnShimThroughToOriginal()
+        {
+            //--------------- Arrange -------------------
+            var expected = GetRandomInt();
+            var original = GetAnother(expected);
+            var data = new Dictionary<string, object>()
+            {
+                { "HaveId", new Dictionary<string, object>() { { "Id", original } } }
+            };
+            var sut = Create(data, typeof(INested));
+            var sub = sut.GetPropertyValue("HaveId") as IHaveId;
+
+            //--------------- Assume ----------------
+            Expect(sub, Is.Not.Null);
+
+            //--------------- Act ----------------------
+            sub.Id = expected;
+
+            //--------------- Assert -----------------------
+            Expect((data["HaveId"] as Dictionary<string, object>)["Id"], Is.EqualTo(expected));
+        }
+
+
 
 
 

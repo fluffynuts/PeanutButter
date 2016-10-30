@@ -38,13 +38,40 @@ namespace PeanutButter.DuckTyping.Extensions
 
         private static bool CanDuckAs<T>(this object src, bool allowFuzzy)
         {
+            var asDictionary = src as IDictionary<string, object>;
+            if (asDictionary != null)
+                return asDictionary.CanDuckDictionaryAs<T>();
             var type = typeof(T);
             var srcType = src.GetType();
 
             return type.CanDuckAs(srcType, allowFuzzy);
         }
 
-        private static readonly string[] ObjectMethodNames = 
+        private static bool CanDuckDictionaryAs<T>(this IDictionary<string, object> src)
+        {
+            var properties = typeof(T)
+                .GetAllImplementedInterfaces()
+                .SelectMany(itype => itype.GetProperties())
+                .Distinct(new PropertyInfoComparer());
+            foreach (var prop in properties)
+            {
+                object stored;
+                if (!src.TryGetValue(prop.Name, out stored))
+                    return false;
+                if (stored == null)
+                {
+                    if (ShimShamBase.GetDefaultValueFor(prop.PropertyType) != null)
+                        return false;
+                    continue;
+                }
+                // ReSharper disable once UseMethodIsInstanceOfType
+                if (!prop.PropertyType.IsAssignableFrom(stored.GetType()))
+                    return false;
+            }
+            return true;
+        }
+
+        private static readonly string[] _objectMethodNames = 
             typeof(object).GetMethods().Select(m => m.Name).ToArray();
 
         internal static bool CanDuckAs(
@@ -79,7 +106,7 @@ namespace PeanutButter.DuckTyping.Extensions
 
             var expectedMethods = allowFuzzy ? type.FindFuzzyMethods() : type.FindMethods();
             if (srcType.IsInterface)
-                expectedMethods = expectedMethods.Except(ObjectMethodNames);
+                expectedMethods = expectedMethods.Except(_objectMethodNames);
             var srcMethods = allowFuzzy ? srcType.FindFuzzyMethods() : srcType.FindMethods();
             return srcMethods.IsSuperSetOf(expectedMethods);
         }

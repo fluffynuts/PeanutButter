@@ -18,6 +18,7 @@ namespace PeanutButter.DuckTyping
     }
     public class TypeMaker : ITypeMaker
     {
+        private static readonly Type _shimInterfaceType = typeof(IShimSham);
         private static readonly Type _shimType = typeof(ShimSham);
         private static readonly Type _dictionaryShim = typeof(DictionaryShimSham);
         private static readonly ConstructorInfo _shimConstructor = _shimType.GetConstructor(
@@ -28,13 +29,13 @@ namespace PeanutButter.DuckTyping
                 {typeof(Dictionary<string, object>), typeof(Type) });
         private static readonly ConstructorInfo _objectConstructor = typeof(object).GetConstructor(new Type[0]);
         private static readonly MethodInfo _shimGetPropertyValueMethod = 
-            _shimType.GetMethod("GetPropertyValue");
+            _shimInterfaceType.GetMethod("GetPropertyValue");
         private static readonly MethodInfo _shimSetPropertyValueMethod = 
-            _shimType.GetMethod("SetPropertyValue");
+            _shimInterfaceType.GetMethod("SetPropertyValue");
         private static readonly MethodInfo _shimCallThroughMethod =
-            _shimType.GetMethod("CallThrough");
+            _shimInterfaceType.GetMethod("CallThrough");
         private static readonly MethodInfo _shimCallThroughVoidMethod =
-            _shimType.GetMethod("CallThroughVoid");
+            _shimInterfaceType.GetMethod("CallThroughVoid");
 
         public Type MakeTypeImplementing<T>()
         {
@@ -80,7 +81,7 @@ namespace PeanutButter.DuckTyping
 
         private FieldBuilder AddShimField(TypeBuilder typeBuilder)
         {
-            return typeBuilder.DefineField("_shim", _shimType, FieldAttributes.Private);
+            return typeBuilder.DefineField("_shim", _shimInterfaceType, FieldAttributes.Private);
         }
 
         private void AddDefaultConstructor(

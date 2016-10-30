@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -564,23 +565,116 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             Expect(result, Is.False);
         }
 
+        public interface IDictionaryInner
+        {
+            string Name { get; set; }
+        }
+
+        public interface IDictionaryOuter
+        {
+            int Id { get; set; }
+            IDictionaryInner Inner { get; set; }
+        }
+
+
         [Test]
-        [Ignore("needs some thought")]
-        public void DuckingAJObject()
+        public void CanDuckAs_OperatingOnSingleLevelDictionaryOfStringAndObject_WhenAllPropertiesAreFound_ShouldReturnTrue()
         {
             //--------------- Arrange -------------------
-            var input = new JObject();
-            var expected = Guid.NewGuid();
-            input["actorId"] = expected;
-            var stored = input["actorId"];
+            var expected = GetRandomString();
+            var data = new Dictionary<string, object>()
+            {{"Name", expected}};
+
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var result = input.FuzzyDuckAs<IHasAnActorId>();
+            var result = data.CanDuckAs<IDictionaryInner>();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.True);
+        }
+
+        [Test]
+        public void CanDuckAs_OperatingOnSingleLevelDictionaryOfStringAndObject_WhenNullablePropertyIsFound_ShouldReturnTrue()
+        {
+            //--------------- Arrange -------------------
+            var data = new Dictionary<string, object>()
+            {{"Name", null}};
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = data.CanDuckAs<IDictionaryInner>();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.True);
+        }
+
+        public interface IHaveId
+        {
+            int Id { get; set; }
+        }
+
+        [Test]
+        public void CanDuckAs_OperatingOnSingleLevelDictionaryOfStringAndObject_WhenNonNullablePropertyIsFoundAsNull_ShouldReturnFalse()
+        {
+            //--------------- Arrange -------------------
+            var data = new Dictionary<string, object>()
+            {{"Id", null}};
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = data.CanDuckAs<IHaveId>();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.False);
+        }
+
+        [Test]
+        [Ignore("WIP: continue from here")]
+        public void CanDuckAs_OperatingOnMultiLevelDictionary_WhenAllPropertiesFound_ShouldReturnTrue()
+        {
+            //--------------- Arrange -------------------
+            var data = new Dictionary<string, object>()
+            {
+                { "Id", GetRandomInt() },
+                { "Inner", new Dictionary<string, object>() { { "Name", GetRandomString() } } }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = data.CanDuckAs<IDictionaryOuter>();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.True);
+        }
+
+
+
+        [Test]
+        [Ignore("WIP: Need CanDuckAs first")]
+        public void DuckAs_OperatingOnDictionaryOfStringAndObject_WhenIsDuckable_ShouldDuck()
+        {
+            //--------------- Arrange -------------------
+            var expectedId = GetRandomInt();
+            var expectedName = GetRandomString();
+            var input = new Dictionary<string, object>()
+            {
+                { "Id", expectedId },
+                { "Inner", new Dictionary<string, object>() { {  "Name", expectedName } } }
+            };
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = input.DuckAs<IDictionaryOuter>();
 
             //--------------- Assert -----------------------
             Expect(result, Is.Not.Null);
-            Expect(result.ActorId, Is.EqualTo(expected));
+            Expect(result.Id, Is.EqualTo(expectedId));
+            Expect(result.Inner, Is.Not.Null);
+            Expect(result.Inner.Name, Is.EqualTo(expectedName));
         }
 
 

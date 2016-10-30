@@ -11,13 +11,13 @@ namespace PeanutButter.DuckTyping
     public class DictionaryShimSham : ShimShamBase, IShimSham
     {
         private readonly Type _interfaceToMimick;
-        private readonly Dictionary<string, object> _data;
+        private readonly IDictionary<string, object> _data;
         private readonly Dictionary<string, PropertyInfo> _mimickedProperties;
-        private bool _isFuzzy;
+        private readonly bool _isFuzzy;
         
 
         public DictionaryShimSham(
-            Dictionary<string, object> toWrap,
+            IDictionary<string, object> toWrap,
             Type interfaceToMimick)
         {
             _interfaceToMimick = interfaceToMimick;
@@ -29,14 +29,13 @@ namespace PeanutButter.DuckTyping
                 .SelectMany(a => a)
                 .ToDictionary(pi => pi.Name, pi => pi, 
                     _isFuzzy ? Comparers.FuzzyComparer : Comparers.NonFuzzyComparer);
-//            ShimShimmableProperties();
+            ShimShimmableProperties();
         }
 
-        private Dictionary<string, object> _shimmedProperties = new Dictionary<string, object>();
+        private readonly Dictionary<string, object> _shimmedProperties = new Dictionary<string, object>();
 
         private void ShimShimmableProperties()
         {
-            var typeMaker = new TypeMaker();
             foreach (var kvp in _mimickedProperties)
             {
                 if (kvp.Value.PropertyType.ShouldTreatAsPrimitive())
@@ -90,7 +89,7 @@ namespace PeanutButter.DuckTyping
             return _data[propertyName] = GetDefaultValueFor(mimickedProperty.PropertyType);
         }
 
-        private bool IsFuzzy(Dictionary<string, object> data)
+        private bool IsFuzzy(IDictionary<string, object> data)
         {
             var keys = data.Keys;
             var first = keys.FirstOrDefault(k => k.ToLower() != k.ToUpper());

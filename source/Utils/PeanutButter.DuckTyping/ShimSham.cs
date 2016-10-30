@@ -22,7 +22,7 @@ namespace PeanutButter.DuckTyping
         protected TypeMaker _typeMaker;
         protected readonly MethodInfo _genericMakeType = typeof(TypeMaker).GetMethod("MakeTypeImplementing");
         protected readonly MethodInfo _genericFuzzyMakeType = typeof(TypeMaker).GetMethod("MakeFuzzyTypeImplementing");
-        protected static object GetDefaultValueFor(Type correctType)
+        public static object GetDefaultValueFor(Type correctType)
         {
             return _getDefaultMethodGeneric
                                 .MakeGenericMethod(correctType)
