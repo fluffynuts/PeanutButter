@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -26,12 +25,12 @@ namespace PeanutButter.DuckTyping.Extensions
             return CanDuckAs<T>(src, true);
         }
 
-        public static T DuckAs<T>(this object src) where T: class
+        public static T DuckAs<T>(this object src) where T : class
         {
             return src.DuckAs<T>(false);
         }
 
-        public static T FuzzyDuckAs<T>(this object src) where T: class
+        public static T FuzzyDuckAs<T>(this object src) where T : class
         {
             return src.DuckAs<T>(true);
         }
@@ -40,19 +39,33 @@ namespace PeanutButter.DuckTyping.Extensions
         {
             var asDictionary = src as IDictionary<string, object>;
             if (asDictionary != null)
-                return asDictionary.CanDuckDictionaryAs<T>();
+                return asDictionary.CanDuckDictionaryAs<T>(allowFuzzy);
             var type = typeof(T);
             var srcType = src.GetType();
 
             return type.CanDuckAs(srcType, allowFuzzy);
         }
 
-        private static bool CanDuckDictionaryAs<T>(this IDictionary<string, object> src)
+        private static bool CanDuckDictionaryAs<T>(
+            this IDictionary<string, object> src,
+            bool allowFuzzy
+        )
         {
-            var properties = typeof(T)
+            var type = typeof(T);
+            return CanDuckDictionaryAs(src, type, allowFuzzy);
+        }
+
+        private static bool CanDuckDictionaryAs(
+            IDictionary<string, object> src,
+            Type type,
+            bool allowFuzzy
+        )
+        {
+            var properties = type
                 .GetAllImplementedInterfaces()
                 .SelectMany(itype => itype.GetProperties())
                 .Distinct(new PropertyInfoComparer());
+            src = allowFuzzy ? src.ToCaseInsensitiveDictionary() : src;
             foreach (var prop in properties)
             {
                 object stored;
@@ -64,14 +77,24 @@ namespace PeanutButter.DuckTyping.Extensions
                         return false;
                     continue;
                 }
+                var asDictionary = stored as IDictionary<string, object>;
+                if (asDictionary != null)
+                {
+                    if (CanDuckDictionaryAs(asDictionary, prop.PropertyType, allowFuzzy))
+                        continue;
+                    return false;
+                }
+
+#pragma warning disable S2219 // Runtime type checking should be simplified
                 // ReSharper disable once UseMethodIsInstanceOfType
                 if (!prop.PropertyType.IsAssignableFrom(stored.GetType()))
+#pragma warning restore S2219 // Runtime type checking should be simplified
                     return false;
             }
             return true;
         }
 
-        private static readonly string[] _objectMethodNames = 
+        private static readonly string[] _objectMethodNames =
             typeof(object).GetMethods().Select(m => m.Name).ToArray();
 
         internal static bool CanDuckAs(
@@ -80,8 +103,8 @@ namespace PeanutButter.DuckTyping.Extensions
             bool allowFuzzy
         )
         {
-            var expectedProperties = allowFuzzy 
-                                        ? type.FindFuzzyProperties() 
+            var expectedProperties = allowFuzzy
+                                        ? type.FindFuzzyProperties()
                                         : type.FindProperties();
             var expectedPrimitives = expectedProperties.GetPrimitiveProperties(allowFuzzy);
             var srcProperties = allowFuzzy ? srcType.FindFuzzyProperties() : srcType.FindProperties();
@@ -94,7 +117,7 @@ namespace PeanutButter.DuckTyping.Extensions
                                 .Where(kvp => !srcPrimitives.ContainsKey(kvp.Key));
                 if (missing.Any())
                     return false;
-                var accessMismatches = mismatches.Where(kvp => 
+                var accessMismatches = mismatches.Where(kvp =>
                     !expectedPrimitives[kvp.Key].IsNoMoreRestrictiveThan(srcPrimitives[kvp.Key]));
                 if (accessMismatches.Any())
                     return false;
@@ -112,7 +135,7 @@ namespace PeanutButter.DuckTyping.Extensions
         }
 
         private static bool HaveConvertersFor(
-            Dictionary<string, PropertyInfo> mismatches, 
+            Dictionary<string, PropertyInfo> mismatches,
             Dictionary<string, PropertyInfo> expectedPrimitives)
         {
             foreach (var kvp in mismatches)
@@ -127,31 +150,34 @@ namespace PeanutButter.DuckTyping.Extensions
 
         private static Dictionary<string, MethodInfo> Except(
             this Dictionary<string, MethodInfo> src,
-            IEnumerable<string> others 
+            IEnumerable<string> others
         )
         {
             return src.Where(kvp => !others.Contains(kvp.Key))
                         .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
 
-        internal static T DuckAs<T>(this object src, bool allowFuzzy) where T: class
+        internal static T DuckAs<T>(this object src, bool allowFuzzy) where T : class
         {
             if (src == null) return null;
             var duckable = allowFuzzy ? src.CanFuzzyDuckAs<T>() : src.CanDuckAs<T>();
             if (!duckable) return null;
+            var srcAsDict = src as IDictionary<string, object>;
+            if (allowFuzzy && srcAsDict != null)
+                src = srcAsDict.ToCaseInsensitiveDictionary();
 
             var duckType = FindOrCreateDuckTypeFor<T>(allowFuzzy);
             return (T)Activator.CreateInstance(duckType, src);
-            
+
         }
 
-        private static readonly Dictionary<Type, TypePair> _duckTypes 
+        private static readonly Dictionary<Type, TypePair> _duckTypes
             = new Dictionary<Type, TypePair>();
 
         private static Type FindOrCreateDuckTypeFor<T>(bool isFuzzy)
         {
             var key = typeof(T);
-            lock(_duckTypes)
+            lock (_duckTypes)
             {
                 if (!_duckTypes.ContainsKey(key))
                 {

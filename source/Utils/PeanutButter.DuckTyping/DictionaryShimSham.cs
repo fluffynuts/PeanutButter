@@ -43,7 +43,7 @@ namespace PeanutButter.DuckTyping
                 if (!_data.ContainsKey(kvp.Key))
                     _data[kvp.Key] = new Dictionary<string, object>();
                 var type = MakeTypeToImplement(kvp.Value.PropertyType, _isFuzzy);
-                _shimmedProperties[kvp.Key] = Activator.CreateInstance(type, new[] { _data[kvp.Key] });
+                _shimmedProperties[kvp.Key] = Activator.CreateInstance(type, _data[kvp.Key]);
             }
         }
 
@@ -84,9 +84,9 @@ namespace PeanutButter.DuckTyping
             }
         }
 
-        private object SetDefaultValueForType(string propertyName, PropertyInfo mimickedProperty)
+        private void SetDefaultValueForType(string propertyName, PropertyInfo mimickedProperty)
         {
-            return _data[propertyName] = GetDefaultValueFor(mimickedProperty.PropertyType);
+            _data[propertyName] = GetDefaultValueFor(mimickedProperty.PropertyType);
         }
 
         private bool IsFuzzy(IDictionary<string, object> data)
@@ -98,7 +98,7 @@ namespace PeanutButter.DuckTyping
             var lower = first.ToLower();
             var upper = first.ToUpper();
             object obj;
-            return _data.TryGetValue(lower, out obj) && _data.TryGetValue(upper, out obj);
+            return data.TryGetValue(lower, out obj) && data.TryGetValue(upper, out obj);
         }
 
         private PropertyInfo GetMimickedProperty(string propertyName)

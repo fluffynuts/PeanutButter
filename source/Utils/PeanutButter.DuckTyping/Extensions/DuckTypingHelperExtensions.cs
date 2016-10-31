@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 // ReSharper disable MemberCanBePrivate.Global
@@ -126,15 +126,6 @@ namespace PeanutButter.DuckTyping.Extensions
                     allowFuzzy ? Comparers.FuzzyComparer : Comparers.NonFuzzyComparer);
         }
 
-        internal static bool IsPrimitiveSuperSetOf(
-            this Dictionary<string, PropertyInfo> src,
-            Dictionary<string, PropertyInfo> other
-        )
-        {
-            return !src.FindPrimitivePropertyMismatches(other, true).Any();
-        }
-
-
         internal static bool IsSuperSetOf(
             this Dictionary<string, MethodInfo> src,
             Dictionary<string, MethodInfo> other)
@@ -185,8 +176,6 @@ namespace PeanutButter.DuckTyping.Extensions
                 return true;
             return matchByName.PropertyType == needle.PropertyType &&
                     needle.IsNoMoreRestrictiveThan(matchByName);
-//                   (!needle.CanRead || matchByName.CanRead) &&
-//                   (!needle.CanWrite || matchByName.CanWrite);
         }
 
         internal static bool IsNoMoreRestrictiveThan(
@@ -244,9 +233,93 @@ namespace PeanutButter.DuckTyping.Extensions
             return true;
         }
 
+        private static readonly IEqualityComparer<string>[] _caseInsensitiveComparers = 
+        {
+            StringComparer.OrdinalIgnoreCase,
+            StringComparer.CurrentCultureIgnoreCase,
+            StringComparer.InvariantCultureIgnoreCase
+        };
+
+        internal static bool IsCaseSensitive(
+            this IDictionary<string, object> dictionary
+        )
+        {
+            var comparerProp = dictionary?.GetType().GetProperty("Comparer");
+            return comparerProp == null
+                    ? BruteForceIsCaseSensitive(dictionary)
+                    : !_caseInsensitiveComparers.Contains(comparerProp.GetValue(dictionary));
+        }
+
+        internal static bool ContainsCaseSensitiveDictionary(
+            this IDictionary<string, object> dictionary)
+        {
+            foreach (var kvp in dictionary)
+            {
+                var asDict = kvp.Value as IDictionary<string, object>;    // WRONG! what about different-typed sub-dicts?
+                if (asDict == null)
+                    continue;
+                if (asDict.IsCaseSensitive())
+                    return true;
+            }
+            return false;
+        } 
+
+        private static bool BruteForceIsCaseSensitive(IDictionary<string, object> data)
+        {
+            if (data == null) return false;
+            string upper = null;
+            string lower = null;
+            foreach (var key in data.Keys)
+            {
+                upper = key.ToUpper(CultureInfo.InvariantCulture);
+                lower = key.ToLower(CultureInfo.InvariantCulture);
+                if (upper != lower)
+                    break;
+                upper = null;
+            }
+            if (upper == null)
+                return false;
+            return !(data.ContainsKey(lower) && data.ContainsKey(upper));
+        }
+
         internal static bool IsSpecial(this MethodInfo methodInfo)
         {
             return ((int)methodInfo.Attributes & (int)MethodAttributes.SpecialName) == (int)MethodAttributes.SpecialName;
         }
+
+        internal static IDictionary<string, object> ToCaseInsensitiveDictionary(
+            this IDictionary<string, object>  data
+        )
+        {
+            return data.ToCaseInsensitiveDictionary(new List<object>());
+        }
+
+        private static IDictionary<string, object> ToCaseInsensitiveDictionary(
+            this IDictionary<string, object> data,
+            List<object> seenObjects
+            )
+        {
+            if (!data.IsCaseSensitive() && !data.ContainsCaseSensitiveDictionary())
+                return data;
+            var outer = new Dictionary<string, object>(data, StringComparer.OrdinalIgnoreCase);
+            var toReplace = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+            foreach (var kvp in outer)
+            {
+                if (seenObjects.Contains(kvp.Value))
+                    continue;
+                seenObjects.Add(kvp.Value);
+                var inner = kvp.Value as IDictionary<string, object>;  // sub-dicts are being coerced )':
+                if (inner.IsCaseSensitive())
+                {
+                    toReplace[kvp.Key] = inner.ToCaseInsensitiveDictionary(seenObjects);
+                }
+            }
+            foreach (var kvp in toReplace)
+            {
+                outer[kvp.Key] = kvp.Value;
+            }
+            return outer;
+        } 
+
     }
 }

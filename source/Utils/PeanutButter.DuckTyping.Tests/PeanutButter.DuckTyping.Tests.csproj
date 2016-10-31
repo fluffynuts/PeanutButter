@@ -51,6 +51,7 @@
     <Compile Include="AutoConversion\Converters\TestGenericStringConverter.cs" />
     <Compile Include="AutoConversion\TestConverterLocator.cs" />
     <Compile Include="Extensions\TestDictionaryPropertyInfoFetcher.cs" />
+    <Compile Include="Extensions\TestDuckTypingHelperExtensions.cs" />
     <Compile Include="Extensions\TestDuckTypingObjectExtensions.cs" />
     <Compile Include="TestDictionaryShimSham.cs" />
     <Compile Include="TestPropertyInfoContainer.cs" />

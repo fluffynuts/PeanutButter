@@ -632,7 +632,6 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
         [Test]
-        [Ignore("WIP: continue from here")]
         public void CanDuckAs_OperatingOnMultiLevelDictionary_WhenAllPropertiesFound_ShouldReturnTrue()
         {
             //--------------- Arrange -------------------
@@ -651,10 +650,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             Expect(result, Is.True);
         }
 
-
-
         [Test]
-        [Ignore("WIP: Need CanDuckAs first")]
         public void DuckAs_OperatingOnDictionaryOfStringAndObject_WhenIsDuckable_ShouldDuck()
         {
             //--------------- Arrange -------------------
@@ -677,8 +673,96 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             Expect(result.Inner.Name, Is.EqualTo(expectedName));
         }
 
+        [Test]
+        public void CanFuzzyDuckAs_OperatingOnAppropriateCaseInsensitiveDictionary_ShouldReturnTrue()
+        {
+            //--------------- Arrange -------------------
+            var expectedId = GetRandomInt();
+            var expectedName = GetRandomString();
+            var input = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "id", expectedId },
+                { "inner", new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase) { {  "nAmE", expectedName } } }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = input.CanFuzzyDuckAs<IDictionaryOuter>();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.True);
+        }
+
+        [Test]
+        public void FuzzyDuckAs_OperatingOnCaseInsensitiveDictionary_ShouldWork()
+        {
+            //--------------- Arrange -------------------
+            var expectedId = GetRandomInt();
+            var expectedName = GetRandomString();
+            var input = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "id", expectedId },
+                { "inner", new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase) { {  "nAmE", expectedName } } }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = input.FuzzyDuckAs<IDictionaryOuter>();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.Not.Null);
+            Expect(result.Id, Is.EqualTo(expectedId));
+            Expect(result.Inner, Is.Not.Null);
+            Expect(result.Inner.Name, Is.EqualTo(expectedName));
+        }
 
 
+        [Test]
+        public void CanFuzzyDuckAs_OperatingOnWouldBeAppropriateCaseSensitiveDictionary_ShouldReturnTrue()
+        {
+            //--------------- Arrange -------------------
+            var expectedId = GetRandomInt();
+            var expectedName = GetRandomString();
+            var input = new Dictionary<string, object>()
+            {
+                { "id", expectedId },
+                { "inner", new Dictionary<string, object>() { {  "nAmE", expectedName } } }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = input.CanFuzzyDuckAs<IDictionaryOuter>();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.True);
+        }
+
+        [Test]
+        public void FuzzyDuckAs_OperatingOnCaseDifferentCaseSensitiveDictionary_ShouldReturnObject()
+        {
+            //--------------- Arrange -------------------
+            var expectedId = GetRandomInt();
+            var expectedName = GetRandomString();
+            var input = new Dictionary<string, object>()
+            {
+                { "id", expectedId },
+                { "inner", new Dictionary<string, object>() { {  "nAmE", expectedName } } }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = input.FuzzyDuckAs<IDictionaryOuter>();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.Not.Null);
+            Expect(result.Id, Is.EqualTo(expectedId));
+            Expect(result.Inner, Is.Not.Null);
+            Expect(result.Inner.Name, Is.EqualTo(expectedName));
+        }
 
 
         public interface IActivityParameters
