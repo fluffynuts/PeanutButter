@@ -9,13 +9,12 @@ namespace PeanutButter.DuckTyping
         {
             if (x == null && y == null) return true;
             if (x == null || y == null) return false;
-            return x.Name == y.Name &&
-                   x.DeclaringType == y.DeclaringType;
+            return x.Name == y.Name;
         }
 
         public int GetHashCode(MethodInfo obj)
         {
-            return obj?.GetHashCode() ?? 0;
+            return obj?.Name.GetHashCode() ?? 0;
         }
     }
 }

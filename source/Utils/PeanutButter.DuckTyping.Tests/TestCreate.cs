@@ -1,4 +1,7 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
+using PeanutButter.DuckTyping.Extensions;
+using PeanutButter.DuckTyping.Tests.Extensions;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.DuckTyping.Tests
@@ -64,6 +67,77 @@ namespace PeanutButter.DuckTyping.Tests
             Expect(result.Name, Is.EqualTo(expectedName));
         }
 
+        [Test]
+        public void InstanceOf_DuplicateKeyIssueSeenInWild_ShouldNotOccur()
+        {
+            //--------------- Arrange -------------------
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            Assert.DoesNotThrow(() => 
+                Create.InstanceOf<ICaptureDetailsTravelRequestActivityParameters>()
+            );
+
+            //--------------- Assert -----------------------
+        }
+
+
+
+        public class ActivityParameters<T> : ActivityParameters, IActivityParameters<T>
+        {
+            public T Payload { get; set; }
+
+            public ActivityParameters(Guid actorId, Guid taskId, T payload)
+                : base(actorId, taskId)
+            {
+                Payload = payload;
+            }
+        }
+        public class ActivityParameters : IActivityParameters
+        {
+            public Guid ActorId { get; }
+            public Guid TaskId { get; }
+            public void DoNothing()
+            {
+                /* does nothing */
+            }
+
+            public ActivityParameters(Guid actorId, Guid taskId)
+            {
+                ActorId = actorId;
+                TaskId = taskId;
+            }
+        }
+
+        public interface IActivityParameters
+        {
+            Guid ActorId { get; }
+            Guid TaskId { get; }
+            void DoNothing();
+        }
+        public interface IActivityParameters<T> : IActivityParameters
+        {
+            T Payload { get; }
+        }
+        public interface ICaptureDetailsTravelRequestActivityParameters :
+            IActivityParameters<ITravelRequestDetails>
+        {
+        }
+            public interface ITravelRequestDetails
+    {
+        DateTime Initiated { get; set; }
+        string DepartingFrom { get; set; }
+        string TravellingTo { get; set; }
+        DateTime ExpectedDeparture { get; set; }
+        string PreferredDepartureTime { get; set; }
+        DateTime ExpectedReturn { get; set; }
+        string PreferredReturnTime { get; set; }
+        string Reason { get; set; }
+        bool CarRequired { get; set; }
+        bool AccomodationRequired { get; set; }
+        string AccommodationRequiredNotes { get; set; }
+    }
 
 
     }

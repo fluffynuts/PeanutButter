@@ -126,7 +126,11 @@ namespace PeanutButter.DuckTyping
                 if (_methodInfos.ContainsKey(wrappedType))
                     return;
                 _methodInfos[wrappedType] = new MethodInfoContainer(
-                    wrappedType.GetMethods(BindingFlags.Instance | BindingFlags.Public)
+                    wrappedType
+                        .GetMethods(BindingFlags.Instance | BindingFlags.Public)
+                        // TODO: handle method overloads, which this won't
+                        .Distinct(new MethodInfoComparer())
+                        .ToArray()
                 );
             }
         }

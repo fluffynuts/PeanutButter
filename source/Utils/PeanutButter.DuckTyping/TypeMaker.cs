@@ -307,8 +307,11 @@ namespace PeanutButter.DuckTyping
 
         private PropertyInfo[] GetAllPropertiesFor(Type[] allImplementedInterfaces)
         {
-            return GetAllFor(allImplementedInterfaces,
-                t => t.GetProperties());
+            return GetAllFor(
+                allImplementedInterfaces,
+                t => t.GetProperties())
+                .Distinct(new PropertyInfoComparer())
+                .ToArray();
         }
 
         private MethodInfo[] GetAllMethodsFor(Type[] allImplementedInterfaces)

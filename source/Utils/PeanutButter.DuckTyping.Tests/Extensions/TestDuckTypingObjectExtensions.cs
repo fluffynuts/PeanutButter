@@ -445,7 +445,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         public void FuzzyDuckAs_WhenReadingProperty_ShouldBeAbleToConvertBetweenGuidAndString()
         {
             //--------------- Arrange -------------------
-            var input = new WithGuidId() {
+            var input = new WithGuidId()
+            {
                 id = Guid.NewGuid()
             };
             var expected = input.id.ToString();
@@ -764,6 +765,21 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             Expect(result.Inner.Name, Is.EqualTo(expectedName));
         }
 
+        [Test]
+        public void InstanceOf_IssueSeenInWildShouldNotHappen()
+        {
+            //--------------- Arrange -------------------
+            var instance = new ActivityParameters<string>(Guid.Empty, Guid.Empty, "foo");
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = instance.DuckAs<ISpecificActivityParameters>();
+
+            //--------------- Assert -----------------------
+            Assert.IsNotNull(result);
+        }
+
 
         public interface IActivityParameters
         {
@@ -803,21 +819,6 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             {
                 Payload = payload;
             }
-        }
-
-        [Test]
-        public void DuckAs_IssueSeenInWildShouldNotHappen()
-        {
-            //--------------- Arrange -------------------
-            var instance = new ActivityParameters<string>(Guid.Empty, Guid.Empty, "foo");
-
-            //--------------- Assume ----------------
-
-            //--------------- Act ----------------------
-            var result = instance.DuckAs<ISpecificActivityParameters>();
-
-            //--------------- Assert -----------------------
-            Assert.IsNotNull(result);
         }
 
         public interface ICreateMe
