@@ -7,12 +7,12 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 namespace PeanutButter.DuckTyping.Tests
 {
     [TestFixture]
-    public class TestCreate: AssertionHelper
+    public class TestCreate : AssertionHelper
     {
         public interface ICreateMe
         {
-            int Id { get; set ; }
-            string Name { get; set ;}
+            int Id { get; set; }
+            string Name { get; set; }
         }
         [Test]
         public void InstanceOf_InvokedWithInterfaceType_ShouldReturnNewInstanceImplementingThatType()
@@ -75,14 +75,26 @@ namespace PeanutButter.DuckTyping.Tests
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            Assert.DoesNotThrow(() => 
+            Assert.DoesNotThrow(() =>
                 Create.InstanceOf<ICaptureDetailsTravelRequestActivityParameters>()
             );
 
             //--------------- Assert -----------------------
         }
 
+        [Test]
+        public void InstanceOf_ShouldCreateInstancesAllTheWayDown()
+        {
+            //--------------- Arrange -------------------
 
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = Create.InstanceOf<ICaptureDetailsTravelRequestActivityParameters>();
+
+            //--------------- Assert -----------------------
+            Assert.IsNotNull(result.Payload);
+        }
 
         public class ActivityParameters<T> : ActivityParameters, IActivityParameters<T>
         {
@@ -124,20 +136,20 @@ namespace PeanutButter.DuckTyping.Tests
             IActivityParameters<ITravelRequestDetails>
         {
         }
-            public interface ITravelRequestDetails
-    {
-        DateTime Initiated { get; set; }
-        string DepartingFrom { get; set; }
-        string TravellingTo { get; set; }
-        DateTime ExpectedDeparture { get; set; }
-        string PreferredDepartureTime { get; set; }
-        DateTime ExpectedReturn { get; set; }
-        string PreferredReturnTime { get; set; }
-        string Reason { get; set; }
-        bool CarRequired { get; set; }
-        bool AccomodationRequired { get; set; }
-        string AccommodationRequiredNotes { get; set; }
-    }
+        public interface ITravelRequestDetails
+        {
+            DateTime Initiated { get; set; }
+            string DepartingFrom { get; set; }
+            string TravellingTo { get; set; }
+            DateTime ExpectedDeparture { get; set; }
+            string PreferredDepartureTime { get; set; }
+            DateTime ExpectedReturn { get; set; }
+            string PreferredReturnTime { get; set; }
+            string Reason { get; set; }
+            bool CarRequired { get; set; }
+            bool AccomodationRequired { get; set; }
+            string AccommodationRequiredNotes { get; set; }
+        }
 
 
     }
