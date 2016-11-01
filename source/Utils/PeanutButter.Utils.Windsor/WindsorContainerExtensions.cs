@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using Castle.Core.Internal;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 
@@ -31,8 +30,16 @@ namespace PeanutButter.Utils.Windsor
                 container.Register(Component.For(interfaceType)
                     .ImplementedBy(implementation)
                     .LifestyleTransient()
-                    .Named(Guid.NewGuid().ToString("N")));
+                    .Named(RegistrationNameFor(interfaceType, implementation)));
             });
+        }
+
+        private static string RegistrationNameFor(
+            Type interfaceType,
+            Type implementationType
+        )
+        {
+            return $"{implementationType.Name} ({implementationType.Name}) / {Guid.NewGuid().ToString("N")}";
         }
 
         [Obsolete("Please use RegisterAllMvcControllersFrom instead")]
