@@ -25,12 +25,12 @@ namespace PeanutButter.DuckTyping
             new[] { typeof(object), typeof(Type), typeof(bool) }
         );
         private static readonly ConstructorInfo _dictionaryShimConstructor =
-            _dictionaryShim.GetConstructor(new[] 
+            _dictionaryShim.GetConstructor(new[]
                 {typeof(Dictionary<string, object>), typeof(Type) });
         private static readonly ConstructorInfo _objectConstructor = typeof(object).GetConstructor(new Type[0]);
-        private static readonly MethodInfo _shimGetPropertyValueMethod = 
+        private static readonly MethodInfo _shimGetPropertyValueMethod =
             _shimInterfaceType.GetMethod("GetPropertyValue");
-        private static readonly MethodInfo _shimSetPropertyValueMethod = 
+        private static readonly MethodInfo _shimSetPropertyValueMethod =
             _shimInterfaceType.GetMethod("SetPropertyValue");
         private static readonly MethodInfo _shimCallThroughMethod =
             _shimInterfaceType.GetMethod("CallThrough");
@@ -85,7 +85,7 @@ namespace PeanutButter.DuckTyping
         }
 
         private void AddDefaultConstructor(
-            TypeBuilder typeBuilder, 
+            TypeBuilder typeBuilder,
             FieldBuilder shimField,
             Type interfaceType,
             bool isFuzzy)
@@ -131,7 +131,7 @@ namespace PeanutButter.DuckTyping
             var ctorBuilder = typeBuilder.DefineConstructor(
                 MethodAttributes.Public,
                 CallingConventions.Standard,
-                new[] {typeof(Dictionary<string, object>)});
+                new[] { typeof(Dictionary<string, object>) });
             var il = ctorBuilder.GetILGenerator();
             CallBaseObjectConstructor(il);
             var result = CreateWrappingDictionaryShimFor(il, interfaceType);
@@ -184,7 +184,7 @@ namespace PeanutButter.DuckTyping
         }
 
         private void AddAllMethodsAsShimmable(
-            TypeBuilder typeBuilder, 
+            TypeBuilder typeBuilder,
             Type[] interfaceTypes,
             FieldBuilder shimField)
         {
@@ -201,8 +201,8 @@ namespace PeanutButter.DuckTyping
         }
 
         private void AddMethod(
-            Type interfaceType, 
-            TypeBuilder typeBuilder, 
+            Type interfaceType,
+            TypeBuilder typeBuilder,
             MethodInfo methodInfo,
             FieldBuilder shimField)
         {
@@ -217,6 +217,8 @@ namespace PeanutButter.DuckTyping
 
             ImplementMethodReturnWith(il);
             ImplementInterfaceMethodAsRequired(interfaceType, typeBuilder, methodInfo.Name, methodBuilder);
+
+            CopyCustomAttributes(methodInfo, methodBuilder);
         }
 
         private static void ImplementVoidReturnCallThroughWith(
@@ -229,8 +231,8 @@ namespace PeanutButter.DuckTyping
         }
 
         private static void ImplementNonVoidReturnCallThroughWith(
-            MethodInfo methodInfo, 
-            FieldBuilder shimField, 
+            MethodInfo methodInfo,
+            FieldBuilder shimField,
             ILGenerator il
         )
         {
@@ -316,7 +318,7 @@ namespace PeanutButter.DuckTyping
 
         private MethodInfo[] GetAllMethodsFor(Type[] allImplementedInterfaces)
         {
-            return GetAllFor(allImplementedInterfaces, 
+            return GetAllFor(allImplementedInterfaces,
                         t => t.GetMethods().Where(MethodIsNotSpecial));
         }
 
@@ -346,6 +348,28 @@ namespace PeanutButter.DuckTyping
 
             propBuilder.SetSetMethod(setMethod);
             propBuilder.SetGetMethod(getMethod);
+            CopyCustomAttributes(prop, propBuilder);
+        }
+
+        private static void CopyCustomAttributes(MemberInfo src, PropertyBuilder propBuilder)
+        {
+            var attribData = CustomAttributeData.GetCustomAttributes(src);
+            foreach (var data in attribData)
+            {
+                var builder = data.ToAttributeBuilder();
+                if (builder != null)
+                    propBuilder.SetCustomAttribute(builder);
+            }
+        }
+        private static void CopyCustomAttributes(MemberInfo src, MethodBuilder methodBuilder)
+        {
+            var attribData = CustomAttributeData.GetCustomAttributes(src);
+            foreach (var data in attribData)
+            {
+                var builder = data.ToAttributeBuilder();
+                if (builder != null)
+                    methodBuilder.SetCustomAttribute(builder);
+            }
         }
 
         private static void DefineBackingFieldForDuckDucks(TypeBuilder typeBuilder, PropertyInfo prop)
@@ -378,8 +402,8 @@ namespace PeanutButter.DuckTyping
         }
 
         private static void UnboxLocal(
-            ILGenerator il, 
-            LocalBuilder local, 
+            ILGenerator il,
+            LocalBuilder local,
             Type unboxType)
         {
             il.Emit(OpCodes.Ldloc, local);
@@ -387,8 +411,8 @@ namespace PeanutButter.DuckTyping
         }
 
         private static LocalBuilder StorePropertyValueInLocal(
-            ILGenerator il, 
-            FieldBuilder shimField, 
+            ILGenerator il,
+            FieldBuilder shimField,
             string propertyName)
         {
             var local = il.DeclareLocal(typeof(object));
@@ -440,9 +464,9 @@ namespace PeanutButter.DuckTyping
         }
 
         private static void ImplementInterfaceMethodAsRequired(
-            Type interfaceType, 
-            TypeBuilder typeBuilder, 
-            string methodName, 
+            Type interfaceType,
+            TypeBuilder typeBuilder,
+            string methodName,
             MethodBuilder methodImplementation)
         {
             var interfaceMethod = interfaceType.GetMethod(methodName);

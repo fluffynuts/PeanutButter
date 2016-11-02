@@ -407,7 +407,6 @@ namespace PeanutButter.DuckTyping.Tests
             Expect(result, Is.EqualTo(expected));
         }
 
-
         private object CreateInstanceOf(Type type, params object[] constructorArgs)
         {
             return Activator.CreateInstance(type, constructorArgs);

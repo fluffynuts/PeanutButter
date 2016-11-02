@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Reflection;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Extensions;
 using PeanutButter.DuckTyping.Tests.Extensions;
@@ -95,6 +97,59 @@ namespace PeanutButter.DuckTyping.Tests
             //--------------- Assert -----------------------
             Assert.IsNotNull(result.Payload);
         }
+
+        public class MyAttribute: Attribute
+        {
+            public string Data { get; }
+
+            public MyAttribute(string data)
+            {
+                Data = data;
+            }
+        }
+        public interface IWithCustomAttribute
+        {
+            [My("goodness")]
+            string Name { get; set; }
+
+            [My("Cow")]
+            void Moo();
+        }
+
+        [Test]
+        public void InstanceOf_ShouldCopyPropertyCustomAttributes()
+        {
+            //--------------- Arrange -------------------
+            var result = Create.InstanceOf<IWithCustomAttribute>();
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var propInfo = result.GetType().GetProperty("Name");
+            var attribs = propInfo.GetCustomAttributes().OfType<MyAttribute>();
+
+            //--------------- Assert -----------------------
+            Expect(attribs, Is.Not.Empty);
+            Expect(attribs.First().Data, Is.EqualTo("goodness"));
+        }
+
+        [Test]
+        public void InstanceOf_ShouldCopyMethodCustomAttributes()
+        {
+            //--------------- Arrange -------------------
+            var result = Create.InstanceOf<IWithCustomAttribute>();
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var propInfo = result.GetType().GetMethod("Moo");
+            var attribs = propInfo.GetCustomAttributes().OfType<MyAttribute>();
+
+            //--------------- Assert -----------------------
+            Expect(attribs, Is.Not.Empty);
+            Expect(attribs.First().Data, Is.EqualTo("Cow"));
+        }
+
 
         public class ActivityParameters<T> : ActivityParameters, IActivityParameters<T>
         {

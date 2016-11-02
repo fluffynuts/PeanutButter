@@ -27,7 +27,8 @@ namespace PeanutButter.DuckTyping
             var type = FindOrCreateTypeImplementing(toCreate);
             var result = Activator.CreateInstance(type);
             alreadyCreated.Add(result);
-            var complexProps = result.GetType().GetProperties()
+            var resultProps = result.GetType().GetProperties();
+            var complexProps = resultProps
                                     .Where(p => !p.PropertyType.ShouldTreatAsPrimitive())
                                     .ToArray();
             foreach (var p in complexProps)
@@ -40,17 +41,7 @@ namespace PeanutButter.DuckTyping
             return result;
         }
 
-        private static Type FindOrCreateTypeImplementing<T>()
-        {
-            lock(_typeCache)
-            {
-                Type implemented;
-                var typeToImplement = typeof(T);
-                return FindOrCreateTypeImplementing(typeToImplement);
-            }
-        }
-
-        private static MethodInfo _genericMake = typeof(TypeMaker)
+        private static readonly MethodInfo _genericMake = typeof(TypeMaker)
                                                     .GetMethods()
                                                     .FirstOrDefault(mi => mi.Name == "MakeTypeImplementing" && mi.IsGenericMethod && mi.GetParameters().Length == 0);
 

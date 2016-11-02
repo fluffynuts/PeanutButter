@@ -39,6 +39,7 @@
     <Compile Include="AutoConversion\IConverter.cs" />
     <Compile Include="AutoConversion\Converters\GenericStringConverter.cs" />
     <Compile Include="Comparers.cs" />
+    <Compile Include="CustomAttributeHelperExtensions.cs" />
     <Compile Include="DefaultPropertyInfoFetcher.cs" />
     <Compile Include="DictionaryPropertyFetcher.cs" />
     <Compile Include="DictionaryShimSham.cs" />
