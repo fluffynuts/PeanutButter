@@ -35,6 +35,23 @@ namespace PeanutButter.DuckTyping.Extensions
             return src.DuckAs<T>(true);
         }
 
+        public static T ForceFuzzyDuckAs<T>(this Dictionary<string, object> src)
+        {
+            return ForceDuckAs<T>(src, true);
+        }
+
+        public static T ForceDuckAs<T>(this Dictionary<string, object> src)
+        {
+            return ForceDuckAs<T>(src, false);
+        }
+
+        private static T ForceDuckAs<T>(Dictionary<string, object> src, bool allowFuzzy)
+        {
+            var typeMaker = new TypeMaker();
+            var type = allowFuzzy ? typeMaker.MakeTypeImplementing<T>() : typeMaker.MakeFuzzyTypeImplementing<T>();
+            return (T)Activator.CreateInstance(type, new object[] { src } );
+        } 
+
         private static bool CanDuckAs<T>(this object src, bool allowFuzzy)
         {
             var asDictionary = src as IDictionary<string, object>;

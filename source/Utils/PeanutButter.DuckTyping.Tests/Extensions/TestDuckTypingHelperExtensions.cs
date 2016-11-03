@@ -184,6 +184,121 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             //--------------- Assert -----------------------
             Expect(result, Is.Not.Null);
         }
+
+        [Test]
+        public void ForceFuzzyDuckAs_GivenEmptyDictionaryAndInterfaceToMimick_ShouldHandleIt()
+        {
+            //--------------- Arrange -------------------
+            var dict = new Dictionary<string, object>();
+            var expected = new TravelRequestDetails() {
+                Initiated = GetRandomDate(),
+                DepartingFrom = GetRandomString(),
+                TravellingTo = GetRandomString(),
+                Departing = GetRandomDate(),
+                PreferredDepartureTime = GetRandomString(),
+                Returning = GetRandomDate(),
+                PreferredReturnTime = GetRandomString(),
+                ReasonForTravel = GetRandomString(),
+                CarRequired = GetRandomBoolean(),
+                AccomodationRequired = GetRandomBoolean(),
+                AccommodationNotes = GetRandomString()
+            };
+            var expectedDuck = expected.DuckAs<ITravelRequestDetails>();
+
+            //--------------- Assume ----------------
+            Expect(expectedDuck, Is.Not.Null);
+
+            //--------------- Act ----------------------
+            var result = dict.ForceFuzzyDuckAs<ITravelRequestDetails>();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.Not.Null);
+            Expect(result, Is.InstanceOf<ITravelRequestDetails>());
+            Expect(() =>
+            {
+                result.Initiated = expectedDuck.Initiated;
+                result.DepartingFrom = expectedDuck.DepartingFrom;
+                result.TravellingTo = expectedDuck.TravellingTo;
+                result.Departing = expectedDuck.Departing;
+                result.PreferredDepartureTime = expectedDuck.PreferredDepartureTime;
+                result.Returning = expectedDuck.Returning;
+                result.PreferredReturnTime = expectedDuck.PreferredReturnTime;
+                result.ReasonForTravel = expectedDuck.ReasonForTravel;
+                result.CarRequired = expectedDuck.CarRequired;
+                result.AccomodationRequired = expectedDuck.AccomodationRequired;
+                result.AccommodationNotes = expectedDuck.AccommodationNotes;
+            }, Throws.Nothing);
+
+            foreach (var prop in result.GetType().GetProperties())
+            {
+                Expect(dict[prop.Name], Is.EqualTo(prop.GetValue(result)));
+            }
+        }
+
+        [Test]
+        public void ForceDuckAs_GivenEmptyDictionaryAndInterfaceToMimick_ShouldHandleIt()
+        {
+            //--------------- Arrange -------------------
+            var dict = new Dictionary<string, object>();
+            var expected = new TravelRequestDetails() {
+                Initiated = GetRandomDate(),
+                DepartingFrom = GetRandomString(),
+                TravellingTo = GetRandomString(),
+                Departing = GetRandomDate(),
+                PreferredDepartureTime = GetRandomString(),
+                Returning = GetRandomDate(),
+                PreferredReturnTime = GetRandomString(),
+                ReasonForTravel = GetRandomString(),
+                CarRequired = GetRandomBoolean(),
+                AccomodationRequired = GetRandomBoolean(),
+                AccommodationNotes = GetRandomString()
+            };
+            var expectedDuck = expected.DuckAs<ITravelRequestDetails>();
+
+            //--------------- Assume ----------------
+            Expect(expectedDuck, Is.Not.Null);
+
+            //--------------- Act ----------------------
+            var result = dict.ForceDuckAs<ITravelRequestDetails>();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.Not.Null);
+            Expect(result, Is.InstanceOf<ITravelRequestDetails>());
+            Expect(() =>
+            {
+                result.Initiated = expectedDuck.Initiated;
+                result.DepartingFrom = expectedDuck.DepartingFrom;
+                result.TravellingTo = expectedDuck.TravellingTo;
+                result.Departing = expectedDuck.Departing;
+                result.PreferredDepartureTime = expectedDuck.PreferredDepartureTime;
+                result.Returning = expectedDuck.Returning;
+                result.PreferredReturnTime = expectedDuck.PreferredReturnTime;
+                result.ReasonForTravel = expectedDuck.ReasonForTravel;
+                result.CarRequired = expectedDuck.CarRequired;
+                result.AccomodationRequired = expectedDuck.AccomodationRequired;
+                result.AccommodationNotes = expectedDuck.AccommodationNotes;
+            }, Throws.Nothing);
+
+            foreach (var prop in result.GetType().GetProperties())
+            {
+                Expect(dict[prop.Name], Is.EqualTo(prop.GetValue(result)));
+            }
+        }
+
+        public class TravelRequestDetails: ITravelRequestDetails
+        {
+            public DateTime Initiated { get; set; }
+            public string DepartingFrom { get; set; }
+            public string TravellingTo { get; set; }
+            public DateTime Departing { get; set; }
+            public string PreferredDepartureTime { get; set; }
+            public DateTime Returning { get; set; }
+            public string PreferredReturnTime { get; set; }
+            public string ReasonForTravel { get; set; }
+            public bool CarRequired { get; set; }
+            public bool AccomodationRequired { get; set; }
+            public string AccommodationNotes { get; set; }
+        }
         public interface ITravelRequestDetails
         {
             DateTime Initiated { get; set; }
