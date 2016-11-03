@@ -766,7 +766,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
         [Test]
-        public void InstanceOf_IssueSeenInWildShouldNotHappen()
+        public void DuckAs_IssueSeenInWildShouldNotHappen()
         {
             //--------------- Arrange -------------------
             var instance = new ActivityParameters<string>(Guid.Empty, Guid.Empty, "foo");
@@ -779,6 +779,33 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             //--------------- Assert -----------------------
             Assert.IsNotNull(result);
         }
+
+        public interface IHasAGuid
+        {
+            Guid TaskId { get; set ; }
+        }
+
+        [Test]
+        public void FuzzyDuckAs_ShouldBeAbleToDuckADictionaryWithConvertableTypes()
+        {
+            //--------------- Arrange -------------------
+            var id = Guid.NewGuid();
+            var data = new Dictionary<string, object>()
+            {
+                { "taskId", id.ToString() }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = data.FuzzyDuckAs<IHasAGuid>();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.Not.Null);
+            Expect(result.TaskId, Is.EqualTo(id));
+
+        }
+
 
 
         public interface IActivityParameters

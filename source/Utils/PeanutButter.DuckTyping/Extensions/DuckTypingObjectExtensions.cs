@@ -71,25 +71,31 @@ namespace PeanutButter.DuckTyping.Extensions
                 object stored;
                 if (!src.TryGetValue(prop.Name, out stored))
                     return false;
+                var targetType = prop.PropertyType;
                 if (stored == null)
                 {
-                    if (ShimShamBase.GetDefaultValueFor(prop.PropertyType) != null)
+                    if (ShimShamBase.GetDefaultValueFor(targetType) != null)
                         return false;
                     continue;
                 }
                 var asDictionary = stored as IDictionary<string, object>;
                 if (asDictionary != null)
                 {
-                    if (CanDuckDictionaryAs(asDictionary, prop.PropertyType, allowFuzzy))
+                    if (CanDuckDictionaryAs(asDictionary, targetType, allowFuzzy))
                         continue;
                     return false;
                 }
 
+
 #pragma warning disable S2219 // Runtime type checking should be simplified
                 // ReSharper disable once UseMethodIsInstanceOfType
-                if (!prop.PropertyType.IsAssignableFrom(stored.GetType()))
+                var srcType = stored.GetType();
+                if (!targetType.IsAssignableFrom(srcType))
+                {
+                    if (allowFuzzy && CanAutoConvert(srcType, targetType)) continue;
 #pragma warning restore S2219 // Runtime type checking should be simplified
                     return false;
+                }
             }
             return true;
         }
@@ -142,10 +148,15 @@ namespace PeanutButter.DuckTyping.Extensions
             {
                 var srcType = kvp.Value.PropertyType;
                 var targetType = expectedPrimitives[kvp.Key].PropertyType;
-                if (ConverterLocator.GetConverter(srcType, targetType) == null)
+                if (!CanAutoConvert(srcType, targetType))
                     return false;
             }
             return true;
+        }
+
+        private static bool CanAutoConvert(Type srcType, Type targetType)
+        {
+            return ConverterLocator.GetConverter(srcType, targetType) != null;
         }
 
         private static Dictionary<string, MethodInfo> Except(
