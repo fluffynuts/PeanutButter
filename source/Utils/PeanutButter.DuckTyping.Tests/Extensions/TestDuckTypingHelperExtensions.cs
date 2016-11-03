@@ -4,9 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Extensions;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+// ReSharper disable PossibleNullReferenceException
 
 namespace PeanutButter.DuckTyping.Tests.Extensions
 {
@@ -163,6 +166,56 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
 
+        [Test]
+        public void FailingWildDuck1()
+        {
+            //--------------- Arrange -------------------
+            var json = "{\"flowId\":\"Travel Request\",\"activityId\":\"Capture Travel Request Details\",\"payload\":{\"taskId\":\"4e53c85b-ca72-4c12-b185-50342ed0fc30\",\"payload\":{\"Initiated\":\"\",\"DepartingFrom\":\"123\",\"TravellingTo\":\"123\",\"Departing\":\"\",\"PreferredDepartureTime\":\"\",\"Returning\":\"\",\"PreferredReturnTime\":\"\",\"ReasonForTravel\":\"123\",\"CarRequired\":\"\",\"AccomodationRequired\":\"\",\"AccommodationNotes\":\"213\"}}}";
+            var jobject = JsonConvert.DeserializeObject<JObject>(json);
+            var dict = jobject.ToDictionary();
+            (dict["payload"] as Dictionary<string, object>)["actorId"] = Guid.Empty.ToString();
+            var payload = dict["payload"];
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = payload.FuzzyDuckAs<ITravelRequestCaptureDetailsActivityParameters>();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.Not.Null);
+        }
+        public interface ITravelRequestDetails
+        {
+            DateTime Initiated { get; set; }
+            string DepartingFrom { get; set; }
+            string TravellingTo { get; set; }
+            DateTime Departing { get; set; }
+            string PreferredDepartureTime { get; set; }
+            DateTime Returning { get; set; }
+            string PreferredReturnTime { get; set; }
+            string ReasonForTravel { get; set; }
+            bool CarRequired { get; set; }
+            bool AccomodationRequired { get; set; }
+            string AccommodationNotes { get; set; }
+        }
+
+        public interface ITravelRequestCaptureDetailsActivityParameters :
+            IActivityParameters<ITravelRequestDetails>
+        {
+        }
+
+        public interface IHasAnActorId
+        {
+            Guid ActorId { get; }
+        }
+        public interface IActivityParameters : IHasAnActorId
+        {
+            Guid TaskId { get; }
+        }
+        public interface IActivityParameters<T> : IActivityParameters
+        {
+            T Payload { get; }
+        }
 
 
         public class MyDictionary : IDictionary<string, object>
@@ -256,5 +309,65 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
 
+    }
+    public static class JObjectExtensions
+    {
+        // just because JsonCovert doesn't believe in using your provided type all the way down >_<
+        public static Dictionary<string, object> ToDictionary(this JObject src)
+        {
+            var result = new Dictionary<string, object>();
+            if (src == null)
+                return result;
+            foreach (var prop in src.Properties())
+            {
+                result[prop.Name] = _resolvers[prop.Type](prop.Value);
+            }
+            return result;
+        }
+
+        private static Dictionary<JTokenType, Func<JToken, object>> _resolvers = new Dictionary<JTokenType, Func<JToken, object>>()
+        {
+            { JTokenType.None, o => null },
+            { JTokenType.Array, ConvertJTokenArray },
+            { JTokenType.Property, ConvertJTokenProperty },
+            { JTokenType.Integer, o => o.Value<int>() },
+            { JTokenType.String, o => o.Value<string>() },
+            { JTokenType.Boolean, o => o.Value<bool>() },
+            { JTokenType.Null, o => null },
+            { JTokenType.Undefined, o => null },
+            { JTokenType.Date, o => o.Value<DateTime>() },
+            { JTokenType.Bytes, o => o.Value<byte[]>() },
+            { JTokenType.Guid, o => o.Value<Guid>() },
+            { JTokenType.Uri, o => o.Value<Uri>() },
+            { JTokenType.TimeSpan, o => o.Value<TimeSpan>() },
+            { JTokenType.Object, TryConvertObject }
+
+        };
+
+        private static object TryConvertObject(JToken arg)
+        {
+            var asJObject = arg as JObject;
+            if (asJObject != null)
+                return asJObject.ToDictionary();
+            return PassThrough(arg);
+        }
+
+        private static object PassThrough(JToken arg)
+        {
+            return arg;
+        }
+
+        private static object ConvertJTokenProperty(JToken arg)
+        {
+            Func<JToken, object> resolver;
+            if (_resolvers.TryGetValue(arg.Type, out resolver))
+                return resolver(arg);
+            throw new InvalidOperationException($"Unable to handle JToken of type: {arg.Type}");
+        }
+
+        private static object ConvertJTokenArray(JToken arg)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

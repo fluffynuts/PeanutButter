@@ -63,6 +63,8 @@ namespace PeanutButter.DuckTyping.AutoConversion
         {
             try
             {
+                if (arg.IsGenericType)
+                    return null;
                 return (IConverter)Activator.CreateInstance(arg);
             }
             catch

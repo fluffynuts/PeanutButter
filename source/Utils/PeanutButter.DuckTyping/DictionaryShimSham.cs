@@ -25,8 +25,8 @@ namespace PeanutButter.DuckTyping
             _isFuzzy = IsFuzzy(_data);
             _mimickedProperties = interfaceToMimick
                 .GetAllImplementedInterfaces()
-                .Select(itype => itype.GetProperties())
-                .SelectMany(a => a)
+                .SelectMany(itype => itype.GetProperties())
+                .Distinct(new PropertyInfoComparer())
                 .ToDictionary(pi => pi.Name, pi => pi, 
                     _isFuzzy ? Comparers.FuzzyComparer : Comparers.NonFuzzyComparer);
             ShimShimmableProperties();

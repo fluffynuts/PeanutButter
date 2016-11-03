@@ -782,7 +782,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
         public interface IHasAGuid
         {
-            Guid TaskId { get; set ; }
+            Guid TaskId { get; set; }
         }
 
         [Test]
@@ -853,5 +853,6 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             int Id { get; set; }
             string Name { get; set; }
         }
+
     }
 }
