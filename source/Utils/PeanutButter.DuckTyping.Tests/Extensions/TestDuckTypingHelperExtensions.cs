@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Extensions;
+using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 // ReSharper disable PossibleNullReferenceException
 
@@ -284,6 +285,45 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 Expect(dict[prop.Name], Is.EqualTo(prop.GetValue(result)));
             }
         }
+
+        [Test]
+        public void FuzzyDuckAsNonGeneric_ShouldDUckWhenPossible()
+        {
+            //--------------- Arrange -------------------
+            var toType = typeof(IHasAnActorId);
+            var src = new {
+                actorId = Guid.NewGuid()
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = src.FuzzyDuckAs(toType);
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.Not.Null);
+            Expect(result.GetPropertyValue("ActorId"), Is.EqualTo(src.actorId));
+        }
+
+        [Test]
+        public void DuckAsNonGeneric_ShouldDUckWhenPossible()
+        {
+            //--------------- Arrange -------------------
+            var toType = typeof(IHasAnActorId);
+            var src = new {
+                ActorId = Guid.NewGuid()
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = src.DuckAs(toType);
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.Not.Null);
+            Expect(result.GetPropertyValue("ActorId"), Is.EqualTo(src.ActorId));
+        }
+
 
         public class TravelRequestDetails: ITravelRequestDetails
         {

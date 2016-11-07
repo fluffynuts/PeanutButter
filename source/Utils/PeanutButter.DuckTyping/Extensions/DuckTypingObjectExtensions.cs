@@ -30,6 +30,34 @@ namespace PeanutButter.DuckTyping.Extensions
             return src.DuckAs<T>(false);
         }
 
+        private static readonly MethodInfo _genericFuzzyDuckAsMethod = 
+            typeof(DuckTypingObjectExtensions)
+                .GetMethods(BindingFlags.Public | BindingFlags.Static)
+                .FirstOrDefault(mi => mi.Name == "FuzzyDuckAs" && mi.IsGenericMethod);
+        public static object FuzzyDuckAs(this object src, Type toType)
+        {
+            return NonGenericDuck(src, toType, _genericFuzzyDuckAsMethod);
+        }
+
+        private static readonly MethodInfo _genericDuckAsMethod =
+            typeof(DuckTypingObjectExtensions)
+            .GetMethods(BindingFlags.Public | BindingFlags.Static)
+            .FirstOrDefault(mi => mi.Name == "DuckAs" && mi.IsGenericMethod);
+        public static object DuckAs(this object src, Type toType)
+        {
+            return NonGenericDuck(src, toType, _genericDuckAsMethod);
+        }
+
+        private static object NonGenericDuck(
+            object src,
+            Type toType,
+            MethodInfo genericMethod
+        )
+        {
+            var specific = genericMethod.MakeGenericMethod(toType);
+            return specific.Invoke(null, new object[] { src } );
+        }
+
         public static T FuzzyDuckAs<T>(this object src) where T : class
         {
             return src.DuckAs<T>(true);
@@ -122,7 +150,7 @@ namespace PeanutButter.DuckTyping.Extensions
 
         internal static bool CanDuckAs(
             this Type type,
-            Type srcType,
+            Type toType,
             bool allowFuzzy
         )
         {
@@ -130,7 +158,7 @@ namespace PeanutButter.DuckTyping.Extensions
                                         ? type.FindFuzzyProperties()
                                         : type.FindProperties();
             var expectedPrimitives = expectedProperties.GetPrimitiveProperties(allowFuzzy);
-            var srcProperties = allowFuzzy ? srcType.FindFuzzyProperties() : srcType.FindProperties();
+            var srcProperties = allowFuzzy ? toType.FindFuzzyProperties() : toType.FindProperties();
             var srcPrimitives = srcProperties.GetPrimitiveProperties(allowFuzzy);
 
             var mismatches = srcPrimitives.FindPrimitivePropertyMismatches(expectedPrimitives, allowFuzzy);
@@ -151,9 +179,9 @@ namespace PeanutButter.DuckTyping.Extensions
             }
 
             var expectedMethods = allowFuzzy ? type.FindFuzzyMethods() : type.FindMethods();
-            if (srcType.IsInterface)
+            if (toType.IsInterface)
                 expectedMethods = expectedMethods.Except(_objectMethodNames);
-            var srcMethods = allowFuzzy ? srcType.FindFuzzyMethods() : srcType.FindMethods();
+            var srcMethods = allowFuzzy ? toType.FindFuzzyMethods() : toType.FindMethods();
             return srcMethods.IsSuperSetOf(expectedMethods);
         }
 
@@ -205,6 +233,11 @@ namespace PeanutButter.DuckTyping.Extensions
         private static Type FindOrCreateDuckTypeFor<T>(bool isFuzzy)
         {
             var key = typeof(T);
+            return FindOrCreateDuckTypeFor<T>(key, isFuzzy);
+        }
+
+        private static Type FindOrCreateDuckTypeFor<T>(Type key, bool isFuzzy)
+        {
             lock (_duckTypes)
             {
                 if (!_duckTypes.ContainsKey(key))
