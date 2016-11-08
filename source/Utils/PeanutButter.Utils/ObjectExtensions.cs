@@ -2,16 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.Utils
 {
     public static class ObjectExtensions
     {
-        private static readonly Type[] PrimitiveTypes;
+        private static readonly Type[] _primitiveTypes;
 
         static ObjectExtensions()
         {
-            PrimitiveTypes = new[] {
+            _primitiveTypes = new[] {
                 typeof(int),
                 typeof(char),
                 typeof(byte),
@@ -99,7 +100,7 @@ namespace PeanutButter.Utils
 
         private static bool IsSimpleTypeOrNullableOfSimpleType(Type t)
         {
-            return PrimitiveTypes.Any(si => si == t || 
+            return _primitiveTypes.Any(si => si == t || 
                                           (t.IsGenericType && 
                                           t.GetGenericTypeDefinition() == typeof(Nullable<>) && 
                                           Nullable.GetUnderlyingType(t) == si));
@@ -182,6 +183,12 @@ namespace PeanutButter.Utils
         public static bool IsAssignableTo<T>(this Type type)
         {
             return type.IsAssignableFrom(typeof (T));
+        }
+
+        public static decimal TruncateTo(this decimal value, int places)
+        {
+            var mul = new decimal(Math.Pow(10, places));
+            return Math.Truncate(value * mul) / mul;
         }
     }
 }

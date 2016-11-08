@@ -11,7 +11,7 @@ using PeanutButter.Utils.Windsor.Tests.TestClasses;
 namespace PeanutButter.Utils.Windsor.Tests
 {
     [TestFixture]
-    public class TestWindsorContainerExtensions
+    public class TestWindsorContainerExtensions : AssertionHelper
     {
         [Test]
         public void RegisterAllOneToOneResolutionsAsTransientFrom_GivenNoAssemblies_ShouldThrowArgumentException()
@@ -22,8 +22,10 @@ namespace PeanutButter.Utils.Windsor.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<ArgumentException>(() => container.RegisterAllOneToOneResolutionsAsTransientFrom());
-
+            Expect(
+                () => container.RegisterAllOneToOneResolutionsAsTransientFrom(),
+                Throws.Exception.InstanceOf<ArgumentException>()
+            );
             //---------------Test Result -----------------------
         }
 
@@ -39,7 +41,10 @@ namespace PeanutButter.Utils.Windsor.Tests
             container.RegisterAllOneToOneResolutionsAsTransientFrom(GetType().Assembly);
 
             //---------------Test Result -----------------------
-            Assert.Throws<ComponentNotFoundException>(() => container.Resolve<IInterfaceWithNoResolutions>());
+            Expect(
+                () => container.Resolve<IInterfaceWithNoResolutions>(),
+                Throws.Exception.InstanceOf<ComponentNotFoundException>()
+            );
         }
 
         [Test]
@@ -70,8 +75,8 @@ namespace PeanutButter.Utils.Windsor.Tests
 
             //---------------Test Result -----------------------
             var result = container.Resolve<IInterfaceWithOneResolution>();
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOf<ImplementsInterfaceWithOneResolution>(result);
+            Expect(result, Is.Not.Null);
+            Expect(result, Is.InstanceOf<ImplementsInterfaceWithOneResolution>());
         }
 
 
@@ -85,7 +90,10 @@ namespace PeanutButter.Utils.Windsor.Tests
 
             //---------------Execute Test ----------------------
             // Castle Windsor chucks if you try to register the same service twice
-            Assert.DoesNotThrow(() => container.RegisterAllOneToOneResolutionsAsTransientFrom(GetType().Assembly));
+            Expect(
+                () => container.RegisterAllOneToOneResolutionsAsTransientFrom(GetType().Assembly),
+                Throws.Nothing
+            );
 
             //---------------Test Result -----------------------
         }
@@ -98,7 +106,7 @@ namespace PeanutButter.Utils.Windsor.Tests
         {
         }
 
-        private class Implementation: InterfacePart1, InterfacePart2
+        private class Implementation : InterfacePart1, InterfacePart2
         {
         }
 
@@ -112,8 +120,10 @@ namespace PeanutButter.Utils.Windsor.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            // Castle Windsor chucks if you try to register the same service twice
-            Assert.DoesNotThrow(() => container.RegisterAllOneToOneResolutionsAsTransientFrom(GetType().Assembly));
+            Expect(
+                () => container.RegisterAllOneToOneResolutionsAsTransientFrom(GetType().Assembly),
+                Throws.Nothing
+            );
 
             //---------------Test Result -----------------------
         }
@@ -130,7 +140,10 @@ namespace PeanutButter.Utils.Windsor.Tests
             container.RegisterAllOneToOneResolutionsAsTransientFrom(GetType().Assembly);
 
             //---------------Test Result -----------------------
-            Assert.Throws<ComponentNotFoundException>(() => container.Resolve<IInterfaceWithOneResolutionInheritor>());
+            Expect(
+                () => container.Resolve<IInterfaceWithOneResolutionInheritor>(),
+                Throws.Exception.InstanceOf<ComponentNotFoundException>()
+            );
         }
 
         [Test]
@@ -145,8 +158,10 @@ namespace PeanutButter.Utils.Windsor.Tests
             container.RegisterAllOneToOneResolutionsAsTransientFrom(GetType().Assembly);
 
             //---------------Test Result -----------------------
-            Assert.Throws<ComponentNotFoundException>(() => container.Resolve<IInterfaceForAbstractClass>());
-
+            Expect(
+                () => container.Resolve<IInterfaceForAbstractClass>(),
+                Throws.Exception.InstanceOf<ComponentNotFoundException>()
+            );
         }
 
         [Test]
@@ -158,7 +173,10 @@ namespace PeanutButter.Utils.Windsor.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<ArgumentException>(() => container.RegisterAllMvcControllersFrom());
+            Expect(
+                () => container.RegisterAllMvcControllersFrom(),
+                Throws.Exception.InstanceOf<ArgumentException>()
+            );
 
             //---------------Test Result -----------------------
         }
@@ -172,7 +190,10 @@ namespace PeanutButter.Utils.Windsor.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => container.RegisterAllMvcControllersFrom(typeof(WindsorContainerExtensions).Assembly));
+            Expect(
+                () => container.RegisterAllMvcControllersFrom(typeof(WindsorContainerExtensions).Assembly),
+                Throws.Nothing
+            );
 
             //---------------Test Result -----------------------
         }
@@ -189,8 +210,8 @@ namespace PeanutButter.Utils.Windsor.Tests
             Assert.DoesNotThrow(() => container.RegisterAllMvcControllersFrom(GetType().Assembly));
 
             //---------------Test Result -----------------------
-            Assert.IsInstanceOf<HomeController>(container.Resolve<HomeController>());
-            Assert.IsInstanceOf<AccountController>(container.Resolve<AccountController>());
+            Expect(container.Resolve<HomeController>(), Is.InstanceOf<HomeController>());
+            Expect(container.Resolve<AccountController>(), Is.InstanceOf<AccountController>());
         }
 
         [Test]
@@ -202,7 +223,10 @@ namespace PeanutButter.Utils.Windsor.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<ArgumentException>(() => container.RegisterAllApiControllersFrom());
+            Expect(
+                () => container.RegisterAllApiControllersFrom(),
+                Throws.Exception.InstanceOf<ArgumentException>()
+            );
 
             //---------------Test Result -----------------------
         }
@@ -216,7 +240,10 @@ namespace PeanutButter.Utils.Windsor.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => container.RegisterAllApiControllersFrom(typeof(WindsorContainerExtensions).Assembly));
+            Expect(
+                () => container.RegisterAllApiControllersFrom(typeof(WindsorContainerExtensions).Assembly),
+                Throws.Nothing
+            );
 
             //---------------Test Result -----------------------
         }
@@ -230,10 +257,13 @@ namespace PeanutButter.Utils.Windsor.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => container.RegisterAllApiControllersFrom(GetType().Assembly));
+            Expect(
+                () => container.RegisterAllApiControllersFrom(GetType().Assembly),
+                Throws.Nothing
+            );
 
             //---------------Test Result -----------------------
-            Assert.IsInstanceOf<SomeApiController>(container.Resolve<SomeApiController>());
+            Expect(container.Resolve<SomeApiController>(), Is.InstanceOf<SomeApiController>());
         }
 
 
@@ -251,11 +281,11 @@ namespace PeanutButter.Utils.Windsor.Tests
             var result2 = container.Resolve<ISingletonService>();
 
             //---------------Test Result -----------------------
-            Assert.IsNotNull(result1);
-            Assert.IsNotNull(result2);
-            Assert.IsInstanceOf<SingletonService>(result1);
-            Assert.IsInstanceOf<SingletonService>(result2);
-            Assert.AreEqual(result1, result2);
+            Expect(result1, Is.Not.Null);
+            Expect(result2, Is.Not.Null);
+            Expect(result1, Is.InstanceOf<SingletonService>());
+            Expect(result2, Is.InstanceOf<SingletonService>());
+            Expect(result1, Is.EqualTo(result2));
         }
 
         [Test]
@@ -272,11 +302,11 @@ namespace PeanutButter.Utils.Windsor.Tests
             var result2 = container.Resolve<ISingletonService>();
 
             //---------------Test Result -----------------------
-            Assert.IsNotNull(result1);
-            Assert.IsNotNull(result2);
-            Assert.IsInstanceOf<SingletonService>(result1);
-            Assert.IsInstanceOf<SingletonService>(result2);
-            Assert.AreEqual(result1, result2);
+            Expect(result1, Is.Not.Null);
+            Expect(result2, Is.Not.Null);
+            Expect(result1, Is.InstanceOf<SingletonService>());
+            Expect(result2, Is.InstanceOf<SingletonService>());
+            Expect(result1, Is.EqualTo(result2));
         }
 
         [Test]
@@ -293,17 +323,16 @@ namespace PeanutButter.Utils.Windsor.Tests
             var result2 = container.Resolve<IInterfaceWithMultipleResolutions>();
 
             //---------------Test Result -----------------------
-            Assert.IsNotNull(result1);
-            Assert.IsNotNull(result2);
-            Assert.IsInstanceOf<ImplementsInterfaceWithMultipleResolutions1>(result1);
-            Assert.IsInstanceOf<ImplementsInterfaceWithMultipleResolutions1>(result2);
-            Assert.AreNotEqual(result1, result2);
+            Expect(result1, Is.Not.Null);
+            Expect(result2, Is.Not.Null);
+            Expect(result1, Is.InstanceOf<ImplementsInterfaceWithMultipleResolutions1>());
+            Expect(result2, Is.InstanceOf<ImplementsInterfaceWithMultipleResolutions1>());
+            Expect(result1, Is.Not.EqualTo(result2));
         }
 
         [Test]
         public void RegisterPerWebRequest_ShouldRegisterPerWebRequest()
         {
-            // TODO: actually prove PerWebRequest lifestyle...
             //---------------Set up test pack-------------------
             var container = Substitute.For<IWindsorContainer>();
             var registrations = new List<IRegistration>();
@@ -321,13 +350,17 @@ namespace PeanutButter.Utils.Windsor.Tests
 
             //---------------Test Result -----------------------
             var registration = registrations.Single();
-            Assert.IsNotNull(registration);
+            Expect(registration, Is.Not.Null);
+
             var lifestyle = registration.GetOrDefault<Castle.MicroKernel.Registration.Lifestyle.LifestyleGroup<ISingletonService>>("LifeStyle");
-            //lifestyle.PerWebRequest.
-            Assert.IsNotNull(lifestyle);
+            Expect(lifestyle, Is.Not.Null);
+            // TODO: actually prove PerWebRequest lifestyle...
         }
 
-        private interface IDependencyForSingleInstance
+        private interface IDependencyForSingleInstanceBase
+        {
+        }
+        private interface IDependencyForSingleInstance : IDependencyForSingleInstanceBase
         {
         }
 
@@ -350,12 +383,53 @@ namespace PeanutButter.Utils.Windsor.Tests
             var result2 = container.Resolve<IDependencyForSingleInstance>();
 
             //---------------Test Result -----------------------
-            Assert.IsNotNull(result1);
-            Assert.IsNotNull(result2);
-            Assert.AreEqual(result1, result2);
-            Assert.AreEqual(result1, instance);
-            Assert.AreEqual(result2, instance);
+            Expect(result1, Is.Not.Null);
+            Expect(result2, Is.Not.Null);
+            Expect(result1, Is.EqualTo(result2));
+            Expect(result1, Is.EqualTo(instance));
+            Expect(result2, Is.EqualTo(instance));
+        }
 
+        [Test]
+        public void RegisterInstance_ShouldRegisterSingleProvidedInstanceForResolutionOnMultipleAttemptsWithDifferentInterface()
+        {
+            //---------------Set up test pack-------------------
+            var container = new WindsorContainer();
+            var instance = new DependencyForSingleInstance();
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            container.RegisterInstance<IDependencyForSingleInstance>(instance);
+            container.RegisterInstance<IDependencyForSingleInstanceBase>(instance);
+            var result1 = container.Resolve<IDependencyForSingleInstance>();
+            var result2 = container.Resolve<IDependencyForSingleInstanceBase>();
+
+            //---------------Test Result -----------------------
+            Expect(result1, Is.Not.Null);
+            Expect(result2, Is.Not.Null);
+            Expect(result1, Is.EqualTo(result2));
+            Expect(result1, Is.EqualTo(instance));
+            Expect(result2, Is.EqualTo(instance));
+        }
+
+        [Test]
+        public void RegisterInstance_ShouldNotThrowIfTryingToRegisterTwiceForTheSameInterfaceAndImplementation()
+        {
+            //---------------Set up test pack-------------------
+            var container = new WindsorContainer();
+            var instance = new DependencyForSingleInstance();
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            container.RegisterInstance<IDependencyForSingleInstance>(instance);
+
+            Expect(() =>
+                container.RegisterInstance<IDependencyForSingleInstance>(instance),
+                Throws.Exception.InstanceOf<ComponentRegistrationException>()
+            );
+            //---------------Test Result -----------------------
         }
 
 

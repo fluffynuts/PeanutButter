@@ -1,5 +1,5 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
+using PeanutButter.Utils;
 
 namespace PeanutButter.TestUtils.Generic
 {
@@ -29,17 +29,5 @@ namespace PeanutButter.TestUtils.Generic
             return string.Format(format, truncated);
         }
 
-        private static string GetTruncatedStringValueFor(decimal someValue, string format)
-        {
-            var someValueAsString = $"{someValue:0.00000000000000000000}";
-            var expectedLength = string.Format(format, someValue).Length;
-            return someValueAsString.Substring(0, expectedLength);
-        }
-
-        public static decimal TruncateTo(this decimal value, int places)
-        {
-            var mul = new decimal(Math.Pow(10, places));
-            return Math.Truncate(value * mul) / mul;
-        }
     }
 }

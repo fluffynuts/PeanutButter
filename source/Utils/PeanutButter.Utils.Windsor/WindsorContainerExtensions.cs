@@ -100,7 +100,10 @@ namespace PeanutButter.Utils.Windsor
 
         public static void RegisterInstance<TService>(this IWindsorContainer container, TService instance) where TService : class
         {
-            container.Register(Component.For<TService>().Instance(instance));
+            container.Register(
+                Component.For<TService>()
+                .Instance(instance)
+                .Named($"{typeof(TService)} -> {instance?.GetType().Name}"));
         }
 
         private const string API_CONTROLLER_NAMESPACE = "System.Web.Http";
