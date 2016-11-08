@@ -124,9 +124,59 @@ namespace PeanutButter.Utils.Windsor.Tests
                 () => container.RegisterAllOneToOneResolutionsAsTransientFrom(GetType().Assembly),
                 Throws.Nothing
             );
+            var result1 = container.Resolve<InterfacePart1>();
+            var result2 = container.Resolve<InterfacePart2>();
 
             //---------------Test Result -----------------------
+            Expect(result1, Is.Not.Null);
+            Expect(result2, Is.Not.Null);
+            Expect(result1, Is.InstanceOf<Implementation>());
+            Expect(result2, Is.InstanceOf<Implementation>());
         }
+
+        [Test]
+        public void RegisterAllOneToOneResolutionsAsTransientExcept_GivenIgnoreListAndAssemblyList_ShouldIgnoreThoseTypesAsServices()
+        {
+            //--------------- Arrange -------------------
+            var container = Create();
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            container.RegisterAllOneToOneResolutionsAsTransientExcept(
+                new[] { typeof(InterfacePart1 ) }, 
+                new[] {  GetType().Assembly }
+            );
+
+            //--------------- Assert -----------------------
+            var result1 = container.Resolve<InterfacePart2>();
+            Expect(result1, Is.Not.Null);
+            Expect(result1, Is.InstanceOf<Implementation>());
+            Expect(() => container.Resolve<InterfacePart1>(),
+                Throws.Exception.InstanceOf<ComponentNotFoundException>());
+        }
+
+        [Test]
+        public void RegisterAllOneToOneResolutionsAsTransientExcept_GivenIgnoreListAndAssemblyList_ShouldIgnoreThoseTypesAsImplementationsToo()
+        {
+            //--------------- Arrange -------------------
+            var container = Create();
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            container.RegisterAllOneToOneResolutionsAsTransientExcept(
+                new[] { typeof(Implementation) }, 
+                new[] {  GetType().Assembly }
+            );
+
+            //--------------- Assert -----------------------
+            Expect(() => container.Resolve<InterfacePart2>(),
+                Throws.Exception.InstanceOf<ComponentNotFoundException>());
+            Expect(() => container.Resolve<InterfacePart1>(),
+                Throws.Exception.InstanceOf<ComponentNotFoundException>());
+        }
+
 
         [Test]
         public void RegisterAllOneToOneResolutionsAsTransientFrom_ShouldNotRegisterInterfacesImplementingInterfaces()

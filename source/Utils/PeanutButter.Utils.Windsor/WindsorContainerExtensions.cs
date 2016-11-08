@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Castle.MicroKernel.Registration;
@@ -8,15 +9,33 @@ namespace PeanutButter.Utils.Windsor
 {
     public static class WindsorContainerExtensions
     {
-        public static void RegisterAllOneToOneResolutionsAsTransientFrom(this IWindsorContainer container, params Assembly[] assemblies)
+        public static void RegisterAllOneToOneResolutionsAsTransientFrom(
+            this IWindsorContainer container, 
+            params Assembly[] assemblies)
         {
-            if (assemblies.IsEmpty())
+            container.RegisterAllOneToOneResolutionsAsTransientExcept(
+                new Type[0],
+                assemblies
+            );
+        }
+
+        public static void RegisterAllOneToOneResolutionsAsTransientExcept(
+            this IWindsorContainer container,
+            IEnumerable<Type> exclusions,
+            IEnumerable<Assembly> assemblies)
+        {
+            var assemblyArray = assemblies as Assembly[] ?? assemblies.ToArray();
+            if (assemblyArray.IsEmpty())
                 throw NoAssembliesException;
-            var allTypes = assemblies.SelectMany(a => a.GetTypes()).ToArray();
-            var allInterfaces = allTypes.Where(t => t.IsInterface);
+            var allTypes = assemblyArray.SelectMany(a => a.GetTypes()).ToArray();
+            var allInterfaces = allTypes.Where(t => t.IsInterface)
+                                        .Where(t => !exclusions.Contains(t))
+                                        .ToArray();
             var allImplementations = allTypes.Where(t => !t.IsInterface &&
                                                          !t.IsAbstract &&
-                                                         !t.IsGenericType);
+                                                         !t.IsGenericType &&
+                                                         !exclusions.Contains(t))
+                                              .ToArray();
             allInterfaces.ForEach(interfaceType =>
             {
                 if (container.Kernel.HasComponent(interfaceType))
@@ -39,7 +58,7 @@ namespace PeanutButter.Utils.Windsor
             Type implementationType
         )
         {
-            return $"{implementationType.Name} ({implementationType.Name}) / {Guid.NewGuid().ToString("N")}";
+            return $"{interfaceType.Name} => {implementationType.Name}";
         }
 
         [Obsolete("Please use RegisterAllMvcControllersFrom instead")]
