@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace PeanutButter.TestUtils.Generic.Tests
 {
     [TestFixture]
-    public class TestDecimalExtensions
+    public class TestDecimalExtensions: AssertionHelper
     {
         [Test]
         public void ShouldMatch_ShouldThrowWhenNumbersDontMatchAtGivenPosition()
@@ -19,14 +15,32 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => num1.ShouldMatch(num2, 0));
-            Assert.DoesNotThrow(() => num1.ShouldMatch(num2, 1));
-            Assert.DoesNotThrow(() => num1.ShouldMatch(num2, 2));
-            Assert.Throws<AssertionException>(() => num1.ShouldMatch(num2, 3));
-            Assert.Throws<AssertionException>(() => num1.ShouldMatch(num2, 4));
-            Assert.Throws<AssertionException>(() => num1.ShouldMatch(num2, 5));
+            Expect(() => num1.ShouldMatch(num2, 0), Throws.Nothing);
+            Expect(() => num1.ShouldMatch(num2, 1), Throws.Nothing);
+            Expect(() => num1.ShouldMatch(num2, 2), Throws.Nothing);
+            Expect(() => num1.ShouldMatch(num2, 3), Throws.Exception.InstanceOf<AssertionException>());
+            Expect(() => num1.ShouldMatch(num2, 4), Throws.Exception.InstanceOf<AssertionException>());
+            Expect(() => num1.ShouldMatch(num2, 5), Throws.Exception.InstanceOf<AssertionException>());
 
             //---------------Test Result -----------------------
         }
+
+        [Test]
+        public void ShouldMatch_GivenPoint99_and_Point998_ForTwoPlaces_ShouldNotThrow()
+        {
+            //--------------- Arrange -------------------
+            var num1 = 9.99M;
+            var num2 = 9.998M;
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            Expect(() => num1.ShouldMatch(num2, 2), Throws.Nothing);
+            Expect(() => num2.ShouldMatch(num1, 2), Throws.Nothing);
+
+
+            //--------------- Assert -----------------------
+        }
+
     }
 }

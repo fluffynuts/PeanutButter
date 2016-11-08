@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 
 namespace PeanutButter.TestUtils.Generic
 {
@@ -17,9 +18,15 @@ namespace PeanutButter.TestUtils.Generic
                 return;
             }
             var format = "{0:0." + new string('0', toPlaces) + "}";
-            var someValueAsString = GetTruncatedStringValueFor(someValue, format);
-            var otherValueAsString = GetTruncatedStringValueFor(otherValue, format);
+            var someValueAsString = GetTruncatedStringValueFor(someValue, format, toPlaces);
+            var otherValueAsString = GetTruncatedStringValueFor(otherValue, format, toPlaces);
             Assert.AreEqual(someValueAsString, otherValueAsString);
+        }
+
+        private static string GetTruncatedStringValueFor(decimal value, string format, int places)
+        {
+            var truncated = value.TruncateTo(places);
+            return string.Format(format, truncated);
         }
 
         private static string GetTruncatedStringValueFor(decimal someValue, string format)
@@ -27,6 +34,12 @@ namespace PeanutButter.TestUtils.Generic
             var someValueAsString = $"{someValue:0.00000000000000000000}";
             var expectedLength = string.Format(format, someValue).Length;
             return someValueAsString.Substring(0, expectedLength);
+        }
+
+        public static decimal TruncateTo(this decimal value, int places)
+        {
+            var mul = new decimal(Math.Pow(10, places));
+            return Math.Truncate(value * mul) / mul;
         }
     }
 }
