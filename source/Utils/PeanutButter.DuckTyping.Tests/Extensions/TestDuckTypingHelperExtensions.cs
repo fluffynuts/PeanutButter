@@ -361,6 +361,83 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             Expect(result.Id, Is.Null);
         }
 
+        public interface IHasNullableReadonlyId
+        {
+            Guid? Id { get; }
+        }
+
+        [Test]
+        public void DuckAs_OperatingOnObjectWithNotNullableProperty_WhenRequestedInterfaceHasNullableReadOnlyProperty_ShouldDuck()
+        {
+            //--------------- Arrange -------------------
+            var input = new { Id = Guid.NewGuid() };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = input.DuckAs<IHasNullableReadonlyId>();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.Not.Null);
+            Expect(result.Id, Is.EqualTo(input.Id));
+        }
+
+        [Test]
+        public void FuzzyDuckAs_OperatingOnObjectWithNotNullableProperty_WhenRequestedInterfaceHasNullableReadOnlyProperty_ShouldDuck()
+        {
+            //--------------- Arrange -------------------
+            var input = new { id = Guid.NewGuid() };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = input.FuzzyDuckAs<IHasNullableReadonlyId>();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.Not.Null);
+            Expect(result.Id, Is.EqualTo(input.id));
+        }
+
+        [Test]
+        public void DuckAs_OperatingOnDictionaryWithNotNullableProperty_WhenRequestedInterfaceHasNullableReadonlyProperty_ShouldDuck()
+        {
+            //--------------- Arrange -------------------
+            var expected = Guid.NewGuid();
+            var input = new Dictionary<string, object>()
+            {
+                { "Id", expected }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = input.DuckAs<IHasNullableReadonlyId>();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.Not.Null);
+            Expect(result.Id, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void FuzzyDuckAs_OperatingOnDictionaryWithNotNullableProperty_WhenRequestedInterfaceHasNullableReadonlyProperty_ShouldFuzzyDuck()
+        {
+            //--------------- Arrange -------------------
+            var expected = Guid.NewGuid();
+            var input = new Dictionary<string, object>()
+            {
+                { "Id", expected }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = input.FuzzyDuckAs<IHasNullableReadonlyId>();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.Not.Null);
+            Expect(result.Id, Is.EqualTo(expected));
+        }
+
 
 
         public class TravelRequestDetails: ITravelRequestDetails

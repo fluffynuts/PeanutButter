@@ -174,8 +174,17 @@ namespace PeanutButter.DuckTyping.Extensions
                 return false;
             if (!matchByName.PropertyType.ShouldTreatAsPrimitive())
                 return true;
+            if (needle.IsReadOnly() && 
+                matchByName.CanRead && 
+                needle.PropertyType.IsAssignableFrom(matchByName.PropertyType))
+                return true;
             return matchByName.PropertyType == needle.PropertyType &&
                     needle.IsNoMoreRestrictiveThan(matchByName);
+        }
+
+        internal static bool IsReadOnly(this PropertyInfo propInfo)
+        {
+            return propInfo.CanRead && !propInfo.CanWrite;
         }
 
         internal static bool IsNoMoreRestrictiveThan(
