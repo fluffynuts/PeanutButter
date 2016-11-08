@@ -324,6 +324,44 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             Expect(result.GetPropertyValue("ActorId"), Is.EqualTo(src.ActorId));
         }
 
+        public interface IHasNullableId
+        {
+            Guid? Id { get; set ; }
+        }
+
+        [Test]
+        public void FuzzyDuckAs_OperatingOnDictionary_WhenSourcePropertyIsNullableAndMissing_SHouldDuckAsNullProperty()
+        {
+            //--------------- Arrange -------------------
+            var input = new Dictionary<string, object>();
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = input.FuzzyDuckAs<IHasNullableId>();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.Not.Null);
+            Expect(result.Id, Is.Null);
+        }
+
+        [Test]
+        public void DuckAs_OperatingOnDictionary_WhenSourcePropertyIsNullableAndMissing_SHouldDuckAsNullProperty()
+        {
+            //--------------- Arrange -------------------
+            var input = new Dictionary<string, object>();
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = input.DuckAs<IHasNullableId>();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.Not.Null);
+            Expect(result.Id, Is.Null);
+        }
+
+
 
         public class TravelRequestDetails: ITravelRequestDetails
         {

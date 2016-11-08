@@ -113,10 +113,15 @@ namespace PeanutButter.DuckTyping.Extensions
             src = allowFuzzy ? src.ToCaseInsensitiveDictionary() : src;
             foreach (var prop in properties)
             {
+                var targetType = prop.PropertyType;
                 object stored;
                 if (!src.TryGetValue(prop.Name, out stored))
+                {
+                    if (prop.PropertyType.IsNullable()) {
+                        continue;
+                    }
                     return false;
-                var targetType = prop.PropertyType;
+                }
                 if (stored == null)
                 {
                     if (ShimShamBase.GetDefaultValueFor(targetType) != null)
