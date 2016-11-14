@@ -9,7 +9,7 @@
 
         public static bool Matches(this HttpMethods method, string otherMethod)
         {
-            return method == HttpMethods.Any || method.ToString().ToUpper() == (otherMethod ?? "").ToUpper();
+            return method == HttpMethods.Any || method.ToString().ToUpper() == (otherMethod ?? string.Empty).ToUpper();
         }
     }
 }

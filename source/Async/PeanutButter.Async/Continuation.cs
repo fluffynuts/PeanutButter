@@ -6,32 +6,32 @@ namespace PeanutButter.Async
 {
     public class Continuation<T> : IContinuation<T>, IContinuation
     {
-        private readonly Task<T> _ofTaskWithResult;
-        private readonly Task _ofTaskWithoutResult;
+        private readonly Task<T> _taskWithResult;
+        private readonly Task _taskWithoutResult;
 
-        public Continuation(Task<T> ofTaskWithResult)
+        public Continuation(Task<T> taskWithResult)
         {
-            _ofTaskWithResult = ofTaskWithResult;
+            _taskWithResult = taskWithResult;
         }
 
-        public Continuation(Task ofTaskWithoutResult)
+        public Continuation(Task taskWithoutResult)
         {
-            _ofTaskWithoutResult = ofTaskWithoutResult;
+            _taskWithoutResult = taskWithoutResult;
         }
 
         public Task With(Action<Task> action)
         {
-            return Task.Run(() => action(_ofTaskWithResult ?? _ofTaskWithoutResult));
+            return Task.Run(() => action(_taskWithResult ?? _taskWithoutResult));
         }
 
         public Task With(Action<Task<T>> action)
         {
-            return Task.Run(() => action(_ofTaskWithResult));
+            return Task.Run(() => action(_taskWithResult));
         }
 
         public Task<TNext> With<TNext>(Func<Task<T>, TNext> func)
         {
-            return Task.Run(() => func(_ofTaskWithResult));
+            return Task.Run(() => func(_taskWithResult));
         }
     }
 
