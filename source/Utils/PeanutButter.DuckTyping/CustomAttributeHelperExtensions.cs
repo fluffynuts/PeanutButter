@@ -13,7 +13,7 @@ namespace PeanutButter.DuckTyping
         {
             if (data == null)
             {
-                throw new ArgumentNullException("data");
+                throw new ArgumentNullException(nameof(data));
             }
 
             var constructorArguments = new List<object>();

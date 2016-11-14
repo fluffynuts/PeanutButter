@@ -36,7 +36,7 @@ namespace PeanutButter.FluentMigrator.MigrationDumping
             Assembly migrationsAssembly
         )
         {
-            var recorder = new AnnouncerMessageRecorder(_dumpOptions); ;
+            var recorder = new AnnouncerMessageRecorder(_dumpOptions);
             var runner = new DBMigrationsRunner<T>(
                 migrationsAssembly, string.Empty, recorder.Record
             );

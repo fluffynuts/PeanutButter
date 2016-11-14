@@ -60,6 +60,7 @@
     <Compile Include="Fakes\FakeDbParameter.cs" />
     <Compile Include="Fakes\FakeDbReader.cs" />
     <Compile Include="Fakes\FakeDbTransaction.cs" />
+    <Compile Include="MigrationDumping\LocalStringExtensions.cs" />
     <Compile Include="MigrationDumping\MigrationDumpingFactoryBase.cs" />
     <Compile Include="MigrationDumping\Examples\MigrationsDumpingFactoryForSqlServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

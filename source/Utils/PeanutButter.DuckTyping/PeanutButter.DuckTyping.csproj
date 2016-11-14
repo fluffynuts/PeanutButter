@@ -41,7 +41,6 @@
     <Compile Include="Comparers.cs" />
     <Compile Include="CustomAttributeHelperExtensions.cs" />
     <Compile Include="DefaultPropertyInfoFetcher.cs" />
-    <Compile Include="DictionaryPropertyFetcher.cs" />
     <Compile Include="DictionaryShimSham.cs" />
     <Compile Include="Exceptions\BackingFieldForPropertyNotFoundException.cs" />
     <Compile Include="Exceptions\MethodNotFoundException.cs" />
@@ -52,7 +51,9 @@
     <Compile Include="Extensions\DuckTypingHelperExtensions.cs" />
     <Compile Include="Extensions\DuckTypingObjectExtensions.cs" />
     <Compile Include="Exceptions\ParameterCountMismatchException.cs" />
+    <Compile Include="Extensions\TypePair.cs" />
     <Compile Include="IPropertyInfoFetcher.cs" />
+    <Compile Include="IsADuckAttribute.cs" />
     <Compile Include="MethodInfoComparer.cs" />
     <Compile Include="MethodInfoContainer.cs" />
     <Compile Include="PropertyInfoComparer.cs" />

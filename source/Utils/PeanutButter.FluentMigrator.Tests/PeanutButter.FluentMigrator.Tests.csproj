@@ -65,8 +65,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Fakes\TestFakeDbCommand.cs" />
+    <Compile Include="TestAnnouncerMessageRecorder.cs" />
     <Compile Include="TestDbMigrationsRunner.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestLocalStringExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -88,6 +91,14 @@
     <ProjectReference Include="..\..\TestUtils\PeanutButter.TestUtils.Entity\PeanutButter.TestUtils.Entity.csproj">
       <Project>{75448DD7-4A34-464D-BE4C-7FE41657EB41}</Project>
       <Name>PeanutButter.TestUtils.Entity</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TestUtils\PeanutButter.TestUtils.Generic\PeanutButter.TestUtils.Generic.csproj">
+      <Project>{6DDD7F9E-857A-442B-9148-05B34EA279C4}</Project>
+      <Name>PeanutButter.TestUtils.Generic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PeanutButter.DuckTyping\PeanutButter.DuckTyping.csproj">
+      <Project>{DE67B50B-6CD0-49C8-9D3C-953B80E08FDC}</Project>
+      <Name>PeanutButter.DuckTyping</Name>
     </ProjectReference>
     <ProjectReference Include="..\PeanutButter.FluentMigrator\PeanutButter.FluentMigrator.csproj">
       <Project>{6C7A1C15-555E-45A5-921E-F2A56A3D60F6}</Project>

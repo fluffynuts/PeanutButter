@@ -7,10 +7,6 @@ using PeanutButter.DuckTyping.Extensions;
 
 namespace PeanutButter.DuckTyping
 {
-    public class IsADuckAttribute : Attribute
-    {
-    }
-
     public interface ITypeMaker
     {
         Type MakeTypeImplementing<T>();
@@ -52,7 +48,7 @@ namespace PeanutButter.DuckTyping
             var interfaceType = typeof(T);
             if (!interfaceType.IsInterface)
                 throw new InvalidOperationException("MakeTypeImplementing<T> requires an interface for the type parameter");
-            var identifier = (Guid.NewGuid().ToString("N"));
+            var identifier = Guid.NewGuid().ToString("N");
             var moduleName = string.Join("_", "Generated", interfaceType.Name, identifier);
             var modBuilder = DynamicAssemblyBuilder.DefineDynamicModule(moduleName);
 

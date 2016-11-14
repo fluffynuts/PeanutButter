@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace PeanutButter.FluentMigrator.MigrationDumping
 {
     // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
-    public class AnnouncerMessageRecorder
+    internal class AnnouncerMessageRecorder
     {
         public IEnumerable<string> Statements => PrettifyStatements();
 
@@ -29,12 +30,10 @@ namespace PeanutButter.FluentMigrator.MigrationDumping
 
         protected virtual bool LooksLikeContainsVersionInfoStatement(string trimmed)
         {
-            var lowered = trimmed.ToLower();
-            return (lowered.Contains("versioninfo") &&
-                    (lowered.Contains("create table") ||
-                     lowered.Contains("alter table") ||
-                     lowered.Contains("insert into") ||
-                     (lowered.Contains("create") && lowered.Contains("index"))));
+            var lowered = trimmed.ToLower(CultureInfo.InvariantCulture);
+            return lowered.Contains("versioninfo") &&
+                    (lowered.ContainsOneOf("create table", "alter table", "insert into") ||
+                     lowered.ContainsAllOf("create", "index"));
         }
 
         protected virtual bool LooksLikeComment(string trimmed)

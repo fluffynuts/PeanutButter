@@ -8,11 +8,6 @@ using PeanutButter.DuckTyping.AutoConversion;
 
 namespace PeanutButter.DuckTyping.Extensions
 {
-    internal class TypePair
-    {
-        public Type Type { get; set; }
-        public Type FuzzyType { get; set; }
-    }
     public static class DuckTypingObjectExtensions
     {
         public static bool CanDuckAs<T>(this object src)

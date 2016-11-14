@@ -5,7 +5,7 @@
         public static bool Matches(this HttpMethods method, string otherMethod)
         {
             return method == HttpMethods.Any ||
-                   method.ToString().ToLowerInvariant() == (otherMethod ?? "").ToLowerInvariant();
+                   method.ToString().ToLowerInvariant() == (otherMethod ?? string.Empty).ToLowerInvariant();
         }
     }
 }

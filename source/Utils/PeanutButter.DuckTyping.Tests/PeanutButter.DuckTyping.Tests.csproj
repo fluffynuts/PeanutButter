@@ -50,7 +50,9 @@
   <ItemGroup>
     <Compile Include="AutoConversion\Converters\TestGenericStringConverter.cs" />
     <Compile Include="AutoConversion\TestConverterLocator.cs" />
-    <Compile Include="Extensions\TestDictionaryPropertyInfoFetcher.cs" />
+    <Compile Include="Exceptions\TestBackingFieldForPropertyNotFoundException.cs" />
+    <Compile Include="Exceptions\TestParameterCountMismatchException.cs" />
+    <Compile Include="Exceptions\TestWriteOnlyPropertyException.cs" />
     <Compile Include="Extensions\TestDuckTypingHelperExtensions.cs" />
     <Compile Include="Extensions\TestDuckTypingObjectExtensions.cs" />
     <Compile Include="TestDictionaryShimSham.cs" />

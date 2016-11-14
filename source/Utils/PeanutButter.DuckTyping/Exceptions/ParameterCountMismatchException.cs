@@ -8,7 +8,7 @@ namespace PeanutButter.DuckTyping.Exceptions
         public ParameterCountMismatchException(
             int providedParameters,
             MethodInfo forMethod
-        ): base ($"{providedParameters} were provided for method {forMethod?.DeclaringType?.Name ?? "(unknown declaring type)"}.{forMethod?.Name ?? "(anonymous method)"} but it requires {forMethod.GetParameters().Length} parameters")
+        ): base ($"{providedParameters} parameters were provided for method {forMethod?.DeclaringType?.Name ?? "(unknown declaring type)"}.{forMethod?.Name ?? "(anonymous method)"} but it requires {forMethod.GetParameters().Length} parameters")
         {
         }
     }

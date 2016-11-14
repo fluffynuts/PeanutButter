@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -27,12 +28,32 @@ namespace PeanutButter.Utils
             return _truthy.Any(item => item == input.ToLower());
         }
 
-        public static bool ContainsOneOf(this string src, params string[] search)
+        public static bool ContainsOneOf(this string haystack, params string[] needles)
         {
-            if (src == null)
+            return MultiContains(haystack, needles, h => needles.Any(n => h.Contains(n.ToLower(CultureInfo.CurrentCulture))));
+        }
+
+        public static bool ContainsAllOf(this string haystack, params string[] needles)
+        {
+            return MultiContains(haystack, needles, h => needles.All(n => h.Contains(n.ToLower(CultureInfo.CurrentCulture))));
+        }
+
+        public static bool MultiContains(
+            string haystack,
+            // ReSharper disable once UnusedParameter.Global
+            string[] needles,
+            Func<string, bool> operation
+        )
+        {
+
+            if (needles.Length == 0)
+                throw new ArgumentException("No needles provided to search haystack for");
+            if (needles.Any(n => n == null))
+                throw new ArgumentException("Null needle provided. Boo!");
+            if (haystack == null)
                 return false;
-            src = src.ToLower();
-            return search.Any(s => src.Contains(s.ToLower()));
+            haystack = haystack.ToLower();
+            return operation(haystack);
         }
 
         public static bool StartsWithOneOf(this string src, params string[] search)
