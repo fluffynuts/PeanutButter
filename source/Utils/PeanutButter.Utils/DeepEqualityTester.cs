@@ -117,22 +117,34 @@ namespace PeanutButter.Utils
         }
 
 
-        private PropertyInfo FindMatchingPropertyInfoFor(IEnumerable<PropertyInfo> properties, PropertyInfo srcProp)
+        private PropertyInfo FindMatchingPropertyInfoFor(IEnumerable<PropertyInfo> properties, PropertyInfo srcPropInfo)
         {
-            var comparePropInfo = properties.FirstOrDefault(pi => pi.Name == srcProp.Name);
+            var comparePropInfo = properties.FirstOrDefault(pi => pi.Name == srcPropInfo.Name);
             if (comparePropInfo == null)
             {
-                AddError("Unable to find comparison property with name: '" + srcProp.Name + "'");
+                AddError("Unable to find comparison property with name: '" + srcPropInfo.Name + "'");
                 return null;
             }
-            if (comparePropInfo.PropertyType != srcProp.PropertyType)
+            var compareType = comparePropInfo.PropertyType;
+            var srcType = srcPropInfo.PropertyType;
+            if (compareType != srcType &&
+                !AreBothEnumerable(compareType, srcType))
             {
-                AddError("Source property has type '" + srcProp.PropertyType.Name + "' but comparison property has type '" + comparePropInfo.PropertyType.Name + "'");
+                AddError($"Source property has type '{srcType.Name}' but comparison property has type '{compareType.Name}' and can't find common enumerable ground");
                 return null;
             }
             return comparePropInfo;
         }
 
+        private bool AreBothEnumerable(Type t1, Type t2)
+        {
+            return IsEnumerable(t1) && IsEnumerable(t2);
+        }
+
+        private bool IsEnumerable(Type t)
+        {
+            return TryGetEnumerableInterfaceFor(t) != null;
+        }
 
         private bool DeepCompare(
             Type sourceType,
@@ -250,9 +262,14 @@ namespace PeanutButter.Utils
         private static Type TryGetEnumerableInterfaceFor(object srcValue)
         {
             return srcValue
-                .GetType()
+                ?.GetType()
                 .GetInterfaces()
                 .FirstOrDefault(IsGenericOfIEnumerable);
+        }
+
+        private static Type TryGetEnumerableInterfaceFor(Type srcType)
+        {
+            return srcType.GetInterfaces().FirstOrDefault(IsGenericOfIEnumerable);
         }
 
         private static bool IsGenericOfIEnumerable(Type arg)

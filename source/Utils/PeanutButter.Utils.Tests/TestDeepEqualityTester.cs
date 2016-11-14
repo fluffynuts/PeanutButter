@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NUnit.Framework;
 
 namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
-    public class TestDeepEqualityTester: AssertionHelper
+    public class TestDeepEqualityTester : AssertionHelper
     {
         // mostly this class is tested through the DeepEquals()
         //  extension method testing. However, I'd like to allow
@@ -64,6 +61,131 @@ namespace PeanutButter.Utils.Tests
         }
 
         [Test]
+        public void AreDeepEqual_WhenBothItemsHaveCollections_ShouldCompareThem_Positive()
+        {
+            //--------------- Arrange -------------------
+            var item1 = new 
+            {
+                Subs = new[] { 1, 2, }
+            };
+            var item2 = new ThingWithCollection()
+            {
+                Subs = new[] { 1, 2 }
+            };
+            var sut = Create(item1, item2);
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            Expect(sut.AreDeepEqual(), Is.True);
+
+            //--------------- Assert -----------------------
+        }
+
+        [Test]
+        public void AreDeepEqual_WhenBothItemsHaveCollections_ShouldCompareThem_WithoutCaringAboutOrder()
+        {
+            //--------------- Arrange -------------------
+            var item1 = new ThingWithCollection()
+            {
+                Subs = new[] { 2, 1, }
+            };
+            var item2 = new 
+            {
+                Subs = new[] { 1, 2 }
+            };
+            var sut = Create(item1, item2);
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            Expect(sut.AreDeepEqual(), Is.True);
+
+            //--------------- Assert -----------------------
+        }
+
+        [Test]
+        public void AreDeepEqual_WhenBothItemsHaveCollections_ShouldCompareThem_Negative()
+        {
+            //--------------- Arrange -------------------
+            var item1 = new ThingWithCollection()
+            {
+                Subs = new[] { 1, 2, 3 }
+            };
+            var item2 = new ThingWithCollection()
+            {
+                Subs = new[] { 1, 2 }
+            };
+            var sut = Create(item1, item2);
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            Expect(sut.AreDeepEqual(), Is.False);
+
+            //--------------- Assert -----------------------
+        }
+
+        [Test]
+        public void AreDeepEqual_WhenBothItemsHaveCollections_ButOneIsNull_ShouldNotBarf()
+        {
+            //--------------- Arrange -------------------
+            var item1 = new ThingWithCollection()
+            {
+                Subs = new[] { 1, 2, 3 }
+            };
+            var item2 = new ThingWithCollection();
+            var sut = Create(item1, item2);
+
+            //--------------- Assume ----------------
+            Expect(item2.Subs, Is.Null);
+
+            //--------------- Act ----------------------
+            Expect(sut.AreDeepEqual(), Is.False);
+
+            //--------------- Assert -----------------------
+        }
+
+        [Test]
+        public void AreDeepEqual_WhenBothItemsHaveCollections_ButOneIsNull_ShouldNotBarfReversed()
+        {
+            //--------------- Arrange -------------------
+            var item1 = new ThingWithCollection();
+            var item2 = new ThingWithCollection()
+            {
+                Subs = new[] { 1, 2, 3 }
+            };
+            var sut = Create(item1, item2);
+
+            //--------------- Assume ----------------
+            Expect(item1.Subs, Is.Null);
+
+            //--------------- Act ----------------------
+            Expect(sut.AreDeepEqual(), Is.False);
+
+            //--------------- Assert -----------------------
+        }
+
+        [Test]
+        public void AreDeepEqual_WhenBothItemsHaveCollections_ButBothAreNull_ShouldBehaveAccordingly()
+        {
+            //--------------- Arrange -------------------
+            var item1 = new ThingWithCollection();
+            var item2 = new ThingWithCollection();
+            var sut = Create(item1, item2);
+
+            //--------------- Assume ----------------
+            Expect(item1.Subs, Is.Null);
+            Expect(item2.Subs, Is.Null);
+
+            //--------------- Act ----------------------
+            Expect(sut.AreDeepEqual(), Is.True);
+
+            //--------------- Assert -----------------------
+        }
+
+
+        [Test]
         [Ignore("WIP: for now, short-circuit is ok; I'd like to use this in PropertyAssert though, which attempts to be more explicit about failures")]
         public void AreDeepEqual_WhenReportingIsEnabled_ShouldNotShortCircuitTests()
         {
@@ -75,6 +197,11 @@ namespace PeanutButter.Utils.Tests
 
             //--------------- Assert -----------------------
             Assert.Fail("Test Not Yet Implemented");
+        }
+
+        public class ThingWithCollection
+        {
+            public ICollection<int> Subs { get; set; }
         }
 
         private DeepEqualityTester Create(object obj1, object obj2)

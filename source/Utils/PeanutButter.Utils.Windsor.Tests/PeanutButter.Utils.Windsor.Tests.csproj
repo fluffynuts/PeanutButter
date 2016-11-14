@@ -119,7 +119,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PeanutButter.Utils.Windsor\PeanutButter.Utils.Windsor.csproj">
-      <Project>{FA4CE84F-C024-4643-B692-378DE0F9BE24}</Project>
+      <Project>{fa4ce84f-c024-4643-b692-378de0f9be24}</Project>
       <Name>PeanutButter.Utils.Windsor</Name>
     </ProjectReference>
     <ProjectReference Include="..\PeanutButter.Utils\PeanutButter.Utils.csproj">
