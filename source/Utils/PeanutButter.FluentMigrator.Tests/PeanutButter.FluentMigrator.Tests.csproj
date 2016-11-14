@@ -69,7 +69,6 @@
     <Compile Include="TestAnnouncerMessageRecorder.cs" />
     <Compile Include="TestDbMigrationsRunner.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestLocalStringExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

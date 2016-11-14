@@ -60,13 +60,18 @@
     <Compile Include="Fakes\FakeDbParameter.cs" />
     <Compile Include="Fakes\FakeDbReader.cs" />
     <Compile Include="Fakes\FakeDbTransaction.cs" />
-    <Compile Include="MigrationDumping\LocalStringExtensions.cs" />
     <Compile Include="MigrationDumping\MigrationDumpingFactoryBase.cs" />
     <Compile Include="MigrationDumping\Examples\MigrationsDumpingFactoryForSqlServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PeanutButter.Utils\PeanutButter.Utils.csproj">
+      <Project>{EFC85343-95B4-48C3-BCBE-579EA4868C0A}</Project>
+      <Name>PeanutButter.Utils</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

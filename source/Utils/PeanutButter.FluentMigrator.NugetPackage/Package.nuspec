@@ -23,6 +23,7 @@
       <group targetFramework="net40">
         <dependency id="FluentMigrator" version="1.6.1" />
         <dependency id="FluentMigrator.Tools" version="1.6.1" />
+        <dependency id="PeanutButter.Utils" version="1.2.89" />
       </group>
     </dependencies>
     <references></references>
