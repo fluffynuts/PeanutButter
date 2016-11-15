@@ -1,6 +1,9 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
+using PeanutButter.DuckTyping;
 using PeanutButter.RandomGenerators;
 using PeanutButter.Utils;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.TestUtils.Generic.Tests
 {
@@ -298,13 +301,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
         }
         public class DerivedClass: BaseClass
         {
-            public override string Name
-            {
-                get
-                {
-                    return "Some constant";
-                }
-            }
+            public override string Name => "Some constant";
         }
 
         private void DoTest(BaseClass b1, BaseClass b2)
@@ -350,6 +347,48 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Test Result -----------------------
         }
 
+        [Test]
+        public void IntersectionEquals_WildFailure()
+        {
+            //--------------- Arrange -------------------
+            var ducked = Create.InstanceOf<ITraveller>();
+            var traveller = GetRandom<Traveller>();
+            traveller.CopyPropertiesTo(ducked);
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+
+            //--------------- Assert -----------------------
+            PropertyAssert.IntersectionEquals(ducked, traveller);
+        }
+
+        public class Traveller: ITraveller
+        {
+            public Guid Id { get; set; }
+            public string Name { get; set; }
+            public string Email { get; set; }
+            public string IdNumber { get; set; }
+            public string[] PassportNumbers { get; set; }
+            public string MealPreferences { get; set; }
+            public string TravelPreferences { get; set; }
+        }
+        public interface IActor
+        {
+            Guid Id { get; set; }
+            string Name { get; set; }
+            string Email { get; set; }
+        }
+        public interface ITravellerDetails
+        {
+            string IdNumber { get; set; }
+            string[] PassportNumbers { get; set; }
+            string MealPreferences { get; set; } // Halaal? Vegan?
+            string TravelPreferences { get; set; } // seats near emergency exits for more leg-room?
+        }
+        public interface ITraveller : IActor, ITravellerDetails
+        {
+        }
     }
 
 }

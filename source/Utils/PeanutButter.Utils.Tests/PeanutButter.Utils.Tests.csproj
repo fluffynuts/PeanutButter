@@ -81,6 +81,10 @@
       <Project>{6ddd7f9e-857a-442b-9148-05b34ea279c4}</Project>
       <Name>PeanutButter.TestUtils.Generic</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PeanutButter.DuckTyping\PeanutButter.DuckTyping.csproj">
+      <Project>{DE67B50B-6CD0-49C8-9D3C-953B80E08FDC}</Project>
+      <Name>PeanutButter.DuckTyping</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PeanutButter.Utils\PeanutButter.Utils.csproj">
       <Project>{efc85343-95b4-48c3-bcbe-579ea4868c0a}</Project>
       <Name>PeanutButter.Utils</Name>

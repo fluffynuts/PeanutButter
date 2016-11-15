@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -180,6 +181,47 @@ namespace PeanutButter.DuckTyping.Tests
 
             //--------------- Assert -----------------------
         }
+
+        public interface IHasAnArray
+        {
+            string[] Stuff { get; set; }
+        }
+
+        [Test]
+        public void InstanceOf_ShouldCreateArrayPropertiesAsEmptyArrays()
+        {
+            //--------------- Arrange -------------------
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = Create.InstanceOf<IHasAnArray>();
+
+            //--------------- Assert -----------------------
+            Expect(result.Stuff, Is.Not.Null);
+            Expect(result.Stuff, Is.Empty);
+        }
+
+        public interface IHasAList
+        {
+            List<string> Stuff { get; set; }
+        }
+
+        [Test]
+        public void InstanceOf_ShouldCreateListPropertiesAsEmptyLists()
+        {
+            //--------------- Arrange -------------------
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = Create.InstanceOf<IHasAnArray>();
+
+            //--------------- Assert -----------------------
+            Expect(result.Stuff, Is.Not.Null);
+            Expect(result.Stuff, Is.Empty);
+        }
+
 
 
 

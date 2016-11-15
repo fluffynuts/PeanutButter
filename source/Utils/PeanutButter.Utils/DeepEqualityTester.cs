@@ -179,7 +179,7 @@ namespace PeanutButter.Utils
             var result = CanPerformSimpleTypeMatchFor(srcProp)
                 ? AreDeepEqualInternal(srcValue, compareValue)
                 : MatchPropertiesOrCollection(srcValue, compareValue);
-            if (RecordErrors)
+            if (!result && RecordErrors)
             {
                 AddError($"Property value mismatch for {srcProp.Name}: {Stringify(objSource)} vs {Stringify(objCompare)}");
             }
@@ -198,7 +198,7 @@ namespace PeanutButter.Utils
                     "  " + props.Aggregate(new List<string>(), (acc, cur) =>
                     {
                         var propValue = cur.GetValue(obj);
-                        acc.Add(string.Join("", cur.Name, ": ",  propValue.ToString()));
+                        acc.Add(string.Join("", cur.Name, ": ",  propValue?.ToString() ?? "(null)"));
                         return acc;
                     }).JoinWith("\n    "),
                     "}");

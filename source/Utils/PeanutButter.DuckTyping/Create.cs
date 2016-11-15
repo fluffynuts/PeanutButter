@@ -27,10 +27,62 @@ namespace PeanutButter.DuckTyping
             var type = FindOrCreateTypeImplementing(toCreate);
             var result = Activator.CreateInstance(type);
             alreadyCreated.Add(result);
-            var resultProps = result.GetType().GetProperties();
+            var propInfos = result.GetType().GetProperties();
+            CreateComplexPropertyValues(alreadyCreated, propInfos, result);
+            CreateConcretePropertyValuesOn(result, propInfos);
+            return result;
+        }
+
+        private static void CreateConcretePropertyValuesOn(
+            object result,
+            PropertyInfo[] propInfos)
+        {
+            foreach (var pi in propInfos.Where(pi => !pi.PropertyType.IsInterface))
+            {
+                if (pi.PropertyType.IsArray)
+                {
+                    TrySetArrayValue(result, pi);
+                }
+                else
+                {
+                    TrySetNewValue(result, pi);
+                }
+            }
+        }
+
+        private static void TrySetArrayValue(object result, PropertyInfo pi)
+        {
+            var specific = _getEmptyArrayGeneric.MakeGenericMethod(pi.PropertyType.GetElementType());
+            var empty = specific.Invoke(null, new object[] { } );
+            pi.SetValue(result, empty);
+        }
+
+        private static MethodInfo _getEmptyArrayGeneric = typeof(Create).GetMethod("GetEmptyArrayOf", BindingFlags.Static | BindingFlags.NonPublic);
+        private static T[] GetEmptyArrayOf<T>()
+        {
+            return new T[0];
+        }
+
+        private static void TrySetNewValue(object result, PropertyInfo pi)
+        {
+            TryDo(() => pi.SetValue(result, Activator.CreateInstance(pi.PropertyType)));
+        }
+
+        private static void TryDo(Action action)
+        {
+            try
+            {
+                action();
+            }
+            catch { /* intentionally left blank */ }
+        }
+
+        private static void CreateComplexPropertyValues(List<object> alreadyCreated, PropertyInfo[] propertyInfos, object result)
+        {
+            var resultProps = propertyInfos;
             var complexProps = resultProps
-                                    .Where(p => !p.PropertyType.ShouldTreatAsPrimitive())
-                                    .ToArray();
+                .Where(p => !p.PropertyType.ShouldTreatAsPrimitive() && p.PropertyType.IsInterface)
+                .ToArray();
             foreach (var p in complexProps)
             {
                 if (!p.CanWrite)
@@ -38,7 +90,6 @@ namespace PeanutButter.DuckTyping
                 var toAssign = CreateOrReuseInstanceOf(p.PropertyType, alreadyCreated);
                 p.SetValue(result, toAssign);
             }
-            return result;
         }
 
         private static readonly MethodInfo _genericMake = typeof(TypeMaker)

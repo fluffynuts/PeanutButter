@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
+using PeanutButter.DuckTyping;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
 using static PeanutButter.RandomGenerators.RandomValueGen;
@@ -886,7 +887,16 @@ namespace PeanutButter.Utils.Tests
             PropertyAssert.IntersectionEquals(details, traveller);
         }
 
-
+        public class Traveller: ITraveller
+        {
+            public Guid Id { get; set; }
+            public string Name { get; set; }
+            public string Email { get; set; }
+            public string IdNumber { get; set; }
+            public string[] PassportNumbers { get; set; }
+            public string MealPreferences { get; set; }
+            public string TravelPreferences { get; set; }
+        }
 
 
         public enum TravelRequestStatuses
