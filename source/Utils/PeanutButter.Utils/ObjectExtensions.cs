@@ -8,26 +8,6 @@ namespace PeanutButter.Utils
 {
     public static class ObjectExtensions
     {
-        private static readonly Type[] _primitiveTypes;
-
-        static ObjectExtensions()
-        {
-            _primitiveTypes = new[] {
-                typeof(int),
-                typeof(char),
-                typeof(byte),
-                typeof(long),
-                typeof(string),
-                typeof(float),
-                typeof(double),
-                typeof(decimal),
-                typeof(bool),
-                typeof(DateTime),
-                typeof(DateTimeOffset),
-                typeof(TimeSpan)
-            };
-        }
-
         [Obsolete("AllPropertiesMatch has been deprecated in favour of the more powerful DeepEquals; use DeepSubEquals if your source properties are potentially a subset of the comparison properties")]
         public static bool AllPropertiesMatch(this object objSource, object objCompare, params string[] ignorePropertiesByName)
         {
@@ -100,7 +80,7 @@ namespace PeanutButter.Utils
 
         private static bool IsSimpleTypeOrNullableOfSimpleType(Type t)
         {
-            return _primitiveTypes.Any(si => si == t || 
+            return Types.Primitives.Any(si => si == t || 
                                           (t.IsGenericType && 
                                           t.GetGenericTypeDefinition() == typeof(Nullable<>) && 
                                           Nullable.GetUnderlyingType(t) == si));

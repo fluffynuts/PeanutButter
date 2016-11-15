@@ -4,6 +4,7 @@ using System.Linq;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 using PeanutButter.RandomGenerators;
+using PeanutButter.TestUtils.Generic;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.Utils.Tests
@@ -788,7 +789,7 @@ namespace PeanutButter.Utils.Tests
 
         public class Child
         {
-            public Parent Parent { get; set ; }
+            public Parent Parent { get; set; }
         }
 
         [Test]
@@ -849,6 +850,42 @@ namespace PeanutButter.Utils.Tests
 
             //--------------- Assert -----------------------
         }
+        public interface IActor
+        {
+            Guid Id { get; set; }
+            string Name { get; set; }
+            string Email { get; set; }
+        }
+        public interface ITravellerDetails
+        {
+            string IdNumber { get; set; }
+            string[] PassportNumbers { get; set; }
+            string MealPreferences { get; set; } // Halaal? Vegan?
+            string TravelPreferences { get; set; } // seats near emergency exits for more leg-room?
+        }
+        public interface ITraveller : IActor, ITravellerDetails
+        {
+        }
+
+        [Test]
+        public void CopyPropertiesTo_ShouldCopyProperties()
+        {
+            //--------------- Arrange -------------------
+            var actor = GetRandom<IActor>();
+            var details = GetRandom<ITravellerDetails>();
+            var traveller = GetRandom<ITraveller>(); 
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            actor.CopyPropertiesTo(traveller);
+            details.CopyPropertiesTo(traveller);
+
+            //--------------- Assert -----------------------
+            PropertyAssert.IntersectionEquals(actor, traveller);
+            PropertyAssert.IntersectionEquals(details, traveller);
+        }
+
 
 
 
@@ -875,18 +912,6 @@ namespace PeanutButter.Utils.Tests
             bool CarRequired { get; set; }
             bool AccomodationRequired { get; set; }
             string AccommodationRequiredNotes { get; set; }
-        }
-        public interface IActor
-        {
-            Guid Id { get; set; }
-            string Name { get; set; }
-        }
-        public interface ITraveller : IActor
-        {
-            string IdNumber { get; set; }
-            string[] PassportNumbers { get; set; }
-            string MealPreferences { get; set; }    // Halaal? Vegan?
-            string TravelPreferences { get; set; }  // seats near emergency exits for more leg-room?
         }
         public interface ITravelQuote
         {

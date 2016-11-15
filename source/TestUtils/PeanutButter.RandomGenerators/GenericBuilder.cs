@@ -43,6 +43,7 @@ namespace PeanutButter.RandomGenerators
             }
         }
 
+
         public static TBuilder Create()
         {
             return Activator.CreateInstance<TBuilder>();

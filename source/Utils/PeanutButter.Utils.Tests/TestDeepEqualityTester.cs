@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 
@@ -54,7 +55,7 @@ namespace PeanutButter.Utils.Tests
             Expect(sut.AreDeepEqual(), Is.False);
 
             //--------------- Assert -----------------------
-            var error = sut.Errors.Single();
+            var error = sut.Errors.Last();
             Expect(error, Does.Contain("foo"));
             Expect(error, Does.Contain("1"));
             Expect(error, Does.Contain("2"));

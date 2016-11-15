@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
@@ -8,23 +7,6 @@ namespace PeanutButter.Utils
 {
     public class DeepEqualityTester
     {
-        private static readonly Type[] PrimitiveTypes;
-
-        static DeepEqualityTester()
-        {
-            PrimitiveTypes = new[] {
-                typeof(int),
-                typeof(char),
-                typeof(byte),
-                typeof(long),
-                typeof(string),
-                typeof(float),
-                typeof(double),
-                typeof(decimal),
-                typeof(bool),
-                typeof(DateTime)
-            };
-        }
         private readonly object _objSource;
         private readonly object _objCompare;
         private readonly string[] _ignorePropertiesByName;
@@ -86,7 +68,9 @@ namespace PeanutButter.Utils
             var compareType = objCompare.GetType();
             if (IsSimpleTypeOrNullableOfSimpleType(sourceType) &&
                 IsSimpleTypeOrNullableOfSimpleType(compareType))
+            {
                 return objSource.Equals(objCompare);
+            }
             return DeepCompare(
                 sourceType,
                 objSource,
@@ -104,7 +88,7 @@ namespace PeanutButter.Utils
         private bool IsSimpleTypeOrNullableOfSimpleType(Type t)
         {
             return t != null &&
-                    PrimitiveTypes.Any(si => si == t ||
+                    Types.Primitives.Any(si => si == t ||
                                             (t.IsGenericType &&
                                              t.GetGenericTypeDefinition() == typeof(Nullable<>) &&
                                              Nullable.GetUnderlyingType(t) == si));
@@ -113,7 +97,7 @@ namespace PeanutButter.Utils
 
         private bool CanPerformSimpleTypeMatchFor(PropertyInfo srcProp)
         {
-            return PrimitiveTypes.Any(st => st == srcProp.PropertyType);
+            return Types.Primitives.Any(st => st == srcProp.PropertyType);
         }
 
 
@@ -197,9 +181,32 @@ namespace PeanutButter.Utils
                 : MatchPropertiesOrCollection(srcValue, compareValue);
             if (RecordErrors)
             {
-                AddError($"Property value mismatch for {srcProp.Name}: {objSource} vs {objCompare}");
+                AddError($"Property value mismatch for {srcProp.Name}: {Stringify(objSource)} vs {Stringify(objCompare)}");
             }
             return result;
+        }
+
+        private string Stringify(object obj)
+        {
+            if (obj == null) return "(null)";
+            try
+            {
+                var props = obj.GetType().GetProperties();
+                return string.Join(
+                    "\n  ",
+                    "{",
+                    "  " + props.Aggregate(new List<string>(), (acc, cur) =>
+                    {
+                        var propValue = cur.GetValue(obj);
+                        acc.Add(string.Join("", cur.Name, ": ",  propValue.ToString()));
+                        return acc;
+                    }).JoinWith("\n    "),
+                    "}");
+            }
+            catch
+            {
+                return obj.ToString();
+            }
         }
 
         private bool MatchPropertiesOrCollection(object srcValue, object compareValue)

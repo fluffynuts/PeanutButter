@@ -38,7 +38,7 @@ namespace PeanutButter.TestUtils.Generic
                                         .Distinct()
                                         .Except(matchingProperties)
                                         .ToArray();
-            var tester = new DeepEqualityTester(obj1, obj2, ignoreProps);
+            var tester = new DeepEqualityTester(obj1, obj2, ignoreProps) { RecordErrors = true };
             if (tester.AreDeepEqual())
                 return;
             throw new AssertionException(string.Join("\n", tester.Errors));
