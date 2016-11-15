@@ -161,6 +161,7 @@ namespace PeanutButter.DuckTyping.Extensions
         {
             return type.IsPrimitive || // types .net thinks are primitive
                     type.IsValueType || // includes enums, structs, https://msdn.microsoft.com/en-us/library/s1ax56ch.aspx
+                    type.IsArray || 
                     _treatAsPrimitives.Contains(type); // catch cases like strings and Date(/Time) containers
         }
 

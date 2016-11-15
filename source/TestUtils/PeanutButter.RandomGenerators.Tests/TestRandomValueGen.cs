@@ -180,7 +180,7 @@ namespace PeanutButter.RandomGenerators.Tests
         {
             //---------------Set up test pack-------------------
             var results = new List<TestEnum>();
-            var type = typeof (TestEnum);
+            var type = typeof(TestEnum);
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -208,7 +208,7 @@ namespace PeanutButter.RandomGenerators.Tests
             var o1 = new object();
             var o2 = new object();
             var o3 = new object();
-            var items = new[] {o1, o2, o3};
+            var items = new[] { o1, o2, o3 };
             var results = new List<object>();
             const int runs = RANDOM_TEST_CYCLES;
             //---------------Assert Precondition----------------
@@ -231,7 +231,7 @@ namespace PeanutButter.RandomGenerators.Tests
             var o1 = new object();
             var o2 = new object();
             var o3 = new object();
-            var items = new[] {o1, o2, o3};
+            var items = new[] { o1, o2, o3 };
             var results = new List<IEnumerable<object>>();
             const int runs = RANDOM_TEST_CYCLES;
             //---------------Assert Precondition----------------
@@ -261,7 +261,7 @@ namespace PeanutButter.RandomGenerators.Tests
             var o1 = new object();
             var o2 = new object();
             var o3 = new object();
-            var items = new[] {o1, o2, o3};
+            var items = new[] { o1, o2, o3 };
             const int runs = RANDOM_TEST_CYCLES;
 
             //---------------Assert Precondition----------------
@@ -285,7 +285,7 @@ namespace PeanutButter.RandomGenerators.Tests
             var o4 = new object();
             var o5 = new object();
             var o6 = new object();
-            var items = new[] {o1, o2, o3, o4, o5, o6};
+            var items = new[] { o1, o2, o3, o4, o5, o6 };
             var min = GetRandomInt(1, 3);
             var max = GetRandomInt(3, items.Length);
             const int runs = RANDOM_TEST_CYCLES;
@@ -808,7 +808,7 @@ namespace PeanutButter.RandomGenerators.Tests
             // collisions are possible, but should occur < 1%
             var total = allResults.Count;
             var unique = allResults.Select(o => o.Item1).Distinct().Count();
-            var delta = (total - unique)/(decimal) total;
+            var delta = (total - unique) / (decimal)total;
             Assert.That(delta, Is.LessThan(1));
 
             var tooShort = allResults.Where(r => r.Item1.Length < r.Item2);
@@ -841,7 +841,7 @@ namespace PeanutButter.RandomGenerators.Tests
             // collisions are possible, but should occur < 1%
             var total = allResults.Count;
             var unique = allResults.Select(o => o.Item1).Distinct().Count();
-            var delta = (total - unique)/(decimal) total;
+            var delta = (total - unique) / (decimal)total;
             Assert.That(delta, Is.LessThan(1));
 
             var tooShort = allResults.Where(r => r.Item1.Length < r.Item2);
@@ -874,7 +874,7 @@ namespace PeanutButter.RandomGenerators.Tests
             // collisions are possible, but should occur < 1%
             var total = allResults.Count;
             var unique = allResults.Select(o => o.Item1).Distinct().Count();
-            var delta = (total - unique)/(decimal) total;
+            var delta = (total - unique) / (decimal)total;
             Assert.That(delta, Is.LessThan(1));
 
             var tooShort = allResults.Where(r => r.Item1.Length < r.Item2);
@@ -890,7 +890,7 @@ namespace PeanutButter.RandomGenerators.Tests
             RunCycles(() =>
             {
                 //---------------Set up test pack-------------------
-                var notThis = GetRandomString(1,1);
+                var notThis = GetRandomString(1, 1);
 
                 //---------------Assert Precondition----------------
 
@@ -908,7 +908,7 @@ namespace PeanutButter.RandomGenerators.Tests
             RunCycles(() =>
             {
                 //---------------Set up test pack-------------------
-                var notThis = GetRandomString(1,1);
+                var notThis = GetRandomString(1, 1);
 
                 //---------------Assert Precondition----------------
 
@@ -1132,15 +1132,15 @@ namespace PeanutButter.RandomGenerators.Tests
             var items = GetRandomCollection(GetRandom<SomePOCO>, RANDOM_TEST_CYCLES, RANDOM_TEST_CYCLES);
 
             //---------------Test Result -----------------------
-            VarianceAssert.IsVariant<SomePOCO,int>(items, "Id");
-            VarianceAssert.IsVariant<SomePOCO,string>(items, "Name");
-            VarianceAssert.IsVariant<SomePOCO,DateTime>(items, "Date");
+            VarianceAssert.IsVariant<SomePOCO, int>(items, "Id");
+            VarianceAssert.IsVariant<SomePOCO, string>(items, "Name");
+            VarianceAssert.IsVariant<SomePOCO, DateTime>(items, "Date");
         }
 
-        public class SomePOCOWithBuilder: SomePOCO
+        public class SomePOCOWithBuilder : SomePOCO
         {
         }
-        public class SomePOCOWithBuilderBuilder: GenericBuilder<SomePOCOWithBuilderBuilder, SomePOCOWithBuilder>
+        public class SomePOCOWithBuilderBuilder : GenericBuilder<SomePOCOWithBuilderBuilder, SomePOCOWithBuilder>
         {
             public override SomePOCOWithBuilderBuilder WithRandomProps()
             {
@@ -1175,7 +1175,7 @@ namespace PeanutButter.RandomGenerators.Tests
         {
             //---------------Set up test pack-------------------
             var bytes = GetRandomCollection(() => GetRandomInt(0, 255))
-                .Select(i => (byte) i)
+                .Select(i => (byte)i)
                 .ToArray();
             //---------------Assert Precondition----------------
 
@@ -1474,7 +1474,7 @@ namespace PeanutButter.RandomGenerators.Tests
             using (var folder = new AutoTempFolder())
             {
                 //---------------Assert Precondition----------------
-                var depth = GetRandomInt(2,3);
+                var depth = GetRandomInt(2, 3);
 
                 //---------------Execute Test ----------------------
                 var result = CreateRandomFoldersIn(folder.Path, depth);
@@ -1576,7 +1576,7 @@ namespace PeanutButter.RandomGenerators.Tests
             string Name { get; }
         }
 
-        public class ImplementingType: IInterfaceToGetRandomOf
+        public class ImplementingType : IInterfaceToGetRandomOf
         {
             public string Name { get; set; }
         }

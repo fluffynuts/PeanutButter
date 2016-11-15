@@ -150,6 +150,38 @@ namespace PeanutButter.DuckTyping.Tests
             Expect(attribs.First().Data, Is.EqualTo("Cow"));
         }
 
+        public interface IActor
+        {
+            Guid Id { get; set; }
+            string Name { get; set; }
+            string Email { get; set; }
+        }
+
+        public interface ITravellerDetails
+        {
+            string IdNumber { get; set; }
+            string[] PassportNumbers { get; set; }
+            string MealPreferences { get; set; } // Halaal? Vegan?
+            string TravelPreferences { get; set; } // seats near emergency exits for more leg-room?
+        }
+        public interface ITraveller : IActor, ITravellerDetails
+        {
+        }
+
+        [Test]
+        public void InstanceOf_GivenTypeWithStringArrayProperty_ShouldNotSplode()
+        {
+            //--------------- Arrange -------------------
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            Assert.DoesNotThrow(() => Create.InstanceOf<ITraveller>());
+
+            //--------------- Assert -----------------------
+        }
+
+
 
         public class ActivityParameters<T> : ActivityParameters, IActivityParameters<T>
         {
