@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.Utils
 {
@@ -51,6 +52,47 @@ namespace PeanutButter.Utils
         {
             return type.GetConstructors()
                         .Any(c => c.GetParameters().Length == 0);
+        }
+
+        public static bool IsArrayOrAssignableFromArray(this Type t)
+        {
+            if (t.IsArray) return true;
+            var collectionType = t.GetCollectionItemType();
+            if (collectionType == null) return false;
+            var specific = _genericIsAssignableFromArrayOf.MakeGenericMethod(collectionType);
+            return (bool)specific.Invoke(null, new object[] { t } );
+        }
+
+        private static readonly MethodInfo _genericIsAssignableFromArrayOf
+            = typeof(TypeExtensions).GetMethod("IsAssignableFromArrayOf", BindingFlags.Static | BindingFlags.Public);
+        public static bool IsAssignableFromArrayOf<T>(this Type t)
+        {
+            return t.IsAssignableFrom(typeof(T[]));
+        }
+
+        public static bool IsEnumerableGenericType(this Type t)
+        {
+            return TryGetEnumerableInterfaceFor(t) != null;
+        }
+
+        public static Type TryGetEnumerableInterfaceFor(Type srcType)
+        {
+            return srcType.GetInterfaces().FirstOrDefault(IsGenericOfIEnumerable);
+        }
+
+        public static bool IsGenericOfIEnumerable(Type arg)
+        {
+            if (!arg.IsGenericType) return false;
+            return arg.GetGenericTypeDefinition() == typeof(IEnumerable<>);
+        }
+
+        public static Type GetCollectionItemType(this Type collectionType)
+        {
+            if (collectionType.IsArray)
+                return collectionType.GetElementType();
+            if (collectionType.IsGenericType)
+                return collectionType.GenericTypeArguments[0];
+            return null;
         }
     }
 }

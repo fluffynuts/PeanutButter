@@ -53,7 +53,7 @@ namespace PeanutButter.Utils
 
             foreach (var srcPropInfo in srcPropInfos.Where(pi => pi.CanRead))
             {
-                var matchingTarget = dstPropInfos.FirstOrDefault(dp => dp.Name == srcPropInfo.Name && 
+                var matchingTarget = dstPropInfos.FirstOrDefault(dp => dp.Name == srcPropInfo.Name &&
                                                                        dp.PropertyType == srcPropInfo.PropertyType &&
                                                                        dp.CanWrite);
                 if (matchingTarget == null) continue;
@@ -63,11 +63,21 @@ namespace PeanutButter.Utils
                 {
                     matchingTarget.SetValue(dst, srcVal, null);
                 }
+                else if (srcPropInfo.PropertyType.IsArrayOrAssignableFromArray())
+                {
+                    var underlyingType = srcPropInfo.PropertyType.GetCollectionItemType();
+                    if (underlyingType != null)
+                    {
+                        var specific = _genericMakeArrayCopy.MakeGenericMethod(underlyingType);
+                        var newValue = specific.Invoke(null, new object[] { srcVal } );
+                        matchingTarget.SetValue(dst, newValue);
+                    }
+                }
                 else
                 {
                     if (srcVal != null)
                     {
-                        var targetVal = matchingTarget.GetValue(dst,null);
+                        var targetVal = matchingTarget.GetValue(dst, null);
                         srcVal.CopyPropertiesTo(targetVal);
                     }
                     else
@@ -78,11 +88,34 @@ namespace PeanutButter.Utils
             }
         }
 
+        private static readonly MethodInfo _genericMakeArrayCopy
+            = typeof(ObjectExtensions).GetMethod("MakeArrayCopyOf", BindingFlags.NonPublic | BindingFlags.Static);
+        private static T[] MakeArrayCopyOf<T>(IEnumerable<T> src)
+        {
+            try
+            {
+                var result = new T[src?.Count() ?? 0];
+                if (src != null)
+                {
+                    var idx = 0;
+                    foreach (var item in src)
+                    {
+                        result[idx++] = item;
+                    }
+                }
+                return result;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         private static bool IsSimpleTypeOrNullableOfSimpleType(Type t)
         {
-            return Types.Primitives.Any(si => si == t || 
-                                          (t.IsGenericType && 
-                                          t.GetGenericTypeDefinition() == typeof(Nullable<>) && 
+            return Types.Primitives.Any(si => si == t ||
+                                          (t.IsGenericType &&
+                                          t.GetGenericTypeDefinition() == typeof(Nullable<>) &&
                                           Nullable.GetUnderlyingType(t) == si));
         }
 
@@ -106,7 +139,7 @@ namespace PeanutButter.Utils
 
         public static T[] AsArray<T>(this T input)
         {
-            return new[] {input};
+            return new[] { input };
         }
 
 
@@ -120,7 +153,7 @@ namespace PeanutButter.Utils
                     "Get<> must be invoked with a type to which the property value could be assigned ("
                     + type.Name + "." + propertyPath + " has type '" + valueType.Name
                     + "', but expected '" + typeof(T).Name + "' or derivative");
-            return (T) valueAsObject;
+            return (T)valueAsObject;
         }
 
 
@@ -157,12 +190,12 @@ namespace PeanutButter.Utils
         public static T GetPropertyValue<T>(this object src, string propertyName)
         {
             var objectResult = GetPropertyValue(src, propertyName);
-            return (T) objectResult;
+            return (T)objectResult;
         }
 
         public static bool IsAssignableTo<T>(this Type type)
         {
-            return type.IsAssignableFrom(typeof (T));
+            return type.IsAssignableFrom(typeof(T));
         }
 
         public static decimal TruncateTo(this decimal value, int places)

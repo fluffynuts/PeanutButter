@@ -4,6 +4,7 @@ using System.Linq;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 using PeanutButter.DuckTyping;
+using PeanutButter.DuckTyping.Extensions;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
 using static PeanutButter.RandomGenerators.RandomValueGen;
@@ -868,13 +869,21 @@ namespace PeanutButter.Utils.Tests
         {
         }
 
+        public class ActualTravellerDetails: ITravellerDetails
+        {
+            public string IdNumber { get; set; }
+            public string[] PassportNumbers { get; set; }
+            public string MealPreferences { get; set; }
+            public string TravelPreferences { get; set; }
+        }
+
         [Test]
         public void CopyPropertiesTo_ShouldCopyProperties()
         {
             //--------------- Arrange -------------------
-            var actor = GetRandom<IActor>();
-            var details = GetRandom<ITravellerDetails>();
-            var traveller = GetRandom<ITraveller>(); 
+            var actor = GetRandom<IActor>().DuckAs<IActor>();
+            var details = GetRandom<ActualTravellerDetails>();
+            var traveller = GetRandom<Traveller>(); 
 
             //--------------- Assume ----------------
 
@@ -886,6 +895,69 @@ namespace PeanutButter.Utils.Tests
             PropertyAssert.IntersectionEquals(actor, traveller);
             PropertyAssert.IntersectionEquals(details, traveller);
         }
+
+
+        public class HasAnArray
+        {
+            public string[] Stuff { get; set; }
+        }
+        [Test]
+        public void CopyPropertiesTo_ShouldCopyEmptyArrayProperty()
+        {
+            //--------------- Arrange -------------------
+            var src = new HasAnArray() { Stuff = new string[0] };
+            var target = new HasAnArray();
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            src.CopyPropertiesTo(target);
+
+            //--------------- Assert -----------------------
+            Assert.IsNotNull(target.Stuff);
+            CollectionAssert.IsEmpty(target.Stuff);
+        }
+
+        [Test]
+        public void CopyPropertiesTo_ShouldCopyNonEmptyArrayProperty()
+        {
+            //--------------- Arrange -------------------
+            var src = new HasAnArray() { Stuff = new [] { "123", "456" } };
+            var target = new HasAnArray();
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            src.CopyPropertiesTo(target);
+
+            //--------------- Assert -----------------------
+            Assert.IsNotNull(target.Stuff);
+            CollectionAssert.IsNotEmpty(target.Stuff);
+            CollectionAssert.AreEqual(src.Stuff, target.Stuff);
+        }
+
+        public class HasAnEnumerable
+        {
+            public IEnumerable<string> Stuff { get; set; }
+        }
+        [Test]
+        public void CopyPropertiesTo_ShouldCopyNonEmptyEnumerableProperty()
+        {
+            //--------------- Arrange -------------------
+            var src = new HasAnEnumerable() { Stuff = new [] { "123", "456" } };
+            var target = new HasAnEnumerable();
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            src.CopyPropertiesTo(target);
+
+            //--------------- Assert -----------------------
+            Assert.IsNotNull(target.Stuff);
+            CollectionAssert.IsNotEmpty(target.Stuff);
+            CollectionAssert.AreEqual(src.Stuff, target.Stuff);
+        }
+
 
         public class Traveller: ITraveller
         {
