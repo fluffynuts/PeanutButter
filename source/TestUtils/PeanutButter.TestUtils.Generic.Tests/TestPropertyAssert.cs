@@ -397,6 +397,37 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //--------------- Assert -----------------------
         }
 
+        public class IntersectionEqualsTestCandidate1
+        {
+            public int NoIgnoringMe { get; set; }
+            public string NonMatching { get; set ; }
+            public bool IgnoreMe { get; set; }
+        }
+        public class IntersectionEqualsTestCandidate2
+        {
+            public int NoIgnoringMe { get; set; }
+            public string AlsoNonMatching { get; set ; }
+            public bool IgnoreMe { get; set; }
+        }
+
+        [Test]
+        public void IntersectionEquals_ShouldIgnoreSpecifiedProperties()
+        {
+            //--------------- Arrange -------------------
+            var left = GetRandom<IntersectionEqualsTestCandidate1>();
+            var right = GetRandom<IntersectionEqualsTestCandidate2>();
+            left.NoIgnoringMe = right.NoIgnoringMe;
+            left.IgnoreMe = !right.IgnoreMe;
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            PropertyAssert.IntersectionEquals(left, right, "IgnoreMe");
+
+            //--------------- Assert -----------------------
+        }
+
+
 
         public class Traveller: ITraveller
         {

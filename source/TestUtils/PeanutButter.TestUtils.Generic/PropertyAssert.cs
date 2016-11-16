@@ -26,7 +26,7 @@ namespace PeanutButter.TestUtils.Generic
                 throw new AssertionException(string.Join("\n", tester.Errors));
         }
 
-        public static void IntersectionEquals(object obj1, object obj2)
+        public static void IntersectionEquals(object obj1, object obj2, params string[] ignorePropertiesByName)
         {
             var propInfos1 = obj1.GetType().GetProperties();
             var propInfos2 = obj2.GetType().GetProperties();
@@ -37,6 +37,7 @@ namespace PeanutButter.TestUtils.Generic
                                         .Union(propInfos2.Select(pi => pi.Name))
                                         .Distinct()
                                         .Except(matchingProperties)
+                                        .Union(ignorePropertiesByName)
                                         .ToArray();
             var tester = new DeepEqualityTester(obj1, obj2, ignoreProps) { RecordErrors = true };
             if (tester.AreDeepEqual())
