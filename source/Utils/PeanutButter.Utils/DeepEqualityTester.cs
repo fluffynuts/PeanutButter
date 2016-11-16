@@ -114,7 +114,7 @@ namespace PeanutButter.Utils
             if (compareType != srcType &&
                 !AreBothEnumerable(compareType, srcType))
             {
-                AddError($"Source property has type '{srcType.Name}' but comparison property has type '{compareType.Name}' and can't find common enumerable ground");
+                AddError($"Source property '{srcPropInfo.Name}' has type '{srcType.Name}' but comparison property has type '{compareType.Name}' and can't find common enumerable ground");
                 return null;
             }
             return comparePropInfo;
