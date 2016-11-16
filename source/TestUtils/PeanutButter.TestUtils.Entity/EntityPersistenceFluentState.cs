@@ -28,8 +28,8 @@ namespace PeanutButter.TestUtils.Entity
         private readonly Func<DbConnection, TContext> _contextFactory;
         private Func<TContext, IDbSet<TEntity>> _collectionNabberFromContext;
         private ITempDB _tempDb;
-        private Action<TContext, TEntity> _runBeforePersisting;
-        private Action<TEntity, TEntity> _runAfterPersisting;
+        private readonly List<Action<TContext, TEntity>> _runBeforePersisting = new List<Action<TContext, TEntity>>();
+        private readonly List<Action<TEntity, TEntity>> _runAfterPersisting = new List<Action<TEntity, TEntity>>();
         private const string CREATED = "Created";
         private const string LAST_MODIFIED = "LastModified";
         private const string ENABLED = "Enabled";
@@ -83,13 +83,13 @@ namespace PeanutButter.TestUtils.Entity
 
         public EntityPersistenceFluentState<TContext, TEntity> BeforePersisting(Action<TContext, TEntity> toRun)
         {
-            _runBeforePersisting = toRun;
+            _runBeforePersisting.Add(toRun);
             return this;
         }
 
         public EntityPersistenceFluentState<TContext, TEntity> AfterPersisting(Action<TEntity, TEntity> runAfterPersisting)
         {
-            _runAfterPersisting = runAfterPersisting;
+            _runAfterPersisting.Add(runAfterPersisting);
             return this;
         }
 
@@ -182,12 +182,13 @@ namespace PeanutButter.TestUtils.Entity
                 if (idProp != null && !toIgnore.EmptyIfNull().Contains(idProp.Name))
                     Assert.AreNotEqual(0, idProp.GetValue(persisted));
 
-                _runAfterPersisting?.Invoke(sut, persisted);
 
                 var ignoreAndCrankyProperties = toIgnore.Union(DecimalProps.Union(DateTimeProps).Select(pi => pi.Name)).ToArray();
                 PropertyAssert.AreDeepEqual(persisted, sut, ignoreAndCrankyProperties);
                 TestDecimalPropertiesOn(sut, persisted);
                 TestDateTimePropertiesOn(sut, persisted);
+
+                _runAfterPersisting.ForEach(a => a.Invoke(sut, persisted));
             }
         }
 
@@ -243,7 +244,7 @@ namespace PeanutButter.TestUtils.Entity
                 }
                 var beforeTest = DateTime.Now;
                 //---------------Assert Precondition----------------
-                _runBeforePersisting?.Invoke(ctx, sut);
+                _runBeforePersisting.ForEach(a => a.Invoke(ctx, sut));
                 Assert.IsFalse(SomeEntitiesAlreadyExistIn(ctx), "Some entities already exist. Please clear out your context before running this test");
                 //---------------Execute Test ----------------------
                 GetCollection(ctx).Add(sut);

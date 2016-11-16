@@ -392,6 +392,47 @@ namespace PeanutButter.TestUtils.Entity.Tests
             //---------------Test Result -----------------------
         }
 
+        [Test]
+        public void ShouldCallAllBeforeAndAfterPersistingBlocks_InRegistrationOrder()
+        {
+            //--------------- Arrange -------------------
+            var allCalls = 0;
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            EntityPersistenceTester.CreateFor<SomeEntityWithDecimalValue>()
+                .WithContext<EntityPersistenceContext>()
+                .WithDbMigrator(s => new DbSchemaImporter(s, TestResources.entitypersistence))
+                .BeforePersisting((ctx, entity) =>
+                {
+                    entity.DecimalValue = 1;
+                    allCalls++;
+                })
+                .BeforePersisting((ctx, entity) =>
+                {
+                    Assert.AreEqual(1, entity.DecimalValue);
+                    entity.DecimalValue = 2;
+                    allCalls++;
+                })
+                .AfterPersisting((before, after) =>
+                {
+                    Assert.AreEqual(2, after.DecimalValue);
+                    after.DecimalValue = 3;
+                    allCalls++;
+                })
+                .AfterPersisting((before, after) =>
+                {
+                    Assert.AreEqual(after.DecimalValue, 3);
+                    allCalls++;
+                })
+                .ShouldPersistAndRecall();
+
+            //--------------- Assert -----------------------
+            Assert.AreEqual(4, allCalls);
+        }
+
+
 
         [Test]
         public void UsingDefaultDeltaOf2Ms_ShouldAllowTestItemDateTimePropertyValuesToDifferByThatDelta()
