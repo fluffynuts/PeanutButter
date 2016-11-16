@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Emit;
 using NSubstitute;
 using NUnit.Framework;
 using PeanutButter.Utils;
@@ -41,7 +40,7 @@ namespace PeanutButter.TestUtils.Generic
         private static ConstructorInfo GetConstructorInfo<T>()
         {
             var constructors = typeof (T).GetConstructors();
-            if (constructors.Count() != 1)
+            if (constructors.Length != 1)
             {
                 throw new InvalidOperationException("This utility is designed to test classes with a single constructor.");
             }
@@ -54,8 +53,7 @@ namespace PeanutButter.TestUtils.Generic
             if (parameterInfos.FirstOrDefault(info => info.Name == parameterName) == null)
             {
                 throw new InvalidOperationException(
-                    string.Format("The constructor didn't contain a parameter with the name '{0}'.",
-                                  parameterName));
+                    $"The constructor didn't contain a parameter with the name '{parameterName}'.");
             }
             return parameterInfos;
         }
@@ -75,7 +73,7 @@ namespace PeanutButter.TestUtils.Generic
             }
         }
 
-        private static readonly Func<Type, bool>[] TypeMayBeSubstitutableIfPassesAnyOf =
+        private static readonly Func<Type, bool>[] _typeMayBeSubstitutableIfPassesAnyOf =
         {
             type => type.IsAbstract,
             type => type.IsInterface,
@@ -88,7 +86,7 @@ namespace PeanutButter.TestUtils.Generic
             var parameterType = parameterInfo.ParameterType;
             if (parameterType.IsPrimitive)
                 return false;
-            return TypeMayBeSubstitutableIfPassesAnyOf.Aggregate(false, 
+            return _typeMayBeSubstitutableIfPassesAnyOf.Aggregate(false, 
                         (accumulator, currentFunc) => accumulator || currentFunc(parameterType));
         }
 
@@ -127,10 +125,6 @@ namespace PeanutButter.TestUtils.Generic
             return Substitute.For(new[] {parameterType}, new object[0]);
         }
 
-        private static AssemblyBuilder _assembly;
-        private static ModuleBuilder _moduleBuilder;
-
-
         private static Exception InvokeConstructor(ConstructorInfo constructor, IEnumerable<object> parameterValues)
         {
             try
@@ -166,10 +160,8 @@ namespace PeanutButter.TestUtils.Generic
         private static void ThrowArgumentNullExpectedException(Exception actualException)
         {
             var expectedValue = typeof (ArgumentNullException);
-            var wasValue = (actualException == null) ? "Null" : actualException.GetType().ToString();
-            throw new AssertionException(string.Format("Expected: {0} but was: {1}",
-                                                       expectedValue,
-                                                       wasValue));
+            var wasValue = actualException?.GetType().ToString() ?? "Null";
+            throw new AssertionException($"Expected: {expectedValue} but was: {wasValue}");
         }
     }
 }
