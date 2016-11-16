@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using EmailSpooler.Win32Service.DB.Tests;
 using EmailSpooler.Win32Service.Entity;
 using NUnit.Framework;
@@ -78,6 +79,60 @@ namespace PeanutButter.Utils.Entity.Tests
                 //---------------Execute Test ----------------------
                 email.Subject += RandomValueGen.GetRandomString(2);
                 ctx.SaveChangesWithErrorReporting();
+
+                //---------------Test Result -----------------------
+                var afterTest = DateTime.Now;
+                Assert.That(email.LastModified, Is.GreaterThanOrEqualTo(beforeTest));
+                Assert.That(email.LastModified, Is.LessThanOrEqualTo(afterTest));
+            }
+        }
+
+        [Test]
+        public async Task AsyncEntityPersistence_ShouldSetCreatedToCurrentTimeStamp()
+        {
+            using (var ctx = GetContext())
+            {
+                //---------------Set up test pack-------------------
+                var beforeTest = DateTime.Now;
+                var email = CreateRandomValidEmail();
+
+                //---------------Assert Precondition----------------
+                Assert.AreEqual(DateTime.MinValue, email.Created);
+
+                //---------------Execute Test ----------------------
+                ctx.Emails.Add(email);
+                await ctx.SaveChangesWithErrorReportingAsync();
+
+                //---------------Test Result -----------------------
+                var afterTest = DateTime.Now;
+                Assert.That(email.Created, Is.GreaterThanOrEqualTo(beforeTest));
+                Assert.That(email.Created, Is.LessThanOrEqualTo(afterTest));
+            }
+        }
+
+        [Test]
+        public async Task AsyncEntityPersistence_ShouldUpdateLastModified()
+        {
+            int id;
+            //---------------Set up test pack-------------------
+            using (var ctx = GetContext())
+            {
+                var email = CreateRandomValidEmail();
+                ctx.Emails.Add(email);
+                ctx.SaveChangesWithErrorReporting();
+                id = email.EmailId;
+            }
+
+            using (var ctx = GetContext())
+            {
+                //---------------Assert Precondition----------------
+                var beforeTest = DateTime.Now;
+                var email = ctx.Emails.First(e => e.EmailId == id);
+                Assert.IsNull(email.LastModified);
+
+                //---------------Execute Test ----------------------
+                email.Subject += RandomValueGen.GetRandomString(2);
+                await ctx.SaveChangesWithErrorReportingAsync();
 
                 //---------------Test Result -----------------------
                 var afterTest = DateTime.Now;

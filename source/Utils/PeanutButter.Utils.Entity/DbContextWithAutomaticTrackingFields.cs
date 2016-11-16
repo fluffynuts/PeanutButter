@@ -1,7 +1,9 @@
 using System;
 using System.Data.Common;
 using System.Data.Entity;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace PeanutButter.Utils.Entity
 {
@@ -13,17 +15,45 @@ namespace PeanutButter.Utils.Entity
         }
 
         public DbContextWithAutomaticTrackingFields(DbConnection connection, bool contextOwnsConnection)
-            :base(connection, contextOwnsConnection)
+            : base(connection, contextOwnsConnection)
         {
         }
 
         public DbContextWithAutomaticTrackingFields(DbConnection connection)
-            :base(connection, false)
+            : base(connection, false)
         {
         }
 
 
         public override int SaveChanges()
+        {
+            PerformAutoTrackingLogic();
+            try
+            {
+                return base.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
+        public override async Task<int> SaveChangesAsync()
+        {
+            PerformAutoTrackingLogic();
+            try
+            {
+                return await base.SaveChangesAsync();
+            }
+            catch (Exception ex) 
+            {
+                Debug.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
+        private void PerformAutoTrackingLogic()
         {
             var autoEntities = ChangeTracker.Entries()
                 .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified)
@@ -42,15 +72,6 @@ namespace PeanutButter.Utils.Entity
                 else
                     e.LastModified = currentTime;
             });
-            try
-            {
-                return base.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                throw;
-            }
         }
     }
 }
