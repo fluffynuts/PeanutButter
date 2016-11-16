@@ -27,7 +27,7 @@ namespace PeanutButter.SimpleHTTPServer
     {
         private List<Func<HttpProcessor, Stream, HttpServerPipelineResult>> _handlers;
 
-        public Func<object, string> JsonSerializer = o => JsonConvert.SerializeObject(o);
+        private readonly Func<object, string> _jsonSerializer = o => JsonConvert.SerializeObject(o);
 
         public HttpServer(int port, bool autoStart = true, Action<string> logAction = null)
             : base(port)
@@ -92,7 +92,7 @@ namespace PeanutButter.SimpleHTTPServer
 
         public void AddJsonDocumentHandler(Func<HttpProcessor, Stream, object> handler)
         {
-            HandleDocumentRequestWith(handler, "json", o => JsonSerializer(o), HttpConstants.MIMETYPE_JSON);
+            HandleDocumentRequestWith(handler, "json", o => _jsonSerializer(o), HttpConstants.MIMETYPE_JSON);
         }
 
         private void HandleDocumentRequestWith(Func<HttpProcessor, Stream, object> handler, 
