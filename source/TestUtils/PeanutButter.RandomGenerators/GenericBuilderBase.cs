@@ -54,7 +54,7 @@ namespace PeanutButter.RandomGenerators
                 if (DynamicBuilders.TryGetValue(type, out dynamicBuilderType))
                     return dynamicBuilderType;
                 var t = typeof(GenericBuilder<,>);
-                var moduleName = string.Join("_", "DynamicEntityBuilders", type.Name);
+                var moduleName = string.Join("_", "DynamicEntityBuilders", type.Name, Guid.NewGuid().ToString("N"));
                 var modBuilder = DynamicAssemblyBuilder.DefineDynamicModule(moduleName);
 
                 var typeBuilder = modBuilder.DefineType(type.Name + "Builder", TypeAttributes.Public | TypeAttributes.Class);
