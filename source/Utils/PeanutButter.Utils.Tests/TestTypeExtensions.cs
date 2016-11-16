@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NUnit.Framework;
 using PeanutButter.TestUtils.Generic;
 
 namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
-    public class TestTypeExtensions
+    public class TestTypeExtensions: AssertionHelper
     {
         [Test]
         public void Ancestry_WorkingOnTypeOfObject_ShouldReturnOnlyObject()
@@ -258,6 +254,91 @@ namespace PeanutButter.Utils.Tests
 
             //---------------Test Result -----------------------
             Assert.IsTrue(result);
+        }
+
+        public interface ILevel4Again
+        {
+        }
+        public interface ILevel4
+        {
+        }
+        public interface ILevel3: ILevel4, ILevel4Again
+        {
+        }
+        public interface ILevel2: ILevel3
+        {
+        }
+        public interface ILevel1: ILevel2
+        {
+        }
+
+        public class Level1: ILevel1
+        {
+        }
+
+        [Test]
+        public void GetAllImplementedInterfaces_ShouldReturnAllInterfacesAllTheWayDown()
+        {
+            //--------------- Arrange -------------------
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = typeof(Level1).GetAllImplementedInterfaces();
+
+            //--------------- Assert -----------------------
+            Expect(result, Does.Contain(typeof(ILevel1)));
+            Expect(result, Does.Contain(typeof(ILevel2)));
+            Expect(result, Does.Contain(typeof(ILevel3)));
+            Expect(result, Does.Contain(typeof(ILevel4)));
+            Expect(result, Does.Contain(typeof(ILevel4Again)));
+
+        }
+
+        public class NotDisposable
+        {
+            public void Dispose()
+            {
+                /* just to prevent mickey-mousery */
+            }
+        }
+
+        public class DisposableTeen: IDisposable
+        {
+            public void Dispose()
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        [Test]
+        public void IsDisposable_OperatingOnNonDisposableType_ShouldReturnFalse()
+        {
+            //--------------- Arrange -------------------
+            var sut = typeof(NotDisposable);
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = sut.IsDisposable();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.False);
+        }
+
+        [Test]
+        public void IsDisposable_OperatingOnDisposableType_ShouldReturnTrue()
+        {
+            //--------------- Arrange -------------------
+            var sut = typeof(DisposableTeen);
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = sut.IsDisposable();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.True);
         }
 
 

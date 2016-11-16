@@ -96,5 +96,22 @@ namespace PeanutButter.Utils
                 return collectionType.GenericTypeArguments[0];
             return null;
         }
+
+        public static Type[] GetAllImplementedInterfaces(this Type interfaceType)
+        {
+            var result = new List<Type> { interfaceType };
+            foreach (var type in interfaceType.GetInterfaces())
+            {
+                result.AddRange(type.GetAllImplementedInterfaces());
+            }
+            return result.ToArray();
+        }
+
+        private static readonly  Type _disposableInterface = typeof(IDisposable);
+        public static bool IsDisposable(this Type t)
+        {
+            return t.GetAllImplementedInterfaces().Contains(_disposableInterface);
+        }
+
     }
 }
