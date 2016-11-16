@@ -122,12 +122,7 @@ namespace PeanutButter.Utils
 
         private bool AreBothEnumerable(Type t1, Type t2)
         {
-            return IsEnumerable(t1) && IsEnumerable(t2);
-        }
-
-        private bool IsEnumerable(Type t)
-        {
-            return TryGetEnumerableInterfaceFor(t) != null;
+            return t1.ImplementsEnumerableGenericType() && t2.ImplementsEnumerableGenericType();
         }
 
         private bool DeepCompare(
@@ -270,19 +265,7 @@ namespace PeanutButter.Utils
         {
             return srcValue
                 ?.GetType()
-                .GetInterfaces()
-                .FirstOrDefault(IsGenericOfIEnumerable);
-        }
-
-        private static Type TryGetEnumerableInterfaceFor(Type srcType)
-        {
-            return srcType.GetInterfaces().FirstOrDefault(IsGenericOfIEnumerable);
-        }
-
-        private static bool IsGenericOfIEnumerable(Type arg)
-        {
-            if (!arg.IsGenericType) return false;
-            return arg.GetGenericTypeDefinition() == typeof(IEnumerable<>);
+                .TryGetEnumerableInterface();
         }
     }
 }

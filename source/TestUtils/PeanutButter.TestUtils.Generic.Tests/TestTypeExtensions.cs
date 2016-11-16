@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using NUnit.Framework;
+using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.TestUtils.Generic.Tests
 {
     [TestFixture]
-    public class TestTypeExtensions
+    public class TestTypeExtensions: AssertionHelper
     {
         public class HasNoActions { }
 
@@ -705,6 +708,40 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Test Result -----------------------
 
         }
+
+        [TestCase(typeof(IEnumerable<string>), true)]
+        [TestCase(typeof(ICollection<string>), true)]
+#pragma warning disable S100 // Methods and properties should be named in camel case
+        public void ImplementsEnumerableGenericType_(Type toTest, bool expected)
+#pragma warning restore S100 // Methods and properties should be named in camel case
+        {
+            //--------------- Arrange -------------------
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = toTest.ImplementsEnumerableGenericType();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void Collection_ShouldBeEnumerable()
+        {
+            //--------------- Arrange -------------------
+            var src = new Collection<string>(new[] { "a", "z" });
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = src.GetType().ImplementsEnumerableGenericType();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.True);
+        }
+
+
 
 
     }

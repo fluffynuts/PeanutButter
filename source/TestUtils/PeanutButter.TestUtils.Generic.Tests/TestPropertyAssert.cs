@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using NUnit.Framework;
 using PeanutButter.DuckTyping;
 using PeanutButter.RandomGenerators;
@@ -362,6 +365,38 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //--------------- Assert -----------------------
             PropertyAssert.IntersectionEquals(ducked, traveller);
         }
+
+        public class HasEnumerableStuff
+        {
+            public IEnumerable<string> Stuff { get; set ; }
+        }
+
+        public class HasCollectionOfStuff
+        {
+            public ICollection<string> Stuff { get; set; }
+        }
+
+        [Test]
+        public void IntersectionEquals_ShouldBeAbleToCompare_ICollection_And_IEnumerable()
+        {
+            //--------------- Arrange -------------------
+            var dataSource = new[] { "1", "a", "%" };
+            var collection = new Collection<string>(dataSource);
+            var enumerable = dataSource.AsEnumerable();
+            var left = new HasCollectionOfStuff() { Stuff = collection };
+            var right = new HasEnumerableStuff() { Stuff = enumerable };
+
+            Assert.IsTrue(left.Stuff.GetType().ImplementsEnumerableGenericType());
+            Assert.IsTrue(right.Stuff.GetType().ImplementsEnumerableGenericType());
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            PropertyAssert.IntersectionEquals(left, right);
+
+            //--------------- Assert -----------------------
+        }
+
 
         public class Traveller: ITraveller
         {

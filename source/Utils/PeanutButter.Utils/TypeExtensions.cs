@@ -65,22 +65,24 @@ namespace PeanutButter.Utils
 
         private static readonly MethodInfo _genericIsAssignableFromArrayOf
             = typeof(TypeExtensions).GetMethod("IsAssignableFromArrayOf", BindingFlags.Static | BindingFlags.Public);
+        // ReSharper disable once UnusedMember.Global
         public static bool IsAssignableFromArrayOf<T>(this Type t)
         {
             return t.IsAssignableFrom(typeof(T[]));
         }
 
-        public static bool IsEnumerableGenericType(this Type t)
+        // ReSharper disable once UnusedMember.Global
+        public static bool ImplementsEnumerableGenericType(this Type t)
         {
-            return TryGetEnumerableInterfaceFor(t) != null;
+            return t.IsGenericOfIEnumerable() || TryGetEnumerableInterface(t) != null;
         }
 
-        public static Type TryGetEnumerableInterfaceFor(Type srcType)
+        public static Type TryGetEnumerableInterface(this Type srcType)
         {
             return srcType.GetInterfaces().FirstOrDefault(IsGenericOfIEnumerable);
         }
 
-        public static bool IsGenericOfIEnumerable(Type arg)
+        public static bool IsGenericOfIEnumerable(this Type arg)
         {
             if (!arg.IsGenericType) return false;
             return arg.GetGenericTypeDefinition() == typeof(IEnumerable<>);
