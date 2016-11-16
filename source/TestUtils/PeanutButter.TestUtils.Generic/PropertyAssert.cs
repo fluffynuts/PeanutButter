@@ -5,20 +5,8 @@ using PeanutButter.Utils;
 
 namespace PeanutButter.TestUtils.Generic
 {
-    public class PropertyAssert
+    public static class PropertyAssert
     {
-        [Obsolete("PropertyAssert.AllPropertiesAreEqual has been obsoleted in favour of PropertyAssert.AreDeepEqual")]
-        public static void AllPropertiesAreEqual(object obj1, object obj2, params string[] ignorePropertiesByName)
-        {
-            PropertyAssert.AreDeepEqual(obj1, obj2, ignorePropertiesByName);
-        }
-
-        [Obsolete("PropertyAssert.MatchingPropertiesAreEqual has been obsoleted in favour of PropertyAssert.IntersectionEquals")]
-        public static void MatchingPropertiesAreEqual(object obj1, object obj2)
-        {
-            PropertyAssert.IntersectionEquals(obj1, obj2);
-        }
-
         public static void AreDeepEqual(object obj1, object obj2, params string[] ignorePropertiesByName)
         {
             var tester = new DeepEqualityTester(obj1, obj2, ignorePropertiesByName);
