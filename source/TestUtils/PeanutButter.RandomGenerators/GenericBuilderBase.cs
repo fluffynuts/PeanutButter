@@ -57,7 +57,8 @@ namespace PeanutButter.RandomGenerators
                 var moduleName = string.Join("_", Guid.NewGuid().ToString("N"), "DEBuilder_", type.Name);
                 var modBuilder = DynamicAssemblyBuilder.DefineDynamicModule(moduleName);
 
-                var typeBuilder = modBuilder.DefineType(type.Name + "Builder", TypeAttributes.Public | TypeAttributes.Class);
+                var typeName = string.Join("_", type.Name, "Builder", Guid.NewGuid().ToString("N"));
+                var typeBuilder = modBuilder.DefineType(typeName, TypeAttributes.Public | TypeAttributes.Class);
                 // Typebuilder is a sub class of Type
                 typeBuilder.SetParent(t.MakeGenericType(typeBuilder, type));
                 try
