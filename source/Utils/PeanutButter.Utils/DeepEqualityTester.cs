@@ -14,6 +14,7 @@ namespace PeanutButter.Utils
 
         public bool RecordErrors { get; set; }
         public bool FailOnMissingProperties { get; set; }
+        public bool OnlyTestIntersectingProperties { get; set; }
         public IEnumerable<string> Errors
         {
             get { return _errors.ToArray(); }
@@ -134,26 +135,60 @@ namespace PeanutButter.Utils
         {
             if (IsPending(objSource, objCompare))
                 return true;    // let other comparisons continue
-            var srcPropInfos = sourceType
+            var srcProps = sourceType
                 .GetProperties()
+                .Where(pi => !_ignorePropertiesByName.Contains(pi.Name));
+            var comparePropInfos = compareType.GetProperties()
                 .Where(pi => !_ignorePropertiesByName.Contains(pi.Name))
                 .ToArray();
-            var comparePropInfos = compareType.GetProperties()
-                                    .Where(pi => !_ignorePropertiesByName.Contains(pi.Name))
-                                    .ToArray();
-            if (FailOnMissingProperties && srcPropInfos.Length != comparePropInfos.Length)
+            var srcPropInfos = OnlyTestIntersectingProperties
+                                ? GetIntersectingPropertyInfos(srcProps, comparePropInfos)
+                                : srcProps.ToArray();
+            if (OnlyTestIntersectingProperties)
             {
-                if (RecordErrors)
-                    AddError("Property count mismatch");
-                return false;
+                srcPropInfos = srcPropInfos.Where(
+                    s => comparePropInfos.Any(c => c.Name == s.Name && c.PropertyType == s.PropertyType)
+                ).ToArray();
+                if (srcPropInfos.IsEmpty())
+                {
+                    if (RecordErrors)
+                        AddError("No intersecting properties found");
+                }
+                if (srcPropInfos.IsEmpty())
+                    return false;
             }
-            return srcPropInfos.Aggregate(true, (result, srcProp) =>
+            if (!FailOnMissingProperties || OnlyTestIntersectingProperties || srcPropInfos.Length == comparePropInfos.Length)
+                return CompareWith(objSource, objCompare, srcPropInfos, comparePropInfos);
+            if (RecordErrors)
+                AddError("Property count mismatch");
+            return false;
+        }
+
+        private PropertyInfo[] GetIntersectingPropertyInfos(
+            IEnumerable<PropertyInfo> left,
+            IEnumerable<PropertyInfo> right
+        )
+        {
+            var result = left.Where(
+                    s => right.Any(c => c.Name == s.Name && c.PropertyType == s.PropertyType)
+                ).ToArray();
+            if (result.IsEmpty() && RecordErrors)
+                AddError("No intersecting properties found");
+            return result;
+        }
+
+        private bool CompareWith(object objSource, object objCompare, PropertyInfo[] srcPropInfos, PropertyInfo[] comparePropInfos)
+        {
+            var didAnyComparison = false;
+            var finalResult = srcPropInfos.Aggregate(true, (result, srcProp) =>
             {
                 if (!result) return false;
                 var compareProp = FindMatchingPropertyInfoFor(comparePropInfos, srcProp);
+                didAnyComparison = didAnyComparison || compareProp != null;
                 return compareProp != null &&
                        PropertyValuesMatchFor(objSource, objCompare, srcProp, compareProp);
             });
+            return (srcPropInfos.IsEmpty() || didAnyComparison) && finalResult;
         }
 
         private bool IsPending(object objSource, object objCompare)
@@ -236,17 +271,19 @@ namespace PeanutButter.Utils
         }
 
 
-        // ReSharper disable once UnusedMember.Local
 #pragma warning disable S1144 // Unused private types or members should be removed
+        // ReSharper disable once UnusedMember.Local
         private bool TestCollectionsMatch<T1, T2>(
             IEnumerable<T1> collection1,
             IEnumerable<T2> collection2
         )
         {
-            if (collection1.Count() != collection2.Count())
+            var enumerable = collection1 as T1[] ?? collection1.ToArray();
+            var second = collection2 as T2[] ?? collection2.ToArray();
+            if (enumerable.Length != second.Length)
                 return false;
-            var collection1ContainsCollection2 = AllMembersOfFirstCollectionAreFoundInSecond(collection1, collection2);
-            var collection2ContainsCollection1 = AllMembersOfFirstCollectionAreFoundInSecond(collection2, collection1);
+            var collection1ContainsCollection2 = AllMembersOfFirstCollectionAreFoundInSecond(enumerable, second);
+            var collection2ContainsCollection1 = AllMembersOfFirstCollectionAreFoundInSecond(second, enumerable);
             return collection1ContainsCollection2 && collection2ContainsCollection1;
         }
 

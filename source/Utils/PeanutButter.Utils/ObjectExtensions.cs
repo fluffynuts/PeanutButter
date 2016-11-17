@@ -34,6 +34,17 @@ namespace PeanutButter.Utils
             return tester.AreDeepEqual();
         }
 
+        public static bool DeepIntersectionEquals(this object objSource, object objCompare, params string[] ignorePropertiesByName)
+        {
+            var tester = new DeepEqualityTester(
+                objSource,
+                objCompare,
+                ignorePropertiesByName
+            );
+            tester.OnlyTestIntersectingProperties = true;
+            return tester.AreDeepEqual();
+        }
+
 
         public static bool ContainsOneLike<T1, T2>(this IEnumerable<T1> collection, T2 value)
         {
@@ -69,7 +80,7 @@ namespace PeanutButter.Utils
                     if (underlyingType != null)
                     {
                         var specific = _genericMakeArrayCopy.MakeGenericMethod(underlyingType);
-                        var newValue = specific.Invoke(null, new object[] { srcVal } );
+                        var newValue = specific.Invoke(null, new object[] { srcVal });
                         matchingTarget.SetValue(dst, newValue);
                     }
                 }

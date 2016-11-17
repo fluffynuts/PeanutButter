@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
-using PeanutButter.DuckTyping;
 using PeanutButter.DuckTyping.Extensions;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
@@ -12,7 +11,7 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
-    public class TestObjectExtensions
+    public class TestObjectExtensions: AssertionHelper
     {
         [Test]
         public void DeepEquals_GivenSourceWithNoPropsAndDestWithNoProps_ShouldReturnTrue()
@@ -27,6 +26,7 @@ namespace PeanutButter.Utils.Tests
             //---------------Test Result -----------------------
             Assert.IsTrue(result);
         }
+
 
         [Test]
         public void DeepEquals_GivenTwoObjectsBothWithTheSamePropertyNameAndValue_ShouldReturnTrue()
@@ -287,6 +287,68 @@ namespace PeanutButter.Utils.Tests
 
             //---------------Test Result -----------------------
             Assert.IsTrue(result);
+        }
+
+        [Test]
+        public void DeepSubEquals_GivenSourceAndDestWithNoOverlappingProps_ShouldReturnFalse()
+        {
+            //--------------- Arrange -------------------
+            var left = new {
+                foo = "bar"
+            };
+            var right = new {
+                quuz = "wibbles"
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = left.DeepSubEquals(right);
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.False);
+        }
+
+        [Test]
+        public void DeepIntersectionEquals_GivenSourceAndDestWithMatchingOverlappingProps_ShouldReturnTrue()
+        {
+            //--------------- Arrange -------------------
+            var left = new {
+                foo = "bar",
+                name = "Mickey"
+            };
+            var right = new {
+                quuz = "wibbles",
+                name = "Mickey"
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = left.DeepIntersectionEquals(right);
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.True);
+        }
+
+        [Test]
+        public void DeepIntersectionEquals_GivenSourceAndDestWithNoOverlappingProps_ShouldReturnFalse()
+        {
+            //--------------- Arrange -------------------
+            var left = new {
+                foo = "bar",
+            };
+            var right = new {
+                quuz = "wibbles",
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = left.DeepIntersectionEquals(right);
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.False);
         }
 
 
