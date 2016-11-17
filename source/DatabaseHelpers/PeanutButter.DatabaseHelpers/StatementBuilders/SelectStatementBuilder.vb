@@ -3,11 +3,12 @@ Public Interface ISelectStatementBuilder
     Inherits IStatementBuilder
     Function WithDatabaseProvider(provider As DatabaseProviders) As ISelectStatementBuilder
     Function WithTable(ByVal name As String) As ISelectStatementBuilder
+    Function WithTable(ByVal name As String, aliasedAs As String) As ISelectStatementBuilder
     Function WithField(ByVal name As String, Optional aliasAs As String = Nothing) As ISelectStatementBuilder
     Function WithField(ByVal field As IField) As ISelectStatementBuilder
     Function WithFields(ParamArray fields() As String) As ISelectStatementBuilder
     Function WithAllFieldsFrom(table As String) As ISelectStatementBuilder
-    Function WithAllFieldsFrom(subQueryBuilder as ISelectStatementBuilder, subQueryAlias as String) as ISelectStatementBuilder
+    Function WithAllFieldsFrom(subQueryBuilder As ISelectStatementBuilder, subQueryAlias As String) As ISelectStatementBuilder
     Function WithCondition(condition As ICondition) As ISelectStatementBuilder
     Function WithCondition(condition As String) As ISelectStatementBuilder
     Function WithCondition(fieldName As String, op As Condition.EqualityOperators, fieldValue As String) As ISelectStatementBuilder
@@ -32,9 +33,11 @@ Public Interface ISelectStatementBuilder
     Function Build() As String
     Function WithInnerJoin(table1 As String, field1 As String, eq As Condition.EqualityOperators, table2 As String, field2 As String) As ISelectStatementBuilder
     Function WithInnerJoin(table1 As String, field1 As String, table2 As String, Optional field2 As String = Nothing) As ISelectStatementBuilder
+    Function WithInnerJoin(table1 As String, field1 As String, eq As Condition.EqualityOperators, table2 As String, table2Alias As String, field2 As String) As ISelectStatementBuilder
     Function WithLeftJoin(table1 As String, field1 As String, eq As Condition.EqualityOperators, table2 As String, field2 As String) As ISelectStatementBuilder
+    Function WithLeftJoin(table1 As String, field1 As String, eq As Condition.EqualityOperators, table2 As String, table2Alias as String, field2 As String) As ISelectStatementBuilder
     Function WithLeftJoin(table1 As String, field1 As String, table2 As String, Optional field2 As String = Nothing) As ISelectStatementBuilder
-    Function WithJoin(table1 as String, table2 as String, direction as JoinDirections, ParamArray joinConditions() as ICondition) as ISelectStatementBuilder
+    Function WithJoin(table1 As String, table2 As String, direction As JoinDirections, ParamArray joinConditions() As ICondition) As ISelectStatementBuilder
     Function OrderBy(orderByObj As IOrderBy) As ISelectStatementBuilder
     Function OrderBy(fieldName As String, direction As OrderBy.Directions) As ISelectStatementBuilder
     Function OrderBy(tableName As String, fieldName As String, direction As OrderBy.Directions) As ISelectStatementBuilder
@@ -59,25 +62,29 @@ Public Class SelectStatementBuilder
     End Function
 
     Private Class RenderedCondition
-        Public Property WasRaw as Boolean
-        Public Property Value as String
-        public Sub New(value as String, raw as Boolean)
+        Public Property WasRaw As Boolean
+        Public Property Value As String
+        Public Sub New(value As String, raw As Boolean)
             Me.Value = value
             Me.WasRaw = raw
         End Sub
     End Class
 
     Private Class SubQuery
-        Public ReadOnly SubQueryStatement as ISelectStatementBuilder
-        Public ReadOnly SubQueryAlias as String
-        public Sub New (stmt as ISelectStatementBuilder, sAlias as String)
+        Public ReadOnly SubQueryStatement As ISelectStatementBuilder
+        Public ReadOnly SubQueryAlias As String
+        Public Sub New(stmt As ISelectStatementBuilder, sAlias As String)
             SubQueryStatement = stmt
             SubQueryAlias = sAlias
         End Sub
     End Class
 
-    Private _subQueries as new List(Of SubQuery)
-    Private _tableNames As New List(Of String)
+    Private _subQueries As New List(Of SubQuery)
+    Private Class TableName
+        Public Name As String
+        Public AliasedAs As String
+    End Class
+    Private _tableNames As New List(Of TableName)
     Private _fields As New List(Of IField)
     Private _joins As New List(Of Join)
     Private _orderBy As IOrderBy
@@ -85,17 +92,23 @@ Public Class SelectStatementBuilder
     Private _noLock As Boolean
 
     Public Function WithTable(name As String) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithTable
+        Return WithTable(name, Nothing)
+    End Function
+    Public Function WithTable(name As String, aliasedAs As String) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithTable
         If _tableNames.Any(Function(tn)
-                               return tn.ToLower() = name.ToLower()
+                               Return tn.Name.ToLower() = name.ToLower()
                            End Function) Then Return Me
-        _tableNames.Add(name)
+        Dim tableName = New TableName
+        tableName.Name = name
+        tableName.AliasedAs = aliasedAs
+        _tableNames.Add(tableName)
         Return Me
     End Function
     Public Function WithField(name As String, Optional aliasAs As String = Nothing) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithField
         If name = "*" And _fields.Any(Function(fn)
-                                              return fn.ToString().ToLower() = name.ToLower()
-                                          End Function) Then Return Me
-        Dim selectField  = new SelectField(name)
+                                          Return fn.ToString().ToLower() = name.ToLower()
+                                      End Function) Then Return Me
+        Dim selectField = New SelectField(name)
         selectField.SetAlias(aliasAs)
         _fields.Add(selectField)
         Return Me
@@ -108,16 +121,16 @@ Public Class SelectStatementBuilder
     End Function
 
     Public Function WithCondition(clause As String) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
-        return SetOrAnd(new Condition(clause))
+        Return SetOrAnd(New Condition(clause))
     End Function
 
-    Private Function SetOrAnd(condition as ICondition) as ISelectStatementBuilder
-        if _iCondition Is Nothing Then
+    Private Function SetOrAnd(condition As ICondition) As ISelectStatementBuilder
+        If _iCondition Is Nothing Then
             _iCondition = condition
-        Else 
-            _iCondition = _ICondition.And(condition)
+        Else
+            _iCondition = _iCondition.And(condition)
         End If
-        return Me
+        Return Me
     End Function
 
     Public Function WithCondition(condition As ICondition) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
@@ -154,7 +167,7 @@ Public Class SelectStatementBuilder
     End Function
 
     Public Function WithCondition(field As IField, op As Condition.EqualityOperators, fieldValue As String) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
-        Return Me.WithCondition(new Condition(field, op, fieldValue))
+        Return Me.WithCondition(New Condition(field, op, fieldValue))
     End Function
 
     Public Function WithCondition(leftField As IField, op As Condition.EqualityOperators, rightField As IField) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
@@ -192,7 +205,7 @@ Public Class SelectStatementBuilder
     End Function
 
     Public Function WithCondition(field As String, op As Condition.EqualityOperators, fieldValue As Boolean) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
-        Return Me.WithCondition(new Condition(field, op, CInt(IIf(fieldValue, 1, 0))))
+        Return Me.WithCondition(New Condition(field, op, CInt(IIf(fieldValue, 1, 0))))
     End Function
 
     Public Function Build() As String Implements ISelectStatementBuilder.Build
@@ -213,14 +226,24 @@ Public Class SelectStatementBuilder
     Private Function GetInitialTables() As String
         _subQueries.ForEach(Function(s) s.SubQueryStatement.WithDatabaseProvider(_databaseProvider))
         Dim quotedTableNames = _tableNames.Select(Function(tn)
-            Return String.Join("", { _openObjectQuote, tn, _closeObjectQuote })
-                                                     End Function) _
+                                                      Return GetTableNameAsString(tn)
+                                                  End Function) _
             .Union(_subQueries.Select(Function(s) "(" + s.SubQueryStatement.ToString() + ") as " + _openObjectQuote + s.SubQueryAlias + _closeObjectQuote))
         Dim joinWith = ","
-        AddNoLockHintAsRequiredTo(joinWith)
-        Dim result  = String.Join(joinWith, quotedTableNames)
-        AddNoLockHintAsRequiredTo(result)
+        Dim result = String.Join(joinWith, quotedTableNames)
         Return result
+    End Function
+
+    Private Function GetTableNameAsString(tableName As TableName) As String
+        Dim actual = ObjectQuote(tableName.Name) & GetNoLockHintString()
+        If tableName.AliasedAs Is Nothing Then
+            Return actual
+        End If
+        Return String.Join(" as ", actual, ObjectQuote(tableName.AliasedAs))
+    End Function
+
+    Private Function ObjectQuote(str As String) As String
+        Return String.Join("", _openObjectQuote, str, _closeObjectQuote)
     End Function
 
     Private Function ShouldAddNoLockHint() As Boolean
@@ -231,7 +254,7 @@ Public Class SelectStatementBuilder
         If Not Me._top.HasValue Then Return
         If _databaseProvider = DatabaseProviders.Firebird Then
             sql.Add("first " + Me._top.Value.ToString() + " ")
-        else
+        Else
             sql.Add("top " + Me._top.Value.ToString() + " ")
         End If
     End Sub
@@ -252,17 +275,13 @@ Public Class SelectStatementBuilder
                        End Sub)
     End Sub
 
-    Private Sub AddNoLockHintAsRequiredTo(ByRef str As String)
-        str += GetNoLockHintString()
-    End Sub
-
     Private Function GetNoLockHintString() As String
         If Not ShouldAddNoLockHint() Then Return ""
         Select Case _databaseProvider
             Case DatabaseProviders.SQLServer
-                return " WITH (NOLOCK)"
+                Return " WITH (NOLOCK)"
             Case Else
-                return ""
+                Return ""
         End Select
     End Function
 
@@ -274,7 +293,7 @@ Public Class SelectStatementBuilder
     End Sub
 
     Private Sub AddConditionsTo(ByVal sql As List(Of String))
-        if _iCondition Is Nothing Then
+        If _iCondition Is Nothing Then
             Return
         End If
         sql.Add(" where ")
@@ -284,12 +303,12 @@ Public Class SelectStatementBuilder
     Private Sub AddFieldsTo(ByVal sql As List(Of String))
         Dim addedFields = 0
         _fields.ForEach(Sub(field)
-                                field.UseDatabaseProvider(_databaseProvider)
-                                Dim fieldName = field.ToString()
-                                sql.Add(CStr(IIf(addedFields = 0, "", ",")))
-                                addedFields += 1
-                                sql.Add(fieldName)
-                            End Sub)
+                            field.UseDatabaseProvider(_databaseProvider)
+                            Dim fieldName = field.ToString()
+                            sql.Add(CStr(IIf(addedFields = 0, "", ",")))
+                            addedFields += 1
+                            sql.Add(fieldName)
+                        End Sub)
         If addedFields = 0 Then
             Throw New ArgumentException(Me.GetType().Name() + ": no fields specified for query")
         End If
@@ -300,9 +319,9 @@ Public Class SelectStatementBuilder
                     .WithField("*")
     End Function
 
-    Function WithAllFieldsFrom(subQuery as ISelectStatementBuilder, subQueryAlias as String) as ISelectStatementBuilder Implements ISelectStatementBuilder.WithAllFieldsFrom
-        _subQueries.Add(new SubQuery(subQuery, subQueryAlias))
-        return WithField(new SelectField("*"))
+    Function WithAllFieldsFrom(subQuery As ISelectStatementBuilder, subQueryAlias As String) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithAllFieldsFrom
+        _subQueries.Add(New SubQuery(subQuery, subQueryAlias))
+        Return WithField(New SelectField("*"))
     End Function
 
     Shared Function SelectAllFrom(table As String) As String
@@ -355,24 +374,36 @@ Public Class SelectStatementBuilder
             _iCondition.UseDatabaseProvider(provider)
         End If
         _subQueries.ForEach(Function(s) s.SubQueryStatement.WithDatabaseProvider(provider))
-        return Me
+        Return Me
     End Function
 
-    Public Function WithJoin(table1 As String, table2 As String, direction As JoinDirections, 
+    Public Function WithJoin(table1 As String, table2 As String, direction As JoinDirections,
                              ParamArray joinConditions As ICondition()) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithJoin
-        Dim joinObject = new Join(direction, table1, table2, joinConditions)
+        Dim joinObject = New Join(direction, table1, table2, joinConditions)
         _joins.Add(joinObject)
         Return Me
     End Function
 
     Public Function WithInnerJoin(leftTable As String, leftField As String, eq As Condition.EqualityOperators, rightTable As String, rightField As String) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithInnerJoin
-        Dim joinObject As Join = CreateJoinObjectFor(JoinDirections.Inner, leftTable, leftField, eq, rightTable, rightField)
+        Dim joinObject As Join = CreateJoinObjectFor(JoinDirections.Inner, leftTable, leftField, eq, rightTable, rightField, Nothing)
         Me._joins.Add(joinObject)
         Return Me
     End Function
 
-    Private Function CreateJoinObjectFor(ByVal direction As JoinDirections, ByVal leftTable As String, ByVal leftField As String, ByVal eq As Condition.EqualityOperators, ByVal rightTable As String, ByVal rightField As String) As Join
-        Dim joinObject  = New Join(direction, leftTable, leftField, eq, rightTable, rightField)
+    Public Function WithInnerJoin(leftTable As String, 
+                                  leftField As String, 
+                                  eq As Condition.EqualityOperators, 
+                                  rightTable As String, 
+                                  rightAlias as String, 
+                                  rightField As String) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithInnerJoin
+        Dim joinObject As Join = CreateJoinObjectFor(JoinDirections.Inner, leftTable, leftField, eq, rightTable, rightField, rightAlias)
+        Me._joins.Add(joinObject)
+        Return Me
+    End Function
+
+    Private Function CreateJoinObjectFor(ByVal direction As JoinDirections, ByVal leftTable As String, ByVal leftField As String, ByVal eq As Condition.EqualityOperators, ByVal rightTable As String, ByVal rightField As String, ByVal rightAlias As String) As Join
+        Dim joinObject = New Join(direction, leftTable, leftField, eq, rightTable, rightField)
+        joinObject.RightTableAlias = rightAlias
         joinObject.UseDatabaseProvider(_databaseProvider)
         Return joinObject
     End Function
@@ -385,20 +416,27 @@ Public Class SelectStatementBuilder
     End Function
 
     Public Function WithLeftJoin(table1 As String, field1 As String, eq As Condition.EqualityOperators, table2 As String, field2 As String) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithLeftJoin
-        Dim joinObject = CreateJoinObjectFor(JoinDirections.Left, table1, field1, eq, table2, field2)
+        Dim joinObject = CreateJoinObjectFor(JoinDirections.Left, table1, field1, eq, table2, field2, Nothing)
         Me._joins.Add(joinObject)
-        return Me
+        Return Me
+    End Function
+
+    Public Function WithLeftJoin(table1 As String, field1 As String, eq As Condition.EqualityOperators, table2 As String, table2Alias As String, field2 As String) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithLeftJoin
+        Dim joinObject = CreateJoinObjectFor(JoinDirections.Left, table1, field1, eq, table2, field2, Nothing)
+        joinObject.RightTableAlias = table2Alias
+        Me._joins.Add(joinObject)
+        Return Me
     End Function
 
     Public Function WithLeftJoin(table1 As String, field1 As String, table2 As String, Optional field2 As String = Nothing) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithLeftJoin
-        if String.IsNullOrEmpty(field2) Then
+        If String.IsNullOrEmpty(field2) Then
             field2 = field1
         End If
-        return WithLeftJoin(table1, field1, Condition.EqualityOperators.Equals, table2, field2)
+        Return WithLeftJoin(table1, field1, Condition.EqualityOperators.Equals, table2, field2)
     End Function
 
     Public Function WithNoLock() As ISelectStatementBuilder Implements ISelectStatementBuilder.WithNoLock
         _noLock = True
-        return Me
+        Return Me
     End Function
 End Class

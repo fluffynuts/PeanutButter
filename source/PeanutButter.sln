@@ -282,6 +282,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.FluentMigrator
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TestUtils.MVC.Tests", "TestUtils\PeanutButter.TestUtils.MVC.Tests\PeanutButter.TestUtils.MVC.Tests.csproj", "{790B06D7-6B4C-4F2E-B74B-0048B842189F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.DatabaseHelpers.More.Tests", "PeanutButter.DatabaseHelpers.More.Tests\PeanutButter.DatabaseHelpers.More.Tests.csproj", "{93A8C6AC-E7F5-46DB-806B-879745FBC653}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -1223,6 +1225,18 @@ Global
 		{790B06D7-6B4C-4F2E-B74B-0048B842189F}.Test|Any CPU.Build.0 = Release|Any CPU
 		{790B06D7-6B4C-4F2E-B74B-0048B842189F}.Test|x86.ActiveCfg = Release|Any CPU
 		{790B06D7-6B4C-4F2E-B74B-0048B842189F}.Test|x86.Build.0 = Release|Any CPU
+		{93A8C6AC-E7F5-46DB-806B-879745FBC653}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93A8C6AC-E7F5-46DB-806B-879745FBC653}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93A8C6AC-E7F5-46DB-806B-879745FBC653}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{93A8C6AC-E7F5-46DB-806B-879745FBC653}.Debug|x86.Build.0 = Debug|Any CPU
+		{93A8C6AC-E7F5-46DB-806B-879745FBC653}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93A8C6AC-E7F5-46DB-806B-879745FBC653}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93A8C6AC-E7F5-46DB-806B-879745FBC653}.Release|x86.ActiveCfg = Release|Any CPU
+		{93A8C6AC-E7F5-46DB-806B-879745FBC653}.Release|x86.Build.0 = Release|Any CPU
+		{93A8C6AC-E7F5-46DB-806B-879745FBC653}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{93A8C6AC-E7F5-46DB-806B-879745FBC653}.Test|Any CPU.Build.0 = Release|Any CPU
+		{93A8C6AC-E7F5-46DB-806B-879745FBC653}.Test|x86.ActiveCfg = Release|Any CPU
+		{93A8C6AC-E7F5-46DB-806B-879745FBC653}.Test|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1319,5 +1333,6 @@ Global
 		{57D6CCB0-9BCB-4223-8265-CE293BED1219} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
 		{292B4523-8470-4366-B80B-127D70623322} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
 		{790B06D7-6B4C-4F2E-B74B-0048B842189F} = {991C5C7C-A1F8-42B1-8CDA-F782B0F62980}
+		{93A8C6AC-E7F5-46DB-806B-879745FBC653} = {043F0990-6BA2-4BD4-8572-9516C9E6EBAD}
 	EndGlobalSection
 EndGlobal

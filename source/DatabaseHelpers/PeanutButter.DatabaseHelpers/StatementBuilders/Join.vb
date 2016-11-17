@@ -4,6 +4,7 @@ End Interface
 Public Class Join
     Inherits StatementBuilderBase
     Private _noLock As Boolean
+    Private _hasSingleCondition As Boolean
 
     Public Sub UseDatabaseProvider(provider As DatabaseProviders)
         SetDatabaseProvider(provider)
@@ -15,6 +16,7 @@ Public Class Join
     Public Property LeftTable As String
     Public Property RightTable As String
     Public Property RightField As String
+    public Property RightTableAlias as String
     Public Property EqualityOperator As Condition.EqualityOperators
 
     Public Sub New(_direction As JoinDirections,
@@ -29,6 +31,7 @@ Public Class Join
         Me.RightTable = _rightTable
         Me.RightField = _rightField
         Me.EqualityOperator = _op
+        Me._hasSingleCondition = True
         SetupSingleCondition()
     End Sub
 
@@ -48,7 +51,18 @@ Public Class Join
         'Me.Conditions.Add(New Condition(localLeftField, EqualityOperator, localRightField, False))
         Conditions.Add(New Condition(New SelectField(LeftTable, LeftField), _
                                      EqualityOperator, _
-                                     New SelectField(RightTable, RightField)))
+                                     New SelectField(RightAliasOrName(), RightField)))
+    End Sub
+
+    Private Function RightAliasOrName() As String
+        If RightTableAlias Is Nothing Then Return RightTable
+        return RightTableAlias
+    End Function
+
+    Private Sub RecalculateSingleCondition()
+        if Not _hasSingleCondition Then Return
+        Conditions.Clear()
+        SetupSingleCondition()
     End Sub
 
     Public Overrides Function ToString() As String
@@ -61,6 +75,13 @@ Public Class Join
         parts.Add(_closeObjectQuote)
         If _noLock AndAlso _databaseProvider = DatabaseProviders.SQLServer Then
             parts.Add(" WITH (NOLOCK)")
+        End If
+        if RightTableAlias IsNot Nothing Then
+            parts.Add(" as ")
+            parts.Add(_openObjectQuote)
+            parts.Add(RightTableAlias)
+            parts.Add(_closeObjectQuote)
+            RecalculateSingleCondition
         End If
         parts.Add(" on ")
         Dim compound = new ConditionChain(CompoundCondition.BooleanOperators.OperatorAnd, Conditions.ToArray())

@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Extensions;
-using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMember.Global
@@ -805,6 +802,31 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             Expect(result.TaskId, Is.EqualTo(id));
 
         }
+        public interface IWorkflowTaskStatusFilters
+        {
+            string[] Statuses { get; }
+        }
+
+
+        [Test]
+        public void FuzzyDuckAs_ShouldBeAbleToDuckSimpleObjectWithStringArray()
+        {
+            //--------------- Arrange -------------------
+            var input = new {
+                Statuses = new[] { "foo", "bar" }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = input.FuzzyDuckAs<IWorkflowTaskStatusFilters>();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.Not.Null);
+            Expect(result.Statuses, Does.Contain("foo"));
+            Expect(result.Statuses, Does.Contain("bar"));
+        }
+
 
 
 
