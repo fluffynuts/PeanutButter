@@ -51,11 +51,11 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DatabaseHelpers\PeanutButter.DatabaseHelpers\PeanutButter.DatabaseHelpers.vbproj">
+    <ProjectReference Include="..\PeanutButter.DatabaseHelpers\PeanutButter.DatabaseHelpers.vbproj">
       <Project>{02DF2FD5-59E2-4EC8-80D1-E745D7D834C5}</Project>
       <Name>PeanutButter.DatabaseHelpers</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj">
+    <ProjectReference Include="..\..\TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj">
       <Project>{cb22d9ae-a2a8-45d0-92b9-fadc687120f0}</Project>
       <Name>PeanutButter.RandomGenerators</Name>
     </ProjectReference>

@@ -282,7 +282,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.FluentMigrator
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TestUtils.MVC.Tests", "TestUtils\PeanutButter.TestUtils.MVC.Tests\PeanutButter.TestUtils.MVC.Tests.csproj", "{790B06D7-6B4C-4F2E-B74B-0048B842189F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.DatabaseHelpers.More.Tests", "PeanutButter.DatabaseHelpers.More.Tests\PeanutButter.DatabaseHelpers.More.Tests.csproj", "{93A8C6AC-E7F5-46DB-806B-879745FBC653}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.DatabaseHelpers.More.Tests", "DatabaseHelpers\PeanutButter.DatabaseHelpers.More.Tests\PeanutButter.DatabaseHelpers.More.Tests.csproj", "{93A8C6AC-E7F5-46DB-806B-879745FBC653}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
