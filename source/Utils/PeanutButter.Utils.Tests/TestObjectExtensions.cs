@@ -1020,6 +1020,35 @@ namespace PeanutButter.Utils.Tests
             CollectionAssert.AreEqual(src.Stuff, target.Stuff);
         }
 
+        public class HasIdAndName
+        {
+            public int Id { get; set ; }
+            public string Name { get; set; }
+        }
+        [Test]
+        public void CopyPropertiesTo_ShouldAllowIgnoreList()
+        {
+            //--------------- Arrange -------------------
+            var src = new HasIdAndName() {
+                Id = 1,
+                Name = GetRandomString()
+            };
+            var target = new HasIdAndName() {
+                Id = 2,
+                Name = GetRandomString()
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            src.CopyPropertiesTo(target, "Id");
+
+            //--------------- Assert -----------------------
+            Expect(target.Name, Is.EqualTo(src.Name));
+            Expect(target.Id, Is.EqualTo(2));
+        }
+
+
 
         public class Traveller: ITraveller
         {

@@ -56,10 +56,16 @@ namespace PeanutButter.Utils
             src.CopyPropertiesTo(dst, true);
         }
 
-        public static void CopyPropertiesTo(this object src, object dst, bool deep)
+        public static void CopyPropertiesTo(this object src, object dst, params string[] ignoreProperties)
+        {
+            src.CopyPropertiesTo(dst, true, ignoreProperties);
+        }
+
+        public static void CopyPropertiesTo(this object src, object dst, bool deep, params string[] ignoreProperties)
         {
             if (src == null || dst == null) return;
-            var srcPropInfos = src.GetType().GetProperties();
+            var srcPropInfos = src.GetType().GetProperties()
+                                .Where(pi => !ignoreProperties.Contains(pi.Name));
             var dstPropInfos = dst.GetType().GetProperties();
 
             foreach (var srcPropInfo in srcPropInfos.Where(pi => pi.CanRead))
