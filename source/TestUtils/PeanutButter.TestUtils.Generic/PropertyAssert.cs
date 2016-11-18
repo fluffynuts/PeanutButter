@@ -2,6 +2,7 @@
 using System.Linq;
 using NUnit.Framework;
 using PeanutButter.Utils;
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.TestUtils.Generic
 {
@@ -66,9 +67,9 @@ namespace PeanutButter.TestUtils.Generic
             PerformEqualityAssertionWith(obj1, obj2, obj1PropName, obj2PropName, (o1, o2, info) => Assert.AreEqual(o1, o2, info));
         }
 
-        public static void AreNotEqual<T1, T2>(T1 obj1, T2 obj2, string T1PropertyName, string T2PropertyName = null)
+        public static void AreNotEqual<T1, T2>(T1 obj1, T2 obj2, string t1PropertyName, string t2PropertyName = null)
         {
-            PerformEqualityAssertionWith(obj1, obj2, T1PropertyName, T2PropertyName, (o1, o2, info) => Assert.AreNotEqual(o1, o2, info));
+            PerformEqualityAssertionWith(obj1, obj2, t1PropertyName, t2PropertyName, (o1, o2, info) => Assert.AreNotEqual(o1, o2, info));
         }
 
         private static void PerformEqualityAssertionWith(object obj1, object obj2, string obj1PropName, string obj2PropName, Action<object, object, string> finalAssertion)
@@ -86,6 +87,8 @@ namespace PeanutButter.TestUtils.Generic
                     Assert.Fail("Both objects are null (" + obj1PropName + " => " + obj2PropName + ")");
                 }
                 Assert.Fail((obj1 == null ? "obj1" : "obj2") + " is null (" + obj1PropName + " => " + obj2PropName + ")");
+                // ReSharper disable once HeuristicUnreachableCode
+                return; // prevent warning about nulls
             }
             var type1 = obj1.GetType();
             var srcPropInfo = type1.GetProperty(obj1PropName);
