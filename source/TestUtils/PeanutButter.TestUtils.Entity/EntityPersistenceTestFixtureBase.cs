@@ -1,7 +1,5 @@
 using System;
 using System.Data.Entity;
-using System.Linq;
-using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
@@ -17,7 +15,7 @@ namespace PeanutButter.TestUtils.Entity
         private const string ENABLED = "Enabled";
 
         private readonly string[] _ignoreFields = {CREATED, LAST_MODIFIED, ENABLED};
-        protected bool LogEntitySql { get; set; } = false;
+        protected bool LogEntitySql { get; set; }
 
         protected string[] DefaultIgnoreFieldsFor<T>()
         {

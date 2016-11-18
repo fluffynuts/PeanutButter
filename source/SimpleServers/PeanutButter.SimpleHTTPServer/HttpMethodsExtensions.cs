@@ -4,12 +4,15 @@
     {
         public static bool Matches(this HttpMethods method, HttpMethods otherMethod)
         {
-            return method == HttpMethods.Any || method == otherMethod;
+            return method == HttpMethods.Any || 
+                    otherMethod == HttpMethods.Any ||
+                    method == otherMethod;
         }
 
         public static bool Matches(this HttpMethods method, string otherMethod)
         {
-            return method == HttpMethods.Any || method.ToString().ToUpper() == (otherMethod ?? string.Empty).ToUpper();
+            return method == HttpMethods.Any ||
+                    method.ToString().ToUpper() == (otherMethod ?? string.Empty).ToUpper();
         }
     }
 }

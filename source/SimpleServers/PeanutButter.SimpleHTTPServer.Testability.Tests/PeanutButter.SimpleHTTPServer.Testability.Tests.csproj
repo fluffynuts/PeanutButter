@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TestHttpMethodExtensions.cs" />
+    <Compile Include="TestHttpMethodsExtensions.cs" />
     <Compile Include="TestHttpServerExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

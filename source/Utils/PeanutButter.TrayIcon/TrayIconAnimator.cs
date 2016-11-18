@@ -1,14 +1,17 @@
 ﻿using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
+// ReSharper disable IntroduceOptionalParameters.Global
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedMember.Global
 
 namespace PeanutButter.TrayIcon
 {
     public class TrayIconAnimator
     {
-        private TrayIcon _trayIcon;
-        private Icon _restStateIcon;
-        private Icon[] _animationFrames;
+        private readonly TrayIcon _trayIcon;
+        private readonly Icon _restStateIcon;
+        private readonly Icon[] _animationFrames;
         private string _lastText;
         private bool _busy;
         private Task _animationTask;
@@ -20,7 +23,12 @@ namespace PeanutButter.TrayIcon
             _animationFrames = animationFrames;
         }
 
-        public void Busy(string withText = null)
+        public void Busy()
+        {
+            Busy(null);
+        }
+
+        public void Busy(string withText)
         {
             lock (this)
             {
@@ -42,7 +50,12 @@ namespace PeanutButter.TrayIcon
             _animationTask.Start();
         }
 
-        public void Rest(string withText = null)
+        public void Rest()
+        {
+            Rest(null);
+        }
+
+        public void Rest(string withText)
         {
             lock (this)
             {

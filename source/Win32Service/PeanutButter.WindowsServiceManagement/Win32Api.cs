@@ -1,5 +1,9 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+// ReSharper disable ClassNeverInstantiated.Global
+// ReSharper disable InconsistentNaming
+// ReSharper disable UnusedMember.Global
+// ReSharper disable UnassignedField.Global
 
 namespace PeanutButter.Win32ServiceControl
 {
@@ -11,27 +15,27 @@ namespace PeanutButter.Win32ServiceControl
         [StructLayout(LayoutKind.Sequential)]
         public class SERVICE_STATUS
         {
-            public int ServiceType = 0;
+            public int ServiceType;
             public ServiceState CurrentState = 0;
-            public int ControlsAccepted = 0;
-            public int Win32ExitCode = 0;
-            public int ServiceSpecificExitCode = 0;
-            public int CheckPoint = 0;
-            public int WaitHint = 0;
+            public int ControlsAccepted;
+            public int Win32ExitCode;
+            public int ServiceSpecificExitCode;
+            public int CheckPoint;
+            public int WaitHint;
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         public class SERVICE_STATUS_PROCESS
         {
-            public int ServiceType = 0;
+            public int ServiceType;
             public ServiceState CurrentState = 0;
-            public int ControlsAccepted = 0;
-            public int Win32ExitCode = 0;
-            public int ServiceSpecificExitCode = 0;
-            public int CheckPoint = 0;
-            public int WaitHint = 0;
-            public int ProcessID = 0;
-            public int ServiceFlags = 0;
+            public int ControlsAccepted;
+            public int Win32ExitCode;
+            public int ServiceSpecificExitCode;
+            public int CheckPoint;
+            public int WaitHint;
+            public int ProcessID;
+            public int ServiceFlags;
         }
 
         [DllImport("advapi32.dll", EntryPoint = "OpenSCManagerW", ExactSpelling = true, CharSet = CharSet.Unicode,

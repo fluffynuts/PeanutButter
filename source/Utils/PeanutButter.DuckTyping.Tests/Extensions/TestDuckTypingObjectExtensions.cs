@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Extensions;
+using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMember.Global
@@ -826,6 +827,72 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             Expect(result.Statuses, Does.Contain("foo"));
             Expect(result.Statuses, Does.Contain("bar"));
         }
+
+        public class MooAttribute: Attribute
+        {
+        }
+        public interface IHasCustomAttributes
+        {
+            [Moo]
+            string Name { get; }
+        }
+
+        [Test]
+        public void DuckAs_ShouldCopyCustomAttributes()
+        {
+            //--------------- Arrange -------------------
+            var input = new {
+                name = "cow"
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = input.FuzzyDuckAs<IHasCustomAttributes>();
+
+            //--------------- Assert -----------------------
+            var propInfo = result.GetType().GetProperty("Name");
+            Expect(propInfo, Is.Not.Null);
+            var attrib = propInfo.GetCustomAttributes(false).OfType<MooAttribute>().FirstOrDefault();
+            Expect(attrib, Is.Not.Null);
+        }
+
+        public class DialectAttribute: Attribute
+        {
+            public string Dialect { get; set; }
+            public DialectAttribute(string dialect)
+            {
+                Dialect = dialect;
+            }
+        }
+
+        public interface IRegionSpecificCow
+        {
+            [Dialect("Country")]
+            string Moo { get; }
+        }
+
+        [Test]
+        public void DuckAs_ShouldCopyComplexCustomAttributes()
+        {
+            //--------------- Arrange -------------------
+            var input = new {
+                moo = "Moo, eh"
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = input.FuzzyDuckAs<IRegionSpecificCow>();
+
+            //--------------- Assert -----------------------
+            var propInfo = result.GetType().GetProperty("Moo");
+            Expect(propInfo, Is.Not.Null);
+            var attrib = propInfo.GetCustomAttributes(true).OfType<DialectAttribute>().FirstOrDefault();
+            Expect(attrib, Is.Not.Null);
+            Expect(attrib.Dialect, Is.EqualTo("Country"));
+        }
+
 
 
 

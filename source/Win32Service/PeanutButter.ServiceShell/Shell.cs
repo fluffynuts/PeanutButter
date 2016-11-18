@@ -7,6 +7,12 @@ using log4net;
 using log4net.Config;
 using PeanutButter.Win32ServiceControl;
 using ServiceShell;
+// ReSharper disable MemberCanBeProtected.Global
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable InconsistentNaming
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+// ReSharper disable UnusedMember.Global
+// ReSharper disable UnusedMethodReturnValue.Local
 
 namespace PeanutButter.ServiceShell
 {
@@ -34,15 +40,21 @@ namespace PeanutButter.ServiceShell
         { 
             get
             {
-                if (string.IsNullOrWhiteSpace(_displayName))
-                    throw new ServiceUnconfiguredException("DisplayName");
-                return _displayName;
+                return GetDisplayName();
             }
             protected set
             {
                 _displayName = value;
             }
         }
+
+        private string GetDisplayName()
+        {
+            if (string.IsNullOrWhiteSpace(_displayName))
+                throw new ServiceUnconfiguredException("DisplayName");
+            return _displayName;
+        }
+
         private string _copyright;
         public string CopyrightInformation 
         { 
@@ -215,7 +227,9 @@ namespace PeanutButter.ServiceShell
             return (int)CommandlineOptions.ExitCodes.Failure;
         }
 
+#pragma warning disable S3241 // Methods should not return values that are never used
         private int StopMe(bool silentFail = false)
+#pragma warning restore S3241 // Methods should not return values that are never used
         {
             var existingServiceUtil = new WindowsServiceUtil(ServiceName);
             if (!existingServiceUtil.IsInstalled)

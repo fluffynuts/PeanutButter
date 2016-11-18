@@ -1,6 +1,8 @@
 ﻿using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using PeanutButter.Utils.Entity;
+// ReSharper disable ConvertClosureToMethodGroup
+// ReSharper disable InconsistentNaming
 
 namespace PeanutButter.TestUtils.Entity.Tests
 {
@@ -9,7 +11,8 @@ namespace PeanutButter.TestUtils.Entity.Tests
     {
         private int _clearCalled;
 
-        public TestCOMBlockListReason()
+        [OneTimeSetUp]
+        public void OneTimeSetup()
         {
             Configure(true, connectionString => new DbSchemaImporter(connectionString, TestResources.dbscript));
             RunBeforeFirstGettingContext(Clear);
@@ -79,6 +82,44 @@ namespace PeanutButter.TestUtils.Entity.Tests
 
             //---------------Test Result -----------------------
             Assert.AreEqual(1, _clearCalled);
+        }
+
+        public class SomeEntity: EntityBase
+        {
+        }
+
+        [Test]
+        public void Type_ShouldInheritFromEntityBase_GivenTypeInheritingFromEntityBase_ShouldNotThrow()
+        {
+            //--------------- Arrange -------------------
+            _clearCalled = 1;   // work around kludgey test and lazy me
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            Assert.DoesNotThrow(() =>
+                Type_ShouldInheritFromEntityBase<SomeEntity>()
+            );
+
+            //--------------- Assert -----------------------
+        }
+        public class SomeNonEntity
+        {
+        }
+        [Test]
+        public void Type_ShouldInheritFromEntityBase_GivenTypeNotInheritingFromEntityBase_ShouldThrow()
+        {
+            //--------------- Arrange -------------------
+            _clearCalled = 1;   // work around kludgey test and lazy me
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            Assert.Throws<AssertionException>(() =>
+                Type_ShouldInheritFromEntityBase<SomeNonEntity>()
+            );
+
+            //--------------- Assert -----------------------
         }
 
 

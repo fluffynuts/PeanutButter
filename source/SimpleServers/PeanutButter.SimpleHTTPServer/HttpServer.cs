@@ -19,7 +19,10 @@ namespace PeanutButter.SimpleHTTPServer
         Get,
         Post,
         Put,
-        Delete
+        Delete,
+        Patch,
+        Options,
+        Head
     }
 
     // TODO: allow easier way to throw 404 (or other web exception) from simple handlers (file/document handlers)

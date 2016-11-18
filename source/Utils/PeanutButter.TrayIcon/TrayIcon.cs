@@ -4,10 +4,12 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+// ReSharper disable UnusedMemberInSuper.Global
+// ReSharper disable UnusedMember.Global
 
 namespace PeanutButter.TrayIcon
 {
-    public interface ITrayIcon
+    public interface ITrayIcon: IDisposable
     {
         NotifyIcon NotifyIcon { get; }
         int DefaultBalloonTipTimeout { get; set; }
@@ -33,18 +35,17 @@ namespace PeanutButter.TrayIcon
         void Init(Bitmap bitmap);
         void Show();
         void Hide();
-        void Dispose();
     }
 
-    public class TrayIcon: IDisposable, ITrayIcon
+    public class TrayIcon: ITrayIcon
     {
-        public NotifyIcon NotifyIcon { get { return _notificationIcon; } }
+        public NotifyIcon NotifyIcon => _notificationIcon;
         private NotifyIcon _notificationIcon;
         private Icon _icon;
         private bool _showingDefaultBalloonTip;
         public int DefaultBalloonTipTimeout { get; set; }
-        private object _lock = new object();
-        private List<MouseClickHandler> _mouseClickHandlers = new List<MouseClickHandler>();
+        private readonly object _lock = new object();
+        private readonly List<MouseClickHandler> _mouseClickHandlers = new List<MouseClickHandler>();
 
         public Icon Icon
         {
@@ -178,8 +179,7 @@ namespace PeanutButter.TrayIcon
 		{
             lock(_lock)
             {
-                if (_notificationIcon != null)
-    			    _notificationIcon.Dispose();
+                _notificationIcon?.Dispose();
                 _notificationIcon = null;
             }
 		}
@@ -224,7 +224,8 @@ namespace PeanutButter.TrayIcon
         {
             var exceptions = handlers
                 .Select(handler => TryDo(handler.Action))
-                .Where(ex => ex != null);
+                .Where(ex => ex != null)
+                .ToArray();
             if (exceptions.Any())
                 throw new AggregateException(exceptions);
         }
@@ -247,7 +248,7 @@ namespace PeanutButter.TrayIcon
 		    lock (_lock)
 		    {
 		        return _mouseClickHandlers
-                        .Where(o => o.Clicks == MouseClicks.Single && o.Button == button)
+                        .Where(o => o.Clicks == clicks && o.Button == button)
                         .ToArray();
 		    }
         }
@@ -281,8 +282,10 @@ namespace PeanutButter.TrayIcon
             _alreadyInitialized = true;
             _icon = icon;
             DefaultBalloonTipTimeout = 2000;
-            _notificationIcon = new NotifyIcon();
-            _notificationIcon.ContextMenu = new ContextMenu();
+            _notificationIcon = new NotifyIcon
+            {
+                ContextMenu = new ContextMenu()
+            };
             _notificationIcon.MouseMove += ShowDefaultBalloonTip;
             _notificationIcon.BalloonTipClicked += BalloonTipClickedHandler;
             _notificationIcon.BalloonTipClosed += BalloonTipClosedHandler;
@@ -290,24 +293,14 @@ namespace PeanutButter.TrayIcon
 
         private void BalloonTipClosedHandler(object sender, EventArgs e)
         {
-            Action toRun = GetCustomBalloonTipClosedAction();
-            if (toRun == null)
-            {
-                toRun = DefaultBalloonTipClosedAction;
-            }
-            if (toRun != null)
-                toRun();
+            Action toRun = GetCustomBalloonTipClosedAction() ?? DefaultBalloonTipClosedAction;
+            toRun?.Invoke();
         }
 
         private void BalloonTipClickedHandler(object sender, EventArgs e)
         {
-            Action toRun = GetCustomBalloonTipClickAction();
-            if (toRun == null)
-            {
-                toRun = DefaultBalloonTipClickedAction;
-            }
-            if (toRun != null)
-                toRun();
+            Action toRun = GetCustomBalloonTipClickAction() ?? DefaultBalloonTipClickedAction;
+            toRun?.Invoke();
         }
 
         private void ShowDefaultBalloonTip(object sender, MouseEventArgs e)
@@ -325,8 +318,7 @@ namespace PeanutButter.TrayIcon
                     _showingDefaultBalloonTip = false;
                     _balloonTipClickHandlers = null;
                     var closedAction = DefaultBalloonTipClosedAction;
-                    if (closedAction != null)
-                        closedAction();
+                    closedAction?.Invoke();
                 });
         }
 
