@@ -15,7 +15,12 @@ namespace PeanutButter.TestUtils.Generic
                 throw new AssertionException(string.Join("\n", tester.Errors));
         }
 
+        [Obsolete("This has been renamed to AreIntersectionEqual")]
         public static void IntersectionEquals(object obj1, object obj2, params string[] ignorePropertiesByName)
+        {
+            PropertyAssert.AreIntersectionEqual(obj1, obj2, ignorePropertiesByName);
+        }
+        public static void AreIntersectionEqual(object obj1, object obj2, params string[] ignorePropertiesByName)
         {
             var propInfos1 = obj1.GetType().GetProperties();
             var propInfos2 = obj2.GetType().GetProperties();

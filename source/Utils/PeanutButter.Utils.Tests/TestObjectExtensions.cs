@@ -954,8 +954,8 @@ namespace PeanutButter.Utils.Tests
             details.CopyPropertiesTo(traveller);
 
             //--------------- Assert -----------------------
-            PropertyAssert.IntersectionEquals(actor, traveller);
-            PropertyAssert.IntersectionEquals(details, traveller);
+            PropertyAssert.AreIntersectionEqual(actor, traveller);
+            PropertyAssert.AreIntersectionEqual(details, traveller);
         }
 
 

@@ -255,7 +255,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => PropertyAssert.IntersectionEquals(obj1, obj2));
+            Assert.DoesNotThrow(() => PropertyAssert.AreIntersectionEqual(obj1, obj2));
 
             //---------------Test Result -----------------------
         }
@@ -274,7 +274,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<AssertionException>(() => PropertyAssert.IntersectionEquals(obj1, obj2));
+            Assert.Throws<AssertionException>(() => PropertyAssert.AreIntersectionEqual(obj1, obj2));
 
             //---------------Test Result -----------------------
         }
@@ -293,7 +293,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<AssertionException>(() => PropertyAssert.IntersectionEquals(obj1, obj2));
+            Assert.Throws<AssertionException>(() => PropertyAssert.AreIntersectionEqual(obj1, obj2));
 
             //---------------Test Result -----------------------
         }
@@ -363,7 +363,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //--------------- Act ----------------------
 
             //--------------- Assert -----------------------
-            PropertyAssert.IntersectionEquals(ducked, traveller);
+            PropertyAssert.AreIntersectionEqual(ducked, traveller);
         }
 
         public class HasEnumerableStuff
@@ -392,7 +392,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            PropertyAssert.IntersectionEquals(left, right);
+            PropertyAssert.AreIntersectionEqual(left, right);
 
             //--------------- Assert -----------------------
         }
@@ -422,7 +422,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            PropertyAssert.IntersectionEquals(left, right, "IgnoreMe");
+            PropertyAssert.AreIntersectionEqual(left, right, "IgnoreMe");
 
             //--------------- Assert -----------------------
         }
