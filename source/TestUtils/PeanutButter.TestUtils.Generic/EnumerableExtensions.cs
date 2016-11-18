@@ -8,9 +8,13 @@ namespace PeanutButter.TestUtils.Generic
 {
     public static class EnumerableExtensions
     {
-        public static void ShouldMatchDataIn<T>(this IEnumerable<T> src, IEnumerable<T> other)
+        public static void ShouldMatchDataIn<T1, T2>(
+            this IEnumerable<T1> src, 
+            IEnumerable<T2> other
+        )
         {
-            src.ForEach(item => Assert.IsTrue(
+            var enumerable = src as T1[] ?? src.ToArray();
+            enumerable.ForEach(item => Assert.IsTrue(
                 other.Any(
                     otherItem => item.DeepEquals(otherItem)
                 )
@@ -18,7 +22,20 @@ namespace PeanutButter.TestUtils.Generic
             );
 
             other.ForEach(item => Assert.IsTrue(
-                src.Any(otherItem => otherItem.DeepEquals(item))));
+                enumerable.Any(otherItem => otherItem.DeepEquals(item))));
+        }
+
+        public static void ShouldMatchDataInAndOrderOf<T1, T2>(
+            this IEnumerable<T1> src, IEnumerable<T2> other
+        )
+        {
+            var srcArray = src.EmptyIfNull().ToArray();
+            var otherArray = other.EmptyIfNull().ToArray();
+            Assert.AreEqual(srcArray.Length, otherArray.Length, $"Collection sizes differ: {srcArray.Length} vs {otherArray.Length}");
+            for (var i = 0; i < srcArray.Length; i++)
+            {
+                PropertyAssert.AreDeepEqual(srcArray[i], otherArray[i]);
+            }
         }
 
         [Obsolete("Please use DeepEquals from PeanutButter.Utils instead")]

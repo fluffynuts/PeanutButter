@@ -71,6 +71,128 @@ namespace PeanutButter.TestUtils.Generic.Tests
         }
 
         [Test]
+        public void ShouldMatchDataIn_OperatingOnCollectionsOfSameLengthAndSameDataDifferentOrder_ShouldNotThrow()
+        {
+            //---------------Set up test pack-------------------
+            var left = new[] {IntWrapper.For(1), IntWrapper.For(2) };
+            var right = new[] { IntWrapper.For(2), IntWrapper.For(1) };
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(() => left.ShouldMatchDataIn(right));
+            Assert.DoesNotThrow(() => right.ShouldMatchDataIn(left));
+
+            //---------------Test Result -----------------------
+        }
+        [Test]
+        public void ShouldMatchDataInAndOrderOf_OperatingOnCollection_WhenComparisonCollectionIsDifferentSize_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            var left = new[] {IntWrapper.For(1), IntWrapper.For(2)};
+            var right = new[] {IntWrapper.For(1) };
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.Throws<AssertionException>(() => left.ShouldMatchDataInAndOrderOf(right));
+            Assert.Throws<AssertionException>(() => right.ShouldMatchDataInAndOrderOf(left));
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
+        public void ShouldMatchDataInAndOrderOf_OperatingOnCollectionsOfSameLengthButDifferentData_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            var left = new[] {IntWrapper.For(2) };
+            var right = new[] {IntWrapper.For(1) };
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.Throws<AssertionException>(() => left.ShouldMatchDataInAndOrderOf(right));
+            Assert.Throws<AssertionException>(() => right.ShouldMatchDataInAndOrderOf(left));
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
+        public void ShouldMatchDataInAndOrderOf_OperatingOnCollectionsOfSameLengthAndSameData_ShouldNotThrow()
+        {
+            //---------------Set up test pack-------------------
+            var left = new[] {IntWrapper.For(1) };
+            var right = new[] {IntWrapper.For(1) };
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(() => left.ShouldMatchDataInAndOrderOf(right));
+            Assert.DoesNotThrow(() => right.ShouldMatchDataInAndOrderOf(left));
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
+        public void ShouldMatchDataInAndOrderOf_OperatingOnCollectionsOfSameLengthAndSameDataDifferentOrder_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            var left = new[] {IntWrapper.For(1), IntWrapper.For(2) };
+            var right = new[] { IntWrapper.For(2), IntWrapper.For(1) };
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Assert.Throws<AssertionException>(() => left.ShouldMatchDataInAndOrderOf(right));
+            Assert.Throws<AssertionException>(() => right.ShouldMatchDataInAndOrderOf(left));
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
+        public void ShouldMatchDataIn_ShouldOperateOnCollectionsOfDifferentTypeButSameShape()
+        {
+            //--------------- Arrange -------------------
+            var left = new[] 
+            {
+                new { id = 1 }
+            };
+            var right = new[]
+            {
+                new { id = 1 }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            Assert.DoesNotThrow(() => left.ShouldMatchDataIn(right));
+
+            //--------------- Assert -----------------------
+        }
+
+        [Test]
+        public void ShouldMatchDataInAndOrderOf_ShouldOperateOnCollectionsOfDifferentTypeButSameShape()
+        {
+            //--------------- Arrange -------------------
+            var left = new[] 
+            {
+                new { id = 1 }
+            };
+            var right = new[]
+            {
+                new { id = 1 }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            Assert.DoesNotThrow(() => left.ShouldMatchDataInAndOrderOf(right));
+
+            //--------------- Assert -----------------------
+        }
+
+
+        [Test]
         public void IsEquivalentTo_GivenTwoNulls_ShouldReturnTrue()
         {
             //---------------Set up test pack-------------------
