@@ -26,6 +26,8 @@ namespace PeanutButter.TrayIcon.Tests
             Expect(sut.Clicks, Is.EqualTo(clicks));
             Expect(sut.Button, Is.EqualTo(button));
             Expect(sut.Action, Is.EqualTo(action));
+            sut.Action();
+            Expect(called, Is.True);
         }
 
     }
