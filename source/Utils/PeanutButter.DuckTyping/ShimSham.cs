@@ -187,7 +187,7 @@ namespace PeanutButter.DuckTyping
         {
             if (_unshimmableProperties.Contains(propertyName))
                 return true;
-            var result = !srcType.CanDuckAs(targetType, _isFuzzy);
+            var result = !srcType.InternalCanDuckAs(targetType, _isFuzzy, false);
             if (result)
                 _unshimmableProperties.Add(propertyName);
             return result;

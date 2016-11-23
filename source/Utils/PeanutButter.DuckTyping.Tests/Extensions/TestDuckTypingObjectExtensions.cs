@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Extensions;
-using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMember.Global
@@ -79,6 +78,25 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             Expect(result1, Is.False);
             Expect(result2, Is.True);
         }
+
+        [Test]
+        public void DuckAs_GivenThrowOnErrorIsTrue_WhenHaveReadWriteMismatch_ShouldGiveBackErrorInException()
+        {
+            //--------------- Arrange -------------------
+            var obj = new HasReadOnlyName();
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var ex = Assert.Throws<UnDuckableException>(() => obj.DuckAs<IHasReadWriteName>(true));
+
+            //--------------- Assert -----------------------
+            var error = ex.Errors.Single();
+            Expect(error, Does.Contain("Mismatched target accessors for Name"));
+            Expect(error, Does.Contain("get -> get/set"));
+        }
+
+
 
         public class HasReadWriteNameAndId
         {
@@ -775,7 +793,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = instance.DuckAs<ISpecificActivityParameters>();
 
             //--------------- Assert -----------------------
-            Assert.IsNotNull(result);
+            Expect(result, Is.Not.Null);
         }
 
         public interface IHasAGuid
