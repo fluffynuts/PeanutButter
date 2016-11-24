@@ -9,17 +9,32 @@ namespace PeanutButter.DuckTyping.AutoConversion
 {
     internal static class ConverterLocator
     {
-        private static IConverter[] Converters =>
+        internal static IConverter[] Converters =>
             _converters ?? (_converters = FindConverters());
 
         private static IConverter[] _converters;
         private static IConverter[] FindConverters()
         {
             var converterTypes = FindConverterTypes();
-            return converterTypes.Select(TryConstruct)
+            return converterTypes
+                .Select(TryConstruct)
                 .Where(c => c != null)
+                .Where(IsValidConverterType)
                 .Union(MakeStringConverters())
                 .ToArray();
+        }
+
+        private static bool IsValidConverterType(IConverter converter)
+        {
+            var genericInterface = converter
+                                    .GetType()
+                                    .GetAllImplementedInterfaces()
+                                    .FirstOrDefault(t => t.IsGenericType &&
+                                                t.GetGenericTypeDefinition() == typeof(IConverter<,>));
+            if (genericInterface == null)
+                return false;
+            var types = genericInterface.GetGenericArguments();
+            return types.Contains(converter.T1) && types.Contains(converter.T2);
         }
 
         private static IConverter[] MakeStringConverters()

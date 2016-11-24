@@ -143,7 +143,7 @@ namespace PeanutButter.DuckTyping.Extensions
         {
             var asDictionary = src as IDictionary<string, object>;
             if (asDictionary != null)
-                return asDictionary.CanDuckDictionaryAs<T>(allowFuzzy);
+                return asDictionary.CanDuckDictionaryAs<T>(allowFuzzy, throwOnError);
             var type = typeof(T);
             var srcType = src.GetType();
 
@@ -152,20 +152,25 @@ namespace PeanutButter.DuckTyping.Extensions
 
         private static bool CanDuckDictionaryAs<T>(
             this IDictionary<string, object> src,
-            bool allowFuzzy
+            bool allowFuzzy,
+            bool throwOnError
         )
         {
             var type = typeof(T);
-            return CanDuckDictionaryAs(src, type, allowFuzzy);
+            return CanDuckDictionaryAs(src, type, allowFuzzy, throwOnError);
         }
 
         private static bool CanDuckDictionaryAs(
             IDictionary<string, object> src,
             Type type,
-            bool allowFuzzy
+            bool allowFuzzy,
+            // ReSharper disable once UnusedParameter.Local
+            bool throwOnError
         )
         {
             var errors = DictionaryDuckErrorsFor(src, type, allowFuzzy);
+            if (throwOnError && errors.Any())
+                throw new UnDuckableException(errors);
             return !errors.Any();
         }
 
@@ -210,14 +215,22 @@ namespace PeanutButter.DuckTyping.Extensions
             {
                 if (ShimShamBase.GetDefaultValueFor(targetType) != null)
                     errors.Add(
-                        $"Stored value for {prop.Name} is null but target type {targetType.Name} does not allow nulls");
+                        $"Stored value for {prop.Name} is null but target type {targetType.Name} does not allow nulls"
+                    );
                 return;
             }
             var asDictionary = stored as IDictionary<string, object>;
             if (asDictionary != null)
             {
-                if (!CanDuckDictionaryAs(asDictionary, targetType, allowFuzzy))
+                try
+                {
+                    CanDuckDictionaryAs(asDictionary, targetType, allowFuzzy, true);
+                }
+                catch (UnDuckableException ex)
+                {
                     errors.Add($"Property {prop.Name} is not a dictionary and can't be ducked to {targetType.Name}");
+                    errors.AddRange(ex.Errors.Select(e => $"{prop.Name}: {e}"));
+                }
                 return;
             }
 

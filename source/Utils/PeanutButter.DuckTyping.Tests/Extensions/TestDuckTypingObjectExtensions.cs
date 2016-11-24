@@ -585,6 +585,43 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             Expect(result, Is.False);
         }
 
+        [Test]
+        public void FuzzyDuckAs_NonGeneric_ActingOnObject_ShouldThrowWhenInstructedToAndFailingToDuck()
+        {
+            //--------------- Arrange -------------------
+            var parameters = new {
+                travellerId = new Guid(),   // should be actorId!
+                taskId = new Guid()
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            Expect(() => parameters.FuzzyDuckAs(typeof(IActivityParametersInherited), true),
+                Throws.Exception.InstanceOf<UnDuckableException>());
+
+            //--------------- Assert -----------------------
+        }
+
+        [Test]
+        public void FuzzyDuckAs_NonGeneric_ActingOnDictionary_ShouldThrowWhenInstructedToAndFailingToDuck()
+        {
+            //--------------- Arrange -------------------
+            var parameters = new Dictionary<string, object>()
+            {
+                { "travellerId", new Guid() },
+                { "taskId", new Guid() }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            Expect(() => parameters.FuzzyDuckAs(typeof(IActivityParametersInherited), true),
+                Throws.Exception.InstanceOf<UnDuckableException>());
+
+            //--------------- Assert -----------------------
+        }
+
         public interface IDictionaryInner
         {
             string Name { get; set; }
