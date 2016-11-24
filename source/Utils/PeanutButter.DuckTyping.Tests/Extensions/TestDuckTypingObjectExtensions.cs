@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Extensions;
+using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMember.Global
@@ -912,19 +915,395 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
 
-
-
-
-        public interface IActivityParameters
+        [Test]
+        public void FuzzyDuckAsNonGeneric_ShouldDuckWhenPossible()
         {
-            Guid ActorId { get; }
+            //--------------- Arrange -------------------
+            var toType = typeof(IHasAnActorId);
+            var src = new {
+                actorId = Guid.NewGuid()
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = src.FuzzyDuckAs(toType);
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.Not.Null);
+            Expect(result.GetPropertyValue("ActorId"), Is.EqualTo(src.actorId));
+        }
+
+        [Test]
+        public void DuckAsNonGeneric_ShouldDUckWhenPossible()
+        {
+            //--------------- Arrange -------------------
+            var toType = typeof(IHasAnActorId);
+            var src = new {
+                ActorId = Guid.NewGuid()
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = src.DuckAs(toType);
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.Not.Null);
+            Expect(result.GetPropertyValue("ActorId"), Is.EqualTo(src.ActorId));
+        }
+
+        [Test]
+        public void DuckAs_NonGenericWhenThrowOnErrorSetTrue_ShouldDuckWhenPossible()
+        {
+            //--------------- Arrange -------------------
+            var toType = typeof(IHasAnActorId);
+            var src = new {
+                ActorId = Guid.NewGuid()
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = src.DuckAs(toType, true);
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.Not.Null);
+            Expect(result.GetPropertyValue("ActorId"), Is.EqualTo(src.ActorId));
+        }
+
+        [Test]
+        public void DuckAs_NonGenericWhenThrowOnErrorSetTrue_ShouldThrowWhenNotPossible()
+        {
+            //--------------- Arrange -------------------
+            var toType = typeof(IHasAnActorId);
+            var src = new {
+                bob = Guid.NewGuid()
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            Expect(() => src.DuckAs(toType, true),
+                Throws.Exception.InstanceOf<UnDuckableException>());
+
+            //--------------- Assert -----------------------
+        }
+
+        [Test]
+        public void FuzzyDuckAs_NonGenericWhenThrowOnErrorSetTrue_ShouldDuckWhenPossible()
+        {
+            //--------------- Arrange -------------------
+            var toType = typeof(IHasAnActorId);
+            var src = new {
+                actoRId = Guid.NewGuid()
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = src.FuzzyDuckAs(toType, true);
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.Not.Null);
+            Expect(result.GetPropertyValue("ActorId"), Is.EqualTo(src.actoRId));
+        }
+
+        [Test]
+        public void FuzzyDuckAs_NonGenericWhenThrowOnErrorSetTrue_ShouldThrowWhenNotPossible()
+        {
+            //--------------- Arrange -------------------
+            var toType = typeof(IHasAnActorId);
+            var src = new {
+                bob = Guid.NewGuid()
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            Expect(() => src.FuzzyDuckAs(toType, true),
+                Throws.Exception.InstanceOf<UnDuckableException>());
+
+            //--------------- Assert -----------------------
+        }
+
+        public interface IHasNullableId
+        {
+            Guid? Id { get; set ; }
+        }
+
+        [Test]
+        public void FuzzyDuckAs_OperatingOnDictionary_WhenSourcePropertyIsNullableAndMissing_SHouldDuckAsNullProperty()
+        {
+            //--------------- Arrange -------------------
+            var input = new Dictionary<string, object>();
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = input.FuzzyDuckAs<IHasNullableId>();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.Not.Null);
+            Expect(result.Id, Is.Null);
+        }
+
+        [Test]
+        public void DuckAs_OperatingOnDictionary_WhenSourcePropertyIsNullableAndMissing_SHouldDuckAsNullProperty()
+        {
+            //--------------- Arrange -------------------
+            var input = new Dictionary<string, object>();
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = input.DuckAs<IHasNullableId>();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.Not.Null);
+            Expect(result.Id, Is.Null);
+        }
+
+        public interface IHasNullableReadonlyId
+        {
+            Guid? Id { get; }
+        }
+
+        [Test]
+        public void DuckAs_OperatingOnObjectWithNotNullableProperty_WhenRequestedInterfaceHasNullableReadOnlyProperty_ShouldDuck()
+        {
+            //--------------- Arrange -------------------
+            var input = new { Id = Guid.NewGuid() };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = input.DuckAs<IHasNullableReadonlyId>();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.Not.Null);
+            Expect(result.Id, Is.EqualTo(input.Id));
+        }
+
+        [Test]
+        public void FuzzyDuckAs_OperatingOnObjectWithNotNullableProperty_WhenRequestedInterfaceHasNullableReadOnlyProperty_ShouldDuck()
+        {
+            //--------------- Arrange -------------------
+            var input = new { id = Guid.NewGuid() };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = input.FuzzyDuckAs<IHasNullableReadonlyId>();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.Not.Null);
+            Expect(result.Id, Is.EqualTo(input.id));
+        }
+
+        [Test]
+        public void DuckAs_OperatingOnDictionaryWithNotNullableProperty_WhenRequestedInterfaceHasNullableReadonlyProperty_ShouldDuck()
+        {
+            //--------------- Arrange -------------------
+            var expected = Guid.NewGuid();
+            var input = new Dictionary<string, object>()
+            {
+                { "Id", expected }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = input.DuckAs<IHasNullableReadonlyId>();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.Not.Null);
+            Expect(result.Id, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void FuzzyDuckAs_OperatingOnDictionaryWithNotNullableProperty_WhenRequestedInterfaceHasNullableReadonlyProperty_ShouldFuzzyDuck()
+        {
+            //--------------- Arrange -------------------
+            var expected = Guid.NewGuid();
+            var input = new Dictionary<string, object>()
+            {
+                { "Id", expected }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = input.FuzzyDuckAs<IHasNullableReadonlyId>();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.Not.Null);
+            Expect(result.Id, Is.EqualTo(expected));
+        }
+
+
+        [Test]
+        public void FailingWildDuck1()
+        {
+            //--------------- Arrange -------------------
+            var json = "{\"flowId\":\"Travel Request\",\"activityId\":\"Capture Travel Request Details\",\"payload\":{\"taskId\":\"4e53c85b-ca72-4c12-b185-50342ed0fc30\",\"payload\":{\"Initiated\":\"\",\"DepartingFrom\":\"123\",\"TravellingTo\":\"123\",\"Departing\":\"\",\"PreferredDepartureTime\":\"\",\"Returning\":\"\",\"PreferredReturnTime\":\"\",\"ReasonForTravel\":\"123\",\"CarRequired\":\"\",\"AccomodationRequired\":\"\",\"AccommodationNotes\":\"213\"}}}";
+            var jobject = JsonConvert.DeserializeObject<JObject>(json);
+            var dict = jobject.ToDictionary();
+            (dict["payload"] as Dictionary<string, object>)["actorId"] = Guid.Empty.ToString();
+            var payload = dict["payload"];
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = payload.FuzzyDuckAs<ITravelRequestCaptureDetailsActivityParameters>();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.Not.Null);
+        }
+
+        [Test]
+        public void ForceFuzzyDuckAs_GivenEmptyDictionaryAndInterfaceToMimick_ShouldHandleIt()
+        {
+            //--------------- Arrange -------------------
+            var dict = new Dictionary<string, object>();
+            var expected = new TravelRequestDetails() {
+                Initiated = GetRandomDate(),
+                DepartingFrom = GetRandomString(),
+                TravellingTo = GetRandomString(),
+                Departing = GetRandomDate(),
+                PreferredDepartureTime = GetRandomString(),
+                Returning = GetRandomDate(),
+                PreferredReturnTime = GetRandomString(),
+                ReasonForTravel = GetRandomString(),
+                CarRequired = GetRandomBoolean(),
+                AccomodationRequired = GetRandomBoolean(),
+                AccommodationNotes = GetRandomString()
+            };
+            var expectedDuck = expected.DuckAs<ITravelRequestDetails>();
+
+            //--------------- Assume ----------------
+            Expect(expectedDuck, Is.Not.Null);
+
+            //--------------- Act ----------------------
+            var result = dict.ForceFuzzyDuckAs<ITravelRequestDetails>();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.Not.Null);
+            Expect(result, Is.InstanceOf<ITravelRequestDetails>());
+            Expect(() =>
+            {
+                result.Initiated = expectedDuck.Initiated;
+                result.DepartingFrom = expectedDuck.DepartingFrom;
+                result.TravellingTo = expectedDuck.TravellingTo;
+                result.Departing = expectedDuck.Departing;
+                result.PreferredDepartureTime = expectedDuck.PreferredDepartureTime;
+                result.Returning = expectedDuck.Returning;
+                result.PreferredReturnTime = expectedDuck.PreferredReturnTime;
+                result.ReasonForTravel = expectedDuck.ReasonForTravel;
+                result.CarRequired = expectedDuck.CarRequired;
+                result.AccomodationRequired = expectedDuck.AccomodationRequired;
+                result.AccommodationNotes = expectedDuck.AccommodationNotes;
+            }, Throws.Nothing);
+
+            foreach (var prop in result.GetType().GetProperties())
+            {
+                Expect(dict[prop.Name], Is.EqualTo(prop.GetValue(result)));
+            }
+        }
+
+        [Test]
+        public void ForceDuckAs_GivenEmptyDictionaryAndInterfaceToMimick_ShouldHandleIt()
+        {
+            //--------------- Arrange -------------------
+            var dict = new Dictionary<string, object>();
+            var expected = new TravelRequestDetails() {
+                Initiated = GetRandomDate(),
+                DepartingFrom = GetRandomString(),
+                TravellingTo = GetRandomString(),
+                Departing = GetRandomDate(),
+                PreferredDepartureTime = GetRandomString(),
+                Returning = GetRandomDate(),
+                PreferredReturnTime = GetRandomString(),
+                ReasonForTravel = GetRandomString(),
+                CarRequired = GetRandomBoolean(),
+                AccomodationRequired = GetRandomBoolean(),
+                AccommodationNotes = GetRandomString()
+            };
+            var expectedDuck = expected.DuckAs<ITravelRequestDetails>();
+
+            //--------------- Assume ----------------
+            Expect(expectedDuck, Is.Not.Null);
+
+            //--------------- Act ----------------------
+            var result = dict.ForceDuckAs<ITravelRequestDetails>();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.Not.Null);
+            Expect(result, Is.InstanceOf<ITravelRequestDetails>());
+            Expect(() =>
+            {
+                result.Initiated = expectedDuck.Initiated;
+                result.DepartingFrom = expectedDuck.DepartingFrom;
+                result.TravellingTo = expectedDuck.TravellingTo;
+                result.Departing = expectedDuck.Departing;
+                result.PreferredDepartureTime = expectedDuck.PreferredDepartureTime;
+                result.Returning = expectedDuck.Returning;
+                result.PreferredReturnTime = expectedDuck.PreferredReturnTime;
+                result.ReasonForTravel = expectedDuck.ReasonForTravel;
+                result.CarRequired = expectedDuck.CarRequired;
+                result.AccomodationRequired = expectedDuck.AccomodationRequired;
+                result.AccommodationNotes = expectedDuck.AccommodationNotes;
+            }, Throws.Nothing);
+
+            foreach (var prop in result.GetType().GetProperties())
+            {
+                Expect(dict[prop.Name], Is.EqualTo(prop.GetValue(result)));
+            }
+        }
+
+        public class TravelRequestDetails: ITravelRequestDetails
+        {
+            public DateTime Initiated { get; set; }
+            public string DepartingFrom { get; set; }
+            public string TravellingTo { get; set; }
+            public DateTime Departing { get; set; }
+            public string PreferredDepartureTime { get; set; }
+            public DateTime Returning { get; set; }
+            public string PreferredReturnTime { get; set; }
+            public string ReasonForTravel { get; set; }
+            public bool CarRequired { get; set; }
+            public bool AccomodationRequired { get; set; }
+            public string AccommodationNotes { get; set; }
+        }
+        public interface ITravelRequestDetails
+        {
+            DateTime Initiated { get; set; }
+            string DepartingFrom { get; set; }
+            string TravellingTo { get; set; }
+            DateTime Departing { get; set; }
+            string PreferredDepartureTime { get; set; }
+            DateTime Returning { get; set; }
+            string PreferredReturnTime { get; set; }
+            string ReasonForTravel { get; set; }
+            bool CarRequired { get; set; }
+            bool AccomodationRequired { get; set; }
+            string AccommodationNotes { get; set; }
+        }
+
+        public interface ITravelRequestCaptureDetailsActivityParameters :
+            IActivityParameters<ITravelRequestDetails>
+        {
+        }
+
+        public interface IActivityParameters : IHasAnActorId
+        {
             Guid TaskId { get; }
-            void DoNothing();
         }
         public interface IActivityParameters<T> : IActivityParameters
         {
             T Payload { get; }
         }
+
         public interface ISpecificActivityParameters : IActivityParameters<string>
         {
         }

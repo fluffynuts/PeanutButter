@@ -12,6 +12,7 @@ namespace PeanutButter.DuckTyping.Extensions
     {
         private IEnumerable<string> _errors;
         public IEnumerable<string> Errors => _errors;
+
         public UnDuckableException(IEnumerable<string> errors)
             : base("Unable to perform duck operation. Examine errors for more information")
         {
@@ -42,33 +43,73 @@ namespace PeanutButter.DuckTyping.Extensions
         }
 
         private static readonly MethodInfo _genericFuzzyDuckAsMethod =
-            typeof(DuckTypingObjectExtensions)
+            FindGenericDuckMethod("FuzzyDuckAs");
+
+        private static readonly MethodInfo _genericDuckAsMethod =
+            FindGenericDuckMethod("DuckAs");
+
+        private static MethodInfo FindGenericDuckMethod(string name)
+        {
+            return typeof(DuckTypingObjectExtensions)
                 .GetMethods(BindingFlags.Public | BindingFlags.Static)
-                .FirstOrDefault(mi => mi.Name == "FuzzyDuckAs" && mi.IsGenericMethod);
+                .FirstOrDefault(mi => mi.Name == name &&
+                                      mi.IsGenericMethod &&
+                                      IsCorrectSignature(mi));
+        }
+
+        private static bool IsCorrectSignature(MethodInfo mi)
+        {
+            var parameters = mi.GetParameters();
+            return parameters.Length == 2 &&
+                   parameters[0].ParameterType == typeof(object) &&
+                   parameters[1].ParameterType == typeof(bool);
+        }
 
         public static object FuzzyDuckAs(this object src, Type toType)
         {
-            return NonGenericDuck(src, toType, _genericFuzzyDuckAsMethod);
+            return NonGenericDuck(src, toType, false, _genericFuzzyDuckAsMethod);
         }
 
-        private static readonly MethodInfo _genericDuckAsMethod =
-            typeof(DuckTypingObjectExtensions)
-                .GetMethods(BindingFlags.Public | BindingFlags.Static)
-                .FirstOrDefault(mi => mi.Name == "DuckAs" && mi.IsGenericMethod);
+        public static object FuzzyDuckAs(this object src, Type toType, bool throwOnError)
+        {
+            return UnwrapTargetInvokationFor(
+                () => NonGenericDuck(src, toType, throwOnError, _genericFuzzyDuckAsMethod)
+            );
+        }
 
         public static object DuckAs(this object src, Type toType)
         {
-            return NonGenericDuck(src, toType, _genericDuckAsMethod);
+            return NonGenericDuck(src, toType, false, _genericDuckAsMethod);
+        }
+
+        public static object DuckAs(this object src, Type toType, bool throwOnError)
+        {
+            return UnwrapTargetInvokationFor(
+                () => NonGenericDuck(src, toType, throwOnError, _genericDuckAsMethod)
+            );
+        }
+
+        private static object UnwrapTargetInvokationFor(Func<object> toRun)
+        {
+            try
+            {
+                return toRun();
+            }
+            catch (TargetInvocationException ex)
+            {
+                throw ex.InnerException ?? ex;
+            }
         }
 
         private static object NonGenericDuck(
             object src,
             Type toType,
+            bool throwOnError,
             MethodInfo genericMethod
         )
         {
             var specific = genericMethod.MakeGenericMethod(toType);
-            return specific.Invoke(null, new object[] {src});
+            return specific.Invoke(null, new object[] {src, throwOnError});
         }
 
         public static T FuzzyDuckAs<T>(this object src) where T : class
@@ -205,7 +246,7 @@ namespace PeanutButter.DuckTyping.Extensions
         )
         {
             var errors = GetDuckErrorsFor(type, toType, allowFuzzy);
-            if (throwIfNotAllowed)
+            if (throwIfNotAllowed && errors.Any())
                 throw new UnDuckableException(errors);
             return !errors.Any();
         }
