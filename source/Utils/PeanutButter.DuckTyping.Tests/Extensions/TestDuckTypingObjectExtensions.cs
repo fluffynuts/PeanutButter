@@ -4,6 +4,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
+using PeanutButter.DuckTyping.Exceptions;
 using PeanutButter.DuckTyping.Extensions;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;

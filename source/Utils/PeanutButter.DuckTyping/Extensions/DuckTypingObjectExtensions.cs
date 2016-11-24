@@ -3,23 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using PeanutButter.DuckTyping.AutoConversion;
+using PeanutButter.DuckTyping.Exceptions;
 
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.DuckTyping.Extensions
 {
-    public class UnDuckableException : Exception
-    {
-        private IEnumerable<string> _errors;
-        public IEnumerable<string> Errors => _errors;
-
-        public UnDuckableException(IEnumerable<string> errors)
-            : base("Unable to perform duck operation. Examine errors for more information")
-        {
-            _errors = errors;
-        }
-    }
-
     public static class DuckTypingObjectExtensions
     {
         public static bool CanDuckAs<T>(this object src)
@@ -109,7 +98,7 @@ namespace PeanutButter.DuckTyping.Extensions
         )
         {
             var specific = genericMethod.MakeGenericMethod(toType);
-            return specific.Invoke(null, new object[] {src, throwOnError});
+            return specific.Invoke(null, new[] {src, throwOnError});
         }
 
         public static T FuzzyDuckAs<T>(this object src) where T : class
@@ -136,7 +125,7 @@ namespace PeanutButter.DuckTyping.Extensions
         {
             var typeMaker = new TypeMaker();
             var type = allowFuzzy ? typeMaker.MakeTypeImplementing<T>() : typeMaker.MakeFuzzyTypeImplementing<T>();
-            return (T) Activator.CreateInstance(type, new object[] {src});
+            return (T) Activator.CreateInstance(type, src);
         }
 
         private static bool PrivateCanDuckAs<T>(this object src, bool allowFuzzy, bool throwOnError)
@@ -306,7 +295,7 @@ namespace PeanutButter.DuckTyping.Extensions
                 .ToArray();
             if (missing.Any())
             {
-                errors.Add($"Missing target {Prop(missing.Count())} {NamesOf(missing)}");
+                errors.Add($"Missing target {Prop(missing.Length)} {NamesOf(missing)}");
                 return;
             }
             var accessMismatches = mismatches.Where(kvp =>
@@ -318,7 +307,7 @@ namespace PeanutButter.DuckTyping.Extensions
                 return;
             }
             var typeMismatchError =
-                $"Type mismatch for {Prop(mismatches.Count())}: {GetTypeMismatchErrorsFor(mismatches, expectedPrimitives)}";
+                $"Type mismatch for {Prop(mismatches.Count)}: {GetTypeMismatchErrorsFor(mismatches, expectedPrimitives)}";
             if (!allowFuzzy)
             {
                 errors.Add(typeMismatchError);
@@ -338,7 +327,7 @@ namespace PeanutButter.DuckTyping.Extensions
                 mismatches.Select(
                     kvp =>
                             $"{kvp.Key}: {kvp.Value.PropertyType.Name} -> {expectedPrimitives[kvp.Key].PropertyType.Name}");
-            return String.Join(", ", parts);
+            return string.Join(", ", parts);
         }
 
         private static string MakeTargetAccessorMessageFor(
