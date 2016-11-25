@@ -217,7 +217,7 @@ namespace PeanutButter.DuckTyping.Extensions
                 }
                 catch (UnDuckableException ex)
                 {
-                    errors.Add($"Property {prop.Name} is not a dictionary and can't be ducked to {targetType.Name}");
+                    errors.Add($"Property {prop.Name} is dictionary but can't be ducked to {targetType.Name}; examine following errors for more information:");
                     errors.AddRange(ex.Errors.Select(e => $"{prop.Name}: {e}"));
                 }
                 return;

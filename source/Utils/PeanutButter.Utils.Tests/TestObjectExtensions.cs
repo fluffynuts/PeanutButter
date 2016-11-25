@@ -1048,6 +1048,227 @@ namespace PeanutButter.Utils.Tests
             Expect(target.Id, Is.EqualTo(2));
         }
 
+        [Test]
+        public void ContainsOneDeepEqualTo_WhenCollectionItemWithSameData_ShouldReturnTrue()
+        {
+            //--------------- Arrange -------------------
+            var collection1 = new[] 
+            {
+                new { id = 1 }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = collection1.ContainsOneDeepEqualTo(new { id = 1 } );
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.True);
+        }
+
+        [Test]
+        public void ContainsOneDeepEqualTo_WhenCollectionItemWithDifferentData_ShouldReturnFalse()
+        {
+            //--------------- Arrange -------------------
+            var collection1 = new[] 
+            {
+                new { id = 1 }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = collection1.ContainsOneDeepEqualTo(new { id = 2 } );
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.False);
+        }
+
+        [Test]
+        public void ContainsOneDeepEqualTo_WhenCollectionItemWithMismatchedProperties_ShouldReturnFalse()
+        {
+            //--------------- Arrange -------------------
+            var collection1 = new[] 
+            {
+                new { id = 1, name = "Bob" }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = collection1.ContainsOneDeepEqualTo(new { id = 1 } );
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.False);
+        }
+
+        [Test]
+        public void ContainsOneIntersectionEqualTo_WhenCollectionItemWithMismatchedProperties_WhenSamePropertiesMatch_ShouldReturnTrue()
+        {
+            //--------------- Arrange -------------------
+            var collection1 = new[] 
+            {
+                new { id = 1, name = "Bob" }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = collection1.ContainsOneIntersectionEqualTo(new { id = 1 } );
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.True);
+        }
+
+        [Test]
+        public void ContainsOneIntersectionEqualTo_WhenCollectionItemWithMismatchedProperties_WhenSamePropertiesDoNotMatch_ShouldReturnFalse()
+        {
+            //--------------- Arrange -------------------
+            var collection1 = new[] 
+            {
+                new { id = 1, name = "Bob" }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = collection1.ContainsOneIntersectionEqualTo(new { id = 2 } );
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.False);
+        }
+
+        [Test]
+        public void ContainsOneIntersectionEqualTo_WhenCollectionItemWithAllMismatchedProperties_ShouldReturnFalse()
+        {
+            //--------------- Arrange -------------------
+            var collection1 = new[] 
+            {
+                new { id = 1, name = "Bob" }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = collection1.ContainsOneIntersectionEqualTo(new { value = 1 } );
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.False);
+        }
+
+        [Test]
+        public void ContainsOnlyOneDeepEqualTo_WhenCollectionContainsNoMatches_ShouldReturnFalse()
+        {
+            //--------------- Arrange -------------------
+            var collection1 = new[] 
+            {
+                new { id = 1, name = "Bob" }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = collection1.ContainsOnlyOneDeepEqualTo(new { id = 2, name = "Bob" });
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.False);
+        }
+
+        [Test]
+        public void ContainsOnlyOneDeepEqualTo_WhenCollectionContainsOneMatch_ShouldReturnTrue()
+        {
+            //--------------- Arrange -------------------
+            var collection1 = new[] 
+            {
+                new { id = 1, name = "Bob" }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = collection1.ContainsOnlyOneDeepEqualTo(new { id = 1, name = "Bob" });
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.True);
+        }
+
+        [Test]
+        public void ContainsOnlyOneDeepEqualTo_WhenCollectionContainsTwoMatches_ShouldReturnFalse()
+        {
+            //--------------- Arrange -------------------
+            var collection1 = new[] 
+            {
+                new { id = 1, name = "Bob" },
+                new { id = 1, name = "Bob" }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = collection1.ContainsOnlyOneDeepEqualTo(new { id = 1, name = "Bob" });
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.False);
+        }
+
+
+        [Test]
+        public void ContainsOnlyOneIntersectionEqualTo_WhenCollectionContainsNoMatches_ShouldReturnFalse()
+        {
+            //--------------- Arrange -------------------
+            var collection1 = new[] 
+            {
+                new { id = 1, name = "Bob" }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = collection1.ContainsOnlyOneIntersectionEqualTo(new { id = 2, name = "Bob" });
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.False);
+        }
+
+        [Test]
+        public void ContainsOnlyOneIntersectionEqualTo_WhenCollectionContainsOneMatch_ShouldReturnTrue()
+        {
+            //--------------- Arrange -------------------
+            var collection1 = new[] 
+            {
+                new { id = 1, name = "Bob" }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = collection1.ContainsOnlyOneIntersectionEqualTo(new { id = 1, name = "Bob" });
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.True);
+        }
+
+        [Test]
+        public void ContainsOnlyOneIntersectionEqualTo_WhenCollectionContainsTwoMatches_ShouldReturnFalse()
+        {
+            //--------------- Arrange -------------------
+            var collection1 = new[] 
+            {
+                new { id = 1, name = "Bob" },
+                new { id = 1, name = "Bob" }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = collection1.ContainsOnlyOneIntersectionEqualTo(new { id = 1, name = "Bob" });
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.False);
+        }
+
+
+
 
 
         public class Traveller: ITraveller

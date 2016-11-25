@@ -46,9 +46,50 @@ namespace PeanutButter.Utils
         }
 
 
-        public static bool ContainsOneLike<T1, T2>(this IEnumerable<T1> collection, T2 value)
+        [Obsolete("Please use ContainsOneDeepEqualTo")]
+        public static bool ContainsOneLike<T1, T2>(this IEnumerable<T1> collection, T2 item)
         {
-            return collection.Any(i => i.DeepEquals(value));
+            return collection.ContainsOneDeepEqualTo(item);
+        }
+
+        public static bool ContainsOneDeepEqualTo<T1, T2>(this IEnumerable<T1> collection, T2 item)
+        {
+            return collection.Any(i => i.DeepEquals(item));
+        }
+
+        public static bool ContainsOneIntersectionEqualTo<T1, T2>(
+            this IEnumerable<T1> collection,
+            T2 item
+        )
+        {
+            return collection.Any(i => i.DeepIntersectionEquals(item));
+        }
+
+        public static bool ContainsOnlyOneDeepEqualTo<T1, T2>(this IEnumerable<T1> collection, T2 item)
+        {
+            return collection.ContainsOnlyOneMatching(item, (t1, t2) => t1.DeepEquals(t2));
+        }
+
+        public static bool ContainsOnlyOneIntersectionEqualTo<T1, T2>(
+            this IEnumerable<T1> collection,
+            T2 item
+        )
+        {
+            return collection.ContainsOnlyOneMatching(item, (t1, t2) => t1.DeepIntersectionEquals(t2));
+        }
+
+        public static bool ContainsOnlyOneMatching<T1, T2>(
+            this IEnumerable<T1> collection,
+            T2 item,
+            Func<T1, T2, bool> comparer
+        )
+        {
+            return collection.Aggregate(0, (acc, cur) =>
+            {
+                if (acc > 1) return acc;
+                acc += comparer(cur, item) ? 1 : 0;
+                return acc;
+            }) == 1;
         }
 
         public static void CopyPropertiesTo(this object src, object dst)
