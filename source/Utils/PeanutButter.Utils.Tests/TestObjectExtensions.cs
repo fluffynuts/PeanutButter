@@ -1103,6 +1103,24 @@ namespace PeanutButter.Utils.Tests
         }
 
         [Test]
+        public void ContainsOneDeepEqualTo_WhenCollectionItemWithMismatchedIgnoredProperties_ShouldReturnTrue()
+        {
+            //--------------- Arrange -------------------
+            var collection1 = new[] 
+            {
+                new { id = 1, name = "Bob" }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = collection1.ContainsOneDeepEqualTo(new { id = 1 }, "name");
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.True);
+        }
+
+        [Test]
         public void ContainsOneIntersectionEqualTo_WhenCollectionItemWithMismatchedProperties_WhenSamePropertiesMatch_ShouldReturnTrue()
         {
             //--------------- Arrange -------------------
@@ -1136,6 +1154,24 @@ namespace PeanutButter.Utils.Tests
 
             //--------------- Assert -----------------------
             Expect(result, Is.False);
+        }
+
+        [Test]
+        public void ContainsOneIntersectionEqualTo_WhenCollectionItemWithMismatchedIgnoredProperties_WhenSamePropertiesDoNotMatch_ShouldReturnTrue()
+        {
+            //--------------- Arrange -------------------
+            var collection1 = new[] 
+            {
+                new { id = 1, name = "Bob" }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = collection1.ContainsOneIntersectionEqualTo(new { id = 2, name = "Bob" }, "id" );
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.True);
         }
 
         [Test]
@@ -1193,6 +1229,25 @@ namespace PeanutButter.Utils.Tests
         }
 
         [Test]
+        public void ContainsOnlyOneDeepEqualTo_WhenCollectionContainsOneMatchWithIgnoredProperty_ShouldReturnTrue()
+        {
+            //--------------- Arrange -------------------
+            var collection1 = new[] 
+            {
+                new { id = 1, name = "Bob", ignore = "moo" }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = collection1.ContainsOnlyOneDeepEqualTo(
+                new { id = 1, name = "Bob" }, "ignore");
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.True);
+        }
+
+        [Test]
         public void ContainsOnlyOneDeepEqualTo_WhenCollectionContainsTwoMatches_ShouldReturnFalse()
         {
             //--------------- Arrange -------------------
@@ -1243,6 +1298,23 @@ namespace PeanutButter.Utils.Tests
 
             //--------------- Act ----------------------
             var result = collection1.ContainsOnlyOneIntersectionEqualTo(new { id = 1, name = "Bob" });
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.True);
+        }
+        [Test]
+        public void ContainsOnlyOneIntersectionEqualTo_WhenCollectionContainsOneMatchWithIgnoredProperty_ShouldReturnTrue()
+        {
+            //--------------- Arrange -------------------
+            var collection1 = new[] 
+            {
+                new { id = 1, name = "Bob", moo = "cow" }
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = collection1.ContainsOnlyOneIntersectionEqualTo(new { id = 1, name = "Bob" }, "moo");
 
             //--------------- Assert -----------------------
             Expect(result, Is.True);

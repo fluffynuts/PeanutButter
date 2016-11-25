@@ -52,30 +52,40 @@ namespace PeanutButter.Utils
             return collection.ContainsOneDeepEqualTo(item);
         }
 
-        public static bool ContainsOneDeepEqualTo<T1, T2>(this IEnumerable<T1> collection, T2 item)
+        public static bool ContainsOneDeepEqualTo<T1, T2>(
+            this IEnumerable<T1> collection, 
+            T2 item,
+            params string[] ignoreProperties)
         {
-            return collection.Any(i => i.DeepEquals(item));
+            return collection.Any(i => i.DeepEquals(item, ignoreProperties));
         }
 
         public static bool ContainsOneIntersectionEqualTo<T1, T2>(
             this IEnumerable<T1> collection,
-            T2 item
+            T2 item,
+            params string[] ignoreProperties
         )
         {
-            return collection.Any(i => i.DeepIntersectionEquals(item));
+            return collection.Any(i => i.DeepIntersectionEquals(item, ignoreProperties));
         }
 
-        public static bool ContainsOnlyOneDeepEqualTo<T1, T2>(this IEnumerable<T1> collection, T2 item)
+        public static bool ContainsOnlyOneDeepEqualTo<T1, T2>(
+            this IEnumerable<T1> collection, 
+            T2 item,
+            params string[] ignoreProperties)
         {
-            return collection.ContainsOnlyOneMatching(item, (t1, t2) => t1.DeepEquals(t2));
+            return collection.ContainsOnlyOneMatching(item, 
+                (t1, t2) => t1.DeepEquals(t2, ignoreProperties));
         }
 
         public static bool ContainsOnlyOneIntersectionEqualTo<T1, T2>(
             this IEnumerable<T1> collection,
-            T2 item
+            T2 item,
+            params string[] ignoreProperties
         )
         {
-            return collection.ContainsOnlyOneMatching(item, (t1, t2) => t1.DeepIntersectionEquals(t2));
+            return collection.ContainsOnlyOneMatching(item, 
+                (t1, t2) => t1.DeepIntersectionEquals(t2, ignoreProperties));
         }
 
         public static bool ContainsOnlyOneMatching<T1, T2>(
