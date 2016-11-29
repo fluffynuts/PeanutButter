@@ -60,6 +60,7 @@ namespace PeanutButter.DuckTyping
             // ReSharper disable once AssignNullToNotNullAttribute
             var attribBuilder = new CustomAttributeBuilder(attribConstructor, new object[0]);
             typeBuilder.SetCustomAttribute(attribBuilder);
+            CopyCustomAttributes(interfaceType, typeBuilder);
 
             typeBuilder.AddInterfaceImplementation(interfaceType);
 
@@ -345,6 +346,17 @@ namespace PeanutButter.DuckTyping
             propBuilder.SetSetMethod(setMethod);
             propBuilder.SetGetMethod(getMethod);
             CopyCustomAttributes(prop, propBuilder);
+        }
+
+        private static void CopyCustomAttributes(Type src, TypeBuilder typeBuilder)
+        {
+            var attribData = CustomAttributeData.GetCustomAttributes(src);
+            foreach (var data in attribData)
+            {
+                var builder = data.ToAttributeBuilder();
+                if (builder != null)
+                    typeBuilder.SetCustomAttribute(builder);
+            }
         }
 
         private static void CopyCustomAttributes(MemberInfo src, PropertyBuilder propBuilder)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Exceptions;
 using PeanutButter.Utils;
@@ -406,6 +407,61 @@ namespace PeanutButter.DuckTyping.Tests
             var result = toWrap.sAmple;
             Expect(result, Is.EqualTo(expected));
         }
+
+        public class LabelAttribute: Attribute
+        {
+            public string Label { get; private set; }
+
+            public LabelAttribute(string label)
+            {
+                Label = label;
+            }
+        }
+        [Label("cow!")]
+        public interface IAttributeCopyTester
+        {
+            [Label("moo")]
+            string Name { get; set; }
+        }
+        [Test]
+        public void MakeTypeImplementing_ShouldCopyPropertyAttributes()
+        {
+            //--------------- Arrange -------------------
+            var sut = Create();
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = sut.MakeTypeImplementing<IAttributeCopyTester>();
+
+            //--------------- Assert -----------------------
+            var attr = result.GetProperties().FirstOrDefault(p => p.Name == "Name")
+                                ?.GetCustomAttributes(true)
+                                .FirstOrDefault();
+            Expect(attr, Is.Not.Null);
+            Expect(attr, Is.InstanceOf<LabelAttribute>());
+            Expect(((LabelAttribute)attr)?.Label, Is.EqualTo("moo"));
+        }
+
+        [Test]
+        public void MakeTypeImplementing_ShouldCopyInterfaceLevelAttributes()
+        {
+            //--------------- Arrange -------------------
+            var sut = Create();
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = sut.MakeTypeImplementing<IAttributeCopyTester>();
+
+            //--------------- Assert -----------------------
+            var attr = result.GetCustomAttributes(true)
+                                .OfType<LabelAttribute>()
+                                .FirstOrDefault();
+            Expect(attr, Is.Not.Null);
+            Expect(attr?.Label, Is.EqualTo("cow!"));
+        }
+
 
         private object CreateInstanceOf(Type type, params object[] constructorArgs)
         {
