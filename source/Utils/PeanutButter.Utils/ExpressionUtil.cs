@@ -2,11 +2,29 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.Utils
 {
+    /// <summary>
+    /// Utility class to assist with dealing with expressions
+    /// </summary>
     public class ExpressionUtil
     {
+        /// <summary>
+        /// Calculates the member path of an Expression and returns it as a dotted string
+        /// </summary>
+        /// <param name="expression">Subject Expression to operate on</param>
+        /// <typeparam name="TSource">Type of the source object for the expression</typeparam>
+        /// <returns>
+        /// (Dotted) string representing the path in the expression
+        /// - for example, the expression o => o.Foo.Bar
+        ///     will return "Foo.Bar"
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Exceptions are thrown when the Expression cannot be grokked. The Exception message
+        /// will explain why.
+        /// </exception>
         public static string GetMemberPathFor<TSource>(Expression<Func<TSource, object>> expression)
         {
             var memberExpression = expression.Body as MemberExpression;
@@ -29,6 +47,15 @@ namespace PeanutButter.Utils
             return GetFullPropertyPathNameFrom(memberExpression);
         }
 
+        /// <summary>
+        /// Gets the type of the property referred to by an expression
+        /// </summary>
+        /// <param name="expression">Subject expression to operate on</param>
+        /// <typeparam name="TSource">Type of the source object of the expression</typeparam>
+        /// <returns>
+        /// The type of the property referred to in the expression. For example,
+        /// o => o.Name would probably return string
+        /// </returns>
         public static Type GetPropertyTypeFor<TSource>(Expression<Func<TSource, object>> expression)
         {
             var propertyPath = GetMemberPathFor(expression);
@@ -43,6 +70,15 @@ namespace PeanutButter.Utils
             return result;
         }
 
+        /// <summary>
+        /// Calculates the member path of an Expression and returns it as a dotted string
+        /// </summary>
+        /// <param name="expression">Subject Expression to operate on</param>
+        /// <returns>
+        /// (Dotted) string representing the path in the expression
+        /// - for example, the expression o => o.Foo.Bar
+        ///     will return "Foo.Bar"
+        /// </returns>
         public static string GetFullPropertyPathNameFrom(MemberExpression expression)
         {
             var parts = new List<string>(new[] {expression.Member.Name});

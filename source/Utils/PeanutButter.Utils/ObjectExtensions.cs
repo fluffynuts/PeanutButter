@@ -14,6 +14,16 @@ namespace PeanutButter.Utils
             return objSource.DeepEquals(objCompare, ignorePropertiesByName);
         }
 
+        /// <summary>
+        /// Runs a deep equality test between two objects, glossing over reference
+        /// differences between class-types and comparing only primitive types. Use
+        /// this when you'd like to essentially test whether the data in one object
+        /// hierachy matches that of another
+        /// </summary>
+        /// <param name="objSource">Object which is the source of truth</param>
+        /// <param name="objCompare">Object to compare with</param>
+        /// <param name="ignorePropertiesByName">Params array of properties to ignore by name</param>
+        /// <returns></returns>
         public static bool DeepEquals(this object objSource, object objCompare, params string[] ignorePropertiesByName)
         {
             return new DeepEqualityTester(

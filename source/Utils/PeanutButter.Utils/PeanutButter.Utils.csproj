@@ -22,6 +22,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>bin\Debug\PeanutButter.Utils.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -73,7 +74,10 @@
   <PropertyGroup>
     <PostBuildEvent>mkdir $(SolutionDir)Utils\$(ProjectName).NugetPackage\lib\net45
 del /Q $(SolutionDir)Utils\$(ProjectName).NugetPackage\lib\net45\*.*
-copy $(TargetPath) $(SolutionDir)Utils\$(ProjectName).NugetPackage\lib\net45\</PostBuildEvent>
+copy $(TargetPath) $(SolutionDir)Utils\$(ProjectName).NugetPackage\lib\net45\
+copy $(TargetDir)\$(ProjectName).pdb  $(SolutionDir)Utils\$(ProjectName).NugetPackage\lib\net45\
+copy $(TargetDir)\$(ProjectName).xml $(SolutionDir)Utils\$(ProjectName).NugetPackage\lib\net45\
+</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

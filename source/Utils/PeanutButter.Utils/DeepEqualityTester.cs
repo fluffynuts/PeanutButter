@@ -2,9 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.Utils
 {
+    /// <summary>
+    /// Provides a mechanism to test deep-equality of two objects with
+    /// an optional list of properties to ignore by name. Deep equality
+    /// testing bypasses reference-checking of container objects and compares
+    /// primitive propertyt values. Use this to test whether or not two
+    /// objects essentially contain the same data. More conveniently,
+    /// use the following extension methods:
+    /// - DeepEquals -> performs default deep equality testing
+    /// - DeepSubEquals -> tests if one object matches another, for all the properties that the first has in common with the second
+    /// - DeepIntersectionEquals -> tests deep equality only on properties which can be matched by name and type
+    /// </summary>
     public class DeepEqualityTester
     {
         private readonly object _objSource;
@@ -12,15 +24,34 @@ namespace PeanutButter.Utils
         private readonly string[] _ignorePropertiesByName;
         private Dictionary<object, object> _pendingComparisons;
 
+        /// <summary>
+        /// Toggle whether or not to record equality errors
+        /// </summary>
         public bool RecordErrors { get; set; }
+        /// <summary>
+        /// Toggle whether or not equality testing fails when properties found
+        /// on the first object are not found on the corresponding other object
+        /// </summary>
         public bool FailOnMissingProperties { get; set; }
+        /// <summary>
+        /// Toggle whether or not to only test properties found on both objects
+        /// </summary>
         public bool OnlyTestIntersectingProperties { get; set; }
-        public IEnumerable<string> Errors
-        {
-            get { return _errors.ToArray(); }
-        }
+        /// <summary>
+        /// Provides a list of errors for diagnosing inequality, if RecordErrors has been
+        /// set to true
+        /// </summary>
+        public IEnumerable<string> Errors => _errors.ToArray();
+
         private List<string> _errors;
 
+        /// <summary>
+        /// Constructs a new DeepEqualityTester for a source object and compare object
+        /// with an optional params array of properties to ignore by name, all the way down
+        /// </summary>
+        /// <param name="objSource">Source / master object</param>
+        /// <param name="objCompare">Object to compare with</param>
+        /// <param name="ignorePropertiesByName">Params array of properties to ignore by name</param>
         public DeepEqualityTester(object objSource, object objCompare, params string[] ignorePropertiesByName)
         {
             _objSource = objSource;
@@ -35,6 +66,12 @@ namespace PeanutButter.Utils
             _errors = new List<string>();
         }
 
+        /// <summary>
+        /// Calculates if the two objects provided during construction are DeepEqual
+        /// according to the properties set. Will always re-calculate, so if one of the
+        /// provided objects changes, this will always return the current value.
+        /// </summary>
+        /// <returns>True if the two objects are found to match; false otherwise.</returns>
         public bool AreDeepEqual()
         {
             ClearPendingOperations();

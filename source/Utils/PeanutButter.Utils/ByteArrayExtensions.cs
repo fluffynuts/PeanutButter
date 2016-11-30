@@ -3,10 +3,18 @@ using System.Text;
 
 namespace PeanutButter.Utils
 {
+    /// <summary>
+    /// Provides some extensions useful for byte arrays
+    /// </summary>
     public static class ByteArrayExtensions
     {
         // ReSharper disable once InconsistentNaming
         // ReSharper disable once UnusedMember.Global
+        /// <summary>
+        /// Calculates the md5sum for the provided binary data
+        /// </summary>
+        /// <param name="data">Binary data to hash</param>
+        /// <returns>hex-encoded md5sum for the provided data</returns>
         public static string ToMD5String(this byte[] data)
         {
             if (data == null)
@@ -19,6 +27,11 @@ namespace PeanutButter.Utils
         }
 
         // ReSharper disable once InconsistentNaming
+        /// <summary>
+        /// Provides a UTF-8 encoded string from the given binary data
+        /// </summary>
+        /// <param name="data">Binary data to encode as a UTF-8 string</param>
+        /// <returns>The string representation of the binary data</returns>
         public static string ToUTF8String(this byte[] data)
         {
             if (data == null) return null;
