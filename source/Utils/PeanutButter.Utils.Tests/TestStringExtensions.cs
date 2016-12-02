@@ -277,7 +277,7 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = src.IsNullOrWhitespace();
+            var result = src.IsNullOrWhiteSpace();
 
             //---------------Test Result -----------------------
             Assert.IsTrue(result);
@@ -292,7 +292,7 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = src.IsNullOrWhitespace();
+            var result = src.IsNullOrWhiteSpace();
 
             //---------------Test Result -----------------------
             Assert.IsFalse(result);

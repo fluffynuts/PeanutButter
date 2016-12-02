@@ -5,15 +5,22 @@ using System.Linq;
 
 namespace PeanutButter.Utils
 {
+    /// <summary>
+    /// Helper class to find all instances of running LocalDb services
+    /// </summary>
     public class LocalDbInstanceEnumerator
     {
-        private static string[] _availableDefaultInstances;
+        private static readonly string[] _availableDefaultInstances;
 
         static LocalDbInstanceEnumerator()
         {
             _availableDefaultInstances = FindInstancesWithUtil();
         }
 
+        /// <summary>
+        /// Finds the list of found LocalDb instance names
+        /// </summary>
+        /// <returns>String array of found LocalDb instance names</returns>
         public string[] FindInstances()
         {
             return _availableDefaultInstances;
@@ -28,6 +35,10 @@ namespace PeanutButter.Utils
             return FindDefaultInstancesFromOutputOf(process);
         }
 
+        /// <summary>
+        /// Attempts to find the highest-versioned LocalDb instance
+        /// </summary>
+        /// <returns>Instance name of the highest-versioned LocalDb instance, typically something like "v11.0"</returns>
         public string FindHighestDefaultInstance()
         {
             const string fallback = "v11.0";

@@ -6,14 +6,11 @@ using System.Reflection;
 
 namespace PeanutButter.Utils
 {
+    /// <summary>
+    /// Provides a set of convenience extensions on everything
+    /// </summary>
     public static class ObjectExtensions
     {
-        [Obsolete("AllPropertiesMatch has been deprecated in favour of the more powerful DeepEquals; use DeepSubEquals if your source properties are potentially a subset of the comparison properties")]
-        public static bool AllPropertiesMatch(this object objSource, object objCompare, params string[] ignorePropertiesByName)
-        {
-            return objSource.DeepEquals(objCompare, ignorePropertiesByName);
-        }
-
         /// <summary>
         /// Runs a deep equality test between two objects, glossing over reference
         /// differences between class-types and comparing only primitive types. Use
@@ -33,35 +30,51 @@ namespace PeanutButter.Utils
             ).AreDeepEqual();
         }
 
+        /// <summary>
+        /// Runs a deep equality test between two objects, using the properties on objSource (and children) as
+        /// the set of properties to match on
+        /// </summary>
+        /// <param name="objSource">Source object to perform comparison against</param>
+        /// <param name="objCompare">Comparison object to compare</param>
+        /// <param name="ignorePropertiesByName">Optional params array of properties to ignore by name</param>
+        /// <returns>True if relevant properties are found and match; false otherwise</returns>
         public static bool DeepSubEquals(this object objSource, object objCompare, params string[] ignorePropertiesByName)
         {
             var tester = new DeepEqualityTester(
                 objSource,
                 objCompare,
                 ignorePropertiesByName
-            );
-            tester.FailOnMissingProperties = false;
+            ) {FailOnMissingProperties = false};
             return tester.AreDeepEqual();
         }
 
+        /// <summary>
+        /// Runs a deep equality test between two objects, using the properties common to both sides
+        /// of the comparison to match on.
+        /// </summary>
+        /// <param name="objSource">Source object to perform comparison against</param>
+        /// <param name="objCompare">Comparison object to compare</param>
+        /// <param name="ignorePropertiesByName">Optional params array of properties to ignore by name</param>
+        /// <returns>True if relevant properties are found and match; false otherwise. If no common properties are found, returns false; caveat: performing this comparison on two vanilla Object() instances will return true.</returns>
         public static bool DeepIntersectionEquals(this object objSource, object objCompare, params string[] ignorePropertiesByName)
         {
             var tester = new DeepEqualityTester(
                 objSource,
                 objCompare,
                 ignorePropertiesByName
-            );
-            tester.OnlyTestIntersectingProperties = true;
+            ) {OnlyTestIntersectingProperties = true};
             return tester.AreDeepEqual();
         }
 
-
-        [Obsolete("Please use ContainsOneDeepEqualTo")]
-        public static bool ContainsOneLike<T1, T2>(this IEnumerable<T1> collection, T2 item)
-        {
-            return collection.ContainsOneDeepEqualTo(item);
-        }
-
+        /// <summary>
+        /// Searches a collection for an object which DeepEquals the provided reference item
+        /// </summary>
+        /// <param name="collection">Collection of objects to search</param>
+        /// <param name="item">Item to find a match for</param>
+        /// <param name="ignoreProperties">Optional params array of properties to ignore by name</param>
+        /// <typeparam name="T1">Item type of the collection</typeparam>
+        /// <typeparam name="T2">Type of the comparison item (can be the same as or different from T1)</typeparam>
+        /// <returns>True if one or more matching objects were found; false otherwise</returns>
         public static bool ContainsOneDeepEqualTo<T1, T2>(
             this IEnumerable<T1> collection, 
             T2 item,
@@ -70,6 +83,15 @@ namespace PeanutButter.Utils
             return collection.Any(i => i.DeepEquals(item, ignoreProperties));
         }
 
+        /// <summary>
+        /// Searches a collection for an object which IntersectionEquals the provided reference item
+        /// </summary>
+        /// <param name="collection">Collection of objects to search</param>
+        /// <param name="item">Item to find a match for</param>
+        /// <param name="ignoreProperties">Optional params array of properties to ignore by name</param>
+        /// <typeparam name="T1">Item type of the collection</typeparam>
+        /// <typeparam name="T2">Type of the comparison item (can be the same as or different from T1)</typeparam>
+        /// <returns>True if one or more matching objects were found; false otherwise</returns>
         public static bool ContainsOneIntersectionEqualTo<T1, T2>(
             this IEnumerable<T1> collection,
             T2 item,
@@ -79,6 +101,15 @@ namespace PeanutButter.Utils
             return collection.Any(i => i.DeepIntersectionEquals(item, ignoreProperties));
         }
 
+        /// <summary>
+        /// Searches a collection for an object which DeepEquals the provided reference item
+        /// </summary>
+        /// <param name="collection">Collection of objects to search</param>
+        /// <param name="item">Item to find a match for</param>
+        /// <param name="ignoreProperties">Optional params array of properties to ignore by name</param>
+        /// <typeparam name="T1">Item type of the collection</typeparam>
+        /// <typeparam name="T2">Type of the comparison item (can be the same as or different from T1)</typeparam>
+        /// <returns>True if exactly one matching object was found; false otherwise</returns>
         public static bool ContainsOnlyOneDeepEqualTo<T1, T2>(
             this IEnumerable<T1> collection, 
             T2 item,
@@ -88,6 +119,15 @@ namespace PeanutButter.Utils
                 (t1, t2) => t1.DeepEquals(t2, ignoreProperties));
         }
 
+        /// <summary>
+        /// Searches a collection for an object which IntersectionEquals the provided reference item
+        /// </summary>
+        /// <param name="collection">Collection of objects to search</param>
+        /// <param name="item">Item to find a match for</param>
+        /// <param name="ignoreProperties">Optional params array of properties to ignore by name</param>
+        /// <typeparam name="T1">Item type of the collection</typeparam>
+        /// <typeparam name="T2">Type of the comparison item (can be the same as or different from T1)</typeparam>
+        /// <returns>True if exactly one matching object was found; false otherwise</returns>
         public static bool ContainsOnlyOneIntersectionEqualTo<T1, T2>(
             this IEnumerable<T1> collection,
             T2 item,
@@ -98,6 +138,16 @@ namespace PeanutButter.Utils
                 (t1, t2) => t1.DeepIntersectionEquals(t2, ignoreProperties));
         }
 
+        /// <summary>
+        /// Searches a collection for an object which matches the provided reference item, according
+        /// to the provided matcher Func
+        /// </summary>
+        /// <param name="collection">Collection of objects to search</param>
+        /// <param name="item">Item to find a match for</param>
+        /// <param name="comparer">Func to use to perform comparison</param>
+        /// <typeparam name="T1">Item type of the collection</typeparam>
+        /// <typeparam name="T2">Type of the comparison item (can be the same as or different from T1)</typeparam>
+        /// <returns>True if exactly one matching object was found; false otherwise</returns>
         public static bool ContainsOnlyOneMatching<T1, T2>(
             this IEnumerable<T1> collection,
             T2 item,
@@ -112,16 +162,37 @@ namespace PeanutButter.Utils
             }) == 1;
         }
 
+        /// <summary>
+        /// Copies all public primitive property values of intersecting properties from the source object
+        /// to the target object, ala poor-man's AutoMapper
+        /// </summary>
+        /// <param name="src">Source object</param>
+        /// <param name="dst">Target object</param>
         public static void CopyPropertiesTo(this object src, object dst)
         {
             src.CopyPropertiesTo(dst, true);
         }
 
+        /// <summary>
+        /// Copies all public primitive property values of intersecting properties from the source object
+        /// to the target object, ala poor-man's AutoMapper
+        /// </summary>
+        /// <param name="src">Source object</param>
+        /// <param name="dst">Target object</param>
+        /// <param name="ignoreProperties">Optional list of properties to ignore by name</param>
         public static void CopyPropertiesTo(this object src, object dst, params string[] ignoreProperties)
         {
             src.CopyPropertiesTo(dst, true, ignoreProperties);
         }
 
+        /// <summary>
+        /// Copies all public primitive property values of intersecting properties from the source object
+        /// to the target object, ala poor-man's AutoMapper
+        /// </summary>
+        /// <param name="src">Source object</param>
+        /// <param name="dst">Target object</param>
+        /// <param name="deep">Flag as to whether or not the process should copy deep (ie, traverse into child objects)</param>
+        /// <param name="ignoreProperties"></param>
         public static void CopyPropertiesTo(this object src, object dst, bool deep, params string[] ignoreProperties)
         {
             if (src == null || dst == null) return;
@@ -147,6 +218,7 @@ namespace PeanutButter.Utils
                     if (underlyingType != null)
                     {
                         var specific = _genericMakeArrayCopy.MakeGenericMethod(underlyingType);
+                        // ReSharper disable once RedundantExplicitArrayCreation
                         var newValue = specific.Invoke(null, new object[] { srcVal });
                         matchingTarget.SetValue(dst, newValue);
                     }
@@ -168,14 +240,19 @@ namespace PeanutButter.Utils
 
         private static readonly MethodInfo _genericMakeArrayCopy
             = typeof(ObjectExtensions).GetMethod("MakeArrayCopyOf", BindingFlags.NonPublic | BindingFlags.Static);
+
+        // ReSharper disable once UnusedMember.Local
+#pragma warning disable S1144 // Unused private types or members should be removed
         private static T[] MakeArrayCopyOf<T>(IEnumerable<T> src)
         {
             try
             {
+                // ReSharper disable once PossibleMultipleEnumeration
                 var result = new T[src?.Count() ?? 0];
                 if (src != null)
                 {
                     var idx = 0;
+                    // ReSharper disable once PossibleMultipleEnumeration
                     foreach (var item in src)
                     {
                         result[idx++] = item;
@@ -188,6 +265,7 @@ namespace PeanutButter.Utils
                 return null;
             }
         }
+#pragma warning restore S1144 // Unused private types or members should be removed
 
         private static bool IsSimpleTypeOrNullableOfSimpleType(Type t)
         {
@@ -197,12 +275,28 @@ namespace PeanutButter.Utils
                                           Nullable.GetUnderlyingType(t) == si));
         }
 
+        /// <summary>
+        /// Gets the value of a property on an object, specified by the property path, of the given Type
+        /// </summary>
+        /// <param name="src">Object to search for the required property</param>
+        /// <param name="propertyPath">Path to the property: may be a property name or a dotted path down an object heirachy, eg: Company.Name</param>
+        /// <typeparam name="T">Expected type of the property value</typeparam>
+        /// <returns></returns>
         public static T Get<T>(this object src, string propertyPath)
         {
             var type = src.GetType();
             return ResolvePropertyValueFor<T>(src, propertyPath, type);
         }
 
+        /// <summary>
+        /// Gets the value of a property on an object, specified by the property path, of the given Type
+        /// or returns a default value when that property cannot be found by path and/or type
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="propertyPath"></param>
+        /// <param name="defaultValue"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static T GetOrDefault<T>(this object src, string propertyPath, T defaultValue = default(T))
         {
             try
@@ -215,6 +309,13 @@ namespace PeanutButter.Utils
             }
         }
 
+        /// <summary>
+        /// Fluency extension to wrap a single item in an array, eg:
+        /// new SomeBusinessObject().AsArray().Union(SomeOtherCollection);
+        /// </summary>
+        /// <param name="input">The item to wrap</param>
+        /// <typeparam name="T">The type of the object</typeparam>
+        /// <returns>A single-element array containing the input object</returns>
         public static T[] AsArray<T>(this T input)
         {
             return new[] { input };
@@ -235,6 +336,13 @@ namespace PeanutButter.Utils
         }
 
 
+        /// <summary>
+        /// Gets a property value by name from an object
+        /// </summary>
+        /// <param name="src">Source object</param>
+        /// <param name="propertyName">Name of the property to search for</param>
+        /// <returns>Value of the property, cast/boxed to object</returns>
+        /// <exception cref="PropertyNotFoundException">Thrown when the property is not found by name</exception>
         public static object GetPropertyValue(this object src, string propertyName)
         {
             var type = src.GetType();
@@ -244,38 +352,64 @@ namespace PeanutButter.Utils
             return propInfo.GetValue(src, null);
         }
 
-        public static void SetPropertyValue(this object propValue, string propertyPath, object newValue)
+        /// <summary>
+        /// Attempts to set a property value on an object by property path
+        /// </summary>
+        /// <param name="src">Source object to set property on</param>
+        /// <param name="propertyPath">Path into the property: could be an immediate property name or something like "Company.Name"</param>
+        /// <param name="newValue">New value to attempt to set the property to</param>
+        /// <exception cref="PropertyNotFoundException">Thrown when the property cannot be found</exception>
+        public static void SetPropertyValue(this object src, string propertyPath, object newValue)
         {
             var queue = new Queue<string>(propertyPath.Split('.'));
             while (queue.Count > 0)
             {
                 var current = queue.Dequeue();
-                var type = propValue.GetType();
+                var type = src.GetType();
                 var propInfo = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                                     .FirstOrDefault(pi => pi.Name == current);
                 if (propInfo == null)
                     throw new PropertyNotFoundException(type, current);
                 if (queue.Count == 0)
                 {
-                    propInfo.SetValue(propValue, newValue);
+                    propInfo.SetValue(src, newValue);
                     return;
                 }
-                propValue = propInfo.GetValue(propValue);
+                src = propInfo.GetValue(src);
             }
-            throw new PropertyNotFoundException(propValue.GetType(), propertyPath);
+            throw new PropertyNotFoundException(src.GetType(), propertyPath);
         }
 
+        /// <summary>
+        /// Gets an immediate property value, cast to the specified type
+        /// </summary>
+        /// <param name="src">Source object</param>
+        /// <param name="propertyName">Immediate property name</param>
+        /// <typeparam name="T">Required type</typeparam>
+        /// <returns>Value of the property, if it can be found and cast. Will throw otherwise.</returns>
         public static T GetPropertyValue<T>(this object src, string propertyName)
         {
             var objectResult = GetPropertyValue(src, propertyName);
             return (T)objectResult;
         }
 
+        /// <summary>
+        /// Tests if a type is assignable to another type (inverse of IsAssignableFrom)
+        /// </summary>
+        /// <param name="type">Type to operate on</param>
+        /// <typeparam name="T">Type to check assignment possibility against</typeparam>
+        /// <returns>True if objects of type {type} can be assigned to objects of type T</returns>
         public static bool IsAssignableTo<T>(this Type type)
         {
             return type.IsAssignableFrom(typeof(T));
         }
 
+        /// <summary>
+        /// Truncates a decimal value to a required number of places
+        /// </summary>
+        /// <param name="value">Source decimal value</param>
+        /// <param name="places">Number of decimal places required</param>
+        /// <returns>A new decimal value which is the original value truncated to the required places</returns>
         public static decimal TruncateTo(this decimal value, int places)
         {
             var mul = new decimal(Math.Pow(10, places));

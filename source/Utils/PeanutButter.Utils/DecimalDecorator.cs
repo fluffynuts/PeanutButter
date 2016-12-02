@@ -4,13 +4,13 @@ using System.Globalization;
 namespace PeanutButter.Utils
 {
     /// <summary>
-    // Provides a relatively "safe" interchange between decimal and string
-    //  notations for numbers, inspecting the input string to try to make the best
-    //  decision based on the contents of the string instead of just relying on
-    //  the current thread culture (which causes issues when communicating between
-    //  machines with different ideas of what constitutes "correct" decimal notation;
-    //  a prime example being transport of decimals from Javascript into a ZA .net
-    //  culture -- but there are others)
+    /// Provides a relatively "safe" interchange between decimal and string
+    ///  notations for numbers, inspecting the input string to try to make the best
+    ///  decision based on the contents of the string instead of just relying on
+    ///  the current thread culture (which causes issues when communicating between
+    ///  machines with different ideas of what constitutes "correct" decimal notation
+    ///  a prime example being transport of decimals from Javascript into a ZA .net
+    ///  culture -- but there are others)
     /// </summary>
     public class DecimalDecorator
     {
