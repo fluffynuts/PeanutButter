@@ -232,7 +232,7 @@ namespace PeanutButter.Utils.Tests
 
             //---------------Test Result -----------------------
             Assert.IsNotNull(result);
-            Assert.IsInstanceOf<List<int>>(result);
+            Assert.IsInstanceOf<int[]>(result);
             CollectionAssert.IsEmpty(result);
         }
 
