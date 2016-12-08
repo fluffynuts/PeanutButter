@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using PeanutButter.DuckTyping.AutoConversion.Converters;
@@ -44,11 +45,23 @@ namespace PeanutButter.DuckTyping.AutoConversion
             var converters = new List<IConverter>();
             foreach (var type in types)
             {
+                TryAddConverterWith(genericType, type, converters);
+            }
+            return converters.ToArray();
+        }
+
+        private static void TryAddConverterWith(Type genericType, Type type, List<IConverter> converters)
+        {
+            try
+            {
                 var specific = genericType.MakeGenericType(type);
                 var instance = (IConverter)Activator.CreateInstance(specific);
                 converters.Add(instance);
             }
-            return converters.ToArray();
+            catch (Exception ex)
+            {
+                Trace.WriteLine($"Unable to register automatic string converter for {type}: ${ex.Message}");
+            }
         }
 
         private static Type[] FindTypesWhichCanTryParseStrings()
