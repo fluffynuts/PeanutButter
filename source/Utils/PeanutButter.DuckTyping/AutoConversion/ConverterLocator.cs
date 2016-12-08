@@ -60,7 +60,9 @@ namespace PeanutButter.DuckTyping.AutoConversion
             }
             catch (Exception ex)
             {
-                Trace.WriteLine($"Unable to register automatic string converter for {type}: ${ex.Message}");
+                var asTargetInvocationException = ex as TargetInvocationException;
+                var message = asTargetInvocationException?.Message ?? ex.Message;
+                Trace.WriteLine($"PeanutButter.DuckTyping: Warning: Unable to register automatic string converter for {type}: {message}");
             }
         }
 
