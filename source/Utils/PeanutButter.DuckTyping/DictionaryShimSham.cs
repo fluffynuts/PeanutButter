@@ -8,6 +8,9 @@ using PeanutButter.DuckTyping.Extensions;
 
 namespace PeanutButter.DuckTyping
 {
+    /// <summary>
+    /// Provides the required shimming to duck a dictionary object to an interface
+    /// </summary>
     public class DictionaryShimSham : ShimShamBase, IShimSham
     {
         private readonly Type _interfaceToMimick;
@@ -16,6 +19,11 @@ namespace PeanutButter.DuckTyping
         private readonly bool _isFuzzy;
         
 
+        /// <summary>
+        /// Constructs an instance of the DictionaryShimSham
+        /// </summary>
+        /// <param name="toWrap">Dictionary to wrap</param>
+        /// <param name="interfaceToMimick">Interface that must be mimicked</param>
         public DictionaryShimSham(
             IDictionary<string, object> toWrap,
             Type interfaceToMimick)
@@ -47,6 +55,14 @@ namespace PeanutButter.DuckTyping
             }
         }
 
+        /// <summary>
+        /// Gets the value of a property by name
+        /// </summary>
+        /// <param name="propertyName">Name of the property to get the value of</param>
+        /// <returns>The value of the property, where possible. 
+        /// May return the default value for the property type when it is not found
+        /// and may attempt automatic conversion when the type to represent does not
+        /// match the underlying type</returns>
         public object GetPropertyValue(string propertyName)
         {
             CheckPropertyExists(propertyName);
@@ -66,6 +82,11 @@ namespace PeanutButter.DuckTyping
             return GetDefaultValueFor(mimickedProperty.PropertyType);
         }
 
+        /// <summary>
+        /// Attempts to set the value of the named property
+        /// </summary>
+        /// <param name="propertyName">Name of the property to set</param>
+        /// <param name="newValue">Value to set. The value may be converted to match the underlying type when required.</param>
         public void SetPropertyValue(string propertyName, object newValue)
         {
             CheckPropertyExists(propertyName);
@@ -115,11 +136,25 @@ namespace PeanutButter.DuckTyping
                 throw new PropertyNotFoundException(_data.GetType(), propertyName);
         }
 
+        /// <summary>
+        /// Required to implement the IShimSham interface, but not implemented for
+        /// dictionaries as the concept doesn't make sense
+        /// </summary>
+        /// <param name="methodName">Name of the method to not call through to</param>
+        /// <param name="parameters">Parameters to ignore</param>
+        /// <exception cref="NotImplementedException">Exception which is always thrown</exception>
         public void CallThroughVoid(string methodName, params object[] parameters)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Required to implement the IShimSham interface, but not implemented for
+        /// dictionaries as the concept doesn't make sense
+        /// </summary>
+        /// <param name="methodName">Name of the method to not call through to</param>
+        /// <param name="parameters">Parameters to ignore</param>
+        /// <exception cref="NotImplementedException">Exception which is always thrown</exception>
         public object CallThrough(string methodName, object[] parameters)
         {
             throw new NotImplementedException();

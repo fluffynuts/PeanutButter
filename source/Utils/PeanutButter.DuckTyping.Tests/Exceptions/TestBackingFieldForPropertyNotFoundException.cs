@@ -39,7 +39,7 @@ namespace PeanutButter.DuckTyping.Tests.Exceptions
 
             //--------------- Assert -----------------------
             Expect(sut.Message, 
-                Does.Contain($"{property} not found on type {owningType.Name}")
+                Does.Contain($"find backing field _{property} on type {owningType.Name}")
             );
         }
     }

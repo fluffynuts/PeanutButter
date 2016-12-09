@@ -29,7 +29,7 @@ namespace PeanutButter.DuckTyping.Tests.Exceptions
             //--------------- Arrange -------------------
             var propertyName = RandomValueGen.GetRandomString();
             var owningType = (new { }).GetType();
-            var expected = $"Property {propertyName} on type {owningType.Name} is read-only";
+            var expected = $"Property {propertyName} on type {owningType.Name} is write-only";
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------

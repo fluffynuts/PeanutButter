@@ -6,12 +6,23 @@ using PeanutButter.DuckTyping.Extensions;
 
 namespace PeanutButter.DuckTyping
 {
+    /// <summary>
+    /// Static class to create instances of automatically generated
+    /// types implementing the provided interfaces
+    /// </summary>
     public static class Create
     {
         private static TypeMaker _typeMakerField;
         private static TypeMaker TypeMaker => _typeMakerField ?? (_typeMakerField = new TypeMaker());
         private static readonly Dictionary<Type, Type> _typeCache = new Dictionary<Type, Type>();
 
+        /// <summary>
+        /// Creates an instance of a type implementing the interface T
+        /// Will generate a type implementing T on the first call and
+        /// re-use it on subsequent calls
+        /// </summary>
+        /// <typeparam name="T">Interface to implement in provided object</typeparam>
+        /// <returns>Instance of an object implementing the provided interface</returns>
         public static T InstanceOf<T>()
         {
             return (T)CreateOrReuseInstanceOf(typeof(T), new List<object>());
@@ -21,7 +32,7 @@ namespace PeanutButter.DuckTyping
             Type toCreate,
             List<object> alreadyCreated)
         {
-            var existing = alreadyCreated.FirstOrDefault(o => toCreate.IsInstanceOfType(o));
+            var existing = alreadyCreated.FirstOrDefault(toCreate.IsInstanceOfType);
             if (existing != null)
                 return existing;
             var type = FindOrCreateTypeImplementing(toCreate);
@@ -57,7 +68,9 @@ namespace PeanutButter.DuckTyping
             pi.SetValue(result, empty);
         }
 
-        private static MethodInfo _getEmptyArrayGeneric = typeof(Create).GetMethod("GetEmptyArrayOf", BindingFlags.Static | BindingFlags.NonPublic);
+        private static readonly MethodInfo _getEmptyArrayGeneric = 
+            typeof(Create).GetMethod("GetEmptyArrayOf", BindingFlags.Static | BindingFlags.NonPublic);
+        // ReSharper disable once UnusedMember.Local
         private static T[] GetEmptyArrayOf<T>()
         {
             return new T[0];

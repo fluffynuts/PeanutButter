@@ -4,10 +4,23 @@ using System.Reflection;
 
 namespace PeanutButter.DuckTyping
 {
+    /// <summary>
+    /// Provides a container for two property info lookups: one accurate and one approximate
+    /// </summary>
     public class PropertyInfoContainer
     {
+        /// <summary>
+        /// Accurate property info lookup
+        /// </summary>
         public Dictionary<string, PropertyInfo> PropertyInfos { get; }
+        /// <summary>
+        /// Approximate property info lookup
+        /// </summary>
         public Dictionary<string, PropertyInfo> FuzzyPropertyInfos { get; }
+        /// <summary>
+        /// Constructs a new instance of the lookup container
+        /// </summary>
+        /// <param name="propertyInfos">PropertyInfos to contain</param>
         public PropertyInfoContainer(
             PropertyInfo[] propertyInfos
         )

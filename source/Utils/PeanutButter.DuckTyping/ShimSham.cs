@@ -8,60 +8,13 @@ using PeanutButter.DuckTyping.Extensions;
 
 namespace PeanutButter.DuckTyping
 {
-    public interface IShimSham
-    {
-        object GetPropertyValue(string propertyName);
-        void SetPropertyValue(string propertyName, object newValue);
-        void CallThroughVoid(string methodName, params object[] parameters);
-        object CallThrough(string methodName, object[] parameters);
-    }
-
-    public abstract class ShimShamBase
-    {
-        private static readonly MethodInfo _getDefaultMethodGeneric = typeof(ShimShamBase).GetMethod("GetDefaultFor", BindingFlags.NonPublic | BindingFlags.Static);
-        protected TypeMaker _typeMaker;
-        protected readonly MethodInfo _genericMakeType = typeof(TypeMaker).GetMethod("MakeTypeImplementing");
-        protected readonly MethodInfo _genericFuzzyMakeType = typeof(TypeMaker).GetMethod("MakeFuzzyTypeImplementing");
-        public static object GetDefaultValueFor(Type correctType)
-        {
-            return _getDefaultMethodGeneric
-                                .MakeGenericMethod(correctType)
-                                .Invoke(null, null);
-
-        }
-
-        // ReSharper disable once UnusedMember.Local
-#pragma warning disable S1144 // Unused private types or members should be removed
-        private static T GetDefaultFor<T>()
-        {
-            return default(T);
-        }
-#pragma warning restore S1144 // Unused private types or members should be removed
-
-        protected object ConvertWith(
-            IConverter converter, 
-            object propValue, 
-            Type toType)
-        {
-            var convertMethod = converter.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public)
-                                    .Single(mi => mi.Name == "Convert" && mi.ReturnType == toType);
-            // ReSharper disable once RedundantExplicitArrayCreation
-            return convertMethod.Invoke(converter, new object[] { propValue });
-        }
-
-        protected Type MakeTypeToImplement(Type type, bool isFuzzy)
-        {
-            var typeMaker = (_typeMaker ?? (_typeMaker = new TypeMaker()));
-            var genericMethod = isFuzzy ? _genericFuzzyMakeType : _genericMakeType;
-            var specific = genericMethod.MakeGenericMethod(type);
-            return specific.Invoke(typeMaker, null) as Type;
-        }
-
-    }
-
+    /// <summary>
+    /// Shim to wrap objects for ducking
+    /// </summary>
     public class ShimSham : ShimShamBase, IShimSham
     {
         // ReSharper disable once MemberCanBePrivate.Global
+        // ReSharper disable once InconsistentNaming
         private bool _isFuzzy { get; }
         private readonly object _wrapped;
         private readonly IPropertyInfoFetcher _propertyInfoFetcher;
@@ -81,11 +34,26 @@ namespace PeanutButter.DuckTyping
         private Dictionary<string, PropertyInfo> _localMimickPropertyInfos;
 
         // ReSharper disable once MemberCanBePrivate.Global
+        /// <summary>
+        /// Constructs a new instance of the ShimSham with a DefaultPropertyInfoFetcher
+        /// </summary>
+        /// <param name="toWrap">Object to wrap</param>
+        /// <param name="interfaceToMimick">Interface type to mimick</param>
+        /// <param name="isFuzzy">Flag allowing or preventing approximation</param>
         public ShimSham(object toWrap, Type interfaceToMimick, bool isFuzzy)
             : this(toWrap, interfaceToMimick, isFuzzy, new DefaultPropertyInfoFetcher())
         {
         }
 
+        /// <summary>
+        /// Constructs a new instance of the ShimSham with the provided property info fetcher
+        /// </summary>
+        /// <param name="toWrap">Object to wrap</param>
+        /// <param name="interfaceToMimick">Interface type to mimick</param>
+        /// <param name="isFuzzy">Flag allowing or preventing approximation</param>
+        /// <param name="propertyInfoFetcher">Utility to fetch property information from the provided object and interface type</param>
+        /// <exception cref="ArgumentNullException">Thrown if the mimick interface or property info fetch are null</exception>
+        // ReSharper disable once MemberCanBePrivate.Global
         public ShimSham(
             object toWrap,
             Type interfaceToMimick,
@@ -135,8 +103,7 @@ namespace PeanutButter.DuckTyping
             }
         }
 
-        // ReSharper disable once UnusedMember.Global
-
+        /// <inheritdoc />
         public object GetPropertyValue(string propertyName)
         {
             if (_wrappingADuck)
@@ -178,7 +145,7 @@ namespace PeanutButter.DuckTyping
             if (CannotShim(propertyName, propValueType, correctType))
                 return null;
             var duckType = MakeTypeToImplement(correctType, _isFuzzy);
-            var instance = Activator.CreateInstance(duckType, new[] { propValue });
+            var instance = Activator.CreateInstance(duckType, propValue);
             _shimmedProperties[propertyName] = instance;
             return instance;
         }
@@ -193,7 +160,7 @@ namespace PeanutButter.DuckTyping
             return result;
         }
 
-        // ReSharper disable once UnusedMember.Global
+        /// <inheritdoc />
         public void SetPropertyValue(string propertyName, object newValue)
         {
 
@@ -221,7 +188,7 @@ namespace PeanutButter.DuckTyping
                 return;
             }
             var duckType = MakeTypeToImplement(mimickedPropInfo.PropertyType, _isFuzzy);
-            var instance = Activator.CreateInstance(duckType, new[] { newValue });
+            var instance = Activator.CreateInstance(duckType, newValue);
             _shimmedProperties[propertyName] = instance;
         }
 
@@ -239,14 +206,13 @@ namespace PeanutButter.DuckTyping
             propInfo.SetValue(_wrapped, converted);
         }
 
-        // ReSharper disable once UnusedMember.Global
+        /// <inheritdoc />
         public void CallThroughVoid(string methodName, params object[] parameters)
         {
             CallThrough(methodName, parameters);
         }
 
-        // ReSharper disable once UnusedMethodReturnValue.Global
-        // ReSharper disable once MemberCanBePrivate.Global
+        /// <inheritdoc />
         public object CallThrough(string methodName, object[] parameters)
         {
             if (_wrappingADuck)
@@ -285,12 +251,12 @@ namespace PeanutButter.DuckTyping
                     .ToArray();
         }
 
-        private object FindBestMatchFor(Type type, object[] parameters)
+        private static object FindBestMatchFor(Type type, object[] parameters)
         {
             return parameters.FirstOrDefault(p => p.GetType() == type);
         }
 
-        private bool AlreadyInCorrectOrderByType(
+        private static bool AlreadyInCorrectOrderByType(
             Type[] srcTypes,
             Type[] dstTypes
         )

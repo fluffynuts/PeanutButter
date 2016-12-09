@@ -7,11 +7,10 @@ using PeanutButter.DuckTyping.Extensions;
 
 namespace PeanutButter.DuckTyping
 {
-    public interface ITypeMaker
-    {
-        Type MakeTypeImplementing<T>();
-        Type MakeFuzzyTypeImplementing<T>();
-    }
+    /// <summary>
+    /// Utility class to create types on the fly which implement provided interfaces, 
+    /// when possible.
+    /// </summary>
     public class TypeMaker : ITypeMaker
     {
         private static readonly Type _shimInterfaceType = typeof(IShimSham);
@@ -22,7 +21,7 @@ namespace PeanutButter.DuckTyping
         );
         private static readonly ConstructorInfo _dictionaryShimConstructor =
             _dictionaryShim.GetConstructor(new[]
-                {typeof(Dictionary<string, object>), typeof(Type) });
+                {typeof(IDictionary<string, object>), typeof(Type) });
         private static readonly ConstructorInfo _objectConstructor = typeof(object).GetConstructor(new Type[0]);
         private static readonly MethodInfo _shimGetPropertyValueMethod =
             _shimInterfaceType.GetMethod("GetPropertyValue");
@@ -33,11 +32,13 @@ namespace PeanutButter.DuckTyping
         private static readonly MethodInfo _shimCallThroughVoidMethod =
             _shimInterfaceType.GetMethod("CallThroughVoid");
 
+        /// <inheritdoc />
         public Type MakeTypeImplementing<T>()
         {
             return MakeTypeImplementing<T>(false);
         }
 
+        /// <inheritdoc />
         public Type MakeFuzzyTypeImplementing<T>()
         {
             return MakeTypeImplementing<T>(true);
@@ -128,7 +129,7 @@ namespace PeanutButter.DuckTyping
             var ctorBuilder = typeBuilder.DefineConstructor(
                 MethodAttributes.Public,
                 CallingConventions.Standard,
-                new[] { typeof(Dictionary<string, object>) });
+                new[] { typeof(IDictionary<string, object>) });
             var il = ctorBuilder.GetILGenerator();
             CallBaseObjectConstructor(il);
             var result = CreateWrappingDictionaryShimFor(il, interfaceType);

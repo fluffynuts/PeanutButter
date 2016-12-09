@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace PeanutButter.DuckTyping
 {
-    public class DefaultPropertyInfoFetcher: IPropertyInfoFetcher
+    internal class DefaultPropertyInfoFetcher: IPropertyInfoFetcher
     {
         public PropertyInfo[] GetProperties(Type srcType, BindingFlags bindingFlags)
         {
