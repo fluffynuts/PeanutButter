@@ -330,7 +330,7 @@ namespace PeanutButter.RandomGenerators.Tests
         public void GetRandomCollection_GenericInvoke_ShouldUseNinjaSuperPowersToCreateCollection()
         {
             //---------------Set up test pack-------------------
-            var minItems = GetRandomInt(1);
+            var minItems = GetRandomInt(5);
             var maxItems = GetRandomInt(11, 20);
 
             //---------------Assert Precondition----------------
