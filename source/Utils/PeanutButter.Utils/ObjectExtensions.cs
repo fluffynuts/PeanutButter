@@ -241,8 +241,8 @@ namespace PeanutButter.Utils
         private static readonly MethodInfo _genericMakeArrayCopy
             = typeof(ObjectExtensions).GetMethod("MakeArrayCopyOf", BindingFlags.NonPublic | BindingFlags.Static);
 
-        // ReSharper disable once UnusedMember.Local
 #pragma warning disable S1144 // Unused private types or members should be removed
+        // ReSharper disable once UnusedMember.Local
         private static T[] MakeArrayCopyOf<T>(IEnumerable<T> src)
         {
             try
