@@ -5,34 +5,50 @@ using System.Reflection.Emit;
 
 namespace PeanutButter.RandomGenerators
 {
+    /// <summary>
+    /// Abstract base class for housing shared logic between all builders and
+    /// allowing a base, unconstructable class to use to reference a collection
+    /// of builders
+    /// </summary>
     public abstract class GenericBuilderBase
     {
         // ReSharper disable once MemberCanBeProtected.Global
         // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global
+        /// <summary>
+        /// Sets the maximum level to go to when generating random properties of
+        /// random properties, to prevent stack and memory overflows
+        /// </summary>
         public static int MaxRandomPropsLevel { get; set; } = 10;
+        /// <summary>
+        /// Holds a lookup of all GenericBuilder classes which have been generated
+        /// to facilitate automatic property building. Searched when looking for a builder
+        /// to generate a property before attempting to generate a builder type (re-use)
+        /// </summary>
         protected static readonly Dictionary<Type, Type> DynamicBuilders = new Dictionary<Type, Type>();
+        /// <summary>
+        /// Holds a lookup of GenericBuilder classes which were provided by consuming
+        /// code. Searched before searching the DynamicBuilders lookup or attempting to create
+        /// an auto-generated builder type.
+        /// </summary>
         protected static readonly Dictionary<Type, Type> UserBuilders = new Dictionary<Type, Type>(); 
 
+        /// <summary>
+        /// Provides a lookup to the type which is the generic Nulllable
+        /// </summary>
         protected static readonly Type NullableGeneric = typeof (Nullable<>);
 
-        protected static readonly Type[] CollectionGenerics =
-        {
-            typeof(ICollection<>),
-            typeof(IEnumerable<>),
-            typeof(List<>),
-            typeof(IList<>),
-            typeof(IDictionary<,>),
-            typeof(Dictionary<,>)
-        };
-
+        /// <summary>
+        /// Provides a lookup to the type which is the GenericBuilder
+        /// </summary>
         protected static readonly Type GenericBuilderBaseType = typeof(GenericBuilder<,>);
-        private static readonly object DynamicAssemblyLock = new object();
+        private static readonly object _dynamicAssemblyLock = new object();
         private static AssemblyBuilder _dynamicAssemblyBuilderField;
-        protected static AssemblyBuilder DynamicAssemblyBuilder
+
+        private static AssemblyBuilder DynamicAssemblyBuilder
         {
             get
             {
-                lock (DynamicAssemblyLock)
+                lock (_dynamicAssemblyLock)
                 {
                     return _dynamicAssemblyBuilderField ?? (_dynamicAssemblyBuilderField = DefineDynamicAssembly("PeanutButter.RandomGenerators.GeneratedBuilders"));
                 }

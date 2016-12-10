@@ -7,20 +7,44 @@ using PeanutButter.TestUtils.Generic;
 
 namespace PeanutButter.RandomGenerators
 {
+    /// <summary>
+    /// Locator class which attempts to find suitable builders on demand
+    /// </summary>
     public static class GenericBuilderLocator
     {
+        /// <summary>
+        /// Attempts to find a GenericBuilder type which is capable of building the
+        /// provided type. Will cause generation of the builder if an existing type
+        /// cannot be found.
+        /// </summary>
+        /// <param name="type">Type for which a builder is required</param>
+        /// <returns>GenericBuilder type which can be constructed and used to build!</returns>
         public static Type GetBuilderFor(Type type)
         {
             return TryFindExistingBuilderFor(type)
                     ?? FindOrGenerateDynamicBuilderFor(type);
         }
 
+        /// <summary>
+        /// Searches for an existing builder for the given type, first considering
+        /// the same assembly as the provided type and then considering all assemblies
+        /// within the AppDomain of the provided type.
+        /// </summary>
+        /// <param name="type">Type to search for a builder for</param>
+        /// <returns>GenericBuilder type or null if no suitable builder was found</returns>
         public static Type TryFindExistingBuilderFor(Type type)
         {
             return TryFindBuilderInCurrentAssemblyFor(type)
                    ?? TryFindBuilderInAnyOtherAssemblyInAppDomainFor(type);
         }
 
+        /// <summary>
+        /// Attempts to find a dynamic builder (ie, generated GenericBuilder type)
+        /// for the provided type. Will cause generation of a new GenericBuilder implementation
+        /// if an existing one cannot be found.
+        /// </summary>
+        /// <param name="type">Type to find a builder for</param>
+        /// <returns>GenericBuilder type which is capable of building the provided type</returns>
         public static Type FindOrGenerateDynamicBuilderFor(Type type)
         {
             return GenericBuilderBase.FindOrGenerateDynamicBuilderFor(type);

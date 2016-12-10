@@ -2,10 +2,10 @@ using System;
 
 namespace PeanutButter.RandomGenerators
 {
-    public static class BuilderFinderExtensions
+    internal static class BuilderFinderExtensions
     {
-        private static Type _genericBuilderBaseType = typeof(GenericBuilder<,>);
-        private static Type _objectType = typeof(object);
+        private static readonly Type _genericBuilderBaseType = typeof(GenericBuilder<,>);
+        private static readonly Type _objectType = typeof(object);
 
         public static bool IsBuilderFor(this Type t, Type toBuild)
         {

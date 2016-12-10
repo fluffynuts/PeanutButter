@@ -48,7 +48,7 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Test Result -----------------------
             StringAssert.Contains(builderType.Name, sut.Message);
             StringAssert.Contains(entityType.Name, sut.Message);
-            StringAssert.Contains("default constructor", sut.Message);
+            StringAssert.Contains("parameterless constructor", sut.Message);
             StringAssert.Contains("override CreateInstance", sut.Message);
         }
 

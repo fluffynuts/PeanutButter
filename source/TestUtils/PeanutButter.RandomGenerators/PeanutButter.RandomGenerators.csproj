@@ -22,6 +22,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>bin\Debug\PeanutButter.RandomGenerators.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,6 +32,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>bin\Release\PeanutButter.RandomGenerators.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -51,6 +53,7 @@
     <Compile Include="GenericBuilderLocator.cs" />
     <Compile Include="GenericBuilderBase.cs" />
     <Compile Include="IBuilder.cs" />
+    <Compile Include="IGenericBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RandomValueGen.cs" />
     <Compile Include="StringArrayExtensionsForMatchingNamespaces.cs" />
@@ -70,7 +73,9 @@
   <PropertyGroup>
     <PostBuildEvent>mkdir $(SolutionDir)TestUtils\$(ProjectName).NugetPackage\lib\net45
 del /Q $(SolutionDir)TestUtils\$(ProjectName).NugetPackage\lib\net45\*.*
-copy $(TargetPath) $(SolutionDir)TestUtils\$(ProjectName).NugetPackage\lib\net45\</PostBuildEvent>
+copy $(TargetPath) $(SolutionDir)TestUtils\$(ProjectName).NugetPackage\lib\net45\
+copy $(TargetDir)\$(ProjectName).pdb  $(SolutionDir)TestUtils\$(ProjectName).NugetPackage\lib\net45\
+copy $(TargetDir)\$(ProjectName).xml $(SolutionDir)TestUtils\$(ProjectName).NugetPackage\lib\net45\</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

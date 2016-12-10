@@ -15,15 +15,15 @@ using PeanutButter.Utils;
 
 namespace PeanutButter.RandomGenerators
 {
-    public interface IGenericBuilder
-    {
-        IGenericBuilder WithBuildLevel(int level);
-        IGenericBuilder GenericWithRandomProps();
-        object GenericBuild();
-    }
-
+    /// <summary>
+    /// Base class for builders to produce instance of objects with a fluent
+    /// builder-like syntax. Also includes utilities like randomizing property
+    /// values.
+    /// </summary>
+    /// <typeparam name="TBuilder">Concrete type of the current builder, required to be able to return the builder from all With* methods</typeparam>
+    /// <typeparam name="TEntity">Type of entity this builder builds</typeparam>
     public class GenericBuilder<TBuilder, TEntity> : GenericBuilderBase, IGenericBuilder, IBuilder<TEntity>
-        where TBuilder : GenericBuilder<TBuilder, TEntity> //, new()
+        where TBuilder : GenericBuilder<TBuilder, TEntity>
     {
         private static readonly List<Action<TEntity>> _defaultPropMods = new List<Action<TEntity>>();
         private readonly List<Action<TEntity>> _propMods = new List<Action<TEntity>>();
@@ -44,11 +44,16 @@ namespace PeanutButter.RandomGenerators
         }
 
 
+        /// <summary>
+        /// Creates a new instance of the builder; used to provide a fluent syntax
+        /// </summary>
+        /// <returns>New instance of the builder</returns>
         public static TBuilder Create()
         {
             return Activator.CreateInstance<TBuilder>();
         }
 
+        /// <inheritdoc />
         public IGenericBuilder GenericWithRandomProps()
         {
             return _buildLevel > MaxRandomPropsLevel
@@ -56,33 +61,56 @@ namespace PeanutButter.RandomGenerators
                 : WithRandomProps();
         }
 
+        /// <inheritdoc />
         public IGenericBuilder WithBuildLevel(int level)
         {
             _buildLevel = level;
             return this;
         }
 
+        /// <inheritdoc />
         public object GenericBuild()
         {
             return Build();
         }
 
+        /// <summary>
+        /// Builds a default instance of the entity
+        /// </summary>
+        /// <returns>New instance of the builder entity</returns>
         public static TEntity BuildDefault()
         {
             return Create().Build();
         }
 
+        /// <summary>
+        /// Convenience method: Creates a builder, sets random properties, returns a new instance of the entity
+        /// </summary>
+        /// <returns>New instance of TEntity with all randomizable properties randomized</returns>
         public static TEntity BuildRandom()
         {
             return Create().WithRandomProps().Build();
         }
 
         // ReSharper disable once UnusedMember.Global
+        /// <summary>
+        /// Adds a default property setter, shared amongst all instances of this 
+        /// particular builder type
+        /// </summary>
+        /// <param name="action">
+        /// Action to perform on the entity being built, will run before any
+        /// actions specified on the instance
+        /// </param>
         public static void WithDefaultProp(Action<TEntity> action)
         {
             _defaultPropMods.Add(action);
         }
 
+        /// <summary>
+        /// Generric method to set a property on the entity.
+        /// </summary>
+        /// <param name="action">Action to run on the entity at build time</param>
+        /// <returns>The current instance of the builder</returns>
         public TBuilder WithProp(Action<TEntity> action)
         {
             _propMods.Add(action);
@@ -91,6 +119,13 @@ namespace PeanutButter.RandomGenerators
 
         // ReSharper disable once MemberCanBeProtected.Global
         // ReSharper disable once VirtualMemberNeverOverridden.Global
+        /// <summary>
+        /// Constructs a new instance of the entity. Mostly, an inheriter won't have to
+        /// care, but if your entity has no parameterless constructor, you'll want to override
+        /// this in your derived builder.
+        /// </summary>
+        /// <returns>New instance of TEntity, constructed from the parameterless constructor, when possible</returns>
+        /// <exception cref="GenericBuilderInstanceCreationException"></exception>
         public virtual TEntity ConstructEntity()
         {
             try
@@ -237,6 +272,11 @@ namespace PeanutButter.RandomGenerators
                                      t.HasDefaultConstructor());
         }
 
+        /// <summary>
+        /// Builds the instance of TEntity, applying all builder actions in
+        /// order to provide the required entity
+        /// </summary>
+        /// <returns>An instance of TEntity with all builder actions run on it</returns>
         public virtual TEntity Build()
         {
             var entity = ConstructEntity();
@@ -247,6 +287,12 @@ namespace PeanutButter.RandomGenerators
             return entity;
         }
 
+        /// <summary>
+        /// Randomizes all properties on the instance of TEntity being built.
+        /// This method will use methods from RandomValueGen and may generate
+        /// new GenericBuilder types for generating more complex properties
+        /// </summary>
+        /// <returns>The current builder instance</returns>
         public virtual TBuilder WithRandomProps()
         {
             WithProp(SetRandomProps);
@@ -379,6 +425,11 @@ namespace PeanutButter.RandomGenerators
         }
 
         // ReSharper disable once VirtualMemberNeverOverridden.Global
+        /// <summary>
+        /// Attempts to fill collections with random data. May fail with stack-overflows
+        /// on complex, cyclic-referencing objects. Use with caution.
+        /// </summary>
+        /// <returns>The current instance of the builder</returns>
         public virtual TBuilder WithFilledCollections()
         {
             return WithProp(o =>

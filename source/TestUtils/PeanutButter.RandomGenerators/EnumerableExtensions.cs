@@ -2,8 +2,18 @@
 
 namespace PeanutButter.RandomGenerators
 {
+    /// <summary>
+    /// Provides extensions for generic IEnumerable collections
+    /// </summary>
     public static class EnumerableExtensions
     {
+        /// <summary>
+        /// Takes an input collection and returns a new collection which is the
+        /// input collection in random order
+        /// </summary>
+        /// <param name="input">Collection to randomize</param>
+        /// <typeparam name="T">Item type of the collection</typeparam>
+        /// <returns>A new collection with the same items as the original, but in random order</returns>
         public static IEnumerable<T> Randomize<T>(this IEnumerable<T> input)
         {
             if (input == null)
