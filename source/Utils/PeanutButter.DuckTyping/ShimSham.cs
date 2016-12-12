@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using PeanutButter.DuckTyping.AutoConversion;
 using PeanutButter.DuckTyping.Exceptions;
@@ -25,9 +26,9 @@ namespace PeanutButter.DuckTyping
         private static readonly Dictionary<Type, MethodInfoContainer> _methodInfos = new Dictionary<Type, MethodInfoContainer>();
         private static readonly Dictionary<Type, Dictionary<string, FieldInfo>> _fieldInfos = new Dictionary<Type, Dictionary<string, FieldInfo>>();
 
-        private Dictionary<string, PropertyInfo> _localPropertyInfos;
         private Dictionary<string, FieldInfo> _localFieldInfos;
         private Dictionary<string, MethodInfo> _localMethodInfos;
+        private Dictionary<string, PropertyInfo> _localPropertyInfos;
         private readonly Dictionary<string, object> _shimmedProperties = new Dictionary<string, object>();
         private readonly HashSet<string> _unshimmableProperties = new HashSet<string>();
         private PropertyInfoContainer _mimickedPropInfos;
@@ -81,7 +82,7 @@ namespace PeanutButter.DuckTyping
             _mimickedPropInfos = new PropertyInfoContainer(
                 interfaceToMimick.GetAllImplementedInterfaces()
                     .Select(i => _propertyInfoFetcher
-                                    .GetProperties(i, bindingFlags))
+                        .GetProperties(i, bindingFlags))
                     .SelectMany(c => c)
                     .ToArray()
             );
@@ -127,7 +128,7 @@ namespace PeanutButter.DuckTyping
             if (_shimmedProperties.TryGetValue(propertyName, out existingShim))
                 return existingShim;
 
-            var propValue = wrappedPropertyInfo.GetValue(_wrapped);
+            var propValue = GetValueWithExpression(wrappedPropertyInfo);
 
             var correctType = _localMimickPropertyInfos[propertyName].PropertyType;
             if (propValue == null)
@@ -163,7 +164,6 @@ namespace PeanutButter.DuckTyping
         /// <inheritdoc />
         public void SetPropertyValue(string propertyName, object newValue)
         {
-
             if (_wrappingADuck)
             {
                 SetFieldValue(propertyName, newValue);
@@ -192,19 +192,7 @@ namespace PeanutButter.DuckTyping
             _shimmedProperties[propertyName] = instance;
         }
 
-        private void TrySetValue(object newValue, Type newValueType, PropertyInfo propInfo)
-        {
-            if (propInfo.PropertyType.IsAssignableFrom(newValueType))
-            {
-                propInfo.SetValue(_wrapped, newValue);
-                return;
-            }
-            var converter = ConverterLocator.GetConverter(newValueType, propInfo.PropertyType);
-            if (converter == null)
-                throw new InvalidOperationException($"Unable to set property: no converter for {newValueType.Name} => {propInfo.PropertyType.Name}");
-            var converted = ConvertWith(converter, newValue, propInfo.PropertyType);
-            propInfo.SetValue(_wrapped, converted);
-        }
+
 
         /// <inheritdoc />
         public void CallThroughVoid(string methodName, params object[] parameters)
@@ -238,7 +226,7 @@ namespace PeanutButter.DuckTyping
             var srcTypes = parameters.Select(o => o?.GetType()).ToArray();
             var dstTypes = methodParameters.Select(p => p.ParameterType).ToArray();
             if (AlreadyInCorrectOrderByType(srcTypes, dstTypes))
-                return parameters;  // no need to change anything here and we don't have to care about parameters with the same type
+                return parameters; // no need to change anything here and we don't have to care about parameters with the same type
             if (dstTypes.Distinct().Count() != dstTypes.Length)
                 throw new UnresolveableParameterOrderMismatchException(dstTypes, methodInfo);
             return Reorder(parameters, dstTypes);
@@ -247,8 +235,8 @@ namespace PeanutButter.DuckTyping
         private object[] Reorder(object[] parameters, Type[] dstTypes)
         {
             return dstTypes
-                    .Select(type => FindBestMatchFor(type, parameters))
-                    .ToArray();
+                .Select(type => FindBestMatchFor(type, parameters))
+                .ToArray();
         }
 
         private static object FindBestMatchFor(Type type, object[] parameters)
@@ -276,8 +264,8 @@ namespace PeanutButter.DuckTyping
         private void LocallyCachePropertyInfos()
         {
             _localPropertyInfos = _isFuzzy
-                                    ? _propertyInfos[_wrappedType].FuzzyPropertyInfos
-                                    : _propertyInfos[_wrappedType].PropertyInfos;
+                ? _propertyInfos[_wrappedType].FuzzyPropertyInfos
+                : _propertyInfos[_wrappedType].PropertyInfos;
             if (_wrappingADuck)
                 _localFieldInfos = _fieldInfos[_wrappedType];
         }
@@ -285,15 +273,15 @@ namespace PeanutButter.DuckTyping
         private void LocallyCacheMimickedPropertyInfos()
         {
             _localMimickPropertyInfos = _isFuzzy
-                                       ? _mimickedPropInfos.FuzzyPropertyInfos
-                                       : _mimickedPropInfos.PropertyInfos;
+                ? _mimickedPropInfos.FuzzyPropertyInfos
+                : _mimickedPropInfos.PropertyInfos;
         }
 
         private void LocallyCacheMethodInfos()
         {
             _localMethodInfos = _isFuzzy
-                                ? _methodInfos[_wrappedType].FuzzyMethodInfos
-                                : _methodInfos[_wrappedType].MethodInfos;
+                ? _methodInfos[_wrappedType].FuzzyMethodInfos
+                : _methodInfos[_wrappedType].MethodInfos;
         }
 
         private void StaticallyCachePropertyInfosFor(object toCacheFor, bool cacheFieldInfosToo)
@@ -310,11 +298,11 @@ namespace PeanutButter.DuckTyping
                 if (!cacheFieldInfosToo)
                     return;
                 _fieldInfos[type] = type
-                                .GetFields(BindingFlags.Instance | BindingFlags.NonPublic)
-                                .ToDictionary(
-                                    fi => fi.Name,
-                                    fi => fi
-                                );
+                    .GetFields(BindingFlags.Instance | BindingFlags.NonPublic)
+                    .ToDictionary(
+                        fi => fi.Name,
+                        fi => fi
+                    );
             }
         }
 
@@ -323,16 +311,23 @@ namespace PeanutButter.DuckTyping
             return _wrappedType.GetCustomAttributes(true).OfType<IsADuckAttribute>().Any();
         }
 
+        private readonly Dictionary<string, PropertyInfo> _propertyInfoLookupCache = new Dictionary<string, PropertyInfo>();
+
         private PropertyInfo FindPropertyInfoFor(string propertyName)
         {
+            PropertyInfo propInfo;
+            if (_propertyInfoLookupCache.TryGetValue(propertyName, out propInfo))
+                return propInfo;
+
             object shimmed;
             if (_shimmedProperties.TryGetValue(propertyName, out shimmed))
             {
+                _propertyInfoLookupCache[propertyName] = _localMimickPropertyInfos[propertyName];
                 return _localMimickPropertyInfos[propertyName];
             }
-            PropertyInfo propInfo;
             if (!_localPropertyInfos.TryGetValue(propertyName, out propInfo))
                 throw new PropertyNotFoundException(_wrappedType, propertyName);
+            _propertyInfoLookupCache[propertyName] = propInfo;
             return propInfo;
         }
 
@@ -356,6 +351,75 @@ namespace PeanutButter.DuckTyping
                 throw new BackingFieldForPropertyNotFoundException(_wrappedType, propertyName);
             return fieldInfo;
         }
-    }
 
+
+        // borrowed from http://stackoverflow.com/questions/17660097/is-it-possible-to-speed-this-method-up/17669142#17669142
+        //  -> use compiled lambdas for property get / set which provides a performance
+        //      boost in that the runtime doesn't have to perform as much checking
+        private readonly Dictionary<string, Action<object>> _quickSetters = new Dictionary<string, Action<object>>();
+        private readonly Dictionary<string, Func<object>> _quickGetters = new Dictionary<string, Func<object>>();
+
+        private void SetValueWithExpression(PropertyInfo propInfo, object newValue)
+        {
+            Action<object> setter;
+            if (!_quickSetters.TryGetValue(propInfo.Name, out setter))
+            {
+                setter = BuildUntypedSetter(propInfo);
+                _quickSetters[propInfo.Name] = setter;
+            }
+            setter(newValue);
+        }
+
+        private Action<object> BuildUntypedSetter(PropertyInfo propertyInfo)
+        {
+            var methodInfo = propertyInfo.GetSetMethod();
+            var exValue = Expression.Parameter(typeof(object), "p");
+            var exTarget = Expression.Constant(_wrapped);
+            var exBody = Expression.Call(exTarget, methodInfo,
+                Expression.Convert(exValue, propertyInfo.PropertyType));
+
+            var lambda = Expression.Lambda<Action<object>>(exBody, exValue);
+            var action = lambda.Compile();
+            return action;
+        }
+
+        private void TrySetValue(object newValue, Type newValueType, PropertyInfo propInfo)
+        {
+            if (propInfo.PropertyType.IsAssignableFrom(newValueType))
+            {
+                SetValueWithExpression(propInfo, newValue);
+                return;
+            }
+            var converter = ConverterLocator.GetConverter(newValueType, propInfo.PropertyType);
+            if (converter == null)
+                throw new InvalidOperationException($"Unable to set property: no converter for {newValueType.Name} => {propInfo.PropertyType.Name}");
+            var converted = ConvertWith(converter, newValue, propInfo.PropertyType);
+            SetValueWithExpression(propInfo, converted);
+        }
+
+        private Func<object> BuildUntypedGetter(PropertyInfo propertyInfo)
+        {
+            var methodInfo = propertyInfo.GetGetMethod();
+
+            var exTarget = Expression.Constant(_wrapped);
+            var exBody = Expression.Call(exTarget, methodInfo);
+            var exBody2 = Expression.Convert(exBody, typeof(object));
+
+            var lambda = Expression.Lambda<Func<object>>(exBody2);
+
+            var action = lambda.Compile();
+            return action;
+        }
+
+        private object GetValueWithExpression(PropertyInfo propInfo)
+        {
+            Func<object> getter;
+            if (!_quickGetters.TryGetValue(propInfo.Name, out getter))
+            {
+                getter = BuildUntypedGetter(propInfo);
+                _quickGetters[propInfo.Name] = getter;
+            }
+            return getter();
+        }
+    }
 }
