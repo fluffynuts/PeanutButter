@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -115,27 +117,27 @@ namespace PeanutButter.DuckTyping
             if (_shimmedProperties.TryGetValue(propertyName, out shimmed))
                 return shimmed;
             var propInfo = FindPropertyInfoFor(propertyName);
-            if (!propInfo.CanRead)
+            if (!propInfo.PropertyInfo.CanRead || propInfo.Getter == null)
             {
                 throw new WriteOnlyPropertyException(_wrappedType, propertyName);
             }
             return DuckIfRequired(propInfo, propertyName);
         }
 
-        private object DuckIfRequired(PropertyInfo wrappedPropertyInfo, string propertyName)
+        private object DuckIfRequired(PropertyInfoCacheItem propertyInfoCacheItem, string propertyName)
         {
             object existingShim;
             if (_shimmedProperties.TryGetValue(propertyName, out existingShim))
                 return existingShim;
-
-            var propValue = GetValueWithExpression(wrappedPropertyInfo);
+            var getter = propertyInfoCacheItem.Getter;
+            var propValue = getter();
 
             var correctType = _localMimickPropertyInfos[propertyName].PropertyType;
             if (propValue == null)
             {
                 return GetDefaultValueFor(correctType);
             }
-            var propValueType = propValue.GetType();
+            var propValueType = propertyInfoCacheItem.PropertyInfo.PropertyType;
             if (correctType.IsAssignableFrom(propValueType))
                 return propValue;
             var converter = ConverterLocator.GetConverter(propValueType, correctType);
@@ -171,23 +173,25 @@ namespace PeanutButter.DuckTyping
             }
 
             var propInfo = FindPropertyInfoFor(propertyName);
-            if (!propInfo.CanWrite)
+            if (!propInfo.PropertyInfo.CanWrite || propInfo.Setter == null)
             {
                 throw new ReadOnlyPropertyException(_wrappedType, propertyName);
             }
             var mimickedPropInfo = _localMimickPropertyInfos[propertyName];
             var newValueType = newValue?.GetType();
+            var mimickedType = mimickedPropInfo.PropertyType;
             if (newValueType == null)
             {
-                propInfo.SetValue(_wrapped, GetDefaultValueFor(mimickedPropInfo.PropertyType));
+                var defaultValue = GetDefaultValueFor(mimickedType);
+                TrySetValue(defaultValue, mimickedType, propInfo);
                 return;
             }
-            if (mimickedPropInfo.PropertyType.IsAssignableFrom(newValueType))
+            if (mimickedType.IsAssignableFrom(newValueType))
             {
                 TrySetValue(newValue, newValueType, propInfo);
                 return;
             }
-            var duckType = MakeTypeToImplement(mimickedPropInfo.PropertyType, _isFuzzy);
+            var duckType = MakeTypeToImplement(mimickedType, _isFuzzy);
             var instance = Activator.CreateInstance(duckType, newValue);
             _shimmedProperties[propertyName] = instance;
         }
@@ -311,24 +315,42 @@ namespace PeanutButter.DuckTyping
             return _wrappedType.GetCustomAttributes(true).OfType<IsADuckAttribute>().Any();
         }
 
-        private readonly Dictionary<string, PropertyInfo> _propertyInfoLookupCache = new Dictionary<string, PropertyInfo>();
-
-        private PropertyInfo FindPropertyInfoFor(string propertyName)
+        private readonly ListDictionary _propertyInfoLookupCache = new ListDictionary();
+        private struct PropertyInfoCacheItem
         {
-            PropertyInfo propInfo;
-            if (_propertyInfoLookupCache.TryGetValue(propertyName, out propInfo))
-                return propInfo;
+            public PropertyInfo PropertyInfo;
+            public Action<object> Setter;
+            public Func<object> Getter;
+        }
 
+        private PropertyInfoCacheItem FindPropertyInfoFor(string propertyName)
+        {
+            PropertyInfoCacheItem cacheItem;
+            if (_propertyInfoLookupCache.Contains(propertyName))
+                return (PropertyInfoCacheItem)_propertyInfoLookupCache[propertyName];
             object shimmed;
             if (_shimmedProperties.TryGetValue(propertyName, out shimmed))
             {
-                _propertyInfoLookupCache[propertyName] = _localMimickPropertyInfos[propertyName];
-                return _localMimickPropertyInfos[propertyName];
+                cacheItem = CreateCacheItemFor(_localMimickPropertyInfos[propertyName]);
+                _propertyInfoLookupCache[propertyName] = cacheItem;
+                return cacheItem;
             }
-            if (!_localPropertyInfos.TryGetValue(propertyName, out propInfo))
+            PropertyInfo pi;
+            if (!_localPropertyInfos.TryGetValue(propertyName, out pi))
                 throw new PropertyNotFoundException(_wrappedType, propertyName);
-            _propertyInfoLookupCache[propertyName] = propInfo;
-            return propInfo;
+            cacheItem = CreateCacheItemFor(pi);
+            _propertyInfoLookupCache[propertyName] = cacheItem;
+            return cacheItem;
+        }
+
+        private PropertyInfoCacheItem CreateCacheItemFor(PropertyInfo propertyInfo)
+        {
+            return new PropertyInfoCacheItem
+            {
+                PropertyInfo = propertyInfo,
+                Setter = CreateSetterExpressionFor(propertyInfo),
+                Getter = CreateGetterExpressionFor(propertyInfo)
+            };
         }
 
         private void SetFieldValue(string propertyName, object newValue)
@@ -356,23 +378,12 @@ namespace PeanutButter.DuckTyping
         // borrowed from http://stackoverflow.com/questions/17660097/is-it-possible-to-speed-this-method-up/17669142#17669142
         //  -> use compiled lambdas for property get / set which provides a performance
         //      boost in that the runtime doesn't have to perform as much checking
-        private readonly Dictionary<string, Action<object>> _quickSetters = new Dictionary<string, Action<object>>();
-        private readonly Dictionary<string, Func<object>> _quickGetters = new Dictionary<string, Func<object>>();
 
-        private void SetValueWithExpression(PropertyInfo propInfo, object newValue)
-        {
-            Action<object> setter;
-            if (!_quickSetters.TryGetValue(propInfo.Name, out setter))
-            {
-                setter = BuildUntypedSetter(propInfo);
-                _quickSetters[propInfo.Name] = setter;
-            }
-            setter(newValue);
-        }
-
-        private Action<object> BuildUntypedSetter(PropertyInfo propertyInfo)
+        private Action<object> CreateSetterExpressionFor(PropertyInfo propertyInfo)
         {
             var methodInfo = propertyInfo.GetSetMethod();
+            if (methodInfo == null)
+                return null;
             var exValue = Expression.Parameter(typeof(object), "p");
             var exTarget = Expression.Constant(_wrapped);
             var exBody = Expression.Call(exTarget, methodInfo,
@@ -383,23 +394,27 @@ namespace PeanutButter.DuckTyping
             return action;
         }
 
-        private void TrySetValue(object newValue, Type newValueType, PropertyInfo propInfo)
+        private void TrySetValue(object newValue, Type newValueType, PropertyInfoCacheItem propInfo)
         {
-            if (propInfo.PropertyType.IsAssignableFrom(newValueType))
+            var pType = propInfo.PropertyInfo.PropertyType;
+            var setter = propInfo.Setter;
+            if (pType.IsAssignableFrom(newValueType))
             {
-                SetValueWithExpression(propInfo, newValue);
+                setter(newValue);
                 return;
             }
-            var converter = ConverterLocator.GetConverter(newValueType, propInfo.PropertyType);
+            var converter = ConverterLocator.GetConverter(newValueType, pType);
             if (converter == null)
-                throw new InvalidOperationException($"Unable to set property: no converter for {newValueType.Name} => {propInfo.PropertyType.Name}");
-            var converted = ConvertWith(converter, newValue, propInfo.PropertyType);
-            SetValueWithExpression(propInfo, converted);
+                throw new InvalidOperationException($"Unable to set property: no converter for {newValueType.Name} => {pType.Name}");
+            var converted = ConvertWith(converter, newValue, pType);
+            setter(converted);
         }
 
-        private Func<object> BuildUntypedGetter(PropertyInfo propertyInfo)
+        private Func<object> CreateGetterExpressionFor(PropertyInfo propertyInfo)
         {
             var methodInfo = propertyInfo.GetGetMethod();
+            if (methodInfo == null)
+                return null;
 
             var exTarget = Expression.Constant(_wrapped);
             var exBody = Expression.Call(exTarget, methodInfo);
@@ -411,15 +426,17 @@ namespace PeanutButter.DuckTyping
             return action;
         }
 
-        private object GetValueWithExpression(PropertyInfo propInfo)
+    }
+
+    internal static class ListDictionaryConversionExtensions
+    {
+        internal static ListDictionary ToListDictionary(this IDictionary<string, PropertyInfo> src, IComparer comparer)
         {
-            Func<object> getter;
-            if (!_quickGetters.TryGetValue(propInfo.Name, out getter))
-            {
-                getter = BuildUntypedGetter(propInfo);
-                _quickGetters[propInfo.Name] = getter;
-            }
-            return getter();
+            var result = new ListDictionary(comparer);
+            foreach (var kvp in src)
+                result.Add(kvp.Key, kvp.Value);
+            return result;
         }
     }
+
 }

@@ -21,8 +21,9 @@ namespace PeanutButter.DuckTyping.Tests
         public void TestSetTimed()
         {
             // Compares PB duck-typing with plain reflection and ImpromptuInterfaces (InvokeSet and using an ActLike<> invocation)
-            // So far, PB-duck-typing is about twice as slow (when profiled) as II. Perhaps this can get better...
-            const int TIMES = 500000;
+            // So far, PB-duck-typing is about twice as slow (when profiled) as II. Perhaps this can get better... Though the penalty
+            // may be worth it when considering the extra features (like fuzzy-ducking)
+            const int TIMES = 1000000;
             var tPoco = new PropPoco();
 
             var tSetValue = "1";
@@ -36,14 +37,11 @@ namespace PeanutButter.DuckTyping.Tests
             var ducked = tPoco.DuckAs<IPropPoco>();
             Assert.IsNotNull(ducked);
             var tWatch3 = TimeIt.Go(() => ducked.Prop1 = tSetValue, TIMES);
-            var acting = tPoco.ActLike<IPropPoco>();
-            var tWatch4 = TimeIt.Go(() => acting.Prop1 = tSetValue, TIMES);
 
 
             TestContext.WriteLine("InvokeSet: " + tWatch.Elapsed);
             TestContext.WriteLine("Reflection: " + tWatch2.Elapsed);
             TestContext.WriteLine("Ducked: " + tWatch3.Elapsed);
-            TestContext.WriteLine("Impromptu: " + tWatch4.Elapsed);
         }
 
         [Serializable]
@@ -61,6 +59,7 @@ namespace PeanutButter.DuckTyping.Tests
             long Prop2 { get; set; }
             Guid Prop3 { get; set; }
             int Event { get; set; }
+
         }
 
 
