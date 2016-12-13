@@ -139,6 +139,7 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
                 //---------------Test Result -----------------------
             }
         }
+
         [TestCase("GET", HttpMethods.Get)]
         [TestCase("POST", HttpMethods.Post)]
         public void ShouldHaveReceivedRequestFor_GivenPathAndMethod_ShouldNotThrowWhenHaveReceivedMatchingRequestWithParameters_(string method, HttpMethods httpMethod)
@@ -384,7 +385,7 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
             }
             catch
             {
-                
+                /* intentionally left blank */
             }
         }
 
@@ -395,6 +396,7 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
             headers?.ForEach(h => request.Headers[h.Key] = h.Value);
             using (var stream = request.GetResponse())
             {
+                /* intentially left blank */
             }
         }
 
