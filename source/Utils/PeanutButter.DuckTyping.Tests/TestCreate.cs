@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using PeanutButter.DuckTyping.Extensions;
-using PeanutButter.DuckTyping.Tests.Extensions;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.DuckTyping.Tests

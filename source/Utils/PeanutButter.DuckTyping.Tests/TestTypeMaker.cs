@@ -19,8 +19,42 @@ namespace PeanutButter.DuckTyping.Tests
             string Name { get; }
         }
 
+        public class NotAnInterface
+        {
+        }
+
         [Test]
-        public void BuildFor_GivenInterfaceWithOneProperty_ShouldReturnTypeImplementingThatInterface()
+        public void MakeTypeImplementing_InvokedWithNonInterfaceTypeParameter_ShouldThrow()
+        {
+            //--------------- Arrange -------------------
+            var sut = Create();
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            Expect(() => sut.MakeTypeImplementing<NotAnInterface>(),
+                Throws.Exception.InstanceOf<InvalidOperationException>());
+
+            //--------------- Assert -----------------------
+        }
+
+        [Test]
+        public void MakeFuzzyTypeImplementing_InvokedWithNonInterfaceTypeParameter_ShouldThrow()
+        {
+            //--------------- Arrange -------------------
+            var sut = Create();
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            Expect(() => sut.MakeFuzzyTypeImplementing<NotAnInterface>(),
+                Throws.Exception.InstanceOf<InvalidOperationException>());
+
+            //--------------- Assert -----------------------
+        }
+
+        [Test]
+        public void MakeTypeImplementing_GivenInterfaceWithOneProperty_ShouldReturnTypeImplementingThatInterface()
         {
             //--------------- Arrange -------------------
             var sut = Create();
@@ -43,7 +77,7 @@ namespace PeanutButter.DuckTyping.Tests
         }
 
         [Test]
-        public void BuildFor_GivenInterfaceWithTwoReadOnlyProperties_ShouldProduceTypeWithWritableProperties()
+        public void MakeTypeImplementing_GivenInterfaceWithTwoReadOnlyProperties_ShouldProduceTypeWithWritableProperties()
         {
             //--------------- Arrange -------------------
             var sut = Create();

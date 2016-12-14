@@ -288,8 +288,118 @@ namespace PeanutButter.DuckTyping.Tests
             Expect(toWrap.id, Is.EqualTo(guid.ToString()));
         }
 
+        public class WithIntId
+        {
+            public int Id { get; set; }
+        }
+
+        public interface IWithIntId
+        {
+            int Id { get; set; }
+        }
+
+        [Test]
+        public void SetPropertyValue_WhenUnderlyingFieldIsNotNullable_GivenNull_ShouldSetDefaultValueForFieldType()
+        {
+            //--------------- Arrange -------------------
+            var inner = new WithIntId() { Id = 12 };
+            var sut = Create(inner, typeof(IWithIntId), true);
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            sut.SetPropertyValue("Id", null);
+
+            //--------------- Assert -----------------------
+            Expect(inner.Id, Is.EqualTo(0));
+        }
+
+        public interface IWithWriteOnlyId
+        {
+            int Id { set; }
+        }
+        public class WithWriteOnlyId
+        {
+            public int Id { private get; set; }
+        }
+        [Test]
+        public void GetPropertyValue_WhenPropertyIsWriteOnly_ShouldThrow()
+        {
+            //--------------- Arrange -------------------
+            var sut = Create(new WithWriteOnlyId(), typeof(IWithWriteOnlyId), true);
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            Expect(() => sut.GetPropertyValue("Id"),
+                Throws.Exception.InstanceOf<WriteOnlyPropertyException>());
+
+            //--------------- Assert -----------------------
+        }
+
+        public interface IWithReadOnlyId
+        {
+            int Id { get; }
+        }
+        public class WithReadOnlyId
+        {
+            public int Id { get; }
+        }
+        [Test]
+        public void SetPropertyValue_WhenPropertyIsReadOnly_ShouldThrow()
+        {
+            //--------------- Arrange -------------------
+            var sut = Create(new WithReadOnlyId(), typeof(IWithReadOnlyId), true);
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            Expect(() => sut.SetPropertyValue("Id", 1),
+                Throws.Exception.InstanceOf<ReadOnlyPropertyException>());
+
+            //--------------- Assert -----------------------
+        }
+
+        public class UnderlyingWithNull
+        {
+            public object Foo { get; set ;}
+        }
+
+        public interface IOverlyingNotNullable
+        {
+            int Foo { get; set; }
+        }
+
+        [Test]
+        public void GetPropertyValue_WhenUnderlyingValueNotNull_AndPropertyTypeIsNotNullable_AndNoConverter_ShouldReturnDefaultValue()
+        {
+            //--------------- Arrange -------------------
+            var sut = Create(new UnderlyingWithNull() { Foo = null }, typeof(IOverlyingNotNullable), true);
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = sut.GetPropertyValue("Foo");
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.EqualTo(0));
+        }
 
 
+        [Test]
+        public void GetPropertyValue_WhenUnderlyingValueIsNotNull_AndPropertyTypeIsNotNullable_AndNoConverter_ShouldReturnDefaultValue()
+        {
+            //--------------- Arrange -------------------
+            var sut = Create(new UnderlyingWithNull() { Foo = new object() }, typeof(IOverlyingNotNullable), true);
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = sut.GetPropertyValue("Foo");
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.EqualTo(0));
+        }
 
         private ShimSham Create(object toWrap, Type toMimick, bool isFuzzy = false)
         {

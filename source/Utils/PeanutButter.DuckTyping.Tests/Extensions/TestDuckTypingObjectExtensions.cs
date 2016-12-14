@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
+using NUnit.Framework.Constraints;
 using PeanutButter.DuckTyping.Exceptions;
 using PeanutButter.DuckTyping.Extensions;
 using PeanutButter.Utils;
@@ -889,15 +891,38 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
         public class MooAttribute: Attribute
         {
+            public string Dialect { get; }
+            public MooAttribute(string dialect)
+            {
+                Dialect = dialect;
+            }
         }
+        public class WoofAttribute: Attribute
+        {
+            public string Intent { get; }
+            public WoofAttribute(string intent)
+            {
+                Intent = intent;
+            }
+        }
+        public class NamedArgumentAttribute: Attribute
+        {
+            public string NamedProperty { get; set; }
+            public string NamedField;
+            public NamedArgumentAttribute()
+            {
+            }
+        }
+        [Woof("playful")]
         public interface IHasCustomAttributes
         {
-            [Moo]
+            [Moo("northern")]
+            [NamedArgument(NamedProperty = "whizzle", NamedField = "nom")]
             string Name { get; }
         }
 
         [Test]
-        public void DuckAs_ShouldCopyCustomAttributes()
+        public void DuckAs_ShouldCopyCustomAttributes_OnProperties()
         {
             //--------------- Arrange -------------------
             var input = new {
@@ -914,6 +939,48 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             Expect(propInfo, Is.Not.Null);
             var attrib = propInfo.GetCustomAttributes(false).OfType<MooAttribute>().FirstOrDefault();
             Expect(attrib, Is.Not.Null);
+            Expect(attrib?.Dialect, Is.EqualTo("northern"));
+        }
+
+        [Test]
+        public void DuckAs_ShouldCopyNamedArgumentCustomAttributes_OnProperties()
+        {
+            //--------------- Arrange -------------------
+            var input = new {
+                name = "cow"
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = input.FuzzyDuckAs<IHasCustomAttributes>();
+
+            //--------------- Assert -----------------------
+            var propInfo = result.GetType().GetProperty("Name");
+            Expect(propInfo, Is.Not.Null);
+            var attrib = propInfo.GetCustomAttributes(false).OfType<NamedArgumentAttribute>().FirstOrDefault();
+            Expect(attrib, Is.Not.Null);
+            Expect(attrib?.NamedProperty, Is.EqualTo("whizzle"));
+            Expect(attrib?.NamedField, Is.EqualTo("nom"));
+        }
+
+        [Test]
+        public void DuckAs_ShouldCopyCustomAttributes_OnTheInterface()
+        {
+            //--------------- Arrange -------------------
+            var input = new {
+                name = "cow"
+            };
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = input.FuzzyDuckAs<IHasCustomAttributes>();
+
+            //--------------- Assert -----------------------
+            var attrib = result.GetType().GetCustomAttributes(false).OfType<WoofAttribute>().FirstOrDefault();
+            Expect(attrib, Is.Not.Null);
+            Expect(attrib?.Intent, Is.EqualTo("playful"));
         }
 
         public class DialectAttribute: Attribute
@@ -1379,4 +1446,36 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
     }
+
+    [TestFixture]
+    public class TestCustomAttributeHelperExtensions: AssertionHelper
+    {
+        [Test]
+        public void ToAttributeBuilder_GivenNullCustomAttributeData_ShouldThrow()
+        {
+            //--------------- Arrange -------------------
+            CustomAttributeData data = null;
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            Expect(() => data.ToAttributeBuilder(), 
+                Throws.Exception
+                    .InstanceOf<ArgumentNullException>()
+                    .With.Message.Containing("data"));
+
+            //--------------- Assert -----------------------
+        }
+    }
+
+    public static class Ext
+    {
+        public static ContainsConstraint Containing(
+            this ResolvableConstraintExpression expr,
+            string expected
+        )
+        {
+            return expr.Contain(expected);
+        }
+    }
+
 }

@@ -428,15 +428,4 @@ namespace PeanutButter.DuckTyping
 
     }
 
-    internal static class ListDictionaryConversionExtensions
-    {
-        internal static ListDictionary ToListDictionary(this IDictionary<string, PropertyInfo> src, IComparer comparer)
-        {
-            var result = new ListDictionary(comparer);
-            foreach (var kvp in src)
-                result.Add(kvp.Key, kvp.Value);
-            return result;
-        }
-    }
-
 }

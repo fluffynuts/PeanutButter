@@ -116,6 +116,48 @@ namespace PeanutButter.DuckTyping.Tests.AutoConversion
         }
 
 
+        public interface IConvertMe1
+        {
+        }
+        public interface IConvertMe2
+        {
+        }
+        public class ConverterWithConstructorParameters: IConverter<IConvertMe1, IConvertMe2>
+        {
+            public Type T1 => typeof(IConvertMe1);
+            public Type T2 => typeof(IConvertMe2);
+            public string Moo { get; }
+            public ConverterWithConstructorParameters(string moo)
+            {
+                Moo = moo;
+            }
+            public IConvertMe1 Convert(IConvertMe2 input)
+            {
+                throw new NotImplementedException();
+            }
+
+            public IConvertMe2 Convert(IConvertMe1 input)
+            {
+                throw new NotImplementedException();
+            }
+        }
+        [Test]
+        public void ShouldNotExplodeWhenUnableToLoadConverter()
+        {
+            //--------------- Arrange -------------------
+            IConverter[] converters = null;
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            Expect(() => converters = ConverterLocator.Converters,
+                Throws.Nothing);
+
+            //--------------- Assert -----------------------
+            Expect(
+                converters.Any(c => c is ConverterWithConstructorParameters), 
+                Is.False);
+        }
+
 
 
     }

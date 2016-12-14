@@ -62,7 +62,7 @@ namespace PeanutButter.DuckTyping
         /// <returns>Type implementing requested interface</returns>
         protected Type MakeTypeToImplement(Type type, bool isFuzzy)
         {
-            var typeMaker = (_typeMaker ?? (_typeMaker = new TypeMaker()));
+            var typeMaker = _typeMaker ?? (_typeMaker = new TypeMaker());
             var genericMethod = isFuzzy ? _genericFuzzyMakeType : _genericMakeType;
             var specific = genericMethod.MakeGenericMethod(type);
             return specific.Invoke(typeMaker, null) as Type;
