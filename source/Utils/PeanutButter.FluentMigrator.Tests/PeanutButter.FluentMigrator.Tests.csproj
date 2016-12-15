@@ -66,6 +66,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Fakes\TestFakeDbCommand.cs" />
+    <Compile Include="Fakes\TestFakeDbConnection.cs" />
+    <Compile Include="Fakes\TestFakeDbConnectionFactory.cs" />
+    <Compile Include="Fakes\TestFakeDbDataAdapter.cs" />
+    <Compile Include="Fakes\TestFakeDbParameter.cs" />
+    <Compile Include="Fakes\TestFakeDbReader.cs" />
     <Compile Include="TestAnnouncerMessageRecorder.cs" />
     <Compile Include="TestDbMigrationsRunner.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

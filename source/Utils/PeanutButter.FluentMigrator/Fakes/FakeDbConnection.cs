@@ -27,11 +27,15 @@ namespace PeanutButter.FluentMigrator.Fakes
 
         public void ChangeDatabase(string databaseName)
         {
+            /* intentionally left blank */
         }
 
         public IDbCommand CreateCommand()
         {
-            return new FakeDbCommand();
+            return new FakeDbCommand()
+            {
+                Connection = this
+            };
         }
 
         public void Open()
@@ -40,7 +44,7 @@ namespace PeanutButter.FluentMigrator.Fakes
         }
 
         public string ConnectionString { get; set; }
-        public int ConnectionTimeout { get; set; }
+        public int ConnectionTimeout { get; set; } = 30;
         public string Database { get; set; }
         public ConnectionState State => _state;
     }
