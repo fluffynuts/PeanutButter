@@ -272,7 +272,7 @@ namespace PeanutButter.TinyEventAggregator.Tests
 
             //---------------Test Result -----------------------
             var delta = afterTest - beforeTest;
-            Assert.That(delta.TotalMilliseconds, Is.LessThanOrEqualTo(100));
+            Assert.That(delta.TotalMilliseconds, Is.LessThanOrEqualTo(200));
         }
 
         [Test]
