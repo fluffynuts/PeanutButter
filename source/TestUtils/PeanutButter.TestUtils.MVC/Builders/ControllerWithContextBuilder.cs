@@ -8,11 +8,9 @@ using System.Security.Claims;
 using System.Security.Principal;
 using System.Text.RegularExpressions;
 using System.Web;
-using System.Web.Mvc;
 using System.Web.Routing;
 using System.Web.SessionState;
 using Microsoft.AspNet.Identity;
-using PeanutButter.TestUtils.MVC.Builders;
 using NSubstitute;
 
 namespace PeanutButter.TestUtils.MVC.Builders

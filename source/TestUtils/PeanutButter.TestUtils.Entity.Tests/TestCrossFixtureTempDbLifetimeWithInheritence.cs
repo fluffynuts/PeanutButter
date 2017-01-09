@@ -4,6 +4,7 @@ using System.Data.Entity;
 using NUnit.Framework;
 using PeanutButter.Utils.Entity;
 using System.Linq;
+using System.Transactions;
 using PeanutButter.TestUtils.Entity.Attributes;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
@@ -17,23 +18,23 @@ namespace PeanutButter.TestUtils.Entity.Tests
         public string NoteText { get; set; }
     }
 
-    public class NotesContext : DbContext
+    public class NotesDbContext : DbContext
     {
+        public static string SCHEMA = "create table Notes(Id int primary key identity, NoteText varchar(128));";
         public DbSet<Note> Notes { get; set; }
-        public NotesContext(DbConnection connection): base(connection, true)
+        public NotesDbContext(DbConnection connection): base(connection, true)
         {
         }
     }
 
     public abstract class TestCrossFixtureTempDbLifetimeWithInheritence_Base
-        : TestFixtureWithTempDb<NotesContext>
+        : TestFixtureWithTempDb<NotesDbContext>
     {
-        private const string SCHEMA = "create table Notes(Id int primary key identity, NoteText varchar(128));";
 
         [OneTimeSetUp]
         public void OneTimeSetupBase()
         {
-            Configure(false, cstr => new DbSchemaImporter(cstr, SCHEMA));
+            Configure(false, cstr => new DbSchemaImporter(cstr, NotesDbContext.SCHEMA));
             DisableDatabaseRegeneration();
         }
 
@@ -41,7 +42,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
         private static int _createdNoteId;
         private static string _createdNoteText;
 
-        private static void CreateNoteOn(NotesContext ctx)
+        private static void CreateNoteOn(NotesDbContext ctx)
         {
             var note = ctx.Notes.Create();
             note.NoteText = GetRandomString(5, 15);
@@ -52,7 +53,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
 
         }
 
-        private static void TestCreatedNoteOn(NotesContext ctx)
+        private static void TestCreatedNoteOn(NotesDbContext ctx)
         {
             var note = ctx.Notes.FirstOrDefault(n => n.Id == _createdNoteId);
             Expect(note, Is.Not.Null);
@@ -96,6 +97,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
         : TestCrossFixtureTempDbLifetimeWithInheritence_Base
     {
     }
+
     [TestFixture]
     [UseSharedTempDb("NotesDatabase")]
     public class TestCrossFixtureTempDbLifetimeWithInheritence_Part2

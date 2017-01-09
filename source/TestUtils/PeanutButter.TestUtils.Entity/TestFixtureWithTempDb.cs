@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Transactions;
 using NUnit.Framework;
 using PeanutButter.FluentMigrator;
 using PeanutButter.TempDb;
@@ -64,6 +65,14 @@ namespace PeanutButter.TestUtils.Entity
             }
         }
 
+        private void IsolateIfNecessary()
+        {
+            if (!_testIsolationEnabled || !_testIsolationRequired)
+                return;
+            _testIsolationRequired = false;
+            _transactionScope = new TransactionScope();
+        }
+
 
         // ReSharper disable once VirtualMemberNeverOverridden.Global
         protected virtual TDbContext GetContext(bool logSql = false)
@@ -75,6 +84,7 @@ namespace PeanutButter.TestUtils.Entity
                 if (logSql)
                     context.Database.Log = s => System.Diagnostics.Debug.WriteLine(s);
                 RunFirstTimeActionsOn(context);
+                IsolateIfNecessary();
                 return context;
             }
         }
@@ -137,6 +147,9 @@ CREATE TABLE [AspNetUsers](
         private ITempDB _tempDbActual;
 
         private TempDatabaseLifetimes _databaseLifetime;
+        private bool _testIsolationEnabled;
+        private bool _testIsolationRequired;
+        private TransactionScope _transactionScope;
 
         // ReSharper disable once InconsistentNaming
 #pragma warning disable S100
@@ -224,6 +237,7 @@ CREATE TABLE [AspNetUsers](
         public void TestFixtureWithTempDbBaseSetup()
         {
             _runBeforeFirstGettingContext = true;
+            _testIsolationRequired = true;
             if (_databaseLifetime == TempDatabaseLifetimes.Test)
             {
                 _lock.Wait();
@@ -234,9 +248,17 @@ CREATE TABLE [AspNetUsers](
         [TearDown]
         public void TestFixtureWithTempDbBaseTeardown()
         {
+            if (_testIsolationEnabled)
+            {
+                _transactionScope?.Dispose();
+                _transactionScope = null;
+                _testIsolationRequired = true;
+            }
+
             if (_databaseLifetime == TempDatabaseLifetimes.Test)
             {
                 DisposeCurrentTempDb();
+                _runBeforeFirstGettingContext = true;
                 _lock.Release();
             }
         }
@@ -273,6 +295,17 @@ CREATE TABLE [AspNetUsers](
         {
             _tempDbActual?.Dispose();
             _tempDbActual = null;
+        }
+
+        protected void EnableTestIsolation()
+        {
+            _testIsolationEnabled = true;
+            DisableDatabaseRegeneration();
+        }
+
+        protected void DisableTestIsolation()
+        {
+            _testIsolationEnabled = false;
         }
     }
 }
