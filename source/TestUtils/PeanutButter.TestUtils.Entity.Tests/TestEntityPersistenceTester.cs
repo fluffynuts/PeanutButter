@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.Entity;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -46,7 +47,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
             EntityPersistenceTester.CreateFor<COMBlockListReason>()
                 .WithContext<CommunicatorContext>()
                 .WithCollection(ctx => ctx.BlockListReasons)
-                .WithBuilder<COMBlockListReasonBuilder>()
+                .WithBuilder<ComBlockListReasonBuilder>()
                 .WithIgnoredProperties("COMBlockListReasonID")  // not actually required
                 .WithDbMigrator(connectionString => new DbSchemaImporter(connectionString, TestResources.dbscript))
                 .BeforePersisting((ctx, entity) =>
@@ -83,7 +84,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
             //---------------Execute Test ----------------------
             EntityPersistenceTester.CreateFor<COMBlockListReason>()
                 .WithContext<CommunicatorContext>()
-                .WithBuilder<COMBlockListReasonBuilder>()
+                .WithBuilder<ComBlockListReasonBuilder>()
                 .WithDbMigrator(connectionString => new DbSchemaImporter(connectionString, TestResources.dbscript))
                 .AfterPersisting((before, after) =>
                 {
@@ -111,7 +112,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
             EntityPersistenceTester.CreateFor<COMBlockListReason>()
                 .WithContext<CommunicatorContext>()
                 .WithCollection(ctx => ctx.BlockListReasons)
-                .WithBuilder<COMBlockListReasonBuilder>()
+                .WithBuilder<ComBlockListReasonBuilder>()
                 .WithDbMigrator(connectionString => new DbSchemaImporter(connectionString, TestResources.dbscript))
                 .BeforePersisting((ctx, entity) =>
                 {
@@ -138,7 +139,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
             EntityPersistenceTester.CreateFor<COMBlockListReason>()
                 .WithContext<CommunicatorContext>()
                 .WithCollection(ctx => ctx.BlockListReasons)
-                .WithBuilder<COMBlockListReasonBuilder>()
+                .WithBuilder<ComBlockListReasonBuilder>()
                 .WithDbMigrator(connectionString => new DbSchemaImporter(connectionString, TestResources.dbscript))
                 .ShouldPersistAndRecall();
 
@@ -157,7 +158,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
             //---------------Execute Test ----------------------
             EntityPersistenceTester.CreateFor<COMBlockListReason>()
                 .WithContext<CommunicatorContext>()
-                .WithBuilder<COMBlockListReasonBuilder>()
+                .WithBuilder<ComBlockListReasonBuilder>()
                 .WithDbMigrator(connectionString => new DbSchemaImporter(connectionString, TestResources.dbscript))
                 .BeforePersisting((ctx, entity) =>
                 {
@@ -259,7 +260,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
                 Assert.IsTrue(afterPersistingCalled);
                 Assert.AreEqual(1, tempDb.DisposeCalls);
 
-                // test that the provided tempdb was actually used;
+                // test that the provided tempdb was actually used
                 AssertHasTable(tempDb, "COMBlockListReason");
                 AssertTableIsNotEmpty(tempDb, "COMBlockListReason");
             }
@@ -332,9 +333,9 @@ namespace PeanutButter.TestUtils.Entity.Tests
 
             //---------------Test Result -----------------------
             Assert.IsNotNull(logMessage);
-            StringAssert.Contains("warning", logMessage.ToLower());
-            StringAssert.Contains("entityframework will perform migrations", logMessage.ToLower());
-            StringAssert.Contains("to suppress this message", logMessage.ToLower());
+            StringAssert.Contains("warning", logMessage.ToLower(CultureInfo.InvariantCulture));
+            StringAssert.Contains("entityframework will perform migrations", logMessage.ToLower(CultureInfo.InvariantCulture));
+            StringAssert.Contains("to suppress this message", logMessage.ToLower(CultureInfo.InvariantCulture));
         }
 
         [Test]
@@ -370,7 +371,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
 
             //---------------Test Result -----------------------
             CollectionAssert.IsNotEmpty(logLines);
-            var total = string.Join("\n", logLines).ToLower();
+            var total = string.Join("\n", logLines).ToLower(CultureInfo.InvariantCulture);
             StringAssert.Contains("insert", total);
             StringAssert.Contains("select", total);
             StringAssert.Contains("comblocklist", total);

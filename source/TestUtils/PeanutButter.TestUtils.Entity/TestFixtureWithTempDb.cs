@@ -2,38 +2,42 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using PeanutButter.FluentMigrator;
 using PeanutButter.TempDb;
 using PeanutButter.TempDb.LocalDb;
-using PeanutButter.TestUtils.Generic;
+using PeanutButter.TestUtils.Entity.Attributes;
+
 
 namespace PeanutButter.TestUtils.Entity
 {
-    public class TestFixtureWithTempDb<TDbContext> where TDbContext: DbContext
+    public class TestFixtureWithTempDb<TDbContext> : AssertionHelper
+        where TDbContext : DbContext
     {
-        private Func<string, IDBMigrationsRunner> CreateMigrationsRunner;
-        private bool _databaseShouldHaveASPNetTables = true;
-        private SemaphoreSlim _lock = new SemaphoreSlim(1,1);
-        private static List<string> _aspNetTables = new List<string>();
+        private Func<string, IDBMigrationsRunner> _createMigrationsRunner;
+#pragma warning disable S2743
+        private bool _databaseShouldHaveAspNetTables = true;
+        // ReSharper disable once StaticMemberInGenericType
+        private static readonly List<string> _aspNetTables = new List<string>();
+#pragma warning restore S2743
+        private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
         private readonly List<Action<TDbContext>> _toRunBeforeProvidingContext = new List<Action<TDbContext>>();
-        private List<Task> _disposeTasks = new List<Task>();
+        private readonly List<Task> _disposeTasks = new List<Task>();
         private bool _runBeforeFirstGettingContext = true;
 
         protected TestFixtureWithTempDb()
         {
-            CreateMigrationsRunner = connectionString =>
-            {
-                throw new Exception("Please run the Configure protected method before attempting any actual tests.");
-            };
+            _createMigrationsRunner =
+                connectionString => { throw new Exception("Please run the Configure protected method before attempting any actual tests."); };
         }
 
-        protected void Configure(bool databaseShouldHaveASPNetTables, Func<string, IDBMigrationsRunner> migrationsRunnerFactory)
+        protected void Configure(bool databaseShouldHaveAspNetTables, Func<string, IDBMigrationsRunner> migrationsRunnerFactory)
         {
-            _databaseShouldHaveASPNetTables = databaseShouldHaveASPNetTables;
-            CreateMigrationsRunner = migrationsRunnerFactory;
+            _databaseShouldHaveAspNetTables = databaseShouldHaveAspNetTables;
+            _createMigrationsRunner = migrationsRunnerFactory;
         }
 
         protected void DisableDatabaseRegeneration()
@@ -42,6 +46,7 @@ namespace PeanutButter.TestUtils.Entity
             _databaseLifetime = TempDatabaseLifetimes.Fixture;
         }
 
+        // ReSharper disable once UnusedMember.Global
         protected void EnableDatabaseRegeneration()
         {
             if (_databaseLifetime == TempDatabaseLifetimes.Test)
@@ -50,6 +55,7 @@ namespace PeanutButter.TestUtils.Entity
             _lock.Release();
         }
 
+        // ReSharper disable once VirtualMemberNeverOverridden.Global
         protected virtual void RunBeforeFirstGettingContext(Action<TDbContext> action)
         {
             lock (_toRunBeforeProvidingContext)
@@ -59,6 +65,7 @@ namespace PeanutButter.TestUtils.Entity
         }
 
 
+        // ReSharper disable once VirtualMemberNeverOverridden.Global
         protected virtual TDbContext GetContext(bool logSql = false)
         {
             var connection = _tempDb.CreateConnection();
@@ -66,18 +73,22 @@ namespace PeanutButter.TestUtils.Entity
             {
                 var context = (TDbContext) Activator.CreateInstance(typeof(TDbContext), connection);
                 if (logSql)
-                    context.Database.Log = s => System.Diagnostics.Debug.WriteLine((string) s);
+                    context.Database.Log = s => System.Diagnostics.Debug.WriteLine(s);
                 RunFirstTimeActionsOn(context);
                 return context;
             }
         }
 
+        // ReSharper disable once MemberCanBePrivate.Global
         protected void RunFirstTimeActionsOn(TDbContext context)
         {
             if (_runBeforeFirstGettingContext)
             {
                 _runBeforeFirstGettingContext = false;
-                _toRunBeforeProvidingContext.ForEach(action => action(context));
+                lock (_toRunBeforeProvidingContext)
+                {
+                    _toRunBeforeProvidingContext.ForEach(action => action(context));
+                }
             }
         }
 
@@ -127,8 +138,12 @@ CREATE TABLE [AspNetUsers](
 
         private TempDatabaseLifetimes _databaseLifetime;
 
+        // ReSharper disable once InconsistentNaming
+#pragma warning disable S100
+        // ReSharper disable once InconsistentNaming
         protected ITempDB _tempDb
         {
+#pragma warning restore S100
             get
             {
                 if (_tempDbActual != null)
@@ -140,12 +155,53 @@ CREATE TABLE [AspNetUsers](
 
         protected ITempDB CreateNewTempDb()
         {
+            var shared = FindSharedTempDb();
+            if (shared != null)
+                return shared;
             var created = new TempDBLocalDb();
-            if (_databaseShouldHaveASPNetTables)
+            if (_databaseShouldHaveAspNetTables)
                 CreateAspNetTablesOn(created.ConnectionString);
-            var migrator = CreateMigrationsRunner(created.ConnectionString);
+            var migrator = _createMigrationsRunner(created.ConnectionString);
             migrator.MigrateToLatest();
+            RegisterSharedDb(created);
             return created;
+        }
+
+        private ITempDB FindSharedTempDb()
+        {
+            var sharedDbName = GetSharedDbNameForThisFixture();
+            if (sharedDbName == null)
+                return null;
+            ValidateCanShareTempDb();
+            return SharedDatabaseLocator.Find(sharedDbName);
+        }
+
+        private void ValidateCanShareTempDb()
+        {
+            var asm = GetType().Assembly;
+            var requiredAttrib = asm
+                .GetCustomAttributes(true)
+                .OfType<AllowSharedTempDbInstancesAttribute>()
+                .FirstOrDefault();
+            if (requiredAttrib == null)
+                throw new SharedTempDbFeatureRequiresAssemblyAttributeException(GetType(), asm);
+        }
+
+        private void RegisterSharedDb(ITempDB db)
+        {
+            var sharedDbName = GetSharedDbNameForThisFixture();
+            if (sharedDbName == null)
+                return;
+            SharedDatabaseLocator.Register(sharedDbName, db);
+        }
+
+        private string GetSharedDbNameForThisFixture()
+        {
+            return GetType()
+                .GetCustomAttributes(true)
+                .OfType<UseSharedTempDbAttribute>()
+                .FirstOrDefault()
+                ?.Name;
         }
 
         private void CreateAspNetTablesOn(string connectionString)
@@ -196,13 +252,15 @@ CREATE TABLE [AspNetUsers](
 
         private void DisposeCurrentTempDb()
         {
+            if (GetSharedDbNameForThisFixture() != null)
+            {
+                _tempDbActual = null;
+                return; // never destroy a shared db
+            }
+
             var tempDb = _tempDbActual;
             _tempDbActual = null;
-            _disposeTasks.Add(Task.Run(() =>
-            {
-                if (tempDb != null)
-                    tempDb.Dispose();
-            }));
+            _disposeTasks.Add(Task.Run(() => { tempDb?.Dispose(); }));
         }
 
         private enum TempDatabaseLifetimes
@@ -213,10 +271,8 @@ CREATE TABLE [AspNetUsers](
 
         private void ReleaseTempDb()
         {
-            if (_tempDbActual != null)
-                _tempDbActual.Dispose();
+            _tempDbActual?.Dispose();
             _tempDbActual = null;
         }
-
     }
 }

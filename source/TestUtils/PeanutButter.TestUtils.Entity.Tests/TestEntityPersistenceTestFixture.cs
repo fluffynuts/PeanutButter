@@ -7,7 +7,7 @@ using PeanutButter.Utils.Entity;
 namespace PeanutButter.TestUtils.Entity.Tests
 {
     [TestFixture]
-    public class TestCOMBlockListReason: EntityPersistenceTestFixtureBase<CommunicatorContext>
+    public class TestComBlockListReason: EntityPersistenceTestFixtureBase<CommunicatorContext>
     {
         private int _clearCalled;
 
@@ -127,7 +127,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
         [Test]
         public void COMCategory_ShouldBeAbleToPersistAndRecall()
         {
-            ShouldBeAbleToPersist<COMBlockListReasonBuilder, COMBlockListReason>(ctx => ctx.BlockListReasons, (ctx, entity) =>
+            ShouldBeAbleToPersist<ComBlockListReasonBuilder, COMBlockListReason>(ctx => ctx.BlockListReasons, (ctx, entity) =>
             {
             }, (before, after) =>
             {
@@ -136,11 +136,11 @@ namespace PeanutButter.TestUtils.Entity.Tests
 
     }
 
-    public class COMBlockListReasonBuilder: GenericBuilder<COMBlockListReasonBuilder, COMBlockListReason>
+    public class ComBlockListReasonBuilder: GenericBuilder<ComBlockListReasonBuilder, COMBlockListReason>
     {
     }
 
-    public class COMBlockListBuilder: GenericBuilder<COMBlockListBuilder, COMBlockList>
+    public class ComBlockListBuilder: GenericBuilder<ComBlockListBuilder, COMBlockList>
     {
     }
 }

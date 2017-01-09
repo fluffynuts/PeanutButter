@@ -72,8 +72,10 @@ namespace PeanutButter.DuckTyping
         private static readonly MethodInfo _getEmptyArrayGeneric = 
             typeof(Create).GetMethod("GetEmptyArrayOf", BindingFlags.Static | BindingFlags.NonPublic);
         // ReSharper disable once UnusedMember.Local
+#pragma warning disable S1144
         private static T[] GetEmptyArrayOf<T>()
         {
+#pragma warning restore D1144
             return new T[0];
         }
 

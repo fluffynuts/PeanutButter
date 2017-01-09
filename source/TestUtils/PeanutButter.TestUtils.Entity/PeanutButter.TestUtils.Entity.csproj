@@ -70,7 +70,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PropertyData.cs" />
     <Compile Include="PropertyDataObjectExtension.cs" />
+    <Compile Include="Attributes\UseSharedTempDbAttribute.cs" />
+    <Compile Include="SharedDatabaseAlreadyRegisteredException.cs" />
+    <Compile Include="SharedDatabaseLocator.cs" />
     <Compile Include="TestFixtureWithTempDb.cs" />
+    <Compile Include="Attributes\AllowSharedTempDbInstancesAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

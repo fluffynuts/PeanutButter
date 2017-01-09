@@ -10,7 +10,7 @@ namespace PeanutButter.TestUtils.Entity
 {
     public class DbSchemaImporter : IDBMigrationsRunner
     {
-        private string _connectionString;
+        private readonly string _connectionString;
         private readonly string _schemaSql;
 
         public DbSchemaImporter(string connectionString, string schemaSql)

@@ -294,10 +294,23 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="src"></param>
         /// <param name="propertyPath"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T GetOrDefault<T>(this object src, string propertyPath)
+        {
+            return src.GetOrDefault(propertyPath, default(T));
+        }
+
+        /// <summary>
+        /// Gets the value of a property on an object, specified by the property path, of the given Type
+        /// or returns a default value when that property cannot be found by path and/or type
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="propertyPath"></param>
         /// <param name="defaultValue"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T GetOrDefault<T>(this object src, string propertyPath, T defaultValue = default(T))
+        public static T GetOrDefault<T>(this object src, string propertyPath, T defaultValue)
         {
             try
             {
