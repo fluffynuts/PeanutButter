@@ -81,9 +81,9 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>mkdir $(SolutionDir)TestUtils\$(ProjectName).NugetPackage\lib\net45
-del /Q $(SolutionDir)TestUtils\$(ProjectName).NugetPackage\lib\net45\*.*
-copy $(TargetPath) $(SolutionDir)TestUtils\$(ProjectName).NugetPackage\lib\net45\</PostBuildEvent>
+    <PostBuildEvent>mkdir $(SolutionDir)TestUtils\$(ProjectName).NugetPackage\content\App_Packages\PeanutButter.TestUtils.Mvc\Builders
+del /Q $(SolutionDir)TestUtils\$(ProjectName).NugetPackage\content\App_Packages\PeanutButter.TestUtils.Mvc\Builders\*.*
+copy $(ProjectDir)\Builders\*.*  $(SolutionDir)TestUtils\$(ProjectName).NugetPackage\content\App_Packages\PeanutButter.TestUtils.Mvc\Builders</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

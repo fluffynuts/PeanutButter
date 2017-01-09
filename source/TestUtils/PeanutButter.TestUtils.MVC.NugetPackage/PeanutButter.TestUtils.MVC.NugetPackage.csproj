@@ -48,6 +48,13 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="content\App_Packages\PeanutButter.TestUtils.Mvc\Builders\ControllerWithContextBuilder.cs" />
+    <Content Include="content\App_Packages\PeanutButter.TestUtils.Mvc\Builders\FakeControllerContext.cs" />
+    <Content Include="content\App_Packages\PeanutButter.TestUtils.Mvc\Builders\FakeHttpContext.cs" />
+    <Content Include="content\App_Packages\PeanutButter.TestUtils.Mvc\Builders\FakeHttpRequest.cs" />
+    <Content Include="content\App_Packages\PeanutButter.TestUtils.Mvc\Builders\FakeHttpSessionState.cs" />
+    <Content Include="content\App_Packages\PeanutButter.TestUtils.Mvc\Builders\FakeIdentity.cs" />
+    <Content Include="content\App_Packages\PeanutButter.TestUtils.Mvc\Builders\FakePrincipal.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -61,11 +68,8 @@
     <None Include="tools\uninstall.ps1" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="content\" />
+    <Folder Include="lib\net45\" />
     <Folder Include="src\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="lib\net45\PeanutButter.TestUtils.MVC.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

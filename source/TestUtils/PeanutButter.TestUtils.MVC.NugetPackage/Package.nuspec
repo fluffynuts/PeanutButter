@@ -1,8 +1,8 @@
 <package>
   <metadata>
     <id>PeanutButter.TestUtils.MVC</id>
-    <version>1.2.120</version>
-    <title>PeanutButter.TestUtils.MVC</title>
+    <version>1.2.121</version>
+    <title>PeanutButter.TestUtils.MVC.Sources</title>
     <authors>Davyd McColl</authors>
     <owners></owners>
     <description>
@@ -24,20 +24,19 @@
     <copyright>Copyright  2016</copyright>
     <dependencies>
       <group targetFramework="net40">
-        <dependency id="Microsoft.AspNet.Identity.Core" version="2.2.1" />
-        <dependency id="Microsoft.AspNet.Mvc" version="5.2.3" />
-        <dependency id="Microsoft.AspNet.Razor" version="3.2.3" />
-        <dependency id="Microsoft.AspNet.WebPages" version="3.2.3" />
-        <dependency id="Microsoft.Web.Infrastructure" version="1.0.0.0" />
-        <dependency id="Newtonsoft.Json" version="4.5.11" />
-        <dependency id="NSubstitute" version="1.10.0.0" />
+        <dependency id="Microsoft.AspNet.Identity.Core" />
+        <dependency id="Microsoft.AspNet.Mvc" />
+        <dependency id="Microsoft.AspNet.Razor" />
+        <dependency id="Microsoft.AspNet.WebPages" />
+        <dependency id="Microsoft.Web.Infrastructure" />
+        <dependency id="Newtonsoft.Json" />
+        <dependency id="NSubstitute" />
       </group>
     </dependencies>
     <references></references>
     <tags></tags>
   </metadata>
   <files>
-    <file src="lib\" target="lib" />
     <file src="tools\" target="tools" />
     <file src="content\" target="content" />
   </files>
