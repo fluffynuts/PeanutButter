@@ -65,13 +65,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Shared\Migration2.cs" />
+    <Compile Include="Shared\Migration1.cs" />
+    <Compile Include="Shared\MooContext.cs" />
+    <Compile Include="Shared\Cow.cs" />
     <Compile Include="Fakes\TestFakeDbCommand.cs" />
     <Compile Include="Fakes\TestFakeDbConnection.cs" />
     <Compile Include="Fakes\TestFakeDbConnectionFactory.cs" />
     <Compile Include="Fakes\TestFakeDbDataAdapter.cs" />
     <Compile Include="Fakes\TestFakeDbParameter.cs" />
     <Compile Include="Fakes\TestFakeDbReader.cs" />
+    <Compile Include="Shared\RunningDbMigrationsRunnerForSqlServer.cs" />
     <Compile Include="TestAnnouncerMessageRecorder.cs" />
+    <Compile Include="TestDbMigrationsDumper.cs" />
     <Compile Include="TestDbMigrationsRunner.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
