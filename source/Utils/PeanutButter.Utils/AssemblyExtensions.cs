@@ -15,7 +15,7 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="assembly">The assembly to search</param>
         /// <param name="typeName">The name of the Type to find</param>
-        /// <returns></returns>
+        /// <returns>First type maching given name or null if no match found</returns>
         public static Type FindTypeByName(this Assembly assembly, string typeName)
         {
             return assembly

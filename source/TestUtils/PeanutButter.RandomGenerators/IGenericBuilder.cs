@@ -9,7 +9,7 @@
         /// Sets the maximum depth to traverse when randomizing properties
         /// </summary>
         /// <param name="level">How far down the rabbit-hole to go</param>
-        /// <returns></returns>
+        /// <returns>The builder</returns>
         IGenericBuilder WithBuildLevel(int level);
 
         /// <summary>

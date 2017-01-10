@@ -48,7 +48,7 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="type">Type to search for constants</param>
         /// <typeparam name="T">Only return constants of this Type</typeparam>
-        /// <returns></returns>
+        /// <returns>Dictionary of all constant values on a specified type</returns>
         public static Dictionary<string, T> GetAllConstants<T>(this Type type)
         {
             return type.GetAllConstants()
@@ -111,7 +111,7 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="t">Type to test</param>
         /// <typeparam name="T">Item type of array which calling code would like to assign</typeparam>
-        /// <returns></returns>
+        /// <returns>True if the parameter type is assignable from an array of T</returns>
         // ReSharper disable once UnusedMember.Global
         public static bool IsAssignableFromArrayOf<T>(this Type t)
         {
