@@ -190,6 +190,6 @@ namespace PeanutButter.Utils
         {
             return t.GetAllImplementedInterfaces().Contains(_disposableInterface);
         }
-        private static readonly  Type _disposableInterface = typeof(IDisposable);
+        private static readonly Type _disposableInterface = typeof(IDisposable);
     }
 }

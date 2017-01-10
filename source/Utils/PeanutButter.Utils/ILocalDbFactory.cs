@@ -3,7 +3,7 @@ namespace PeanutButter.Utils
     /// <summary>
     /// Interface to implement when your TempDb implementation needs to create a temporary database
     /// </summary>
-    public interface  ILocalDbFactory
+    public interface ILocalDbFactory
     {
         /// <summary>
         /// Method to implement for a TempDb implementation. Will be given a database name and

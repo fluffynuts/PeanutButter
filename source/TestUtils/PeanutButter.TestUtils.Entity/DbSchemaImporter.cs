@@ -42,7 +42,7 @@ namespace PeanutButter.TestUtils.Entity
             }
         }
 
-        public  string[] SplitPartsOutOf(string schemaSql)
+        public string[] SplitPartsOutOf(string schemaSql)
         {
             return schemaSql
                         .Split(new[] {"GO"}, StringSplitOptions.RemoveEmptyEntries)
