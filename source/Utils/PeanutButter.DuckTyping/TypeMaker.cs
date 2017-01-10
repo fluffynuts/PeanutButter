@@ -501,7 +501,6 @@ namespace PeanutButter.DuckTyping
                 typeBuilder.DefineMethodOverride(methodImplementation, interfaceMethod);
         }
 
-
         private static AssemblyBuilder DynamicAssemblyBuilder
         {
             get

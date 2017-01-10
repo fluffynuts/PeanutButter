@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using NUnit.Framework;
 using PeanutButter.Utils;
 // ReSharper disable MemberCanBePrivate.Global
@@ -101,15 +102,19 @@ namespace PeanutButter.TestUtils.Generic
             var type2 = obj2.GetType();
             var targetPropInfo = type2.GetProperty(obj2PropName);
             Assert.IsNotNull(targetPropInfo, PropNotFoundMessage(type2, obj2PropName));
-            Assert.AreEqual(srcPropInfo.PropertyType, targetPropInfo.PropertyType, 
-                string.Join(string.Empty,
-                    "Property types for '",
-                    srcPropInfo.Name,
-                    "' do not match: ",
-                    srcPropInfo.PropertyType.Name,
-                    " vs ",
-                    targetPropInfo.PropertyType.Name));
+            Assert.AreEqual(srcPropInfo.PropertyType, targetPropInfo.PropertyType, CreateMessageFor(srcPropInfo, targetPropInfo));
             finalAssertion(srcPropInfo.GetValue(obj1, null), targetPropInfo.GetValue(obj2, null), obj1PropName + " => " + obj2PropName);
+        }
+
+        private static string CreateMessageFor(PropertyInfo srcPropInfo, PropertyInfo targetPropInfo)
+        {
+            return string.Join(string.Empty,
+                "Property types for '",
+                srcPropInfo.Name,
+                "' do not match: ",
+                srcPropInfo.PropertyType.Name,
+                " vs ",
+                targetPropInfo.PropertyType.Name);
         }
 
         private static string PropNotFoundMessage(Type type, string propName)
