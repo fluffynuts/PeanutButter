@@ -199,13 +199,13 @@ CREATE TABLE [AspNetUsers](
 
         private void ValidateCanShareTempDb()
         {
-            var asm = GetType().Assembly;
-            var requiredAttrib = asm
+            var myType = GetType();
+            var requiredAttrib = myType.Assembly
                 .GetCustomAttributes(true)
                 .OfType<AllowSharedTempDbInstancesAttribute>()
                 .FirstOrDefault();
             if (requiredAttrib == null)
-                throw new SharedTempDbFeatureRequiresAssemblyAttributeException(GetType(), asm);
+                throw new SharedTempDbFeatureRequiresAssemblyAttributeException(myType);
         }
 
         private void RegisterSharedDb(ITempDB db)

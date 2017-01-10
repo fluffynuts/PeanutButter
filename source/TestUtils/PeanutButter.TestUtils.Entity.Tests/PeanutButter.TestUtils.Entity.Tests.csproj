@@ -71,6 +71,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>TestResources.resx</DependentUpon>
     </Compile>
+    <Compile Include="TestSharedDatabaseAlreadyRegisteredException.cs" />
+    <Compile Include="TestSharedTempDbFeaterRequiresAssemblyAttributeException.cs" />
     <Compile Include="TestTestFixtureWithTempDb.cs" />
     <Compile Include="TestUseSharedTempDbAttribute.cs" />
   </ItemGroup>

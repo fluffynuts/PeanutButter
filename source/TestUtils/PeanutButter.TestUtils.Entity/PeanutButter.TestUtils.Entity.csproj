@@ -74,6 +74,7 @@
     <Compile Include="Attributes\UseSharedTempDbAttribute.cs" />
     <Compile Include="SharedDatabaseAlreadyRegisteredException.cs" />
     <Compile Include="SharedDatabaseLocator.cs" />
+    <Compile Include="SharedTempDbFeatureRequiresAssemblyAttributeException.cs" />
     <Compile Include="TestFixtureWithTempDb.cs" />
     <Compile Include="Attributes\AllowSharedTempDbInstancesAttribute.cs" />
   </ItemGroup>
