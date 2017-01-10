@@ -13,6 +13,7 @@ namespace PeanutButter.DuckTyping
     /// </summary>
     public class TypeMaker : ITypeMaker
     {
+        private const string ASSEMBLY_NAME = "PeanutButter.DuckTyping.GeneratedTypes";
         private static readonly Type _shimInterfaceType = typeof(IShimSham);
         private static readonly Type _shimType = typeof(ShimSham);
         private static readonly Type _dictionaryShim = typeof(DictionaryShimSham);
@@ -40,6 +41,15 @@ namespace PeanutButter.DuckTyping
 
         private static readonly MethodInfo _shimCallThroughVoidMethod =
             _shimInterfaceType.GetMethod("CallThroughVoid");
+
+        private static readonly MethodAttributes _propertyGetterSetterMethodAttributes =
+            MethodAttributes.Public |
+            MethodAttributes.SpecialName |
+            MethodAttributes.Virtual |
+            MethodAttributes.HideBySig;
+
+        private static readonly object _dynamicAssemblyLock = new object();
+        private static AssemblyBuilder _dynamicAssemblyBuilderField;
 
         /// <inheritdoc />
         public Type MakeTypeImplementing<T>()
@@ -491,15 +501,6 @@ namespace PeanutButter.DuckTyping
                 typeBuilder.DefineMethodOverride(methodImplementation, interfaceMethod);
         }
 
-        private static readonly MethodAttributes _propertyGetterSetterMethodAttributes =
-            MethodAttributes.Public |
-            MethodAttributes.SpecialName |
-            MethodAttributes.Virtual |
-            MethodAttributes.HideBySig;
-
-        private static readonly object _dynamicAssemblyLock = new object();
-        private static AssemblyBuilder _dynamicAssemblyBuilderField;
-        private const string ASSEMBLY_NAME = "PeanutButter.DuckTyping.GeneratedTypes";
 
         private static AssemblyBuilder DynamicAssemblyBuilder
         {

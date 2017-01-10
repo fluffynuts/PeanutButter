@@ -36,7 +36,6 @@ namespace PeanutButter.Utils
             return string.IsNullOrEmpty(input) ? alternative : input;
         }
 
-
         /// <summary>
         /// Attempts conversion from a string value to a boolean value matching the following (case-insensitive) to True:
         /// - "yes"

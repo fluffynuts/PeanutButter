@@ -142,16 +142,11 @@ namespace PeanutButter.SimpleHTTPServer
             foreach (var handler in _handlers)
             {
                 var pipelineResult = handler(p, stream);
-                switch (pipelineResult)
-                {
-                    case HttpServerPipelineResult.Handled:
-                        // TODO: allow more pipelining
-                    case HttpServerPipelineResult.HandledExclusively:
-                        handled = true;
-                        break;
-                }
                 if (pipelineResult == HttpServerPipelineResult.HandledExclusively)
+                {
+                    handled = true;
                     break;
+                }
             }
             if (!handled)
             {

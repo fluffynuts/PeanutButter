@@ -1,6 +1,4 @@
 using System;
-using System.Diagnostics;
-using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -16,16 +14,17 @@ namespace PeanutButter.SimpleTcpServer
     public abstract class TcpServer : IDisposable
     {
         public Action<string> LogAction { get; set; } = Console.WriteLine;
+        // ReSharper disable once MemberCanBePrivate.Global
         public int Port { get; protected set; }
 
         private TcpListener _listener;
         private Task _task;
         private CancellationTokenSource _cancellationTokenSource;
-        private bool _portExplicitlySpecified;
-        private object _lock = new object();
-        private Random _random = new Random(DateTime.Now.Millisecond);
-        private int _randomPortMin;
-        private int _randomPortMax;
+        private readonly bool _portExplicitlySpecified;
+        private readonly object _lock = new object();
+        private readonly Random _random = new Random(DateTime.Now.Millisecond);
+        private readonly int _randomPortMin;
+        private readonly int _randomPortMax;
 
         protected TcpServer(int minPort = 5000, int maxPort = 32000)
         {
@@ -52,7 +51,10 @@ namespace PeanutButter.SimpleTcpServer
             {
                 logAction(string.Format(message, parameters));
             }
-            catch { }
+            catch
+            {
+                /* intentionally left blank */
+            }
         }
 
         protected abstract IProcessor CreateProcessorFor(TcpClient client);

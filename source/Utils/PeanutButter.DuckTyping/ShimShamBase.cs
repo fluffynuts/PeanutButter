@@ -25,7 +25,6 @@ namespace PeanutButter.DuckTyping
             return _getDefaultMethodGeneric
                 .MakeGenericMethod(correctType)
                 .Invoke(null, null);
-
         }
 
         // ReSharper disable once UnusedMember.Local
