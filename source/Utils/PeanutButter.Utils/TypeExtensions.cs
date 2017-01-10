@@ -22,7 +22,9 @@ namespace PeanutButter.Utils
             do
             {
                 heirachy.Add(type);
-            } while ((type = type.BaseType) != null);
+            }
+            while ((type = type.BaseType) != null);
+
             heirachy.Reverse();
             return heirachy.ToArray();
         }

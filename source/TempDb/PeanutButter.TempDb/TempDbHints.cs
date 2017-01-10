@@ -4,11 +4,10 @@ namespace PeanutButter.TempDb
 {
     public static class TempDbHints
     {
-        private static object _pathLock = new object();
-        public static string DefaultBasePath
-        {
-            get { return Path.GetTempPath(); }
-        }
+        private static readonly object _pathLock = new object();
+
+        public static string DefaultBasePath => Path.GetTempPath();
+
         public static string PreferredBasePath
         {
             get
@@ -20,7 +19,8 @@ namespace PeanutButter.TempDb
                     return Path.GetTempPath();
                 }
             }
-            set {
+            set
+            {
                 lock (_pathLock)
                 {
                     _preferredBasePath = value;
@@ -49,6 +49,7 @@ namespace PeanutButter.TempDb
         }
 
         private static string _preferredBasePath;
+
         static TempDbHints()
         {
             _preferredBasePath = Path.GetTempPath();

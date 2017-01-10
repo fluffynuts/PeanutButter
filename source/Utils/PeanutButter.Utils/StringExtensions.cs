@@ -79,7 +79,7 @@ namespace PeanutButter.Utils
 
         private static bool MultiContains(
             string haystack,
-            // ReSharper disable once UnusedParameter.Global
+            // ReSharper disable once UnusedParameter.Local
             string[] needles,
             Func<string, bool> operation
         )

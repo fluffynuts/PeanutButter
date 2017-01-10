@@ -66,7 +66,9 @@ namespace PeanutButter.Utils
                 var part = pathParts.Pop();
                 var propInfo = result.GetProperty(part);
                 result = propInfo.PropertyType;
-            } while (pathParts.Any());
+            }
+            while (pathParts.Any());
+
             return result;
         }
 
