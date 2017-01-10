@@ -10,10 +10,10 @@ namespace PeanutButter.DuckTyping
     /// </summary>
     public abstract class ShimShamBase
     {
-        private static readonly MethodInfo _getDefaultMethodGeneric = typeof(ShimShamBase).GetMethod("GetDefaultFor", BindingFlags.NonPublic | BindingFlags.Static);
-        private TypeMaker _typeMaker;
         private readonly MethodInfo _genericMakeType = typeof(TypeMaker).GetMethod("MakeTypeImplementing");
         private readonly MethodInfo _genericFuzzyMakeType = typeof(TypeMaker).GetMethod("MakeFuzzyTypeImplementing");
+        private static readonly MethodInfo _getDefaultMethodGeneric = typeof(ShimShamBase).GetMethod("GetDefaultFor", BindingFlags.NonPublic | BindingFlags.Static);
+        private TypeMaker _typeMaker;
 
         /// <summary>
         /// Gets the default value for a type

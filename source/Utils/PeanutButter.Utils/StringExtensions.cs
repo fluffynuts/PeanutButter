@@ -84,7 +84,6 @@ namespace PeanutButter.Utils
             Func<string, bool> operation
         )
         {
-
             if (needles.Length == 0)
                 throw new ArgumentException("No needles provided to search haystack for");
             if (needles.Any(n => n == null))

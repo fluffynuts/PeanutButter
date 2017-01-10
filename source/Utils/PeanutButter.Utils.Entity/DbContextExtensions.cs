@@ -64,10 +64,22 @@ namespace PeanutButter.Utils.Entity
 
         private static void ThrowEntityValidationErrorFor(DbEntityValidationException ex)
         {
-            var errors = string.Join((string) "\n", (IEnumerable<string>) ex.EntityValidationErrors.Select(e =>
-                e.Entry.GetType().Name + " :: " +
-                string.Join((string) "\n", (IEnumerable<string>) e.ValidationErrors.Select(ee => string.Join("\n", ee.ErrorMessage)))));
+            var errors = string.Join(
+                "\n", 
+                ex.EntityValidationErrors.Select(GetErrorString));
             throw new Exception("Error whilst trying to persist to the database:\n" + errors);
+        }
+
+        private static string GetErrorString(DbEntityValidationResult e)
+        {
+            return string.Join(" :: ",
+                e.Entry.GetType().Name,
+                string.Join("\n",  e.ValidationErrors.Select(GetErrorMessage)));
+        }
+
+        private static string GetErrorMessage(DbValidationError ee)
+        {
+            return string.Join("\n", ee.ErrorMessage);
         }
 
         private static string GetInnermostExceptionMessageFor(Exception ex)

@@ -102,8 +102,13 @@ namespace PeanutButter.TestUtils.Generic
             var targetPropInfo = type2.GetProperty(obj2PropName);
             Assert.IsNotNull(targetPropInfo, PropNotFoundMessage(type2, obj2PropName));
             Assert.AreEqual(srcPropInfo.PropertyType, targetPropInfo.PropertyType, 
-                "Property types for '" + srcPropInfo.Name + "' do not match: " + 
-                srcPropInfo.PropertyType.Name + " vs " + targetPropInfo.PropertyType.Name);
+                string.Join(string.Empty,
+                    "Property types for '",
+                    srcPropInfo.Name,
+                    "' do not match: ",
+                    srcPropInfo.PropertyType.Name,
+                    " vs ",
+                    targetPropInfo.PropertyType.Name));
             finalAssertion(srcPropInfo.GetValue(obj1, null), targetPropInfo.GetValue(obj2, null), obj1PropName + " => " + obj2PropName);
         }
 
