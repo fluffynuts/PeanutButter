@@ -16,7 +16,10 @@ namespace PeanutButter.TrayIcon
         private bool _busy;
         private Task _animationTask;
 
-        public TrayIconAnimator(TrayIcon trayIcon, Icon restStateIcon, params Icon[] animationFrames)
+        public TrayIconAnimator(
+            TrayIcon trayIcon, 
+            Icon restStateIcon, 
+            params Icon[] animationFrames)
         {
             _trayIcon = trayIcon;
             _restStateIcon = restStateIcon;
@@ -63,8 +66,8 @@ namespace PeanutButter.TrayIcon
                 _busy = false;
             }
             _trayIcon.DefaultTipText = withText ?? _lastText;
-            _animationTask.Wait();
-            _animationTask.Dispose();
+            _animationTask?.Wait();
+            _animationTask?.Dispose();
             _trayIcon.Icon = _restStateIcon;
         }
     }
