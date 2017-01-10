@@ -65,7 +65,7 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="src">Source stream to read</param>
         /// <param name="encoding">Optional encoding to use (defaults to UTF8 when null)</param>
-        /// <returns></returns>
+        /// <returns>A string representation of the stream</returns>
         public static string AsString(this Stream src, Encoding encoding = null)
         {
             var buffer = src.ReadAllBytes();

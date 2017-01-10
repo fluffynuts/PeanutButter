@@ -77,16 +77,7 @@ namespace PeanutButter.Utils
             return MultiContains(haystack, needles, h => needles.All(n => h.Contains(n.ToLower(CultureInfo.CurrentCulture))));
         }
 
-        /// <summary>
-        /// Searches a master string for given needles, using the provided comparison operation per needle
-        /// </summary>
-        /// <param name="haystack">String to search</param>
-        /// <param name="needles">Strings to search for</param>
-        /// <param name="operation">Func to run per needle</param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentException">Thrown if no needles (or null needle) provided</exception>
-        // ReSharper disable once MemberCanBePrivate.Global
-        public static bool MultiContains(
+        private static bool MultiContains(
             string haystack,
             // ReSharper disable once UnusedParameter.Global
             string[] needles,

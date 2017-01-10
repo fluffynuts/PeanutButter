@@ -39,7 +39,7 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="toDispose">IDisposable to dispose of at a later date</param>
         /// <typeparam name="T">The type of the IDisposable to add</typeparam>
-        /// <returns></returns>
+        /// <returns>The item added to the auto-disposing collection</returns>
         public T Add<T>(T toDispose) where T : IDisposable
         {
             _toDispose.Add(toDispose);
