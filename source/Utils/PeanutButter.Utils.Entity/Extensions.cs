@@ -90,6 +90,5 @@ namespace PeanutButter.Utils.Entity
                 runAfterAdd(entity);
             return entity;
         }
-
     }
 }

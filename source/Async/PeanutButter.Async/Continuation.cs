@@ -34,5 +34,4 @@ namespace PeanutButter.Async
             return Task.Run(() => func(_taskWithResult));
         }
     }
-
 }

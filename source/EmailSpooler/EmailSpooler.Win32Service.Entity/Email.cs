@@ -1,5 +1,8 @@
 using System.Collections.Generic;
 using PeanutButter.Utils.Entity;
+// ReSharper disable MemberCanBeProtected.Global
+// ReSharper disable VirtualMemberCallInConstructor
+// ReSharper disable ClassWithVirtualMembersNeverInherited.Global
 
 namespace EmailSpooler.Win32Service.Entity
 {
@@ -21,6 +24,5 @@ namespace EmailSpooler.Win32Service.Entity
         public string LastError { get; set; }
         public virtual IList<EmailAttachment> EmailAttachments { get; set; }
         public virtual IList<EmailRecipient> EmailRecipients { get; set; }
-
     }
 }

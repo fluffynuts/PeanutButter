@@ -38,6 +38,5 @@ namespace EmailSpooler.Win32Service.Entity
         public IDbSet<Email> Emails { get; set; }
         public IDbSet<EmailAttachment> EmailAttachments { get; set; }
         public IDbSet<EmailRecipient> EmailRecipients { get; set; }
-
     }
 }

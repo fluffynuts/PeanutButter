@@ -15,6 +15,7 @@ namespace PeanutButter.DuckTyping
         /// <param name="bindingFlags">Binding Flags to match</param>
         /// <returns>Array of all properties found on the type which match the given binding flags</returns>
         PropertyInfo[] GetProperties(Type srcType, BindingFlags bindingFlags);
+
         /// <summary>
         /// Fetches properties from an object which conform to the provided binding flags
         /// </summary>

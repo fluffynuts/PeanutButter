@@ -14,6 +14,7 @@ namespace PeanutButter.DuckTyping
         private TypeMaker _typeMaker;
         private readonly MethodInfo _genericMakeType = typeof(TypeMaker).GetMethod("MakeTypeImplementing");
         private readonly MethodInfo _genericFuzzyMakeType = typeof(TypeMaker).GetMethod("MakeFuzzyTypeImplementing");
+
         /// <summary>
         /// Gets the default value for a type
         /// </summary>
@@ -67,6 +68,5 @@ namespace PeanutButter.DuckTyping
             var specific = genericMethod.MakeGenericMethod(type);
             return specific.Invoke(typeMaker, null) as Type;
         }
-
     }
 }

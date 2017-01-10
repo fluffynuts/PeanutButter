@@ -28,6 +28,5 @@ namespace PeanutButter.TestUtils.Generic
             var truncated = value.TruncateTo(places);
             return string.Format(format, truncated);
         }
-
     }
 }

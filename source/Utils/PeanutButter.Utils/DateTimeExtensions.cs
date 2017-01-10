@@ -31,6 +31,7 @@ namespace PeanutButter.Utils
             return test >= testStart.ToUniversalTime() &&
                     test <= testEnd.ToUniversalTime();
         }
+
         /// <summary>
         /// Returns a string representation of the form HH:mm for a DateTime
         /// </summary>

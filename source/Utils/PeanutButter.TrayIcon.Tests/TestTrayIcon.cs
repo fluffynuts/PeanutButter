@@ -121,8 +121,7 @@ namespace PeanutButter.TrayIcon.Tests
             var sut = Create();
             var clicks = GetRandom<MouseClicks>();
             var button = GetRandom<MouseButtons>();
-            var called = false;
-            var handler = sut.AddMouseClickHandler(clicks, button, () => called = true);
+            var handler = sut.AddMouseClickHandler(clicks, button, () => { });
             //--------------- Assume ----------------
             Expect(sut.MouseClickHandlers, Is.Not.Empty);
 
@@ -157,8 +156,7 @@ namespace PeanutButter.TrayIcon.Tests
             //--------------- Arrange -------------------
             var sut = Create();
             var text = GetRandomString();
-            var called = false;
-            sut.AddMenuItem(text, () => called = true);
+            sut.AddMenuItem(text, () => { });
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
@@ -204,8 +202,7 @@ namespace PeanutButter.TrayIcon.Tests
         public void DefaultBalloonTipClicked_ShouldBeReadWrite()
         {
             //--------------- Arrange -------------------
-            var called = false;
-            var expected = new Action(() => called = true);
+            var expected = new Action(() => { });
             var sut = Create();
 
             //--------------- Assume ----------------
@@ -221,8 +218,7 @@ namespace PeanutButter.TrayIcon.Tests
         public void DefaultBalloonTipClosed_ShouldBeReadWrite()
         {
             //--------------- Arrange -------------------
-            var called = false;
-            var expected = new Action(() => called = true);
+            var expected = new Action(() => { });
             var sut = Create();
 
             //--------------- Assume ----------------

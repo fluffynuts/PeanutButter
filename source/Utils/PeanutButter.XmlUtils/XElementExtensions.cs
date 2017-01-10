@@ -11,6 +11,5 @@ namespace PeanutButter.XmlUtils
             var textNodes = el.Nodes().OfType<XText>().Where(n => !string.IsNullOrWhiteSpace(n.Value));
             return string.Join("\n", textNodes.Select(n => n.Value));
         }
-
     }
 }

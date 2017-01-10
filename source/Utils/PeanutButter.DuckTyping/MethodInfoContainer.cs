@@ -13,10 +13,12 @@ namespace PeanutButter.DuckTyping
         /// Accurate dictionary of method information
         /// </summary>
         public Dictionary<string, MethodInfo> MethodInfos { get; }
+
         /// <summary>
         /// Approximate dictionary of method information
         /// </summary>
         public Dictionary<string, MethodInfo> FuzzyMethodInfos { get; }
+
         /// <summary>
         /// Constructs a new instance of the MethodInfo container
         /// </summary>

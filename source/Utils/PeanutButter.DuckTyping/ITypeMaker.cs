@@ -15,6 +15,7 @@ namespace PeanutButter.DuckTyping
         /// <typeparam name="T">Interface to implement</typeparam>
         /// <returns>A new type implementing interface T</returns>
         Type MakeTypeImplementing<T>();
+
         /// <summary>
         /// Attempts to create a type implementing interface T
         /// The created type will have constructors supporting parameterless construction

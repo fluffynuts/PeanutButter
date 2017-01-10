@@ -13,10 +13,12 @@ namespace PeanutButter.DuckTyping
         /// Accurate property info lookup
         /// </summary>
         public Dictionary<string, PropertyInfo> PropertyInfos { get; }
+
         /// <summary>
         /// Approximate property info lookup
         /// </summary>
         public Dictionary<string, PropertyInfo> FuzzyPropertyInfos { get; }
+
         /// <summary>
         /// Constructs a new instance of the lookup container
         /// </summary>

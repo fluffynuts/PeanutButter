@@ -47,5 +47,4 @@ namespace PeanutButter.FluentMigrator.Fakes
             };
         }
     }
-
 }

@@ -18,6 +18,5 @@ namespace PeanutButter.TestUtils.Entity
             return new EntityPersistenceFluentState<TContext, TEntity>(_entityFactory, contextFactory)
                             .WithEntityFactory(_entityFactory);
         }
-
     }
 }

@@ -83,6 +83,5 @@ namespace PeanutButter.Utils
             src.Read(buffer, 0, buffer.Length);
             return buffer;
         }
-
     }
 }

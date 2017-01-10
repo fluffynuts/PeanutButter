@@ -16,6 +16,7 @@ namespace PeanutButter.DuckTyping.AutoConversion
         /// <param name="input">Value to convert</param>
         /// <returns>Converted value, as implemented by the converter</returns>
         T1 Convert(T2 input);
+
         /// <summary>
         /// Convert an object of type T1 to T2
         /// </summary>
@@ -33,6 +34,7 @@ namespace PeanutButter.DuckTyping.AutoConversion
         /// One of the types converted from / to
         /// This property provides a quick lookup when seeking converters
         /// </summary>
+
         Type T1 { get; }
         /// <summary>
         /// The other type converted from / to

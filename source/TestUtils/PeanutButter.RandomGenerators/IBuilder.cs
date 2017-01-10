@@ -13,6 +13,7 @@
         /// <returns>New instance of TSubject</returns>
         TSubject Build();
     }
+
     /// <summary>
     /// Most basic base builder class; deprecated in favour of GenericBuilder, but
     /// may be useful if you wish to roll most of your builder yourself.
@@ -29,6 +30,7 @@
         {
             return new TConcrete();
         }
+
         /// <summary>
         /// Builds a default version of TSubject
         /// </summary>

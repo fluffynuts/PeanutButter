@@ -174,6 +174,5 @@ namespace EmailSpooler.Win32Service.SMTP
             return Body.IndexOf("<html", StringComparison.Ordinal) > -1 && 
                     Body.IndexOf("</html>", StringComparison.Ordinal) > -1;
         }
-
     }
 }

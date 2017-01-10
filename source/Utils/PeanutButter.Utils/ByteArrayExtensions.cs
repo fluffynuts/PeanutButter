@@ -8,13 +8,13 @@ namespace PeanutButter.Utils
     /// </summary>
     public static class ByteArrayExtensions
     {
-        // ReSharper disable once InconsistentNaming
-        // ReSharper disable once UnusedMember.Global
         /// <summary>
         /// Calculates the md5sum for the provided binary data
         /// </summary>
         /// <param name="data">Binary data to hash</param>
         /// <returns>hex-encoded md5sum for the provided data</returns>
+        // ReSharper disable once InconsistentNaming
+        // ReSharper disable once UnusedMember.Global
         public static string ToMD5String(this byte[] data)
         {
             if (data == null)
@@ -26,18 +26,16 @@ namespace PeanutButter.Utils
             return string.Join(string.Empty, characters.ToArray());
         }
 
-        // ReSharper disable once InconsistentNaming
         /// <summary>
         /// Provides a UTF-8 encoded string from the given binary data
         /// </summary>
         /// <param name="data">Binary data to encode as a UTF-8 string</param>
         /// <returns>The string representation of the binary data</returns>
+        // ReSharper disable once InconsistentNaming
         public static string ToUTF8String(this byte[] data)
         {
             if (data == null) return null;
             return Encoding.UTF8.GetString(data);
         }
-
-
     }
 }

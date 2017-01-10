@@ -105,24 +105,25 @@ namespace PeanutButter.Utils
 
         private static readonly MethodInfo _genericIsAssignableFromArrayOf
             = typeof(TypeExtensions).GetMethod("IsAssignableFromArrayOf", BindingFlags.Static | BindingFlags.Public);
-        // ReSharper disable once UnusedMember.Global
+
         /// <summary>
         /// Tests if a type is assignable from an array of T
         /// </summary>
         /// <param name="t">Type to test</param>
         /// <typeparam name="T">Item type of array which calling code would like to assign</typeparam>
         /// <returns></returns>
+        // ReSharper disable once UnusedMember.Global
         public static bool IsAssignableFromArrayOf<T>(this Type t)
         {
             return t.IsAssignableFrom(typeof(T[]));
         }
 
-        // ReSharper disable once UnusedMember.Global
         /// <summary>
         /// Tests if a type implements IEnumerable&lt;&gt;
         /// </summary>
         /// <param name="t">Type to test</param>
         /// <returns>True if the source type implements IEnumerable&lt;&gt;; False otherwise</returns>
+        // ReSharper disable once UnusedMember.Global
         public static bool ImplementsEnumerableGenericType(this Type t)
         {
             return t.IsGenericOfIEnumerable() || TryGetEnumerableInterface(t) != null;
@@ -188,6 +189,5 @@ namespace PeanutButter.Utils
         {
             return t.GetAllImplementedInterfaces().Contains(_disposableInterface);
         }
-
     }
 }

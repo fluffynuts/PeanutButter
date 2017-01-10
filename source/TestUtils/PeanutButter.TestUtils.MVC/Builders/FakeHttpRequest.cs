@@ -42,9 +42,5 @@ namespace PeanutButter.TestUtils.MVC.Builders
                 return _cookies;
             }
         }
-
     }
-
-
-
 }

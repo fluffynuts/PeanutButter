@@ -11,12 +11,14 @@
         /// <param name="level">How far down the rabbit-hole to go</param>
         /// <returns></returns>
         IGenericBuilder WithBuildLevel(int level);
+
         /// <summary>
         /// Sets up the builder to build with random property values unless the level specified
         /// is too deep, in which case it bails out
         /// </summary>
         /// <returns>The current builder instance</returns>
         IGenericBuilder GenericWithRandomProps();
+
         /// <summary>
         /// Builds an instance of the object this builder builds
         /// </summary>
