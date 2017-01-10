@@ -13,7 +13,7 @@ namespace PeanutButter.Utils
     /// 1. The start Func returns a value 
     /// 2. Upon disposal, the end action is called with the value from (1)
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">Type of value which is passed to the start and end actions</typeparam>
     public class AutoResetter<T> : IDisposable
     {
         private readonly T _initialValue;

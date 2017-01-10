@@ -7,7 +7,7 @@ namespace PeanutButter.DuckTyping.AutoConversion
     /// auto-discovered converters to be used when fuzzy-duck-typing
     /// </summary>
     /// <typeparam name="T1">Type to convert from or to</typeparam>
-    /// <typeparam name="T2">Type to convert from or to</typeparam>
+    /// <typeparam name="T2">Type to convert to or from</typeparam>
     public interface IConverter<T1, T2> : IConverter
     {
         /// <summary>
