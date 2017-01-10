@@ -31,6 +31,7 @@ namespace PeanutButter.TestUtils.Entity
 
         protected TestFixtureWithTempDb()
         {
+            EnableTestIsolationInTransactions();
             _createMigrationsRunner =
                 connectionString => { throw new Exception("Please run the Configure protected method before attempting any actual tests."); };
         }
@@ -43,6 +44,8 @@ namespace PeanutButter.TestUtils.Entity
 
         protected void DisableDatabaseRegeneration()
         {
+            if (_databaseLifetime == TempDatabaseLifetimes.Fixture)
+                return;
             _lock.Wait();
             _databaseLifetime = TempDatabaseLifetimes.Fixture;
         }
@@ -70,7 +73,12 @@ namespace PeanutButter.TestUtils.Entity
             if (!_testIsolationEnabled || !_testIsolationRequired)
                 return;
             _testIsolationRequired = false;
-            _transactionScope = new TransactionScope();
+            _transactionScope = CreateTransactionScopeCapableOfSurvivingAsyncAwait();
+        }
+
+        private static TransactionScope CreateTransactionScopeCapableOfSurvivingAsyncAwait()
+        {
+            return new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
         }
 
 
@@ -250,8 +258,7 @@ CREATE TABLE [AspNetUsers](
         {
             if (_testIsolationEnabled)
             {
-                _transactionScope?.Dispose();
-                _transactionScope = null;
+                RollBackIsolationTransaction();
                 _testIsolationRequired = true;
             }
 
@@ -297,15 +304,28 @@ CREATE TABLE [AspNetUsers](
             _tempDbActual = null;
         }
 
-        protected void EnableTestIsolation()
+        protected void EnableTestIsolationInTransactions()
         {
             _testIsolationEnabled = true;
             DisableDatabaseRegeneration();
         }
 
-        protected void DisableTestIsolation()
+        protected void DisableTestIsolationInTransactions()
         {
             _testIsolationEnabled = false;
+            CommitIsolationTransaction();
+        }
+
+        protected void CommitIsolationTransaction()
+        {
+            _transactionScope?.Complete();
+            _transactionScope = null;
+        }
+
+        protected void RollBackIsolationTransaction()
+        {
+            _transactionScope?.Dispose();
+            _transactionScope = null;
         }
     }
 }

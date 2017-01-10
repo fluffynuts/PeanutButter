@@ -36,6 +36,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
         {
             Configure(false, cstr => new DbSchemaImporter(cstr, NotesDbContext.SCHEMA));
             DisableDatabaseRegeneration();
+            DisableTestIsolationInTransactions();
         }
 
         private static string _connectionString;

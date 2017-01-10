@@ -1,5 +1,6 @@
 using System;
 using System.Data.Entity;
+using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
@@ -22,6 +23,11 @@ namespace PeanutButter.TestUtils.Entity
             return _ignoreFields.And(typeof(T).VirtualProperties());
         }
 
+        [OneTimeSetUp]
+        public void OneTimeSetup()
+        {
+        }
+
         protected void ShouldBeAbleToPersist<TBuilder, TEntity>(Func<TDbContext, IDbSet<TEntity>>  collectionNabber, 
             Action<TDbContext, TEntity> beforePersisting = null, 
             Action<TEntity, TEntity> customAssertions = null,
@@ -39,6 +45,10 @@ namespace PeanutButter.TestUtils.Entity
                     beforePersisting?.Invoke(ctx, entity);
                 })
                 .AfterPersisting(customAssertions)
+                .AfterPersisting((ctx, e) =>
+                {
+                    RollBackIsolationTransaction();
+                })
                 .WithIgnoredProperties(ignoreProperties)
                 .ShouldPersistAndRecall();
         }

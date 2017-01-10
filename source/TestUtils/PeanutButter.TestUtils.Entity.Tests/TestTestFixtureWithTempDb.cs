@@ -13,7 +13,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
         public void OneTimeSetup()
         {
             Configure(false, cstr => new DbSchemaImporter(cstr, NotesDbContext.SCHEMA));
-            EnableTestIsolation();
+            EnableTestIsolationInTransactions();
         }
 
         [Test]
