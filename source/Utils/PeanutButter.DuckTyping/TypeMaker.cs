@@ -65,7 +65,6 @@ namespace PeanutButter.DuckTyping
 
             typeBuilder.AddInterfaceImplementation(interfaceType);
 
-
             var shimField = AddShimField(typeBuilder);
             var allInterfaceTypes = interfaceType.GetAllImplementedInterfaces();
             AddAllPropertiesAsShimmable(typeBuilder, allInterfaceTypes, shimField);

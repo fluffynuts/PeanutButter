@@ -29,6 +29,7 @@ namespace EmailSpooler.Win32Service.DB.FluentMigrator
 
         public override void Down()
         {
+            /* intentionally left blank */
         }
     }
 }

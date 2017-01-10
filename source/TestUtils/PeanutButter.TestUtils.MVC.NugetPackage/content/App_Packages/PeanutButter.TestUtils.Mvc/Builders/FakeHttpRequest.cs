@@ -19,32 +19,10 @@ namespace PeanutButter.TestUtils.MVC.Builders
             _cookies = cookies;
         }
 
-        public override NameValueCollection Form
-        {
-            get
-            {
-                return _formParams;
-            }
-        }
+        public override NameValueCollection Form => _formParams;
 
-        public override NameValueCollection QueryString
-        {
-            get
-            {
-                return _queryStringParams;
-            }
-        }
+        public override NameValueCollection QueryString => _queryStringParams;
 
-        public override HttpCookieCollection Cookies
-        {
-            get
-            {
-                return _cookies;
-            }
-        }
-
+        public override HttpCookieCollection Cookies => _cookies;
     }
-
-
-
 }

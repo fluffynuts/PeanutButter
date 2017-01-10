@@ -72,18 +72,18 @@ namespace PeanutButter.TestUtils.Entity
         public static void ShouldHaveIDbSetFor<TEntity>(this Type contextType)
         {
             var propInfo = contextType.GetProperties()
-                                .FirstOrDefault(IsIDbSetFor<TEntity>);
+                .FirstOrDefault(IsIDbSetFor<TEntity>);
             if (propInfo == null)
                 Assert.Fail($"Expected context of type {contextType.PrettyName()} to have IDbSet<{typeof(TEntity)}>");
         }
 
-        public static void ShouldHaveNullInitializer<T>(this T context) where T: DbContext
+        public static void ShouldHaveNullInitializer<T>(this T context) where T : DbContext
         {
             using (var db = new TempDBLocalDb())
             {
+                /* intentionally left blank */
             }
         }
-
 
         private static readonly Type IDbSetGenericType = typeof(IDbSet<>);
 
@@ -93,7 +93,7 @@ namespace PeanutButter.TestUtils.Entity
             return searchType.IsAssignableFrom(propInfo.PropertyType);
         }
 
-        private static int GetMaxLengthFrom<T>(MaxLengthAttribute maxLengthAttribute, 
+        private static int GetMaxLengthFrom<T>(MaxLengthAttribute maxLengthAttribute,
             StringLengthAttribute stringLengthAttribute,
             PropertyData<T> propData)
         {
@@ -112,7 +112,7 @@ namespace PeanutButter.TestUtils.Entity
                 maxLengthAttribute.Length,
                 " vs ",
                 stringLengthAttribute.MaximumLength
-                ));
+            ));
             throw new Exception("Should not get here as we should have Assert.Failed");
         }
 
@@ -121,16 +121,17 @@ namespace PeanutButter.TestUtils.Entity
             return string.Format("property '{0}' on type '{1}'", propertyPath, typeof(T).PrettyName());
         }
 
-        private static void AssertHasExpectedDatabaseGeneratedOption<T>(DatabaseGeneratedOption databaseGeneratedOption, DatabaseGeneratedAttribute attrib, PropertyData<T> propData)
+        private static void AssertHasExpectedDatabaseGeneratedOption<T>(DatabaseGeneratedOption databaseGeneratedOption,
+            DatabaseGeneratedAttribute attrib, PropertyData<T> propData)
         {
             Assert.AreEqual(databaseGeneratedOption, attrib.DatabaseGeneratedOption,
-                "Expected [DatabaseGenerated(DatabaseGeneratedOption." + databaseGeneratedOption.ToString() + ")] on " + ErrorSuffixFor<T>(propData.PropertyPath));
+                "Expected [DatabaseGenerated(DatabaseGeneratedOption." + databaseGeneratedOption.ToString() + ")] on " +
+                ErrorSuffixFor<T>(propData.PropertyPath));
         }
 
         private static void AssertHasDatabaseGeneratedattribute<T>(DatabaseGeneratedAttribute attrib, PropertyData<T> propData)
         {
             Assert.IsNotNull(attrib, "No DatabaseGeneratedAttribute applied to " + ErrorSuffixFor<T>(propData.PropertyPath));
         }
-
     }
 }

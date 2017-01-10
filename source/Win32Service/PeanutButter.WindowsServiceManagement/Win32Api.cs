@@ -87,6 +87,6 @@ namespace PeanutButter.Win32ServiceControl
 
         [DllImport("advapi32.dll", SetLastError=true, CharSet=CharSet.Auto)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool ChangeServiceConfig2(IntPtr hService,int dwInfoLevel,IntPtr lpInfo);
+        public static extern bool ChangeServiceConfig2(IntPtr hService, int dwInfoLevel, IntPtr lpInfo);
     }
 }

@@ -45,8 +45,9 @@ namespace PeanutButter.DuckTyping
                 {
                     fieldArguments.Add(fi);
                     fieldArgumentValues.Add(namedArg.TypedValue.Value);
+                    continue;
                 }
-                else if (pi != null)
+                if (pi != null)
                 {
                     propertyArguments.Add(pi);
                     propertyArgumentValues.Add(namedArg.TypedValue.Value);

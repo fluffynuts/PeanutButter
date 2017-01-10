@@ -21,9 +21,9 @@ namespace PeanutButter.TestUtils.Entity
         protected static readonly object SharedMigrationsLock = new object();
     }
 
-    public class EntityPersistenceFluentState<TContext, TEntity> : EntityPersistenceFluentStateBase 
-                                                                 where TContext : DbContext
-                                                                 where TEntity: class
+    public class EntityPersistenceFluentState<TContext, TEntity> : EntityPersistenceFluentStateBase
+        where TContext : DbContext
+        where TEntity : class
     {
         private readonly Func<DbConnection, TContext> _contextFactory;
         private Func<TContext, IDbSet<TEntity>> _collectionNabberFromContext;
@@ -60,8 +60,8 @@ namespace PeanutButter.TestUtils.Entity
 
         static EntityPersistenceFluentState()
         {
-            var allProperties = typeof (TEntity)
-                                    .GetProperties();
+            var allProperties = typeof(TEntity)
+                .GetProperties();
             DecimalProps = allProperties
                 .Where(pi => pi.PropertyType == typeof(decimal) || pi.PropertyType == typeof(decimal?));
             DateTimeProps = allProperties
@@ -115,13 +115,13 @@ namespace PeanutButter.TestUtils.Entity
         {
             _logAction = logAction;
             return this;
-        } 
+        }
 
         public EntityPersistenceFluentState<TContext, TEntity> WithAllowedDateTimePropertyDelta(TimeSpan timeSpan)
         {
             _allowedDateTimeDelta = timeSpan;
             return this;
-        } 
+        }
 
         private IDbSet<TEntity> GetCollection(TContext context)
         {
@@ -132,7 +132,7 @@ namespace PeanutButter.TestUtils.Entity
 
         private TContext CreateContext(DbConnection dbConnection)
         {
-            var context =  (TContext) Activator.CreateInstance(typeof (TContext), dbConnection);
+            var context = (TContext) Activator.CreateInstance(typeof(TContext), dbConnection);
             if (_contextLogAction != null)
                 context.Database.Log = _contextLogAction;
             return context;
@@ -140,18 +140,19 @@ namespace PeanutButter.TestUtils.Entity
 
         private TEntity BuildWithBuilder()
         {
-            var entityType = typeof (TEntity);
+            var entityType = typeof(TEntity);
             var builderType = GenericBuilderLocator.TryFindExistingBuilderFor(entityType)
-                          ?? GenericBuilderLocator.FindOrGenerateDynamicBuilderFor(entityType);
+                              ?? GenericBuilderLocator.FindOrGenerateDynamicBuilderFor(entityType);
             Assert.IsNotNull(builderType, $"Can't find or create a builder for {entityType.Name}");
             var builder = Activator.CreateInstance(builderType) as IGenericBuilder;
             Assert.IsNotNull(builder, $"Located builder {builderType.Name} does not implement IGenericBuilder");
-            var entity =  builder.GenericWithRandomProps().GenericBuild() as TEntity;
+            var entity = builder.GenericWithRandomProps().GenericBuild() as TEntity;
             Assert.IsNotNull(entity, $"located builder {builderType.Name} for {entityType.Name} builds NULL or invalid entity");
             return entity;
         }
 
-        public EntityPersistenceFluentState<TContext, TEntity> WithBuilder<TEntityBuilder>() where TEntityBuilder: GenericBuilder<TEntityBuilder, TEntity>
+        public EntityPersistenceFluentState<TContext, TEntity> WithBuilder<TEntityBuilder>()
+            where TEntityBuilder : GenericBuilder<TEntityBuilder, TEntity>
         {
             _entityFactory = BuildWithBuilder;
             return this;
@@ -162,8 +163,8 @@ namespace PeanutButter.TestUtils.Entity
             //---------------Set up test pack-------------------
             var sut = _entityFactory();
             var toIgnore = new List<string>(_ignoredProperties
-                                                .EmptyIfNull()
-                                                .Union(typeof(TEntity).VirtualProperties()));
+                .EmptyIfNull()
+                .Union(typeof(TEntity).VirtualProperties()));
             AttemptToPersistWith(sut, toIgnore);
             ValidatePersistenceWith(toIgnore, sut);
             if (_tempDb == _sharedDatabase)
@@ -176,8 +177,8 @@ namespace PeanutButter.TestUtils.Entity
             using (var ctx = GetContext())
             {
                 var persisted = GetPersistedEntityFrom(ctx);
-                Assert.IsNotNull(persisted, "No entity of type '" + typeof (TEntity).FullName + "' found in context after saving!");
-                var entityType = typeof (TEntity);
+                Assert.IsNotNull(persisted, "No entity of type '" + typeof(TEntity).FullName + "' found in context after saving!");
+                var entityType = typeof(TEntity);
                 var idProp = entityType.GetProperties().FirstOrDefault(pi => pi.Name.ToLower() == entityType.Name.ToLower() + "id");
                 if (idProp != null && !toIgnore.EmptyIfNull().Contains(idProp.Name))
                     Assert.AreNotEqual(0, idProp.GetValue(persisted));
@@ -197,14 +198,16 @@ namespace PeanutButter.TestUtils.Entity
             var allowed = Math.Abs(_allowedDateTimeDelta.TotalMilliseconds);
             DateTimeProps.ForEach(pi =>
             {
-                var beforeValue = (DateTime?)pi.GetValue(sut);
-                var afterValue = (DateTime?)pi.GetValue(persisted);
+                var beforeValue = (DateTime?) pi.GetValue(sut);
+                var afterValue = (DateTime?) pi.GetValue(persisted);
                 if (beforeValue.HasValue && afterValue.HasValue)
                 {
                     var delta = Math.Abs((beforeValue.Value - afterValue.Value).TotalMilliseconds);
-                    Assert.That(delta, Is.LessThanOrEqualTo(allowed), $"Property mismatch: expected {pi.Name} to persist and recall with an accuracy within {allowed} ms");
+                    Assert.That(delta, Is.LessThanOrEqualTo(allowed),
+                        $"Property mismatch: expected {pi.Name} to persist and recall with an accuracy within {allowed} ms");
+                    return;
                 }
-                else if (beforeValue.HasValue != afterValue.HasValue)
+                if (beforeValue.HasValue != afterValue.HasValue)
                 {
                     Assert.Fail($"Property mismatch for {pi.Name}: expected {beforeValue} but got {afterValue}");
                 }
@@ -218,8 +221,11 @@ namespace PeanutButter.TestUtils.Entity
                 var beforeValue = (decimal?) pi.GetValue(sut);
                 var afterValue = (decimal?) pi.GetValue(persisted);
                 if (beforeValue.HasValue && afterValue.HasValue)
+                {
                     afterValue.Value.ShouldMatch(beforeValue.Value);
-                else if (beforeValue.HasValue != afterValue.HasValue)
+                    continue;
+                }
+                if (beforeValue.HasValue != afterValue.HasValue)
                     Assert.Fail($"Property mismatch for {pi.Name}: expected {beforeValue} but got {afterValue}");
             }
         }
@@ -299,7 +305,7 @@ namespace PeanutButter.TestUtils.Entity
         {
             if (_sharedDatabase == null)
                 return null;
-            lock(SharedMigrationsLock)
+            lock (SharedMigrationsLock)
             {
                 if (SharedDatabasesWhichHaveBeenMigrated.Contains(_sharedDatabase))
                     return _sharedDatabase;
@@ -307,7 +313,7 @@ namespace PeanutButter.TestUtils.Entity
                 return MigrateUpOn(_sharedDatabase);
             }
         }
-        
+
 
         private ITempDB CreateTempDb()
         {
@@ -333,19 +339,19 @@ To suppress this message, include .SuppressMissingMigratorMessage() in your flue
             return db;
         }
 
-        public EntityPersistenceFluentState<TContext,TEntity> WithTempDbFactory(Func<ITempDB> factoryFunction)
+        public EntityPersistenceFluentState<TContext, TEntity> WithTempDbFactory(Func<ITempDB> factoryFunction)
         {
             _tempDbFactoryFunction = factoryFunction;
             return this;
         }
 
-        public EntityPersistenceFluentState<TContext,TEntity> WithSharedDatabase(ITempDB tempDb)
+        public EntityPersistenceFluentState<TContext, TEntity> WithSharedDatabase(ITempDB tempDb)
         {
             _sharedDatabase = tempDb;
             return this;
         }
 
-        public EntityPersistenceFluentState<TContext,TEntity> SuppressMissingMigratorMessage()
+        public EntityPersistenceFluentState<TContext, TEntity> SuppressMissingMigratorMessage()
         {
             _suppressMigrationsWarning = true;
             return this;

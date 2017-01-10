@@ -55,8 +55,5 @@ namespace PeanutButter.TestUtils.MVC.Builders
                 return _session ?? (_session = new FakeHttpSessionState(_sessionItems));
             }
         }
-
     }
-
-
 }

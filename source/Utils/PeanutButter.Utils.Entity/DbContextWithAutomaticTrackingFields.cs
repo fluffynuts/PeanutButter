@@ -24,7 +24,6 @@ namespace PeanutButter.Utils.Entity
         {
         }
 
-
         public override int SaveChanges()
         {
             PerformAutoTrackingLogic();

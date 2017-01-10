@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace PeanutButter.FileSystem
 {
-    public class LocalFileSystem: IFileSystem
+    public class LocalFileSystem : IFileSystem
     {
         private string _currentDirectory;
 
@@ -12,12 +12,13 @@ namespace PeanutButter.FileSystem
         {
             SetCurrentDirectory(Directory.GetCurrentDirectory());
         }
+
         public IEnumerable<string> List(string searchPattern = "*")
         {
             var path = _currentDirectory;
             var startIndex = path.Length + 1;
             return Directory.EnumerateFileSystemEntries(path, searchPattern, SearchOption.TopDirectoryOnly)
-                            .Select(p => p.Substring(startIndex));
+                .Select(p => p.Substring(startIndex));
         }
 
         public IEnumerable<string> ListFiles(string searchPattern = "*")
@@ -35,7 +36,7 @@ namespace PeanutButter.FileSystem
             var path = _currentDirectory;
             var startIndex = path.Length + 1;
             return Directory.EnumerateFileSystemEntries(path, searchPattern, SearchOption.AllDirectories)
-                            .Select(p => p.Substring(startIndex));
+                .Select(p => p.Substring(startIndex));
         }
 
         public IEnumerable<string> ListFilesRecursive(string searchPattern = "*")
@@ -85,8 +86,8 @@ namespace PeanutButter.FileSystem
         {
             var fullPath = GetFullPathFor(path);
             return File.Exists(fullPath)
-                        ? File.OpenRead(fullPath)
-                        : null;
+                ? File.OpenRead(fullPath)
+                : null;
         }
 
         public Stream OpenWriter(string path)
@@ -113,9 +114,9 @@ namespace PeanutButter.FileSystem
 
         public string GetFullPathFor(string relativePath)
         {
-            return Path.IsPathRooted(relativePath) 
-                        ? relativePath 
-                        : Path.Combine(_currentDirectory, relativePath);
+            return Path.IsPathRooted(relativePath)
+                ? relativePath
+                : Path.Combine(_currentDirectory, relativePath);
         }
 
         private void EnsureFolderExists(string folderPath)
@@ -125,28 +126,30 @@ namespace PeanutButter.FileSystem
             Directory.CreateDirectory(folderPath);
         }
 
-
         private void DeleteInternal(string path, bool recursive)
         {
             path = Path.Combine(_currentDirectory, path);
             if (File.Exists(path))
+            {
                 File.Delete(path);
-            else if (Directory.Exists(path))
+                return;
+            }
+            if (Directory.Exists(path))
                 Directory.Delete(path, recursive);
         }
 
-        private static IEnumerable<string> ListDirectoriesInternal(string path, 
-                                                                string searchPattern,
-                                                                SearchOption searchOption)
+        private static IEnumerable<string> ListDirectoriesInternal(string path,
+            string searchPattern,
+            SearchOption searchOption)
         {
             var startIndex = path.Length + 1;
             return Directory.EnumerateDirectories(path, searchPattern, searchOption)
                 .Select(p => p.Substring(startIndex));
         }
 
-        private static IEnumerable<string> ListFilesInternal(string path, 
-                                                                string searchPattern,
-                                                                SearchOption searchOption)
+        private static IEnumerable<string> ListFilesInternal(string path,
+            string searchPattern,
+            SearchOption searchOption)
         {
             var startIndex = path.Length + 1;
             return Directory.EnumerateFiles(path, searchPattern, searchOption)
@@ -154,4 +157,3 @@ namespace PeanutButter.FileSystem
         }
     }
 }
-

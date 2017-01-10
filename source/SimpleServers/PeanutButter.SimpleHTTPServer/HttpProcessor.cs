@@ -37,11 +37,11 @@ namespace PeanutButter.SimpleHTTPServer
 
         public HttpProcessor(TcpClient tcpClient, HttpServerBase server) : base(tcpClient)
         {
-            Server = server;                   
+            Server = server;
             HttpHeaders = new Dictionary<string, string>();
         }
 
-        public void ProcessRequest() 
+        public void ProcessRequest()
         {
             using (var io = new TcpIoWrapper(TcpClient))
             {
@@ -52,7 +52,7 @@ namespace PeanutButter.SimpleHTTPServer
                     ReadHeaders();
                     HandleRequest(io);
                 }
-                catch(FileNotFoundException)
+                catch (FileNotFoundException)
                 {
                     WriteFailure(HttpStatusCode.NotFound, HttpConstants.HTTP_STATUS_NOTFOUND);
                 }
@@ -71,16 +71,19 @@ namespace PeanutButter.SimpleHTTPServer
         private void HandleRequest(TcpIoWrapper io)
         {
             if (Method.Equals(HttpConstants.METHOD_GET))
+            {
                 HandleGETRequest();
-            else if (Method.Equals(HttpConstants.METHOD_POST))
+                return;
+            }
+            if (Method.Equals(HttpConstants.METHOD_POST))
                 HandlePOSTRequest(io.RawStream);
         }
 
-        public void ParseRequest() 
+        public void ParseRequest()
         {
             var request = TcpClient.ReadLine();
             var tokens = request.Split(' ');
-            if (tokens.Length != 3) 
+            if (tokens.Length != 3)
             {
                 throw new Exception("invalid http request line");
             }
@@ -102,43 +105,47 @@ namespace PeanutButter.SimpleHTTPServer
         {
             var parts = s.Split('&');
             return parts.Select(p =>
-                                {
-                                    var subParts = p.Split('=');
-                                    var key = subParts.First();
-                                    var value = string.Join("=", subParts.Skip(1));
-                                    return new {key, value };
-                                }).ToDictionary(x => x.key, x => x.value);
+            {
+                var subParts = p.Split('=');
+                var key = subParts.First();
+                var value = string.Join("=", subParts.Skip(1));
+                return new {key, value};
+            }).ToDictionary(x => x.key, x => x.value);
         }
 
-        public void ReadHeaders() 
+        public void ReadHeaders()
         {
             string line;
-            while ((line = TcpClient.ReadLine()) != null) {
-                if (line.Equals(string.Empty)) {
+            while ((line = TcpClient.ReadLine()) != null)
+            {
+                if (line.Equals(string.Empty))
+                {
                     return;
                 }
-                
+
                 var separator = line.IndexOf(':');
-                if (separator == -1) {
+                if (separator == -1)
+                {
                     throw new Exception("invalid http header line: " + line);
                 }
                 var name = line.Substring(0, separator);
                 var pos = separator + 1;
-                while ((pos < line.Length) && (line[pos] == ' ')) {
+                while ((pos < line.Length) && (line[pos] == ' '))
+                {
                     pos++; // strip any spaces
                 }
-                    
+
                 var value = line.Substring(pos, line.Length - pos);
                 HttpHeaders[name] = value;
             }
         }
 
-        public void HandleGETRequest() 
+        public void HandleGETRequest()
         {
             Server.HandleGETRequest(this);
         }
 
-        public void HandlePOSTRequest(Stream stream) 
+        public void HandlePOSTRequest(Stream stream)
         {
             using (var ms = new MemoryStream())
             {
@@ -175,7 +182,6 @@ namespace PeanutButter.SimpleHTTPServer
                 ParseFormElementsIfRequired(ms);
                 Server.HandlePOSTRequest(this, ms);
             }
-
         }
 
         private void ParseFormElementsIfRequired(MemoryStream ms)
@@ -189,12 +195,13 @@ namespace PeanutButter.SimpleHTTPServer
             }
             catch
             {
+                /* intentionally left blank */
             }
         }
 
         public Dictionary<string, string> FormData { get; set; }
 
-        public void WriteSuccess(string mimeType= HttpConstants.MIMETYPE_HTML, byte[] data = null) 
+        public void WriteSuccess(string mimeType = HttpConstants.MIMETYPE_HTML, byte[] data = null)
         {
             WriteOKStatusHeader();
             WriteMIMETypeHeader(mimeType);
@@ -229,7 +236,7 @@ namespace PeanutButter.SimpleHTTPServer
 
         public void WriteHeader(string header, string value)
         {
-            WriteResponseLine(string.Join(": ", new[] { header, value }));
+            WriteResponseLine(string.Join(": ", new[] {header, value}));
         }
 
         public void WriteHeader(string header, int value)
@@ -240,7 +247,7 @@ namespace PeanutButter.SimpleHTTPServer
         public void WriteStatusHeader(HttpStatusCode code, string message = null)
         {
             LogRequest(code, message);
-            WriteResponseLine(string.Join(" ", "HTTP/1.0", ((int)code).ToString(), message ?? code.ToString()));
+            WriteResponseLine(string.Join(" ", "HTTP/1.0", ((int) code).ToString(), message ?? code.ToString()));
         }
 
         private void LogRequest(HttpStatusCode code, string message)
@@ -281,5 +288,4 @@ namespace PeanutButter.SimpleHTTPServer
             WriteSuccess(mimeType, Encoding.UTF8.GetBytes(document));
         }
     }
-
 }

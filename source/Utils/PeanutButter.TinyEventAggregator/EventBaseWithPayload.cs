@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PeanutButter.TinyEventAggregator
 {
-    public abstract class EventBase<TPayload>: EventBase
+    public abstract class EventBase<TPayload> : EventBase
     {
         public int SubscriptionCount
         {
@@ -20,6 +18,7 @@ namespace PeanutButter.TinyEventAggregator
                 }
             }
         }
+
         public SubscriptionAddedEventHandler OnSubscriptionAdded { get; set; }
         public SubscriptionRemovedEventHandler OnSubscriptionRemoved { get; set; }
 
@@ -32,15 +31,16 @@ namespace PeanutButter.TinyEventAggregator
             _eventName = GetType().Name;
         }
 
-        public SubscriptionToken Subscribe(Action<TPayload> callback, 
-                                            [CallerFilePath] string sourceFile = "", 
-                                            [CallerMemberName] string requestingMethod = "(unknown)", 
-                                            [CallerLineNumber] int subscribingSourceLine = -1)
+        public SubscriptionToken Subscribe(Action<TPayload> callback,
+            [CallerFilePath] string sourceFile = "",
+            [CallerMemberName] string requestingMethod = "(unknown)",
+            [CallerLineNumber] int subscribingSourceLine = -1)
         {
             lock (this)
             {
                 var token = PerformSubscription(callback, 0);
-                Debug.WriteLine($"Subscribing [{token}] indefinitely to event [{GetType().Name}] ({sourceFile}:{requestingMethod}:{subscribingSourceLine})");
+                Debug.WriteLine(
+                    $"Subscribing [{token}] indefinitely to event [{GetType().Name}] ({sourceFile}:{requestingMethod}:{subscribingSourceLine})");
                 return token;
             }
         }
@@ -53,13 +53,16 @@ namespace PeanutButter.TinyEventAggregator
             {
                 handler(this, new SubscriptionsChangedEventArgs(token));
             }
-            catch { }
+            catch
+            {
+                /* intentionally left blank */
+            }
         }
 
         public SubscriptionToken SubscribeOnce(Action<TPayload> action,
-                                                [CallerFilePath] string sourceFile = "", 
-                                                [CallerMemberName] string requestingMethod = "(unknown)", 
-                                                [CallerLineNumber] int subscribingSourceLine = -1)
+            [CallerFilePath] string sourceFile = "",
+            [CallerMemberName] string requestingMethod = "(unknown)",
+            [CallerLineNumber] int subscribingSourceLine = -1)
         {
             lock (this)
             {
@@ -70,14 +73,15 @@ namespace PeanutButter.TinyEventAggregator
         }
 
         public SubscriptionToken LimitedSubscription(Action<TPayload> action, int limit,
-                                                        [CallerFilePath] string sourceFile = "", 
-                                                        [CallerMemberName] string requestingMethod = "(unknown)", 
-                                                        [CallerLineNumber] int subscribingSourceLine = -1)
+            [CallerFilePath] string sourceFile = "",
+            [CallerMemberName] string requestingMethod = "(unknown)",
+            [CallerLineNumber] int subscribingSourceLine = -1)
         {
             lock (this)
             {
                 var token = PerformSubscription(action, limit);
-                Debug.WriteLine($"Subscribing [{token}] to event [{_eventName}] for {limit} publications ({sourceFile}:{requestingMethod}:{subscribingSourceLine})");
+                Debug.WriteLine(
+                    $"Subscribing [{token}] to event [{_eventName}] for {limit} publications ({sourceFile}:{requestingMethod}:{subscribingSourceLine})");
                 return token;
             }
         }
@@ -95,15 +99,16 @@ namespace PeanutButter.TinyEventAggregator
         }
 
         public void Publish(TPayload data,
-                            [CallerFilePath] string sourceFile = "", 
-                            [CallerMemberName] string requestingMethod = "(unknown)", 
-                            [CallerLineNumber] int publishingSourceLine = -1)
+            [CallerFilePath] string sourceFile = "",
+            [CallerMemberName] string requestingMethod = "(unknown)",
+            [CallerLineNumber] int publishingSourceLine = -1)
         {
-            lock(this)
+            lock (this)
             {
                 WaitForSuspension();
                 var subscriptions = _subscriptions.ToArray();
-                Debug.WriteLine($"Publishing event [{_eventName}] to {subscriptions.Length} subscribers ({sourceFile}:{requestingMethod}:{publishingSourceLine})");
+                Debug.WriteLine(
+                    $"Publishing event [{_eventName}] to {subscriptions.Length} subscribers ({sourceFile}:{requestingMethod}:{publishingSourceLine})");
                 foreach (var sub in subscriptions)
                 {
                     if (sub.OnlyOneCallLeft())
@@ -120,10 +125,10 @@ namespace PeanutButter.TinyEventAggregator
             }
         }
 
-        public void Unsubscribe(SubscriptionToken token, 
-                                [CallerFilePath] string sourceFile = "", 
-                                [CallerMemberName] string requestingMethod = "(unknown)", 
-                                [CallerLineNumber] int unsubscribingSourceLine = -1)
+        public void Unsubscribe(SubscriptionToken token,
+            [CallerFilePath] string sourceFile = "",
+            [CallerMemberName] string requestingMethod = "(unknown)",
+            [CallerLineNumber] int unsubscribingSourceLine = -1)
         {
             if (token == null) throw new ArgumentNullException("token");
             lock (this)
@@ -131,7 +136,8 @@ namespace PeanutButter.TinyEventAggregator
                 var match = _subscriptions.FirstOrDefault(s => s.Token == token);
                 if (match != null)
                 {
-                    Debug.WriteLine($"Unsubscribing [{match.Token}] from event [{_eventName}] ({sourceFile}:{requestingMethod}:{unsubscribingSourceLine})");
+                    Debug.WriteLine(
+                        $"Unsubscribing [{match.Token}] from event [{_eventName}] ({sourceFile}:{requestingMethod}:{unsubscribingSourceLine})");
                     _subscriptions.Remove(match);
                     RaiseSubscriptionRemovedEventHandler(match.Token);
                 }

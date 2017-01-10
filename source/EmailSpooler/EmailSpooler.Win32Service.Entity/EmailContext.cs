@@ -21,7 +21,7 @@ namespace EmailSpooler.Win32Service.Entity
         }
 
         public EmailContext(DbConnection connection)
-            :base (connection,true)
+            :base (connection, true)
         {
         }
 

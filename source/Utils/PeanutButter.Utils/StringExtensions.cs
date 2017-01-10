@@ -187,8 +187,9 @@ namespace PeanutButter.Utils
                 {
                     intMarker = 1;
                     collected.Add(asString);
+                    return;
                 }
-                else if (intMarker == 1)
+                if (intMarker == 1)
                 {
                     intMarker++;
                 }

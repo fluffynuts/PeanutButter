@@ -38,21 +38,21 @@ namespace PeanutButter.Win32ServiceControl
         private const string SERVICE_NOT_INSTALLED = "Service not installed";
 
         private readonly string _serviceName;
-        public string ServiceName { get { return _serviceName; } }
-        public string DisplayName 
-        { 
-            get
-            {
-                return _displayName;
-            }
+
+        public string ServiceName
+        {
+            get { return _serviceName; }
+        }
+
+        public string DisplayName
+        {
+            get { return _displayName; }
             set
             {
-                if (value == null)
-                    _displayName = _serviceName;
-                else
-                    _displayName = value;
+                _displayName = value ?? _serviceName;
             }
         }
+
         private string _displayName;
         private string _serviceExe;
 
@@ -71,10 +71,7 @@ namespace PeanutButter.Win32ServiceControl
                     .FirstOrDefault();
                 return _serviceExe;
             }
-            set 
-            {
-                _serviceExe = value;
-            }
+            set { _serviceExe = value; }
         }
 
         public static WindowsServiceUtil GetServiceByPath(string path)
@@ -85,11 +82,11 @@ namespace PeanutButter.Win32ServiceControl
             if (collection.Count == 0)
                 return null;
             var svcName = collection.Cast<ManagementBaseObject>()
-                                        .Select(item => item.Properties["Name"].Value.ToString())
-                                        .FirstOrDefault();
-            return svcName == null 
-                    ? null 
-                    : new WindowsServiceUtil(svcName);
+                .Select(item => item.Properties["Name"].Value.ToString())
+                .FirstOrDefault();
+            return svcName == null
+                ? null
+                : new WindowsServiceUtil(svcName);
         }
 
         public int ServiceStateExtraWaitSeconds { get; set; }
@@ -167,7 +164,7 @@ namespace PeanutButter.Win32ServiceControl
             _displayName = displayName;
             if (_displayName == null)
                 _displayName = _serviceName;
-            if (ServiceExe == null)    // see if we can get an existing path else set to the defaultServicePath for installations
+            if (ServiceExe == null) // see if we can get an existing path else set to the defaultServicePath for installations
                 ServiceExe = defaultServiceExePath;
         }
 
@@ -190,7 +187,7 @@ namespace PeanutButter.Win32ServiceControl
                         {
                             var lastError = new Win32Exception(err);
                             throw new ServiceOperationException(_serviceName, ServiceOperationNames.UNINSTALL,
-                                                                    lastError.ErrorCode + ": " + lastError.Message);
+                                lastError.ErrorCode + ": " + lastError.Message);
                         }
                     }
                 }
@@ -222,19 +219,19 @@ namespace PeanutButter.Win32ServiceControl
             {
                 IntPtr scm = OpenSCManager(ScmAccessRights.Connect);
                 IntPtr service = Win32Api.OpenService(scm, _serviceName,
-                                             ServiceAccessRights.QueryStatus | ServiceAccessRights.Start);
+                    ServiceAccessRights.QueryStatus | ServiceAccessRights.Start);
                 IntPtr buf = IntPtr.Zero;
                 try
                 {
-                int size = 0;
+                    int size = 0;
                     Win32Api.QueryServiceStatusEx(service, 0, buf, size, out size);
-                buf = Marshal.AllocHGlobal(size);
-                if (!Win32Api.QueryServiceStatusEx(service, 0, buf, size, out size))
-                {
-                    return -1;
-                }
-                var status = (Win32Api.SERVICE_STATUS_PROCESS)Marshal.PtrToStructure(buf, typeof(Win32Api.SERVICE_STATUS_PROCESS));
-                return status.ProcessID;
+                    buf = Marshal.AllocHGlobal(size);
+                    if (!Win32Api.QueryServiceStatusEx(service, 0, buf, size, out size))
+                    {
+                        return -1;
+                    }
+                    var status = (Win32Api.SERVICE_STATUS_PROCESS) Marshal.PtrToStructure(buf, typeof(Win32Api.SERVICE_STATUS_PROCESS));
+                    return status.ProcessID;
                 }
                 finally
                 {
@@ -292,8 +289,9 @@ namespace PeanutButter.Win32ServiceControl
         {
             VerifyServiceExecutable();
 
-            var service = Win32Api.CreateService(scm, _serviceName, _displayName, ServiceAccessRights.AllAccess, Win32Api.SERVICE_WIN32_OWN_PROCESS, ServiceBootFlag.AutoStart, ServiceError.Normal,
-                                    _serviceExe, null, IntPtr.Zero, null, null, null);
+            var service = Win32Api.CreateService(scm, _serviceName, _displayName, ServiceAccessRights.AllAccess, Win32Api.SERVICE_WIN32_OWN_PROCESS,
+                ServiceBootFlag.AutoStart, ServiceError.Normal,
+                _serviceExe, null, IntPtr.Zero, null, null, null);
             var win32Exception = new Win32Exception(Marshal.GetLastWin32Error());
             if (service == IntPtr.Zero)
             {
@@ -307,25 +305,25 @@ namespace PeanutButter.Win32ServiceControl
         private void VerifyServiceExecutable()
         {
             if (ServiceExe == null)
-                throw new ServiceOperationException(_serviceName, ServiceOperationNames.INSTALL, 
-                                                    "no ServiceExe set");
+                throw new ServiceOperationException(_serviceName, ServiceOperationNames.INSTALL,
+                    "no ServiceExe set");
 
             if (!File.Exists(ServiceExe))
-                throw new ServiceOperationException(_serviceName, ServiceOperationNames.INSTALL, 
-                                                    "Can't find service executable at: " + _serviceExe);
+                throw new ServiceOperationException(_serviceName, ServiceOperationNames.INSTALL,
+                    "Can't find service executable at: " + _serviceExe);
         }
 
-        public ServiceStartupTypes StartupType 
+        public ServiceStartupTypes StartupType
         {
-            get 
-            { 
-                var regKey = GetServiceRegistryKey(); 
+            get
+            {
+                var regKey = GetServiceRegistryKey();
                 if (regKey == null) return ServiceStartupTypes.Unknown;
                 try
                 {
                     return
                         (ServiceStartupTypes)
-                            Enum.Parse(typeof (ServiceStartupTypes), regKey.GetValue("Start").ToString(), true);
+                        Enum.Parse(typeof(ServiceStartupTypes), regKey.GetValue("Start").ToString(), true);
                 }
                 catch (Exception)
                 {
@@ -362,8 +360,9 @@ namespace PeanutButter.Win32ServiceControl
         {
             try
             {
-                var subKeypath = string.Join("\\", new[] { 
-                    "SYSTEM", "CurrentControlSet", "Services", ServiceName 
+                var subKeypath = string.Join("\\", new[]
+                {
+                    "SYSTEM", "CurrentControlSet", "Services", ServiceName
                 });
                 return Registry.LocalMachine.OpenSubKey(subKeypath, RegistryKeyPermissionCheck.ReadWriteSubTree);
             }
@@ -380,7 +379,7 @@ namespace PeanutButter.Win32ServiceControl
             try
             {
                 var service = Win32Api.OpenService(scm, _serviceName,
-                                             ServiceAccessRights.QueryStatus | ServiceAccessRights.Start);
+                    ServiceAccessRights.QueryStatus | ServiceAccessRights.Start);
                 if (service == IntPtr.Zero)
                     throw new ServiceOperationException(_serviceName, ServiceOperationNames.START, SERVICE_NOT_INSTALLED);
                 try
@@ -408,11 +407,11 @@ namespace PeanutButter.Win32ServiceControl
             try
             {
                 IntPtr service = Win32Api.OpenService(scm, _serviceName,
-                                             ServiceAccessRights.QueryStatus | ServiceAccessRights.Stop);
+                    ServiceAccessRights.QueryStatus | ServiceAccessRights.Stop);
                 if (service == IntPtr.Zero)
-                    throw new ServiceOperationException(_serviceName, 
-                                                            ServiceOperationNames.STOP, 
-                                                            SERVICE_NOT_INSTALLED);
+                    throw new ServiceOperationException(_serviceName,
+                        ServiceOperationNames.STOP,
+                        SERVICE_NOT_INSTALLED);
 
                 try
                 {
@@ -439,11 +438,11 @@ namespace PeanutButter.Win32ServiceControl
             try
             {
                 IntPtr service = Win32Api.OpenService(scm, _serviceName,
-                                             ServiceAccessRights.QueryStatus | ServiceAccessRights.PauseContinue);
+                    ServiceAccessRights.QueryStatus | ServiceAccessRights.PauseContinue);
                 if (service == IntPtr.Zero)
-                    throw new ServiceOperationException(_serviceName, 
-                                                        ServiceOperationNames.PAUSE, 
-                                                        SERVICE_NOT_INSTALLED);
+                    throw new ServiceOperationException(_serviceName,
+                        ServiceOperationNames.PAUSE,
+                        SERVICE_NOT_INSTALLED);
                 try
                 {
                     PauseService(service);
@@ -469,11 +468,11 @@ namespace PeanutButter.Win32ServiceControl
             try
             {
                 IntPtr service = Win32Api.OpenService(scm, _serviceName,
-                                             ServiceAccessRights.QueryStatus | ServiceAccessRights.PauseContinue);
+                    ServiceAccessRights.QueryStatus | ServiceAccessRights.PauseContinue);
                 if (service == IntPtr.Zero)
-                    throw new ServiceOperationException(_serviceName, 
-                                                        ServiceOperationNames.PAUSE, 
-                                                        SERVICE_NOT_INSTALLED);
+                    throw new ServiceOperationException(_serviceName,
+                        ServiceOperationNames.PAUSE,
+                        SERVICE_NOT_INSTALLED);
                 try
                 {
                     PauseService(service);
@@ -502,9 +501,9 @@ namespace PeanutButter.Win32ServiceControl
             {
                 var changedStatus = WaitForServiceStatus(service, ServiceState.StartPending, ServiceState.Running);
                 if (!changedStatus)
-                    throw new ServiceOperationException(_serviceName, 
-                                                        ServiceOperationNames.START, 
-                                                        "Unable to start service");
+                    throw new ServiceOperationException(_serviceName,
+                        ServiceOperationNames.START,
+                        "Unable to start service");
             }
         }
 
@@ -525,9 +524,9 @@ namespace PeanutButter.Win32ServiceControl
         {
             var changedStatus = WaitForServiceStatus(service, ServiceState.StopPending, ServiceState.Stopped);
             if (!changedStatus)
-                throw new ServiceOperationException(_serviceName, 
-                                                    ServiceOperationNames.STOP, 
-                                                    "Unable to stop service");
+                throw new ServiceOperationException(_serviceName,
+                    ServiceOperationNames.STOP,
+                    "Unable to stop service");
             var waitLevel = 0;
             try
             {
@@ -572,27 +571,27 @@ namespace PeanutButter.Win32ServiceControl
         private void PauseService(IntPtr service, bool wait = true)
         {
             if (GetServiceStatus(service) != ServiceState.Running)
-                throw new ServiceOperationException(_serviceName, 
-                                                    ServiceOperationNames.PAUSE,
-                                                    "Cannot pause a service which isn't already running");
+                throw new ServiceOperationException(_serviceName,
+                    ServiceOperationNames.PAUSE,
+                    "Cannot pause a service which isn't already running");
             var status = new Win32Api.SERVICE_STATUS();
             Win32Api.ControlService(service, ServiceControl.Pause, status);
             if (wait)
             {
                 var changedStatus = WaitForServiceStatus(service, ServiceState.PausePending, ServiceState.Paused);
                 if (!changedStatus)
-                    throw new ServiceOperationException(_serviceName, 
-                                                        ServiceOperationNames.PAUSE,
-                                                        "Unable to pause service");
+                    throw new ServiceOperationException(_serviceName,
+                        ServiceOperationNames.PAUSE,
+                        "Unable to pause service");
             }
         }
 
         public void ContinueService(IntPtr service, bool wait = true)
         {
             if (GetServiceStatus(service) != ServiceState.Paused)
-                throw new ServiceOperationException(_serviceName, 
-                                                        ServiceOperationNames.CONTINUE, 
-                                                        "Cannot continue a service not in the paused state");
+                throw new ServiceOperationException(_serviceName,
+                    ServiceOperationNames.CONTINUE,
+                    "Cannot continue a service not in the paused state");
             var status = new Win32Api.SERVICE_STATUS();
             Win32Api.ControlService(service, ServiceControl.Continue, status);
             if (wait)
@@ -608,9 +607,9 @@ namespace PeanutButter.Win32ServiceControl
             var status = new Win32Api.SERVICE_STATUS();
 
             if (Win32Api.QueryServiceStatus(service, status) == 0)
-                throw new ServiceOperationException(_serviceName, 
-                                                    ServiceOperationNames.GET_SERVICE_STATUS, 
-                                                    "Failed to query service status");
+                throw new ServiceOperationException(_serviceName,
+                    ServiceOperationNames.GET_SERVICE_STATUS,
+                    "Failed to query service status");
             return status.CurrentState;
         }
 
@@ -671,10 +670,10 @@ namespace PeanutButter.Win32ServiceControl
             // Do not wait longer than the wait hint. A good interval is
             // one tenth the wait hint, but no less than 1 second and no
             // more than 10 seconds.
-            var waitTime = status.WaitHint/10;
+            var waitTime = status.WaitHint / 10;
 
             if (waitTime < 1000) waitTime = 1000;
-            else if (waitTime > 10000) waitTime = 10000;
+            if (waitTime > 10000) waitTime = 10000;
             return waitTime;
         }
 
@@ -709,7 +708,7 @@ namespace PeanutButter.Win32ServiceControl
                 }
             }
             if (killThese.Count == 0)
-                return true;    // not running any more
+                return true; // not running any more
             int killed = 0;
             foreach (var proc in killThese)
             {
@@ -720,7 +719,10 @@ namespace PeanutButter.Win32ServiceControl
                     killed++;
                 }
                 // ReSharper disable once EmptyGeneralCatchClause
-                catch { }
+                catch
+                {
+                    /* intentionally left blank */
+                }
             }
             return (killed == killThese.Count);
         }
@@ -730,12 +732,11 @@ namespace PeanutButter.Win32ServiceControl
         {
             var scm = Win32Api.OpenSCManager(null, null, rights);
             if (scm == IntPtr.Zero)
-                throw new ServiceOperationException(_serviceName, 
-                                                    ServiceOperationNames.OPEN_SC_MANAGER, 
-                                                    "Could not connect to service control manager");
+                throw new ServiceOperationException(_serviceName,
+                    ServiceOperationNames.OPEN_SC_MANAGER,
+                    "Could not connect to service control manager");
 
             return scm;
         }
-
     }
 }

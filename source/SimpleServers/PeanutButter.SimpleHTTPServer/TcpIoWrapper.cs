@@ -6,8 +6,15 @@ namespace PeanutButter.SimpleHTTPServer
 {
     public class TcpIoWrapper : IDisposable
     {
-        public Stream RawStream { get { return GetRawStream(); } }
-        public StreamWriter StreamWriter { get { return GetStreamWriter(); } }
+        public Stream RawStream
+        {
+            get { return GetRawStream(); }
+        }
+
+        public StreamWriter StreamWriter
+        {
+            get { return GetStreamWriter(); }
+        }
 
         private StreamWriter _outputStreamWriter;
         private TcpClient _client;
@@ -56,7 +63,10 @@ namespace PeanutButter.SimpleHTTPServer
                     _rawStream.Flush();
                     _rawStream.Dispose();
                 }
-                catch { }
+                catch
+                {
+                    /* intentionally left blank */
+                }
                 _rawStream = null;
             }
         }

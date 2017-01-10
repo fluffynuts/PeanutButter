@@ -8,6 +8,7 @@ namespace PeanutButter.FluentMigrator.Fakes
 
         public void Dispose()
         {
+            /* intentionally left blank */
         }
 
         public IDbTransaction BeginTransaction()

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+
 // ReSharper disable UnusedMemberInSuper.Global
 
 namespace PeanutButter.INIFile
@@ -36,7 +37,7 @@ namespace PeanutButter.INIFile
 
         public INIFile(string path = null)
         {
-            _sectionTrimChars = new[] { '[', ']' };
+            _sectionTrimChars = new[] {'[', ']'};
             if (path != null)
                 Load(path);
         }
@@ -107,8 +108,8 @@ namespace PeanutButter.INIFile
         {
             if (!recentComments.Any()) return;
             var sectionComments = Comments.ContainsKey(section)
-                                    ? Comments[section]
-                                    : CreateCommentsForSection(section);
+                ? Comments[section]
+                : CreateCommentsForSection(section);
             sectionComments[key] = string.Join(Environment.NewLine + ";", recentComments);
             recentComments.Clear();
         }
@@ -165,6 +166,7 @@ namespace PeanutButter.INIFile
             {
                 using (File.Create(path))
                 {
+                    /* intentionally left blank */
                 }
             }
             var fileContents = Encoding.UTF8.GetString(File.ReadAllBytes(path));
