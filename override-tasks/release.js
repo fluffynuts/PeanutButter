@@ -60,8 +60,6 @@ function processPathsWith(getNugetArgsFor) {
   return stream;
 }
 
-//        exec(nuget, ['push', pkgPath, '-Source', 'https://www.nuget.org']));
-
 function pushNugetPackages() {
   return processPathsWith(function(filePath) {
     return ['push', filePath, '-NonInteractive', '-Source', 'https://www.nuget.org'];
@@ -105,13 +103,4 @@ gulp.task('release', ['build-nuget-packages'], function() {
                   '!**/packages/**/*.nupkg'])
           .pipe(pushNugetPackages());
 });
-
-//gulp.task('release', ['build-for-nuget'], function() {
-//    var config = Object.assign({}, commonConfig);
-//    config.targets = ['Clean', 'Build'];
-//    config.configuration = 'Release';
-//    return gulp.src(['**/*.sln', '!**/node_modules/**/*.sln'])
-//            .pipe(msbuild(config));
-//});
-
 
