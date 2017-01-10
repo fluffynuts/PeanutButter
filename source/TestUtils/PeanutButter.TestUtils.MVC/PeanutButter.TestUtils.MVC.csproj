@@ -68,7 +68,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Builders\ControllerWithContextBuilder.cs" />
-    <Compile Include="Builders\FakeControllerContext.cs" />
     <Compile Include="Builders\FakeHttpContext.cs" />
     <Compile Include="Builders\FakeHttpRequest.cs" />
     <Compile Include="Builders\FakeHttpSessionState.cs" />

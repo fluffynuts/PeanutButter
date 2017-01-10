@@ -8,6 +8,7 @@ using System.Security.Claims;
 using System.Security.Principal;
 using System.Text.RegularExpressions;
 using System.Web;
+using System.Web.Mvc;
 using System.Web.Routing;
 using System.Web.SessionState;
 using Microsoft.AspNet.Identity;
@@ -15,43 +16,8 @@ using NSubstitute;
 
 namespace PeanutButter.TestUtils.MVC.Builders
 {
-    public static class MvcTypeShim
-    {
-        private static Dictionary<string, Type> _mvcTypes = new Dictionary<string, Type>();
-        static MvcTypeShim()
-        {
-            var mvcAsm = AppDomain.CurrentDomain.GetAssemblies()
-                                    .FirstOrDefault(a => a.GetName()?.Name?.ToLower() == "system.web.mvc");
-            if (mvcAsm == null)
-            {
-                var asmPath = new Uri(typeof(ControllerWithContextBuilder<>).Assembly.CodeBase).LocalPath;
-                var toLoad = Path.Combine(Path.GetDirectoryName(asmPath), "System.Web.Mvc.dll");
-                if (!File.Exists(toLoad))
-                    throw new InvalidOperationException("Can't load System.Web.Mvc locally");
-                mvcAsm = Assembly.Load(File.ReadAllBytes(asmPath));
-            }
-            RegisterType(mvcAsm.GetTypes(), "ControllerContext");
-        }
 
-        private static void RegisterType(Type[] types, string typeName)
-        {
-            var type = types.FirstOrDefault(t => t.Name?.ToLower() == typeName?.ToLower());
-            _mvcTypes[typeName] = type;
-        }
-
-        public static object Spawn(string typeName, params object[] constructorParams)
-        {
-            var spawnType = _mvcTypes[typeName];
-            return Activator.CreateInstance(spawnType, constructorParams);
-        }
-    }
-
-    public interface IControllerLike
-    {
-        object ControllerContext { get; set; }
-    }
-
-    public class ControllerWithContextBuilder<T> // where T: ControllerBase
+    public class ControllerWithContextBuilder<T> where T: ControllerBase
     {
 
         private string _userName;
@@ -95,9 +61,8 @@ namespace PeanutButter.TestUtils.MVC.Builders
                 _queryStringParameters,
                 _cookies,
                 _sessionState);
-            var propInfo = controller.GetType().GetProperty("ControllerContext");
-            var context = MvcTypeShim.Spawn("ControllerContext", httpContext, _routeData, controller);
-            propInfo.SetValue(controller, context);
+            var context = new ControllerContext(httpContext, _routeData, controller);
+            controller.ControllerContext = context;
             return (T)controller;
         }
 
@@ -121,7 +86,7 @@ namespace PeanutButter.TestUtils.MVC.Builders
             return new ClaimsPrincipal(claimsIdentity);
         }
 
-        private object SpawnControllerInstance()
+        private ControllerBase SpawnControllerInstance()
         {
             object controller = null;
             if (_controllerFactoryFunc == null)
@@ -132,7 +97,7 @@ namespace PeanutButter.TestUtils.MVC.Builders
                 }
                 catch
                 {
-                    throw new Exception($"Controller builder function not defined to generate controller of type '{typeof(T).Name}' and no default constructor available");
+                    throw new Exception($"Controller builder function not defined to generate controller of type '{typeof(T).Name}' and no parameterless constructor available");
                 }
             }
             else
@@ -141,7 +106,7 @@ namespace PeanutButter.TestUtils.MVC.Builders
                 if (controller == null)
                     throw new Exception("Provided controller factory function returns null. Tsk.");
             }
-            return controller;
+            return controller as ControllerBase;
         }
 
         public ControllerWithContextBuilder<T> WithControllerFactory(Func<T> controllerFactoryFunc)

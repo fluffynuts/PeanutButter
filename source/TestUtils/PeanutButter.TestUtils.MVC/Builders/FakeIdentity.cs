@@ -9,11 +9,9 @@ namespace PeanutButter.TestUtils.MVC.Builders
     /// </summary>
     public class FakeIdentity : IIdentity
     {
-        private readonly string _name;
-
         public FakeIdentity(string userName)
         {
-            _name = userName;
+            Name = userName;
         }
 
         public string AuthenticationType
@@ -21,15 +19,9 @@ namespace PeanutButter.TestUtils.MVC.Builders
             get { throw new NotImplementedException(); }
         }
 
-        public bool IsAuthenticated
-        {
-            get { return !string.IsNullOrEmpty(_name); }
-        }
+        public bool IsAuthenticated => !string.IsNullOrEmpty(Name);
 
-        public string Name
-        {
-            get { return _name; }
-        }
+        public string Name { get; }
 
     }
 

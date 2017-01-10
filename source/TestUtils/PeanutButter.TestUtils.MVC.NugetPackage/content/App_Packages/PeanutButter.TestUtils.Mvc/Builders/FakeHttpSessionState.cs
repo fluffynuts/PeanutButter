@@ -30,26 +30,14 @@ namespace PeanutButter.TestUtils.MVC.Builders
             _sessionItems.Clear();
         }
 
-        public override int Count
-        {
-            get
-            {
-                return _sessionItems.Count;
-            }
-        }
+        public override int Count => _sessionItems.Count;
 
         public override IEnumerator GetEnumerator()
         {
             return _sessionItems.GetEnumerator();
         }
 
-        public override NameObjectCollectionBase.KeysCollection Keys
-        {
-            get
-            {
-                return _sessionItems.Keys;
-            }
-        }
+        public override NameObjectCollectionBase.KeysCollection Keys => _sessionItems.Keys;
 
         public override object this[string name]
         {
