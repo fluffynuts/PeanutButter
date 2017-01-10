@@ -14,7 +14,7 @@ namespace PeanutButter.Utils
     /// 2. Upon disposal, the end action is called with the value from (1)
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class AutoResetter<T>: IDisposable
+    public class AutoResetter<T> : IDisposable
     {
         private readonly T _initialValue;
         private readonly object _lock = new object();

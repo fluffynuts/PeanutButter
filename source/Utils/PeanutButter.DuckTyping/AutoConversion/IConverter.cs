@@ -8,7 +8,7 @@ namespace PeanutButter.DuckTyping.AutoConversion
     /// </summary>
     /// <typeparam name="T1">Type to convert from or to</typeparam>
     /// <typeparam name="T2">Type to convert from or to</typeparam>
-    public interface IConverter<T1, T2>: IConverter
+    public interface IConverter<T1, T2> : IConverter
     {
         /// <summary>
         /// Convert an object of type T2 to T1
