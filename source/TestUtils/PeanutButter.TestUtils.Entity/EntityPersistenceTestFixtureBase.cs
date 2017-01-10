@@ -23,11 +23,6 @@ namespace PeanutButter.TestUtils.Entity
             return _ignoreFields.And(typeof(T).VirtualProperties());
         }
 
-        [OneTimeSetUp]
-        public void OneTimeSetup()
-        {
-        }
-
         protected void ShouldBeAbleToPersist<TBuilder, TEntity>(Func<TDbContext, IDbSet<TEntity>>  collectionNabber, 
             Action<TDbContext, TEntity> beforePersisting = null, 
             Action<TEntity, TEntity> customAssertions = null,

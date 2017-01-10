@@ -2,6 +2,7 @@
   "name": "peanut-butter",
   "devDependencies": {
     "chai": "^3.5.0",
+    "del": "^2.2.2",
     "event-stream": "^3.3.1",
     "gulp": "^3.9.0",
     "gulp-debug": "^2.0.1",
