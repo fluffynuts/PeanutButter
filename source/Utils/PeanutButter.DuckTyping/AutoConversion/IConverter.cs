@@ -34,8 +34,8 @@ namespace PeanutButter.DuckTyping.AutoConversion
         /// One of the types converted from / to
         /// This property provides a quick lookup when seeking converters
         /// </summary>
-
         Type T1 { get; }
+
         /// <summary>
         /// The other type converted from / to
         /// This property provides a quick lookup when seeking converters

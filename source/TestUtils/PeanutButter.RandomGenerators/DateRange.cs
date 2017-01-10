@@ -10,8 +10,8 @@ namespace PeanutButter.RandomGenerators
         /// <summary>
         /// Start of the date range
         /// </summary>
-
         public DateTime From { get; }
+
         /// <summary>
         /// End of the date range
         /// </summary>

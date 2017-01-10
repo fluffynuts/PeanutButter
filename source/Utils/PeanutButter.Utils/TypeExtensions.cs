@@ -181,7 +181,6 @@ namespace PeanutButter.Utils
             return result.ToArray();
         }
 
-        private static readonly  Type _disposableInterface = typeof(IDisposable);
         /// <summary>
         /// Tests if a type implements IDisposable
         /// </summary>
@@ -191,5 +190,6 @@ namespace PeanutButter.Utils
         {
             return t.GetAllImplementedInterfaces().Contains(_disposableInterface);
         }
+        private static readonly  Type _disposableInterface = typeof(IDisposable);
     }
 }
