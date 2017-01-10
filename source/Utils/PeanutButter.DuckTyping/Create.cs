@@ -81,7 +81,11 @@ namespace PeanutButter.DuckTyping
 
         private static void TrySetNewValue(object result, PropertyInfo pi)
         {
-            TryDo(() => pi.SetValue(result, Activator.CreateInstance(pi.PropertyType)));
+            var hasParameterlessConstructor = pi.PropertyType
+                                                .GetConstructors()
+                                                .Any(c => c.GetParameters().Length == 0);
+            if (hasParameterlessConstructor)
+                TryDo(() => pi.SetValue(result, Activator.CreateInstance(pi.PropertyType)));
         }
 
         private static void TryDo(Action action)
