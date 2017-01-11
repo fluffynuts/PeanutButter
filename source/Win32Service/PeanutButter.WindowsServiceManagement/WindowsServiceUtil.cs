@@ -475,7 +475,7 @@ namespace PeanutButter.Win32ServiceControl
                         SERVICE_NOT_INSTALLED);
                 try
                 {
-                    PauseService(service);
+                    ContinueService(service);
                 }
                 catch (Exception ex)
                 {
