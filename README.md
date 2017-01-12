@@ -5,8 +5,16 @@ PeanutButter
 
 PeanutButter is a collection of projects which provide useful
 bits of functionality that I've often had to re-use (and also
-provides some concrete examples of usage):
+provides some concrete examples of usage). Sometimes I can even
+be bothered to write about it at 
+[http://davydm.blogspot.co.za/search/label/PeanutButter](http://davydm.blogspot.co.za/search/label/PeanutButter).
 
+Inside, you'll find, amongst other things:
+
+* Duck-typing for .NET (PeanutButter.DuckTyping)
+  - rigid or fuzzy duck-typing, including the ability
+    to wrap a dictionary with a strongly-typed interface,
+    even if the starting dictionary is empty.
 * Randomisation utilities for testing with (PeanutButter.RandomGenerators)
   - Random Value Generators
     - Tests with random values are usually more useful because,
