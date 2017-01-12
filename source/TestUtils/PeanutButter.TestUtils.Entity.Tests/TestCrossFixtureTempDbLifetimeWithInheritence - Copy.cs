@@ -1,15 +1,33 @@
 ﻿using System;
+using System.Data.Common;
+using System.Data.Entity;
 using NUnit.Framework;
 using PeanutButter.Utils.Entity;
 using System.Linq;
+using System.Transactions;
 using PeanutButter.TestUtils.Entity.Attributes;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
+[assembly: AllowSharedTempDbInstances]
+
 namespace PeanutButter.TestUtils.Entity.Tests
 {
+    public class Note
+    {
+        public int Id { get; set; }
+        public string NoteText { get; set; }
+    }
 
-    [UseSharedTempDb("NotesDatabase")]
-    public abstract class TestCrossFixtureTempDbLifetimeWithInheritence_BaseWithAttribute
+    public class NotesDbContext : DbContext
+    {
+        public static string SCHEMA = "create table Notes(Id int primary key identity, NoteText varchar(128));";
+        public DbSet<Note> Notes { get; set; }
+        public NotesDbContext(DbConnection connection): base(connection, true)
+        {
+        }
+    }
+
+    public abstract class TestCrossFixtureTempDbLifetimeWithInheritence_Base
         : TestFixtureWithTempDb<NotesDbContext>
     {
 
@@ -75,14 +93,16 @@ namespace PeanutButter.TestUtils.Entity.Tests
     }
 
     [TestFixture]
-    public class TestCrossFixtureTempDbLifetimeWithInheritence_UsingBaseWithAttribute_Part1
-        : TestCrossFixtureTempDbLifetimeWithInheritence_BaseWithAttribute
+    [UseSharedTempDb("NotesDatabase")]
+    public class TestCrossFixtureTempDbLifetimeWithInheritence_Part1
+        : TestCrossFixtureTempDbLifetimeWithInheritence_Base
     {
     }
 
     [TestFixture]
-    public class TestCrossFixtureTempDbLifetimeWithInheritence_UsingBaseWithAttribute_Part2
-        : TestCrossFixtureTempDbLifetimeWithInheritence_BaseWithAttribute
+    [UseSharedTempDb("NotesDatabase")]
+    public class TestCrossFixtureTempDbLifetimeWithInheritence_Part2
+        : TestCrossFixtureTempDbLifetimeWithInheritence_Base
     {
     }
 }
