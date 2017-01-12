@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 
@@ -55,14 +56,23 @@ namespace PeanutButter.Utils
 
         private static string[] FindDefaultInstancesFromOutputOf(Process process)
         {
-            var output = process.StandardOutput
+            var lines = process.StandardOutput
                 .ReadToEnd()
-                .Split(new[] {Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries)
-                .Where(v => v.StartsWith("v"))
+                .Split(new[] {Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries);
+
+            var versionLines = lines.Where(v => v.StartsWith("v"))
                 .OrderByDescending(v => v)
                 .ToArray();
-            return output;
+
+            // prefer MSSQLLocalDB, which is what SQL Express 2014 and later set up
+            var newInstanceName = LOCALDB_INSTANCE_2014_AND_LATER.ToLower(CultureInfo.InvariantCulture);
+            if (lines.Any(l => l.ToLower(CultureInfo.InvariantCulture) == newInstanceName))
+                return new[] { LOCALDB_INSTANCE_2014_AND_LATER }.And(versionLines);
+            return versionLines;
         }
+
+        private const string LOCALDB_INSTANCE_2014_AND_LATER = "MSSQLLocalDB";
+
 
         private static Process RunToCompletion(string toRun)
         {

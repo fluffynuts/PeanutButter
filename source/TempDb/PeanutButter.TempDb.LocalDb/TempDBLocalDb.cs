@@ -57,8 +57,8 @@ namespace PeanutButter.TempDb.LocalDb
 
         private static void SetupInstance(TempDBLocalDb db, string dbName, string instanceName)
         {
-            db.InstanceName = instanceName;
-            db.DatabaseName = dbName;
+            db.InstanceName = instanceName ?? db.InstanceName;
+            db.DatabaseName = dbName ?? db.DatabaseName;
         }
 
         protected override void CreateDatabase()

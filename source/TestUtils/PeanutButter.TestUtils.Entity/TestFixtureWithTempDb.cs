@@ -36,7 +36,10 @@ namespace PeanutButter.TestUtils.Entity
                 connectionString => { throw new Exception("Please run the Configure protected method before attempting any actual tests."); };
         }
 
-        protected void Configure(bool databaseShouldHaveAspNetTables, Func<string, IDBMigrationsRunner> migrationsRunnerFactory)
+        protected void Configure(
+            bool databaseShouldHaveAspNetTables,
+            Func<string, IDBMigrationsRunner> migrationsRunnerFactory
+        )
         {
             _databaseShouldHaveAspNetTables = databaseShouldHaveAspNetTables;
             _createMigrationsRunner = migrationsRunnerFactory;
