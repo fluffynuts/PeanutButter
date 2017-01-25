@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using NUnit.Framework;
 using PeanutButter.DuckTyping;
-using PeanutButter.RandomGenerators;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
@@ -207,12 +206,12 @@ namespace PeanutButter.TestUtils.Generic.Tests
         public void AllPropertiesAreEqual_ShouldCompareAllPropertiesAndNotThrowWhenTheyAllMatch()
         {
             //---------------Set up test pack-------------------
-            var v1 = RandomValueGen.GetRandomString();
-            var v2 = RandomValueGen.GetRandomInt();
-            var v3 = RandomValueGen.GetRandomDate();
+            var v1 = GetRandomString();
+            var v2 = GetRandomInt();
+            var v3 = GetRandomDate();
 
-            var obj1 = new { v1 = v1, v2 = v2, v3 = v3 };
-            var obj2 = new { v1 = v1, v2 = v2, v3 = v3 };
+            var obj1 = new {v1, v2, v3 };
+            var obj2 = new {v1, v2, v3 };
             
             //---------------Assert Precondition----------------
 
@@ -226,12 +225,12 @@ namespace PeanutButter.TestUtils.Generic.Tests
         public void AllPropertiesAreEqual_WhenOneObjectHasExtraProperties_ShouldThrow()
         {
             //---------------Set up test pack-------------------
-            var v1 = RandomValueGen.GetRandomString();
-            var v2 = RandomValueGen.GetRandomInt();
-            var v3 = RandomValueGen.GetRandomDate();
+            var v1 = GetRandomString();
+            var v2 = GetRandomInt();
+            var v3 = GetRandomDate();
 
-            var obj1 = new { v1 = v1, v2 = v2, v3 = v3 };
-            var obj2 = new { v1 = v1, v2 = v2, v3 = v3, v4 = RandomValueGen.GetRandomBoolean() };
+            var obj1 = new {v1, v2, v3 };
+            var obj2 = new {v1, v2, v3, v4 = GetRandomBoolean() };
             
             //---------------Assert Precondition----------------
 
@@ -246,12 +245,12 @@ namespace PeanutButter.TestUtils.Generic.Tests
         public void AllPropertiesAreEqual_WhenOneObjectHasExtraProperties_ShouldIncludeUsefulInformationInThrownExceptionMessage()
         {
             //---------------Set up test pack-------------------
-            var v1 = RandomValueGen.GetRandomString();
-            var v2 = RandomValueGen.GetRandomInt();
-            var v3 = RandomValueGen.GetRandomDate();
+            var v1 = GetRandomString();
+            var v2 = GetRandomInt();
+            var v3 = GetRandomDate();
 
-            var obj1 = new { v1 = v1, v2 = v2, v3 = v3 };
-            var obj2 = new { v1 = v1, v2 = v2, v3 = v3, v4 = RandomValueGen.GetRandomBoolean() };
+            var obj1 = new {v1, v2, v3 };
+            var obj2 = new {v1, v2, v3, v4 = GetRandomBoolean() };
             
             //---------------Assert Precondition----------------
 
@@ -267,12 +266,12 @@ namespace PeanutButter.TestUtils.Generic.Tests
         public void AllPropertiesAreEqual_WhenOneObjectHasDifferentlyNamedProperty_ShouldIncludeUsefulInformationInThrownExceptionMessage()
         {
             //---------------Set up test pack-------------------
-            var v1 = RandomValueGen.GetRandomString();
-            var v2 = RandomValueGen.GetRandomInt();
-            var v3 = RandomValueGen.GetRandomDate();
+            var v1 = GetRandomString();
+            var v2 = GetRandomInt();
+            var v3 = GetRandomDate();
 
-            var obj1 = new { v1 = v1, v2 = v2, v3 = v3 };
-            var obj2 = new { v1 = v1, v2 = v2, v4 = v3 };
+            var obj1 = new {v1, v2, v3 };
+            var obj2 = new {v1, v2, v4 = v3 };
             
             //---------------Assert Precondition----------------
 
@@ -288,12 +287,12 @@ namespace PeanutButter.TestUtils.Generic.Tests
         public void MatchingPropertiesAreEqual_WhenGivenTwoObjects_ShouldCompareSameNamedPropertiesAndNotThrowIfTheyMatch()
         {
             //---------------Set up test pack-------------------
-            var v1 = RandomValueGen.GetRandomString();
-            var v2 = RandomValueGen.GetRandomInt();
-            var v3 = RandomValueGen.GetRandomDate();
+            var v1 = GetRandomString();
+            var v2 = GetRandomInt();
+            var v3 = GetRandomDate();
 
-            var obj1 = new { v1 = v1, v2 = v2, v3 = v3 };
-            var obj2 = new { v1 = v1, v2 = v2, v3 = v3, v4 = RandomValueGen.GetRandomBoolean() };
+            var obj1 = new {v1, v2, v3 };
+            var obj2 = new {v1, v2, v3, v4 = GetRandomBoolean() };
             
             //---------------Assert Precondition----------------
 
@@ -307,12 +306,12 @@ namespace PeanutButter.TestUtils.Generic.Tests
         public void MatchingPropertiesAreEqual_WhenGivenTwoObjects_ShouldCompareSameNamedPropertiesAndThrowIfTheyDoNotMatchValue()
         {
             //---------------Set up test pack-------------------
-            var v1 = RandomValueGen.GetRandomString();
-            var v2 = RandomValueGen.GetRandomInt();
-            var v3 = RandomValueGen.GetRandomDate();
+            var v1 = GetRandomString();
+            var v2 = GetRandomInt();
+            var v3 = GetRandomDate();
 
-            var obj1 = new { v1 = v1, v2 = v2, v3 = v3 };
-            var obj2 = new { v1 = v1 + " ", v2 = v2, v3 = v3, v4 = RandomValueGen.GetRandomBoolean() };
+            var obj1 = new {v1, v2, v3 };
+            var obj2 = new { v1 = v1 + " ", v2, v3, v4 = GetRandomBoolean() };
             
             //---------------Assert Precondition----------------
 
@@ -326,12 +325,12 @@ namespace PeanutButter.TestUtils.Generic.Tests
         public void MatchingPropertiesAreEqual_WhenGivenTwoObjects_ShouldCompareSameNamedPropertiesAndThrowIfTheyDoNotMatchType()
         {
             //---------------Set up test pack-------------------
-            var v1 = RandomValueGen.GetRandomString();
-            var v2 = RandomValueGen.GetRandomInt();
-            var v3 = RandomValueGen.GetRandomDate();
+            var v1 = GetRandomString();
+            var v2 = GetRandomInt();
+            var v3 = GetRandomDate();
 
-            var obj1 = new { v1 = v1, v2 = v2, v3 = v3 };
-            var obj2 = new { v1 = v1, v2 = decimal.Parse(v2.ToString()), v3 = v3, v4 = RandomValueGen.GetRandomBoolean() };
+            var obj1 = new {v1, v2, v3 };
+            var obj2 = new {v1, v2 = decimal.Parse(v2.ToString()), v3, v4 = GetRandomBoolean() };
             
             //---------------Assert Precondition----------------
 
@@ -360,7 +359,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
         {
             //---------------Set up test pack-------------------
             var d1 = new DerivedClass();
-            var d2 = new BaseClass() { Name = "Some constant" };
+            var d2 = new BaseClass { Name = "Some constant" };
             
             //---------------Assert Precondition----------------
 
@@ -381,7 +380,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             };
             var d2 = new
             {
-                prop = d1.prop,
+                d1.prop,
                 ignoreMe = d1.ignoreMe + 1
             };
 
@@ -426,8 +425,8 @@ namespace PeanutButter.TestUtils.Generic.Tests
             var dataSource = new[] { "1", "a", "%" };
             var collection = new Collection<string>(dataSource);
             var enumerable = dataSource.AsEnumerable();
-            var left = new HasCollectionOfStuff() { Stuff = collection };
-            var right = new HasEnumerableStuff() { Stuff = enumerable };
+            var left = new HasCollectionOfStuff { Stuff = collection };
+            var right = new HasEnumerableStuff { Stuff = enumerable };
 
             Assert.IsTrue(left.Stuff.GetType().ImplementsEnumerableGenericType());
             Assert.IsTrue(right.Stuff.GetType().ImplementsEnumerableGenericType());
