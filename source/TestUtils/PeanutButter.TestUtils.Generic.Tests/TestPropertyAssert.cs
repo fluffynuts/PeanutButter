@@ -241,6 +241,49 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Test Result -----------------------
         }
 
+
+        [Test]
+        public void AllPropertiesAreEqual_WhenOneObjectHasExtraProperties_ShouldIncludeUsefulInformationInThrownExceptionMessage()
+        {
+            //---------------Set up test pack-------------------
+            var v1 = RandomValueGen.GetRandomString();
+            var v2 = RandomValueGen.GetRandomInt();
+            var v3 = RandomValueGen.GetRandomDate();
+
+            var obj1 = new { v1 = v1, v2 = v2, v3 = v3 };
+            var obj2 = new { v1 = v1, v2 = v2, v3 = v3, v4 = RandomValueGen.GetRandomBoolean() };
+            
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var ex = Assert.Throws<AssertionException>(() => PropertyAssert.AreDeepEqual(obj1, obj2));
+
+            //---------------Test Result -----------------------
+            Assert.IsFalse(string.IsNullOrWhiteSpace(ex.Message));
+            Console.WriteLine(ex.Message);
+        }
+
+        [Test]
+        public void AllPropertiesAreEqual_WhenOneObjectHasDifferentlyNamedProperty_ShouldIncludeUsefulInformationInThrownExceptionMessage()
+        {
+            //---------------Set up test pack-------------------
+            var v1 = RandomValueGen.GetRandomString();
+            var v2 = RandomValueGen.GetRandomInt();
+            var v3 = RandomValueGen.GetRandomDate();
+
+            var obj1 = new { v1 = v1, v2 = v2, v3 = v3 };
+            var obj2 = new { v1 = v1, v2 = v2, v4 = v3 };
+            
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var ex = Assert.Throws<AssertionException>(() => PropertyAssert.AreDeepEqual(obj1, obj2));
+
+            //---------------Test Result -----------------------
+            Assert.IsFalse(string.IsNullOrWhiteSpace(ex.Message));
+            StringAssert.Contains("v3", ex.Message);
+        }
+
         [Test]
         public void MatchingPropertiesAreEqual_WhenGivenTwoObjects_ShouldCompareSameNamedPropertiesAndNotThrowIfTheyMatch()
         {

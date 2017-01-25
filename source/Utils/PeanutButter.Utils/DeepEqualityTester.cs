@@ -197,8 +197,24 @@ namespace PeanutButter.Utils
             if (!FailOnMissingProperties || OnlyTestIntersectingProperties || srcPropInfos.Length == comparePropInfos.Length)
                 return CompareWith(objSource, objCompare, srcPropInfos, comparePropInfos);
             if (RecordErrors)
-                AddError("Property count mismatch");
+            {
+                AddError(string.Join("\n",
+                    "Property count mismatch",
+                    $"Source has {srcPropInfos.Count()} properties:",
+                    $"{DumpPropertyInfo(srcPropInfos)}",
+                    $"\nComparison has {comparePropInfos.Count()} properties:",
+                    $"{DumpPropertyInfo(comparePropInfos)}"
+                ));
+            }
             return false;
+        }
+
+        private const string DUMP_DELIMITER = "\n* ";
+        private string DumpPropertyInfo(PropertyInfo[] propInfos)
+        {
+            return DUMP_DELIMITER + string.Join(DUMP_DELIMITER, 
+                propInfos.Select(pi => $"{pi.PropertyType} {pi.Name}")
+            );
         }
 
         private PropertyInfo[] GetIntersectingPropertyInfos(
