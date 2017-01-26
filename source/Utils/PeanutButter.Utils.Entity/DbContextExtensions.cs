@@ -54,12 +54,12 @@ namespace PeanutButter.Utils.Entity
 
         private static void ThrowDefaultExceptionFor(Exception ex)
         {
-            throw new Exception("Some exception thrown during save: " + ex.Message);
+            throw new Exception("Some exception thrown during save: " + ex.Message, ex);
         }
 
         private static void ThrowUpdateMessageFor(DbUpdateException ex)
         {
-            throw new Exception("DBUpdate Error: " + GetInnermostExceptionMessageFor(ex));
+            throw new Exception("DBUpdate Error: " + GetInnermostExceptionMessageFor(ex), ex);
         }
 
         private static void ThrowEntityValidationErrorFor(DbEntityValidationException ex)
@@ -67,7 +67,7 @@ namespace PeanutButter.Utils.Entity
             var errors = string.Join(
                 "\n", 
                 ex.EntityValidationErrors.Select(GetErrorString));
-            throw new Exception("Error whilst trying to persist to the database:\n" + errors);
+            throw new Exception("Error whilst trying to persist to the database:\n" + errors, ex);
         }
 
         private static string GetErrorString(DbEntityValidationResult e)
