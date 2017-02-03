@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -7,7 +8,7 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
-    public class TestStreamExtensions
+    public class TestStreamExtensions: AssertionHelper
     {
         [Test]
         public void ReadAllBytes_OperatingOnNullStream_ShouldReturnNull()
@@ -217,7 +218,77 @@ namespace PeanutButter.Utils.Tests
 
         }
 
+        [Test]
+        public void WriteString_OperatingOnStream_GivenNullData_ShouldWriteNothing()
+        {
+            //--------------- Arrange -------------------
+            var buffer = new byte[128];
+            var expectedValue = GetRandomInt(2, 10);
+            for (var i = 0; i < buffer.Length; i++)
+                buffer[i] = (byte)expectedValue;
+            using (var stream = new MemoryStream(buffer))
+            {
+                //--------------- Assume ----------------
 
+                //--------------- Act ----------------------
+                stream.WriteString(null, Encoding.UTF8);
+
+                //--------------- Assert -----------------------
+                Expect(buffer.All(o => o == expectedValue), Is.True);
+            }
+        }
+
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
+        private static Encoding[] Encodings { get; } =
+        {
+            Encoding.UTF8,
+            Encoding.ASCII,
+            Encoding.UTF7
+        };
+
+        [TestCaseSource(nameof(Encodings))]
+        public void WriteString_OperatingOnStream_GivenDataAndEncoding_ShouldWriteToStream(Encoding encoding)
+        {
+            //--------------- Arrange -------------------
+            var buffer = new byte[128];
+            var toWrite = GetRandomString(5, 10);
+            var expected = toWrite.AsBytes(encoding);
+
+            using (var stream = new MemoryStream(buffer))
+            {
+                //--------------- Assume ----------------
+
+                //--------------- Act ----------------------
+                stream.WriteString(toWrite, encoding);
+
+                //--------------- Assert -----------------------
+                var copy = new byte[toWrite.Length];
+                Buffer.BlockCopy(buffer, 0, copy, 0, toWrite.Length);
+                Expect(copy, Is.EquivalentTo(expected));
+            }
+        }
+
+        [Test]
+        public void WriteString_OperatingOnStream_GivenDataAndNoEncoding_ShouldWriteToStream_WithUtf8Encoding()
+        {
+            //--------------- Arrange -------------------
+            var buffer = new byte[128];
+            var toWrite = GetRandomString(5, 10);
+            var expected = toWrite.AsBytes();
+
+            using (var stream = new MemoryStream(buffer))
+            {
+                //--------------- Assume ----------------
+
+                //--------------- Act ----------------------
+                stream.WriteString(toWrite, Encoding.UTF8);
+
+                //--------------- Assert -----------------------
+                var copy = new byte[toWrite.Length];
+                Buffer.BlockCopy(buffer, 0, copy, 0, toWrite.Length);
+                Expect(copy, Is.EquivalentTo(expected));
+            }
+        }
 
     }
 }

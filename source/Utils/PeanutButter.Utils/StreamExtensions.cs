@@ -76,6 +76,28 @@ namespace PeanutButter.Utils
             return asString.Substring(0, firstNull);
         }
 
+        /// <summary>
+        /// Invokes WriteString() with the UTF8 Encoding
+        /// </summary>
+        /// <param name="stream">Stream to operate on</param>
+        /// <param name="data">String data to write</param>
+        public static void WriteString(this Stream stream, string data)
+        {
+            stream.WriteString(data, Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// Writes a string to a stream with the provided encoding
+        /// </summary>
+        /// <param name="stream">Stream to write to</param>
+        /// <param name="data">String data to write</param>
+        /// <param name="encoding">Encoding to use</param>
+        public static void WriteString(this Stream stream, string data, Encoding encoding)
+        {
+            var bytes = encoding.GetBytes(data);
+            stream.Write(bytes, 0, bytes.Length);
+        }
+
         private static byte[] ReadAllBytesFrom(Stream src)
         {
             src.Rewind();

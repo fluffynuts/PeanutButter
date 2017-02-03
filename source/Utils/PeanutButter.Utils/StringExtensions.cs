@@ -108,15 +108,26 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
-        /// Convenience function to convert a string to a byte array via UTF-8 decoding
+        /// Calls AsBytes extension method with the UTF8 encoding
         /// </summary>
-        /// <param name="src">String to convert</param>
-        /// <returns>Byte array of the {src} string when decoded as UTF-8</returns>
+        /// <param name="src">String to operate on</param>
+        /// <returns>Byte array representing string, from UTF8 encoding</returns>
         public static byte[] AsBytes(this string src)
         {
+            return src.AsBytes(Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// Convenience function to convert a string to a byte array
+        /// </summary>
+        /// <param name="src">String to convert</param>
+        /// <param name="encoding">Encoding to use</param>
+        /// <returns>Byte array of the {src} string when decoded as UTF-8</returns>
+        public static byte[] AsBytes(this string src, Encoding encoding)
+        {
             return src == null
-                    ? null
-                    : Encoding.UTF8.GetBytes(src);
+                ? null
+                : encoding.GetBytes(src);
         }
 
         /// <summary>

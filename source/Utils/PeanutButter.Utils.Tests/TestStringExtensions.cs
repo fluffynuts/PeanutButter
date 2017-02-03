@@ -133,6 +133,31 @@ namespace PeanutButter.Utils.Tests
             CollectionAssert.AreEqual(expected, result);
         }
 
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
+        private static Encoding[] Encodings { get; } =
+        {
+            Encoding.UTF8,
+            Encoding.ASCII,
+            Encoding.UTF32,
+            Encoding.UTF7
+        };
+
+        [TestCaseSource(nameof(Encodings))]
+        public void AsBytes_OperatingOnNonEmptyString_WhenGivenEncoding_ShouldReturnStringEncodedAsBytesFromEncoding(Encoding encoding)
+        {
+            //---------------Set up test pack-------------------
+            var input = GetRandomString(50, 100);
+            var expected = encoding.GetBytes(input);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = input.AsBytes(encoding);
+
+            //---------------Test Result -----------------------
+            CollectionAssert.AreEqual(expected, result);
+        }
+
         [Test]
         public void IsInteger_WhenStringIsInteger_ShouldReturnTrue()
         {
