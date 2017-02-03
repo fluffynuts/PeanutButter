@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using NUnit.Framework;
-using PeanutButter.RandomGenerators;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
-    public class TestByteArrayExtensions
+    public class TestByteArrayExtensions: AssertionHelper
     {
         [Test]
         public void ToMD5Sum_GivenNullArray_ShouldReturnNull()
@@ -96,5 +93,22 @@ namespace PeanutButter.Utils.Tests
             Assert.AreEqual(expected, result);
         }
 
+        [Test]
+        public void ToBase64String_ShouldReturnBase64StringForBytes()
+        {
+            //--------------- Arrange -------------------
+            var input = GetRandomCollection<byte>(5, 10).ToArray();
+            var expected = Convert.ToBase64String(input);
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = input.ToBase64();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.EqualTo(expected));    
+        }
+
+        
     }
 }

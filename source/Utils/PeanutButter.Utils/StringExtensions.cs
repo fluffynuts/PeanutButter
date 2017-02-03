@@ -163,6 +163,16 @@ namespace PeanutButter.Utils
             return string.IsNullOrEmpty(value);
         }
 
+        /// <summary>
+        /// Returns the base64-encoded representation of a string value
+        /// </summary>
+        /// <param name="value">Input string value</param>
+        /// <returns>The base64-encoded representation of the string, or null if the string is null</returns>
+        public static string ToBase64(this string value)
+        {
+            return value?.AsBytes()?.ToBase64();
+        }
+
         private static string GetLeadingIntegerCharsFrom(string value)
         {
             var collected = new List<string>();

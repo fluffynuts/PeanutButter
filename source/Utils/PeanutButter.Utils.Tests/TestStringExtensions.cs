@@ -493,6 +493,53 @@ namespace PeanutButter.Utils.Tests
             Expect(result, Is.False);
         }
 
+        [Test]
+        public void ToBase64_OperatingOnNullString_ShouldReturnNull()
+        {
+            //--------------- Arrange -------------------
+            string input = null;
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = input.ToBase64();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.Null);
+        }
+
+        [Test]
+        public void ToBase64_OperatingOnEmptyString()
+        {
+            //--------------- Arrange -------------------
+            var expected = Convert.ToBase64String(Encoding.UTF8.GetBytes(""));
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = "".ToBase64();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void ToBase64_OperatingOnNonEmptyString()
+        {
+            //--------------- Arrange -------------------
+            var input = GetRandomString(5, 10);
+            var expected = Convert.ToBase64String(Encoding.UTF8.GetBytes(input));
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = input.ToBase64();
+
+            //--------------- Assert -----------------------
+            Expect(result, Is.EqualTo(expected));
+        }
+
+
 
     }
 }
