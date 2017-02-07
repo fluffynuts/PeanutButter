@@ -522,21 +522,19 @@ namespace PeanutButter.RandomGenerators
             return true;
         }
 
-        private static bool SetterResultFor(Func<bool> finalFunc, string failMessage)
-        {
-            var result = finalFunc();
-            if (!result)
-                Trace.WriteLine(failMessage);
-            return result;
-        }
 
         // TODO: delay this check until we have an instance: the generic builder may
         //  be created against a type which is implemented / overridden by another which
         //  provides write access on the property. I'm specifically thinking about
         //  builders doing funky stuff with interfaces...
+#pragma warning disable S1172 // Unused method parameters should be removed
         private static bool IsNotWritable(PropertyInfo prop, Type propertyType)
+#pragma warning restore S1172 // Unused method parameters should be removed
         {
-            return SetterResultFor(() => !prop.CanWrite, $"{prop.Name} is not writable");
+            if (prop.CanWrite)
+                return false;
+            Trace.WriteLine($"{prop?.DeclaringType?.Name}.{prop.Name} is not writable");
+            return true;
         }
 
         private static bool IsNullableType(Type type)

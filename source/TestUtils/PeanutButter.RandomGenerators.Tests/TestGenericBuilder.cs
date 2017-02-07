@@ -1,15 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using EmailSpooler.Win32Service.Entity;
-using NSubstitute;
 using NUnit.Framework;
 using PeanutButter.Utils;
+using static PeanutButter.RandomGenerators.RandomValueGen;
+// ReSharper disable ClassNeverInstantiated.Local
+// ReSharper disable ClassNeverInstantiated.Global
+// ReSharper disable StringIndexOfIsCultureSpecific.1
 
 namespace PeanutButter.RandomGenerators.Tests
 {
     [TestFixture]
-    public class TestGenericBuilder: TestBase
+    public class TestGenericBuilder : TestBase
     {
         private class SimpleClass
         {
@@ -23,7 +27,7 @@ namespace PeanutButter.RandomGenerators.Tests
         public void Create_ReturnsANewInstanceOfTheBuilder()
         {
             //---------------Set up test pack-------------------
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -64,6 +68,7 @@ namespace PeanutButter.RandomGenerators.Tests
             Three,
             Four
         }
+
         private class NotAsSimpleClass
         {
             public string Name { get; set; }
@@ -88,7 +93,7 @@ namespace PeanutButter.RandomGenerators.Tests
         {
             //---------------Set up test pack-------------------
             var blank = new NotAsSimpleClass();
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -104,7 +109,6 @@ namespace PeanutButter.RandomGenerators.Tests
             Assert.AreEqual(blank.Created, obj.Created);
             Assert.AreEqual(blank.Cost, obj.Cost);
         }
-
 
 
         [Test]
@@ -148,7 +152,7 @@ namespace PeanutButter.RandomGenerators.Tests
             public string Fax { get; set; }
         }
 
-        public class TestCleverRandomStringsBuilder: GenericBuilder<TestCleverRandomStringsBuilder, TestCleverRandomStrings>
+        public class TestCleverRandomStringsBuilder : GenericBuilder<TestCleverRandomStringsBuilder, TestCleverRandomStrings>
         {
         }
 
@@ -179,7 +183,7 @@ namespace PeanutButter.RandomGenerators.Tests
             public bool SomeOtherBoolean { get; set; }
         }
 
-        public class TestBooleansBuilder: GenericBuilder<TestBooleansBuilder, TestBooleans>
+        public class TestBooleansBuilder : GenericBuilder<TestBooleansBuilder, TestBooleans>
         {
         }
 
@@ -212,28 +216,28 @@ namespace PeanutButter.RandomGenerators.Tests
 
         private bool LooksLikeUrl(string url)
         {
+            var proto = "://";
             return !string.IsNullOrWhiteSpace(url) &&
-                   url.IndexOf("://") > 0 && url.IndexOf("://") < url.Length - 2;
+                   url.Contains(proto) && 
+                   !url.StartsWith(proto) &&
+                   !url.EndsWith("://");
         }
 
         private bool LooksLikeEmail(string email)
         {
             return !string.IsNullOrWhiteSpace(email) &&
-                   email.IndexOf("@") > 0 && email.IndexOf("@") < email.Length - 2 &&
-                   email.IndexOf(".") > 0 && email.IndexOf(".") < email.Length - 2;
+                   email.IndexOf("@") > 0 && 
+                   email.IndexOf("@") < email.Length - 2 &&
+                   email.IndexOf(".") > 0 && 
+                   email.IndexOf(".") < email.Length - 2;
         }
-
 
         private class BuilderInspector : GenericBuilder<BuilderInspector, SimpleClass>
         {
-            public static string[] Calls
-            {
-                get
-                {
-                    return _calls.ToArray();
-                }
-            }
-            private static List<string> _calls = new List<string>();
+            public static string[] Calls => _calls.ToArray();
+
+            private static readonly List<string> _calls = new List<string>();
+
             public override BuilderInspector WithRandomProps()
             {
                 _calls.Add("WithRandomProps");
@@ -246,12 +250,13 @@ namespace PeanutButter.RandomGenerators.Tests
                 return base.Build();
             }
         }
+
         [Test]
         public void BuildRandom_CallsWithRandomPropsThenBuildAndReturnsResult()
         {
             //---------------Set up test pack-------------------
             Assert.AreEqual(0, BuilderInspector.Calls.Length);
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -287,7 +292,7 @@ namespace PeanutButter.RandomGenerators.Tests
         public void BuildDefault_SetsComplexMembersToNullValue()
         {
             //---------------Set up test pack-------------------
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -302,7 +307,7 @@ namespace PeanutButter.RandomGenerators.Tests
         public void WithRandomProps_SetsRandomPropertiesForComplexMembersAndTheirProps()
         {
             //---------------Set up test pack-------------------
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -342,17 +347,19 @@ namespace PeanutButter.RandomGenerators.Tests
         public class ParentWithBuilder
         {
             public List<ChildWithBuilder> Children { get; set; }
+
             public ParentWithBuilder()
             {
                 Children = new List<ChildWithBuilder>();
             }
         }
+
         public class ChildWithBuilder
         {
             public ParentWithBuilder Parent { get; set; }
         }
 
-        public class ParentWithBuilderBuilder: GenericBuilder<ParentWithBuilderBuilder, ParentWithBuilder>
+        public class ParentWithBuilderBuilder : GenericBuilder<ParentWithBuilderBuilder, ParentWithBuilder>
         {
             public override ParentWithBuilderBuilder WithRandomProps()
             {
@@ -366,7 +373,7 @@ namespace PeanutButter.RandomGenerators.Tests
             }
         }
 
-        public class ChildWithBuilderBuilder: GenericBuilder<ChildWithBuilderBuilder, ChildWithBuilder>
+        public class ChildWithBuilderBuilder : GenericBuilder<ChildWithBuilderBuilder, ChildWithBuilder>
         {
         }
 
@@ -381,7 +388,7 @@ namespace PeanutButter.RandomGenerators.Tests
             public int Id { get; set; }
         }
 
-        public class ParentBuilder: GenericBuilder<ParentBuilder, Parent>
+        public class ParentBuilder : GenericBuilder<ParentBuilder, Parent>
         {
         }
 
@@ -465,12 +472,14 @@ namespace PeanutButter.RandomGenerators.Tests
             public string Address { get; set; }
             public string ReplyTo { get; set; }
         }
+
         public class FakeMessagePlatformRecipient
         {
             public string RecipientType { get; set; }
             public string RecipientIdentity { get; set; }
             public string Address { get; set; }
         }
+
         public class FakeMessagePlatformData
         {
             public int ClientID { get; set; }
@@ -491,11 +500,11 @@ namespace PeanutButter.RandomGenerators.Tests
             public object Value { get; set; }
         }
 
-        public class FakeMessagePlatformOptionBuilder: GenericBuilder<FakeMessagePlatformOptionBuilder, FakeMessagePlatformOption>
+        public class FakeMessagePlatformOptionBuilder : GenericBuilder<FakeMessagePlatformOptionBuilder, FakeMessagePlatformOption>
         {
         }
 
-        public class FakeMessageDataBuilder: GenericBuilder<FakeMessageDataBuilder, FakeMessageData>
+        public class FakeMessageDataBuilder : GenericBuilder<FakeMessageDataBuilder, FakeMessageData>
         {
             public override FakeMessageDataBuilder WithRandomProps()
             {
@@ -523,19 +532,19 @@ namespace PeanutButter.RandomGenerators.Tests
 
             public FakeMessageDataBuilder WithRandomRecipients(int min = 1, int max = 10)
             {
-                return WithProp(o => o.Recipients = 
-                                    RandomValueGen.GetRandomCollection(FakeMessagePlatformRecipientBuilder.BuildRandom, min, max));
+                return WithProp(o => o.Recipients =
+                    RandomValueGen.GetRandomCollection(FakeMessagePlatformRecipientBuilder.BuildRandom, min, max));
             }
 
             public FakeMessageDataBuilder WithOption(string name, string value)
             {
                 return WithProp(o => o.Message.Options = o.Message.Options
-                                                                    .EmptyIfNull()
-                                                                    .And(new FakeMessagePlatformOption() {Name = name, Value = value}));
+                    .EmptyIfNull()
+                    .And(new FakeMessagePlatformOption() {Name = name, Value = value}));
             }
         }
 
-        public class FakeMessagePlatformRecipientBuilder: GenericBuilder<FakeMessagePlatformRecipientBuilder, FakeMessagePlatformRecipient>
+        public class FakeMessagePlatformRecipientBuilder : GenericBuilder<FakeMessagePlatformRecipientBuilder, FakeMessagePlatformRecipient>
         {
         }
 
@@ -548,12 +557,12 @@ namespace PeanutButter.RandomGenerators.Tests
 
             //---------------Execute Test ----------------------
             var testData = FakeMessageDataBuilder.Create()
-                                .WithRandomProps()
-                                .WithOption("message", "hello world")
-                                .WithOption("user", "bob saget")
-                                .WithOption("AnotherOption", "wibble socks")
-                                .AsOneProtocolToOneRecipient()
-                                .Build();
+                .WithRandomProps()
+                .WithOption("message", "hello world")
+                .WithOption("user", "bob saget")
+                .WithOption("AnotherOption", "wibble socks")
+                .AsOneProtocolToOneRecipient()
+                .Build();
 
             //---------------Test Result -----------------------
         }
@@ -564,7 +573,8 @@ namespace PeanutButter.RandomGenerators.Tests
         {
             public virtual ICollection<string> Strings { get; set; }
         }
-        public class SomePOCOWithCollectionBuilder: GenericBuilder<SomePOCOWithCollectionBuilder, SomePOCOWithCollection>
+
+        public class SomePOCOWithCollectionBuilder : GenericBuilder<SomePOCOWithCollectionBuilder, SomePOCOWithCollection>
         {
         }
 
@@ -587,7 +597,8 @@ namespace PeanutButter.RandomGenerators.Tests
         {
             public virtual string[] Strings { get; set; }
         }
-        public class SomePOCOWithArrayBuilder: GenericBuilder<SomePOCOWithArrayBuilder, SomePOCOWithArray>
+
+        public class SomePOCOWithArrayBuilder : GenericBuilder<SomePOCOWithArrayBuilder, SomePOCOWithArray>
         {
         }
 
@@ -610,7 +621,8 @@ namespace PeanutButter.RandomGenerators.Tests
         {
             public virtual List<string> Strings { get; set; }
         }
-        public class SomePOCOWithListBuilder: GenericBuilder<SomePOCOWithListBuilder, SomePOCOWithList>
+
+        public class SomePOCOWithListBuilder : GenericBuilder<SomePOCOWithListBuilder, SomePOCOWithList>
         {
         }
 
@@ -651,7 +663,7 @@ namespace PeanutButter.RandomGenerators.Tests
             string Name { get; set; }
         }
 
-        public class SomeInterfaceWithNoImplementationBuilder: 
+        public class SomeInterfaceWithNoImplementationBuilder :
             GenericBuilder<SomeInterfaceWithNoImplementationBuilder, IInterfaceWithNoImplementation>
         {
         }
@@ -680,22 +692,26 @@ namespace PeanutButter.RandomGenerators.Tests
             int Id { get; set; }
             string Name { get; set; }
         }
-        public class ImplementingClassWithConstructorParams: IImplementedInterface
+
+        public class ImplementingClassWithConstructorParams : IImplementedInterface
         {
             public int Id { get; set; }
             public string Name { get; set; }
+
             public ImplementingClassWithConstructorParams(int id, string name)
             {
                 Id = id;
                 Name = name;
             }
         }
-        public class SomeImplementingClass: IImplementedInterface
+
+        public class SomeImplementingClass : IImplementedInterface
         {
             public int Id { get; set; }
             public string Name { get; set; }
         }
-        public class SomeImplementingClassBuilder:
+
+        public class SomeImplementingClassBuilder :
             GenericBuilder<SomeImplementingClassBuilder, IImplementedInterface>
         {
         }
@@ -707,10 +723,10 @@ namespace PeanutButter.RandomGenerators.Tests
             var interfaceType = typeof(IImplementedInterface);
             var concrete = typeof(SomeImplementingClass);
             var types = GetType()
-                            .Assembly
-                            .ExportedTypes
-                            .Where(t => interfaceType.IsAssignableFrom(t))
-                            .ToArray();
+                .Assembly
+                .ExportedTypes
+                .Where(t => interfaceType.IsAssignableFrom(t))
+                .ToArray();
             CollectionAssert.Contains(types, concrete);
             Assert.IsTrue(concrete.IsClass);
             Assert.IsFalse(concrete.IsAbstract);
@@ -723,6 +739,83 @@ namespace PeanutButter.RandomGenerators.Tests
             Assert.IsNotNull(result);
             Assert.IsInstanceOf<SomeImplementingClass>(result);
         }
+
+        public interface ITokenValidationResponse
+        {
+            string Issuer { get; } // Who issued this token (uri)
+            string Audience { get; } // Uri to audience (with idsvr, this points at resources)
+            DateTime Expires { get; } // Token is not valid after this datetime
+            DateTime NotBefore { get; } // Token is not valid before this datetime
+            string ClientId { get; } // Id of the connecting Client for which this token was provided
+            string[] Scopes { get; } // Scopes requested & loaded into the token
+            string Subject { get; } // User identifier (ie: UserId for Principal)
+            DateTime AuthorizedAt { get; }
+            string UserName { get; } // only present if profile scope was requested
+            string Email { get; } // only present if email scope was requested
+            bool EmailVerified { get; } // only present if email scope was requested
+            string[] Roles { get; } // only present if roles scope was requested
+        }
+
+
+        public class TokenValidationResponse : ITokenValidationResponse
+        {
+            public string Issuer { get; set; }
+            public string Audience { get; set; }
+            public DateTime Expires { get; set; }
+            public DateTime NotBefore { get; set; }
+            public string ClientId { get; set; }
+            public string[] Scopes { get; set; }
+            public string Subject { get; set; }
+            public DateTime AuthorizedAt { get; set; }
+            public string UserName { get; set; }
+            public string Email { get; set; }
+            public bool EmailVerified { get; set; }
+            public string[] Roles { get; set; }
+        }
+
+        public class LocalTraceListener : TraceListener
+        {
+            public string AllMessages { get; private set; } = "";
+            public override void Write(string message)
+            {
+                AllMessages += message;
+            }
+
+            public override void WriteLine(string message)
+            {
+                AllMessages += message + "\n";
+            }
+        }
+
+        [Test]
+        public void Randomize_ShouldNotTraceLogWhenPropertiesAreWritable()
+        {
+            //--------------- Arrange -------------------
+            var listener = new LocalTraceListener();
+            using (new AutoResetter(InstallListener(listener), RemoveListener(listener)))
+            {
+                //--------------- Assume ----------------
+                Expect(listener.AllMessages, Is.Empty);
+
+                //--------------- Act ----------------------
+                var random = GetRandom<TokenValidationResponse>();
+
+                //--------------- Assert -----------------------
+                Expect(random, Is.Not.Null);
+                Expect(listener.AllMessages, Does.Not.Contain("not writable"));
+            }
+        }
+
+        private Action InstallListener(LocalTraceListener listener)
+        {
+            return () => Trace.Listeners.Add(listener);
+        }
+
+        private Action RemoveListener(LocalTraceListener listener)
+        {
+            return () => Trace.Listeners.Remove(listener);
+        }
+
 
         [Test]
         [Ignore("TODO: implement random field maker")]
@@ -737,8 +830,5 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Test Result -----------------------
             Assert.Fail("Test Not Yet Implemented");
         }
-
-
-
     }
 }

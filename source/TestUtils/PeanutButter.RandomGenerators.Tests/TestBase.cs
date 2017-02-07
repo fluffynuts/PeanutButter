@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using NUnit.Framework;
 
 namespace PeanutButter.RandomGenerators.Tests
 {
-    public class TestBase
+    public class TestBase: AssertionHelper
     {
         protected const int RANDOM_TEST_CYCLES = 2048;
     }
