@@ -458,7 +458,6 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             }
         }
 
-
         private HttpServer Create(int? port = null)
         {
             var result = CreateWithPort(port);

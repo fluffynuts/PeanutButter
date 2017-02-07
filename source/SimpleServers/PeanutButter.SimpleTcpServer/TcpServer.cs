@@ -13,6 +13,7 @@ namespace PeanutButter.SimpleTcpServer
 
     public abstract class TcpServer : IDisposable
     {
+        public bool LogRandomPortDiscovery { get; set; }
         public Action<string> LogAction { get; set; } = Console.WriteLine;
         // ReSharper disable once MemberCanBePrivate.Global
         public int Port { get; protected set; }
@@ -184,17 +185,18 @@ namespace PeanutButter.SimpleTcpServer
             var rnd = new Random(DateTime.Now.Millisecond);
             var tryThis = NextRandomPort();
             var seekingPort = true;
+            Action<string> log = s => { if (LogRandomPortDiscovery) Log(s); };
             while (seekingPort)
             {
                 try
                 {
-                    Log("Attempting to bind to random port {0} on any available IP address", tryThis);
+                    log($"Attempting to bind to random port {tryThis} on any available IP address");
                     var listener = new TcpListener(IPAddress.Any, tryThis);
-                    Log("Attempt to listen...");
+                    log("Attempt to listen...");
                     listener.Start();
-                    Log("Attempt to stop listening...");
+                    log("Attempt to stop listening...");
                     listener.Stop();
-                    Log("HUZZAH! We have a port, squire! ({0})", tryThis);
+                    log($"HUZZAH! We have a port, squire! ({tryThis})");
                     seekingPort = false;
                 }
                 catch
