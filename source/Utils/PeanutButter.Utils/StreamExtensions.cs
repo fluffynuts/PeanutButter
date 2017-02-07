@@ -94,6 +94,8 @@ namespace PeanutButter.Utils
         /// <param name="encoding">Encoding to use</param>
         public static void WriteString(this Stream stream, string data, Encoding encoding)
         {
+            if (string.IsNullOrEmpty(data))
+                return;
             var bytes = encoding.GetBytes(data);
             stream.Write(bytes, 0, bytes.Length);
         }
