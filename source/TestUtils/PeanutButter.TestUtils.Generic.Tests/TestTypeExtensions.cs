@@ -741,7 +741,120 @@ namespace PeanutButter.TestUtils.Generic.Tests
             Expect(result, Is.True);
         }
 
+        [TestCase(typeof(string))]
+        [TestCase(typeof(int))]
+        [TestCase(typeof(object))]
+        [TestCase(typeof(TestTypeExtensions))]
+        public void ShouldHaveEnumValue_OperatingOnNonEnum_ShouldThrow(Type type)
+        {
+            //--------------- Arrange -------------------
 
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            Expect(
+              () => type.ShouldHaveEnumValue("foo"),
+              Throws.Exception
+                .InstanceOf<InvalidOperationException>()
+                .And
+                .Message.Contains("is not an enum type")
+            );
+            //--------------- Assert -----------------------
+        }
+
+        public enum SomeEnum
+        {
+            Foo,
+            Bar
+        }
+
+        [Test]
+        public void ShouldHaveEnumValue_GivenNameOnly_WhenEnumDoesNotHaveThatValueByName_ShouldThrow()
+        {
+            //--------------- Arrange -------------------
+            var sut = typeof(SomeEnum);
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            Expect(
+                () => sut.ShouldHaveEnumValue("Moo"),
+                Throws.Exception
+                    .InstanceOf<AssertionException>()
+                    .And
+                    .Message.Contains($"Could not find value \"Moo\" on enum {sut.PrettyName()}")
+            );
+            //--------------- Assert -----------------------
+        }
+
+
+        [Test]
+        public void ShouldHaveEnumValue_GivenNameOnly_WhenEnumDoesHaveThatValueByName_ShouldNotThrow()
+        {
+            //--------------- Arrange -------------------
+            var sut = typeof(SomeEnum);
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            Expect(
+                () => sut.ShouldHaveEnumValue("Foo"),
+                Throws.Nothing
+            );
+            Expect(
+                () => sut.ShouldHaveEnumValue("Bar"),
+                Throws.Nothing
+            );
+
+            //--------------- Assert -----------------------
+        }
+
+        public enum AnotherEnum
+        {
+            Foo = 13,
+            Bar = 36
+        }
+
+        [Test]
+        public void ShouldHaveEnumValue_GivenNameAndValue_WhenEnumValueDoesNotMatchRequiredValue_ShouldThrow()
+        {
+            //--------------- Arrange -------------------
+            var sut = typeof(AnotherEnum);
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            Expect(
+                () => sut.ShouldHaveEnumValue("Foo", 5),
+                Throws.Exception
+                    .InstanceOf<AssertionException>()
+                    .And
+                    .Message.Contains(
+                    $"Could not find enum key \"Foo\" with value \"5\" on enum {sut.PrettyName()}")
+            );
+
+            //--------------- Assert -----------------------
+        }
+
+        [Test]
+        public void ShouldHaveEnumValue_GivenNameAndValue_WhenEnumValueMatchesRequiredValue_ShouldNotThrow()
+        {
+            //--------------- Arrange -------------------
+            var sut = typeof(AnotherEnum);
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            Expect(
+                () => sut.ShouldHaveEnumValue("Foo", 13),
+                Throws.Nothing
+            );
+            Expect(
+                () => sut.ShouldHaveEnumValue("Bar", 36),
+                Throws.Nothing
+            );
+
+            //--------------- Assert -----------------------
+        }
 
 
     }

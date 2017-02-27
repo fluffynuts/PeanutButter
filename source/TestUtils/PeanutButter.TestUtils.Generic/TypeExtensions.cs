@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using PeanutButter.Utils;
+
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.TestUtils.Generic
@@ -260,6 +262,36 @@ namespace PeanutButter.TestUtils.Generic
             // http://stackoverflow.com/questions/1770181/determine-if-reflected-property-can-be-assigned-null#1770232
             // conveniently located as an extension method
             return !type.IsValueType || Nullable.GetUnderlyingType(type) != null;
+        }
+
+        public static void ShouldHaveEnumValue(this Type type, string valueName)
+        {
+            type.ShouldHaveEnumValueInternal(valueName, null);
+        }
+
+        public static void ShouldHaveEnumValue(this Type type, string valueName, int expectedValue)
+        {
+            type.ShouldHaveEnumValueInternal(valueName, expectedValue);
+        }
+
+        private static void ShouldHaveEnumValueInternal(this Type type, string valueName, int? expectedValue)
+        {
+            if (!type.IsEnum)
+                throw new InvalidOperationException($"{type.PrettyName()} is not an enum type");
+            var enumValues = Enum.GetValues(type);
+            foreach (var value in enumValues)
+            {
+                var thisValueName = Enum.GetName(type, value);
+                if (thisValueName == valueName)
+                {
+                    if (expectedValue == null || (int)value == expectedValue.Value)
+                        return;
+                    Assert.Fail(
+                        $"Could not find enum key \"{valueName}\" with value \"{expectedValue}\" on enum {type.PrettyName()}"
+                    );
+                }
+            }
+            Assert.Fail($"Could not find value \"{valueName}\" on enum {type.PrettyName()}");
         }
 
         private static readonly Type[] CollectionGenerics =
