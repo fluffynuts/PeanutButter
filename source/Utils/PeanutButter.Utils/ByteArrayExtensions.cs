@@ -38,7 +38,6 @@ namespace PeanutButter.Utils
             return Encoding.UTF8.GetString(data);
         }
 
-
         /// <summary>
         /// Provides a base64 encoding of the given data. Basically a wrapper around
         /// System.Convert.ToBase64String
