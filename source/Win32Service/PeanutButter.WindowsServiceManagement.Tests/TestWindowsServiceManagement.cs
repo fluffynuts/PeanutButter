@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
@@ -17,7 +12,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
     public class TestWindowsServiceManagement
     {
         [Test]
-        [Ignore("Run manually on known services")]
+        [Explicit("Run manually on known services")]
         public void ACCEPT_WhenTestingStartupStateOfKnownServices_ShouldReturnExpectedState()
         {
             //---------------Set up test pack-------------------
@@ -35,7 +30,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
 
         [Test]
         [STAThread]
-        [Ignore("Just interesting")]
+        [Explicit("Just interesting")]
         public void Method_WhenCondition_ShouldExpectedBehaviour()
         {
             //---------------Set up test pack-------------------
@@ -62,7 +57,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
         }
 
         [Test]
-        [Ignore("manually testing some stuff")]
+        [Explicit("manually testing some stuff")]
         public void InstallThing()
         {
             //---------------Set up test pack-------------------
@@ -89,7 +84,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
 
 
         [Test]
-        [Ignore("manually testing something")]
+        [Explicit("manually testing something")]
         public void ReinstallThing()
         {
             //---------------Set up test pack-------------------
@@ -105,7 +100,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
         }
 
         [Test]
-        [Ignore("Run manually, may be system-specific")]
+        [Explicit("Run manually, may be system-specific")]
         public void ServiceExe_ShouldReturnPathTo()
         {
             //---------------Set up test pack-------------------
@@ -121,8 +116,5 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             Assert.IsNotNull(path);
             Assert.AreEqual("c:\\windows\\system32\\svchost.exe -k netsvcs", path.ToLower());
         }
-
-
-
     }
 }
