@@ -26,6 +26,8 @@ namespace PeanutButter.FluentMigrator.Fakes
 
         public MissingMappingAction MissingMappingAction { get; set; }
         public MissingSchemaAction MissingSchemaAction { get; set; }
+        // ReSharper disable once NotNullMemberIsNotInitialized
+        // ReSharper disable once UnassignedGetOnlyAutoProperty
         public ITableMappingCollection TableMappings { get; }
         public IDbCommand SelectCommand { get; set; }
         public IDbCommand InsertCommand { get; set; }

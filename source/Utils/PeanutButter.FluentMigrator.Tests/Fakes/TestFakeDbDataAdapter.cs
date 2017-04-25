@@ -1,4 +1,6 @@
 ﻿using System.Data;
+using System.Linq;
+using System.Reflection;
 using NUnit.Framework;
 using PeanutButter.FluentMigrator.Fakes;
 using PeanutButter.TestUtils.Generic;
@@ -52,6 +54,27 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             //--------------- Assert -----------------------
             Expect(sut.MissingSchemaAction, Is.EqualTo(expected));
         }
+
+        [Test]
+        public void TableMappings_ShouldBeReadOnly()
+        {
+            //--------------- Arrange -------------------
+            var sut = Create();
+            var expected = GetRandom<ITableMappingCollection>();
+            var fieldInfo = sut.GetType()
+                                .GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
+                                .FirstOrDefault(fi => fi.FieldType.IsAssignableFrom(typeof(ITableMappingCollection)));
+
+            //--------------- Assume ----------------
+            Expect(fieldInfo, Is.Not.Null);
+
+            //--------------- Act ----------------------
+            fieldInfo.SetValue(sut, expected);
+
+            //--------------- Assert -----------------------
+            Expect(sut.TableMappings, Is.EqualTo(expected));
+        }
+
 
         [Test]
         public void SelectCommand_ShouldBeReadWrite()

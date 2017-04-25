@@ -184,6 +184,38 @@ namespace PeanutButter.Utils
             return value?.AsBytes()?.ToBase64();
         }
 
+        /// <summary>
+        /// Returns "0" if the input string is empty or null
+        /// </summary>
+        /// <param name="input">String to test</param>
+        /// <returns>Original string or "0" if empty or null</returns>
+        public static string ZeroIfEmptyOrNull(this string input)
+        {
+            return input.DefaultIfEmptyOrNull("0");
+        }
+
+        /// <summary>
+        /// Returns a given fallback value if the input string is whitespace or null
+        /// </summary>
+        /// <param name="input">String to test</param>
+        /// <param name="fallback">Fallback value if the input is whitespace or null</param>
+        /// <returns>Original string or the given fallback if the input is whitespace or null</returns>
+        public static string DefaultIfEmptyOrNull(this string input, string fallback)
+        {
+            return string.IsNullOrWhiteSpace(input) ? fallback : input;
+        }
+
+        /// <summary>
+        /// Safely trims a string, returning an empty string if given null
+        /// </summary>
+        /// <param name="input">String to trim</param>
+        /// <param name="trimChars">Optional params of chars to trim, passed to standard String.Trim() method</param>
+        /// <returns>Empty string if input is null, otherwise trimmed input</returns>
+        public static string SafeTrim(this string input, params char[] trimChars)
+        {
+            return input?.Trim(trimChars) ?? "";
+        }
+
         private static string GetLeadingIntegerCharsFrom(string value)
         {
             var collected = new List<string>();

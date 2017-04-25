@@ -16,11 +16,12 @@ namespace PeanutButter.Utils
     {
         private static readonly object _lock = new object();
         private static NumberFormatInfo _numberFormatInfoField;
+
         private static NumberFormatInfo NumberFormatInfo
         {
             get
             {
-                lock(_lock)
+                lock (_lock)
                 {
                     return _numberFormatInfoField ?? (_numberFormatInfoField = CreateNumberFormatInfo());
                 }
@@ -52,9 +53,9 @@ namespace PeanutButter.Utils
         public DecimalDecorator(decimal value, string format = null)
         {
             _decimalValue = value;
-            _stringValue = format != null 
-                                ? value.ToString(format, NumberFormatInfo) 
-                                : value.ToString(NumberFormatInfo);
+            _stringValue = format != null
+                ? value.ToString(format, NumberFormatInfo)
+                : value.ToString(NumberFormatInfo);
         }
 
         /// <summary>
@@ -64,13 +65,14 @@ namespace PeanutButter.Utils
         /// <param name="value">String value to parse as Decimal</param>
         public DecimalDecorator(string value)
         {
-            if (value == null)
-                value = "0";
-            if (value.Trim() == string.Empty)
-                value = "0";
-            value = value.Replace(" ", string.Empty);
-            value = value.Replace(",", value.IndexOf(".", StringComparison.Ordinal) > -1 ? string.Empty : ".");
-            _decimalValue = decimal.Parse(value, NumberFormatInfo);
+            _decimalValue = decimal.Parse(
+                value
+                    .SafeTrim()
+                    .ZeroIfEmptyOrNull()
+                    .Replace(" ", string.Empty)
+                    .Replace(",", (value ?? "").IndexOf(".", StringComparison.Ordinal) > -1 ? string.Empty : "."),
+                NumberFormatInfo
+            );
             _stringValue = value;
         }
 
@@ -89,4 +91,5 @@ namespace PeanutButter.Utils
             return _decimalValue;
         }
     }
+
 }
