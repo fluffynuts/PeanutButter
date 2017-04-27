@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace PeanutButter.TrayIcon
 {
+    /// <summary>
+    /// Animator for the Tray Icon
+    /// </summary>
     public class TrayIconAnimator
     {
         private readonly TrayIcon _trayIcon;
@@ -16,6 +19,12 @@ namespace PeanutButter.TrayIcon
         private bool _busy;
         private Task _animationTask;
 
+        /// <summary>
+        /// Constructs an animator
+        /// </summary>
+        /// <param name="trayIcon">Tray icon to work with</param>
+        /// <param name="restStateIcon">Icon to use when not animating</param>
+        /// <param name="animationFrames">Frames to use during animation</param>
         public TrayIconAnimator(
             TrayIcon trayIcon, 
             Icon restStateIcon, 
@@ -26,11 +35,18 @@ namespace PeanutButter.TrayIcon
             _animationFrames = animationFrames;
         }
 
+        /// <summary>
+        /// Animate as if busy
+        /// </summary>
         public void Busy()
         {
             Busy(null);
         }
 
+        /// <summary>
+        /// Animate as if busy, with provided tooltip text
+        /// </summary>
+        /// <param name="withText"></param>
         public void Busy(string withText)
         {
             lock (this)
@@ -53,11 +69,18 @@ namespace PeanutButter.TrayIcon
             _animationTask.Start();
         }
 
+        /// <summary>
+        /// Stop animating, as if at rest
+        /// </summary>
         public void Rest()
         {
             Rest(null);
         }
 
+        /// <summary>
+        /// Stop animating, as if at rest, with specific tooltip text
+        /// </summary>
+        /// <param name="withText"></param>
         public void Rest(string withText)
         {
             lock (this)

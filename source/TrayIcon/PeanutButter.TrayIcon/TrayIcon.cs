@@ -4,57 +4,35 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+
 // ReSharper disable UnusedMemberInSuper.Global
 // ReSharper disable UnusedMember.Global
 
 namespace PeanutButter.TrayIcon
 {
-    public interface ITrayIcon: IDisposable
+    /// <inheritdoc />
+    public class TrayIcon : ITrayIcon
     {
-        NotifyIcon NotifyIcon { get; }
-        int DefaultBalloonTipTimeout { get; set; }
-        Icon Icon { get; set; }
-        string DefaultTipText { get; set; }
-        string DefaultTipTitle { get; set; }
-        Action DefaultBalloonTipClickedAction { get; set; }
-        Action DefaultBalloonTipClosedAction { get; set; }
-
-        void ShowBalloonTipFor(int timeoutInMilliseconds, string title, string text, ToolTipIcon icon,
-            Action clickAction = null, Action closeAction = null);
-
-        MenuItem AddSubMenu(string text, MenuItem parent = null);
-        void AddMenuItem(string withText, Action withCallback, MenuItem parent = null);
-        void AddMenuSeparator(MenuItem subMenu = null);
-        void RemoveMenuItem(string withText);
-        MouseClickHandler AddMouseClickHandler(MouseClicks clicks, MouseButtons button, Action handler);
-        void RemoveMouseClickHandler(MouseClickHandler handler);
-
-        void Init(Icon icon);
-        void Init(Stream iconStream);
-        void Init(string pathToIcon);
-        void Init(Bitmap bitmap);
-        void Show();
-        void Hide();
-    }
-
-    public class TrayIcon: ITrayIcon
-    {
+        /// <inheritdoc />
         public NotifyIcon NotifyIcon => NotificationIcon.Actual;
+
         internal INotifyIcon NotificationIcon { get; set; }
         private Icon _icon;
         internal bool ShowingDefaultBaloonTip => _showingDefaultBalloonTip;
         private bool _showingDefaultBalloonTip;
+        /// <inheritdoc />
         public int DefaultBalloonTipTimeout { get; set; }
         private readonly object _lock = new object();
+        /// <summary>
+        /// Provides an array of the currently-registered mouse click handlers
+        /// </summary>
         public IEnumerable<MouseClickHandler> MouseClickHandlers => _mouseClickHandlers.ToArray();
         private readonly List<MouseClickHandler> _mouseClickHandlers = new List<MouseClickHandler>();
 
+        /// <inheritdoc />
         public Icon Icon
         {
-            get
-            {
-                return _icon;
-            }
+            get { return _icon; }
             set
             {
                 _icon = value;
@@ -62,41 +40,69 @@ namespace PeanutButter.TrayIcon
             }
         }
 
+        /// <inheritdoc />
         public string DefaultTipText { get; set; }
+
+        /// <inheritdoc />
         public string DefaultTipTitle { get; set; }
+
+        /// <inheritdoc />
         public Action DefaultBalloonTipClickedAction { get; set; }
+
+        /// <inheritdoc />
         public Action DefaultBalloonTipClosedAction { get; set; }
 
+        /// <summary>
+        /// Parameterless constructor. Don't forget to Init later!
+        /// </summary>
         public TrayIcon()
         {
         }
 
+        /// <summary>
+        /// Construct and Init with an Icon
+        /// </summary>
+        /// <param name="icon"></param>
         public TrayIcon(Icon icon)
         {
             Init(icon);
         }
 
+        /// <summary>
+        /// Construct and Init with a Bitmap
+        /// </summary>
+        /// <param name="icon"></param>
         public TrayIcon(Bitmap icon)
         {
             Init(icon);
         }
 
+        /// <summary>
+        /// Construct and Init with a stream providing icon data
+        /// </summary>
+        /// <param name="iconImageStream"></param>
         public TrayIcon(Stream iconImageStream)
         {
             Init(iconImageStream);
         }
 
+        /// <inheritdoc />
         public void Init(Stream iconImageStream)
         {
             var icon = new Icon(iconImageStream);
             Init(icon);
         }
 
+        /// <summary>
+        /// Construct and Init with a path to an icon file
+        /// </summary>
+        /// <param name="pathToIcon"></param>
         public TrayIcon(string pathToIcon)
         {
             Init(pathToIcon);
         }
 
+        /// <inheritdoc />
         public void Init(string pathToIcon)
         {
             using (var fileStream = new FileStream(pathToIcon, FileMode.Open, FileAccess.Read))
@@ -105,6 +111,7 @@ namespace PeanutButter.TrayIcon
             }
         }
 
+        /// <inheritdoc />
         public void Init(Bitmap bitmap)
         {
             Init(Icon.FromHandle(bitmap.GetHicon()));
@@ -114,6 +121,7 @@ namespace PeanutButter.TrayIcon
         private BalloonTipClickHandlerRegistration _balloonTipClickHandlers;
         private bool _alreadyInitialized;
 
+        /// <inheritdoc />
         public void ShowBalloonTipFor(int timeoutInMilliseconds, string title, string text, ToolTipIcon icon,
             Action clickAction = null, Action closeAction = null)
         {
@@ -124,6 +132,7 @@ namespace PeanutButter.TrayIcon
             NotificationIcon.ShowBalloonTip(timeoutInMilliseconds, title, text, icon);
         }
 
+        /// <inheritdoc />
         public MenuItem AddSubMenu(string text, MenuItem parent = null)
         {
             lock (_lock)
@@ -135,9 +144,10 @@ namespace PeanutButter.TrayIcon
             }
         }
 
+        /// <inheritdoc />
         public void AddMenuItem(string withText, Action withCallback, MenuItem parent = null)
         {
-            lock(_lock)
+            lock (_lock)
             {
                 if (NotificationIcon == null) return;
                 var menuItem = CreateMenuItemWithText(withText);
@@ -147,14 +157,16 @@ namespace PeanutButter.TrayIcon
             }
         }
 
+        /// <inheritdoc />
         public void AddMenuSeparator(MenuItem subMenu = null)
         {
             AddSubMenu("-", subMenu);
         }
 
+        /// <inheritdoc />
         public void RemoveMenuItem(string withText)
         {
-            lock(_lock)
+            lock (_lock)
             {
                 if (NotificationIcon == null) return;
                 var toRemove = FindMenusByText(withText);
@@ -165,28 +177,32 @@ namespace PeanutButter.TrayIcon
             }
         }
 
+        /// <inheritdoc />
         public void Show()
-		{
-			NotificationIcon.Actual.MouseClick += OnIconMouseClick;
+        {
+            NotificationIcon.Actual.MouseClick += OnIconMouseClick;
             NotificationIcon.Actual.MouseDoubleClick += OnIconMouseDoubleClick;
-			NotificationIcon.Icon = _icon;
-			NotificationIcon.Visible = true;
-		}
+            NotificationIcon.Icon = _icon;
+            NotificationIcon.Visible = true;
+        }
 
+        /// <inheritdoc />
         public void Hide()
         {
             NotificationIcon.Visible = false;
         }
 
+        /// <inheritdoc />
         public void Dispose()
-		{
-            lock(_lock)
+        {
+            lock (_lock)
             {
                 NotificationIcon?.Dispose();
                 NotificationIcon = null;
             }
-		}
+        }
 
+        /// <inheritdoc />
         public MouseClickHandler AddMouseClickHandler(MouseClicks clicks, MouseButtons button, Action handler)
         {
             lock (_lock)
@@ -197,6 +213,7 @@ namespace PeanutButter.TrayIcon
             }
         }
 
+        /// <inheritdoc />
         public void RemoveMouseClickHandler(MouseClickHandler handler)
         {
             lock (_lock)
@@ -212,10 +229,10 @@ namespace PeanutButter.TrayIcon
         }
 
         internal void OnIconMouseClick(object sender, MouseEventArgs e)
-		{
-		    var handlers = FindHandlersFor(MouseClicks.Single, e.Button);
-		    RunMouseClickHandlers(handlers);
-		}
+        {
+            var handlers = FindHandlersFor(MouseClicks.Single, e.Button);
+            RunMouseClickHandlers(handlers);
+        }
 
         internal void OnIconMouseDoubleClick(object sender, MouseEventArgs e)
         {
@@ -248,12 +265,12 @@ namespace PeanutButter.TrayIcon
 
         private MouseClickHandler[] FindHandlersFor(MouseClicks clicks, MouseButtons button)
         {
-		    lock (_lock)
-		    {
-		        return _mouseClickHandlers
-                        .Where(o => o.Clicks == clicks && o.Button == button)
-                        .ToArray();
-		    }
+            lock (_lock)
+            {
+                return _mouseClickHandlers
+                    .Where(o => o.Clicks == clicks && o.Button == button)
+                    .ToArray();
+            }
         }
 
         private MenuItem[] FindMenusByText(string text)
@@ -271,13 +288,14 @@ namespace PeanutButter.TrayIcon
             {
                 var menuItem = item as MenuItem;
                 if (menuItem == null)
-                    continue;   // not sure what else we could find in here?
+                    continue; // not sure what else we could find in here?
                 foundSoFar.Add(menuItem);
                 FindAllMenuItems(foundSoFar, menuItem);
             }
             return foundSoFar;
         }
 
+        /// <inheritdoc />
         public void Init(Icon icon)
         {
             if (_alreadyInitialized)
@@ -316,10 +334,10 @@ namespace PeanutButter.TrayIcon
                 _showingDefaultBalloonTip = true;
             }
             ShowBalloonTipFor(
-                DefaultBalloonTipTimeout, 
-                DefaultTipTitle, 
-                DefaultTipText, 
-                ToolTipIcon.Info, 
+                DefaultBalloonTipTimeout,
+                DefaultTipTitle,
+                DefaultTipText,
+                ToolTipIcon.Info,
                 DefaultBalloonTipClickedAction,
                 () =>
                 {
@@ -369,4 +387,5 @@ namespace PeanutButter.TrayIcon
             };
         }
     }
+
 }
