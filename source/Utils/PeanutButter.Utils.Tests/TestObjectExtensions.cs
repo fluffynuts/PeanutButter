@@ -1060,7 +1060,7 @@ namespace PeanutButter.Utils.Tests
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var result = collection1.ContainsOneDeepEqualTo(new { id = 1 } );
+            var result = collection1.ContainsAtLeastOneDeepEqualTo(new { id = 1 } );
 
             //--------------- Assert -----------------------
             Expect(result, Is.True);
@@ -1078,7 +1078,7 @@ namespace PeanutButter.Utils.Tests
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var result = collection1.ContainsOneDeepEqualTo(new { id = 2 } );
+            var result = collection1.ContainsAtLeastOneDeepEqualTo(new { id = 2 } );
 
             //--------------- Assert -----------------------
             Expect(result, Is.False);
@@ -1096,7 +1096,7 @@ namespace PeanutButter.Utils.Tests
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var result = collection1.ContainsOneDeepEqualTo(new { id = 1 } );
+            var result = collection1.ContainsAtLeastOneDeepEqualTo(new { id = 1 } );
 
             //--------------- Assert -----------------------
             Expect(result, Is.False);
@@ -1114,7 +1114,7 @@ namespace PeanutButter.Utils.Tests
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var result = collection1.ContainsOneDeepEqualTo(new { id = 1 }, "name");
+            var result = collection1.ContainsAtLeastOneDeepEqualTo(new { id = 1 }, "name");
 
             //--------------- Assert -----------------------
             Expect(result, Is.True);

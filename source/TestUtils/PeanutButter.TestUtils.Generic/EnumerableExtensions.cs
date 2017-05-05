@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using PeanutButter.Utils;
+using static PeanutButter.Utils.Stringifier;
 
 namespace PeanutButter.TestUtils.Generic
 {
@@ -57,6 +58,24 @@ namespace PeanutButter.TestUtils.Generic
             if (!src.HasUnique(matcher))
                 Assert.Fail("Expected single unique result");
         } 
+
+        public static void ShouldContainOneDeepEqualTo<T>(this IEnumerable<T> src, T seek, params string[] ignoreProperties)
+        {
+            src.ShouldContainAtLeastOneDeepEqualTo<T>(seek, ignoreProperties);
+            if (!src.ContainsOneDeepEqualTo(seek, ignoreProperties))
+                throw new AssertionException($"Expected to find one {seek} in {src} but found more than one match");
+        }
+
+        public static void ShouldContainAtLeastOneDeepEqualTo<T>(
+            this IEnumerable<T> src, T seek, params string[] ignoreProperties
+        )
+        {
+            var localArray = src as T[] ?? src.ToArray();
+            if (localArray.IsEmpty())
+                throw new AssertionException($"Expected to find {Stringify(seek)} in empty collection");
+            if (!localArray.ContainsAtLeastOneDeepEqualTo(seek, ignoreProperties))
+                throw new AssertionException($"Expected to find {Stringify(seek)} in {Stringify(localArray)}");
+        }
 
     }
 }

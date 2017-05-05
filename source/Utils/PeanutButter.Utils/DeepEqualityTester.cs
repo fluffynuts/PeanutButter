@@ -190,9 +190,8 @@ namespace PeanutButter.Utils
                 {
                     if (RecordErrors)
                         AddError("No intersecting properties found");
-                }
-                if (srcPropInfos.IsEmpty())
                     return false;
+                }
             }
             if (!FailOnMissingProperties || OnlyTestIntersectingProperties || srcPropInfos.Length == comparePropInfos.Length)
                 return CompareWith(objSource, objCompare, srcPropInfos, comparePropInfos);
@@ -264,32 +263,9 @@ namespace PeanutButter.Utils
                 : MatchPropertiesOrCollection(srcValue, compareValue);
             if (!result && RecordErrors)
             {
-                AddError($"Property value mismatch for {srcProp.Name}: {Stringify(objSource)} vs {Stringify(objCompare)}");
+                AddError($"Property value mismatch for {srcProp.Name}: {Stringifier.Stringify(objSource)} vs {Stringifier.Stringify(objCompare)}");
             }
             return result;
-        }
-
-        private string Stringify(object obj)
-        {
-            if (obj == null) return "(null)";
-            try
-            {
-                var props = obj.GetType().GetProperties();
-                return string.Join(
-                    "\n  ",
-                    "{",
-                    "  " + props.Aggregate(new List<string>(), (acc, cur) =>
-                    {
-                        var propValue = cur.GetValue(obj);
-                        acc.Add(string.Join("", cur.Name, ": ",  propValue?.ToString() ?? "(null)"));
-                        return acc;
-                    }).JoinWith("\n    "),
-                    "}");
-            }
-            catch
-            {
-                return obj.ToString();
-            }
         }
 
         private bool MatchPropertiesOrCollection(object srcValue, object compareValue)

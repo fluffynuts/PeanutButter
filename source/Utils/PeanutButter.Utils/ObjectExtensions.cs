@@ -67,7 +67,24 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
-        /// Searches a collection for an object which DeepEquals the provided reference item
+        /// Searches a collection for one or more objects which DeepEquals the provided reference item
+        /// </summary>
+        /// <param name="collection">Collection of objects to search</param>
+        /// <param name="item">Item to find a match for</param>
+        /// <param name="ignoreProperties">Optional params array of properties to ignore by name</param>
+        /// <typeparam name="T1">Item type of the collection</typeparam>
+        /// <typeparam name="T2">Type of the comparison item (can be the same as or different from T1)</typeparam>
+        /// <returns>True if one or more matching objects were found; false otherwise</returns>
+        public static bool ContainsAtLeastOneDeepEqualTo<T1, T2>(
+            this IEnumerable<T1> collection, 
+            T2 item,
+            params string[] ignoreProperties)
+        {
+            return collection.Any(i => i.DeepEquals(item, ignoreProperties));
+        }
+
+        /// <summary>
+        /// Searches a collection for a single object which DeepEquals the provided reference item
         /// </summary>
         /// <param name="collection">Collection of objects to search</param>
         /// <param name="item">Item to find a match for</param>
@@ -80,7 +97,7 @@ namespace PeanutButter.Utils
             T2 item,
             params string[] ignoreProperties)
         {
-            return collection.Any(i => i.DeepEquals(item, ignoreProperties));
+            return collection.Count(i => i.DeepEquals(item, ignoreProperties)) == 1;
         }
 
         /// <summary>
