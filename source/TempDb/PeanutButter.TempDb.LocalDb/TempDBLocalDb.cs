@@ -36,7 +36,7 @@ namespace PeanutButter.TempDb.LocalDb
         private string _instanceName;
         public string InstanceName
         {
-            get { return _instanceName ?? new LocalDbInstanceEnumerator().FindHighestDefaultInstance(); }
+            get { return _instanceName ?? new LocalDbInstanceEnumerator().FindFirstAvailableInstance(); }
             set { _instanceName = value; }
         }
         private const string MasterConnectionString = @"Data Source=(localdb)\{0};Initial Catalog=master;Integrated Security=True";

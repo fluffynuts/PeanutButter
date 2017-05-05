@@ -1,4 +1,6 @@
 using System;
+using System.Data;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -33,19 +35,24 @@ namespace PeanutButter.Utils
             if (toRun == null)
                 throw new UnableToFindLocalDbUtilityException();
             var process = RunToCompletion(toRun);
-            return FindDefaultInstancesFromOutputOf(process);
+            return FindInstancesFromOutputOf(process);
         }
 
         /// <summary>
         /// Attempts to find the highest-versioned LocalDb instance
         /// </summary>
         /// <returns>Instance name of the highest-versioned LocalDb instance, typically something like "v11.0"</returns>
-        public string FindHighestDefaultInstance()
+        public string FindFirstAvailableInstance()
+        {
+            return _availableInstance ?? (_availableInstance = InterrogateInstances());
+        }
+
+        private string InterrogateInstances()
         {
             const string fallback = "v11.0";
             try
             {
-                return FindInstances().First(); 
+                return FindInstances().First(CanConnect);
             }
             catch (Exception)
             {
@@ -54,21 +61,48 @@ namespace PeanutButter.Utils
             }
         }
 
-        private static string[] FindDefaultInstancesFromOutputOf(Process process)
+        private static string _availableInstance;
+
+        private bool CanConnect(string instanceName)
+        {
+            using (var conn = new SqlConnection($"Data Source=(localdb)\\{instanceName};Initial Catalog=master;Integrated Security=True"))
+            {
+                try
+                {
+                    conn.Open();
+                    return conn.State == ConnectionState.Open;
+                }
+                catch
+                {
+                    Debug.WriteLine($"WARNING: cannot connect to localdb instance {instanceName}");
+                    return false;
+                }
+            }
+        }
+
+        private static string[] FindInstancesFromOutputOf(Process process)
         {
             var lines = process.StandardOutput
                 .ReadToEnd()
-                .Split(new[] {Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries);
-
-            var versionLines = lines.Where(v => v.StartsWith("v"))
-                .OrderByDescending(v => v)
+                .Split(new[] {Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries)
+                .OrderBy(IsNewLocalDbDefaultInstanceName)
+                .ThenByDescending(VersionedName)
+                .ThenBy(l => l)
                 .ToArray();
+            return lines;
+        }
 
-            // prefer MSSQLLocalDB, which is what SQL Express 2014 and later set up
-            var newInstanceName = LOCALDB_INSTANCE_2014_AND_LATER.ToLower(CultureInfo.InvariantCulture);
-            if (lines.Any(l => l.ToLower(CultureInfo.InvariantCulture) == newInstanceName))
-                return new[] { LOCALDB_INSTANCE_2014_AND_LATER }.And(versionLines);
-            return versionLines;
+        private static bool IsNewLocalDbDefaultInstanceName(string arg)
+        {
+            return arg != LOCALDB_INSTANCE_2014_AND_LATER;
+        }
+
+        private static string VersionedName(string arg)
+        {
+            decimal _;
+            return arg.StartsWith("v") && decimal.TryParse(arg.Substring(1), out _)
+                ? arg.Substring(1)
+                : "99999999999999999999";
         }
 
         private const string LOCALDB_INSTANCE_2014_AND_LATER = "MSSQLLocalDB";

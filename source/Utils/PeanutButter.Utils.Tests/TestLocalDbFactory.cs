@@ -80,7 +80,7 @@ namespace PeanutButter.Utils.Tests
                 //---------------Test Result -----------------------
                 var builder = new SqlConnectionStringBuilder();
                 builder.InitialCatalog = dbName;
-                builder.DataSource = $"(localdb)\\{new LocalDbInstanceEnumerator().FindHighestDefaultInstance()}";
+                builder.DataSource = $"(localdb)\\{new LocalDbInstanceEnumerator().FindFirstAvailableInstance()}";
                 builder.IntegratedSecurity = true;
                 using (var conn = new SqlConnection(builder.ToString()))
                 {
@@ -99,7 +99,7 @@ namespace PeanutButter.Utils.Tests
         {
             public string DatabaseFile { get; set; }
             public string DatabaseName { get; set; }
-            public string InstanceName { get; set; } = new LocalDbInstanceEnumerator().FindHighestDefaultInstance();
+            public string InstanceName { get; set; } = new LocalDbInstanceEnumerator().FindFirstAvailableInstance();
             private const string MasterConnectionString = @"Data Source=(localdb)\{0};Initial Catalog=master;Integrated Security=True";
 
             public LocalDbDestroyer()

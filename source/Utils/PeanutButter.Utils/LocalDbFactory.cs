@@ -57,8 +57,10 @@ namespace PeanutButter.Utils
         /// <returns></returns>
         public string GetMasterConnectionString()
         {
-            return string.Format(MasterConnectionString, 
-                InstanceName ?? new LocalDbInstanceEnumerator().FindHighestDefaultInstance());
+            var result = string.Format(MasterConnectionString, 
+                InstanceName ?? new LocalDbInstanceEnumerator().FindFirstAvailableInstance());
+            System.Diagnostics.Trace.WriteLine($"Connecting to LocalDb with: \"{result}\"");
+            return result;
         }
 
     }
