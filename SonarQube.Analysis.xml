@@ -19,7 +19,7 @@
 <SonarQubeAnalysisProperties  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.sonarsource.com/msbuild/integration/2015/1">
     <Property Name="sonar.projectDescription">PeanutButter</Property>
     <Property Name="sonar.cs.msbuild.testProjectPattern">.*\.(([Ii]ntegration)?[Tt]est)(s)?(\..*)?</Property>
-    <Property Name="sonar.exclusions">source/**/*.NugetPackage/*</Property>
+    <Property Name="sonar.exclusions">source/**/*.NugetPackage/*,tools/**/*</Property>
     <Property Name="sonar.test.inclusions">**/*.Tests/**</Property>
     <Property Name="sonar.cs.nunit.reportsPaths">buildreports/nunit-result.xml</Property>
     <Property Name="sonar.cs.dotcover.reportsPaths">buildreports/coverage.html</Property>
