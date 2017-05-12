@@ -25,11 +25,6 @@
     <dependencies>
       <group targetFramework="net40">
         <dependency id="Microsoft.AspNet.Identity.Core" version="2.2.1" />
-        <dependency id="Microsoft.AspNet.Mvc" />
-        <dependency id="Microsoft.AspNet.Razor" />
-        <dependency id="Microsoft.AspNet.WebPages" />
-        <dependency id="Microsoft.Web.Infrastructure" />
-        <dependency id="Newtonsoft.Json" />
         <dependency id="NSubstitute" />
       </group>
     </dependencies>
