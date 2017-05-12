@@ -662,6 +662,24 @@ namespace PeanutButter.RandomGenerators
         }
 
         /// <summary>
+        /// Gets another value of Type T, using a custom validator function to know when to stop trying
+        /// and an optional generator function. Use like:
+        /// var first = GetRandom&lt;IHasAName&gt;();
+        /// var other = GetAnother&lt;IHasAName&gt;(o =&lt; o.Name != first.Name);
+        /// </summary>
+        /// <param name="validator">Validates that a generated value is acceptable (should return true when it is)</param>
+        /// <param name="usingThisGenerator">Optional custom generator for the next random value, defaults to GetRandom&lt;T&gt;</param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T GetAnother<T>(
+            Func<T, bool> validator,
+            Func<T> usingThisGenerator = null
+        )
+        {
+            return GetANewRandomValueUsing(default(T), usingThisGenerator ?? GetRandom<T>, validator);
+        }
+
+        /// <summary>
         /// Gets another value of the same type as the specified value, but not equal to it,
         /// using the default GetRandom generic method
         /// </summary>
