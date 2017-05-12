@@ -1591,7 +1591,7 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [Test]
-        public void GetAnother_GivenAValidatorFunction_ShouldReturnADifferentValue()
+        public void GetRandom_GivenAValidatorFunction_ShouldReturnADifferentValue()
         {
             RunCycles(() =>
             {
@@ -1601,7 +1601,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 //--------------- Assume ----------------
 
                 //--------------- Act ----------------------
-                var other = GetAnother<IHasAnId>(test => test.Id != first.Id);
+                var other = GetRandom<IHasAnId>(test => test.Id != first.Id);
 
                 //--------------- Assert -----------------------
                 Expect(other, Is.Not.Null);
@@ -1611,18 +1611,18 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [Test]
-        public void GetAnother_GivenAValidatorAndGenerator_ShouldUseTheGeneratorToReturnADifferentValue()
+        public void GetRandom_GivenAValidatorAndGenerator_ShouldUseTheGeneratorToReturnADifferentValue()
         {
             //--------------- Arrange -------------------
             var first = GetRandom<IHasAnId>();
-            var expected = GetAnother<IHasAnId>(o => o.Id != first.Id);
+            var expected = GetRandom<IHasAnId>(o => o.Id != first.Id);
 
             //--------------- Assume ----------------
             // rather fail early if we're about to enter an infinite loop
             Expect(first.Id, Is.Not.EqualTo(expected.Id));
 
             //--------------- Act ----------------------
-            var result = GetAnother(
+            var result = GetRandom(
                 o => o.Id != first.Id,
                 () => expected
             );
