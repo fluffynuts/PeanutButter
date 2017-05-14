@@ -70,7 +70,12 @@ namespace PeanutButter.DuckTyping
             if (_shimmedProperties.TryGetValue(propertyName, out propValue))
                 return propValue;
             var mimickedProperty = GetMimickedProperty(propertyName);
-            if (!_data.TryGetValue(propertyName, out propValue))
+            var key = _isFuzzy
+                ? _data.Keys.FirstOrDefault(k => k.ToLowerInvariant().Replace(" ", "") ==
+                                                 propertyName.ToLowerInvariant().Replace(" ", ""))
+                : propertyName;
+
+            if (key == null || !_data.TryGetValue(key, out propValue))
                 return GetDefaultValueFor(mimickedProperty.PropertyType);
             // ReSharper disable once UseMethodIsInstanceOfType
             var propType = propValue.GetType();

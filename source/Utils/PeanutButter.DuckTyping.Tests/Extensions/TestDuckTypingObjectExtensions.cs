@@ -1,15 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
-using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
-using NUnit.Framework.Constraints;
 using PeanutButter.DuckTyping.Exceptions;
 using PeanutButter.DuckTyping.Extensions;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+
+// ReSharper disable ConvertToLocalFunction
+// ReSharper disable InconsistentNaming
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
+// ReSharper disable MemberCanBeProtected.Global
+// ReSharper disable PossibleNullReferenceException
+// ReSharper disable ConstantConditionalAccessQualifier
+
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMember.Global
 // ReSharper disable UnassignedGetOnlyAutoProperty
@@ -28,7 +35,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         public void CanDuckAs_GivenTypeWithOnePropertyAndObjectWhichDoesNotImplement_ShouldReturnFalse()
         {
             //--------------- Arrange -------------------
-            var obj = new {
+            var obj = new
+            {
                 Id = GetRandomInt()
             };
 
@@ -45,7 +53,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         public void CanDuckAs_GivenTypeWithOnePropertyAndObjectImplementingProperty_ShouldReturnTrue()
         {
             //--------------- Arrange -------------------
-            var obj = new {
+            var obj = new
+            {
                 Name = GetRandomString()
             };
 
@@ -101,7 +110,6 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             Expect(error, Does.Contain("Mismatched target accessors for Name"));
             Expect(error, Does.Contain("get -> get/set"));
         }
-
 
 
         public class HasReadWriteNameAndId
@@ -222,7 +230,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             //--------------- Arrange -------------------
             var expected = GetRandomString();
             Func<object> makeSource = () =>
-                new {
+                new
+                {
                     Name = expected
                 };
             var src = makeSource();
@@ -242,7 +251,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         {
             //--------------- Arrange -------------------
             Func<object> makeSource = () =>
-                new {
+                new
+                {
                     Name = GetRandomString()
                 };
             var src = makeSource();
@@ -259,7 +269,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         public void CanFuzzyDuckAs_OperatingOnSimilarPropertiedThing_ShouldReturnTrue()
         {
             //--------------- Arrange -------------------
-            var thing = new { nAmE = GetRandomString() } as object;
+            var thing = new {nAmE = GetRandomString()} as object;
 
             //--------------- Assume ----------------
 
@@ -298,7 +308,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         public void FuzzyDuckAs_OperatingOnObjectWhichFuzzyMatchesProperties_ShouldReturnFuzzyDuck()
         {
             //--------------- Arrange -------------------
-            var src = new {
+            var src = new
+            {
                 nAmE = GetRandomString()
             } as object;
 
@@ -310,7 +321,6 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             //--------------- Assert -----------------------
             Expect(result, Is.Not.Null);
         }
-
 
 
         [Test]
@@ -336,7 +346,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         public void DuckAs_ShouldNotBeConfusedByInterfaceInheritence()
         {
             //--------------- Arrange -------------------
-            var src = new {
+            var src = new
+            {
                 ActorId = Guid.NewGuid(),
                 TaskId = Guid.NewGuid(),
                 Payload = Guid.NewGuid()
@@ -362,8 +373,10 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         public void DuckAs_ShouldNotSmashPropertiesOnObjectType()
         {
             //--------------- Arrange -------------------
-            var input = new {
-                Payload = new {
+            var input = new
+            {
+                Payload = new
+                {
                     Id = 1,
                     Name = "Moosicle"
                 }
@@ -389,8 +402,10 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         public void DuckAs_ShouldNotAllowNonDuckableSubType()
         {
             //--------------- Arrange -------------------
-            var input = new {
-                OuterPayload = new {
+            var input = new
+            {
+                OuterPayload = new
+                {
                     Color = "Red"
                 }
             };
@@ -409,6 +424,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         {
             object Identifier { get; }
         }
+
         public interface IGuidIdentifier
         {
             Guid Identifier { get; }
@@ -418,10 +434,12 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         public void CanDuckAs_ShouldNotTreatGuidAsObject()
         {
             //--------------- Arrange -------------------
-            var inputWithGuid = new {
+            var inputWithGuid = new
+            {
                 Identifier = new Guid(),
             };
-            var inputWithObject = new {
+            var inputWithObject = new
+            {
                 Identifier = new object()
             };
 
@@ -440,10 +458,12 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         public void CanFuzzyDuckAs_ShouldNotTreatGuidAsObject()
         {
             //--------------- Arrange -------------------
-            var inputWithGuid = new {
+            var inputWithGuid = new
+            {
                 identifier = new Guid(),
             };
-            var inputWithObject = new {
+            var inputWithObject = new
+            {
                 identifier = new object()
             };
 
@@ -487,10 +507,12 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         {
             Guid Id { get; set; }
         }
+
         public class WithGuidId
         {
             public Guid id { get; set; }
         }
+
         public class WithStringId
         {
             public string id { get; set; }
@@ -560,11 +582,11 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
 
-
         public interface IHasAnActorId
         {
             Guid ActorId { get; }
         }
+
         public interface IActivityParametersInherited : IHasAnActorId
         {
             Guid TaskId { get; }
@@ -574,8 +596,9 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         public void CanFuzzyDuckAs_ShouldFailWhenExpectedToFail()
         {
             //--------------- Arrange -------------------
-            var parameters = new {
-                travellerId = new Guid(),   // should be actorId!
+            var parameters = new
+            {
+                travellerId = new Guid(), // should be actorId!
                 taskId = new Guid()
             };
 
@@ -592,8 +615,9 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         public void FuzzyDuckAs_NonGeneric_ActingOnObject_ShouldThrowWhenInstructedToAndFailingToDuck()
         {
             //--------------- Arrange -------------------
-            var parameters = new {
-                travellerId = new Guid(),   // should be actorId!
+            var parameters = new
+            {
+                travellerId = new Guid(), // should be actorId!
                 taskId = new Guid()
             };
 
@@ -612,8 +636,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             //--------------- Arrange -------------------
             var parameters = new Dictionary<string, object>()
             {
-                { "travellerId", new Guid() },
-                { "taskId", new Guid() }
+                {"travellerId", new Guid()},
+                {"taskId", new Guid()}
             };
 
             //--------------- Assume ----------------
@@ -638,12 +662,13 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
 
         [Test]
-        public void CanDuckAs_OperatingOnSingleLevelDictionaryOfStringAndObject_WhenAllPropertiesAreFound_ShouldReturnTrue()
+        public void
+            CanDuckAs_OperatingOnSingleLevelDictionaryOfStringAndObject_WhenAllPropertiesAreFound_ShouldReturnTrue()
         {
             //--------------- Arrange -------------------
             var expected = GetRandomString();
             var data = new Dictionary<string, object>()
-            {{"Name", expected}};
+                {{"Name", expected}};
 
             //--------------- Assume ----------------
 
@@ -655,11 +680,12 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
         [Test]
-        public void CanDuckAs_OperatingOnSingleLevelDictionaryOfStringAndObject_WhenNullablePropertyIsFound_ShouldReturnTrue()
+        public void
+            CanDuckAs_OperatingOnSingleLevelDictionaryOfStringAndObject_WhenNullablePropertyIsFound_ShouldReturnTrue()
         {
             //--------------- Arrange -------------------
             var data = new Dictionary<string, object>()
-            {{"Name", null}};
+                {{"Name", null}};
 
             //--------------- Assume ----------------
 
@@ -676,11 +702,12 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
         [Test]
-        public void CanDuckAs_OperatingOnSingleLevelDictionaryOfStringAndObject_WhenNonNullablePropertyIsFoundAsNull_ShouldReturnFalse()
+        public void
+            CanDuckAs_OperatingOnSingleLevelDictionaryOfStringAndObject_WhenNonNullablePropertyIsFoundAsNull_ShouldReturnFalse()
         {
             //--------------- Arrange -------------------
             var data = new Dictionary<string, object>()
-            {{"Id", null}};
+                {{"Id", null}};
 
             //--------------- Assume ----------------
 
@@ -697,8 +724,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             //--------------- Arrange -------------------
             var data = new Dictionary<string, object>()
             {
-                { "Id", GetRandomInt() },
-                { "Inner", new Dictionary<string, object>() { { "Name", GetRandomString() } } }
+                {"Id", GetRandomInt()},
+                {"Inner", new Dictionary<string, object>() {{"Name", GetRandomString()}}}
             };
 
             //--------------- Assume ----------------
@@ -718,8 +745,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var expectedName = GetRandomString();
             var input = new Dictionary<string, object>()
             {
-                { "Id", expectedId },
-                { "Inner", new Dictionary<string, object>() { {  "Name", expectedName } } }
+                {"Id", expectedId},
+                {"Inner", new Dictionary<string, object>() {{"Name", expectedName}}}
             };
             //--------------- Assume ----------------
 
@@ -741,8 +768,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var expectedName = GetRandomString();
             var input = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
             {
-                { "id", expectedId },
-                { "inner", new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase) { {  "nAmE", expectedName } } }
+                {"id", expectedId},
+                {"inner", new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase) {{"nAmE", expectedName}}}
             };
 
             //--------------- Assume ----------------
@@ -762,8 +789,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var expectedName = GetRandomString();
             var input = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
             {
-                { "id", expectedId },
-                { "inner", new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase) { {  "nAmE", expectedName } } }
+                {"id", expectedId},
+                {"inner", new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase) {{"nAmE", expectedName}}}
             };
 
             //--------------- Assume ----------------
@@ -787,8 +814,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var expectedName = GetRandomString();
             var input = new Dictionary<string, object>()
             {
-                { "id", expectedId },
-                { "inner", new Dictionary<string, object>() { {  "nAmE", expectedName } } }
+                {"id", expectedId},
+                {"inner", new Dictionary<string, object>() {{"nAmE", expectedName}}}
             };
 
             //--------------- Assume ----------------
@@ -808,8 +835,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var expectedName = GetRandomString();
             var input = new Dictionary<string, object>()
             {
-                { "id", expectedId },
-                { "inner", new Dictionary<string, object>() { {  "nAmE", expectedName } } }
+                {"id", expectedId},
+                {"inner", new Dictionary<string, object>() {{"nAmE", expectedName}}}
             };
 
             //--------------- Assume ----------------
@@ -851,7 +878,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var id = Guid.NewGuid();
             var data = new Dictionary<string, object>()
             {
-                { "taskId", id.ToString() }
+                {"taskId", id.ToString()}
             };
 
             //--------------- Assume ----------------
@@ -862,8 +889,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             //--------------- Assert -----------------------
             Expect(result, Is.Not.Null);
             Expect(result.TaskId, Is.EqualTo(id));
-
         }
+
         public interface IWorkflowTaskStatusFilters
         {
             string[] Statuses { get; }
@@ -874,8 +901,9 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         public void FuzzyDuckAs_ShouldBeAbleToDuckSimpleObjectWithStringArray()
         {
             //--------------- Arrange -------------------
-            var input = new {
-                Statuses = new[] { "foo", "bar" }
+            var input = new
+            {
+                Statuses = new[] {"foo", "bar"}
             };
 
             //--------------- Assume ----------------
@@ -889,30 +917,32 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             Expect(result.Statuses, Does.Contain("bar"));
         }
 
-        public class MooAttribute: Attribute
+        public class MooAttribute : Attribute
         {
             public string Dialect { get; }
+
             public MooAttribute(string dialect)
             {
                 Dialect = dialect;
             }
         }
-        public class WoofAttribute: Attribute
+
+        public class WoofAttribute : Attribute
         {
             public string Intent { get; }
+
             public WoofAttribute(string intent)
             {
                 Intent = intent;
             }
         }
-        public class NamedArgumentAttribute: Attribute
+
+        public class NamedArgumentAttribute : Attribute
         {
             public string NamedProperty { get; set; }
             public string NamedField;
-            public NamedArgumentAttribute()
-            {
-            }
         }
+
         [Woof("playful")]
         public interface IHasCustomAttributes
         {
@@ -925,7 +955,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         public void DuckAs_ShouldCopyCustomAttributes_OnProperties()
         {
             //--------------- Arrange -------------------
-            var input = new {
+            var input = new
+            {
                 name = "cow"
             };
 
@@ -946,7 +977,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         public void DuckAs_ShouldCopyNamedArgumentCustomAttributes_OnProperties()
         {
             //--------------- Arrange -------------------
-            var input = new {
+            var input = new
+            {
                 name = "cow"
             };
 
@@ -968,7 +1000,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         public void DuckAs_ShouldCopyCustomAttributes_OnTheInterface()
         {
             //--------------- Arrange -------------------
-            var input = new {
+            var input = new
+            {
                 name = "cow"
             };
 
@@ -983,9 +1016,10 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             Expect(attrib?.Intent, Is.EqualTo("playful"));
         }
 
-        public class DialectAttribute: Attribute
+        public class DialectAttribute : Attribute
         {
             public string Dialect { get; set; }
+
             public DialectAttribute(string dialect)
             {
                 Dialect = dialect;
@@ -1002,7 +1036,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         public void DuckAs_ShouldCopyComplexCustomAttributes()
         {
             //--------------- Arrange -------------------
-            var input = new {
+            var input = new
+            {
                 moo = "Moo, eh"
             };
 
@@ -1025,7 +1060,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         {
             //--------------- Arrange -------------------
             var toType = typeof(IHasAnActorId);
-            var src = new {
+            var src = new
+            {
                 actorId = Guid.NewGuid()
             };
 
@@ -1044,7 +1080,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         {
             //--------------- Arrange -------------------
             var toType = typeof(IHasAnActorId);
-            var src = new {
+            var src = new
+            {
                 ActorId = Guid.NewGuid()
             };
 
@@ -1063,7 +1100,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         {
             //--------------- Arrange -------------------
             var toType = typeof(IHasAnActorId);
-            var src = new {
+            var src = new
+            {
                 ActorId = Guid.NewGuid()
             };
 
@@ -1082,7 +1120,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         {
             //--------------- Arrange -------------------
             var toType = typeof(IHasAnActorId);
-            var src = new {
+            var src = new
+            {
                 bob = Guid.NewGuid()
             };
 
@@ -1100,7 +1139,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         {
             //--------------- Arrange -------------------
             var toType = typeof(IHasAnActorId);
-            var src = new {
+            var src = new
+            {
                 actoRId = Guid.NewGuid()
             };
 
@@ -1119,7 +1159,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         {
             //--------------- Arrange -------------------
             var toType = typeof(IHasAnActorId);
-            var src = new {
+            var src = new
+            {
                 bob = Guid.NewGuid()
             };
 
@@ -1134,7 +1175,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
         public interface IHasNullableId
         {
-            Guid? Id { get; set ; }
+            Guid? Id { get; set; }
         }
 
         [Test]
@@ -1175,10 +1216,11 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
         [Test]
-        public void DuckAs_OperatingOnObjectWithNotNullableProperty_WhenRequestedInterfaceHasNullableReadOnlyProperty_ShouldDuck()
+        public void
+            DuckAs_OperatingOnObjectWithNotNullableProperty_WhenRequestedInterfaceHasNullableReadOnlyProperty_ShouldDuck()
         {
             //--------------- Arrange -------------------
-            var input = new { Id = Guid.NewGuid() };
+            var input = new {Id = Guid.NewGuid()};
 
             //--------------- Assume ----------------
 
@@ -1191,10 +1233,11 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
         [Test]
-        public void FuzzyDuckAs_OperatingOnObjectWithNotNullableProperty_WhenRequestedInterfaceHasNullableReadOnlyProperty_ShouldDuck()
+        public void
+            FuzzyDuckAs_OperatingOnObjectWithNotNullableProperty_WhenRequestedInterfaceHasNullableReadOnlyProperty_ShouldDuck()
         {
             //--------------- Arrange -------------------
-            var input = new { id = Guid.NewGuid() };
+            var input = new {id = Guid.NewGuid()};
 
             //--------------- Assume ----------------
 
@@ -1207,13 +1250,14 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
         [Test]
-        public void DuckAs_OperatingOnDictionaryWithNotNullableProperty_WhenRequestedInterfaceHasNullableReadonlyProperty_ShouldDuck()
+        public void
+            DuckAs_OperatingOnDictionaryWithNotNullableProperty_WhenRequestedInterfaceHasNullableReadonlyProperty_ShouldDuck()
         {
             //--------------- Arrange -------------------
             var expected = Guid.NewGuid();
             var input = new Dictionary<string, object>()
             {
-                { "Id", expected }
+                {"Id", expected}
             };
 
             //--------------- Assume ----------------
@@ -1227,13 +1271,14 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
         [Test]
-        public void FuzzyDuckAs_OperatingOnDictionaryWithNotNullableProperty_WhenRequestedInterfaceHasNullableReadonlyProperty_ShouldFuzzyDuck()
+        public void
+            FuzzyDuckAs_OperatingOnDictionaryWithNotNullableProperty_WhenRequestedInterfaceHasNullableReadonlyProperty_ShouldFuzzyDuck()
         {
             //--------------- Arrange -------------------
             var expected = Guid.NewGuid();
             var input = new Dictionary<string, object>()
             {
-                { "Id", expected }
+                {"Id", expected}
             };
 
             //--------------- Assume ----------------
@@ -1251,7 +1296,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         public void FailingWildDuck1()
         {
             //--------------- Arrange -------------------
-            var json = "{\"flowId\":\"Travel Request\",\"activityId\":\"Capture Travel Request Details\",\"payload\":{\"taskId\":\"4e53c85b-ca72-4c12-b185-50342ed0fc30\",\"payload\":{\"Initiated\":\"\",\"DepartingFrom\":\"123\",\"TravellingTo\":\"123\",\"Departing\":\"\",\"PreferredDepartureTime\":\"\",\"Returning\":\"\",\"PreferredReturnTime\":\"\",\"ReasonForTravel\":\"123\",\"CarRequired\":\"\",\"AccomodationRequired\":\"\",\"AccommodationNotes\":\"213\"}}}";
+            var json =
+                "{\"flowId\":\"Travel Request\",\"activityId\":\"Capture Travel Request Details\",\"payload\":{\"taskId\":\"4e53c85b-ca72-4c12-b185-50342ed0fc30\",\"payload\":{\"Initiated\":\"\",\"DepartingFrom\":\"123\",\"TravellingTo\":\"123\",\"Departing\":\"\",\"PreferredDepartureTime\":\"\",\"Returning\":\"\",\"PreferredReturnTime\":\"\",\"ReasonForTravel\":\"123\",\"CarRequired\":\"\",\"AccomodationRequired\":\"\",\"AccommodationNotes\":\"213\"}}}";
             var jobject = JsonConvert.DeserializeObject<JObject>(json);
             var dict = jobject.ToDictionary();
             (dict["payload"] as Dictionary<string, object>)["actorId"] = Guid.Empty.ToString();
@@ -1271,7 +1317,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         {
             //--------------- Arrange -------------------
             var dict = new Dictionary<string, object>();
-            var expected = new TravelRequestDetails() {
+            var expected = new TravelRequestDetails()
+            {
                 Initiated = GetRandomDate(),
                 DepartingFrom = GetRandomString(),
                 TravellingTo = GetRandomString(),
@@ -1321,7 +1368,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         {
             //--------------- Arrange -------------------
             var dict = new Dictionary<string, object>();
-            var expected = new TravelRequestDetails() {
+            var expected = new TravelRequestDetails()
+            {
                 Initiated = GetRandomDate(),
                 DepartingFrom = GetRandomString(),
                 TravellingTo = GetRandomString(),
@@ -1366,7 +1414,88 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             }
         }
 
-        public class TravelRequestDetails: ITravelRequestDetails
+        public interface IConfig
+        {
+            string BaseUrl { get; set; }
+        }
+
+        [Test]
+        public void DuckAs_OperatingOnStringStringDictionary_WhenCanDuck_ShouldDuck()
+        {
+            // Arrange
+            var src = new Dictionary<string, string>()
+            {
+                ["BaseUrl"] = GetRandomHttpUrl()
+            };
+
+            // Pre-Assert
+
+            // Act
+            var result = src.DuckAs<IConfig>(true);
+
+            // Assert
+            Expect(result.BaseUrl, Is.EqualTo(src["BaseUrl"]));
+        }
+
+        [Test]
+        public void FuzzyDuckAs_OperatingOnStringStringDictionary_ShouldForgiveWhitespaceInPropertyNames()
+        {
+            // Arrange
+            var src = new Dictionary<string, string>()
+            {
+                ["base url"] = GetRandomHttpUrl()
+            };
+
+            // Pre-Assert
+
+            // Act
+            var result = src.FuzzyDuckAs<IConfig>();
+
+            // Assert
+            Expect(result.BaseUrl, Is.EqualTo(src["base url"]));
+        }
+
+        [Test]
+        public void DuckAs_OperatingOnNameValueCollection_WhenCanDuck_ShouldDuck()
+        {
+            // Arrange
+            var src = new NameValueCollection();
+            var expected1 = GetRandomHttpUrl();
+            var expected2 = GetRandom(o => o != expected1, GetRandomHttpUrl);
+            src.Add("BaseUrl", expected1);
+
+            // Pre-Assert
+
+            // Act
+            var result = src.DuckAs<IConfig>();
+
+            // Assert
+            Expect(result, Is.Not.Null);
+            Expect(result.BaseUrl, Is.EqualTo(expected1));
+            result.BaseUrl = expected2;
+            Expect(result.BaseUrl, Is.EqualTo(expected2));
+            Expect(src["BaseUrl"], Is.EqualTo(expected2));
+        }
+
+        [Test]
+        public void FuzzyDuckAs_OperatingOnNameValueCollection_WhenCanDuck_ShouldDuck()
+        {
+            // Arrange
+            var src = new NameValueCollection();
+            var expected = GetRandomHttpUrl();
+            src.Add("base Url", expected);
+
+            // Pre-Assert
+
+            // Act
+            var result = src.FuzzyDuckAs<IConfig>();
+
+            // Assert
+            Expect(result, Is.Not.Null);
+            Expect(result.BaseUrl, Is.EqualTo(expected));
+        }
+
+        public class TravelRequestDetails : ITravelRequestDetails
         {
             public DateTime Initiated { get; set; }
             public string DepartingFrom { get; set; }
@@ -1380,6 +1509,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             public bool AccomodationRequired { get; set; }
             public string AccommodationNotes { get; set; }
         }
+
         public interface ITravelRequestDetails
         {
             DateTime Initiated { get; set; }
@@ -1404,7 +1534,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         {
             Guid TaskId { get; }
         }
-        public interface IActivityParameters<T> : IActivityParameters
+
+        public interface IActivityParameters<out T> : IActivityParameters
         {
             T Payload { get; }
         }
@@ -1412,10 +1543,12 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         public interface ISpecificActivityParameters : IActivityParameters<string>
         {
         }
+
         public class ActivityParameters : IActivityParameters
         {
             public Guid ActorId { get; }
             public Guid TaskId { get; }
+
             public void DoNothing()
             {
                 /* does nothing */
@@ -1444,38 +1577,5 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             int Id { get; set; }
             string Name { get; set; }
         }
-
     }
-
-    [TestFixture]
-    public class TestCustomAttributeHelperExtensions: AssertionHelper
-    {
-        [Test]
-        public void ToAttributeBuilder_GivenNullCustomAttributeData_ShouldThrow()
-        {
-            //--------------- Arrange -------------------
-            CustomAttributeData data = null;
-            //--------------- Assume ----------------
-
-            //--------------- Act ----------------------
-            Expect(() => data.ToAttributeBuilder(), 
-                Throws.Exception
-                    .InstanceOf<ArgumentNullException>()
-                    .With.Message.Containing("data"));
-
-            //--------------- Assert -----------------------
-        }
-    }
-
-    public static class Ext
-    {
-        public static ContainsConstraint Containing(
-            this ResolvableConstraintExpression expr,
-            string expected
-        )
-        {
-            return expr.Contain(expected);
-        }
-    }
-
 }

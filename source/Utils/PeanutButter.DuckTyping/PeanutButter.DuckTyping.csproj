@@ -70,8 +70,13 @@
     <Compile Include="Exceptions\ReadOnlyPropertyException.cs" />
     <Compile Include="Exceptions\UnresolveableParameterOrderMismatchException.cs" />
     <Compile Include="AutoConversion\ConverterLocator.cs" />
+    <Compile Include="Extensions\DictionaryWrappingNameValueCollection.cs" />
+    <Compile Include="Extensions\DictionaryWrappingNameValueCollectionEnumerator.cs" />
+    <Compile Include="Extensions\DuckTypingDictionaryExtensions.cs" />
     <Compile Include="Extensions\DuckTypingHelperExtensions.cs" />
+    <Compile Include="Extensions\DuckTypingNameValueCollectionExtensions.cs" />
     <Compile Include="Extensions\DuckTypingObjectExtensions.cs" />
+    <Compile Include="Extensions\DuckTypingExtensionSharedMethods.cs" />
     <Compile Include="Exceptions\ParameterCountMismatchException.cs" />
     <Compile Include="Extensions\TypePair.cs" />
     <Compile Include="Exceptions\UnDuckableException.cs" />
