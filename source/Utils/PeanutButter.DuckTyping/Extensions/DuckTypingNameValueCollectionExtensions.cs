@@ -9,9 +9,9 @@ namespace PeanutButter.DuckTyping.Extensions
     /// </summary>
     public static class DuckTypingNameValueCollectionExtensions
     {
-        internal static IDictionary<string, object> ToDictionary(this NameValueCollection src)
+        internal static IDictionary<string, object> ToDictionary(this NameValueCollection src, bool caseInsensitive = false)
         {
-            return new DictionaryWrappingNameValueCollection(src);
+            return new DictionaryWrappingNameValueCollection(src, caseInsensitive);
         }
 
         /// <summary>
@@ -66,6 +66,16 @@ namespace PeanutButter.DuckTyping.Extensions
             return src
                 .ToDictionary()
                 .FuzzyDuckAs<T>(throwOnError);
+        }
+
+        public static T ForceDuckAs<T>(this NameValueCollection src)
+        {
+            return src.ToDictionary().ForceDuckAs<T>();
+        }
+
+        public static T ForceFuzzyDuckAs<T>(this NameValueCollection src)
+        {
+            return src.ToDictionary(true).ForceFuzzyDuckAs<T>();
         }
     }
 }

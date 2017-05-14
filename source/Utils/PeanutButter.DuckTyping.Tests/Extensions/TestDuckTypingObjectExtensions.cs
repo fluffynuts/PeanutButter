@@ -1456,7 +1456,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
         [Test]
-        public void DuckAs_OperatingOnNameValueCollection_WhenCanDuck_ShouldDuck()
+        public void DuckAs_OperatingOnNameValueCollection_WhenCanDuck_ShouldDuckBothWays()
         {
             // Arrange
             var src = new NameValueCollection();
@@ -1493,6 +1493,51 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             // Assert
             Expect(result, Is.Not.Null);
             Expect(result.BaseUrl, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void ForceDuckAs_OperatingOnNameValueCollection_ShouldGoBothWays()
+        {
+            // Arrange
+            var src = new NameValueCollection();
+            var expected = GetRandomHttpUrl();
+
+            // Pre-Assert
+
+            // Act
+            var result = src.ForceDuckAs<IConfig>();
+
+            // Assert
+            Expect(result.BaseUrl, Is.Null);
+            result.BaseUrl = expected;
+            Expect(result.BaseUrl, Is.EqualTo(expected));
+            Expect(src["BaseUrl"], Is.EqualTo(expected));
+        }
+
+        public interface IExtendedConfig : IConfig
+        {
+            string Name { get; set; }
+        }
+
+        [Test]
+        public void ForceFuzzyDuckAs_OperatingOnNameValueCollection_ShouldGoBothWays()
+        {
+            // Arrange
+            var src = new NameValueCollection();
+            src["name"] = GetRandomString();
+            var expected = GetRandomHttpUrl();
+
+            // Pre-Assert
+
+            // Act
+            var result = src.ForceFuzzyDuckAs<IExtendedConfig>();
+
+            // Assert
+            Expect(result.Name, Is.EqualTo(src["name"]));
+            Expect(result.BaseUrl, Is.Null);
+            result.BaseUrl = expected;
+            Expect(result.BaseUrl, Is.EqualTo(expected));
+            Expect(src["BaseUrl"], Is.EqualTo(expected));
         }
 
         public class TravelRequestDetails : ITravelRequestDetails

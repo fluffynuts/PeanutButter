@@ -12,14 +12,16 @@ namespace PeanutButter.DuckTyping.Extensions
     internal class DictionaryWrappingNameValueCollection : IDictionary<string, object>
     {
         private readonly NameValueCollection _data;
+        private bool _caseInsensitive;
 
         /// <summary>
         /// Construct this dictionary with a NameValueCollection to wrap
         /// </summary>
         /// <param name="data"></param>
-        public DictionaryWrappingNameValueCollection(NameValueCollection data)
+        public DictionaryWrappingNameValueCollection(NameValueCollection data, bool caseInsensitive)
         {
             _data = data;
+            _caseInsensitive = caseInsensitive;
         }
 
         public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
@@ -47,9 +49,19 @@ namespace PeanutButter.DuckTyping.Extensions
         /// <inheritdoc />
         public bool Contains(KeyValuePair<string, object> item)
         {
-            if (!_data.AllKeys.Contains(item.Key))
+            var key = GetKeyFor(item.Key);
+            if (key == null || !_data.AllKeys.Contains(key))
                 return false;
-            return _data[item.Key] == item.Value?.ToString();
+            return _data[key] == item.Value?.ToString();
+        }
+
+        private string GetKeyFor(string key)
+        {
+            return _caseInsensitive
+                ? _data.AllKeys.FirstOrDefault(k => k.ToLowerInvariant() == key?.ToLowerInvariant())
+                : _data.AllKeys.Contains(key)
+                    ? key
+                    : null;
         }
 
         /// <inheritdoc />
@@ -64,7 +76,8 @@ namespace PeanutButter.DuckTyping.Extensions
         {
             if (!Contains(item))
                 return false;
-            _data.Remove(item.Key);
+            var key = GetKeyFor(item.Key);
+            _data.Remove(key);
             return true;
         }
 
@@ -77,7 +90,7 @@ namespace PeanutButter.DuckTyping.Extensions
         /// <inheritdoc />
         public bool ContainsKey(string key)
         {
-            return _data.AllKeys.Contains(key);
+            return GetKeyFor(key) != null;
         }
 
         /// <inheritdoc />
@@ -98,7 +111,8 @@ namespace PeanutButter.DuckTyping.Extensions
         /// <inheritdoc />
         public bool TryGetValue(string key, out object value)
         {
-            if (!_data.AllKeys.Contains(key))
+            key = GetKeyFor(key);
+            if (key == null)
             {
                 value = null;
                 return false;
@@ -110,8 +124,16 @@ namespace PeanutButter.DuckTyping.Extensions
         /// <inheritdoc />
         public object this[string key]
         {
-            get => _data[key];
-            set => _data[key] = value?.ToString();  // TODO: could be better
+            get
+            {
+                key = GetKeyFor(key);
+                return _data[key];
+            }
+            set
+            {
+                key = GetKeyFor(key) ?? key;    // allow adding items
+                _data[key] = value?.ToString(); // TODO: could be better
+            }
         }
 
         /// <inheritdoc />
