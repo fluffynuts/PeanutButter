@@ -498,8 +498,12 @@ namespace PeanutButter.DuckTyping.Tests
             return new RedirectingDictionary<object>(
                 data, 
                 toNativeTransform, 
-                fromNativeTransform ?? (s => throw new NotImplementedException("SUT created without fromNativeTransform"))
+                fromNativeTransform ?? (s => 
+                {
+                    throw new NotImplementedException("SUT created without fromNativeTransform");
+                })
             );
         }
+
     }
 }
