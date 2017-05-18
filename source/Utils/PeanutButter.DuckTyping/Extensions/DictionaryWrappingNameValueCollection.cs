@@ -12,7 +12,7 @@ namespace PeanutButter.DuckTyping.Extensions
     internal class DictionaryWrappingNameValueCollection : IDictionary<string, object>
     {
         private readonly NameValueCollection _data;
-        private bool _caseInsensitive;
+        private readonly bool _caseInsensitive;
 
         /// <summary>
         /// Construct this dictionary with a NameValueCollection to wrap
