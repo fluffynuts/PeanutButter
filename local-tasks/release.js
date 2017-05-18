@@ -94,7 +94,7 @@ gulp.task("clean-nuget-releasedir", function() {
 });
 
 gulp.task("build-nuget-packages", ["clean-nuget-releasedir", "build-binaries-for-nuget-packages"], function(done) {
-  runSequence(["build-binary-nuget-packages", "build-source-nuget-packages"], done);
+  runSequence("build-binary-nuget-packages", "build-source-nuget-packages", done);
 });
 
 gulp.task("release", ["build-nuget-packages"], function() {
