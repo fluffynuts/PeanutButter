@@ -1477,13 +1477,15 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             Expect(src["BaseUrl"], Is.EqualTo(expected2));
         }
 
-        [Test]
-        public void FuzzyDuckAs_OperatingOnNameValueCollection_WhenCanDuck_ShouldDuck()
+        [TestCase(" ")]
+        [TestCase("  ")]
+        [TestCase(".")]
+        public void FuzzyDuckAs_OperatingOnNameValueCollection_ShouldDuck_WhenSourcePropertyIncludes(string chars)
         {
             // Arrange
             var src = new NameValueCollection();
             var expected = GetRandomHttpUrl();
-            src.Add("base Url", expected);
+            src.Add($"base{chars}Url", expected);
 
             // Pre-Assert
 

@@ -80,6 +80,7 @@
     <Compile Include="Exceptions\ParameterCountMismatchException.cs" />
     <Compile Include="Extensions\TypePair.cs" />
     <Compile Include="Exceptions\UnDuckableException.cs" />
+    <Compile Include="FuzzyKeyFinder.cs" />
     <Compile Include="IPropertyInfoFetcher.cs" />
     <Compile Include="IsADuckAttribute.cs" />
     <Compile Include="IShimSham.cs" />
@@ -91,6 +92,7 @@
     <Compile Include="ShimSham.cs" />
     <Compile Include="Create.cs" />
     <Compile Include="ShimShamBase.cs" />
+    <Compile Include="StringExtensionsForFuzzyKeyMatching.cs" />
     <Compile Include="TypeMaker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Exceptions\WriteOnlyPropertyException.cs" />

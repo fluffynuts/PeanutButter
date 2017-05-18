@@ -57,14 +57,14 @@ namespace PeanutButter.DuckTyping.Extensions
         )
         {
             var specific = genericMethod.MakeGenericMethod(toType);
-            return specific.Invoke(null, new[] {src, throwOnError});
+            return specific.Invoke(null, new[] { src, throwOnError });
         }
 
         internal static T ForceDuckAs<T>(IDictionary<string, object> src, bool allowFuzzy)
         {
             var typeMaker = new TypeMaker();
             var type = allowFuzzy ? typeMaker.MakeTypeImplementing<T>() : typeMaker.MakeFuzzyTypeImplementing<T>();
-            return (T) Activator.CreateInstance(type, src);
+            return (T)Activator.CreateInstance(type, src);
         }
 
         internal static bool PrivateCanDuckAs<T>(this object src, bool allowFuzzy, bool throwOnError)
@@ -129,12 +129,12 @@ namespace PeanutButter.DuckTyping.Extensions
             var dictionaryTypes = src.GetType().GetInterfaces()
                     .Select(GetDictionaryTypes)
                     .FirstOrDefault();
-    
+
             if (dictionaryTypes == null || dictionaryTypes.KeyType != typeof(string))
                 return null;
-           
+
             var method = GenericConvertDictionaryMethod.MakeGenericMethod(dictionaryTypes.ValueType);
-            return (IDictionary<string, object>) method.Invoke(null, new[] { src });
+            return (IDictionary<string, object>)method.Invoke(null, new[] { src });
         }
 
         private static readonly MethodInfo GenericConvertDictionaryMethod =
@@ -181,10 +181,12 @@ namespace PeanutButter.DuckTyping.Extensions
         )
         {
             var targetType = prop.PropertyType;
+            var finder = new FuzzyKeyFinder();
             object stored;
-            var key = src.Keys.FirstOrDefault(k => allowFuzzy
-                ? k?.ToLowerInvariant().Replace(" ", "") == prop.Name.ToLowerInvariant().Replace(" ", "")
-                : k == prop.Name);
+            var key = allowFuzzy
+                        ? finder.FuzzyFindKeyFor(src, prop.Name)
+                        : src.Keys.FirstOrDefault(k => k == prop.Name);
+
             if (key == null || !src.TryGetValue(key, out stored))
             {
                 if (prop.PropertyType.IsNullable())
@@ -394,7 +396,7 @@ namespace PeanutButter.DuckTyping.Extensions
                 srcAsDict = srcAsDict?.ToCaseInsensitiveDictionary();
 
             var duckType = FindOrCreateDuckTypeFor<T>(allowFuzzy);
-            return (T) Activator.CreateInstance(duckType, srcAsDict ?? src);
+            return (T)Activator.CreateInstance(duckType, srcAsDict ?? src);
         }
 
         private static readonly Dictionary<Type, TypePair> DuckTypes

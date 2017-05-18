@@ -17,7 +17,7 @@ namespace PeanutButter.DuckTyping
         private readonly IDictionary<string, object> _data;
         private readonly Dictionary<string, PropertyInfo> _mimickedProperties;
         private readonly bool _isFuzzy;
-        
+
 
         /// <summary>
         /// Constructs an instance of the DictionaryShimSham
@@ -35,7 +35,7 @@ namespace PeanutButter.DuckTyping
                 .GetAllImplementedInterfaces()
                 .SelectMany(itype => itype.GetProperties())
                 .Distinct(new PropertyInfoComparer())
-                .ToDictionary(pi => pi.Name, pi => pi, 
+                .ToDictionary(pi => pi.Name, pi => pi,
                     _isFuzzy ? Comparers.FuzzyComparer : Comparers.NonFuzzyComparer);
             ShimShimmableProperties();
         }
@@ -71,8 +71,7 @@ namespace PeanutButter.DuckTyping
                 return propValue;
             var mimickedProperty = GetMimickedProperty(propertyName);
             var key = _isFuzzy
-                ? _data.Keys.FirstOrDefault(k => k.ToLowerInvariant().Replace(" ", "") ==
-                                                 propertyName.ToLowerInvariant().Replace(" ", ""))
+                ? FuzzyFindKeyFor(propertyName)
                 : propertyName;
 
             if (key == null || !_data.TryGetValue(key, out propValue))
@@ -85,6 +84,30 @@ namespace PeanutButter.DuckTyping
             if (converter != null)
                 return ConvertWith(converter, propValue, mimickedProperty.PropertyType);
             return GetDefaultValueFor(mimickedProperty.PropertyType);
+        }
+
+        private readonly Func<IDictionary<string, object>, string, string>[] _fuzzyKeyResolvers =
+        {
+            (dict, search) => dict.Keys.FirstOrDefault(k => k == search),
+            (dict, search) => dict.Keys.FirstOrDefault(k => k.FuzzyMatches(search, " ")),
+            (dict, search) => dict.Keys.FirstOrDefault(k => k.FuzzyMatches(search, " ", "."))
+        };
+
+        private readonly Dictionary<string, string> _keyResolutionCache = new Dictionary<string, string>();
+        private readonly FuzzyKeyFinder _fuzzyKeyFinder = new FuzzyKeyFinder();
+
+        private string FuzzyFindKeyFor(string propertyName)
+        {
+            lock (_keyResolutionCache)
+            {
+                string resolvedKey;
+                if (_keyResolutionCache.TryGetValue(propertyName, out resolvedKey))
+                    return resolvedKey;
+                resolvedKey = _fuzzyKeyFinder.FuzzyFindKeyFor(_data, propertyName);
+                if (resolvedKey != null)
+                    _keyResolutionCache[propertyName] = resolvedKey;
+                return resolvedKey;
+            }
         }
 
         /// <summary>
@@ -162,6 +185,7 @@ namespace PeanutButter.DuckTyping
         /// <exception cref="NotImplementedException">Exception which is always thrown</exception>
         public object CallThrough(string methodName, object[] parameters)
         {
+            // TODO: think about possibly calling a stored action / func with the given name and parameters...
             throw new NotImplementedException();
         }
     }
