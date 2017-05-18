@@ -1,7 +1,8 @@
 {
   "name": "peanut-butter",
   "scripts": {
-    "test": "gulp test-dotnet"
+    "test": "gulp test-dotnet",
+    "release": "gulp release"
   },
   "devDependencies": {
     "del": "^2.2.2",
