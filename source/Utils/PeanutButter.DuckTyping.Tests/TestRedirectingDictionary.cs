@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using NUnit.Framework;
-using NUnit.Framework.Internal;
 using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
@@ -38,7 +38,7 @@ namespace PeanutButter.DuckTyping.Tests
 
             // Act
             Expect(
-                () => new RedirectingDictionary<object>(null, null),
+                () => new RedirectingDictionary<object>(null, null, null),
                 Throws
                     .Exception.InstanceOf<ArgumentNullException>()
                     .With.Message.Contains("data")
@@ -48,7 +48,7 @@ namespace PeanutButter.DuckTyping.Tests
         }
 
         [Test]
-        public void Construct_GivenNullGetterTransform_ShouldThrow_ANE()
+        public void Construct_GivenNullToNativeTransform_ShouldThrow_ANE()
         {
             // Arrange
 
@@ -56,10 +56,28 @@ namespace PeanutButter.DuckTyping.Tests
 
             // Act
             Expect(
-                () => new RedirectingDictionary<object>(MakeData(), null),
+                () => new RedirectingDictionary<object>(MakeData(), null, null),
                 Throws
                     .Exception.InstanceOf<ArgumentNullException>()
-                    .With.Message.Contains("keyTransform")
+                    .With.Message.Contains("toNativeTransform")
+            );
+
+            // Assert
+        }
+
+        [Test]
+        public void Construct_GivenNullFromNativeTransform_ShouldThrow_ANE()
+        {
+            // Arrange
+
+            // Pre-Assert
+
+            // Act
+            Expect(
+                () => new RedirectingDictionary<object>(MakeData(), s => s, null),
+                Throws
+                    .Exception.InstanceOf<ArgumentNullException>()
+                    .With.Message.Contains("fromNativeTransform")
             );
 
             // Assert
@@ -108,7 +126,7 @@ namespace PeanutButter.DuckTyping.Tests
             // Assert
         }
 
-        
+
         [Test]
         public void Index_Write_WhenSutIsNotReadonly_ShouldWriteThrough()
         {
@@ -256,6 +274,207 @@ namespace PeanutButter.DuckTyping.Tests
             Expect(result, Is.False);
         }
 
+        [Test]
+        public void Contains_GivenKnownKeyValuePair_ShouldReturnTrue()
+        {
+            // Arrange
+            var prefix = GetRandomString(3);
+            var data = MakeRandomData(prefix);
+            var seek = new KeyValuePair<string, object>(GetRandomString(11), GetRandomString(11));
+            var actual = new KeyValuePair<string, object>(prefix + seek.Key, seek.Value);
+            data.Add(actual);
+            var sut = Create(data, s => prefix + s);
+
+            // Pre-Assert
+            Expect(data, Is.Not.Empty);
+
+            // Act
+            var result = sut.Contains(seek);
+
+            // Assert
+            Expect(result, Is.True);
+        }
+
+        [Test]
+        public void Keys_ShouldReturnAllKeys()
+        {
+            // Arrange
+            var prefix = GetRandomString(3);
+            var data = MakeRandomData(prefix);
+            var expected = data.Keys.Select(k => k.RegexReplace($"^{prefix}", "")).ToArray();
+            var sut = Create(data, s => prefix + s, s => s.RegexReplace($"^{prefix}", ""));
+
+            // Pre-Assert
+
+            // Act
+            var result = sut.Keys;
+
+            // Assert
+            Expect(result, Is.EquivalentTo(expected));
+        }
+
+        [Test]
+        public void CopyTo_ShouldCopyItemsToArray()
+        {
+            // Arrange
+            var prefix = GetRandomString(3) + ":";
+            var data = MakeRandomData(prefix);
+            var offset = GetRandomInt();
+            var target = new KeyValuePair<string, object>[data.Count + offset];
+            var sut = Create(data, s => prefix + s, s => s.RegexReplace($"^{prefix}", ""));
+
+            // Pre-Assert
+
+            // Act
+            sut.CopyTo(target, offset);
+
+            // Assert
+            target.Skip(offset).ForEach(kvp => 
+            {
+                Expect(sut.Contains(kvp));
+            });
+        }
+
+        [Test]
+        public void Remove_GivenKnownItem_ShouldRemoveIt()
+        {
+            // Arrange
+            var prefix = GetRandomString(2);
+            var data = MakeRandomData(prefix);
+            var sut = Create(data, s => prefix + s);
+            var randomItem = GetRandomFrom(data);
+            var toRemove = new KeyValuePair<string, object>(randomItem.Key.RegexReplace($"^{prefix}", ""), randomItem.Value);
+
+            // Pre-Assert
+
+            // Act
+            var result = sut.Remove(toRemove);
+
+            // Assert
+            Expect(result, Is.True);
+            Expect(sut, Does.Not.Contains(randomItem));
+        }
+
+        [Test]
+        public void Remove_GivenUnknownItem_ShouldReturnFalse()
+        {
+            // Arrange
+            var prefix = GetRandomString(2);
+            var data = MakeRandomData(prefix);
+            var sut = Create(data, s => prefix + s);
+            var randomItem = GetRandomFrom(data);
+            var toRemove = new KeyValuePair<string, object>(
+                randomItem.Key.RegexReplace($"^{prefix}", "") + "moo", 
+                randomItem.Value
+            );
+
+            // Pre-Assert
+
+            // Act
+            var result = sut.Remove(toRemove);
+
+            // Assert
+            Expect(result, Is.False);
+            Expect(sut[randomItem.Key.RegexReplace($"^{prefix}", "")], Is.EqualTo(randomItem.Value));
+        }
+
+        [Test]
+        public void ContainsKey_WhenNativeKeyIsNotFound_ShouldReturnFalse()
+        {
+            // Arrange
+            var prefix = GetRandomString(4);
+            var data = MakeRandomData(prefix);
+            var randomItem = GetRandomFrom(data);
+            var searchKey = GetRandom<string>(s => s != randomItem.Key.RegexReplace($"^{prefix}", ""));
+            var sut = Create(data, s => prefix + s);
+
+            // Pre-Assert
+
+            // Act
+            var result = sut.ContainsKey(searchKey);
+
+            // Assert
+            Expect(result, Is.False);
+        }
+
+        [Test]
+        public void ContainsKey_WhenNativeKeyIsFound_ShouldReturnFalse()
+        {
+            // Arrange
+            var prefix = GetRandomString(4);
+            var data = MakeRandomData(prefix);
+            var randomItem = GetRandomFrom(data);
+            var searchKey = randomItem.Key.RegexReplace($"^{prefix}", "");
+            var sut = Create(data, s => prefix + s);
+
+            // Pre-Assert
+
+            // Act
+            var result = sut.ContainsKey(searchKey);
+
+            // Assert
+            Expect(result, Is.True);
+        }
+
+        [Test]
+        public void TryGetValue_WhenKeyNotFound_ShouldReturnFalseAndSetValueToNull()
+        {
+            // Arrange
+            var prefix = GetRandomString(3);
+            var data = MakeRandomData(prefix);
+            var searchKey = GetRandomString(15);
+            var sut = Create(data, s => prefix + s);
+
+            // Pre-Assert
+
+            // Act
+            object found = new object();
+            var result = sut.TryGetValue(searchKey, out found);
+
+            // Assert
+            Expect(result, Is.False);
+            Expect(found, Is.Null);
+        }
+
+        [Test]
+        public void TryGetValue_WhenKeyIsFound_ShouldReturnTrueAndSetValue()
+        {
+            // Arrange
+            var prefix = GetRandomString(3);
+            var data = MakeRandomData(prefix);
+            var randomItem = GetRandomFrom(data);
+            var searchKey = randomItem.Key.RegexReplace($"^{prefix}", "");
+            var expected = randomItem.Value;
+            var sut = Create(data, s => prefix + s);
+
+            // Pre-Assert
+
+            // Act
+            object found;
+            var result = sut.TryGetValue(searchKey, out found);
+
+            // Assert
+            Expect(result, Is.True);
+            Expect(found, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void Values_ShouldReturnAllValues()
+        {
+            // Arrange
+            var data = MakeRandomData();
+            var sut = Create(data, s => s);
+            var expected = data.Values.ToArray();
+
+            // Pre-Assert
+
+            // Act
+            var result = sut.Values;
+
+            // Assert
+            Expect(result, Is.EquivalentTo(expected));
+        }
+
         private IDictionary<string, object> MakeRandomData(string prefix = "")
         {
             var result = MakeData();
@@ -263,7 +482,7 @@ namespace PeanutButter.DuckTyping.Tests
             howMany.TimesDo(i => result[prefix + GetRandomString(5)] = GetRandomString(5));
             return result;
         }
-        
+
 
         private IDictionary<string, object> MakeData()
         {
@@ -272,10 +491,15 @@ namespace PeanutButter.DuckTyping.Tests
 
         private IDictionary<string, object> Create(
             IDictionary<string, object> data,
-            Func<string, string> keyTransform
+            Func<string, string> toNativeTransform,
+            Func<string, string> fromNativeTransform = null
         )
         {
-            return new RedirectingDictionary<object>(data, keyTransform);
+            return new RedirectingDictionary<object>(
+                data, 
+                toNativeTransform, 
+                fromNativeTransform ?? (s => throw new NotImplementedException("SUT created without fromNativeTransform"))
+            );
         }
     }
 }
