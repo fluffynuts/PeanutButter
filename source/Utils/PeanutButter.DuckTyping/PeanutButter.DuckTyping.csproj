@@ -89,6 +89,8 @@
     <Compile Include="MethodInfoContainer.cs" />
     <Compile Include="PropertyInfoComparer.cs" />
     <Compile Include="PropertyInfoContainer.cs" />
+    <Compile Include="RedirectingDictionary.cs" />
+    <Compile Include="RedirectingDictionaryEnumerator.cs" />
     <Compile Include="ShimSham.cs" />
     <Compile Include="Create.cs" />
     <Compile Include="ShimShamBase.cs" />

@@ -29,6 +29,11 @@ namespace PeanutButter.TestUtils.Generic
         public static void ShouldImplement<T>(this Type type)
         {
             var shouldImplementType = typeof(T);
+            type.ShouldImplement(shouldImplementType);
+        }
+
+        public static void ShouldImplement(this Type type, Type shouldImplementType)
+        {
             if (!shouldImplementType.IsInterface)
                 Assert.Fail(type.PrettyName() + " is not an interface");
             type.ShouldBeAssignableFrom(shouldImplementType);

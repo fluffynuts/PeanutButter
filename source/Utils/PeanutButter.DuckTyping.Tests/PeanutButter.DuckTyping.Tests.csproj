@@ -84,6 +84,7 @@
     <Compile Include="TestDictionaryShimSham.cs" />
     <Compile Include="TestDuckSpeed.cs" />
     <Compile Include="TestPropertyInfoContainer.cs" />
+    <Compile Include="TestRedirectingDictionary.cs" />
     <Compile Include="TestShimSham.cs" />
     <Compile Include="TestCreate.cs" />
     <Compile Include="TestTypeMaker.cs" />
