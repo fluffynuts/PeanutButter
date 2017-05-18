@@ -42,7 +42,7 @@ namespace PeanutButter.DuckTyping
         /// <inheritdoc />
         public IEnumerator<KeyValuePair<string, TValue>> GetEnumerator()
         {
-            return new RedirectingDictionaryEnumerator<TValue>(_data, _toNativeTransform);
+            return new RedirectingDictionaryEnumerator<TValue>(_data, _fromNativeTransform);
         }
 
         IEnumerator IEnumerable.GetEnumerator()

@@ -238,7 +238,7 @@ namespace PeanutButter.DuckTyping.Tests
             var suffix = GetRandomString(2);
             var key = GetRandomString(2);
             var nativeKey = $"{key}{suffix}";
-            var sut = Create(data, s => s + suffix);
+            var sut = Create(data, s => s + suffix, s => s.RegexReplace($"{suffix}$", ""));
             var expected = GetRandomString(5);
             sut[key] = expected;
 
@@ -341,7 +341,7 @@ namespace PeanutButter.DuckTyping.Tests
             // Arrange
             var prefix = GetRandomString(2);
             var data = MakeRandomData(prefix);
-            var sut = Create(data, s => prefix + s);
+            var sut = Create(data, s => prefix + s, s => s.RegexReplace($"^{prefix}", ""));
             var randomItem = GetRandomFrom(data);
             var toRemove = new KeyValuePair<string, object>(randomItem.Key.RegexReplace($"^{prefix}", ""), randomItem.Value);
 

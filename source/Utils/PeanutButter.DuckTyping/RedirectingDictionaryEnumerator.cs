@@ -35,7 +35,7 @@ namespace PeanutButter.DuckTyping
 
         public void Reset()
         {
-            _currentIndex = 0;
+            _currentIndex = -1;
             _nativeKeys = _data.Keys.ToArray();
         }
 

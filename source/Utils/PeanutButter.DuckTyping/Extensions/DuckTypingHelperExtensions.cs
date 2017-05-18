@@ -309,6 +309,8 @@ namespace PeanutButter.DuckTyping.Extensions
             List<object> seenObjects
             )
         {
+            // TODO: replace this logic with a case-insensitive passthrough / wrapper
+            //   to enable proper write-back to the underlying data source
             if (!data.IsCaseSensitive() && !data.ContainsCaseSensitiveDictionary())
                 return data;
             var outer = new Dictionary<string, object>(data, StringComparer.OrdinalIgnoreCase);
