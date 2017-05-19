@@ -8,7 +8,7 @@ using NUnit.Framework;
 namespace PeanutButter.RandomGenerators.Tests
 {
     [TestFixture]
-    public class TestGenericBuilderLocator
+    public class TestGenericBuilderLocator: AssertionHelper
     {
         [OneTimeSetUp]
         public void OneTimeSetUp()
@@ -35,7 +35,7 @@ namespace PeanutButter.RandomGenerators.Tests
             var result = GenericBuilderLocator.TryFindExistingBuilderFor(typeof(SomeClassWithKnownBuilder));
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(typeof(SomeClassWithKnownBuilderBuilder), result);
+            Expect(result, Is.EqualTo(typeof(SomeClassWithKnownBuilderBuilder)));
         }
 
         public class SomeClassWithoutABuilder1
@@ -54,11 +54,11 @@ namespace PeanutButter.RandomGenerators.Tests
             var result = GenericBuilderLocator.FindOrGenerateDynamicBuilderFor(type);
 
             //---------------Test Result -----------------------
-            Assert.IsNotNull(result);
+            Expect(result, Is.Not.Null);
             var genericBuilderType = typeof(GenericBuilder<,>);
             var baseType = result.BaseType;
-            Assert.AreEqual(genericBuilderType, baseType.GetGenericTypeDefinition());
-            Assert.AreEqual(type, baseType.GetGenericArguments()[1]);
+            Expect(genericBuilderType, Is.EqualTo(baseType.GetGenericTypeDefinition()));
+            Expect(type, Is.EqualTo(baseType.GetGenericArguments()[1]));
         }
 
 
@@ -94,7 +94,7 @@ namespace PeanutButter.RandomGenerators.Tests
             var builderType = GenericBuilderLocator.TryFindExistingBuilderFor(type);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(typeof(SomeEntityWithBuilderBuilder), builderType);
+            Expect(builderType, Is.EqualTo(typeof(SomeEntityWithBuilderBuilder)));
         }
 
         private static void EnforceLoadingArtifactAssemblies()
@@ -117,16 +117,16 @@ namespace PeanutButter.RandomGenerators.Tests
             var type = typeof(SomeEntityWithoutBuilder);
 
             //---------------Assert Precondition----------------
-            var existingBuilder = AppDomain.CurrentDomain
+            var existingBuilders = AppDomain.CurrentDomain
                                             .GetAssemblies()
                                             .SelectMany(a => a.GetTypes())
                                             .Where(t => t.IsBuilderFor(type));
-            CollectionAssert.IsEmpty(existingBuilder);
+            Expect(existingBuilders, Is.Empty);
             //---------------Execute Test ----------------------
             var builderType = GenericBuilderLocator.TryFindExistingBuilderFor(type);
 
             //---------------Test Result -----------------------
-            Assert.IsNull(builderType);
+            Expect(builderType, Is.Null);
         }
 
         [Test]
@@ -142,8 +142,8 @@ namespace PeanutButter.RandomGenerators.Tests
             var dynamicBuilder = GenericBuilderLocator.FindOrGenerateDynamicBuilderFor(type);
 
             //---------------Test Result -----------------------
-            Assert.IsNotNull(builder);
-            Assert.AreEqual(dynamicBuilder, builder);
+            Expect(builder, Is.Not.Null);
+            Expect(dynamicBuilder, Is.EqualTo(builder));
         }
 
         [Test]
@@ -158,8 +158,8 @@ namespace PeanutButter.RandomGenerators.Tests
             var result = GenericBuilderLocator.TryFindExistingBuilderFor(entityType);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(typeof(GenericBuilderTestArtifactBuilders.Sub1.AnotherEntityWithBuilderBuilder),
-                            result);
+            Expect(typeof(GenericBuilderTestArtifactBuilders.Sub1.AnotherEntityWithBuilderBuilder),
+                            Is.EqualTo(result));
         }
 
         [Test]
@@ -173,7 +173,7 @@ namespace PeanutButter.RandomGenerators.Tests
             var result = GenericBuilderLocator.GetBuilderFor(null);
 
             //---------------Test Result -----------------------
-            Assert.IsNull(result);
+            Expect(result, Is.Null);
         }
 
         [Test]
@@ -187,7 +187,7 @@ namespace PeanutButter.RandomGenerators.Tests
             var result = GenericBuilderLocator.TryFindExistingBuilderFor(null);
 
             //---------------Test Result -----------------------
-            Assert.IsNull(result);
+            Expect(result, Is.Null);
         }
 
 
@@ -202,8 +202,22 @@ namespace PeanutButter.RandomGenerators.Tests
             var result = GenericBuilderLocator.FindOrGenerateDynamicBuilderFor(null);
 
             //---------------Test Result -----------------------
-            Assert.IsNull(result);
+            Expect(result, Is.Null);
         }
+
+        [Test]
+        public void InvalidateBuilderTypeCache_ShouldNotThrow()
+        {
+            //--------------- Arrange -------------------
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            Expect(GenericBuilderLocator.InvalidateBuilderTypeCache, Throws.Nothing);
+
+            //--------------- Assert -----------------------
+        }
+
 
 
     }
