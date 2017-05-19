@@ -34,8 +34,34 @@ namespace PeanutButter.RandomGenerators
         /// <returns>GenericBuilder type or null if no suitable builder was found</returns>
         public static Type TryFindExistingBuilderFor(Type type)
         {
-            return TryFindBuilderInCurrentAssemblyFor(type)
+            if (type == null)
+                return null;
+            lock (_builderTypeCache)
+            {
+                Type result;
+                if (_builderTypeCache.TryGetValue(type, out result))
+                    return result;
+            }
+            return TryFindExistingBuilderAndCacheFor(type);
+        }
+
+        private static readonly Dictionary<Type, Type> _builderTypeCache = new Dictionary<Type, Type>();
+        private static Type TryFindExistingBuilderAndCacheFor(Type type)
+        {
+            var result = TryFindBuilderInCurrentAssemblyFor(type)
                    ?? TryFindBuilderInAnyOtherAssemblyInAppDomainFor(type);
+            CacheBuilderType(type, result);
+            return result;
+        }
+
+        private static void CacheBuilderType(Type type, Type builderType)
+        {
+            if (type == null)
+                return;
+            lock (_builderTypeCache)
+            {
+                _builderTypeCache[type] = builderType;
+            }
         }
 
         /// <summary>
@@ -47,7 +73,9 @@ namespace PeanutButter.RandomGenerators
         /// <returns>GenericBuilder type which is capable of building the provided type</returns>
         public static Type FindOrGenerateDynamicBuilderFor(Type type)
         {
-            return GenericBuilderBase.FindOrGenerateDynamicBuilderFor(type);
+            var result = GenericBuilderBase.FindOrGenerateDynamicBuilderFor(type);
+            CacheBuilderType(type, result);
+            return result;
         }
 
         private static Type[] TryGetExportedTypesFrom(Assembly asm)
