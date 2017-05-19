@@ -21,12 +21,19 @@ gulp.task(
     if (!coverageXml) {
       return Promise.reject("Can't find coverage.xml");
     }
+    var exclude = [
+      "*.Tests",
+      "FluentMigrator",
+      "FluentMigrator.Runner",
+      "GenericBuilderTestArtifactBuilders",
+      "GenericBuilderTestArtifactEntities"
+    ];
     return exec(
       reportGenerator,
       [
         `-reports:${coverageXml}`,
         `-targetdir:${path.join("buildreports", "coverage")}`,
-        `-assemblies:-*.Tests`
+        `"-assemblyfilters:${"-" + exclude.join(";-")}"`
       ]
     );
 });
