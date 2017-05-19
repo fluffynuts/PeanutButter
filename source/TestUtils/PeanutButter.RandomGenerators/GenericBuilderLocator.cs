@@ -45,6 +45,17 @@ namespace PeanutButter.RandomGenerators
             return TryFindExistingBuilderAndCacheFor(type);
         }
 
+        /// <summary>
+        /// Resets the builder type cache, in case you really need that to happen
+        /// </summary>
+        public static void InvalidateBuilderTypeCache()
+        {
+            lock (_builderTypeCache)
+            {
+                _builderTypeCache.Clear();
+            }
+        }
+
         private static readonly Dictionary<Type, Type> _builderTypeCache = new Dictionary<Type, Type>();
         private static Type TryFindExistingBuilderAndCacheFor(Type type)
         {
