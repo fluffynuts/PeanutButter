@@ -24,8 +24,9 @@ gulp.task(
     return exec(
       reportGenerator,
       [
-        `--reports:${coverageXml}`,
-        `--targetdir:${path.join("buildreports", "coverage")}`
+        `-reports:${coverageXml}`,
+        `-targetdir:${path.join("buildreports", "coverage")}`,
+        `-assemblies:-*.Tests`
       ]
     );
 });
