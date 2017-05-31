@@ -1,7 +1,7 @@
 using System;
 using System.Reflection;
 
-namespace PeanutButter.DuckTyping
+namespace PeanutButter.DuckTyping.Shimming
 {
     /// <summary>
     /// Interface to implement for a utility to fetch properties on a type or object

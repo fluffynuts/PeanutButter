@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PeanutButter.DuckTyping
+namespace PeanutButter.DuckTyping.Comparers
 {
     internal static class Comparers
     {

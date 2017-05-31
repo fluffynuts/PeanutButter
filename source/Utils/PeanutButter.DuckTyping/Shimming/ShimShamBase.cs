@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using PeanutButter.DuckTyping.AutoConversion;
 
-namespace PeanutButter.DuckTyping
+namespace PeanutButter.DuckTyping.Shimming
 {
     /// <summary>
     /// Base class for common shim functionality

@@ -1,4 +1,4 @@
-﻿namespace PeanutButter.DuckTyping
+﻿namespace PeanutButter.DuckTyping.Shimming
 {
     /// <summary>
     /// Interface to implement for shimming ducked-types. Used for the backing

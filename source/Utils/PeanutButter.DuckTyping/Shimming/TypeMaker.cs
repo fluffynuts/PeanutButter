@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using PeanutButter.DuckTyping.Comparers;
 using PeanutButter.DuckTyping.Extensions;
 
-namespace PeanutButter.DuckTyping
+namespace PeanutButter.DuckTyping.Shimming
 {
     /// <summary>
     /// Utility class to create types on the fly which implement provided interfaces, 

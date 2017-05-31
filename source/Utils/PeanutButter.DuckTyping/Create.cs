@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using PeanutButter.DuckTyping.Extensions;
+using PeanutButter.DuckTyping.Shimming;
 
 namespace PeanutButter.DuckTyping
 {

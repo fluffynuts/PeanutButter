@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Reflection;
 using NUnit.Framework;
+using PeanutButter.DuckTyping.Extensions;
+
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMember.Global
 // ReSharper disable UnassignedGetOnlyAutoProperty

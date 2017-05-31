@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PeanutButter.DuckTyping
+namespace PeanutButter.DuckTyping.Shimming
 {
     /// <summary>
     /// Attribute added to all types created by the TypeMaker, usually consumed

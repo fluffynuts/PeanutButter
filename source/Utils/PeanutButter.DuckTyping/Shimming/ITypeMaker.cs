@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PeanutButter.DuckTyping
+namespace PeanutButter.DuckTyping.Shimming
 {
     /// <summary>
     /// Interface implemented by the TypeMaker

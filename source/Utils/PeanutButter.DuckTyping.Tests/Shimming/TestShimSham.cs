@@ -1,11 +1,12 @@
 ﻿using System;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Exceptions;
-using static PeanutButter.RandomGenerators.RandomValueGen;
+using PeanutButter.DuckTyping.Shimming;
+using PeanutButter.RandomGenerators;
 
 // ReSharper disable MemberCanBePrivate.Global
 
-namespace PeanutButter.DuckTyping.Tests
+namespace PeanutButter.DuckTyping.Tests.Shimming
 {
     [TestFixture]
     public class TestShimSham: AssertionHelper
@@ -46,8 +47,8 @@ namespace PeanutButter.DuckTyping.Tests
             //--------------- Arrange -------------------
             var toWrap = new Cow();
             var sut = Create(toWrap, true);
-            var expectedPitch = GetRandomString();
-            var expectedCount = GetRandomInt();
+            var expectedPitch = RandomValueGen.GetRandomString();
+            var expectedCount = RandomValueGen.GetRandomInt();
 
             //--------------- Assume ----------------
 
@@ -67,7 +68,7 @@ namespace PeanutButter.DuckTyping.Tests
         {
             //--------------- Arrange -------------------
             var toWrap = new Cow();
-            toWrap.LastPitch = GetRandomString();
+            toWrap.LastPitch = RandomValueGen.GetRandomString();
             var sut = Create(toWrap, false);
 
             //--------------- Assume ----------------
@@ -85,7 +86,7 @@ namespace PeanutButter.DuckTyping.Tests
         {
             //--------------- Arrange -------------------
             var toWrap = new Cow();
-            var expected = GetRandomString();
+            var expected = RandomValueGen.GetRandomString();
             toWrap.LastPitch = expected;
             var sut = Create(toWrap, true);
 
@@ -103,7 +104,7 @@ namespace PeanutButter.DuckTyping.Tests
         {
             //--------------- Arrange -------------------
             var toWrap = new Cow();
-            var expected = GetRandomString();
+            var expected = RandomValueGen.GetRandomString();
             var sut = Create(toWrap, true);
 
             //--------------- Assume ----------------
@@ -120,7 +121,7 @@ namespace PeanutButter.DuckTyping.Tests
         {
             //--------------- Arrange -------------------
             var toWrap = new Cow();
-            var expected = GetRandomString();
+            var expected = RandomValueGen.GetRandomString();
             var sut = Create(toWrap, false);
 
             //--------------- Assume ----------------
@@ -138,8 +139,8 @@ namespace PeanutButter.DuckTyping.Tests
         {
             //--------------- Arrange -------------------
             var toWrap = new Cow();
-            var pitch = GetRandomString();
-            var count = GetRandomInt();
+            var pitch = RandomValueGen.GetRandomString();
+            var count = RandomValueGen.GetRandomInt();
             var sut = Create(toWrap, false);
 
             //--------------- Assume ----------------
@@ -159,8 +160,8 @@ namespace PeanutButter.DuckTyping.Tests
         {
             //--------------- Arrange -------------------
             var toWrap = new Cow();
-            var pitch = GetRandomString();
-            var count = GetRandomInt();
+            var pitch = RandomValueGen.GetRandomString();
+            var count = RandomValueGen.GetRandomInt();
             var sut = Create(toWrap, true);
 
             //--------------- Assume ----------------

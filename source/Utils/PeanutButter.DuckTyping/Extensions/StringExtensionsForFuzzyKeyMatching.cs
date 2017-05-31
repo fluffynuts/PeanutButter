@@ -1,6 +1,6 @@
 using System.Linq;
 
-namespace PeanutButter.DuckTyping
+namespace PeanutButter.DuckTyping.Extensions
 {
     internal static class StringExtensionsForFuzzyKeyMatching
     {

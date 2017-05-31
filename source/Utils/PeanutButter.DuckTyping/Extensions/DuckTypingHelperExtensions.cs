@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using PeanutButter.DuckTyping.Comparers;
+using PeanutButter.DuckTyping.Shimming;
+
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.DuckTyping.Extensions
@@ -123,7 +126,7 @@ namespace PeanutButter.DuckTyping.Extensions
                 .ToDictionary(
                     kvp => kvp.Key,
                     kvp => kvp.Value,
-                    allowFuzzy ? Comparers.FuzzyComparer : Comparers.NonFuzzyComparer);
+                    allowFuzzy ? Comparers.Comparers.FuzzyComparer : Comparers.Comparers.NonFuzzyComparer);
         }
 
         internal static bool IsSuperSetOf(
@@ -153,8 +156,8 @@ namespace PeanutButter.DuckTyping.Extensions
                             kvp => kvp.Key,
                             kvp => kvp.Value,
                             allowFuzzy
-                                ? Comparers.FuzzyComparer
-                                : Comparers.NonFuzzyComparer);
+                                ? Comparers.Comparers.FuzzyComparer
+                                : Comparers.Comparers.NonFuzzyComparer);
         }
 
         internal static bool ShouldTreatAsPrimitive(this Type type)

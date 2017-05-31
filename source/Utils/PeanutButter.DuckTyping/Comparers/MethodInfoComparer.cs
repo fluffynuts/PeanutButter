@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 
-namespace PeanutButter.DuckTyping
+namespace PeanutButter.DuckTyping.Comparers
 {
     internal class MethodInfoComparer: IEqualityComparer<MethodInfo>
     {

@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using PeanutButter.DuckTyping.AutoConversion;
+using PeanutButter.DuckTyping.Comparers;
 using PeanutButter.DuckTyping.Exceptions;
 using PeanutButter.DuckTyping.Extensions;
 
-namespace PeanutButter.DuckTyping
+namespace PeanutButter.DuckTyping.Shimming
 {
     /// <summary>
     /// Provides the required shimming to duck a dictionary object to an interface
@@ -36,7 +37,7 @@ namespace PeanutButter.DuckTyping
                 .SelectMany(itype => itype.GetProperties())
                 .Distinct(new PropertyInfoComparer())
                 .ToDictionary(pi => pi.Name, pi => pi,
-                    _isFuzzy ? Comparers.FuzzyComparer : Comparers.NonFuzzyComparer);
+                    _isFuzzy ? Comparers.Comparers.FuzzyComparer : Comparers.Comparers.NonFuzzyComparer);
             ShimShimmableProperties();
         }
 

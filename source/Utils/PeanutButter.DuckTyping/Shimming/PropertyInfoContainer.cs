@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using PeanutButter.DuckTyping.Comparers;
 
-namespace PeanutButter.DuckTyping
+namespace PeanutButter.DuckTyping.Shimming
 {
     /// <summary>
     /// Provides a container for two property info lookups: one accurate and one approximate
@@ -33,12 +34,12 @@ namespace PeanutButter.DuckTyping
             PropertyInfos = distinct.ToDictionary(
                 pi => pi.Name,
                 pi => pi,
-                Comparers.NonFuzzyComparer
+                Comparers.Comparers.NonFuzzyComparer
             );
             FuzzyPropertyInfos = distinct.ToDictionary(
                 pi => pi.Name,
                 pi => pi,
-                Comparers.FuzzyComparer
+                Comparers.Comparers.FuzzyComparer
             );
         }
     }

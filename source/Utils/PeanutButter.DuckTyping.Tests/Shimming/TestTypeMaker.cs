@@ -2,14 +2,16 @@
 using System.Linq;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Exceptions;
+using PeanutButter.DuckTyping.Shimming;
+using PeanutButter.RandomGenerators;
 using PeanutButter.Utils;
-using static PeanutButter.RandomGenerators.RandomValueGen;
+
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMember.Global
 // ReSharper disable UnassignedGetOnlyAutoProperty
 
-namespace PeanutButter.DuckTyping.Tests
+namespace PeanutButter.DuckTyping.Tests.Shimming
 {
     [TestFixture]
     public class TestTypeMaker : AssertionHelper
@@ -83,8 +85,8 @@ namespace PeanutButter.DuckTyping.Tests
             var sut = Create();
             var type = sut.MakeTypeImplementing<ISample2>();
             var instance = (ISample2)CreateInstanceOf(type);
-            var expectedId = GetRandomInt();
-            var expectedName = GetRandomString();
+            var expectedId = RandomValueGen.GetRandomInt();
+            var expectedName = RandomValueGen.GetRandomString();
 
             //--------------- Assume ----------------
 
@@ -129,7 +131,7 @@ namespace PeanutButter.DuckTyping.Tests
             //--------------- Arrange -------------------
             var sut = Create();
             var toWrap = new Sample1();
-            var expected = GetRandomString(2, 5);
+            var expected = RandomValueGen.GetRandomString(2, 5);
 
             //--------------- Assume ----------------
 
@@ -304,8 +306,8 @@ namespace PeanutButter.DuckTyping.Tests
             //--------------- Arrange -------------------
             var sut = Create();
             var toWrap = new VoidArgsImpl();
-            var expectedPitch = GetRandomString(2, 6);
-            var expectedCount = GetRandomInt(2);
+            var expectedPitch = RandomValueGen.GetRandomString(2, 6);
+            var expectedCount = RandomValueGen.GetRandomInt(2);
 
             //--------------- Assume ----------------
             Expect(toWrap.Pitch, Is.Null);
@@ -357,8 +359,8 @@ namespace PeanutButter.DuckTyping.Tests
             var sut = Create();
             var type = sut.MakeTypeImplementing<IArgsNonVoid>();
             var toWrap = new ArgsNonVoidImpl();
-            var first = GetRandomInt();
-            var second = GetRandomInt();
+            var first = RandomValueGen.GetRandomInt();
+            var second = RandomValueGen.GetRandomInt();
             var expected = toWrap.Add(first, second);
 
             //--------------- Assume ----------------

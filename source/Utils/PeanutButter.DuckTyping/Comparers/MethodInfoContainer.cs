@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Reflection;
 
-namespace PeanutButter.DuckTyping
+namespace PeanutButter.DuckTyping.Comparers
 {
     /// <summary>
     /// Class which holds two lookups of method information: one accurate and one approximate

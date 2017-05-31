@@ -3,12 +3,70 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using PeanutButter.DuckTyping.AutoConversion;
+using PeanutButter.DuckTyping.Comparers;
 using PeanutButter.DuckTyping.Exceptions;
+using PeanutButter.DuckTyping.Shimming;
 
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.DuckTyping.Extensions
 {
+    internal static class DuckableTypesCache
+    {
+        private class DuckCacheItem
+        {
+            public Type FromType { get; }
+            public Type ToType { get; }
+            public bool Duckable { get; }
+            public DuckCacheItem(Type fromType, Type toType, bool duckable)
+            {
+                ToType = toType;
+                FromType = fromType;
+                Duckable = duckable;
+            }
+        }
+        private static readonly List<DuckCacheItem> Duckables = new List<DuckCacheItem>();
+        private static readonly List<DuckCacheItem> FuzzyDuckables = new List<DuckCacheItem>();
+        private static readonly object Lock = new object();
+
+        internal static void CacheDuckable(
+            Type from, 
+            Type to,
+            bool result,
+            bool fuzzy)
+        {
+            lock(Lock)
+            {
+                var cacheItem = new DuckCacheItem(from, to, result);
+                Duckables.Add(cacheItem);
+                if (fuzzy)
+                    FuzzyDuckables.Add(cacheItem);
+            }
+        }
+
+        internal static bool CanDuckAs<T>(Type toDuckFrom, bool fuzzy)
+        {
+            lock(Lock)
+            {
+                return HaveMatch<T>(fuzzy ? FuzzyDuckables : Duckables, toDuckFrom);
+            }
+        }
+
+        private static bool HaveMatch<T>(
+            IEnumerable<DuckCacheItem> cache,
+            Type toDuckFrom
+        )
+        {
+            lock(Lock)
+            {
+                var check = typeof(T);
+                var match = cache.FirstOrDefault(
+                    o => o.FromType == toDuckFrom &&
+                         o.ToType == check);
+                return match?.Duckable ?? false;
+            }
+        }
+    }
     /// <summary>
     /// Provides a set of extension methods to enable duck-typing
     /// </summary>
@@ -74,8 +132,25 @@ namespace PeanutButter.DuckTyping.Extensions
                 return asDictionary.CanDuckDictionaryAs<T>(allowFuzzy, throwOnError);
             var type = typeof(T);
             var srcType = src.GetType();
+            return DuckableTypesCache.CanDuckAs<T>(srcType, allowFuzzy) ||
+                    CacheDuckResult(
+                        type.InternalCanDuckAs(srcType, allowFuzzy, throwOnError),
+                        allowFuzzy,
+                        srcType,
+                        type
+                    );
+        }
 
-            return type.InternalCanDuckAs(srcType, allowFuzzy, throwOnError);
+        private static bool CacheDuckResult(
+            bool calculatedResult, 
+            bool allowFuzzy,
+            Type from,
+            Type to)
+        {
+            DuckableTypesCache.CacheDuckable(
+                from, to, calculatedResult, allowFuzzy
+            );
+            return calculatedResult;
         }
 
         private static bool CanDuckDictionaryAs<T>(

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Specialized;
+using PeanutButter.DuckTyping.Shimming;
 using TransformFunc = System.Func<string, string>;
 // ReSharper disable MemberCanBePrivate.Global
 

@@ -1,7 +1,7 @@
 using System;
 using System.Reflection;
 
-namespace PeanutButter.DuckTyping
+namespace PeanutButter.DuckTyping.Shimming
 {
     internal class DefaultPropertyInfoFetcher: IPropertyInfoFetcher
     {

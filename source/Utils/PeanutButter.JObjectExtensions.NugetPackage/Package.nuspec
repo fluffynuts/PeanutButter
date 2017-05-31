@@ -1,6 +1,6 @@
 <package>
   <metadata>
-    <id>PeanutButter.Utils.Windsor</id>
+    <id>PeanutButter.JObjectExtensions</id>
     <version>1.2.148</version>
     <title>PeanutButter.JObjectExtensions</title>
     <authors>Davyd McColl</authors>

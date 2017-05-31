@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using NUnit.Framework;
+using PeanutButter.DuckTyping.Shimming;
+using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
-using static PeanutButter.RandomGenerators.RandomValueGen;
 
-namespace PeanutButter.DuckTyping.Tests
+namespace PeanutButter.DuckTyping.Tests.Shimming
 {
     [TestFixture]
     public class TestRedirectingDictionary : AssertionHelper
@@ -88,9 +89,9 @@ namespace PeanutButter.DuckTyping.Tests
         {
             // Arrange
             var data = MakeData();
-            var prefix = GetRandomString(2);
-            var key = GetRandomString(2);
-            var expected = GetRandomString(4);
+            var prefix = RandomValueGen.GetRandomString(2);
+            var key = RandomValueGen.GetRandomString(2);
+            var expected = RandomValueGen.GetRandomString(4);
             data[$"{prefix}.{key}"] = expected;
             var sut = Create(data, s => prefix + "." + s);
             // Pre-Assert
@@ -107,9 +108,9 @@ namespace PeanutButter.DuckTyping.Tests
         {
             // Arrange
             var innerData = MakeData();
-            var prefix = GetRandomString(2);
-            var key = GetRandomString(2);
-            var expected = GetRandomString(4);
+            var prefix = RandomValueGen.GetRandomString(2);
+            var key = RandomValueGen.GetRandomString(2);
+            var expected = RandomValueGen.GetRandomString(4);
             innerData[$"{prefix}.{key}"] = expected;
             var data = new ReadOnlyDictionary<string, object>(innerData);
             var sut = Create(data, s => prefix + "." + s);
@@ -132,11 +133,11 @@ namespace PeanutButter.DuckTyping.Tests
         {
             // Arrange
             var data = MakeData();
-            var prefix = GetRandomString(2);
-            var key = GetRandomString(2);
-            var expected = GetRandomString(4);
+            var prefix = RandomValueGen.GetRandomString(2);
+            var key = RandomValueGen.GetRandomString(2);
+            var expected = RandomValueGen.GetRandomString(4);
             var nativeKey = $"{prefix}.{key}";
-            data[nativeKey] = GetRandom<string>(o => o != expected);
+            data[nativeKey] = RandomValueGen.GetRandom<string>(o => o != expected);
             var sut = Create(data, s => prefix + "." + s);
             // Pre-Assert
 
@@ -163,7 +164,7 @@ namespace PeanutButter.DuckTyping.Tests
 
             // Assert
             Expect(result, Is.EqualTo(data.Count));
-            data.Add(GetRandomString(5), GetRandomString(5));
+            data.Add(RandomValueGen.GetRandomString(5), RandomValueGen.GetRandomString(5));
             result = sut.Count;
             Expect(result, Is.EqualTo(data.Count));
         }
@@ -173,11 +174,11 @@ namespace PeanutButter.DuckTyping.Tests
         {
             // Arrange
             var data = MakeData();
-            var prefix = GetRandomString(3);
+            var prefix = RandomValueGen.GetRandomString(3);
             var sut = Create(data, s => prefix + s);
-            var key = GetRandomString(3);
+            var key = RandomValueGen.GetRandomString(3);
             var nativeKey = $"{prefix}{key}";
-            var expected = GetRandomString();
+            var expected = RandomValueGen.GetRandomString();
 
             // Pre-Assert
             Expect(data, Has.Count.EqualTo(0));
@@ -195,11 +196,11 @@ namespace PeanutButter.DuckTyping.Tests
         {
             // Arrange
             var data = MakeData();
-            var prefix = GetRandomString(3);
+            var prefix = RandomValueGen.GetRandomString(3);
             var sut = Create(data, s => prefix + s);
-            var key = GetRandomString(3);
+            var key = RandomValueGen.GetRandomString(3);
             var nativeKey = $"{prefix}{key}";
-            var expected = GetRandomString();
+            var expected = RandomValueGen.GetRandomString();
 
             // Pre-Assert
             Expect(data, Has.Count.EqualTo(0));
@@ -235,11 +236,11 @@ namespace PeanutButter.DuckTyping.Tests
         {
             // Arrange
             var data = MakeData();
-            var suffix = GetRandomString(2);
-            var key = GetRandomString(2);
+            var suffix = RandomValueGen.GetRandomString(2);
+            var key = RandomValueGen.GetRandomString(2);
             var nativeKey = $"{key}{suffix}";
             var sut = Create(data, s => s + suffix, s => s.RegexReplace($"{suffix}$", ""));
-            var expected = GetRandomString(5);
+            var expected = RandomValueGen.GetRandomString(5);
             sut[key] = expected;
 
             // Pre-Assert
@@ -259,9 +260,9 @@ namespace PeanutButter.DuckTyping.Tests
         public void Contains_GivenUnknownKeyValuePair_ShouldReturnFalse()
         {
             // Arrange
-            var prefix = GetRandomString(3);
+            var prefix = RandomValueGen.GetRandomString(3);
             var data = MakeRandomData(prefix);
-            var seek = new KeyValuePair<string, object>(prefix + GetRandomString(11), GetRandomString(11));
+            var seek = new KeyValuePair<string, object>(prefix + RandomValueGen.GetRandomString(11), RandomValueGen.GetRandomString(11));
             var sut = Create(data, s => prefix + s);
 
             // Pre-Assert
@@ -278,9 +279,9 @@ namespace PeanutButter.DuckTyping.Tests
         public void Contains_GivenKnownKeyValuePair_ShouldReturnTrue()
         {
             // Arrange
-            var prefix = GetRandomString(3);
+            var prefix = RandomValueGen.GetRandomString(3);
             var data = MakeRandomData(prefix);
-            var seek = new KeyValuePair<string, object>(GetRandomString(11), GetRandomString(11));
+            var seek = new KeyValuePair<string, object>(RandomValueGen.GetRandomString(11), RandomValueGen.GetRandomString(11));
             var actual = new KeyValuePair<string, object>(prefix + seek.Key, seek.Value);
             data.Add(actual);
             var sut = Create(data, s => prefix + s);
@@ -299,7 +300,7 @@ namespace PeanutButter.DuckTyping.Tests
         public void Keys_ShouldReturnAllKeys()
         {
             // Arrange
-            var prefix = GetRandomString(3);
+            var prefix = RandomValueGen.GetRandomString(3);
             var data = MakeRandomData(prefix);
             var expected = data.Keys.Select(k => k.RegexReplace($"^{prefix}", "")).ToArray();
             var sut = Create(data, s => prefix + s, s => s.RegexReplace($"^{prefix}", ""));
@@ -317,9 +318,9 @@ namespace PeanutButter.DuckTyping.Tests
         public void CopyTo_ShouldCopyItemsToArray()
         {
             // Arrange
-            var prefix = GetRandomString(3) + ":";
+            var prefix = RandomValueGen.GetRandomString(3) + ":";
             var data = MakeRandomData(prefix);
-            var offset = GetRandomInt();
+            var offset = RandomValueGen.GetRandomInt();
             var target = new KeyValuePair<string, object>[data.Count + offset];
             var sut = Create(data, s => prefix + s, s => s.RegexReplace($"^{prefix}", ""));
 
@@ -339,10 +340,10 @@ namespace PeanutButter.DuckTyping.Tests
         public void Remove_GivenKnownItem_ShouldRemoveIt()
         {
             // Arrange
-            var prefix = GetRandomString(2);
+            var prefix = RandomValueGen.GetRandomString(2);
             var data = MakeRandomData(prefix);
             var sut = Create(data, s => prefix + s, s => s.RegexReplace($"^{prefix}", ""));
-            var randomItem = GetRandomFrom(data);
+            var randomItem = RandomValueGen.GetRandomFrom(data);
             var toRemove = new KeyValuePair<string, object>(randomItem.Key.RegexReplace($"^{prefix}", ""), randomItem.Value);
 
             // Pre-Assert
@@ -359,10 +360,10 @@ namespace PeanutButter.DuckTyping.Tests
         public void Remove_GivenUnknownItem_ShouldReturnFalse()
         {
             // Arrange
-            var prefix = GetRandomString(2);
+            var prefix = RandomValueGen.GetRandomString(2);
             var data = MakeRandomData(prefix);
             var sut = Create(data, s => prefix + s);
-            var randomItem = GetRandomFrom(data);
+            var randomItem = RandomValueGen.GetRandomFrom(data);
             var toRemove = new KeyValuePair<string, object>(
                 randomItem.Key.RegexReplace($"^{prefix}", "") + "moo", 
                 randomItem.Value
@@ -382,10 +383,10 @@ namespace PeanutButter.DuckTyping.Tests
         public void ContainsKey_WhenNativeKeyIsNotFound_ShouldReturnFalse()
         {
             // Arrange
-            var prefix = GetRandomString(4);
+            var prefix = RandomValueGen.GetRandomString(4);
             var data = MakeRandomData(prefix);
-            var randomItem = GetRandomFrom(data);
-            var searchKey = GetRandom<string>(s => s != randomItem.Key.RegexReplace($"^{prefix}", ""));
+            var randomItem = RandomValueGen.GetRandomFrom(data);
+            var searchKey = RandomValueGen.GetRandom<string>(s => s != randomItem.Key.RegexReplace($"^{prefix}", ""));
             var sut = Create(data, s => prefix + s);
 
             // Pre-Assert
@@ -401,9 +402,9 @@ namespace PeanutButter.DuckTyping.Tests
         public void ContainsKey_WhenNativeKeyIsFound_ShouldReturnFalse()
         {
             // Arrange
-            var prefix = GetRandomString(4);
+            var prefix = RandomValueGen.GetRandomString(4);
             var data = MakeRandomData(prefix);
-            var randomItem = GetRandomFrom(data);
+            var randomItem = RandomValueGen.GetRandomFrom(data);
             var searchKey = randomItem.Key.RegexReplace($"^{prefix}", "");
             var sut = Create(data, s => prefix + s);
 
@@ -420,9 +421,9 @@ namespace PeanutButter.DuckTyping.Tests
         public void TryGetValue_WhenKeyNotFound_ShouldReturnFalseAndSetValueToNull()
         {
             // Arrange
-            var prefix = GetRandomString(3);
+            var prefix = RandomValueGen.GetRandomString(3);
             var data = MakeRandomData(prefix);
-            var searchKey = GetRandomString(15);
+            var searchKey = RandomValueGen.GetRandomString(15);
             var sut = Create(data, s => prefix + s);
 
             // Pre-Assert
@@ -440,9 +441,9 @@ namespace PeanutButter.DuckTyping.Tests
         public void TryGetValue_WhenKeyIsFound_ShouldReturnTrueAndSetValue()
         {
             // Arrange
-            var prefix = GetRandomString(3);
+            var prefix = RandomValueGen.GetRandomString(3);
             var data = MakeRandomData(prefix);
-            var randomItem = GetRandomFrom(data);
+            var randomItem = RandomValueGen.GetRandomFrom(data);
             var searchKey = randomItem.Key.RegexReplace($"^{prefix}", "");
             var expected = randomItem.Value;
             var sut = Create(data, s => prefix + s);
@@ -478,8 +479,8 @@ namespace PeanutButter.DuckTyping.Tests
         private IDictionary<string, object> MakeRandomData(string prefix = "")
         {
             var result = MakeData();
-            var howMany = GetRandomInt(3);
-            howMany.TimesDo(i => result[prefix + GetRandomString(5)] = GetRandomString(5));
+            var howMany = RandomValueGen.GetRandomInt(3);
+            howMany.TimesDo(i => result[prefix + RandomValueGen.GetRandomString(5)] = RandomValueGen.GetRandomString(5));
             return result;
         }
 

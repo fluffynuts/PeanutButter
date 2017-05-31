@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Exceptions;
-using static PeanutButter.RandomGenerators.RandomValueGen;
+using PeanutButter.DuckTyping.Shimming;
+using PeanutButter.RandomGenerators;
+
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable PossibleNullReferenceException
 
-namespace PeanutButter.DuckTyping.Tests
+namespace PeanutButter.DuckTyping.Tests.Shimming
 {
     [TestFixture]
     public class TestDictionaryShimSham: AssertionHelper
@@ -37,7 +38,7 @@ namespace PeanutButter.DuckTyping.Tests
 
             //--------------- Act ----------------------
             Expect(() =>
-                sut.GetPropertyValue(GetRandomString()),
+                sut.GetPropertyValue(RandomValueGen.GetRandomString()),
                 Throws.Exception.InstanceOf<PropertyNotFoundException>());
 
             //--------------- Assert -----------------------
@@ -59,7 +60,7 @@ namespace PeanutButter.DuckTyping.Tests
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            Expect(() => sut.GetPropertyValue(GetRandomString(10, 20)),
+            Expect(() => sut.GetPropertyValue(RandomValueGen.GetRandomString(10, 20)),
                 Throws.Exception.InstanceOf<PropertyNotFoundException>());
 
             //--------------- Assert -----------------------
@@ -88,7 +89,7 @@ namespace PeanutButter.DuckTyping.Tests
         public void GetPropertyValue_WhenPropertyDataExistsAndMatchesType_ShouldReturnValue()
         {
             //--------------- Arrange -------------------
-            var expected = GetRandomInt();
+            var expected = RandomValueGen.GetRandomInt();
             var data = new Dictionary<string, object>()
             {
                 { "Id", expected }
@@ -108,7 +109,7 @@ namespace PeanutButter.DuckTyping.Tests
         public void GetPropertyValue_WhenPropertyDataExistsAndMatchesTypeAndDictionaryIsInsensitive_ShouldReturnValue()
         {
             //--------------- Arrange -------------------
-            var expected = GetRandomInt();
+            var expected = RandomValueGen.GetRandomInt();
             var data = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
             {
                 { "id", expected }
@@ -131,7 +132,7 @@ namespace PeanutButter.DuckTyping.Tests
             var expected = default(int);
             var data = new Dictionary<string, object>()
             {
-                { "Id", GetRandomAlphaString() }
+                { "Id", RandomValueGen.GetRandomAlphaString() }
             };
             var sut = Create(data, typeof(IHaveId));
 
@@ -154,7 +155,7 @@ namespace PeanutButter.DuckTyping.Tests
 
             //--------------- Act ----------------------
             Expect(() =>
-                sut.SetPropertyValue(GetRandomString(10, 20), GetRandomInt()),
+                sut.SetPropertyValue(RandomValueGen.GetRandomString(10, 20), RandomValueGen.GetRandomInt()),
                 Throws.Exception.InstanceOf<PropertyNotFoundException>());
 
             //--------------- Assert -----------------------
@@ -165,7 +166,7 @@ namespace PeanutButter.DuckTyping.Tests
         {
             //--------------- Arrange -------------------
             var data = new Dictionary<string, object>();
-            var expected = GetRandomInt();
+            var expected = RandomValueGen.GetRandomInt();
             var sut = Create(data, typeof(IHaveId));
 
             //--------------- Assume ----------------
@@ -184,7 +185,7 @@ namespace PeanutButter.DuckTyping.Tests
         {
             //--------------- Arrange -------------------
             var data = new Dictionary<string, object>();
-            var expected = GetRandomInt();
+            var expected = RandomValueGen.GetRandomInt();
             var sut = Create(data, typeof(IHaveId));
 
             //--------------- Assume ----------------
@@ -205,7 +206,7 @@ namespace PeanutButter.DuckTyping.Tests
         public void GetPropertyValue_WhenHaveSubInterface_ShouldShim()
         {
             //--------------- Arrange -------------------
-            var expected = GetRandomInt();
+            var expected = RandomValueGen.GetRandomInt();
             var data = new Dictionary<string, object>()
             {
                 { "HaveId", new Dictionary<string, object>() { { "Id", expected }} }
@@ -227,8 +228,8 @@ namespace PeanutButter.DuckTyping.Tests
         public void SetPropertyValue_WhenHaveSubInterface_ShouldSetOnShimThroughToOriginal()
         {
             //--------------- Arrange -------------------
-            var expected = GetRandomInt();
-            var original = GetAnother(expected);
+            var expected = RandomValueGen.GetRandomInt();
+            var original = RandomValueGen.GetAnother(expected);
             var data = new Dictionary<string, object>()
             {
                 { "HaveId", new Dictionary<string, object>() { { "Id", original } } }

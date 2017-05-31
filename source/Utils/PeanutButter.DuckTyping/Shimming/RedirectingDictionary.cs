@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TransformFunc = System.Func<string, string>;
 
-namespace PeanutButter.DuckTyping
+namespace PeanutButter.DuckTyping.Shimming
 {
     /// <summary>
     /// Provides a wrapping read-write layer around another dictionaryeffectively

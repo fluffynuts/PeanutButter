@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace PeanutButter.DuckTyping
+namespace PeanutButter.DuckTyping.Shimming
 {
     internal class RedirectingDictionaryEnumerator<T> : IEnumerator<KeyValuePair<string, T>>
     {

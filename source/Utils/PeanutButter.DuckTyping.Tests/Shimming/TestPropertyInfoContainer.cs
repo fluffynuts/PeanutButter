@@ -1,7 +1,8 @@
 ﻿using System.Reflection;
 using NUnit.Framework;
+using PeanutButter.DuckTyping.Shimming;
 
-namespace PeanutButter.DuckTyping.Tests
+namespace PeanutButter.DuckTyping.Tests.Shimming
 {
     [TestFixture]
     public class TestPropertyInfoContainer: AssertionHelper
