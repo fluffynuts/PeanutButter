@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using PeanutButter.Utils;
 
@@ -60,6 +61,7 @@ namespace NugetPackageVersionIncrementer
         {
             paths.ForEach(_nuspecFinder.FindNuspecsUnder);
             var utils = _nuspecFinder.NuspecPaths
+                .OrderBy(p => Path.GetFileName(Path.GetDirectoryName(p)))
                 .Select(p => _nuspecUtilFactory.LoadNuspecAt(p))
                 .ToArray();
             return utils;
