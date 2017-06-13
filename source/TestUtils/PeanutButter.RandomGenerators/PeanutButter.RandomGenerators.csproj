@@ -74,6 +74,7 @@
     <Compile Include="GenericBuilderBase.cs" />
     <Compile Include="IBuilder.cs" />
     <Compile Include="IGenericBuilder.cs" />
+    <Compile Include="ObjectExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RandomValueGen.cs" />
     <Compile Include="StringArrayExtensionsForMatchingNamespaces.cs" />

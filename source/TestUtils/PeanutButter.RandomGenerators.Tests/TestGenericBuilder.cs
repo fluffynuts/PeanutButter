@@ -4,8 +4,10 @@ using System.Diagnostics;
 using System.Linq;
 using EmailSpooler.Win32Service.Entity;
 using NUnit.Framework;
+using NUnit.Framework.Internal;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+
 // ReSharper disable ClassNeverInstantiated.Local
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable StringIndexOfIsCultureSpecific.1
@@ -152,7 +154,9 @@ namespace PeanutButter.RandomGenerators.Tests
             public string Fax { get; set; }
         }
 
-        public class TestCleverRandomStringsBuilder : GenericBuilder<TestCleverRandomStringsBuilder, TestCleverRandomStrings>
+        public class TestCleverRandomStringsBuilder : GenericBuilder<TestCleverRandomStringsBuilder,
+            TestCleverRandomStrings
+        >
         {
         }
 
@@ -218,7 +222,7 @@ namespace PeanutButter.RandomGenerators.Tests
         {
             var proto = "://";
             return !string.IsNullOrWhiteSpace(url) &&
-                   url.Contains(proto) && 
+                   url.Contains(proto) &&
                    !url.StartsWith(proto) &&
                    !url.EndsWith("://");
         }
@@ -226,9 +230,9 @@ namespace PeanutButter.RandomGenerators.Tests
         private bool LooksLikeEmail(string email)
         {
             return !string.IsNullOrWhiteSpace(email) &&
-                   email.IndexOf("@") > 0 && 
+                   email.IndexOf("@") > 0 &&
                    email.IndexOf("@") < email.Length - 2 &&
-                   email.IndexOf(".") > 0 && 
+                   email.IndexOf(".") > 0 &&
                    email.IndexOf(".") < email.Length - 2;
         }
 
@@ -284,7 +288,8 @@ namespace PeanutButter.RandomGenerators.Tests
             public virtual ComplexMember2 ComplexMember2 { get; set; }
         }
 
-        private class ClassWithComplexMembersBuilder : GenericBuilder<ClassWithComplexMembersBuilder, ClassWithComplexMembers>
+        private class ClassWithComplexMembersBuilder : GenericBuilder<ClassWithComplexMembersBuilder,
+            ClassWithComplexMembers>
         {
         }
 
@@ -500,7 +505,8 @@ namespace PeanutButter.RandomGenerators.Tests
             public object Value { get; set; }
         }
 
-        public class FakeMessagePlatformOptionBuilder : GenericBuilder<FakeMessagePlatformOptionBuilder, FakeMessagePlatformOption>
+        public class FakeMessagePlatformOptionBuilder : GenericBuilder<FakeMessagePlatformOptionBuilder,
+            FakeMessagePlatformOption>
         {
         }
 
@@ -516,7 +522,8 @@ namespace PeanutButter.RandomGenerators.Tests
 
             private FakeMessageDataBuilder WithRandomOptions()
             {
-                return WithProp(o => o.Message.Options = RandomValueGen.GetRandomCollection(FakeMessagePlatformOptionBuilder.BuildRandom, 2));
+                return WithProp(o => o.Message.Options =
+                    RandomValueGen.GetRandomCollection(FakeMessagePlatformOptionBuilder.BuildRandom, 2));
             }
 
             public FakeMessageDataBuilder AsOneProtocolToOneRecipient()
@@ -527,7 +534,8 @@ namespace PeanutButter.RandomGenerators.Tests
 
             public FakeMessageDataBuilder WithRandomProtocols(int min = 1, int max = 10)
             {
-                return WithProp(o => o.Protocols = RandomValueGen.GetRandomCollection(() => RandomValueGen.GetRandomString(), min, max));
+                return WithProp(o => o.Protocols =
+                    RandomValueGen.GetRandomCollection(() => RandomValueGen.GetRandomString(), min, max));
             }
 
             public FakeMessageDataBuilder WithRandomRecipients(int min = 1, int max = 10)
@@ -544,7 +552,8 @@ namespace PeanutButter.RandomGenerators.Tests
             }
         }
 
-        public class FakeMessagePlatformRecipientBuilder : GenericBuilder<FakeMessagePlatformRecipientBuilder, FakeMessagePlatformRecipient>
+        public class FakeMessagePlatformRecipientBuilder : GenericBuilder<FakeMessagePlatformRecipientBuilder,
+            FakeMessagePlatformRecipient>
         {
         }
 
@@ -574,7 +583,8 @@ namespace PeanutButter.RandomGenerators.Tests
             public virtual ICollection<string> Strings { get; set; }
         }
 
-        public class SomePOCOWithCollectionBuilder : GenericBuilder<SomePOCOWithCollectionBuilder, SomePOCOWithCollection>
+        public class SomePOCOWithCollectionBuilder : GenericBuilder<SomePOCOWithCollectionBuilder,
+            SomePOCOWithCollection>
         {
         }
 
@@ -776,6 +786,7 @@ namespace PeanutButter.RandomGenerators.Tests
         public class LocalTraceListener : TraceListener
         {
             public string AllMessages { get; private set; } = "";
+
             public override void Write(string message)
             {
                 AllMessages += message;
@@ -814,6 +825,44 @@ namespace PeanutButter.RandomGenerators.Tests
         private Action RemoveListener(LocalTraceListener listener)
         {
             return () => Trace.Listeners.Remove(listener);
+        }
+
+        public class Node
+        {
+            public Node Child { get; set; }
+            public Node[] Siblings { get; set; }
+            public IEnumerable<Node> Enemies { get; set; }
+        }
+
+        public class NodeBuilder: GenericBuilder<NodeBuilder, Node>
+        {
+        }
+
+        [Test]
+        public void GenericBuild_ShouldReturnObjectWithDefaultProps_IncludingNullsForComplexTypes()
+        {
+            // Arrange
+            // Pre-Assert
+            // Act
+            var result = NodeBuilder.Create().GenericBuild() as Node;
+            // Assert
+            Expect(result, Is.Not.Null);
+            Expect(result.Child, Is.Null);
+            Expect(result.Siblings, Is.Null);
+        }
+
+        [Test]
+        public void GenericDeepBuild_ShouldReturnObjectWithAllComplexObjectsFilled()
+        {
+            // Arrange
+            // Pre-Assert
+            // Act
+            var result = NodeBuilder.Create().GenericDeepBuild() as Node;
+            // Assert
+            Expect(result, Is.Not.Null);
+            Expect(result.Child, Is.Not.Null);
+            Expect(result.Siblings, Is.Not.Null);
+            Expect(result.Enemies, Is.Not.Null);
         }
 
 

@@ -190,6 +190,7 @@ namespace PeanutButter.Utils
             src.CopyPropertiesTo(dst, true);
         }
 
+
         /// <summary>
         /// Copies all public primitive property values of intersecting properties from the source object
         /// to the target object, ala poor-man's AutoMapper
@@ -380,6 +381,22 @@ namespace PeanutButter.Utils
             if (propInfo == null)
                 throw new PropertyNotFoundException(type, propertyName);
             return propInfo.GetValue(src, null);
+        }
+
+        /// <summary>
+        /// Invokes a method on an object, if available; otherwise 'splodes
+        /// </summary>
+        /// <param name="src">Object to invoke the method on</param>
+        /// <param name="methodName">Method to invoke, by name</param>
+        /// <param name="args">Any parameters to give to the method</param>
+        /// <returns>return value of the method</returns>
+        public static object InvokeMethodWithResult(this object src, string methodName, params object[] args)
+        {
+            var srcType = src.GetType();
+            var method = srcType.GetMethod(methodName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if (method == null)
+                throw new InvalidOperationException($"Can't find method {methodName} on {srcType.Name}");
+            return method.Invoke(src, args);
         }
 
         /// <summary>

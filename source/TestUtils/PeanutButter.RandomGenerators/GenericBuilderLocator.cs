@@ -12,6 +12,18 @@ namespace PeanutButter.RandomGenerators
     /// </summary>
     public static class GenericBuilderLocator
     {
+
+        /// <summary>
+        /// Attempts to find and instantiate a generic builder for the type provided
+        /// </summary>
+        /// <param name="type">Type to find or create a builder for</param>
+        /// <returns>a builder, hopefully!</returns>
+        public static IGenericBuilder GetGenericBuilderInstanceFor(Type type)
+        {
+            var builderType = GetBuilderFor(type);
+            return Activator.CreateInstance(builderType) as IGenericBuilder;
+        }
+
         /// <summary>
         /// Attempts to find a GenericBuilder type which is capable of building the
         /// provided type. Will cause generation of the builder if an existing type

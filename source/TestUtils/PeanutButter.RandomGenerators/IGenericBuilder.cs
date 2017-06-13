@@ -22,7 +22,13 @@
         /// <summary>
         /// Builds an instance of the object this builder builds
         /// </summary>
-        /// <returns>Instance of object for which this builder is designed</returns>
+        /// <returns>Instance of object for which this builder is designed, with all properties as default values</returns>
         object GenericBuild();
+
+        /// <summary>
+        /// Builds an instance of the object this builder builds
+        /// </summary>
+        /// <returns>Instance of object for which this builder is designed, with properties default but complex objects filled in default</returns>
+        object GenericDeepBuild();
     }
 }

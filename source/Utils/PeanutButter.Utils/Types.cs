@@ -2,7 +2,7 @@
 
 namespace PeanutButter.Utils
 {
-    internal static class Types
+    public static class Types
     {
         public static readonly Type[] Primitives =
         {
