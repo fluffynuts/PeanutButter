@@ -1,9 +1,9 @@
 var
   fs = require("fs")
-gulp = require("gulp"),
+  gulp = require("gulp"),
   runSequence = require("run-sequence"),
   msbuild = require("gulp-msbuild")
-del = require("del"),
+  del = require("del"),
   exec = require("../gulp-tasks/modules/exec"),
   findLocalNuget = require("../gulp-tasks/modules/find-local-nuget"),
   es = require("event-stream"),

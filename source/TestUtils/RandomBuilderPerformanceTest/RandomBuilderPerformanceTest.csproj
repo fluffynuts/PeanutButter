@@ -1,0 +1,206 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{12076864-1364-4C93-9448-38460AC5CB67}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>RandomBuilderPerformanceTest</RootNamespace>
+    <AssemblyName>RandomBuilderPerformanceTest</AssemblyName>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.AspNet.Identity.Core">
+      <HintPath>..\..\packages\Microsoft.AspNet.Identity.Core.2.2.1\lib\net45\Microsoft.AspNet.Identity.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="MongoDB.Bson, Version=2.3.0.157, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\MongoDB.Bson.2.3.0\lib\net45\MongoDB.Bson.dll</HintPath>
+    </Reference>
+    <Reference Include="NSubstitute, Version=1.10.0.0, Culture=neutral, PublicKeyToken=92dd2e9066daa5ca, processorArchitecture=MSIL">
+      <HintPath>..\packages\NSubstitute.1.10.0.0\lib\net45\NSubstitute.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework, Version=3.7.1.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\NUnit.3.7.1\lib\net45\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="PeanutButter.RandomGenerators, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\PeanutButter.RandomGenerators\bin\Debug\PeanutButter.RandomGenerators.dll</HintPath>
+    </Reference>
+    <Reference Include="PeanutButter.TestUtils.Generic, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\PeanutButter.TestUtils.Generic.1.2.150\lib\net45\PeanutButter.TestUtils.Generic.dll</HintPath>
+    </Reference>
+    <Reference Include="PeanutButter.Utils, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\PeanutButter.Utils.1.2.150\lib\net45\PeanutButter.Utils.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web.Mvc">
+      <HintPath>..\..\packages\Microsoft.AspNet.Mvc.5.2.3\lib\net45\System.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Fortel\Address.cs" />
+    <Compile Include="Fortel\AddressExtensions.cs" />
+    <Compile Include="Fortel\AddressType.cs" />
+    <Compile Include="Fortel\AddressViewModel.cs" />
+    <Compile Include="Fortel\Attachment.cs" />
+    <Compile Include="Fortel\AttachmentType.cs" />
+    <Compile Include="Fortel\AttachmentViewModel.cs" />
+    <Compile Include="Fortel\BankingDetails.cs" />
+    <Compile Include="Fortel\BankingDetailsViewModel.cs" />
+    <Compile Include="Fortel\Company.cs" />
+    <Compile Include="Fortel\CompanyBankingDetails.cs" />
+    <Compile Include="Fortel\CompanyBankingDetailsViewModel.cs" />
+    <Compile Include="Fortel\CompanyViewModel.cs" />
+    <Compile Include="Fortel\Contact.cs" />
+    <Compile Include="Fortel\ContactExtensions.cs" />
+    <Compile Include="Fortel\ContactNumber.cs" />
+    <Compile Include="Fortel\ContactNumberType.cs" />
+    <Compile Include="Fortel\ContactNumberViewModel.cs" />
+    <Compile Include="Fortel\ContactViewModel.cs" />
+    <Compile Include="Fortel\ContractDetails.cs" />
+    <Compile Include="Fortel\ContractDetailsViewModel.cs" />
+    <Compile Include="Fortel\Coordinate.cs" />
+    <Compile Include="Fortel\CoordinateViewModel.cs" />
+    <Compile Include="Fortel\DateTimeExtensions.cs" />
+    <Compile Include="Fortel\DecimalExtensions.cs" />
+    <Compile Include="Fortel\DefaultDateTimeProvider.cs" />
+    <Compile Include="Fortel\Designation.cs" />
+    <Compile Include="Fortel\DesignationGroups.cs" />
+    <Compile Include="Fortel\DocumentType.cs" />
+    <Compile Include="Fortel\Domain.cs" />
+    <Compile Include="Fortel\DomainDescriptor.cs" />
+    <Compile Include="Fortel\DomainDescriptorSearchViewModel.cs" />
+    <Compile Include="Fortel\DomainDescriptorViewModel.cs" />
+    <Compile Include="Fortel\DomainViewModel.cs" />
+    <Compile Include="Fortel\ElectronicChecklist.cs" />
+    <Compile Include="Fortel\ElectronicChecklistViewModel.cs" />
+    <Compile Include="Fortel\EntityBase.cs" />
+    <Compile Include="Fortel\EnumExtensions.cs" />
+    <Compile Include="Fortel\ExchangeArea.cs" />
+    <Compile Include="Fortel\ExchangeAreaViewModel.cs" />
+    <Compile Include="Fortel\FinNumber.cs" />
+    <Compile Include="Fortel\FinNumberExtensions.cs" />
+    <Compile Include="Fortel\FinNumberViewModel.cs" />
+    <Compile Include="Fortel\FinNumberYearHelper.cs" />
+    <Compile Include="Fortel\GenericSaveStatus.cs" />
+    <Compile Include="Fortel\GridFsFile.cs" />
+    <Compile Include="Fortel\HeaderViewModel.cs" />
+    <Compile Include="Fortel\IDateTimeProvider.cs" />
+    <Compile Include="Fortel\IDomainDescriptorFinder.cs" />
+    <Compile Include="Fortel\IFinNumberGenerator.cs" />
+    <Compile Include="Fortel\ImajinConfig.cs" />
+    <Compile Include="Fortel\ImajinRecord.cs" />
+    <Compile Include="Fortel\ImajinRecordType.cs" />
+    <Compile Include="Fortel\Invoice.cs" />
+    <Compile Include="Fortel\InvoiceNumbering.cs" />
+    <Compile Include="Fortel\InvoiceNumberingType.cs" />
+    <Compile Include="Fortel\InvoiceNumberingViewModel.cs" />
+    <Compile Include="Fortel\InvoicePaymentRecon.cs" />
+    <Compile Include="Fortel\InvoicePaymentReconViewModel.cs" />
+    <Compile Include="Fortel\InvoiceViewModel.cs" />
+    <Compile Include="Fortel\InvoiceViewModelBuilder.cs" />
+    <Compile Include="Fortel\IUploadedFile.cs" />
+    <Compile Include="Fortel\Job.cs" />
+    <Compile Include="Fortel\JobViewModel.cs" />
+    <Compile Include="Fortel\LibraryDocument.cs" />
+    <Compile Include="Fortel\LibraryDocumentDetails.cs" />
+    <Compile Include="Fortel\LibraryDocumentDetailsInvoice.cs" />
+    <Compile Include="Fortel\LibraryDocumentDetailsInvoiceViewModel.cs" />
+    <Compile Include="Fortel\LibraryDocumentDetailsOrder.cs" />
+    <Compile Include="Fortel\LibraryDocumentDetailsOrderViewModel.cs" />
+    <Compile Include="Fortel\LibraryDocumentDetailsReport.cs" />
+    <Compile Include="Fortel\LibraryDocumentDetailsReportViewModel.cs" />
+    <Compile Include="Fortel\LibraryDocumentDetailsViewModel.cs" />
+    <Compile Include="Fortel\LibraryDocumentSearchViewModel.cs" />
+    <Compile Include="Fortel\LibraryDocumentViewModel.cs" />
+    <Compile Include="Fortel\Location.cs" />
+    <Compile Include="Fortel\LocationType.cs" />
+    <Compile Include="Fortel\LocationViewModel.cs" />
+    <Compile Include="Fortel\Log.cs" />
+    <Compile Include="Fortel\OperationType.cs" />
+    <Compile Include="Fortel\Order.cs" />
+    <Compile Include="Fortel\OrderViewModel.cs" />
+    <Compile Include="Fortel\PasswordChangeViewModel.cs" />
+    <Compile Include="Fortel\PdfEmbeddedFont.cs" />
+    <Compile Include="Fortel\PdfFragment.cs" />
+    <Compile Include="Fortel\PenaltyAmountParametersViewModel.cs" />
+    <Compile Include="Fortel\QualityAssurance.cs" />
+    <Compile Include="Fortel\QualityAssuranceViewModel.cs" />
+    <Compile Include="Fortel\Rate.cs" />
+    <Compile Include="Fortel\RateViewModel.cs" />
+    <Compile Include="Fortel\ReceiptMethod.cs" />
+    <Compile Include="Fortel\Recon.cs" />
+    <Compile Include="Fortel\ReconViewModel.cs" />
+    <Compile Include="Fortel\Region.cs" />
+    <Compile Include="Fortel\ReportParameterType.cs" />
+    <Compile Include="Fortel\ReportSchedule.cs" />
+    <Compile Include="Fortel\ReportScheduleDateParameterDetails.cs" />
+    <Compile Include="Fortel\ReportScheduleParameter.cs" />
+    <Compile Include="Fortel\ReportScheduleParameterViewModel.cs" />
+    <Compile Include="Fortel\ReportScheduleStringParameterDetails.cs" />
+    <Compile Include="Fortel\ReportScheduleViewModel.cs" />
+    <Compile Include="Fortel\ReportType.cs" />
+    <Compile Include="Fortel\Schedule.cs" />
+    <Compile Include="Fortel\ScheduleType.cs" />
+    <Compile Include="Fortel\ScheduleViewModel.cs" />
+    <Compile Include="Fortel\SecurityViewModel.cs" />
+    <Compile Include="Fortel\ServiceItem.cs" />
+    <Compile Include="Fortel\ServiceItemViewModel.cs" />
+    <Compile Include="Fortel\SiteDiary.cs" />
+    <Compile Include="Fortel\SiteDiaryViewModel.cs" />
+    <Compile Include="Fortel\Status.cs" />
+    <Compile Include="Fortel\Team.cs" />
+    <Compile Include="Fortel\TeamViewModel.cs" />
+    <Compile Include="Fortel\TrackOrdersParametersViewModel.cs" />
+    <Compile Include="Fortel\TrackOrdersViewModel.cs" />
+    <Compile Include="Fortel\UnpaidInvoicesViewModel.cs" />
+    <Compile Include="Fortel\User.cs" />
+    <Compile Include="Fortel\UserRole.cs" />
+    <Compile Include="Fortel\UsersViewModel.cs" />
+    <Compile Include="Fortel\VersionViewModel.cs" />
+    <Compile Include="Fortel\ViewModelBase.cs" />
+    <Compile Include="Fortel\Wage.cs" />
+    <Compile Include="Fortel\WagePeriod.cs" />
+    <Compile Include="Fortel\WageViewModel.cs" />
+    <Compile Include="Fortel\WorkType.cs" />
+    <Compile Include="TestRandomGeneratorPerformance.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

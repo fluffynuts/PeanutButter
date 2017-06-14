@@ -178,15 +178,43 @@ namespace PeanutButter.RandomGenerators
         /// <exception cref="GenericBuilderInstanceCreationException"></exception>
         public virtual TEntity ConstructEntity()
         {
+            var type = typeof(TEntity);
             try
             {
+                CheckUnconstructable(type);
                 return AttemptToConstructEntity();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw new GenericBuilderInstanceCreationException(GetType(), typeof(TEntity));
+                CacheUnconstructable(type);
+                Trace.WriteLine($"Unable to construct entity of type {type.Name}: {ex.Message}");
+                throw CreateUnconstructableException();
             }
         }
+
+        private GenericBuilderInstanceCreationException CreateUnconstructableException()
+        {
+            return new GenericBuilderInstanceCreationException(GetType(), typeof(TEntity));
+        }
+
+        private void CheckUnconstructable(Type type)
+        {
+            lock(_unconstructables)
+            {
+                if (_unconstructables.Contains(type))
+                    throw CreateUnconstructableException();
+            }
+        }
+
+        private static void CacheUnconstructable(Type type)
+        {
+            lock(_unconstructables)
+            {
+                _unconstructables.Add(type);
+            }
+        }
+
+        private static HashSet<Type> _unconstructables = new HashSet<Type>();
 
         private static TEntity AttemptToConstructEntity()
         {
@@ -624,11 +652,11 @@ namespace PeanutButter.RandomGenerators
                 var dynamicBuilder = Activator.CreateInstance(builderType) as IGenericBuilder;
                 if (dynamicBuilder == null)
                     return;
-                prop.SetValue(e, 
+                prop.SetValue(e,
                     dynamicBuilder
                         .WithBuildLevel(i)
                         .GenericWithRandomProps()
-                        .GenericBuild(), 
+                        .GenericBuild(),
                     null);
             };
             return true;
@@ -636,11 +664,11 @@ namespace PeanutButter.RandomGenerators
 
         private static bool TraversedTooManyTurtles(int i)
         {
+            if (i > MaxRandomPropsLevel)
+                return true;
             var stackTrace = new StackTrace();
             var frames = stackTrace.GetFrames();
-            if (HaveReenteredOwnRandomPropsTooManyTimesFor(frames))
-                return true;
-            return i > MaxRandomPropsLevel;
+            return HaveReenteredOwnRandomPropsTooManyTimesFor(frames);
         }
 
         private static bool HaveReenteredOwnRandomPropsTooManyTimesFor(StackFrame[] frames)
@@ -704,13 +732,25 @@ namespace PeanutButter.RandomGenerators
             {
                 try
                 {
-                    RandomPropSetters[prop.Name](entity, _buildLevel + 1);
+                    var setter = GetRandomPropSetterFor(prop);
+                    setter?.Invoke(entity, _buildLevel + 1);
                 }
                 catch (Exception ex)
                 {
-                    Trace.WriteLine($"Unable to set random prop: {ex.Message}");
+                    RandomPropSetters[prop.Name] = null;
+                    Trace.WriteLine($"Unable to set random prop: {prop.DeclaringType.Name}.{prop.Name} ({prop.PropertyType.Name}) {ex.Message}");
                 }
             }
+        }
+
+        private Action<TEntity, int> GetRandomPropSetterFor(PropertyInfo prop)
+        {
+            Action<TEntity, int> result;
+            if (RandomPropSetters.TryGetValue(prop.Name, out result))
+                return result;
+            Trace.WriteLine($"No random property setter available for {prop.DeclaringType}.{prop.Name} (perhaps make a dev request?)");
+            RandomPropSetters[prop.Name] = null;
+            return null;
         }
     }
 }
