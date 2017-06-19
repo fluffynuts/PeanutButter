@@ -2,9 +2,9 @@
 
 namespace PeanutButter.Utils
 {
-    public static class Types
+    internal static class Types
     {
-        public static readonly Type[] Primitives =
+        public static readonly Type[] PrimitivesAndImmutables =
         {
             typeof(int),
             typeof(char),

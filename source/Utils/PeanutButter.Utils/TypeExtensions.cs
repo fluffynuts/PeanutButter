@@ -105,8 +105,20 @@ namespace PeanutButter.Utils
             return (bool)specific.Invoke(null, new object[] { t } );
         }
 
+
         private static readonly MethodInfo _genericIsAssignableFromArrayOf
             = typeof(TypeExtensions).GetMethod("IsAssignableFromArrayOf", BindingFlags.Static | BindingFlags.Public);
+
+        /// <summary>
+        /// Tests if a type is a generic of a given generic type (eg typeof(List&lt;&gt;))
+        /// </summary>
+        /// <param name="t">type to operate on</param>
+        /// <param name="genericTest">type to test against (eg typeof(List&lt;&gt;))</param>
+        /// <returns>True if the input type is a match, false otherwise</returns>
+        public static bool IsGenericOf(this Type t, Type genericTest)
+        {
+            return t.IsGenericType && t.GetGenericTypeDefinition() == genericTest;
+        }
 
         /// <summary>
         /// Tests if a type is assignable from an array of T
@@ -148,8 +160,9 @@ namespace PeanutButter.Utils
         /// <returns>True if it does implement the generic IEnumerable; false otherwise</returns>
         public static bool IsGenericOfIEnumerable(this Type arg)
         {
-            if (!arg.IsGenericType) return false;
-            return arg.GetGenericTypeDefinition() == typeof(IEnumerable<>);
+            return arg.IsGenericOf(typeof(IEnumerable<>));
+//            if (!arg.IsGenericType) return false;
+//            return arg.GetGenericTypeDefinition() == typeof(IEnumerable<>);
         }
 
         /// <summary>

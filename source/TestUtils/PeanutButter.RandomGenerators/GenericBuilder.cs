@@ -85,7 +85,7 @@ namespace PeanutButter.RandomGenerators
             var result = Build();
             var complexProps = result.GetType()
                 .GetProperties()
-                .Where(pi => !Types.Primitives.Contains(pi.PropertyType))
+                .Where(pi => !Types.PrimitivesAndImmutables.Contains(pi.PropertyType))
                 .ToArray();
             complexProps.ForEach(p =>
             {

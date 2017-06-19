@@ -16,7 +16,6 @@ namespace PeanutButter.DuckTyping.Extensions
         /// Attempts to DuckType a collection
         /// </summary>
         /// <param name="src">Collection to convert</param>
-        /// <param name="throwOnFailure">Throw an exception when failing</param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         public static T[] DuckAsArrayOf<T>(

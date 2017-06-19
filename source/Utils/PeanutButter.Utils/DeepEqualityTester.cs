@@ -126,7 +126,7 @@ namespace PeanutButter.Utils
         private bool IsSimpleTypeOrNullableOfSimpleType(Type t)
         {
             return t != null &&
-                    Types.Primitives.Any(si => si == t ||
+                    Types.PrimitivesAndImmutables.Any(si => si == t ||
                                             (t.IsGenericType &&
                                              t.GetGenericTypeDefinition() == typeof(Nullable<>) &&
                                              Nullable.GetUnderlyingType(t) == si));
@@ -135,7 +135,7 @@ namespace PeanutButter.Utils
 
         private bool CanPerformSimpleTypeMatchFor(PropertyInfo srcProp)
         {
-            return Types.Primitives.Any(st => st == srcProp.PropertyType);
+            return Types.PrimitivesAndImmutables.Any(st => st == srcProp.PropertyType);
         }
 
 

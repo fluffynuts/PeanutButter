@@ -45,7 +45,7 @@ namespace PeanutButter.Utils
         {
             if (obj == null) return "null";
             var objType = obj.GetType();
-            if (level >= MAX_STRINGIFY_DEPTH || Types.Primitives.Contains(objType))
+            if (level >= MAX_STRINGIFY_DEPTH || Types.PrimitivesAndImmutables.Contains(objType))
             {
                 Func<object, string> strategy;
                 return _primitiveStringifiers.TryGetValue(objType, out strategy)

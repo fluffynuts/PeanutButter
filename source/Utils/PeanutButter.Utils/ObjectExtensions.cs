@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.Utils
@@ -38,7 +40,8 @@ namespace PeanutButter.Utils
         /// <param name="objCompare">Comparison object to compare</param>
         /// <param name="ignorePropertiesByName">Optional params array of properties to ignore by name</param>
         /// <returns>True if relevant properties are found and match; false otherwise</returns>
-        public static bool DeepSubEquals(this object objSource, object objCompare, params string[] ignorePropertiesByName)
+        public static bool DeepSubEquals(this object objSource, object objCompare,
+            params string[] ignorePropertiesByName)
         {
             var tester = new DeepEqualityTester(
                 objSource,
@@ -56,7 +59,8 @@ namespace PeanutButter.Utils
         /// <param name="objCompare">Comparison object to compare</param>
         /// <param name="ignorePropertiesByName">Optional params array of properties to ignore by name</param>
         /// <returns>True if relevant properties are found and match; false otherwise. If no common properties are found, returns false; caveat: performing this comparison on two vanilla Object() instances will return true.</returns>
-        public static bool DeepIntersectionEquals(this object objSource, object objCompare, params string[] ignorePropertiesByName)
+        public static bool DeepIntersectionEquals(this object objSource, object objCompare,
+            params string[] ignorePropertiesByName)
         {
             var tester = new DeepEqualityTester(
                 objSource,
@@ -76,7 +80,7 @@ namespace PeanutButter.Utils
         /// <typeparam name="T2">Type of the comparison item (can be the same as or different from T1)</typeparam>
         /// <returns>True if one or more matching objects were found; false otherwise</returns>
         public static bool ContainsAtLeastOneDeepEqualTo<T1, T2>(
-            this IEnumerable<T1> collection, 
+            this IEnumerable<T1> collection,
             T2 item,
             params string[] ignoreProperties)
         {
@@ -93,7 +97,7 @@ namespace PeanutButter.Utils
         /// <typeparam name="T2">Type of the comparison item (can be the same as or different from T1)</typeparam>
         /// <returns>True if one or more matching objects were found; false otherwise</returns>
         public static bool ContainsOneDeepEqualTo<T1, T2>(
-            this IEnumerable<T1> collection, 
+            this IEnumerable<T1> collection,
             T2 item,
             params string[] ignoreProperties)
         {
@@ -128,11 +132,11 @@ namespace PeanutButter.Utils
         /// <typeparam name="T2">Type of the comparison item (can be the same as or different from T1)</typeparam>
         /// <returns>True if exactly one matching object was found; false otherwise</returns>
         public static bool ContainsOnlyOneDeepEqualTo<T1, T2>(
-            this IEnumerable<T1> collection, 
+            this IEnumerable<T1> collection,
             T2 item,
             params string[] ignoreProperties)
         {
-            return collection.ContainsOnlyOneMatching(item, 
+            return collection.ContainsOnlyOneMatching(item,
                 (t1, t2) => t1.DeepEquals(t2, ignoreProperties));
         }
 
@@ -151,7 +155,7 @@ namespace PeanutButter.Utils
             params string[] ignoreProperties
         )
         {
-            return collection.ContainsOnlyOneMatching(item, 
+            return collection.ContainsOnlyOneMatching(item,
                 (t1, t2) => t1.DeepIntersectionEquals(t2, ignoreProperties));
         }
 
@@ -215,7 +219,7 @@ namespace PeanutButter.Utils
         {
             if (src == null || dst == null) return;
             var srcPropInfos = src.GetType().GetProperties()
-                                .Where(pi => !ignoreProperties.Contains(pi.Name));
+                .Where(pi => !ignoreProperties.Contains(pi.Name));
             var dstPropInfos = dst.GetType().GetProperties();
 
             foreach (var srcPropInfo in srcPropInfos.Where(pi => pi.CanRead))
@@ -225,58 +229,121 @@ namespace PeanutButter.Utils
                                                                        dp.CanWrite);
                 if (matchingTarget == null) continue;
 
-                var srcVal = srcPropInfo.GetValue(src, null);
-                if (!deep || IsSimpleTypeOrNullableOfSimpleType(srcPropInfo.PropertyType))
-                {
-                    matchingTarget.SetValue(dst, srcVal, null);
-                }
-                else if (srcPropInfo.PropertyType.IsArrayOrAssignableFromArray())
-                {
-                    var underlyingType = srcPropInfo.PropertyType.GetCollectionItemType();
-                    if (underlyingType != null)
-                    {
-                        var specific = _genericMakeArrayCopy.MakeGenericMethod(underlyingType);
-                        // ReSharper disable once RedundantExplicitArrayCreation
-                        var newValue = specific.Invoke(null, new object[] { srcVal });
-                        matchingTarget.SetValue(dst, newValue);
-                    }
-                }
-                else
-                {
-                    if (srcVal != null)
-                    {
-                        var targetVal = matchingTarget.GetValue(dst, null);
-                        srcVal.CopyPropertiesTo(targetVal);
-                    }
-                    else
-                    {
-                        matchingTarget.SetValue(dst, null, null);
-                    }
-                }
+                var srcVal = srcPropInfo.GetValue(src);
+
+                PropertySetterStrategies.Aggregate(false, (acc, cur) =>
+                    acc || cur(deep, srcPropInfo, matchingTarget, dst, srcVal));
             }
         }
 
-        private static readonly MethodInfo _genericMakeArrayCopy
-            = typeof(ObjectExtensions).GetMethod(nameof(MakeArrayCopyOf), 
+        private static readonly Func<bool, PropertyInfo, PropertyInfo, object, object, bool>[]
+            PropertySetterStrategies =
+            {
+                SetSimpleOrNullableOfSimpleTypeValue,
+                SetArrayOrGenericIEnumerableValue,
+                SetGenericListValue,
+                DefaultSetValue
+            };
+
+
+        private static bool DefaultSetValue(
+            bool deep,
+            PropertyInfo srcPropertyInfo,
+            PropertyInfo dstPropertyInfo,
+            object dst,
+            object srcVal
+        )
+        {
+            if (srcVal != null)
+            {
+                var clone = srcVal.DeepCloneInternal(srcPropertyInfo.PropertyType);
+                dstPropertyInfo.SetValue(dst, clone);
+                return true;
+            }
+            dstPropertyInfo.SetValue(dst, null, null);
+            return false;
+        }
+
+        private static bool SetGenericListValue(
+            bool deep,
+            PropertyInfo srcPropertyInfo,
+            PropertyInfo dstPropertyInfo,
+            object dst,
+            object srcVal
+        )
+        {
+            if (!srcPropertyInfo.PropertyType.IsGenericOf(typeof(List<>)))
+                return false;
+            var itemType = srcPropertyInfo.PropertyType.GetCollectionItemType();
+            if (itemType == null)
+                return false;
+            var method = GenericMakeListCopy.MakeGenericMethod(itemType);
+            var newValue = method.Invoke(null, new[] {srcVal});
+            dstPropertyInfo.SetValue(dst, newValue);
+            return true;
+        }
+
+
+        private static bool SetArrayOrGenericIEnumerableValue(
+            bool deep,
+            PropertyInfo srcPropertyInfo,
+            PropertyInfo dstPropertyInfo,
+            object dst,
+            object srcVal
+        )
+        {
+            if (!srcPropertyInfo.PropertyType.IsArrayOrAssignableFromArray())
+                return false;
+            var underlyingType = srcPropertyInfo.PropertyType.GetCollectionItemType();
+            if (underlyingType == null)
+                return false;
+            var specific = GenericMakeArrayCopy.MakeGenericMethod(underlyingType);
+            // ReSharper disable once RedundantExplicitArrayCreation
+            var newValue = specific.Invoke(null, new[] {srcVal});
+            dstPropertyInfo.SetValue(dst, newValue);
+            return true;
+        }
+
+
+        private static bool SetSimpleOrNullableOfSimpleTypeValue(
+            bool deep,
+            PropertyInfo srcPropertyInfo,
+            PropertyInfo dstPropertyInfo,
+            object dst,
+            object srcVal
+        )
+        {
+            if (deep && !IsSimpleTypeOrNullableOfSimpleType(srcPropertyInfo.PropertyType))
+                return false;
+            dstPropertyInfo.SetValue(dst, srcVal);
+            return true;
+        }
+
+        private static readonly MethodInfo GenericMakeArrayCopy
+            = typeof(ObjectExtensions).GetMethod(nameof(MakeArrayCopyOf),
+                BindingFlags.NonPublic | BindingFlags.Static);
+
+        private static readonly MethodInfo GenericMakeListCopy
+            = typeof(ObjectExtensions).GetMethod(nameof(MakeListCopyOf),
                 BindingFlags.NonPublic | BindingFlags.Static);
 
 #pragma warning disable S1144 // Unused private types or members should be removed
         // ReSharper disable once UnusedMember.Local
         private static T[] MakeArrayCopyOf<T>(IEnumerable<T> src)
         {
+            return MakeListCopyOf(src)?.ToArray();
+        }
+
+        private static List<T> MakeListCopyOf<T>(IEnumerable<T> src)
+        {
             try
             {
+                if (src == null)
+                    return null;
                 // ReSharper disable once PossibleMultipleEnumeration
-                var result = new T[src?.Count() ?? 0];
-                if (src != null)
-                {
-                    var idx = 0;
-                    // ReSharper disable once PossibleMultipleEnumeration
-                    foreach (var item in src)
-                    {
-                        result[idx++] = item;
-                    }
-                }
+                var result = new List<T>();
+                // ReSharper disable once PossibleMultipleEnumeration
+                result.AddRange(src.Select(item => item.DeepClone()));
                 return result;
             }
             catch
@@ -286,12 +353,68 @@ namespace PeanutButter.Utils
         }
 #pragma warning restore S1144 // Unused private types or members should be removed
 
+        /// <summary>
+        /// Creates a deep clone of the provided item, as far as possible
+        /// Works on properties which are:
+        ///  * simple values, 
+        ///  * any complex, non-generic value with a parameterless constructor
+        ///  * Collections which are arrays, generic IEnumerable or generic List,
+        ///      conforming to the rules above
+        /// </summary>
+        /// <param name="item">Item to clone</param>
+        /// <typeparam name="T">Type of the item to clone</typeparam>
+        /// <returns>a new copy of the original item</returns>
+        public static T DeepClone<T>(this T item)
+        {
+            var type = typeof(T);
+            return (T) item.DeepCloneInternal(type);
+        }
+
+        private static object DeepCloneInternal(
+            this object src,
+            Type cloneType
+        )
+        {
+            try
+            {
+                if (Types.PrimitivesAndImmutables.Contains(cloneType))
+                {
+                    // FIXME: can we get new instances for Dates and such?
+                    return src;
+                }
+                var newInstance = Activator.CreateInstance(cloneType);
+                src.CopyPropertiesTo(newInstance);
+                return newInstance;
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine($"Unable to clone item of type {cloneType.Name}: {e.Message}");
+                return DefaultValueForType(cloneType);
+            }
+        }
+
+        private static object DefaultValueForType(Type t)
+        {
+            var method = GenericGetDefaultValueMethod.MakeGenericMethod(t);
+            return method.Invoke(null, new object[] { });
+        }
+
+        private static readonly MethodInfo GenericGetDefaultValueMethod =
+            typeof(ObjectExtensions).GetMethod(nameof(GetDefaultValueFor),
+                BindingFlags.NonPublic | BindingFlags.Static
+            );
+
+        private static T GetDefaultValueFor<T>()
+        {
+            return default(T);
+        }
+
         private static bool IsSimpleTypeOrNullableOfSimpleType(Type t)
         {
-            return Types.Primitives.Any(si => si == t ||
-                                          (t.IsGenericType &&
-                                          t.GetGenericTypeDefinition() == typeof(Nullable<>) &&
-                                          Nullable.GetUnderlyingType(t) == si));
+            return Types.PrimitivesAndImmutables.Any(si => si == t ||
+                                              (t.IsGenericType &&
+                                               t.GetGenericTypeDefinition() == typeof(Nullable<>) &&
+                                               Nullable.GetUnderlyingType(t) == si));
         }
 
         /// <summary>
@@ -350,7 +473,7 @@ namespace PeanutButter.Utils
         /// <returns>A single-element array containing the input object</returns>
         public static T[] AsArray<T>(this T input)
         {
-            return new[] { input };
+            return new[] {input};
         }
 
 
@@ -364,7 +487,7 @@ namespace PeanutButter.Utils
                     "Get<> must be invoked with a type to which the property value could be assigned ("
                     + type.Name + "." + propertyPath + " has type '" + valueType.Name
                     + "', but expected '" + typeof(T).Name + "' or derivative");
-            return (T)valueAsObject;
+            return (T) valueAsObject;
         }
 
 
@@ -378,7 +501,8 @@ namespace PeanutButter.Utils
         public static object GetPropertyValue(this object src, string propertyName)
         {
             var type = src.GetType();
-            var propInfo = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).FirstOrDefault(pi => pi.Name == propertyName);
+            var propInfo = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                .FirstOrDefault(pi => pi.Name == propertyName);
             if (propInfo == null)
                 throw new PropertyNotFoundException(type, propertyName);
             return propInfo.GetValue(src, null);
@@ -394,7 +518,8 @@ namespace PeanutButter.Utils
         public static object InvokeMethodWithResult(this object src, string methodName, params object[] args)
         {
             var srcType = src.GetType();
-            var method = srcType.GetMethod(methodName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            var method = srcType.GetMethod(methodName,
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             if (method == null)
                 throw new InvalidOperationException($"Can't find method {methodName} on {srcType.Name}");
             return method.Invoke(src, args);
@@ -415,7 +540,7 @@ namespace PeanutButter.Utils
                 var current = queue.Dequeue();
                 var type = src.GetType();
                 var propInfo = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                                    .FirstOrDefault(pi => pi.Name == current);
+                    .FirstOrDefault(pi => pi.Name == current);
                 if (propInfo == null)
                     throw new PropertyNotFoundException(type, current);
                 if (queue.Count == 0)
@@ -438,7 +563,7 @@ namespace PeanutButter.Utils
         public static T GetPropertyValue<T>(this object src, string propertyName)
         {
             var objectResult = GetPropertyValue(src, propertyName);
-            return (T)objectResult;
+            return (T) objectResult;
         }
 
         /// <summary>

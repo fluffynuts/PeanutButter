@@ -41,6 +41,7 @@ namespace PeanutButter.RandomGenerators
         /// Provides a lookup to the type which is the GenericBuilder
         /// </summary>
         protected static readonly Type GenericBuilderBaseType = typeof(GenericBuilder<,>);
+        // ReSharper disable once InconsistentNaming
         private static readonly object _dynamicAssemblyLock = new object();
         private static AssemblyBuilder _dynamicAssemblyBuilderField;
 

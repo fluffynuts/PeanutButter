@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using NUnit.Framework.Internal;
 using PeanutButter.DuckTyping.Extensions;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
@@ -368,6 +367,9 @@ namespace PeanutButter.Utils.Tests
             //---------------Test Result -----------------------
         }
 
+
+
+
         public class Simple<T>
         {
             public T prop { get; set; }
@@ -452,6 +454,7 @@ namespace PeanutButter.Utils.Tests
             Assert.AreNotEqual(src.prop, dst.prop);
             Assert.AreEqual(src.prop.prop, dst.prop.prop);
         }
+
         [Test]
         public void CopyPropertiesTo_WhenDeepIsFalse_ComplexTypesAreTraversedAndRefCopied()
         {
@@ -846,21 +849,21 @@ namespace PeanutButter.Utils.Tests
             Assert.IsFalse(result);
         }
 
-        public class Parent
+        public class SimpleParent
         {
             public IEnumerable<Child> Children { get; set; }
         }
 
         public class Child
         {
-            public Parent Parent { get; set; }
+            public SimpleParent Parent { get; set; }
         }
 
         [Test]
         public void DeepEquals_ShouldNotStackOverflowWithCircularReferences_Level1()
         {
             //--------------- Arrange -------------------
-            var parent = new Parent();
+            var parent = new SimpleParent();
             var child = new Child() { Parent = parent };
             parent.Children = new[] { child };
 
@@ -872,18 +875,18 @@ namespace PeanutButter.Utils.Tests
             //--------------- Assert -----------------------
         }
 
-        public class Node
+        public class NodeWithChildren
         {
-            public IEnumerable<Node> Children { get; set; }
+            public IEnumerable<NodeWithChildren> Children { get; set; }
         }
 
         [Test]
         public void DeepEquals_ShouldNotStackOverflowWithCircularReferences_Level2()
         {
             //--------------- Arrange -------------------
-            var n2 = new Node();
-            var n1 = new Node() { Children = new[] { n2 } };
-            var n3 = new Node() { Children = new[] { n1 } };
+            var n2 = new NodeWithChildren();
+            var n1 = new NodeWithChildren() { Children = new[] { n2 } };
+            var n3 = new NodeWithChildren() { Children = new[] { n1 } };
             n2.Children = new[] { n3 };
 
             // n1 => n2 =>  n3 => n1 ....
@@ -900,9 +903,9 @@ namespace PeanutButter.Utils.Tests
         public void DeepEquals_ShouldNotStackOverflowWithCircularReferences_Level2_v2()
         {
             //--------------- Arrange -------------------
-            var n2 = new Node();
-            var n1 = new Node() { Children = new[] { n2 } };
-            var n3 = new Node() { Children = new[] { n1 } };
+            var n2 = new NodeWithChildren();
+            var n1 = new NodeWithChildren() { Children = new[] { n2 } };
+            var n3 = new NodeWithChildren() { Children = new[] { n1 } };
             n2.Children = new[] { n3 };
 
             // n1 => n2 =>  n3 => n1 ....
@@ -959,7 +962,7 @@ namespace PeanutButter.Utils.Tests
         }
 
 
-        public class HasAnArray
+        public class HasAnArrayOfStrings
         {
             public string[] Stuff { get; set; }
         }
@@ -967,8 +970,8 @@ namespace PeanutButter.Utils.Tests
         public void CopyPropertiesTo_ShouldCopyEmptyArrayProperty()
         {
             //--------------- Arrange -------------------
-            var src = new HasAnArray() { Stuff = new string[0] };
-            var target = new HasAnArray();
+            var src = new HasAnArrayOfStrings() { Stuff = new string[0] };
+            var target = new HasAnArrayOfStrings();
 
             //--------------- Assume ----------------
 
@@ -984,8 +987,8 @@ namespace PeanutButter.Utils.Tests
         public void CopyPropertiesTo_ShouldCopyNonEmptyArrayProperty()
         {
             //--------------- Arrange -------------------
-            var src = new HasAnArray() { Stuff = new [] { "123", "456" } };
-            var target = new HasAnArray();
+            var src = new HasAnArrayOfStrings() { Stuff = new [] { "123", "456" } };
+            var target = new HasAnArrayOfStrings();
 
             //--------------- Assume ----------------
 
@@ -1002,6 +1005,7 @@ namespace PeanutButter.Utils.Tests
         {
             public IEnumerable<string> Stuff { get; set; }
         }
+
         [Test]
         public void CopyPropertiesTo_ShouldCopyNonEmptyEnumerableProperty()
         {
@@ -1018,6 +1022,49 @@ namespace PeanutButter.Utils.Tests
             Assert.IsNotNull(target.Stuff);
             CollectionAssert.IsNotEmpty(target.Stuff);
             CollectionAssert.AreEqual(src.Stuff, target.Stuff);
+        }
+
+        public class HasAListOfStrings
+        {
+            public List<string> Strings { get; set ; }
+        }
+        [Test]
+        public void CopyPropertiesTo_ShouldCopyAnEmptyList()
+        {
+            // Arrange
+            var src = new HasAListOfStrings() { Strings = new List<string>() };
+            var target = new HasAListOfStrings();
+            // Pre-Assert
+            Expect(target.Strings, Is.Null);
+            // Act
+            src.CopyPropertiesTo(target);
+            // Assert
+            Expect(target.Strings, Is.Not.Null);
+            Expect(target.Strings, Is.Empty);
+        }
+
+        public class HasAListOfDates
+        {
+            public List<DateTime> DateTimes { get; set ; }
+        }
+
+        [Test]
+        public void CopyPropertiesTo_ShouldCopyAnNonEmptyList()
+        {
+            // Arrange
+            var src = new HasAListOfDates()
+            {
+                DateTimes = GetRandomCollection<DateTime>(2, 3).ToList()
+            };
+            var target = new HasAListOfDates();
+            // Pre-Assert
+            Expect(target.DateTimes, Is.Null);
+            // Act
+            src.CopyPropertiesTo(target);
+            // Assert
+            Expect(target.DateTimes, Is.Not.Null);
+            Expect(target.DateTimes, Is.Not.Empty);
+            src.DateTimes.ShouldMatchDataIn(target.DateTimes);
         }
 
         public class HasIdAndName
@@ -1339,6 +1386,123 @@ namespace PeanutButter.Utils.Tests
             Expect(result, Is.False);
         }
 
+
+        // DeepClone
+        public class EmptyType
+        {
+        }
+
+        [Test]
+        public void DeepClone_GivenEmptyObject_ShouldReturnNewEmptyObject()
+        {
+            // Arrange
+            var src = new EmptyType();
+            // Pre-Assert
+            // Act
+            var result = src.DeepClone();
+            // Assert
+            Expect(result, Is.Not.Null);
+            Expect(result, Is.InstanceOf<EmptyType>());
+            Expect(result.GetType().GetProperties(), Is.Empty);
+        }
+
+        public class Node
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public Guid Guid { get; set; }
+            public bool Flag { get; set; }
+        }
+
+        [Test]
+        public void DeepClone_ShouldCloneFirstLevel()
+        {
+            // Arrange
+            var src = GetRandom<Node>();
+            // Pre-Assert
+            // Act
+            var result = src.DeepClone();
+            // Assert
+            PropertyAssert.AreDeepEqual(src, result);
+        }
+
+        public class Parent : Node
+        {
+            public Node Child { get; set; }
+        }
+
+        [Test]
+        public void DeepClone_ShouldCloneSecondLevelButNotChildRefs()
+        {
+            // Arrange
+            var src = GetRandom<Parent>();
+            // Pre-Assert
+            Expect(src.Child, Is.Not.Null);
+            // Act
+            var result = src.DeepClone();
+            // Assert
+            Expect(result.Child, Is.Not.EqualTo(src.Child));
+            PropertyAssert.AreDeepEqual(src, result);
+        }
+
+        public class HasAnArray
+        {
+            public Node[] Nodes { get; set; }
+        }
+
+        [Test]
+        public void DeepClone_ShouldCloneAnArray()
+        {
+            // Arrange
+            var src = GetRandom<HasAnArray>();
+            src.Nodes = GetRandomCollection<Node>(2, 4).ToArray();
+            // Pre-Assert
+            // Act
+            var result = src.DeepClone();
+            // Assert
+            Expect(result.Nodes, Is.Not.Empty);
+            result.Nodes.ShouldMatchDataIn(src.Nodes);
+        }
+
+        public class HasAnIEnumerable
+        {
+            public IEnumerable<Node> Nodes { get; set ; }
+        }
+
+        [Test]
+        public void DeepClone_ShouldCloneAnIEnumerable()
+        {
+            // Arrange
+            var src = GetRandom<HasAnIEnumerable>();
+            src.Nodes = GetRandomCollection<Node>(2, 4).ToArray();
+            // Pre-Assert
+            // Act
+            var result = src.DeepClone();
+            // Assert
+            Expect(result.Nodes, Is.Not.Empty);
+            result.Nodes.ShouldMatchDataIn(src.Nodes);
+        }
+
+        public class HasAList
+        {
+            public List<Node> Nodes { get; set ; }
+        }
+
+        [Test]
+        public void DeepClone_ShouldCloneAGenericList()
+        {
+            // Arrange
+            var src = GetRandom<HasAList>();
+            src.Nodes = GetRandomCollection<Node>(2, 4).ToList();
+            // Pre-Assert
+            // Act
+            var result = src.DeepClone();
+            // Assert
+            Expect(result.Nodes, Is.Not.Empty);
+            result.Nodes.ShouldMatchDataIn(src.Nodes);
+        }
+
+        // end DeepClone
 
 
 
