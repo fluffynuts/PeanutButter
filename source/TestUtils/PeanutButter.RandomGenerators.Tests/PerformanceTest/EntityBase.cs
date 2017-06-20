@@ -1,5 +1,6 @@
 ﻿using System;
 using MongoDB.Bson;
+// ReSharper disable MemberCanBeProtected.Global
 
 namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
 {

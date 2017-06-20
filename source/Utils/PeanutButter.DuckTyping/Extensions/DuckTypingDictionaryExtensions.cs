@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Specialized;
 using PeanutButter.DuckTyping.Shimming;
 using Shared = PeanutButter.DuckTyping.Extensions.DuckTypingExtensionSharedMethods;
 using TransformFunc = System.Func<string, string>;
@@ -46,10 +47,10 @@ namespace PeanutButter.DuckTyping.Extensions
         /// <typeparam name="T">Interface to duck this dictionary as</typeparam>
         /// <returns>New instance of an object implementing T, passing through to the dictionary, or null if unable to duck</returns>
         public static T DuckAs<T>(
-            this IDictionary<string, object> src, 
-            TransformFunc toNativeTransform, 
+            this IDictionary<string, object> src,
+            TransformFunc toNativeTransform,
             TransformFunc fromNativeTransform
-        ) where T: class
+        ) where T : class
         {
             return src.DuckAs<T>(toNativeTransform, fromNativeTransform, false);
         }
@@ -64,9 +65,9 @@ namespace PeanutButter.DuckTyping.Extensions
         /// <typeparam name="T">Interface to duck this dictionary as</typeparam>
         /// <returns>New instance of an object implementing T, passing through to the dictionary, or null if unable to duck</returns>
         public static T DuckAs<T>(
-            this IDictionary<string, object> src, 
-            TransformFunc toNativeTransform, 
-            TransformFunc fromNativeTransform, 
+            this IDictionary<string, object> src,
+            TransformFunc toNativeTransform,
+            TransformFunc fromNativeTransform,
             bool throwOnError
         ) where T : class
         {
@@ -87,10 +88,10 @@ namespace PeanutButter.DuckTyping.Extensions
         /// <typeparam name="T">Interface to duck this dictionary as</typeparam>
         /// <returns>New instance of an object implementing T, passing through to the dictionary, or null if unable to duck</returns>
         public static T FuzzyDuckAs<T>(
-            this IDictionary<string, object> src, 
-            TransformFunc toNativeTransform, 
+            this IDictionary<string, object> src,
+            TransformFunc toNativeTransform,
             TransformFunc fromNativeTransform
-        ) where T: class
+        ) where T : class
         {
             return src.FuzzyDuckAs<T>(toNativeTransform, fromNativeTransform, false);
         }
@@ -105,9 +106,9 @@ namespace PeanutButter.DuckTyping.Extensions
         /// <typeparam name="T">Interface to duck this dictionary as</typeparam>
         /// <returns>New instance of an object implementing T, passing through to the dictionary, or null if unable to duck</returns>
         public static T FuzzyDuckAs<T>(
-            this IDictionary<string, object> src, 
-            TransformFunc toNativeTransform, 
-            TransformFunc fromNativeTransform, 
+            this IDictionary<string, object> src,
+            TransformFunc toNativeTransform,
+            TransformFunc fromNativeTransform,
             bool throwOnError
         ) where T : class
         {
@@ -119,5 +120,163 @@ namespace PeanutButter.DuckTyping.Extensions
             return redirector.FuzzyDuckAs<T>(throwOnError);
         }
 
+        /// <summary>
+        /// Fuzzy-Ducks a Dictionary (or part thereof) using a key prefix
+        /// to allow "namespacing" of config
+        /// </summary>
+        /// <param name="src">IDictionary to operate on</param>
+        /// <param name="keyPrefix">key prefix to take into account</param>
+        /// <typeparam name="T">Interface to duck onto</typeparam>
+        /// <returns>new instance of T, wrapping the Dictionary, or null if unduckable</returns>
+        public static T FuzzyDuckAs<T>(
+            this IDictionary<string, object> src,
+            string keyPrefix
+        ) where T : class
+        {
+            return src.FuzzyDuckAs<T>(keyPrefix, false);
+        }
+
+        /// <summary>
+        /// Fuzzy-Ducks a Dictionary (or part thereof) using a key prefix
+        /// to allow "namespacing" of config
+        /// </summary>
+        /// <param name="src">IDictionary to operate on</param>
+        /// <param name="keyPrefix">key prefix to take into account</param>
+        /// <param name="throwOnError">flag: when unduckable, throw instead of just returning null</param>
+        /// <typeparam name="T">Interface to duck onto</typeparam>
+        /// <returns>new instance of T, wrapping the Dictionary, or null if unduckable</returns>
+        public static T FuzzyDuckAs<T>(
+            this IDictionary<string, object> src,
+            string keyPrefix,
+            bool throwOnError
+        ) where T : class
+        {
+            return src.FuzzyDuckAs<T>(
+                k => $"{keyPrefix}{k}",
+                k => k.RemoveAtStart(keyPrefix),
+                throwOnError
+            );
+        }
+
+        /// <summary>
+        /// Ducks a Dictionary (or part thereof) using a key prefix
+        /// to allow "namespacing" of config
+        /// </summary>
+        /// <param name="src">IDictionary to operate on</param>
+        /// <param name="keyPrefix">key prefix to take into account</param>
+        /// <typeparam name="T">Interface to duck onto</typeparam>
+        /// <returns>new instance of T, wrapping the Dictionary, or null if unduckable</returns>
+        public static T DuckAs<T>(
+            this IDictionary<string, object> src,
+            string keyPrefix
+        ) where T : class
+        {
+            return src.DuckAs<T>(keyPrefix, false);
+        }
+
+        /// <summary>
+        /// Ducks a Dictionary (or part thereof) using a key prefix
+        /// to allow "namespacing" of config
+        /// </summary>
+        /// <param name="src">IDictionary to operate on</param>
+        /// <param name="keyPrefix">key prefix to take into account</param>
+        /// <param name="throwOnError">flag: when unduckable, throw instead of just returning null</param>
+        /// <typeparam name="T">Interface to duck onto</typeparam>
+        /// <returns>new instance of T, wrapping the Dictionary, or null if unduckable</returns>
+        public static T DuckAs<T>(
+            this IDictionary<string, object> src,
+            string keyPrefix,
+            bool throwOnError
+        ) where T : class
+        {
+            return src.DuckAs<T>(
+                k => $"{keyPrefix}{k}",
+                k => k.RemoveAtStart(keyPrefix),
+                throwOnError
+            );
+        }
+
+        /// <summary>
+        /// Fuzzy-Ducks a NameValueCollection (or part thereof) using a key prefix
+        /// to allow "namespacing" of config
+        /// </summary>
+        /// <param name="src">NameValueCollection to operate on</param>
+        /// <param name="keyPrefix">key prefix to take into account</param>
+        /// <typeparam name="T">Interface to duck onto</typeparam>
+        /// <returns>new instance of T, wrapping the NameValueCollection, or null if unduckable</returns>
+        public static T FuzzyDuckAs<T>(
+            this NameValueCollection src,
+            string keyPrefix
+        ) where T : class
+        {
+            return src.FuzzyDuckAs<T>(keyPrefix, false);
+        }
+
+        /// <summary>
+        /// Fuzzy-Ducks a NameValueCollection (or part thereof) using a key prefix
+        /// to allow "namespacing" of config
+        /// </summary>
+        /// <param name="src">NameValueCollection to operate on</param>
+        /// <param name="keyPrefix">key prefix to take into account</param>
+        /// <param name="throwOnError">flag: when unduckable, throw instead of just returning null</param>
+        /// <typeparam name="T">Interface to duck onto</typeparam>
+        /// <returns>new instance of T, wrapping the NameValueCollection, or null if unduckable</returns>
+        public static T FuzzyDuckAs<T>(
+            this NameValueCollection src,
+            string keyPrefix,
+            bool throwOnError
+        ) where T : class
+        {
+            return src.FuzzyDuckAs<T>(
+                k => $"{keyPrefix}{k}",
+                k => k.RemoveAtStart(keyPrefix),
+                throwOnError
+            );
+        }
+
+        /// <summary>
+        /// Ducks a NameValueCollection (or part thereof) using a key prefix
+        /// to allow "namespacing" of config
+        /// </summary>
+        /// <param name="src">NameValueCollection to operate on</param>
+        /// <param name="keyPrefix">key prefix to take into account</param>
+        /// <typeparam name="T">Interface to duck onto</typeparam>
+        /// <returns>new instance of T, wrapping the NameValueCollection, or null if unduckable</returns>
+        public static T DuckAs<T>(
+            this NameValueCollection src,
+            string keyPrefix
+        ) where T : class
+        {
+            return src.DuckAs<T>(keyPrefix, false);
+        }
+
+        /// <summary>
+        /// Ducks a NameValueCollection (or part thereof) using a key prefix
+        /// to allow "namespacing" of config
+        /// </summary>
+        /// <param name="src">NameValueCollection to operate on</param>
+        /// <param name="keyPrefix">key prefix to take into account</param>
+        /// <param name="throwOnError">flag: when unduckable, throw instead of just returning null</param>
+        /// <typeparam name="T">Interface to duck onto</typeparam>
+        /// <returns>new instance of T, wrapping the NameValueCollection, or null if unduckable</returns>
+        public static T DuckAs<T>(
+            this NameValueCollection src,
+            string keyPrefix,
+            bool throwOnError
+        ) where T : class
+        {
+            return src.DuckAs<T>(
+                k => $"{keyPrefix}{k}",
+                k => k.RemoveAtStart(keyPrefix),
+                throwOnError
+            );
+        }
+
+        private static string RemoveAtStart(this string src, string prefix)
+        {
+            return src.StartsWith(prefix)
+                ? src.Substring(prefix.Length)
+                : src;
+        }
     }
 }
