@@ -352,6 +352,88 @@ namespace PeanutButter.Utils.Tests
 
 
         [Test]
+        public void DeepEquals_WhenObjectsHaveDifferentCollections_ShouldReturnFalse()
+        {
+            // Arrange
+            var val = GetRandomString();
+            var first = new HasAnArrayOfStrings() { Strings = new [] { val } };
+            var second = new HasAnArrayOfStrings() { Strings = new string[] { } };
+            // Pre-Assert
+            // Act
+            var result1 = first.DeepEquals(second);
+            var result2 = second.DeepEquals(first);
+            // Assert
+            Expect(result1, Is.False);
+            Expect(result2, Is.False);
+        }
+
+        [Test]
+        public void DeepEquals_WhenObjectsHaveSameCollections_ShouldReturnTrue()
+        {
+            // Arrange
+            var val = GetRandomString();
+            var first = new HasAnArrayOfStrings() { Strings = new [] { val } };
+            var second = new HasAnArrayOfStrings() { Strings = new[] { val } };
+            // Pre-Assert
+            // Act
+            var result1 = first.DeepEquals(second);
+            var result2 = second.DeepEquals(first);
+            // Assert
+            Expect(result1, Is.True);
+            Expect(result2, Is.True);
+        }
+
+        public class HasSomethingWithStrings
+        {
+            public HasAnArrayOfStrings Something { get; set; }
+        }
+
+        [Test]
+        public void DeepEquals_WhenSubObjectsHaveDifferentCollections_ShouldReturnFalse()
+        {
+            // Arrange
+            var val = GetRandomString();
+            var first = new HasSomethingWithStrings()
+            {
+                Something = new HasAnArrayOfStrings() { Strings = new [] { val } }
+            };
+            var second = new HasSomethingWithStrings()
+            {
+                Something = new HasAnArrayOfStrings() { Strings = new string[] { } }
+            };
+            // Pre-Assert
+            // Act
+            var result1 = first.DeepEquals(second);
+            var result2 = second.DeepEquals(first);
+            // Assert
+            Expect(result1, Is.False);
+            Expect(result2, Is.False);
+        }
+
+        [Test]
+        public void DeepEquals_WhenSubObjectsHaveSameCollections_ShouldReturnTrue()
+        {
+            // Arrange
+            var val = GetRandomString();
+            var first = new HasSomethingWithStrings()
+            {
+                Something = new HasAnArrayOfStrings() { Strings = new [] { val } }
+            };
+            var second = new HasSomethingWithStrings()
+            {
+                Something = new HasAnArrayOfStrings() { Strings = new[] { val } }
+            };
+            // Pre-Assert
+            // Act
+            var result1 = first.DeepEquals(second);
+            var result2 = second.DeepEquals(first);
+            // Assert
+            Expect(result1, Is.True);
+            Expect(result2, Is.True);
+        }
+
+
+        [Test]
         public void CopyPropertiesTo_GivenSimpleObjectDest_DoesNotThrow()
         {
             //---------------Set up test pack-------------------
@@ -964,13 +1046,14 @@ namespace PeanutButter.Utils.Tests
 
         public class HasAnArrayOfStrings
         {
-            public string[] Stuff { get; set; }
+            public string[] Strings { get; set; }
         }
+
         [Test]
         public void CopyPropertiesTo_ShouldCopyEmptyArrayProperty()
         {
             //--------------- Arrange -------------------
-            var src = new HasAnArrayOfStrings() { Stuff = new string[0] };
+            var src = new HasAnArrayOfStrings() { Strings = new string[0] };
             var target = new HasAnArrayOfStrings();
 
             //--------------- Assume ----------------
@@ -979,15 +1062,15 @@ namespace PeanutButter.Utils.Tests
             src.CopyPropertiesTo(target);
 
             //--------------- Assert -----------------------
-            Assert.IsNotNull(target.Stuff);
-            CollectionAssert.IsEmpty(target.Stuff);
+            Assert.IsNotNull(target.Strings);
+            CollectionAssert.IsEmpty(target.Strings);
         }
 
         [Test]
         public void CopyPropertiesTo_ShouldCopyNonEmptyArrayProperty()
         {
             //--------------- Arrange -------------------
-            var src = new HasAnArrayOfStrings() { Stuff = new [] { "123", "456" } };
+            var src = new HasAnArrayOfStrings() { Strings = new [] { "123", "456" } };
             var target = new HasAnArrayOfStrings();
 
             //--------------- Assume ----------------
@@ -996,9 +1079,9 @@ namespace PeanutButter.Utils.Tests
             src.CopyPropertiesTo(target);
 
             //--------------- Assert -----------------------
-            Assert.IsNotNull(target.Stuff);
-            CollectionAssert.IsNotEmpty(target.Stuff);
-            CollectionAssert.AreEqual(src.Stuff, target.Stuff);
+            Assert.IsNotNull(target.Strings);
+            CollectionAssert.IsNotEmpty(target.Strings);
+            CollectionAssert.AreEqual(src.Strings, target.Strings);
         }
 
         public class HasAnEnumerable
