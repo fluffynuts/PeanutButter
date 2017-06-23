@@ -22,5 +22,5 @@
     <Property Name="sonar.exclusions">source/**/*.NugetPackage/*,tools/**/*</Property>
     <Property Name="sonar.test.inclusions">**/*.Tests/**</Property>
     <Property Name="sonar.cs.nunit.reportsPaths">buildreports/nunit-result.xml</Property>
-    <Property Name="sonar.cs.dotcover.reportsPaths">buildreports/coverage.html</Property>
+    <Property Name="sonar.cs.opencover.reportsPaths">buildreports/coverage.xml</Property>
 </SonarQubeAnalysisProperties>
