@@ -32,10 +32,6 @@ if (!fs.existsSync("package.json")) {
   process.exit(1);
 }
 
-const 
-  generateTaskHooks = requireModule("generate-task-hooks"),
-  gulp = requireModule("gulp-with-help");
-
 try {
   var requireDir = require("require-dir");
   requireDir(gulpTasksFolder);
@@ -43,7 +39,12 @@ try {
     console.warn("including tasks from tests folder");
     requireDir(path.join(gulpTasksFolder, "tests"));
   }
-  // WIP: Object.keys(gulp.tasks).forEach(generateTaskHooks); 
+/* WIP: testing task auto-hooks
+const 
+  generateTaskHooks = requireModule("generate-task-hooks"),
+  gulp = requireModule("gulp-with-help");
+  Object.keys(gulp.tasks).forEach(generateTaskHooks); 
+*/
   ["override-tasks", "local-tasks"].forEach(function (dirname) {
     if (fs.existsSync(dirname)) {
       requireDir(dirname);
