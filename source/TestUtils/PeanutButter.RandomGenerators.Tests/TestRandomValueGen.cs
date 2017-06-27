@@ -1677,6 +1677,13 @@ namespace PeanutButter.RandomGenerators.Tests
             // Pre-Assert
             // Act
             var result = GetRandom<KeyValuePair<string, string>>();
+            var attempts = 0;
+            while (result.Key == "" || result.Value == "")
+            {
+                if (++attempts > 10)
+                    Assert.Fail("Unable to get non-empty key or value");
+                result = GetRandom<KeyValuePair<string, string>>();
+            }
             // Assert
             Expect(result, Is.Not.Null);
             Expect(result.Key, Is.Not.Null);

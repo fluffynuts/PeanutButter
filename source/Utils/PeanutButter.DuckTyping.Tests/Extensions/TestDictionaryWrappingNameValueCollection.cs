@@ -115,6 +115,51 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             Expect(result, Is.True);
         }
 
+        [Test]
+        public void CopyTo_ShouldThrowNotImplementedException()
+        {
+            // DictionaryWrappingNameValueCollection is internal and I don't need this functionality (yet)
+            // Arrange
+            var sut = Create();
+            // Pre-Assert
+            // Act
+            Expect(() => sut.CopyTo(new KeyValuePair<string, object>[5], 0),
+                Throws.Exception.InstanceOf<NotImplementedException>());
+            // Assert
+        }
+
+        [Test]
+        public void Remove_GivenItemNotInCollection_ShouldDoNothing()
+        {
+            // Arrange
+            var arena = CreateArena();
+            var inCollection = GetRandom<KeyValuePair<string, string>>();
+            var notInCollection = GetRandom<KeyValuePair<string, string>>();
+            arena.Collection.Add(inCollection.Key, inCollection.Value);
+            // Pre-Assert
+            Expect(arena.Sut.Contains(notInCollection.AsKeyValuePairOfStringObject()), Is.False);
+            // Act
+            var result = arena.Sut.Remove(notInCollection.AsKeyValuePairOfStringObject());
+            // Assert
+            Expect(result, Is.False);
+            Expect(arena.Collection[inCollection.Key], Is.EqualTo(inCollection.Value));
+        }
+
+        [Test]
+        public void Remove_GivenItemInCollection_ShouldRemoveIt()
+        {
+            // Arrange
+            var arena = CreateArena();
+            var inCollection = GetRandom<KeyValuePair<string, string>>();
+            arena.Collection.Add(inCollection.Key, inCollection.Value);
+            // Pre-Assert
+            // Act
+            var result = arena.Sut.Remove(inCollection.AsKeyValuePairOfStringObject());
+            // Assert
+            Expect(result, Is.True);
+            Expect(arena.Collection, Is.Empty);
+        }
+
         private TestArena CreateArena() {
             return new TestArena();
         }
@@ -138,6 +183,17 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             return new DictionaryWrappingNameValueCollection(
                 collection ?? new NameValueCollection(),
                 caseInsensitive
+            );
+        }
+    }
+
+    public static class KeyValueCollectionExtensions
+    {
+        public static KeyValuePair<string, object> AsKeyValuePairOfStringObject(this KeyValuePair<string, string> src)
+        {
+            return new KeyValuePair<string, object>(
+                src.Key,
+                src.Value
             );
         }
     }
