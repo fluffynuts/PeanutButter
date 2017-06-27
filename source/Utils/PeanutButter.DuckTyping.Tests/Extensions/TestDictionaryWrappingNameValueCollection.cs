@@ -42,6 +42,20 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             Expect(collection[kvp.Key], Is.EqualTo(kvp.Value));
         }
 
+        [Test]
+        public void Clear_ShouldClearTheUnderlyingNameValueCollection()
+        {
+            // Arrange
+            var collection = new NameValueCollection();
+            collection.Add(GetRandomString(), GetRandomString());
+            var sut = Create(collection);
+            // Pre-Assert
+            // Act
+            sut.Clear();
+            // Assert
+            Expect(collection, Is.Empty);
+        }
+
         private DictionaryWrappingNameValueCollection Create(
             NameValueCollection collection = null,
             bool caseInsensitive = false
