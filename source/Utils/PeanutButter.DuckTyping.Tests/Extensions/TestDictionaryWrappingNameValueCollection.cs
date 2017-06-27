@@ -1,8 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Extensions;
 using PeanutButter.Utils;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.DuckTyping.Tests.Extensions
 {
@@ -23,6 +26,20 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             Expect(result, Is.InstanceOf<DictionaryWrappingNameValueCollectionEnumerator>());
             Expect(reference.Get<DictionaryWrappingNameValueCollection>("Data"), Is.EqualTo(sut));
             Expect(result.Get<DictionaryWrappingNameValueCollection>("Data"), Is.EqualTo(sut));
+        }
+
+        [Test]
+        public void Add_GivenKeyValuePair_ShouldAddItToTheUnderlyingCollection()
+        {
+            // Arrange
+            var collection = new NameValueCollection();
+            var sut = Create(collection);
+            var kvp = GetRandom<KeyValuePair<string, object>>();
+            // Pre-Assert
+            // Act
+            sut.Add(kvp);
+            // Assert
+            Expect(collection[kvp.Key], Is.EqualTo(kvp.Value));
         }
 
         private DictionaryWrappingNameValueCollection Create(
