@@ -19,7 +19,10 @@ namespace PeanutButter.DuckTyping.Extensions
         /// </summary>
         /// <param name="data"></param>
         /// <param name="caseInsensitive">Flag: is this collection to treat keys case-insensitive?</param>
-        public DictionaryWrappingNameValueCollection(NameValueCollection data, bool caseInsensitive)
+        public DictionaryWrappingNameValueCollection(
+            NameValueCollection data, 
+            bool caseInsensitive
+        )
         {
             _data = data;
             _caseInsensitive = caseInsensitive;

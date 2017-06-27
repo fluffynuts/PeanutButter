@@ -11,6 +11,7 @@ namespace PeanutButter.DuckTyping.Extensions
     /// </summary>
     internal class DictionaryWrappingNameValueCollectionEnumerator : IEnumerator<KeyValuePair<string, object>>
     {
+        internal DictionaryWrappingNameValueCollection Data => _data;
         private readonly DictionaryWrappingNameValueCollection _data;
         private string[] _keys;
         private int _current;

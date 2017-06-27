@@ -79,6 +79,7 @@
     <Compile Include="Exceptions\TestWriteOnlyPropertyException.cs" />
     <Compile Include="Extensions\Ext.cs" />
     <Compile Include="Extensions\TestCustomAttributeHelperExtensions.cs" />
+    <Compile Include="Extensions\TestDictionaryWrappingNameValueCollection.cs" />
     <Compile Include="Extensions\TestDuckTypingHelperExtensions.cs" />
     <Compile Include="Extensions\TestDuckTypingExtensions.cs" />
     <Compile Include="Shimming\TestDictionaryShimSham.cs" />
