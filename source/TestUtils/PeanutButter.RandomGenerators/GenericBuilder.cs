@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -199,7 +200,7 @@ namespace PeanutButter.RandomGenerators
 
         private void CheckUnconstructable(Type type)
         {
-            lock(_unconstructables)
+            lock (_unconstructables)
             {
                 if (_unconstructables.Contains(type))
                     throw CreateUnconstructableException();
@@ -208,7 +209,7 @@ namespace PeanutButter.RandomGenerators
 
         private static void CacheUnconstructable(Type type)
         {
-            lock(_unconstructables)
+            lock (_unconstructables)
             {
                 _unconstructables.Add(type);
             }
@@ -330,8 +331,72 @@ namespace PeanutButter.RandomGenerators
             var handle = Activator.CreateInstance(
                 AppDomain.CurrentDomain,
                 type.Assembly.FullName,
-                type.FullName);
+                type.FullName,
+                false,
+                0,
+                null,
+                TryToMakeConstructorParametersFor(type),
+                null,
+                null);
             return (TInterface) handle.Unwrap();
+        }
+
+        private class ConstructorInfoLookupItem
+        {
+            public ParameterInfo[] Parameters { get; }
+            public ConstructorInfo Constructor { get; }
+
+            public ConstructorInfoLookupItem(ConstructorInfo info)
+            {
+                Constructor = info;
+                Parameters = info.GetParameters();
+            }
+        }
+
+        private static object[] TryToMakeConstructorParametersFor(Type type)
+        {
+            var constructors = type.GetConstructors()
+                .Where(c => c.IsPublic)
+                .Select(c => new ConstructorInfoLookupItem(c))
+                .ToArray();
+            if (constructors.Any(c => c.Parameters.Length == 0))
+                return null;
+            return constructors
+                .OrderByDescending(c => c.Parameters.Length)
+                .Select(AttemptToMakeParameters)
+                .FirstOrDefault(r => r.Success)?.ParameterValues;
+        }
+
+        private class ParametersAttempt
+        {
+            public object[] ParameterValues => CreatedValues.ToArray();
+            public List<object> CreatedValues = new List<object>();
+            public bool Success { get; set; } = true;
+        }
+
+        private static ParametersAttempt AttemptToMakeParameters(
+            ConstructorInfoLookupItem arg
+        )
+        {
+            return arg.Parameters.Aggregate(new ParametersAttempt(),
+                (acc, cur) => acc.Success
+                    ? TryAddValue(acc, cur)
+                    : acc);
+        }
+
+        private static ParametersAttempt TryAddValue(
+            ParametersAttempt acc, ParameterInfo cur
+        )
+        {
+            try
+            {
+                acc.CreatedValues.Add(ConstructInCurrentDomain<object>(cur.ParameterType));
+            }
+            catch
+            {
+                acc.Success = false;
+            }
+            return acc;
         }
 
         private static Type FindImplementingTypeFor<TInterface>(IEnumerable<Assembly> assemblies)
@@ -738,7 +803,8 @@ namespace PeanutButter.RandomGenerators
                 catch (Exception ex)
                 {
                     RandomPropSetters[prop.Name] = null;
-                    Trace.WriteLine($"Unable to set random prop: {prop.DeclaringType.Name}.{prop.Name} ({prop.PropertyType.Name}) {ex.Message}");
+                    Trace.WriteLine(
+                        $"Unable to set random prop: {prop.DeclaringType.Name}.{prop.Name} ({prop.PropertyType.Name}) {ex.Message}");
                 }
             }
         }
@@ -748,7 +814,8 @@ namespace PeanutButter.RandomGenerators
             Action<TEntity, int> result;
             if (RandomPropSetters.TryGetValue(prop.Name, out result))
                 return result;
-            Trace.WriteLine($"No random property setter available for {prop.DeclaringType}.{prop.Name} (perhaps make a dev request?)");
+            Trace.WriteLine(
+                $"No random property setter available for {prop.DeclaringType}.{prop.Name} (perhaps make a dev request?)");
             RandomPropSetters[prop.Name] = null;
             return null;
         }

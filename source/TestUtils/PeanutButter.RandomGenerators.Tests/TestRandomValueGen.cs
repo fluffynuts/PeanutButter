@@ -94,7 +94,8 @@ namespace PeanutButter.RandomGenerators.Tests
 
         [TestCase(50, 100)]
         [TestCase(150, 400)]
-        public void GetRandomString_GivenLengthLimits_ReturnsRandomStringsWithinLengthRange(int minLength, int maxLength)
+        public void GetRandomString_GivenLengthLimits_ReturnsRandomStringsWithinLengthRange(int minLength,
+            int maxLength)
         {
             //---------------Set up test pack-------------------
             var strings = new List<string>();
@@ -112,7 +113,8 @@ namespace PeanutButter.RandomGenerators.Tests
 
         [TestCase(50, 100)]
         [TestCase(150, 400)]
-        public void GetRandomStringGeneric_GivenLengthLimits_ReturnsRandomStringsWithinLengthRange(int minLength, int maxLength)
+        public void GetRandomStringGeneric_GivenLengthLimits_ReturnsRandomStringsWithinLengthRange(int minLength,
+            int maxLength)
         {
             //---------------Set up test pack-------------------
             var strings = new List<string>();
@@ -124,7 +126,8 @@ namespace PeanutButter.RandomGenerators.Tests
 
             //---------------Test Result -----------------------
             Assert.IsTrue(strings.All(s => s.Length >= DefaultRanges.MINLENGTH_STRING));
-            Assert.IsTrue(strings.All(s => s.Length <= DefaultRanges.MINLENGTH_STRING + DefaultRanges.MINLENGTH_STRING));
+            Assert.IsTrue(strings.All(s => s.Length <= DefaultRanges.MINLENGTH_STRING +
+                                           DefaultRanges.MINLENGTH_STRING));
             Assert.IsTrue(strings.Distinct().Count() > 1);
         }
 
@@ -352,7 +355,8 @@ namespace PeanutButter.RandomGenerators.Tests
         [TestCase(1984, 4, 4, 2001, 1, 1)]
         [TestCase(1914, 4, 4, 2011, 1, 1)]
         [TestCase(2001, 4, 4, 2001, 1, 1)]
-        public void GetRandomDate_GivenDateOnlyIsTrue_ShouldReturnDateTimeWithNoTimeComponent(int minYear, int minMonth, int minDay, int maxYear,
+        public void GetRandomDate_GivenDateOnlyIsTrue_ShouldReturnDateTimeWithNoTimeComponent(int minYear, int minMonth,
+            int minDay, int maxYear,
             int maxMonth, int maxDay)
         {
             //---------------Set up test pack-------------------
@@ -395,7 +399,8 @@ namespace PeanutButter.RandomGenerators.Tests
         [TestCase(1984, 4, 4, 2001, 1, 1)]
         [TestCase(1914, 4, 4, 2011, 1, 1)]
         [TestCase(2001, 4, 4, 2001, 1, 1)]
-        public void GetRandomDate_ShouldReturnDatesWithinRange(int minYear, int minMonth, int minDay, int maxYear, int maxMonth, int maxDay)
+        public void GetRandomDate_ShouldReturnDatesWithinRange(int minYear, int minMonth, int minDay, int maxYear,
+            int maxMonth, int maxDay)
         {
             //---------------Set up test pack-------------------
             var results = new List<DateTime>();
@@ -529,7 +534,8 @@ namespace PeanutButter.RandomGenerators.Tests
             RunCycles(() => results.Add(GetRandomDate(maxTime: maxTime)));
 
             //---------------Test Result -----------------------
-            var outOfRange = results.Where(d => d.MillisecondsSinceStartOfDay() > maxTime.MillisecondsSinceStartOfDay()).ToArray();
+            var outOfRange = results.Where(d => d.MillisecondsSinceStartOfDay() > maxTime.MillisecondsSinceStartOfDay())
+                .ToArray();
             Assert.IsFalse(outOfRange.Any(),
                 $"One or more results had a time that was too late for {maxTime}.{Environment.NewLine}{Print(outOfRange)}");
         }
@@ -559,7 +565,8 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [Test]
-        public void GetRandomDate_GivenMinDateTimeAndMaxDateTime_WhenDateOnlySpecified_AndMinMaxOnSameDay_ShouldGiveThatDay()
+        public void
+            GetRandomDate_GivenMinDateTimeAndMaxDateTime_WhenDateOnlySpecified_AndMinMaxOnSameDay_ShouldGiveThatDay()
         {
             //---------------Set up test pack-------------------
             var minDate = new DateTime(2011, 1, 1, 12, 00, 0);
@@ -643,7 +650,8 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [Test]
-        public void GetRandomDateRange_GivenMinDateAndMaxDateAndDateOnlyTrue_ShouldReturnRangeWithinMinAndMaxRangeWithNoTimes()
+        public void
+            GetRandomDateRange_GivenMinDateAndMaxDateAndDateOnlyTrue_ShouldReturnRangeWithinMinAndMaxRangeWithNoTimes()
         {
             //---------------Set up test pack-------------------
             var minDate = GetRandomDate();
@@ -739,7 +747,8 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [Test]
-        public void GetRandomCollection_GivenGeneratorFunctionAndBoundaries_ShouldReturnListOfRandomSizeContainingOutputOfGeneratorPerItem()
+        public void
+            GetRandomCollection_GivenGeneratorFunctionAndBoundaries_ShouldReturnListOfRandomSizeContainingOutputOfGeneratorPerItem()
         {
             //---------------Set up test pack-------------------
             const int runs = RANDOM_TEST_CYCLES;
@@ -814,7 +823,8 @@ namespace PeanutButter.RandomGenerators.Tests
             var tooLong = allResults.Where(r => r.Item1.Length > r.Item3);
             var alphaNumericChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
             var invalidCharacters = allResults.Where(r => r.Item1.Any(c => !alphaNumericChars.Contains(c)));
-            Assert.IsFalse(tooShort.Any() && tooLong.Any() && invalidCharacters.Any(), BuildErrorMessageFor(tooShort, tooLong, invalidCharacters));
+            Assert.IsFalse(tooShort.Any() && tooLong.Any() && invalidCharacters.Any(),
+                BuildErrorMessageFor(tooShort, tooLong, invalidCharacters));
         }
 
         [Test]
@@ -846,7 +856,8 @@ namespace PeanutButter.RandomGenerators.Tests
             var tooLong = allResults.Where(r => r.Item1.Length > r.Item3);
             var alphaNumericChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
             var invalidCharacters = allResults.Where(r => r.Item1.Any(c => !alphaNumericChars.Contains(c)));
-            Assert.IsFalse(tooShort.Any() && tooLong.Any() && invalidCharacters.Any(), BuildErrorMessageFor(tooShort, tooLong, invalidCharacters));
+            Assert.IsFalse(tooShort.Any() && tooLong.Any() && invalidCharacters.Any(),
+                BuildErrorMessageFor(tooShort, tooLong, invalidCharacters));
         }
 
         [Test]
@@ -878,7 +889,8 @@ namespace PeanutButter.RandomGenerators.Tests
             var tooLong = allResults.Where(r => r.Item1.Length > r.Item3);
             var alphaNumericChars = "1234567890";
             var invalidCharacters = allResults.Where(r => r.Item1.Any(c => !alphaNumericChars.Contains(c)));
-            Assert.IsFalse(tooShort.Any() && tooLong.Any() && invalidCharacters.Any(), BuildErrorMessageFor(tooShort, tooLong, invalidCharacters));
+            Assert.IsFalse(tooShort.Any() && tooLong.Any() && invalidCharacters.Any(),
+                BuildErrorMessageFor(tooShort, tooLong, invalidCharacters));
         }
 
         [Test]
@@ -926,13 +938,15 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<CannotGetAnotherDifferentRandomValueException<string>>(() => GetAnother(notThis, () => notThis));
+            Assert.Throws<CannotGetAnotherDifferentRandomValueException<string>>(() => GetAnother(notThis,
+                () => notThis));
 
             //---------------Test Result -----------------------
         }
 
         [Test]
-        public void GetAnother_GivenOriginalValueAndGenerator_WhenCannotGenerateNewValueBecauseOfComparisonFunc_ShouldThrow()
+        public void
+            GetAnother_GivenOriginalValueAndGenerator_WhenCannotGenerateNewValueBecauseOfComparisonFunc_ShouldThrow()
         {
             //---------------Set up test pack-------------------
             var notThis = GetRandomString(1, 1);
@@ -966,7 +980,8 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [Test]
-        public void GetAnother_GivenOriginalValueCollectionAndNoGenerator_WhenCanGenerateNewValue_ShouldReturnThatValue()
+        public void
+            GetAnother_GivenOriginalValueCollectionAndNoGenerator_WhenCanGenerateNewValue_ShouldReturnThatValue()
         {
             RunCycles(() =>
             {
@@ -985,7 +1000,8 @@ namespace PeanutButter.RandomGenerators.Tests
 
 
         [Test]
-        public void GetAnother_GivenOriginalValueCollectionAndGenerator_WhenCannotGenerateNewValueBecauseOfComparisonFunc_ShouldThrow()
+        public void
+            GetAnother_GivenOriginalValueCollectionAndGenerator_WhenCannotGenerateNewValueBecauseOfComparisonFunc_ShouldThrow()
         {
             //---------------Set up test pack-------------------
             var notAnyOfThese = GetRandomCollection(() => GetRandomString(), 2);
@@ -993,7 +1009,8 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<CannotGetAnotherDifferentRandomValueException<IEnumerable<string>>>(() => GetAnother(notAnyOfThese,
+            Assert.Throws<CannotGetAnotherDifferentRandomValueException<IEnumerable<string>>>(() => GetAnother(
+                notAnyOfThese,
                 () => GetRandomString(),
                 (left, right) => true));
 
@@ -1461,7 +1478,8 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [Test]
-        public void CreateRandomFoldersIn_GivenPathAndDepth_ShouldCreateSomeRandomFoldersThereAndReturnTheRelativePaths()
+        public void
+            CreateRandomFoldersIn_GivenPathAndDepth_ShouldCreateSomeRandomFoldersThereAndReturnTheRelativePaths()
         {
             //---------------Set up test pack-------------------
             using (var folder = new AutoTempFolder())
@@ -1631,6 +1649,67 @@ namespace PeanutButter.RandomGenerators.Tests
             Expect(result, Is.EqualTo(expected));
         }
 
+        public class HasConstructorWithParameter
+        {
+            public string Parameter { get; }
+
+            public HasConstructorWithParameter(string parameter)
+            {
+                Parameter = parameter;
+            }
+        }
+
+        [Test]
+        public void GetRandomOfType_WhenTypeHasSimpleParameteredConstructor_ShouldAttemptToConstruct()
+        {
+            // Arrange
+            // Pre-Assert
+            // Act
+            var result = GetRandom<HasConstructorWithParameter>();
+            // Assert
+            Expect(result.Parameter, Is.Not.Null);
+        }
+
+        [Test]
+        public void GetRandomOfTypeKeyValuePair_ShouldReturnKeyValuePairWithData()
+        {
+            // Arrange
+            // Pre-Assert
+            // Act
+            var result = GetRandom<KeyValuePair<string, string>>();
+            // Assert
+            Expect(result, Is.Not.Null);
+            Expect(result.Key, Is.Not.Null);
+            Expect(result.Value, Is.Not.Null);
+        }
+
+        public class HasTwoConstructors
+        {
+            public bool ParameterlessConstructorUsed { get; }
+            public string Parameter { get; }
+
+            public HasTwoConstructors()
+            {
+                ParameterlessConstructorUsed = true;
+            }
+
+            public HasTwoConstructors(string parameter)
+            {
+                ParameterlessConstructorUsed = false;
+                Parameter = parameter;
+            }
+        }
+
+        [Test]
+        public void GetRandomOfT_ShouldPreferTheParameterlessConstructor()
+        {
+            // Arrange
+            // Pre-Assert
+            // Act
+            var sut = GetRandom<HasTwoConstructors>();
+            // Assert
+            Expect(sut.ParameterlessConstructorUsed, Is.True);
+        }
 
 
         private bool PathExists(string path)
@@ -1639,7 +1718,8 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
 
-        private string BuildErrorMessageFor(IEnumerable<Tuple<string, int, int>> tooShort, IEnumerable<Tuple<string, int, int>> tooLong,
+        private string BuildErrorMessageFor(IEnumerable<Tuple<string, int, int>> tooShort,
+            IEnumerable<Tuple<string, int, int>> tooLong,
             IEnumerable<Tuple<string, int, int>> invalidCharacters)
         {
             var message = new List<string>();
@@ -1680,12 +1760,14 @@ namespace PeanutButter.RandomGenerators.Tests
             if (outOfRangeLeft.Any())
             {
                 message = string.Join("\n", "One or more results had a time that was too early:",
-                    "minTime: " + minTime.ToString("yyyy/MM/dd HH:mm:ss.ttt"), "bad values: " + string.Join(",", outOfRangeLeft.Take(5)));
+                    "minTime: " + minTime.ToString("yyyy/MM/dd HH:mm:ss.ttt"),
+                    "bad values: " + string.Join(",", outOfRangeLeft.Take(5)));
             }
             if (outOfRangeRight.Any())
             {
                 message += string.Join("\n", "One or more results had a time that was too late:",
-                    "maxTime: " + maxTime.ToString("yyyy/MM/dd HH:mm:ss.ttt"), "bad values: " + string.Join(",", outOfRangeLeft.Take(5)));
+                    "maxTime: " + maxTime.ToString("yyyy/MM/dd HH:mm:ss.ttt"),
+                    "bad values: " + string.Join(",", outOfRangeLeft.Take(5)));
             }
             return message;
         }

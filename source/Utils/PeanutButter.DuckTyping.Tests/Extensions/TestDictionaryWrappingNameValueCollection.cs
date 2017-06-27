@@ -34,7 +34,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             // Arrange
             var collection = new NameValueCollection();
             var sut = Create(collection);
-            var kvp = GetRandom<KeyValuePair<string, object>>();
+            var kvp = new KeyValuePair<string, object>(GetRandomString(), GetRandomString());
             // Pre-Assert
             // Act
             sut.Add(kvp);
@@ -54,6 +54,81 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             sut.Clear();
             // Assert
             Expect(collection, Is.Empty);
+        }
+
+        [Test]
+        public void Contains_GivenKeyValuePair_OperatingOnEmptyCollection_ShouldReturnFalse()
+        {
+            // Arrange
+            var arena = CreateArena();
+            var kvp = GetRandom<KeyValuePair<string, object>>();
+            // Pre-Assert
+            Expect(arena.Collection, Is.Empty);
+            // Act
+            var result = arena.Sut.Contains(kvp);
+            // Assert
+            Expect(result, Is.False);
+        }
+
+        [Test]
+        public void Contains_GivenKeyValuePair_WhenNoSuchKeyInCollection_ShouldReturnFalse()
+        {
+            // Arrange
+            var arena = CreateArena();
+            var inCollection = GetRandom<KeyValuePair<string, string>>();
+            var notInCollection = GetRandom<KeyValuePair<string, object>>();
+            arena.Collection.Add(inCollection.Key, inCollection.Value);
+            // Pre-Assert
+            // Act
+            var result = arena.Sut.Contains(notInCollection);
+            // Assert
+            Expect(result, Is.False);
+        }
+
+        [Test]
+        public void Contains_GivenKeyValuePair_WhenHaveKeyInCollectionButMismatchesValue_ShouldReturnFalse()
+        {
+            // Arrange
+            var arena = CreateArena();
+            var inCollection = GetRandom<KeyValuePair<string, string>>();
+            var notInCollection = new KeyValuePair<string, object>(inCollection.Key, GetRandomString());
+            arena.Collection.Add(inCollection.Key, inCollection.Value);
+            // Pre-Assert
+            // Act
+            var result = arena.Sut.Contains(notInCollection);
+            // Assert
+            Expect(result, Is.False);
+        }
+
+        [Test]
+        public void Contains_GivenKeyValuePair_WhenHaveKeyInCollectionAndMatchingValue_ShouldReturnTrue()
+        {
+            // Arrange
+            var arena = CreateArena();
+            var inCollection = GetRandom<KeyValuePair<string, string>>();
+            var notInCollection = new KeyValuePair<string, object>(inCollection.Key, inCollection.Value);
+            arena.Collection.Add(inCollection.Key, inCollection.Value);
+            // Pre-Assert
+            // Act
+            var result = arena.Sut.Contains(notInCollection);
+            // Assert
+            Expect(result, Is.True);
+        }
+
+        private TestArena CreateArena() {
+            return new TestArena();
+        }
+
+        private class TestArena {
+            public NameValueCollection Collection { get; }
+            public DictionaryWrappingNameValueCollection Sut { get; }
+            public bool CaseInsensitive { get; }
+            public TestArena(
+
+            ) {
+                Collection = new NameValueCollection();
+                Sut = new DictionaryWrappingNameValueCollection(Collection, CaseInsensitive);
+            }
         }
 
         private DictionaryWrappingNameValueCollection Create(

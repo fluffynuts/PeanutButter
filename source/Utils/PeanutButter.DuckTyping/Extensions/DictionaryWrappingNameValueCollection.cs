@@ -41,7 +41,7 @@ namespace PeanutButter.DuckTyping.Extensions
         /// <inheritdoc />
         public void Add(KeyValuePair<string, object> item)
         {
-            _data.Add(item.Key, item.Value?.ToString());
+            _data.Add(item.Key, item.Value as string ?? item.Value?.ToString());
         }
 
         /// <inheritdoc />
