@@ -1,11 +1,3 @@
-const
-  gulp = requireModule("gulp-with-help"),
-  installLocalTools = requireModule("install-local-tools");
+const gulp = requireModule("gulp-with-help");
 
-gulp.task("install-tools", () => {
-  return installLocalTools([
-    "nunit.console",
-    "opencover",
-    "reportgenerator"
-  ]);
-});
+gulp.task("install-tools", ["default-tools-installer"]);
