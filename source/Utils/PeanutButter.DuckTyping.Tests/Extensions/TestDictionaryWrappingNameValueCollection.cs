@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Linq;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Extensions;
 using PeanutButter.Utils;
@@ -137,7 +138,9 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var notInCollection = GetRandom<KeyValuePair<string, string>>(kvp => kvp.Key != inCollection.Key);
             arena.Collection.Add(inCollection.Key, inCollection.Value);
             // Pre-Assert
-            Expect(arena.Sut.Contains(notInCollection.AsKeyValuePairOfStringObject()), Is.False);
+            Expect(arena.Sut.Contains(
+                notInCollection.AsKeyValuePairOfStringObject()
+            ), Is.False);
             // Act
             var result = arena.Sut.Remove(notInCollection.AsKeyValuePairOfStringObject());
             // Assert
@@ -158,6 +161,67 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             // Assert
             Expect(result, Is.True);
             Expect(arena.Collection, Is.Empty);
+        }
+
+        [Test]
+        public void IsReadOnly_ShouldBeFalse()
+        {
+            // Arrange
+            var sut = Create();
+            // Pre-Assert
+            // Act
+            var result = sut.IsReadOnly;
+            // Assert
+            Expect(result, Is.False);
+        }
+
+        [Test]
+        public void Remove_GivenKeyNotInCollection_ShouldReturnFalse()
+        {
+            // Arrange
+            var arena = CreateArena();
+            var key = GetRandomString(4);
+            var value = GetRandomString(4);
+            arena.Collection.Add(key, value);
+            var search = GetAnother(key);
+            // Pre-Assert
+            // Act
+            var result = arena.Sut.Remove(search);
+            // Assert
+            Expect(result, Is.False);
+            Expect(arena.Collection.Count, Is.EqualTo(1));
+            Expect(arena.Collection[key], Is.EqualTo(value));
+        }
+
+        [Test]
+        public void Remove_GivenKeyInCollection_ShouldRemove()
+        {
+            // Arrange
+            var arena = CreateArena();
+            var key = GetRandomString(4);
+            var value = GetRandomString(4);
+            arena.Collection.Add(key, value);
+            // Pre-Assert
+            // Act
+            var result = arena.Sut.Remove(key);
+            // Assert
+            Expect(result, Is.True);
+            Expect(arena.Collection.Count, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void Values_ShouldReturnAllValues()
+        {
+            // Arrange
+            var arena = CreateArena();
+            var data = GetRandomCollection<KeyValuePair<string, string>>(3);
+            data.ForEach(d => arena.Collection.Add(d.Key, d.Value));
+            var expected = data.Select(d => d.Value).ToArray();
+            // Pre-Assert
+            // Act
+            var result = arena.Sut.Values;
+            // Assert
+            Expect(result, Is.EquivalentTo(expected));
         }
 
         private TestArena CreateArena() {
