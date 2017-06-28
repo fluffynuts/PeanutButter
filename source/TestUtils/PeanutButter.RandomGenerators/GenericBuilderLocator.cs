@@ -96,7 +96,7 @@ namespace PeanutButter.RandomGenerators
         /// <returns>GenericBuilder type which is capable of building the provided type</returns>
         public static Type FindOrGenerateDynamicBuilderFor(Type type)
         {
-            var result = GenericBuilderBase.FindOrGenerateDynamicBuilderFor(type);
+            var result = GenericBuilderBase.ReuseOrGenerateDynamicBuilderFor(type);
             CacheBuilderType(type, result);
             return result;
         }

@@ -61,7 +61,7 @@ namespace PeanutButter.RandomGenerators
             return AppDomain.CurrentDomain.DefineDynamicAssembly(new AssemblyName(withName), AssemblyBuilderAccess.RunAndSave);
         }
 
-        internal static Type FindOrGenerateDynamicBuilderFor(Type type)
+        internal static Type ReuseOrGenerateDynamicBuilderFor(Type type)
         {
             if (type == null)
                 return null;

@@ -134,7 +134,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             // Arrange
             var arena = CreateArena();
             var inCollection = GetRandom<KeyValuePair<string, string>>();
-            var notInCollection = GetRandom<KeyValuePair<string, string>>();
+            var notInCollection = GetRandom<KeyValuePair<string, string>>(kvp => kvp.Key != inCollection.Key);
             arena.Collection.Add(inCollection.Key, inCollection.Value);
             // Pre-Assert
             Expect(arena.Sut.Contains(notInCollection.AsKeyValuePairOfStringObject()), Is.False);
