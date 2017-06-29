@@ -210,6 +210,21 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
         [Test]
+        public void Add_GivenKeyAndValue_ShouldAdd()
+        {
+            // Arrange
+            var arena = CreateArena();
+            var key = GetRandomString(4);
+            var value = GetRandomString(4);
+            // Pre-Assert
+            Expect(arena.Collection, Is.Empty);
+            // Act
+            arena.Sut.Add(key, value);
+            // Assert
+            Expect(arena.Collection[key], Is.EqualTo(value));
+        }
+
+        [Test]
         public void Values_ShouldReturnAllValues()
         {
             // Arrange

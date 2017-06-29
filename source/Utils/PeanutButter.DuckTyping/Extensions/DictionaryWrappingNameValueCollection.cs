@@ -100,7 +100,7 @@ namespace PeanutButter.DuckTyping.Extensions
         /// <inheritdoc />
         public void Add(string key, object value)
         {
-            _data.Add(key, value?.ToString());
+            _data.Add(key, value as string ?? value?.ToString());
         }
 
         /// <inheritdoc />
