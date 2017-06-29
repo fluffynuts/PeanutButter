@@ -109,6 +109,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="TestComputedField.vb" />
     <Compile Include="TestConnectionStringBuilder.vb" />
     <Compile Include="TestStatementBuilders\TestCompoundCondition.vb" />
     <Compile Include="TestStatementBuilders\TestComputedField.vb" />

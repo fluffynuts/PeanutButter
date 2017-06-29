@@ -24,9 +24,13 @@ Public Class ComputedField
     public Sub New(field as IField, computeFunction as ComputeFunctions, fieldAlias As String)
         Me.New(field.ToString(), computeFunction, fieldAlias)
     End Sub
+
+    Public Sub New(fieldName As String, computeFunction As ComputeFunctions)
+        Me.New(fieldName, computeFunction, string.Empty)
+    End Sub
 ' ReSharper restore MemberCanBePrivate.Global
 
-    Public Sub New(fieldName As String, computeFunction As ComputeFunctions, Optional fieldAlias As String = Nothing)
+    Public Sub New(fieldName As String, computeFunction As ComputeFunctions, fieldAlias As String)
         Me.FieldName = fieldName
         Me.ComputeFunction = computeFunction
         Me.FieldAlias = CStr(IIf(fieldAlias Is Nothing, fieldName, fieldAlias))
