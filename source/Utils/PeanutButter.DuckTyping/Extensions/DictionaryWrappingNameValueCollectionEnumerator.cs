@@ -31,6 +31,7 @@ namespace PeanutButter.DuckTyping.Extensions
         /// <inheritdoc />
         public void Dispose()
         {
+            /* empty on purpose, just need to implement IEnumerator */
         }
 
         /// <inheritdoc />
