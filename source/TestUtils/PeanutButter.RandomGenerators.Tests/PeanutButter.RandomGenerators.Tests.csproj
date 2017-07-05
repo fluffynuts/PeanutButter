@@ -244,13 +244,21 @@
       <Project>{55c40403-0200-4757-b253-a9dcf56ed39f}</Project>
       <Name>EmailSpooler.Win32Service.Entity</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\GenericBuilderTestArtifactBuilders\GenericBuilderTestArtifactBuilders.csproj">
+    <ProjectReference Include="..\..\Artifacts\GenericBuilderTestArtifactBuilders\GenericBuilderTestArtifactBuilders.csproj">
       <Project>{94df996d-ab59-4a67-9fb8-ec9db0e75f49}</Project>
       <Name>GenericBuilderTestArtifactBuilders</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\GenericBuilderTestArtifactEntities\GenericBuilderTestArtifactEntities.csproj">
+    <ProjectReference Include="..\..\Artifacts\GenericBuilderTestArtifactEntities\GenericBuilderTestArtifactEntities.csproj">
       <Project>{979f6293-9f94-4dab-92aa-531e42c32f95}</Project>
       <Name>GenericBuilderTestArtifactEntities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Artifacts\GenericBuilderTestLoadLoadedAssemblyObject\GenericBuilderTestLoadLoadedAssemblyObject.csproj">
+      <Project>{FB06E50C-5193-4F1F-A902-21DC21904AF3}</Project>
+      <Name>GenericBuilderTestLoadLoadedAssemblyObject</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Artifacts\GenericBuilderTestNotLoadedAssembly\GenericBuilderTestNotLoadedAssembly.csproj">
+      <Project>{ba7f8b6d-c21f-47a5-9708-6034d67396f0}</Project>
+      <Name>GenericBuilderTestNotLoadedAssembly</Name>
     </ProjectReference>
     <ProjectReference Include="..\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj">
       <Project>{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}</Project>

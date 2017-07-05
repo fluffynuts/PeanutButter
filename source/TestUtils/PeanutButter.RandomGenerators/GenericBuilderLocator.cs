@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using PeanutButter.TestUtils.Generic;
+using PeanutButter.Utils;
 
 namespace PeanutButter.RandomGenerators
 {
@@ -12,7 +13,6 @@ namespace PeanutButter.RandomGenerators
     /// </summary>
     public static class GenericBuilderLocator
     {
-
         /// <summary>
         /// Attempts to find and instantiate a generic builder for the type provided
         /// </summary>
@@ -34,7 +34,7 @@ namespace PeanutButter.RandomGenerators
         public static Type GetBuilderFor(Type type)
         {
             return TryFindExistingBuilderFor(type)
-                    ?? FindOrGenerateDynamicBuilderFor(type);
+                   ?? FindOrGenerateDynamicBuilderFor(type);
         }
 
         /// <summary>
@@ -69,10 +69,11 @@ namespace PeanutButter.RandomGenerators
         }
 
         private static readonly Dictionary<Type, Type> _builderTypeCache = new Dictionary<Type, Type>();
+
         private static Type TryFindExistingBuilderAndCacheFor(Type type)
         {
             var result = TryFindBuilderInCurrentAssemblyFor(type)
-                   ?? TryFindBuilderInAnyOtherAssemblyInAppDomainFor(type);
+                         ?? TryFindBuilderInAnyOtherAssemblyInAppDomainFor(type);
             CacheBuilderType(type, result);
             return result;
         }
@@ -109,14 +110,15 @@ namespace PeanutButter.RandomGenerators
             }
             catch
             {
-                return new Type[] {};
+                return new Type[] { };
             }
         }
 
-        private static Type TryFindBuilderInAnyOtherAssemblyInAppDomainFor(Type propertyType)
+        internal static Type TryFindBuilderInAnyOtherAssemblyInAppDomainFor(Type propertyType)
         {
             try
             {
+                LoadImmediateAssembliesIfRequired();
                 var types = AppDomain.CurrentDomain.GetAssemblies()
                     .Where(a => a != propertyType.Assembly && !a.IsDynamic)
                     .SelectMany(TryGetExportedTypesFrom)
@@ -124,14 +126,59 @@ namespace PeanutButter.RandomGenerators
                     .ToArray();
                 if (!types.Any())
                     return null;
-                return types.Length == 1 
-                    ? types.First() 
+                return types.Length == 1
+                    ? types.First()
                     : FindClosestNamespaceMatchFor(propertyType, types);
             }
             catch (Exception ex)
             {
-                Trace.WriteLine("Error whilst searching for user builder for type '" + propertyType.PrettyName() + "' in all loaded assemblies: " + ex.Message);
+                Trace.WriteLine("Error whilst searching for user builder for type '" + propertyType.PrettyName() +
+                                "' in all loaded assemblies: " + ex.Message);
                 return null;
+            }
+        }
+
+        private static object _referenceLoadLock = new object();
+        private static bool _haveLoadedImmediateAssemblies = false;
+
+        private static void LoadImmediateAssembliesIfRequired()
+        {
+            lock (_referenceLoadLock)
+            {
+                if (_haveLoadedImmediateAssemblies)
+                    return;
+                AppDomain.CurrentDomain.GetAssemblies().ForEach(LoadReferencedAssemblies);
+            }
+        }
+
+        private static void LoadReferencedAssemblies(Assembly asm)
+        {
+            try
+            {
+                Debug.WriteLine($"Attempting to load references of: {asm.FullName}");
+                asm.GetReferencedAssemblies().ForEach(rasm =>
+                {
+                    if (AppDomain.CurrentDomain.GetAssemblies().Any(a => a.FullName == rasm.FullName))
+                    {
+                        Debug.WriteLine($" -- {rasm.FullName} already loaded!");
+                        return;
+                    }
+                    try
+                    {
+                        Assembly.Load(rasm.FullName);
+                        Debug.WriteLine($" -> Loaded {rasm.FullName}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine(
+                            $"Unable to load referenced assembly {rasm.FullName} for {asm.FullName}: {ex.Message}"
+                        );
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Unable to enumerate referenced assemblies for {asm.FullName}: {ex.Message}");
             }
         }
 
@@ -144,14 +191,15 @@ namespace PeanutButter.RandomGenerators
             }
             catch (Exception ex)
             {
-                Trace.WriteLine("Error whilst searching for user builder for type '" + propType.PrettyName() + "' in type's assembly: " + ex.Message);
+                Trace.WriteLine("Error whilst searching for user builder for type '" + propType.PrettyName() +
+                                "' in type's assembly: " + ex.Message);
                 return null;
             }
         }
 
         private static Type FindClosestNamespaceMatchFor(Type propertyType, IEnumerable<Type> types)
         {
-            if (propertyType?.Namespace == null)    // R# is convinced this might happen :/
+            if (propertyType?.Namespace == null) // R# is convinced this might happen :/
                 return null;
             var seekNamespace = propertyType.Namespace.Split('.');
             return types.Aggregate((Type) null, (acc, cur) =>

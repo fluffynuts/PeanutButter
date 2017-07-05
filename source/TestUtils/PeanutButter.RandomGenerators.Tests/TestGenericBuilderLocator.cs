@@ -3,7 +3,11 @@ using System.Linq;
 using GenericBuilderTestArtifactBuilders;
 using GenericBuilderTestArtifactEntities;
 using GenericBuilderTestArtifactEntities.Sub1;
+using GenericBuilderTestLoadLoadedAssemblyObject;
+using GenericBuilderTestNotLoadedAssembly;
 using NUnit.Framework;
+// ReSharper disable UnusedMember.Global
+// ReSharper disable UnusedMember.Local
 
 namespace PeanutButter.RandomGenerators.Tests
 {
@@ -218,7 +222,23 @@ namespace PeanutButter.RandomGenerators.Tests
             //--------------- Assert -----------------------
         }
 
+        [Test]
+        public void ShouldFindBuilderInReferencedAssemblyNotYetLoaded()
+        {
+            // Arrange
+            // Pre-Assert
+            // Act
+            var builderType = GenericBuilderLocator.TryFindBuilderInAnyOtherAssemblyInAppDomainFor(
+                typeof(ObjectToBuildWithNotLoadedBuilder)
+            );
+            // Assert
+            Expect(builderType, Is.Not.Null);
+        }
+    }
 
-
+    public class RequiredToForceActualDependence {
+        // But should not exist in TestGenericBuilderLocator so as to
+        //  prevent loading
+        private Type _moo = typeof(NotLoadedBuilder);
     }
 }

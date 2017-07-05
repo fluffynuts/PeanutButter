@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.13
+VisualStudioVersion = 15.0.26430.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.RandomGenerators", "TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj", "{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}"
 EndProject
@@ -226,9 +226,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TinyEventAggregator", "Tiny
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TrayIcon", "TrayIcon", "{1F229960-08DC-47ED-9DFF-7138D92DE512}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenericBuilderTestArtifactEntities", "GenericBuilderTestArtifactEntities\GenericBuilderTestArtifactEntities.csproj", "{979F6293-9F94-4DAB-92AA-531E42C32F95}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenericBuilderTestArtifactEntities", "Artifacts\GenericBuilderTestArtifactEntities\GenericBuilderTestArtifactEntities.csproj", "{979F6293-9F94-4DAB-92AA-531E42C32F95}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenericBuilderTestArtifactBuilders", "GenericBuilderTestArtifactBuilders\GenericBuilderTestArtifactBuilders.csproj", "{94DF996D-AB59-4A67-9FB8-EC9DB0E75F49}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenericBuilderTestArtifactBuilders", "Artifacts\GenericBuilderTestArtifactBuilders\GenericBuilderTestArtifactBuilders.csproj", "{94DF996D-AB59-4A67-9FB8-EC9DB0E75F49}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.FileSystem", "Utils\PeanutButter.FileSystem\PeanutButter.FileSystem.csproj", "{8F3337F2-7D5D-4D62-83F6-E3D57755B1BF}"
 EndProject
@@ -283,6 +283,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.JObjectExtensions.NugetPackage", "Utils\PeanutButter.JObjectExtensions.NugetPackage\PeanutButter.JObjectExtensions.NugetPackage.csproj", "{16EF6673-3F61-43B9-AD99-0971DC62612D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.JObjectExtensions.Tests", "Utils\PeanutButter.JObjectExtensions.Tests\PeanutButter.JObjectExtensions.Tests.csproj", "{E123E1AC-4A11-4E40-AB0A-AF58D8D93391}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenericBuilderTestNotLoadedAssembly", "Artifacts\GenericBuilderTestNotLoadedAssembly\GenericBuilderTestNotLoadedAssembly.csproj", "{BA7F8B6D-C21F-47A5-9708-6034D67396F0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenericBuilderTestLoadLoadedAssemblyObject", "Artifacts\GenericBuilderTestLoadLoadedAssemblyObject\GenericBuilderTestLoadLoadedAssemblyObject.csproj", "{FB06E50C-5193-4F1F-A902-21DC21904AF3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Artifacts", "Artifacts", "{11FB658D-4F09-4CB0-A0FC-B54C51686A5A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -2367,6 +2373,54 @@ Global
 		{E123E1AC-4A11-4E40-AB0A-AF58D8D93391}.Test|Any CPU.Build.0 = Release|Any CPU
 		{E123E1AC-4A11-4E40-AB0A-AF58D8D93391}.Test|x86.ActiveCfg = Release|Any CPU
 		{E123E1AC-4A11-4E40-AB0A-AF58D8D93391}.Test|x86.Build.0 = Release|Any CPU
+		{BA7F8B6D-C21F-47A5-9708-6034D67396F0}.BuildForNuget|Any CPU.ActiveCfg = Release|Any CPU
+		{BA7F8B6D-C21F-47A5-9708-6034D67396F0}.BuildForNuget|Any CPU.Build.0 = Release|Any CPU
+		{BA7F8B6D-C21F-47A5-9708-6034D67396F0}.BuildForNuget|x86.ActiveCfg = Release|Any CPU
+		{BA7F8B6D-C21F-47A5-9708-6034D67396F0}.BuildForNuget|x86.Build.0 = Release|Any CPU
+		{BA7F8B6D-C21F-47A5-9708-6034D67396F0}.BuildPackages|Any CPU.ActiveCfg = Release|Any CPU
+		{BA7F8B6D-C21F-47A5-9708-6034D67396F0}.BuildPackages|Any CPU.Build.0 = Release|Any CPU
+		{BA7F8B6D-C21F-47A5-9708-6034D67396F0}.BuildPackages|x86.ActiveCfg = Release|Any CPU
+		{BA7F8B6D-C21F-47A5-9708-6034D67396F0}.BuildPackages|x86.Build.0 = Release|Any CPU
+		{BA7F8B6D-C21F-47A5-9708-6034D67396F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA7F8B6D-C21F-47A5-9708-6034D67396F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA7F8B6D-C21F-47A5-9708-6034D67396F0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BA7F8B6D-C21F-47A5-9708-6034D67396F0}.Debug|x86.Build.0 = Debug|Any CPU
+		{BA7F8B6D-C21F-47A5-9708-6034D67396F0}.PushToNuget|Any CPU.ActiveCfg = Release|Any CPU
+		{BA7F8B6D-C21F-47A5-9708-6034D67396F0}.PushToNuget|Any CPU.Build.0 = Release|Any CPU
+		{BA7F8B6D-C21F-47A5-9708-6034D67396F0}.PushToNuget|x86.ActiveCfg = Release|Any CPU
+		{BA7F8B6D-C21F-47A5-9708-6034D67396F0}.PushToNuget|x86.Build.0 = Release|Any CPU
+		{BA7F8B6D-C21F-47A5-9708-6034D67396F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA7F8B6D-C21F-47A5-9708-6034D67396F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA7F8B6D-C21F-47A5-9708-6034D67396F0}.Release|x86.ActiveCfg = Release|Any CPU
+		{BA7F8B6D-C21F-47A5-9708-6034D67396F0}.Release|x86.Build.0 = Release|Any CPU
+		{BA7F8B6D-C21F-47A5-9708-6034D67396F0}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{BA7F8B6D-C21F-47A5-9708-6034D67396F0}.Test|Any CPU.Build.0 = Release|Any CPU
+		{BA7F8B6D-C21F-47A5-9708-6034D67396F0}.Test|x86.ActiveCfg = Release|Any CPU
+		{BA7F8B6D-C21F-47A5-9708-6034D67396F0}.Test|x86.Build.0 = Release|Any CPU
+		{FB06E50C-5193-4F1F-A902-21DC21904AF3}.BuildForNuget|Any CPU.ActiveCfg = Release|Any CPU
+		{FB06E50C-5193-4F1F-A902-21DC21904AF3}.BuildForNuget|Any CPU.Build.0 = Release|Any CPU
+		{FB06E50C-5193-4F1F-A902-21DC21904AF3}.BuildForNuget|x86.ActiveCfg = Release|Any CPU
+		{FB06E50C-5193-4F1F-A902-21DC21904AF3}.BuildForNuget|x86.Build.0 = Release|Any CPU
+		{FB06E50C-5193-4F1F-A902-21DC21904AF3}.BuildPackages|Any CPU.ActiveCfg = Release|Any CPU
+		{FB06E50C-5193-4F1F-A902-21DC21904AF3}.BuildPackages|Any CPU.Build.0 = Release|Any CPU
+		{FB06E50C-5193-4F1F-A902-21DC21904AF3}.BuildPackages|x86.ActiveCfg = Release|Any CPU
+		{FB06E50C-5193-4F1F-A902-21DC21904AF3}.BuildPackages|x86.Build.0 = Release|Any CPU
+		{FB06E50C-5193-4F1F-A902-21DC21904AF3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB06E50C-5193-4F1F-A902-21DC21904AF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB06E50C-5193-4F1F-A902-21DC21904AF3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FB06E50C-5193-4F1F-A902-21DC21904AF3}.Debug|x86.Build.0 = Debug|Any CPU
+		{FB06E50C-5193-4F1F-A902-21DC21904AF3}.PushToNuget|Any CPU.ActiveCfg = Release|Any CPU
+		{FB06E50C-5193-4F1F-A902-21DC21904AF3}.PushToNuget|Any CPU.Build.0 = Release|Any CPU
+		{FB06E50C-5193-4F1F-A902-21DC21904AF3}.PushToNuget|x86.ActiveCfg = Release|Any CPU
+		{FB06E50C-5193-4F1F-A902-21DC21904AF3}.PushToNuget|x86.Build.0 = Release|Any CPU
+		{FB06E50C-5193-4F1F-A902-21DC21904AF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB06E50C-5193-4F1F-A902-21DC21904AF3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB06E50C-5193-4F1F-A902-21DC21904AF3}.Release|x86.ActiveCfg = Release|Any CPU
+		{FB06E50C-5193-4F1F-A902-21DC21904AF3}.Release|x86.Build.0 = Release|Any CPU
+		{FB06E50C-5193-4F1F-A902-21DC21904AF3}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{FB06E50C-5193-4F1F-A902-21DC21904AF3}.Test|Any CPU.Build.0 = Release|Any CPU
+		{FB06E50C-5193-4F1F-A902-21DC21904AF3}.Test|x86.ActiveCfg = Release|Any CPU
+		{FB06E50C-5193-4F1F-A902-21DC21904AF3}.Test|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -2439,8 +2493,8 @@ Global
 		{FA4CE84F-C024-4643-B692-378DE0F9BE24} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
 		{EAF8B88C-0973-406B-AC49-6F500819F716} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
 		{D3F6A4F3-69FF-441E-96FB-9294D0A5FEC2} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
-		{979F6293-9F94-4DAB-92AA-531E42C32F95} = {991C5C7C-A1F8-42B1-8CDA-F782B0F62980}
-		{94DF996D-AB59-4A67-9FB8-EC9DB0E75F49} = {991C5C7C-A1F8-42B1-8CDA-F782B0F62980}
+		{979F6293-9F94-4DAB-92AA-531E42C32F95} = {11FB658D-4F09-4CB0-A0FC-B54C51686A5A}
+		{94DF996D-AB59-4A67-9FB8-EC9DB0E75F49} = {11FB658D-4F09-4CB0-A0FC-B54C51686A5A}
 		{8F3337F2-7D5D-4D62-83F6-E3D57755B1BF} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
 		{4F8864F9-1ABB-4672-8F53-19892C2A506F} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
 		{4B5261A4-6222-421B-9552-BF33A7E39A36} = {7989B238-E58D-4660-A0E8-4AFA0FFEB6FD}
@@ -2467,5 +2521,7 @@ Global
 		{5132016E-4730-426C-A60B-00439A261B18} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
 		{16EF6673-3F61-43B9-AD99-0971DC62612D} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
 		{E123E1AC-4A11-4E40-AB0A-AF58D8D93391} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
+		{BA7F8B6D-C21F-47A5-9708-6034D67396F0} = {11FB658D-4F09-4CB0-A0FC-B54C51686A5A}
+		{FB06E50C-5193-4F1F-A902-21DC21904AF3} = {11FB658D-4F09-4CB0-A0FC-B54C51686A5A}
 	EndGlobalSection
 EndGlobal
