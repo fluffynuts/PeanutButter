@@ -137,7 +137,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
 
             //--------------- Act ----------------------
             var result = sut.MakeTypeImplementing<ISample1>();
-            var instance = (ISample1)CreateInstanceOf(result, toWrap);
+            var instance = (ISample1)CreateInstanceOf(result, new[] { new[] { toWrap } });
             instance.SetPropertyValue("Name", expected);
 
             //--------------- Assert -----------------------
@@ -188,7 +188,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var instance = CreateInstanceOf(type, toWrap);
+            var instance = CreateInstanceOf(type, new[] { new[] { toWrap } });
 
             //--------------- Assert -----------------------
             instance.SetPropertyValue("Sample", expected);
@@ -213,7 +213,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var instance = (ISample4)CreateInstanceOf(type, toWrap);
+            var instance = (ISample4)CreateInstanceOf(type, new[] { new[] { toWrap } });
 
             //--------------- Assert -----------------------
             Expect(() => instance.Sample = expected, Throws.Exception.InstanceOf<ReadOnlyPropertyException>());
@@ -261,7 +261,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
 
             //--------------- Act ----------------------
             var type = sut.MakeTypeImplementing<IVoidVoid>();
-            var instance = (IVoidVoid)CreateInstanceOf(type, toWrap);
+            var instance = (IVoidVoid)CreateInstanceOf(type, new[] { new[] { toWrap } });
             instance.Moo();
 
             //--------------- Assert -----------------------
@@ -315,7 +315,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
 
             //--------------- Act ----------------------
             var type = sut.MakeTypeImplementing<IVoidArgs>();
-            var instance = (IVoidArgs)CreateInstanceOf(type, toWrap);
+            var instance = (IVoidArgs)CreateInstanceOf(type, new[] { new[] { toWrap } });
             instance.Moo(expectedPitch, expectedCount);
 
             //--------------- Assert -----------------------
@@ -366,7 +366,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var instance = (IArgsNonVoid)CreateInstanceOf(type, toWrap);
+            var instance = (IArgsNonVoid)CreateInstanceOf(type, new[] { new[] { toWrap } });
             var result = instance.Add(first, second);
 
             //--------------- Assert -----------------------
@@ -436,7 +436,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var instance = (ISample4)CreateInstanceOf(type, toWrap);
+            var instance = (ISample4)CreateInstanceOf(type, new[] { new[] { toWrap } });
             instance.Sample = expected;
 
             //--------------- Assert -----------------------

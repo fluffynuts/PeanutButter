@@ -122,7 +122,7 @@ namespace PeanutButter.DuckTyping.Extensions
         {
             var typeMaker = new TypeMaker();
             var type = allowFuzzy ? typeMaker.MakeTypeImplementing<T>() : typeMaker.MakeFuzzyTypeImplementing<T>();
-            return (T)Activator.CreateInstance(type, src);
+            return (T)Activator.CreateInstance(type, new object[] { new IDictionary<string, object>[] { src } });
         }
 
         internal static bool PrivateCanDuckAs<T>(this object src, bool allowFuzzy, bool throwOnError)
@@ -471,7 +471,10 @@ namespace PeanutButter.DuckTyping.Extensions
                 srcAsDict = srcAsDict?.ToCaseInsensitiveDictionary();
 
             var duckType = FindOrCreateDuckTypeFor<T>(allowFuzzy);
-            return (T)Activator.CreateInstance(duckType, srcAsDict ?? src);
+            var ctorArgs = srcAsDict == null
+                    ? new object[] { new object[] { src } }
+                    : new object[] { new IDictionary<string, object>[] { srcAsDict } };
+            return (T)Activator.CreateInstance(duckType, ctorArgs);
         }
 
         private static readonly Dictionary<Type, TypePair> DuckTypes

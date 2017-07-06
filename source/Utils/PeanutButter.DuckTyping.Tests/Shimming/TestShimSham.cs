@@ -404,12 +404,12 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
 
         private ShimSham Create(object toWrap, Type toMimick, bool isFuzzy = false)
         {
-            return new ShimSham(toWrap, toMimick, isFuzzy);
+            return new ShimSham(new[] { toWrap }, toMimick, isFuzzy);
         }
 
         private ShimSham Create(Cow toWrap, bool fuzzy)
         {
-            return new ShimSham(toWrap, toWrap.GetType(), fuzzy);
+            return new ShimSham(new[] { toWrap }, toWrap.GetType(), fuzzy);
         }
     }
 }

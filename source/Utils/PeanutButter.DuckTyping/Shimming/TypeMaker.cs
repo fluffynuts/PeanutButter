@@ -19,9 +19,19 @@ namespace PeanutButter.DuckTyping.Shimming
         private static readonly Type _shimType = typeof(ShimSham);
         private static readonly Type _dictionaryShim = typeof(DictionaryShimSham);
 
-        private static readonly ConstructorInfo _shimConstructor = _shimType.GetConstructor(
+        private static readonly ConstructorInfo _shimConstructorForObjectArray = _shimType.GetConstructor(
+            new[] {typeof(object[]), typeof(Type), typeof(bool)}
+        );
+
+        private static readonly ConstructorInfo _shimConstructorForObject = _shimType.GetConstructor(
             new[] {typeof(object), typeof(Type), typeof(bool)}
         );
+
+        private static readonly ConstructorInfo _dictionaryArrayShimConstructor =
+            _dictionaryShim.GetConstructor(new[]
+            {
+                typeof(IDictionary<string, object>[]), typeof(Type)
+            });
 
         private static readonly ConstructorInfo _dictionaryShimConstructor =
             _dictionaryShim.GetConstructor(new[]
@@ -68,7 +78,8 @@ namespace PeanutButter.DuckTyping.Shimming
         {
             var interfaceType = typeof(T);
             if (!interfaceType.IsInterface)
-                throw new InvalidOperationException("MakeTypeImplementing<T> requires an interface for the type parameter");
+                throw new InvalidOperationException(
+                    "MakeTypeImplementing<T> requires an interface for the type parameter");
             var identifier = Guid.NewGuid().ToString("N");
             var moduleName = string.Join("_", identifier, "_Gen_", interfaceType.Name);
             var modBuilder = DynamicAssemblyBuilder.DefineDynamicModule(moduleName);
@@ -90,8 +101,8 @@ namespace PeanutButter.DuckTyping.Shimming
             AddAllPropertiesAsShimmable(typeBuilder, allInterfaceTypes, shimField);
             AddAllMethodsAsShimmable(typeBuilder, allInterfaceTypes, shimField);
             AddDefaultConstructor(typeBuilder, shimField, interfaceType, isFuzzy);
-            AddWrappingConstructor(typeBuilder, shimField, interfaceType, isFuzzy);
-            AddDictionaryWrappingConstructor(typeBuilder, shimField, interfaceType);
+            AddWrappingConstructors(typeBuilder, shimField, interfaceType, isFuzzy);
+            AddDictionaryWrappingConstructors(typeBuilder, shimField, interfaceType);
 
             return typeBuilder.CreateType();
         }
@@ -121,47 +132,65 @@ namespace PeanutButter.DuckTyping.Shimming
             ImplementMethodReturnWith(il);
         }
 
-        private void AddWrappingConstructor(
+        private void AddWrappingConstructors(
             TypeBuilder typeBuilder,
             FieldBuilder shimField,
             Type interfaceType,
             bool isFuzzy
         )
         {
-            var ctorBuilder = typeBuilder.DefineConstructor(
-                MethodAttributes.Public,
-                CallingConventions.Standard,
-                new[] {typeof(object)});
-            var il = ctorBuilder.GetILGenerator();
-            CallBaseObjectConstructor(il);
-            var result = CreateWrappingShimForArg1With(il, interfaceType, isFuzzy);
-            StoreShimInFieldWith(shimField, il, result);
-            ImplementMethodReturnWith(il);
+            var paramTypes = new[]
+            {
+                new { pt = new[] {typeof(object[])}, ctor = _shimConstructorForObjectArray },
+                new { pt = new[] {typeof(object)}, ctor = _shimConstructorForObject }
+            };
+            foreach (var pt in paramTypes)
+            {
+                var ctorBuilder = typeBuilder.DefineConstructor(
+                    MethodAttributes.Public,
+                    CallingConventions.Standard,
+                    pt.pt);
+                var il = ctorBuilder.GetILGenerator();
+                CallBaseObjectConstructor(il);
+                var result = CreateWrappingShimForArg1With(il, interfaceType, isFuzzy, pt.ctor);
+                StoreShimInFieldWith(shimField, il, result);
+                ImplementMethodReturnWith(il);
+            }
         }
 
-        private void AddDictionaryWrappingConstructor(
+        private void AddDictionaryWrappingConstructors(
             TypeBuilder typeBuilder,
             FieldBuilder shimField,
             Type interfaceType
         )
         {
-            var ctorBuilder = typeBuilder.DefineConstructor(
-                MethodAttributes.Public,
-                CallingConventions.Standard,
-                new[] {typeof(IDictionary<string, object>)});
-            var il = ctorBuilder.GetILGenerator();
-            CallBaseObjectConstructor(il);
-            var result = CreateWrappingDictionaryShimFor(il, interfaceType);
-            StoreShimInFieldWith(shimField, il, result);
-            ImplementMethodReturnWith(il);
+            var paramTypes = new[]
+            {
+                new { pt = new[] {typeof(IDictionary<string, object>[])}, ctor = _dictionaryArrayShimConstructor },
+                new { pt = new[] {typeof(IDictionary<string, object>)}, ctor = _dictionaryShimConstructor }
+            };
+            foreach (var pt in paramTypes)
+            {
+                var ctorBuilder = typeBuilder.DefineConstructor(
+                    MethodAttributes.Public,
+                    CallingConventions.Standard,
+                    pt.pt);
+                var il = ctorBuilder.GetILGenerator();
+                CallBaseObjectConstructor(il);
+                var result = CreateWrappingDictionaryShimFor(il, interfaceType, pt.ctor);
+                StoreShimInFieldWith(shimField, il, result);
+                ImplementMethodReturnWith(il);
+            }
         }
 
-        private static LocalBuilder CreateWrappingDictionaryShimFor(ILGenerator il, Type interfaceType)
+        private static LocalBuilder CreateWrappingDictionaryShimFor(
+            ILGenerator il, Type interfaceType, ConstructorInfo ctor
+        )
         {
             var result = il.DeclareLocal(typeof(IShimSham));
             il.Emit(OpCodes.Ldarg_1);
             il.Emit(OpCodes.Ldtoken, interfaceType);
-            il.Emit(OpCodes.Newobj, _dictionaryShimConstructor);
+            il.Emit(OpCodes.Newobj, ctor);
             il.Emit(OpCodes.Stloc, result);
             return result;
         }
@@ -173,23 +202,26 @@ namespace PeanutButter.DuckTyping.Shimming
             generator.Emit(OpCodes.Stfld, shimField);
         }
 
-        private static LocalBuilder CreateWrappingShimForArg1With(ILGenerator il, Type interfaceType, bool isFuzzy)
+        private static LocalBuilder CreateWrappingShimForArg1With(
+            ILGenerator il, Type interfaceType, bool isFuzzy, ConstructorInfo ctor
+        )
         {
-            return CreateWrappingShimFor(OpCodes.Ldarg_1, il, interfaceType, isFuzzy);
+            return CreateWrappingShimFor(OpCodes.Ldarg_1, il, interfaceType, isFuzzy, ctor);
         }
 
         private static LocalBuilder CreateWrappingShimForThisWith(ILGenerator il, Type interfaceType, bool isFuzzy)
         {
-            return CreateWrappingShimFor(OpCodes.Ldarg_0, il, interfaceType, isFuzzy);
+            return CreateWrappingShimFor(OpCodes.Ldarg_0, il, interfaceType, isFuzzy, _shimConstructorForObject);
         }
 
-        private static LocalBuilder CreateWrappingShimFor(OpCode code, ILGenerator il, Type interfaceType, bool isFuzzy)
+        private static LocalBuilder CreateWrappingShimFor(OpCode code, ILGenerator il, Type interfaceType, bool isFuzzy,
+            ConstructorInfo shimConstructor)
         {
             var result = il.DeclareLocal(typeof(IShimSham));
             il.Emit(code);
             il.Emit(OpCodes.Ldtoken, interfaceType);
             il.Emit(isFuzzy ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
-            il.Emit(OpCodes.Newobj, _shimConstructor);
+            il.Emit(OpCodes.Newobj, shimConstructor);
             il.Emit(OpCodes.Stloc, result);
             return result;
         }
@@ -277,7 +309,8 @@ namespace PeanutButter.DuckTyping.Shimming
             il.Emit(OpCodes.Call, shimMethod);
         }
 
-        private static void LoadMethodArgumentsIntoArray(ILGenerator il, LocalBuilder boxedParameters, ParameterInfo[] methodParameters)
+        private static void LoadMethodArgumentsIntoArray(ILGenerator il, LocalBuilder boxedParameters,
+            ParameterInfo[] methodParameters)
         {
             var boxed = il.DeclareLocal(typeof(object));
 

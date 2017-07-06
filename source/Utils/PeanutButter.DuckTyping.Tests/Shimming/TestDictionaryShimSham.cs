@@ -260,7 +260,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             Type interfaceToMimick = null)
         {
             return new DictionaryShimSham(
-                data,
+                new[] { data },
                 interfaceToMimick ?? typeof(IEmpty)
             );
         }
