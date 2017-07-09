@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Remoting.Channels;
 using PeanutButter.DuckTyping.AutoConversion;
 using PeanutButter.DuckTyping.Comparers;
 using PeanutButter.DuckTyping.Exceptions;
@@ -125,7 +126,7 @@ namespace PeanutButter.DuckTyping.Extensions
             return (T)Activator.CreateInstance(type, new object[] { new IDictionary<string, object>[] { src } });
         }
 
-        internal static bool PrivateCanDuckAs<T>(this object src, bool allowFuzzy, bool throwOnError)
+        internal static bool InternalCanDuckAs<T>(this object src, bool allowFuzzy, bool throwOnError)
         {
             var asDictionary = TryConvertToDictionary(src);
             if (asDictionary != null)
@@ -134,11 +135,16 @@ namespace PeanutButter.DuckTyping.Extensions
             var srcType = src.GetType();
             return DuckableTypesCache.CanDuckAs<T>(srcType, allowFuzzy) ||
                     CacheDuckResult(
-                        type.InternalCanDuckAs(srcType, allowFuzzy, throwOnError),
+                        InternalCanDuckAs(type, srcType, allowFuzzy, throwOnError),
                         allowFuzzy,
                         srcType,
                         type
                     );
+        }
+
+        internal static bool InternalCanDuckAs<T>(this object[] sources, bool allowFuzzy, bool throwOnError)
+        {
+            return false;
         }
 
         private static bool CacheDuckResult(
@@ -308,11 +314,11 @@ namespace PeanutButter.DuckTyping.Extensions
             }
         }
 
-        private static readonly string[] ObjectMethodNames =
+        private static readonly string[] _objectMethodNames =
             typeof(object).GetMethods().Select(m => m.Name).ToArray();
 
         internal static bool InternalCanDuckAs(
-            this Type type,
+            Type type,
             Type toType,
             bool allowFuzzy,
             // ReSharper disable once UnusedParameter.Global
@@ -347,7 +353,7 @@ namespace PeanutButter.DuckTyping.Extensions
 
             var expectedMethods = allowFuzzy ? type.FindFuzzyMethods() : type.FindMethods();
             if (toType.IsInterface)
-                expectedMethods = expectedMethods.Except(ObjectMethodNames);
+                expectedMethods = expectedMethods.Except(_objectMethodNames);
             var srcMethods = allowFuzzy ? toType.FindFuzzyMethods() : toType.FindMethods();
             if (!srcMethods.IsSuperSetOf(expectedMethods))
                 errors.Add("One or more methods could not be ducked");
@@ -464,7 +470,7 @@ namespace PeanutButter.DuckTyping.Extensions
         internal static T InternalDuckAs<T>(this object src, bool allowFuzzy, bool throwOnError) where T : class
         {
             if (src == null) return null;
-            var duckable = PrivateCanDuckAs<T>(src, allowFuzzy, throwOnError);
+            var duckable = InternalCanDuckAs<T>(src, allowFuzzy, throwOnError);
             if (!duckable) return null;
             var srcAsDict = TryConvertToDictionary(src);
             if (allowFuzzy)

@@ -19,7 +19,7 @@ namespace PeanutButter.DuckTyping.Extensions
         /// <returns>True when the object can be accurately duck-typed; false otherwise. A false result here may not necessarily mean a false result from CanFuzzyDuckAs</returns>
         public static bool CanDuckAs<T>(this object src)
         {
-            return src.PrivateCanDuckAs<T>(false, false);
+            return src.InternalCanDuckAs<T>(false, false);
         }
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace PeanutButter.DuckTyping.Extensions
         /// <returns>True when the object can be approximately duck-typed; false otherwise</returns>
         public static bool CanFuzzyDuckAs<T>(this object src)
         {
-            return src.PrivateCanDuckAs<T>(true, false);
+            return src.InternalCanDuckAs<T>(true, false);
         }
 
         /// <summary>

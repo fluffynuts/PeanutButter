@@ -180,7 +180,7 @@ namespace PeanutButter.DuckTyping.Shimming
         {
             if (_unshimmableProperties.Contains(propertyName))
                 return true;
-            var result = !srcType.InternalCanDuckAs(targetType, _isFuzzy, false);
+            var result = !DuckTypingExtensionSharedMethods.InternalCanDuckAs(srcType, targetType, _isFuzzy, false);
             if (result)
                 _unshimmableProperties.Add(propertyName);
             return result;

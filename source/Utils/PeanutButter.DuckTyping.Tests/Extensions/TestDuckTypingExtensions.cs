@@ -1789,260 +1789,282 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             }
         }
 
-        public class GivenKeyPrefix
+        public class GivenKeyPrefix_OperatingOnDictionary : AssertionHelper
         {
-            public class OperatingOnDictionary : AssertionHelper
+            [Test]
+            public void FuzzyDuckAs_OperatingOnDictionary_WhenGivenKeyPrefix_AndCanDuck_ShouldDuck()
             {
-                [Test]
-                public void FuzzyDuckAs_OperatingOnDictionary_WhenGivenKeyPrefix_AndCanDuck_ShouldDuck()
+                // Arrange
+                var expected = GetRandomHttpUrl();
+                var prefix = GetRandomString(4) + ".";
+                var data = new Dictionary<string, object>
                 {
-                    // Arrange
-                    var expected = GetRandomHttpUrl();
-                    var prefix = GetRandomString(4) + ".";
-                    var data = new Dictionary<string, object>
-                    {
-                        [$"{prefix}BaseUrl"] = expected
-                    };
+                    [$"{prefix}BaseUrl"] = expected
+                };
 
-                    // Pre-Assert
+                // Pre-Assert
 
-                    // Act
-                    var result = data.FuzzyDuckAs<IConfig>(prefix);
+                // Act
+                var result = data.FuzzyDuckAs<IConfig>(prefix);
 
-                    // Assert
-                    Expect(result, Is.Not.Null);
-                    Expect(result.BaseUrl, Is.EqualTo(expected));
-                }
-
-                [Test]
-                public void FuzzyDuckAs_OperatingOnDictionary_WhenGivenKeyPrefix_AndCannotDuck_ShouldReturnNull()
-                {
-                    // Arrange
-                    var expected = GetRandomHttpUrl();
-                    var prefix = GetRandomString(4) + ".";
-                    var data = new Dictionary<string, object>
-                    {
-                        [$"{prefix}BaseUrl123"] = expected
-                    };
-
-                    // Pre-Assert
-
-                    // Act
-                    var result = data.FuzzyDuckAs<IConfig>(prefix);
-
-                    // Assert
-                    Expect(result, Is.Null);
-                }
-
-                [Test]
-                public void
-                    FuzzyDuckAs_OperatingOnDictionary_WhenGivenKeyPrefixAntThrowOnErrorIsTrue_AndCannotDuck_ShouldThrow()
-                {
-                    // Arrange
-                    var expected = GetRandomHttpUrl();
-                    var prefix = GetRandomString(4) + ".";
-                    var data = new Dictionary<string, object>
-                    {
-                        [$"{prefix}BaseUrl1"] = expected
-                    };
-
-                    // Pre-Assert
-
-                    // Act
-                    Expect(() => data.FuzzyDuckAs<IConfig>(prefix, true),
-                        Throws.Exception.InstanceOf<UnDuckableException>());
-
-                    // Assert
-                }
-
-                [Test]
-                public void DuckAs_OperatingOnDictionary_WhenGivenKeyPrefix_AndCanDuck_ShouldDuck()
-                {
-                    // Arrange
-                    var expected = GetRandomHttpUrl();
-                    var prefix = GetRandomString(4) + ".";
-                    var data = new Dictionary<string, object>
-                    {
-                        [$"{prefix}BaseUrl"] = expected
-                    };
-
-                    // Pre-Assert
-
-                    // Act
-                    var result = data.DuckAs<IConfig>(prefix);
-
-                    // Assert
-                    Expect(result, Is.Not.Null);
-                    Expect(result.BaseUrl, Is.EqualTo(expected));
-                }
-
-                [Test]
-                public void DuckAs_OperatingOnDictionary_WhenGivenKeyPrefix_AndCannotDuck_ShouldReturnNull()
-                {
-                    // Arrange
-                    var expected = GetRandomHttpUrl();
-                    var prefix = GetRandomString(4) + ".";
-                    var data = new Dictionary<string, object>
-                    {
-                        [$"{prefix}BaseUrl123"] = expected
-                    };
-
-                    // Pre-Assert
-
-                    // Act
-                    var result = data.DuckAs<IConfig>(prefix);
-
-                    // Assert
-                    Expect(result, Is.Null);
-                }
-
-                [Test]
-                public void
-                    DuckAs_OperatingOnDictionary_WhenGivenKeyPrefixAntThrowOnErrorIsTrue_AndCannotDuck_ShouldThrow()
-                {
-                    // Arrange
-                    var expected = GetRandomHttpUrl();
-                    var prefix = GetRandomString(4) + ".";
-                    var data = new Dictionary<string, object>
-                    {
-                        [$"{prefix}BaseUrl1"] = expected
-                    };
-
-                    // Pre-Assert
-
-                    // Act
-                    Expect(() => data.DuckAs<IConfig>(prefix, true),
-                        Throws.Exception.InstanceOf<UnDuckableException>());
-
-                    // Assert
-                }
+                // Assert
+                Expect(result, Is.Not.Null);
+                Expect(result.BaseUrl, Is.EqualTo(expected));
             }
 
-            public class OperatingOnNameValueCollection : AssertionHelper
+            [Test]
+            public void FuzzyDuckAs_OperatingOnDictionary_WhenGivenKeyPrefix_AndCannotDuck_ShouldReturnNull()
             {
-                [Test]
-                public void FuzzyDuckAs_WhenGivenKeyPrefix_AndCanDuck_ShouldDuck()
+                // Arrange
+                var expected = GetRandomHttpUrl();
+                var prefix = GetRandomString(4) + ".";
+                var data = new Dictionary<string, object>
                 {
-                    // Arrange
-                    var expected = GetRandomHttpUrl();
-                    var prefix = GetRandomString(4) + ".";
-                    var data = new NameValueCollection
-                    {
-                        [$"{prefix}BaseUrl"] = expected
-                    };
+                    [$"{prefix}BaseUrl123"] = expected
+                };
 
-                    // Pre-Assert
+                // Pre-Assert
 
-                    // Act
-                    var result = data.FuzzyDuckAs<IConfig>(prefix);
+                // Act
+                var result = data.FuzzyDuckAs<IConfig>(prefix);
 
-                    // Assert
-                    Expect(result, Is.Not.Null);
-                    Expect(result.BaseUrl, Is.EqualTo(expected));
-                }
+                // Assert
+                Expect(result, Is.Null);
+            }
 
-                [Test]
-                public void FuzzyDuckAs_WhenGivenKeyPrefix_AndCannotDuck_ShouldReturnNull()
+            [Test]
+            public void
+                FuzzyDuckAs_OperatingOnDictionary_WhenGivenKeyPrefixAntThrowOnErrorIsTrue_AndCannotDuck_ShouldThrow()
+            {
+                // Arrange
+                var expected = GetRandomHttpUrl();
+                var prefix = GetRandomString(4) + ".";
+                var data = new Dictionary<string, object>
                 {
-                    // Arrange
-                    var expected = GetRandomHttpUrl();
-                    var prefix = GetRandomString(4) + ".";
-                    var data = new NameValueCollection
-                    {
-                        [$"{prefix}BaseUrl123"] = expected
-                    };
+                    [$"{prefix}BaseUrl1"] = expected
+                };
 
-                    // Pre-Assert
+                // Pre-Assert
 
-                    // Act
-                    var result = data.FuzzyDuckAs<IConfig>(prefix);
+                // Act
+                Expect(() => data.FuzzyDuckAs<IConfig>(prefix, true),
+                    Throws.Exception.InstanceOf<UnDuckableException>());
 
-                    // Assert
-                    Expect(result, Is.Null);
-                }
+                // Assert
+            }
 
-                [Test]
-                public void
-                    FuzzyDuckAs_WhenGivenKeyPrefixAntThrowOnErrorIsTrue_AndCannotDuck_ShouldThrow()
+            [Test]
+            public void DuckAs_OperatingOnDictionary_WhenGivenKeyPrefix_AndCanDuck_ShouldDuck()
+            {
+                // Arrange
+                var expected = GetRandomHttpUrl();
+                var prefix = GetRandomString(4) + ".";
+                var data = new Dictionary<string, object>
                 {
-                    // Arrange
-                    var expected = GetRandomHttpUrl();
-                    var prefix = GetRandomString(4) + ".";
-                    var data = new NameValueCollection
-                    {
-                        [$"{prefix}BaseUrl1"] = expected
-                    };
+                    [$"{prefix}BaseUrl"] = expected
+                };
 
-                    // Pre-Assert
+                // Pre-Assert
 
-                    // Act
-                    Expect(() => data.FuzzyDuckAs<IConfig>(prefix, true),
-                        Throws.Exception.InstanceOf<UnDuckableException>());
+                // Act
+                var result = data.DuckAs<IConfig>(prefix);
 
-                    // Assert
-                }
+                // Assert
+                Expect(result, Is.Not.Null);
+                Expect(result.BaseUrl, Is.EqualTo(expected));
+            }
 
-                [Test]
-                public void DuckAs_WhenGivenKeyPrefix_AndCanDuck_ShouldDuck()
+            [Test]
+            public void DuckAs_OperatingOnDictionary_WhenGivenKeyPrefix_AndCannotDuck_ShouldReturnNull()
+            {
+                // Arrange
+                var expected = GetRandomHttpUrl();
+                var prefix = GetRandomString(4) + ".";
+                var data = new Dictionary<string, object>
                 {
-                    // Arrange
-                    var expected = GetRandomHttpUrl();
-                    var prefix = GetRandomString(4) + ".";
-                    var data = new NameValueCollection
-                    {
-                        [$"{prefix}BaseUrl"] = expected
-                    };
+                    [$"{prefix}BaseUrl123"] = expected
+                };
 
-                    // Pre-Assert
+                // Pre-Assert
 
-                    // Act
-                    var result = data.DuckAs<IConfig>(prefix);
+                // Act
+                var result = data.DuckAs<IConfig>(prefix);
 
-                    // Assert
-                    Expect(result, Is.Not.Null);
-                    Expect(result.BaseUrl, Is.EqualTo(expected));
-                }
+                // Assert
+                Expect(result, Is.Null);
+            }
 
-                [Test]
-                public void DuckAs_WhenGivenKeyPrefix_AndCannotDuck_ShouldReturnNull()
+            [Test]
+            public void
+                DuckAs_OperatingOnDictionary_WhenGivenKeyPrefixAntThrowOnErrorIsTrue_AndCannotDuck_ShouldThrow()
+            {
+                // Arrange
+                var expected = GetRandomHttpUrl();
+                var prefix = GetRandomString(4) + ".";
+                var data = new Dictionary<string, object>
                 {
-                    // Arrange
-                    var expected = GetRandomHttpUrl();
-                    var prefix = GetRandomString(4) + ".";
-                    var data = new NameValueCollection
-                    {
-                        [$"{prefix}BaseUrl123"] = expected
-                    };
+                    [$"{prefix}BaseUrl1"] = expected
+                };
 
-                    // Pre-Assert
+                // Pre-Assert
 
-                    // Act
-                    var result = data.DuckAs<IConfig>(prefix);
+                // Act
+                Expect(() => data.DuckAs<IConfig>(prefix, true),
+                    Throws.Exception.InstanceOf<UnDuckableException>());
 
-                    // Assert
-                    Expect(result, Is.Null);
-                }
+                // Assert
+            }
+        }
 
-                [Test]
-                public void
-                    DuckAs_WhenGivenKeyPrefixAntThrowOnErrorIsTrue_AndCannotDuck_ShouldThrow()
+        public class GivenKeyPrefix_OperatingOnNameValueCollection : AssertionHelper
+        {
+            [Test]
+            public void FuzzyDuckAs_WhenGivenKeyPrefix_AndCanDuck_ShouldDuck()
+            {
+                // Arrange
+                var expected = GetRandomHttpUrl();
+                var prefix = GetRandomString(4) + ".";
+                var data = new NameValueCollection
                 {
-                    // Arrange
-                    var expected = GetRandomHttpUrl();
-                    var prefix = GetRandomString(4) + ".";
-                    var data = new NameValueCollection
-                    {
-                        [$"{prefix}BaseUrl1"] = expected
-                    };
+                    [$"{prefix}BaseUrl"] = expected
+                };
 
-                    // Pre-Assert
+                // Pre-Assert
 
-                    // Act
-                    Expect(() => data.DuckAs<IConfig>(prefix, true),
-                        Throws.Exception.InstanceOf<UnDuckableException>());
+                // Act
+                var result = data.FuzzyDuckAs<IConfig>(prefix);
 
-                    // Assert
-                }
+                // Assert
+                Expect(result, Is.Not.Null);
+                Expect(result.BaseUrl, Is.EqualTo(expected));
+            }
+
+            [Test]
+            public void FuzzyDuckAs_WhenGivenKeyPrefix_AndCannotDuck_ShouldReturnNull()
+            {
+                // Arrange
+                var expected = GetRandomHttpUrl();
+                var prefix = GetRandomString(4) + ".";
+                var data = new NameValueCollection
+                {
+                    [$"{prefix}BaseUrl123"] = expected
+                };
+
+                // Pre-Assert
+
+                // Act
+                var result = data.FuzzyDuckAs<IConfig>(prefix);
+
+                // Assert
+                Expect(result, Is.Null);
+            }
+
+            [Test]
+            public void
+                FuzzyDuckAs_WhenGivenKeyPrefixAntThrowOnErrorIsTrue_AndCannotDuck_ShouldThrow()
+            {
+                // Arrange
+                var expected = GetRandomHttpUrl();
+                var prefix = GetRandomString(4) + ".";
+                var data = new NameValueCollection
+                {
+                    [$"{prefix}BaseUrl1"] = expected
+                };
+
+                // Pre-Assert
+
+                // Act
+                Expect(() => data.FuzzyDuckAs<IConfig>(prefix, true),
+                    Throws.Exception.InstanceOf<UnDuckableException>());
+
+                // Assert
+            }
+
+            [Test]
+            public void DuckAs_WhenGivenKeyPrefix_AndCanDuck_ShouldDuck()
+            {
+                // Arrange
+                var expected = GetRandomHttpUrl();
+                var prefix = GetRandomString(4) + ".";
+                var data = new NameValueCollection
+                {
+                    [$"{prefix}BaseUrl"] = expected
+                };
+
+                // Pre-Assert
+
+                // Act
+                var result = data.DuckAs<IConfig>(prefix);
+
+                // Assert
+                Expect(result, Is.Not.Null);
+                Expect(result.BaseUrl, Is.EqualTo(expected));
+            }
+
+            [Test]
+            public void DuckAs_WhenGivenKeyPrefix_AndCannotDuck_ShouldReturnNull()
+            {
+                // Arrange
+                var expected = GetRandomHttpUrl();
+                var prefix = GetRandomString(4) + ".";
+                var data = new NameValueCollection
+                {
+                    [$"{prefix}BaseUrl123"] = expected
+                };
+
+                // Pre-Assert
+
+                // Act
+                var result = data.DuckAs<IConfig>(prefix);
+
+                // Assert
+                Expect(result, Is.Null);
+            }
+
+            [Test]
+            public void
+                DuckAs_WhenGivenKeyPrefixAntThrowOnErrorIsTrue_AndCannotDuck_ShouldThrow()
+            {
+                // Arrange
+                var expected = GetRandomHttpUrl();
+                var prefix = GetRandomString(4) + ".";
+                var data = new NameValueCollection
+                {
+                    [$"{prefix}BaseUrl1"] = expected
+                };
+
+                // Pre-Assert
+
+                // Act
+                Expect(() => data.DuckAs<IConfig>(prefix, true),
+                    Throws.Exception.InstanceOf<UnDuckableException>());
+
+                // Assert
+            }
+        }
+
+        public class Merging_CanDuckAsOperations
+        {
+            public interface IMerge1
+            {
+                int Id { get; }
+                string Name { get; }
+            }
+            [Test]
+            [Ignore("WIP")]
+            public void InternalDuckAs_GivenTwoObjectsWhichCouldMergeExactly_ShouldReturnTrue()
+            {
+                // Arrange
+                var obj1 = new { Id = 42 };
+                var obj2 = new { Name = "Douglas Adams" };
+                // Pre-Assert
+
+                // Act
+                var result = DuckTypingExtensionSharedMethods.InternalCanDuckAs<IMerge1>(
+                    new object[] { obj1, obj2 }, false, false);
+
+                // Assert
+                Expect(result, Is.True);
             }
         }
 
