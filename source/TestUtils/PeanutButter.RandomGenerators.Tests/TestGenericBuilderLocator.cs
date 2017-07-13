@@ -236,7 +236,8 @@ namespace PeanutButter.RandomGenerators.Tests
         }
     }
 
-    public class RequiredToForceActualDependence {
+    public class RequiredToForceActualDependence
+    {
         // But should not exist in TestGenericBuilderLocator so as to
         //  prevent loading
         private Type _moo = typeof(NotLoadedBuilder);

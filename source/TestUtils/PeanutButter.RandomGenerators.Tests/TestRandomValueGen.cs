@@ -1718,6 +1718,71 @@ namespace PeanutButter.RandomGenerators.Tests
             Expect(sut.ParameterlessConstructorUsed, Is.True);
         }
 
+        [Test]
+        public void WhenPropModsInvokeWithProp_ShouldNotThrowCollectionModifiedException()
+        {
+            // Arrange
+
+            // Pre-assert
+
+            // Act
+            Expect(() => {
+                var parent = GetRandom<Parent>();
+                Expect(parent.Children, Is.Not.Empty);
+            }, Throws.Nothing);
+
+            // Assert
+        }
+
+        [Test]
+        public void WhenPropModsInvokeWithProp_ShouldNotStoreLastBuildTimePropMods()
+        {
+            // Arrange
+            var builder = ParentBuilder.Create().WithRandomProps();
+
+            // Pre-assert
+
+            // Act
+            builder.Build();
+            Expect(builder.WithChildrenCallCount, Is.EqualTo(1));
+            builder.Build();
+
+            // Assert
+            Expect(builder.WithChildrenCallCount, Is.EqualTo(2));
+        }
+
+        public class Parent
+        {
+            public string Name { get; set; }
+            public ChildNode[] Children { get; set; }
+        }
+
+        public class ChildNode
+        {
+            public string Name { get; set; }
+        }
+
+        public class ParentBuilder : GenericBuilder<ParentBuilder, Parent>
+        {
+            public int WithChildrenCallCount { get; private set; }
+
+            public override ParentBuilder WithRandomProps()
+            {
+                return base.WithRandomProps()
+                    .WithRandomChildren();
+            }
+
+            public ParentBuilder WithRandomChildren()
+            {
+                return WithProp(o => WithChildren(GetRandomCollection<ChildNode>(2, 4).ToArray()));
+            }
+
+            public ParentBuilder WithChildren(params ChildNode[] nodes)
+            {
+                WithChildrenCallCount++;
+                return WithProp(o => o.Children = o.Children.EmptyIfNull().And(nodes));
+            }
+        }
 
         private bool PathExists(string path)
         {

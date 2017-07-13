@@ -4,6 +4,7 @@
  * */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -28,6 +29,8 @@ namespace PeanutButter.RandomGenerators
     {
         private static readonly List<Action<TEntity>> DefaultPropMods = new List<Action<TEntity>>();
         private readonly List<Action<TEntity>> _propMods = new List<Action<TEntity>>();
+        private readonly List<Action<TEntity>> _buildTimePropMods = new List<Action<TEntity>>();
+        private bool _currentlyBuilding = false;
         private static Type _constructingTypeBackingField = typeof(TEntity);
 
         private static Type ConstructingType
@@ -43,7 +46,6 @@ namespace PeanutButter.RandomGenerators
                 }
             }
         }
-
 
         /// <summary>
         /// Creates a new instance of the builder; used to provide a fluent syntax
@@ -163,9 +165,11 @@ namespace PeanutButter.RandomGenerators
         /// <returns>The current instance of the builder</returns>
         public TBuilder WithProp(Action<TEntity> action)
         {
-            _propMods.Add(action);
+            var collection = _currentlyBuilding ? _buildTimePropMods : _propMods;
+            collection.Add(action);
             return this as TBuilder;
         }
+
 
         // ReSharper disable once MemberCanBeProtected.Global
         // ReSharper disable once VirtualMemberNeverOverridden.Global
@@ -452,12 +456,37 @@ namespace PeanutButter.RandomGenerators
         /// <returns>An instance of TEntity with all builder actions run on it</returns>
         public virtual TEntity Build()
         {
-            var entity = ConstructEntity();
-            foreach (var action in DefaultPropMods.Union(_propMods))
+            _buildTimePropMods.Clear();
+            var dynamicCount = 0;
+            using (new AutoResetter(() => _currentlyBuilding = true, () => _currentlyBuilding = false))
             {
-                action(entity);
+                var entity = ConstructEntity();
+                var actions = new Queue<Action<TEntity>>(DefaultPropMods.Union(_propMods).ToArray());
+
+                while (actions.Count > 0)
+                {
+                    var action = actions.Dequeue();
+                    action(entity);
+                    while (_buildTimePropMods.Any())
+                    {
+                        if (++dynamicCount > MaxRandomPropsLevel)
+                        {
+                            throw new InvalidOperationException(
+                                $"{this.GetType().PrettyName()}::Build -> Too many property modifiers added by property modifiers. Check the sanity of this builder"
+                            );
+                        }
+                        var newActions = _buildTimePropMods.ToArray();
+                        _buildTimePropMods.Clear();
+                        newActions.ForEach(a => a(entity));
+                    }
+                }
+
+//                foreach (var action in DefaultPropMods.Union(_propMods))
+//                {
+//                    action(entity);
+//                }
+                return entity;
             }
-            return entity;
         }
 
         /// <summary>
