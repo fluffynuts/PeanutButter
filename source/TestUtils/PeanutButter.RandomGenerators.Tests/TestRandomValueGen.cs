@@ -351,6 +351,52 @@ namespace PeanutButter.RandomGenerators.Tests
             VarianceAssert.IsVariant<SomePOCO, DateTime>(result, "Date");
         }
 
+        [Test]
+        public void GetRandomArray_GivenFactoryFunction_ShouldInvokeItToCreateItems()
+        {
+            //---------------Set up test pack-------------------
+            const int runs = RANDOM_TEST_CYCLES;
+            var generatedValues = new List<int>();
+            Func<int> factory = () =>
+            {
+                var thisValue = GetRandomInt();
+                generatedValues.Add(thisValue);
+                return thisValue;
+            };
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            for (var i = 0; i < runs; i++)
+            {
+                var result = GetRandomArray(factory);
+                //---------------Test Result -----------------------
+                CollectionAssert.AreEqual(generatedValues, result);
+                generatedValues.Clear();
+            }
+        }
+
+        [Test]
+        public void GetRandomArray_GenericInvoke_ShouldUseNinjaSuperPowersToCreateArray()
+        {
+            //---------------Set up test pack-------------------
+            var minItems = GetRandomInt(5);
+            var maxItems = GetRandomInt(11, 20);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = GetRandomArray<SomePOCO>(minItems, maxItems);
+
+            //---------------Test Result -----------------------
+            Assert.IsNotNull(result);
+            CollectionAssert.IsNotEmpty(result);
+            Assert.IsTrue(result.All(r => r != null));
+            Assert.IsTrue(result.All(r => r.GetType() == typeof(SomePOCO)));
+            VarianceAssert.IsVariant<SomePOCO, int>(result, "Id");
+            VarianceAssert.IsVariant<SomePOCO, string>(result, "Name");
+            VarianceAssert.IsVariant<SomePOCO, DateTime>(result, "Date");
+        }
+
 
         [TestCase(1984, 4, 4, 2001, 1, 1)]
         [TestCase(1914, 4, 4, 2011, 1, 1)]

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using PeanutButter.Utils;
+
 // ReSharper disable UnusedMember.Global
 // ReSharper disable ClassNeverInstantiated.Global
 
@@ -16,19 +17,20 @@ namespace PeanutButter.RandomGenerators
     /// </summary>
     public class RandomValueGen
     {
-        private static readonly Dictionary<Type, Func<object>> _primitiveGenerators = new Dictionary<Type, Func<object>>()
-        {
-            { typeof(int), () => GetRandomInt() },
-            { typeof(byte), () => Convert.ToByte(GetRandomInt(0, 255)) },
-            { typeof(char), () => Convert.ToChar(GetRandomInt(0, 255)) },
-            { typeof(long), () => GetRandomLong() },
-            { typeof(float), () => Convert.ToSingle(GetRandomDecimal(decimal.MinValue, decimal.MaxValue)) },
-            { typeof(double), () => Convert.ToDouble(GetRandomDecimal(decimal.MinValue, decimal.MaxValue)) },
-            { typeof(decimal), () => GetRandomDecimal(decimal.MinValue, decimal.MaxValue) },
-            { typeof(DateTime), () => GetRandomDate() },
-            { typeof(string), () => GetRandomString() },
-            { typeof(bool), () => GetRandomBoolean() }
-        };
+        private static readonly Dictionary<Type, Func<object>> _primitiveGenerators =
+            new Dictionary<Type, Func<object>>()
+            {
+                {typeof(int), () => GetRandomInt()},
+                {typeof(byte), () => Convert.ToByte(GetRandomInt(0, 255))},
+                {typeof(char), () => Convert.ToChar(GetRandomInt(0, 255))},
+                {typeof(long), () => GetRandomLong()},
+                {typeof(float), () => Convert.ToSingle(GetRandomDecimal(decimal.MinValue, decimal.MaxValue))},
+                {typeof(double), () => Convert.ToDouble(GetRandomDecimal(decimal.MinValue, decimal.MaxValue))},
+                {typeof(decimal), () => GetRandomDecimal(decimal.MinValue, decimal.MaxValue)},
+                {typeof(DateTime), () => GetRandomDate()},
+                {typeof(string), () => GetRandomString()},
+                {typeof(bool), () => GetRandomBoolean()}
+            };
 
         /// <summary>
         /// Gets a random value of the specified type by attempting to find the correct
@@ -42,8 +44,8 @@ namespace PeanutButter.RandomGenerators
         {
             var type = typeof(T);
             if (type.IsEnum)
-                return (T)GetRandomEnum(type);
-            return (T)GetRandomValue(typeof(T));
+                return (T) GetRandomEnum(type);
+            return (T) GetRandomValue(typeof(T));
         }
 
         /// <summary>
@@ -68,17 +70,18 @@ namespace PeanutButter.RandomGenerators
         {
             var builder = GetBuilderFor(type);
             if (builder == null)
-                throw new Exception("Can't get random value for type: '" + type.Name + "': either too complex or I missed a simple type?");
+                throw new Exception("Can't get random value for type: '" + type.Name +
+                                    "': either too complex or I missed a simple type?");
             return builder.GenericWithRandomProps().GenericBuild();
         }
 
         private static IGenericBuilder GetBuilderFor(Type type)
         {
             var builderType = GenericBuilderLocator.TryFindExistingBuilderFor(type)
-                            ?? GenericBuilderLocator.FindOrGenerateDynamicBuilderFor(type);
+                              ?? GenericBuilderLocator.FindOrGenerateDynamicBuilderFor(type);
             return builderType == null
-                        ? null
-                        : Activator.CreateInstance(builderType) as IGenericBuilder;
+                ? null
+                : Activator.CreateInstance(builderType) as IGenericBuilder;
         }
 
         /// <summary>
@@ -91,39 +94,48 @@ namespace PeanutButter.RandomGenerators
             /// Default minimum length of random strings
             /// </summary>
             public const int MINLENGTH_STRING = 8;
+
             /// <summary>
             /// Default minimum number of bytes to return
             /// </summary>
             public const int MINLENGTH_BYTES = 0;
+
             /// <summary>
             /// Default maximum number of bytes to return
             /// </summary>
             public const int MAXLENGTH_BYTES = 1024;
+
             /// <summary>
             /// Default minimum integer value returned
             /// </summary>
             public const int MIN_INT_VALUE = 0;
+
             /// <summary>
             /// Default maximum integer value returned
             /// </summary>
             public const int MAX_INT_VALUE = 10;
+
             /// <summary>
             /// Default minimum long value returned
             /// </summary>
             public const int MIN_LONG_VALUE = 0;
+
             /// <summary>
             /// Default maximum long value returned
             /// </summary>
             public const int MAX_LONG_VALUE = 1000;
+
             /// <summary>
             /// Default minimum number of items in a random collection
             /// </summary>
             public const int MIN_ITEMS = 0;
+
             /// <summary>
             /// Default Maximum number of items in a random collection
             /// </summary>
             public const int MAX_ITEMS = 10;
         }
+
         private static readonly Random _rand = new Random();
         private const string DEFAULT_RANDOM_STRING_CHARS = "abcdefghijklmnopqrstuvwxyz1234567890";
 
@@ -133,9 +145,10 @@ namespace PeanutButter.RandomGenerators
         /// <param name="minValue">Minimum value to consider</param>
         /// <param name="maxValue">Maximum value to consider</param>
         /// <returns>Random integer between minValue and maxValue (inclusive)</returns>
-        public static int GetRandomInt(int minValue = DefaultRanges.MIN_INT_VALUE, int maxValue = DefaultRanges.MAX_INT_VALUE)
+        public static int GetRandomInt(int minValue = DefaultRanges.MIN_INT_VALUE,
+            int maxValue = DefaultRanges.MAX_INT_VALUE)
         {
-            return (int)GetRandomLong(minValue, maxValue);
+            return (int) GetRandomLong(minValue, maxValue);
         }
 
         /// <summary>
@@ -147,7 +160,7 @@ namespace PeanutButter.RandomGenerators
             return GetRandomInt(1, 100) < 50;
         }
 
-        private static readonly string[] _mimeTypes = 
+        private static readonly string[] _mimeTypes =
         {
             "text/plain",
             "text/html",
@@ -155,6 +168,7 @@ namespace PeanutButter.RandomGenerators
             "application/pdf",
             "image/jpeg"
         };
+
         // ReSharper disable once InconsistentNaming
         /// <summary>
         /// Gets a pseudo-random mimetype (picks from a short list of known mime types)
@@ -172,7 +186,8 @@ namespace PeanutButter.RandomGenerators
         /// <param name="minValue">Minimum value to consider</param>
         /// <param name="maxValue">Maximum value to consider</param>
         /// <returns>Random integer between minValue and maxValue (inclusive)</returns>
-        public static long GetRandomLong(long minValue = DefaultRanges.MIN_LONG_VALUE, long maxValue = DefaultRanges.MAX_LONG_VALUE)
+        public static long GetRandomLong(long minValue = DefaultRanges.MIN_LONG_VALUE,
+            long maxValue = DefaultRanges.MAX_LONG_VALUE)
         {
             if (minValue > maxValue)
             {
@@ -182,7 +197,7 @@ namespace PeanutButter.RandomGenerators
             }
             var dec = _rand.NextDouble();
             var range = maxValue - minValue + 1;
-            return minValue + (long)(range * dec);
+            return minValue + (long) (range * dec);
         }
 
         /// <summary>
@@ -196,8 +211,8 @@ namespace PeanutButter.RandomGenerators
         /// and which is made up of the provided (or default, when not provided) character set
         /// </returns>
         public static string GetRandomString(
-            int minLength = DefaultRanges.MINLENGTH_STRING, 
-            int? maxLength = null, 
+            int minLength = DefaultRanges.MINLENGTH_STRING,
+            int? maxLength = null,
             string charSet = null
         )
         {
@@ -224,10 +239,10 @@ namespace PeanutButter.RandomGenerators
         /// <param name="maxTime">Maximum time to consider (default all)</param>
         /// <returns>Random Local DateTime within the specified range</returns>
         public static DateTime GetRandomDate(
-            DateTime? minDate = null, 
-            DateTime? maxDate = null, 
+            DateTime? minDate = null,
+            DateTime? maxDate = null,
             bool dateOnly = false,
-            DateTime? minTime = null, 
+            DateTime? minTime = null,
             DateTime? maxTime = null)
         {
             return GetRandomDate(DateTimeKind.Local, minDate, maxDate, dateOnly, minTime, maxTime);
@@ -271,13 +286,13 @@ namespace PeanutButter.RandomGenerators
             var actualTicks = GetRandomLong(minTicks, maxTicks);
             var rawDateTime = new DateTime(actualTicks);
             var sanitised = new DateTime(rawDateTime.Year,
-                                         rawDateTime.Month,
-                                         rawDateTime.Day,
-                                         rawDateTime.Hour,
-                                         rawDateTime.Minute,
-                                         rawDateTime.Second,
-                                         rawDateTime.Millisecond,
-                                         kind);
+                rawDateTime.Month,
+                rawDateTime.Day,
+                rawDateTime.Hour,
+                rawDateTime.Minute,
+                rawDateTime.Second,
+                rawDateTime.Millisecond,
+                kind);
             return dateOnly
                 ? sanitised.StartOfDay()
                 : RangeCheckTimeOnRandomDate(minTime, maxTime, sanitised);
@@ -296,7 +311,7 @@ namespace PeanutButter.RandomGenerators
             DateTime? minDate = null,
             DateTime? maxDate = null,
             bool dateOnly = false,
-            DateTime? minTime = null, 
+            DateTime? minTime = null,
             DateTime? maxTime = null
         )
         {
@@ -340,8 +355,8 @@ namespace PeanutButter.RandomGenerators
                 maxTime = swap;
             }
             return value > maxTime || value < minTime
-                    ? GetRandomDate(minTime, maxTime)
-                    : value;
+                ? GetRandomDate(minTime, maxTime)
+                : value;
         }
 
         /// <summary>
@@ -351,7 +366,7 @@ namespace PeanutButter.RandomGenerators
         /// <param name="max">Maximum value to consider</param>
         /// <returns>Double value within the specified range</returns>
         public static double GetRandomDouble(
-            double min = DefaultRanges.MIN_INT_VALUE, 
+            double min = DefaultRanges.MIN_INT_VALUE,
             double max = DefaultRanges.MAX_INT_VALUE
         )
         {
@@ -369,7 +384,7 @@ namespace PeanutButter.RandomGenerators
             decimal max = DefaultRanges.MAX_INT_VALUE
         )
         {
-            return (decimal)GetRandomDouble((double)min, (double)max);
+            return (decimal) GetRandomDouble((double) min, (double) max);
         }
 
         /// <summary>
@@ -408,6 +423,7 @@ namespace PeanutButter.RandomGenerators
         {
             return string.Join(".", GetRandomString(10, 20), GetRandomString(3, 3));
         }
+
         /// <summary>
         /// Gets a random path which resembles a Windows path, including a leading drive
         /// </summary>
@@ -415,9 +431,9 @@ namespace PeanutButter.RandomGenerators
         public static string GetRandomWindowsPath()
         {
             var folders = GetRandomCollection<string>(1, 4);
-            var drive = GetRandomString(1,1, "ABCDEGHIJKLMNOPQRSTUVWXYZ") + ":";
+            var drive = GetRandomString(1, 1, "ABCDEGHIJKLMNOPQRSTUVWXYZ") + ":";
             return string.Join(Path.DirectorySeparatorChar.ToString(),
-                new[] { drive }.And(folders.ToArray()));
+                new[] {drive}.And(folders.ToArray()));
         }
 
         /// <summary>
@@ -445,7 +461,8 @@ namespace PeanutButter.RandomGenerators
         /// <returns>Random http-url-like string</returns>
         public static string GetRandomHttpUrl()
         {
-            return string.Join("/", "http:", string.Empty, GetRandomAlphaNumericString(3,12) + ".com", GetRandomAlphaNumericString(0,20));
+            return string.Join("/", "http:", string.Empty, GetRandomAlphaNumericString(3, 12) + ".com",
+                GetRandomAlphaNumericString(0, 20));
         }
 
         /// <summary>
@@ -455,11 +472,12 @@ namespace PeanutButter.RandomGenerators
         /// <param name="maxLength">Maximum length required</param>
         /// <returns>Random string made up of only alphanumeric characters</returns>
         public static string GetRandomAlphaNumericString(
-            int minLength = DefaultRanges.MINLENGTH_STRING, 
+            int minLength = DefaultRanges.MINLENGTH_STRING,
             int? maxLength = null
         )
         {
-            return GetRandomString(minLength, maxLength, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890");
+            return GetRandomString(minLength, maxLength,
+                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890");
         }
 
         /// <summary>
@@ -479,7 +497,8 @@ namespace PeanutButter.RandomGenerators
         /// <param name="minLength">Minimum length required</param>
         /// <param name="maxLength">Maximum length required</param>
         /// <returns>Random string made up of only numeric characters</returns>
-        public static string GetRandomNumericString(int minLength = DefaultRanges.MINLENGTH_STRING, int? maxLength = null)
+        public static string GetRandomNumericString(int minLength = DefaultRanges.MINLENGTH_STRING,
+            int? maxLength = null)
         {
             return GetRandomString(minLength, maxLength, "1234567890");
         }
@@ -493,11 +512,12 @@ namespace PeanutButter.RandomGenerators
         /// Thrown when GetRandomEnum is called on a 
         /// non-enum type (since there is no generic constraint for enum types, yet)
         /// </exception>
-        public static T GetRandomEnum<T>() where T: struct, IConvertible
+        public static T GetRandomEnum<T>() where T : struct, IConvertible
         {
             var type = typeof(T);
             if (!type.IsEnum)
-                throw new ArgumentException("GetRandomEnum cannot be called on something other than an enum ('" + type.Name + "')");
+                throw new ArgumentException("GetRandomEnum cannot be called on something other than an enum ('" +
+                                            type.Name + "')");
             var possible = Enum.GetValues(type).Cast<T>();
             return GetRandomFrom(possible);
         }
@@ -514,7 +534,8 @@ namespace PeanutButter.RandomGenerators
         public static object GetRandomEnum(Type enumType)
         {
             if (!enumType.IsEnum)
-                throw new ArgumentException("GetRandomEnum cannot be called on something other than an enum ('" + enumType.Name + "')");
+                throw new ArgumentException("GetRandomEnum cannot be called on something other than an enum ('" +
+                                            enumType.Name + "')");
             var possible = Enum.GetValues(enumType).Cast<object>();
             return GetRandomFrom(possible);
         }
@@ -544,7 +565,8 @@ namespace PeanutButter.RandomGenerators
         {
             var itemsArray = items as T[] ?? items.ToArray();
             if (itemsArray.Except(butNot).IsEmpty())
-                throw new ArgumentException("Items collection does not contain enough items to apply the exclusion list, assuming the exclusions are actually in the source list");
+                throw new ArgumentException(
+                    "Items collection does not contain enough items to apply the exclusion list, assuming the exclusions are actually in the source list");
             T result;
             do
             {
@@ -566,7 +588,7 @@ namespace PeanutButter.RandomGenerators
         {
             var itemArray = items as T[] ?? items.ToArray();
             if (itemArray.Length == 0)
-                return new T[] {};
+                return new T[] { };
             if (minValues >= itemArray.Length)
                 return itemArray.Randomize();
             if (maxValues > itemArray.Length)
@@ -604,11 +626,12 @@ namespace PeanutButter.RandomGenerators
         /// <typeparam name="T">Underlying type of the collection</typeparam>
         /// <returns>A new collection of items generated by the generator function</returns>
         public static IEnumerable<T> GetRandomCollection<T>(
-            Func<T> generator, 
-            int minValues = DefaultRanges.MIN_ITEMS, 
+            Func<T> generator,
+            int minValues = DefaultRanges.MIN_ITEMS,
             int maxValues = DefaultRanges.MAX_ITEMS
         )
         {
+            // TODO: stop using default values, ie, explode out the methods
             var howMany = GetRandomInt(minValues, maxValues);
             var result = new List<T>();
             for (var i = 0; i < howMany; i++)
@@ -619,6 +642,24 @@ namespace PeanutButter.RandomGenerators
         }
 
         /// <summary>
+        /// Generates a random array, given a generator function and an acceptable size range
+        /// </summary>
+        /// <param name="generator">Function to generate individual items for the result collection</param>
+        /// <param name="minValues">Minimum number of items to return</param>
+        /// <param name="maxValues">Maximum number of items to return</param>
+        /// <typeparam name="T">Underlying type of the collection</typeparam>
+        /// <returns>A new array of items generated by the generator function</returns>
+        public static T[] GetRandomArray<T>(
+            Func<T> generator,
+            int minValues = DefaultRanges.MIN_ITEMS,
+            int maxValues = DefaultRanges.MAX_ITEMS
+        )
+        {
+            // TODO: stop using default values, ie, explode out the methods
+            return GetRandomCollection(generator, minValues, maxValues).ToArray();
+        }
+
+        /// <summary>
         /// Generates a random collection, given an acceptable size range
         /// </summary>
         /// <param name="minValues">Minimum number of items to return</param>
@@ -626,11 +667,28 @@ namespace PeanutButter.RandomGenerators
         /// <typeparam name="T">Underlying type of the collection</typeparam>
         /// <returns>A new collection of items generated by the GetRandom generic function</returns>
         public static IEnumerable<T> GetRandomCollection<T>(
-            int minValues = DefaultRanges.MIN_ITEMS, 
+            int minValues = DefaultRanges.MIN_ITEMS,
             int maxValues = DefaultRanges.MAX_ITEMS
         )
         {
+            // TODO: stop using default values, ie, explode out the methods
             return GetRandomCollection(GetRandom<T>, minValues, maxValues);
+        }
+
+        /// <summary>
+        /// Generates a random array, given an acceptable size range
+        /// </summary>
+        /// <param name="minValues">Minimum number of items to return</param>
+        /// <param name="maxValues">Maximum number of items to return</param>
+        /// <typeparam name="T">Underlying type of the collection</typeparam>
+        /// <returns>A new array of items generated by the GetRandom generic function</returns>
+        public static T[] GetRandomArray<T>(
+            int minValues = DefaultRanges.MIN_ITEMS,
+            int maxValues = DefaultRanges.MAX_ITEMS
+        )
+        {
+            // TODO: stop using default values, ie, explode out the methods
+            return GetRandomCollection<T>(minValues, maxValues).ToArray();
         }
 
         /// <summary>
@@ -638,6 +696,7 @@ namespace PeanutButter.RandomGenerators
         /// one specified as undesirable
         /// </summary>
         public const int MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS = 1000;
+
         /// <summary>
         /// Attempts to get another random value, different from the provided one,
         /// using the provided generator
@@ -651,9 +710,9 @@ namespace PeanutButter.RandomGenerators
         /// <typeparam name="T">Type of item t generate</typeparam>
         /// <returns>New item, different from the provided undesirable value, as long as it can be found within MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS attempts</returns>
         public static T GetAnother<T>(
-            T differentFromThisValue, 
-            Func<T> usingThisGenerator, 
-            Func<T,T,bool> shouldRegenerateIf = null
+            T differentFromThisValue,
+            Func<T> usingThisGenerator,
+            Func<T, T, bool> shouldRegenerateIf = null
         )
         {
             shouldRegenerateIf = shouldRegenerateIf ?? DefaultEqualityTest;
@@ -713,9 +772,9 @@ namespace PeanutButter.RandomGenerators
         /// <typeparam name="T">Type of value to generate</typeparam>
         /// <returns>New value of type T, not found in the input collection</returns>
         public static T GetAnother<T>(
-            IEnumerable<T> notAnyOfThese, 
-            Func<T> usingThisGenerator, 
-            Func<T,T,bool> areEqual = null
+            IEnumerable<T> notAnyOfThese,
+            Func<T> usingThisGenerator,
+            Func<T, T, bool> areEqual = null
         )
         {
             areEqual = areEqual ?? DefaultEqualityTest;
@@ -732,7 +791,8 @@ namespace PeanutButter.RandomGenerators
             return left.Equals(right) && right.Equals(left);
         }
 
-        private static T1 GetANewRandomValueUsing<T1, T2>(T2 differentFromThisValue, Func<T1> usingThisGenerator, Func<T1, bool> isANewValue)
+        private static T1 GetANewRandomValueUsing<T1, T2>(T2 differentFromThisValue, Func<T1> usingThisGenerator,
+            Func<T1, bool> isANewValue)
         {
             var attempts = 0;
             do
@@ -820,8 +880,8 @@ namespace PeanutButter.RandomGenerators
                 Directory.CreateDirectory(Path.Combine(path, f));
                 if (depth > 1)
                 {
-                    toCreate.AddRange(CreateRandomFoldersIn(Path.Combine(path, f), depth-1)
-                                        .Select(sub => Path.Combine(f, sub)));
+                    toCreate.AddRange(CreateRandomFoldersIn(Path.Combine(path, f), depth - 1)
+                        .Select(sub => Path.Combine(f, sub)));
                 }
             });
             return toCreate;
@@ -870,7 +930,7 @@ namespace PeanutButter.RandomGenerators
                 numberOfFiles.TimesDo(() =>
                 {
                     var createdFile = CreateRandomFileIn(Path.Combine(path, f));
-                    result.Add(Path.Combine(f, createdFile))    ;
+                    result.Add(Path.Combine(f, createdFile));
                 });
             });
             return result;
