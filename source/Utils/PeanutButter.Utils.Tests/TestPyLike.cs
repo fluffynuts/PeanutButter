@@ -135,5 +135,51 @@ namespace PeanutButter.Utils.Tests
             Expect(result[1].Item1, Is.EqualTo(left[1]));
             Expect(result[1].Item2, Is.EqualTo(right[1]));
         }
+
+        [Test]
+        public void Zip_When3CollectionsHaveTheSameNumberOfItems_ShouldGetItemPairs()
+        {
+            // Arrange
+            var left = new[] { 1, 2, 3 };
+            var middle = GetRandomCollection<bool>(3, 3).ToArray();
+            var right = new[] { "a", "b", "c" };
+            // Pre-Assert
+            // Act
+            var result = Zip(left, middle, right).ToArray();
+            // Assert
+            Expect(result, Has.Length.EqualTo(3));
+            Expect(result[0].Item1, Is.EqualTo(left[0]));
+            Expect(result[0].Item2, Is.EqualTo(middle[0]));
+            Expect(result[0].Item3, Is.EqualTo(right[0]));
+
+            Expect(result[1].Item1, Is.EqualTo(left[1]));
+            Expect(result[1].Item2, Is.EqualTo(middle[1]));
+            Expect(result[1].Item3, Is.EqualTo(right[1]));
+
+            Expect(result[2].Item1, Is.EqualTo(left[2]));
+            Expect(result[2].Item2, Is.EqualTo(middle[2]));
+            Expect(result[2].Item3, Is.EqualTo(right[2]));
+        }
+
+        [Test]
+        public void Zip_When3CollectionsHaveDifferntNumberOfItems_ShouldOnlyReturnFullPairs()
+        {
+            // Arrange
+            var left = new[] { 1, 2 };
+            var middle = GetRandomCollection<bool>(5, 7).ToArray();
+            var right = new[] { "a", "b", "c" };
+            // Pre-Assert
+            // Act
+            var result = Zip(left, middle, right).ToArray();
+            // Assert
+            Expect(result, Has.Length.EqualTo(2));
+            Expect(result[0].Item1, Is.EqualTo(left[0]));
+            Expect(result[0].Item2, Is.EqualTo(middle[0]));
+            Expect(result[0].Item3, Is.EqualTo(right[0]));
+
+            Expect(result[1].Item1, Is.EqualTo(left[1]));
+            Expect(result[1].Item2, Is.EqualTo(middle[1]));
+            Expect(result[1].Item3, Is.EqualTo(right[1]));
+        }
     }
 }

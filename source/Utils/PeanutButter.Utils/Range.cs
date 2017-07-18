@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace PeanutButter.Utils
 {
@@ -46,18 +48,69 @@ namespace PeanutButter.Utils
             yield break;
         }
 
+        /// <summary>
+        /// "Zips" two collections together so you can enumerate over them. The
+        ///   length of the enumeration is determined by the shortes collection
+        /// </summary>
+        /// <param name="left">left collection</param>
+        /// <param name="right">right collection</param>
+        /// <typeparam name="T1"></typeparam>
+        /// <typeparam name="T2"></typeparam>
+        /// <typeparam name="T1"></typeparam>
+        /// <typeparam name="T2"></typeparam>
+        /// <returns>Enumeration over the collections (Tuple of T1, T2)</returns>
         public static IEnumerable<Tuple<T1, T2>> Zip<T1, T2>(
             IEnumerable<T1> left,
             IEnumerable<T2> right
         )
         {
-            var leftEnumerator = left.GetEnumerator();
-            var rightEnumerator = right.GetEnumerator();
-            while (leftEnumerator.MoveNext() && rightEnumerator.MoveNext())
+            using (var leftEnumerator = left.GetEnumerator())
+            using (var rightEnumerator = right.GetEnumerator())
             {
-                yield return Tuple.Create(leftEnumerator.Current, rightEnumerator.Current);
+                while (MoveAll(leftEnumerator, rightEnumerator))
+                {
+                    yield return Tuple.Create(leftEnumerator.Current, rightEnumerator.Current);
+                }
+                yield break;
             }
-            yield break;
+        }
+
+        /// <summary>
+        /// "Zips" three collections together so you can enumerate over them. The
+        ///   length of the enumeration is determined by the shortes collection
+        /// </summary>
+        /// <param name="left">left collection</param>
+        /// <param name="middle">right collection</param>
+        /// <param name="right">right collection</param>
+        /// <typeparam name="T1"></typeparam>
+        /// <typeparam name="T2"></typeparam>
+        /// <typeparam name="T3"></typeparam>
+        /// <returns>Enumeration over the collections (Tuple of T1, T2, T3)</returns>
+        public static IEnumerable<Tuple<T1, T2, T3>> Zip<T1, T2, T3>(
+            IEnumerable<T1> left,
+            IEnumerable<T2> middle,
+            IEnumerable<T3> right
+        )
+        {
+            using (var leftEnumerator = left.GetEnumerator())
+            using (var middleEnumerator = middle.GetEnumerator())
+            using (var rightEnumerator = right.GetEnumerator())
+            {
+                while (MoveAll(leftEnumerator, middleEnumerator, rightEnumerator))
+                {
+                    yield return Tuple.Create(
+                        leftEnumerator.Current, 
+                        middleEnumerator.Current,
+                        rightEnumerator.Current
+                    );
+                }
+                yield break;
+            }
+        }
+
+        private static bool MoveAll(params IEnumerator[] e)
+        {
+            return e.Aggregate(true, (acc, cur) => acc && cur.MoveNext());
         }
     }
 }
