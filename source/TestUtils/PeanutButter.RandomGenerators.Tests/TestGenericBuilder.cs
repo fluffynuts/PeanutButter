@@ -4,9 +4,19 @@ using System.Diagnostics;
 using System.Linq;
 using EmailSpooler.Win32Service.Entity;
 using NUnit.Framework;
-using NUnit.Framework.Internal;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+// ReSharper disable UnusedMemberInSuper.Global
+
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedMember.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+// ReSharper disable UnusedMember.Local
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+// ReSharper disable CollectionNeverQueried.Global
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
+// ReSharper disable MemberHidesStaticFromOuterClass
+// ReSharper disable InconsistentNaming
 
 // ReSharper disable ClassNeverInstantiated.Local
 // ReSharper disable ClassNeverInstantiated.Global
@@ -100,7 +110,6 @@ namespace PeanutButter.RandomGenerators.Tests
 
             //---------------Execute Test ----------------------
             var obj = NotAsSimpleBuilder.BuildDefault();
-            var rand = NotAsSimpleBuilder.BuildRandom();
 
             //---------------Test Result -----------------------
             Assert.IsNotNull(obj);
@@ -238,19 +247,19 @@ namespace PeanutButter.RandomGenerators.Tests
 
         private class BuilderInspector : GenericBuilder<BuilderInspector, SimpleClass>
         {
-            public static string[] Calls => _calls.ToArray();
+            public static string[] Calls => CallsField.ToArray();
 
-            private static readonly List<string> _calls = new List<string>();
+            private static readonly List<string> CallsField = new List<string>();
 
             public override BuilderInspector WithRandomProps()
             {
-                _calls.Add("WithRandomProps");
+                CallsField.Add("WithRandomProps");
                 return base.WithRandomProps();
             }
 
             public override SimpleClass Build()
             {
-                _calls.Add("Build");
+                CallsField.Add("Build");
                 return base.Build();
             }
         }
@@ -523,7 +532,7 @@ namespace PeanutButter.RandomGenerators.Tests
             private FakeMessageDataBuilder WithRandomOptions()
             {
                 return WithProp(o => o.Message.Options =
-                    RandomValueGen.GetRandomCollection(FakeMessagePlatformOptionBuilder.BuildRandom, 2));
+                    GetRandomCollection(FakeMessagePlatformOptionBuilder.BuildRandom, 2));
             }
 
             public FakeMessageDataBuilder AsOneProtocolToOneRecipient()
@@ -535,13 +544,13 @@ namespace PeanutButter.RandomGenerators.Tests
             public FakeMessageDataBuilder WithRandomProtocols(int min = 1, int max = 10)
             {
                 return WithProp(o => o.Protocols =
-                    RandomValueGen.GetRandomCollection(() => RandomValueGen.GetRandomString(), min, max));
+                    GetRandomCollection(() => GetRandomString(), min, max));
             }
 
             public FakeMessageDataBuilder WithRandomRecipients(int min = 1, int max = 10)
             {
                 return WithProp(o => o.Recipients =
-                    RandomValueGen.GetRandomCollection(FakeMessagePlatformRecipientBuilder.BuildRandom, min, max));
+                    GetRandomCollection(FakeMessagePlatformRecipientBuilder.BuildRandom, min, max));
             }
 
             public FakeMessageDataBuilder WithOption(string name, string value)
@@ -565,13 +574,14 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var testData = FakeMessageDataBuilder.Create()
+            Expect(() => FakeMessageDataBuilder.Create()
                 .WithRandomProps()
                 .WithOption("message", "hello world")
                 .WithOption("user", "bob saget")
                 .WithOption("AnotherOption", "wibble socks")
                 .AsOneProtocolToOneRecipient()
-                .Build();
+                .Build(), 
+            Throws.Nothing);
 
             //---------------Test Result -----------------------
         }
@@ -834,7 +844,7 @@ namespace PeanutButter.RandomGenerators.Tests
             public IEnumerable<Node> Enemies { get; set; }
         }
 
-        public class NodeBuilder: GenericBuilder<NodeBuilder, Node>
+        public class NodeBuilder : GenericBuilder<NodeBuilder, Node>
         {
         }
 

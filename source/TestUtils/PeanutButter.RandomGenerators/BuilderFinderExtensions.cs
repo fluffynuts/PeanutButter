@@ -13,9 +13,24 @@ namespace PeanutButter.RandomGenerators
             return builderType != null;
         }
 
+        public static bool IsABuilder(this Type t)
+        {
+            return t.TryFindGenericBuilderInClassHeirachy() != null;
+        }
+
         private static Type TryFindBuilderTypeInClassHeirachyFor(Type potentialBuilder, Type buildType)
         {
-            var current = potentialBuilder;
+            var current = TryFindGenericBuilderInClassHeirachy(potentialBuilder);
+            if (current == null) 
+                return null;
+            var typeParameters = current.GetGenericArguments();
+            return typeParameters.Length > 1 && typeParameters[1] == buildType
+                ? current
+                : null;
+        }
+
+        internal static Type TryFindGenericBuilderInClassHeirachy(this Type current)
+        {
             while (current != _objectType && current != null)
             {
                 if (current.IsGenericType)
@@ -28,10 +43,7 @@ namespace PeanutButter.RandomGenerators
             }
             if (current == _objectType || current == null)
                 return null;
-            var typeParameters = current.GetGenericArguments();
-            return typeParameters.Length > 1 && typeParameters[1] == buildType 
-                ? current 
-                : null;
+            return current;
         }
     }
 }

@@ -48,10 +48,10 @@ namespace PeanutButter.RandomGenerators
         {
             if (type == null)
                 return null;
-            lock (_builderTypeCache)
+            lock (BuilderTypeCache)
             {
                 Type result;
-                if (_builderTypeCache.TryGetValue(type, out result))
+                if (BuilderTypeCache.TryGetValue(type, out result))
                     return result;
             }
             return TryFindExistingBuilderAndCacheFor(type);
@@ -62,13 +62,14 @@ namespace PeanutButter.RandomGenerators
         /// </summary>
         public static void InvalidateBuilderTypeCache()
         {
-            lock (_builderTypeCache)
+            lock (BuilderTypeCache)
             {
-                _builderTypeCache.Clear();
+                BuilderTypeCache.Clear();
             }
         }
 
-        private static readonly Dictionary<Type, Type> _builderTypeCache = new Dictionary<Type, Type>();
+        private static readonly Dictionary<Type, Type> BuilderTypeCache = 
+            new Dictionary<Type, Type>();
 
         private static Type TryFindExistingBuilderAndCacheFor(Type type)
         {
@@ -82,9 +83,25 @@ namespace PeanutButter.RandomGenerators
         {
             if (type == null)
                 return;
-            lock (_builderTypeCache)
+            lock (BuilderTypeCache)
             {
-                _builderTypeCache[type] = builderType;
+                BuilderTypeCache[type] = builderType;
+            }
+        }
+
+        private static void TryCacheBuilderType(Type builderType)
+        {
+            try
+            {
+                var genericBuilder = builderType.TryFindGenericBuilderInClassHeirachy();
+                if (genericBuilder.GenericTypeArguments.Length != 2)
+                    return;
+                var builtType = genericBuilder.GenericTypeArguments[1]; // Naive, but let's run with it
+                CacheBuilderType(builderType, builtType);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Unable to cache builder type {builderType?.Name}: {ex.Message}");
             }
         }
 
@@ -119,10 +136,14 @@ namespace PeanutButter.RandomGenerators
             try
             {
                 LoadImmediateAssembliesIfRequired();
-                var types = AppDomain.CurrentDomain.GetAssemblies()
+                var allBuilders = AppDomain.CurrentDomain.GetAssemblies()
                     .Where(a => a != propertyType.Assembly && !a.IsDynamic)
                     .SelectMany(TryGetExportedTypesFrom)
-                    .Where(t => t.IsBuilderFor(propertyType))
+                    .Where(t => t.IsABuilder())
+                    .ToArray();
+                allBuilders.ForEach(TryCacheBuilderType);
+
+                var types = allBuilders.Where(t => t.IsBuilderFor(propertyType))
                     .ToArray();
                 if (!types.Any())
                     return null;
@@ -138,15 +159,16 @@ namespace PeanutButter.RandomGenerators
             }
         }
 
-        private static object _referenceLoadLock = new object();
-        private static bool _haveLoadedImmediateAssemblies = false;
+        private static readonly object ReferenceLoadLock = new object();
+        private static bool _haveLoadedImmediateAssemblies;
 
         private static void LoadImmediateAssembliesIfRequired()
         {
-            lock (_referenceLoadLock)
+            lock (ReferenceLoadLock)
             {
                 if (_haveLoadedImmediateAssemblies)
                     return;
+                _haveLoadedImmediateAssemblies = true;
                 AppDomain.CurrentDomain.GetAssemblies().ForEach(LoadReferencedAssemblies);
             }
         }
@@ -186,8 +208,11 @@ namespace PeanutButter.RandomGenerators
         {
             try
             {
-                return propType.Assembly.GetTypes()
-                    .FirstOrDefault(t => t.IsBuilderFor(propType));
+                var allCurrentAsmBuilders = propType.Assembly.GetTypes()
+                    .Where(t => t.IsABuilder())
+                    .ToArray();
+                allCurrentAsmBuilders.ForEach(TryCacheBuilderType);
+                return allCurrentAsmBuilders.FirstOrDefault(t => t.IsBuilderFor(propType));
             }
             catch (Exception ex)
             {

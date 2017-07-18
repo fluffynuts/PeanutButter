@@ -828,11 +828,6 @@ namespace PeanutButter.RandomGenerators
             }
         }
 
-        private static Type GenerateDynamicBuilderFor(Type type)
-        {
-            return ReuseOrGenerateDynamicBuilderFor(type);
-        }
-
         private static Type TryFindUserBuilderFor(Type propertyType)
         {
             Type builderType;
@@ -844,6 +839,11 @@ namespace PeanutButter.RandomGenerators
                 builderType = existingBuilder;
             }
             return builderType;
+        }
+
+        private static Type GenerateDynamicBuilderFor(Type type)
+        {
+            return ReuseOrGenerateDynamicBuilderFor(type);
         }
 
         private int _buildLevel;
