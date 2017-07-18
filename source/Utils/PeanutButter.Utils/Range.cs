@@ -50,7 +50,7 @@ namespace PeanutButter.Utils
 
         /// <summary>
         /// "Zips" two collections together so you can enumerate over them. The
-        ///   length of the enumeration is determined by the shortes collection
+        ///   length of the enumeration is determined by the shortest collection
         /// </summary>
         /// <param name="left">left collection</param>
         /// <param name="right">right collection</param>
@@ -77,7 +77,7 @@ namespace PeanutButter.Utils
 
         /// <summary>
         /// "Zips" three collections together so you can enumerate over them. The
-        ///   length of the enumeration is determined by the shortes collection
+        ///   length of the enumeration is determined by the shortest collection
         /// </summary>
         /// <param name="left">left collection</param>
         /// <param name="middle">right collection</param>
