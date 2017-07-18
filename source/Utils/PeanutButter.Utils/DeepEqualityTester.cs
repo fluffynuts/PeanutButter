@@ -122,7 +122,9 @@ namespace PeanutButter.Utils
             {
                 return objSource.Equals(objCompare);
             }
-            if (AreBothEnumerable(sourceType, compareType))
+            // TODO: see if this can be done a bit better
+            if (AreBothEnumerable(sourceType, compareType) &&
+                BothHaveGenericTypeParameters(sourceType, compareType))
             {
                 return DeepCollectionCompare(
                     sourceType,
@@ -137,6 +139,13 @@ namespace PeanutButter.Utils
                 compareType,
                 objCompare
             );
+        }
+
+        private bool BothHaveGenericTypeParameters(Type sourceType, Type compareType)
+        {
+            return
+                sourceType.GenericTypeArguments.Length > 0 &&
+                compareType.GenericTypeArguments.Length > 0;
         }
 
         private bool DeepCollectionCompare(
@@ -250,8 +259,8 @@ namespace PeanutButter.Utils
         private bool AreBothEnumerable(Type t1, Type t2)
         {
             // TODO: should we examine the duck-typed enumerable interface (ie, GetEnumerator())?
-            return t1.IsGenericOfIEnumerable() &&
-                   t2.IsGenericOfIEnumerable();
+            return t1.ImplementsEnumerableGenericType() &&
+                   t2.ImplementsEnumerableGenericType();
         }
 
         private bool DeepCompare(
