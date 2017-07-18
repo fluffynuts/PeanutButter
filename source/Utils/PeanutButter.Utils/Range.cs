@@ -62,6 +62,9 @@ namespace PeanutButter.Utils
             IEnumerable<T2> right
         )
         {
+            if (AnyAreNull(left, right))
+                yield break;
+
             using (var leftEnumerator = left.GetEnumerator())
             using (var rightEnumerator = right.GetEnumerator())
             {
@@ -69,7 +72,6 @@ namespace PeanutButter.Utils
                 {
                     yield return Tuple.Create(leftEnumerator.Current, rightEnumerator.Current);
                 }
-                yield break;
             }
         }
 
@@ -90,6 +92,9 @@ namespace PeanutButter.Utils
             IEnumerable<T3> right
         )
         {
+            if (AnyAreNull(left, middle, right))
+                yield break;
+
             using (var leftEnumerator = left.GetEnumerator())
             using (var middleEnumerator = middle.GetEnumerator())
             using (var rightEnumerator = right.GetEnumerator())
@@ -104,6 +109,11 @@ namespace PeanutButter.Utils
                 }
                 yield break;
             }
+        }
+
+        private static bool AnyAreNull(params object[] objects)
+        {
+            return objects.Any(o => o == null);
         }
 
         private static bool MoveAll(params IEnumerator[] e)

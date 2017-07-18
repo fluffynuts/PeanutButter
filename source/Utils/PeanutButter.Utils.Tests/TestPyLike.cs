@@ -137,6 +137,33 @@ namespace PeanutButter.Utils.Tests
         }
 
         [Test]
+        public void Zip_WhenOneOfTwoIsNull_ShouldReturnEmptyCollection()
+        {
+            // Arrange
+            var left = new[] { 1, 2 };
+            int[] right = null;
+            // Pre-Assert
+            // Act
+            var result = Zip(left, right).ToArray();
+            // Assert
+            Expect(result, Has.Length.EqualTo(0));
+        }
+
+        [Test]
+        public void Zip_WhenOneorMoreOfThreeIsNull_ShouldReturnEmptyCollection()
+        {
+            // Arrange
+            var left = new[] { 1, 2 };
+            bool[] middle = null;
+            int[] right = null;
+            // Pre-Assert
+            // Act
+            var result = Zip(left, middle, right).ToArray();
+            // Assert
+            Expect(result, Has.Length.EqualTo(0));
+        }
+
+        [Test]
         public void Zip_When3CollectionsHaveTheSameNumberOfItems_ShouldGetItemPairs()
         {
             // Arrange
