@@ -2050,18 +2050,19 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 int Id { get; }
                 string Name { get; }
             }
+
             [Test]
             [Ignore("WIP")]
             public void InternalDuckAs_GivenTwoObjectsWhichCouldMergeExactly_ShouldReturnTrue()
             {
                 // Arrange
-                var obj1 = new { Id = 42 };
-                var obj2 = new { Name = "Douglas Adams" };
+                var obj1 = new {Id = 42};
+                var obj2 = new {Name = "Douglas Adams"};
                 // Pre-Assert
 
                 // Act
                 var result = DuckTypingExtensionSharedMethods.InternalCanDuckAs<IMerge1>(
-                    new object[] { obj1, obj2 }, false, false);
+                    new object[] {obj1, obj2}, false, false);
 
                 // Assert
                 Expect(result, Is.True);
