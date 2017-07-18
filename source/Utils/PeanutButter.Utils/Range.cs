@@ -56,8 +56,6 @@ namespace PeanutButter.Utils
         /// <param name="right">right collection</param>
         /// <typeparam name="T1"></typeparam>
         /// <typeparam name="T2"></typeparam>
-        /// <typeparam name="T1"></typeparam>
-        /// <typeparam name="T2"></typeparam>
         /// <returns>Enumeration over the collections (Tuple of T1, T2)</returns>
         public static IEnumerable<Tuple<T1, T2>> Zip<T1, T2>(
             IEnumerable<T1> left,
