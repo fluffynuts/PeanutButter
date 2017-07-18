@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NUnit.Framework;
-using static PeanutButter.Utils.PyRange;
+using static PeanutButter.Utils.PyLike;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
-    public class TestRange : AssertionHelper
+    public class TestPyLike : AssertionHelper
     {
         [Test]
         public void Range_GivenCeilingOf0_ShouldYieldNoResults()
@@ -101,6 +98,42 @@ namespace PeanutButter.Utils.Tests
             var result = Range(start, ceiling).ToArray();
             // Assert
             Expect(result, Is.Empty);
+        }
+
+        [Test]
+        public void Zip_WhenCollectionsHaveTheSameNumberOfItems_ShouldGetItemPairs()
+        {
+            // Arrange
+            var left = new[] { 1, 2, 3 };
+            var right = new[] { "a", "b", "c" };
+            // Pre-Assert
+            // Act
+            var result = Zip(left, right).ToArray();
+            // Assert
+            Expect(result, Has.Length.EqualTo(3));
+            Expect(result[0].Item1, Is.EqualTo(left[0]));
+            Expect(result[0].Item2, Is.EqualTo(right[0]));
+            Expect(result[1].Item1, Is.EqualTo(left[1]));
+            Expect(result[1].Item2, Is.EqualTo(right[1]));
+            Expect(result[2].Item1, Is.EqualTo(left[2]));
+            Expect(result[2].Item2, Is.EqualTo(right[2]));
+        }
+
+        [Test]
+        public void Zip_WhenCollectionsHaveDifferntNumberOfItems_ShouldOnlyReturnFullPairs()
+        {
+            // Arrange
+            var left = new[] { 1, 2 };
+            var right = new[] { "a", "b", "c" };
+            // Pre-Assert
+            // Act
+            var result = Zip(left, right).ToArray();
+            // Assert
+            Expect(result, Has.Length.EqualTo(2));
+            Expect(result[0].Item1, Is.EqualTo(left[0]));
+            Expect(result[0].Item2, Is.EqualTo(right[0]));
+            Expect(result[1].Item1, Is.EqualTo(left[1]));
+            Expect(result[1].Item2, Is.EqualTo(right[1]));
         }
     }
 }

@@ -1,13 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace PeanutButter.Utils
 {
     /// <summary>
     /// Provides a Python-like Range method
     /// </summary>
-    public static class PyRange
+    public static class PyLike
     {
-
         /// <summary>
         /// Produces a sequence of consecutive ints from zero to (stop - 1)
         /// </summary>
@@ -42,6 +42,20 @@ namespace PeanutButter.Utils
             {
                 yield return start;
                 start += step;
+            }
+            yield break;
+        }
+
+        public static IEnumerable<Tuple<T1, T2>> Zip<T1, T2>(
+            IEnumerable<T1> left,
+            IEnumerable<T2> right
+        )
+        {
+            var leftEnumerator = left.GetEnumerator();
+            var rightEnumerator = right.GetEnumerator();
+            while (leftEnumerator.MoveNext() && rightEnumerator.MoveNext())
+            {
+                yield return Tuple.Create(leftEnumerator.Current, rightEnumerator.Current);
             }
             yield break;
         }

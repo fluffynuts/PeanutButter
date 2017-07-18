@@ -10,7 +10,7 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 namespace PeanutButter.TestUtils.Generic.Tests
 {
     [TestFixture]
-    public class TestPropertyAssert
+    public class TestPropertyAssert: AssertionHelper
     {
         [Test]
         public void AreEqual_GivenTwoDifferentTypedObjects_AndPropertyNames_WhenPropertiesMatch_DoesNotThrow()
@@ -276,7 +276,9 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<AssertionException>(() => PropertyAssert.AreDeepEqual(obj1, obj2));
+            var ex = Assert.Throws<AssertionException>(
+                () => PropertyAssert.AreDeepEqual(obj1, obj2)
+            );
 
             //---------------Test Result -----------------------
             Assert.IsFalse(string.IsNullOrWhiteSpace(ex.Message));
@@ -338,6 +340,21 @@ namespace PeanutButter.TestUtils.Generic.Tests
             Assert.Throws<AssertionException>(() => PropertyAssert.AreIntersectionEqual(obj1, obj2));
 
             //---------------Test Result -----------------------
+        }
+
+        [Test]
+        public void AreDeepEqual_ShouldConsiderTwoListsWithSameContentsAsEqual()
+        {
+            // Arrange
+            var l1 = new List<string>(new[] { "a", "b" });
+            var l2 = new List<string>(new[] { "a", "b" });
+            // Pre-Assert
+            // Act
+            Expect(() =>
+            {
+                PropertyAssert.AreDeepEqual(l1, l2);
+            }, Throws.Nothing);
+            // Assert
         }
 
         public class BaseClass

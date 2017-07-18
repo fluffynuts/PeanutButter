@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using static PeanutButter.Utils.PyLike;
+
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.Utils
@@ -28,15 +30,18 @@ namespace PeanutButter.Utils
         /// Toggle whether or not to record equality errors
         /// </summary>
         public bool RecordErrors { get; set; }
+
         /// <summary>
         /// Toggle whether or not equality testing fails when properties found
         /// on the first object are not found on the corresponding other object
         /// </summary>
         public bool FailOnMissingProperties { get; set; }
+
         /// <summary>
         /// Toggle whether or not to only test properties found on both objects
         /// </summary>
         public bool OnlyTestIntersectingProperties { get; set; }
+
         /// <summary>
         /// Provides a list of errors for diagnosing inequality, if RecordErrors has been
         /// set to true
@@ -92,7 +97,15 @@ namespace PeanutButter.Utils
 
         private void AddError(string message)
         {
+            if (!RecordErrors)
+                return;
             _errors.Add(message);
+        }
+
+        private static bool AreBothSimpleOrNullableOfSimpleTypes(Type t1, Type t2)
+        {
+            return IsSimpleTypeOrNullableOfSimpleType(t1) &&
+                   IsSimpleTypeOrNullableOfSimpleType(t2);
         }
 
         private bool AreDeepEqualInternal(
@@ -102,12 +115,21 @@ namespace PeanutButter.Utils
         {
             if (objSource == null && objCompare == null) return true;
             if (objSource == null || objCompare == null) return false;
+
             var sourceType = objSource.GetType();
             var compareType = objCompare.GetType();
-            if (IsSimpleTypeOrNullableOfSimpleType(sourceType) &&
-                IsSimpleTypeOrNullableOfSimpleType(compareType))
+            if (AreBothSimpleOrNullableOfSimpleTypes(sourceType, compareType))
             {
                 return objSource.Equals(objCompare);
+            }
+            if (AreBothEnumerable(sourceType, compareType))
+            {
+                return DeepCollectionCompare(
+                    sourceType,
+                    objSource,
+                    compareType,
+                    objCompare
+                );
             }
             return DeepCompare(
                 sourceType,
@@ -115,7 +137,72 @@ namespace PeanutButter.Utils
                 compareType,
                 objCompare
             );
+        }
 
+        private bool DeepCollectionCompare(
+            Type sourceType, object objSource,
+            Type compareType, object objCompare)
+        {
+            var sourceItemType = GetItemTypeFor(sourceType);
+            var compareItemType = GetItemTypeFor(compareType);
+            var method = DeepCollectionCompareGenericMethod.MakeGenericMethod(
+                sourceItemType, compareItemType
+            );
+            return (bool) method.Invoke(this, new[] {objSource, objCompare});
+        }
+
+        private static Type GetItemTypeFor(Type collectionType)
+        {
+            return collectionType.GenericTypeArguments[0];
+        }
+
+        private static readonly MethodInfo DeepCollectionCompareGenericMethod =
+            typeof(DeepEqualityTester).GetMethod(
+                nameof(DeepCollectionCompareGeneric),
+                BindingFlags.NonPublic | BindingFlags.Instance
+            );
+
+        // ReSharper disable once UnusedMember.Local
+        private bool DeepCollectionCompareGeneric<T1, T2>(
+            IEnumerable<T1> source,
+            IEnumerable<T2> compare
+        )
+        {
+            var sourceCount = source.Count();
+            var compareCount = compare.Count();
+            if (sourceCount != compareCount)
+            {
+                AddError($"Collection sizes do not match: {sourceCount} vs {compareCount}");
+                return false;
+            }
+            var index = 0;
+            return Zip(source, compare).Aggregate(
+                true,
+                (acc, cur) =>
+                {
+                    return acc && DeepCompareAtIndex(
+                               index++,
+                               cur.Item1,
+                               cur.Item2
+                           );
+                });
+        }
+
+        private bool DeepCompareAtIndex(
+            int index,
+            object source,
+            object target
+        )
+        {
+            var result = AreDeepEqualInternal(
+                source,
+                target
+            );
+            if (!result)
+            {
+                AddError($"Collection comparison fails at index {index}");
+            }
+            return result;
         }
 
         private void ClearPendingOperations()
@@ -123,13 +210,13 @@ namespace PeanutButter.Utils
             _pendingComparisons = new Dictionary<object, object>();
         }
 
-        private bool IsSimpleTypeOrNullableOfSimpleType(Type t)
+        private static bool IsSimpleTypeOrNullableOfSimpleType(Type t)
         {
             return t != null &&
-                    Types.PrimitivesAndImmutables.Any(si => si == t ||
-                                            (t.IsGenericType &&
-                                             t.GetGenericTypeDefinition() == typeof(Nullable<>) &&
-                                             Nullable.GetUnderlyingType(t) == si));
+                   Types.PrimitivesAndImmutables.Any(si => si == t ||
+                                                           (t.IsGenericType &&
+                                                            t.GetGenericTypeDefinition() == typeof(Nullable<>) &&
+                                                            Nullable.GetUnderlyingType(t) == si));
         }
 
 
@@ -152,7 +239,9 @@ namespace PeanutButter.Utils
             if (compareType != srcType &&
                 !AreBothEnumerable(compareType, srcType))
             {
-                AddError($"Source property '{srcPropInfo.Name}' has type '{srcType.Name}' but comparison property has type '{compareType.Name}' and can't find common enumerable ground");
+                AddError(
+                    $"Source property '{srcPropInfo.Name}' has type '{srcType.Name}' but comparison property has type '{compareType.Name}' and can't find common enumerable ground"
+                );
                 return null;
             }
             return comparePropInfo;
@@ -160,7 +249,9 @@ namespace PeanutButter.Utils
 
         private bool AreBothEnumerable(Type t1, Type t2)
         {
-            return t1.ImplementsEnumerableGenericType() && t2.ImplementsEnumerableGenericType();
+            // TODO: should we examine the duck-typed enumerable interface (ie, GetEnumerator())?
+            return t1.ImplementsEnumerableGenericType() &&
+                   t2.ImplementsEnumerableGenericType();
         }
 
         private bool DeepCompare(
@@ -171,7 +262,7 @@ namespace PeanutButter.Utils
         )
         {
             if (IsPending(objSource, objCompare))
-                return true;    // let other comparisons continue
+                return true; // let other comparisons continue
             var srcProps = sourceType
                 .GetProperties()
                 .Where(pi => !_ignorePropertiesByName.Contains(pi.Name));
@@ -179,8 +270,8 @@ namespace PeanutButter.Utils
                 .Where(pi => !_ignorePropertiesByName.Contains(pi.Name))
                 .ToArray();
             var srcPropInfos = OnlyTestIntersectingProperties
-                                ? GetIntersectingPropertyInfos(srcProps, comparePropInfos)
-                                : srcProps.ToArray();
+                ? GetIntersectingPropertyInfos(srcProps, comparePropInfos)
+                : srcProps.ToArray();
             if (OnlyTestIntersectingProperties)
             {
                 srcPropInfos = srcPropInfos.Where(
@@ -188,32 +279,30 @@ namespace PeanutButter.Utils
                 ).ToArray();
                 if (srcPropInfos.IsEmpty())
                 {
-                    if (RecordErrors)
-                        AddError("No intersecting properties found");
+                    AddError("No intersecting properties found");
                     return false;
                 }
             }
-            if (!FailOnMissingProperties || OnlyTestIntersectingProperties || srcPropInfos.Length == comparePropInfos.Length)
+            if (!FailOnMissingProperties || OnlyTestIntersectingProperties ||
+                srcPropInfos.Length == comparePropInfos.Length)
                 return CompareWith(objSource, objCompare, srcPropInfos, comparePropInfos);
-            if (RecordErrors)
-            {
-                AddError(string.Join("\n",
-                    "Property count mismatch",
-                    $"Source has {srcPropInfos.Count()} properties:",
-                    $"{DumpPropertyInfo(srcPropInfos)}",
-                    $"\nComparison has {comparePropInfos.Count()} properties:",
-                    $"{DumpPropertyInfo(comparePropInfos)}"
-                ));
-            }
+            AddError(string.Join("\n",
+                "Property count mismatch",
+                $"Source has {srcPropInfos.Count()} properties:",
+                $"{DumpPropertyInfo(srcPropInfos)}",
+                $"\nComparison has {comparePropInfos.Count()} properties:",
+                $"{DumpPropertyInfo(comparePropInfos)}"
+            ));
             return false;
         }
 
         private const string DUMP_DELIMITER = "\n* ";
+
         private string DumpPropertyInfo(PropertyInfo[] propInfos)
         {
-            return DUMP_DELIMITER + string.Join(DUMP_DELIMITER, 
-                propInfos.Select(pi => $"{pi.PropertyType} {pi.Name}")
-            );
+            return DUMP_DELIMITER + string.Join(DUMP_DELIMITER,
+                       propInfos.Select(pi => $"{pi.PropertyType} {pi.Name}")
+                   );
         }
 
         private PropertyInfo[] GetIntersectingPropertyInfos(
@@ -222,14 +311,15 @@ namespace PeanutButter.Utils
         )
         {
             var result = left.Where(
-                    s => right.Any(c => c.Name == s.Name && c.PropertyType == s.PropertyType)
-                ).ToArray();
-            if (result.IsEmpty() && RecordErrors)
+                s => right.Any(c => c.Name == s.Name && c.PropertyType == s.PropertyType)
+            ).ToArray();
+            if (result.IsEmpty())
                 AddError("No intersecting properties found");
             return result;
         }
 
-        private bool CompareWith(object objSource, object objCompare, PropertyInfo[] srcPropInfos, PropertyInfo[] comparePropInfos)
+        private bool CompareWith(object objSource, object objCompare, PropertyInfo[] srcPropInfos,
+            PropertyInfo[] comparePropInfos)
         {
             var didAnyComparison = false;
             var finalResult = srcPropInfos.Aggregate(true, (result, srcProp) =>
@@ -254,16 +344,19 @@ namespace PeanutButter.Utils
             return false;
         }
 
-        private bool PropertyValuesMatchFor(object objSource, object objCompare, PropertyInfo srcProp, PropertyInfo compareProp)
+        private bool PropertyValuesMatchFor(object objSource, object objCompare, PropertyInfo srcProp,
+            PropertyInfo compareProp)
         {
             var srcValue = srcProp.GetValue(objSource);
             var compareValue = compareProp.GetValue(objCompare, null);
             var result = CanPerformSimpleTypeMatchFor(srcProp)
                 ? AreDeepEqualInternal(srcValue, compareValue)
                 : MatchPropertiesOrCollection(srcValue, compareValue);
-            if (!result && RecordErrors)
+            if (!result)
             {
-                AddError($"Property value mismatch for {srcProp.Name}: {Stringifier.Stringify(objSource)} vs {Stringifier.Stringify(objCompare)}");
+                AddError(
+                    $"Property value mismatch for {srcProp.Name}: {Stringifier.Stringify(objSource)} vs {Stringifier.Stringify(objCompare)}"
+                );
             }
             return result;
         }
@@ -294,9 +387,9 @@ namespace PeanutButter.Utils
             var t1 = srcEnumerableInterface.GenericTypeArguments[0];
             var t2 = compareEnumerableInterface.GenericTypeArguments[0];
             var genericMethod = GetType()
-                                .GetMethod("TestCollectionsMatch", BindingFlags.Instance | BindingFlags.NonPublic);
+                .GetMethod("TestCollectionsMatch", BindingFlags.Instance | BindingFlags.NonPublic);
             var typedMethod = genericMethod.MakeGenericMethod(t1, t2);
-            return (bool)typedMethod.Invoke(this, new[] { srcValue, compareValue });
+            return (bool) typedMethod.Invoke(this, new[] {srcValue, compareValue});
         }
 
 

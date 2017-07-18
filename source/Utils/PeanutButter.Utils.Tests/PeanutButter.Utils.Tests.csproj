@@ -86,7 +86,7 @@
     <Compile Include="TestLocalDbFactory.cs" />
     <Compile Include="TestLocalDbInstanceEnumerator.cs" />
     <Compile Include="TestObjectExtensions.cs" />
-    <Compile Include="TestRange.cs" />
+    <Compile Include="TestPyLike.cs" />
     <Compile Include="TestStreamExtensions.cs" />
     <Compile Include="TestStringExtensions.cs" />
     <Compile Include="TestTypeExtensions.cs" />
