@@ -250,8 +250,8 @@ namespace PeanutButter.Utils
         private bool AreBothEnumerable(Type t1, Type t2)
         {
             // TODO: should we examine the duck-typed enumerable interface (ie, GetEnumerator())?
-            return t1.ImplementsEnumerableGenericType() &&
-                   t2.ImplementsEnumerableGenericType();
+            return t1.IsGenericOfIEnumerable() &&
+                   t2.IsGenericOfIEnumerable();
         }
 
         private bool DeepCompare(

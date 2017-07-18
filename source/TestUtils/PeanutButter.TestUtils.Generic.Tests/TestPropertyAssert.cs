@@ -357,6 +357,18 @@ namespace PeanutButter.TestUtils.Generic.Tests
             // Assert
         }
 
+        [Test]
+        public void AreDeepEqual_ShouldConsiderTwoCollectionsOfSameValueAndShapeObjectsAsEqual()
+        {
+            // Arrange
+            var left = new[] { new { foo = "bar" } };
+            var right = new[] { new { foo = "bar" } };
+            // Pre-Assert
+            // Act
+            PropertyAssert.AreDeepEqual(left, right);
+            // Assert
+        }
+
         public class BaseClass
         {
             public virtual string Name { get; set; }
