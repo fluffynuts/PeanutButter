@@ -1,6 +1,8 @@
 using System;
+using NExpect.Extensions;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using static NExpect.Expectations;
 
 namespace PeanutButter.RandomGenerators.Tests
 {
@@ -21,8 +23,8 @@ namespace PeanutButter.RandomGenerators.Tests
             var sut = Create(from, to);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(from, sut.From);
-            Assert.AreEqual(to, sut.To);
+            Expect(sut.From).To.Equal(from);
+            Expect(sut.To).To.Equal(to);
         }
 
         [Test]
@@ -39,8 +41,8 @@ namespace PeanutButter.RandomGenerators.Tests
             var sut = Create(to, from);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(from, sut.From);
-            Assert.AreEqual(to, sut.To);
+            Expect(sut.From).To.Equal(from);
+            Expect(sut.To).To.Equal(to);
         }
 
         private DateRange Create(DateTime fromDate, DateTime toDate)

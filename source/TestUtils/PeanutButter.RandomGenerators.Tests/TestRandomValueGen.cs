@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using GenericBuilderTestArtifactBuilders;
 using GenericBuilderTestArtifactEntities;
-using NSubstitute;
 using NUnit.Framework;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
