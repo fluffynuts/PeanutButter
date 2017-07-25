@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 using NUnit.Framework;
 
 namespace PeanutButter.Utils.Tests
@@ -200,6 +201,26 @@ namespace PeanutButter.Utils.Tests
             Assert.Fail("Test Not Yet Implemented");
         }
 
+        [Test]
+        public void DeepEquals_ShouldNotDerpRoundTwo() {
+            // Arrange
+            var left = JsonConvert.DeserializeObject<PublishableJourneyDto>(_left);
+            var right = JsonConvert.DeserializeObject<PublishableJourneyDto>(_right);
+            // Act
+            var result = left.DeepEquals(right);
+            // Assert
+            Expect(result, Is.False);
+        }
+
+        private static string _left =
+                @"{""AudiencesIncluded"":""5"",""AudiencesExcluded"":""55555"",""Id"":""c623ce7f-4e7e-4cdc-b4b0-68cf2b26b778"",""Name"":""Journey 5"",""Version"":{""Major"":1,""Minor"":0},""StartDate"":""2017-07-25T10:54:14.115024+02:00"",""EndDate"":""2017-07-26T23:59:59"",""CanContinueAfterEndDate"":false,""NoEndDate"":false,""IsExternalTimingEnabled"":false,""MaxTimesUserCanJoinJourney"":-1,""MaxAllowedUsersOnJourney"":-1,""MaxTimeOnJourney"":""10.00:00:00"",""StartStepId"":""e2dd57a7-3ea6-466f-83da-afc6dbd9d2a1"",""Steps"":[{""Id"":""e2dd57a7-3ea6-466f-83da-afc6dbd9d2a1"",""StepTypeName"":""WaitForPrimaryEvent"",""JsonStepConfiguration"":""{\""Id\"":\""e2dd57a7-3ea6-466f-83da-afc6dbd9d2a1\"",\""PrimaryEvent\"":{\""NextStepId\"":null,\""TimeoutStepId\"":null,\""ShouldCountdownTime\"":false,\""WaitEventType\"":0,\""WaitTime\"":\""01:00:00\"",\""TimeRemaining\"":\""01:00:00\"",\""Trigger\"":{\""EventType\"":\""deposit\"",\""Condition\"":\""transactioninfo.transactionstatus='Success'\""},\""SuccessActions\"":null,\""FailureActions\"":null}}"",""StepConfiguration"":""{\""Id\"":\""e2dd57a7-3ea6-466f-83da-afc6dbd9d2a1\"",\""PrimaryEvent\"":{\""NextStepId\"":null,\""TimeoutStepId\"":null,\""ShouldCountdownTime\"":false,\""WaitEventType\"":0,\""WaitTime\"":\""01:00:00\"",\""TimeRemaining\"":\""01:00:00\"",\""Trigger\"":{\""EventType\"":\""deposit\"",\""Condition\"":\""transactioninfo.transactionstatus='Success'\""},\""SuccessActions\"":null,\""FailureActions\"":null}}""}],""InitiatingTriggers"":[{""EventType"":""deposit"",""Condition"":null}],""TerminatingTriggers"":[{""EventType"":""logout"",""Condition"":null}]}"
+            ;
+
+        private static string _right =
+                @"{""AudiencesIncluded"":""5"",""AudiencesExcluded"":"""",""Id"":""c623ce7f-4e7e-4cdc-b4b0-68cf2b26b778"",""Name"":""Journey 5"",""Version"":{""Major"":1,""Minor"":0},""StartDate"":""2017-07-25T10:54:14.115024+02:00"",""EndDate"":""2017-07-26T23:59:59"",""CanContinueAfterEndDate"":false,""NoEndDate"":false,""IsExternalTimingEnabled"":false,""MaxTimesUserCanJoinJourney"":-1,""MaxAllowedUsersOnJourney"":-1,""MaxTimeOnJourney"":""10.00:00:00"",""StartStepId"":""e2dd57a7-3ea6-466f-83da-afc6dbd9d2a1"",""Steps"":[{""Id"":""e2dd57a7-3ea6-466f-83da-afc6dbd9d2a1"",""StepTypeName"":""WaitForPrimaryEvent"",""JsonStepConfiguration"":""{\""Id\"":\""e2dd57a7-3ea6-466f-83da-afc6dbd9d2a1\"",\""PrimaryEvent\"":{\""NextStepId\"":null,\""TimeoutStepId\"":null,\""ShouldCountdownTime\"":false,\""WaitEventType\"":0,\""WaitTime\"":\""01:00:00\"",\""TimeRemaining\"":\""01:00:00\"",\""Trigger\"":{\""EventType\"":\""deposit\"",\""Condition\"":\""transactioninfo.transactionstatus='Success'\""},\""SuccessActions\"":null,\""FailureActions\"":null}}"",""StepConfiguration"":""{\""Id\"":\""e2dd57a7-3ea6-466f-83da-afc6dbd9d2a1\"",\""PrimaryEvent\"":{\""NextStepId\"":null,\""TimeoutStepId\"":null,\""ShouldCountdownTime\"":false,\""WaitEventType\"":0,\""WaitTime\"":\""01:00:00\"",\""TimeRemaining\"":\""01:00:00\"",\""Trigger\"":{\""EventType\"":\""deposit\"",\""Condition\"":\""transactioninfo.transactionstatus='Success'\""},\""SuccessActions\"":null,\""FailureActions\"":null}}""}],""InitiatingTriggers"":[{""EventType"":""deposit"",""Condition"":null}],""TerminatingTriggers"":[{""EventType"":""logout"",""Condition"":null}]}"
+            ;
+
+
         public class ThingWithCollection
         {
             public ICollection<int> Subs { get; set; }
@@ -211,57 +232,58 @@ namespace PeanutButter.Utils.Tests
             sut.RecordErrors = true;
             return sut;
         }
-    }
 
-    [TestFixture]
-    public class TestStringifier: AssertionHelper
-    {
-        [TestCase("foo", "\"foo\"")]
-        [TestCase(1, "1")]
-        [TestCase(true, "true")]
-        [TestCase(false, "false")]
-        [TestCase(null, "null")]
-        public void Stringify_GivenPrimitive_ShouldReturnExpected(object value, string expected)
-        {
-            //--------------- Arrange -------------------
+        // TODO: obsfucate me, perhaps?
+        public class PublishableJourneyDto {
+            // Metadata properties
+            public string Id { get; set; }
+            public string Name { get; set; }
 
-            //--------------- Assume ----------------
+            public VersionDto Version { get; set; }
 
-            //--------------- Act ----------------------
-            var result = Stringifier.Stringify(value);
+            public DateTime StartDate { get; set; }
+            public DateTime EndDate { get; set; }
+            public bool CanContinueAfterEndDate { get; set; }
+            public bool NoEndDate { get; set; }
+            public bool IsExternalTimingEnabled { get; set; }
+            public int MaxTimesUserCanJoinJourney { get; set; }
+            public int MaxAllowedUsersOnJourney { get; set; }
+            public TimeSpan MaxTimeOnJourney { get; set; }
 
-            //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(expected));
+            public string AudiencesIncluded;
+            public string AudiencesExcluded;
+
+            // Workflow properties
+            public string StartStepId { get; set; }
+            // these are lists only because RestSharp says "moo"
+            public List<PublishableJourneyStepDto> Steps { get; set; }
+            public List<PublishableEventTriggerDto> InitiatingTriggers { get; set; }
+            public List<PublishableEventTriggerDto> TerminatingTriggers { get; set; }
         }
 
-        private static readonly Tuple<object, string>[] ComplexSource = new[]
-        {
-            Tuple.Create(new { foo = 1 } as object, @"
-{
-  foo: 1
-}"),
-            Tuple.Create(new { foo = new { bar = 1 } } as object, @"
-{
-  foo: {
-    bar: 1
-  }
-}") 
-        };
-
-        [TestCaseSource(nameof(ComplexSource))]
-        public void Stringify_GivenObject_ShouldReturnExpected(Tuple<object, string> data)
-        {
-            //--------------- Arrange -------------------
-
-            //--------------- Assume ----------------
-
-            //--------------- Act ----------------------
-            var result = Stringifier.Stringify(data.Item1);
-
-            //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(data.Item2.TrimStart().Replace("\r", "")));
+        public class VersionDto {
+            public int Major { get; set; }
+            public int Minor { get; set; }
         }
 
+        public class PublishableJourneyStepDto {
+            public string Id { get; set; }
+            public string StepTypeName { get; set; }
+            public string JsonStepConfiguration { get; set; }
+
+            // TODO Added because Publish API contract has changed
+            // TODO Removed JsonStepConfiguration once new API has been deployed everywhere ****NOTE that when doing this the correct N1QL scripts needs to be created to migrate data in Couchbase
+            public string StepConfiguration {
+                get { return JsonStepConfiguration; }
+                set { 
+                    // intentionally empty, will be implemented when JsonStepConfiguration is removed
+                }
+            }
+        }
+        public class PublishableEventTriggerDto {
+            public string EventType { get; set; }
+            public string Condition { get; set; }
+        }
 
     }
 }

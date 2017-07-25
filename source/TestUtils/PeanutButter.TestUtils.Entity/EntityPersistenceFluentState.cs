@@ -184,7 +184,9 @@ namespace PeanutButter.TestUtils.Entity
                     Assert.AreNotEqual(0, idProp.GetValue(persisted));
 
 
-                var ignoreAndCrankyProperties = toIgnore.Union(DecimalProps.Union(DateTimeProps).Select(pi => pi.Name)).ToArray();
+                var ignoreAndCrankyProperties = toIgnore.Union(
+                    DecimalProps.Union(DateTimeProps).Select(pi => pi.Name)
+                ).ToArray();
                 PropertyAssert.AreDeepEqual(persisted, sut, ignoreAndCrankyProperties);
                 TestDecimalPropertiesOn(sut, persisted);
                 TestDateTimePropertiesOn(sut, persisted);

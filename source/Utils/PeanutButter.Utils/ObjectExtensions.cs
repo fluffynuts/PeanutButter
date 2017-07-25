@@ -8,6 +8,11 @@ using System.Reflection;
 
 namespace PeanutButter.Utils
 {
+    public enum ObjectComparisons
+    {
+        PropertiesOnly,
+        PropertiesAndFields
+    }
     /// <summary>
     /// Provides a set of convenience extensions on everything
     /// </summary>
@@ -23,13 +28,40 @@ namespace PeanutButter.Utils
         /// <param name="objCompare">Object to compare with</param>
         /// <param name="ignorePropertiesByName">Params array of properties to ignore by name</param>
         /// <returns></returns>
-        public static bool DeepEquals(this object objSource, object objCompare, params string[] ignorePropertiesByName)
+        public static bool DeepEquals(
+            this object objSource, 
+            object objCompare, 
+            params string[] ignorePropertiesByName
+        )
         {
-            return new DeepEqualityTester(
+            return objSource.DeepEquals(objCompare, ObjectComparisons.PropertiesAndFields, ignorePropertiesByName);
+        }
+
+        /// <summary>
+        /// Runs a deep equality test between two objects, glossing over reference
+        /// differences between class-types and comparing only primitive types. Use
+        /// this when you'd like to essentially test whether the data in one object
+        /// hierachy matches that of another
+        /// </summary>
+        /// <param name="objSource">Object which is the source of truth</param>
+        /// <param name="objCompare">Object to compare with</param>
+        /// <param name="excludeFields">Exclude fields in comparison (old behavior)</param>
+        /// <param name="ignorePropertiesByName">Params array of properties to ignore by name</param>
+        /// <returns></returns>
+        public static bool DeepEquals(
+            this object objSource, 
+            object objCompare, 
+            ObjectComparisons comparison,
+            params string[] ignorePropertiesByName
+        )
+        {
+            var tester =  new DeepEqualityTester(
                 objSource,
                 objCompare,
                 ignorePropertiesByName
-            ).AreDeepEqual();
+            );
+            tester.IncludeFields = comparison == ObjectComparisons.PropertiesAndFields;
+            return tester.AreDeepEqual();
         }
 
         /// <summary>
@@ -40,7 +72,9 @@ namespace PeanutButter.Utils
         /// <param name="objCompare">Comparison object to compare</param>
         /// <param name="ignorePropertiesByName">Optional params array of properties to ignore by name</param>
         /// <returns>True if relevant properties are found and match; false otherwise</returns>
-        public static bool DeepSubEquals(this object objSource, object objCompare,
+        public static bool DeepSubEquals(
+            this object objSource, 
+            object objCompare,
             params string[] ignorePropertiesByName)
         {
             var tester = new DeepEqualityTester(

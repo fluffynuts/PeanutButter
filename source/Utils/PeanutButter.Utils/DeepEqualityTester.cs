@@ -48,6 +48,11 @@ namespace PeanutButter.Utils
         /// </summary>
         public IEnumerable<string> Errors => _errors.ToArray();
 
+        /// <summary>
+        /// Flag: include fields in deep equality testing (false by default)
+        /// </summary>
+        public bool IncludeFields { get; set; }
+
         private List<string> _errors;
 
         /// <summary>
@@ -57,7 +62,11 @@ namespace PeanutButter.Utils
         /// <param name="objSource">Source / master object</param>
         /// <param name="objCompare">Object to compare with</param>
         /// <param name="ignorePropertiesByName">Params array of properties to ignore by name</param>
-        public DeepEqualityTester(object objSource, object objCompare, params string[] ignorePropertiesByName)
+        public DeepEqualityTester(
+            object objSource,
+            object objCompare,
+            params string[] ignorePropertiesByName
+        )
         {
             _objSource = objSource;
             _objCompare = objCompare;
@@ -229,13 +238,15 @@ namespace PeanutButter.Utils
         }
 
 
-        private bool CanPerformSimpleTypeMatchFor(PropertyInfo srcProp)
+        private bool CanPerformSimpleTypeMatchFor(PropertyOrField srcProp)
         {
-            return Types.PrimitivesAndImmutables.Any(st => st == srcProp.PropertyType);
+            return Types.PrimitivesAndImmutables.Any(st => st == srcProp.Type);
         }
 
 
-        private PropertyInfo FindMatchingPropertyInfoFor(IEnumerable<PropertyInfo> properties, PropertyInfo srcPropInfo)
+        private PropertyOrField FindMatchingPropertyInfoFor(
+            IEnumerable<PropertyOrField> properties,
+            PropertyOrField srcPropInfo)
         {
             var comparePropInfo = properties.FirstOrDefault(pi => pi.Name == srcPropInfo.Name);
             if (comparePropInfo == null)
@@ -243,8 +254,8 @@ namespace PeanutButter.Utils
                 AddError("Unable to find comparison property with name: '" + srcPropInfo.Name + "'");
                 return null;
             }
-            var compareType = comparePropInfo.PropertyType;
-            var srcType = srcPropInfo.PropertyType;
+            var compareType = comparePropInfo.Type;
+            var srcType = srcPropInfo.Type;
             if (compareType != srcType &&
                 !AreBothEnumerable(compareType, srcType))
             {
@@ -272,19 +283,16 @@ namespace PeanutButter.Utils
         {
             if (IsPending(objSource, objCompare))
                 return true; // let other comparisons continue
-            var srcProps = sourceType
-                .GetProperties()
-                .Where(pi => !_ignorePropertiesByName.Contains(pi.Name));
-            var comparePropInfos = compareType.GetProperties()
-                .Where(pi => !_ignorePropertiesByName.Contains(pi.Name))
-                .ToArray();
+            var srcProps = GetPropertiesAndFieldsOf(sourceType);
+            var compareProps = GetPropertiesAndFieldsOf(compareType);
+
             var srcPropInfos = OnlyTestIntersectingProperties
-                ? GetIntersectingPropertyInfos(srcProps, comparePropInfos)
+                ? GetIntersectingPropertyInfos(srcProps, compareProps)
                 : srcProps.ToArray();
             if (OnlyTestIntersectingProperties)
             {
                 srcPropInfos = srcPropInfos.Where(
-                    s => comparePropInfos.Any(c => c.Name == s.Name && c.PropertyType == s.PropertyType)
+                    s => compareProps.Any(c => c.Name == s.Name && c.Type == s.Type)
                 ).ToArray();
                 if (srcPropInfos.IsEmpty())
                 {
@@ -293,42 +301,63 @@ namespace PeanutButter.Utils
                 }
             }
             if (!FailOnMissingProperties || OnlyTestIntersectingProperties ||
-                srcPropInfos.Length == comparePropInfos.Length)
-                return CompareWith(objSource, objCompare, srcPropInfos, comparePropInfos);
+                srcPropInfos.Length == compareProps.Length)
+                return CompareWith(objSource, objCompare, srcPropInfos, compareProps);
             AddError(string.Join("\n",
                 "Property count mismatch",
                 $"Source has {srcPropInfos.Count()} properties:",
                 $"{DumpPropertyInfo(srcPropInfos)}",
-                $"\nComparison has {comparePropInfos.Count()} properties:",
-                $"{DumpPropertyInfo(comparePropInfos)}"
+                $"\nComparison has {compareProps.Count()} properties:",
+                $"{DumpPropertyInfo(compareProps)}"
             ));
             return false;
         }
 
+        private PropertyOrField[] GetPropertiesAndFieldsOf(Type sourceType)
+        {
+            var props = sourceType
+                .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Encapsulate()
+                .Where(pi => !_ignorePropertiesByName.Contains(pi.Name))
+                .ToArray();
+            if (IncludeFields)
+            {
+                var fields = sourceType
+                    .GetFields(BindingFlags.Public | BindingFlags.Instance)
+                    .Encapsulate()
+                    .Where(o => !_ignorePropertiesByName.Contains(o.Name));
+                props = props.And(fields.ToArray());
+            }
+            return props;
+        }
+
         private const string DUMP_DELIMITER = "\n* ";
 
-        private string DumpPropertyInfo(PropertyInfo[] propInfos)
+        private string DumpPropertyInfo(PropertyOrField[] propInfos)
         {
             return DUMP_DELIMITER + string.Join(DUMP_DELIMITER,
-                       propInfos.Select(pi => $"{pi.PropertyType} {pi.Name}")
+                       propInfos.Select(pi => $"{pi.Type} {pi.Name}")
                    );
         }
 
-        private PropertyInfo[] GetIntersectingPropertyInfos(
-            IEnumerable<PropertyInfo> left,
-            IEnumerable<PropertyInfo> right
+        private PropertyOrField[] GetIntersectingPropertyInfos(
+            IEnumerable<PropertyOrField> left,
+            IEnumerable<PropertyOrField> right
         )
         {
             var result = left.Where(
-                s => right.Any(c => c.Name == s.Name && c.PropertyType == s.PropertyType)
+                s => right.Any(c => c.Name == s.Name && c.Type == s.Type)
             ).ToArray();
             if (result.IsEmpty())
                 AddError("No intersecting properties found");
             return result;
         }
 
-        private bool CompareWith(object objSource, object objCompare, PropertyInfo[] srcPropInfos,
-            PropertyInfo[] comparePropInfos)
+        private bool CompareWith(
+            object objSource,
+            object objCompare,
+            PropertyOrField[] srcPropInfos,
+            PropertyOrField[] comparePropInfos)
         {
             var didAnyComparison = false;
             var finalResult = srcPropInfos.Aggregate(true, (result, srcProp) =>
@@ -353,11 +382,14 @@ namespace PeanutButter.Utils
             return false;
         }
 
-        private bool PropertyValuesMatchFor(object objSource, object objCompare, PropertyInfo srcProp,
-            PropertyInfo compareProp)
+        private bool PropertyValuesMatchFor(
+            object objSource,
+            object objCompare,
+            PropertyOrField srcProp,
+            PropertyOrField compareProp)
         {
             var srcValue = srcProp.GetValue(objSource);
-            var compareValue = compareProp.GetValue(objCompare, null);
+            var compareValue = compareProp.GetValue(objCompare);
             var result = CanPerformSimpleTypeMatchFor(srcProp)
                 ? AreDeepEqualInternal(srcValue, compareValue)
                 : MatchPropertiesOrCollection(srcValue, compareValue);
@@ -434,6 +466,45 @@ namespace PeanutButter.Utils
             return srcValue
                 ?.GetType()
                 .TryGetEnumerableInterface();
+        }
+    }
+
+    internal class PropertyOrField
+    {
+        public string Name => _propInfo?.Name ?? _fieldInfo.Name;
+        public Type Type => _propInfo?.PropertyType ?? _fieldInfo.FieldType;
+
+        private PropertyInfo _propInfo;
+        private FieldInfo _fieldInfo;
+
+        public PropertyOrField(PropertyInfo prop)
+        {
+            _propInfo = prop;
+        }
+
+        public PropertyOrField(FieldInfo field)
+        {
+            _fieldInfo = field;
+        }
+
+        public object GetValue(object host)
+        {
+            return _fieldInfo == null
+                ? _propInfo.GetValue(host)
+                : _fieldInfo.GetValue(host);
+        }
+    }
+
+    internal static class ArrayExtensions
+    {
+        internal static PropertyOrField[] Encapsulate(this PropertyInfo[] propertyInfos)
+        {
+            return propertyInfos.Select(p => new PropertyOrField(p)).ToArray();
+        }
+
+        internal static PropertyOrField[] Encapsulate(this FieldInfo[] propertyInfos)
+        {
+            return propertyInfos.Select(p => new PropertyOrField(p)).ToArray();
         }
     }
 }

@@ -12,6 +12,7 @@ namespace PeanutButter.TestUtils.Generic
         public static void AreDeepEqual(object obj1, object obj2, params string[] ignorePropertiesByName)
         {
             var tester = new DeepEqualityTester(obj1, obj2, ignorePropertiesByName);
+            tester.IncludeFields = false;   // this is PropertyAssert!
             tester.RecordErrors = true;
             if (!tester.AreDeepEqual())
                 throw new AssertionException(string.Join("\n", tester.Errors));

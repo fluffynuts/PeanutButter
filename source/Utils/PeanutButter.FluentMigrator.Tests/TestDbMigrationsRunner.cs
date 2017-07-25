@@ -37,7 +37,7 @@ namespace PeanutButter.FluentMigrator.Tests
                 var allCows = ctx.Cows.ToArray();
                 Expect(allCows, Has.Length.EqualTo(1));
                 var stored = allCows[0];
-                Expect(stored.DeepEquals(cow, "Id"), Is.True);
+                Expect(stored.DeepEquals(cow, ObjectComparisons.PropertiesOnly, "Id"), Is.True);
             }
         }
     }
