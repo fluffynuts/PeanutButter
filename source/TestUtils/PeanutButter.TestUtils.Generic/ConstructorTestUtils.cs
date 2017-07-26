@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NSubstitute;
-using NUnit.Framework;
 using PeanutButter.Utils;
 
 // Author notice: most of this is not written by me and may be subject to removal at the
@@ -11,9 +10,22 @@ using PeanutButter.Utils;
 
 namespace PeanutButter.TestUtils.Generic
 {
+    /// <summary>
+    /// Provides static utilities to test constructors
+    /// </summary>
     public class ConstructorTestUtils
     {
-        public static void ShouldExpectNonNullParameterFor<TCheckingConstructorOf>(string parameterName, Type expectedParameterType)
+        /// <summary>
+        /// Tests that a single-constructor class expects a parameter
+        /// by name and type and will throw an ArgumentException if that parameter is null
+        /// </summary>
+        /// <param name="parameterName"></param>
+        /// <param name="expectedParameterType"></param>
+        /// <typeparam name="TCheckingConstructorOf"></typeparam>
+        public static void ShouldExpectNonNullParameterFor<TCheckingConstructorOf>(
+            string parameterName, 
+            Type expectedParameterType
+        )
         {
             var constructor = GetConstructorInfo<TCheckingConstructorOf>();
             var parameters = GetConstructorParameters(parameterName, constructor).ToArray();
@@ -161,7 +173,7 @@ namespace PeanutButter.TestUtils.Generic
         {
             var expectedValue = typeof (ArgumentNullException);
             var wasValue = actualException?.GetType().ToString() ?? "Null";
-            throw new AssertionException($"Expected: {expectedValue} but was: {wasValue}");
+            Assertions.Throw($"Expected: {expectedValue} but was: {wasValue}");
         }
     }
 }

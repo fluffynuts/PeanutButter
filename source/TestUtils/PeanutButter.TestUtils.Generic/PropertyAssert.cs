@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using NUnit.Framework;
 using PeanutButter.Utils;
+
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.TestUtils.Generic
@@ -12,10 +12,10 @@ namespace PeanutButter.TestUtils.Generic
         public static void AreDeepEqual(object obj1, object obj2, params string[] ignorePropertiesByName)
         {
             var tester = new DeepEqualityTester(obj1, obj2, ignorePropertiesByName);
-            tester.IncludeFields = false;   // this is PropertyAssert!
+            tester.IncludeFields = false; // this is PropertyAssert!
             tester.RecordErrors = true;
             if (!tester.AreDeepEqual())
-                throw new AssertionException(string.Join("\n", tester.Errors));
+                Assertions.Throw(string.Join("\n", tester.Errors));
         }
 
         [Obsolete("This has been renamed to AreIntersectionEqual")]
@@ -23,28 +23,29 @@ namespace PeanutButter.TestUtils.Generic
         {
             PropertyAssert.AreIntersectionEqual(obj1, obj2, ignorePropertiesByName);
         }
+
         public static void AreIntersectionEqual(object obj1, object obj2, params string[] ignorePropertiesByName)
         {
             var propInfos1 = obj1.GetType().GetProperties();
             var propInfos2 = obj2.GetType().GetProperties();
             var matchingProperties = propInfos1
-                                        .Where(pi1 => propInfos2.FirstOrDefault(pi2 => pi1.Name == pi2.Name) != null)
-                                        .Select(pi => pi.Name);
+                .Where(pi1 => propInfos2.FirstOrDefault(pi2 => pi1.Name == pi2.Name) != null)
+                .Select(pi => pi.Name);
             var ignoreProps = propInfos1.Select(pi => pi.Name)
-                                        .Union(propInfos2.Select(pi => pi.Name))
-                                        .Distinct()
-                                        .Except(matchingProperties)
-                                        .Union(ignorePropertiesByName)
-                                        .ToArray();
-            var tester = new DeepEqualityTester(obj1, obj2, ignoreProps) { RecordErrors = true };
+                .Union(propInfos2.Select(pi => pi.Name))
+                .Distinct()
+                .Except(matchingProperties)
+                .Union(ignorePropertiesByName)
+                .ToArray();
+            var tester = new DeepEqualityTester(obj1, obj2, ignoreProps) {RecordErrors = true};
             if (tester.AreDeepEqual())
                 return;
-            throw new AssertionException(string.Join("\n", tester.Errors));
+            Assertions.Throw(string.Join("\n", tester.Errors));
         }
 
         public static object ResolveObject(object obj, ref string propName)
         {
-            var propParts = propName.Split(new[] { '.' });
+            var propParts = propName.Split(new[] {'.'});
             if (propParts.Length == 1 || obj == null)
             {
                 return obj;
@@ -54,33 +55,38 @@ namespace PeanutButter.TestUtils.Generic
             var propInfo = objType.GetProperty(propParts[0]);
             if (propInfo == null)
             {
-                throw new Exception(string.Join(string.Empty, 
-                                                "Unable to resolve property '", 
-                                                propName, 
-                                                "': can't find immediate property '", 
-                                                propParts[0], 
-                                                "' on object of type '", 
-                                                objType.Name, "'"));
+                throw new Exception(string.Join(string.Empty,
+                    "Unable to resolve property '",
+                    propName,
+                    "': can't find immediate property '",
+                    propParts[0],
+                    "' on object of type '",
+                    objType.Name, "'"));
             }
             var propVal = propInfo.GetValue(obj, null);
             if (propVal == null && propName.IndexOf(".", StringComparison.Ordinal) > -1)
             {
-                throw new Exception(string.Join(string.Empty, "Unable to traverse into property '", propName, "': current object is null"));
+                throw new Exception(string.Join(string.Empty, "Unable to traverse into property '", propName,
+                    "': current object is null"));
             }
             return ResolveObject(propVal, ref propName);
         }
 
         public static void AreEqual(object obj1, object obj2, string obj1PropName, string obj2PropName = null)
         {
-            PerformEqualityAssertionWith(obj1, obj2, obj1PropName, obj2PropName, (o1, o2, info) => Assert.AreEqual(o1, o2, info));
+            PerformEqualityAssertionWith(obj1, obj2, obj1PropName, obj2PropName,
+                (o1, o2, info) => Assert.AreEqual(o1, o2, info));
         }
 
-        public static void AreNotEqual<T1, T2>(T1 obj1, T2 obj2, string type1PropertyName, string type2PropertyName = null)
+        public static void AreNotEqual<T1, T2>(T1 obj1, T2 obj2, string type1PropertyName,
+            string type2PropertyName = null)
         {
-            PerformEqualityAssertionWith(obj1, obj2, type1PropertyName, type2PropertyName, (o1, o2, info) => Assert.AreNotEqual(o1, o2, info));
+            PerformEqualityAssertionWith(obj1, obj2, type1PropertyName, type2PropertyName,
+                (o1, o2, info) => Assert.AreNotEqual(o1, o2, info));
         }
 
-        private static void PerformEqualityAssertionWith(object obj1, object obj2, string obj1PropName, string obj2PropName, Action<object, object, string> finalAssertion)
+        private static void PerformEqualityAssertionWith(object obj1, object obj2, string obj1PropName,
+            string obj2PropName, Action<object, object, string> finalAssertion)
         {
             if (obj2PropName == null)
             {
@@ -94,7 +100,8 @@ namespace PeanutButter.TestUtils.Generic
                 {
                     Assert.Fail("Both objects are null (" + obj1PropName + " => " + obj2PropName + ")");
                 }
-                Assert.Fail((obj1 == null ? "obj1" : "obj2") + " is null (" + obj1PropName + " => " + obj2PropName + ")");
+                Assert.Fail(
+                    (obj1 == null ? "obj1" : "obj2") + " is null (" + obj1PropName + " => " + obj2PropName + ")");
                 // ReSharper disable once HeuristicUnreachableCode
                 return; // prevent warning about nulls
             }
@@ -104,8 +111,10 @@ namespace PeanutButter.TestUtils.Generic
             var type2 = obj2.GetType();
             var targetPropInfo = type2.GetProperty(obj2PropName);
             Assert.IsNotNull(targetPropInfo, PropNotFoundMessage(type2, obj2PropName));
-            Assert.AreEqual(srcPropInfo.PropertyType, targetPropInfo.PropertyType, CreateMessageFor(srcPropInfo, targetPropInfo));
-            finalAssertion(srcPropInfo.GetValue(obj1, null), targetPropInfo.GetValue(obj2, null), obj1PropName + " => " + obj2PropName);
+            Assert.AreEqual(srcPropInfo.PropertyType, targetPropInfo.PropertyType,
+                CreateMessageFor(srcPropInfo, targetPropInfo));
+            finalAssertion(srcPropInfo.GetValue(obj1, null), targetPropInfo.GetValue(obj2, null),
+                obj1PropName + " => " + obj2PropName);
         }
 
         private static string CreateMessageFor(PropertyInfo srcPropInfo, PropertyInfo targetPropInfo)

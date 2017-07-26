@@ -1,15 +1,31 @@
-﻿using NUnit.Framework;
-using PeanutButter.Utils;
+﻿using PeanutButter.Utils;
 
 namespace PeanutButter.TestUtils.Generic
 {
+    /// <summary>
+    /// Provides extensions for decimal values which make testing easier
+    /// </summary>
     public static class DecimalExtensions
     {
-        public static void ShouldMatch(this decimal someValue, decimal otherValue)
+        /// <summary>
+        /// Tests that two decimal values match up to the second decimal place
+        /// </summary>
+        /// <param name="someValue">Value to compare against</param>
+        /// <param name="otherValue">Value to compare with</param>
+        public static void ShouldMatch(
+            this decimal someValue, 
+            decimal otherValue
+        )
         {
             ShouldMatch(someValue, otherValue, 2);
         }
 
+        /// <summary>
+        /// Tests if two decimal values match up to the required decimal places
+        /// </summary>
+        /// <param name="someValue">Value to compare against</param>
+        /// <param name="otherValue">Value to compare with</param>
+        /// <param name="toPlaces">Maximum decimal places to consider</param>
         public static void ShouldMatch(this decimal someValue, decimal otherValue, int toPlaces)
         {
             if (toPlaces < 1)

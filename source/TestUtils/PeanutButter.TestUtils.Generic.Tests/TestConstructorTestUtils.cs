@@ -115,7 +115,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
         public void CheckForExceptionWhenParameterIsNull_GivenNullArgumentExceptionThrownForIncorrectParameter_ShouldThrowAssertionException()
         {
             //---------------Set up test pack-------------------
-            const string expectedMessage = "Expected string length";
+            const string expectedMessage = "Expected parameter1 to equal WrongParameterName";
             const string parameterName = "parameter1";
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------

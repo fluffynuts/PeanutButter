@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using NUnit.Framework;
 using PeanutButter.Utils;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -201,7 +200,8 @@ namespace PeanutButter.TestUtils.Generic
 
         private static PropertyInfo ThrowForPropertyTraversalFailure(Type type, string traversalFailure)
         {
-            throw new AssertionException($"Unable to traverse property {traversalFailure} on type {type.Name}");
+            Assertions.Throw($"Unable to traverse property {traversalFailure} on type {type.Name}");
+            throw new Exception("Assertions.Throw should prevent getting here");
         }
 
         public static PropertyInfo FindPropertyInfoForPath(this Type type, string path, Action<string> toCallWhenTraversalFails = null)
