@@ -26,10 +26,6 @@ namespace PeanutButter.TestUtils.Generic
         {
             try
             {
-                if (t.FullName.ToLower().Contains("assertionexception"))
-                {
-                    var foo = "bar";
-                }
                 if (t.FullName != fullName)
                     return null;
                 return t.GetConstructors()
