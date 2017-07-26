@@ -237,6 +237,32 @@ namespace PeanutButter.Utils.Tests
             PropertyAssert.AreDeepEqual(decoded.GraphData, original.GraphData);
         }
 
+        [Test]
+        public void DeepEquals_WildCaseExactReplica()
+        {
+            // Arrange
+            var journey = GetRandom<JourneyDto>();
+            var encoded = new JourneyDtoWithEncodedGraphData();
+            journey.CopyPropertiesTo(encoded);
+            encoded.GraphDataEncoded = DataUriFor(journey.GraphData);
+            encoded.GraphData = null;
+
+            // Pre-assert
+
+            // Act
+            var result = encoded.Decode();
+
+            // Assert
+            PropertyAssert.AreDeepEqual(result, journey);
+
+        }
+
+        private string DataUriFor<T>(T input) {
+            var json = JsonConvert.SerializeObject(input);
+            var encoded = json.AsBytes().ToBase64();
+            return $"data:application/json;base64,{encoded}";
+        }
+
         public class ThingWithCollection
         {
             public ICollection<int> Subs { get; set; }
