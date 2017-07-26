@@ -134,6 +134,8 @@ namespace PeanutButter.TestUtils.Generic
 
         private static object CreateSubstituteWithLinkedNSubstitute(Type parameterType)
         {
+            // FIXME: make this late-bound so the package doesn't have to
+            //  hard-depend on NSubstitute
             return Substitute.For(new[] {parameterType}, new object[0]);
         }
 
