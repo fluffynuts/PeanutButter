@@ -7,6 +7,7 @@ namespace PeanutButter.TestUtils.Generic
 {
     internal static class Assertions
     {
+        private static readonly Type[] _empty = new Type[0];
         private static readonly Type _assertionExceptionWithMessageOnlyType =
             FindType("NUnit.Framework.AssertionException", new[] {typeof(string)})
             ?? typeof(UnmetExpectation);
@@ -16,20 +17,33 @@ namespace PeanutButter.TestUtils.Generic
             return AppDomain.CurrentDomain.GetAssemblies()
                 .Select(TryGetTypes)
                 .SelectMany(a => a)
-                .Aggregate(null as Type, (acc, cur) => acc ?? TypeMatch(cur, fullName, requiredConstructorParameters));
+                .ToArray()
+                .Aggregate(null as Type, (acc, cur) => 
+                    acc ?? TypeMatch(cur, fullName, requiredConstructorParameters));
         }
 
         private static Type TypeMatch(Type t, string fullName, Type[] constructorParamTypes)
         {
-            if (t.FullName != fullName)
+            try
+            {
+                if (t.FullName.ToLower().Contains("assertionexception"))
+                {
+                    var foo = "bar";
+                }
+                if (t.FullName != fullName)
+                    return null;
+                return t.GetConstructors()
+                    .Any(c => c.GetParameters()
+                        .Select(p => p.ParameterType)
+                        .ToArray()
+                        .Matches(constructorParamTypes))
+                    ? t
+                    : null;
+            }
+            catch (Exception)
+            {
                 return null;
-            return t.GetConstructors()
-                .Any(c => c.GetParameters()
-                    .Select(p => p.ParameterType)
-                    .ToArray()
-                    .Matches(constructorParamTypes))
-                ? t
-                : null;
+            }
         }
 
         private static bool Matches<T>(this T[] src, T[] other)
@@ -51,7 +65,6 @@ namespace PeanutButter.TestUtils.Generic
             }
         }
 
-        private static readonly Type[] _empty = new Type[0];
 
         internal static void Throw(string message)
         {

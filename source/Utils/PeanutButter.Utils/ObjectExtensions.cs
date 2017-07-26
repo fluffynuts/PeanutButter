@@ -8,10 +8,19 @@ using System.Reflection;
 
 namespace PeanutButter.Utils
 {
+    /// <summary>
+    /// Determines the comparison strategy for DeepEquals and friends
+    /// </summary>
     public enum ObjectComparisons
     {
-        PropertiesOnly,
-        PropertiesAndFields
+        /// <summary>
+        /// Test properties and fields (default behavior for DeepEquals)
+        /// </summary>
+        PropertiesAndFields,
+        /// <summary>
+        /// Only test properties (behavior for PropertyAssert)
+        /// </summary>
+        PropertiesOnly
     }
     /// <summary>
     /// Provides a set of convenience extensions on everything
@@ -45,7 +54,7 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="objSource">Object which is the source of truth</param>
         /// <param name="objCompare">Object to compare with</param>
-        /// <param name="excludeFields">Exclude fields in comparison (old behavior)</param>
+        /// <param name="comparison">Method for comparison</param>
         /// <param name="ignorePropertiesByName">Params array of properties to ignore by name</param>
         /// <returns></returns>
         public static bool DeepEquals(

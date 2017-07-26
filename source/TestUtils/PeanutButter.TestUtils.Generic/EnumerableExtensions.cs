@@ -6,8 +6,20 @@ using static PeanutButter.Utils.Stringifier;
 
 namespace PeanutButter.TestUtils.Generic
 {
+    /// <summary>
+    /// Extensions for IEnumerables
+    /// </summary>
     public static class EnumerableExtensions
     {
+        /// <summary>
+        /// Tests if src collection does not match data in other collection
+        ///     - type-agnostic: types with the same "shape" will match
+        ///     - does not care about order
+        /// </summary>
+        /// <param name="src">Primary source collection</param>
+        /// <param name="other">Collection to compare with</param>
+        /// <typeparam name="T1">Type of collection 1</typeparam>
+        /// <typeparam name="T2">Type of collection 2</typeparam>
         public static void ShouldMatchDataIn<T1, T2>(
             this IEnumerable<T1> src,
             IEnumerable<T2> other

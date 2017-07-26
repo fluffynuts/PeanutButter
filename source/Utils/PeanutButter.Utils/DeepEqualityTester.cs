@@ -95,6 +95,14 @@ namespace PeanutButter.Utils
             return result;
         }
 
+        internal bool AreDeepEqual(Dictionary<object, object> pendingComparisons)
+        {
+            _pendingComparisons = pendingComparisons;
+            var result = AreDeepEqualInternal(_objSource, _objCompare);
+            ClearPendingOperations();
+            return result;
+        }
+
         private void RecordPrimitiveErrorIfRequiredFor(bool result)
         {
             if (!result &&
@@ -129,7 +137,7 @@ namespace PeanutButter.Utils
             var compareType = objCompare.GetType();
             if (AreBothSimpleOrNullableOfSimpleTypes(sourceType, compareType))
             {
-                return objSource.Equals(objCompare);
+                return AreSimpleEqual(sourceType, objSource, compareType, objCompare);
             }
             // TODO: see if this can be done a bit better
             if (AreBothEnumerable(sourceType, compareType) &&
@@ -149,6 +157,33 @@ namespace PeanutButter.Utils
                 objCompare
             );
         }
+
+        private bool AreSimpleEqual(Type sourceType, object objSource, Type compareType, object objCompare)
+        {
+            // naive simple equality tester:
+            //  if the types match, use .Equals, otherwise attempt upcasting to decimal
+            //  so that, eg: (long)2 == (int)2
+            if (sourceType == compareType)
+                return objSource.Equals(objCompare);
+            var sourceAsDecimal = TryConvertToDecimal(objSource);
+            var compareAsDecimal = TryConvertToDecimal(objCompare);
+            if (sourceAsDecimal == null || compareAsDecimal == null)
+                return false;
+            return sourceAsDecimal.Equals(compareAsDecimal);
+        }
+
+        private decimal? TryConvertToDecimal(object obj)
+        {
+            try
+            {
+                return Convert.ToDecimal(obj);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
 
         private bool BothHaveGenericTypeParameters(Type sourceType, Type compareType)
         {
@@ -457,8 +492,20 @@ namespace PeanutButter.Utils
 
         private bool ContainsOneLike<T1, T2>(IEnumerable<T2> collection, T1 seek)
         {
-            return collection.Any(i => AreDeepEqualInternal(i, seek));
+            var haveMatch = collection.Any(i => AreDeepEqualDetached(i, seek));
+            if (!haveMatch)
+            {
+                AddError($"Unable to find match for: {Stringifier.Stringify(seek)}");
+            }
+            return haveMatch;
         }
+
+        private bool AreDeepEqualDetached(object left, object right)
+        {
+            var tester = new DeepEqualityTester(left, right, _ignorePropertiesByName);
+            return tester.AreDeepEqual(_pendingComparisons);
+        }
+
 #pragma warning restore S1144 // Unused private types or members should be removed
 
         private static Type TryGetEnumerableInterfaceFor(object srcValue)
