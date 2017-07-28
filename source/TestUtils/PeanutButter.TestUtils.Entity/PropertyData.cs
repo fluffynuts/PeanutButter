@@ -18,7 +18,7 @@ namespace PeanutButter.TestUtils.Entity
         {
             PropertyPath = ExpressionUtil.GetMemberPathFor(propertyExpression);
             PropertyInfo = item.GetPropertyInfoFor(PropertyPath);
-            CustomAttributes = PropertyInfo.GetCustomAttributes();
+            CustomAttributes = PropertyInfo.GetCustomAttributes(true).Cast<Attribute>().ToArray();
             ParentType = typeof(T);
         }
 

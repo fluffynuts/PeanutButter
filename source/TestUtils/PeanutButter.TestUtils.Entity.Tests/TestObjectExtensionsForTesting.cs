@@ -13,13 +13,10 @@ namespace PeanutButter.TestUtils.Entity.Tests
         public class SomePOCO
         {
             public int SomeGeneratedPOCOId { get; set; }
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
             public int SomeIdentityPOCOId { get; set; }
-            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int SomeNotGeneratedPOCOId { get; set; }
 
             public string PropertyWithoutMaxLength { get; set; }
-            [MaxLength(50)]
             public string PropertyWithMaxLength { get; set; }
             [StringLength(13)]
             public string PropertyWithStringLengthAttribute { get; set; }
@@ -29,9 +26,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
             public string NotRequiredProperty { get; set; }
 
             public int NotAForeignKey { get; set; }
-            [ForeignKey("foo")]
             public int WrongForeinKey { get; set; }
-            [ForeignKey("SomeOtherID")]
             public int ValidForeignKey { get; set; }
 
         }

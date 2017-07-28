@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Microsoft.AspNet.Identity;
 
 namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
 {
-    public class User : EntityBase, IUser
+    public class User : EntityBase
     {
         public UserRole UserRole { get; set; }
         public string FirstNames { get; set; }

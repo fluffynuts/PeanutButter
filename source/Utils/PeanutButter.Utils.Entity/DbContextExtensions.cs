@@ -31,26 +31,26 @@ namespace PeanutButter.Utils.Entity
             throw new Exception("Unhandled logic path in SaveChangesWithErrorReporting");
         }
 
-        public static async Task<int> SaveChangesWithErrorReportingAsync(this DbContext ctx)
-        {
-            try
-            {
-                return await ctx.SaveChangesAsync();
-            }
-            catch (DbEntityValidationException ex)
-            {
-                ThrowEntityValidationErrorFor(ex);
-            }
-            catch (DbUpdateException ex)
-            {
-                ThrowUpdateMessageFor(ex);
-            }
-            catch (Exception ex)
-            {
-                ThrowDefaultExceptionFor(ex);
-            }
-            throw new Exception("Unhandled logic path in SaveChangesWithErrorReporting");
-        }
+//        public static async Task<int> SaveChangesWithErrorReportingAsync(this DbContext ctx)
+//        {
+//            try
+//            {
+//                return ctx.SaveChangesAsync().Result;   // no GetAwaiter in net40
+//            }
+//            catch (DbEntityValidationException ex)
+//            {
+//                ThrowEntityValidationErrorFor(ex);
+//            }
+//            catch (DbUpdateException ex)
+//            {
+//                ThrowUpdateMessageFor(ex);
+//            }
+//            catch (Exception ex)
+//            {
+//                ThrowDefaultExceptionFor(ex);
+//            }
+//            throw new Exception("Unhandled logic path in SaveChangesWithErrorReporting");
+//        }
 
         private static void ThrowDefaultExceptionFor(Exception ex)
         {

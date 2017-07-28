@@ -38,8 +38,6 @@ namespace NugetPackageVersionIncrementer
             var appPath = new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath;
             var appFolder = Path.GetDirectoryName(appPath);
             var appName = Path.GetFileName(appPath);
-            System.Runtime.ProfileOptimization.SetProfileRoot(appFolder);
-            System.Runtime.ProfileOptimization.StartProfile(appName + ".profile");
         }
 
         private static INuspecVersionCoordinator ResolveNuspecCoordinator()

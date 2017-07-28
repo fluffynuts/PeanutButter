@@ -59,7 +59,7 @@ namespace PeanutButter.Utils
                 var indent = indentMinus1 + new string(' ', INDENT_SIZE);
                 var joinWith = props.Aggregate(new List<string>(), (acc, cur) =>
                 {
-                    var propValue = cur.GetValue(obj);
+                    var propValue = cur.GetValue(obj, null);
                     acc.Add(string.Join(
                         "", 
                         cur.Name, 

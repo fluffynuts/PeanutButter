@@ -744,7 +744,7 @@ namespace PeanutButter.RandomGenerators.Tests
             var concrete = typeof(SomeImplementingClass);
             var types = GetType()
                 .Assembly
-                .ExportedTypes
+                .GetExportedTypes()
                 .Where(t => interfaceType.IsAssignableFrom(t))
                 .ToArray();
             CollectionAssert.Contains(types, concrete);

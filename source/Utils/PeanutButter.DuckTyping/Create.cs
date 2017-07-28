@@ -129,4 +129,22 @@ namespace PeanutButter.DuckTyping
             return implemented;
         }
     }
+
+    internal static class PropertyInfoExtensions
+    {
+        public static void SetValue(this PropertyInfo pi, object host, object value)
+        {
+            pi.SetValue(host, value, null);
+        }
+
+        public static object GetValue(this PropertyInfo pi, object host)
+        {
+            return pi.GetValue(host, null);
+        }
+
+        public static T[] GetCustomAttributes<T>(this PropertyInfo pi)
+        {
+            return pi.GetCustomAttributes(true).OfType<T>().ToArray();
+        }
+    }
 }

@@ -28,11 +28,11 @@ namespace PeanutButter.Utils
         /// <param name="collection">Subject collection to operate over</param>
         /// <param name="toRun">Action to run on each member of the collection</param>
         /// <typeparam name="T">Item type of the collection</typeparam>
-        public static async Task ForEachAsync<T>(this IEnumerable<T> collection, Func<T, Task> toRun)
-        {
-            foreach (var item in collection)
-                await toRun(item);
-        }
+//        public static async Task ForEachAsync<T>(this IEnumerable<T> collection, Func<T, Task> toRun)
+//        {
+//            foreach (var item in collection)
+//                await toRun(item);
+//        }
 
         /// <summary>
         /// The missing ForEach method - synchronous variant which also provides the current item index
@@ -53,11 +53,11 @@ namespace PeanutButter.Utils
         /// <param name="collection">Subject collection to operate over</param>
         /// <param name="toRunWithIndex">Action to run on each member of the collection</param>
         /// <typeparam name="T">Item type of the collection</typeparam>
-        public static async Task ForEachAsync<T>(this IEnumerable<T> collection, Func<T, int, Task> toRunWithIndex)
-        {
-            var idx = 0;
-            await collection.ForEachAsync(async (o) => { await toRunWithIndex(o, idx++); });
-        }
+//        public static async Task ForEachAsync<T>(this IEnumerable<T> collection, Func<T, int, Task> toRunWithIndex)
+//        {
+//            var idx = 0;
+//            await collection.ForEachAsync(async (o) => { await toRunWithIndex(o, idx++); });
+//        }
 
         /// <summary>
         /// Calculates if two collections hold the same items, irrespective of order

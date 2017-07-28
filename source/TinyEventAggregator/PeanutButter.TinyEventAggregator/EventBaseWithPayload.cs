@@ -67,7 +67,8 @@ namespace PeanutButter.TinyEventAggregator
             lock (this)
             {
                 var token = PerformSubscription(action, 1);
-                Debug.WriteLine($"Subscribing [{token}] once-off to event [{_eventName}] ({sourceFile}:{requestingMethod}:{subscribingSourceLine})");
+                Debug.WriteLine(
+                    $"Subscribing [{token}] once-off to event [{_eventName}] ({sourceFile}:{requestingMethod}:{subscribingSourceLine})");
                 return token;
             }
         }
@@ -157,5 +158,23 @@ namespace PeanutButter.TinyEventAggregator
                 Debug.WriteLine($"Event handler for subscription removal throws {ex.GetType().Name}: {ex.Message}");
             }
         }
+    }
+}
+
+namespace System.Runtime.CompilerServices
+{
+    [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false, Inherited = false)]
+    public class CallerMemberNameAttribute : Attribute
+    {
+    }
+
+    [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false, Inherited = false)]
+    public class CallerFilePathAttribute : Attribute
+    {
+    }
+
+    [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false, Inherited = false)]
+    public class CallerLineNumberAttribute : Attribute
+    {
     }
 }

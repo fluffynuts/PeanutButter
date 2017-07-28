@@ -74,7 +74,7 @@ namespace PeanutButter.SimpleTcpServer
             var cancellationTokenSource = new CancellationTokenSource();
             var token = cancellationTokenSource.Token;
             _cancellationTokenSource = cancellationTokenSource;
-            _task = Task.Run(() =>
+            _task = Task.Factory.StartNew(() =>
             {
                 if (token.IsCancellationRequested) return;
                 while (!_cancellationTokenSource.IsCancellationRequested)
@@ -137,7 +137,7 @@ namespace PeanutButter.SimpleTcpServer
             Log("Accepting incoming client request from {0}", clientInfo);
             var processor = CreateProcessorFor(s);
             Log("Spawning processor in background task...");
-            Task.Run(() =>
+            Task.Factory.StartNew(() =>
             {
                 Log("Processing request for {0}", clientInfo);
                 processor.ProcessRequest();

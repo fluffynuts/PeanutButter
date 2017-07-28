@@ -188,8 +188,8 @@ namespace PeanutButter.Utils
         private bool BothHaveGenericTypeParameters(Type sourceType, Type compareType)
         {
             return
-                sourceType.GenericTypeArguments.Length > 0 &&
-                compareType.GenericTypeArguments.Length > 0;
+                sourceType.GetGenericArguments().Length > 0 &&
+                compareType.GetGenericArguments().Length > 0;
         }
 
         private bool DeepCollectionCompare(
@@ -198,15 +198,26 @@ namespace PeanutButter.Utils
         {
             var sourceItemType = GetItemTypeFor(sourceType);
             var compareItemType = GetItemTypeFor(compareType);
-            var method = DeepCollectionCompareGenericMethod.MakeGenericMethod(
-                sourceItemType, compareItemType
-            );
-            return (bool) method.Invoke(this, new[] {objSource, objCompare});
+            // fixme: inelegant, but net40 doesn't seem to want to co-erce T[] to IEnumerable<T>
+            if (sourceType.IsArray && compareType.IsArray)
+            {
+                var method = DeepCollectionCompareGenericMethodA.MakeGenericMethod(
+                    sourceItemType, compareItemType
+                );
+                return (bool) method.Invoke(this, new[] {objSource, objCompare});
+            }
+            else
+            {
+                var method = DeepCollectionCompareGenericMethod.MakeGenericMethod(
+                    sourceItemType, compareItemType
+                );
+                return (bool) method.Invoke(this, new[] {objSource, objCompare});
+            }
         }
 
         private static Type GetItemTypeFor(Type collectionType)
         {
-            return collectionType.GenericTypeArguments[0];
+            return collectionType.GetGenericArguments()[0];
         }
 
         private static readonly MethodInfo DeepCollectionCompareGenericMethod =
@@ -214,6 +225,20 @@ namespace PeanutButter.Utils
                 nameof(DeepCollectionCompareGeneric),
                 BindingFlags.NonPublic | BindingFlags.Instance
             );
+
+        private static readonly MethodInfo DeepCollectionCompareGenericMethodA =
+            typeof(DeepEqualityTester).GetMethod(
+                nameof(DeepCollectionCompareGenericA),
+                BindingFlags.NonPublic | BindingFlags.Instance
+            );
+
+        private bool DeepCollectionCompareGenericA<T1, T2>(
+            T1[] source,
+            T2[] compare
+        )
+        {
+            return DeepCollectionCompareGeneric(source, compare);
+        }
 
         // ReSharper disable once UnusedMember.Local
         private bool DeepCollectionCompareGeneric<T1, T2>(
@@ -460,8 +485,8 @@ namespace PeanutButter.Utils
             Type compareEnumerableInterface
         )
         {
-            var t1 = srcEnumerableInterface.GenericTypeArguments[0];
-            var t2 = compareEnumerableInterface.GenericTypeArguments[0];
+            var t1 = srcEnumerableInterface.GetGenericArguments()[0];
+            var t2 = compareEnumerableInterface.GetGenericArguments()[0];
             var genericMethod = GetType()
                 .GetMethod("TestCollectionsMatch", BindingFlags.Instance | BindingFlags.NonPublic);
             var typedMethod = genericMethod.MakeGenericMethod(t1, t2);
@@ -537,7 +562,7 @@ namespace PeanutButter.Utils
         public object GetValue(object host)
         {
             return _fieldInfo == null
-                ? _propInfo.GetValue(host)
+                ? _propInfo.GetValue(host, null)
                 : _fieldInfo.GetValue(host);
         }
     }

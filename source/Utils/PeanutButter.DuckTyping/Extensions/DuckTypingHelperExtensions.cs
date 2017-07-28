@@ -260,7 +260,7 @@ namespace PeanutButter.DuckTyping.Extensions
             var comparerProp = dictionary?.GetType().GetProperty("Comparer");
             return comparerProp == null
                     ? BruteForceIsCaseSensitive(dictionary)
-                    : !_caseInsensitiveComparers.Contains(comparerProp.GetValue(dictionary));
+                    : !_caseInsensitiveComparers.Contains(comparerProp.GetValue(dictionary) as IEqualityComparer<string>);
         }
 
         internal static bool ContainsCaseSensitiveDictionary(

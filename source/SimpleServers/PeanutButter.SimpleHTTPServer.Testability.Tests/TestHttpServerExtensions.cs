@@ -391,7 +391,7 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
 
         private void PerformRequest(string url, string method, Dictionary<string, string> headers )
         {
-            var request = WebRequest.CreateHttp(url);
+            var request = HttpWebRequest.Create(url);
             request.Method = method;
             headers?.ForEach(h => request.Headers[h.Key] = h.Value);
             using (var stream = request.GetResponse())

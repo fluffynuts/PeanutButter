@@ -81,7 +81,7 @@ namespace PeanutButter.TestUtils.Entity
 
         private static TransactionScope CreateTransactionScopeCapableOfSurvivingAsyncAwait()
         {
-            return new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+            return new TransactionScope(TransactionScopeOption.Required); // TESTME: net45 has this: TransactionScopeAsyncFlowOption.Enabled);
         }
 
 
@@ -292,7 +292,7 @@ CREATE TABLE [AspNetUsers](
 
             var tempDb = _tempDbActual;
             _tempDbActual = null;
-            _disposeTasks.Add(Task.Run(() => { tempDb?.Dispose(); }));
+            _disposeTasks.Add(Task.Factory.StartNew(() => { tempDb?.Dispose(); }));
         }
 
         private enum TempDatabaseLifetimes

@@ -287,13 +287,13 @@ namespace PeanutButter.TinyEventAggregator.Tests
             //---------------Execute Test ----------------------
             var barrier = new Barrier(2);
             var called = false;
-            var task1 = Task.Run(() =>
+            var task1 = Task.Factory.StartNew(() =>
             {
                 barrier.SignalAndWait();
                 sut.WaitForSuspension();
                 called = true;
             });
-            var task2 = Task.Run(() =>
+            var task2 = Task.Factory.StartNew(() =>
             {
                 barrier.SignalAndWait();
                 Thread.Sleep(1000);

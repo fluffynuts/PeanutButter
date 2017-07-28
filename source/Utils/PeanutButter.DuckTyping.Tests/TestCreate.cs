@@ -125,7 +125,7 @@ namespace PeanutButter.DuckTyping.Tests
 
             //--------------- Act ----------------------
             var propInfo = result.GetType().GetProperty("Name");
-            var attribs = propInfo.GetCustomAttributes().OfType<MyAttribute>();
+            var attribs = propInfo.GetCustomAttributes(true).OfType<MyAttribute>();
 
             //--------------- Assert -----------------------
             Expect(attribs, Is.Not.Empty);
@@ -142,7 +142,7 @@ namespace PeanutButter.DuckTyping.Tests
 
             //--------------- Act ----------------------
             var propInfo = result.GetType().GetMethod("Moo");
-            var attribs = propInfo.GetCustomAttributes().OfType<MyAttribute>();
+            var attribs = propInfo.GetCustomAttributes(true).OfType<MyAttribute>();
 
             //--------------- Assert -----------------------
             Expect(attribs, Is.Not.Empty);

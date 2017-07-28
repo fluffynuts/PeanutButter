@@ -94,9 +94,9 @@ namespace PeanutButter.RandomGenerators
             try
             {
                 var genericBuilder = builderType.TryFindGenericBuilderInClassHeirachy();
-                if (genericBuilder.GenericTypeArguments.Length != 2)
+                if (genericBuilder.GetGenericArguments().Length != 2)
                     return;
-                var builtType = genericBuilder.GenericTypeArguments[1]; // Naive, but let's run with it
+                var builtType = genericBuilder.GetGenericArguments()[1]; // Naive, but let's run with it
                 CacheBuilderType(builderType, builtType);
             }
             catch (Exception ex)

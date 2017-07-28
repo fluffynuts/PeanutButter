@@ -52,7 +52,6 @@ namespace PeanutButter.TestUtils.Entity.Tests
     public class COMBlockListReason
     {
         public int COMBlockListReasonID { get; set; }
-        [MaxLength(50)]
         public string Name { get; set; }
         public int Order { get; set; }
         public bool IsActive { get; set; }

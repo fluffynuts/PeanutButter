@@ -18,14 +18,12 @@ namespace PeanutButter.TestUtils.Entity.Tests
         {
             public int SomeEntityId { get; set; }
             [Required]
-            [MaxLength(5)]
             public string Name { get; set; }
         }
 
         public class SomeParentEntity
         {
             public int SomeParentEntityId { get; set; }
-            [MaxLength(6)]
             public string Name { get; set; }
             public ICollection<SomeChildEntity> Children { get; set; }
         }

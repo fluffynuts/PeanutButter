@@ -51,7 +51,7 @@ namespace PeanutButter.TestUtils.Entity
 
         private bool CanCheckMaxLengthsOn(PropertyInfo propertyInfo)
         {
-            return propertyInfo.GetMethod.IsVirtual &&
+            return propertyInfo.GetGetMethod().IsVirtual &&
                     propertyInfo.PropertyType.IsNotCollection();
         }
 

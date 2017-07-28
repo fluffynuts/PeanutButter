@@ -272,7 +272,7 @@ namespace PeanutButter.Utils
                                                                        dp.CanWrite);
                 if (matchingTarget == null) continue;
 
-                var srcVal = srcPropInfo.GetValue(src);
+                var srcVal = srcPropInfo.GetValue(src, null);
 
                 PropertySetterStrategies.Aggregate(false, (acc, cur) =>
                     acc || cur(deep, srcPropInfo, matchingTarget, dst, srcVal));
@@ -300,7 +300,7 @@ namespace PeanutButter.Utils
             if (srcVal != null)
             {
                 var clone = srcVal.DeepCloneInternal(srcPropertyInfo.PropertyType);
-                dstPropertyInfo.SetValue(dst, clone);
+                dstPropertyInfo.SetValue(dst, clone, null);
                 return true;
             }
             dstPropertyInfo.SetValue(dst, null, null);
@@ -322,7 +322,7 @@ namespace PeanutButter.Utils
                 return false;
             var method = GenericMakeListCopy.MakeGenericMethod(itemType);
             var newValue = method.Invoke(null, new[] {srcVal});
-            dstPropertyInfo.SetValue(dst, newValue);
+            dstPropertyInfo.SetValue(dst, newValue, null);
             return true;
         }
 
@@ -343,7 +343,7 @@ namespace PeanutButter.Utils
             var specific = GenericMakeArrayCopy.MakeGenericMethod(underlyingType);
             // ReSharper disable once RedundantExplicitArrayCreation
             var newValue = specific.Invoke(null, new[] {srcVal});
-            dstPropertyInfo.SetValue(dst, newValue);
+            dstPropertyInfo.SetValue(dst, newValue, null);
             return true;
         }
 
@@ -358,7 +358,7 @@ namespace PeanutButter.Utils
         {
             if (deep && !IsSimpleTypeOrNullableOfSimpleType(srcPropertyInfo.PropertyType))
                 return false;
-            dstPropertyInfo.SetValue(dst, srcVal);
+            dstPropertyInfo.SetValue(dst, srcVal, null);
             return true;
         }
 
@@ -588,10 +588,10 @@ namespace PeanutButter.Utils
                     throw new PropertyNotFoundException(type, current);
                 if (queue.Count == 0)
                 {
-                    propInfo.SetValue(src, newValue);
+                    propInfo.SetValue(src, newValue, null);
                     return;
                 }
-                src = propInfo.GetValue(src);
+                src = propInfo.GetValue(src, null);
             }
             throw new PropertyNotFoundException(src.GetType(), propertyPath);
         }

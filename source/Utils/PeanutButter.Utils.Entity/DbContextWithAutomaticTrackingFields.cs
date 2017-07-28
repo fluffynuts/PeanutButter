@@ -38,19 +38,19 @@ namespace PeanutButter.Utils.Entity
             }
         }
 
-        public override async Task<int> SaveChangesAsync()
-        {
-            PerformAutoTrackingLogic();
-            try
-            {
-                return await base.SaveChangesAsync();
-            }
-            catch (Exception ex) 
-            {
-                Debug.WriteLine(ex.Message);
-                throw;
-            }
-        }
+//        public override async Task<int> SaveChangesAsync()
+//        {
+//            PerformAutoTrackingLogic();
+//            try
+//            {
+//                return base.SaveChangesAsync().Result; // no GetAwaiter in net40
+//            }
+//            catch (Exception ex) 
+//            {
+//                Debug.WriteLine(ex.Message);
+//                throw;
+//            }
+//        }
 
         private void PerformAutoTrackingLogic()
         {

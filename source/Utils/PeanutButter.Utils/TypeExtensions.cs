@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.Utils
@@ -22,8 +24,7 @@ namespace PeanutButter.Utils
             do
             {
                 heirachy.Add(type);
-            }
-            while ((type = type.BaseType) != null);
+            } while ((type = type.BaseType) != null);
 
             heirachy.Reverse();
             return heirachy.ToArray();
@@ -43,7 +44,7 @@ namespace PeanutButter.Utils
                                   BindingFlags.FlattenHierarchy)
                 .Where(fi => fi.IsLiteral && !fi.IsInitOnly)
                 .ToDictionary(x => x.Name, y => y.GetRawConstantValue());
-        } 
+        }
 
         /// <summary>
         /// Returns a dictionary of all constant values of a specified Type found on a Type
@@ -54,9 +55,9 @@ namespace PeanutButter.Utils
         public static Dictionary<string, T> GetAllConstants<T>(this Type type)
         {
             return type.GetAllConstants()
-                        .Where(kvp => kvp.Value is T)
-                        .ToDictionary(x => x.Key, y => (T)y.Value);
-        } 
+                .Where(kvp => kvp.Value is T)
+                .ToDictionary(x => x.Key, y => (T) y.Value);
+        }
 
         /// <summary>
         /// Returns a collection of all the constant values defined on a Type
@@ -66,7 +67,7 @@ namespace PeanutButter.Utils
         public static IEnumerable<object> GetAllConstantValues(this Type type)
         {
             return type.GetAllConstants().Select(kvp => kvp.Value);
-        } 
+        }
 
         /// <summary>
         /// Returns a collection of all the constant values defined on a Type, restricted to the required Type T
@@ -77,8 +78,8 @@ namespace PeanutButter.Utils
         public static IEnumerable<T> GetAllConstantValues<T>(this Type type)
         {
             return type.GetAllConstantValues()
-                        .OfType<T>();
-        } 
+                .OfType<T>();
+        }
 
         /// <summary>
         /// Tests if a Type has a default constructor (ie, a constructor with no parameters)
@@ -88,7 +89,7 @@ namespace PeanutButter.Utils
         public static bool HasDefaultConstructor(this Type type)
         {
             return type.GetConstructors()
-                        .Any(c => c.GetParameters().Length == 0);
+                .Any(c => c.GetParameters().Length == 0);
         }
 
         /// <summary>
@@ -102,7 +103,7 @@ namespace PeanutButter.Utils
             var collectionType = t.GetCollectionItemType();
             if (collectionType == null) return false;
             var specific = _genericIsAssignableFromArrayOf.MakeGenericMethod(collectionType);
-            return (bool)specific.Invoke(null, new object[] { t } );
+            return (bool) specific.Invoke(null, new object[] {t});
         }
 
 
@@ -150,7 +151,28 @@ namespace PeanutButter.Utils
         /// <returns>Generic IEnumerable type implemented if found or null otherwise</returns>
         public static Type TryGetEnumerableInterface(this Type srcType)
         {
-            return srcType.GetInterfaces().FirstOrDefault(IsGenericOfIEnumerable);
+            return srcType.IsAnonymousType()
+                    ? null
+                    : srcType.GetInterfaces().FirstOrDefault(IsGenericOfIEnumerable);
+        }
+
+        /// <summary>
+        /// Tests if a type is anonymous
+        /// </summary>
+        /// <param name="type">type to test</param>
+        /// <returns>True if anonymous, false if not</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static bool IsAnonymousType(this Type type)
+        {
+            // snarfed from: https://stackoverflow.com/questions/2483023/how-to-test-if-a-type-is-anonymous
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            // HACK: super-hacky since I removed some of the constraints
+            return type.Namespace == null && type.IsSealed && 
+                    type.Name.Contains("AnonymousType")
+                   && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
+                   && (type.Attributes & TypeAttributes.NotPublic) == TypeAttributes.NotPublic;
         }
 
         /// <summary>
@@ -175,7 +197,7 @@ namespace PeanutButter.Utils
             if (collectionType.IsArray)
                 return collectionType.GetElementType();
             if (collectionType.IsGenericType)
-                return collectionType.GenericTypeArguments[0];
+                return collectionType.GetGenericArguments()[0];
             return null;
         }
 
@@ -186,7 +208,7 @@ namespace PeanutButter.Utils
         /// <returns>Array of all interfaces which are implemented</returns>
         public static Type[] GetAllImplementedInterfaces(this Type inspectType)
         {
-            var result = new List<Type> { inspectType };
+            var result = new List<Type> {inspectType};
             foreach (var type in inspectType.GetInterfaces())
             {
                 result.AddRange(type.GetAllImplementedInterfaces());
@@ -203,6 +225,25 @@ namespace PeanutButter.Utils
         {
             return t.GetAllImplementedInterfaces().Contains(_disposableInterface);
         }
+
         private static readonly Type _disposableInterface = typeof(IDisposable);
+    }
+
+    public static class PropertyInfoExtensions
+    {
+        public static void SetValue(this PropertyInfo pi, object host, object value)
+        {
+            pi.SetValue(host, value, null);
+        }
+
+        public static object GetValue(this PropertyInfo pi, object host)
+        {
+            return pi.GetValue(host, null);
+        }
+
+        public static T[] GetCustomAttributes<T>(this PropertyInfo pi)
+        {
+            return pi.GetCustomAttributes(true).OfType<T>().ToArray();
+        }
     }
 }

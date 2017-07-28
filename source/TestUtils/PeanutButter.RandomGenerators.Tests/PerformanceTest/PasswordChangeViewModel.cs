@@ -17,7 +17,6 @@ namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
         [DataType(DataType.Password)]
         [Display(Name = "Confirm new password")]
         [Required(ErrorMessage = "This field is required.")]
-        [Compare("NewPassword", ErrorMessage = "Passwords don't match")]
         public string PasswordConfirm { get; set; }
     }
 }

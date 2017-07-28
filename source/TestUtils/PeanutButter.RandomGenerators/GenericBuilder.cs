@@ -93,7 +93,7 @@ namespace PeanutButter.RandomGenerators
             {
                 var propertyType = p.PropertyType;
                 var value = TryBuildInstanceOf(propertyType);
-                p.SetValue(result, value);
+                p.SetValue(result, value, null);
             });
             return result;
         }
@@ -547,7 +547,7 @@ namespace PeanutButter.RandomGenerators
                 {
                     typeof(float),
                     pi => ((e, i) => pi.SetValue(e,
-                        Convert.ToSingle(RandomValueGen.GetRandomDouble(float.MinValue, float.MaxValue), null)))
+                        Convert.ToSingle(RandomValueGen.GetRandomDouble(float.MinValue, float.MaxValue), null), null))
                 },
                 {typeof(double), pi => ((e, i) => pi.SetValue(e, RandomValueGen.GetRandomDouble(), null))},
                 {typeof(decimal), pi => ((e, i) => pi.SetValue(e, RandomValueGen.GetRandomDecimal(), null))},

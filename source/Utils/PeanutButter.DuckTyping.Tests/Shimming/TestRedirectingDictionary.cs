@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using NUnit.Framework;
+using PeanutButter.DatabaseHelpers;
 using PeanutButter.DuckTyping.Shimming;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
@@ -112,6 +113,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var key = RandomValueGen.GetRandomString(2);
             var expected = RandomValueGen.GetRandomString(4);
             innerData[$"{prefix}.{key}"] = expected;
+            // TEST ME: getting this from another project since net40 doesn't have one
             var data = new ReadOnlyDictionary<string, object>(innerData);
             var sut = Create(data, s => prefix + "." + s);
             // Pre-Assert
