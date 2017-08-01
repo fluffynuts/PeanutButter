@@ -2043,6 +2043,49 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             }
         }
 
+        public class WildFailures
+        {
+            public interface IBackedByDictionary
+            {
+                string Name { get; set; }
+            }
+
+            public interface IDuckFromDictionaryProperty
+            {
+                IBackedByDictionary Prop { get; set; }
+            }
+
+            public class DuckMe : IDuckFromDictionaryProperty
+            {
+                public IBackedByDictionary Prop { get; set; }
+            }
+
+            public class DuckFromMe
+            {
+                public Dictionary<string, string> Prop { get; set; }
+
+                public DuckFromMe()
+                {
+                    Prop = new Dictionary<string, string>();
+                }
+            }
+
+            [Test]
+            public void ShouldBeAbleToAutoDuckDictionaryProperties()
+            {
+                // Arrange
+                var expected = GetRandomString();
+                var src = new DuckFromMe();
+                src.Prop["Name"] = expected;
+                // Pre-Assert
+                // Act
+                var result = src.FuzzyDuckAs<IDuckFromDictionaryProperty>();
+                // Assert
+                Expect(result, Is.Not.Null);
+                Expect(result.Prop.Name, Is.EqualTo(expected));
+            }
+        }
+
         public class Merging_CanDuckAsOperations
         {
             public interface IMerge1

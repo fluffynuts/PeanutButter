@@ -193,7 +193,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             //--------------- Arrange -------------------
             var toWrap = new
             {
-                Animal = new { Legs = 4 }
+                Animal = new SomeArbitraryAnimal() { Legs = 4 }
             };
             var sut = Create(toWrap, typeof(ISingleAnimalFarm), false);
 
