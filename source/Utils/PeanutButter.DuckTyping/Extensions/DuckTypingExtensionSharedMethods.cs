@@ -387,12 +387,17 @@ namespace PeanutButter.DuckTyping.Extensions
             var srcProperties = allowFuzzy ? toType.FindFuzzyProperties() : toType.FindProperties();
             var srcPrimitives = srcProperties.GetPrimitiveProperties(allowFuzzy);
 
-            var mismatches = srcPrimitives.FindPrimitivePropertyMismatches(expectedPrimitives, allowFuzzy);
+            var primitiveMismatches = srcPrimitives.FindPrimitivePropertyMismatches(expectedPrimitives, allowFuzzy);
             var errors = new List<string>();
-            if (mismatches.Any())
+            if (primitiveMismatches.Any())
             {
-                AddPropertyMismatchErrorFor(mismatches, srcPrimitives, expectedPrimitives, allowFuzzy, errors);
+                AddPrimitivePropertyMismatchErrorsFor(primitiveMismatches, srcPrimitives, expectedPrimitives, allowFuzzy, errors);
             }
+            var accessMismatches = expectedProperties.Except(expectedPrimitives)
+                                        .ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
+                                        .FindAccessMismatches(srcProperties).ToArray();
+            if (accessMismatches.Any())
+                AddAccessMismatchErrorsFor(srcProperties, accessMismatches, errors);
 
             var expectedMethods = allowFuzzy ? type.FindFuzzyMethods() : type.FindMethods();
             if (toType.IsInterface)
@@ -403,7 +408,7 @@ namespace PeanutButter.DuckTyping.Extensions
             return errors;
         }
 
-        private static void AddPropertyMismatchErrorFor(
+        private static void AddPrimitivePropertyMismatchErrorsFor(
             Dictionary<string, PropertyInfo> mismatches,
             Dictionary<string, PropertyInfo> srcPrimitives,
             Dictionary<string, PropertyInfo> expectedPrimitives,
@@ -420,12 +425,11 @@ namespace PeanutButter.DuckTyping.Extensions
                 return;
             }
             var accessMismatches = mismatches.Where(kvp =>
-                    !expectedPrimitives[kvp.Key].IsNoMoreRestrictiveThan(srcPrimitives[kvp.Key]))
+                    !srcPrimitives[kvp.Key].IsNoMoreRestrictiveThan(expectedPrimitives[kvp.Key]))
                 .ToArray();
             if (accessMismatches.Any())
             {
-                errors.Add(
-                    $"Mismatched target accessors for {MakeTargetAccessorMessageFor(accessMismatches, srcPrimitives)}");
+                AddAccessMismatchErrorsFor(srcPrimitives, accessMismatches, errors);
                 return;
             }
             var typeMismatchError =
@@ -439,6 +443,14 @@ namespace PeanutButter.DuckTyping.Extensions
             {
                 errors.Add(typeMismatchError + " and one or more could not be auto-converted");
             }
+        }
+
+        private static void AddAccessMismatchErrorsFor(
+            Dictionary<string, PropertyInfo> srcPrimitives, 
+            KeyValuePair<string, PropertyInfo>[] accessMismatches, List<string> errors)
+        {
+            errors.Add(
+                $"Mismatched target accessors for {MakeTargetAccessorMessageFor(accessMismatches, srcPrimitives)}");
         }
 
         private static string GetTypeMismatchErrorsFor(

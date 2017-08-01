@@ -4,11 +4,13 @@ using System.Collections.Specialized;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NExpect;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Exceptions;
 using PeanutButter.DuckTyping.Extensions;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using static NExpect.Expectations;
 
 // ReSharper disable ConvertToLocalFunction
 // ReSharper disable InconsistentNaming
@@ -24,7 +26,7 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 namespace PeanutButter.DuckTyping.Tests.Extensions
 {
     [TestFixture]
-    public class TestDuckTypingExtensions : AssertionHelper
+    public class TestDuckTypingExtensions
     {
         public interface IHasReadOnlyName
         {
@@ -46,7 +48,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = obj.CanDuckAs<IHasReadOnlyName>();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.False);
+            Expect(result).To.Be.False();
         }
 
         [Test]
@@ -64,7 +66,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = obj.CanDuckAs<IHasReadOnlyName>();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.True);
+            Expect(result).To.Be.True();
         }
 
         public interface IHasReadWriteName
@@ -90,8 +92,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result2 = obj.CanDuckAs<IHasReadOnlyName>();
 
             //--------------- Assert -----------------------
-            Expect(result1, Is.False);
-            Expect(result2, Is.True);
+            Expect(result1).To.Be.False();
+            Expect(result2).To.Be.True();
         }
 
         [Test]
@@ -107,8 +109,9 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
             //--------------- Assert -----------------------
             var error = ex.Errors.Single();
-            Expect(error, Does.Contain("Mismatched target accessors for Name"));
-            Expect(error, Does.Contain("get -> get/set"));
+            Expect(error).To.Contain("Mismatched target accessors for Name").And("get -> get/set");
+//            Expect(error, Does.Contain("Mismatched target accessors for Name"));
+//            Expect(error, Does.Contain("get -> get/set"));
         }
 
 
@@ -131,8 +134,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result2 = obj.CanDuckAs<IHasReadWriteName>();
 
             //--------------- Assert -----------------------
-            Expect(result1, Is.True);
-            Expect(result2, Is.True);
+            Expect(result1).To.Be.True();
+            Expect(result2).To.Be.True();
         }
 
         public interface ICow
@@ -159,7 +162,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = src.CanDuckAs<ICow>();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.False);
+            Expect(result).To.Be.False();
         }
 
         public class Cow
@@ -180,7 +183,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = src.CanDuckAs<ICow>();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.True);
+            Expect(result).To.Be.True();
         }
 
         public class AutoCow
@@ -204,7 +207,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = src.CanDuckAs<ICow>();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.False);
+            Expect(result).To.Be.False();
         }
 
 
@@ -221,7 +224,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = src.DuckAs<ICow>();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Null);
+            Expect(result).To.Be.Null();
         }
 
         [Test]
@@ -242,8 +245,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = src.DuckAs<IHasReadOnlyName>();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Not.Null);
-            Expect(result.Name, Is.EqualTo(expected));
+            Expect(result).Not.To.Be.Null();
+            Expect(result.Name).To.Equal(expected);
         }
 
         [Test]
@@ -262,7 +265,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = src.DuckAs<IHasReadWriteName>();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Null);
+            Expect(result).To.Be.Null();
         }
 
         [Test]
@@ -277,7 +280,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = thing.CanFuzzyDuckAs<IHasReadOnlyName>();
 
             //--------------- Assert -----------------------
-            Assert.IsTrue(result);
+            Expect(result).To.Be.True();
         }
 
         public class LowerCaseCow
@@ -319,7 +322,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = src.FuzzyDuckAs<IHasReadOnlyName>();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Not.Null);
+            Expect(result).Not.To.Be.Null();
         }
 
 
@@ -335,7 +338,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = src.FuzzyDuckAs<ICow>();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Not.Null);
+            Expect(result).Not.To.Be.Null();
         }
 
         public interface ISomeActivityParameters : IActivityParameters<Guid>
@@ -359,14 +362,9 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = src.DuckAs<ISomeActivityParameters>();
 
             //--------------- Assert -----------------------
-            Expect(() => result.ActorId, Throws.Nothing);
-            Expect(() => result.TaskId, Throws.Nothing);
-            Expect(() => result.Payload, Throws.Nothing);
-        }
-
-        public interface IInterfaceWithPayload
-        {
-            object Payload { get; set; }
+            Assert.That(() => result.ActorId, Throws.Nothing);
+            Assert.That(() => result.TaskId, Throws.Nothing);
+            Assert.That(() => result.Payload, Throws.Nothing);
         }
 
         [Test]
@@ -389,8 +387,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
             //--------------- Assert -----------------------
             var props = result.Payload.GetType().GetProperties();
-            Expect(props.Select(p => p.Name), Does.Contain("Id"));
-            Expect(props.Select(p => p.Name), Does.Contain("Name"));
+            Assert.That(props.Select(p => p.Name), Does.Contain("Id"));
+            Assert.That(props.Select(p => p.Name), Does.Contain("Name"));
         }
 
         public interface IInterfaceWithInterfacedPayload
@@ -398,8 +396,14 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             IInterfaceWithPayload OuterPayload { get; set; }
         }
 
+        public interface IInterfaceWithPayload
+        {
+            object Payload { get; }
+        }
+
+
         [Test]
-        public void DuckAs_ShouldNotAllowNonDuckableSubType()
+        public void DuckAs_WhenShouldNotBeAbleToDuckDueToAccessDifferences_ShouldNotDuckSubProp()
         {
             //--------------- Arrange -------------------
             var input = new
@@ -407,17 +411,78 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 OuterPayload = new
                 {
                     Color = "Red"
-                }
+                } // Interface property is read/write, but this is a property on an anonymous object
             };
 
+            Expect(input.CanDuckAs<IInterfaceWithInterfacedPayload>()).To.Be.False();
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
             var result = input.DuckAs<IInterfaceWithInterfacedPayload>();
 
             //--------------- Assert -----------------------
-            Assert.IsNotNull(result);
-            Assert.IsNull(result.OuterPayload);
+            Expect(result).To.Be.Null();
+        }
+
+        public class RestrictionTest
+        {
+            private string _writeOnly;
+            public string ReadOnly { get; }
+            public string WriteOnly { set => _writeOnly = value; }
+            public string ReadWrite { get; set; }
+        }
+
+        [Test]
+        public void IsNoMoreRestrictiveThan()
+        {
+            // Arrange
+            var type = typeof(RestrictionTest);
+            var readonlyProp = type.GetProperty("ReadOnly");
+            var writeOnlyProp = type.GetProperty("WriteOnly");
+            var readWriteProp = type.GetProperty("ReadWrite");
+
+            // Pre-Assert
+
+            // Act
+            Expect(readWriteProp.IsNoMoreRestrictiveThan(readonlyProp)).To.Be.True();
+            Expect(readWriteProp.IsNoMoreRestrictiveThan(writeOnlyProp)).To.Be.True();
+
+            Expect(readonlyProp.IsNoMoreRestrictiveThan(writeOnlyProp)).To.Be.False();
+            Expect(readonlyProp.IsNoMoreRestrictiveThan(readWriteProp)).To.Be.False();
+
+            Expect(writeOnlyProp.IsNoMoreRestrictiveThan(readonlyProp)).To.Be.False();
+            Expect(writeOnlyProp.IsNoMoreRestrictiveThan(readWriteProp)).To.Be.False();
+
+            // Assert
+        }
+
+        [Test]
+        public void IsMoreRestrictiveThan()
+        {
+            // Arrange
+            var type = typeof(RestrictionTest);
+            var readonlyProp = type.GetProperty("ReadOnly");
+            var writeOnlyProp = type.GetProperty("WriteOnly");
+            var readWriteProp = type.GetProperty("ReadWrite");
+
+            // Pre-Assert
+
+            // Act
+            Expect(readWriteProp.IsMoreRestrictiveThan(readonlyProp)).To.Be.False();
+            Expect(readWriteProp.IsMoreRestrictiveThan(writeOnlyProp)).To.Be.False();
+
+            Expect(readonlyProp.IsMoreRestrictiveThan(writeOnlyProp)).To.Be.True();
+            Expect(readonlyProp.IsMoreRestrictiveThan(readWriteProp)).To.Be.True();
+
+            Expect(writeOnlyProp.IsMoreRestrictiveThan(readonlyProp)).To.Be.True();
+            Expect(writeOnlyProp.IsMoreRestrictiveThan(readWriteProp)).To.Be.True();
+
+            // Assert
+        }
+
+        public class InterfaceWithPayloadImpl : IInterfaceWithPayload
+        {
+            public object Payload { get; set; }
         }
 
         public interface IObjectIdentifier
@@ -446,10 +511,10 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            Expect(inputWithGuid.CanDuckAs<IObjectIdentifier>(), Is.True);
-            Expect(inputWithGuid.CanDuckAs<IGuidIdentifier>(), Is.True);
-            Expect(inputWithObject.CanDuckAs<IGuidIdentifier>(), Is.False);
-            Expect(inputWithObject.CanDuckAs<IObjectIdentifier>(), Is.True);
+            Expect(inputWithGuid.CanDuckAs<IObjectIdentifier>()).To.Be.True();
+            Expect(inputWithGuid.CanDuckAs<IGuidIdentifier>()).To.Be.True();
+            Expect(inputWithObject.CanDuckAs<IGuidIdentifier>()).To.Be.False();
+            Expect(inputWithObject.CanDuckAs<IObjectIdentifier>()).To.Be.True();
 
             //--------------- Assert -----------------------
         }
@@ -470,10 +535,10 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            Expect(inputWithGuid.CanFuzzyDuckAs<IObjectIdentifier>(), Is.True);
-            Expect(inputWithGuid.CanFuzzyDuckAs<IGuidIdentifier>(), Is.True);
-            Expect(inputWithObject.CanFuzzyDuckAs<IGuidIdentifier>(), Is.False);
-            Expect(inputWithObject.CanFuzzyDuckAs<IObjectIdentifier>(), Is.True);
+            Expect(inputWithGuid.CanFuzzyDuckAs<IObjectIdentifier>()).To.Be.True();
+            Expect(inputWithGuid.CanFuzzyDuckAs<IGuidIdentifier>()).To.Be.True();
+            Expect(inputWithObject.CanFuzzyDuckAs<IGuidIdentifier>()).To.Be.False();
+            Expect(inputWithObject.CanFuzzyDuckAs<IObjectIdentifier>()).To.Be.True();
 
             //--------------- Assert -----------------------
         }
@@ -500,7 +565,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
             //--------------- Assert -----------------------
             Assert.IsNotNull(ducked);
-            Expect(ducked.Id, Is.EqualTo(expected));
+            Expect(ducked.Id).To.Equal(expected);
         }
 
         public interface IWithGuidId
@@ -534,8 +599,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var ducked = input.FuzzyDuckAs<IWithGuidId>();
 
             //--------------- Assert -----------------------
-            Expect(ducked, Is.Not.Null);
-            Expect(ducked.Id, Is.EqualTo(expected));
+            Expect(ducked).Not.To.Be.Null();
+            Expect(ducked.Id).To.Equal(expected);
         }
 
         [Test]
@@ -555,10 +620,10 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var ducked = input.FuzzyDuckAs<IWithGuidId>();
 
             //--------------- Assert -----------------------
-            Expect(ducked, Is.Not.Null);
+            Expect(ducked).Not.To.Be.Null();
             ducked.Id = newValue;
-            Expect(input.id, Is.EqualTo(expected));
-            Expect(ducked.Id, Is.EqualTo(newValue));
+            Expect(input.id).To.Equal(expected);
+            Expect(ducked.Id).To.Equal(newValue);
         }
 
         [Test]
@@ -575,10 +640,10 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var ducked = input.FuzzyDuckAs<IWithStringId>();
 
             //--------------- Assert -----------------------
-            Expect(ducked, Is.Not.Null);
+            Expect(ducked).Not.To.Be.Null();
             ducked.Id = newValue;
-            Expect(ducked.Id, Is.EqualTo(newValue));
-            Expect(input.id, Is.EqualTo(newGuid));
+            Expect(ducked.Id).To.Equal(newValue);
+            Expect(input.id).To.Equal(newGuid);
         }
 
 
@@ -608,7 +673,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = parameters.CanFuzzyDuckAs<IActivityParametersInherited>();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.False);
+            Expect(result).To.Be.False();
         }
 
         [Test]
@@ -624,8 +689,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            Expect(() => parameters.FuzzyDuckAs(typeof(IActivityParametersInherited), true),
-                Throws.Exception.InstanceOf<UnDuckableException>());
+            Expect(() => parameters.FuzzyDuckAs(typeof(IActivityParametersInherited), true))
+                .To.Throw<UnDuckableException>();
 
             //--------------- Assert -----------------------
         }
@@ -643,8 +708,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            Expect(() => parameters.FuzzyDuckAs(typeof(IActivityParametersInherited), true),
-                Throws.Exception.InstanceOf<UnDuckableException>());
+            Expect(() => parameters.FuzzyDuckAs(typeof(IActivityParametersInherited), true))
+                .To.Throw<UnDuckableException>();
 
             //--------------- Assert -----------------------
         }
@@ -676,7 +741,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = data.CanDuckAs<IDictionaryInner>();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.True);
+            Expect(result).To.Be.True();
         }
 
         [Test]
@@ -693,7 +758,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = data.CanDuckAs<IDictionaryInner>();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.True);
+            Expect(result).To.Be.True();
         }
 
         public interface IHaveId
@@ -715,7 +780,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = data.CanDuckAs<IHaveId>();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.False);
+            Expect(result).To.Be.False();
         }
 
         [Test]
@@ -734,7 +799,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = data.CanDuckAs<IDictionaryOuter>();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.True);
+            Expect(result).To.Be.True();
         }
 
         [Test]
@@ -754,10 +819,11 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = input.DuckAs<IDictionaryOuter>();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Not.Null);
-            Expect(result.Id, Is.EqualTo(expectedId));
-            Expect(result.Inner, Is.Not.Null);
-            Expect(result.Inner.Name, Is.EqualTo(expectedName));
+
+            Expect(result).Not.To.Be.Null();
+            Expect(result.Id).To.Equal(expectedId);
+            Expect(result.Inner).Not.To.Be.Null();
+            Expect(result.Inner.Name).To.Equal(expectedName);
         }
 
         [Test]
@@ -778,7 +844,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = input.CanFuzzyDuckAs<IDictionaryOuter>();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.True);
+            Expect(result).To.Be.True();
         }
 
         [Test]
@@ -799,10 +865,11 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = input.FuzzyDuckAs<IDictionaryOuter>();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Not.Null);
-            Expect(result.Id, Is.EqualTo(expectedId));
-            Expect(result.Inner, Is.Not.Null);
-            Expect(result.Inner.Name, Is.EqualTo(expectedName));
+
+            Expect(result).Not.To.Be.Null();
+            Expect(result.Id).To.Equal(expectedId);
+            Expect(result.Inner).Not.To.Be.Null();
+            Expect(result.Inner.Name).To.Equal(expectedName);
         }
 
 
@@ -824,7 +891,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = input.CanFuzzyDuckAs<IDictionaryOuter>();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.True);
+            Expect(result).To.Be.True();
         }
 
         [Test]
@@ -845,10 +912,11 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = input.FuzzyDuckAs<IDictionaryOuter>();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Not.Null);
-            Expect(result.Id, Is.EqualTo(expectedId));
-            Expect(result.Inner, Is.Not.Null);
-            Expect(result.Inner.Name, Is.EqualTo(expectedName));
+
+            Expect(result).Not.To.Be.Null();
+            Expect(result.Id).To.Equal(expectedId);
+            Expect(result.Inner).Not.To.Be.Null();
+            Expect(result.Inner.Name).To.Equal(expectedName);
         }
 
         [Test]
@@ -863,7 +931,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = instance.DuckAs<ISpecificActivityParameters>();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Not.Null);
+            Expect(result).Not.To.Be.Null();
         }
 
         public interface IHasAGuid
@@ -887,8 +955,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = data.FuzzyDuckAs<IHasAGuid>();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Not.Null);
-            Expect(result.TaskId, Is.EqualTo(id));
+            Expect(result).Not.To.Be.Null();
+            Expect(result.TaskId).To.Equal(id);
         }
 
         public interface IWorkflowTaskStatusFilters
@@ -912,9 +980,9 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = input.FuzzyDuckAs<IWorkflowTaskStatusFilters>();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Not.Null);
-            Expect(result.Statuses, Does.Contain("foo"));
-            Expect(result.Statuses, Does.Contain("bar"));
+            Expect(result).Not.To.Be.Null();
+            Expect(result.Statuses).To.Contain.Exactly(1).Equal.To("foo");
+            Expect(result.Statuses).To.Contain.Exactly(1).Equal.To("bar");
         }
 
         public class MooAttribute : Attribute
@@ -967,10 +1035,10 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
             //--------------- Assert -----------------------
             var propInfo = result.GetType().GetProperty("Name");
-            Expect(propInfo, Is.Not.Null);
+            Expect(propInfo).Not.To.Be.Null();
             var attrib = propInfo.GetCustomAttributes(false).OfType<MooAttribute>().FirstOrDefault();
-            Expect(attrib, Is.Not.Null);
-            Expect(attrib?.Dialect, Is.EqualTo("northern"));
+            Expect(attrib).Not.To.Be.Null();
+            Expect(attrib.Dialect).To.Equal("northern");
         }
 
         [Test]
@@ -989,11 +1057,12 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
             //--------------- Assert -----------------------
             var propInfo = result.GetType().GetProperty("Name");
-            Expect(propInfo, Is.Not.Null);
+            Expect(propInfo).Not.To.Be.Null();
             var attrib = propInfo.GetCustomAttributes(false).OfType<NamedArgumentAttribute>().FirstOrDefault();
-            Expect(attrib, Is.Not.Null);
-            Expect(attrib?.NamedProperty, Is.EqualTo("whizzle"));
-            Expect(attrib?.NamedField, Is.EqualTo("nom"));
+
+            Expect(attrib).Not.To.Be.Null();
+            Expect(attrib.NamedProperty).To.Equal("whizzle");
+            Expect(attrib.NamedField).To.Equal("nom");
         }
 
         [Test]
@@ -1012,8 +1081,9 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
             //--------------- Assert -----------------------
             var attrib = result.GetType().GetCustomAttributes(false).OfType<WoofAttribute>().FirstOrDefault();
-            Expect(attrib, Is.Not.Null);
-            Expect(attrib?.Intent, Is.EqualTo("playful"));
+
+            Expect(attrib).Not.To.Be.Null();
+            Expect(attrib.Intent).To.Equal("playful");
         }
 
         public class DialectAttribute : Attribute
@@ -1048,10 +1118,10 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
             //--------------- Assert -----------------------
             var propInfo = result.GetType().GetProperty("Moo");
-            Expect(propInfo, Is.Not.Null);
+            Expect(propInfo).Not.To.Be.Null();
             var attrib = propInfo.GetCustomAttributes(true).OfType<DialectAttribute>().FirstOrDefault();
-            Expect(attrib, Is.Not.Null);
-            Expect(attrib.Dialect, Is.EqualTo("Country"));
+            Expect(attrib).Not.To.Be.Null();
+            Expect(attrib.Dialect).To.Equal("Country");
         }
 
 
@@ -1071,8 +1141,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = src.FuzzyDuckAs(toType);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Not.Null);
-            Expect(result.GetPropertyValue("ActorId"), Is.EqualTo(src.actorId));
+            Expect(result).Not.To.Be.Null();
+            Expect(result.GetPropertyValue("ActorId")).To.Equal(src.actorId);
         }
 
         [Test]
@@ -1091,8 +1161,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = src.DuckAs(toType);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Not.Null);
-            Expect(result.GetPropertyValue("ActorId"), Is.EqualTo(src.ActorId));
+            Expect(result).Not.To.Be.Null();
+            Expect(result.GetPropertyValue("ActorId")).To.Equal(src.ActorId);
         }
 
         [Test]
@@ -1111,8 +1181,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = src.DuckAs(toType, true);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Not.Null);
-            Expect(result.GetPropertyValue("ActorId"), Is.EqualTo(src.ActorId));
+            Expect(result).Not.To.Be.Null();
+            Expect(result.GetPropertyValue("ActorId")).To.Equal(src.ActorId);
         }
 
         [Test]
@@ -1128,8 +1198,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            Expect(() => src.DuckAs(toType, true),
-                Throws.Exception.InstanceOf<UnDuckableException>());
+            Expect(() => src.DuckAs(toType, true))
+                .To.Throw<UnDuckableException>();
 
             //--------------- Assert -----------------------
         }
@@ -1150,8 +1220,9 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = src.FuzzyDuckAs(toType, true);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Not.Null);
-            Expect(result.GetPropertyValue("ActorId"), Is.EqualTo(src.actoRId));
+
+            Expect(result).Not.To.Be.Null();
+            Expect(result.GetPropertyValue("ActorId")).To.Equal(src.actoRId);
         }
 
         [Test]
@@ -1167,8 +1238,9 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            Expect(() => src.FuzzyDuckAs(toType, true),
-                Throws.Exception.InstanceOf<UnDuckableException>());
+
+            Expect(() => src.FuzzyDuckAs(toType, true))
+                .To.Throw<UnDuckableException>();
 
             //--------------- Assert -----------------------
         }
@@ -1190,8 +1262,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = input.FuzzyDuckAs<IHasNullableId>();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Not.Null);
-            Expect(result.Id, Is.Null);
+            Expect(result).Not.To.Be.Null();
+            Expect(result.Id).To.Be.Null();
         }
 
         [Test]
@@ -1206,8 +1278,9 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = input.DuckAs<IHasNullableId>();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Not.Null);
-            Expect(result.Id, Is.Null);
+
+            Expect(result).Not.To.Be.Null();
+            Expect(result.Id).To.Be.Null();
         }
 
         public interface IHasNullableReadonlyId
@@ -1228,8 +1301,9 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = input.DuckAs<IHasNullableReadonlyId>();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Not.Null);
-            Expect(result.Id, Is.EqualTo(input.Id));
+
+            Expect(result).Not.To.Be.Null();
+            Expect(result.Id).To.Equal(input.Id);
         }
 
         [Test]
@@ -1245,8 +1319,9 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = input.FuzzyDuckAs<IHasNullableReadonlyId>();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Not.Null);
-            Expect(result.Id, Is.EqualTo(input.id));
+
+            Expect(result).Not.To.Be.Null();
+            Expect(result.Id).To.Equal(input.id);
         }
 
         [Test]
@@ -1266,8 +1341,9 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = input.DuckAs<IHasNullableReadonlyId>();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Not.Null);
-            Expect(result.Id, Is.EqualTo(expected));
+
+            Expect(result).Not.To.Be.Null();
+            Expect(result.Id).To.Equal(expected);
         }
 
         [Test]
@@ -1287,8 +1363,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = input.FuzzyDuckAs<IHasNullableReadonlyId>();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Not.Null);
-            Expect(result.Id, Is.EqualTo(expected));
+            Expect(result).Not.To.Be.Null();
+            Expect(result.Id).To.Equal(expected);
         }
 
 
@@ -1309,7 +1385,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = payload.FuzzyDuckAs<ITravelRequestCaptureDetailsActivityParameters>();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Not.Null);
+            Expect(result).Not.To.Be.Null();
         }
 
         [Test]
@@ -1334,32 +1410,34 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var expectedDuck = expected.DuckAs<ITravelRequestDetails>();
 
             //--------------- Assume ----------------
-            Expect(expectedDuck, Is.Not.Null);
+            Expect(expectedDuck).Not.To.Be.Null();
 
             //--------------- Act ----------------------
             var result = dict.ForceFuzzyDuckAs<ITravelRequestDetails>();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Not.Null);
-            Expect(result, Is.InstanceOf<ITravelRequestDetails>());
+            Expect(result).Not.To.Be.Null();
+            // ReSharper disable once IsExpressionAlwaysTrue
+            Expect(result is ITravelRequestDetails).To.Be.True();
             Expect(() =>
-            {
-                result.Initiated = expectedDuck.Initiated;
-                result.DepartingFrom = expectedDuck.DepartingFrom;
-                result.TravellingTo = expectedDuck.TravellingTo;
-                result.Departing = expectedDuck.Departing;
-                result.PreferredDepartureTime = expectedDuck.PreferredDepartureTime;
-                result.Returning = expectedDuck.Returning;
-                result.PreferredReturnTime = expectedDuck.PreferredReturnTime;
-                result.ReasonForTravel = expectedDuck.ReasonForTravel;
-                result.CarRequired = expectedDuck.CarRequired;
-                result.AccomodationRequired = expectedDuck.AccomodationRequired;
-                result.AccommodationNotes = expectedDuck.AccommodationNotes;
-            }, Throws.Nothing);
+                {
+                    result.Initiated = expectedDuck.Initiated;
+                    result.DepartingFrom = expectedDuck.DepartingFrom;
+                    result.TravellingTo = expectedDuck.TravellingTo;
+                    result.Departing = expectedDuck.Departing;
+                    result.PreferredDepartureTime = expectedDuck.PreferredDepartureTime;
+                    result.Returning = expectedDuck.Returning;
+                    result.PreferredReturnTime = expectedDuck.PreferredReturnTime;
+                    result.ReasonForTravel = expectedDuck.ReasonForTravel;
+                    result.CarRequired = expectedDuck.CarRequired;
+                    result.AccomodationRequired = expectedDuck.AccomodationRequired;
+                    result.AccommodationNotes = expectedDuck.AccommodationNotes;
+                })
+                .Not.To.Throw();
 
             foreach (var prop in result.GetType().GetProperties())
             {
-                Expect(dict[prop.Name], Is.EqualTo(prop.GetValue(result)));
+                Expect(dict[prop.Name]).To.Equal(prop.GetValue(result));
             }
         }
 
@@ -1385,32 +1463,32 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var expectedDuck = expected.DuckAs<ITravelRequestDetails>();
 
             //--------------- Assume ----------------
-            Expect(expectedDuck, Is.Not.Null);
+            Expect(expectedDuck).Not.To.Be.Null();
 
             //--------------- Act ----------------------
             var result = dict.ForceDuckAs<ITravelRequestDetails>();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Not.Null);
-            Expect(result, Is.InstanceOf<ITravelRequestDetails>());
+            Expect(result).Not.To.Be.Null();
             Expect(() =>
-            {
-                result.Initiated = expectedDuck.Initiated;
-                result.DepartingFrom = expectedDuck.DepartingFrom;
-                result.TravellingTo = expectedDuck.TravellingTo;
-                result.Departing = expectedDuck.Departing;
-                result.PreferredDepartureTime = expectedDuck.PreferredDepartureTime;
-                result.Returning = expectedDuck.Returning;
-                result.PreferredReturnTime = expectedDuck.PreferredReturnTime;
-                result.ReasonForTravel = expectedDuck.ReasonForTravel;
-                result.CarRequired = expectedDuck.CarRequired;
-                result.AccomodationRequired = expectedDuck.AccomodationRequired;
-                result.AccommodationNotes = expectedDuck.AccommodationNotes;
-            }, Throws.Nothing);
+                {
+                    result.Initiated = expectedDuck.Initiated;
+                    result.DepartingFrom = expectedDuck.DepartingFrom;
+                    result.TravellingTo = expectedDuck.TravellingTo;
+                    result.Departing = expectedDuck.Departing;
+                    result.PreferredDepartureTime = expectedDuck.PreferredDepartureTime;
+                    result.Returning = expectedDuck.Returning;
+                    result.PreferredReturnTime = expectedDuck.PreferredReturnTime;
+                    result.ReasonForTravel = expectedDuck.ReasonForTravel;
+                    result.CarRequired = expectedDuck.CarRequired;
+                    result.AccomodationRequired = expectedDuck.AccomodationRequired;
+                    result.AccommodationNotes = expectedDuck.AccommodationNotes;
+                })
+                .Not.To.Throw();
 
             foreach (var prop in result.GetType().GetProperties())
             {
-                Expect(dict[prop.Name], Is.EqualTo(prop.GetValue(result)));
+                Expect(dict[prop.Name]).To.Equal(prop.GetValue(result));
             }
         }
 
@@ -1434,7 +1512,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = src.DuckAs<IConfig>(true);
 
             // Assert
-            Expect(result.BaseUrl, Is.EqualTo(src["BaseUrl"]));
+            Expect(result.BaseUrl).To.Equal(src["BaseUrl"]);
         }
 
         [Test]
@@ -1452,7 +1530,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = src.FuzzyDuckAs<IConfig>();
 
             // Assert
-            Expect(result.BaseUrl, Is.EqualTo(src["base url"]));
+            Expect(result.BaseUrl).To.Equal(src["base url"]);
         }
 
         [Test]
@@ -1470,11 +1548,11 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = src.DuckAs<IConfig>();
 
             // Assert
-            Expect(result, Is.Not.Null);
-            Expect(result.BaseUrl, Is.EqualTo(expected1));
+            Expect(result).Not.To.Be.Null();
+            Expect(result.BaseUrl).To.Equal(expected1);
             result.BaseUrl = expected2;
-            Expect(result.BaseUrl, Is.EqualTo(expected2));
-            Expect(src["BaseUrl"], Is.EqualTo(expected2));
+            Expect(result.BaseUrl).To.Equal(expected2);
+            Expect(src["BaseUrl"]).To.Equal(expected2);
         }
 
         [TestCase(" ")]
@@ -1493,8 +1571,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = src.FuzzyDuckAs<IConfig>();
 
             // Assert
-            Expect(result, Is.Not.Null);
-            Expect(result.BaseUrl, Is.EqualTo(expected));
+            Expect(result).Not.To.Be.Null();
+            Expect(result.BaseUrl).To.Equal(expected);
         }
 
         [Test]
@@ -1510,10 +1588,11 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = src.ForceDuckAs<IConfig>();
 
             // Assert
-            Expect(result.BaseUrl, Is.Null);
+            Expect(result.BaseUrl).To.Be.Null();
             result.BaseUrl = expected;
-            Expect(result.BaseUrl, Is.EqualTo(expected));
-            Expect(src["BaseUrl"], Is.EqualTo(expected));
+
+            Expect(result.BaseUrl).To.Equal(expected);
+            Expect(src["BaseUrl"]).To.Equal(expected);
         }
 
         public interface IExtendedConfig : IConfig
@@ -1535,11 +1614,12 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = src.ForceFuzzyDuckAs<IExtendedConfig>();
 
             // Assert
-            Expect(result.Name, Is.EqualTo(src["name"]));
-            Expect(result.BaseUrl, Is.Null);
+
+            Expect(result.Name).To.Equal(src["Name"]);
+            Expect(result.BaseUrl).To.Be.Null();
             result.BaseUrl = expected;
-            Expect(result.BaseUrl, Is.EqualTo(expected));
-            Expect(src["BaseUrl"], Is.EqualTo(expected));
+            Expect(result.BaseUrl).To.Equal(expected);
+            Expect(src["BaseUrl"]).To.Equal(expected);
         }
 
         [TestFixture]
@@ -1613,8 +1693,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             {
                 // Arrange
                 var expected = GetRandomHttpUrl();
-                var data = new NameValueCollection();
-                data["Config.BaseUrl"] = expected;
+                var data = new NameValueCollection {["Config.BaseUrl"] = expected};
 
                 // Pre-Assert
 
@@ -1633,8 +1712,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             {
                 // Arrange
                 var expected = GetRandomHttpUrl();
-                var data = new NameValueCollection();
-                data["Config.BaseUrl"] = expected;
+                var data = new NameValueCollection {["Config.BaseUrl"] = expected};
 
                 // Pre-Assert
 
@@ -1735,8 +1813,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             {
                 // Arrange
                 var expected = GetRandomHttpUrl();
-                var data = new NameValueCollection();
-                data["Config.BAseUrl"] = expected;
+                var data = new NameValueCollection {["Config.BAseUrl"] = expected};
 
                 // Pre-Assert
 
@@ -1755,8 +1832,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             {
                 // Arrange
                 var expected = GetRandomHttpUrl();
-                var data = new NameValueCollection();
-                data["Config.BasEUrl"] = expected;
+                var data = new NameValueCollection {["Config.BasEUrl"] = expected};
 
                 // Pre-Assert
 
@@ -1774,8 +1850,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             {
                 // Arrange
                 var expected = GetRandomHttpUrl();
-                var data = new NameValueCollection();
-                data["Config.BaSeUrl"] = expected;
+                var data = new NameValueCollection {["Config.BaSeUrl"] = expected};
 
                 // Pre-Assert
 
@@ -2081,8 +2156,9 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 // Act
                 var result = src.FuzzyDuckAs<IDuckFromDictionaryProperty>();
                 // Assert
-                Expect(result, Is.Not.Null);
-                Expect(result.Prop.Name, Is.EqualTo(expected));
+
+                Expect(result).Not.To.Be.Null();
+                Expect(result.Prop.Name).To.Equal(expected);
             }
         }
 
@@ -2105,10 +2181,12 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
                 // Act
                 var result = DuckTypingExtensionSharedMethods.InternalCanDuckAs<IMerge1>(
-                    new object[] {obj1, obj2}, false, false);
+                    new object[] {obj1, obj2},
+                    false,
+                    false);
 
                 // Assert
-                Expect(result, Is.True);
+                Expect(result).To.Be.True();
             }
         }
 

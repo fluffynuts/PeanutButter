@@ -14,10 +14,12 @@ namespace PeanutButter.DuckTyping.Extensions
     {
         private static readonly Dictionary<Type, PropertyInfoContainer> _propertyCache =
             new Dictionary<Type, PropertyInfoContainer>();
+
         private static readonly Dictionary<Type, MethodInfoContainer> _methodCache =
             new Dictionary<Type, MethodInfoContainer>();
 
         private static readonly IPropertyInfoFetcher _defaultPropertyInfoFetcher = new DefaultPropertyInfoFetcher();
+
         internal static Dictionary<string, PropertyInfo> FindProperties(this Type type)
         {
             return type.FindProperties(_defaultPropertyInfoFetcher);
@@ -47,7 +49,8 @@ namespace PeanutButter.DuckTyping.Extensions
             return FindFuzzyProperties(type, _defaultPropertyInfoFetcher);
         }
 
-        internal static Dictionary<string, PropertyInfo> FindFuzzyProperties(this Type type, IPropertyInfoFetcher fetcher)
+        internal static Dictionary<string, PropertyInfo> FindFuzzyProperties(this Type type,
+            IPropertyInfoFetcher fetcher)
         {
             lock (_propertyCache)
             {
@@ -77,6 +80,7 @@ namespace PeanutButter.DuckTyping.Extensions
                 return _methodCache[type].MethodInfos;
             }
         }
+
         internal static Dictionary<string, MethodInfo> FindFuzzyMethods(
             this Type type
         )
@@ -90,7 +94,7 @@ namespace PeanutButter.DuckTyping.Extensions
 
         internal static Type[] GetAllImplementedInterfaces(this Type interfaceType)
         {
-            var result = new List<Type> { interfaceType };
+            var result = new List<Type> {interfaceType};
             foreach (var type in interfaceType.GetInterfaces())
             {
                 result.AddRange(type.GetAllImplementedInterfaces());
@@ -116,6 +120,18 @@ namespace PeanutButter.DuckTyping.Extensions
             );
         }
 
+        internal static IEnumerable<KeyValuePair<string, PropertyInfo>> FindAccessMismatches(
+            this Dictionary<string, PropertyInfo> authoritative,
+            Dictionary<string, PropertyInfo> test
+        )
+        {
+            return test.Where(t => {
+                if (!authoritative.TryGetValue(t.Key, out var authoritativePropInfo))
+                    return false;
+                return t.Value.IsMoreRestrictiveThan(authoritativePropInfo);
+            });
+        }
+
         internal static Dictionary<string, PropertyInfo> FindPrimitivePropertyMismatches(
             this Dictionary<string, PropertyInfo> src,
             Dictionary<string, PropertyInfo> other,
@@ -126,7 +142,9 @@ namespace PeanutButter.DuckTyping.Extensions
                 .ToDictionary(
                     kvp => kvp.Key,
                     kvp => kvp.Value,
-                    allowFuzzy ? Comparers.Comparers.FuzzyComparer : Comparers.Comparers.NonFuzzyComparer);
+                    allowFuzzy
+                        ? Comparers.Comparers.FuzzyComparer
+                        : Comparers.Comparers.NonFuzzyComparer);
         }
 
         internal static bool IsSuperSetOf(
@@ -137,7 +155,8 @@ namespace PeanutButter.DuckTyping.Extensions
         }
 
 
-        static readonly HashSet<Type> _treatAsPrimitives = new HashSet<Type>(new[] {
+        static readonly HashSet<Type> _treatAsPrimitives = new HashSet<Type>(new[]
+        {
             typeof(string),
             typeof(Guid),
             typeof(DateTime),
@@ -152,20 +171,20 @@ namespace PeanutButter.DuckTyping.Extensions
         {
             // this will cause oddness with structs. Will have to do for now
             return props.Where(kvp => kvp.Value.PropertyType.ShouldTreatAsPrimitive())
-                        .ToDictionary(
-                            kvp => kvp.Key,
-                            kvp => kvp.Value,
-                            allowFuzzy
-                                ? Comparers.Comparers.FuzzyComparer
-                                : Comparers.Comparers.NonFuzzyComparer);
+                .ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => kvp.Value,
+                    allowFuzzy
+                        ? Comparers.Comparers.FuzzyComparer
+                        : Comparers.Comparers.NonFuzzyComparer);
         }
 
         internal static bool ShouldTreatAsPrimitive(this Type type)
         {
             return type.IsPrimitive || // types .net thinks are primitive
-                    type.IsValueType || // includes enums, structs, https://msdn.microsoft.com/en-us/library/s1ax56ch.aspx
-                    type.IsArray || 
-                    _treatAsPrimitives.Contains(type); // catch cases like strings and Date(/Time) containers
+                   type.IsValueType || // includes enums, structs, https://msdn.microsoft.com/en-us/library/s1ax56ch.aspx
+                   type.IsArray ||
+                   _treatAsPrimitives.Contains(type); // catch cases like strings and Date(/Time) containers
         }
 
         internal static bool HasNonComplexPropertyMatching(
@@ -177,13 +196,13 @@ namespace PeanutButter.DuckTyping.Extensions
             if (!haystack.TryGetValue(needle.Name, out matchByName))
                 return false;
             if (!matchByName.PropertyType.ShouldTreatAsPrimitive())
-                return true;
-            if (needle.IsReadOnly() && 
-                matchByName.CanRead && 
+                return false;
+            if (needle.IsReadOnly() &&
+                matchByName.CanRead &&
                 needle.PropertyType.IsAssignableFrom(matchByName.PropertyType))
                 return true;
             return matchByName.PropertyType == needle.PropertyType &&
-                    needle.IsNoMoreRestrictiveThan(matchByName);
+                   matchByName.IsNoMoreRestrictiveThan(needle);
         }
 
         internal static bool IsReadOnly(this PropertyInfo propInfo)
@@ -196,9 +215,21 @@ namespace PeanutButter.DuckTyping.Extensions
             PropertyInfo target
         )
         {
-            return (!src.CanRead || target.CanRead) &&
-                    (!src.CanWrite || target.CanWrite);
+            var atLeastAsReadable = !target.CanRead || src.CanRead;
+            var atLeastAsWritable = !target.CanWrite || src.CanWrite;
+            return atLeastAsWritable && atLeastAsReadable;
         }
+
+        internal static bool IsMoreRestrictiveThan(
+            this PropertyInfo src,
+            PropertyInfo target
+        )
+        {
+            var isLessReadable = target.CanRead && !src.CanRead;
+            var isLessWritable = target.CanWrite && !src.CanWrite;
+            return isLessWritable || isLessReadable;
+        }
+
 
         internal static bool IsTryParseMethod(
             this MethodInfo mi
@@ -246,7 +277,7 @@ namespace PeanutButter.DuckTyping.Extensions
             return true;
         }
 
-        private static readonly IEqualityComparer<string>[] _caseInsensitiveComparers = 
+        private static readonly IEqualityComparer<string>[] _caseInsensitiveComparers =
         {
             StringComparer.OrdinalIgnoreCase,
             StringComparer.CurrentCultureIgnoreCase,
@@ -259,8 +290,8 @@ namespace PeanutButter.DuckTyping.Extensions
         {
             var comparerProp = dictionary?.GetType().GetProperty("Comparer");
             return comparerProp == null
-                    ? BruteForceIsCaseSensitive(dictionary)
-                    : !_caseInsensitiveComparers.Contains(comparerProp.GetValue(dictionary));
+                ? BruteForceIsCaseSensitive(dictionary)
+                : !_caseInsensitiveComparers.Contains(comparerProp.GetValue(dictionary));
         }
 
         internal static bool ContainsCaseSensitiveDictionary(
@@ -268,14 +299,14 @@ namespace PeanutButter.DuckTyping.Extensions
         {
             foreach (var kvp in dictionary)
             {
-                var asDict = kvp.Value as IDictionary<string, object>;    // WRONG! what about different-typed sub-dicts?
+                var asDict = kvp.Value as IDictionary<string, object>; // WRONG! what about different-typed sub-dicts?
                 if (asDict == null)
                     continue;
                 if (asDict.IsCaseSensitive())
                     return true;
             }
             return false;
-        } 
+        }
 
         private static bool BruteForceIsCaseSensitive(IDictionary<string, object> data)
         {
@@ -297,11 +328,12 @@ namespace PeanutButter.DuckTyping.Extensions
 
         internal static bool IsSpecial(this MethodInfo methodInfo)
         {
-            return ((int)methodInfo.Attributes & (int)MethodAttributes.SpecialName) == (int)MethodAttributes.SpecialName;
+            return ((int) methodInfo.Attributes & (int) MethodAttributes.SpecialName) ==
+                   (int) MethodAttributes.SpecialName;
         }
 
         internal static IDictionary<string, object> ToCaseInsensitiveDictionary(
-            this IDictionary<string, object>  data
+            this IDictionary<string, object> data
         )
         {
             return data.ToCaseInsensitiveDictionary(new List<object>());
@@ -310,11 +342,12 @@ namespace PeanutButter.DuckTyping.Extensions
         private static IDictionary<string, object> ToCaseInsensitiveDictionary(
             this IDictionary<string, object> data,
             List<object> seenObjects
-            )
+        )
         {
             // TODO: replace this logic with a case-insensitive passthrough / wrapper
             //   to enable proper write-back to the underlying data source
-            if (!data.IsCaseSensitive() && !data.ContainsCaseSensitiveDictionary())
+            if (!data.IsCaseSensitive() &&
+                !data.ContainsCaseSensitiveDictionary())
                 return data;
             var outer = new Dictionary<string, object>(data, StringComparer.OrdinalIgnoreCase);
             var toReplace = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
@@ -323,7 +356,7 @@ namespace PeanutButter.DuckTyping.Extensions
                 if (seenObjects.Contains(kvp.Value))
                     continue;
                 seenObjects.Add(kvp.Value);
-                var inner = kvp.Value as IDictionary<string, object>;  // sub-dicts are being coerced )':
+                var inner = kvp.Value as IDictionary<string, object>; // sub-dicts are being coerced )':
                 if (inner.IsCaseSensitive())
                 {
                     toReplace[kvp.Key] = inner.ToCaseInsensitiveDictionary(seenObjects);
@@ -334,17 +367,17 @@ namespace PeanutButter.DuckTyping.Extensions
                 outer[kvp.Key] = kvp.Value;
             }
             return outer;
-        } 
+        }
 
         private static readonly Type _nullableGeneric = typeof(Nullable<>);
+
         internal static bool IsNullable(this Type t)
         {
             if (t == null)
-                return false;   // have no idea
+                return false; // have no idea
             if (!t.IsGenericType)
                 return false;
             return t.GetGenericTypeDefinition() == _nullableGeneric;
         }
-
     }
 }
