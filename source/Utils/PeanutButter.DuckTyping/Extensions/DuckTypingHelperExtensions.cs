@@ -126,7 +126,8 @@ namespace PeanutButter.DuckTyping.Extensions
         )
         {
             return test.Where(t => {
-                if (!authoritative.TryGetValue(t.Key, out var authoritativePropInfo))
+                PropertyInfo authoritativePropInfo;
+                if (!authoritative.TryGetValue(t.Key, out authoritativePropInfo))
                     return false;
                 return t.Value.IsMoreRestrictiveThan(authoritativePropInfo);
             });
