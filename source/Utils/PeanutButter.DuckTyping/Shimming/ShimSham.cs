@@ -168,19 +168,23 @@ namespace PeanutButter.DuckTyping.Shimming
                 return ConvertWith(converter, propValue, correctType);
             if (correctType.ShouldTreatAsPrimitive())
                 return GetDefaultValueFor(correctType);
-            if (CannotShim(propertyName, propValueType, correctType))
+            if (CannotShim(propertyName, propValue, correctType))
                 return null;
             var duckType = MakeTypeToImplement(correctType, _isFuzzy);
-            var instance = Activator.CreateInstance(duckType, new object[] { new object[] { propValue } });
+            var asDict = propValue.TryConvertToDictionary();
+            var instance = Activator.CreateInstance(duckType, 
+                                asDict == null
+                                ? new object[] { new object[] { propValue } }
+                                : new object[] { asDict });
             _shimmedProperties[propertyName] = instance;
             return instance;
         }
 
-        private bool CannotShim(string propertyName, Type srcType, Type targetType)
+        private bool CannotShim(string propertyName, object propValue, Type targetType)
         {
             if (_unshimmableProperties.Contains(propertyName))
                 return true;
-            var result = !DuckTypingExtensionSharedMethods.InternalCanDuckAs(srcType, targetType, _isFuzzy, false);
+            var result = !propValue.InternalCanDuckAs(targetType, _isFuzzy, false);
             if (result)
                 _unshimmableProperties.Add(propertyName);
             return result;
