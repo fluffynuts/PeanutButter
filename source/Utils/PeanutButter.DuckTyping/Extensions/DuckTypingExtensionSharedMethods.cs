@@ -149,6 +149,8 @@ namespace PeanutButter.DuckTyping.Extensions
         internal static T ForceDuckAs<T>(IDictionary<string, object> src, bool allowFuzzy)
         {
             var typeMaker = new TypeMaker();
+            if (allowFuzzy && src.IsCaseSensitive())
+                src = src.ToCaseInsensitiveDictionary();
             var type = allowFuzzy ? typeMaker.MakeTypeImplementing<T>() : typeMaker.MakeFuzzyTypeImplementing<T>();
             return (T) Activator.CreateInstance(type, new object[] {new IDictionary<string, object>[] {src}});
         }

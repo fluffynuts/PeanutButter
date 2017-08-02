@@ -428,7 +428,12 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         {
             private string _writeOnly;
             public string ReadOnly { get; }
-            public string WriteOnly { set => _writeOnly = value; }
+
+            public string WriteOnly
+            {
+                set => _writeOnly = value;
+            }
+
             public string ReadWrite { get; set; }
         }
 
@@ -1439,6 +1444,29 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             {
                 Expect(dict[prop.Name]).To.Equal(prop.GetValue(result));
             }
+        }
+
+        public interface ISillyConfig
+        {
+            bool Moo { get; }
+            bool Cake { get; }
+        }
+
+        [Test]
+        public void ForceFuzzyDuckAs_Wild()
+        {
+            // Arrange
+            var dict = new Dictionary<string, object>()
+            {
+                ["moo"] = true
+            };
+            // Pre-Assert
+            // Act
+            var result = dict.ForceFuzzyDuckAs<ISillyConfig>();
+            // Assert
+            Expect(result).Not.To.Be.Null();
+            Expect(result.Moo).To.Be.True();
+            Expect(result.Cake).To.Be.False();
         }
 
         [Test]
