@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
@@ -1394,10 +1395,11 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
         [Test]
-        public void ForceFuzzyDuckAs_GivenEmptyDictionaryAndInterfaceToMimick_ShouldHandleIt()
+        public void ForceFuzzyDuckAs_GivenEmptyDictionaryAndInterfaceToMimick_WhenCanWriteBack_ShouldWriteBack()
         {
             //--------------- Arrange -------------------
-            var dict = new Dictionary<string, object>();
+            // TODO: provide a shimming layer so that the input dictionary doesn't have to be case-insensitive to allow write-back
+            var dict = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
             var expected = new TravelRequestDetails()
             {
                 Initiated = GetRandomDate(),
@@ -1519,6 +1521,163 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 Expect(dict[prop.Name]).To.Equal(prop.GetValue(result));
             }
         }
+
+        [Test]
+        public void DuckFail_WhenHaveBadDictionaryImplementation_GivingNullKeys_ShouldThrowRecognisableError()
+        {
+            // Arrange
+            var src = new LayeredDictionary<string, object>();
+            // Pre-Assert
+            // Act
+            Expect(() => src.ForceFuzzyDuckAs<ISillyConfig>())
+                .To.Throw<InvalidOperationException>()
+                .With.Message.Containing("Provided dictionary gives null for keys");
+            // Assert
+        }
+
+        public class LayeredDictionaryEnumerator<TKey, TValue> : IEnumerator<KeyValuePair<TKey, TValue>> {
+            private readonly IDictionary<TKey, TValue>[] _layers;
+            private int _currentIndex;
+            private IEnumerator<KeyValuePair<TKey, TValue>> _currentEnumerator;
+            private readonly HashSet<TKey> _seen = new HashSet<TKey>();
+
+            public LayeredDictionaryEnumerator(IDictionary<TKey, TValue>[] layers) {
+                _layers = layers;
+                Reset();
+            }
+
+            public bool MoveNext() {
+                do {
+                    if (MoveCurrentNext())
+                        return true;
+                } while (SelectNext());
+                return false;
+            }
+
+            private bool SelectNext() {
+                if (_currentIndex == _layers.Length - 1) {
+                    return false;
+                }
+                Select(_currentIndex + 1);
+                return true;
+            }
+
+            private bool MoveCurrentNext() {
+                var moved = _currentEnumerator.MoveNext();
+                while (moved &&
+                       _seen.Contains(_currentEnumerator.Current.Key)) {
+                    moved = _currentEnumerator.MoveNext();
+                }
+                if (moved) {
+                    _seen.Add(_currentEnumerator.Current.Key);
+                }
+                return moved;
+            }
+
+            public void Reset() {
+                _seen.Clear();
+                Select(0);
+            }
+
+            object IEnumerator.Current => Current;
+
+            private void Select(int index) {
+                _currentEnumerator?.Dispose();
+                _currentIndex = index;
+                _currentEnumerator = _layers[_currentIndex].GetEnumerator();
+            }
+
+            public KeyValuePair<TKey, TValue> Current => _currentEnumerator.Current;
+
+
+            public void Dispose() {
+                /* nothing to do */
+            }
+        }
+
+
+        public class LayeredDictionary<TKey, TValue>
+            : IDictionary<TKey, TValue> {
+            private static readonly InvalidOperationException ReadonlyException
+                = new InvalidOperationException($"{typeof(LayeredDictionary<,>)} is ALWAYS read-only");
+
+            private readonly IDictionary<TKey, TValue>[] _layers;
+
+            public LayeredDictionary(params IDictionary<TKey, TValue>[] layers) {
+                // TODO: test that we have any layers
+                _layers = layers;
+            }
+
+            public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() {
+                return new LayeredDictionaryEnumerator<TKey, TValue>(_layers);
+            }
+
+            IEnumerator IEnumerable.GetEnumerator() {
+                return GetEnumerator();
+            }
+
+            public void Add(KeyValuePair<TKey, TValue> item) {
+                throw ReadonlyException;
+            }
+
+            public void Clear() {
+                throw ReadonlyException;
+            }
+
+            public bool Contains(KeyValuePair<TKey, TValue> item) {
+                return _layers.Aggregate(false, (acc, cur) =>
+                    acc || cur.Contains(item)
+                );
+            }
+
+            public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex) {
+                using (var enumerator = GetEnumerator()) {
+                    while (enumerator.MoveNext() && arrayIndex < array.Length) {
+                        array[arrayIndex++] = enumerator.Current;
+                    }
+                }
+            }
+
+            public bool Remove(KeyValuePair<TKey, TValue> item) {
+                throw ReadonlyException;
+            }
+
+            public int Count => _layers.SelectMany(kvp => kvp.Keys).Distinct().Count();
+            public bool IsReadOnly => true;
+
+            public bool ContainsKey(TKey key) {
+                return _layers.Aggregate(false, (acc, cur) => acc || cur.ContainsKey(key));
+            }
+
+            public void Add(TKey key, TValue value) {
+                throw ReadonlyException;
+            }
+
+            public bool Remove(TKey key) {
+                throw ReadonlyException;
+            }
+
+            public bool TryGetValue(TKey key, out TValue value) {
+                foreach (var layer in _layers) {
+                    if (layer.TryGetValue(key, out value)) {
+                        return true;
+                    }
+                }
+                value = default(TValue);
+                return false;
+            }
+
+            public TValue this[TKey key] {
+                get => TryGetValue(key, out var value)
+                    ? value
+                    : throw new KeyNotFoundException(key.ToString());
+                set => throw ReadonlyException;
+            }
+
+            public ICollection<TKey> Keys { get; }
+            public ICollection<TValue> Values { get; }
+        }
+
 
         public interface IConfig
         {

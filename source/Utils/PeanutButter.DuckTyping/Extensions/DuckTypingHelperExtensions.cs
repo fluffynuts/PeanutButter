@@ -125,7 +125,8 @@ namespace PeanutButter.DuckTyping.Extensions
             Dictionary<string, PropertyInfo> test
         )
         {
-            return test.Where(t => {
+            return test.Where(t =>
+            {
                 PropertyInfo authoritativePropInfo;
                 if (!authoritative.TryGetValue(t.Key, out authoritativePropInfo))
                     return false;
@@ -314,7 +315,7 @@ namespace PeanutButter.DuckTyping.Extensions
             if (data == null) return false;
             string upper = null;
             string lower = null;
-            foreach (var key in data.Keys)
+            foreach (var key in GetKeysOf(data))
             {
                 upper = key.ToUpper(CultureInfo.InvariantCulture);
                 lower = key.ToLower(CultureInfo.InvariantCulture);
@@ -325,6 +326,22 @@ namespace PeanutButter.DuckTyping.Extensions
             if (upper == null)
                 return false;
             return !(data.ContainsKey(lower) && data.ContainsKey(upper));
+        }
+
+        private static ICollection<TKey> GetKeysOf<TKey, TValue>(IDictionary<TKey, TValue> data)
+        {
+            ICollection<TKey> result = null;
+            try
+            {
+                result = data.Keys;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Unable to get keys from provided dictionary; examing inner exception", ex);
+            }
+            if (result == null)
+                throw new InvalidOperationException("Provided dictionary gives null for keys");
+            return result;
         }
 
         internal static bool IsSpecial(this MethodInfo methodInfo)
