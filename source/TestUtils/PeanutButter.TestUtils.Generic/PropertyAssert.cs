@@ -7,8 +7,18 @@ using PeanutButter.Utils;
 
 namespace PeanutButter.TestUtils.Generic
 {
+    /// <summary>
+    /// Provides a wrapper around DeepEqualityTester and NUnit for property assertions
+    /// </summary>
     public static class PropertyAssert
     {
+        /// <summary>
+        /// Assert that all the properties for two objects match, deep-tested. Essentially tests
+        /// that all primitive properties are equal and complex ones match shape
+        /// </summary>
+        /// <param name="obj1">Primary object</param>
+        /// <param name="obj2">Object to compare with</param>
+        /// <param name="ignorePropertiesByName">Properties to ignore, by name</param>
         public static void AreDeepEqual(object obj1, object obj2, params string[] ignorePropertiesByName)
         {
             var tester = new DeepEqualityTester(obj1, obj2, ignorePropertiesByName);
@@ -24,6 +34,13 @@ namespace PeanutButter.TestUtils.Generic
             PropertyAssert.AreIntersectionEqual(obj1, obj2, ignorePropertiesByName);
         }
 
+        /// <summary>
+        /// Assert that common (intersecting) the properties for two objects match, deep-tested. Essentially tests
+        /// that all primitive properties are equal and complex ones match shape
+        /// </summary>
+        /// <param name="obj1"></param>
+        /// <param name="obj2"></param>
+        /// <param name="ignorePropertiesByName"></param>
         public static void AreIntersectionEqual(object obj1, object obj2, params string[] ignorePropertiesByName)
         {
             var propInfos1 = obj1.GetType().GetProperties();
@@ -43,7 +60,7 @@ namespace PeanutButter.TestUtils.Generic
             Assertions.Throw(string.Join("\n", tester.Errors));
         }
 
-        public static object ResolveObject(object obj, ref string propName)
+        internal static object ResolveObject(object obj, ref string propName)
         {
             var propParts = propName.Split(new[] {'.'});
             if (propParts.Length == 1 || obj == null)
@@ -72,6 +89,14 @@ namespace PeanutButter.TestUtils.Generic
             return ResolveObject(propVal, ref propName);
         }
 
+        /// <summary>
+        /// Asserts that two objects have the same value for two specified properties, by
+        /// name. If the second name is omitted, it is assumed to test the same-named property on both
+        /// </summary>
+        /// <param name="obj1">Primary object to test</param>
+        /// <param name="obj2">Comparison object to test</param>
+        /// <param name="obj1PropName">Property to test on both objects, unless obj2PropName is specified</param>
+        /// <param name="obj2PropName">Specifies the name of the property to test on obj2</param>
         public static void AreEqual(object obj1, object obj2, string obj1PropName, string obj2PropName = null)
         {
             PerformEqualityAssertionWith(obj1, obj2, obj1PropName, obj2PropName,
