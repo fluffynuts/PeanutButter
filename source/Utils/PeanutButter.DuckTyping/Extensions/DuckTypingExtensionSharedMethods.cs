@@ -278,7 +278,7 @@ namespace PeanutButter.DuckTyping.Extensions
             var finder = new FuzzyKeyFinder();
             object stored;
             var key = allowFuzzy
-                ? finder.FuzzyFindKeyFor(src, prop.Name)
+                ? finder.FuzzyFindKeyFor(src, prop.Name) ?? prop.Name
                 : src.Keys.FirstOrDefault(k => k == prop.Name);
 
             if (key == null || !src.TryGetValue(key, out stored))

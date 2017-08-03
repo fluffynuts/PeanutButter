@@ -96,10 +96,10 @@ namespace PeanutButter.DuckTyping.Shimming
                 return propValue;
             var mimickedProperty = GetMimickedProperty(propertyName);
             var key = _isFuzzy
-                ? FuzzyFindKeyFor(propertyName)
+                ? FuzzyFindKeyFor(propertyName) ?? propertyName
                 : propertyName;
 
-            if (key == null || !data.TryGetValue(key, out propValue))
+            if (!data.TryGetValue(key, out propValue))
                 return GetDefaultValueFor(mimickedProperty.PropertyType);
             // ReSharper disable once UseMethodIsInstanceOfType
             var propType = propValue.GetType();

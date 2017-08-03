@@ -27,7 +27,7 @@ using static NExpect.Expectations;
 namespace PeanutButter.DuckTyping.Tests.Extensions
 {
     [TestFixture]
-    public class TestDuckTypingExtensions
+    public partial class TestDuckTypingExtensions
     {
         public interface IHasReadOnlyName
         {
@@ -1526,7 +1526,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         public void DuckFail_WhenHaveBadDictionaryImplementation_GivingNullKeys_ShouldThrowRecognisableError()
         {
             // Arrange
-            var src = new LayeredDictionary<string, object>();
+            var src = new DictionaryWithNullKeys<string, object>();
             // Pre-Assert
             // Act
             Expect(() => src.ForceFuzzyDuckAs<ISillyConfig>())
@@ -1535,147 +1535,90 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             // Assert
         }
 
-        public class LayeredDictionaryEnumerator<TKey, TValue> : IEnumerator<KeyValuePair<TKey, TValue>> {
-            private readonly IDictionary<TKey, TValue>[] _layers;
-            private int _currentIndex;
-            private IEnumerator<KeyValuePair<TKey, TValue>> _currentEnumerator;
-            private readonly HashSet<TKey> _seen = new HashSet<TKey>();
-
-            public LayeredDictionaryEnumerator(IDictionary<TKey, TValue>[] layers) {
-                _layers = layers;
-                Reset();
+        public class DictionaryWithNullKeys<TKey, TValue> : IDictionary<TKey, TValue>
+        {
+            public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
+            {
+                throw new NotImplementedException();
             }
 
-            public bool MoveNext() {
-                do {
-                    if (MoveCurrentNext())
-                        return true;
-                } while (SelectNext());
-                return false;
-            }
-
-            private bool SelectNext() {
-                if (_currentIndex == _layers.Length - 1) {
-                    return false;
-                }
-                Select(_currentIndex + 1);
-                return true;
-            }
-
-            private bool MoveCurrentNext() {
-                var moved = _currentEnumerator.MoveNext();
-                while (moved &&
-                       _seen.Contains(_currentEnumerator.Current.Key)) {
-                    moved = _currentEnumerator.MoveNext();
-                }
-                if (moved) {
-                    _seen.Add(_currentEnumerator.Current.Key);
-                }
-                return moved;
-            }
-
-            public void Reset() {
-                _seen.Clear();
-                Select(0);
-            }
-
-            object IEnumerator.Current => Current;
-
-            private void Select(int index) {
-                _currentEnumerator?.Dispose();
-                _currentIndex = index;
-                _currentEnumerator = _layers[_currentIndex].GetEnumerator();
-            }
-
-            public KeyValuePair<TKey, TValue> Current => _currentEnumerator.Current;
-
-
-            public void Dispose() {
-                /* nothing to do */
-            }
-        }
-
-
-        public class LayeredDictionary<TKey, TValue>
-            : IDictionary<TKey, TValue> {
-            private static readonly InvalidOperationException ReadonlyException
-                = new InvalidOperationException($"{typeof(LayeredDictionary<,>)} is ALWAYS read-only");
-
-            private readonly IDictionary<TKey, TValue>[] _layers;
-
-            public LayeredDictionary(params IDictionary<TKey, TValue>[] layers) {
-                // TODO: test that we have any layers
-                _layers = layers;
-            }
-
-            public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() {
-                return new LayeredDictionaryEnumerator<TKey, TValue>(_layers);
-            }
-
-            IEnumerator IEnumerable.GetEnumerator() {
+            IEnumerator IEnumerable.GetEnumerator()
+            {
                 return GetEnumerator();
             }
 
-            public void Add(KeyValuePair<TKey, TValue> item) {
-                throw ReadonlyException;
+            public void Add(KeyValuePair<TKey, TValue> item)
+            {
+                throw new NotImplementedException();
             }
 
-            public void Clear() {
-                throw ReadonlyException;
+            public void Clear()
+            {
+                throw new NotImplementedException();
             }
 
-            public bool Contains(KeyValuePair<TKey, TValue> item) {
-                return _layers.Aggregate(false, (acc, cur) =>
-                    acc || cur.Contains(item)
-                );
+            public bool Contains(KeyValuePair<TKey, TValue> item)
+            {
+                throw new NotImplementedException();
             }
 
-            public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex) {
-                using (var enumerator = GetEnumerator()) {
-                    while (enumerator.MoveNext() && arrayIndex < array.Length) {
-                        array[arrayIndex++] = enumerator.Current;
-                    }
-                }
+            public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
+            {
+                throw new NotImplementedException();
             }
 
-            public bool Remove(KeyValuePair<TKey, TValue> item) {
-                throw ReadonlyException;
+            public bool Remove(KeyValuePair<TKey, TValue> item)
+            {
+                throw new NotImplementedException();
             }
 
-            public int Count => _layers.SelectMany(kvp => kvp.Keys).Distinct().Count();
-            public bool IsReadOnly => true;
+            public int Count { get; }
+            public bool IsReadOnly { get; }
 
-            public bool ContainsKey(TKey key) {
-                return _layers.Aggregate(false, (acc, cur) => acc || cur.ContainsKey(key));
+            public bool ContainsKey(TKey key)
+            {
+                throw new NotImplementedException();
             }
 
-            public void Add(TKey key, TValue value) {
-                throw ReadonlyException;
+            public void Add(TKey key, TValue value)
+            {
+                throw new NotImplementedException();
             }
 
-            public bool Remove(TKey key) {
-                throw ReadonlyException;
+            public bool Remove(TKey key)
+            {
+                throw new NotImplementedException();
             }
 
-            public bool TryGetValue(TKey key, out TValue value) {
-                foreach (var layer in _layers) {
-                    if (layer.TryGetValue(key, out value)) {
-                        return true;
-                    }
-                }
-                value = default(TValue);
-                return false;
+            public bool TryGetValue(TKey key, out TValue value)
+            {
+                throw new NotImplementedException();
             }
 
-            public TValue this[TKey key] {
-                get => TryGetValue(key, out var value)
-                    ? value
-                    : throw new KeyNotFoundException(key.ToString());
-                set => throw ReadonlyException;
+            public TValue this[TKey key]
+            {
+                get { throw new NotImplementedException(); }
+                set { throw new NotImplementedException(); }
             }
 
             public ICollection<TKey> Keys { get; }
             public ICollection<TValue> Values { get; }
+        }
+
+
+        [Test]
+        public void FuzzyDuckOnDefaultDictionary_ShouldWork()
+        {
+            // Arrange
+            var expected = "moo";
+            var dict = new DefaultDictionary<string, object>(() => expected);
+            // Pre-Assert
+            Expect(dict.CanFuzzyDuckAs<IConfig>()).To.Be.True();
+            // Act
+            var result = dict.FuzzyDuckAs<IConfig>();
+            // Assert
+            Expect(result).Not.To.Be.Null();
+            Expect(result.BaseUrl).To.Equal(expected);
         }
 
 
