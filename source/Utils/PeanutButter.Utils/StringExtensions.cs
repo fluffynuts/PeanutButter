@@ -33,7 +33,9 @@ namespace PeanutButter.Utils
         /// <returns>The original string when it is not null or empty; the alternative when the original is null or empty</returns>
         public static string Or(this string input, string alternative)
         {
-            return string.IsNullOrEmpty(input) ? alternative : input;
+            return string.IsNullOrEmpty(input)
+                ? alternative
+                : input;
         }
 
         /// <summary>
@@ -52,6 +54,7 @@ namespace PeanutButter.Utils
                 return false;
             return _truthy.Any(item => item == input.ToLower());
         }
+
         private static readonly string[] _truthy = {"yes", "y", "1", "true"};
 
         /// <summary>
@@ -62,7 +65,9 @@ namespace PeanutButter.Utils
         /// <returns>True if any of the needles are found in the haystack; False otherwise</returns>
         public static bool ContainsOneOf(this string haystack, params string[] needles)
         {
-            return MultiContains(haystack, needles, h => needles.Any(n => h.Contains(n.ToLower(CultureInfo.CurrentCulture))));
+            return MultiContains(haystack,
+                needles,
+                h => needles.Any(n => h.Contains(n.ToLower(CultureInfo.CurrentCulture))));
         }
 
         /// <summary>
@@ -73,7 +78,9 @@ namespace PeanutButter.Utils
         /// <returns>True if all of the needles are found in the haystack; False otherwise</returns>
         public static bool ContainsAllOf(this string haystack, params string[] needles)
         {
-            return MultiContains(haystack, needles, h => needles.All(n => h.Contains(n.ToLower(CultureInfo.CurrentCulture))));
+            return MultiContains(haystack,
+                needles,
+                h => needles.All(n => h.Contains(n.ToLower(CultureInfo.CurrentCulture))));
         }
 
         private static bool MultiContains(
@@ -202,7 +209,9 @@ namespace PeanutButter.Utils
         /// <returns>Original string or the given fallback if the input is whitespace or null</returns>
         public static string DefaultIfEmptyOrNull(this string input, string fallback)
         {
-            return string.IsNullOrWhiteSpace(input) ? fallback : input;
+            return string.IsNullOrWhiteSpace(input)
+                ? fallback
+                : input;
         }
 
         /// <summary>
@@ -214,6 +223,87 @@ namespace PeanutButter.Utils
         public static string SafeTrim(this string input, params char[] trimChars)
         {
             return input?.Trim(trimChars) ?? "";
+        }
+
+        /// <summary>
+        /// Converts an input string to kebab-case
+        /// </summary>
+        /// <param name="input">string to convert</param>
+        /// <returns>kebab-cased-output</returns>
+        public static string ToKebabCase(this string input)
+        {
+            return input?
+                .Replace('_', '-')
+                .SplitOnCapitalsAnd('-')
+                .Select(s => s.ToLower())
+                .JoinWith("-");
+        }
+
+        /// <summary>
+        /// Converts an input string to snake_case
+        /// </summary>
+        /// <param name="input">string to convert</param>
+        /// <returns>snake_cased_output</returns>
+        public static string ToSnakeCase(this string input)
+        {
+            return input.ToKebabCase()?.Replace('-', '_');
+        }
+
+        /// <summary>
+        /// Converts an input string to PascalCase
+        /// </summary>
+        /// <param name="input">string to convert</param>
+        /// <returns>PascalCasedOutput</returns>
+        public static string ToPascalCase(this string input)
+        {
+            return input?
+                .SplitOnCapitalsAnd('-', '_')
+                .Select(ToUpperCasedFirstLetter)
+                .JoinWith("");
+        }
+
+        /// <summary>
+        /// Converts an input string to camelCase
+        /// </summary>
+        /// <param name="input">string to convert</param>
+        /// <returns>camelCasedOutput</returns>
+        public static string ToCamelCase(this string input)
+        {
+            return input.ToPascalCase().ToLowerCasedFirstLetter();
+        }
+
+        public static string ToLowerCasedFirstLetter(this string input)
+        {
+            return input?.Length > 0
+                ? $"{input[0].ToString().ToLower()}{input.Substring(1)}"
+                : input;
+        }
+
+        public static string ToUpperCasedFirstLetter(this string input)
+        {
+            return input?.Length > 0
+                ? $"{input[0].ToString().ToUpper()}{input.Substring(1)}"
+                : input;
+        }
+
+        private static IEnumerable<string> SplitOnCapitalsAnd(this string input, params char[] others)
+        {
+            var collector = new List<char>();
+            foreach (var c in input)
+            {
+                var asString = c.ToString();
+                var upper = asString.ToUpper();
+                var isOtherMatch = others.Contains(c);
+                if (collector.Any() &&
+                    (upper == asString || isOtherMatch))
+                {
+                    yield return string.Join("", collector);
+                    collector.Clear();
+                }
+                if (!isOtherMatch)
+                    collector.Add(c);
+            }
+            yield return string.Join("", collector);
         }
 
         private static string GetLeadingIntegerCharsFrom(string value)

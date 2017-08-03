@@ -4,11 +4,14 @@ using System.Text;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using NExpect;
+using NSubstitute.ExceptionExtensions;
+using static NExpect.Expectations;
 
 namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
-    public class TestStringExtensions: AssertionHelper
+    public class TestStringExtensions
     {
         [TestCase("Hello World", "^Hello", "Goodbye", "Goodbye World")]
         [TestCase("Hello World", "Wor.*", "Goodbye", "Hello Goodbye")]
@@ -24,7 +27,7 @@ namespace PeanutButter.Utils.Tests
 
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result).To.Equal(expected);
         }
 
         [TestCase(null)]
@@ -47,7 +50,7 @@ namespace PeanutButter.Utils.Tests
             var result = src.Or(other);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(other, result);
+            Expect(result).To.Equal(other);
         }
 
         [Test]
@@ -64,7 +67,7 @@ namespace PeanutButter.Utils.Tests
             var result = start.Or("").Or(null).Or(expected).Or(unexpected);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result).To.Equal(expected);
         }
 
         [TestCase("Yes", true)]
@@ -85,7 +88,7 @@ namespace PeanutButter.Utils.Tests
             var result = input.AsBoolean();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -99,7 +102,7 @@ namespace PeanutButter.Utils.Tests
             var result = ((string)null).AsBytes();
 
             //---------------Test Result -----------------------
-            Assert.IsNull(result);
+            Expect(result as object).To.Be.Null();
         }
 
         [Test]
@@ -113,8 +116,8 @@ namespace PeanutButter.Utils.Tests
             var result = string.Empty.AsBytes();
 
             //---------------Test Result -----------------------
-            Assert.IsNotNull(result);
-            CollectionAssert.IsEmpty(result);
+            Expect(result as object).Not.To.Be.Null();
+            Assert.That(result, Is.Empty);
         }
 
         [Test]
@@ -130,7 +133,7 @@ namespace PeanutButter.Utils.Tests
             var result = input.AsBytes();
 
             //---------------Test Result -----------------------
-            CollectionAssert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
@@ -286,7 +289,7 @@ namespace PeanutButter.Utils.Tests
         }
 
 
-        private static readonly string[] NullOrWhitespaceStrings =
+        private static readonly string[] _nullOrWhitespaceStrings =
         {
             null,
             "\t",
@@ -294,7 +297,7 @@ namespace PeanutButter.Utils.Tests
             "\n"
         };
 
-        [TestCaseSource(nameof(NullOrWhitespaceStrings))]
+        [TestCaseSource(nameof(_nullOrWhitespaceStrings))]
         public void IsNullOrWhitespace_ShouldReturnTrueWhenActingOnNullOrWhitespaceString_(string src)
         {
             //---------------Set up test pack-------------------
@@ -379,9 +382,9 @@ namespace PeanutButter.Utils.Tests
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            Expect(() => "foo".ContainsOneOf(),
-                Throws.Exception.InstanceOf<ArgumentException>()
-            );
+//            Expect(() => "foo".ContainsOneOf())
+//                .Throws<ArgumentException>();
+            Assert.That(() => "foo".ContainsOneOf(), Throws.Exception.InstanceOf<ArgumentException>());
             //--------------- Assert -----------------------
         }
 
@@ -393,9 +396,9 @@ namespace PeanutButter.Utils.Tests
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            Expect(() => "foo".ContainsOneOf(null, "foo"),
-                Throws.Exception.InstanceOf<ArgumentException>()
-            );
+//            Expect(() => "foo".ContainsOneOf(null, "foo"))
+//                .Throws<ArgumentException>();
+            Assert.That(() => "foo".ContainsOneOf(null, "foo"), Throws.Exception.InstanceOf<ArgumentException>());
             //--------------- Assert -----------------------
         }
 
@@ -409,7 +412,7 @@ namespace PeanutButter.Utils.Tests
             //--------------- Act ----------------------
             var result = (null as string).ContainsOneOf("foo");
             //--------------- Assert -----------------------
-            Expect(result, Is.False);
+            Expect(result).To.Be.False();
         }
 
         [Test]
@@ -425,7 +428,7 @@ namespace PeanutButter.Utils.Tests
             var result = input.ContainsOneOf(search);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.False);
+            Expect(result).To.Be.False();
         }
 
         [Test]
@@ -441,7 +444,7 @@ namespace PeanutButter.Utils.Tests
             var result = input.ContainsOneOf(search);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.True);
+            Expect(result).To.Be.True();
         }
 
 
@@ -453,9 +456,7 @@ namespace PeanutButter.Utils.Tests
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            Expect(() => "foo".ContainsAllOf(),
-                Throws.Exception.InstanceOf<ArgumentException>()
-            );
+            Assert.That(() => "foo".ContainsAllOf(), Throws.Exception.InstanceOf<ArgumentException>());
             //--------------- Assert -----------------------
         }
 
@@ -467,9 +468,10 @@ namespace PeanutButter.Utils.Tests
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            Expect(() => "foo".ContainsAllOf(null, "foo"),
-                Throws.Exception.InstanceOf<ArgumentException>()
-            );
+            // NExpect FIXME: why does this fail with an esoteric NSubstitute error?
+//            Expect(() => "foo".ContainsAllOf(null, "foo"))
+//                .Throws<ArgumentException>();
+            Assert.That(() => "foo".ContainsAllOf(null, "foo"), Throws.Exception.InstanceOf<ArgumentException>());
             //--------------- Assert -----------------------
         }
 
@@ -483,7 +485,7 @@ namespace PeanutButter.Utils.Tests
             //--------------- Act ----------------------
             var result = (null as string).ContainsAllOf("foo");
             //--------------- Assert -----------------------
-            Expect(result, Is.False);
+            Expect(result).To.Be.False();
         }
 
         [Test]
@@ -499,7 +501,7 @@ namespace PeanutButter.Utils.Tests
             var result = input.ContainsAllOf(search);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.True);
+            Expect(result).To.Be.True();
         }
 
         [Test]
@@ -515,7 +517,7 @@ namespace PeanutButter.Utils.Tests
             var result = input.ContainsAllOf(search);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.False);
+            Expect(result).To.Be.False();
         }
 
         [Test]
@@ -527,10 +529,11 @@ namespace PeanutButter.Utils.Tests
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
+            // ReSharper disable once ExpressionIsAlwaysNull
             var result = input.ToBase64();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Null);
+            Expect(result).To.Be.Null();
         }
 
         [Test]
@@ -545,7 +548,7 @@ namespace PeanutButter.Utils.Tests
             var result = "".ToBase64();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(expected));
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -561,10 +564,136 @@ namespace PeanutButter.Utils.Tests
             var result = input.ToBase64();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(expected));
+            Expect(result).To.Equal(expected);
         }
 
+        [Test]
+        public void ToKebabCase_OperatingOnNull_ShouldReturnNull()
+        {
+            // Arrange
+            var input = null as string;
 
+            // Pre-Assert
 
+            // Act
+            // ReSharper disable once ExpressionIsAlwaysNull
+            var result = input.ToKebabCase();
+
+            // Assert
+            Expect(result).To.Be.Null();
+        }
+
+        [TestCase("Moo", "moo")]
+        [TestCase("MooCow", "moo-cow")]
+        [TestCase("i_am_snake", "i-am-snake")]
+        [TestCase("is-already-kebabed", "is-already-kebabed")]
+        public void ToKebabCase_ShouldConvert_(string from, string expected)
+        {
+            // Arrange
+
+            // Pre-Assert
+
+            // Act
+            var result = from.ToKebabCase();
+
+            // Assert
+            Expect(result).To.Equal(expected);
+        }
+
+        [Test]
+        public void ToSnakeCase_OperatingOnNull_ShouldReturnNull()
+        {
+            // Arrange
+            var input = null as string;
+
+            // Pre-Assert
+
+            // Act
+            var result = input.ToSnakeCase();
+
+            // Assert
+            Expect(result).To.Be.Null();
+        }
+
+        [TestCase("Moo", "moo")]
+        [TestCase("MooCow", "moo_cow")]
+        [TestCase("i_am_snake", "i_am_snake")]
+        [TestCase("is-already-kebabed", "is_already_kebabed")]
+        public void ToSnakeCase_ShouldConvert_(string from, string expected)
+        {
+            // Arrange
+
+            // Pre-Assert
+
+            // Act
+            var result = from.ToSnakeCase();
+
+            // Assert
+            Expect(result).To.Equal(expected);
+        }
+
+        [Test]
+        public void ToPascalCase_OperatingOnNull_ShouldReturnNull()
+        {
+            // Arrange
+            var input = null as string;
+
+            // Pre-Assert
+
+            // Act
+            var result = input.ToPascalCase();
+
+            // Assert
+            Expect(result).To.Be.Null();
+        }
+
+        [TestCase("Moo", "Moo")]
+        [TestCase("MooCow", "MooCow")]
+        [TestCase("i_am_snake", "IAmSnake")]
+        [TestCase("is-already-kebabed", "IsAlreadyKebabed")]
+        public void ToPascalCase_ShouldConvert_(string from, string expected)
+        {
+            // Arrange
+
+            // Pre-Assert
+
+            // Act
+            var result = from.ToPascalCase();
+
+            // Assert
+            Expect(result).To.Equal(expected);
+        }
+
+        [Test]
+        public void ToCamelCase_OperatingOnNull_ShouldReturnNull()
+        {
+            // Arrange
+            var input = null as string;
+
+            // Pre-Assert
+
+            // Act
+            var result = input.ToCamelCase();
+
+            // Assert
+            Expect(result).To.Be.Null();
+        }
+
+        [TestCase("Moo", "moo")]
+        [TestCase("MooCow", "mooCow")]
+        [TestCase("i_am_snake", "iAmSnake")]
+        [TestCase("is-already-kebabed", "isAlreadyKebabed")]
+        public void ToCamelCase_ShouldConvert_(string from, string expected)
+        {
+            // Arrange
+
+            // Pre-Assert
+
+            // Act
+            var result = from.ToCamelCase();
+
+            // Assert
+            Expect(result).To.Equal(expected);
+        }
     }
 }
