@@ -1621,6 +1621,28 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             Expect(result.BaseUrl).To.Equal(expected);
         }
 
+        public interface IHaveFlags
+        {
+            bool Flag1 { get; }
+            bool Flag2 { get; }
+        }
+
+        [Test]
+        public void FuzzyDuckOnDefaultDictionary_Part2()
+        {
+            // Arrange
+            var expected = true;
+            var dict = new DefaultDictionary<string, object>(() => expected);
+            // Pre-Assert
+            Expect(dict.CanFuzzyDuckAs<IHaveFlags>()).To.Be.True();
+            // Act
+            var result = dict.FuzzyDuckAs<IHaveFlags>();
+            // Assert
+            Expect(result).Not.To.Be.Null();
+            Expect(result.Flag1).To.Be.True();
+            Expect(result.Flag2).To.Be.True();
+        }
+
 
         public interface IConfig
         {
@@ -1661,6 +1683,26 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
             // Assert
             Expect(result.BaseUrl).To.Equal(src["base url"]);
+        }
+
+        [Test]
+        public void FuzzyDuckAs_OperatingOnMergeDictionaryWithFallback_ShouldDuck()
+        {
+            // Arrange
+            var expected = GetRandomString();
+            var src = new MergeDictionary<string, object>(
+                new DefaultDictionary<string, object>(() => expected)
+            );
+
+            // Pre-Assert
+            Expect(src.CanFuzzyDuckAs<IConfig>()).To.Be.True();
+
+            // Act
+            var result = src.FuzzyDuckAs<IConfig>();
+
+            // Assert
+            Expect(result).Not.To.Be.Null();
+            Expect(result.BaseUrl).To.Equal(expected);
         }
 
         [Test]

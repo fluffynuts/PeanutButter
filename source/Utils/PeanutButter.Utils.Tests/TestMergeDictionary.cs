@@ -443,7 +443,7 @@ namespace PeanutButter.Utils.Tests
             var k2 = GetAnother(k1);
             var v1 = GetRandomString();
             var v2 = GetAnother(v1);
-            var v3 = GetAnother<string>(new[] { v1, v2 });
+            var v3 = GetAnother<string>(new[] {v1, v2});
             var sut = Create(new Dictionary<string, string>()
             {
                 [k1] = v1,
@@ -464,6 +464,49 @@ namespace PeanutButter.Utils.Tests
             Expect(result).To.Contain.Exactly(1).Equal.To(v2);
         }
 
+        [Test]
+        public void Comparer_WhenKeyTypeIsString_ShouldReturnLeastRestrictive()
+        {
+            // Arrange
+            var sensitive = new Dictionary<string, string>();
+            var insensitive = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            var sut = Create(sensitive, insensitive) as MergeDictionary<string, string>;
+            // Pre-Assert
+            // Act
+            var result = sut.Comparer;
+            // Assert
+            Expect(result as object).To.Equal(insensitive);
+        }
+
+        [Test]
+        public void Comparer_WhenKeyTypeIsNotString_ShouldReturnFirstFound()
+        {
+            // Arrange
+            var c1 = new SomeComparer();
+            var c2 = new SomeComparer();
+            var d1 = new Dictionary<int, string>(c1);
+            var d2 = new Dictionary<int, string>(c2);
+            var sut = Create(d1, d2) as MergeDictionary<int, string>;
+            // Pre-Assert
+            // Act
+            var result = sut.Comparer;
+            // Assert
+            Expect(result).To.Equal(c1);
+        }
+
+        public class SomeComparer : IEqualityComparer<int>
+        {
+            public bool Equals(int x, int y)
+            {
+                throw new NotImplementedException();
+            }
+
+            public int GetHashCode(int obj)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
 
         private IDictionary<TKey, TValue> Create<TKey, TValue>(
             params IDictionary<TKey, TValue>[] dictionaries
@@ -473,4 +516,3 @@ namespace PeanutButter.Utils.Tests
         }
     }
 }
-

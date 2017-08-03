@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NExpect;
+using NSubstitute.Core;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using PeanutButter.TestUtils.Generic;
@@ -358,6 +359,18 @@ namespace PeanutButter.Utils.Tests
             var result = sut[index];
             // Assert
             Expect(result).To.Equal(expected);
+        }
+
+        [Test]
+        public void Instance_ShouldAppearToBeCaseInsensitive()
+        {
+            // Arrange
+            var dict = new DefaultDictionary<string, object>();
+            // Pre-Assert
+            // Act
+            var result = dict.GetPropertyValue("Comparer");
+            // Assert
+            Expect(result).To.Equal(StringComparer.OrdinalIgnoreCase);
         }
 
         private IDictionary<TKey, TValue> Create<TKey, TValue>(

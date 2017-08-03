@@ -206,7 +206,9 @@ namespace PeanutButter.DuckTyping.Extensions
                 .GetAllImplementedInterfaces()
                 .SelectMany(itype => itype.GetProperties())
                 .Distinct(new PropertyInfoComparer());
-            src = allowFuzzy ? src.ToCaseInsensitiveDictionary() : src;
+            src = allowFuzzy && src.IsCaseSensitive() 
+                        ? src.ToCaseInsensitiveDictionary() 
+                        : src;
             var errors = new List<string>();
             foreach (var prop in properties)
             {

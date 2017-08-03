@@ -14,10 +14,52 @@ namespace PeanutButter.Utils
     public class MergeDictionary<TKey, TValue>
         : IDictionary<TKey, TValue>
     {
-        private static readonly InvalidOperationException ReadonlyException
+        private static readonly InvalidOperationException _readonlyException
             = new InvalidOperationException($"{typeof(MergeDictionary<,>)} is ALWAYS read-only");
 
         private readonly IDictionary<TKey, TValue>[] _layers;
+
+        /// <summary>
+        /// Expose the first (or least-restrictive, for strings) key comparer
+        /// </summary>
+        public IEqualityComparer<TKey> Comparer => GetComparer();
+
+        private IEqualityComparer<TKey> GetComparer()
+        {
+            if (typeof(TKey) == typeof(string))
+            {
+                return FindLeastRestrictiveStringComparer() as IEqualityComparer<TKey>;
+            }
+            return _layers
+                .Select(l => l.GetPropertyValue("Comparer") as IEqualityComparer<TKey>)
+                .FirstOrDefault();
+        }
+
+        private IEqualityComparer<string> FindLeastRestrictiveStringComparer()
+        {
+            return _layers
+                .Select(l => l.GetPropertyValue("Comparer") as IEqualityComparer<string>)
+                .Where(c => c != null)
+                .Select(c => new 
+                { 
+                    Comparer = c, 
+                    Rank = _stringComparerRankings.TryGetValue(c, out var rank) ? rank : 99 
+                })
+                .OrderBy(o => o.Rank)
+                .FirstOrDefault()?.Comparer;
+        }
+
+        // ReSharper disable once StaticMemberInGenericType
+        private static readonly Dictionary<IEqualityComparer<string>, int> _stringComparerRankings =
+            new Dictionary<IEqualityComparer<string>, int>()
+            {
+                [StringComparer.OrdinalIgnoreCase] = 1,
+                [StringComparer.InvariantCultureIgnoreCase] = 2,
+                [StringComparer.CurrentCultureIgnoreCase] = 3,
+                [StringComparer.InvariantCulture] = 4,
+                [StringComparer.CurrentCulture] = 5,
+                [StringComparer.Ordinal] = 6
+            };
 
         /// <summary>
         /// Construct MergeDictionary over other dictionaries
@@ -51,7 +93,7 @@ namespace PeanutButter.Utils
         /// <exception cref="InvalidOperationException"></exception>
         public void Add(KeyValuePair<TKey, TValue> item)
         {
-            throw ReadonlyException;
+            throw _readonlyException;
         }
 
         /// <summary>
@@ -60,7 +102,7 @@ namespace PeanutButter.Utils
         /// <exception cref="InvalidOperationException"></exception>
         public void Clear()
         {
-            throw ReadonlyException;
+            throw _readonlyException;
         }
 
         /// <summary>
@@ -99,13 +141,14 @@ namespace PeanutButter.Utils
         /// <exception cref="InvalidOperationException"></exception>
         public bool Remove(KeyValuePair<TKey, TValue> item)
         {
-            throw ReadonlyException;
+            throw _readonlyException;
         }
 
         /// <summary>
         /// Returns the count of distinct keys
         /// </summary>
         public int Count => _layers.SelectMany(kvp => kvp.Keys).Distinct().Count();
+
         /// <summary>
         /// Will return true: MergeDictionaries are read-only
         /// </summary>
@@ -129,7 +172,7 @@ namespace PeanutButter.Utils
         /// <exception cref="InvalidOperationException"></exception>
         public void Add(TKey key, TValue value)
         {
-            throw ReadonlyException;
+            throw _readonlyException;
         }
 
         /// <summary>
@@ -140,7 +183,7 @@ namespace PeanutButter.Utils
         /// <exception cref="InvalidOperationException"></exception>
         public bool Remove(TKey key)
         {
-            throw ReadonlyException;
+            throw _readonlyException;
         }
 
         /// <summary>
@@ -172,13 +215,14 @@ namespace PeanutButter.Utils
             get => TryGetValue(key, out var value)
                 ? value
                 : throw new KeyNotFoundException(key.ToString());
-            set => throw ReadonlyException;
+            set => throw _readonlyException;
         }
 
         /// <summary>
         /// Returns a collection of the distinct keys in all layers
         /// </summary>
         public ICollection<TKey> Keys => _layers.SelectMany(l => l).Select(i => i.Key).Distinct().ToArray();
+
         /// <summary>
         /// Returns a collection of ALL values in all layers
         /// </summary>

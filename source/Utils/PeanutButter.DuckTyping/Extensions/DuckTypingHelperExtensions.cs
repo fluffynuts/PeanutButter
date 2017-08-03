@@ -357,7 +357,7 @@ namespace PeanutButter.DuckTyping.Extensions
             return data.ToCaseInsensitiveDictionary(new List<object>());
         }
 
-        private static IDictionary<string, object> ToCaseInsensitiveDictionary(
+        internal static IDictionary<string, object> ToCaseInsensitiveDictionary(
             this IDictionary<string, object> data,
             List<object> seenObjects
         )

@@ -90,6 +90,7 @@
     <Compile Include="Range.cs" />
     <Compile Include="SafeWalk.cs" />
     <Compile Include="StreamExtensions.cs" />
+    <Compile Include="StrictComparer.cs" />
     <Compile Include="StringExtensions.cs" />
     <Compile Include="Stringifier.cs" />
     <Compile Include="TypeExtensions.cs" />

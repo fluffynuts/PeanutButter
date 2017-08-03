@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace PeanutButter.Utils
 {
-    public class MergeDictionaryEnumerator<TKey, TValue> : IEnumerator<KeyValuePair<TKey, TValue>>
+    internal class MergeDictionaryEnumerator<TKey, TValue> : IEnumerator<KeyValuePair<TKey, TValue>>
     {
         private readonly IDictionary<TKey, TValue>[] _layers;
         private int _currentIndex;

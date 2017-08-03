@@ -35,3 +35,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 [assembly: InternalsVisibleTo("PeanutButter.DuckTyping.Tests")]
+[assembly: InternalsVisibleTo("PeanutButter.Utils.Tests")]

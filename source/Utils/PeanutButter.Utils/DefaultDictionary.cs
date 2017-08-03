@@ -4,12 +4,27 @@ using System.Collections.Generic;
 
 namespace PeanutButter.Utils
 {
+    /// <summary>
+    /// Provides a Dictionary class which returns default values for unknown keys
+    /// (like Python's defaultdict)
+    /// </summary>
+    /// <typeparam name="TKey"></typeparam>
+    /// <typeparam name="TValue"></typeparam>
     public class DefaultDictionary<TKey, TValue> :
         IDictionary<TKey, TValue>
     {
         private readonly Func<TValue> _defaultResolver;
         private readonly Func<TKey, TValue> _smartResolver;
         private readonly Dictionary<TKey, TValue> _actual;
+
+        /// <summary>
+        /// Always report as case- and culture- insensitive
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public IEqualityComparer<TKey> Comparer =>
+            typeof(TKey) == typeof(string)
+                ? StringComparer.OrdinalIgnoreCase as IEqualityComparer<TKey>
+                : new StrictComparer<TKey>();
 
         /// <summary>
         /// Constructs a DefaultDictionary where missing key lookups
@@ -109,6 +124,7 @@ namespace PeanutButter.Utils
         /// Gives the count of known items in the dictionary
         /// </summary>
         public int Count => _actual.Count;
+
         /// <summary>
         /// Always returns false - DefaultDictionaries are writable!
         /// </summary>
@@ -163,9 +179,9 @@ namespace PeanutButter.Utils
 
         private TValue Resolve(TKey key)
         {
-            return _defaultResolver == null 
-                    ? _smartResolver(key) 
-                    : _defaultResolver();
+            return _defaultResolver == null
+                ? _smartResolver(key)
+                : _defaultResolver();
         }
 
         /// <summary>
@@ -182,6 +198,7 @@ namespace PeanutButter.Utils
         /// Returns a collection of all known keys
         /// </summary>
         public ICollection<TKey> Keys => _actual.Keys;
+
         /// <summary>
         /// Returns a collection of all known values
         /// </summary>
