@@ -1767,6 +1767,25 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             Expect(src["BaseUrl"]).To.Equal(expected);
         }
 
+        public interface IConfigWithUnconfiguredFeature : IConfig {
+            bool UnconfiguredFeature { get; set; }
+        }
+
+        public enum FeatureSets
+        {
+            Level1,
+            Level2
+        }
+
+        public class FeatureConfig
+        {
+            public Guid Id { get; set; }
+
+            public FeatureSets FeatureSet { get; set; }
+            public Dictionary<string, bool> Settings { get; set; }
+        }
+
+
         public interface IExtendedConfig : IConfig
         {
             string Name { get; set; }
@@ -2445,4 +2464,5 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             string Name { get; set; }
         }
     }
+
 }

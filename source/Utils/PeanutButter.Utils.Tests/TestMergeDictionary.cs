@@ -468,14 +468,28 @@ namespace PeanutButter.Utils.Tests
         public void Comparer_WhenKeyTypeIsString_ShouldReturnLeastRestrictive()
         {
             // Arrange
-            var sensitive = new Dictionary<string, string>();
+            var sensitive = new Dictionary<string, string>(StringComparer.Ordinal);
             var insensitive = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             var sut = Create(sensitive, insensitive) as MergeDictionary<string, string>;
             // Pre-Assert
             // Act
             var result = sut.Comparer;
             // Assert
-            Expect(result as object).To.Equal(insensitive);
+            Expect(result as object).To.Equal(StringComparer.OrdinalIgnoreCase);
+        }
+
+        [Test]
+        public void Comparer_WhenKeyTypeIsString_ShouldReturnLeastRestrictive2()
+        {
+            // Arrange
+            var sensitive = new Dictionary<string, string>(StringComparer.Ordinal);
+            var insensitive = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            var sut = Create(insensitive, sensitive) as MergeDictionary<string, string>;
+            // Pre-Assert
+            // Act
+            var result = sut.Comparer;
+            // Assert
+            Expect(result as object).To.Equal(StringComparer.OrdinalIgnoreCase);
         }
 
         [Test]

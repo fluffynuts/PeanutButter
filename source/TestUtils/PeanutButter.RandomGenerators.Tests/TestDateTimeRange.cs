@@ -1,5 +1,5 @@
 using System;
-using NExpect.Extensions;
+using NExpect;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using static NExpect.Expectations;
