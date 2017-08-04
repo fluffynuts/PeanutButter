@@ -7,7 +7,7 @@ using TransformFunc = System.Func<string, string>;
 namespace PeanutButter.DuckTyping.Shimming
 {
     /// <summary>
-    /// Provides a wrapping read-write layer around another dictionaryeffectively
+    /// Provides a wrapping read-write layer around another dictionary effectively
     ///     allowing transparent rename of the keys
     /// </summary>
     /// <typeparam name="TValue">Type of values stored</typeparam>
@@ -31,12 +31,9 @@ namespace PeanutButter.DuckTyping.Shimming
             TransformFunc fromNativeTransform
         )
         {
-            if (data == null) throw new ArgumentNullException(nameof(data));
-            if (toNativeTransform == null) throw new ArgumentNullException(nameof(toNativeTransform));
-            if (fromNativeTransform == null) throw new ArgumentNullException(nameof(fromNativeTransform));
-            _data = data;
-            _toNativeTransform = toNativeTransform;
-            _fromNativeTransform = fromNativeTransform;
+            _data = data ?? throw new ArgumentNullException(nameof(data));
+            _toNativeTransform = toNativeTransform ?? throw new ArgumentNullException(nameof(toNativeTransform));
+            _fromNativeTransform = fromNativeTransform ?? throw new ArgumentNullException(nameof(fromNativeTransform));
         }
 
         /// <inheritdoc />

@@ -77,6 +77,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AutoConversion\Converters\TestEnumConverter.cs" />
     <Compile Include="AutoConversion\Converters\TestGenericStringConverter.cs" />
     <Compile Include="AutoConversion\TestConverterLocator.cs" />
     <Compile Include="Exceptions\TestBackingFieldForPropertyNotFoundException.cs" />

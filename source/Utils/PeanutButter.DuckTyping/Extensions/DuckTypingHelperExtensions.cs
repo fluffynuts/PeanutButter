@@ -203,8 +203,22 @@ namespace PeanutButter.DuckTyping.Extensions
                 matchByName.CanRead &&
                 needle.PropertyType.IsAssignableFrom(matchByName.PropertyType))
                 return true;
-            return matchByName.PropertyType == needle.PropertyType &&
+            return (matchByName.PropertyType == needle.PropertyType || CanPerhapsConvertBetween(matchByName.PropertyType, needle.PropertyType)) &&
                    matchByName.IsNoMoreRestrictiveThan(needle);
+        }
+
+        internal static bool CanPerhapsConvertBetween(Type left, Type right)
+        {
+            var enumType = Choose(left, right, t => t.IsEnum);
+            if (enumType == null)
+                return false;
+            var stringType = Choose(left, right, t => t == typeof(string));
+            return stringType != null;
+        }
+
+        internal static T Choose<T>(T left, T right, Func<T, bool> selector) where T: class
+        {
+            return selector(left) ? left : (selector(right) ? right : null);
         }
 
         internal static bool IsReadOnly(this PropertyInfo propInfo)
@@ -337,7 +351,8 @@ namespace PeanutButter.DuckTyping.Extensions
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException("Unable to get keys from provided dictionary; examing inner exception", ex);
+                throw new InvalidOperationException(
+                    "Unable to get keys from provided dictionary; examing inner exception", ex);
             }
             if (result == null)
                 throw new InvalidOperationException("Provided dictionary gives null for keys");

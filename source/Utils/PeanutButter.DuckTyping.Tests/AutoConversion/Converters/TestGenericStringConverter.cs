@@ -10,7 +10,7 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 namespace PeanutButter.DuckTyping.Tests.AutoConversion.Converters
 {
     [TestFixture]
-    public class TestGenericStringConverter: AssertionHelper
+    public class TestGenericStringConverter : AssertionHelper
     {
         [Test]
         public void ShouldImplement_IConverterOf_StringAndT()
@@ -91,9 +91,9 @@ namespace PeanutButter.DuckTyping.Tests.AutoConversion.Converters
         {
             //--------------- Arrange -------------------
             var sut = Create<float>();
-            var input1 = (float)GetRandomInt(1, 10);
+            var input1 = (float) GetRandomInt(1, 10);
             var expected1 = input1.ToString();
-            var expected2 = (float)GetRandomInt(1, 10);
+            var expected2 = (float) GetRandomInt(1, 10);
             var input2 = expected2.ToString();
 
             //--------------- Assume ----------------
@@ -106,8 +106,6 @@ namespace PeanutButter.DuckTyping.Tests.AutoConversion.Converters
             Expect(result1, Is.EqualTo(expected1));
             Expect(result2, Is.EqualTo(expected2));
         }
-
-
 
 
         // ReSharper disable once UnusedMember.Local
@@ -143,7 +141,7 @@ namespace PeanutButter.DuckTyping.Tests.AutoConversion.Converters
         {
             var method = GetType().GetMethod("Create", BindingFlags.Instance | BindingFlags.NonPublic)
                 .MakeGenericMethod(t);
-            return (IConverter)method.Invoke(this, new object[0]);
+            return (IConverter) method.Invoke(this, new object[0]);
         }
     }
 }

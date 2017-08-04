@@ -1767,7 +1767,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             Expect(src["BaseUrl"]).To.Equal(expected);
         }
 
-        public interface IConfigWithUnconfiguredFeature : IConfig {
+        public interface IConfigWithUnconfiguredFeature : IConfig
+        {
             bool UnconfiguredFeature { get; set; }
         }
 
@@ -2353,6 +2354,52 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             }
         }
 
+        [TestFixture]
+        public class EnumDucking
+        {
+            public enum Priorities
+            {
+                Low,
+                Medium,
+                High
+            }
+
+            public interface IHaveAnEnumProperty
+            {
+                Priorities Priority { get; }
+            }
+
+            [Test]
+            public void CanDuckAs_WhenCanDuckEnumByValue_ShouldReturnTrue()
+            {
+                // Arrange
+                var input = new {
+                    Priority = "Medium"
+                };
+                // Pre-Assert
+                // Act
+                var result = input.CanDuckAs<IHaveAnEnumProperty>();
+                // Assert
+                Expect(result).To.Be.True();
+            }
+
+            [Test]
+            public void DuckAs_WhenCanDuckFromStringToEnum_ShouldReturnDucked()
+            {
+                // Arrange
+                var input = new {
+                    Priority = "Medium"
+                };
+                // Pre-Assert
+                // Act
+                var result = input.DuckAs<IHaveAnEnumProperty>();
+                // Assert
+                Expect(result).Not.To.Be.Null();
+                Expect(result.Priority).To.Equal(Priorities.Medium);
+            }
+
+        }
+
         public class Merging_CanDuckAsOperations
         {
             public interface IMerge1
@@ -2464,5 +2511,4 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             string Name { get; set; }
         }
     }
-
 }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using PeanutButter.DuckTyping.AutoConversion;
+using PeanutButter.DuckTyping.AutoConversion.Converters;
 using PeanutButter.DuckTyping.Comparers;
 using PeanutButter.DuckTyping.Exceptions;
 using PeanutButter.DuckTyping.Extensions;
@@ -166,6 +167,8 @@ namespace PeanutButter.DuckTyping.Shimming
             var converter = ConverterLocator.GetConverter(propValueType, correctType);
             if (converter != null)
                 return ConvertWith(converter, propValue, correctType);
+            if (EnumConverter.TryConvert(propValueType, correctType, propValue, out var result))
+                return result;
             if (correctType.ShouldTreatAsPrimitive())
                 return GetDefaultValueFor(correctType);
             if (CannotShim(propertyName, propValue, correctType))
