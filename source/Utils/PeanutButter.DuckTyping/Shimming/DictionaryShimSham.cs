@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using PeanutButter.DuckTyping.AutoConversion;
+using PeanutButter.DuckTyping.AutoConversion.Converters;
 using PeanutButter.DuckTyping.Comparers;
 using PeanutButter.DuckTyping.Exceptions;
 using PeanutButter.DuckTyping.Extensions;
@@ -108,7 +109,9 @@ namespace PeanutButter.DuckTyping.Shimming
             var converter = ConverterLocator.GetConverter(propType, mimickedProperty.PropertyType);
             if (converter != null)
                 return ConvertWith(converter, propValue, mimickedProperty.PropertyType);
-            return GetDefaultValueFor(mimickedProperty.PropertyType);
+            return EnumConverter.TryConvert(propType, mimickedProperty.PropertyType, propValue, out var result) 
+                ? result 
+                : GetDefaultValueFor(mimickedProperty.PropertyType);
         }
 
         private readonly Func<IDictionary<string, object>, string, string>[] _fuzzyKeyResolvers =

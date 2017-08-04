@@ -2369,35 +2369,137 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 Priorities Priority { get; }
             }
 
-            [Test]
-            public void CanDuckAs_WhenCanDuckEnumByValue_ShouldReturnTrue()
+            [TestFixture]
+            public class OperatingOnAnObject
             {
-                // Arrange
-                var input = new {
-                    Priority = "Medium"
-                };
-                // Pre-Assert
-                // Act
-                var result = input.CanDuckAs<IHaveAnEnumProperty>();
-                // Assert
-                Expect(result).To.Be.True();
+                [Test]
+                public void CanDuckAs_WhenCanDuckEnumByValue_ShouldReturnTrue()
+                {
+                    // Arrange
+                    var input = new
+                    {
+                        Priority = "Medium"
+                    };
+                    // Pre-Assert
+                    // Act
+                    var result = input.CanDuckAs<IHaveAnEnumProperty>();
+                    // Assert
+                    Expect(result).To.Be.True();
+                }
+
+                [Test]
+                public void DuckAs_WhenCanDuckFromStringToEnum_ShouldReturnDucked()
+                {
+                    // Arrange
+                    var input = new
+                    {
+                        Priority = "Medium"
+                    };
+                    // Pre-Assert
+                    // Act
+                    var result = input.DuckAs<IHaveAnEnumProperty>();
+                    // Assert
+                    Expect(result).Not.To.Be.Null();
+                    Expect(result.Priority).To.Equal(Priorities.Medium);
+                }
+
+                [Test]
+                public void CanFuzzyDuckAs_WhenCanDuckEnumByValue_ShouldReturnTrue()
+                {
+                    // Arrange
+                    var input = new
+                    {
+                        Priority = "MeDium"
+                    };
+                    // Pre-Assert
+                    // Act
+                    var result = input.CanFuzzyDuckAs<IHaveAnEnumProperty>();
+                    // Assert
+                    Expect(result).To.Be.True();
+                }
+
+                [Test]
+                public void FuzzyDuckAs_WhenCanDuckFromStringToEnum_ShouldReturnDucked()
+                {
+                    // Arrange
+                    var input = new
+                    {
+                        PrIority = "medium"
+                    };
+                    // Pre-Assert
+                    // Act
+                    var result = input.FuzzyDuckAs<IHaveAnEnumProperty>();
+                    // Assert
+                    Expect(result).Not.To.Be.Null();
+                    Expect(result.Priority).To.Equal(Priorities.Medium);
+                }
             }
 
-            [Test]
-            public void DuckAs_WhenCanDuckFromStringToEnum_ShouldReturnDucked()
+            [TestFixture]
+            public class OperatingOnADictionary
             {
-                // Arrange
-                var input = new {
-                    Priority = "Medium"
-                };
-                // Pre-Assert
-                // Act
-                var result = input.DuckAs<IHaveAnEnumProperty>();
-                // Assert
-                Expect(result).Not.To.Be.Null();
-                Expect(result.Priority).To.Equal(Priorities.Medium);
-            }
+                [Test]
+                public void CanDuckAs_WhenCanDuckEnumByValue_ShouldReturnTrue()
+                {
+                    // Arrange
+                    var input = new Dictionary<string, object>()
+                    {
+                        ["Priority"] = "Medium"
+                    };
+                    // Pre-Assert
+                    // Act
+                    var result = input.CanDuckAs<IHaveAnEnumProperty>();
+                    // Assert
+                    Expect(result).To.Be.True();
+                }
 
+                [Test]
+                public void DuckAs_WhenCanDuckFromStringToEnum_ShouldReturnDucked()
+                {
+                    // Arrange
+                    var input = new Dictionary<string, object>
+                    {
+                        ["Priority"] = "Medium"
+                    };
+                    // Pre-Assert
+                    // Act
+                    var result = input.DuckAs<IHaveAnEnumProperty>();
+                    // Assert
+                    Expect(result).Not.To.Be.Null();
+                    Expect(result.Priority).To.Equal(Priorities.Medium);
+                }
+
+                [Test]
+                public void CanFuzzyDuckAs_WhenCanDuckEnumByValue_ShouldReturnTrue()
+                {
+                    // Arrange
+                    var input = new
+                    {
+                        Priority = "MeDium"
+                    };
+                    // Pre-Assert
+                    // Act
+                    var result = input.CanFuzzyDuckAs<IHaveAnEnumProperty>();
+                    // Assert
+                    Expect(result).To.Be.True();
+                }
+
+                [Test]
+                public void FuzzyDuckAs_WhenCanDuckFromStringToEnum_ShouldReturnDucked()
+                {
+                    // Arrange
+                    var input = new
+                    {
+                        Priority = "medium"
+                    };
+                    // Pre-Assert
+                    // Act
+                    var result = input.FuzzyDuckAs<IHaveAnEnumProperty>();
+                    // Assert
+                    Expect(result).Not.To.Be.Null();
+                    Expect(result.Priority).To.Equal(Priorities.Medium);
+                }
+            }
         }
 
         public class Merging_CanDuckAsOperations

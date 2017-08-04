@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using PeanutButter.DuckTyping.AutoConversion.Converters;
 using PeanutButter.DuckTyping.Comparers;
 using PeanutButter.DuckTyping.Shimming;
 
@@ -203,17 +204,14 @@ namespace PeanutButter.DuckTyping.Extensions
                 matchByName.CanRead &&
                 needle.PropertyType.IsAssignableFrom(matchByName.PropertyType))
                 return true;
-            return (matchByName.PropertyType == needle.PropertyType || CanPerhapsConvertBetween(matchByName.PropertyType, needle.PropertyType)) &&
+            return MatchesTypeOrCanEnumConvert(needle, matchByName) &&
                    matchByName.IsNoMoreRestrictiveThan(needle);
         }
 
-        internal static bool CanPerhapsConvertBetween(Type left, Type right)
+        private static bool MatchesTypeOrCanEnumConvert(PropertyInfo needle, PropertyInfo matchByName)
         {
-            var enumType = Choose(left, right, t => t.IsEnum);
-            if (enumType == null)
-                return false;
-            var stringType = Choose(left, right, t => t == typeof(string));
-            return stringType != null;
+            return matchByName.PropertyType == needle.PropertyType || 
+                   EnumConverter.CanPerhapsConvertBetween(matchByName.PropertyType, needle.PropertyType);
         }
 
         internal static T Choose<T>(T left, T right, Func<T, bool> selector) where T: class

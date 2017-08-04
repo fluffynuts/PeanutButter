@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Remoting.Channels;
 using PeanutButter.DuckTyping.AutoConversion;
+using PeanutButter.DuckTyping.AutoConversion.Converters;
 using PeanutButter.DuckTyping.Comparers;
 using PeanutButter.DuckTyping.Exceptions;
 using PeanutButter.DuckTyping.Shimming;
@@ -61,22 +61,6 @@ namespace PeanutButter.DuckTyping.Extensions
             {
                 return HaveMatch(fuzzy ? FuzzyDuckables : Duckables, toDuckFrom, toDuckTo);
             }
-        }
-
-        private static bool HaveMatch<T>(
-            IEnumerable<DuckCacheItem> cache,
-            Type toDuckFrom
-        )
-        {
-//            lock (Lock)
-//            {
-//                var check = typeof(T);
-//                var match = cache.FirstOrDefault(
-//                    o => o.FromType == toDuckFrom &&
-//                         o.ToType == check);
-//                return match?.Duckable ?? false;
-//            }
-            return HaveMatch(cache, toDuckFrom, typeof(T));
         }
 
         private static bool HaveMatch(
@@ -155,7 +139,11 @@ namespace PeanutButter.DuckTyping.Extensions
             return (T) Activator.CreateInstance(type, new object[] {new IDictionary<string, object>[] {src}});
         }
 
-        internal static bool InternalCanDuckAs<T>(this object[] sources, bool allowFuzzy, bool throwOnError)
+        internal static bool InternalCanDuckAs<T>(
+            this object[] sources,
+            bool allowFuzzy,
+            bool throwOnError
+        )
         {
             return false;
         }
@@ -206,9 +194,9 @@ namespace PeanutButter.DuckTyping.Extensions
                 .GetAllImplementedInterfaces()
                 .SelectMany(itype => itype.GetProperties())
                 .Distinct(new PropertyInfoComparer());
-            src = allowFuzzy && src.IsCaseSensitive() 
-                        ? src.ToCaseInsensitiveDictionary() 
-                        : src;
+            src = allowFuzzy && src.IsCaseSensitive()
+                ? src.ToCaseInsensitiveDictionary()
+                : src;
             var errors = new List<string>();
             foreach (var prop in properties)
             {
@@ -285,11 +273,10 @@ namespace PeanutButter.DuckTyping.Extensions
 
             if (key == null || !src.TryGetValue(key, out stored))
             {
-                if (prop.PropertyType.IsNullable())
-                {
-                    return;
-                }
-                errors.Add($"No value found for {prop.Name} and property is not nullable ({prop.PropertyType.Name})");
+                if (!prop.PropertyType.IsNullable())
+                    errors.Add(
+                        $"No value found for {prop.Name} and property is not nullable ({prop.PropertyType.Name})"
+                    );
                 return;
             }
             if (stored == null)
@@ -300,6 +287,10 @@ namespace PeanutButter.DuckTyping.Extensions
                     );
                 return;
             }
+            var srcType = stored.GetType();
+            if (EnumConverter.TryConvert(srcType, targetType, stored, out var _))
+                return;
+
             var asDictionary = TryConvertToDictionary(stored);
             if (asDictionary != null)
             {
@@ -318,7 +309,6 @@ namespace PeanutButter.DuckTyping.Extensions
 
 #pragma warning disable S2219 // Runtime type checking should be simplified
             // ReSharper disable once UseMethodIsInstanceOfType
-            var srcType = stored.GetType();
             if (!targetType.IsAssignableFrom(srcType))
             {
                 if (allowFuzzy && CanAutoConvert(srcType, targetType))
@@ -395,11 +385,12 @@ namespace PeanutButter.DuckTyping.Extensions
             var errors = new List<string>();
             if (primitiveMismatches.Any())
             {
-                AddPrimitivePropertyMismatchErrorsFor(primitiveMismatches, srcPrimitives, expectedPrimitives, allowFuzzy, errors);
+                AddPrimitivePropertyMismatchErrorsFor(primitiveMismatches, srcPrimitives, expectedPrimitives,
+                    allowFuzzy, errors);
             }
             var accessMismatches = expectedProperties.Except(expectedPrimitives)
-                                        .ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
-                                        .FindAccessMismatches(srcProperties).ToArray();
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
+                .FindAccessMismatches(srcProperties).ToArray();
             if (accessMismatches.Any())
                 AddAccessMismatchErrorsFor(srcProperties, accessMismatches, errors);
 
@@ -450,7 +441,7 @@ namespace PeanutButter.DuckTyping.Extensions
         }
 
         private static void AddAccessMismatchErrorsFor(
-            Dictionary<string, PropertyInfo> srcPrimitives, 
+            Dictionary<string, PropertyInfo> srcPrimitives,
             KeyValuePair<string, PropertyInfo>[] accessMismatches, List<string> errors)
         {
             errors.Add(
@@ -526,7 +517,11 @@ namespace PeanutButter.DuckTyping.Extensions
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
 
-        internal static T InternalDuckAs<T>(this object src, bool allowFuzzy, bool throwOnError) where T : class
+        internal static T InternalDuckAs<T>(
+            this object src,
+            bool allowFuzzy,
+            bool throwOnError
+        ) where T : class
         {
             if (src == null) return null;
             var duckable = InternalCanDuckAs<T>(src, allowFuzzy, throwOnError);
