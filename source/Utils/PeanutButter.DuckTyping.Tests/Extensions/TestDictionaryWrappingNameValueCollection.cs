@@ -5,13 +5,14 @@ using System.Collections.Specialized;
 using System.Linq;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Extensions;
+using PeanutButter.DuckTyping.Shimming;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.DuckTyping.Tests.Extensions
 {
     [TestFixture]
-    public class TestDictionaryWrappingNameValueCollection: AssertionHelper
+    public class TestDictionaryWrappingNameValueCollection : AssertionHelper
     {
         [Test]
         public void ExplicitIEnumerator_GetEnumerator_ShouldReturnSameAs_GenericMethod()
@@ -239,17 +240,20 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             Expect(result, Is.EquivalentTo(expected));
         }
 
-        private TestArena CreateArena() {
+        private TestArena CreateArena()
+        {
             return new TestArena();
         }
 
-        private class TestArena {
+        private class TestArena
+        {
             public NameValueCollection Collection { get; }
             public DictionaryWrappingNameValueCollection Sut { get; }
             public bool CaseInsensitive { get; }
-            public TestArena(
 
-            ) {
+            public TestArena(
+            )
+            {
                 Collection = new NameValueCollection();
                 Sut = new DictionaryWrappingNameValueCollection(Collection, CaseInsensitive);
             }
@@ -258,21 +262,11 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         private DictionaryWrappingNameValueCollection Create(
             NameValueCollection collection = null,
             bool caseInsensitive = false
-        ) {
+        )
+        {
             return new DictionaryWrappingNameValueCollection(
                 collection ?? new NameValueCollection(),
                 caseInsensitive
-            );
-        }
-    }
-
-    public static class KeyValueCollectionExtensions
-    {
-        public static KeyValuePair<string, object> AsKeyValuePairOfStringObject(this KeyValuePair<string, string> src)
-        {
-            return new KeyValuePair<string, object>(
-                src.Key,
-                src.Value
             );
         }
     }

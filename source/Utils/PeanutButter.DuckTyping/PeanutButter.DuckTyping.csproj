@@ -56,6 +56,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
@@ -66,7 +67,9 @@
     <Compile Include="AutoConversion\Converters\GenericStringConverter.cs" />
     <Compile Include="Comparers\Comparers.cs" />
     <Compile Include="Extensions\CustomAttributeHelperExtensions.cs" />
+    <Compile Include="Shimming\DictionaryWrappingConnectionStringSettingCollection.cs" />
     <Compile Include="Extensions\DuckTypingCollectionExtensions.cs" />
+    <Compile Include="Extensions\DuckTypingConnectionStringSectionExtensions.cs" />
     <Compile Include="Shimming\DefaultPropertyInfoFetcher.cs" />
     <Compile Include="Shimming\DictionaryShimSham.cs" />
     <Compile Include="Exceptions\BackingFieldForPropertyNotFoundException.cs" />
@@ -75,8 +78,9 @@
     <Compile Include="Exceptions\ReadOnlyPropertyException.cs" />
     <Compile Include="Exceptions\UnresolveableParameterOrderMismatchException.cs" />
     <Compile Include="AutoConversion\ConverterLocator.cs" />
-    <Compile Include="Extensions\DictionaryWrappingNameValueCollection.cs" />
-    <Compile Include="Extensions\DictionaryWrappingNameValueCollectionEnumerator.cs" />
+    <Compile Include="Shimming\DictionaryWrappingConnectionStringSettingCollectionEnumerator.cs" />
+    <Compile Include="Shimming\DictionaryWrappingNameValueCollection.cs" />
+    <Compile Include="Shimming\DictionaryWrappingNameValueCollectionEnumerator.cs" />
     <Compile Include="Extensions\DuckTypingDictionaryExtensions.cs" />
     <Compile Include="Extensions\DuckTypingHelperExtensions.cs" />
     <Compile Include="Extensions\DuckTypingNameValueCollectionExtensions.cs" />

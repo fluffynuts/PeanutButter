@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace PeanutButter.DuckTyping.Extensions
+namespace PeanutButter.DuckTyping.Shimming
 {
     // TODO: add expllicit tests around this class, which is currently only tested by indirection
     /// <summary>

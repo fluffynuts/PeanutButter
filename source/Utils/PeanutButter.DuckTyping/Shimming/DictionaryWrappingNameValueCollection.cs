@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 
-namespace PeanutButter.DuckTyping.Extensions
+namespace PeanutButter.DuckTyping.Shimming
 {
     /// <summary>
     /// Wraps a NameValueCollection in an IDictionary interface

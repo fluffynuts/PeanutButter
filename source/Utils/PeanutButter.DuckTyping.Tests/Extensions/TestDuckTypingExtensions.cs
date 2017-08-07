@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Configuration;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -2499,6 +2500,71 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                     Expect(result).Not.To.Be.Null();
                     Expect(result.Priority).To.Equal(Priorities.Medium);
                 }
+            }
+        }
+
+        public interface IConnectionStrings
+        {
+            string SomeString { get; }
+        }
+
+        [TestFixture]
+        public class OperatingOnConnectionStringSettingsCollection
+        {
+            [Test]
+            public void WhenCanFuzzyDuck_ShouldFuzzyDuck()
+            {
+                // Arrange
+                var expected = GetRandomString(2);
+                var setting = new ConnectionStringSettings("some string", expected);
+                var settings = new ConnectionStringSettingsCollection() { setting };
+                // Pre-Assert
+                // Act
+                var result = settings.FuzzyDuckAs<IConnectionStrings>();
+                // Assert
+                Expect(result).Not.To.Be.Null();
+                Expect(result.SomeString).To.Equal(expected);
+            }
+
+            [Test]
+            public void WhenCannotFuzzyDuck_GivenShouldThrow_ShouldThrow()
+            {
+                // Arrange
+                var setting = new ConnectionStringSettings("123some string", "some value");
+                var settings = new ConnectionStringSettingsCollection() { setting };
+                // Pre-Assert
+                // Act
+                Expect(() => settings.FuzzyDuckAs<IConnectionStrings>(true))
+                    .To.Throw<UnDuckableException>();
+                // Assert
+            }
+
+            [Test]
+            public void WhenCanDuck_ShouldFuzzyDuck()
+            {
+                // Arrange
+                var expected = GetRandomString(2);
+                var setting = new ConnectionStringSettings("SomeString", expected);
+                var settings = new ConnectionStringSettingsCollection() { setting };
+                // Pre-Assert
+                // Act
+                var result = settings.DuckAs<IConnectionStrings>();
+                // Assert
+                Expect(result).Not.To.Be.Null();
+                Expect(result.SomeString).To.Equal(expected);
+            }
+
+            [Test]
+            public void WhenCannotDuck_GivenShouldThrow_ShouldThrow()
+            {
+                // Arrange
+                var setting = new ConnectionStringSettings("MooSomeString", "some value");
+                var settings = new ConnectionStringSettingsCollection() { setting };
+                // Pre-Assert
+                // Act
+                Expect(() => settings.DuckAs<IConnectionStrings>(true))
+                    .To.Throw<UnDuckableException>();
+                // Assert
             }
         }
 
