@@ -272,6 +272,24 @@ namespace PeanutButter.Utils
             return input.ToPascalCase().ToLowerCasedFirstLetter();
         }
 
+        /// <summary>
+        /// Converts an input string to words, where possible
+        /// eg: kebab-case => "kebab case"
+        ///     snake_case => "snake case"
+        ///     PascalCase => "pascal case"
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static string ToWords(this string input)
+        {
+            return input.ToKebabCase()?.Replace("-", " ");
+        }
+
+        /// <summary>
+        /// Lower-cases the first letter in your string
+        /// </summary>
+        /// <param name="input">string to operate on</param>
+        /// <returns>string with lower-cased first letter or null if input was null</returns>
         public static string ToLowerCasedFirstLetter(this string input)
         {
             return input?.Length > 0
@@ -279,6 +297,11 @@ namespace PeanutButter.Utils
                 : input;
         }
 
+        /// <summary>
+        /// Upper-cases the first letter in your string
+        /// </summary>
+        /// <param name="input">string to operate on</param>
+        /// <returns>string with upper-cased first letter or null if input was null</returns>
         public static string ToUpperCasedFirstLetter(this string input)
         {
             return input?.Length > 0

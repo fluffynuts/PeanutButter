@@ -5,7 +5,6 @@ using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using NExpect;
-using NSubstitute.ExceptionExtensions;
 using static NExpect.Expectations;
 
 namespace PeanutButter.Utils.Tests
@@ -691,6 +690,38 @@ namespace PeanutButter.Utils.Tests
 
             // Act
             var result = from.ToCamelCase();
+
+            // Assert
+            Expect(result).To.Equal(expected);
+        }
+
+        [Test]
+        public void ToWords_OperatingOnNull_ShouldReturnNull()
+        {
+            // Arrange
+            var input = null as string;
+
+            // Pre-Assert
+
+            // Act
+            var result = input.ToWords();
+
+            // Assert
+            Expect(result).To.Be.Null();
+        }
+
+        [TestCase("Moo", "moo")]
+        [TestCase("MooCow", "moo cow")]
+        [TestCase("i_am_snake", "i am snake")]
+        [TestCase("is-already-kebabed", "is already kebabed")]
+        public void ToWords_ShouldConvert_(string from, string expected)
+        {
+            // Arrange
+
+            // Pre-Assert
+
+            // Act
+            var result = from.ToWords();
 
             // Assert
             Expect(result).To.Equal(expected);
