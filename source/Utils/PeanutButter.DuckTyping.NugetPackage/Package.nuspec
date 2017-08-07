@@ -26,7 +26,11 @@
     <dependencies>
       <group targetFramework="net40"></group>
     </dependencies>
-    <references></references>
+    <references>
+    </references>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System.Configuration" />
+    </frameworkAssemblies>
     <tags></tags>
   </metadata>
   <files>
