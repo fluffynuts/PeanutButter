@@ -9,7 +9,7 @@ namespace PeanutButter.DuckTyping.Shimming
         IEnumerator<KeyValuePair<string, string>>
     {
         private readonly ConnectionStringSettingsCollection _actual;
-        private string[] _keys;
+        private readonly string[] _keys;
         private int _currentIndex;
 
         public DictionaryWrappingConnectionStringSettingCollectionEnumerator(ConnectionStringSettingsCollection actual)

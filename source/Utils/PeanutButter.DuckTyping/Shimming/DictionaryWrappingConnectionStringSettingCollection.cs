@@ -27,7 +27,6 @@ namespace PeanutButter.DuckTyping.Shimming
             return GetEnumerator();
         }
 
-
         public void Clear()
         {
             _actual.Clear();
