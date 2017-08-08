@@ -207,6 +207,7 @@ namespace PeanutButter.Utils
         /// <param name="input">String to test</param>
         /// <param name="fallback">Fallback value if the input is whitespace or null</param>
         /// <returns>Original string or the given fallback if the input is whitespace or null</returns>
+        // ReSharper disable once MemberCanBePrivate.Global
         public static string DefaultIfEmptyOrNull(this string input, string fallback)
         {
             return string.IsNullOrWhiteSpace(input)
@@ -290,6 +291,7 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="input">string to operate on</param>
         /// <returns>string with lower-cased first letter or null if input was null</returns>
+        // ReSharper disable once MemberCanBePrivate.Global
         public static string ToLowerCasedFirstLetter(this string input)
         {
             return input?.Length > 0
@@ -302,6 +304,7 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="input">string to operate on</param>
         /// <returns>string with upper-cased first letter or null if input was null</returns>
+        // ReSharper disable once MemberCanBePrivate.Global
         public static string ToUpperCasedFirstLetter(this string input)
         {
             return input?.Length > 0

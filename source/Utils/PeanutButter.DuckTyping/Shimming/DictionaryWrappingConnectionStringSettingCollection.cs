@@ -6,7 +6,7 @@ using System.Linq;
 namespace PeanutButter.DuckTyping.Shimming
 {
     internal class DictionaryWrappingConnectionStringSettingCollection :
-        IDictionary<string, string>
+        IDictionary<string, object>
     {
         private readonly ConnectionStringSettingsCollection _actual;
 
@@ -17,7 +17,7 @@ namespace PeanutButter.DuckTyping.Shimming
             _actual = connectionStringSettings;
         }
 
-        public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
+        public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
         {
             return new DictionaryWrappingConnectionStringSettingCollectionEnumerator(_actual);
         }
@@ -32,20 +32,20 @@ namespace PeanutButter.DuckTyping.Shimming
             _actual.Clear();
         }
 
-        public void CopyTo(KeyValuePair<string, string>[] array, int arrayIndex)
+        public void CopyTo(KeyValuePair<string, object>[] array, int arrayIndex)
         {
             foreach (var item in this)
                 array[arrayIndex++] = item;
         }
 
-        public bool Remove(KeyValuePair<string, string> item)
+        public bool Remove(KeyValuePair<string, object> item)
         {
             if (!TryGetValue(item.Key, out var match))
                 return false;
             return match == item.Value && Remove(item.Key);
         }
 
-        public bool Contains(KeyValuePair<string, string> item)
+        public bool Contains(KeyValuePair<string, object> item)
         {
             return TryGetValue(item.Key, out var match) &&
                    match == item.Value;
@@ -56,15 +56,15 @@ namespace PeanutButter.DuckTyping.Shimming
             return Keys.Contains(key);
         }
 
-        public void Add(KeyValuePair<string, string> item)
+        public void Add(KeyValuePair<string, object> item)
         {
             Add(item.Key, item.Value);
         }
 
 
-        public void Add(string key, string value)
+        public void Add(string key, object value)
         {
-            _actual.Add(new ConnectionStringSettings(key, value));
+            _actual.Add(new ConnectionStringSettings(key, value as string));
         }
 
         public bool Remove(string key)
@@ -75,7 +75,7 @@ namespace PeanutButter.DuckTyping.Shimming
             return true;
         }
 
-        public bool TryGetValue(string key, out string value)
+        public bool TryGetValue(string key, out object value)
         {
             if (!Keys.Contains(key))
             {
@@ -86,10 +86,10 @@ namespace PeanutButter.DuckTyping.Shimming
             return true;
         }
 
-        public string this[string key]
+        public object this[string key]
         {
             get => _actual[key].ConnectionString;
-            set => _actual[key].ConnectionString = value;
+            set => _actual[key].ConnectionString = value as string;
         }
 
         public ICollection<string> Keys => GetKeys();
@@ -106,7 +106,7 @@ namespace PeanutButter.DuckTyping.Shimming
 
         public int Count => _actual.Count;
 
-        public ICollection<string> Values =>
+        public ICollection<object> Values =>
             GetKeys()
                 .Select(k => _actual[k].ConnectionString)
                 .ToArray();

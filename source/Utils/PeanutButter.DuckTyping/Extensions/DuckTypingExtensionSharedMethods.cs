@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Reflection;
 using PeanutButter.DuckTyping.AutoConversion;
@@ -207,6 +208,9 @@ namespace PeanutButter.DuckTyping.Extensions
 
         internal static IDictionary<string, object> TryConvertToDictionary(this object src)
         {
+            var asConnectionStringSettings = src as ConnectionStringSettingsCollection;
+            if (asConnectionStringSettings != null)
+                return new DictionaryWrappingConnectionStringSettingCollection(asConnectionStringSettings);
             var result = src as IDictionary<string, object>;
             if (result != null)
                 return result;

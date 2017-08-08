@@ -69,7 +69,6 @@
     <Compile Include="Extensions\CustomAttributeHelperExtensions.cs" />
     <Compile Include="Shimming\DictionaryWrappingConnectionStringSettingCollection.cs" />
     <Compile Include="Extensions\DuckTypingCollectionExtensions.cs" />
-    <Compile Include="Extensions\DuckTypingConnectionStringSectionExtensions.cs" />
     <Compile Include="Shimming\DefaultPropertyInfoFetcher.cs" />
     <Compile Include="Shimming\DictionaryShimSham.cs" />
     <Compile Include="Exceptions\BackingFieldForPropertyNotFoundException.cs" />

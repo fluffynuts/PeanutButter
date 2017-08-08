@@ -195,7 +195,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             // Arrange
             var setting = GetRandom<ConnectionStringSettings>();
             var collection = new ConnectionStringSettingsCollection() {setting};
-            var item = new KeyValuePair<string, string>(setting.Name, setting.ConnectionString);
+            var item = new KeyValuePair<string, object>(setting.Name, setting.ConnectionString);
             var sut = Create(collection);
             // Pre-Assert
             // Act
@@ -209,7 +209,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         {
             // Arrange
             var setting = GetRandom<ConnectionStringSettings>();
-            var item = new KeyValuePair<string, string>(setting.Name, GetAnother(setting.ConnectionString));
+            var item = new KeyValuePair<string, object>(setting.Name, GetAnother(setting.ConnectionString));
             var collection = new ConnectionStringSettingsCollection() {setting};
             var sut = Create(collection);
             // Pre-Assert
@@ -224,7 +224,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         {
             // Arrange
             var setting = GetRandom<ConnectionStringSettings>();
-            var item = new KeyValuePair<string, string>(GetAnother(setting.Name), setting.ConnectionString);
+            var item = new KeyValuePair<string, object>(GetAnother(setting.Name), setting.ConnectionString);
             var collection = new ConnectionStringSettingsCollection() {setting};
             var sut = Create(collection);
             // Pre-Assert
@@ -297,7 +297,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         {
             // Arrange
             var setting = GetRandom<ConnectionStringSettings>();
-            var item = new KeyValuePair<string, string>(setting.Name, setting.ConnectionString);
+            var item = new KeyValuePair<string, object>(setting.Name, setting.ConnectionString);
             var collection = new ConnectionStringSettingsCollection() {setting};
             var sut = Create(collection);
             // Pre-Assert
@@ -312,7 +312,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         {
             // Arrange
             var setting = GetRandom<ConnectionStringSettings>();
-            var item = new KeyValuePair<string, string>(
+            var item = new KeyValuePair<string, object>(
                 setting.Name, GetAnother(setting.ConnectionString)
             );
             var collection = new ConnectionStringSettingsCollection() {setting};
@@ -329,7 +329,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         {
             // Arrange
             var setting = GetRandom<ConnectionStringSettings>();
-            var item = new KeyValuePair<string, string>(
+            var item = new KeyValuePair<string, object>(
                 GetAnother(setting.Name), setting.ConnectionString
             );
             var collection = new ConnectionStringSettingsCollection() {setting};
@@ -347,13 +347,13 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             // Arrange
             var setting = GetRandom<ConnectionStringSettings>();
             var collection = new ConnectionStringSettingsCollection() {setting};
-            var target = new KeyValuePair<string, string>[10];
+            var target = new KeyValuePair<string, object>[10];
             var sut = Create(collection);
             // Pre-Assert
             // Act
             sut.CopyTo(target, 2);
             // Assert
-            var defaultValue = default(KeyValuePair<string, string>);
+            var defaultValue = default(KeyValuePair<string, object>);
             Range(2).ForEach(i => Expect(target[i]).To.Equal(defaultValue));
             Expect(target[2].Key).To.Equal(setting.Name);
             Expect(target[2].Value).To.Equal(setting.ConnectionString);
@@ -371,7 +371,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 setting1,
                 setting2
             };
-            var collector = new List<KeyValuePair<string, string>>();
+            var collector = new List<KeyValuePair<string, object>>();
             var sut = Create(collection);
             // Pre-Assert
             // Act
@@ -381,9 +381,9 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             // Assert
             Expect(collector.Count).To.Equal(2);
             Expect(collector.ToArray()).To
-                .Contain.Exactly(1).Equal.To(new KeyValuePair<string, string>(setting1.Name, setting1.ConnectionString));
+                .Contain.Exactly(1).Equal.To(new KeyValuePair<string, object>(setting1.Name, setting1.ConnectionString));
             Expect(collector.ToArray()).To
-                .Contain.Exactly(1).Equal.To(new KeyValuePair<string, string>(setting2.Name, setting2.ConnectionString));
+                .Contain.Exactly(1).Equal.To(new KeyValuePair<string, object>(setting2.Name, setting2.ConnectionString));
         }
 
         [Test]
@@ -400,7 +400,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             Expect(sut.Keys.Count).To.Equal(0);
         }
 
-        private IDictionary<string, string> Create(ConnectionStringSettingsCollection wrap)
+        private IDictionary<string, object> Create(ConnectionStringSettingsCollection wrap)
         {
             return new DictionaryWrappingConnectionStringSettingCollection(wrap);
         }

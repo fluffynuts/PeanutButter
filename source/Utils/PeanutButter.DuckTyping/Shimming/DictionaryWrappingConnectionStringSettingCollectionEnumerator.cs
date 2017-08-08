@@ -6,7 +6,7 @@ using System.Linq;
 namespace PeanutButter.DuckTyping.Shimming
 {
     internal class DictionaryWrappingConnectionStringSettingCollectionEnumerator :
-        IEnumerator<KeyValuePair<string, string>>
+        IEnumerator<KeyValuePair<string, object>>
     {
         private readonly ConnectionStringSettingsCollection _actual;
         private readonly string[] _keys;
@@ -42,8 +42,8 @@ namespace PeanutButter.DuckTyping.Shimming
             _currentIndex = -1;
         }
 
-        public KeyValuePair<string, string> Current 
-            => new KeyValuePair<string, string>(
+        public KeyValuePair<string, object> Current 
+            => new KeyValuePair<string, object>(
                 _keys[_currentIndex], _actual[_keys[_currentIndex]].ConnectionString
             );
 
