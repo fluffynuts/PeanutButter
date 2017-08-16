@@ -5,9 +5,11 @@ using System.Linq;
 using System.Text;
 using GenericBuilderTestArtifactBuilders;
 using GenericBuilderTestArtifactEntities;
+using NExpect;
 using NUnit.Framework;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using static NExpect.Expectations;
 
 // ReSharper disable PossibleMultipleEnumeration
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -1667,9 +1669,9 @@ namespace PeanutButter.RandomGenerators.Tests
                 var other = GetRandom<IHasAnId>(test => test.Id != first.Id);
 
                 //--------------- Assert -----------------------
-                Expect(other, Is.Not.Null);
-                Expect(other, Is.Not.EqualTo(first));
-                Expect(other.Id, Is.Not.EqualTo(first.Id));
+                Expect(other).Not.To.Be.Null();
+                Expect(other).Not.To.Equal(first);
+                Expect(other.Id).Not.To.Equal(first.Id);
             });
         }
 
@@ -1682,7 +1684,7 @@ namespace PeanutButter.RandomGenerators.Tests
 
             //--------------- Assume ----------------
             // rather fail early if we're about to enter an infinite loop
-            Expect(first.Id, Is.Not.EqualTo(expected.Id));
+            Expect(first.Id).Not.To.Equal(expected.Id);
 
             //--------------- Act ----------------------
             var result = GetRandom(
@@ -1691,7 +1693,7 @@ namespace PeanutButter.RandomGenerators.Tests
             );
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(expected));
+            Expect(result).To.Equal(expected);
         }
 
         public class HasConstructorWithParameter
@@ -1712,7 +1714,7 @@ namespace PeanutButter.RandomGenerators.Tests
             // Act
             var result = GetRandom<HasConstructorWithParameter>();
             // Assert
-            Expect(result.Parameter, Is.Not.Null);
+            Expect(result.Parameter).Not.To.Be.Null();
         }
 
         [Test]
@@ -1730,9 +1732,9 @@ namespace PeanutButter.RandomGenerators.Tests
                 result = GetRandom<KeyValuePair<string, string>>();
             }
             // Assert
-            Expect(result, Is.Not.Null);
-            Expect(result.Key, Is.Not.Null);
-            Expect(result.Value, Is.Not.Null);
+            Expect(result).Not.To.Be.Null();
+            Expect(result.Key).Not.To.Be.Null();
+            Expect(result.Value).Not.To.Be.Null();
         }
 
         public class HasTwoConstructors
@@ -1760,7 +1762,7 @@ namespace PeanutButter.RandomGenerators.Tests
             // Act
             var sut = GetRandom<HasTwoConstructors>();
             // Assert
-            Expect(sut.ParameterlessConstructorUsed, Is.True);
+            Expect(sut.ParameterlessConstructorUsed).To.Be.True();
         }
 
         [Test]
@@ -1773,8 +1775,8 @@ namespace PeanutButter.RandomGenerators.Tests
             // Act
             Expect(() => {
                 var parent = GetRandom<Parent>();
-                Expect(parent.Children, Is.Not.Empty);
-            }, Throws.Nothing);
+                Expect(parent.Children).Not.To.Be.Empty();
+            }).Not.To.Throw();
 
             // Assert
         }
@@ -1789,11 +1791,11 @@ namespace PeanutButter.RandomGenerators.Tests
 
             // Act
             builder.Build();
-            Expect(builder.WithChildrenCallCount, Is.EqualTo(1));
+            Expect(builder.WithChildrenCallCount).To.Equal(1);
             builder.Build();
 
             // Assert
-            Expect(builder.WithChildrenCallCount, Is.EqualTo(2));
+            Expect(builder.WithChildrenCallCount).To.Equal(2);
         }
 
         public class Parent

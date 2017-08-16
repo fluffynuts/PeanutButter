@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using EmailSpooler.Win32Service.Entity;
+using NExpect;
 using NUnit.Framework;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using static NExpect.Expectations;
 // ReSharper disable UnusedMemberInSuper.Global
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -580,8 +582,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 .WithOption("user", "bob saget")
                 .WithOption("AnotherOption", "wibble socks")
                 .AsOneProtocolToOneRecipient()
-                .Build(), 
-            Throws.Nothing);
+                .Build()).Not.To.Throw();
 
             //---------------Test Result -----------------------
         }
@@ -816,14 +817,14 @@ namespace PeanutButter.RandomGenerators.Tests
             using (new AutoResetter(InstallListener(listener), RemoveListener(listener)))
             {
                 //--------------- Assume ----------------
-                Expect(listener.AllMessages, Is.Empty);
+                Expect(listener.AllMessages).To.Equal("");
 
                 //--------------- Act ----------------------
                 var random = GetRandom<TokenValidationResponse>();
 
                 //--------------- Assert -----------------------
-                Expect(random, Is.Not.Null);
-                Expect(listener.AllMessages, Does.Not.Contain("not writable"));
+                Expect(random).Not.To.Be.Null();
+                Expect(listener.AllMessages).Not.To.Contain("not writable");
             }
         }
 
@@ -856,9 +857,9 @@ namespace PeanutButter.RandomGenerators.Tests
             // Act
             var result = NodeBuilder.Create().GenericBuild() as Node;
             // Assert
-            Expect(result, Is.Not.Null);
-            Expect(result.Child, Is.Null);
-            Expect(result.Siblings, Is.Null);
+            Expect(result).Not.To.Be.Null();
+            Expect(result.Child).To.Be.Null();
+            Expect(result.Siblings).To.Be.Null();
         }
 
         [Test]
@@ -869,10 +870,10 @@ namespace PeanutButter.RandomGenerators.Tests
             // Act
             var result = NodeBuilder.Create().GenericDeepBuild() as Node;
             // Assert
-            Expect(result, Is.Not.Null);
-            Expect(result.Child, Is.Not.Null);
-            Expect(result.Siblings, Is.Not.Null);
-            Expect(result.Enemies, Is.Not.Null);
+            Expect(result).Not.To.Be.Null();
+            Expect(result.Child).Not.To.Be.Null();
+            Expect(result.Siblings).Not.To.Be.Null();
+            Expect(result.Enemies).Not.To.Be.Null();
         }
 
 
