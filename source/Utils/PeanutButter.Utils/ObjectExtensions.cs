@@ -47,6 +47,65 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
+        /// Tests if two objects have the same "shape" -- basically Deep Equality testing
+        /// without actually testing final property values.
+        /// </summary>
+        /// <param name="objSource">Source / Master object</param>
+        /// <param name="objCompare">Comparison object</param>
+        /// <param name="ignorePropertiesByName">Ignore these properties by name</param>
+        /// <returns>True if the "shapes" are the same, false otherwise</returns>
+        public static bool ShapeEquals(
+            this object objSource,
+            object objCompare,
+            params string[] ignorePropertiesByName
+        )
+        {
+            return PerformShapeEqualityTesting(
+                objSource, 
+                objCompare, 
+                false, 
+                ignorePropertiesByName
+            );
+        }
+
+        /// <summary>
+        /// Tests if a second object has at least the "shape" of a primary one. Basically
+        /// a DeepSubEquals without testing final property values.
+        /// without actually testing final property values.
+        /// </summary>
+        /// <param name="objSource">Source / Master object</param>
+        /// <param name="objCompare">Comparison object</param>
+        /// <param name="ignorePropertiesByName">Ignore these properties by name</param>
+        /// <returns>True if the comparison object "contains the shape" of the source object, false otherwise</returns>
+        public static bool ShapeSubEquals(
+            this object objSource,
+            object objCompare,
+            params string[] ignorePropertiesByName
+        )
+        {
+            return PerformShapeEqualityTesting(
+                objSource,
+                objCompare,
+                true,
+                ignorePropertiesByName
+            );
+        }
+
+        private static bool PerformShapeEqualityTesting(
+            object left,
+            object right,
+            bool allowMissingProperties,
+            params string[] ignorePropsByName
+        )
+        {
+            var tester = new DeepEqualityTester(left, right, ignorePropsByName);
+            tester.OnlyCompareShape = true;
+            tester.IncludeFields = true;
+            tester.FailOnMissingProperties = !allowMissingProperties;
+            return tester.AreDeepEqual();
+        }
+
+        /// <summary>
         /// Runs a deep equality test between two objects, glossing over reference
         /// differences between class-types and comparing only primitive types. Use
         /// this when you'd like to essentially test whether the data in one object

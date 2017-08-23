@@ -150,7 +150,9 @@ namespace PeanutButter.Utils
         /// <returns>Generic IEnumerable type implemented if found or null otherwise</returns>
         public static Type TryGetEnumerableInterface(this Type srcType)
         {
-            return srcType.GetInterfaces().FirstOrDefault(IsGenericOfIEnumerable);
+            return srcType.IsGenericOfIEnumerable()
+                ? srcType
+                : srcType.GetInterfaces().FirstOrDefault(IsGenericOfIEnumerable);
         }
 
         /// <summary>
@@ -161,8 +163,6 @@ namespace PeanutButter.Utils
         public static bool IsGenericOfIEnumerable(this Type arg)
         {
             return arg.IsGenericOf(typeof(IEnumerable<>));
-//            if (!arg.IsGenericType) return false;
-//            return arg.GetGenericTypeDefinition() == typeof(IEnumerable<>);
         }
 
         /// <summary>

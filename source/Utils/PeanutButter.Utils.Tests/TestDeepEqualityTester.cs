@@ -5,259 +5,448 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
+using NExpect;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using static NExpect.Expectations;
+
+// ReSharper disable UnusedMethodReturnValue.Global
+// ReSharper disable MemberHidesStaticFromOuterClass
+
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedMember.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+// ReSharper disable ClassNeverInstantiated.Global
 
 namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
-    public class TestDeepEqualityTester : AssertionHelper
+    public class TestDeepEqualityTester
     {
-        // mostly this class is tested through the DeepEquals()
-        //  extension method testing. However, I'd like to allow
-        //  for a slower operation where discrepencies are recorded
-        [Test]
-        public void AreDeepEqual_GivenTwoEqualPrimitives_ShouldNotPopulateErrors()
+        [TestFixture]
+        public class AreDeepEqual
         {
-            //--------------- Arrange -------------------
-            var sut = Create(1, 1);
-
-            //--------------- Assume ----------------
-            Expect(sut.Errors, Is.Empty);
-
-            //--------------- Act ----------------------
-            Expect(sut.AreDeepEqual(), Is.True);
-
-            //--------------- Assert -----------------------
-            Expect(sut.Errors, Is.Empty);
-        }
-
-        [Test]
-        public void AreDeepEqual_GivenTwoDifferentPrimitives_ShouldSetExpectedError()
-        {
-            //--------------- Arrange -------------------
-            var sut = Create(true, false);
-            //--------------- Assume ----------------
-
-            //--------------- Act ----------------------
-            Expect(sut.AreDeepEqual(), Is.False);
-
-            //--------------- Assert -----------------------
-            Expect(sut.Errors, Does.Contain("Primitive values differ"));
-        }
-
-        [Test]
-        public void AreDeepEqual_GivenDifferingComplexObjectsWithOnePropertyOfSameNameAndValue_ShouldRecordError()
-        {
-            //--------------- Arrange -------------------
-            var item1 = new {foo = 1};
-            var item2 = new {foo = 2};
-            var sut = Create(item1, item2);
-
-            //--------------- Assume ----------------
-
-            //--------------- Act ----------------------
-            Expect(sut.AreDeepEqual(), Is.False);
-
-            //--------------- Assert -----------------------
-            var error = sut.Errors.Last();
-            Expect(error, Does.Contain("foo"));
-            Expect(error, Does.Contain("1"));
-            Expect(error, Does.Contain("2"));
-        }
-
-        [Test]
-        public void AreDeepEqual_WhenBothItemsHaveCollections_ShouldCompareThem_Positive()
-        {
-            //--------------- Arrange -------------------
-            var item1 = new
+            // mostly this class is tested through the DeepEquals()
+            //  extension method testing. However, I'd like to allow
+            //  for a slower operation where discrepencies are recorded
+            [Test]
+            public void GivenTwoEqualPrimitives_ShouldNotPopulateErrors()
             {
-                Subs = new[] {1, 2,}
-            };
-            var item2 = new ThingWithCollection()
+                //--------------- Arrange -------------------
+                var sut = Create(1, 1);
+
+                //--------------- Assume ----------------
+                Expect(sut.Errors).To.Be.Empty();
+
+                //--------------- Act ----------------------
+                Expect(sut.AreDeepEqual()).To.Be.True();
+
+                //--------------- Assert -----------------------
+                Expect(sut.Errors).To.Be.Empty();
+            }
+
+            [Test]
+            public void GivenTwoDifferentPrimitives_ShouldSetExpectedError()
             {
-                Subs = new[] {1, 2}
-            };
-            var sut = Create(item1, item2);
+                //--------------- Arrange -------------------
+                var sut = Create(true, false);
+                //--------------- Assume ----------------
 
-            //--------------- Assume ----------------
+                //--------------- Act ----------------------
+                Expect(sut.AreDeepEqual()).To.Be.False();
 
-            //--------------- Act ----------------------
-            Expect(sut.AreDeepEqual(), Is.True);
+                //--------------- Assert -----------------------
+                Expect(sut.Errors).To.Contain("Primitive values differ");
+            }
 
-            //--------------- Assert -----------------------
-        }
-
-        [Test]
-        public void AreDeepEqual_WhenBothItemsHaveCollections_ShouldCompareThem_WithoutCaringAboutOrder()
-        {
-            //--------------- Arrange -------------------
-            var item1 = new ThingWithCollection()
+            [Test]
+            public void GivenDifferingComplexObjectsWithOnePropertyOfSameNameAndValue_ShouldRecordError()
             {
-                Subs = new[] {2, 1,}
-            };
-            var item2 = new
+                //--------------- Arrange -------------------
+                var item1 = new {foo = 1};
+                var item2 = new {foo = 2};
+                var sut = Create(item1, item2);
+
+                //--------------- Assume ----------------
+
+                //--------------- Act ----------------------
+                Expect(sut.AreDeepEqual()).To.Be.False();
+
+                //--------------- Assert -----------------------
+                var error = sut.Errors.Last();
+                Expect(error).To.Contain("foo");
+                Expect(error).To.Contain("1");
+                Expect(error).To.Contain("2");
+            }
+
+            [Test]
+            public void WhenBothItemsHaveCollections_ShouldCompareThem_Positive()
             {
-                Subs = new[] {1, 2}
-            };
-            var sut = Create(item1, item2);
+                //--------------- Arrange -------------------
+                var item1 = new
+                {
+                    Subs = new[] {1, 2,}
+                };
+                var item2 = new ThingWithCollection()
+                {
+                    Subs = new[] {1, 2}
+                };
+                var sut = Create(item1, item2);
 
-            //--------------- Assume ----------------
+                //--------------- Assume ----------------
 
-            //--------------- Act ----------------------
-            Expect(sut.AreDeepEqual(), Is.True);
+                //--------------- Act ----------------------
+                Expect(sut.AreDeepEqual()).To.Be.True();
 
-            //--------------- Assert -----------------------
-        }
+                //--------------- Assert -----------------------
+            }
 
-        [Test]
-        public void AreDeepEqual_WhenBothItemsHaveCollections_ShouldCompareThem_Negative()
-        {
-            //--------------- Arrange -------------------
-            var item1 = new ThingWithCollection()
+            [Test]
+            public void WhenBothItemsHaveCollections_ShouldCompareThem_WithoutCaringAboutOrder()
             {
-                Subs = new[] {1, 2, 3}
-            };
-            var item2 = new ThingWithCollection()
+                //--------------- Arrange -------------------
+                var item1 = new ThingWithCollection()
+                {
+                    Subs = new[] {2, 1,}
+                };
+                var item2 = new
+                {
+                    Subs = new[] {1, 2}
+                };
+                var sut = Create(item1, item2);
+
+                //--------------- Assume ----------------
+
+                //--------------- Act ----------------------
+                Expect(sut.AreDeepEqual()).To.Be.True();
+
+                //--------------- Assert -----------------------
+            }
+
+            [Test]
+            public void WhenBothItemsHaveCollections_ShouldCompareThem_Negative()
             {
-                Subs = new[] {1, 2}
-            };
-            var sut = Create(item1, item2);
+                //--------------- Arrange -------------------
+                var item1 = new ThingWithCollection()
+                {
+                    Subs = new[] {1, 2, 3}
+                };
+                var item2 = new ThingWithCollection()
+                {
+                    Subs = new[] {1, 2}
+                };
+                var sut = Create(item1, item2);
 
-            //--------------- Assume ----------------
+                //--------------- Assume ----------------
 
-            //--------------- Act ----------------------
-            Expect(sut.AreDeepEqual(), Is.False);
+                //--------------- Act ----------------------
+                Expect(sut.AreDeepEqual()).To.Be.False();
 
-            //--------------- Assert -----------------------
-        }
+                //--------------- Assert -----------------------
+            }
 
-        [Test]
-        public void AreDeepEqual_WhenBothItemsHaveCollections_ButOneIsNull_ShouldNotBarf()
-        {
-            //--------------- Arrange -------------------
-            var item1 = new ThingWithCollection()
+            [Test]
+            public void WhenBothItemsHaveCollections_ButOneIsNull_ShouldNotBarf()
             {
-                Subs = new[] {1, 2, 3}
-            };
-            var item2 = new ThingWithCollection();
-            var sut = Create(item1, item2);
+                //--------------- Arrange -------------------
+                var item1 = new ThingWithCollection()
+                {
+                    Subs = new[] {1, 2, 3}
+                };
+                var item2 = new ThingWithCollection();
+                var sut = Create(item1, item2);
 
-            //--------------- Assume ----------------
-            Expect(item2.Subs, Is.Null);
+                //--------------- Assume ----------------
+                Expect(item2.Subs).To.Be.Null();
 
-            //--------------- Act ----------------------
-            Expect(sut.AreDeepEqual(), Is.False);
+                //--------------- Act ----------------------
+                Expect(sut.AreDeepEqual()).To.Be.False();
 
-            //--------------- Assert -----------------------
-        }
+                //--------------- Assert -----------------------
+            }
 
-        [Test]
-        public void AreDeepEqual_WhenBothItemsHaveCollections_ButOneIsNull_ShouldNotBarfReversed()
-        {
-            //--------------- Arrange -------------------
-            var item1 = new ThingWithCollection();
-            var item2 = new ThingWithCollection()
+            [Test]
+            public void WhenBothItemsHaveCollections_ButOneIsNull_ShouldNotBarfReversed()
             {
-                Subs = new[] {1, 2, 3}
-            };
-            var sut = Create(item1, item2);
+                //--------------- Arrange -------------------
+                var item1 = new ThingWithCollection();
+                var item2 = new ThingWithCollection()
+                {
+                    Subs = new[] {1, 2, 3}
+                };
+                var sut = Create(item1, item2);
 
-            //--------------- Assume ----------------
-            Expect(item1.Subs, Is.Null);
+                //--------------- Assume ----------------
+                Expect(item1.Subs).To.Be.Null();
 
-            //--------------- Act ----------------------
-            Expect(sut.AreDeepEqual(), Is.False);
+                //--------------- Act ----------------------
+                Expect(sut.AreDeepEqual()).To.Be.False();
 
-            //--------------- Assert -----------------------
+                //--------------- Assert -----------------------
+            }
+
+            [Test]
+            public void WhenBothItemsHaveCollections_ButBothAreNull_ShouldBehaveAccordingly()
+            {
+                //--------------- Arrange -------------------
+                var item1 = new ThingWithCollection();
+                var item2 = new ThingWithCollection();
+                var sut = Create(item1, item2);
+
+                //--------------- Assume ----------------
+                Expect(item1.Subs).To.Be.Null();
+                Expect(item2.Subs).To.Be.Null();
+
+                //--------------- Act ----------------------
+                Expect(sut.AreDeepEqual()).To.Be.True();
+
+                //--------------- Assert -----------------------
+            }
+
+
+            [Test]
+            [Ignore(
+                "WIP: for now, short-circuit is ok; I'd like to use this in PropertyAssert though, which attempts to be more explicit about failures")]
+            public void WhenReportingIsEnabled_ShouldNotShortCircuitTests()
+            {
+                //--------------- Arrange -------------------
+
+                //--------------- Assume ----------------
+
+                //--------------- Act ----------------------
+
+                //--------------- Assert -----------------------
+                Assert.Fail("Test Not Yet Implemented");
+            }
+
+            [TestFixture]
+            public class WithOnlyCompareShapeTrue
+            {
+                [TestFixture]
+                public class DeepSubEquals
+                {
+                    [Test]
+                    public void GivenObjectWithMoreThanOther()
+                    {
+                        // Arrange
+                        var left = new
+                        {
+                            Id = 2
+                        };
+                        var right = new
+                        {
+                            Id = 1,
+                            Name = "Moo"
+                        };
+                        var sut = Create(left, right);
+                        sut.FailOnMissingProperties = false;
+                        sut.OnlyCompareShape = true;
+                        // Pre-Assert
+                        // Act
+                        Expect(sut.AreDeepEqual()).To.Be.True(sut.PrintErrors());
+                        // Assert
+                    }
+                }
+
+                [TestFixture]
+                public class DeepEquals
+                {
+                    [Test]
+                    public void GivenTwoObjectsOfSameType()
+                    {
+                        // Arrange
+                        var sut = Create(GetRandomString(), GetRandomString());
+                        sut.OnlyCompareShape = true;
+                        // Pre-Assert
+                        // Act
+                        var result = sut.AreDeepEqual();
+                        // Assert
+                        Expect(result).To.Be.True();
+                    }
+
+                    [Test]
+                    public void GivenTwoObjectsOfSameShape_DifferentType()
+                    {
+                        // Arrange
+                        var left = new
+                        {
+                            Foo = new
+                            {
+                                id = 1,
+                                Name = "bob",
+                                When = DateTime.Now
+                            },
+                            Stuffs = new[]
+                            {
+                                new {Id = 2, Name = "Billy"},
+                                new {Id = 3, Name = "Bob"}
+                            },
+                            Ints = new[] {1, 2, 3}
+                        };
+                        var right = new
+                        {
+                            Foo = new
+                            {
+                                id = 1,
+                                Name = "bob",
+                                When = DateTime.Now
+                            },
+                            Stuffs = new[]
+                            {
+                                new {Id = 2, Name = "Billy"},
+                            },
+                            Ints = new List<int>() {0, 12, 43}
+                        };
+                        var sut = Create(left, right);
+                        sut.OnlyCompareShape = true;
+                        // Pre-Assert
+                        // Act
+                        Expect(sut.AreDeepEqual())
+                            .To.Be.True(
+                                "* " + sut.Errors.JoinWith("\n *")
+                            );
+                        // Assert
+                    }
+                }
+            }
         }
 
-        [Test]
-        public void AreDeepEqual_WhenBothItemsHaveCollections_ButBothAreNull_ShouldBehaveAccordingly()
+        [TestFixture]
+        public class UsingAsExtensionMethod
         {
-            //--------------- Arrange -------------------
-            var item1 = new ThingWithCollection();
-            var item2 = new ThingWithCollection();
-            var sut = Create(item1, item2);
+            [TestFixture]
+            public class DeepEquals
+            {
+                [Test]
+                public void ShouldNotDerpRoundTwo()
+                {
+                    // Arrange
+                    var left = new ThingWithField() {StringField = GetRandomString()};
+                    var right = new ThingWithField() {StringField = GetAnother(left.StringField)};
+                    // Act
+                    var result = left.DeepEquals(right);
+                    // Assert
+                    Expect(result).To.Be.False();
+                }
+            }
 
-            //--------------- Assume ----------------
-            Expect(item1.Subs, Is.Null);
-            Expect(item2.Subs, Is.Null);
+            [TestFixture]
+            public class ShapeEquals
+            {
+                [Test]
+                public void ShouldBeTrueForMatchingShapes()
+                {
+                    // Arrange
+                    var left = new
+                    {
+                        Foo = new
+                        {
+                            id = 1,
+                            Name = "bob",
+                            When = DateTime.Now
+                        },
+                        Stuffs = new[]
+                        {
+                            new {Id = 2, Name = "Billy"},
+                            new {Id = 3, Name = "Bob"}
+                        },
+                        Ints = new[] {1, 2, 3}
+                    };
+                    var right = new
+                    {
+                        Foo = new
+                        {
+                            id = 1,
+                            Name = "bob",
+                            When = DateTime.Now
+                        },
+                        Stuffs = new[]
+                        {
+                            new {Id = 2, Name = "Billy"},
+                        },
+                        Ints = new List<int>() {0, 12, 43}
+                    };
+                    // Pre-Assert
+                    // Act
+                    Expect(left.ShapeEquals(right))
+                        .To.Be.True();
+                    // Assert
+                }
+            }
 
-            //--------------- Act ----------------------
-            Expect(sut.AreDeepEqual(), Is.True);
-
-            //--------------- Assert -----------------------
+            [TestFixture]
+            public class ShapeSubEquals
+            {
+                [Test]
+                public void ShouldBeTrueWhenSourcePropsAreFoundAtTarget()
+                {
+                    // Arrange
+                    var left = new {
+                        Id = 1,
+                        Enabled = false
+                    };
+                    var right = new {
+                        Id = 123,
+                        Name = "Bob",
+                        Enabled = true
+                    };
+                    // Pre-Assert
+                    // Act
+                    Expect(left.ShapeSubEquals(right)).To.Be.True();
+                    // Assert
+                }
+            }
         }
 
 
-        [Test]
-        [Ignore(
-            "WIP: for now, short-circuit is ok; I'd like to use this in PropertyAssert though, which attempts to be more explicit about failures")]
-        public void AreDeepEqual_WhenReportingIsEnabled_ShouldNotShortCircuitTests()
+        [TestFixture]
+        public class PropertyAssertions
         {
-            //--------------- Arrange -------------------
+            [TestFixture]
+            public class AreDeepEqual
+            {
+                [Test]
+                public void ShouldReturnTrueForCaseInWild()
+                {
+                    // Arrange
+                    var original = GetRandom<MooCakesAndStuff>();
+                    var encoded = MooCakesAndStuffWithEncodedGraphData.From(original);
+                    // Pre-Assert
+                    PropertyAssert.AreDeepEqual(original.AuthorData, encoded.AuthorData);
+                    PropertyAssert.AreDeepEqual(original.SomeOtherData, encoded.SomeOtherData);
+                    // Act
+                    var decoded = encoded.Decode();
+                    // Assert
+                    PropertyAssert.AreDeepEqual(decoded.AuthorData, original.AuthorData);
+                    PropertyAssert.AreDeepEqual(decoded.SomeOtherData, original.SomeOtherData);
+                    PropertyAssert.AreDeepEqual(decoded.GraphData, original.GraphData);
+                }
 
-            //--------------- Assume ----------------
+                [Test]
+                public void WildCaseExactReplica()
+                {
+                    // Arrange
+                    var journey = GetRandom<MooCakesAndStuff>();
+                    var encoded = new MooCakesAndStuffWithEncodedGraphData();
+                    journey.CopyPropertiesTo(encoded);
+                    encoded.EnkiEnki = DataUriFor(journey.GraphData);
+                    encoded.GraphData = null;
 
-            //--------------- Act ----------------------
+                    // Pre-assert
 
-            //--------------- Assert -----------------------
-            Assert.Fail("Test Not Yet Implemented");
+                    // Act
+                    var result = encoded.Decode();
+
+                    // Assert
+                    PropertyAssert.AreDeepEqual(result, journey);
+                }
+            }
         }
 
-        [Test]
-        public void DeepEquals_ShouldNotDerpRoundTwo()
+        private static string DataUriFor<T>(T input)
         {
-            // Arrange
-            var left = new ThingWithField() {StringField = GetRandomString()};
-            var right = new ThingWithField() {StringField = GetAnother(left.StringField)};
-            // Act
-            var result = left.DeepEquals(right);
-            // Assert
-            Expect(result, Is.False);
-        }
-
-        [Test]
-        public void DeepEquals_ShouldReturnTrueForCaseInWild()
-        {
-            // Arrange
-            var original = GetRandom<JourneyDto>();
-            var encoded = JourneyDtoWithEncodedGraphData.From(original);
-            // Pre-Assert
-            PropertyAssert.AreDeepEqual(original.AuthorData, encoded.AuthorData);
-            PropertyAssert.AreDeepEqual(original.MetaData, encoded.MetaData);
-            // Act
-            var decoded = encoded.Decode();
-            // Assert
-            PropertyAssert.AreDeepEqual(decoded.AuthorData, original.AuthorData);
-            PropertyAssert.AreDeepEqual(decoded.MetaData, original.MetaData);
-            PropertyAssert.AreDeepEqual(decoded.GraphData, original.GraphData);
-        }
-
-        [Test]
-        public void DeepEquals_WildCaseExactReplica()
-        {
-            // Arrange
-            var journey = GetRandom<JourneyDto>();
-            var encoded = new JourneyDtoWithEncodedGraphData();
-            journey.CopyPropertiesTo(encoded);
-            encoded.GraphDataEncoded = DataUriFor(journey.GraphData);
-            encoded.GraphData = null;
-
-            // Pre-assert
-
-            // Act
-            var result = encoded.Decode();
-
-            // Assert
-            PropertyAssert.AreDeepEqual(result, journey);
-
-        }
-
-        private string DataUriFor<T>(T input) {
             var json = JsonConvert.SerializeObject(input);
             var encoded = json.AsBytes().ToBase64();
             return $"data:application/json;base64,{encoded}";
@@ -268,10 +457,9 @@ namespace PeanutButter.Utils.Tests
             public ICollection<int> Subs { get; set; }
         }
 
-        private DeepEqualityTester Create(object obj1, object obj2)
+        private static DeepEqualityTester Create(object obj1, object obj2)
         {
-            var sut = new DeepEqualityTester(obj1, obj2);
-            sut.RecordErrors = true;
+            var sut = new DeepEqualityTester(obj1, obj2) {RecordErrors = true};
             return sut;
         }
 
@@ -281,7 +469,7 @@ namespace PeanutButter.Utils.Tests
         }
 
         // TODO: obsfucate me
-        public class JourneyDto
+        public class MooCakesAndStuff
         {
             public Guid Id { get; set; }
 
@@ -290,50 +478,52 @@ namespace PeanutButter.Utils.Tests
             public int MajorVersion { get; set; }
             public int MinorVersion { get; set; }
 
-            public MetaDataDto MetaData { get; set; }
-            public GraphDataDto GraphData { get; set; }
-            public AuthorDto AuthorData { get; set; }
+            public SomeOtherDataThing SomeOtherData { get; set; }
+            public YetAnotherCollectionOfProperties GraphData { get; set; }
+            public BeerMooCakeCroc AuthorData { get; set; }
 
             public const int NameMaxLength = 100;
         }
-        public class AuthorDto {
+
+        public class BeerMooCakeCroc
+        {
             public DateTime Created { get; set; }
             public DateTime LastModified { get; set; }
-            public long OperatorId { get; set; }
+            public long ClownId { get; set; }
             public long CreatedById { get; set; }
             public string CreatedBy { get; set; }
             public long LastModifiedById { get; set; }
             public string LastModifiedBy { get; set; }
         }
 
-        public class GraphDataDto
+        public class YetAnotherCollectionOfProperties
         {
-            // TODO: generalize down to DehydratedWidget
+            // TODO: generalize down to BiltongSlab
             //  as that type can support things which aren't wait events,
             //  such as, eg (at some point) decision diamonds
-            public WaitEventWidget[] Widgets { get; set; }
+            public ThingyMaBob[] ThingyMaBobs { get; set; }
 
-            public DehydratedConnection[] Connections { get; set; }
+            public WerkelSchmerkel[] WerkelSchmerkels { get; set; }
         }
 
-        public class DehydratedConnection
+        public class WerkelSchmerkel
         {
-            public string SourceId { get; set; }
-            public string TargetId { get; set; }
+            public string FromId { get; set; }
+            public string ToId { get; set; }
         }
     }
 
-    public class WaitEventWidget : DehydratedWidget
+    public class ThingyMaBob : BiltongSlab
     {
         // -> backend WaitEvent
-        public string EventType { get; set; }
+        public string ThingType { get; set; }
 
-        public Guid EventTypeId { get; set; }
-        public EventCondition[] Conditions { get; set; }
-        public ConditionalAction[] SuccessActions { get; set; }
+        public Guid ThingTypeId { get; set; }
+        public ThingCondition[] ThingConditions { get; set; }
+        public CakesOfMoo[] CakesOfMoos { get; set; }
     }
 
-    public class EventCondition
+    public class ThingCondition
     {
         // -> backend: Trigger
         public Option Condition { get; set; }
@@ -348,21 +538,21 @@ namespace PeanutButter.Utils.Tests
         public string Value { get; set; }
     }
 
-    public class ConditionalAction
+    public class CakesOfMoo
     {
         // -> backend: StepAction
         public Guid Id { get; set; } // -> this conditional action's id
 
-        public Guid ActionId { get; set; } // -> maps to the id of the source action
-        public string ActionName { get; set; }
+        public Guid CakeId { get; set; } // -> maps to the id of the source action
+        public string CakeName { get; set; }
         public Dictionary<string, object[]> Settings { get; set; }
-        public AdminEventGamingServerKeyValuePair[] AdminEvents { get; set; }
+        public TurkeyInnards[] TurkeyStuffings { get; set; }
     }
 
-    public class AdminEventGamingServerKeyValuePair
+    public class TurkeyInnards
     {
-        public NamedIdentifier Event { get; set; }
-        public NamedIdentifier Server { get; set; }
+        public NamedIdentifier Part1 { get; set; }
+        public NamedIdentifier Part2 { get; set; }
     }
 
     public class NamedIdentifier
@@ -371,7 +561,7 @@ namespace PeanutButter.Utils.Tests
         public string Name { get; set; }
     }
 
-    public class DehydratedWidget
+    public class BiltongSlab
     {
         // -> used at client only
         public string Id { get; set; } // often a guid, but may be a static like "stateBegin"
@@ -380,354 +570,425 @@ namespace PeanutButter.Utils.Tests
         public int Left { get; set; }
         public int Width { get; set; }
         public int Height { get; set; }
-        public string PresenterElement { get; set; }
+        public string WankelRotaryEngine { get; set; }
     }
 
-    public class MetaDataDto
+    public class SomeOtherDataThing
     {
-        public AudienceDto Audience { get; set; }
-        public ScheduleDto Schedule { get; set; }
-        public BudgetDto Budget { get; set; }
+        public FirstPart PartTheFirst { get; set; }
+        public SecondPart PartTheSecond { get; set; }
+        public ThirdPart PartTheThird { get; set; }
     }
 
-    public class AudienceDto
+    public class FirstPart
     {
-        public string[] IncludePlayers { get; set; }
-        public string[] ExcludePlayers { get; set; }
+        public string[] HaveSome { get; set; }
+        public string[] HaveNone { get; set; }
     }
 
-    public class ScheduleDto
+    public class SecondPart
     {
-        public RecurrenceDto Recurrence { get; set; }
-        public DateTime Start { get; set; }
+        public Flibber Flibber { get; set; }
+        public DateTime Nerf { get; set; }
 
-        public DateTime End { get; set; }
-        public bool NoEndDate { get; set; }
-        public bool CanContinueAfterEndDate { get; set; }
-        public TimezoneDto Timezone { get; set; }
+        public DateTime DeNerf { get; set; }
+        public bool NerfFreeZone { get; set; }
+        public bool CanNerfTheUnNerfable { get; set; }
+        public Blargh Blargh { get; set; }
     }
 
-    public class RecurrenceDto
+    public class Flibber
     {
         // TODO: complete this
-        public RecurrenceFrequency Frequency { get; set; }
+        public Frequency Frequency { get; set; }
 
         public int Interval { get; set; }
     }
 
-    public enum RecurrenceFrequency
+    public enum Frequency
     {
-        Daily,
-        Weekly,
-        Monthly
+        Hertz,
+        HertzMore,
+        HertzTheMost
     }
 
-    public class TimezoneDto
+    public class Blargh
     {
-        public TimezoneType TimezoneType { get; set; }
-        public string UtcOffset { get; set; }
+        public Salutations Salutations { get; set; }
+        public string Exclamation { get; set; }
     }
 
-    public enum TimezoneType
+    public enum Salutations
     {
-        Dynamic,
-        UtcOffset
+        Loud,
+        Louder
     }
 
-    public class BudgetDto
+    public class ThirdPart
     {
-        public int? MaxPlayersAllowed { get; set; }
-        public bool IsMaxPlayersAllowedUnlimited { get; set; }
+        public int? SomeNumber1 { get; set; }
+        public bool IsSomeNumber1 { get; set; }
 
-        public int? PlayerReentryLimit { get; set; }
-        public bool IsPlayerReentryLimitUnlimited { get; set; }
+        public int? SomeNumber2 { get; set; }
+        public bool IsSomeNumber2 { get; set; }
 
-        public int PlayerDurationDaysLimit { get; set; }
+        public int Arb { get; set; }
 
-        public bool ResetPlayerLimits { get; set; }
-        public bool ResetRuleLimits { get; set; }
+        public bool Boom { get; set; }
+        public bool Stick { get; set; }
 
-        public const int PlayerDurationDaysLimitMinimum = 1;
-        public const int PlayerDurationDaysLimitMaximum = 90;
+        public const int Wombat = 1;
+        public const int Feh = 90;
     }
+
     // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
-    public class JourneyDtoWithEncodedGraphData : TestDeepEqualityTester.JourneyDto {
+    public class MooCakesAndStuffWithEncodedGraphData : TestDeepEqualityTester.MooCakesAndStuff
+    {
         // ReSharper disable once MemberCanBePrivate.Global
-        public string GraphDataEncoded { get; set; }
+        public string EnkiEnki { get; set; }
 
         private readonly object _lock = new object();
 
-        public TestDeepEqualityTester.JourneyDto Decode() {
-            var result = GetStartingJourney();
-            if (GraphDataEncoded == null)
+        public TestDeepEqualityTester.MooCakesAndStuff Decode()
+        {
+            var result = StartMeOffJoe();
+            if (EnkiEnki == null)
                 return result;
-            lock (_lock) {
-                result.GraphData = JsonConvert.DeserializeObject<TestDeepEqualityTester.GraphDataDto>(
-                    Convert.FromBase64String(GetDataPartOf(GraphDataEncoded))
-                        .ToUTF8String());
+            lock (_lock)
+            {
+                result.GraphData = JsonConvert
+                    .DeserializeObject<TestDeepEqualityTester.YetAnotherCollectionOfProperties>(
+                        Convert.FromBase64String(GetDataPartOf(EnkiEnki))
+                            .ToUTF8String());
             }
             return result;
         }
 
         private readonly Regex _dataUriRegex = new Regex(@"^(data:application/json;base64,)(?<data>.*)");
 
-        private string GetDataPartOf(string graphDataEncoded) {
-            var match = _dataUriRegex.Match(graphDataEncoded);
+        private string GetDataPartOf(string barf)
+        {
+            var match = _dataUriRegex.Match(barf);
             var dataGroup = match.Groups["data"];
-            if (!dataGroup.Success) {
-                throw new InvalidDataException($"Expected to find a base64-encoded data uri, but got:\n${graphDataEncoded}");
+            if (!dataGroup.Success)
+            {
+                throw new InvalidDataException($"Expected to find a base64-encoded data uri, but got:\n${barf}");
             }
 
             return dataGroup.Value;
         }
 
-        private static readonly PropertyInfo[] _journeyProps =
-            typeof(TestDeepEqualityTester.JourneyDto).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+        private static readonly PropertyInfo[] _props =
+            typeof(TestDeepEqualityTester.MooCakesAndStuff).GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
-        private static readonly PropertyInfo[] _myProps =
-            typeof(JourneyDtoWithEncodedGraphData).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+        private static readonly PropertyInfo[] _moreProps =
+            typeof(MooCakesAndStuffWithEncodedGraphData).GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
-        private TestDeepEqualityTester.JourneyDto GetStartingJourney() {
-            var journey = new TestDeepEqualityTester.JourneyDto();
-            foreach (var propertyInfo in _journeyProps) {
-                var match = _myProps.First(pi => pi.Name == propertyInfo.Name);
+        private TestDeepEqualityTester.MooCakesAndStuff StartMeOffJoe()
+        {
+            var journey = new TestDeepEqualityTester.MooCakesAndStuff();
+            foreach (var propertyInfo in _props)
+            {
+                var match = _moreProps.First(pi => pi.Name == propertyInfo.Name);
                 var myVal = match.GetValue(this);
                 propertyInfo.SetValue(journey, myVal);
             }
             return journey;
         }
 
-        public static JourneyDtoWithEncodedGraphData From(TestDeepEqualityTester.JourneyDto journey) {
-            var result = new JourneyDtoWithEncodedGraphData();
-            foreach (var propertyInfo in _journeyProps) {
-                var match = _myProps.First(pi => pi.Name == propertyInfo.Name);
+        public static MooCakesAndStuffWithEncodedGraphData From(TestDeepEqualityTester.MooCakesAndStuff journey)
+        {
+            var result = new MooCakesAndStuffWithEncodedGraphData();
+            foreach (var propertyInfo in _props)
+            {
+                var match = _moreProps.First(pi => pi.Name == propertyInfo.Name);
                 var srcVal = match.GetValue(journey);
                 propertyInfo.SetValue(result, srcVal);
             }
-            result.GraphDataEncoded = 
+            result.EnkiEnki =
                 $"data:application/json;base64,{Convert.ToBase64String(JsonConvert.SerializeObject(journey.GraphData).AsBytes())}";
             return result;
         }
     }
-    public class JourneyDtoTestDataBuilder : GenericBuilder<JourneyDtoTestDataBuilder, TestDeepEqualityTester.JourneyDto> {
-        public JourneyDtoTestDataBuilder WithCreatedDate(DateTime date) {
+
+    public class MooBuilder : GenericBuilder<MooBuilder, TestDeepEqualityTester.MooCakesAndStuff>
+    {
+        public MooBuilder WithCreatedDate(DateTime date)
+        {
             return WithProp(dto => dto.AuthorData.Created = date);
         }
 
-        public JourneyDtoTestDataBuilder WithCreatedById(int id) {
+        public MooBuilder WithCreatedById(int id)
+        {
             return
-                WithProp(dto => dto.AuthorData = dto.AuthorData ?? GetRandom<TestDeepEqualityTester.AuthorDto>())
+                WithProp(dto => dto.AuthorData = dto.AuthorData ?? GetRandom<TestDeepEqualityTester.BeerMooCakeCroc>())
                     .WithProp(dto => dto.AuthorData.CreatedById = id);
         }
 
-        public JourneyDtoTestDataBuilder WithName(string name) {
+        public MooBuilder WithName(string name)
+        {
             return WithProp(o => o.Name = name);
         }
 
-        public JourneyDtoTestDataBuilder WithInvalidProps() {
+        public MooBuilder WithInvalidProps()
+        {
             return WithRandomProps()
                 .WithName("")
-                .WithProp(dto => dto.MetaData.Audience.IncludePlayers = new string[0])
-                .WithProp(dto => dto.MetaData.Schedule.End = DateTime.MinValue)
-                .WithProp(dto => dto.MetaData.Schedule.Start = DateTime.MaxValue)
-                .WithProp(dto => dto.MetaData.Budget.IsMaxPlayersAllowedUnlimited = false)
-                .WithProp(dto => dto.MetaData.Budget.MaxPlayersAllowed = int.MinValue)
-                .WithProp(dto => dto.MetaData.Budget.IsPlayerReentryLimitUnlimited = false)
-                .WithProp(dto => dto.MetaData.Budget.PlayerReentryLimit = int.MinValue)
-                .WithProp(dto => dto.MetaData.Budget.PlayerDurationDaysLimit = int.MinValue);
+                .WithProp(dto => dto.SomeOtherData.PartTheFirst.HaveSome = new string[0])
+                .WithProp(dto => dto.SomeOtherData.PartTheSecond.DeNerf = DateTime.MinValue)
+                .WithProp(dto => dto.SomeOtherData.PartTheSecond.Nerf = DateTime.MaxValue)
+                .WithProp(dto => dto.SomeOtherData.PartTheThird.IsSomeNumber1 = false)
+                .WithProp(dto => dto.SomeOtherData.PartTheThird.SomeNumber1 = int.MinValue)
+                .WithProp(dto => dto.SomeOtherData.PartTheThird.IsSomeNumber2 = false)
+                .WithProp(dto => dto.SomeOtherData.PartTheThird.SomeNumber2 = int.MinValue)
+                .WithProp(dto => dto.SomeOtherData.PartTheThird.Arb = int.MinValue);
         }
 
-        public JourneyDtoTestDataBuilder WithAllValidProps() {
+        public MooBuilder WithAllValidProps()
+        {
             return WithRandomProps()
                 .WithName(GetRandomString(5, 15))
-                .WithProp(dto => dto.MetaData.Audience.IncludePlayers = new[] { GetRandomString(5, 11) })
-                .WithProp(dto => dto.MetaData.Schedule.Start = DateTime.Now)
-                .WithProp(dto => dto.MetaData.Schedule.End = DateTime.Now.AddDays(10))
-                .WithProp(dto => dto.MetaData.Budget.IsMaxPlayersAllowedUnlimited = false)
-                .WithProp(dto => dto.MetaData.Budget.MaxPlayersAllowed = 10)
-                .WithProp(dto => dto.MetaData.Budget.IsPlayerReentryLimitUnlimited = false)
-                .WithProp(dto => dto.MetaData.Budget.PlayerReentryLimit = 1)
-                .WithProp(dto => dto.MetaData.Budget.PlayerDurationDaysLimit = 5);
+                .WithProp(dto => dto.SomeOtherData.PartTheFirst.HaveSome = new[] {GetRandomString(5, 11)})
+                .WithProp(dto => dto.SomeOtherData.PartTheSecond.Nerf = DateTime.Now)
+                .WithProp(dto => dto.SomeOtherData.PartTheSecond.DeNerf = DateTime.Now.AddDays(10))
+                .WithProp(dto => dto.SomeOtherData.PartTheThird.IsSomeNumber1 = false)
+                .WithProp(dto => dto.SomeOtherData.PartTheThird.SomeNumber1 = 10)
+                .WithProp(dto => dto.SomeOtherData.PartTheThird.IsSomeNumber2 = false)
+                .WithProp(dto => dto.SomeOtherData.PartTheThird.SomeNumber2 = 1)
+                .WithProp(dto => dto.SomeOtherData.PartTheThird.Arb = 5);
         }
 
-        public JourneyDtoTestDataBuilder WithNullGraphData() {
+        public MooBuilder WithNullGraphData()
+        {
             return WithProp(o => o.GraphData = null);
         }
 
-        public JourneyDtoTestDataBuilder WithNullWidgets() {
-            return WithProp(o => o.GraphData.Widgets = null);
+        public MooBuilder WithNullWidgets()
+        {
+            return WithProp(o => o.GraphData.ThingyMaBobs = null);
         }
 
-        public JourneyDtoTestDataBuilder WithEmptyWidgets() {
-            return WithProp(o => o.GraphData.Widgets = new WaitEventWidget[0]);
+        public MooBuilder WithEmptyWidgets()
+        {
+            return WithProp(o => o.GraphData.ThingyMaBobs = new ThingyMaBob[0]);
         }
 
-        public JourneyDtoTestDataBuilder WithNullConnections() {
-            return WithProp(o => o.GraphData.Connections = null);
+        public MooBuilder WithNullConnections()
+        {
+            return WithProp(o => o.GraphData.WerkelSchmerkels = null);
         }
 
-        public JourneyDtoTestDataBuilder WithEmptyConnections() {
-            return WithProp(o => o.GraphData.Connections = new TestDeepEqualityTester.DehydratedConnection[0]);
+        public MooBuilder WithEmptyConnections()
+        {
+            return WithProp(o => o.GraphData.WerkelSchmerkels = new TestDeepEqualityTester.WerkelSchmerkel[0]);
         }
 
-        public JourneyDtoTestDataBuilder WithNoInitiatingTrigger() {
-            return WithProp(o => o.GraphData.Connections =
-                o.GraphData.Connections
+        public MooBuilder WithNoInitiatingTrigger()
+        {
+            return WithProp(o => o.GraphData.WerkelSchmerkels =
+                o.GraphData.WerkelSchmerkels
                     .EmptyIfNull()
-                    .Where(c => c.SourceId != "stateBegin")
+                    .Where(c => c.FromId != "WibbleStix")
                     .ToArray()
             );
         }
 
-        public JourneyDtoTestDataBuilder WithUnconfiguredAction() {
-            return WithProp(o => {
-                var widget = o.GraphData.Widgets.Second();
-                widget.SuccessActions.First().Settings["Moo"] = GetRandomBoolean() ? null : new object[] { };
+        public MooBuilder WithUnconfiguredAction()
+        {
+            return WithProp(o =>
+            {
+                var widget = o.GraphData.ThingyMaBobs.Second();
+                widget.CakesOfMoos.First().Settings["Moo"] = GetRandomBoolean() ? null : new object[] { };
             });
         }
 
-        public JourneyDtoTestDataBuilder WithUnconfiguredCondition() {
-            return WithProp(o => {
-                var widget = o.GraphData.Widgets.Second();
-                widget.Conditions.First().SelectedValues = GetRandomBoolean() ? null : new Option[0];
+        public MooBuilder WithUnconfiguredCondition()
+        {
+            return WithProp(o =>
+            {
+                var widget = o.GraphData.ThingyMaBobs.Second();
+                widget.ThingConditions.First().SelectedValues = GetRandomBoolean() ? null : new Option[0];
             });
         }
 
-        public JourneyDtoTestDataBuilder WithMultipleEventsButNoActions() {
-            return WithProp(o => {
-                o.GraphData.Widgets.ForEach(w => {
-                    w.SuccessActions = null;
+        public MooBuilder WithMultipleEventsButNoActions()
+        {
+            return WithProp(o =>
+            {
+                o.GraphData.ThingyMaBobs.ForEach(w =>
+                {
+                    w.CakesOfMoos = null;
                 });
             });
         }
-        public class EventConditionBuilder : GenericBuilder<EventConditionBuilder, EventCondition> {
-            public override EventConditionBuilder WithRandomProps() {
+
+        public class EventConditionBuilder : GenericBuilder<EventConditionBuilder, ThingCondition>
+        {
+            public override EventConditionBuilder WithRandomProps()
+            {
                 return base.WithRandomProps()
-                    .WithProp(condition => condition.Condition = RandomValueGen.GetRandom<Option>())
-                    .WithProp(condition => condition.Operator = RandomValueGen.GetRandom<Option>())
-                    .WithProp(condition => condition.SelectedValues = RandomValueGen.GetRandomCollection<Option>(1).ToArray());
+                    .WithProp(condition => condition.Condition = GetRandom<Option>())
+                    .WithProp(condition => condition.Operator = GetRandom<Option>())
+                    .WithProp(condition => condition.SelectedValues = GetRandomCollection<Option>(1).ToArray());
             }
         }
 
-        public class ConditionalActionBuilder : GenericBuilder<ConditionalActionBuilder, ConditionalAction> {
-            public override ConditionalActionBuilder WithRandomProps() {
-                return WithProp(o => o.ActionId = Guid.NewGuid())
-                    .WithProp(o => o.ActionName = RandomValueGen.GetRandomString(4))
+        public class ConditionalActionBuilder : GenericBuilder<ConditionalActionBuilder, CakesOfMoo>
+        {
+            public override ConditionalActionBuilder WithRandomProps()
+            {
+                return WithProp(o => o.CakeId = Guid.NewGuid())
+                    .WithProp(o => o.CakeName = GetRandomString(4))
                     .WithProp(o => o.Id = Guid.NewGuid())
-                    .WithProp(o => o.Settings = new Dictionary<string, object[]>() {
-                        [RandomValueGen.GetRandomString(2, 4)] = RandomValueGen.GetRandomCollection<int>(2).Cast<object>().ToArray()
+                    .WithProp(o => o.Settings = new Dictionary<string, object[]>()
+                    {
+                        [GetRandomString(2, 4)] = GetRandomCollection<int>(2).Cast<object>().ToArray()
                     });
             }
         }
 
-        public class WaitEventWidgetDtoBuilder : GenericBuilder<WaitEventWidgetDtoBuilder, WaitEventWidget> {
-            public override WaitEventWidgetDtoBuilder WithRandomProps() {
+        public class WaitEventWidgetDtoBuilder : GenericBuilder<WaitEventWidgetDtoBuilder, ThingyMaBob>
+        {
+            public override WaitEventWidgetDtoBuilder WithRandomProps()
+            {
                 return base.WithRandomProps()
                     .WithGuidId()
-                    .WithRandomConditions()
-                    .WithRandomSuccessActions();
+                    .WithRandomThingConditions()
+                    .WithRandomMooCakes();
             }
 
-            public WaitEventWidgetDtoBuilder WithGuidId() {
+            public WaitEventWidgetDtoBuilder WithGuidId()
+            {
                 return WithProp(o => o.Id = $"{Guid.NewGuid()}");
             }
+
             private readonly string _depositId = Guid.NewGuid().ToString();
-            public WaitEventWidgetDtoBuilder AsDeposit() {
+
+            public WaitEventWidgetDtoBuilder AsDeposit()
+            {
                 return WithGuidId()
-                    .WithEventTypeId(_depositId)
-                    .WithClientEventType("Deposit");  // this is what the client gets; it's only interesting to humans -- we'll use the id
+                    .WithThingTypeId(_depositId)
+                    .WithThingType(
+                        "Deposit"); // this is what the client gets; it's only interesting to humans -- we'll use the id
             }
 
-            public WaitEventWidgetDtoBuilder WithClientEventType(string clientSideEventType) {
-                return WithProp(o => o.EventType = clientSideEventType);
+            public WaitEventWidgetDtoBuilder WithThingType(string thingType)
+            {
+                return WithProp(o => o.ThingType = thingType);
             }
 
-            public WaitEventWidgetDtoBuilder WithEventTypeId(string guid) {
-                return WithProp(o => o.EventTypeId = Guid.Parse(guid));
+            public WaitEventWidgetDtoBuilder WithThingTypeId(string guid)
+            {
+                return WithProp(o => o.ThingTypeId = Guid.Parse(guid));
             }
 
-            public WaitEventWidgetDtoBuilder WithRandomSuccessActions() {
+            public WaitEventWidgetDtoBuilder WithRandomMooCakes()
+            {
                 return WithProp(o =>
-                    WithSuccessActions(GetRandomCollection<ConditionalAction>(1, 3).ToArray())
+                    WithMooCakes(GetRandomCollection<CakesOfMoo>(1, 3).ToArray())
                 );
             }
 
-            public WaitEventWidgetDtoBuilder WithId(string id) {
+            public WaitEventWidgetDtoBuilder WithId(string id)
+            {
                 return WithProp(o => o.Id = id);
             }
 
-            public WaitEventWidgetDtoBuilder WithSuccessActions(params ConditionalAction[] actions) {
+            public WaitEventWidgetDtoBuilder WithMooCakes(params CakesOfMoo[] actions)
+            {
                 return WithProp(o =>
-                    o.SuccessActions = o.SuccessActions.EmptyIfNull().And(actions)
+                    o.CakesOfMoos = o.CakesOfMoos.EmptyIfNull().And(actions)
                 );
             }
 
-            public WaitEventWidgetDtoBuilder WithRandomConditions() {
+            public WaitEventWidgetDtoBuilder WithRandomThingConditions()
+            {
                 return WithProp(o =>
-                    WithConditions(GetRandomCollection<EventCondition>(1, 3).ToArray())
+                    WithThingConditions(GetRandomCollection<ThingCondition>(1, 3).ToArray())
                 );
             }
 
-            public WaitEventWidgetDtoBuilder WithConditions(params EventCondition[] conditions) {
-                return WithProp(o => o.Conditions = o.Conditions.EmptyIfNull().And(conditions));
+            public WaitEventWidgetDtoBuilder WithThingConditions(params ThingCondition[] conditions)
+            {
+                return WithProp(o => o.ThingConditions = o.ThingConditions.EmptyIfNull().And(conditions));
             }
         }
 
-        public class GraphDataDtoTestDataBuilder : GenericBuilder<GraphDataDtoTestDataBuilder, TestDeepEqualityTester.GraphDataDto> {
-            private static readonly WaitEventWidget StartState = new WaitEventWidget() {
+        public class YacopBuilder : GenericBuilder<YacopBuilder, TestDeepEqualityTester.YetAnotherCollectionOfProperties
+        >
+        {
+            private static readonly ThingyMaBob _start = new ThingyMaBob()
+            {
                 Id = "stateBegin",
-                EventTypeId = Guid.Empty,
-                PresenterElement = "pjc-state-begin"
+                ThingTypeId = Guid.Empty,
+                WankelRotaryEngine = "pjc-state-begin"
             };
 
-            public override GraphDataDtoTestDataBuilder WithRandomProps() {
+            public override YacopBuilder WithRandomProps()
+            {
                 return base.WithRandomProps()
-                    .WithStartState()
-                    .WithProp(o => {
-                        var waitEventWidgets = GetRandomCollection<WaitEventWidget>(2, 4).ToArray();
-                        WithWidgets(waitEventWidgets);
+                    .WithStart()
+                    .WithProp(o =>
+                    {
+                        var waitEventWidgets = GetRandomCollection<ThingyMaBob>(2, 4).ToArray();
+                        WithThingies(waitEventWidgets);
                     })
-                    .WithLinearProgression();
+                    .WithSomePlan();
             }
 
-            private GraphDataDtoTestDataBuilder WithLinearProgression() {
-                return WithProp(o => {
-                    var start = o.Widgets.FirstOrDefault(w => w.Id == "stateBegin");
+            private YacopBuilder WithSomePlan()
+            {
+                return WithProp(o =>
+                {
+                    var start = o.ThingyMaBobs.FirstOrDefault(w => w.Id == "WibbleStix");
                     if (start == null)
                         return;
-                    var others = new Queue<WaitEventWidget>(o.Widgets.Except(new[] {start}).ToArray());
+                    var others = new Queue<ThingyMaBob>(o.ThingyMaBobs.Except(new[] {start}).ToArray());
                     var last = start;
-                    while (others.Count > 0) {
+                    while (others.Count > 0)
+                    {
                         var next = others.Dequeue();
-                        o.Connections = o.Connections.EmptyIfNull().And(ConnectSuccess(last, next));
+                        o.WerkelSchmerkels = o.WerkelSchmerkels.EmptyIfNull().And(ConnectWibbleStix(last, next));
                         last = next;
                     }
                 });
 
-                TestDeepEqualityTester.DehydratedConnection ConnectSuccess(DehydratedWidget fromWidget, DehydratedWidget toWidget) {
-                    return new TestDeepEqualityTester.DehydratedConnection() {
-                        SourceId = fromWidget.Id == "stateBegin" ? fromWidget.Id : $"success.{fromWidget.Id}",
-                        TargetId = $"wait-event.{toWidget.Id}"
+                TestDeepEqualityTester.WerkelSchmerkel ConnectWibbleStix(BiltongSlab fromWidget, BiltongSlab toWidget)
+                {
+                    return new TestDeepEqualityTester.WerkelSchmerkel()
+                    {
+                        FromId = fromWidget.Id == "WibbleStix" ? fromWidget.Id : $"success.{fromWidget.Id}",
+                        ToId = $"wait-event.{toWidget.Id}"
                     };
                 }
             }
 
-            public GraphDataDtoTestDataBuilder WithWidgets(params WaitEventWidget[] connections) {
+            public YacopBuilder WithThingies(params ThingyMaBob[] connections)
+            {
                 return WithProp(o =>
-                    o.Widgets = o.Widgets.EmptyIfNull().And(connections)
+                    o.ThingyMaBobs = o.ThingyMaBobs.EmptyIfNull().And(connections)
                 );
             }
 
-            public GraphDataDtoTestDataBuilder WithConnections(params TestDeepEqualityTester.DehydratedConnection[] connections) {
-                return WithProp(o => o.Connections = o.Connections.EmptyIfNull().And(connections));
+            public YacopBuilder WithWerkels(params TestDeepEqualityTester.WerkelSchmerkel[] connections)
+            {
+                return WithProp(o => o.WerkelSchmerkels = o.WerkelSchmerkels.EmptyIfNull().And(connections));
             }
 
-            public GraphDataDtoTestDataBuilder WithStartState() {
-                return WithProp(o => o.Widgets = o.Widgets.And(StartState));
+            public YacopBuilder WithStart()
+            {
+                return WithProp(o => o.ThingyMaBobs = o.ThingyMaBobs.And(_start));
             }
         }
-
     }
 
-
+    public static class DeepEqualityTesterExtensions
+    {
+        public static string PrintErrors(this DeepEqualityTester tester)
+        {
+            return tester.Errors.Any()
+                ? "* " + tester.Errors.JoinWith("\n *")
+                : "";
+        }
+    }
 }

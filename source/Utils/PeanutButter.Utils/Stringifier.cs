@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace PeanutButter.Utils
 {
@@ -16,9 +17,9 @@ namespace PeanutButter.Utils
         /// <returns>Human-readable representation of collection</returns>
         public static string Stringify<T>(IEnumerable<T> objs)
         {
-            return objs == null 
+            return objs == null
                 ? "(null collection)"
-                : $"[ {string.Join(", ", objs.Select(o => Stringify(o))) } ]";
+                : $"[ {string.Join(", ", objs.Select(o => Stringify(o)))} ]";
         }
 
         /// <summary>
@@ -34,49 +35,67 @@ namespace PeanutButter.Utils
         private const int MAX_STRINGIFY_DEPTH = 10;
         private const int INDENT_SIZE = 2;
 
-        private static readonly Dictionary<Type, Func<object, string>> _primitiveStringifiers 
+        private static readonly Dictionary<Type, Func<object, string>> _primitiveStringifiers
             = new Dictionary<Type, Func<object, string>>()
             {
                 [typeof(string)] = o => $"\"{o}\"",
                 [typeof(bool)] = o => o.ToString().ToLower()
             };
 
+        private static readonly string[] IgnoreAssembliesByName =
+        {
+            "mscorlib"
+        };
+
         private static string SafeStringifier(object obj, int level)
         {
-            if (obj == null) return "null";
+            if (obj == null)
+                return "null";
             var objType = obj.GetType();
             if (level >= MAX_STRINGIFY_DEPTH || Types.PrimitivesAndImmutables.Contains(objType))
             {
                 Func<object, string> strategy;
                 return _primitiveStringifiers.TryGetValue(objType, out strategy)
-                        ? strategy(obj)
-                        : obj.ToString();
+                    ? strategy(obj)
+                    : obj.ToString();
             }
             try
             {
-                var props = obj.GetType().GetProperties();
+                var props = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
                 var indentMinus1 = new string(' ', level * INDENT_SIZE);
                 var indent = indentMinus1 + new string(' ', INDENT_SIZE);
                 var joinWith = props.Aggregate(new List<string>(), (acc, cur) =>
-                {
-                    var propValue = cur.GetValue(obj);
-                    acc.Add(string.Join(
-                        "", 
-                        cur.Name, 
-                        ": ",  
-                        SafeStringifier(propValue, level+1)));
-                    return acc;
-                }).JoinWith($"\n{indent}");
-                return "{\n" + string.Join(
-                    "\n{indent}",
-                    $"{indent}{joinWith}"
-                    ) + $"\n{indentMinus1}}}";
+                    {
+                        var propValue = cur.GetValue(obj);
+                        if (IgnoreAssembliesByName.Contains(
+                            cur.DeclaringType.Assembly.GetName().Name
+                        ))
+                        {
+                            acc.Add(string.Join("", cur.Name, ": ", propValue?.ToString()));
+                        }
+                        else
+                        {
+                            acc.Add(string.Join(
+                                "",
+                                cur.Name,
+                                ": ",
+                                SafeStringifier(propValue, level + 1)));
+                        }
+
+                        return acc;
+                    })
+                    .JoinWith($"\n{indent}");
+                return "{\n" +
+                       string.Join(
+                           "\n{indent}",
+                           $"{indent}{joinWith}"
+                       ) +
+                       $"\n{indentMinus1}}}";
             }
             catch
             {
                 return obj.ToString();
             }
         }
-
     }
 }

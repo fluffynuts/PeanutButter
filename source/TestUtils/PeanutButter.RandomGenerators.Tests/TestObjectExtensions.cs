@@ -5,11 +5,13 @@ using NUnit.Framework;
 using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using NExpect;
+using static NExpect.Expectations;
 
 namespace PeanutButter.RandomGenerators.Tests
 {
     [TestFixture]
-    public class TestObjectExtensions : AssertionHelper
+    public class TestObjectExtensions
     {
         public class EmptyType
         {
@@ -24,9 +26,10 @@ namespace PeanutButter.RandomGenerators.Tests
             // Act
             var result = src.DeepClone();
             // Assert
-            Expect(result, Is.Not.Null);
-            Expect(result, Is.InstanceOf<EmptyType>());
-            Expect(result.GetType().GetProperties(), Is.Empty);
+            Expect(result).Not.To.Be.Null();
+            // TODO: swap this out when NExpect has InstanceOf<> support
+            Assert.That(result, Is.InstanceOf<EmptyType>());
+            Expect(result.GetType().GetProperties()).To.Be.Empty();
         }
 
         public class Node
@@ -60,11 +63,11 @@ namespace PeanutButter.RandomGenerators.Tests
             // Arrange
             var src = GetRandom<Parent>();
             // Pre-Assert
-            Expect(src.Child, Is.Not.Null);
+            Expect(src.Child).Not.To.Be.Null();
             // Act
             var result = src.DeepClone();
             // Assert
-            Expect(result.Child, Is.Not.EqualTo(src.Child));
+            Expect(result.Child).Not.To.Equal(src.Child);
             PropertyAssert.AreDeepEqual(src, result);
         }
 
@@ -83,7 +86,7 @@ namespace PeanutButter.RandomGenerators.Tests
             // Act
             var result = src.DeepClone();
             // Assert
-            Expect(result.Nodes, Is.Not.Empty);
+            Expect(result.Nodes).Not.To.Be.Empty();
             result.Nodes.ShouldMatchDataIn(src.Nodes);
         }
 
@@ -102,7 +105,7 @@ namespace PeanutButter.RandomGenerators.Tests
             // Act
             var result = src.DeepClone();
             // Assert
-            Expect(result.Nodes, Is.Not.Empty);
+            Expect(result.Nodes).Not.To.Be.Empty();
             result.Nodes.ShouldMatchDataIn(src.Nodes);
         }
 
@@ -121,7 +124,7 @@ namespace PeanutButter.RandomGenerators.Tests
             // Act
             var result = src.DeepClone();
             // Assert
-            Expect(result.Nodes, Is.Not.Empty);
+            Expect(result.Nodes).Not.To.Be.Empty();
             result.Nodes.ShouldMatchDataIn(src.Nodes);
         }
 
@@ -135,7 +138,7 @@ namespace PeanutButter.RandomGenerators.Tests
             // Act
             var result = src.DeepClone();
             // Assert
-            Expect(result.Nodes, Is.Null);
+            Expect(result.Nodes).To.Be.Null();
         }
     }
 }

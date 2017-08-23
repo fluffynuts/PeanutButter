@@ -53,6 +53,11 @@ namespace PeanutButter.Utils
         /// </summary>
         public bool IncludeFields { get; set; }
 
+        /// <summary>
+        /// Toggle only testing the shape of the objects provided.
+        /// </summary>
+        public bool OnlyCompareShape { get; set; }
+
         private List<string> _errors;
 
         /// <summary>
@@ -130,8 +135,10 @@ namespace PeanutButter.Utils
             object objCompare
         )
         {
-            if (objSource == null && objCompare == null) return true;
-            if (objSource == null || objCompare == null) return false;
+            if (objSource == null && objCompare == null)
+                return true;
+            if (objSource == null || objCompare == null)
+                return false;
 
             var sourceType = objSource.GetType();
             var compareType = objCompare.GetType();
@@ -164,12 +171,12 @@ namespace PeanutButter.Utils
             //  if the types match, use .Equals, otherwise attempt upcasting to decimal
             //  so that, eg: (long)2 == (int)2
             if (sourceType == compareType)
-                return objSource.Equals(objCompare);
+                return OnlyCompareShape || objSource.Equals(objCompare);
             var sourceAsDecimal = TryConvertToDecimal(objSource);
             var compareAsDecimal = TryConvertToDecimal(objCompare);
             if (sourceAsDecimal == null || compareAsDecimal == null)
                 return false;
-            return sourceAsDecimal.Equals(compareAsDecimal);
+            return OnlyCompareShape || sourceAsDecimal.Equals(compareAsDecimal);
         }
 
         private decimal? TryConvertToDecimal(object obj)
@@ -229,16 +236,18 @@ namespace PeanutButter.Utils
                 return false;
             }
             var index = 0;
-            return Zip(source, compare).Aggregate(
-                true,
-                (acc, cur) =>
-                {
-                    return acc && DeepCompareAtIndex(
-                               index++,
-                               cur.Item1,
-                               cur.Item2
-                           );
-                });
+            return Zip(source, compare)
+                .Aggregate(
+                    true,
+                    (acc, cur) =>
+                    {
+                        return acc &&
+                               DeepCompareAtIndex(
+                                   index++,
+                                   cur.Item1,
+                                   cur.Item2
+                               );
+                    });
         }
 
         private bool DeepCompareAtIndex(
@@ -327,15 +336,17 @@ namespace PeanutButter.Utils
             if (OnlyTestIntersectingProperties)
             {
                 srcPropInfos = srcPropInfos.Where(
-                    s => compareProps.Any(c => c.Name == s.Name && c.Type == s.Type)
-                ).ToArray();
+                        s => compareProps.Any(c => c.Name == s.Name && c.Type == s.Type)
+                    )
+                    .ToArray();
                 if (srcPropInfos.IsEmpty())
                 {
                     AddError("No intersecting properties found");
                     return false;
                 }
             }
-            if (!FailOnMissingProperties || OnlyTestIntersectingProperties ||
+            if (!FailOnMissingProperties ||
+                OnlyTestIntersectingProperties ||
                 srcPropInfos.Length == compareProps.Length)
                 return CompareWith(objSource, objCompare, srcPropInfos, compareProps);
             AddError(string.Join("\n",
@@ -370,7 +381,8 @@ namespace PeanutButter.Utils
 
         private string DumpPropertyInfo(PropertyOrField[] propInfos)
         {
-            return DUMP_DELIMITER + string.Join(DUMP_DELIMITER,
+            return DUMP_DELIMITER +
+                   string.Join(DUMP_DELIMITER,
                        propInfos.Select(pi => $"{pi.Type} {pi.Name}")
                    );
         }
@@ -381,8 +393,9 @@ namespace PeanutButter.Utils
         )
         {
             var result = left.Where(
-                s => right.Any(c => c.Name == s.Name && c.Type == s.Type)
-            ).ToArray();
+                    s => right.Any(c => c.Name == s.Name && c.Type == s.Type)
+                )
+                .ToArray();
             if (result.IsEmpty())
                 AddError("No intersecting properties found");
             return result;
@@ -397,7 +410,8 @@ namespace PeanutButter.Utils
             var didAnyComparison = false;
             var finalResult = srcPropInfos.Aggregate(true, (result, srcProp) =>
             {
-                if (!result) return false;
+                if (!result)
+                    return false;
                 var compareProp = FindMatchingPropertyInfoFor(comparePropInfos, srcProp);
                 didAnyComparison = didAnyComparison || compareProp != null;
                 return compareProp != null &&
@@ -427,7 +441,7 @@ namespace PeanutButter.Utils
             var compareValue = compareProp.GetValue(objCompare);
             var result = CanPerformSimpleTypeMatchFor(srcProp)
                 ? AreDeepEqualInternal(srcValue, compareValue)
-                : MatchPropertiesOrCollection(srcValue, compareValue);
+                : MatchPropertiesOrCollection(srcValue, compareValue, srcProp, compareProp);
             if (!result)
             {
                 AddError(
@@ -437,20 +451,25 @@ namespace PeanutButter.Utils
             return result;
         }
 
-        private bool MatchPropertiesOrCollection(object srcValue, object compareValue)
+        private bool MatchPropertiesOrCollection(
+            object srcValue, 
+            object compareValue,
+            PropertyOrField srcProp,
+            PropertyOrField compareProp
+        )
         {
-            var srcEnumerableInterface = TryGetEnumerableInterfaceFor(srcValue);
-            var compareEnumerableInterface = TryGetEnumerableInterfaceFor(compareValue);
+            var srcEnumerableInterface = TryGetEnumerableInterfaceFor(srcProp);
+            var compareEnumerableInterface = TryGetEnumerableInterfaceFor(compareProp);
             if (srcEnumerableInterface == null && compareEnumerableInterface == null)
                 return AreDeepEqualInternal(srcValue, compareValue);
             if (srcEnumerableInterface == null || compareEnumerableInterface == null)
                 return false;
-            return CollectionsMatch(
-                srcValue,
-                srcEnumerableInterface,
-                compareValue,
-                compareEnumerableInterface
-            );
+            return OnlyCompareShape || CollectionsMatch(
+                       srcValue,
+                       srcEnumerableInterface,
+                       compareValue,
+                       compareEnumerableInterface
+                   );
         }
 
         private bool CollectionsMatch(
@@ -463,7 +482,8 @@ namespace PeanutButter.Utils
             var t1 = srcEnumerableInterface.GenericTypeArguments[0];
             var t2 = compareEnumerableInterface.GenericTypeArguments[0];
             var genericMethod = GetType()
-                .GetMethod("TestCollectionsMatch", BindingFlags.Instance | BindingFlags.NonPublic);
+                .GetMethod(nameof(TestCollectionsMatch),
+                    BindingFlags.Instance | BindingFlags.NonPublic);
             var typedMethod = genericMethod.MakeGenericMethod(t1, t2);
             return (bool) typedMethod.Invoke(this, new[] {srcValue, compareValue});
         }
@@ -476,6 +496,8 @@ namespace PeanutButter.Utils
             IEnumerable<T2> collection2
         )
         {
+            if (collection1 == null && collection2 == null) return true;
+            if (collection1 == null || collection2 == null) return false;
             var enumerable = collection1 as T1[] ?? collection1.ToArray();
             var second = collection2 as T2[] ?? collection2.ToArray();
             if (enumerable.Length != second.Length)
@@ -508,10 +530,9 @@ namespace PeanutButter.Utils
 
 #pragma warning restore S1144 // Unused private types or members should be removed
 
-        private static Type TryGetEnumerableInterfaceFor(object srcValue)
+        private static Type TryGetEnumerableInterfaceFor(PropertyOrField prop)
         {
-            return srcValue
-                ?.GetType()
+            return prop.Type
                 .TryGetEnumerableInterface();
         }
     }
