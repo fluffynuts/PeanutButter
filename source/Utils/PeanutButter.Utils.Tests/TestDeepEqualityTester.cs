@@ -383,11 +383,13 @@ namespace PeanutButter.Utils.Tests
                 public void ShouldBeTrueWhenSourcePropsAreFoundAtTarget()
                 {
                     // Arrange
-                    var left = new {
+                    var left = new
+                    {
                         Id = 1,
                         Enabled = false
                     };
-                    var right = new {
+                    var right = new
+                    {
                         Id = 123,
                         Name = "Bob",
                         Enabled = true
@@ -979,16 +981,6 @@ namespace PeanutButter.Utils.Tests
             {
                 return WithProp(o => o.ThingyMaBobs = o.ThingyMaBobs.And(_start));
             }
-        }
-    }
-
-    public static class DeepEqualityTesterExtensions
-    {
-        public static string PrintErrors(this DeepEqualityTester tester)
-        {
-            return tester.Errors.Any()
-                ? "* " + tester.Errors.JoinWith("\n *")
-                : "";
         }
     }
 }

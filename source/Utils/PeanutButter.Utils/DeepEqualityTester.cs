@@ -536,43 +536,4 @@ namespace PeanutButter.Utils
                 .TryGetEnumerableInterface();
         }
     }
-
-    internal class PropertyOrField
-    {
-        public string Name => _propInfo?.Name ?? _fieldInfo.Name;
-        public Type Type => _propInfo?.PropertyType ?? _fieldInfo.FieldType;
-
-        private PropertyInfo _propInfo;
-        private FieldInfo _fieldInfo;
-
-        public PropertyOrField(PropertyInfo prop)
-        {
-            _propInfo = prop;
-        }
-
-        public PropertyOrField(FieldInfo field)
-        {
-            _fieldInfo = field;
-        }
-
-        public object GetValue(object host)
-        {
-            return _fieldInfo == null
-                ? _propInfo.GetValue(host)
-                : _fieldInfo.GetValue(host);
-        }
-    }
-
-    internal static class ArrayExtensions
-    {
-        internal static PropertyOrField[] Encapsulate(this PropertyInfo[] propertyInfos)
-        {
-            return propertyInfos.Select(p => new PropertyOrField(p)).ToArray();
-        }
-
-        internal static PropertyOrField[] Encapsulate(this FieldInfo[] propertyInfos)
-        {
-            return propertyInfos.Select(p => new PropertyOrField(p)).ToArray();
-        }
-    }
 }

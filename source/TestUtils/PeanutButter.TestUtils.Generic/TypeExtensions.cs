@@ -10,6 +10,7 @@ namespace PeanutButter.TestUtils.Generic
 {
     public static class TypeExtensions
     {
+
         public static bool HasActionMethodWithName(this Type type, string methodName)
         {
             return type.GetMethods(BindingFlags.Public | BindingFlags.Instance)

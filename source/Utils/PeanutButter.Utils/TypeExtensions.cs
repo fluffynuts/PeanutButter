@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -107,7 +108,7 @@ namespace PeanutButter.Utils
 
 
         private static readonly MethodInfo _genericIsAssignableFromArrayOf
-            = typeof(TypeExtensions).GetMethod("IsAssignableFromArrayOf", BindingFlags.Static | BindingFlags.Public);
+            = typeof(TypeExtensions).GetMethod(nameof(IsAssignableFromArrayOf), BindingFlags.Static | BindingFlags.Public);
 
         /// <summary>
         /// Tests if a type is a generic of a given generic type (eg typeof(List&lt;&gt;))
@@ -126,7 +127,6 @@ namespace PeanutButter.Utils
         /// <param name="t">Type to test</param>
         /// <typeparam name="T">Item type of array which calling code would like to assign</typeparam>
         /// <returns>True if the parameter type is assignable from an array of T</returns>
-        // ReSharper disable once UnusedMember.Global
         public static bool IsAssignableFromArrayOf<T>(this Type t)
         {
             return t.IsAssignableFrom(typeof(T[]));
@@ -204,5 +204,50 @@ namespace PeanutButter.Utils
             return t.GetAllImplementedInterfaces().Contains(_disposableInterface);
         }
         private static readonly Type _disposableInterface = typeof(IDisposable);
+
+
+        public static bool IsAssignableOrUpcastableTo(this Type src, Type target)
+        {
+            return target.IsAssignableFrom(src) ||
+                    src.CanImplicitlyUpcastTo(target);
+        }
+
+        public static bool CanImplicitlyUpcastTo(
+            this Type src, Type target
+        )
+        {
+            var convertSpecific = _tryConvertGeneric.MakeGenericMethod(target);
+            var defaultSpecific = _defaultvalueGeneric.MakeGenericMethod(src);
+            var defaultValue = defaultSpecific.Invoke(null, null);
+            bool canConvert;
+            try
+            {
+                convertSpecific.Invoke(null, new[] { defaultValue });
+                canConvert = true;
+            }
+            catch
+            {
+                canConvert = false;
+            }
+            return canConvert;
+        }
+
+
+        private static MethodInfo _tryConvertGeneric = 
+            typeof(TypeExtensions).GetMethod(nameof(TryConvert), BindingFlags.Static | BindingFlags.NonPublic);
+
+
+        private static T2 TryConvert<T2>(T2 value)
+        {
+            return value;
+        }
+
+        private static MethodInfo _defaultvalueGeneric =
+            typeof(TypeExtensions).GetMethod(nameof(DefaultValue), BindingFlags.Static | BindingFlags.NonPublic);
+
+        private static T DefaultValue<T>()
+        {
+            return default(T);
+        }
     }
 }

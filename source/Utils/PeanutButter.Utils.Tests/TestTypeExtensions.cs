@@ -1,11 +1,13 @@
 ﻿using System;
+using NExpect;
 using NUnit.Framework;
 using PeanutButter.TestUtils.Generic;
+using static NExpect.Expectations;
 
 namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
-    public class TestTypeExtensions: AssertionHelper
+    public class TestTypeExtensions
     {
         [Test]
         public void Ancestry_WorkingOnTypeOfObject_ShouldReturnOnlyObject()
@@ -287,11 +289,11 @@ namespace PeanutButter.Utils.Tests
             var result = typeof(Level1).GetAllImplementedInterfaces();
 
             //--------------- Assert -----------------------
-            Expect(result, Does.Contain(typeof(ILevel1)));
-            Expect(result, Does.Contain(typeof(ILevel2)));
-            Expect(result, Does.Contain(typeof(ILevel3)));
-            Expect(result, Does.Contain(typeof(ILevel4)));
-            Expect(result, Does.Contain(typeof(ILevel4Again)));
+            Expect(result).To.Contain.Exactly(1).Equal.To(typeof(ILevel1));
+            Expect(result).To.Contain.Exactly(1).Equal.To(typeof(ILevel2));
+            Expect(result).To.Contain.Exactly(1).Equal.To(typeof(ILevel3));
+            Expect(result).To.Contain.Exactly(1).Equal.To(typeof(ILevel4));
+            Expect(result).To.Contain.Exactly(1).Equal.To(typeof(ILevel4Again));
 
         }
 
@@ -323,7 +325,7 @@ namespace PeanutButter.Utils.Tests
             var result = sut.IsDisposable();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.False);
+            Expect(result).To.Be.False();
         }
 
         [Test]
@@ -338,10 +340,24 @@ namespace PeanutButter.Utils.Tests
             var result = sut.IsDisposable();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.True);
+            Expect(result).To.Be.True();
         }
 
-
+        [TestCase(typeof(byte), typeof(long))]
+        [TestCase(typeof(byte), typeof(ushort))]
+        [TestCase(typeof(byte), typeof(ulong))]
+        [TestCase(typeof(short), typeof(long))]
+        [TestCase(typeof(int), typeof(long))]
+        [TestCase(typeof(float), typeof(double))]
+        public void CanImplicitlyUpcastTo_ShouldReturnTrueFor_(Type src, Type target)
+        {
+            // Arrange
+            // Pre-Assert
+            // Act
+            var result = src.CanImplicitlyUpcastTo(target);
+            // Assert
+            Expect(result).To.Be.True();
+        }
 
     }
 }
