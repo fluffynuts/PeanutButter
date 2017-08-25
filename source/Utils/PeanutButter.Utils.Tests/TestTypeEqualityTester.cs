@@ -277,7 +277,25 @@ namespace PeanutButter.Utils.Tests
                     }
                 }
             }
+
+            // TODO: pick up from here
+            [TestFixture]
+            public class MultiTier
+            {
+            }
+
+            [TestFixture]
+            public class SingleTierWithCollections
+            {
+            }
+
+            [TestFixture]
+            public class MultiTierWithCollections
+            {
+            }
         }
+
+        
 
         private static TypeEqualityTester Create(Type master, Type compare)
         {
