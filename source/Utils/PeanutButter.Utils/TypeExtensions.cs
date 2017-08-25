@@ -191,7 +191,7 @@ namespace PeanutButter.Utils
             {
                 result.AddRange(type.GetAllImplementedInterfaces());
             }
-            return result.ToArray();
+            return result.Distinct().ToArray();
         }
 
         /// <summary>
