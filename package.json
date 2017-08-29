@@ -2,6 +2,7 @@
   "name": "peanut-butter",
   "scripts": {
     "test": "gulp test-dotnet",
+    "build": "gulp build",
     "coverage": "gulp",
     "release": "gulp release"
   },
