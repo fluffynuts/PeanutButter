@@ -3,7 +3,7 @@
   "scripts": {
     "test": "gulp test-dotnet",
     "build": "gulp build",
-    "coverage": "gulp",
+    "gulp": "gulp",
     "release": "gulp release"
   },
   "devDependencies": {
