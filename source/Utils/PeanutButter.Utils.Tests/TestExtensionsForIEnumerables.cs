@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NExpect;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using static NExpect.Expectations;
+
 // ReSharper disable ExpressionIsAlwaysNull
 // ReSharper disable CollectionNeverUpdated.Local
 // ReSharper disable PossibleMultipleEnumeration
@@ -14,7 +17,7 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
-    public class TestExtensionsForIEnumerables: AssertionHelper
+    public class TestExtensionsForIEnumerables
     {
         [Test]
         public void ForEach_OperatingOnNullCollection_ShouldThrowArgumentNullException()
@@ -36,7 +39,9 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<NullReferenceException>(() => src.ForEach(i => { }));
+            Assert.Throws<NullReferenceException>(() => src.ForEach(i =>
+            {
+            }));
 
             //---------------Test Result -----------------------
         }
@@ -98,7 +103,7 @@ namespace PeanutButter.Utils.Tests
         public void IsSameAs_OperatingOnCollection_WhenBothAreEmpty_ShouldReturnTrue()
         {
             //---------------Set up test pack-------------------
-            var first = new int[] {};
+            var first = new int[] { };
             var second = new List<int>();
 
             //---------------Assert Precondition----------------
@@ -114,8 +119,8 @@ namespace PeanutButter.Utils.Tests
         public void IsSameAs_OperatingOnCollection_WhenBothContainSameElements_ShouldReturnTrue()
         {
             //---------------Set up test pack-------------------
-            var first = new[] { 1 };
-            var second = new List<int>(new[] { 1 });
+            var first = new[] {1};
+            var second = new List<int>(new[] {1});
 
             //---------------Assert Precondition----------------
 
@@ -130,8 +135,8 @@ namespace PeanutButter.Utils.Tests
         public void IsSameAs_OperatingOnCollection_WhenBothContainSameElementsInDifferentOrder_ShouldReturnTrue()
         {
             //---------------Set up test pack-------------------
-            var first = new[] { 1, 2 };
-            var second = new List<int>(new[] { 2, 1 });
+            var first = new[] {1, 2};
+            var second = new List<int>(new[] {2, 1});
 
             //---------------Assert Precondition----------------
 
@@ -146,8 +151,8 @@ namespace PeanutButter.Utils.Tests
         public void IsSameAs_OperatingOnCollection_WhenBothContainDifferentElements_ShouldReturnFalse()
         {
             //---------------Set up test pack-------------------
-            var first = new[] { 1 };
-            var second = new List<int>(new[] { 2, 1 });
+            var first = new[] {1};
+            var second = new List<int>(new[] {2, 1});
 
             //---------------Assert Precondition----------------
 
@@ -174,7 +179,8 @@ namespace PeanutButter.Utils.Tests
         }
 
         [Test]
-        public void JoinWith_OperatingOnCollection_WhenCollectionIsNotEmpty_ShouldReturnCollectionJoinedWithGivenDelimiter()
+        public void
+            JoinWith_OperatingOnCollection_WhenCollectionIsNotEmpty_ShouldReturnCollectionJoinedWithGivenDelimiter()
         {
             //---------------Set up test pack-------------------
             var src = new[] {1, 2, 3};
@@ -278,7 +284,7 @@ namespace PeanutButter.Utils.Tests
             var result = src.ButNot(2);
 
             //---------------Test Result -----------------------
-            CollectionAssert.AreEqual(new[] {1, 3 }, result);
+            CollectionAssert.AreEqual(new[] {1, 3}, result);
         }
 
         [Test]
@@ -302,7 +308,7 @@ namespace PeanutButter.Utils.Tests
         {
             //---------------Set up test pack-------------------
             var input = new List<IEnumerable<int>>();
-            var expected = GetRandomCollection<int>(1,1);
+            var expected = GetRandomCollection<int>(1, 1);
             input.Add(expected);
 
             //---------------Assert Precondition----------------
@@ -328,7 +334,7 @@ namespace PeanutButter.Utils.Tests
             expected.AddRange(part1);
             expected.AddRange(part2);
             expected.AddRange(part3);
-            input.AddRange(new[] { part1, part2, part3 }); 
+            input.AddRange(new[] {part1, part2, part3});
 
             //---------------Assert Precondition----------------
 
@@ -343,7 +349,7 @@ namespace PeanutButter.Utils.Tests
         public void Second_WhenOnlyHaveOneItemInCollection_ShouldThrow()
         {
             //---------------Set up test pack-------------------
-            var input = new[] { 1 };
+            var input = new[] {1};
             var expectedMessage = GetOutOfRangeMessage();
 
             //---------------Assert Precondition----------------
@@ -377,7 +383,7 @@ namespace PeanutButter.Utils.Tests
         public void Third_WhenOnlyHaveOneItemInCollection_ShouldThrow()
         {
             //---------------Set up test pack-------------------
-            var input = new[] { 1 };
+            var input = new[] {1};
             var expectedMessage = GetOutOfRangeMessage();
 
             //---------------Assert Precondition----------------
@@ -410,7 +416,7 @@ namespace PeanutButter.Utils.Tests
         public void FirstAfter_OperatingOnInsufficientCollection_ShouldThrow()
         {
             //---------------Set up test pack-------------------
-            var collection = GetRandomCollection<int>(2,5);
+            var collection = GetRandomCollection<int>(2, 5);
             var skip = GetRandomInt(6, 100);
             var expectedMessage = GetOutOfRangeMessage();
 
@@ -445,7 +451,7 @@ namespace PeanutButter.Utils.Tests
         {
             //---------------Set up test pack-------------------
             var collection = GetRandomCollection<int>(10, 20).ToArray();
-            var skip = GetRandomInt(2,8);
+            var skip = GetRandomInt(2, 8);
             var expected = collection[skip];
 
             //---------------Assert Precondition----------------
@@ -461,7 +467,7 @@ namespace PeanutButter.Utils.Tests
         public void FirstOrDefaultAfter_OperatingOnInsufficientCollectionOfInt_ShouldReturnDefaultForType()
         {
             //---------------Set up test pack-------------------
-            var collection = GetRandomCollection<int>(2,5);
+            var collection = GetRandomCollection<int>(2, 5);
             var skip = GetRandomInt(6, 100);
             var expected = default(int);
 
@@ -483,7 +489,7 @@ namespace PeanutButter.Utils.Tests
         public void FirstOrDefaultAfter_OperatingOnInsufficientCollectionOfComplexType_ShouldReturnDefaultForType()
         {
             //---------------Set up test pack-------------------
-            var collection = GetRandomCollection<SomeType>(2,5);
+            var collection = GetRandomCollection<SomeType>(2, 5);
             var skip = GetRandomInt(6, 100);
             var expected = default(SomeType);
 
@@ -503,7 +509,7 @@ namespace PeanutButter.Utils.Tests
         {
             //---------------Set up test pack-------------------
             var collection = GetRandomCollection<int>(10, 20);
-            var skip = GetRandomInt(2,8);
+            var skip = GetRandomInt(2, 8);
             var expected = collection.ToArray()[skip];
 
             //---------------Assert Precondition----------------
@@ -527,9 +533,10 @@ namespace PeanutButter.Utils.Tests
         {
             // ReSharper disable once MemberCanBePrivate.Local
             public int? Id { get; set; }
+
             public static ItemWithNullableId For(int? value)
             {
-                return new ItemWithNullableId() { Id = value };
+                return new ItemWithNullableId() {Id = value};
             }
         }
 
@@ -539,8 +546,8 @@ namespace PeanutButter.Utils.Tests
             //---------------Set up test pack-------------------
             var id1 = GetRandomInt();
             var id2 = GetRandomInt();
-            var expected = new[] { id1, id2 };
-            var input = new[] 
+            var expected = new[] {id1, id2};
+            var input = new[]
             {
                 ItemWithNullableId.For(id1),
                 ItemWithNullableId.For(null),
@@ -561,12 +568,14 @@ namespace PeanutButter.Utils.Tests
         public class Thing
         {
         }
+
         public class ItemWithNullableThing
         {
             public Thing Thing { get; set; }
+
             public static ItemWithNullableThing For(Thing thing)
             {
-                return new ItemWithNullableThing() { Thing = thing };
+                return new ItemWithNullableThing() {Thing = thing};
             }
         }
 
@@ -576,8 +585,8 @@ namespace PeanutButter.Utils.Tests
             //---------------Set up test pack-------------------
             var id1 = GetRandom<Thing>();
             var id2 = GetRandom<Thing>();
-            var expected = new[] { id1, id2 };
-            var input = new[] 
+            var expected = new[] {id1, id2};
+            var input = new[]
             {
                 ItemWithNullableThing.For(id1),
                 ItemWithNullableThing.For(null),
@@ -598,7 +607,7 @@ namespace PeanutButter.Utils.Tests
         public void AsText_OperatingOnStringArray_ShouldReturnTextBlockWithEnvironmentNewlines()
         {
             //---------------Set up test pack-------------------
-            var input = GetRandomCollection<string>(2,4);
+            var input = GetRandomCollection<string>(2, 4);
             var expected = string.Join(Environment.NewLine, input);
 
             //---------------Assert Precondition----------------
@@ -614,6 +623,7 @@ namespace PeanutButter.Utils.Tests
         {
             public int Id { get; set; }
             public string Name { get; set; }
+
             public override string ToString()
             {
                 return $"{Id} :: {Name}";
@@ -624,7 +634,7 @@ namespace PeanutButter.Utils.Tests
         public void AsText_OperatingOnArrayOfObjects_ShouldReturnTextBlockWithStringRepresentations()
         {
             //---------------Set up test pack-------------------
-            var input = GetRandomCollection<SomethingWithNiceToString>(2,4);
+            var input = GetRandomCollection<SomethingWithNiceToString>(2, 4);
             var expected = string.Join(Environment.NewLine, input);
 
             //---------------Assert Precondition----------------
@@ -640,7 +650,7 @@ namespace PeanutButter.Utils.Tests
         public void AsText_GivenAlternativeDelimiter_ShouldUseIt()
         {
             //---------------Set up test pack-------------------
-            var input = GetRandomCollection<int>(3,6);
+            var input = GetRandomCollection<int>(3, 6);
             var delimiter = GetRandomString(1);
             var expected = string.Join(delimiter, input);
 
@@ -657,7 +667,7 @@ namespace PeanutButter.Utils.Tests
         public void HasUnique_WhenNoMatchesForLambda_ShouldReturnFalse()
         {
             //---------------Set up test pack-------------------
-            var input = new[] { 1,2,3 };
+            var input = new[] {1, 2, 3};
 
             //---------------Assert Precondition----------------
 
@@ -671,7 +681,7 @@ namespace PeanutButter.Utils.Tests
         public void HasUnique_WhenMultipleMatchesForLambda_ShouldReturnFalse()
         {
             //---------------Set up test pack-------------------
-            var input = new[] { "a", "a", "b", "c" };
+            var input = new[] {"a", "a", "b", "c"};
 
             //---------------Assert Precondition----------------
 
@@ -685,7 +695,7 @@ namespace PeanutButter.Utils.Tests
         public void HasUnique_WhenOneMatchesForLambda_ShouldReturnTrue()
         {
             //---------------Set up test pack-------------------
-            var input = new[] { "a", "a", "b", "c" };
+            var input = new[] {"a", "a", "b", "c"};
 
             //---------------Assert Precondition----------------
 
@@ -734,7 +744,9 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<ArgumentException>(() => (-1).TimesDo(() => { }));
+            var ex = Assert.Throws<ArgumentException>(() => (-1).TimesDo(() =>
+            {
+            }));
 
             //---------------Test Result -----------------------
             StringAssert.Contains("positive integer", ex.Message);
@@ -749,7 +761,9 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<ArgumentException>(() => (-1).TimesDo(i => { }));
+            var ex = Assert.Throws<ArgumentException>(() => (-1).TimesDo(i =>
+            {
+            }));
 
             //---------------Test Result -----------------------
             StringAssert.Contains("positive integer", ex.Message);
@@ -779,7 +793,7 @@ namespace PeanutButter.Utils.Tests
         public void ForEach_GivenCollectionAndActionWithTwoParameters_ShouldPopulateSecondParameterWithIndex()
         {
             //---------------Set up test pack-------------------
-            var input = GetRandomCollection<int>(5,15);
+            var input = GetRandomCollection<int>(5, 15);
             var collectedIndexes = new List<int>();
             var collectedItems = new List<int>();
             var expected = new List<int>();
@@ -810,10 +824,10 @@ namespace PeanutButter.Utils.Tests
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            await collection.ForEachAsync(async(i) => await Task.Run(() => collector.Add(i)));
+            await collection.ForEachAsync(async (i) => await Task.Run(() => collector.Add(i)));
 
             //--------------- Assert -----------------------
-            Expect(collector, Is.EqualTo(collection));
+            Expect(collector).To.Be.Equal.To(collection);
         }
 
 
@@ -828,17 +842,156 @@ namespace PeanutButter.Utils.Tests
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            await collection.ForEachAsync(async(x, y) => await Task.Run(() =>
+            await collection.ForEachAsync(async (x, y) => await Task.Run(() =>
             {
                 collector.Add(x);
                 indexes.Add(y);
             }));
 
             //--------------- Assert -----------------------
-            Expect(collector, Is.EqualTo(collection));
-            Expect(indexes, Has.Count.EqualTo(collection.Count()));
-            indexes.ForEach((x, y) => Expect(x, Is.EqualTo(y)));
+            Expect(collector).To.Be.Equal.To(collection);
+            Expect(indexes).To.Contain.Exactly(collection.Count()).Items();
+            Expect(indexes).To.Contain.All().Matched.By((x, y) => x == y);
         }
 
+        [TestFixture]
+        public class FindDuplicates
+        {
+            [TestFixture]
+            public class WithImpliedDiscriminator
+            {
+                [Test]
+                public void OperatingOnEmptyCollection_ShouldReturnEmptCollection()
+                {
+                    // Arrange
+                    var input = new int[0];
+                    // Pre-Assert
+                    // Act
+                    var result = input.FindDuplicates();
+                    // Assert
+                    Expect(result).To.Be.Empty();
+                }
+
+                [Test]
+                public void OperatingOnCollectionOfOne_ShouldReturnEmptCollection()
+                {
+                    // Arrange
+                    var input = new[] {GetRandomInt()};
+                    // Pre-Assert
+                    // Act
+                    var result = input.FindDuplicates();
+                    // Assert
+                    Expect(result).To.Be.Empty();
+                }
+
+                [Test]
+                public void OperatingOnUniqueCollection_ShouldReturnEmptCollection()
+                {
+                    // Arrange
+                    var input = GetRandomCollection<string>(10, 20).Distinct();
+                    // Pre-Assert
+                    // Act
+                    var result = input.FindDuplicates();
+                    // Assert
+                    Expect(result).To.Be.Empty();
+                }
+
+                [Test]
+                public void OperatingOnCollectionWithDuplicates_ShouldReturnDuplicatesOnceEach()
+                {
+                    // Arrange
+                    var input = new[]
+                    {
+                        1, 2, 3, 3, 3, 2
+                    };
+                    // Pre-Assert
+                    // Act
+                    var result = input.FindDuplicates();
+                    // Assert
+                    Expect(result).To.Contain.Exactly(2).Items();
+                    Expect(result).To.Be.Equivalent.To(new[] {2, 3});
+                }
+            }
+
+            [TestFixture]
+            public class WithProvidedDiscriminator
+            {
+                [Test]
+                public void OperatingOnEmptyCollection_ShouldReturnEmptCollection()
+                {
+                    // Arrange
+                    var input = new object[0];
+                    // Pre-Assert
+                    // Act
+                    var result = input.FindDuplicates(o => o.GetHashCode());
+                    // Assert
+                    Expect(result).To.Be.Empty();
+                }
+
+                [Test]
+                public void OperatingOnCollectionOfOne_ShouldReturnEmptCollection()
+                {
+                    // Arrange
+                    var input = new[] {new {id = 1, name = "bob"}};
+                    // Pre-Assert
+                    // Act
+                    var result = input.FindDuplicates(o => o.id);
+                    // Assert
+                    Expect(result).To.Be.Empty();
+                }
+
+                [Test]
+                public void OperatingOnUniqueCollection_ShouldReturnEmptCollection()
+                {
+                    // Arrange
+                    var idx = 0;
+                    var input = GetRandomCollection(() => new
+                    {
+                        name = $"snowflake #{idx}",
+                        id = idx++
+                    });
+                    // Pre-Assert
+                    // Act
+                    var result = input.FindDuplicates(o => o.id);
+                    // Assert
+                    Expect(result).To.Be.Empty();
+                }
+
+                [Test]
+                public void OperatingOnCollectionWithDuplicates_ShouldReturnDuplicatesOnceEach()
+                {
+                    // Arrange
+                    var input = new[]
+                    {
+                        new {id = 1, name = "bob" },
+                        new {id = 2, name = "andrew" },
+                        new {id = 3, name = "posh" },
+                        new {id = 3, name = "scary" },
+                        new {id = 3, name = "baby" },
+                        new {id = 3, name = "sporty" },
+                        new {id = 3, name = "ginger" },
+                        new {id = 2, name = "dave" }
+                    };
+                    // Pre-Assert
+                    // Act
+                    var result = input.FindDuplicates(o => o.id);
+                    // Assert
+                    Expect(result).To.Contain.Exactly(2).Items();
+                    var spiceGirls = result.Where(o => o.Key == 3).Select(o => o.Items).Single().Select(o => o.name);
+                    Expect(spiceGirls).To.Contain.Exactly(5).Items();
+                    Expect(spiceGirls)
+                        .To.Be.Equivalent.To(new[]
+                        {
+                            "posh",
+                            "scary",
+                            "baby",
+                            "sporty",
+                            "ginger"
+                        });
+                    var adoringFans = result.Where(r => r.Key == 2).Select(r => r.Items).Single();
+                    Expect(adoringFans).To.Contain.Exactly(2).Items();
+                }
+            }
+        }
     }
 }

@@ -314,5 +314,68 @@ namespace PeanutButter.Utils
         {
             return src.Skip(toSkip).FirstOrDefault();
         }
+
+        /// <summary>
+        /// Find duplicates within a collectio according to a provided discriminator
+        /// </summary>
+        /// <param name="src">Collection to operate on</param>
+        /// return whatever identifies a particular item uniquely</param>
+        /// <typeparam name="TItem">Type of items in the collection</typeparam>
+        /// <returns>Collection of duplicate items</returns>
+        public static IEnumerable<TItem> FindDuplicates<TItem>(
+            this IEnumerable<TItem> src
+        )
+        {
+            return src.FindDuplicates(x => x).Select(o => o.Key);
+        }
+
+        /// <summary>
+        /// Find duplicates within a collectio according to a provided discriminator
+        /// </summary>
+        /// <param name="src">Collection to operate on</param>
+        /// <param name="descriminator">Function to determine uniqueness of each item: should
+        /// return whatever identifies a particular item uniquely</param>
+        /// <typeparam name="TItem">Type of items in the collection</typeparam>
+        /// <typeparam name="TKey">Type of key used to discriminate items</typeparam>
+        /// <returns>Collection of DuplicateResult items which contain duplicates, according to the provided discriminator</returns>
+        public static IEnumerable<DuplicateResult<TKey, TItem>> FindDuplicates<TItem, TKey>(
+            this IEnumerable<TItem> src,
+            Func<TItem, TKey> descriminator
+        )
+        {
+            return src.GroupBy(descriminator)
+                    .Where(g => g.Count() > 1)
+                    .Select(g => new DuplicateResult<TKey, TItem>(g.Key, g.AsEnumerable()));
+        }
+
+
+        /// <summary>
+        /// DTO for conveying results from the more complex FindDuplicates
+        /// variant which includes a key discriminator
+        /// </summary>
+        /// <typeparam name="TKey">Type of the key that duplication was determined by</typeparam>
+        /// <typeparam name="TItem">Type of the duplicated item(s)</typeparam>
+        public class DuplicateResult<TKey, TItem>
+        {
+            /// <summary>
+            /// Key of duplication
+            /// </summary>
+            public TKey Key { get; }
+            /// <summary>
+            /// Duplicated items matching this key
+            /// </summary>
+            public IEnumerable<TItem> Items { get; }
+            /// <summary>
+            /// Constructs a read-only dto
+            /// </summary>
+            /// <param name="key">Key value</param>
+            /// <param name="items">Duplicated items</param>
+            public DuplicateResult(TKey key, IEnumerable<TItem> items)
+            {
+                Key = key;
+                Items = items;
+            }
+        }
+
     }
 }
