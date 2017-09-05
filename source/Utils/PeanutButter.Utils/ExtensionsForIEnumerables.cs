@@ -334,7 +334,6 @@ namespace PeanutButter.Utils
         /// Find duplicates within a collectio according to a provided discriminator
         /// </summary>
         /// <param name="src">Collection to operate on</param>
-        /// return whatever identifies a particular item uniquely</param>
         /// <typeparam name="TItem">Type of items in the collection</typeparam>
         /// <returns>Collection of duplicate items</returns>
         public static IEnumerable<TItem> FindDuplicates<TItem>(
