@@ -1,10 +1,12 @@
-﻿using NUnit.Framework;
+﻿using NExpect;
+using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using static NExpect.Expectations;
 
 namespace PeanutButter.SimpleHTTPServer.Testability
 {
     [TestFixture]
-    public class TestHttpMethodsExtensions: AssertionHelper
+    public class TestHttpMethodsExtensions
     {
         [Test]
         public void Matches_WhenMethodsMatch_ShouldReturnTrue()
@@ -20,8 +22,8 @@ namespace PeanutButter.SimpleHTTPServer.Testability
             var result2 = right.Matches(left);
 
             //--------------- Assert -----------------------
-            Expect(result1, Is.True);
-            Expect(result2, Is.True);
+            Expect(result1).To.Be.True();
+            Expect(result2).To.Be.True();
         }
 
         [Test]
@@ -40,8 +42,8 @@ namespace PeanutButter.SimpleHTTPServer.Testability
             var result2 = right.Matches(left);
 
             //--------------- Assert -----------------------
-            Expect(result1, Is.False);
-            Expect(result2, Is.False);
+            Expect(result1).To.Be.False();
+            Expect(result2).To.Be.False();
         }
 
         [Test]
@@ -58,8 +60,8 @@ namespace PeanutButter.SimpleHTTPServer.Testability
             var result2 = right.Matches(left);
 
             //--------------- Assert -----------------------
-            Expect(result1, Is.True);
-            Expect(result2, Is.True);
+            Expect(result1).To.Be.True();
+            Expect(result2).To.Be.True();
         }
 
         [Test]
@@ -76,8 +78,8 @@ namespace PeanutButter.SimpleHTTPServer.Testability
             var result2 = right.Matches(left);
 
             //--------------- Assert -----------------------
-            Expect(result1, Is.True);
-            Expect(result2, Is.True);
+            Expect(result1).To.Be.True();
+            Expect(result2).To.Be.True();
         }
 
         [TestCase(HttpMethods.Get, "GET")]
@@ -95,7 +97,7 @@ namespace PeanutButter.SimpleHTTPServer.Testability
             var result = method.Matches(verb);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.True);
+            Expect(result).To.Be.True();
         }
 
         [Test]
@@ -110,7 +112,7 @@ namespace PeanutButter.SimpleHTTPServer.Testability
             var result = method.Matches(GetRandomFrom(new[] { "GET", "PUT", "POST", "Options", "PATCH" } ));
 
             //--------------- Assert -----------------------
-            Expect(result, Is.True);
+            Expect(result).To.Be.True();
         }
 
         private HttpMethods GetRandomMethodButNotAny()

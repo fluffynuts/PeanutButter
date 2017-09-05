@@ -6,6 +6,8 @@ namespace PeanutButter.Utils
     {
         public bool Equals(TKey x, TKey y)
         {
+            if (x == null && y == null)
+                return true;
             return x?.Equals(y) ?? false;
         }
 
