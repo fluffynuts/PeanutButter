@@ -8,7 +8,12 @@ namespace PeanutButter.Utils
     /// <summary>
     /// Useful extensions for IEnumerable&lt;T&gt; collections
     /// </summary>
-    public static class ExtensionsForIEnumerables
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public 
+#endif
+        static class ExtensionsForIEnumerables
     {
         /// <summary>
         /// The missing ForEach method
@@ -43,7 +48,10 @@ namespace PeanutButter.Utils
         public static void ForEach<T>(this IEnumerable<T> collection, Action<T, int> toRunWithIndex)
         {
             var idx = 0;
-            collection.ForEach(o => { toRunWithIndex(o, idx++); });
+            collection.ForEach(o =>
+            {
+                toRunWithIndex(o, idx++);
+            });
         }
 
         /// <summary>
@@ -56,7 +64,10 @@ namespace PeanutButter.Utils
         public static async Task ForEachAsync<T>(this IEnumerable<T> collection, Func<T, int, Task> toRunWithIndex)
         {
             var idx = 0;
-            await collection.ForEachAsync(async (o) => { await toRunWithIndex(o, idx++); });
+            await collection.ForEachAsync(async (o) =>
+            {
+                await toRunWithIndex(o, idx++);
+            });
         }
 
         /// <summary>
@@ -68,11 +79,14 @@ namespace PeanutButter.Utils
         /// <returns>True if all values in the source collection are found in the target collection</returns>
         public static bool IsSameAs<T>(this IEnumerable<T> collection, IEnumerable<T> otherCollection)
         {
-            if (collection == null && otherCollection == null) return true;
-            if (collection == null || otherCollection == null) return false;
+            if (collection == null && otherCollection == null)
+                return true;
+            if (collection == null || otherCollection == null)
+                return false;
             var source = collection.ToArray();
             var target = otherCollection.ToArray();
-            if (source.Count() != target.Count()) return false;
+            if (source.Count() != target.Count())
+                return false;
             return source.Aggregate(true, (state, item) => state && target.Contains(item));
         }
 
@@ -109,7 +123,8 @@ namespace PeanutButter.Utils
         /// <returns>True if the collection is null or has no items; false otherwise.</returns>
         public static bool IsEmpty<T>(this IEnumerable<T> collection)
         {
-            if (collection == null) return true;
+            if (collection == null)
+                return true;
             return !collection.Any();
         }
 
@@ -344,8 +359,8 @@ namespace PeanutButter.Utils
         )
         {
             return src.GroupBy(descriminator)
-                    .Where(g => g.Count() > 1)
-                    .Select(g => new DuplicateResult<TKey, TItem>(g.Key, g.AsEnumerable()));
+                .Where(g => g.Count() > 1)
+                .Select(g => new DuplicateResult<TKey, TItem>(g.Key, g.AsEnumerable()));
         }
 
 
@@ -361,10 +376,12 @@ namespace PeanutButter.Utils
             /// Key of duplication
             /// </summary>
             public TKey Key { get; }
+
             /// <summary>
             /// Duplicated items matching this key
             /// </summary>
             public IEnumerable<TItem> Items { get; }
+
             /// <summary>
             /// Constructs a read-only dto
             /// </summary>
@@ -376,6 +393,5 @@ namespace PeanutButter.Utils
                 Items = items;
             }
         }
-
     }
 }

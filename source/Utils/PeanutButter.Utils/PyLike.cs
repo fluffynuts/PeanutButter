@@ -8,7 +8,12 @@ namespace PeanutButter.Utils
     /// <summary>
     /// Provides a Python-like Range method
     /// </summary>
-    public static class PyLike
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public 
+#endif
+        static class PyLike
     {
         /// <summary>
         /// Produces a sequence of consecutive ints from zero to (stop - 1)
@@ -45,7 +50,6 @@ namespace PeanutButter.Utils
                 yield return start;
                 start += step;
             }
-            yield break;
         }
 
         /// <summary>
@@ -102,7 +106,7 @@ namespace PeanutButter.Utils
                 while (MoveAll(leftEnumerator, middleEnumerator, rightEnumerator))
                 {
                     yield return Tuple.Create(
-                        leftEnumerator.Current, 
+                        leftEnumerator.Current,
                         middleEnumerator.Current,
                         rightEnumerator.Current
                     );

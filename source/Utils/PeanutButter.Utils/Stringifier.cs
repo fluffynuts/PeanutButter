@@ -8,7 +8,12 @@ namespace PeanutButter.Utils
     /// <summary>
     /// Provides convenience functions to get reasonable string representations of objects and collections
     /// </summary>
-    public static class Stringifier
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public 
+#endif
+    static class Stringifier
     {
         /// <summary>
         /// Provides a reasonable human-readable string representation of a collection

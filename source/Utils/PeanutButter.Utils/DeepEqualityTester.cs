@@ -19,7 +19,12 @@ namespace PeanutButter.Utils
     /// - DeepSubEquals -> tests if one object matches another, for all the properties that the first has in common with the second
     /// - DeepIntersectionEquals -> tests deep equality only on properties which can be matched by name and type
     /// </summary>
-    public class DeepEqualityTester
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public 
+#endif
+        class DeepEqualityTester
     {
         private readonly object _objSource;
         private readonly object _objCompare;
@@ -452,7 +457,7 @@ namespace PeanutButter.Utils
         }
 
         private bool MatchPropertiesOrCollection(
-            object srcValue, 
+            object srcValue,
             object compareValue,
             PropertyOrField srcProp,
             PropertyOrField compareProp
@@ -464,7 +469,8 @@ namespace PeanutButter.Utils
                 return AreDeepEqualInternal(srcValue, compareValue);
             if (srcEnumerableInterface == null || compareEnumerableInterface == null)
                 return false;
-            return OnlyCompareShape || CollectionsMatch(
+            return OnlyCompareShape ||
+                   CollectionsMatch(
                        srcValue,
                        srcEnumerableInterface,
                        compareValue,
@@ -496,8 +502,10 @@ namespace PeanutButter.Utils
             IEnumerable<T2> collection2
         )
         {
-            if (collection1 == null && collection2 == null) return true;
-            if (collection1 == null || collection2 == null) return false;
+            if (collection1 == null && collection2 == null)
+                return true;
+            if (collection1 == null || collection2 == null)
+                return false;
             var enumerable = collection1 as T1[] ?? collection1.ToArray();
             var second = collection2 as T2[] ?? collection2.ToArray();
             if (enumerable.Length != second.Length)

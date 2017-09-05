@@ -3,12 +3,22 @@ using System.Reflection;
 
 namespace PeanutButter.Utils
 {
-    public enum PropertyOrFieldTypes
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+    enum PropertyOrFieldTypes
     {
         Property,
         Field
     }
-    public class PropertyOrField
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+    class PropertyOrField
     {
         public static PropertyOrField Create(PropertyInfo propertyInfo)
         {

@@ -10,7 +10,12 @@ namespace PeanutButter.Utils
     /// <summary>
     /// Helper extensions for Types
     /// </summary>
-    public static class TypeExtensions
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public 
+#endif
+    static class TypeExtensions
     {
         /// <summary>
         /// Enumerates the ancestry of a Type
