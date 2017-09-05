@@ -560,7 +560,7 @@ namespace PeanutButter.Utils
             {
                 return Get<T>(src, propertyPath);
             }
-            catch (PropertyNotFoundException)
+            catch (MemberNotFoundException)
             {
                 return defaultValue;
             }
@@ -599,14 +599,14 @@ namespace PeanutButter.Utils
         /// <param name="src">Source object</param>
         /// <param name="propertyName">Name of the property to search for</param>
         /// <returns>Value of the property, cast/boxed to object</returns>
-        /// <exception cref="PropertyNotFoundException">Thrown when the property is not found by name</exception>
+        /// <exception cref="MemberNotFoundException">Thrown when the property is not found by name</exception>
         public static object GetPropertyValue(this object src, string propertyName)
         {
             var type = src.GetType();
             var propInfo = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                 .FirstOrDefault(pi => pi.Name == propertyName);
             if (propInfo == null)
-                throw new PropertyNotFoundException(type, propertyName);
+                throw new MemberNotFoundException(type, propertyName);
             return propInfo.GetValue(src, null);
         }
 
@@ -633,7 +633,7 @@ namespace PeanutButter.Utils
         /// <param name="src">Source object to set property on</param>
         /// <param name="propertyPath">Path into the property: could be an immediate property name or something like "Company.Name"</param>
         /// <param name="newValue">New value to attempt to set the property to</param>
-        /// <exception cref="PropertyNotFoundException">Thrown when the property cannot be found</exception>
+        /// <exception cref="MemberNotFoundException">Thrown when the property cannot be found</exception>
         public static void SetPropertyValue(this object src, string propertyPath, object newValue)
         {
             var queue = new Queue<string>(propertyPath.Split('.'));
@@ -644,7 +644,7 @@ namespace PeanutButter.Utils
                 var propInfo = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                     .FirstOrDefault(pi => pi.Name == current);
                 if (propInfo == null)
-                    throw new PropertyNotFoundException(type, current);
+                    throw new MemberNotFoundException(type, current);
                 if (queue.Count == 0)
                 {
                     propInfo.SetValue(src, newValue);
@@ -652,7 +652,7 @@ namespace PeanutButter.Utils
                 }
                 src = propInfo.GetValue(src);
             }
-            throw new PropertyNotFoundException(src.GetType(), propertyPath);
+            throw new MemberNotFoundException(src.GetType(), propertyPath);
         }
 
         /// <summary>

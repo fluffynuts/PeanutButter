@@ -90,9 +90,9 @@
     <Compile Include="MergeDictionaryEnumerator.cs" />
     <Compile Include="ObjectExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PropertyNotFoundException.cs" />
+    <Compile Include="MemberNotFoundException.cs" />
     <Compile Include="PropertyOrField.cs" />
-    <Compile Include="Range.cs" />
+    <Compile Include="PyLike.cs" />
     <Compile Include="SafeWalk.cs" />
     <Compile Include="StreamExtensions.cs" />
     <Compile Include="StrictComparer.cs" />

@@ -617,7 +617,7 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<PropertyNotFoundException>(() => o.Get<bool>("prop"));
+            Assert.Throws<MemberNotFoundException>(() => o.Get<bool>("prop"));
 
             //---------------Test Result -----------------------
         }
