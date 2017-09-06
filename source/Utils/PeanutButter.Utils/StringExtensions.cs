@@ -10,7 +10,12 @@ namespace PeanutButter.Utils
     /// <summary>
     /// Provides utility extensions for strings
     /// </summary>
-    public static class StringExtensions
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        static class StringExtensions
     {
         /// <summary>
         /// Replaces patterns matched by the given regex pattern with the given replaceWith string

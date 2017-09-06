@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
+
+// ReSharper disable IntroduceOptionalParameters.Global
 
 namespace PeanutButter.Utils
 {
@@ -34,7 +37,18 @@ namespace PeanutButter.Utils
         /// <returns>Human-readable representation of object</returns>
         public static string Stringify(object obj)
         {
-            return SafeStringifier(obj, 0);
+            return Stringify(obj, "null");
+        }
+
+        /// <summary>
+        /// Provides a reasonable human-readable string representation of an object
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="nullRepresentation">How to represent null values - defaults to the string "null"</param>
+        /// <returns>Human-readable representation of object</returns>
+        public static string Stringify(object obj, string nullRepresentation)
+        {
+            return SafeStringifier(obj, 0, nullRepresentation ?? "null");
         }
 
         private const int MAX_STRINGIFY_DEPTH = 10;
@@ -52,10 +66,10 @@ namespace PeanutButter.Utils
             "mscorlib"
         };
 
-        private static string SafeStringifier(object obj, int level)
+        private static string SafeStringifier(object obj, int level, string nullRepresentation)
         {
             if (obj == null)
-                return "null";
+                return nullRepresentation;
             var objType = obj.GetType();
             if (level >= MAX_STRINGIFY_DEPTH || Types.PrimitivesAndImmutables.Contains(objType))
             {
@@ -84,18 +98,18 @@ namespace PeanutButter.Utils
                                 "",
                                 cur.Name,
                                 ": ",
-                                SafeStringifier(propValue, level + 1)));
+                                SafeStringifier(propValue, level + 1, nullRepresentation)));
                         }
 
                         return acc;
                     })
                     .JoinWith($"\n{indent}");
-                return "{\n" +
+                return ("{\n" +
                        string.Join(
                            "\n{indent}",
                            $"{indent}{joinWith}"
                        ) +
-                       $"\n{indentMinus1}}}";
+                       $"\n{indentMinus1}}}").Compact();
             }
             catch
             {
@@ -103,4 +117,27 @@ namespace PeanutButter.Utils
             }
         }
     }
+
+    internal static class StringifierStringExtensions
+    {
+        internal static string Compact(this string str)
+        {
+            return new[]
+            {
+                "\r\n",
+                "\n"
+            }.Aggregate(str, (acc, cur) =>
+            {
+                while (acc.Contains(cur))
+                    acc = acc.Replace(cur, "");
+                return acc;
+            }).SquashEmptyObjects();
+        }
+
+        private static string SquashEmptyObjects(this string str)
+        {
+            return str.RegexReplace("{\\s*}", "{}");
+        }
+    }
+
 }

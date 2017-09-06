@@ -6,7 +6,12 @@ namespace PeanutButter.Utils
     /// <summary>
     /// Provides some extensions useful for byte arrays
     /// </summary>
-    public static class ByteArrayExtensions
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public 
+#endif
+        static class ByteArrayExtensions
     {
         /// <summary>
         /// Calculates the md5sum for the provided binary data
