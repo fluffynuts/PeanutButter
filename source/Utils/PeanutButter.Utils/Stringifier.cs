@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
 
 // ReSharper disable IntroduceOptionalParameters.Global
 
@@ -128,8 +127,9 @@ namespace PeanutButter.Utils
                 "\n"
             }.Aggregate(str, (acc, cur) =>
             {
-                while (acc.Contains(cur))
-                    acc = acc.Replace(cur, "");
+                var twice = $"{cur}{cur}";
+                while (acc.Contains(twice))
+                    acc = acc.Replace(twice, "");
                 return acc;
             }).SquashEmptyObjects();
         }
