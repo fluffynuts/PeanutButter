@@ -111,7 +111,6 @@ namespace PeanutButter.Utils
                         rightEnumerator.Current
                     );
                 }
-                yield break;
             }
         }
 

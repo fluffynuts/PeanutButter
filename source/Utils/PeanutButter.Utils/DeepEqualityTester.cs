@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using static PeanutButter.Utils.PyLike;
+// ReSharper disable PossibleMultipleEnumeration
 
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -210,7 +211,7 @@ namespace PeanutButter.Utils
         {
             var sourceItemType = GetItemTypeFor(sourceType);
             var compareItemType = GetItemTypeFor(compareType);
-            var method = DeepCollectionCompareGenericMethod.MakeGenericMethod(
+            var method = _deepCollectionCompareGenericMethod.MakeGenericMethod(
                 sourceItemType, compareItemType
             );
             return (bool) method.Invoke(this, new[] {objSource, objCompare});
@@ -221,7 +222,7 @@ namespace PeanutButter.Utils
             return collectionType.GenericTypeArguments[0];
         }
 
-        private static readonly MethodInfo DeepCollectionCompareGenericMethod =
+        private static readonly MethodInfo _deepCollectionCompareGenericMethod =
             typeof(DeepEqualityTester).GetMethod(
                 nameof(DeepCollectionCompareGeneric),
                 BindingFlags.NonPublic | BindingFlags.Instance
@@ -382,12 +383,12 @@ namespace PeanutButter.Utils
             return props;
         }
 
-        private const string DUMP_DELIMITER = "\n* ";
+        private const string DumpDelimiter = "\n* ";
 
         private string DumpPropertyInfo(PropertyOrField[] propInfos)
         {
-            return DUMP_DELIMITER +
-                   string.Join(DUMP_DELIMITER,
+            return DumpDelimiter +
+                   string.Join(DumpDelimiter,
                        propInfos.Select(pi => $"{pi.Type} {pi.Name}")
                    );
         }

@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+// ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
 
 namespace PeanutButter.Utils
 {
@@ -149,8 +150,7 @@ namespace PeanutButter.Utils
         /// <returns>True if the string can be converted to an integer; False otherwise</returns>
         public static bool IsInteger(this string src)
         {
-            int value;
-            return int.TryParse(src, out value);
+            return int.TryParse(src, out var _);
         }
 
         /// <summary>
@@ -299,7 +299,8 @@ namespace PeanutButter.Utils
         // ReSharper disable once MemberCanBePrivate.Global
         public static string ToLowerCasedFirstLetter(this string input)
         {
-            return input?.Length > 0
+            return (input?.Length ?? 0) > 0
+                // ReSharper disable once PossibleNullReferenceException
                 ? $"{input[0].ToString().ToLower()}{input.Substring(1)}"
                 : input;
         }
@@ -312,7 +313,8 @@ namespace PeanutButter.Utils
         // ReSharper disable once MemberCanBePrivate.Global
         public static string ToUpperCasedFirstLetter(this string input)
         {
-            return input?.Length > 0
+            return (input?.Length ?? 0) > 0
+                // ReSharper disable once PossibleNullReferenceException
                 ? $"{input[0].ToString().ToUpper()}{input.Substring(1)}"
                 : input;
         }

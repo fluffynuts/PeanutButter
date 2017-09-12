@@ -50,8 +50,8 @@ namespace PeanutButter.Utils
             return SafeStringifier(obj, 0, nullRepresentation ?? "null");
         }
 
-        private const int MAX_STRINGIFY_DEPTH = 10;
-        private const int INDENT_SIZE = 2;
+        private const int MaxStringifyDepth = 10;
+        private const int IndentSize = 2;
 
         private static readonly Dictionary<Type, Func<object, string>> _primitiveStringifiers
             = new Dictionary<Type, Func<object, string>>()
@@ -60,7 +60,7 @@ namespace PeanutButter.Utils
                 [typeof(bool)] = o => o.ToString().ToLower()
             };
 
-        private static readonly string[] IgnoreAssembliesByName =
+        private static readonly string[] _ignoreAssembliesByName =
         {
             "mscorlib"
         };
@@ -70,7 +70,7 @@ namespace PeanutButter.Utils
             if (obj == null)
                 return nullRepresentation;
             var objType = obj.GetType();
-            if (level >= MAX_STRINGIFY_DEPTH || Types.PrimitivesAndImmutables.Contains(objType))
+            if (level >= MaxStringifyDepth || Types.PrimitivesAndImmutables.Contains(objType))
             {
                 Func<object, string> strategy;
                 return _primitiveStringifiers.TryGetValue(objType, out strategy)
@@ -80,13 +80,13 @@ namespace PeanutButter.Utils
             try
             {
                 var props = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
-                var indentMinus1 = new string(' ', level * INDENT_SIZE);
-                var indent = indentMinus1 + new string(' ', INDENT_SIZE);
+                var indentMinus1 = new string(' ', level * IndentSize);
+                var indent = indentMinus1 + new string(' ', IndentSize);
                 var joinWith = props.Aggregate(new List<string>(), (acc, cur) =>
                     {
                         var propValue = cur.GetValue(obj);
-                        if (IgnoreAssembliesByName.Contains(
-                            cur.DeclaringType.Assembly.GetName().Name
+                        if (_ignoreAssembliesByName.Contains(
+                            cur.DeclaringType?.Assembly.GetName().Name
                         ))
                         {
                             acc.Add(string.Join("", cur.Name, ": ", propValue?.ToString()));
