@@ -369,6 +369,45 @@ namespace PeanutButter.TestUtils.Generic.Tests
             // Assert
         }
 
+        [TestFixture]
+        public class NullableVsNonNullable
+        {
+            public class HasADecimal
+            {
+                public decimal Value { get; }
+                public HasADecimal(decimal value)
+                {
+                    Value = value;
+                }
+            }
+            public class HasANullableDecimal
+            {
+                public decimal? Value { get; }
+                public HasANullableDecimal(decimal? value)
+                {
+                    Value = value;
+                }
+            }
+
+            [Test]
+            public void AreEqual_WhenNullableAndNonNullableValues_AreEqual_ShouldNotThrow()
+            {
+                // Arrange
+                var value = GetRandomDecimal();
+                var left = new HasADecimal(value);
+                var right = new HasANullableDecimal(value);
+                // Pre-Assert
+                Assert.That(left.Value, Is.EqualTo(right.Value));
+                // Act
+                Assert.That(() =>
+                {
+                    PropertyAssert.AreEqual(left, right, nameof(HasANullableDecimal.Value));
+                }, Throws.Nothing);
+
+                // Assert
+            }
+        }
+
         public class BaseClass
         {
             public virtual string Name { get; set; }

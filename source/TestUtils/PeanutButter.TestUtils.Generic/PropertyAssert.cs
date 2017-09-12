@@ -136,13 +136,19 @@ namespace PeanutButter.TestUtils.Generic
             var type2 = obj2.GetType();
             var targetPropInfo = type2.GetProperty(obj2PropName);
             Assert.IsNotNull(targetPropInfo, PropNotFoundMessage(type2, obj2PropName));
-            Assert.AreEqual(srcPropInfo.PropertyType, targetPropInfo.PropertyType,
-                CreateMessageFor(srcPropInfo, targetPropInfo));
+            if (!targetPropInfo.PropertyType
+                    .MatchesOrIsNullableOf(srcPropInfo.PropertyType))
+            {
+                Assert.Fail(CreateTypeMismatchMessageFor(srcPropInfo, targetPropInfo));
+            }
             finalAssertion(srcPropInfo.GetValue(obj1, null), targetPropInfo.GetValue(obj2, null),
                 obj1PropName + " => " + obj2PropName);
         }
 
-        private static string CreateMessageFor(PropertyInfo srcPropInfo, PropertyInfo targetPropInfo)
+        private static string CreateTypeMismatchMessageFor(
+            PropertyInfo srcPropInfo, 
+            PropertyInfo targetPropInfo
+        )
         {
             return string.Join(string.Empty,
                 "Property types for '",

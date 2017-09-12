@@ -10,7 +10,6 @@ namespace PeanutButter.TestUtils.Generic
 {
     public static class TypeExtensions
     {
-
         public static bool HasActionMethodWithName(this Type type, string methodName)
         {
             return type.GetMethods(BindingFlags.Public | BindingFlags.Instance)
@@ -268,6 +267,20 @@ namespace PeanutButter.TestUtils.Generic
             // http://stackoverflow.com/questions/1770181/determine-if-reflected-property-can-be-assigned-null#1770232
             // conveniently located as an extension method
             return !type.IsValueType || Nullable.GetUnderlyingType(type) != null;
+        }
+
+        public static bool MatchesOrIsNullableOf(this Type type, Type other)
+        {
+            var underlyingType = type.GetUnderlyingType();
+            var underlyingOther = other.GetUnderlyingType();
+            return underlyingType == underlyingOther;
+        }
+
+        private static Type GetUnderlyingType(this Type type)
+        {
+            return (!type.IsGenericType || type.GetGenericTypeDefinition() != typeof(Nullable<>))
+                ? type
+                : Nullable.GetUnderlyingType(type);
         }
 
         public static void ShouldHaveEnumValue(this Type type, string valueName)
