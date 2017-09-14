@@ -1,16 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Extensions;
-using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using NExpect;
+using static NExpect.Expectations;
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable ClassNeverInstantiated.Global
+// ReSharper disable ExpressionIsAlwaysNull
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+// ReSharper disable InconsistentNaming
+// ReSharper disable MemberHidesStaticFromOuterClass
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+// ReSharper disable UnusedMember.Global
 
 namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
-    public class TestObjectExtensions: AssertionHelper
+    public class TestObjectExtensions
     {
         [Test]
         public void DeepEquals_GivenSourceWithNoPropsAndDestWithNoProps_ShouldReturnTrue()
@@ -35,8 +45,8 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var randomString = RandomValueGen.GetRandomString();
-            var result = (new { prop = randomString }).DeepEquals(new { prop = randomString });
+            var randomString = GetRandomString();
+            var result = (new {prop = randomString}).DeepEquals(new {prop = randomString});
 
             //---------------Test Result -----------------------
             Assert.IsTrue(result);
@@ -46,12 +56,12 @@ namespace PeanutButter.Utils.Tests
         public void DeepSubEquals_WhenDestinationHasMorePropertiesButSameNamedOnesMatch_ReturnsTrue()
         {
             //---------------Set up test pack-------------------
-            var rs = RandomValueGen.GetRandomString();
+            var rs = GetRandomString();
 
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = (new { prop = rs }).DeepSubEquals(new { prop = rs, bar = RandomValueGen.GetRandomString() });
+            var result = (new {prop = rs}).DeepSubEquals(new {prop = rs, bar = GetRandomString()});
 
             //---------------Test Result -----------------------
             Assert.IsTrue(result);
@@ -65,7 +75,7 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = (new { prop = RandomValueGen.GetRandomString() })
+            var result = (new {prop = GetRandomString()})
                 .DeepSubEquals(new object());
 
             //---------------Test Result -----------------------
@@ -76,12 +86,12 @@ namespace PeanutButter.Utils.Tests
         public void DeepEquals_WhenStringPropertyDoesntMatch_ReturnsFalse()
         {
             //---------------Set up test pack-------------------
-            var propVal = RandomValueGen.GetRandomString();
+            var propVal = GetRandomString();
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = (new { prop = propVal })
-                .DeepEquals(new { prop = propVal + RandomValueGen.GetRandomString(1, 10) });
+            var result = (new {prop = propVal})
+                .DeepEquals(new {prop = propVal + GetRandomString(1, 10)});
 
             //---------------Test Result -----------------------
             Assert.IsFalse(result);
@@ -157,12 +167,12 @@ namespace PeanutButter.Utils.Tests
         private static void TestPropertyMatchingFor<T>()
         {
             //---------------Set up test pack-------------------
-            var propVal = (T)RandomValueGen.GetRandom<T>();
+            var propVal = GetRandom<T>();
 
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = (new { prop = propVal }).DeepEquals(new { prop = propVal });
+            var result = (new {prop = propVal}).DeepEquals(new {prop = propVal});
 
             //---------------Test Result -----------------------
             Assert.IsTrue(result);
@@ -172,14 +182,18 @@ namespace PeanutButter.Utils.Tests
         public void DeepEquals_ComplexTypesAreTraversed_HappyCase()
         {
             //---------------Set up test pack-------------------
-            var propVal = RandomValueGen.GetRandomString();
-            var o1 = new {
-                prop = new {
+            var propVal = GetRandomString();
+            var o1 = new
+            {
+                prop = new
+                {
                     bar = propVal
                 }
             };
-            var o2 = new {
-                prop = new {
+            var o2 = new
+            {
+                prop = new
+                {
                     bar = propVal
                 }
             };
@@ -197,14 +211,18 @@ namespace PeanutButter.Utils.Tests
         public void DeepEquals_ComplexTypesAreTraversed_UnhappyCase()
         {
             //---------------Set up test pack-------------------
-            var o1 = new {
-                prop = new {
-                    bar = RandomValueGen.GetRandomString(1, 10)
+            var o1 = new
+            {
+                prop = new
+                {
+                    bar = GetRandomString(1, 10)
                 }
             };
-            var o2 = new {
-                prop = new {
-                    bar = RandomValueGen.GetRandomString(11, 20)
+            var o2 = new
+            {
+                prop = new
+                {
+                    bar = GetRandomString(11, 20)
                 }
             };
 
@@ -221,12 +239,14 @@ namespace PeanutButter.Utils.Tests
         public void DeepEquals_WhenGivenOnePropertiesToIgnoreByName_ShouldIgnoreThosePropertiesInTheComparison()
         {
             //---------------Set up test pack-------------------
-            var o1 = new {
+            var o1 = new
+            {
                 testMe = "foo",
                 ignoreMe = 1
             };
-            var o2 = new {
-                testMe = o1.testMe,
+            var o2 = new
+            {
+                o1.testMe,
                 ignoreMe = o1.ignoreMe + 1
             };
 
@@ -243,13 +263,15 @@ namespace PeanutButter.Utils.Tests
         public void DeepEquals_WhenGivenListOfPropertiesToIgnoreByName_ShouldIgnoreThosePropertiesInTheComparison()
         {
             //---------------Set up test pack-------------------
-            var o1 = new {
+            var o1 = new
+            {
                 testMe = "foo",
                 ignoreMe1 = 1,
                 ignoreMe2 = 2
             };
-            var o2 = new {
-                testMe = o1.testMe,
+            var o2 = new
+            {
+                o1.testMe,
                 ignoreMe1 = o1.ignoreMe1 + 1,
                 ignoreMe2 = o1.ignoreMe1
             };
@@ -268,13 +290,15 @@ namespace PeanutButter.Utils.Tests
         public void DeepEquals_WhenGivenArrayOfPropertiesToIgnoreByName_ShouldIgnoreThosePropertiesInTheComparison()
         {
             //---------------Set up test pack-------------------
-            var o1 = new {
+            var o1 = new
+            {
                 testMe = "foo",
                 ignoreMe1 = 1,
                 ignoreMe2 = 2
             };
-            var o2 = new {
-                testMe = o1.testMe,
+            var o2 = new
+            {
+                o1.testMe,
                 ignoreMe1 = o1.ignoreMe1 + 1,
                 ignoreMe2 = o1.ignoreMe1
             };
@@ -282,7 +306,7 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = o1.DeepEquals(o2, new[] { "ignoreMe1", "ignoreMe2" });
+            var result = o1.DeepEquals(o2, "ignoreMe1", "ignoreMe2");
 
             //---------------Test Result -----------------------
             Assert.IsTrue(result);
@@ -292,10 +316,12 @@ namespace PeanutButter.Utils.Tests
         public void DeepSubEquals_GivenSourceAndDestWithNoOverlappingProps_ShouldReturnFalse()
         {
             //--------------- Arrange -------------------
-            var left = new {
+            var left = new
+            {
                 foo = "bar"
             };
-            var right = new {
+            var right = new
+            {
                 quuz = "wibbles"
             };
 
@@ -305,18 +331,20 @@ namespace PeanutButter.Utils.Tests
             var result = left.DeepSubEquals(right);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.False);
+            Expect(result).To.Be.False();
         }
 
         [Test]
         public void DeepIntersectionEquals_GivenSourceAndDestWithMatchingOverlappingProps_ShouldReturnTrue()
         {
             //--------------- Arrange -------------------
-            var left = new {
+            var left = new
+            {
                 foo = "bar",
                 name = "Mickey"
             };
-            var right = new {
+            var right = new
+            {
                 quuz = "wibbles",
                 name = "Mickey"
             };
@@ -327,17 +355,19 @@ namespace PeanutButter.Utils.Tests
             var result = left.DeepIntersectionEquals(right);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.True);
+            Expect(result).To.Be.True();
         }
 
         [Test]
         public void DeepIntersectionEquals_GivenSourceAndDestWithNoOverlappingProps_ShouldReturnFalse()
         {
             //--------------- Arrange -------------------
-            var left = new {
+            var left = new
+            {
                 foo = "bar",
             };
-            var right = new {
+            var right = new
+            {
                 quuz = "wibbles",
             };
 
@@ -347,7 +377,7 @@ namespace PeanutButter.Utils.Tests
             var result = left.DeepIntersectionEquals(right);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.False);
+            Expect(result).To.Be.False();
         }
 
 
@@ -356,15 +386,15 @@ namespace PeanutButter.Utils.Tests
         {
             // Arrange
             var val = GetRandomString();
-            var first = new HasAnArrayOfStrings() { Strings = new [] { val } };
-            var second = new HasAnArrayOfStrings() { Strings = new string[] { } };
+            var first = new HasAnArrayOfStrings() {Strings = new[] {val}};
+            var second = new HasAnArrayOfStrings() {Strings = new string[] { }};
             // Pre-Assert
             // Act
             var result1 = first.DeepEquals(second);
             var result2 = second.DeepEquals(first);
             // Assert
-            Expect(result1, Is.False);
-            Expect(result2, Is.False);
+            Expect(result1).To.Be.False();
+            Expect(result2).To.Be.False();
         }
 
         [Test]
@@ -372,15 +402,15 @@ namespace PeanutButter.Utils.Tests
         {
             // Arrange
             var val = GetRandomString();
-            var first = new HasAnArrayOfStrings() { Strings = new [] { val } };
-            var second = new HasAnArrayOfStrings() { Strings = new[] { val } };
+            var first = new HasAnArrayOfStrings() {Strings = new[] {val}};
+            var second = new HasAnArrayOfStrings() {Strings = new[] {val}};
             // Pre-Assert
             // Act
             var result1 = first.DeepEquals(second);
             var result2 = second.DeepEquals(first);
             // Assert
-            Expect(result1, Is.True);
-            Expect(result2, Is.True);
+            Expect(result1).To.Be.True();
+            Expect(result2).To.Be.True();
         }
 
         public class HasSomethingWithStrings
@@ -395,19 +425,19 @@ namespace PeanutButter.Utils.Tests
             var val = GetRandomString();
             var first = new HasSomethingWithStrings()
             {
-                Something = new HasAnArrayOfStrings() { Strings = new [] { val } }
+                Something = new HasAnArrayOfStrings() {Strings = new[] {val}}
             };
             var second = new HasSomethingWithStrings()
             {
-                Something = new HasAnArrayOfStrings() { Strings = new string[] { } }
+                Something = new HasAnArrayOfStrings() {Strings = new string[] { }}
             };
             // Pre-Assert
             // Act
             var result1 = first.DeepEquals(second);
             var result2 = second.DeepEquals(first);
             // Assert
-            Expect(result1, Is.False);
-            Expect(result2, Is.False);
+            Expect(result1).To.Be.False();
+            Expect(result2).To.Be.False();
         }
 
         [Test]
@@ -417,19 +447,19 @@ namespace PeanutButter.Utils.Tests
             var val = GetRandomString();
             var first = new HasSomethingWithStrings()
             {
-                Something = new HasAnArrayOfStrings() { Strings = new [] { val } }
+                Something = new HasAnArrayOfStrings() {Strings = new[] {val}}
             };
             var second = new HasSomethingWithStrings()
             {
-                Something = new HasAnArrayOfStrings() { Strings = new[] { val } }
+                Something = new HasAnArrayOfStrings() {Strings = new[] {val}}
             };
             // Pre-Assert
             // Act
             var result1 = first.DeepEquals(second);
             var result2 = second.DeepEquals(first);
             // Assert
-            Expect(result1, Is.True);
-            Expect(result2, Is.True);
+            Expect(result1).To.Be.True();
+            Expect(result2).To.Be.True();
         }
 
 
@@ -437,8 +467,9 @@ namespace PeanutButter.Utils.Tests
         public void CopyPropertiesTo_GivenSimpleObjectDest_DoesNotThrow()
         {
             //---------------Set up test pack-------------------
-            var src = new {
-                prop = RandomValueGen.GetRandomString()
+            var src = new
+            {
+                prop = GetRandomString()
             };
 
             //---------------Assert Precondition----------------
@@ -450,11 +481,10 @@ namespace PeanutButter.Utils.Tests
         }
 
 
-
-
         public class Simple<T>
         {
             public T prop { get; set; }
+
             public Simple()
             {
                 Randomize();
@@ -462,7 +492,7 @@ namespace PeanutButter.Utils.Tests
 
             public void Randomize()
             {
-                prop = (T)RandomValueGen.GetRandom<T>();
+                prop = GetRandom<T>();
             }
         }
 
@@ -510,6 +540,7 @@ namespace PeanutButter.Utils.Tests
         public class Complex<T>
         {
             public Simple<T> prop { get; set; }
+
             public Complex()
             {
                 prop = new Simple<T>();
@@ -564,8 +595,7 @@ namespace PeanutButter.Utils.Tests
         {
             //---------------Set up test pack-------------------
             var o1 = new Complex<string>();
-            var o2 = new Complex<string>();
-            o2.prop = null;
+            var o2 = new Complex<string> {prop = null};
 
             //---------------Assert Precondition----------------
             Assert.IsNull(o2.prop);
@@ -575,6 +605,7 @@ namespace PeanutButter.Utils.Tests
 
             //---------------Test Result -----------------------
         }
+
         [Test]
         public void CopyPropertiesTo_DoesntBarfOnANullSourceThatIsComplex()
         {
@@ -627,7 +658,7 @@ namespace PeanutButter.Utils.Tests
         public void Get_WhenGivenNameOfPropertyWhichDoesExist_ShouldReturnThatValue()
         {
             //---------------Set up test pack-------------------
-            var o = new { prop = 2 };
+            var o = new {prop = 2};
 
             //---------------Assert Precondition----------------
 
@@ -642,7 +673,7 @@ namespace PeanutButter.Utils.Tests
         public void Get_WhenGivenNamefPropertyWhichDoesExistAndIncorrectType_ShouldThrow()
         {
             //---------------Set up test pack-------------------
-            var o = new { prop = 2 };
+            var o = new {prop = 2};
 
             //---------------Assert Precondition----------------
 
@@ -656,8 +687,10 @@ namespace PeanutButter.Utils.Tests
         public void Get_ShouldBeAbleToResolveADotTree()
         {
             //---------------Set up test pack-------------------
-            var parent = new {
-                child = new {
+            var parent = new
+            {
+                child = new
+                {
                     prop = 2
                 }
             };
@@ -675,7 +708,7 @@ namespace PeanutButter.Utils.Tests
         public void GetPropertyValue_ShouldReturnValueOfNamedProperty()
         {
             //---------------Set up test pack-------------------
-            var obj = new { id = RandomValueGen.GetRandomInt() };
+            var obj = new {id = GetRandomInt()};
             var expected = obj.id;
 
             //---------------Assert Precondition----------------
@@ -696,8 +729,8 @@ namespace PeanutButter.Utils.Tests
         public void SetPropertyValue_ShouldSetThePropertyValue()
         {
             //---------------Set up test pack-------------------
-            var obj = new SomeSimpleType() { Id = RandomValueGen.GetRandomInt(2, 5) };
-            var expected = RandomValueGen.GetRandomInt(10, 20);
+            var obj = new SomeSimpleType() {Id = GetRandomInt(2, 5)};
+            var expected = GetRandomInt(10, 20);
             const string propertyName = "Id";
 
             //---------------Assert Precondition----------------
@@ -746,7 +779,7 @@ namespace PeanutButter.Utils.Tests
         public void SetPropertyValue_ShouldBeAbleToSetImmediateProperty()
         {
             //---------------Set up test pack-------------------
-            var obj = new SimpleDto() { Name = GetRandomString() };
+            var obj = new SimpleDto() {Name = GetRandomString()};
             var expected = GetAnother(obj.Name);
 
             //---------------Assert Precondition----------------
@@ -817,7 +850,7 @@ namespace PeanutButter.Utils.Tests
             //--------------- Arrange -------------------
             var item = new ThingWithCollection<int>()
             {
-                Collection = new int[] { 1, 2 }
+                Collection = new[] {1, 2}
             };
 
             //--------------- Assume ----------------
@@ -835,11 +868,11 @@ namespace PeanutButter.Utils.Tests
             //--------------- Arrange -------------------
             var item1 = new ThingWithCollection<int>()
             {
-                Collection = new int[] { 1, 2 }
+                Collection = new[] {1, 2}
             };
             var item2 = new ThingWithCollection<int>()
             {
-                Collection = new int[] { 1, 2, 3 }
+                Collection = new[] {1, 2, 3}
             };
 
             //--------------- Assume ----------------
@@ -857,11 +890,11 @@ namespace PeanutButter.Utils.Tests
             //--------------- Arrange -------------------
             var item1 = new ThingWithCollection<int>()
             {
-                Collection = new int[] { 1, 2 }
+                Collection = new[] {1, 2}
             };
             var item2 = new ThingWithCollection<int>()
             {
-                Collection = new int[] { 1, 1 }
+                Collection = new[] {1, 1}
             };
 
             //--------------- Assume ----------------
@@ -919,8 +952,8 @@ namespace PeanutButter.Utils.Tests
         public void DeepEquals_InheritedPropertiesShouldMatter()
         {
             //--------------- Arrange -------------------
-            var item1 = new SomeDerivedClass() { Id = 1, Name = "Bob" };
-            var item2 = new SomeDerivedClass() { Id = 2, Name = "Bob" };
+            var item1 = new SomeDerivedClass() {Id = 1, Name = "Bob"};
+            var item2 = new SomeDerivedClass() {Id = 2, Name = "Bob"};
 
             //--------------- Assume ----------------
 
@@ -946,8 +979,8 @@ namespace PeanutButter.Utils.Tests
         {
             //--------------- Arrange -------------------
             var parent = new SimpleParent();
-            var child = new Child() { Parent = parent };
-            parent.Children = new[] { child };
+            var child = new Child() {Parent = parent};
+            parent.Children = new[] {child};
 
             //--------------- Assume ----------------
 
@@ -967,9 +1000,9 @@ namespace PeanutButter.Utils.Tests
         {
             //--------------- Arrange -------------------
             var n2 = new NodeWithChildren();
-            var n1 = new NodeWithChildren() { Children = new[] { n2 } };
-            var n3 = new NodeWithChildren() { Children = new[] { n1 } };
-            n2.Children = new[] { n3 };
+            var n1 = new NodeWithChildren() {Children = new[] {n2}};
+            var n3 = new NodeWithChildren() {Children = new[] {n1}};
+            n2.Children = new[] {n3};
 
             // n1 => n2 =>  n3 => n1 ....
 
@@ -986,9 +1019,9 @@ namespace PeanutButter.Utils.Tests
         {
             //--------------- Arrange -------------------
             var n2 = new NodeWithChildren();
-            var n1 = new NodeWithChildren() { Children = new[] { n2 } };
-            var n3 = new NodeWithChildren() { Children = new[] { n1 } };
-            n2.Children = new[] { n3 };
+            var n1 = new NodeWithChildren() {Children = new[] {n2}};
+            var n3 = new NodeWithChildren() {Children = new[] {n1}};
+            n2.Children = new[] {n3};
 
             // n1 => n2 =>  n3 => n1 ....
 
@@ -999,12 +1032,14 @@ namespace PeanutButter.Utils.Tests
 
             //--------------- Assert -----------------------
         }
+
         public interface IActor
         {
             Guid Id { get; set; }
             string Name { get; set; }
             string Email { get; set; }
         }
+
         public interface ITravellerDetails
         {
             string IdNumber { get; set; }
@@ -1012,11 +1047,12 @@ namespace PeanutButter.Utils.Tests
             string MealPreferences { get; set; } // Halaal? Vegan?
             string TravelPreferences { get; set; } // seats near emergency exits for more leg-room?
         }
+
         public interface ITraveller : IActor, ITravellerDetails
         {
         }
 
-        public class ActualTravellerDetails: ITravellerDetails
+        public class ActualTravellerDetails : ITravellerDetails
         {
             public string IdNumber { get; set; }
             public string[] PassportNumbers { get; set; }
@@ -1030,7 +1066,7 @@ namespace PeanutButter.Utils.Tests
             //--------------- Arrange -------------------
             var actor = GetRandom<IActor>().DuckAs<IActor>();
             var details = GetRandom<ActualTravellerDetails>();
-            var traveller = GetRandom<Traveller>(); 
+            var traveller = GetRandom<Traveller>();
 
             //--------------- Assume ----------------
 
@@ -1053,7 +1089,7 @@ namespace PeanutButter.Utils.Tests
         public void CopyPropertiesTo_ShouldCopyEmptyArrayProperty()
         {
             //--------------- Arrange -------------------
-            var src = new HasAnArrayOfStrings() { Strings = new string[0] };
+            var src = new HasAnArrayOfStrings() {Strings = new string[0]};
             var target = new HasAnArrayOfStrings();
 
             //--------------- Assume ----------------
@@ -1070,7 +1106,7 @@ namespace PeanutButter.Utils.Tests
         public void CopyPropertiesTo_ShouldCopyNonEmptyArrayProperty()
         {
             //--------------- Arrange -------------------
-            var src = new HasAnArrayOfStrings() { Strings = new [] { "123", "456" } };
+            var src = new HasAnArrayOfStrings() {Strings = new[] {"123", "456"}};
             var target = new HasAnArrayOfStrings();
 
             //--------------- Assume ----------------
@@ -1093,7 +1129,7 @@ namespace PeanutButter.Utils.Tests
         public void CopyPropertiesTo_ShouldCopyNonEmptyEnumerableProperty()
         {
             //--------------- Arrange -------------------
-            var src = new HasAnEnumerable() { Stuff = new [] { "123", "456" } };
+            var src = new HasAnEnumerable() {Stuff = new[] {"123", "456"}};
             var target = new HasAnEnumerable();
 
             //--------------- Assume ----------------
@@ -1109,26 +1145,27 @@ namespace PeanutButter.Utils.Tests
 
         public class HasAListOfStrings
         {
-            public List<string> Strings { get; set ; }
+            public List<string> Strings { get; set; }
         }
+
         [Test]
         public void CopyPropertiesTo_ShouldCopyAnEmptyList()
         {
             // Arrange
-            var src = new HasAListOfStrings() { Strings = new List<string>() };
+            var src = new HasAListOfStrings() {Strings = new List<string>()};
             var target = new HasAListOfStrings();
             // Pre-Assert
-            Expect(target.Strings, Is.Null);
+            Expect(target.Strings).To.Be.Null();
             // Act
             src.CopyPropertiesTo(target);
             // Assert
-            Expect(target.Strings, Is.Not.Null);
-            Expect(target.Strings, Is.Empty);
+            Expect(target.Strings).Not.To.Be.Null();
+            Expect(target.Strings).To.Be.Empty();
         }
 
         public class HasAListOfDates
         {
-            public List<DateTime> DateTimes { get; set ; }
+            public List<DateTime> DateTimes { get; set; }
         }
 
         [Test]
@@ -1141,29 +1178,32 @@ namespace PeanutButter.Utils.Tests
             };
             var target = new HasAListOfDates();
             // Pre-Assert
-            Expect(target.DateTimes, Is.Null);
+            Expect(target.DateTimes).To.Be.Null();
             // Act
             src.CopyPropertiesTo(target);
             // Assert
-            Expect(target.DateTimes, Is.Not.Null);
-            Expect(target.DateTimes, Is.Not.Empty);
+            Expect(target.DateTimes).Not.To.Be.Null();
+            Expect(target.DateTimes).Not.To.Be.Empty();
             src.DateTimes.ShouldMatchDataIn(target.DateTimes);
         }
 
         public class HasIdAndName
         {
-            public int Id { get; set ; }
+            public int Id { get; set; }
             public string Name { get; set; }
         }
+
         [Test]
         public void CopyPropertiesTo_ShouldAllowIgnoreList()
         {
             //--------------- Arrange -------------------
-            var src = new HasIdAndName() {
+            var src = new HasIdAndName()
+            {
                 Id = 1,
                 Name = GetRandomString()
             };
-            var target = new HasIdAndName() {
+            var target = new HasIdAndName()
+            {
                 Id = 2,
                 Name = GetRandomString()
             };
@@ -1174,226 +1214,230 @@ namespace PeanutButter.Utils.Tests
             src.CopyPropertiesTo(target, "Id");
 
             //--------------- Assert -----------------------
-            Expect(target.Name, Is.EqualTo(src.Name));
-            Expect(target.Id, Is.EqualTo(2));
+            Expect(target.Name).To.Equal(src.Name);
+            Expect(target.Id).To.Equal(2);
         }
 
         [Test]
         public void ContainsOneDeepEqualTo_WhenCollectionItemWithSameData_ShouldReturnTrue()
         {
             //--------------- Arrange -------------------
-            var collection1 = new[] 
+            var collection1 = new[]
             {
-                new { id = 1 }
+                new {id = 1}
             };
 
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var result = collection1.ContainsAtLeastOneDeepEqualTo(new { id = 1 } );
+            var result = collection1.ContainsAtLeastOneDeepEqualTo(new {id = 1});
 
             //--------------- Assert -----------------------
-            Expect(result, Is.True);
+            Expect(result).To.Be.True();
         }
 
         [Test]
         public void ContainsOneDeepEqualTo_WhenCollectionItemWithDifferentData_ShouldReturnFalse()
         {
             //--------------- Arrange -------------------
-            var collection1 = new[] 
+            var collection1 = new[]
             {
-                new { id = 1 }
+                new {id = 1}
             };
 
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var result = collection1.ContainsAtLeastOneDeepEqualTo(new { id = 2 } );
+            var result = collection1.ContainsAtLeastOneDeepEqualTo(new {id = 2});
 
             //--------------- Assert -----------------------
-            Expect(result, Is.False);
+            Expect(result).To.Be.False();
         }
 
         [Test]
         public void ContainsOneDeepEqualTo_WhenCollectionItemWithMismatchedProperties_ShouldReturnFalse()
         {
             //--------------- Arrange -------------------
-            var collection1 = new[] 
+            var collection1 = new[]
             {
-                new { id = 1, name = "Bob" }
+                new {id = 1, name = "Bob"}
             };
 
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var result = collection1.ContainsAtLeastOneDeepEqualTo(new { id = 1 } );
+            var result = collection1.ContainsAtLeastOneDeepEqualTo(new {id = 1});
 
             //--------------- Assert -----------------------
-            Expect(result, Is.False);
+            Expect(result).To.Be.False();
         }
 
         [Test]
         public void ContainsOneDeepEqualTo_WhenCollectionItemWithMismatchedIgnoredProperties_ShouldReturnTrue()
         {
             //--------------- Arrange -------------------
-            var collection1 = new[] 
+            var collection1 = new[]
             {
-                new { id = 1, name = "Bob" }
+                new {id = 1, name = "Bob"}
             };
 
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var result = collection1.ContainsAtLeastOneDeepEqualTo(new { id = 1 }, "name");
+            var result = collection1.ContainsAtLeastOneDeepEqualTo(new {id = 1}, "name");
 
             //--------------- Assert -----------------------
-            Expect(result, Is.True);
+            Expect(result).To.Be.True();
         }
 
         [Test]
-        public void ContainsOneIntersectionEqualTo_WhenCollectionItemWithMismatchedProperties_WhenSamePropertiesMatch_ShouldReturnTrue()
+        public void
+            ContainsOneIntersectionEqualTo_WhenCollectionItemWithMismatchedProperties_WhenSamePropertiesMatch_ShouldReturnTrue()
         {
             //--------------- Arrange -------------------
-            var collection1 = new[] 
+            var collection1 = new[]
             {
-                new { id = 1, name = "Bob" }
+                new {id = 1, name = "Bob"}
             };
 
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var result = collection1.ContainsOneIntersectionEqualTo(new { id = 1 } );
+            var result = collection1.ContainsOneIntersectionEqualTo(new {id = 1});
 
             //--------------- Assert -----------------------
-            Expect(result, Is.True);
+            Expect(result).To.Be.True();
         }
 
         [Test]
-        public void ContainsOneIntersectionEqualTo_WhenCollectionItemWithMismatchedProperties_WhenSamePropertiesDoNotMatch_ShouldReturnFalse()
+        public void
+            ContainsOneIntersectionEqualTo_WhenCollectionItemWithMismatchedProperties_WhenSamePropertiesDoNotMatch_ShouldReturnFalse()
         {
             //--------------- Arrange -------------------
-            var collection1 = new[] 
+            var collection1 = new[]
             {
-                new { id = 1, name = "Bob" }
+                new {id = 1, name = "Bob"}
             };
 
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var result = collection1.ContainsOneIntersectionEqualTo(new { id = 2 } );
+            var result = collection1.ContainsOneIntersectionEqualTo(new {id = 2});
 
             //--------------- Assert -----------------------
-            Expect(result, Is.False);
+            Expect(result).To.Be.False();
         }
 
         [Test]
-        public void ContainsOneIntersectionEqualTo_WhenCollectionItemWithMismatchedIgnoredProperties_WhenSamePropertiesDoNotMatch_ShouldReturnTrue()
+        public void
+            ContainsOneIntersectionEqualTo_WhenCollectionItemWithMismatchedIgnoredProperties_WhenSamePropertiesDoNotMatch_ShouldReturnTrue()
         {
             //--------------- Arrange -------------------
-            var collection1 = new[] 
+            var collection1 = new[]
             {
-                new { id = 1, name = "Bob" }
+                new {id = 1, name = "Bob"}
             };
 
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var result = collection1.ContainsOneIntersectionEqualTo(new { id = 2, name = "Bob" }, "id" );
+            var result = collection1.ContainsOneIntersectionEqualTo(new {id = 2, name = "Bob"}, "id");
 
             //--------------- Assert -----------------------
-            Expect(result, Is.True);
+            Expect(result).To.Be.True();
         }
 
         [Test]
         public void ContainsOneIntersectionEqualTo_WhenCollectionItemWithAllMismatchedProperties_ShouldReturnFalse()
         {
             //--------------- Arrange -------------------
-            var collection1 = new[] 
+            var collection1 = new[]
             {
-                new { id = 1, name = "Bob" }
+                new {id = 1, name = "Bob"}
             };
 
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var result = collection1.ContainsOneIntersectionEqualTo(new { value = 1 } );
+            var result = collection1.ContainsOneIntersectionEqualTo(new {value = 1});
 
             //--------------- Assert -----------------------
-            Expect(result, Is.False);
+            Expect(result).To.Be.False();
         }
 
         [Test]
         public void ContainsOnlyOneDeepEqualTo_WhenCollectionContainsNoMatches_ShouldReturnFalse()
         {
             //--------------- Arrange -------------------
-            var collection1 = new[] 
+            var collection1 = new[]
             {
-                new { id = 1, name = "Bob" }
+                new {id = 1, name = "Bob"}
             };
 
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var result = collection1.ContainsOnlyOneDeepEqualTo(new { id = 2, name = "Bob" });
+            var result = collection1.ContainsOnlyOneDeepEqualTo(new {id = 2, name = "Bob"});
 
             //--------------- Assert -----------------------
-            Expect(result, Is.False);
+            Expect(result).To.Be.False();
         }
 
         [Test]
         public void ContainsOnlyOneDeepEqualTo_WhenCollectionContainsOneMatch_ShouldReturnTrue()
         {
             //--------------- Arrange -------------------
-            var collection1 = new[] 
+            var collection1 = new[]
             {
-                new { id = 1, name = "Bob" }
+                new {id = 1, name = "Bob"}
             };
 
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var result = collection1.ContainsOnlyOneDeepEqualTo(new { id = 1, name = "Bob" });
+            var result = collection1.ContainsOnlyOneDeepEqualTo(new {id = 1, name = "Bob"});
 
             //--------------- Assert -----------------------
-            Expect(result, Is.True);
+            Expect(result).To.Be.True();
         }
 
         [Test]
         public void ContainsOnlyOneDeepEqualTo_WhenCollectionContainsOneMatchWithIgnoredProperty_ShouldReturnTrue()
         {
             //--------------- Arrange -------------------
-            var collection1 = new[] 
+            var collection1 = new[]
             {
-                new { id = 1, name = "Bob", ignore = "moo" }
+                new {id = 1, name = "Bob", ignore = "moo"}
             };
 
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
             var result = collection1.ContainsOnlyOneDeepEqualTo(
-                new { id = 1, name = "Bob" }, "ignore");
+                new {id = 1, name = "Bob"},
+                "ignore");
 
             //--------------- Assert -----------------------
-            Expect(result, Is.True);
+            Expect(result).To.Be.True();
         }
 
         [Test]
         public void ContainsOnlyOneDeepEqualTo_WhenCollectionContainsTwoMatches_ShouldReturnFalse()
         {
             //--------------- Arrange -------------------
-            var collection1 = new[] 
+            var collection1 = new[]
             {
-                new { id = 1, name = "Bob" },
-                new { id = 1, name = "Bob" }
+                new {id = 1, name = "Bob"},
+                new {id = 1, name = "Bob"}
             };
 
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var result = collection1.ContainsOnlyOneDeepEqualTo(new { id = 1, name = "Bob" });
+            var result = collection1.ContainsOnlyOneDeepEqualTo(new {id = 1, name = "Bob"});
 
             //--------------- Assert -----------------------
-            Expect(result, Is.False);
+            Expect(result).To.Be.False();
         }
 
 
@@ -1401,196 +1445,225 @@ namespace PeanutButter.Utils.Tests
         public void ContainsOnlyOneIntersectionEqualTo_WhenCollectionContainsNoMatches_ShouldReturnFalse()
         {
             //--------------- Arrange -------------------
-            var collection1 = new[] 
+            var collection1 = new[]
             {
-                new { id = 1, name = "Bob" }
+                new {id = 1, name = "Bob"}
             };
 
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var result = collection1.ContainsOnlyOneIntersectionEqualTo(new { id = 2, name = "Bob" });
+            var result = collection1.ContainsOnlyOneIntersectionEqualTo(new {id = 2, name = "Bob"});
 
             //--------------- Assert -----------------------
-            Expect(result, Is.False);
+            Expect(result).To.Be.False();
         }
 
         [Test]
         public void ContainsOnlyOneIntersectionEqualTo_WhenCollectionContainsOneMatch_ShouldReturnTrue()
         {
             //--------------- Arrange -------------------
-            var collection1 = new[] 
+            var collection1 = new[]
             {
-                new { id = 1, name = "Bob" }
+                new {id = 1, name = "Bob"}
             };
 
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var result = collection1.ContainsOnlyOneIntersectionEqualTo(new { id = 1, name = "Bob" });
+            var result = collection1.ContainsOnlyOneIntersectionEqualTo(new {id = 1, name = "Bob"});
 
             //--------------- Assert -----------------------
-            Expect(result, Is.True);
+            Expect(result).To.Be.True();
         }
+
         [Test]
-        public void ContainsOnlyOneIntersectionEqualTo_WhenCollectionContainsOneMatchWithIgnoredProperty_ShouldReturnTrue()
+        public void
+            ContainsOnlyOneIntersectionEqualTo_WhenCollectionContainsOneMatchWithIgnoredProperty_ShouldReturnTrue()
         {
             //--------------- Arrange -------------------
-            var collection1 = new[] 
+            var collection1 = new[]
             {
-                new { id = 1, name = "Bob", moo = "cow" }
+                new {id = 1, name = "Bob", moo = "cow"}
             };
 
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var result = collection1.ContainsOnlyOneIntersectionEqualTo(new { id = 1, name = "Bob" }, "moo");
+            var result = collection1.ContainsOnlyOneIntersectionEqualTo(new {id = 1, name = "Bob"}, "moo");
 
             //--------------- Assert -----------------------
-            Expect(result, Is.True);
+            Expect(result).To.Be.True();
         }
 
         [Test]
         public void ContainsOnlyOneIntersectionEqualTo_WhenCollectionContainsTwoMatches_ShouldReturnFalse()
         {
             //--------------- Arrange -------------------
-            var collection1 = new[] 
+            var collection1 = new[]
             {
-                new { id = 1, name = "Bob" },
-                new { id = 1, name = "Bob" }
+                new {id = 1, name = "Bob"},
+                new {id = 1, name = "Bob"}
             };
 
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var result = collection1.ContainsOnlyOneIntersectionEqualTo(new { id = 1, name = "Bob" });
+            var result = collection1.ContainsOnlyOneIntersectionEqualTo(new {id = 1, name = "Bob"});
 
             //--------------- Assert -----------------------
-            Expect(result, Is.False);
+            Expect(result).To.Be.False();
         }
 
 
-        // DeepClone
-        public class EmptyType
+        [TestFixture]
+        public class DeepClone
         {
+            public class EmptyType
+            {
+            }
+
+            [Test]
+            public void GivenEmptyObject_ShouldReturnNewEmptyObject()
+            {
+                // Arrange
+                var src = new EmptyType();
+                // Pre-Assert
+                // Act
+                var result = src.DeepClone();
+                // Assert
+                Expect(result).Not.To.Be.Null();
+                Expect(result).To.Be.An.Instance.Of<EmptyType>();
+                Expect(result.GetType().GetProperties()).To.Be.Empty();
+            }
+
+            public class Node
+            {
+                public int Id { get; set; }
+                public string Name { get; set; }
+                public Guid Guid { get; set; }
+                public bool Flag { get; set; }
+            }
+
+            [Test]
+            public void ShouldCloneFirstLevel()
+            {
+                // Arrange
+                var src = GetRandom<Node>();
+                // Pre-Assert
+                // Act
+                var result = src.DeepClone();
+                // Assert
+                PropertyAssert.AreDeepEqual(src, result);
+            }
+
+            public class Parent : Node
+            {
+                public Node Child { get; set; }
+            }
+
+            [Test]
+            public void ShouldCloneSecondLevelButNotChildRefs()
+            {
+                // Arrange
+                var src = GetRandom<Parent>();
+                // Pre-Assert
+                Expect(src.Child).Not.To.Be.Null();
+                // Act
+                var result = src.DeepClone();
+                // Assert
+                Expect(result.Child).Not.To.Equal(src.Child);
+                Expect(result).To.Deep.Equal(src);
+            }
+
+            public enum Emotions
+            {
+                Unknown = 0,
+                Happy = 1,
+                Sad = 2
+            }
+
+            public class Puppy
+            {
+                public Emotions Emotion { get; set; }
+            }
+
+            [Test]
+            public void ShouldCopyEnumProperties()
+            {
+                // Arrange
+                var src = new Puppy() { Emotion = Emotions.Happy };
+
+                // Pre-Assert
+
+                // Act
+                var result = src.DeepClone();
+
+                // Assert
+                Expect(result.Emotion).To.Equal(Emotions.Happy);
+            }
+
+
+            public class HasAnArray
+            {
+                public Node[] Nodes { get; set; }
+            }
+
+            [Test]
+            public void ShouldCloneAnArray()
+            {
+                // Arrange
+                var src = GetRandom<HasAnArray>();
+                src.Nodes = GetRandomCollection<Node>(2, 4).ToArray();
+                // Pre-Assert
+                // Act
+                var result = src.DeepClone();
+                // Assert
+                Expect(result.Nodes).Not.To.Be.Empty();
+                result.Nodes.ShouldMatchDataIn(src.Nodes);
+            }
+
+            public class HasAnIEnumerable
+            {
+                public IEnumerable<Node> Nodes { get; set; }
+            }
+
+            [Test]
+            public void ShouldCloneAnIEnumerable()
+            {
+                // Arrange
+                var src = GetRandom<HasAnIEnumerable>();
+                src.Nodes = GetRandomCollection<Node>(2, 4).ToArray();
+                // Pre-Assert
+                // Act
+                var result = src.DeepClone();
+                // Assert
+                Expect(result.Nodes).Not.To.Be.Empty();
+                result.Nodes.ShouldMatchDataIn(src.Nodes);
+            }
+
+            public class HasAList
+            {
+                public List<Node> Nodes { get; set; }
+            }
+
+            [Test]
+            public void ShouldCloneAGenericList()
+            {
+                // Arrange
+                var src = GetRandom<HasAList>();
+                src.Nodes = GetRandomCollection<Node>(2, 4).ToList();
+                // Pre-Assert
+                // Act
+                var result = src.DeepClone();
+                // Assert
+                Expect(result.Nodes).Not.To.Be.Empty();
+                result.Nodes.ShouldMatchDataIn(src.Nodes);
+            }
         }
 
-        [Test]
-        public void DeepClone_GivenEmptyObject_ShouldReturnNewEmptyObject()
-        {
-            // Arrange
-            var src = new EmptyType();
-            // Pre-Assert
-            // Act
-            var result = src.DeepClone();
-            // Assert
-            Expect(result, Is.Not.Null);
-            Expect(result, Is.InstanceOf<EmptyType>());
-            Expect(result.GetType().GetProperties(), Is.Empty);
-        }
 
-        public class Node
-        {
-            public int Id { get; set; }
-            public string Name { get; set; }
-            public Guid Guid { get; set; }
-            public bool Flag { get; set; }
-        }
-
-        [Test]
-        public void DeepClone_ShouldCloneFirstLevel()
-        {
-            // Arrange
-            var src = GetRandom<Node>();
-            // Pre-Assert
-            // Act
-            var result = src.DeepClone();
-            // Assert
-            PropertyAssert.AreDeepEqual(src, result);
-        }
-
-        public class Parent : Node
-        {
-            public Node Child { get; set; }
-        }
-
-        [Test]
-        public void DeepClone_ShouldCloneSecondLevelButNotChildRefs()
-        {
-            // Arrange
-            var src = GetRandom<Parent>();
-            // Pre-Assert
-            Expect(src.Child, Is.Not.Null);
-            // Act
-            var result = src.DeepClone();
-            // Assert
-            Expect(result.Child, Is.Not.EqualTo(src.Child));
-            PropertyAssert.AreDeepEqual(src, result);
-        }
-
-        public class HasAnArray
-        {
-            public Node[] Nodes { get; set; }
-        }
-
-        [Test]
-        public void DeepClone_ShouldCloneAnArray()
-        {
-            // Arrange
-            var src = GetRandom<HasAnArray>();
-            src.Nodes = GetRandomCollection<Node>(2, 4).ToArray();
-            // Pre-Assert
-            // Act
-            var result = src.DeepClone();
-            // Assert
-            Expect(result.Nodes, Is.Not.Empty);
-            result.Nodes.ShouldMatchDataIn(src.Nodes);
-        }
-
-        public class HasAnIEnumerable
-        {
-            public IEnumerable<Node> Nodes { get; set ; }
-        }
-
-        [Test]
-        public void DeepClone_ShouldCloneAnIEnumerable()
-        {
-            // Arrange
-            var src = GetRandom<HasAnIEnumerable>();
-            src.Nodes = GetRandomCollection<Node>(2, 4).ToArray();
-            // Pre-Assert
-            // Act
-            var result = src.DeepClone();
-            // Assert
-            Expect(result.Nodes, Is.Not.Empty);
-            result.Nodes.ShouldMatchDataIn(src.Nodes);
-        }
-
-        public class HasAList
-        {
-            public List<Node> Nodes { get; set ; }
-        }
-
-        [Test]
-        public void DeepClone_ShouldCloneAGenericList()
-        {
-            // Arrange
-            var src = GetRandom<HasAList>();
-            src.Nodes = GetRandomCollection<Node>(2, 4).ToList();
-            // Pre-Assert
-            // Act
-            var result = src.DeepClone();
-            // Assert
-            Expect(result.Nodes, Is.Not.Empty);
-            result.Nodes.ShouldMatchDataIn(src.Nodes);
-        }
-
-        // end DeepClone
-
-
-
-
-        public class Traveller: ITraveller
+        public class Traveller : ITraveller
         {
             public Guid Id { get; set; }
             public string Name { get; set; }
@@ -1626,17 +1699,22 @@ namespace PeanutButter.Utils.Tests
             bool AccomodationRequired { get; set; }
             string AccommodationRequiredNotes { get; set; }
         }
+
         public interface ITravelQuote
         {
             Guid TravelRequestId { get; set; }
             Guid AddedById { get; set; }
             Guid QuoteId { get; set; }
+
             decimal Cost { get; set; }
+
             // try to lower the input requirements for the user at this point
             //  - ideally that person can copy/paste from an email
             string Details { get; set; }
+
             bool AcceptedByTraveller { get; set; }
         }
+
         public interface IComment
         {
             Guid CommenterId { get; set; }
@@ -1644,6 +1722,7 @@ namespace PeanutButter.Utils.Tests
             DateTime CommentedAt { get; set; }
         }
 
+        [SuppressMessage("ReSharper", "UnusedMemberInSuper.Global")]
         public interface ITravelRequest
         {
             Guid Id { get; set; }
@@ -1655,6 +1734,7 @@ namespace PeanutButter.Utils.Tests
             IEnumerable<ITravelQuote> Quotes { get; set; }
             IEnumerable<IComment> Comments { get; set; }
         }
+
         public class TravelRequestDetails : ITravelRequestDetails
         {
             public DateTime Initiated { get; set; }
@@ -1688,6 +1768,5 @@ namespace PeanutButter.Utils.Tests
                 Details = new TravelRequestDetails();
             }
         }
-
     }
 }

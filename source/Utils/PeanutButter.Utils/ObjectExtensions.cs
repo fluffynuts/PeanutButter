@@ -344,8 +344,22 @@ namespace PeanutButter.Utils
                 SetSimpleOrNullableOfSimpleTypeValue,
                 SetArrayOrGenericIEnumerableValue,
                 SetGenericListValue,
+                SetEnumValue,
                 DefaultSetValue
             };
+
+        private static bool SetEnumValue(
+            bool deep, 
+            PropertyInfo srcPropertyInfo, 
+            PropertyInfo dstPropertyInfo, 
+            object dst, object srcValue)
+        {
+            if (!srcPropertyInfo.PropertyType.IsEnum)
+                return false;
+            dstPropertyInfo.SetValue(dst, srcValue);
+
+            return true;
+        }
 
 
         private static bool DefaultSetValue(
