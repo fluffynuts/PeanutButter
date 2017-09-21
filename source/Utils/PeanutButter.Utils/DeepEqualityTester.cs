@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using static PeanutButter.Utils.PyLike;
+
 // ReSharper disable PossibleMultipleEnumeration
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -23,7 +24,7 @@ namespace PeanutButter.Utils
 #if BUILD_PEANUTBUTTER_INTERNAL
     internal
 #else
-    public 
+    public
 #endif
         class DeepEqualityTester
     {
@@ -223,10 +224,15 @@ namespace PeanutButter.Utils
         }
 
         private static readonly MethodInfo _deepCollectionCompareGenericMethod =
+#if NETSTANDARD1_6
+            typeof(DeepEqualityTester).GetRuntimeMethods()
+                .FirstOrDefault(mi => mi.Name == nameof(DeepCollectionCompare));
+#else
             typeof(DeepEqualityTester).GetMethod(
                 nameof(DeepCollectionCompareGeneric),
                 BindingFlags.NonPublic | BindingFlags.Instance
             );
+#endif
 
         // ReSharper disable once UnusedMember.Local
         private bool DeepCollectionCompareGeneric<T1, T2>(
@@ -282,7 +288,11 @@ namespace PeanutButter.Utils
         {
             return t != null &&
                    Types.PrimitivesAndImmutables.Any(si => si == t ||
+#if NETSTANDARD1_6
+                   (t.IsConstructedGenericType &&
+#else
                                                            (t.IsGenericType &&
+#endif
                                                             t.GetGenericTypeDefinition() == typeof(Nullable<>) &&
                                                             Nullable.GetUnderlyingType(t) == si));
         }
@@ -368,14 +378,22 @@ namespace PeanutButter.Utils
         private PropertyOrField[] GetPropertiesAndFieldsOf(Type sourceType)
         {
             var props = sourceType
+#if NETSTANDARD1_6
+                .GetRuntimeProperties().ToArray()
+#else
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+#endif
                 .Encapsulate()
                 .Where(pi => !_ignorePropertiesByName.Contains(pi.Name))
                 .ToArray();
             if (IncludeFields)
             {
                 var fields = sourceType
+#if NETSTANDARD1_6
+                    .GetRuntimeFields().ToArray()
+#else
                     .GetFields(BindingFlags.Public | BindingFlags.Instance)
+#endif
                     .Encapsulate()
                     .Where(o => !_ignorePropertiesByName.Contains(o.Name));
                 props = props.And(fields.ToArray());
@@ -488,9 +506,15 @@ namespace PeanutButter.Utils
         {
             var t1 = srcEnumerableInterface.GenericTypeArguments[0];
             var t2 = compareEnumerableInterface.GenericTypeArguments[0];
+#if NETSTANDARD1_6
+            var genericMethod = GetType()
+                .GetRuntimeMethods()
+                .Single(mi => mi.Name == nameof(TestCollectionsMatch));
+#else
             var genericMethod = GetType()
                 .GetMethod(nameof(TestCollectionsMatch),
                     BindingFlags.Instance | BindingFlags.NonPublic);
+#endif
             var typedMethod = genericMethod.MakeGenericMethod(t1, t2);
             return (bool) typedMethod.Invoke(this, new[] {srcValue, compareValue});
         }

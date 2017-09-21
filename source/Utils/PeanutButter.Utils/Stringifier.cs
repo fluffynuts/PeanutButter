@@ -85,8 +85,14 @@ namespace PeanutButter.Utils
                 var joinWith = props.Aggregate(new List<string>(), (acc, cur) =>
                     {
                         var propValue = cur.GetValue(obj);
-                        if (_ignoreAssembliesByName.Contains(
+                    if (_ignoreAssembliesByName.Contains(
+#if NETSTANDARD1_6
+                            cur.DeclaringType?.AssemblyQualifiedName.Split(
+                            new[] { "," }, StringSplitOptions.RemoveEmptyEntries
+                        ).Skip(1).FirstOrDefault()
+#else
                             cur.DeclaringType?.Assembly.GetName().Name
+#endif
                         ))
                         {
                             acc.Add(string.Join("", cur.Name, ": ", propValue?.ToString()));

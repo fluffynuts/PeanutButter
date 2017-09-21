@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
 
 namespace PeanutButter.Utils
@@ -73,7 +74,12 @@ namespace PeanutButter.Utils
         {
             return MultiContains(haystack,
                 needles,
-                h => needles.Any(n => h.Contains(n.ToLower(CultureInfo.CurrentCulture))));
+                h => needles.Any(n => h.Contains(n.ToLower(
+#if NETSTANDARD1_6
+#else
+                    CultureInfo.CurrentCulture
+#endif
+                ))));
         }
 
         /// <summary>
@@ -318,6 +324,13 @@ namespace PeanutButter.Utils
                 ? $"{input[0].ToString().ToUpper()}{input.Substring(1)}"
                 : input;
         }
+
+#if NETSTANDARD1_6
+        public static string ToLower(this string input, CultureInfo ci)
+        {
+            return input.ToLower();
+        }
+#endif
 
         private static IEnumerable<string> SplitOnCapitalsAnd(this string input, params char[] others)
         {

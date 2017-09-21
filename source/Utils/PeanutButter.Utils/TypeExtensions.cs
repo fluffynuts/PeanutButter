@@ -16,6 +16,8 @@ namespace PeanutButter.Utils
 #endif
     static class TypeExtensions
     {
+#if NETSTANDARD1_6
+#else
         /// <summary>
         /// Enumerates the ancestry of a Type
         /// </summary>
@@ -33,6 +35,7 @@ namespace PeanutButter.Utils
             heirachy.Reverse();
             return heirachy.ToArray();
         }
+#endif
 
         /// <summary>
         /// Returns a dictionary of all constant values defined on a Type
@@ -92,7 +95,11 @@ namespace PeanutButter.Utils
         /// <returns>True when the type has a parameterless constructor; False otherwise. Note that a constructor with parameters which have all default values is not considered valid.</returns>
         public static bool HasDefaultConstructor(this Type type)
         {
-            return type.GetConstructors()
+            return type
+#if NETSTANDARD1_6
+                .GetTypeInfo()
+#endif
+                .GetConstructors()
                         .Any(c => c.GetParameters().Length == 0);
         }
 
@@ -110,6 +117,66 @@ namespace PeanutButter.Utils
             return (bool)specific.Invoke(null, new object[] { t } );
         }
 
+#if NETSTANDARD1_6
+        public static MethodInfo GetMethod(this Type t, string name, BindingFlags flags)
+        {
+            return t.GetTypeInfo().GetMethod(name, flags);
+        }
+
+        public static PropertyInfo[] GetProperties(this Type t)
+        {
+            return t.GetTypeInfo().GetProperties();
+        }
+
+        public static PropertyInfo GetProperty(this Type t, string name, BindingFlags flags)
+        {
+            return t.GetTypeInfo().GetProperty(name, flags);
+        }
+
+        public static PropertyInfo[] GetProperties(this Type t, BindingFlags flags)
+        {
+            return t.GetTypeInfo().GetProperties(flags);
+        }
+        public static FieldInfo[] GetFields(this Type t, BindingFlags flags)
+        {
+            return t.GetTypeInfo().GetFields(flags);
+        }
+
+        public static bool IsAssignableFrom(this Type t, Type other)
+        {
+            return t.GetTypeInfo().IsAssignableFrom(other);
+        }
+
+        public static Type[] GetInterfaces(this Type t)
+        {
+            return t.GetTypeInfo().GetInterfaces();
+        }
+
+        public static Type[] GetGenericArguments(this Type t)
+        {
+            return t.GetTypeInfo().GetGenericArguments();
+        }
+
+#endif
+
+        public static Assembly GetAssembly(this Type t)
+        {
+#if NETSTANDARD1_6
+            return t?.GetTypeInfo()?.Assembly;
+#else
+            return t?.Assembly;
+#endif
+        }
+
+        public static bool IsGenericType(this Type t)
+        {
+#if NETSTANDARD1_6
+            return t.GetTypeInfo().IsGenericType;
+#else
+            return t.IsGenericType;
+#endif
+        }
+
 
         private static readonly MethodInfo _genericIsAssignableFromArrayOf
             = typeof(TypeExtensions).GetMethod(nameof(IsAssignableFromArrayOf), BindingFlags.Static | BindingFlags.Public);
@@ -122,7 +189,7 @@ namespace PeanutButter.Utils
         /// <returns>True if the input type is a match, false otherwise</returns>
         public static bool IsGenericOf(this Type t, Type genericTest)
         {
-            return t.IsGenericType && t.GetGenericTypeDefinition() == genericTest;
+            return t.IsGenericType() && t.GetGenericTypeDefinition() == genericTest;
         }
 
         /// <summary>
@@ -178,7 +245,7 @@ namespace PeanutButter.Utils
         {
             if (collectionType.IsArray)
                 return collectionType.GetElementType();
-            if (collectionType.IsGenericType)
+            if (collectionType.IsGenericType())
                 return collectionType.GenericTypeArguments[0];
             return null;
         }
