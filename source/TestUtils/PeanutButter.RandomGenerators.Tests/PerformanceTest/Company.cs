@@ -22,8 +22,8 @@ namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
         public List<ContactNumber> ContactNumbers { get; set; }
         public List<ServiceItem> ServiceItems { get; set; }
 
-        public bool IsTelkom => TradingName?.ToLower() == "telkom sa soc ltd";
-        public bool IsFortel => !IsCustomer && !IsSupplier;
+        public bool IsFrobNozzle => TradingName?.ToLower() == "frobnozzle";
+        public bool IsWingbat => !IsCustomer && !IsSupplier;
 
         public Address GetAddress(AddressType addressType)
         {

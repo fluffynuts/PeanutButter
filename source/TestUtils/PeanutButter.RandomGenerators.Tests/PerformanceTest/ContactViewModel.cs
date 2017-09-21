@@ -62,7 +62,7 @@ namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
         public Attachment BankDetailsProof { get; set; }
         public Attachment AttachmentFile { get; set; }
 
-        public bool IsFortel { get; set; }
+        public bool IsWingbat { get; set; }
 
         public WageViewModel WageViewModel { get; set; }
 

@@ -423,18 +423,18 @@ namespace PeanutButter.Utils.Tests
                     // Assert
                     PropertyAssert.AreDeepEqual(decoded.AuthorData, original.AuthorData);
                     PropertyAssert.AreDeepEqual(decoded.SomeOtherData, original.SomeOtherData);
-                    PropertyAssert.AreDeepEqual(decoded.GraphData, original.GraphData);
+                    PropertyAssert.AreDeepEqual(decoded.WubWubs, original.WubWubs);
                 }
 
                 [Test]
                 public void WildCaseExactReplica()
                 {
                     // Arrange
-                    var journey = GetRandom<MooCakesAndStuff>();
+                    var thang = GetRandom<MooCakesAndStuff>();
                     var encoded = new MooCakesAndStuffWithEncodedGraphData();
-                    journey.CopyPropertiesTo(encoded);
-                    encoded.EnkiEnki = DataUriFor(journey.GraphData);
-                    encoded.GraphData = null;
+                    thang.CopyPropertiesTo(encoded);
+                    encoded.EnkiEnki = DataUriFor(thang.WubWubs);
+                    encoded.WubWubs = null;
 
                     // Pre-assert
 
@@ -442,7 +442,7 @@ namespace PeanutButter.Utils.Tests
                     var result = encoded.Decode();
 
                     // Assert
-                    PropertyAssert.AreDeepEqual(result, journey);
+                    PropertyAssert.AreDeepEqual(result, thang);
                 }
             }
         }
@@ -481,7 +481,7 @@ namespace PeanutButter.Utils.Tests
             public int MinorVersion { get; set; }
 
             public SomeOtherDataThing SomeOtherData { get; set; }
-            public YetAnotherCollectionOfProperties GraphData { get; set; }
+            public YetAnotherCollectionOfProperties WubWubs { get; set; }
             public BeerMooCakeCroc AuthorData { get; set; }
 
             public const int NameMaxLength = 100;
@@ -658,7 +658,7 @@ namespace PeanutButter.Utils.Tests
                 return result;
             lock (_lock)
             {
-                result.GraphData = JsonConvert
+                result.WubWubs = JsonConvert
                     .DeserializeObject<TestDeepEqualityTester.YetAnotherCollectionOfProperties>(
                         Convert.FromBase64String(GetDataPartOf(EnkiEnki))
                             .ToUTF8String());
@@ -688,27 +688,27 @@ namespace PeanutButter.Utils.Tests
 
         private TestDeepEqualityTester.MooCakesAndStuff StartMeOffJoe()
         {
-            var journey = new TestDeepEqualityTester.MooCakesAndStuff();
+            var moo = new TestDeepEqualityTester.MooCakesAndStuff();
             foreach (var propertyInfo in _props)
             {
                 var match = _moreProps.First(pi => pi.Name == propertyInfo.Name);
                 var myVal = match.GetValue(this);
-                propertyInfo.SetValue(journey, myVal);
+                propertyInfo.SetValue(moo, myVal);
             }
-            return journey;
+            return moo;
         }
 
-        public static MooCakesAndStuffWithEncodedGraphData From(TestDeepEqualityTester.MooCakesAndStuff journey)
+        public static MooCakesAndStuffWithEncodedGraphData From(TestDeepEqualityTester.MooCakesAndStuff moo)
         {
             var result = new MooCakesAndStuffWithEncodedGraphData();
             foreach (var propertyInfo in _props)
             {
                 var match = _moreProps.First(pi => pi.Name == propertyInfo.Name);
-                var srcVal = match.GetValue(journey);
+                var srcVal = match.GetValue(moo);
                 propertyInfo.SetValue(result, srcVal);
             }
             result.EnkiEnki =
-                $"data:application/json;base64,{Convert.ToBase64String(JsonConvert.SerializeObject(journey.GraphData).AsBytes())}";
+                $"data:application/json;base64,{Convert.ToBase64String(JsonConvert.SerializeObject(moo.WubWubs).AsBytes())}";
             return result;
         }
     }
@@ -762,33 +762,33 @@ namespace PeanutButter.Utils.Tests
 
         public MooBuilder WithNullGraphData()
         {
-            return WithProp(o => o.GraphData = null);
+            return WithProp(o => o.WubWubs = null);
         }
 
         public MooBuilder WithNullWidgets()
         {
-            return WithProp(o => o.GraphData.ThingyMaBobs = null);
+            return WithProp(o => o.WubWubs.ThingyMaBobs = null);
         }
 
         public MooBuilder WithEmptyWidgets()
         {
-            return WithProp(o => o.GraphData.ThingyMaBobs = new ThingyMaBob[0]);
+            return WithProp(o => o.WubWubs.ThingyMaBobs = new ThingyMaBob[0]);
         }
 
         public MooBuilder WithNullConnections()
         {
-            return WithProp(o => o.GraphData.WerkelSchmerkels = null);
+            return WithProp(o => o.WubWubs.WerkelSchmerkels = null);
         }
 
         public MooBuilder WithEmptyConnections()
         {
-            return WithProp(o => o.GraphData.WerkelSchmerkels = new TestDeepEqualityTester.WerkelSchmerkel[0]);
+            return WithProp(o => o.WubWubs.WerkelSchmerkels = new TestDeepEqualityTester.WerkelSchmerkel[0]);
         }
 
         public MooBuilder WithNoInitiatingTrigger()
         {
-            return WithProp(o => o.GraphData.WerkelSchmerkels =
-                o.GraphData.WerkelSchmerkels
+            return WithProp(o => o.WubWubs.WerkelSchmerkels =
+                o.WubWubs.WerkelSchmerkels
                     .EmptyIfNull()
                     .Where(c => c.FromId != "WibbleStix")
                     .ToArray()
@@ -799,7 +799,7 @@ namespace PeanutButter.Utils.Tests
         {
             return WithProp(o =>
             {
-                var widget = o.GraphData.ThingyMaBobs.Second();
+                var widget = o.WubWubs.ThingyMaBobs.Second();
                 widget.CakesOfMoos.First().Settings["Moo"] = GetRandomBoolean() ? null : new object[] { };
             });
         }
@@ -808,7 +808,7 @@ namespace PeanutButter.Utils.Tests
         {
             return WithProp(o =>
             {
-                var widget = o.GraphData.ThingyMaBobs.Second();
+                var widget = o.WubWubs.ThingyMaBobs.Second();
                 widget.ThingConditions.First().SelectedValues = GetRandomBoolean() ? null : new Option[0];
             });
         }
@@ -817,7 +817,7 @@ namespace PeanutButter.Utils.Tests
         {
             return WithProp(o =>
             {
-                o.GraphData.ThingyMaBobs.ForEach(w =>
+                o.WubWubs.ThingyMaBobs.ForEach(w =>
                 {
                     w.CakesOfMoos = null;
                 });

@@ -52,7 +52,7 @@ namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
 
         public List<ServiceItemViewModel> ServiceItemViewModels { get; set; }
         public List<ContactViewModel> ContactViewModels { get; set; }
-        public bool IsTelkom { get; set; }
+        public bool IsFrobNozzle { get; set; }
 
         [Required]
         [Display(Name = @"Registered Name")]

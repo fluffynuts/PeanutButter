@@ -4,8 +4,8 @@ namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
 {
     public enum LocationType
     {
-        [Display(Name = "Telkom Yard")] TelkomYard,
+        [Display(Name = "Frobnozzle Yard")] FrobNozzleYard,
         [Display(Name = "Site Location")] SiteLocation,
-        [Display(Name = "Fortel Yard")] FortelYard
+        [Display(Name = "Wingbat Yard")] WingbatYard
     }
 }

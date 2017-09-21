@@ -41,7 +41,7 @@ namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
         public string OrderId { get; set; }
         public string InvoiceId { get; set; }
         public string GeneratedInvoiceNumber { get; set; }
-        public string FortelInvoiceNumber { get; set; }
+        public string WingbatInvoiceNumber { get; set; }
         public double NumberOfReconInvoices { get; set; }
 
         [DisplayName("Total Incl VAT")]

@@ -5,7 +5,7 @@ namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
     public class InvoiceViewModel : ViewModelBase
     {
         public string GeneratedInvoiceNumber { get; set; }
-        public string FortelInvoiceNumber { get; set; }
+        public string WingbatInvoiceNumber { get; set; }
         public string OrderId { get; set; }
         public ReconViewModel ReconViewModel { get; set; }
         public SelectList ReconSelectList { get; set; }

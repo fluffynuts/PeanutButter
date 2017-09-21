@@ -3,6 +3,6 @@
     public enum InvoiceNumberingType
     {
         Internal = 1,
-        Telkom = 2
+        FrobNozzle = 2
     }
 }
