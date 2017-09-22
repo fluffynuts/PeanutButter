@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using PeanutButter.Utils;
+// ReSharper disable PossibleMultipleEnumeration
+// ReSharper disable VirtualMemberCallInConstructor
 
 namespace PeanutButter.TempDb
 {
@@ -22,7 +24,8 @@ namespace PeanutButter.TempDb
     {
         public string DatabaseFile { get; private set; }
         public string ConnectionString { get { return GenerateConnectionString(); } }
-        private static Semaphore _lock = new Semaphore(1, 1);
+        // ReSharper disable once StaticMemberInGenericType
+        private static readonly Semaphore _lock = new Semaphore(1, 1);
         private List<DbConnection> _managedConnections;
 
         public TempDB(params string[] creationScripts)
@@ -85,8 +88,12 @@ namespace PeanutButter.TempDb
         private DbConnection CreateOpenDatabaseConnection()
         {
             var connection = Activator.CreateInstance(typeof (TDatabaseConnection), ConnectionString) as DbConnection;
-            connection.Open();
-            return connection;
+            if (connection != null)
+            {
+                connection.Open();
+                return connection;
+            }
+            else throw new InvalidOperationException($"Unable to instantate connection of type {typeof(TDatabaseConnection)} as a DbConnection");
         }
 
         private void RunScripts(IEnumerable<string> scripts)

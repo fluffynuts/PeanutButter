@@ -9,6 +9,7 @@ using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using static NExpect.Expectations;
 // ReSharper disable UnusedMemberInSuper.Global
+// ReSharper disable PossibleNullReferenceException
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMember.Global

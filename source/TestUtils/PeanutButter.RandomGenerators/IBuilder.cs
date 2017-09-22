@@ -8,7 +8,7 @@
     public interface IBuilder<TSubject>
     {
         /// <summary>
-        /// Builds a new instance of TSubbject
+        /// Builds a new instance of TSubject
         /// </summary>
         /// <returns>New instance of TSubject</returns>
         TSubject Build();

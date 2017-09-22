@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+// ReSharper disable PossibleMultipleEnumeration
+// ReSharper disable ParameterOnlyUsedForPreconditionCheck.Global
 
 namespace PeanutButter.RandomGenerators.Tests
 {
@@ -12,7 +14,7 @@ namespace PeanutButter.RandomGenerators.Tests
             var type = typeof(TObject);
             var propInfo = type.GetProperty(propertyName);
             if (propInfo == null)
-                throw new Exception(string.Join("", new[] { "Unable to find property '", propertyName, "' on type '", type.Name }));
+                throw new Exception(string.Join("", "Unable to find property '", propertyName, "' on type '", type.Name));
 
             IEnumerable<TProperty> values = null;
             try
@@ -21,13 +23,16 @@ namespace PeanutButter.RandomGenerators.Tests
             }
             catch (Exception ex)
             {
-                Assert.Fail(string.Join("", new[] { "Unable to get list of property values for '", propertyName, "' of type '", typeof(TProperty).Name
-                    , "' from object of type '", type.Name, "': ", ex.Message }));
+                Assert.Fail(string.Join("", "Unable to get list of property values for '", propertyName, "' of type '", typeof(TProperty).Name, "' from object of type '", type.Name, "': ", ex.Message));
             }
             IsVariant(values, $"No variance for property '{propertyName}' across {{0}} samples");
         }
 
-        public static void IsVariant<TObject>(IEnumerable<TObject> collection, string failMessage = "No variance across {0} samples", IEqualityComparer<TObject> comparer = null)
+        public static void IsVariant<TObject>(
+            IEnumerable<TObject> collection, 
+            string failMessage = "No variance across {0} samples",
+            IEqualityComparer<TObject> comparer = null
+        )
         {
             if (collection.Count() < 2)
                 return;

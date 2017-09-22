@@ -93,7 +93,6 @@ namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
 
             public int GetHashCode(ServiceItemViewModel obj)
             {
-                if (obj == null) return 0;
                 return obj.Id.GetHashCode();
             }
         }

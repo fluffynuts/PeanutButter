@@ -1,6 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators.Tests.PerformanceTest;
+// ReSharper disable UnusedVariable
 
 namespace PeanutButter.RandomGenerators.Tests
 {

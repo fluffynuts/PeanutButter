@@ -31,7 +31,7 @@
 
         public static FinNumber AsInvoiceNumber(this string strFinNumber)
         {
-            FinNumber finNumber = null;
+            FinNumber finNumber;
             if (strFinNumber.Contains("-"))
                 return null;
             var identifier = strFinNumber.Substring(0, 1);

@@ -6,10 +6,14 @@ using System.Text;
 using GenericBuilderTestArtifactBuilders;
 using GenericBuilderTestArtifactEntities;
 using NExpect;
+using NExpect.Interfaces;
+using NExpect.MatcherLogic;
 using NUnit.Framework;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using static NExpect.Expectations;
+
+// ReSharper disable AccessToDisposedClosure
 
 // ReSharper disable PossibleMultipleEnumeration
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -127,7 +131,8 @@ namespace PeanutButter.RandomGenerators.Tests
 
             //---------------Test Result -----------------------
             Assert.IsTrue(strings.All(s => s.Length >= DefaultRanges.MINLENGTH_STRING));
-            Assert.IsTrue(strings.All(s => s.Length <= DefaultRanges.MINLENGTH_STRING +
+            Assert.IsTrue(strings.All(s => s.Length <=
+                                           DefaultRanges.MINLENGTH_STRING +
                                            DefaultRanges.MINLENGTH_STRING));
             Assert.IsTrue(strings.Distinct().Count() > 1);
         }
@@ -1513,14 +1518,12 @@ namespace PeanutButter.RandomGenerators.Tests
                 var result = CreateRandomFoldersIn(folder.Path);
 
                 //---------------Test Result -----------------------
-                Assert.IsNotNull(result);
-                CollectionAssert.IsNotEmpty(result);
-                result.All(r => Directory.Exists(r));
-                CollectionAssert.AreEquivalent(result, result.Distinct());
-                result.All(r => !r.Contains(Path.DirectorySeparatorChar));
-                var existing = Directory.EnumerateDirectories(folder.Path, "*", SearchOption.AllDirectories)
-                    .Select(p => p.Substring(folder.Path.Length + 1));
-                CollectionAssert.AreEquivalent(existing, result);
+                Expect(result).Not.To.Be.Null();
+                Expect(result).Not.To.Be.Empty();
+                Expect(result).To.Have.Unique.Items();
+
+                Expect(result).To.Be.FoldersUnder(folder.Path);
+                Expect(result).To.Be.TheOnlyFoldersUnder(folder.Path);
             }
         }
 
@@ -1538,13 +1541,15 @@ namespace PeanutButter.RandomGenerators.Tests
                 var result = CreateRandomFoldersIn(folder.Path, depth);
 
                 //---------------Test Result -----------------------
-                Assert.IsNotNull(result);
-                CollectionAssert.IsNotEmpty(result);
-                result.All(r => Directory.Exists(r));
-                CollectionAssert.AreEquivalent(result, result.Distinct());
-                var depths = result.Select(r => r.Split(Path.DirectorySeparatorChar).Length);
-                depths.All(d => d <= depth);
-                depths.Any(d => d > 1);
+                Expect(result).Not.To.Be.Null();
+                Expect(result).Not.To.Be.Empty();
+                Expect(result).To.Be.FoldersUnder(folder.Path);
+                Expect(result).To.Have.Unique.Items();
+
+                var depths = result
+                    .Select(r => r.Split(Path.DirectorySeparatorChar).Length)
+                    .ToArray();
+                Expect(depths.All(d => d <= depth)).To.Be.True();
             }
         }
 
@@ -1582,7 +1587,10 @@ namespace PeanutButter.RandomGenerators.Tests
                 Assert.IsTrue(File.Exists(Path.Combine(folder.Path, result)));
                 var lines = File.ReadAllLines(Path.Combine(folder.Path, result));
                 CollectionAssert.IsNotEmpty(lines);
-                Assert.IsTrue(lines.All(l => { return l.All(c => !Char.IsControl(c)); }));
+                Assert.IsTrue(lines.All(l =>
+                {
+                    return l.All(c => !Char.IsControl(c));
+                }));
             }
         }
 
@@ -1773,10 +1781,12 @@ namespace PeanutButter.RandomGenerators.Tests
             // Pre-assert
 
             // Act
-            Expect(() => {
-                var parent = GetRandom<Parent>();
-                Expect(parent.Children).Not.To.Be.Empty();
-            }).Not.To.Throw();
+            Expect(() =>
+                {
+                    var parent = GetRandom<Parent>();
+                    Expect(parent.Children).Not.To.Be.Empty();
+                })
+                .Not.To.Throw();
 
             // Assert
         }
@@ -1912,6 +1922,47 @@ namespace PeanutButter.RandomGenerators.Tests
             {
                 return value >= From && value <= To;
             }
+        }
+    }
+
+    internal static class Matchers
+    {
+        internal static void FoldersUnder(
+            this ICollectionBe<string> be,
+            string basePath
+        )
+        {
+            be.Compose(actual =>
+            {
+                actual.ForEach(sub =>
+                    Expect(Path.Combine(basePath, sub)).To.Be.A.Folder()
+                );
+            });
+        }
+
+        internal static void TheOnlyFoldersUnder(
+            this ICollectionBe<string> be,
+            string folder
+        )
+        {
+            be.Compose(actual =>
+            {
+                var existing = Directory.EnumerateDirectories(
+                        folder, "*", SearchOption.AllDirectories
+                    )
+                    .Select(p => p.Substring(folder.Length + 1)
+                    );
+                Expect(existing).To.Be.Equivalent.To(actual);
+            });
+        }
+
+        internal static void Folder(
+            this IA<string> a
+        )
+        {
+            a.Compose(path =>
+                Expect(Directory.Exists(path)).To.Be.True()
+            );
         }
     }
 }

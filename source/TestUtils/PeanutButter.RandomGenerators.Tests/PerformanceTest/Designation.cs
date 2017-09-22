@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+// ReSharper disable UnusedMember.Global
+// ReSharper disable InconsistentNaming
 
 namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
 {

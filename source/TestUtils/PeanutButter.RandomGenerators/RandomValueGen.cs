@@ -58,12 +58,16 @@ namespace PeanutButter.RandomGenerators
         /// <returns>New instance of the specified type. Should be different every time, when possible.</returns>
         public static object GetRandomValue(Type type)
         {
+            if (type == null)
+                throw new ArgumentException(nameof(type));
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
                 type = Nullable.GetUnderlyingType(type);
-            Func<object> randomGenerator;
-            if (_primitiveGenerators.TryGetValue(type, out randomGenerator))
-                return randomGenerator();
-            return GetRandomValueForType(type);
+            return _primitiveGenerators.TryGetValue(
+                type ?? throw new ArgumentNullException(nameof(type)), 
+                out var randomGenerator
+            ) 
+                ? randomGenerator() 
+                : GetRandomValueForType(type);
         }
 
         private static object GetRandomValueForType(Type type)

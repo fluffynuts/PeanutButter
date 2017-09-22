@@ -7,6 +7,11 @@ using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using static NExpect.Expectations;
+// ReSharper disable ExpressionIsAlwaysNull
+// ReSharper disable CollectionNeverUpdated.Local
+// ReSharper disable PossibleMultipleEnumeration
+
+// ReSharper disable RedundantArgumentDefaultValue
 
 namespace PeanutButter.RandomGenerators.Tests
 {
@@ -27,13 +32,10 @@ namespace PeanutButter.RandomGenerators.Tests
                 var input = GetRandomCollection(() => GetRandomString(2, 10), 5, 10).ToArray();
                 var jumbled = input.Randomize().ToArray();
                 Assert.AreEqual(input.Length, jumbled.Length);
-                var outOfPlace = 0;
-                for (var j = 0; j < input.Length; j++)
-                {
-                    if (input[j] != jumbled[j])
-                        outOfPlace++;
-                }
-                results.Add((decimal) outOfPlace / (decimal) input.Length);
+                var outOfPlace = input
+                    .Where((t, j) => t != jumbled[j])
+                    .Count();
+                results.Add(outOfPlace / (decimal) input.Length);
             }
 
             //---------------Test Result -----------------------
@@ -73,7 +75,9 @@ namespace PeanutButter.RandomGenerators.Tests
         [Test]
         public void Randomize_ShouldReturnTheSameCollectionInADifferentOrder()
         {
-            for (var i = 0; i < 10; i++) // it's entirely possible that the random output is the same, so let's try up to 10 times
+            for (var i = 0;
+                i < 10;
+                i++) // it's entirely possible that the random output is the same, so let's try up to 10 times
             {
                 //---------------Set up test pack-------------------
                 var src = GetRandomCollection(() => GetRandomString(), 3);
@@ -111,7 +115,8 @@ namespace PeanutButter.RandomGenerators.Tests
 
             //--------------- Act ----------------------
             Expect(() => src.ShouldContainOneDeepEqualTo(seek))
-                .To.Throw<AssertionException>().With.Message.Containing("empty");
+                .To.Throw<AssertionException>()
+                .With.Message.Containing("empty");
 
             //--------------- Assert -----------------------
         }
@@ -127,9 +132,10 @@ namespace PeanutButter.RandomGenerators.Tests
 
             //--------------- Act ----------------------
             Expect(() => src.ShouldContainOneDeepEqualTo(seek))
-                .To.Throw<AssertionException>().With.Message.Containing(
+                .To.Throw<AssertionException>()
+                .With.Message.Containing(
                     $"Expected to find \"{seek}\" in {Stringifier.Stringify(src)}"
-                 );
+                );
 
             //--------------- Assert -----------------------
         }
@@ -162,10 +168,12 @@ namespace PeanutButter.RandomGenerators.Tests
 
             //--------------- Act ----------------------
             Expect(() => src.ShouldContainOneDeepEqualTo(seek))
-                .To.Throw<AssertionException>().With.Message.Containing("more than one match");
+                .To.Throw<AssertionException>()
+                .With.Message.Containing("more than one match");
 
             //--------------- Assert -----------------------
         }
+
         [Test]
         public void ShouldContainAtLeastOneDeepEqualTo_OperatingOnEmptyCollection_ShouldThrow()
         {
@@ -177,7 +185,8 @@ namespace PeanutButter.RandomGenerators.Tests
 
             //--------------- Act ----------------------
             Expect(() => src.ShouldContainAtLeastOneDeepEqualTo(seek))
-                .To.Throw<AssertionException>().With.Message.Containing("empty");
+                .To.Throw<AssertionException>()
+                .With.Message.Containing("empty");
 
             //--------------- Assert -----------------------
         }
@@ -193,9 +202,10 @@ namespace PeanutButter.RandomGenerators.Tests
 
             //--------------- Act ----------------------
             Expect(() => src.ShouldContainAtLeastOneDeepEqualTo(seek))
-                .To.Throw<AssertionException>().With.Message.Containing(
+                .To.Throw<AssertionException>()
+                .With.Message.Containing(
                     $"Expected to find \"{seek}\" in {Stringifier.Stringify(src)}"
-                 );
+                );
 
             //--------------- Assert -----------------------
         }
@@ -233,8 +243,5 @@ namespace PeanutButter.RandomGenerators.Tests
 
             //--------------- Assert -----------------------
         }
-
-
-
     }
 }

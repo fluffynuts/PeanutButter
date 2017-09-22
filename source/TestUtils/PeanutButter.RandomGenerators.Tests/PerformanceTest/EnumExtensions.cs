@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq;
 
 namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
 {
@@ -14,10 +15,9 @@ namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
                     typeof(DescriptionAttribute),
                     false);
 
-            if (attributes != null &&
-                attributes.Length > 0)
-                return attributes[0].Description;
-            return theEnumeration.ToString();
+            return attributes.Any()
+                ? attributes[0].Description 
+                : theEnumeration.ToString();
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
+﻿// ReSharper disable UnusedMember.Global
+// ReSharper disable InconsistentNaming
+namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
 {
     public enum DocumentType
     {

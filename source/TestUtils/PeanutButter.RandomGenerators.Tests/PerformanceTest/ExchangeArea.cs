@@ -1,4 +1,7 @@
 ﻿using System;
+// ReSharper disable UnusedParameter.Local
+// ReSharper disable UnusedMember.Global
+// ReSharper disable ClassNeverInstantiated.Global
 
 namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
 {

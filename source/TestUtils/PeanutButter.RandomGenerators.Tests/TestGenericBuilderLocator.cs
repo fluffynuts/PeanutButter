@@ -10,6 +10,7 @@ using NUnit.Framework;
 using static NExpect.Expectations;
 // ReSharper disable UnusedMember.Global
 // ReSharper disable UnusedMember.Local
+// ReSharper disable PossibleNullReferenceException
 
 namespace PeanutButter.RandomGenerators.Tests
 {
