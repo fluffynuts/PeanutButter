@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NUnit.Framework;
 using System.Data.SqlClient;
 using System.IO;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
+// ReSharper disable ObjectCreationAsStatement
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.Utils.Tests
 {
@@ -102,10 +100,6 @@ namespace PeanutButter.Utils.Tests
             public string InstanceName { get; set; } = new LocalDbInstanceEnumerator().FindFirstAvailableInstance();
             private const string MasterConnectionString = @"Data Source=(localdb)\{0};Initial Catalog=master;Integrated Security=True";
 
-            public LocalDbDestroyer()
-            {
-            }
-
             public string GetMasterConnectionString()
             {
                 return string.Format(MasterConnectionString, InstanceName);
@@ -138,7 +132,7 @@ namespace PeanutButter.Utils.Tests
                 }
                 catch
                 {
-                    
+                    // ignored
                 }
             }
         }

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+// ReSharper disable RedundantArgumentDefaultValue
 
 namespace PeanutButter.Utils.Tests
 {

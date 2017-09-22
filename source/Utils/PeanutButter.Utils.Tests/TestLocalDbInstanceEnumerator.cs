@@ -1,10 +1,12 @@
 using System;
+using NExpect;
 using NUnit.Framework;
+using static NExpect.Expectations;
 
 namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
-    public class TestLocalDbInstanceEnumerator: AssertionHelper
+    public class TestLocalDbInstanceEnumerator
     {
         [Test]
         public void InstanceFinder()
@@ -35,7 +37,7 @@ namespace PeanutButter.Utils.Tests
             var result = sut.FindInstances();
 
             //---------------Test Result -----------------------
-            Expect(result, Does.Contain("MSSQLLocalDB"));
+            Expect(result).Not.To.Contain("MSSQLLocalDB");
         }
 
 

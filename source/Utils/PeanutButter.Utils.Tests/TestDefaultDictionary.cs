@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NExpect;
-using NSubstitute.Core;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using PeanutButter.TestUtils.Generic;
 using static NExpect.Expectations;
+// ReSharper disable CollectionNeverUpdated.Local
 
 namespace PeanutButter.Utils.Tests
 {
