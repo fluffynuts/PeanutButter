@@ -1,5 +1,10 @@
 {
   "name": "peanut-butter",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fluffynuts/PeanutButter"
+  },
+  "license": "BSD-3-Clause",
   "scripts": {
     "test": "gulp test-dotnet",
     "build": "gulp build",
@@ -7,12 +12,13 @@
     "release": "gulp release"
   },
   "devDependencies": {
+    "debug": "^3.0.1",
     "del": "^2.2.2",
     "event-stream": "^3.3.4",
     "gulp": "^3.9.1",
     "gulp-debug": "^3.1.0",
     "gulp-help": "^1.6.1",
-    "gulp-msbuild": "^0.4.7",
+    "gulp-msbuild": "^0.5.2",
     "gulp-npm-run": "0.0.3",
     "gulp-nunit-runner": "^1.2.1",
     "gulp-stream-to-promise": "^0.1.0",
@@ -28,6 +34,7 @@
     "karma-nyan-reporter": "^0.2.5",
     "karma-requirejs": "^1.1.0",
     "karma-xml-reporter": "^0.1.4",
+    "mkdirp": "^0.5.1",
     "mocha": "^3.4.1",
     "mocha-yar": "^1.0.12",
     "nodemon": "^1.11.0",
@@ -35,7 +42,7 @@
     "proxyquire": "^1.8.0",
     "q": "^1.5.0",
     "request": "^2.81.0",
-    "require-dir": "^0.3.1",
+    "require-dir": "^0.3.2",
     "requirejs": "^2.3.3",
     "rimraf": "^2.6.1",
     "run-sequence": "^1.2.2",

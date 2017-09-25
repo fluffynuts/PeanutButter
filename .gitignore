@@ -141,3 +141,4 @@ source/.idea*
 *.old
 tools
 .vs
+package-lock.json
