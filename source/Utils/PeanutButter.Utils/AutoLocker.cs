@@ -11,7 +11,12 @@ namespace PeanutButter.Utils
     /// without the consumer having to worry about unlocking in the event of exception
     /// handling
     /// </summary>
-    public class AutoLocker : IDisposable
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        class AutoLocker : IDisposable
     {
         private readonly object _disposeLock = new object();
         private Semaphore _fatty;
@@ -25,8 +30,7 @@ namespace PeanutButter.Utils
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException if the provided Semaphore is null</exception>
         public AutoLocker(Semaphore semaphore)
         {
-            if (semaphore == null) throw new ArgumentNullException(nameof(semaphore));
-            _fatty = semaphore;
+            _fatty = semaphore ?? throw new ArgumentNullException(nameof(semaphore));
             _fatty.WaitOne();
         }
 
@@ -37,8 +41,7 @@ namespace PeanutButter.Utils
         /// <exception cref="ArgumentNullException">Thrown if the provided SemaphoreSlim is null</exception>
         public AutoLocker(SemaphoreSlim semaphore)
         {
-            if (semaphore == null) throw new ArgumentNullException(nameof(semaphore));
-            _slim = semaphore;
+            _slim = semaphore ?? throw new ArgumentNullException(nameof(semaphore));
             _slim.Wait();
         }
 
@@ -49,8 +52,7 @@ namespace PeanutButter.Utils
         /// <exception cref="ArgumentNullException">Thrown if the provided Mutex is null</exception>
         public AutoLocker(Mutex mutex)
         {
-            if (mutex == null) throw new ArgumentNullException(nameof(mutex));
-            _mutex = mutex;
+            _mutex = mutex ?? throw new ArgumentNullException(nameof(mutex));
             _mutex.WaitOne();
         }
 
