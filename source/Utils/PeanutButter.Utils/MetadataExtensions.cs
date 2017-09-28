@@ -16,13 +16,17 @@ namespace PeanutButter.Utils
         private static readonly ConditionalWeakTable<object, Dictionary<string, object>> _table =
             new ConditionalWeakTable<object, Dictionary<string, object>>();
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+#else
+        // This is only used for testing and is not designed for consumers
         internal static int TrackedObjectCount() {
             var keys = _table.GetPropertyValue("Keys") as IEnumerable<object>;
             return keys?.Count() 
                 ?? throw new InvalidOperationException("Reaching into ConditionalWeakTable for the Keys collection has failed");
         }
+#endif
 
-        internal static void SetMetadata(
+        public static void SetMetadata(
             this object parent,
             string key,
             object value
@@ -35,7 +39,7 @@ namespace PeanutButter.Utils
             }
         }
 
-        internal static T GetMetadata<T>(
+        public static T GetMetadata<T>(
             this object parent,
             string key
         )
@@ -52,7 +56,7 @@ namespace PeanutButter.Utils
             }
         }
 
-        internal static bool HasMetadata<T>(
+        public static bool HasMetadata<T>(
             this object parent,
             string key
         )
