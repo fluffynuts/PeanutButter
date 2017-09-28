@@ -8,6 +8,7 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 using static NExpect.Expectations;
 using static PeanutButter.Utils.PyLike;
 // ReSharper disable PossibleNullReferenceException
+// ReSharper disable TryCastAlwaysSucceeds
 
 namespace PeanutButter.Utils.Tests
 {

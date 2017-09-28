@@ -88,6 +88,7 @@
     <Compile Include="LocalDbInstanceEnumerator.cs" />
     <Compile Include="MergeDictionary.cs" />
     <Compile Include="MergeDictionaryEnumerator.cs" />
+    <Compile Include="MetadataExtensions.cs" />
     <Compile Include="ObjectExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MemberNotFoundException.cs" />
