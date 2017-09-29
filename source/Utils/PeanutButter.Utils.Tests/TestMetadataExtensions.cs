@@ -51,6 +51,7 @@ namespace PeanutButter.Utils.Tests
         public void ShouldGcMetaData()
         {
             // Arrange
+            GC.Collect();
             var target = new { };
             var key = GetRandomString(2);
             var value = GetRandomBoolean();
