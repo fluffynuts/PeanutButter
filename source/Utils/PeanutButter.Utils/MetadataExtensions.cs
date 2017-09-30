@@ -9,6 +9,12 @@ namespace PeanutButter.Utils
 #if BUILD_PEANUTBUTTER_INTERNAL
     internal 
 #else
+    /// <summary>
+    /// Provides extension methods to set and retrieve metadata on any object.
+    /// Under the hood, these methods use a ConditionalWeakTable to store your
+    /// metadata, so the metadata is garbage-collected when your managed objects
+    /// are garbage-collected.
+    /// </summary>
     public 
 #endif
         static class MetadataExtensions
@@ -26,6 +32,15 @@ namespace PeanutButter.Utils
         }
 #endif
 
+        /// <summary>
+        /// Sets an arbitrary piece of metadata on a managed object. This metadata
+        /// has the same lifetime as your object, meaning it will be garbage-collected
+        /// when your object is garbage-collected, assuming nothing else is referencing
+        /// it.
+        /// </summary>
+        /// <param name="parent">Object to store metadata against</param>
+        /// <param name="key">Name of the metadata item to set</param>
+        /// <param name="value">Value to store</param>
         public static void SetMetadata(
             this object parent,
             string key,
@@ -39,6 +54,17 @@ namespace PeanutButter.Utils
             }
         }
 
+        /// <summary>
+        /// Attempts to retrieve a piece of metadata for an object. When the 
+        /// metadata key for the object is unknown, returns the default value
+        /// for the type requested, eg 0 for ints, null for strings and objects.
+        /// Note that if metadata exists for the requested key but not for the
+        /// type requested, a type-casting exception will be thrown.
+        /// </summary>
+        /// <param name="parent">Parent object to query against</param>
+        /// <param name="key">Key to query for</param>
+        /// <typeparam name="T">Type of data</typeparam>
+        /// <returns></returns>
         public static T GetMetadata<T>(
             this object parent,
             string key
@@ -56,6 +82,13 @@ namespace PeanutButter.Utils
             }
         }
 
+        /// <summary>
+        /// Tests if a parent object has a piece of metadata with the provided type.
+        /// </summary>
+        /// <param name="parent">Parent object to search against</param>
+        /// <param name="key">Key to search for</param>
+        /// <typeparam name="T">Expected type of metadata</typeparam>
+        /// <returns></returns>
         public static bool HasMetadata<T>(
             this object parent,
             string key
