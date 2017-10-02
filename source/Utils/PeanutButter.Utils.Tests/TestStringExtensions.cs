@@ -713,6 +713,7 @@ namespace PeanutButter.Utils.Tests
         [TestCase("Moo", "moo")]
         [TestCase("MooCow", "moo cow")]
         [TestCase("i_am_snake", "i am snake")]
+        [TestCase("i am already words", "i am already words")]
         [TestCase("is-already-kebabed", "is already kebabed")]
         public void ToWords_ShouldConvert_(string from, string expected)
         {
@@ -726,5 +727,6 @@ namespace PeanutButter.Utils.Tests
             // Assert
             Expect(result).To.Equal(expected);
         }
+
     }
 }

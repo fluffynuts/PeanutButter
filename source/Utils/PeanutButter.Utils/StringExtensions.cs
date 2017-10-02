@@ -246,6 +246,7 @@ namespace PeanutButter.Utils
         {
             return input?
                 .Replace('_', '-')
+                .Replace(' ', '-')
                 .SplitOnCapitalsAnd('-')
                 .Select(s => s.ToLower())
                 .JoinWith("-");
