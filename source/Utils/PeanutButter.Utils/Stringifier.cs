@@ -15,7 +15,7 @@ namespace PeanutButter.Utils
 #else
     public 
 #endif
-    static class Stringifier
+        static class Stringifier
     {
         /// <summary>
         /// Provides a reasonable human-readable string representation of a collection
@@ -23,6 +23,11 @@ namespace PeanutButter.Utils
         /// <param name="objs"></param>
         /// <returns>Human-readable representation of collection</returns>
         public static string Stringify<T>(IEnumerable<T> objs)
+        {
+            return StringifyCollectionInternal(objs);
+        }
+
+        private static string StringifyCollectionInternal<T>(IEnumerable<T> objs)
         {
             return objs == null
                 ? "(null collection)"
@@ -65,61 +70,176 @@ namespace PeanutButter.Utils
             "mscorlib"
         };
 
-        private static string SafeStringifier(object obj, int level, string nullRepresentation)
-        {
-            if (obj == null)
-                return nullRepresentation;
-            var objType = obj.GetType();
-            if (level >= MaxStringifyDepth || Types.PrimitivesAndImmutables.Contains(objType))
+        private static readonly Tuple<Func<object, int, bool>, Func<object, int, string, string>>[]
+            _strategies =
             {
-                Func<object, string> strategy;
-                return _primitiveStringifiers.TryGetValue(objType, out strategy)
-                    ? strategy(obj)
-                    : obj.ToString();
-            }
+                MakeStrategy(IsNull, PrintNull),
+                MakeStrategy(IsPrimitive, StringifyPrimitive),
+                MakeStrategy(IsEnum, StringifyEnum),
+                MakeStrategy(IsEnumerable, StringifyCollection),
+                MakeStrategy(Default, StringifyJsonLike),
+                MakeStrategy(LastPass, JustToStringIt)
+            };
+
+        private static string StringifyCollection(object obj, int level, string nullRep)
+        {
+            var itemType = obj.GetType().TryGetEnumerableItemType() 
+                ?? throw new Exception($"{obj.GetType()} is not IEnumerable<T>");
+            var method = typeof(Stringifier)
+                .GetMethod(nameof(StringifyCollectionInternal), BindingFlags.NonPublic | BindingFlags.Static);
+            var specific = method.MakeGenericMethod(itemType);
+            return (string)(specific.Invoke(null, new[] { obj }));
+        }
+
+        private static bool IsEnumerable(object obj, int level)
+        {
+            return obj.GetType().ImplementsEnumerableGenericType();
+        }
+
+        private static string StringifyEnum(object obj, int level, string nullRepresentation)
+        {
+            return obj.ToString();
+        }
+
+        private static bool IsEnum(object obj, int level)
+        {
+#if NETSTANDARD1_6
+            return obj.GetType().GetTypeInfo().IsEnum;
+#else
+            return obj.GetType().IsEnum;
+#endif
+        }
+
+        private static string JustToStringIt(object obj, int level, string nullRepresentation)
+        {
             try
             {
-                var props = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
-                var indentMinus1 = new string(' ', level * IndentSize);
-                var indent = indentMinus1 + new string(' ', IndentSize);
-                var joinWith = props.Aggregate(new List<string>(), (acc, cur) =>
-                    {
-                        var propValue = cur.GetValue(obj);
+                return obj.ToString();
+            }
+            catch
+            {
+                return $"{{{obj.GetType()}}}";
+            }
+        }
+
+        private static bool LastPass(object arg1, int arg2)
+        {
+            return true;
+        }
+
+        private static string PrintNull(object obj, int level, string nullRepresentation)
+        {
+            return nullRepresentation;
+        }
+
+        private static bool IsNull(object obj, int level)
+        {
+            return obj == null;
+        }
+
+        private static Tuple<Func<object, int, bool>, Func<object, int, string, string>> MakeStrategy(
+            Func<object, int, bool> matcher, Func<object, int, string, string> writer
+        )
+        {
+            return Tuple.Create(matcher, writer);
+        }
+
+        private static bool IsPrimitive(object obj, int level)
+        {
+            return level >= MaxStringifyDepth ||
+                   Types.PrimitivesAndImmutables.Contains(obj.GetType());
+        }
+
+        private static bool Default(object obj, int level)
+        {
+            return true;
+        }
+
+        private static string SafeStringifier(object obj, int level, string nullRepresentation)
+        {
+            if (level >= MaxStringifyDepth)
+            {
+                return StringifyPrimitive(obj, level, nullRepresentation);
+            }
+            return _strategies.Aggregate(null as string,
+                (acc, cur) => acc ??
+                              ApplyStrategy(
+                                  cur.Item1,
+                                  cur.Item2,
+                                  obj,
+                                  level,
+                                  nullRepresentation
+                              )
+            );
+        }
+
+        private static string ApplyStrategy(
+            Func<object, int, bool> matcher,
+            Func<object, int, string, string> strategy,
+            object obj,
+            int level,
+            string nullRepresentation)
+        {
+            try
+            {
+                return matcher(obj, level) 
+                        ? strategy(obj, level, nullRepresentation)
+                        : null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+
+        private static string StringifyJsonLike(object obj, int level, string nullRepresentation)
+        {
+            var props = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            var indentMinus1 = new string(' ', level * IndentSize);
+            var indent = indentMinus1 + new string(' ', IndentSize);
+            var joinWith = props.Aggregate(new List<string>(), (acc, cur) =>
+                {
+                    var propValue = cur.GetValue(obj);
                     if (_ignoreAssembliesByName.Contains(
 #if NETSTANDARD1_6
                             cur.DeclaringType?.AssemblyQualifiedName.Split(
                             new[] { "," }, StringSplitOptions.RemoveEmptyEntries
                         ).Skip(1).FirstOrDefault()
 #else
-                            cur.DeclaringType?.Assembly.GetName().Name
+                        cur.DeclaringType?.Assembly.GetName().Name
 #endif
-                        ))
-                        {
-                            acc.Add(string.Join("", cur.Name, ": ", propValue?.ToString()));
-                        }
-                        else
-                        {
-                            acc.Add(string.Join(
-                                "",
-                                cur.Name,
-                                ": ",
-                                SafeStringifier(propValue, level + 1, nullRepresentation)));
-                        }
+                    ))
+                    {
+                        acc.Add(string.Join("", cur.Name, ": ", propValue?.ToString()));
+                    }
+                    else
+                    {
+                        acc.Add(string.Join(
+                            "",
+                            cur.Name,
+                            ": ",
+                            SafeStringifier(propValue, level + 1, nullRepresentation)));
+                    }
 
-                        return acc;
-                    })
-                    .JoinWith($"\n{indent}");
-                return ("{\n" +
-                       string.Join(
-                           "\n{indent}",
-                           $"{indent}{joinWith}"
-                       ) +
-                       $"\n{indentMinus1}}}").Compact();
-            }
-            catch
-            {
-                return obj.ToString();
-            }
+                    return acc;
+                })
+                .JoinWith($"\n{indent}");
+            return ("{\n" +
+                    string.Join(
+                        "\n{indent}",
+                        $"{indent}{joinWith}"
+                    ) +
+                    $"\n{indentMinus1}}}").Compact();
+        }
+
+        private static string StringifyPrimitive(object obj, int level, string nullRep)
+        {
+            if (obj == null)
+                return nullRep;
+            return _primitiveStringifiers.TryGetValue(obj.GetType(), out var strategy)
+                ? strategy(obj)
+                : obj.ToString();
         }
     }
 
@@ -128,16 +248,17 @@ namespace PeanutButter.Utils
         internal static string Compact(this string str)
         {
             return new[]
-            {
-                "\r\n",
-                "\n"
-            }.Aggregate(str, (acc, cur) =>
-            {
-                var twice = $"{cur}{cur}";
-                while (acc.Contains(twice))
-                    acc = acc.Replace(twice, "");
-                return acc;
-            }).SquashEmptyObjects();
+                {
+                    "\r\n",
+                    "\n"
+                }.Aggregate(str, (acc, cur) =>
+                {
+                    var twice = $"{cur}{cur}";
+                    while (acc.Contains(twice))
+                        acc = acc.Replace(twice, "");
+                    return acc;
+                })
+                .SquashEmptyObjects();
         }
 
         private static string SquashEmptyObjects(this string str)
@@ -145,5 +266,4 @@ namespace PeanutButter.Utils
             return str.RegexReplace("{\\s*}", "{}");
         }
     }
-
 }

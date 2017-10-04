@@ -227,6 +227,18 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
+        /// Attempts to get the item type (T)
+        /// for a Type which is assumed to implement IEnumerable&lt;T&gt;
+        /// </summary>
+        /// <param name="srcType">Type to search for the IEnumerable &lt;T&gt; interface and underlying type</param>
+        /// <returns>IEnumerable&lt;&gt; item type (T) implemented if found or null otherwise</returns>
+        public static Type TryGetEnumerableItemType(this Type srcType)
+        {
+            return srcType.TryGetEnumerableInterface()
+                ?.GenericTypeArguments[0];
+        }
+
+        /// <summary>
         /// Tests if a type directly implements the generic IEnumerable interface
         /// </summary>
         /// <param name="arg">Type to test</param>
