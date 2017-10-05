@@ -19,10 +19,12 @@ namespace PeanutButter.Utils
             bool mustMatchMemberType
         )
         {
+#pragma warning disable S1067
             return master.Name == other.Name &&
                    other.Type.IsAssignableOrUpcastableTo(master.Type) &&
                    master.AccessMatches(other) &&
                    (!mustMatchMemberType || master.MemberType == other.MemberType);
+#pragma warning restore S1067
         }
 
         public static bool IsMatchFor(
