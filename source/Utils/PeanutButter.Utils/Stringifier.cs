@@ -24,14 +24,18 @@ namespace PeanutButter.Utils
         /// <returns>Human-readable representation of collection</returns>
         public static string Stringify<T>(IEnumerable<T> objs)
         {
-            return StringifyCollectionInternal(objs);
+            return StringifyCollectionInternal(objs, "null", 0);
         }
 
-        private static string StringifyCollectionInternal<T>(IEnumerable<T> objs)
+        private static string StringifyCollectionInternal<T>(
+            IEnumerable<T> objs,
+            string nullRepresentation,
+            int level
+        )
         {
             return objs == null
                 ? "(null collection)"
-                : $"[ {string.Join(", ", objs.Select(o => Stringify(o)))} ]";
+                : $"[ {string.Join(", ", objs.Select(o => Stringify(o, nullRepresentation, level)))} ]";
         }
 
         /// <summary>
@@ -52,7 +56,15 @@ namespace PeanutButter.Utils
         /// <returns>Human-readable representation of object</returns>
         public static string Stringify(object obj, string nullRepresentation)
         {
-            return SafeStringifier(obj, 0, nullRepresentation ?? "null");
+            return Stringify(obj, nullRepresentation, 0);
+        }
+
+        private static string Stringify(
+            object obj,
+            string nullRepresentation,
+            int level)
+        {
+            return SafeStringifier(obj, level, nullRepresentation ?? "null");
         }
 
         private const int MaxStringifyDepth = 10;
@@ -83,12 +95,12 @@ namespace PeanutButter.Utils
 
         private static string StringifyCollection(object obj, int level, string nullRep)
         {
-            var itemType = obj.GetType().TryGetEnumerableItemType() 
-                ?? throw new Exception($"{obj.GetType()} is not IEnumerable<T>");
+            var itemType = obj.GetType().TryGetEnumerableItemType() ??
+                           throw new Exception($"{obj.GetType()} is not IEnumerable<T>");
             var method = typeof(Stringifier)
                 .GetMethod(nameof(StringifyCollectionInternal), BindingFlags.NonPublic | BindingFlags.Static);
             var specific = method.MakeGenericMethod(itemType);
-            return (string)(specific.Invoke(null, new[] { obj }));
+            return (string) (specific.Invoke(null, new[] {obj, nullRep, level}));
         }
 
         private static bool IsEnumerable(object obj, int level)
@@ -182,9 +194,9 @@ namespace PeanutButter.Utils
         {
             try
             {
-                return matcher(obj, level) 
-                        ? strategy(obj, level, nullRepresentation)
-                        : null;
+                return matcher(obj, level)
+                    ? strategy(obj, level, nullRepresentation)
+                    : null;
             }
             catch
             {
