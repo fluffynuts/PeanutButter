@@ -315,6 +315,15 @@ namespace PeanutButter.Utils
             return canConvert;
         }
 
+        public static bool IsInterface(this Type type)
+        {
+#if NETSTANDARD1_6
+            return type?.GetTypeInfo().IsInterface ?? false;
+#else
+            return type?.IsInterface ?? false;
+#endif
+        }
+
 
         private static MethodInfo _tryConvertGeneric = 
             typeof(TypeExtensions).GetMethod(nameof(TryConvert), BindingFlags.Static | BindingFlags.NonPublic);
