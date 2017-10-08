@@ -404,10 +404,10 @@ namespace PeanutButter.Utils.Tests
 
 
         [TestFixture]
-        public class PropertyAssertions
+        public class WildCases
         {
             [TestFixture]
-            public class AreDeepEqual
+            public class PropertyAssert_AreDeepEqual
             {
                 [Test]
                 public void ShouldReturnTrueForCaseInWild()
