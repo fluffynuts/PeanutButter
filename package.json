@@ -9,7 +9,8 @@
     "test": "gulp test-dotnet",
     "build": "gulp build",
     "gulp": "gulp",
-    "release": "gulp release"
+    "release": "gulp release",
+    "coverage": "gulp cover-dotnet"
   },
   "devDependencies": {
     "debug": "^3.0.1",
