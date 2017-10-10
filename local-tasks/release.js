@@ -101,6 +101,11 @@ gulp.task("build-utils-package", [], function () {
     .pipe(buildNugetPackages(true));
 });
 
+gulp.task("release-utils-package", [], function () {
+  return gulp.src([nugetReleaseDir + "/PeanutButter.Utils*"])
+  .pipe(pushNugetPackages());
+});
+
 gulp.task("clean-nuget-releasedir", function () {
   return del(nugetReleaseDir);
 });
