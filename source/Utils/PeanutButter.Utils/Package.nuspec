@@ -1,0 +1,34 @@
+<package>
+  <metadata>
+    <id>PeanutButter.Utils</id>
+    <version>1.2.184</version>
+    <title>PeanutButter.Utils</title>
+    <authors>Davyd McColl</authors>
+    <owners>Davyd McColl</owners>
+    <description>
+      The miscellaneous utilities slice of the PeanutButter mini-suite (sans XML Utils)
+    </description>
+    <releaseNotes></releaseNotes>
+    <summary></summary>
+    <language>en-US</language>
+    <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
+    <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/fluffynuts/PeanutButter/blob/master/LICENSE</licenseUrl>
+    <copyright>Copyright  2014</copyright>
+    <dependencies>
+      <group targetFramework="net40"></group>
+    </dependencies>
+    <references></references>
+    <tags></tags>
+  </metadata>
+  <files>
+    <file src="bin/Release/net452/PeanutButter.Utils.dll" target="lib/net452" />
+    <file src="bin/Release/net452/PeanutButter.Utils.pdb" target="lib/net452" />
+    <file src="bin/Release/net452/PeanutButter.Utils.xml" target="lib/net452" />
+    <file src="bin/Release/net452/PeanutButter.Utils.xml" target="lib/netstandard1.6" />
+    <file src="bin/Release/netstandard1.6/PeanutButter.Utils.dll" target="lib/netstandard1.6" />
+    <file src="bin/Release/netstandard1.6/PeanutButter.Utils.deps.json" target="lib/netstandard1.6" />
+    <file src="tools\" target="tools" />
+  </files>
+</package>

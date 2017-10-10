@@ -58,8 +58,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ILocalDbFactory.cs" />
+    <Compile Include="LocalDbFactory.cs" />
+    <Compile Include="LocalDbInstanceEnumerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TempDBLocalDb.cs" />
+    <Compile Include="UnableToFindLocalDbUtilityException.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PeanutButter.TempDb\PeanutButter.TempDb.csproj">

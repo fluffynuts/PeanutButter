@@ -1,13 +1,16 @@
 ﻿using System;
-using NUnit.Framework;
 using System.Data.SqlClient;
 using System.IO;
+using NUnit.Framework;
 using PeanutButter.RandomGenerators;
+using PeanutButter.TempDb.LocalDb;
 using PeanutButter.TestUtils.Generic;
+using PeanutButter.Utils;
+
 // ReSharper disable ObjectCreationAsStatement
 // ReSharper disable MemberCanBePrivate.Global
 
-namespace PeanutButter.Utils.Tests
+namespace PeanutButter.TempDb.Tests
 {
     [TestFixture]
     public class TestLocalDbFactory

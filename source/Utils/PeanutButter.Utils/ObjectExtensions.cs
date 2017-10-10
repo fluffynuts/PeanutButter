@@ -354,7 +354,7 @@ namespace PeanutButter.Utils
             PropertyInfo dstPropertyInfo, 
             object dst, object srcValue)
         {
-            if (!srcPropertyInfo.PropertyType.IsEnum)
+            if (!srcPropertyInfo.PropertyType.IsEnum())
                 return false;
             dstPropertyInfo.SetValue(dst, srcValue);
 
@@ -528,7 +528,7 @@ namespace PeanutButter.Utils
         private static bool IsSimpleTypeOrNullableOfSimpleType(Type t)
         {
             return Types.PrimitivesAndImmutables.Any(si => si == t ||
-                                              (t.IsGenericType &&
+                                              (t.IsGenericType() &&
                                                t.GetGenericTypeDefinition() == typeof(Nullable<>) &&
                                                Nullable.GetUnderlyingType(t) == si));
         }

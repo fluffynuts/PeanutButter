@@ -54,9 +54,15 @@ namespace PeanutButter.Utils
             new Dictionary<IEqualityComparer<string>, int>()
             {
                 [StringComparer.OrdinalIgnoreCase] = 1,
+#if NETSTANDARD
+#else
                 [StringComparer.InvariantCultureIgnoreCase] = 2,
+#endif
                 [StringComparer.CurrentCultureIgnoreCase] = 3,
+#if NETSTANDARD
+#else
                 [StringComparer.InvariantCulture] = 4,
+#endif
                 [StringComparer.CurrentCulture] = 5,
                 [StringComparer.Ordinal] = 6
             };

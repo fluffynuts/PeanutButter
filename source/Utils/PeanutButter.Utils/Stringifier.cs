@@ -115,7 +115,7 @@ namespace PeanutButter.Utils
 
         private static bool IsEnum(object obj, int level)
         {
-#if NETSTANDARD1_6
+#if NETSTANDARD
             return obj.GetType().GetTypeInfo().IsEnum;
 #else
             return obj.GetType().IsEnum;
@@ -214,7 +214,7 @@ namespace PeanutButter.Utils
                 {
                     var propValue = cur.GetValue(obj);
                     if (_ignoreAssembliesByName.Contains(
-#if NETSTANDARD1_6
+#if NETSTANDARD
                             cur.DeclaringType?.AssemblyQualifiedName.Split(
                             new[] { "," }, StringSplitOptions.RemoveEmptyEntries
                         ).Skip(1).FirstOrDefault()

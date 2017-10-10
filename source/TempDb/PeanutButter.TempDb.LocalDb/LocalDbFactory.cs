@@ -1,6 +1,6 @@
 ﻿using System.Data.SqlClient;
 
-namespace PeanutButter.Utils
+namespace PeanutButter.TempDb.LocalDb
 {
     /// <summary>
     /// LocalDb implmentation if ILocalDbFactory

@@ -224,7 +224,7 @@ namespace PeanutButter.Utils
         }
 
         private static readonly MethodInfo _deepCollectionCompareGenericMethod =
-#if NETSTANDARD1_6
+#if NETSTANDARD
             typeof(DeepEqualityTester).GetRuntimeMethods()
                 .FirstOrDefault(mi => mi.Name == nameof(DeepCollectionCompare));
 #else
@@ -288,7 +288,7 @@ namespace PeanutButter.Utils
         {
             return t != null &&
                    Types.PrimitivesAndImmutables.Any(si => si == t ||
-#if NETSTANDARD1_6
+#if NETSTANDARD
                    (t.IsConstructedGenericType &&
 #else
                                                            (t.IsGenericType &&
@@ -378,7 +378,7 @@ namespace PeanutButter.Utils
         private PropertyOrField[] GetPropertiesAndFieldsOf(Type sourceType)
         {
             var props = sourceType
-#if NETSTANDARD1_6
+#if NETSTANDARD
                 .GetRuntimeProperties().ToArray()
 #else
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
@@ -389,7 +389,7 @@ namespace PeanutButter.Utils
             if (IncludeFields)
             {
                 var fields = sourceType
-#if NETSTANDARD1_6
+#if NETSTANDARD
                     .GetRuntimeFields().ToArray()
 #else
                     .GetFields(BindingFlags.Public | BindingFlags.Instance)
@@ -506,7 +506,7 @@ namespace PeanutButter.Utils
         {
             var t1 = srcEnumerableInterface.GenericTypeArguments[0];
             var t2 = compareEnumerableInterface.GenericTypeArguments[0];
-#if NETSTANDARD1_6
+#if NETSTANDARD
             var genericMethod = GetType()
                 .GetRuntimeMethods()
                 .Single(mi => mi.Name == nameof(TestCollectionsMatch));

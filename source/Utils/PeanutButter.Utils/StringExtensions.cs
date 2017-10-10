@@ -77,7 +77,7 @@ namespace PeanutButter.Utils
             return MultiContains(haystack,
                 needles,
                 h => needles.Any(n => h.Contains(n.ToLower(
-#if NETSTANDARD1_6
+#if NETSTANDARD
 #else
                     CultureInfo.CurrentCulture
 #endif
@@ -359,7 +359,7 @@ namespace PeanutButter.Utils
                 : input;
         }
 
-#if NETSTANDARD1_6
+#if NETSTANDARD
         public static string ToLower(this string input, CultureInfo ci)
         {
             return input.ToLower();

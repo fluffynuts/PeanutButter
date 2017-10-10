@@ -5,14 +5,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{A7B7276C-B224-4289-8930-A821A4B03C90}</ProjectGuid>
+    <ProjectGuid>{EFC85343-95B4-48C3-BCBE-579EA4868C0A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PeanutButter.Utils.Tests</RootNamespace>
-    <AssemblyName>PeanutButter.Utils.Tests</AssemblyName>
+    <RootNamespace>PeanutButter.Utils</RootNamespace>
+    <AssemblyName>PeanutButter.Utils</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <TargetFrameworkProfile />
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
@@ -26,6 +25,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>bin\Debug\PeanutButter.Utils.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -35,10 +35,12 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>bin\Release\PeanutButter.Utils.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BuildForNuget|AnyCPU'">
     <OutputPath>bin\BuildForNuget\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>bin\Release\PeanutButter.Utils.XML</DocumentationFile>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -48,6 +50,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'PushToNuget|AnyCPU'">
     <OutputPath>bin\PushToNuget\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>bin\Release\PeanutButter.Utils.XML</DocumentationFile>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -55,20 +58,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="NExpect, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\NExpect.1.0.84\lib\net452\NExpect.dll</HintPath>
-    </Reference>
-    <Reference Include="NSubstitute, Version=2.0.3.0, Culture=neutral, PublicKeyToken=92dd2e9066daa5ca, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\NSubstitute.2.0.3\lib\net45\NSubstitute.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.framework, Version=3.7.1.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\NUnit.3.7.1\lib\net45\nunit.framework.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -77,58 +67,56 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DeepEqualityTesterExtensions.cs" />
-    <Compile Include="TestAssemblyExtensions.cs" />
-    <Compile Include="TestAutoDeleter.cs" />
-    <Compile Include="TestAutoDisposer.cs" />
-    <Compile Include="TestAutoLocker.cs" />
-    <Compile Include="TestAutoResetter.cs" />
-    <Compile Include="TestAutoTempFile.cs" />
-    <Compile Include="TestAutoTempFolder.cs" />
-    <Compile Include="TestByteArrayExtensions.cs" />
-    <Compile Include="TestDateTimeExtensions.cs" />
-    <Compile Include="TestDecimalDecorator.cs" />
+    <Compile Include="ArrayExtensions.cs" />
+    <Compile Include="AssemblyExtensions.cs" />
+    <Compile Include="AutoDeleter.cs" />
+    <Compile Include="AutoDisposer.cs" />
+    <Compile Include="AutoLocker.cs" />
+    <Compile Include="AutoResetter.cs" />
+    <Compile Include="AutoResetterOfT.cs" />
+    <Compile Include="AutoTempFile.cs" />
+    <Compile Include="AutoTempFolder.cs" />
+    <Compile Include="ByteArrayExtensions.cs" />
+    <Compile Include="DateTimeExtensions.cs" />
+    <Compile Include="DecimalDecorator.cs" />
+    <Compile Include="DeepEqualityTester.cs" />
+    <Compile Include="DefaultDictionary.cs" />
+    <Compile Include="ExpressionUtil.cs" />
+    <Compile Include="ExtensionsForIEnumerables.cs" />
+    <Compile Include="ILocalDbFactory.cs" />
+    <Compile Include="LocalDbFactory.cs" />
+    <Compile Include="LocalDbInstanceEnumerator.cs" />
+    <Compile Include="MergeDictionary.cs" />
+    <Compile Include="MergeDictionaryEnumerator.cs" />
+    <Compile Include="MetadataExtensions.cs" />
+    <Compile Include="ObjectExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestDeepEqualityTester.cs" />
-    <Compile Include="TestDefaultDictionary.cs" />
-    <Compile Include="TestExpressionHelper.cs" />
-    <Compile Include="TestExtensionsForIEnumerables.cs" />
-    <Compile Include="TestMergeDictionary.cs" />
-    <Compile Include="TestMetadataExtensions.cs" />
-    <Compile Include="TestObjectExtensions.cs" />
-    <Compile Include="TestPyLike.cs" />
-    <Compile Include="TestStreamExtensions.cs" />
-    <Compile Include="TestStrictComparer.cs" />
-    <Compile Include="TestStringExtensions.cs" />
-    <Compile Include="TestStringifier.cs" />
-    <Compile Include="TestTypeEqualityTester.cs" />
-    <Compile Include="TestTypeExtensions.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj">
-      <Project>{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}</Project>
-      <Name>PeanutButter.RandomGenerators</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TestUtils\PeanutButter.TestUtils.Generic\PeanutButter.TestUtils.Generic.csproj">
-      <Project>{6ddd7f9e-857a-442b-9148-05b34ea279c4}</Project>
-      <Name>PeanutButter.TestUtils.Generic</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PeanutButter.DuckTyping\PeanutButter.DuckTyping.csproj">
-      <Project>{DE67B50B-6CD0-49C8-9D3C-953B80E08FDC}</Project>
-      <Name>PeanutButter.DuckTyping</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PeanutButter.Utils\PeanutButter.Utils.csproj">
-      <Project>{efc85343-95b4-48c3-bcbe-579ea4868c0a}</Project>
-      <Name>PeanutButter.Utils</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+    <Compile Include="MemberNotFoundException.cs" />
+    <Compile Include="PropertyOrField.cs" />
+    <Compile Include="PropertyOrFieldExtensions.cs" />
+    <Compile Include="PyLike.cs" />
+    <Compile Include="SafeWalk.cs" />
+    <Compile Include="StreamExtensions.cs" />
+    <Compile Include="StrictComparer.cs" />
+    <Compile Include="StringExtensions.cs" />
+    <Compile Include="Stringifier.cs" />
+    <Compile Include="TypeEqualityTester.cs" />
+    <Compile Include="TypeExtensions.cs" />
+    <Compile Include="Types.cs" />
+    <Compile Include="UnableToFindLocalDbUtilityException.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>mkdir $(SolutionDir)Utils\$(ProjectName).NugetPackage\lib\net45
+del /Q $(SolutionDir)Utils\$(ProjectName).NugetPackage\lib\net45\*.*
+copy $(TargetPath) $(SolutionDir)Utils\$(ProjectName).NugetPackage\lib\net45\
+copy $(TargetDir)\$(ProjectName).pdb  $(SolutionDir)Utils\$(ProjectName).NugetPackage\lib\net45\
+copy $(TargetDir)\$(ProjectName).xml $(SolutionDir)Utils\$(ProjectName).NugetPackage\lib\net45\
+</PostBuildEvent>
+  </PropertyGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>

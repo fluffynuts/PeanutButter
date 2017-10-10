@@ -1,6 +1,6 @@
 using System;
 
-namespace PeanutButter.Utils
+namespace PeanutButter.TempDb.LocalDb
 {
     /// <summary>
     /// Thrown when unable to find a LocalDb instance

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.16
+VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.RandomGenerators", "TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj", "{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}"
 EndProject
@@ -506,20 +506,21 @@ Global
 		{B848B10D-7434-48B4-A190-86A125F1C7C4}.Test|Any CPU.ActiveCfg = Test|Any CPU
 		{B848B10D-7434-48B4-A190-86A125F1C7C4}.Test|Any CPU.Build.0 = Test|Any CPU
 		{B848B10D-7434-48B4-A190-86A125F1C7C4}.Test|x86.ActiveCfg = Test|Any CPU
-		{EFC85343-95B4-48C3-BCBE-579EA4868C0A}.BuildForNuget|Any CPU.ActiveCfg = BuildForNuget|Any CPU
-		{EFC85343-95B4-48C3-BCBE-579EA4868C0A}.BuildForNuget|Any CPU.Build.0 = BuildForNuget|Any CPU
-		{EFC85343-95B4-48C3-BCBE-579EA4868C0A}.BuildForNuget|x86.ActiveCfg = BuildForNuget|Any CPU
-		{EFC85343-95B4-48C3-BCBE-579EA4868C0A}.BuildForNuget|x86.Build.0 = BuildForNuget|Any CPU
-		{EFC85343-95B4-48C3-BCBE-579EA4868C0A}.BuildPackages|Any CPU.ActiveCfg = PushToNuget|Any CPU
-		{EFC85343-95B4-48C3-BCBE-579EA4868C0A}.BuildPackages|x86.ActiveCfg = PushToNuget|Any CPU
-		{EFC85343-95B4-48C3-BCBE-579EA4868C0A}.BuildPackages|x86.Build.0 = PushToNuget|Any CPU
+		{EFC85343-95B4-48C3-BCBE-579EA4868C0A}.BuildForNuget|Any CPU.ActiveCfg = Release|Any CPU
+		{EFC85343-95B4-48C3-BCBE-579EA4868C0A}.BuildForNuget|Any CPU.Build.0 = Release|Any CPU
+		{EFC85343-95B4-48C3-BCBE-579EA4868C0A}.BuildForNuget|x86.ActiveCfg = Release|Any CPU
+		{EFC85343-95B4-48C3-BCBE-579EA4868C0A}.BuildForNuget|x86.Build.0 = Release|Any CPU
+		{EFC85343-95B4-48C3-BCBE-579EA4868C0A}.BuildPackages|Any CPU.ActiveCfg = Release|Any CPU
+		{EFC85343-95B4-48C3-BCBE-579EA4868C0A}.BuildPackages|Any CPU.Build.0 = Release|Any CPU
+		{EFC85343-95B4-48C3-BCBE-579EA4868C0A}.BuildPackages|x86.ActiveCfg = Release|Any CPU
+		{EFC85343-95B4-48C3-BCBE-579EA4868C0A}.BuildPackages|x86.Build.0 = Release|Any CPU
 		{EFC85343-95B4-48C3-BCBE-579EA4868C0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EFC85343-95B4-48C3-BCBE-579EA4868C0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EFC85343-95B4-48C3-BCBE-579EA4868C0A}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{EFC85343-95B4-48C3-BCBE-579EA4868C0A}.PushToNuget|Any CPU.ActiveCfg = PushToNuget|Any CPU
-		{EFC85343-95B4-48C3-BCBE-579EA4868C0A}.PushToNuget|Any CPU.Build.0 = PushToNuget|Any CPU
-		{EFC85343-95B4-48C3-BCBE-579EA4868C0A}.PushToNuget|x86.ActiveCfg = PushToNuget|Any CPU
-		{EFC85343-95B4-48C3-BCBE-579EA4868C0A}.PushToNuget|x86.Build.0 = PushToNuget|Any CPU
+		{EFC85343-95B4-48C3-BCBE-579EA4868C0A}.PushToNuget|Any CPU.ActiveCfg = Release|Any CPU
+		{EFC85343-95B4-48C3-BCBE-579EA4868C0A}.PushToNuget|Any CPU.Build.0 = Release|Any CPU
+		{EFC85343-95B4-48C3-BCBE-579EA4868C0A}.PushToNuget|x86.ActiveCfg = Release|Any CPU
+		{EFC85343-95B4-48C3-BCBE-579EA4868C0A}.PushToNuget|x86.Build.0 = Release|Any CPU
 		{EFC85343-95B4-48C3-BCBE-579EA4868C0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EFC85343-95B4-48C3-BCBE-579EA4868C0A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EFC85343-95B4-48C3-BCBE-579EA4868C0A}.Release|x86.ActiveCfg = Release|Any CPU
@@ -2523,5 +2524,8 @@ Global
 		{E123E1AC-4A11-4E40-AB0A-AF58D8D93391} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
 		{BA7F8B6D-C21F-47A5-9708-6034D67396F0} = {11FB658D-4F09-4CB0-A0FC-B54C51686A5A}
 		{FB06E50C-5193-4F1F-A902-21DC21904AF3} = {11FB658D-4F09-4CB0-A0FC-B54C51686A5A}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3024A467-FC9C-430A-821A-448AF0866E32}
 	EndGlobalSection
 EndGlobal

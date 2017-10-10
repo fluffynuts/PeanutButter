@@ -1,4 +1,4 @@
-namespace PeanutButter.Utils
+namespace PeanutButter.TempDb.LocalDb
 {
     /// <summary>
     /// Interface to implement when your TempDb implementation needs to create a temporary database

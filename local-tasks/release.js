@@ -89,7 +89,15 @@ gulp.task("build-source-nuget-packages", function () {
 gulp.task("build-binary-nuget-packages", [], function () {
   return gulp.src(["**/source/**/*.nuspec",
     "!**/packages/**/*.nuspec",
-    "!**/PeanutButter.TestUtils.MVC.NugetPackage/**"])
+    /* deprecated */
+    "!**/PeanutButter.Utils.NugetPackage/**",
+    "!**/PeanutButter.TestUtils.MVC.NugetPackage/**"
+  ])
+    .pipe(buildNugetPackages(true));
+});
+
+gulp.task("build-utils-package", [], function () {
+  return gulp.src("source/Utils/PeanutButter.Utils/Package.nuspec")
     .pipe(buildNugetPackages(true));
 });
 

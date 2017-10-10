@@ -2,11 +2,11 @@ using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
+using PeanutButter.Utils;
 
-namespace PeanutButter.Utils
+namespace PeanutButter.TempDb.LocalDb
 {
     /// <summary>
     /// Helper class to find all instances of running LocalDb services
@@ -130,8 +130,7 @@ namespace PeanutButter.Utils
 
         private static string FindLocalDbUtility()
         {
-            return SafeWalk.EnumerateFiles("C:\\Program Files\\Microsoft SQL Server", "SqlLocalDb.exe", SearchOption.AllDirectories)
-                .OrderBy(p => p)
+            return Enumerable.OrderBy<string, string>(SafeWalk.EnumerateFiles("C:\\Program Files\\Microsoft SQL Server", "SqlLocalDb.exe", SearchOption.AllDirectories), p => p)
                 .LastOrDefault();
         }
     }

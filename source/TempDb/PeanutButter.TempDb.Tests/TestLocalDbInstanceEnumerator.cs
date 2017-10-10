@@ -1,9 +1,10 @@
 using System;
 using NExpect;
 using NUnit.Framework;
+using PeanutButter.TempDb.LocalDb;
 using static NExpect.Expectations;
 
-namespace PeanutButter.Utils.Tests
+namespace PeanutButter.TempDb.Tests
 {
     [TestFixture]
     public class TestLocalDbInstanceEnumerator

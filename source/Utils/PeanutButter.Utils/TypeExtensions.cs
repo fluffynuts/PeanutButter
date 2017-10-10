@@ -16,7 +16,7 @@ namespace PeanutButter.Utils
 #endif
     static class TypeExtensions
     {
-#if NETSTANDARD1_6
+#if NETSTANDARD
 #else
         /// <summary>
         /// Enumerates the ancestry of a Type
@@ -96,7 +96,7 @@ namespace PeanutButter.Utils
         public static bool HasDefaultConstructor(this Type type)
         {
             return type
-#if NETSTANDARD1_6
+#if NETSTANDARD
                 .GetTypeInfo()
 #endif
                 .GetConstructors()
@@ -117,7 +117,16 @@ namespace PeanutButter.Utils
             return (bool)specific.Invoke(null, new object[] { t } );
         }
 
-#if NETSTANDARD1_6
+        public static bool IsEnum(this Type t)
+        {
+            return t
+#if NETSTANDARD
+                .GetTypeInfo()
+#endif
+                .IsEnum;
+        }
+
+#if NETSTANDARD
         public static MethodInfo GetMethod(this Type t, string name, BindingFlags flags)
         {
             return t.GetTypeInfo().GetMethod(name, flags);
@@ -126,6 +135,11 @@ namespace PeanutButter.Utils
         public static PropertyInfo[] GetProperties(this Type t)
         {
             return t.GetTypeInfo().GetProperties();
+        }
+
+        public static PropertyInfo GetProperty(this Type t, string name)
+        {
+            return t.GetProperty(name, BindingFlags.Instance | BindingFlags.Public);
         }
 
         public static PropertyInfo GetProperty(this Type t, string name, BindingFlags flags)
@@ -161,7 +175,7 @@ namespace PeanutButter.Utils
 
         public static Assembly GetAssembly(this Type t)
         {
-#if NETSTANDARD1_6
+#if NETSTANDARD
             return t?.GetTypeInfo()?.Assembly;
 #else
             return t?.Assembly;
@@ -170,11 +184,11 @@ namespace PeanutButter.Utils
 
         public static bool IsGenericType(this Type t)
         {
-#if NETSTANDARD1_6
-            return t.GetTypeInfo().IsGenericType;
-#else
-            return t.IsGenericType;
+            return t
+#if NETSTANDARD
+                .GetTypeInfo()
 #endif
+                .IsGenericType;
         }
 
 
@@ -317,7 +331,7 @@ namespace PeanutButter.Utils
 
         public static bool IsInterface(this Type type)
         {
-#if NETSTANDARD1_6
+#if NETSTANDARD
             return type?.GetTypeInfo().IsInterface ?? false;
 #else
             return type?.IsInterface ?? false;
