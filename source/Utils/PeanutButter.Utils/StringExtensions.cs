@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+// ReSharper disable MemberCanBePrivate.Global
 
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
 
@@ -147,6 +149,37 @@ namespace PeanutButter.Utils
             return src == null
                 ? null
                 : encoding.GetBytes(src);
+        }
+
+        /// <summary>
+        /// Converts a string to a Stream of bytes, assuming utf-8 encoding
+        /// </summary>
+        /// <param name="src">String to convert</param>
+        /// <returns>Stream or null if src is null</returns>
+        public static Stream AsStream(this string src)
+        {
+            return src.AsStream(Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// Converts a string to a Stream of bytes with the provided encoding
+        /// </summary>
+        /// <param name="src">String to convert</param>
+        /// <param name="encoding">Encoding to use</param>
+        /// <returns>Stream or null if src is null</returns>
+        public static Stream AsStream(this string src, Encoding encoding)
+        {
+            return src?.AsBytes(encoding)?.AsStream();
+        }
+
+        /// <summary>
+        /// Convenience function to wrap a given byte array in a MemoryStream.
+        /// </summary>
+        /// <param name="src">Bytes to wrapp</param>
+        /// <returns>Stream wrapping the bytes or null if the source is null</returns>
+        public static Stream AsStream(this byte[] src)
+        {
+            return src == null ? null : new MemoryStream(src);
         }
 
         /// <summary>

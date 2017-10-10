@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
@@ -15,7 +16,8 @@ namespace PeanutButter.Utils.Tests
         [TestCase("Hello World", "^Hello", "Goodbye", "Goodbye World")]
         [TestCase("Hello World", "Wor.*", "Goodbye", "Hello Goodbye")]
         [TestCase("Hello World", "Hello$", "Goodbye", "Hello World")]
-        public void RegexReplace_ShouldReplaceAccordingToRegexWithSuppliedValue(string input, string re, string replaceWith, string expected)
+        public void RegexReplace_ShouldReplaceAccordingToRegexWithSuppliedValue(string input, string re,
+            string replaceWith, string expected)
         {
             //---------------Set up test pack-------------------
 
@@ -90,74 +92,122 @@ namespace PeanutButter.Utils.Tests
             Expect(result).To.Equal(expected);
         }
 
-        [Test]
-        public void AsBytes_WhenStringIsNull_ShouldReturnNull()
+        [TestFixture]
+        public class AsBytes
         {
-            //---------------Set up test pack-------------------
+            [Test]
+            public void WhenStringIsNull_ShouldReturnNull()
+            {
+                //---------------Set up test pack-------------------
 
-            //---------------Assert Precondition----------------
+                //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var result = ((string)null).AsBytes();
+                //---------------Execute Test ----------------------
+                var result = ((string) null).AsBytes();
 
-            //---------------Test Result -----------------------
-            Expect(result as object).To.Be.Null();
+                //---------------Test Result -----------------------
+                Expect(result as object).To.Be.Null();
+            }
+
+            [Test]
+            public void OperatingOnEmptyString_ShouldReturnEmptyByteArray()
+            {
+                //---------------Set up test pack-------------------
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = string.Empty.AsBytes();
+
+                //---------------Test Result -----------------------
+                Expect(result as object).Not.To.Be.Null();
+                Assert.That(result, Is.Empty);
+            }
+
+            [Test]
+            public void OperatingOnNonEmptyString_ShouldReturnStringEncodedAsBytesFromUTF8()
+            {
+                //---------------Set up test pack-------------------
+                var input = GetRandomString(50, 100);
+                var expected = Encoding.UTF8.GetBytes(input);
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = input.AsBytes();
+
+                //---------------Test Result -----------------------
+                Assert.That(result, Is.EqualTo(expected));
+            }
+
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
+            private static Encoding[] Encodings { get; } =
+            {
+                Encoding.UTF8,
+                Encoding.ASCII,
+                Encoding.UTF32,
+                Encoding.UTF7
+            };
+
+            [TestCaseSource(nameof(Encodings))]
+            public void
+                OperatingOnNonEmptyString_WhenGivenEncoding_ShouldReturnStringEncodedAsBytesFromEncoding(
+                    Encoding encoding)
+            {
+                //---------------Set up test pack-------------------
+                var input = GetRandomString(50, 100);
+                var expected = encoding.GetBytes(input);
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = input.AsBytes(encoding);
+
+                //---------------Test Result -----------------------
+                CollectionAssert.AreEqual(expected, result);
+            }
         }
 
-        [Test]
-        public void AsBytes_OperatingOnEmptyString_ShouldReturnEmptyByteArray()
+        [TestFixture]
+        public class AsStream
         {
-            //---------------Set up test pack-------------------
+            [Test]
+            public void ActingOnNull_ShouldReturnNull()
+            {
+                // Arrange
+                string src = null;
+                // Pre-Assert
+                // Act
+                var result = src.AsStream();
+                // Assert
+                Expect(result).To.Be.Null();
+            }
 
-            //---------------Assert Precondition----------------
+            [Test]
+            public void ActingOnEmptyString_ShouldReturnEmptyStream()
+            {
+                // Arrange
+                var src = "";
+                // Pre-Assert
+                // Act
+                var result = src.AsStream();
+                // Assert
+                var bytes = result.ReadAllBytes();
+                Expect(bytes).To.Be.Empty();
+            }
 
-            //---------------Execute Test ----------------------
-            var result = string.Empty.AsBytes();
-
-            //---------------Test Result -----------------------
-            Expect(result as object).Not.To.Be.Null();
-            Assert.That(result, Is.Empty);
-        }
-
-        [Test]
-        public void AsBytes_OperatingOnNonEmptyString_ShouldReturnStringEncodedAsBytesFromUTF8()
-        {
-            //---------------Set up test pack-------------------
-            var input = GetRandomString(50, 100);
-            var expected = Encoding.UTF8.GetBytes(input);
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = input.AsBytes();
-
-            //---------------Test Result -----------------------
-            Assert.That(result, Is.EqualTo(expected));
-        }
-
-        // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        private static Encoding[] Encodings { get; } =
-        {
-            Encoding.UTF8,
-            Encoding.ASCII,
-            Encoding.UTF32,
-            Encoding.UTF7
-        };
-
-        [TestCaseSource(nameof(Encodings))]
-        public void AsBytes_OperatingOnNonEmptyString_WhenGivenEncoding_ShouldReturnStringEncodedAsBytesFromEncoding(Encoding encoding)
-        {
-            //---------------Set up test pack-------------------
-            var input = GetRandomString(50, 100);
-            var expected = encoding.GetBytes(input);
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = input.AsBytes(encoding);
-
-            //---------------Test Result -----------------------
-            CollectionAssert.AreEqual(expected, result);
+            [Test]
+            public void ActingOnNonEmptyString_ShouldReturnStreamContainingData()
+            {
+                // Arrange
+                var src = GetRandomString(2);
+                // Pre-Assert
+                // Act
+                var result = src.AsStream();
+                // Assert
+                var asString = Encoding.UTF8.GetString(result.ReadAllBytes());
+                Expect(asString).To.Equal(src);
+            }
         }
 
         [Test]
@@ -188,7 +238,6 @@ namespace PeanutButter.Utils.Tests
 
             //---------------Test Result -----------------------
             Assert.IsFalse(result);
-            
         }
 
         [Test]
@@ -419,7 +468,7 @@ namespace PeanutButter.Utils.Tests
         {
             //--------------- Arrange -------------------
             var input = "foo";
-            var search = new[] { "bar", "quuz", "wibbles" };
+            var search = new[] {"bar", "quuz", "wibbles"};
 
             //--------------- Assume ----------------
 
@@ -435,7 +484,7 @@ namespace PeanutButter.Utils.Tests
         {
             //--------------- Arrange -------------------
             var input = "foo";
-            var search = new[] { "bar", "quuz", "oo", "wibbles" }.Randomize().ToArray();
+            var search = new[] {"bar", "quuz", "oo", "wibbles"}.Randomize().ToArray();
 
             //--------------- Assume ----------------
 
@@ -492,7 +541,7 @@ namespace PeanutButter.Utils.Tests
         {
             //--------------- Arrange -------------------
             var input = "hello, world";
-            var search = new[] { "hello", ", ", "world" }.Randomize().ToArray();
+            var search = new[] {"hello", ", ", "world"}.Randomize().ToArray();
 
             //--------------- Assume ----------------
 
@@ -508,7 +557,7 @@ namespace PeanutButter.Utils.Tests
         {
             //--------------- Arrange -------------------
             var input = "hello, world";
-            var search = new[] { "hello", ", ", "there" }.Randomize().ToArray();
+            var search = new[] {"hello", ", ", "there"}.Randomize().ToArray();
 
             //--------------- Assume ----------------
 
@@ -727,6 +776,5 @@ namespace PeanutButter.Utils.Tests
             // Assert
             Expect(result).To.Equal(expected);
         }
-
     }
 }
