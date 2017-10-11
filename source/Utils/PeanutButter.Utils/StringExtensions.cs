@@ -173,6 +173,29 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
+        /// Attempts to encode the given byte array as if it contained a
+        /// utf8-encoded string
+        /// </summary>
+        /// <param name="data">Bytes to encode</param>
+        /// <returns>The utf8 string, if possible; will return null if given null</returns>
+        public static string AsString(this byte[] data)
+        {
+            return data.AsString(Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// Attempts to encode the given byte array as if it contained a
+        /// string encoded with the given encoding
+        /// </summary>
+        /// <param name="data">Bytes to encode</param>
+        /// <param name="encoding"></param>
+        /// <returns>The string, if possible; will return null if given null</returns>
+        public static string AsString(this byte[] data, Encoding encoding)
+        {
+            return data == null ? null : encoding.GetString(data);
+        }
+
+        /// <summary>
         /// Convenience function to wrap a given byte array in a MemoryStream.
         /// </summary>
         /// <param name="src">Bytes to wrapp</param>
@@ -199,9 +222,8 @@ namespace PeanutButter.Utils
         /// <returns>The integer value of the string; 0 if it cannot be converted</returns>
         public static int AsInteger(this string value)
         {
-            int result;
             var interestingPart = GetLeadingIntegerCharsFrom(value ?? string.Empty);
-            int.TryParse(interestingPart, out result);
+            int.TryParse(interestingPart, out var result);
             return result;
         }
 

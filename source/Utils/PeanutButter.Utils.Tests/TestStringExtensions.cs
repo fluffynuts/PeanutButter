@@ -93,6 +93,53 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        public class AsString
+        {
+            [TestFixture]
+            public class OperatingOnByteArray
+            {
+                [Test]
+                public void GivenNull_ShouldReturnNull()
+                {
+                    // Arrange
+                    byte[] src = null;
+                    // Pre-Assert
+                    // Act
+                    var result = src.AsString();
+                    // Assert
+                    Expect(result).To.Be.Null();
+                }
+
+                [Test]
+                public void GivenNoEncoding_ShouldReturnUTF8String()
+                {
+                    // Arrange
+                    var src = GetRandomString(4);
+                    var data = src.AsBytes();
+                    // Pre-Assert
+                    // Act
+                    var result = data.AsString();
+                    // Assert
+                    Expect(result).To.Equal(src);
+                }
+
+                [Test]
+                public void GivenEncoding_ShouldReturnFromThatEncoding()
+                {
+                    // Arrange
+                    var src = GetRandomString(4);
+                    var encoding = Encoding.BigEndianUnicode;
+                    var data = src.AsBytes(encoding);
+                    // Pre-Assert
+                    // Act
+                    var result = data.AsString(encoding);
+                    // Assert
+                    Expect(result).To.Equal(src);
+                }
+            }
+        }
+
+        [TestFixture]
         public class AsBytes
         {
             [Test]
