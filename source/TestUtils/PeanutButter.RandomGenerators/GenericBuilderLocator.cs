@@ -132,6 +132,9 @@ namespace PeanutButter.RandomGenerators
 
         internal static Type TryFindBuilderInAnyOtherAssemblyInAppDomainFor(Type propertyType)
         {
+#if NETSTANDARD
+            return null;    // FIXME: can we use https://stackoverflow.com/questions/30007264/get-available-types-in-coreclr
+#else
             try
             {
                 LoadImmediateAssembliesIfRequired();
@@ -152,15 +155,21 @@ namespace PeanutButter.RandomGenerators
             }
             catch (Exception ex)
             {
+#if NETSTANDARD
+#else
                 Trace.WriteLine("Error whilst searching for user builder for type '" + propertyType.PrettyName() +
                                 "' in all loaded assemblies: " + ex.Message);
+#endif
                 return null;
             }
+#endif
         }
 
         private static readonly object _referenceLoadLock = new object();
         private static bool _haveLoadedImmediateAssemblies;
 
+#if NETSTANDARD
+#else
         private static void LoadImmediateAssembliesIfRequired()
         {
             lock (_referenceLoadLock)
@@ -202,12 +211,13 @@ namespace PeanutButter.RandomGenerators
                 Debug.WriteLine($"Unable to enumerate referenced assemblies for {asm.FullName}: {ex.Message}");
             }
         }
+#endif
 
         private static Type TryFindBuilderInCurrentAssemblyFor(Type propType)
         {
             try
             {
-                var allCurrentAsmBuilders = propType.Assembly.GetTypes()
+                var allCurrentAsmBuilders = propType.GetAssembly().GetTypes()
                     .Where(t => t.IsABuilder())
                     .ToArray();
                 allCurrentAsmBuilders.ForEach(TryCacheBuilderType);
@@ -215,8 +225,11 @@ namespace PeanutButter.RandomGenerators
             }
             catch (Exception ex)
             {
+#if NETSTANDARD
+#else
                 Trace.WriteLine("Error whilst searching for user builder for type '" + propType.PrettyName() +
                                 "' in type's assembly: " + ex.Message);
+#endif
                 return null;
             }
         }

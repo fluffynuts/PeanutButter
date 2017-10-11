@@ -43,7 +43,7 @@ namespace PeanutButter.RandomGenerators
         public static T GetRandom<T>()
         {
             var type = typeof(T);
-            if (type.IsEnum)
+            if (type.IsEnum())
                 return (T) GetRandomEnum(type);
             return (T) GetRandomValue(typeof(T));
         }
@@ -60,7 +60,7 @@ namespace PeanutButter.RandomGenerators
         {
             if (type == null)
                 throw new ArgumentException(nameof(type));
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            if (type.IsGenericType() && type.GetGenericTypeDefinition() == typeof(Nullable<>))
                 type = Nullable.GetUnderlyingType(type);
             return _primitiveGenerators.TryGetValue(
                 type ?? throw new ArgumentNullException(nameof(type)), 
@@ -519,7 +519,7 @@ namespace PeanutButter.RandomGenerators
         public static T GetRandomEnum<T>() where T : struct, IConvertible
         {
             var type = typeof(T);
-            if (!type.IsEnum)
+            if (!type.IsEnum())
                 throw new ArgumentException("GetRandomEnum cannot be called on something other than an enum ('" +
                                             type.Name + "')");
             var possible = Enum.GetValues(type).Cast<T>();
@@ -537,7 +537,7 @@ namespace PeanutButter.RandomGenerators
         /// </exception>
         public static object GetRandomEnum(Type enumType)
         {
-            if (!enumType.IsEnum)
+            if (!enumType.IsEnum())
                 throw new ArgumentException("GetRandomEnum cannot be called on something other than an enum ('" +
                                             enumType.Name + "')");
             var possible = Enum.GetValues(enumType).Cast<object>();

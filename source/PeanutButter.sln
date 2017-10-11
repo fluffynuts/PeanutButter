@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.RandomGenerators", "TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj", "{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeanutButter.RandomGenerators", "TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj", "{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TestUtils.MVC", "TestUtils\PeanutButter.TestUtils.MVC\PeanutButter.TestUtils.MVC.csproj", "{851DA54E-4FBF-4F02-9C65-52B22015415D}"
 EndProject
@@ -23,7 +23,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSpooler.Win32Service.D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSpooler.Win32Service.Tests", "EmailSpooler\EmailSpooler.Win32Service.Tests\EmailSpooler.Win32Service.Tests.csproj", "{B848B10D-7434-48B4-A190-86A125F1C7C4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.Utils", "Utils\PeanutButter.Utils\PeanutButter.Utils.csproj", "{EFC85343-95B4-48C3-BCBE-579EA4868C0A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeanutButter.Utils", "Utils\PeanutButter.Utils\PeanutButter.Utils.csproj", "{EFC85343-95B4-48C3-BCBE-579EA4868C0A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.Utils.Tests", "Utils\PeanutButter.Utils.Tests\PeanutButter.Utils.Tests.csproj", "{A7B7276C-B224-4289-8930-A821A4B03C90}"
 EndProject
@@ -285,6 +285,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenericBuilderTestLoadLoade
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Artifacts", "Artifacts", "{11FB658D-4F09-4CB0-A0FC-B54C51686A5A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.RandomGenerators.Core.Tests", "TestUtils\PeanutButter.RandomGenerators.Core.Tests\PeanutButter.RandomGenerators.Core.Tests.csproj", "{71DA3437-5271-4C77-ADB0-4177C690521C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		BuildForNuget|Any CPU = BuildForNuget|Any CPU
@@ -301,20 +303,21 @@ Global
 		Test|x86 = Test|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}.BuildForNuget|Any CPU.ActiveCfg = BuildForNuget|Any CPU
-		{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}.BuildForNuget|Any CPU.Build.0 = BuildForNuget|Any CPU
-		{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}.BuildForNuget|x86.ActiveCfg = BuildForNuget|Any CPU
-		{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}.BuildForNuget|x86.Build.0 = BuildForNuget|Any CPU
-		{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}.BuildPackages|Any CPU.ActiveCfg = PushToNuget|Any CPU
-		{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}.BuildPackages|x86.ActiveCfg = PushToNuget|Any CPU
-		{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}.BuildPackages|x86.Build.0 = PushToNuget|Any CPU
+		{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}.BuildForNuget|Any CPU.ActiveCfg = Release|Any CPU
+		{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}.BuildForNuget|Any CPU.Build.0 = Release|Any CPU
+		{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}.BuildForNuget|x86.ActiveCfg = Release|Any CPU
+		{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}.BuildForNuget|x86.Build.0 = Release|Any CPU
+		{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}.BuildPackages|Any CPU.ActiveCfg = Release|Any CPU
+		{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}.BuildPackages|Any CPU.Build.0 = Release|Any CPU
+		{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}.BuildPackages|x86.ActiveCfg = Release|Any CPU
+		{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}.BuildPackages|x86.Build.0 = Release|Any CPU
 		{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}.PushToNuget|Any CPU.ActiveCfg = PushToNuget|Any CPU
-		{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}.PushToNuget|Any CPU.Build.0 = PushToNuget|Any CPU
-		{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}.PushToNuget|x86.ActiveCfg = PushToNuget|Any CPU
-		{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}.PushToNuget|x86.Build.0 = PushToNuget|Any CPU
+		{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}.PushToNuget|Any CPU.ActiveCfg = Release|Any CPU
+		{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}.PushToNuget|Any CPU.Build.0 = Release|Any CPU
+		{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}.PushToNuget|x86.ActiveCfg = Release|Any CPU
+		{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}.PushToNuget|x86.Build.0 = Release|Any CPU
 		{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}.Release|x86.ActiveCfg = Release|Any CPU
@@ -2398,6 +2401,30 @@ Global
 		{FB06E50C-5193-4F1F-A902-21DC21904AF3}.Test|Any CPU.Build.0 = Release|Any CPU
 		{FB06E50C-5193-4F1F-A902-21DC21904AF3}.Test|x86.ActiveCfg = Release|Any CPU
 		{FB06E50C-5193-4F1F-A902-21DC21904AF3}.Test|x86.Build.0 = Release|Any CPU
+		{71DA3437-5271-4C77-ADB0-4177C690521C}.BuildForNuget|Any CPU.ActiveCfg = Debug|Any CPU
+		{71DA3437-5271-4C77-ADB0-4177C690521C}.BuildForNuget|Any CPU.Build.0 = Debug|Any CPU
+		{71DA3437-5271-4C77-ADB0-4177C690521C}.BuildForNuget|x86.ActiveCfg = Debug|Any CPU
+		{71DA3437-5271-4C77-ADB0-4177C690521C}.BuildForNuget|x86.Build.0 = Debug|Any CPU
+		{71DA3437-5271-4C77-ADB0-4177C690521C}.BuildPackages|Any CPU.ActiveCfg = Debug|Any CPU
+		{71DA3437-5271-4C77-ADB0-4177C690521C}.BuildPackages|Any CPU.Build.0 = Debug|Any CPU
+		{71DA3437-5271-4C77-ADB0-4177C690521C}.BuildPackages|x86.ActiveCfg = Debug|Any CPU
+		{71DA3437-5271-4C77-ADB0-4177C690521C}.BuildPackages|x86.Build.0 = Debug|Any CPU
+		{71DA3437-5271-4C77-ADB0-4177C690521C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71DA3437-5271-4C77-ADB0-4177C690521C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71DA3437-5271-4C77-ADB0-4177C690521C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{71DA3437-5271-4C77-ADB0-4177C690521C}.Debug|x86.Build.0 = Debug|Any CPU
+		{71DA3437-5271-4C77-ADB0-4177C690521C}.PushToNuget|Any CPU.ActiveCfg = Debug|Any CPU
+		{71DA3437-5271-4C77-ADB0-4177C690521C}.PushToNuget|Any CPU.Build.0 = Debug|Any CPU
+		{71DA3437-5271-4C77-ADB0-4177C690521C}.PushToNuget|x86.ActiveCfg = Debug|Any CPU
+		{71DA3437-5271-4C77-ADB0-4177C690521C}.PushToNuget|x86.Build.0 = Debug|Any CPU
+		{71DA3437-5271-4C77-ADB0-4177C690521C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{71DA3437-5271-4C77-ADB0-4177C690521C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{71DA3437-5271-4C77-ADB0-4177C690521C}.Release|x86.ActiveCfg = Release|Any CPU
+		{71DA3437-5271-4C77-ADB0-4177C690521C}.Release|x86.Build.0 = Release|Any CPU
+		{71DA3437-5271-4C77-ADB0-4177C690521C}.Test|Any CPU.ActiveCfg = Debug|Any CPU
+		{71DA3437-5271-4C77-ADB0-4177C690521C}.Test|Any CPU.Build.0 = Debug|Any CPU
+		{71DA3437-5271-4C77-ADB0-4177C690521C}.Test|x86.ActiveCfg = Debug|Any CPU
+		{71DA3437-5271-4C77-ADB0-4177C690521C}.Test|x86.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -2499,6 +2526,7 @@ Global
 		{E123E1AC-4A11-4E40-AB0A-AF58D8D93391} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
 		{BA7F8B6D-C21F-47A5-9708-6034D67396F0} = {11FB658D-4F09-4CB0-A0FC-B54C51686A5A}
 		{FB06E50C-5193-4F1F-A902-21DC21904AF3} = {11FB658D-4F09-4CB0-A0FC-B54C51686A5A}
+		{71DA3437-5271-4C77-ADB0-4177C690521C} = {991C5C7C-A1F8-42B1-8CDA-F782B0F62980}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3024A467-FC9C-430A-821A-448AF0866E32}

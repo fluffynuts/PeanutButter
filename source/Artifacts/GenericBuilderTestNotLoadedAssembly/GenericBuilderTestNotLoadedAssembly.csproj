@@ -44,13 +44,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj">
+      <Project>{cb22d9ae-a2a8-45d0-92b9-fadc687120f0}</Project>
+      <Name>PeanutButter.RandomGenerators</Name>
+    </ProjectReference>
     <ProjectReference Include="..\GenericBuilderTestLoadLoadedAssemblyObject\GenericBuilderTestLoadLoadedAssemblyObject.csproj">
       <Project>{FB06E50C-5193-4F1F-A902-21DC21904AF3}</Project>
       <Name>GenericBuilderTestLoadLoadedAssemblyObject</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj">
-      <Project>{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}</Project>
-      <Name>PeanutButter.RandomGenerators</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

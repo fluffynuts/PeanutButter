@@ -12,6 +12,7 @@ using System.Reflection;
 using PeanutButter.Utils;
 // ReSharper disable InheritdocConsiderUsage
 // ReSharper disable UsePatternMatching
+// ReSharper disable ClassWithVirtualMembersNeverInherited.Global
 
 
 namespace PeanutButter.RandomGenerators
@@ -191,7 +192,10 @@ namespace PeanutButter.RandomGenerators
             catch (Exception ex)
             {
                 CacheUnconstructable(type);
+#if NETSTANDARD
+#else
                 Trace.WriteLine($"Unable to construct entity of type {type.Name}: {ex.Message}");
+#endif
                 throw CreateUnconstructableException();
             }
         }
@@ -332,6 +336,9 @@ namespace PeanutButter.RandomGenerators
 
         private TInterface ConstructInCurrentDomain<TInterface>(Type type)
         {
+#if NETSTANDARD
+            return (TInterface)Activator.CreateInstance(type);
+#else
             var handle = Activator.CreateInstance(
                 AppDomain.CurrentDomain,
                 type.Assembly.FullName,
@@ -344,6 +351,7 @@ namespace PeanutButter.RandomGenerators
                 null,
                 null);
             return (TInterface) handle.Unwrap();
+#endif
         }
 
         private object[] TryToMakeConstructorParametersFor(Type type)

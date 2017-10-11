@@ -96,13 +96,14 @@ gulp.task("build-binary-nuget-packages", [], function () {
     .pipe(buildNugetPackages(true));
 });
 
-gulp.task("build-utils-package", [], function () {
-  return gulp.src("source/Utils/PeanutButter.Utils/Package.nuspec")
+var testProject = "PeanutButter.RandomGenerators";
+gulp.task("build-test-package", [], function () {
+  return gulp.src(`source/**/${testProject}/Package.nuspec`)
     .pipe(buildNugetPackages(true));
 });
 
-gulp.task("release-utils-package", [], function () {
-  return gulp.src([nugetReleaseDir + "/PeanutButter.Utils*"])
+gulp.task("release-test-package", [], function () {
+  return gulp.src([nugetReleaseDir + `/${testProject}*`])
   .pipe(pushNugetPackages());
 });
 

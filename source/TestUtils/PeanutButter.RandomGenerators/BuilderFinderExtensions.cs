@@ -1,4 +1,5 @@
 using System;
+using PeanutButter.Utils;
 
 namespace PeanutButter.RandomGenerators
 {
@@ -33,13 +34,13 @@ namespace PeanutButter.RandomGenerators
         {
             while (current != _objectType && current != null)
             {
-                if (current.IsGenericType)
+                if (current.IsGenericType())
                 {
                     var genericBase = current.GetGenericTypeDefinition();
                     if (genericBase == _genericBuilderBaseType)
                         break;
                 }
-                current = current.BaseType;
+                current = current.BaseType();
             }
             if (current == _objectType || current == null)
                 return null;

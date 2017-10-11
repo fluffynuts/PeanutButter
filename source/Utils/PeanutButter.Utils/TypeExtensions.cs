@@ -171,7 +171,6 @@ namespace PeanutButter.Utils
         {
             return t.GetTypeInfo().GetGenericArguments();
         }
-
 #endif
 
         public static Assembly GetAssembly(this Type t)
@@ -181,6 +180,15 @@ namespace PeanutButter.Utils
 #else
             return t?.Assembly;
 #endif
+        }
+
+        public static Type BaseType(this Type type)
+        {
+            return type
+#if NETSTANDARD
+                .GetTypeInfo()
+#endif
+                .BaseType;
         }
 
         public static bool IsGenericType(this Type t)
