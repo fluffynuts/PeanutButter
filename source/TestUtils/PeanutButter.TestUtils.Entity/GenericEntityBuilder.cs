@@ -52,7 +52,7 @@ namespace PeanutButter.TestUtils.Entity
         private bool CanCheckMaxLengthsOn(PropertyInfo propertyInfo)
         {
             return propertyInfo.GetMethod.IsVirtual &&
-                    propertyInfo.PropertyType.IsNotCollection();
+                    !propertyInfo.PropertyType.IsCollection();
         }
 
         private static Type _stringType = typeof(string);

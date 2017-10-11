@@ -87,10 +87,6 @@
       <Project>{efc85343-95b4-48c3-bcbe-579ea4868c0a}</Project>
       <Name>PeanutButter.Utils</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PeanutButter.TestUtils.Generic\PeanutButter.TestUtils.Generic.csproj">
-      <Project>{6DDD7F9E-857A-442B-9148-05B34EA279C4}</Project>
-      <Name>PeanutButter.TestUtils.Generic</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

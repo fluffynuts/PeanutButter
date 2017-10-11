@@ -247,19 +247,19 @@ namespace PeanutButter.TestUtils.Generic
         }
 
 
-        public static bool IsNotCollection(this Type type)
-        {
-            return !type.IsCollection();
-        }
-
-        public static bool IsCollection(this Type type)
-        {
-            if (type == null)
-                return false;
-            return type.IsArray ||
-                   (type.IsGenericType &&
-                    CollectionGenerics.Contains(type.GetGenericTypeDefinition()));
-        }
+//        public static bool IsNotCollection(this Type type)
+//        {
+//            return !type.IsCollection();
+//        }
+//
+//        public static bool IsCollection(this Type type)
+//        {
+//            if (type == null)
+//                return false;
+//            return type.IsArray ||
+//                   (type.IsGenericType &&
+//                    CollectionGenerics.Contains(type.GetGenericTypeDefinition()));
+//        }
 
         public static bool CanBeAssignedNull(this Type type)
         {

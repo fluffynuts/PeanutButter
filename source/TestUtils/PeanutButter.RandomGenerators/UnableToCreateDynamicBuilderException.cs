@@ -1,5 +1,5 @@
 using System;
-using PeanutButter.TestUtils.Generic;
+using PeanutButter.Utils;
 
 namespace PeanutButter.RandomGenerators
 {

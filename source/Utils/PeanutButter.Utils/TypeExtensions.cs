@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.Utils
@@ -12,17 +13,16 @@ namespace PeanutButter.Utils
 #if BUILD_PEANUTBUTTER_INTERNAL
     internal
 #else
-    public 
+    public
 #endif
-    static class TypeExtensions
+        static class TypeExtensions
     {
 #if NETSTANDARD
-#else
-        /// <summary>
-        /// Enumerates the ancestry of a Type
-        /// </summary>
-        /// <param name="type">Starting Type</param>
-        /// <returns>The Type ancestry, starting from Object</returns>
+#else /// <summary>
+/// Enumerates the ancestry of a Type
+/// </summary>
+/// <param name="type">Starting Type</param>
+/// <returns>The Type ancestry, starting from Object</returns>
         public static Type[] Ancestry(this Type type)
         {
             var heirachy = new List<Type>();
@@ -51,7 +51,7 @@ namespace PeanutButter.Utils
                                   BindingFlags.FlattenHierarchy)
                 .Where(fi => fi.IsLiteral && !fi.IsInitOnly)
                 .ToDictionary(x => x.Name, y => y.GetRawConstantValue());
-        } 
+        }
 
         /// <summary>
         /// Returns a dictionary of all constant values of a specified Type found on a Type
@@ -62,9 +62,9 @@ namespace PeanutButter.Utils
         public static Dictionary<string, T> GetAllConstants<T>(this Type type)
         {
             return type.GetAllConstants()
-                        .Where(kvp => kvp.Value is T)
-                        .ToDictionary(x => x.Key, y => (T)y.Value);
-        } 
+                .Where(kvp => kvp.Value is T)
+                .ToDictionary(x => x.Key, y => (T) y.Value);
+        }
 
         /// <summary>
         /// Returns a collection of all the constant values defined on a Type
@@ -74,7 +74,7 @@ namespace PeanutButter.Utils
         public static IEnumerable<object> GetAllConstantValues(this Type type)
         {
             return type.GetAllConstants().Select(kvp => kvp.Value);
-        } 
+        }
 
         /// <summary>
         /// Returns a collection of all the constant values defined on a Type, restricted to the required Type T
@@ -85,8 +85,8 @@ namespace PeanutButter.Utils
         public static IEnumerable<T> GetAllConstantValues<T>(this Type type)
         {
             return type.GetAllConstantValues()
-                        .OfType<T>();
-        } 
+                .OfType<T>();
+        }
 
         /// <summary>
         /// Tests if a Type has a default constructor (ie, a constructor with no parameters)
@@ -100,7 +100,7 @@ namespace PeanutButter.Utils
                 .GetTypeInfo()
 #endif
                 .GetConstructors()
-                        .Any(c => c.GetParameters().Length == 0);
+                .Any(c => c.GetParameters().Length == 0);
         }
 
         /// <summary>
@@ -114,7 +114,7 @@ namespace PeanutButter.Utils
             var collectionType = t.GetCollectionItemType();
             if (collectionType == null) return false;
             var specific = _genericIsAssignableFromArrayOf.MakeGenericMethod(collectionType);
-            return (bool)specific.Invoke(null, new object[] { t } );
+            return (bool) specific.Invoke(null, new object[] {t});
         }
 
         public static bool IsEnum(this Type t)
@@ -151,6 +151,7 @@ namespace PeanutButter.Utils
         {
             return t.GetTypeInfo().GetProperties(flags);
         }
+
         public static FieldInfo[] GetFields(this Type t, BindingFlags flags)
         {
             return t.GetTypeInfo().GetFields(flags);
@@ -193,7 +194,8 @@ namespace PeanutButter.Utils
 
 
         private static readonly MethodInfo _genericIsAssignableFromArrayOf
-            = typeof(TypeExtensions).GetMethod(nameof(IsAssignableFromArrayOf), BindingFlags.Static | BindingFlags.Public);
+            = typeof(TypeExtensions).GetMethod(nameof(IsAssignableFromArrayOf),
+                BindingFlags.Static | BindingFlags.Public);
 
         /// <summary>
         /// Tests if a type is a generic of a given generic type (eg typeof(List&lt;&gt;))
@@ -283,7 +285,7 @@ namespace PeanutButter.Utils
         /// <returns>Array of all interfaces which are implemented</returns>
         public static Type[] GetAllImplementedInterfaces(this Type inspectType)
         {
-            var result = new List<Type> { inspectType };
+            var result = new List<Type> {inspectType};
             foreach (var type in inspectType.GetInterfaces())
             {
                 result.AddRange(type.GetAllImplementedInterfaces());
@@ -300,13 +302,98 @@ namespace PeanutButter.Utils
         {
             return t.GetAllImplementedInterfaces().Contains(_disposableInterface);
         }
+
         private static readonly Type _disposableInterface = typeof(IDisposable);
+
+        /// <summary>
+        /// Provides a "pretty" name for a type, taking into account 
+        /// generics and nullable types
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static string PrettyName(this Type type)
+        {
+            if (type == null)
+                return "(null Type)";
+            if (!type.IsGenericType())
+                return type.Name;
+
+            if (type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                var underlyingType = type.GetGenericArguments()[0];
+                return $"{underlyingType.PrettyName()}?";
+            }
+            var parts = type.FullName
+                            ?.Substring(0, type.FullName?.IndexOf("`") ?? 0)
+                            .Split('.') ?? new[] { type.Name };
+            return string.Join("",
+                parts.Last(),
+                "<",
+                string.Join(", ",
+                    type.GetGenericArguments().Select(PrettyName)),
+                ">");
+        }
+
+        /// <summary>
+        /// Rudimentary test for if a type is a collection type, testing for 
+        /// IEnumerable&lt;&gt; interface implementation as well as some baked-in
+        /// known generic types
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static bool IsCollection(this Type type)
+        {
+            if (type == null)
+                return false;
+            return type.IsArray ||
+                   (type.IsGenericType() &&
+                   (type.ImplementsEnumerableGenericType() ||
+                    _collectionGenerics.Contains(type.GetGenericTypeDefinition())));
+        }
+
+        /// <summary>
+        /// Determines if an object of this type can be assigned null
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static bool CanBeAssignedNull(this Type type)
+        {
+            // accepted answer from
+            // http://stackoverflow.com/questions/1770181/determine-if-reflected-property-can-be-assigned-null#1770232
+            // conveniently located as an extension method
+            return !type.IsValueType() || Nullable.GetUnderlyingType(type) != null;
+        }
+
+        /// <summary>
+        /// Provides single method to determine IsValueType (shimmed for NETSTANDARD)
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static bool IsValueType(this Type type)
+        {
+            return type
+#if NETSTANDARD
+                .GetTypeInfo()
+#endif
+                .IsValueType;
+        }
+
+
+        private static readonly Type[] _collectionGenerics =
+        {
+            typeof(ICollection<>),
+            typeof(IEnumerable<>),
+            typeof(List<>),
+            typeof(IList<>),
+            typeof(IDictionary<,>),
+            typeof(Dictionary<,>)
+        };
 
 
         public static bool IsAssignableOrUpcastableTo(this Type src, Type target)
         {
             return target.IsAssignableFrom(src) ||
-                    src.CanImplicitlyUpcastTo(target);
+                   src.CanImplicitlyUpcastTo(target);
         }
 
         public static bool CanImplicitlyUpcastTo(
@@ -319,7 +406,7 @@ namespace PeanutButter.Utils
             bool canConvert;
             try
             {
-                convertSpecific.Invoke(null, new[] { defaultValue });
+                convertSpecific.Invoke(null, new[] {defaultValue});
                 canConvert = true;
             }
             catch
@@ -339,7 +426,7 @@ namespace PeanutButter.Utils
         }
 
 
-        private static MethodInfo _tryConvertGeneric = 
+        private static MethodInfo _tryConvertGeneric =
             typeof(TypeExtensions).GetMethod(nameof(TryConvert), BindingFlags.Static | BindingFlags.NonPublic);
 
 

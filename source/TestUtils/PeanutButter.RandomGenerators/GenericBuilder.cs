@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
 // ReSharper disable InheritdocConsiderUsage
 // ReSharper disable UsePatternMatching
@@ -600,7 +599,7 @@ namespace PeanutButter.RandomGenerators
         {
             // TODO: figure out the stack overflow introduced by cyclic references when enabling this
             //  code below
-            if (type.IsNotCollection())
+            if (!type.IsCollection())
                 return false;
             SetCollectionSetterFor(propertyInfo);
             return true;

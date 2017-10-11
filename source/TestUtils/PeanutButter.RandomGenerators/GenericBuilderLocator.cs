@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
 
 namespace PeanutButter.RandomGenerators
