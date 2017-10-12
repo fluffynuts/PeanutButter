@@ -43,11 +43,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.DatabaseHelper
 		{3D2EEE6D-E118-41FA-BB34-A0B56C993775} = {3D2EEE6D-E118-41FA-BB34-A0B56C993775}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.RandomGenerators.NugetPackage", "TestUtils\PeanutButter.RandomGenerators.NugetPackage\PeanutButter.RandomGenerators.NugetPackage.csproj", "{54C192CB-A0F1-48F9-8D21-E5C805B328B2}"
-	ProjectSection(ProjectDependencies) = postProject
-		{CB22D9AE-A2A8-45D0-92B9-FADC687120F0} = {CB22D9AE-A2A8-45D0-92B9-FADC687120F0}
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.ServiceShell.NugetPackage", "Win32Service\PeanutButter.ServiceShell.NugetPackage\PeanutButter.ServiceShell.NugetPackage.csproj", "{7E1F4E7A-60A5-45C0-AB9E-8742212D36C8}"
 	ProjectSection(ProjectDependencies) = postProject
 		{1349BF60-FED9-4288-AE22-50DEDC2F6AC7} = {1349BF60-FED9-4288-AE22-50DEDC2F6AC7}
@@ -285,7 +280,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenericBuilderTestLoadLoade
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Artifacts", "Artifacts", "{11FB658D-4F09-4CB0-A0FC-B54C51686A5A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.RandomGenerators.Core.Tests", "TestUtils\PeanutButter.RandomGenerators.Core.Tests\PeanutButter.RandomGenerators.Core.Tests.csproj", "{71DA3437-5271-4C77-ADB0-4177C690521C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeanutButter.RandomGenerators.Core.Tests", "TestUtils\PeanutButter.RandomGenerators.Core.Tests\PeanutButter.RandomGenerators.Core.Tests.csproj", "{71DA3437-5271-4C77-ADB0-4177C690521C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -643,25 +638,6 @@ Global
 		{90A441DE-E1AA-4FE1-934E-DAD19DC5872D}.Test|Any CPU.ActiveCfg = Release|Any CPU
 		{90A441DE-E1AA-4FE1-934E-DAD19DC5872D}.Test|Any CPU.Build.0 = Release|Any CPU
 		{90A441DE-E1AA-4FE1-934E-DAD19DC5872D}.Test|x86.ActiveCfg = Release|Any CPU
-		{54C192CB-A0F1-48F9-8D21-E5C805B328B2}.BuildForNuget|Any CPU.ActiveCfg = BuildForNuget|Any CPU
-		{54C192CB-A0F1-48F9-8D21-E5C805B328B2}.BuildForNuget|x86.ActiveCfg = BuildForNuget|Any CPU
-		{54C192CB-A0F1-48F9-8D21-E5C805B328B2}.BuildForNuget|x86.Build.0 = BuildForNuget|Any CPU
-		{54C192CB-A0F1-48F9-8D21-E5C805B328B2}.BuildPackages|Any CPU.ActiveCfg = PushToNuget|Any CPU
-		{54C192CB-A0F1-48F9-8D21-E5C805B328B2}.BuildPackages|Any CPU.Build.0 = PushToNuget|Any CPU
-		{54C192CB-A0F1-48F9-8D21-E5C805B328B2}.BuildPackages|x86.ActiveCfg = PushToNuget|Any CPU
-		{54C192CB-A0F1-48F9-8D21-E5C805B328B2}.BuildPackages|x86.Build.0 = PushToNuget|Any CPU
-		{54C192CB-A0F1-48F9-8D21-E5C805B328B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{54C192CB-A0F1-48F9-8D21-E5C805B328B2}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{54C192CB-A0F1-48F9-8D21-E5C805B328B2}.PushToNuget|Any CPU.ActiveCfg = PushToNuget|Any CPU
-		{54C192CB-A0F1-48F9-8D21-E5C805B328B2}.PushToNuget|Any CPU.Build.0 = PushToNuget|Any CPU
-		{54C192CB-A0F1-48F9-8D21-E5C805B328B2}.PushToNuget|x86.ActiveCfg = PushToNuget|Any CPU
-		{54C192CB-A0F1-48F9-8D21-E5C805B328B2}.PushToNuget|x86.Build.0 = PushToNuget|Any CPU
-		{54C192CB-A0F1-48F9-8D21-E5C805B328B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{54C192CB-A0F1-48F9-8D21-E5C805B328B2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{54C192CB-A0F1-48F9-8D21-E5C805B328B2}.Release|x86.ActiveCfg = Release|Any CPU
-		{54C192CB-A0F1-48F9-8D21-E5C805B328B2}.Test|Any CPU.ActiveCfg = Release|Any CPU
-		{54C192CB-A0F1-48F9-8D21-E5C805B328B2}.Test|Any CPU.Build.0 = Release|Any CPU
-		{54C192CB-A0F1-48F9-8D21-E5C805B328B2}.Test|x86.ActiveCfg = Release|Any CPU
 		{7E1F4E7A-60A5-45C0-AB9E-8742212D36C8}.BuildForNuget|Any CPU.ActiveCfg = BuildForNuget|Any CPU
 		{7E1F4E7A-60A5-45C0-AB9E-8742212D36C8}.BuildForNuget|x86.ActiveCfg = BuildForNuget|Any CPU
 		{7E1F4E7A-60A5-45C0-AB9E-8742212D36C8}.BuildForNuget|x86.Build.0 = BuildForNuget|Any CPU
@@ -2447,7 +2423,6 @@ Global
 		{3D2EEE6D-E118-41FA-BB34-A0B56C993775} = {043F0990-6BA2-4BD4-8572-9516C9E6EBAD}
 		{0451BAEF-DF2E-4B98-8644-94EE9415E389} = {043F0990-6BA2-4BD4-8572-9516C9E6EBAD}
 		{90A441DE-E1AA-4FE1-934E-DAD19DC5872D} = {043F0990-6BA2-4BD4-8572-9516C9E6EBAD}
-		{54C192CB-A0F1-48F9-8D21-E5C805B328B2} = {991C5C7C-A1F8-42B1-8CDA-F782B0F62980}
 		{7E1F4E7A-60A5-45C0-AB9E-8742212D36C8} = {F16ADAF9-3992-4A86-93DB-53813CF5434A}
 		{1349BF60-FED9-4288-AE22-50DEDC2F6AC7} = {F16ADAF9-3992-4A86-93DB-53813CF5434A}
 		{D67739CD-944E-4E88-B313-0E091CEA185B} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
