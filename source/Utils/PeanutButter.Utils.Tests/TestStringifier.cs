@@ -1,10 +1,12 @@
 using System;
 using NUnit.Framework;
+using NExpect;
+using static NExpect.Expectations;
 
 namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
-    public class TestStringifier: AssertionHelper
+    public class TestStringifier
     {
         [TestCase("foo", "\"foo\"")]
         [TestCase(1, "1")]
@@ -21,10 +23,10 @@ namespace PeanutButter.Utils.Tests
             var result = Stringifier.Stringify(value);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(expected));
+            Expect(result).To.Equal(expected);
         }
 
-        private static readonly Tuple<object, string>[] ComplexSource = new[]
+        private static readonly Tuple<object, string>[] _complexSource = new[]
         {
             Tuple.Create(new { foo = 1 } as object, @"
 {
@@ -38,7 +40,7 @@ namespace PeanutButter.Utils.Tests
 }") 
         };
 
-        [TestCaseSource(nameof(ComplexSource))]
+        [TestCaseSource(nameof(_complexSource))]
         public void Stringify_GivenObject_ShouldReturnExpected(Tuple<object, string> data)
         {
             //--------------- Arrange -------------------
@@ -49,7 +51,7 @@ namespace PeanutButter.Utils.Tests
             var result = Stringifier.Stringify(data.Item1);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(data.Item2.TrimStart().Replace("\r", "")));
+            Expect(result).To.Equal(data.Item2.TrimStart().Replace("\r", ""));
         }
 
 

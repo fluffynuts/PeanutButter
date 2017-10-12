@@ -1,9 +1,11 @@
 ﻿using NUnit.Framework;
+using NExpect;
+using static NExpect.Expectations;
 
 namespace PeanutButter.TestUtils.Generic.Tests
 {
     [TestFixture]
-    public class TestDecimalExtensions: AssertionHelper
+    public class TestDecimalExtensions
     {
         [Test]
         public void ShouldMatch_ShouldThrowWhenNumbersDontMatchAtGivenPosition()
@@ -15,12 +17,12 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Expect(() => num1.ShouldMatch(num2, 0), Throws.Nothing);
-            Expect(() => num1.ShouldMatch(num2, 1), Throws.Nothing);
-            Expect(() => num1.ShouldMatch(num2, 2), Throws.Nothing);
-            Expect(() => num1.ShouldMatch(num2, 3), Throws.Exception.InstanceOf<AssertionException>());
-            Expect(() => num1.ShouldMatch(num2, 4), Throws.Exception.InstanceOf<AssertionException>());
-            Expect(() => num1.ShouldMatch(num2, 5), Throws.Exception.InstanceOf<AssertionException>());
+            Expect(() => num1.ShouldMatch(num2, 0)).Not.To.Throw();
+            Expect(() => num1.ShouldMatch(num2, 1)).Not.To.Throw();
+            Expect(() => num1.ShouldMatch(num2, 2)).Not.To.Throw();
+            Expect(() => num1.ShouldMatch(num2, 3)).To.Throw<AssertionException>();
+            Expect(() => num1.ShouldMatch(num2, 4)).To.Throw<AssertionException>();
+            Expect(() => num1.ShouldMatch(num2, 5)).To.Throw<AssertionException>();
 
             //---------------Test Result -----------------------
         }
@@ -35,8 +37,8 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            Expect(() => num1.ShouldMatch(num2, 2), Throws.Nothing);
-            Expect(() => num2.ShouldMatch(num1, 2), Throws.Nothing);
+            Expect(() => num1.ShouldMatch(num2, 2)).Not.To.Throw();
+            Expect(() => num2.ShouldMatch(num1, 2)).Not.To.Throw();
 
 
             //--------------- Assert -----------------------

@@ -3,12 +3,15 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using NExpect;
+using static NExpect.Expectations;
 // ReSharper disable RedundantArgumentDefaultValue
+// ReSharper disable ExpressionIsAlwaysNull
 
 namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
-    public class TestByteArrayExtensions: AssertionHelper
+    public class TestByteArrayExtensions
     {
         [Test]
         public void ToMD5Sum_GivenNullArray_ShouldReturnNull()
@@ -22,7 +25,7 @@ namespace PeanutButter.Utils.Tests
             var result = input.ToMD5String();
 
             //---------------Test Result -----------------------
-            Assert.IsNull(result);
+            Expect(result).To.Be.Null();
         }
 
         [Test]
@@ -43,7 +46,7 @@ namespace PeanutButter.Utils.Tests
             var result = input.ToMD5String();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -58,7 +61,7 @@ namespace PeanutButter.Utils.Tests
             var result = input.ToUTF8String();
 
             //---------------Test Result -----------------------
-            Assert.IsNull(result);
+            Expect(result).To.Be.Null();
         }
 
         [Test]
@@ -73,7 +76,7 @@ namespace PeanutButter.Utils.Tests
             var result = input.ToUTF8String();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(string.Empty, result);
+            Expect(result).To.Be.Empty();
         }
 
 
@@ -91,7 +94,7 @@ namespace PeanutButter.Utils.Tests
             var result = asBytes.ToUTF8String();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -107,7 +110,7 @@ namespace PeanutButter.Utils.Tests
             var result = input.ToBase64();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(expected));    
+            Expect(result).To.Equal(expected);
         }
 
         

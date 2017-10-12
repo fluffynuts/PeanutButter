@@ -4,24 +4,27 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using NExpect;
+using static NExpect.Expectations;
+// ReSharper disable ExpressionIsAlwaysNull
 
 namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
-    public class TestStreamExtensions: AssertionHelper
+    public class TestStreamExtensions
     {
         [Test]
         public void ReadAllBytes_OperatingOnNullStream_ShouldReturnNull()
         {
             //---------------Set up test pack-------------------
-            Stream src = null; 
+            Stream src = null;
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
             var result = src.ReadAllBytes();
 
             //---------------Test Result -----------------------
-            Assert.IsNull(result);
+            Expect(result).To.Be.Null();
         }
 
         [Test]
@@ -30,15 +33,13 @@ namespace PeanutButter.Utils.Tests
             //---------------Set up test pack-------------------
             using (var memStream = new MemoryStream())
             {
-
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
                 var result = memStream.ReadAllBytes();
 
                 //---------------Test Result -----------------------
-                Assert.IsNotNull(result);
-                CollectionAssert.IsEmpty(result);
+                Expect(result).To.Be.Empty();
             }
         }
 
@@ -49,14 +50,13 @@ namespace PeanutButter.Utils.Tests
             var expected = GetRandomBytes();
             using (var memStream = new MemoryStream(expected))
             {
-
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
                 var result = memStream.ReadAllBytes();
 
                 //---------------Test Result -----------------------
-                CollectionAssert.AreEqual(expected, result);
+                Expect(result).To.Equal(expected);
             }
         }
 
@@ -74,7 +74,7 @@ namespace PeanutButter.Utils.Tests
                 var result = memStream.ReadAllBytes();
 
                 //---------------Test Result -----------------------
-                CollectionAssert.AreEqual(expected, result);
+                Expect(result).To.Equal(expected);
             }
         }
 
@@ -88,7 +88,10 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<IOException>(() => dst.WriteAllBytes(expected));
+            Expect(
+                    () => dst.WriteAllBytes(expected)
+                )
+                .To.Throw<IOException>();
 
             //---------------Test Result -----------------------
         }
@@ -109,7 +112,7 @@ namespace PeanutButter.Utils.Tests
                 //---------------Test Result -----------------------
                 memStream.Seek(0, SeekOrigin.Begin);
                 var result = memStream.ReadAllBytes();
-                CollectionAssert.AreEqual(expected, result);
+                Expect(result).To.Equal(expected);
             }
         }
 
@@ -127,7 +130,7 @@ namespace PeanutButter.Utils.Tests
                 //---------------Test Result -----------------------
                 memStream.Seek(0, SeekOrigin.Begin);
                 var result = memStream.ReadAllBytes();
-                CollectionAssert.IsEmpty(result);
+                Expect(result).To.Be.Empty();
             }
         }
 
@@ -139,7 +142,11 @@ namespace PeanutButter.Utils.Tests
             using (var folder = new AutoTempFolder())
             {
                 var file = CreateRandomFileIn(folder.Path);
-                using (var fileStream = File.Open(Path.Combine(folder.Path, file), FileMode.Open, FileAccess.ReadWrite))
+                using (var fileStream = File.Open(
+                    Path.Combine(folder.Path, file), 
+                    FileMode.Open, 
+                    FileAccess.ReadWrite)
+                )
                 {
                     fileStream.Write(initial, 0, initial.Length);
                     var expected = GetRandomBytes();
@@ -151,7 +158,7 @@ namespace PeanutButter.Utils.Tests
                     //---------------Test Result -----------------------
                     fileStream.Rewind();
                     var result = fileStream.ReadAllBytes();
-                    CollectionAssert.AreEqual(expected, result);
+                    Expect(result).To.Equal(expected);
                 }
             }
         }
@@ -167,7 +174,7 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<IOException>(() => dst.Append(toAppend));
+            Expect(() => dst.Append(toAppend)).To.Throw<IOException>();
 
             //---------------Test Result -----------------------
         }
@@ -180,9 +187,10 @@ namespace PeanutButter.Utils.Tests
             {
                 var fileName = CreateRandomFileIn(folder.Path);
                 var initial = File.ReadAllBytes(Path.Combine(folder.Path, fileName));
-                using (var fileStream = File.Open(Path.Combine(folder.Path, fileName), FileMode.Open, FileAccess.ReadWrite))
+                using (var fileStream =
+                    File.Open(Path.Combine(folder.Path, fileName), FileMode.Open, FileAccess.ReadWrite))
                 {
-                    var toAdd = GetRandomBytes(1,1);
+                    var toAdd = GetRandomBytes(1, 1);
                     var expected = initial.Concat(toAdd).ToArray();
 
                     //---------------Assert Precondition----------------
@@ -192,7 +200,7 @@ namespace PeanutButter.Utils.Tests
 
                     //---------------Test Result -----------------------
                     var result = fileStream.ReadAllBytes();
-                    CollectionAssert.AreEqual(expected, result);
+                    Expect(result).To.Equal(expected);
                 }
             }
         }
@@ -212,20 +220,19 @@ namespace PeanutButter.Utils.Tests
                 memStream.WriteAllBytes(Encoding.UTF8.GetBytes(expected));
                 memStream.Rewind();
                 var result = memStream.AsString();
-                Assert.IsNotNull(result);
-                Assert.AreEqual(expected, result);
+                Expect(result).To.Equal(expected);
             }
-
         }
 
         [Test]
         public void WriteString_OperatingOnStream_GivenNullData_ShouldWriteNothing()
         {
             //--------------- Arrange -------------------
-            var buffer = new byte[128];
-            var expectedValue = GetRandomInt(2, 10);
+            var size = 128;
+            var buffer = new byte[size];
+            var expectedValue = (byte)GetRandomInt(2, 10);
             for (var i = 0; i < buffer.Length; i++)
-                buffer[i] = (byte)expectedValue;
+                buffer[i] = expectedValue;
             using (var stream = new MemoryStream(buffer))
             {
                 //--------------- Assume ----------------
@@ -234,7 +241,7 @@ namespace PeanutButter.Utils.Tests
                 stream.WriteString(null, Encoding.UTF8);
 
                 //--------------- Assert -----------------------
-                Expect(buffer.All(o => o == expectedValue), Is.True);
+                Expect(buffer).To.Contain.Only(size).Equal.To(expectedValue);
             }
         }
 
@@ -264,7 +271,7 @@ namespace PeanutButter.Utils.Tests
                 //--------------- Assert -----------------------
                 var copy = new byte[toWrite.Length];
                 Buffer.BlockCopy(buffer, 0, copy, 0, toWrite.Length);
-                Expect(copy, Is.EquivalentTo(expected));
+                Expect(copy).To.Equal(expected);
             }
         }
 
@@ -286,9 +293,8 @@ namespace PeanutButter.Utils.Tests
                 //--------------- Assert -----------------------
                 var copy = new byte[toWrite.Length];
                 Buffer.BlockCopy(buffer, 0, copy, 0, toWrite.Length);
-                Expect(copy, Is.EquivalentTo(expected));
+                Expect(copy).To.Equal(expected);
             }
         }
-
     }
 }

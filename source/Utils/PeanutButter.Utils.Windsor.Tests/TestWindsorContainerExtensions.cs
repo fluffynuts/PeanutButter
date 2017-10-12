@@ -7,11 +7,13 @@ using Castle.Windsor;
 using NSubstitute;
 using NUnit.Framework;
 using PeanutButter.Utils.Windsor.Tests.TestClasses;
+using NExpect;
+using static NExpect.Expectations;
 
 namespace PeanutButter.Utils.Windsor.Tests
 {
     [TestFixture]
-    public class TestWindsorContainerExtensions : AssertionHelper
+    public class TestWindsorContainerExtensions
     {
         [Test]
         public void RegisterAllOneToOneResolutionsAsTransientFrom_GivenNoAssemblies_ShouldThrowArgumentException()
@@ -23,9 +25,9 @@ namespace PeanutButter.Utils.Windsor.Tests
 
             //---------------Execute Test ----------------------
             Expect(
-                () => container.RegisterAllOneToOneResolutionsAsTransientFrom(),
-                Throws.Exception.InstanceOf<ArgumentException>()
-            );
+                    () => container.RegisterAllOneToOneResolutionsAsTransientFrom()
+                )
+                .To.Throw<ArgumentException>();
             //---------------Test Result -----------------------
         }
 
@@ -42,9 +44,9 @@ namespace PeanutButter.Utils.Windsor.Tests
 
             //---------------Test Result -----------------------
             Expect(
-                () => container.Resolve<IInterfaceWithNoResolutions>(),
-                Throws.Exception.InstanceOf<ComponentNotFoundException>()
-            );
+                    () => container.Resolve<IInterfaceWithNoResolutions>()
+                )
+                .To.Throw<ComponentNotFoundException>();
         }
 
         [Test]
@@ -59,7 +61,8 @@ namespace PeanutButter.Utils.Windsor.Tests
             container.RegisterAllOneToOneResolutionsAsTransientFrom(GetType().Assembly);
 
             //---------------Test Result -----------------------
-            Assert.Throws<ComponentNotFoundException>(() => container.Resolve<IInterfaceWithMultipleResolutions>());
+            Expect(() => container.Resolve<IInterfaceWithMultipleResolutions>())
+                .To.Throw<ComponentNotFoundException>();
         }
 
         [Test]
@@ -75,25 +78,28 @@ namespace PeanutButter.Utils.Windsor.Tests
 
             //---------------Test Result -----------------------
             var result = container.Resolve<IInterfaceWithOneResolution>();
-            Expect(result, Is.Not.Null);
-            Expect(result, Is.InstanceOf<ImplementsInterfaceWithOneResolution>());
+            Expect(result).Not.To.Be.Null();
+            Expect(result).To.Be.An.Instance.Of<ImplementsInterfaceWithOneResolution>();
         }
 
 
         [Test]
-        public void RegisterAllOneToOneResolutionsAsTransientFrom_WhenServiceAlreadyRegistered_ShouldNotAttemptToReRegister()
+        public void
+            RegisterAllOneToOneResolutionsAsTransientFrom_WhenServiceAlreadyRegistered_ShouldNotAttemptToReRegister()
         {
             //---------------Set up test pack-------------------
             var container = Create();
-            container.Register(Component.For<IInterfaceForSingleton>().ImplementedBy<ImplementsInterfaceForSingleton>().LifestyleSingleton());
+            container.Register(Component.For<IInterfaceForSingleton>()
+                .ImplementedBy<ImplementsInterfaceForSingleton>()
+                .LifestyleSingleton());
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
             // Castle Windsor chucks if you try to register the same service twice
             Expect(
-                () => container.RegisterAllOneToOneResolutionsAsTransientFrom(GetType().Assembly),
-                Throws.Nothing
-            );
+                    () => container.RegisterAllOneToOneResolutionsAsTransientFrom(GetType().Assembly)
+                )
+                .Not.To.Throw();
 
             //---------------Test Result -----------------------
         }
@@ -112,7 +118,8 @@ namespace PeanutButter.Utils.Windsor.Tests
 
 
         [Test]
-        public void RegisterAllOneToOneResolutionsAsTransientFrom_WhenImplementationAlreadyRegisteredForDifferentService_ShouldNotAttemptToReRegister()
+        public void
+            RegisterAllOneToOneResolutionsAsTransientFrom_WhenImplementationAlreadyRegisteredForDifferentService_ShouldNotAttemptToReRegister()
         {
             //---------------Set up test pack-------------------
             var container = Create();
@@ -121,21 +128,22 @@ namespace PeanutButter.Utils.Windsor.Tests
 
             //---------------Execute Test ----------------------
             Expect(
-                () => container.RegisterAllOneToOneResolutionsAsTransientFrom(GetType().Assembly),
-                Throws.Nothing
-            );
+                    () => container.RegisterAllOneToOneResolutionsAsTransientFrom(GetType().Assembly)
+                )
+                .Not.To.Throw();
             var result1 = container.Resolve<InterfacePart1>();
             var result2 = container.Resolve<InterfacePart2>();
 
             //---------------Test Result -----------------------
-            Expect(result1, Is.Not.Null);
-            Expect(result2, Is.Not.Null);
-            Expect(result1, Is.InstanceOf<Implementation>());
-            Expect(result2, Is.InstanceOf<Implementation>());
+            Expect(result1).Not.To.Be.Null();
+            Expect(result2).Not.To.Be.Null();
+            Expect(result1).To.Be.An.Instance.Of<Implementation>();
+            Expect(result2).To.Be.An.Instance.Of<Implementation>();
         }
 
         [Test]
-        public void RegisterAllOneToOneResolutionsAsTransientExcept_GivenIgnoreListAndAssemblyList_ShouldIgnoreThoseTypesAsServices()
+        public void
+            RegisterAllOneToOneResolutionsAsTransientExcept_GivenIgnoreListAndAssemblyList_ShouldIgnoreThoseTypesAsServices()
         {
             //--------------- Arrange -------------------
             var container = Create();
@@ -144,20 +152,21 @@ namespace PeanutButter.Utils.Windsor.Tests
 
             //--------------- Act ----------------------
             container.RegisterAllOneToOneResolutionsAsTransientExcept(
-                new[] { typeof(InterfacePart1 ) }, 
-                new[] {  GetType().Assembly }
+                new[] {typeof(InterfacePart1)},
+                new[] {GetType().Assembly}
             );
 
             //--------------- Assert -----------------------
             var result1 = container.Resolve<InterfacePart2>();
-            Expect(result1, Is.Not.Null);
-            Expect(result1, Is.InstanceOf<Implementation>());
-            Expect(() => container.Resolve<InterfacePart1>(),
-                Throws.Exception.InstanceOf<ComponentNotFoundException>());
+            Expect(result1).Not.To.Be.Null();
+            Expect(result1).To.Be.An.Instance.Of<Implementation>();
+            Expect(() => container.Resolve<InterfacePart1>())
+                .To.Throw<ComponentNotFoundException>();
         }
 
         [Test]
-        public void RegisterAllOneToOneResolutionsAsTransientExcept_GivenIgnoreListAndAssemblyList_ShouldIgnoreThoseTypesAsImplementationsToo()
+        public void
+            RegisterAllOneToOneResolutionsAsTransientExcept_GivenIgnoreListAndAssemblyList_ShouldIgnoreThoseTypesAsImplementationsToo()
         {
             //--------------- Arrange -------------------
             var container = Create();
@@ -166,15 +175,15 @@ namespace PeanutButter.Utils.Windsor.Tests
 
             //--------------- Act ----------------------
             container.RegisterAllOneToOneResolutionsAsTransientExcept(
-                new[] { typeof(Implementation) }, 
-                new[] {  GetType().Assembly }
+                new[] {typeof(Implementation)},
+                new[] {GetType().Assembly}
             );
 
             //--------------- Assert -----------------------
-            Expect(() => container.Resolve<InterfacePart2>(),
-                Throws.Exception.InstanceOf<ComponentNotFoundException>());
-            Expect(() => container.Resolve<InterfacePart1>(),
-                Throws.Exception.InstanceOf<ComponentNotFoundException>());
+            Expect(() => container.Resolve<InterfacePart2>())
+                .To.Throw<ComponentNotFoundException>();
+            Expect(() => container.Resolve<InterfacePart1>())
+                .To.Throw<ComponentNotFoundException>();
         }
 
 
@@ -191,9 +200,9 @@ namespace PeanutButter.Utils.Windsor.Tests
 
             //---------------Test Result -----------------------
             Expect(
-                () => container.Resolve<IInterfaceWithOneResolutionInheritor>(),
-                Throws.Exception.InstanceOf<ComponentNotFoundException>()
-            );
+                    () => container.Resolve<IInterfaceWithOneResolutionInheritor>()
+                )
+                .To.Throw<ComponentNotFoundException>();
         }
 
         [Test]
@@ -209,9 +218,9 @@ namespace PeanutButter.Utils.Windsor.Tests
 
             //---------------Test Result -----------------------
             Expect(
-                () => container.Resolve<IInterfaceForAbstractClass>(),
-                Throws.Exception.InstanceOf<ComponentNotFoundException>()
-            );
+                    () => container.Resolve<IInterfaceForAbstractClass>()
+                )
+                .To.Throw<ComponentNotFoundException>();
         }
 
         [Test]
@@ -224,9 +233,9 @@ namespace PeanutButter.Utils.Windsor.Tests
 
             //---------------Execute Test ----------------------
             Expect(
-                () => container.RegisterAllMvcControllersFrom(),
-                Throws.Exception.InstanceOf<ArgumentException>()
-            );
+                    () => container.RegisterAllMvcControllersFrom()
+                )
+                .To.Throw<ArgumentException>();
 
             //---------------Test Result -----------------------
         }
@@ -241,9 +250,9 @@ namespace PeanutButter.Utils.Windsor.Tests
 
             //---------------Execute Test ----------------------
             Expect(
-                () => container.RegisterAllMvcControllersFrom(typeof(WindsorContainerExtensions).Assembly),
-                Throws.Nothing
-            );
+                    () => container.RegisterAllMvcControllersFrom(typeof(WindsorContainerExtensions).Assembly)
+                )
+                .Not.To.Throw();
 
             //---------------Test Result -----------------------
         }
@@ -260,8 +269,10 @@ namespace PeanutButter.Utils.Windsor.Tests
             Assert.DoesNotThrow(() => container.RegisterAllMvcControllersFrom(GetType().Assembly));
 
             //---------------Test Result -----------------------
-            Expect(container.Resolve<HomeController>(), Is.InstanceOf<HomeController>());
-            Expect(container.Resolve<AccountController>(), Is.InstanceOf<AccountController>());
+            Expect(container.Resolve<HomeController>())
+                .To.Be.An.Instance.Of<HomeController>();
+            Expect(container.Resolve<AccountController>())
+                .To.Be.An.Instance.Of<AccountController>();
         }
 
         [Test]
@@ -274,9 +285,9 @@ namespace PeanutButter.Utils.Windsor.Tests
 
             //---------------Execute Test ----------------------
             Expect(
-                () => container.RegisterAllApiControllersFrom(),
-                Throws.Exception.InstanceOf<ArgumentException>()
-            );
+                    () => container.RegisterAllApiControllersFrom()
+                )
+                .To.Throw<ArgumentException>();
 
             //---------------Test Result -----------------------
         }
@@ -291,9 +302,9 @@ namespace PeanutButter.Utils.Windsor.Tests
 
             //---------------Execute Test ----------------------
             Expect(
-                () => container.RegisterAllApiControllersFrom(typeof(WindsorContainerExtensions).Assembly),
-                Throws.Nothing
-            );
+                    () => container.RegisterAllApiControllersFrom(typeof(WindsorContainerExtensions).Assembly)
+                )
+                .Not.To.Throw();
 
             //---------------Test Result -----------------------
         }
@@ -308,12 +319,13 @@ namespace PeanutButter.Utils.Windsor.Tests
 
             //---------------Execute Test ----------------------
             Expect(
-                () => container.RegisterAllApiControllersFrom(GetType().Assembly),
-                Throws.Nothing
-            );
+                    () => container.RegisterAllApiControllersFrom(GetType().Assembly)
+                )
+                .Not.To.Throw();
 
             //---------------Test Result -----------------------
-            Expect(container.Resolve<SomeApiController>(), Is.InstanceOf<SomeApiController>());
+            Expect(container.Resolve<SomeApiController>())
+                .To.Be.An.Instance.Of<SomeApiController>();
         }
 
 
@@ -331,11 +343,11 @@ namespace PeanutButter.Utils.Windsor.Tests
             var result2 = container.Resolve<ISingletonService>();
 
             //---------------Test Result -----------------------
-            Expect(result1, Is.Not.Null);
-            Expect(result2, Is.Not.Null);
-            Expect(result1, Is.InstanceOf<SingletonService>());
-            Expect(result2, Is.InstanceOf<SingletonService>());
-            Expect(result1, Is.EqualTo(result2));
+            Expect(result1).Not.To.Be.Null();
+            Expect(result2).Not.To.Be.Null();
+            Expect(result1).To.Be.An.Instance.Of<SingletonService>();
+            Expect(result2).To.Be.An.Instance.Of<SingletonService>();
+            Expect(result1).To.Equal(result2);
         }
 
         [Test]
@@ -352,11 +364,11 @@ namespace PeanutButter.Utils.Windsor.Tests
             var result2 = container.Resolve<ISingletonService>();
 
             //---------------Test Result -----------------------
-            Expect(result1, Is.Not.Null);
-            Expect(result2, Is.Not.Null);
-            Expect(result1, Is.InstanceOf<SingletonService>());
-            Expect(result2, Is.InstanceOf<SingletonService>());
-            Expect(result1, Is.EqualTo(result2));
+            Expect(result1).Not.To.Be.Null();
+            Expect(result2).Not.To.Be.Null();
+            Expect(result1).To.Be.An.Instance.Of<SingletonService>();
+            Expect(result2).To.Be.An.Instance.Of<SingletonService>();
+            Expect(result1).To.Equal(result2);
         }
 
         [Test]
@@ -368,16 +380,17 @@ namespace PeanutButter.Utils.Windsor.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            container.RegisterTransient<IInterfaceWithMultipleResolutions, ImplementsInterfaceWithMultipleResolutions1>();
+            container
+                .RegisterTransient<IInterfaceWithMultipleResolutions, ImplementsInterfaceWithMultipleResolutions1>();
             var result1 = container.Resolve<IInterfaceWithMultipleResolutions>();
             var result2 = container.Resolve<IInterfaceWithMultipleResolutions>();
 
             //---------------Test Result -----------------------
-            Expect(result1, Is.Not.Null);
-            Expect(result2, Is.Not.Null);
-            Expect(result1, Is.InstanceOf<ImplementsInterfaceWithMultipleResolutions1>());
-            Expect(result2, Is.InstanceOf<ImplementsInterfaceWithMultipleResolutions1>());
-            Expect(result1, Is.Not.EqualTo(result2));
+            Expect(result1).Not.To.Be.Null();
+            Expect(result2).Not.To.Be.Null();
+            Expect(result1).To.Be.An.Instance.Of<ImplementsInterfaceWithMultipleResolutions1>();
+            Expect(result2).To.Be.An.Instance.Of<ImplementsInterfaceWithMultipleResolutions1>();
+            Expect(result1).Not.To.Equal(result2);
         }
 
         [Test]
@@ -400,16 +413,19 @@ namespace PeanutButter.Utils.Windsor.Tests
 
             //---------------Test Result -----------------------
             var registration = registrations.Single();
-            Expect(registration, Is.Not.Null);
+            Expect(registration).Not.To.Be.Null();
 
-            var lifestyle = registration.GetOrDefault<Castle.MicroKernel.Registration.Lifestyle.LifestyleGroup<ISingletonService>>("LifeStyle");
-            Expect(lifestyle, Is.Not.Null);
+            var lifestyle =
+                registration.GetOrDefault<Castle.MicroKernel.Registration.Lifestyle.LifestyleGroup<ISingletonService>>(
+                    "LifeStyle");
+            Expect(lifestyle).Not.To.Be.Null();
             // TODO: actually prove PerWebRequest lifestyle...
         }
 
         private interface IDependencyForSingleInstanceBase
         {
         }
+
         private interface IDependencyForSingleInstance : IDependencyForSingleInstanceBase
         {
         }
@@ -433,15 +449,16 @@ namespace PeanutButter.Utils.Windsor.Tests
             var result2 = container.Resolve<IDependencyForSingleInstance>();
 
             //---------------Test Result -----------------------
-            Expect(result1, Is.Not.Null);
-            Expect(result2, Is.Not.Null);
-            Expect(result1, Is.EqualTo(result2));
-            Expect(result1, Is.EqualTo(instance));
-            Expect(result2, Is.EqualTo(instance));
+            Expect(result1).Not.To.Be.Null();
+            Expect(result2).Not.To.Be.Null();
+            Expect(result1).To.Equal(result2);
+            Expect(result1).To.Equal(instance);
+            Expect(result2).To.Equal(instance);
         }
 
         [Test]
-        public void RegisterInstance_ShouldRegisterSingleProvidedInstanceForResolutionOnMultipleAttemptsWithDifferentInterface()
+        public void
+            RegisterInstance_ShouldRegisterSingleProvidedInstanceForResolutionOnMultipleAttemptsWithDifferentInterface()
         {
             //---------------Set up test pack-------------------
             var container = new WindsorContainer();
@@ -456,11 +473,11 @@ namespace PeanutButter.Utils.Windsor.Tests
             var result2 = container.Resolve<IDependencyForSingleInstanceBase>();
 
             //---------------Test Result -----------------------
-            Expect(result1, Is.Not.Null);
-            Expect(result2, Is.Not.Null);
-            Expect(result1, Is.EqualTo(result2));
-            Expect(result1, Is.EqualTo(instance));
-            Expect(result2, Is.EqualTo(instance));
+            Expect(result1).Not.To.Be.Null();
+            Expect(result2).Not.To.Be.Null();
+            Expect(result1).To.Equal(result2 as IDependencyForSingleInstance);
+            Expect(result1).To.Equal(instance);
+            Expect(result2).To.Equal(instance);
         }
 
         [Test]
@@ -476,12 +493,11 @@ namespace PeanutButter.Utils.Windsor.Tests
             container.RegisterInstance<IDependencyForSingleInstance>(instance);
 
             Expect(() =>
-                container.RegisterInstance<IDependencyForSingleInstance>(instance),
-                Throws.Exception.InstanceOf<ComponentRegistrationException>()
-            );
+                    container.RegisterInstance<IDependencyForSingleInstance>(instance)
+                )
+                .To.Throw<ComponentRegistrationException>();
             //---------------Test Result -----------------------
         }
-
 
 
         private static IWindsorContainer Create()

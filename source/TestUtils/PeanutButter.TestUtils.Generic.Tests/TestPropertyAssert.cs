@@ -6,25 +6,33 @@ using NUnit.Framework;
 using PeanutButter.DuckTyping;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using NExpect;
+using static NExpect.Expectations;
+// ReSharper disable ClassNeverInstantiated.Global
+// ReSharper disable UnusedMember.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.TestUtils.Generic.Tests
 {
     [TestFixture]
-    public class TestPropertyAssert: AssertionHelper
+    public class TestPropertyAssert
     {
         [Test]
         public void AreEqual_GivenTwoDifferentTypedObjects_AndPropertyNames_WhenPropertiesMatch_DoesNotThrow()
         {
             //---------------Set up test pack-------------------
-            var obj1 = new { foo = "foo" };
-            var obj2 = new { bar = "foo" };
+            var obj1 = new {foo = "foo"};
+            var obj2 = new {bar = "foo"};
 
             //---------------Assert Precondition----------------
             Assert.AreNotEqual(obj1, obj2);
             Assert.AreNotEqual(obj1.GetType(), obj2.GetType());
             //---------------Execute Test ----------------------
 
-            Assert.DoesNotThrow(() => PropertyAssert.AreEqual(obj1, obj2, "foo", "bar"));
+            Expect(() => PropertyAssert.AreEqual(obj1, obj2, "foo", "bar"))
+                .Not.To.Throw();
 
             //---------------Test Result -----------------------
         }
@@ -33,15 +41,16 @@ namespace PeanutButter.TestUtils.Generic.Tests
         public void AreNotEqual_GivenTwoDifferentTypedObjects_AndPropertyNames_WhenPropertiesMatch_ShouldNotThrow()
         {
             //---------------Set up test pack-------------------
-            var obj1 = new { foo = "foo" };
-            var obj2 = new { bar = "foo" };
+            var obj1 = new {foo = "foo"};
+            var obj2 = new {bar = "foo"};
 
             //---------------Assert Precondition----------------
-            Assert.AreNotEqual(obj1, obj2);
-            Assert.AreNotEqual(obj1.GetType(), obj2.GetType());
+            Expect(obj1).Not.To.Deep.Equal(obj2);
+            Expect(obj1.GetType()).Not.To.Equal(obj2.GetType());
             //---------------Execute Test ----------------------
 
-            Assert.Throws<AssertionException>(() => PropertyAssert.AreNotEqual(obj1, obj2, "foo", "bar"));
+            Expect(() => PropertyAssert.AreNotEqual(obj1, obj2, "foo", "bar"))
+                .To.Throw<AssertionException>();
 
             //---------------Test Result -----------------------
         }
@@ -50,13 +59,14 @@ namespace PeanutButter.TestUtils.Generic.Tests
         public void AreEqual_GivenTwoObjectsWithNonMatchingPropertyValues_ShouldThrow()
         {
             //---------------Set up test pack-------------------
-            var obj1 = new { foo = "foo" };
-            var obj2 = new { bar = "bar" };
-            
+            var obj1 = new {foo = "foo"};
+            var obj2 = new {bar = "bar"};
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<AssertionException>(() => PropertyAssert.AreEqual(obj1, obj2, "foo", "bar"));
+            Expect(() => PropertyAssert.AreEqual(obj1, obj2, "foo", "bar"))
+                .To.Throw<AssertionException>();
 
             //---------------Test Result -----------------------
         }
@@ -65,13 +75,14 @@ namespace PeanutButter.TestUtils.Generic.Tests
         public void AreNotEqual_GivenTwoObjectsWithNonMatchingPropertyValues_ShouldNotThrow()
         {
             //---------------Set up test pack-------------------
-            var obj1 = new { foo = "foo" };
-            var obj2 = new { bar = "bar" };
-            
+            var obj1 = new {foo = "foo"};
+            var obj2 = new {bar = "bar"};
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => PropertyAssert.AreNotEqual(obj1, obj2, "foo", "bar"));
+            Expect(() => PropertyAssert.AreNotEqual(obj1, obj2, "foo", "bar"))
+                .Not.To.Throw();
 
             //---------------Test Result -----------------------
         }
@@ -80,13 +91,14 @@ namespace PeanutButter.TestUtils.Generic.Tests
         public void AreEqual_GivenTwoObjectsWithNonMatchingPropertyTypes_ShouldThrow()
         {
             //---------------Set up test pack-------------------
-            var obj1 = new { foo = "1" };
-            var obj2 = new { bar = 1 };
-            
+            var obj1 = new {foo = "1"};
+            var obj2 = new {bar = 1};
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<AssertionException>(() => PropertyAssert.AreEqual(obj1, obj2, "foo", "bar"));
+            Expect(() => PropertyAssert.AreEqual(obj1, obj2, "foo", "bar"))
+                .To.Throw<AssertionException>();
 
             //---------------Test Result -----------------------
         }
@@ -95,13 +107,14 @@ namespace PeanutButter.TestUtils.Generic.Tests
         public void AreNotEqual_GivenTwoObjectsWithNonMatchingPropertyTypes_ShouldThrow()
         {
             //---------------Set up test pack-------------------
-            var obj1 = new { foo = "1" };
-            var obj2 = new { bar = 1 };
-            
+            var obj1 = new {foo = "1"};
+            var obj2 = new {bar = 1};
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<AssertionException>(() => PropertyAssert.AreNotEqual(obj1, obj2, "foo", "bar"));
+            Expect(() => PropertyAssert.AreNotEqual(obj1, obj2, "foo", "bar"))
+                .To.Throw<AssertionException>();
 
             //---------------Test Result -----------------------
         }
@@ -110,27 +123,31 @@ namespace PeanutButter.TestUtils.Generic.Tests
         public void AreEqual_GivenTwoDifferentTypedObjects_AndJustOnePropertyName_ComparesTheSameNamedPropertyOnBoth()
         {
             //---------------Set up test pack-------------------
-            var obj1 = new { foo = "foo" };
-            var obj2 = new { bar = "bar", foo = "foo" };
-            
+            var obj1 = new {foo = "foo"};
+            var obj2 = new {bar = "bar", foo = "foo"};
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => PropertyAssert.AreEqual(obj1, obj2, "foo"));
+            Expect(() => PropertyAssert.AreEqual(obj1, obj2, "foo"))
+                .Not.To.Throw();
 
             //---------------Test Result -----------------------
         }
+
         [Test]
-        public void AreNotEqual_GivenTwoDifferentTypedObjects_AndJustOnePropertyName_ComparesTheSameNamedPropertyOnBoth()
+        public void
+            AreNotEqual_GivenTwoDifferentTypedObjects_AndJustOnePropertyName_ComparesTheSameNamedPropertyOnBoth()
         {
             //---------------Set up test pack-------------------
-            var obj1 = new { foo = "foo" };
-            var obj2 = new { bar = "bar", foo = "foo1" };
-            
+            var obj1 = new {foo = "foo"};
+            var obj2 = new {bar = "bar", foo = "foo1"};
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => PropertyAssert.AreNotEqual(obj1, obj2, "foo"));
+            Expect(() => PropertyAssert.AreNotEqual(obj1, obj2, "foo"))
+                .Not.To.Throw();
 
             //---------------Test Result -----------------------
         }
@@ -139,36 +156,39 @@ namespace PeanutButter.TestUtils.Generic.Tests
         public void AreEqual_WhenPropertyNotFoundByName_ShouldThrow()
         {
             //---------------Set up test pack-------------------
-            var obj1 = new { foo = "foo" };
-            var obj2 = new { bar = "bar", foo = "foo" };
+            var obj1 = new {foo = "foo"};
+            var obj2 = new {bar = "bar", foo = "foo"};
             var badName = "foo1";
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<AssertionException>(() => PropertyAssert.AreEqual(obj1, obj2, badName));
+            Expect(() => PropertyAssert.AreEqual(obj1, obj2, badName))
+                .To.Throw<AssertionException>()
+                .With.Message.Containing("Unable to find property")
+                .Then(badName);
+
 
             //---------------Test Result -----------------------
-            StringAssert.Contains("Unable to find property", ex.Message);
-            StringAssert.Contains(badName, ex.Message);
         }
 
         [Test]
         public void AreNotEqual_WhenPropertyNotFoundByName_ShouldThrow()
         {
             //---------------Set up test pack-------------------
-            var obj1 = new { foo = "foo" };
-            var obj2 = new { bar = "bar", foo = "foo" };
+            var obj1 = new {foo = "foo"};
+            var obj2 = new {bar = "bar", foo = "foo"};
             var badName = "foo1";
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<AssertionException>(() => PropertyAssert.AreNotEqual(obj1, obj2, badName));
+            Expect(() => PropertyAssert.AreNotEqual(obj1, obj2, badName))
+                .To.Throw<AssertionException>()
+                .With.Message.Containing("Unable to find property")
+                .Then(badName);
 
             //---------------Test Result -----------------------
-            StringAssert.Contains("Unable to find property", ex.Message);
-            StringAssert.Contains(badName, ex.Message);
         }
 
         [Test]
@@ -181,7 +201,8 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => PropertyAssert.AreEqual(obj1, obj2, "foo.name"));
+            Expect(() => PropertyAssert.AreEqual(obj1, obj2, "foo.name"))
+                .Not.To.Throw();
 
             //---------------Test Result -----------------------
         }
@@ -196,7 +217,8 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => PropertyAssert.AreNotEqual(obj1, obj2, "foo.name"));
+            Expect(() => PropertyAssert.AreNotEqual(obj1, obj2, "foo.name"))
+                .Not.To.Throw();
 
             //---------------Test Result -----------------------
         }
@@ -210,13 +232,14 @@ namespace PeanutButter.TestUtils.Generic.Tests
             var v2 = GetRandomInt();
             var v3 = GetRandomDate();
 
-            var obj1 = new {v1, v2, v3 };
-            var obj2 = new {v1, v2, v3 };
-            
+            var obj1 = new {v1, v2, v3};
+            var obj2 = new {v1, v2, v3};
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => PropertyAssert.AreDeepEqual(obj1, obj2));
+            Expect(() => PropertyAssert.AreDeepEqual(obj1, obj2))
+                .Not.To.Throw();
 
             //---------------Test Result -----------------------
         }
@@ -229,115 +252,124 @@ namespace PeanutButter.TestUtils.Generic.Tests
             var v2 = GetRandomInt();
             var v3 = GetRandomDate();
 
-            var obj1 = new {v1, v2, v3 };
-            var obj2 = new {v1, v2, v3, v4 = GetRandomBoolean() };
-            
+            var obj1 = new {v1, v2, v3};
+            var obj2 = new {v1, v2, v3, v4 = GetRandomBoolean()};
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<AssertionException>(() => PropertyAssert.AreDeepEqual(obj1, obj2));
+            Expect(() => PropertyAssert.AreDeepEqual(obj1, obj2))
+                .To.Throw<AssertionException>();
 
             //---------------Test Result -----------------------
         }
 
 
         [Test]
-        public void AllPropertiesAreEqual_WhenOneObjectHasExtraProperties_ShouldIncludeUsefulInformationInThrownExceptionMessage()
+        public void
+            AllPropertiesAreEqual_WhenOneObjectHasExtraProperties_ShouldIncludeUsefulInformationInThrownExceptionMessage()
         {
             //---------------Set up test pack-------------------
             var v1 = GetRandomString();
             var v2 = GetRandomInt();
             var v3 = GetRandomDate();
 
-            var obj1 = new {v1, v2, v3 };
-            var obj2 = new {v1, v2, v3, v4 = GetRandomBoolean() };
-            
+            var obj1 = new {v1, v2, v3};
+            var obj2 = new {v1, v2, v3, v4 = GetRandomBoolean()};
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<AssertionException>(() => PropertyAssert.AreDeepEqual(obj1, obj2));
-
-            //---------------Test Result -----------------------
-            Assert.IsFalse(string.IsNullOrWhiteSpace(ex.Message));
-            Console.WriteLine(ex.Message);
-        }
-
-        [Test]
-        public void AllPropertiesAreEqual_WhenOneObjectHasDifferentlyNamedProperty_ShouldIncludeUsefulInformationInThrownExceptionMessage()
-        {
-            //---------------Set up test pack-------------------
-            var v1 = GetRandomString();
-            var v2 = GetRandomInt();
-            var v3 = GetRandomDate();
-
-            var obj1 = new {v1, v2, v3 };
-            var obj2 = new {v1, v2, v4 = v3 };
-            
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var ex = Assert.Throws<AssertionException>(
-                () => PropertyAssert.AreDeepEqual(obj1, obj2)
-            );
-
-            //---------------Test Result -----------------------
-            Assert.IsFalse(string.IsNullOrWhiteSpace(ex.Message));
-            StringAssert.Contains("v3", ex.Message);
-        }
-
-        [Test]
-        public void MatchingPropertiesAreEqual_WhenGivenTwoObjects_ShouldCompareSameNamedPropertiesAndNotThrowIfTheyMatch()
-        {
-            //---------------Set up test pack-------------------
-            var v1 = GetRandomString();
-            var v2 = GetRandomInt();
-            var v3 = GetRandomDate();
-
-            var obj1 = new {v1, v2, v3 };
-            var obj2 = new {v1, v2, v3, v4 = GetRandomBoolean() };
-            
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => PropertyAssert.AreIntersectionEqual(obj1, obj2));
+            Expect(() => PropertyAssert.AreDeepEqual(obj1, obj2))
+                .To.Throw<AssertionException>()
+                .With.Message.Not.To.Be.Empty();
 
             //---------------Test Result -----------------------
         }
 
         [Test]
-        public void MatchingPropertiesAreEqual_WhenGivenTwoObjects_ShouldCompareSameNamedPropertiesAndThrowIfTheyDoNotMatchValue()
+        public void
+            AllPropertiesAreEqual_WhenOneObjectHasDifferentlyNamedProperty_ShouldIncludeUsefulInformationInThrownExceptionMessage()
         {
             //---------------Set up test pack-------------------
             var v1 = GetRandomString();
             var v2 = GetRandomInt();
             var v3 = GetRandomDate();
 
-            var obj1 = new {v1, v2, v3 };
-            var obj2 = new { v1 = v1 + " ", v2, v3, v4 = GetRandomBoolean() };
-            
+            var obj1 = new {v1, v2, v3};
+            var obj2 = new {v1, v2, v4 = v3};
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<AssertionException>(() => PropertyAssert.AreIntersectionEqual(obj1, obj2));
+            Expect(
+                    () => PropertyAssert.AreDeepEqual(obj1, obj2)
+                )
+                .To.Throw<AssertionException>()
+                .With.Message.Containing("v3");
 
             //---------------Test Result -----------------------
         }
 
         [Test]
-        public void MatchingPropertiesAreEqual_WhenGivenTwoObjects_ShouldCompareSameNamedPropertiesAndThrowIfTheyDoNotMatchType()
+        public void
+            MatchingPropertiesAreEqual_WhenGivenTwoObjects_ShouldCompareSameNamedPropertiesAndNotThrowIfTheyMatch()
         {
             //---------------Set up test pack-------------------
             var v1 = GetRandomString();
             var v2 = GetRandomInt();
             var v3 = GetRandomDate();
 
-            var obj1 = new {v1, v2, v3 };
-            var obj2 = new {v1, v2 = decimal.Parse(v2.ToString()), v3, v4 = GetRandomBoolean() };
-            
+            var obj1 = new {v1, v2, v3};
+            var obj2 = new {v1, v2, v3, v4 = GetRandomBoolean()};
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<AssertionException>(() => PropertyAssert.AreIntersectionEqual(obj1, obj2));
+            Expect(() => PropertyAssert.AreIntersectionEqual(obj1, obj2))
+                .Not.To.Throw();
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
+        public void
+            MatchingPropertiesAreEqual_WhenGivenTwoObjects_ShouldCompareSameNamedPropertiesAndThrowIfTheyDoNotMatchValue()
+        {
+            //---------------Set up test pack-------------------
+            var v1 = GetRandomString();
+            var v2 = GetRandomInt();
+            var v3 = GetRandomDate();
+
+            var obj1 = new {v1, v2, v3};
+            var obj2 = new {v1 = v1 + " ", v2, v3, v4 = GetRandomBoolean()};
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Expect(() => PropertyAssert.AreIntersectionEqual(obj1, obj2))
+                .To.Throw<AssertionException>();
+
+            //---------------Test Result -----------------------
+        }
+
+        [Test]
+        public void
+            MatchingPropertiesAreEqual_WhenGivenTwoObjects_ShouldCompareSameNamedPropertiesAndThrowIfTheyDoNotMatchType()
+        {
+            //---------------Set up test pack-------------------
+            var v1 = GetRandomString();
+            var v2 = GetRandomInt();
+            var v3 = GetRandomDate();
+
+            var obj1 = new {v1, v2, v3};
+            var obj2 = new {v1, v2 = decimal.Parse(v2.ToString()), v3, v4 = GetRandomBoolean()};
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Expect(() => PropertyAssert.AreIntersectionEqual(obj1, obj2))
+                .To.Throw<AssertionException>();
 
             //---------------Test Result -----------------------
         }
@@ -346,14 +378,15 @@ namespace PeanutButter.TestUtils.Generic.Tests
         public void AreDeepEqual_ShouldConsiderTwoListsWithSameContentsAsEqual()
         {
             // Arrange
-            var l1 = new List<string>(new[] { "a", "b" });
-            var l2 = new List<string>(new[] { "a", "b" });
+            var l1 = new List<string>(new[] {"a", "b"});
+            var l2 = new List<string>(new[] {"a", "b"});
             // Pre-Assert
             // Act
             Expect(() =>
-            {
-                PropertyAssert.AreDeepEqual(l1, l2);
-            }, Throws.Nothing);
+                {
+                    PropertyAssert.AreDeepEqual(l1, l2);
+                })
+                .Not.To.Throw();
             // Assert
         }
 
@@ -361,11 +394,14 @@ namespace PeanutButter.TestUtils.Generic.Tests
         public void AreDeepEqual_ShouldConsiderTwoCollectionsOfSameValueAndShapeObjectsAsEqual()
         {
             // Arrange
-            var left = new[] { new { foo = "bar" } };
-            var right = new[] { new { foo = "bar" } };
+            var left = new[] {new {foo = "bar"}};
+            var right = new[] {new {foo = "bar"}};
             // Pre-Assert
             // Act
-            PropertyAssert.AreDeepEqual(left, right);
+            Expect(() =>
+                    PropertyAssert.AreDeepEqual(left, right)
+                )
+                .Not.To.Throw();
             // Assert
         }
 
@@ -375,14 +411,17 @@ namespace PeanutButter.TestUtils.Generic.Tests
             public class HasADecimal
             {
                 public decimal Value { get; }
+
                 public HasADecimal(decimal value)
                 {
                     Value = value;
                 }
             }
+
             public class HasANullableDecimal
             {
                 public decimal? Value { get; }
+
                 public HasANullableDecimal(decimal? value)
                 {
                     Value = value;
@@ -397,12 +436,13 @@ namespace PeanutButter.TestUtils.Generic.Tests
                 var left = new HasADecimal(value);
                 var right = new HasANullableDecimal(value);
                 // Pre-Assert
-                Assert.That(left.Value, Is.EqualTo(right.Value));
+                Expect(left.Value).To.Equal(right.Value);
                 // Act
-                Assert.That(() =>
-                {
-                    PropertyAssert.AreEqual(left, right, nameof(HasANullableDecimal.Value));
-                }, Throws.Nothing);
+                Expect(() =>
+                    {
+                        PropertyAssert.AreEqual(left, right, nameof(HasANullableDecimal.Value));
+                    })
+                    .Not.To.Throw();
 
                 // Assert
             }
@@ -412,7 +452,8 @@ namespace PeanutButter.TestUtils.Generic.Tests
         {
             public virtual string Name { get; set; }
         }
-        public class DerivedClass: BaseClass
+
+        public class DerivedClass : BaseClass
         {
             public override string Name => "Some constant";
         }
@@ -427,18 +468,18 @@ namespace PeanutButter.TestUtils.Generic.Tests
         {
             //---------------Set up test pack-------------------
             var d1 = new DerivedClass();
-            var d2 = new BaseClass { Name = "Some constant" };
-            
+            var d2 = new BaseClass {Name = "Some constant"};
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => DoTest(d1, d2));
+            Expect(() => DoTest(d1, d2)).Not.To.Throw();
 
             //---------------Test Result -----------------------
         }
 
         [Test]
-        public void AllPropertiesAreEqua_WhenGivenIgnoreList_ShouldHonorThatList()
+        public void DeepEquals_WhenGivenIgnoreList_ShouldHonorThatList()
         {
             //---------------Set up test pack-------------------
             var d1 = new
@@ -455,7 +496,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => d1.DeepEquals(d2, "ignoreMe"));
+            Expect(d1.DeepEquals(d2, "ignoreMe")).To.Be.True();
 
             //---------------Test Result -----------------------
         }
@@ -473,12 +514,15 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //--------------- Act ----------------------
 
             //--------------- Assert -----------------------
-            PropertyAssert.AreIntersectionEqual(ducked, traveller);
+            Expect(() =>
+                    PropertyAssert.AreIntersectionEqual(ducked, traveller)
+                )
+                .Not.To.Throw();
         }
 
         public class HasEnumerableStuff
         {
-            public IEnumerable<string> Stuff { get; set ; }
+            public IEnumerable<string> Stuff { get; set; }
         }
 
         public class HasCollectionOfStuff
@@ -490,11 +534,11 @@ namespace PeanutButter.TestUtils.Generic.Tests
         public void IntersectionEquals_ShouldBeAbleToCompare_ICollection_And_IEnumerable()
         {
             //--------------- Arrange -------------------
-            var dataSource = new[] { "1", "a", "%" };
+            var dataSource = new[] {"1", "a", "%"};
             var collection = new Collection<string>(dataSource);
             var enumerable = dataSource.AsEnumerable();
-            var left = new HasCollectionOfStuff { Stuff = collection };
-            var right = new HasEnumerableStuff { Stuff = enumerable };
+            var left = new HasCollectionOfStuff {Stuff = collection};
+            var right = new HasEnumerableStuff {Stuff = enumerable};
 
             Assert.IsTrue(left.Stuff.GetType().ImplementsEnumerableGenericType());
             Assert.IsTrue(right.Stuff.GetType().ImplementsEnumerableGenericType());
@@ -510,13 +554,14 @@ namespace PeanutButter.TestUtils.Generic.Tests
         public class IntersectionEqualsTestCandidate1
         {
             public int NoIgnoringMe { get; set; }
-            public string NonMatching { get; set ; }
+            public string NonMatching { get; set; }
             public bool IgnoreMe { get; set; }
         }
+
         public class IntersectionEqualsTestCandidate2
         {
             public int NoIgnoringMe { get; set; }
-            public string AlsoNonMatching { get; set ; }
+            public string AlsoNonMatching { get; set; }
             public bool IgnoreMe { get; set; }
         }
 
@@ -538,8 +583,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
         }
 
 
-
-        public class Traveller: ITraveller
+        public class Traveller : ITraveller
         {
             public Guid Id { get; set; }
             public string Name { get; set; }
@@ -549,12 +593,14 @@ namespace PeanutButter.TestUtils.Generic.Tests
             public string MealPreferences { get; set; }
             public string TravelPreferences { get; set; }
         }
+
         public interface IActor
         {
             Guid Id { get; set; }
             string Name { get; set; }
             string Email { get; set; }
         }
+
         public interface ITravellerDetails
         {
             string IdNumber { get; set; }
@@ -562,9 +608,9 @@ namespace PeanutButter.TestUtils.Generic.Tests
             string MealPreferences { get; set; } // Halaal? Vegan?
             string TravelPreferences { get; set; } // seats near emergency exits for more leg-room?
         }
+
         public interface ITraveller : IActor, ITravellerDetails
         {
         }
     }
-
 }

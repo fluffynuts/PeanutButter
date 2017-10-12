@@ -1,11 +1,11 @@
 using NUnit.Framework;
+using NExpect;
+using static NExpect.Expectations;
 
 namespace PeanutButter.TestUtils.Entity.Tests
 {
     [TestFixture]
     public class TestSharedTempDbFeaterRequiresAssemblyAttributeException
-        : AssertionHelper
-
     {
         [Test]
         public void Construct_ShouldSetHelpfulMessage()
@@ -20,10 +20,11 @@ namespace PeanutButter.TestUtils.Entity.Tests
             );
 
             //--------------- Assert -----------------------
-            Expect(sut.Message, Does.Contain("class attribute"));
-            Expect(sut.Message, Does.Contain("requires that"));
-            Expect(sut.Message, Does.Contain("AllowSharedTempDbInstances"));
-            Expect(sut.Message, Does.Contain("[assembly: PeanutButter.TestUtils.Entity.Attributes.AllowSharedTempDbInstances]"));
+            Expect(sut.Message)
+                .To.Contain("class attribute")
+                .Then("requires that")
+                .Then("AllowSharedTempDbInstances")
+                .Then("[assembly: PeanutButter.TestUtils.Entity.Attributes.AllowSharedTempDbInstances]");
         }
 
     }

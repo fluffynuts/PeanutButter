@@ -1,11 +1,12 @@
 ﻿using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using NExpect;
+using static NExpect.Expectations;
 
 namespace PeanutButter.TestUtils.Entity.Tests
 {
     [TestFixture]
     public class TestSharedDatabaseAlreadyRegisteredException
-        : AssertionHelper
     {
         [Test]
         public void Construct_ShouldSetMessage()
@@ -19,7 +20,9 @@ namespace PeanutButter.TestUtils.Entity.Tests
             var sut = new SharedDatabaseAlreadyRegisteredException(name);
 
             //--------------- Assert -----------------------
-            Expect(sut.Message, Does.Contain(name + " is already registered"));
+            Expect(sut.Message)
+                .To.Contain(name)
+                .Then(" is already registered");
         }
     }
 }

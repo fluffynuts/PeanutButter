@@ -4,6 +4,8 @@ using PeanutButter.FluentMigrator.Tests.Shared;
 using PeanutButter.TestUtils.Entity;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using NExpect;
+using static NExpect.Expectations;
 
 namespace PeanutButter.FluentMigrator.Tests
 {
@@ -35,9 +37,11 @@ namespace PeanutButter.FluentMigrator.Tests
             using (var ctx = GetContext())
             {
                 var allCows = ctx.Cows.ToArray();
-                Expect(allCows, Has.Length.EqualTo(1));
+                Expect(allCows).To.Contain.Exactly(1).Item();
                 var stored = allCows[0];
-                Expect(stored.DeepEquals(cow, ObjectComparisons.PropertiesOnly, "Id"), Is.True);
+                Expect(
+                    stored.DeepEquals(cow, ObjectComparisons.PropertiesOnly, "Id")
+                ).To.Be.True();
             }
         }
     }

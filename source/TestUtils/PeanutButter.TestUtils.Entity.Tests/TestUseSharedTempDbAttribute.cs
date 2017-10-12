@@ -1,11 +1,13 @@
-﻿using NUnit.Framework;
+﻿using NExpect;
+using NUnit.Framework;
 using PeanutButter.TestUtils.Entity.Attributes;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using static NExpect.Expectations;
 
 namespace PeanutButter.TestUtils.Entity.Tests
 {
     [TestFixture]
-    public class TestUseSharedTempDbAttribute: AssertionHelper
+    public class TestUseSharedTempDbAttribute
     {
         [Test]
         public void Construct_ShouldCopyNameAttribute()
@@ -20,7 +22,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
             var result = sut.Name;
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(expected));
+            Expect(result).To.Equal(expected);
         }
     }
 }

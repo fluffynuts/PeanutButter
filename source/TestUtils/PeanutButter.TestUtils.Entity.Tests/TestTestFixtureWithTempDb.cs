@@ -2,6 +2,8 @@ using System.Linq;
 using NUnit.Framework;
 using PeanutButter.Utils.Entity;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using NExpect;
+using static NExpect.Expectations;
 
 namespace PeanutButter.TestUtils.Entity.Tests
 {
@@ -28,7 +30,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
             //--------------- Act ----------------------
             using (var ctx = GetContext())
             {
-                Expect(ctx.Notes.ToArray(), Is.Empty);
+                Expect(ctx.Notes.ToArray()).To.Be.Empty();
                 var note = ctx.Notes.Create();
                 note.NoteText = expected;
                 ctx.Notes.Add(note);
@@ -39,7 +41,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
             using (var ctx = GetContext())
             {
                 var existing = ctx.Notes.FirstOrDefault(n => n.NoteText == expected);
-                Expect(existing, Is.Not.Null);
+                Expect(existing).Not.To.Be.Null();
             }
         }
 
@@ -54,7 +56,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
             //--------------- Act ----------------------
             using (var ctx = GetContext())
             {
-                Expect(ctx.Notes.ToArray(), Is.Empty);
+                Expect(ctx.Notes.ToArray()).To.Be.Empty();
             }
 
             //--------------- Assert -----------------------

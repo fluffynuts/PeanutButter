@@ -15,7 +15,7 @@ using PeanutButter.TestUtils.Entity.Attributes;
 
 namespace PeanutButter.TestUtils.Entity
 {
-    public class TestFixtureWithTempDb<TDbContext> : AssertionHelper
+    public class TestFixtureWithTempDb<TDbContext>
         where TDbContext : DbContext
     {
         private Func<string, IDBMigrationsRunner> _createMigrationsRunner;

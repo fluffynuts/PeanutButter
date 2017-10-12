@@ -4,6 +4,10 @@ using PeanutButter.Utils.Entity;
 using System.Linq;
 using PeanutButter.TestUtils.Entity.Attributes;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using NExpect;
+using static NExpect.Expectations;
+// ReSharper disable InconsistentNaming
+// ReSharper disable PossibleNullReferenceException
 
 namespace PeanutButter.TestUtils.Entity.Tests
 {
@@ -39,8 +43,8 @@ namespace PeanutButter.TestUtils.Entity.Tests
         private static void TestCreatedNoteOn(NotesDbContext ctx)
         {
             var note = ctx.Notes.FirstOrDefault(n => n.Id == _createdNoteId);
-            Expect(note, Is.Not.Null);
-            Expect(note.NoteText, Is.EqualTo(_createdNoteText));
+            Expect(note).Not.To.Be.Null();
+            Expect(note.NoteText).To.Equal(_createdNoteText);
         }
 
         [Test]
@@ -64,7 +68,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
                 }
                 else
                 {
-                    Expect(_connectionString, Is.EqualTo(currentConnectionString));
+                    Expect(_connectionString).To.Equal(currentConnectionString);
                     TestCreatedNoteOn(ctx);
                 }
             }
