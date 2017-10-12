@@ -1,6 +1,8 @@
 using System;
+using NExpect;
 using NUnit.Framework;
 using PeanutButter.TestUtils.Generic;
+using static NExpect.Expectations;
 
 namespace PeanutButter.RandomGenerators.Tests
 {
@@ -35,10 +37,11 @@ namespace PeanutButter.RandomGenerators.Tests
 
             //---------------Test Result -----------------------
             var typeName = type.PrettyName();
-            Assert.AreEqual($"Unable to create dynamic builder for type {typeName}. If {typeName} is internal, you should make InternalsVisibleTo \"PeanutButter.RandomGenerators.GeneratedBuilders\"",
-                sut.Message);
-            Assert.AreEqual(type, sut.Type);
-            Assert.AreEqual(innerException, sut.InnerException);
+            Expect(sut.Message)
+                .To.Start.With($"Unable to create dynamic builder for type {typeName}. If {typeName} is internal, you should make InternalsVisibleTo \"PeanutButter.RandomGenerators.GeneratedBuilders\"");
+            Expect(sut.Type).To.Equal(type);
+            Expect(sut.InnerException).To.Equal(innerException);
+
         }
     }
 }
