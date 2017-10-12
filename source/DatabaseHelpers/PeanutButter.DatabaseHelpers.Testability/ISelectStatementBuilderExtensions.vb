@@ -1,9 +1,10 @@
 ﻿Imports System.Runtime.CompilerServices
 Imports NSubstitute
+Imports PeanutButter.DatabaseHelpers.StatementBuilders
 
 ' ReSharper disable once InconsistentNaming
 ' ReSharper disable UnusedMember.Global
-Module ISelectStatementBuilderExtensions
+Module SelectStatementBuilderExtensions
     <Extension()>
     Public Function HasAllConditions(ByVal builder As ISelectStatementBuilder, ParamArray expectedConditions As ICondition())
         If TryCast(builder, SelectStatementBuilder) IsNot Nothing Then Throw New Exception("HasAllConditions extension method is not meant for concrete implementation of SelectStatementBuilder")

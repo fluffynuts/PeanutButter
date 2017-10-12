@@ -1,5 +1,6 @@
 ﻿using FluentMigrator;
 using _Columns = EmailSpooler.Win32Service.DB.DataConstants.Tables.EmailAttachments.Columns;
+// ReSharper disable InconsistentNaming
 
 namespace EmailSpooler.Win32Service.DB.FluentMigrator
 {

@@ -1,6 +1,8 @@
-Public Enum JoinDirections
+Namespace StatementBuilders
+  Public Enum JoinDirections
     Inner
     Outer
     Left
     Right
-End Enum
+  End Enum
+End NameSpace

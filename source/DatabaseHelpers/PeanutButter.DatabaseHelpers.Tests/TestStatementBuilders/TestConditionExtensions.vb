@@ -1,4 +1,5 @@
 Imports NUnit.Framework
+Imports PeanutButter.DatabaseHelpers.StatementBuilders
 Imports PeanutButter.RandomGenerators
 
 Namespace TestStatementBuilders
@@ -77,13 +78,12 @@ Namespace TestStatementBuilders
         Public Sub And_ShouldSupportExtendedSelectFieldConstructorParameters()
             Dim intVal = RandomValueGen.GetRandomInt(),
                 decimalVal = RandomValueGen.GetRandomDecimal(),
-                nullableDecimalVal As Nullable(Of Decimal) = RandomValueGen.GetRandomDecimal(),
+                nullableDecimalVal As Decimal? = RandomValueGen.GetRandomDecimal(),
                 doubleVal = RandomValueGen.GetRandomDouble(),
                 dateVal = RandomValueGen.GetRandomDate()
             Dim field1 = RandomValueGen.GetRandomString(2),
                 value1 = RandomValueGen.GetRandomString(2),
-                field2 = RandomValueGen.GetRandomString(2),
-                value2 = RandomValueGen.GetRandomString(2)
+                field2 = RandomValueGen.GetRandomString(2)
 
             Dim f2 = new SelectField(field2)
             Dim left = New Condition(field1, Condition.EqualityOperators.Equals, value1)
@@ -118,13 +118,12 @@ Namespace TestStatementBuilders
         Public Sub Or_ShouldSupportExtendedSelectFieldConstructorParameters()
             Dim intVal = RandomValueGen.GetRandomInt(),
                 decimalVal = RandomValueGen.GetRandomDecimal(),
-                nullableDecimalVal As Nullable(Of Decimal) = RandomValueGen.GetRandomDecimal(),
+                nullableDecimalVal As Decimal? = RandomValueGen.GetRandomDecimal(),
                 doubleVal = RandomValueGen.GetRandomDouble(),
                 dateVal = RandomValueGen.GetRandomDate()
             Dim field1 = RandomValueGen.GetRandomString(2),
                 value1 = RandomValueGen.GetRandomString(2),
-                field2 = RandomValueGen.GetRandomString(2),
-                value2 = RandomValueGen.GetRandomString(2)
+                field2 = RandomValueGen.GetRandomString(2)
 
             Dim f2 = new SelectField(field2)
             Dim left = New Condition(field1, Condition.EqualityOperators.Equals, value1)

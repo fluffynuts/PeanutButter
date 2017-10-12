@@ -1,31 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.ObjectModel;
 using System.Data.Entity;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections.ObjectModel;
 using NSubstitute;
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedMethodReturnValue.Global
 
-namespace EACH.Tests.Builders
+namespace EmailSpooler.Win32Service.Tests
 {
-    public class IDbSetSubstituteBuilder<T> where T: class
+    public class DbSetSubstituteBuilder<T> where T: class
     {
         private ObservableCollection<T> _collection;
-        public static IDbSetSubstituteBuilder<T> Create()
+        public static DbSetSubstituteBuilder<T> Create()
         {
-            return new IDbSetSubstituteBuilder<T>();
+            return new DbSetSubstituteBuilder<T>();
         }
         public static IDbSet<T> BuildDefault()
         {
             return Create().Build();
         }
-        public IDbSetSubstituteBuilder()
+        public DbSetSubstituteBuilder()
         {
             WithDataStore(new ObservableCollection<T>());
         }
 
-        public IDbSetSubstituteBuilder<T> WithDataStore(ObservableCollection<T> collection)
+        public DbSetSubstituteBuilder<T> WithDataStore(ObservableCollection<T> collection)
         {
             _collection = collection;
             return this;
@@ -44,21 +42,6 @@ namespace EACH.Tests.Builders
                     }
                 }
                 return _asQueryable;
-            }
-        }
-        private IEnumerator<T> _enumerator;
-        private IEnumerator<T> Enumerator
-        {
-            get
-            {
-                if (_enumerator == null)
-                {
-                    lock (this)
-                    {
-                        _enumerator = _collection.GetEnumerator();
-                    }
-                }
-                return _enumerator;
             }
         }
 

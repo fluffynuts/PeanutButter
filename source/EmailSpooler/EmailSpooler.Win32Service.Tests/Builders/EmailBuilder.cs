@@ -1,6 +1,8 @@
 ﻿using System;
 using EmailSpooler.Win32Service.Entity;
 using PeanutButter.RandomGenerators;
+// ReSharper disable InconsistentNaming
+// ReSharper disable ClassNeverInstantiated.Global
 
 namespace EmailSpooler.Win32Service.Tests.Builders
 {

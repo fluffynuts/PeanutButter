@@ -1,4 +1,5 @@
 Imports NUnit.Framework
+Imports PeanutButter.DatabaseHelpers.StatementBuilders
 Imports PeanutButter.RandomGenerators
 
 Namespace TestStatementBuilders
@@ -11,10 +12,10 @@ Namespace TestStatementBuilders
         <TestCase(ComputedField.ComputeFunctions.Count, "Count")>
         Public Sub ToString_ShouldHaveCorrectFunction(fn As ComputedField.ComputeFunctions, str As String)
             Dim fieldName = RandomValueGen.GetRandomString(2)
-            Dim _alias = RandomValueGen.GetRandomString(2)
-            Dim sut = new ComputedField(fieldName, fn, _alias)
+            Dim theAlias = RandomValueGen.GetRandomString(2)
+            Dim sut = new ComputedField(fieldName, fn, theAlias)
             Dim result = sut.ToString()
-            Assert.AreEqual(str + "([" + fieldName + "]) as [" + _alias + "]", result)
+            Assert.AreEqual(str + "([" + fieldName + "]) as [" + theAlias + "]", result)
         End Sub
     End Class
 End NameSpace

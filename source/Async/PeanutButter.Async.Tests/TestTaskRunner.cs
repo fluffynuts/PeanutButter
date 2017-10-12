@@ -7,6 +7,8 @@ using NUnit.Framework;
 using PeanutButter.Async.Interfaces;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
+// ReSharper disable PossibleNullReferenceException
+// ReSharper disable RedundantArgumentDefaultValue
 
 namespace PeanutButter.Async.Tests
 {
@@ -222,33 +224,6 @@ namespace PeanutButter.Async.Tests
             Assert.AreEqual(expected, result);
         }
 
-        //[Test]
-        //public void Continue_With_ShouldContinueOriginalTaskWithNewFunc()
-        //{
-        //    //---------------Set up test pack-------------------
-        //    var sut = Create();
-        //    var firstNumber = RandomValueGen.GetRandomInt(1, 10);
-        //    var secondNumber = RandomValueGen.GetRandomInt(11, 20);
-
-        //    //---------------Assert Precondition----------------
-        //    var task1 = sut.Run(() =>
-        //    {
-        //        Thread.Sleep(250);
-        //        return firstNumber;
-        //    });
-        //    //---------------Execute Test ----------------------
-
-        //    var secondTask = sut.Continue(task1).With(priorTask =>
-        //    {
-        //        Thread.Sleep(250);
-        //        return priorTask.Result + secondNumber;
-        //    });
-
-        //    //---------------Test Result -----------------------
-        //    Assert.AreEqual(firstNumber + secondNumber, secondTask.Result);
-        //}
-
-        [Test]
         public void Continue_With_ShouldContinueOriginalTaskActionWithNewAction()
         {
             //---------------Set up test pack-------------------

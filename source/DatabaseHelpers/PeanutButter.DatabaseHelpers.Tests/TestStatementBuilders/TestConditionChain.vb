@@ -1,4 +1,5 @@
 ﻿Imports NUnit.Framework
+Imports PeanutButter.DatabaseHelpers.StatementBuilders
 
 Namespace TestStatementBuilders
 

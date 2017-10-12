@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using PeanutButter.Async;
 using PeanutButter.RandomGenerators;
+// ReSharper disable RedundantArgumentDefaultValue
 
 namespace PeanutButter.TestUtils.Async.Tests
 {

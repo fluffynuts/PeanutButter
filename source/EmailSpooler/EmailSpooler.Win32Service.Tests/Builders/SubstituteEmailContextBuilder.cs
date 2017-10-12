@@ -1,10 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using EACH.Tests.Builders;
 using EmailSpooler.Win32Service.Entity;
 using NSubstitute;
 using PeanutButter.RandomGenerators;
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedMethodReturnValue.Local
+// ReSharper disable UnusedMember.Global
+// ReSharper disable UnusedMethodReturnValue.Global
 
 namespace EmailSpooler.Win32Service.Tests.Builders
 {
@@ -12,28 +15,28 @@ namespace EmailSpooler.Win32Service.Tests.Builders
     {
         public SubstituteEmailContextBuilder()
         {
-            WithEmails(IDbSetSubstituteBuilder<Email>.BuildDefault())
-                .WithEmailAttachments(IDbSetSubstituteBuilder<EmailAttachment>.BuildDefault())
-                .WithEmailRecipients(IDbSetSubstituteBuilder<EmailRecipient>.BuildDefault());
+            WithEmails(DbSetSubstituteBuilder<Email>.BuildDefault())
+                .WithEmailAttachments(DbSetSubstituteBuilder<EmailAttachment>.BuildDefault())
+                .WithEmailRecipients(DbSetSubstituteBuilder<EmailRecipient>.BuildDefault());
         }
         public IEmailContext Build()
         {
             var ctx = Substitute.For<IEmailContext>();
-            ctx.EmailAttachments = _EmailAttachments;
-            ctx.Emails = _Emails;
-            ctx.EmailRecipients = _EmailRecipients;
+            ctx.EmailAttachments = _emailAttachments;
+            ctx.Emails = _emails;
+            ctx.EmailRecipients = _emailRecipients;
             return ctx;
         }
 
-        private IDbSet<Email> _Emails;
-        public SubstituteEmailContextBuilder WithEmails(IDbSet<Email> Emails)
+        private IDbSet<Email> _emails;
+        public SubstituteEmailContextBuilder WithEmails(IDbSet<Email> emails)
         {
-            _Emails = Emails;
+            _emails = emails;
             return this;
         }
         public SubstituteEmailContextBuilder WithEmails(params Email[] emails)
         {
-            return AddIfNotThere(emails, _Emails);
+            return AddIfNotThere(emails, _emails);
         }
 
         private SubstituteEmailContextBuilder AddIfNotThere<T>(T dto, IDbSet<T> collection) where T: class
@@ -56,26 +59,26 @@ namespace EmailSpooler.Win32Service.Tests.Builders
             return this;
         }
 
-        private IDbSet<EmailAttachment> _EmailAttachments;
-        public SubstituteEmailContextBuilder WithEmailAttachments(IDbSet<EmailAttachment> EmailAttachments)
+        private IDbSet<EmailAttachment> _emailAttachments;
+        public SubstituteEmailContextBuilder WithEmailAttachments(IDbSet<EmailAttachment> emailAttachments)
         {
-            _EmailAttachments = EmailAttachments;
+            _emailAttachments = emailAttachments;
             return this;
         }
         public SubstituteEmailContextBuilder WithEmailAttachments(params EmailAttachment[] attachments)
         {
-            return AddIfNotThere(attachments, _EmailAttachments);
+            return AddIfNotThere(attachments, _emailAttachments);
         }
 
-        private IDbSet<EmailRecipient> _EmailRecipients;
-        public SubstituteEmailContextBuilder WithEmailRecipients(IDbSet<EmailRecipient> EmailRecipients)
+        private IDbSet<EmailRecipient> _emailRecipients;
+        public SubstituteEmailContextBuilder WithEmailRecipients(IDbSet<EmailRecipient> emailRecipients)
         {
-            _EmailRecipients = EmailRecipients;
+            _emailRecipients = emailRecipients;
             return this;
         }
-        public SubstituteEmailContextBuilder WithEmailRecipients(params EmailRecipient[] EmailRecipients)
+        public SubstituteEmailContextBuilder WithEmailRecipients(params EmailRecipient[] emailRecipients)
         {
-            return AddIfNotThere(EmailRecipients, _EmailRecipients);
+            return AddIfNotThere(emailRecipients, _emailRecipients);
         }
 
     }

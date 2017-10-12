@@ -1,5 +1,7 @@
 ﻿Imports System.Data.Common
 Imports NSubstitute
+Imports PeanutButter.DatabaseHelpers.Executors
+Imports PeanutButter.DatabaseHelpers.StatementBuilders
 
 ' ReSharper disable UnusedMember.Global
 ' ReSharper disable MemberCanBePrivate.Global

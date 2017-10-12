@@ -1,4 +1,6 @@
-﻿namespace EmailSpooler.Win32Service.DB
+﻿// ReSharper disable MemberHidesStaticFromOuterClass
+// ReSharper disable ClassNeverInstantiated.Global
+namespace EmailSpooler.Win32Service.DB
 {
     public class DataConstants
     {

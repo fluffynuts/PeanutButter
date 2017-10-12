@@ -1,224 +1,212 @@
 ﻿Imports PeanutButter.Utils
 
-Public Class Condition
+Namespace StatementBuilders
+
+' ReSharper disable MemberCanBePrivate.Global
+  Public Class Condition
     Inherits StatementBuilderBase
     Implements ICondition
 
     Public Enum EqualityOperators
-        Equals
-        NotEquals
-        GreaterThan
-        GreaterThanOrEqualTo
-        LessThan
-        LessThanOrEqualTo
-        [Like]
-        Contains
-        StartsWith
-        EndsWith
+      Equals
+      NotEquals
+      GreaterThan
+      GreaterThanOrEqualTo
+      LessThan
+      LessThanOrEqualTo
+      [Like]
+      Contains
+      StartsWith
+      EndsWith
     End Enum
     Public Shared ReadOnly Property OperatorResolutions As IDictionary(Of EqualityOperators, String)
-        Get
-            Return _operatorResolutions
-        End Get
+      Get
+        Return _operatorResolutions
+      End Get
     End Property
-    Protected Shared _operatorResolutions As ReadOnlyDictionary(Of EqualityOperators, String) = New ReadOnlyDictionary(Of EqualityOperators, String)
+    Protected Shared ReadOnly _operatorResolutions As ReadOnlyDictionary(Of EqualityOperators, String) = New ReadOnlyDictionary(Of EqualityOperators, String)
     Shared Sub New()
-        Dim operators As New Dictionary(Of EqualityOperators, String)
-        operators(EqualityOperators.Equals) = "="
-        operators(EqualityOperators.NotEquals) = "<>"
-        operators(EqualityOperators.GreaterThan) = ">"
-        operators(EqualityOperators.GreaterThanOrEqualTo) = ">="
-        operators(EqualityOperators.LessThan) = "<"
-        operators(EqualityOperators.LessThanOrEqualTo) = "<="
-        operators(EqualityOperators.Contains) = " like "
-        operators(EqualityOperators.StartsWith) = " like "
-        operators(EqualityOperators.EndsWith) = " like "
-        operators(EqualityOperators.Like) = " like "
-        _operatorResolutions = New ReadOnlyDictionary(Of EqualityOperators, String)(operators)
+      Dim operators As New Dictionary(Of EqualityOperators, String)
+      operators(EqualityOperators.Equals) = "="
+      operators(EqualityOperators.NotEquals) = "<>"
+      operators(EqualityOperators.GreaterThan) = ">"
+      operators(EqualityOperators.GreaterThanOrEqualTo) = ">="
+      operators(EqualityOperators.LessThan) = "<"
+      operators(EqualityOperators.LessThanOrEqualTo) = "<="
+      operators(EqualityOperators.Contains) = " like "
+      operators(EqualityOperators.StartsWith) = " like "
+      operators(EqualityOperators.EndsWith) = " like "
+      operators(EqualityOperators.Like) = " like "
+      _operatorResolutions = New ReadOnlyDictionary(Of EqualityOperators, String)(operators)
     End Sub
 
-    Private __fieldName as String
     Public Property FieldName As String
-        Get
-            return __fieldName
-        End Get
-        Protected Set(value As String)
-            __fieldName = value
-        End Set
-    End Property
     Public ReadOnly EqualityOperator As EqualityOperators
-    Private __value as String
     Public Property Value As String
-        Get
-            return __value
-        End Get
-        Set(_value As String)
-            __value = _value
-        End Set
-    End Property
     Public ReadOnly QuoteValue As Boolean
     Public ReadOnly LeftConditionIsField As Boolean
     Public ReadOnly RightConditionIsField As Boolean
-    Private _leftField As IField
-    Private _rightField As IField
-    Private _rawString As String
+    Private ReadOnly _leftField As IField
+    Private ReadOnly _rightField As IField
+    Private ReadOnly _rawString As String
 
-    Public Sub New(_fieldName As String, _conditionOperator As EqualityOperators, _fieldValue As String, Optional quote As Boolean = True, Optional _leftConditionIsField As Boolean = True, Optional _rightConditionIsField As Boolean = False)
-        Me.FieldName = _fieldName
-        Me.EqualityOperator = _conditionOperator
-        If _fieldValue Is Nothing Then
-            Me.Value = "NULL"
-            Me.QuoteValue = False
-        ElseIf _conditionOperator.IsLikeOperator() Then
-            Me.Value = _fieldValue
-            Me.QuoteValue = True
-        Else
-            Me.Value = _fieldValue
-            Me.QuoteValue = CBool(IIf((Not quote) Or _fieldValue = "?", False, True))
-        End If
-        Me.LeftConditionIsField = _leftConditionIsField
-        Me.RightConditionIsField = _rightConditionIsField
+    Public Sub New(fieldName As String, conditionOperator As EqualityOperators, fieldValue As String, Optional quote As Boolean = True, Optional leftConditionIsField As Boolean = True, Optional rightConditionIsField As Boolean = False)
+      Me.FieldName = fieldName
+      EqualityOperator = conditionOperator
+      If fieldValue Is Nothing Then
+        Value = "NULL"
+        QuoteValue = False
+      ElseIf conditionOperator.IsLikeOperator() Then
+        Value = fieldValue
+        QuoteValue = True
+      Else
+        Value = fieldValue
+        QuoteValue = CBool(IIf((Not quote) Or fieldValue = "?", False, True))
+      End If
+      Me.LeftConditionIsField = leftConditionIsField
+      Me.RightConditionIsField = rightConditionIsField
     End Sub
 
-    Public Sub New(_fieldName As String, _fieldValue As String, Optional quote As Boolean = True)
-        Me.New(_fieldName, EqualityOperators.Equals, _fieldValue, quote)
+    Public Sub New(fieldName As String, fieldValue As String, Optional quote As Boolean = True)
+      Me.New(fieldName, EqualityOperators.Equals, fieldValue, quote)
     End Sub
 
-    Public Sub New(_fieldName as String, op as EqualityOperators, _fieldValue as Boolean)
-        Me.New(_fieldName, op, CInt(IIf(_fieldValue, 1, 0)).ToString(), false)
+    Public Sub New(fieldName as String, op as EqualityOperators, fieldValue as Boolean)
+      Me.New(fieldName, op, CInt(IIf(fieldValue, 1, 0)).ToString(), false)
     End Sub
 
-    Public Sub New(field As IField, _fieldValue As String, Optional quote As Boolean = True)
-        Me.New(field, EqualityOperators.Equals, _fieldValue, quote)
+    Public Sub New(field As IField, fieldValue As String, Optional quote As Boolean = True)
+      Me.New(field, EqualityOperators.Equals, fieldValue, quote)
     End Sub
 
     Public Sub New(field As IField, op As EqualityOperators, value As String, Optional quote As Boolean = True)
-        Me._leftField = field
-        Me.FieldName = field.ToString()
-        Me.EqualityOperator = op
-        Me.QuoteValue = quote
-        Me.Value = value
-        Me.LeftConditionIsField = True
-        Me.RightConditionIsField = False
+      _leftField = field
+      FieldName = field.ToString()
+      EqualityOperator = op
+      QuoteValue = quote
+      Me.Value = value
+      LeftConditionIsField = True
+      RightConditionIsField = False
     End Sub
 
     Public Sub New(leftField As IField, op As EqualityOperators, rightField As IField)
-        Me._leftField = leftField
-        Me._rightField = rightField
-        Me.FieldName = leftField.ToString()
-        Me.LeftConditionIsField = True
-        Me.EqualityOperator = op
-        Me.Value = rightField.ToString()
-        Me.QuoteValue = False
-        Me.RightConditionIsField = True
+      _leftField = leftField
+      _rightField = rightField
+      FieldName = leftField.ToString()
+      LeftConditionIsField = True
+      EqualityOperator = op
+      Value = rightField.ToString()
+      QuoteValue = False
+      RightConditionIsField = True
     End Sub
 
     Public Sub New(leftField As IField, rightField As IField)
-        Me.New(leftField, EqualityOperators.Equals, rightField)
+      Me.New(leftField, EqualityOperators.Equals, rightField)
     End Sub
 
     Public Sub New (rawString as String)
-        _rawString = rawString
+      _rawString = rawString
     End Sub
 
     Public Overrides Function ToString() As String Implements ICondition.ToString
-        if _rawString IsNot Nothing
-            return _rawString
-        End If
-        Dim parts = New List(Of String)
+      if _rawString IsNot Nothing
+        return _rawString
+      End If
+      Dim parts = New List(Of String)
 
-        If (FieldName.IndexOf(_openObjectQuote) < 0) And LeftConditionIsField Then
-            parts.Add(Me.FieldQuote(FieldName))
-        Else
-            parts.Add(Me.FieldName)
-        End If
-        If Me.Value = "NULL" And Not Me.QuoteValue Then
-            parts.Add(ResolveIsOperator())
-        Else
-            parts.Add(_operatorResolutions(Me.EqualityOperator))
-        End If
-        If (Me.QuoteValue) Then
-            parts.AddRange(New String() {"'", EqualityOperator.LeftWildcard, Me.Value.Replace("'", "''"), EqualityOperator.RightWildcard, "'"})
-        ElseIf RightConditionIsField Then
-            parts.Add(FieldQuote(Me.Value))
-        Else
-            parts.Add(Me.Value)
-        End If
-        Return String.Join("", parts)
+      If (FieldName.IndexOf(_openObjectQuote, StringComparison.Ordinal) < 0) And LeftConditionIsField Then
+        parts.Add(FieldQuote(FieldName))
+      Else
+        parts.Add(FieldName)
+      End If
+      If Value = "NULL" And Not QuoteValue Then
+        parts.Add(ResolveIsOperator())
+      Else
+        parts.Add(_operatorResolutions(EqualityOperator))
+      End If
+      If (QuoteValue) Then
+        parts.AddRange(New String() {"'", EqualityOperator.LeftWildcard, Value.Replace("'", "''"), EqualityOperator.RightWildcard, "'"})
+      ElseIf RightConditionIsField Then
+        parts.Add(FieldQuote(Value))
+      Else
+        parts.Add(Value)
+      End If
+      Return String.Join("", parts)
     End Function
 
     Private Function ResolveIsOperator() As String
-        Select Case EqualityOperator
-            Case EqualityOperators.Equals
-                Return " is "
-            Case EqualityOperators.NotEquals
-                Return " is NOT "
-            Case Else
-                Throw new Exception("Invalid equality operator " & EqualityOperator & " for NULL value")
-        End Select
+      Select Case EqualityOperator
+        Case EqualityOperators.Equals
+          Return " is "
+        Case EqualityOperators.NotEquals
+          Return " is NOT "
+        Case Else
+          Throw new Exception("Invalid equality operator " & EqualityOperator & " for NULL value")
+      End Select
     End Function
 
     Private Function FieldQuote(val As String) As String
-        If val.IndexOf(_openObjectQuote) > -1 Then
-            Return val
-        End If
-        Return String.Join("", New String() {_openObjectQuote, val, _closeObjectQuote})
+      If val.IndexOf(_openObjectQuote, StringComparison.Ordinal) > -1 Then
+        Return val
+      End If
+      Return String.Join("", New String() {_openObjectQuote, val, _closeObjectQuote})
     End Function
 
-    Public Sub New(_fieldName As String, _conditionOperator As EqualityOperators, _fieldValue As Int64)
-        Me.New(_fieldName, _conditionOperator, _fieldValue.ToString(), False, True, False)
+    Public Sub New(fieldName As String, conditionOperator As EqualityOperators, fieldValue As Int64)
+      Me.New(fieldName, conditionOperator, fieldValue.ToString(), False, True, False)
     End Sub
 
-    Public Sub New(field as IField, _conditionOperator As EqualityOperators, _fieldValue As Int64)
-        Me.New(field, _conditionOperator, _fieldValue.ToString(), False)
+    Public Sub New(field as IField, conditionOperator As EqualityOperators, fieldValue As Int64)
+      Me.New(field, conditionOperator, fieldValue.ToString(), False)
     End Sub
 
-    Public Sub New(_fieldName As String, _conditionOperator As EqualityOperators, _fieldValue As Decimal)
-        Me.New(_fieldName, _conditionOperator, new DecimalDecorator(_fieldValue).ToString(), False, True, False)
+    Public Sub New(fieldName As String, conditionOperator As EqualityOperators, fieldValue As Decimal)
+      Me.New(fieldName, conditionOperator, new DecimalDecorator(fieldValue).ToString(), False, True, False)
     End Sub
 
-    Public Sub New(field as IField, _conditionOperator As EqualityOperators, _fieldValue As Decimal)
-        Me.New(field, _conditionOperator, new DecimalDecorator(_fieldValue).ToString(), False)
+    Public Sub New(field as IField, conditionOperator As EqualityOperators, fieldValue As Decimal)
+      Me.New(field, conditionOperator, new DecimalDecorator(fieldValue).ToString(), False)
     End Sub
 
-    Public Sub New (_fieldName as String, _conditionOperator as EqualityOperators, _fieldValue as Nullable(of Decimal))
-        Me.New(_fieldName, _conditionOperator, CStr(IIf(_fieldValue.HasValue, new DecimalDecorator(_fieldValue.Value).ToString(), "NULL")), false)
+    Public Sub New (fieldName as String, conditionOperator as EqualityOperators, fieldValue as Nullable(of Decimal))
+      Me.New(fieldName, conditionOperator, CStr(IIf(fieldValue.HasValue, new DecimalDecorator(fieldValue.Value).ToString(), "NULL")), false)
     End Sub
 
-    Public Sub New (field as IField, _conditionOperator as EqualityOperators, _fieldValue as Nullable(of Decimal))
-        Me.New(field, _conditionOperator, CStr(IIf(_fieldValue.HasValue, new DecimalDecorator(_fieldValue.Value).ToString(), "NULL")), false)
+    Public Sub New (field as IField, conditionOperator as EqualityOperators, fieldValue as Nullable(of Decimal))
+      Me.New(field, conditionOperator, CStr(IIf(fieldValue.HasValue, new DecimalDecorator(fieldValue.Value).ToString(), "NULL")), false)
     End Sub
 
-    Public Sub New(_fieldName As String, _conditionOperator As EqualityOperators, _fieldValue As Double)
-        Me.New(_fieldName, _conditionOperator, _fieldValue.ToString(), False, True, False)
+    Public Sub New(fieldName As String, conditionOperator As EqualityOperators, fieldValue As Double)
+      Me.New(fieldName, conditionOperator, fieldValue.ToString(), False, True, False)
     End Sub
 
-    Public Sub New(field as IField, _conditionOperator As EqualityOperators, _fieldValue As Double)
-        Me.New(field, _conditionOperator, _fieldValue.ToString(), False)
+    Public Sub New(field as IField, conditionOperator As EqualityOperators, fieldValue As Double)
+      Me.New(field, conditionOperator, fieldValue.ToString(), False)
     End Sub
 
-    Public Sub New(_fieldName As String, _conditionOperator As EqualityOperators, _fieldValue As DateTime)
-        Me.New(_fieldName, _conditionOperator, _fieldValue.ToString("yyyy/MM/dd HH:mm:ss"), True, True, False)
+    Public Sub New(fieldName As String, conditionOperator As EqualityOperators, fieldValue As DateTime)
+      Me.New(fieldName, conditionOperator, fieldValue.ToString("yyyy/MM/dd HH:mm:ss"), True, True, False)
     End Sub
 
-    Public Sub New(field as IField, _conditionOperator As EqualityOperators, _fieldValue As DateTime)
-        Me.New(field, _conditionOperator, _fieldValue.ToString("yyyy/MM/dd HH:mm:ss"), True)
+    Public Sub New(field as IField, conditionOperator As EqualityOperators, fieldValue As DateTime)
+      Me.New(field, conditionOperator, fieldValue.ToString("yyyy/MM/dd HH:mm:ss"), True)
     End Sub
 
     Public Sub UseDatabaseProvider(provider As DatabaseProviders) Implements ICondition.UseDatabaseProvider
-        SetDatabaseProvider(provider)
-        ReevaluateSelectFields()
+      SetDatabaseProvider(provider)
+      ReevaluateSelectFields()
     End Sub
 
     Private Sub ReevaluateSelectFields()
-        if Not _leftField Is Nothing Then
-            _leftField.UseDatabaseProvider(_databaseProvider)
-            Me.FieldName = _leftField.ToString()
-        End If
-        if Not _rightField Is Nothing Then
-            _rightField.UseDatabaseProvider(_databaseProvider)
-            Me.Value = _rightField.ToString()
-        End If
+      if Not _leftField Is Nothing Then
+        _leftField.UseDatabaseProvider(_databaseProvider)
+        FieldName = _leftField.ToString()
+      End If
+      if Not _rightField Is Nothing Then
+        _rightField.UseDatabaseProvider(_databaseProvider)
+        Value = _rightField.ToString()
+      End If
     End Sub
 
-End Class
+  End Class
+End NameSpace

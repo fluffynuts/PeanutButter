@@ -1,4 +1,5 @@
 ﻿Imports NUnit.Framework
+Imports PeanutButter.DatabaseHelpers.StatementBuilders
 Imports PeanutButter.RandomGenerators
 
 Namespace TestStatementBuilders
@@ -552,7 +553,7 @@ Namespace TestStatementBuilders
         Public Sub Build_WhenUsingSelectFieldConstructsOnFirebirdDatabaseProvider_ShouldProduceSqlWithoutBrackets()
             ' this test is based on a real-world failure
 ' ReSharper disable once InconsistentNaming
-            Dim GetFilterConditions as Func(Of IEnumerable(Of ICondition)) = Function()
+            Dim getFilterConditions as Func(Of IEnumerable(Of ICondition)) = Function()
                 return { new Condition("IS_PROCESSED", Condition.EqualityOperators.Equals, 0) }
                     End Function
             Dim table1  = "ZONE"
@@ -563,7 +564,7 @@ Namespace TestStatementBuilders
                     .WithField(new SelectField(table1, "CTRL_SLA")) _
                     .WithInnerJoin(table1, "CTRL_SLA", "TRANSACK", _
                                    "CTRL_SLA") _
-                    .WithAllConditions(GetFilterConditions().ToArray()).Build()
+                    .WithAllConditions(getFilterConditions().ToArray()).Build()
             Assert.AreEqual("select distinct ""ZONE"".""CTRL_SLA"" from ""ZONE"" inner join ""TRANSACK"" on ""ZONE"".""CTRL_SLA""=""TRANSACK"".""CTRL_SLA"" where ""IS_PROCESSED""=0",sql)
         End Sub
 

@@ -1,4 +1,7 @@
 using PeanutButter.Utils.Entity;
+// ReSharper disable InconsistentNaming
+// ReSharper disable ClassNeverInstantiated.Global
+// ReSharper disable UnusedMember.Global
 
 namespace EmailSpooler.Win32Service.Entity
 {

@@ -4,6 +4,7 @@ using FluentMigrator;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
+// ReSharper disable InconsistentNaming
 
 namespace EmailSpooler.Win32Service.DB.Tests.FluentMigrator
 {
@@ -55,17 +56,17 @@ end".Replace("\r", "");
         {
             public override void Up()
             {
-                throw new System.NotImplementedException();
+                throw new NotImplementedException();
             }
 
             public override void Down()
             {
-                throw new System.NotImplementedException();
+                throw new NotImplementedException();
             }
 
             public string BaseCreateLastModifiedTriggerFor(string tableName, string idCol)
             {
-                return base.CreateLastModifiedTriggerSqlFor(tableName, idCol);
+                return CreateLastModifiedTriggerSqlFor(tableName, idCol);
             }
         }
 

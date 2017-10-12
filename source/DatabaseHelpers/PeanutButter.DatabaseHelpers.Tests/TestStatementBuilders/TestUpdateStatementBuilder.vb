@@ -1,6 +1,7 @@
 ﻿Imports System.Globalization
 Imports NSubstitute
 Imports NUnit.Framework
+Imports PeanutButter.DatabaseHelpers.StatementBuilders
 Imports PeanutButter.RandomGenerators
 Imports PeanutButter.Utils
 
@@ -59,7 +60,7 @@ Namespace TestStatementBuilders
         Public Sub Build_GivenTableAndOneNullableDecimalFieldAndCondition_ReturnsValidUpdateStatement()
             Dim tableName = RandomValueGen.GetRandomString(),
                 columnName = RandomValueGen.GetRandomString(),
-                fieldValue as Nullable(Of Decimal)= RandomValueGen.GetRandomDecimal(),
+                fieldValue as Decimal? = RandomValueGen.GetRandomDecimal(),
                 condition = RandomValueGen.GetRandomString()
             Dim builder = UpdateStatementBuilder.Create()
             With builder
@@ -77,13 +78,13 @@ Namespace TestStatementBuilders
 
         <Test()>
         Public Sub Build_GivenTableAndOneNullableDecimalFieldAndDecimalCondition_ReturnsValidUpdateStatement()
-            Dim TableName = RandomValueGen.GetRandomString(),
-                ColumnName = RandomValueGen.GetRandomString(),
-                FieldValue as Nullable(Of Decimal)= RandomValueGen.GetRandomDecimal(),
+            Dim tableName = RandomValueGen.GetRandomString(),
+                columnName = RandomValueGen.GetRandomString(),
+                fieldValue as Decimal? = RandomValueGen.GetRandomDecimal(),
                 thisCondition = new Condition("condition_field", Condition.EqualityOperators.Equals, FieldValue.Value)
             Dim builder = UpdateStatementBuilder.Create()
             With builder
-                .WithTable(TableName)
+                .WithTable(tableName)
                 .WithField(ColumnName, FieldValue)
                 .WithCondition(thisCondition)
             End With
@@ -93,14 +94,14 @@ Namespace TestStatementBuilders
             nfi.CurrencyDecimalSeparator = "."
             Dim dd = new DecimalDecorator(FieldValue.Value)
             Assert.IsFalse(thisCondition.ToString().Contains(","))
-            Assert.AreEqual("update [" & TableName & "] set [" & ColumnName & "]=" & dd.ToString() & " where " & thisCondition.ToString(), statement)
+            Assert.AreEqual("update [" & tableName & "] set [" & ColumnName & "]=" & dd.ToString() & " where " & thisCondition.ToString(), statement)
         End Sub
 
         <Test()>
         Public Sub Build_GivenTableAndOneNullableDecimalFieldAndNullableDecimalCondition_ReturnsValidUpdateStatement()
-            Dim TableName = RandomValueGen.GetRandomString(),
-                ColumnName = RandomValueGen.GetRandomString(),
-                FieldValue as Nullable(Of Decimal)= RandomValueGen.GetRandomDecimal(),
+            Dim tableName = RandomValueGen.GetRandomString(),
+                columnName = RandomValueGen.GetRandomString(),
+                fieldValue as Decimal? = RandomValueGen.GetRandomDecimal(),
                 thisCondition = new Condition("condition_field", Condition.EqualityOperators.Equals, FieldValue)
             Dim builder = UpdateStatementBuilder.Create()
             With builder
@@ -119,10 +120,10 @@ Namespace TestStatementBuilders
 
         <Test()>
         Public Sub Build_GivenTableAndOneNullableNullDecimalFieldAndCondition_ReturnsValidUpdateStatement()
-            Dim TableName = RandomValueGen.GetRandomString(),
-                ColumnName = RandomValueGen.GetRandomString(),
-                FieldValue As Nullable(Of Decimal) = Nothing,
-                Condition = RandomValueGen.GetRandomString()
+            Dim tableName = RandomValueGen.GetRandomString(),
+                columnName = RandomValueGen.GetRandomString(),
+                fieldValue As Decimal? = Nothing,
+                condition = RandomValueGen.GetRandomString()
             Dim builder = UpdateStatementBuilder.Create()
             With builder
                 .WithTable(TableName)
@@ -137,8 +138,8 @@ Namespace TestStatementBuilders
         Public Sub Build_GivenTableAndOneDateTimeFieldAndCondition_ReturnsValidUpdateStatement()
             Dim tableName = RandomValueGen.GetRandomString(),
                 columnName = RandomValueGen.GetRandomString(),
-                FieldValue = DateTime.Now,
-                Condition = RandomValueGen.GetRandomString()
+                fieldValue = DateTime.Now,
+                condition = RandomValueGen.GetRandomString()
             Dim dfi = New DateTimeFormatInfo()
             dfi.DateSeparator = "/"
             dfi.TimeSeparator = ":"
@@ -155,9 +156,9 @@ Namespace TestStatementBuilders
         Public Sub Build_GivenTableAndOneDateTimeFieldAndConditionParts_ReturnsValidUpdateStatement()
             Dim tableName = RandomValueGen.GetRandomString(),
                 columnName = RandomValueGen.GetRandomString(),
-                FieldValue = DateTime.Now,
-                Condition = RandomValueGen.GetRandomString(),
-                ConditionVal = RandomValueGen.GetRandomString()
+                fieldValue = DateTime.Now,
+                condition = RandomValueGen.GetRandomString(),
+                conditionVal = RandomValueGen.GetRandomString()
 
             Dim dfi = New DateTimeFormatInfo()
             dfi.DateSeparator = "/"
@@ -166,7 +167,7 @@ Namespace TestStatementBuilders
             Dim statement = UpdateStatementBuilder.Create() _
                     .WithTable(tableName) _
                     .WithField(columnName, FieldValue) _
-                    .WithCondition(Condition, DatabaseHelpers.Condition.EqualityOperators.Equals, ConditionVal) _
+                    .WithCondition(Condition, StatementBuilders.Condition.EqualityOperators.Equals, ConditionVal) _
                     .Build()
             Assert.AreEqual("update [" + tableName + "] set [" + columnName + "]='" + valueString + "' where [" + Condition + "]='" + ConditionVal + "'", statement)
         End Sub
@@ -175,9 +176,9 @@ Namespace TestStatementBuilders
         Public Sub Build_GivenTableAndOneDateTimeFieldAndConditionPartsWithBooleanCondition_ReturnsValidUpdateStatement()
             Dim tableName = RandomValueGen.GetRandomString(),
                 columnName = RandomValueGen.GetRandomString(),
-                FieldValue = DateTime.Now,
+                fieldValue = DateTime.Now,
                 c1 = RandomValueGen.GetRandomString(),
-                ConditionVal = RandomValueGen.GetRandomBoolean(),
+                conditionVal = RandomValueGen.GetRandomBoolean(),
                 expected = CInt(IIf(ConditionVal, 1, 0))
 
             Dim dfi = New DateTimeFormatInfo()

@@ -10,6 +10,9 @@ using NUnit.Framework;
 using EmailSpooler.Win32Service.SMTP;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
+// ReSharper disable InconsistentNaming
+// ReSharper disable ObjectCreationAsStatement
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace EmailSpooler.Win32Service.Tests
 {
@@ -34,7 +37,8 @@ namespace EmailSpooler.Win32Service.Tests
             {
                 return base.CreateMessage();
             }
-            public List<IDisposable> InternalDisposables { get { return Disposables; } }
+            public List<IDisposable> InternalDisposables => Disposables;
+
             public void AddDisposable(IDisposable disposable)
             {
                 Disposables.Add(disposable);
@@ -514,7 +518,7 @@ namespace EmailSpooler.Win32Service.Tests
                 Assert.IsFalse(email.InternalDisposables.Any());
                 email.CreateMessage();
                 //---------------Test Result -----------------------
-                Assert.AreEqual(1, email.InternalDisposables.Count(d => d as MemoryStream != null));
+                Assert.AreEqual(1, email.InternalDisposables.Count(d => d is MemoryStream));
             }
         }
 
@@ -636,11 +640,11 @@ namespace EmailSpooler.Win32Service.Tests
         {
             private MailMessage _mailMessage;
             private ISmtpClient _smtpClient;
-            public string[] Calls { get { return _calls.ToArray(); } }
-            private List<string> _calls = new List<string>();
+            public string[] Calls => _calls.ToArray();
+            private readonly List<string> _calls = new List<string>();
 
-            public MailMessage MailMessage { get { return _mailMessage; } }
-            public ISmtpClient SmtpClient { get { return _smtpClient; } }
+            public MailMessage MailMessage => _mailMessage;
+            public ISmtpClient SmtpClient => _smtpClient;
 
             public Email_ForTestingSendOperation(IEmailConfiguration config)
                 : base(config)
@@ -745,7 +749,6 @@ namespace EmailSpooler.Win32Service.Tests
             {
 
                 //---------------Assert Precondition----------------
-                var address = email.To.First();               
                 //---------------Execute Test ----------------------
                 var message = email.CreateMessage();
 
