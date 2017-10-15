@@ -18,19 +18,19 @@ namespace PeanutButter.Utils
         static class TypeExtensions
     {
 #if NETSTANDARD
-#else /// <summary>
-/// Enumerates the ancestry of a Type
-/// </summary>
-/// <param name="type">Starting Type</param>
-/// <returns>The Type ancestry, starting from Object</returns>
+#else
+        /// <summary>
+        /// Enumerates the ancestry of a Type
+        /// </summary>
+        /// <param name="type">Starting Type</param>
+        /// <returns>The Type ancestry, starting from Object</returns>
         public static Type[] Ancestry(this Type type)
         {
             var heirachy = new List<Type>();
             do
             {
                 heirachy.Add(type);
-            }
-            while ((type = type.BaseType) != null);
+            } while ((type = type.BaseType) != null);
 
             heirachy.Reverse();
             return heirachy.ToArray();
@@ -333,7 +333,8 @@ namespace PeanutButter.Utils
             }
             var parts = type.FullName
                             ?.Substring(0, type.FullName?.IndexOf("`") ?? 0)
-                            .Split('.') ?? new[] { type.Name };
+                            .Split('.') ??
+                        new[] {type.Name};
             return string.Join("",
                 parts.Last(),
                 "<",
@@ -355,8 +356,8 @@ namespace PeanutButter.Utils
                 return false;
             return type.IsArray ||
                    (type.IsGenericType() &&
-                   (type.ImplementsEnumerableGenericType() ||
-                    _collectionGenerics.Contains(type.GetGenericTypeDefinition())));
+                    (type.ImplementsEnumerableGenericType() ||
+                     _collectionGenerics.Contains(type.GetGenericTypeDefinition())));
         }
 
         /// <summary>
