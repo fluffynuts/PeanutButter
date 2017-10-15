@@ -74,6 +74,17 @@ namespace PeanutButter.RandomGenerators
 #endif
         }
 
+        private static ModuleBuilder _moduleBuilder;
+        private static readonly object _moduleBuilderLock = new object();
+        private static ModuleBuilder CreateOrReuseDynamicModule()
+        {
+            lock (_moduleBuilderLock)
+            {
+                return _moduleBuilder ?? (_moduleBuilder = 
+                    DynamicAssemblyBuilder.DefineDynamicModule("GeneratedBuilders"));
+            }
+        }
+
         internal static Type ReuseOrGenerateDynamicBuilderFor(Type type)
         {
             if (type == null)
@@ -83,9 +94,8 @@ namespace PeanutButter.RandomGenerators
                 if (DynamicBuilders.TryGetValue(type, out var dynamicBuilderType))
                     return dynamicBuilderType;
                 var t = typeof(GenericBuilder<,>);
-                var moduleName = string.Join("_", Guid.NewGuid().ToString("N"), "DEBuilder_", type.Name);
-                var modBuilder = DynamicAssemblyBuilder.DefineDynamicModule(moduleName);
 
+                var modBuilder = CreateOrReuseDynamicModule();
                 var typeName = string.Join("_", type.Name, "Builder", Guid.NewGuid().ToString("N"));
                 var typeBuilder = modBuilder.DefineType(typeName,
                     TypeAttributes.Public | TypeAttributes.Class);
