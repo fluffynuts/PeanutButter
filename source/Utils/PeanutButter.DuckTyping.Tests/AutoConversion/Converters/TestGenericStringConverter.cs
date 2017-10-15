@@ -6,11 +6,13 @@ using PeanutButter.DuckTyping.AutoConversion.Converters;
 using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using NExpect;
+using static NExpect.Expectations;
 
 namespace PeanutButter.DuckTyping.Tests.AutoConversion.Converters
 {
     [TestFixture]
-    public class TestGenericStringConverter : AssertionHelper
+    public class TestGenericStringConverter
     {
         [Test]
         public void ShouldImplement_IConverterOf_StringAndT()
@@ -22,7 +24,7 @@ namespace PeanutButter.DuckTyping.Tests.AutoConversion.Converters
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            type.ShouldImplement<IConverter<string, int>>();
+            Expect(type).To.Implement<IConverter<string, int>>();
 
             //--------------- Assert -----------------------
         }
@@ -41,8 +43,8 @@ namespace PeanutButter.DuckTyping.Tests.AutoConversion.Converters
             var t2 = instance.GetPropertyValue("T2");
 
             //--------------- Assert -----------------------
-            Expect(t1, Is.EqualTo(typeof(string)));
-            Expect(t2, Is.EqualTo(t));
+            Expect(t1).To.Equal(typeof(string));
+            Expect(t2).To.Equal(t);
         }
 
 
@@ -60,7 +62,10 @@ namespace PeanutButter.DuckTyping.Tests.AutoConversion.Converters
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            method.Invoke(this, new object[0]);
+            Expect(() =>
+                    method.Invoke(this, new object[0])
+                )
+                .Not.To.Throw();
 
             //--------------- Assert -----------------------
         }
@@ -82,8 +87,8 @@ namespace PeanutButter.DuckTyping.Tests.AutoConversion.Converters
             var result2 = sut.Convert(input2);
 
             //--------------- Assert -----------------------
-            Expect(result1, Is.EqualTo(expected1));
-            Expect(result2, Is.EqualTo(expected2));
+            Expect(result1).To.Equal(expected1);
+            Expect(result2).To.Equal(expected2);
         }
 
         [Test]
@@ -103,8 +108,8 @@ namespace PeanutButter.DuckTyping.Tests.AutoConversion.Converters
             var result2 = sut.Convert(input2);
 
             //--------------- Assert -----------------------
-            Expect(result1, Is.EqualTo(expected1));
-            Expect(result2, Is.EqualTo(expected2));
+            Expect(result1).To.Equal(expected1);
+            Expect(result2).To.Equal(expected2);
         }
 
 
@@ -127,8 +132,8 @@ namespace PeanutButter.DuckTyping.Tests.AutoConversion.Converters
 
 
             //--------------- Assert -----------------------
-            Expect(result1, Is.EqualTo(expected1));
-            Expect(result2, Is.EqualTo(expected2));
+            Expect(result1).To.Equal(expected1);
+            Expect(result2).To.Equal(expected2);
         }
 #pragma warning restore S1144 // Unused private types or members should be removed
 
@@ -139,7 +144,8 @@ namespace PeanutButter.DuckTyping.Tests.AutoConversion.Converters
 
         private IConverter CreateForType(Type t)
         {
-            var method = GetType().GetMethod("Create", BindingFlags.Instance | BindingFlags.NonPublic)
+            var method = GetType()
+                .GetMethod("Create", BindingFlags.Instance | BindingFlags.NonPublic)
                 .MakeGenericMethod(t);
             return (IConverter) method.Invoke(this, new object[0]);
         }
