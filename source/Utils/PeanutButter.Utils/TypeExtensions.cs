@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+// ReSharper disable ConstantNullCoalescingCondition
+// ReSharper disable UnusedMember.Global
 
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -435,7 +437,7 @@ namespace PeanutButter.Utils
         }
 
 
-        private static MethodInfo _tryConvertGeneric =
+        private static readonly MethodInfo _tryConvertGeneric =
             typeof(TypeExtensions).GetMethod(nameof(TryConvert), BindingFlags.Static | BindingFlags.NonPublic);
 
 
@@ -444,7 +446,7 @@ namespace PeanutButter.Utils
             return value;
         }
 
-        private static MethodInfo _defaultvalueGeneric =
+        private static readonly MethodInfo _defaultvalueGeneric =
             typeof(TypeExtensions).GetMethod(nameof(DefaultValue), BindingFlags.Static | BindingFlags.NonPublic);
 
         private static T DefaultValue<T>()
