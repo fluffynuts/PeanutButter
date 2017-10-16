@@ -2,13 +2,14 @@
 using System.Linq;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Exceptions;
+using NExpect;
+using static NExpect.Expectations;
 // ReSharper disable PossibleNullReferenceException
 
 namespace PeanutButter.DuckTyping.Tests.Exceptions
 {
     [TestFixture]
-    public class TestUnresolvedParameterOrderMismatchException:
-        AssertionHelper
+    public class TestUnresolvedParameterOrderMismatchException
     {
         [Test]
         public void Construct_ShouldSetMessage()
@@ -26,7 +27,7 @@ namespace PeanutButter.DuckTyping.Tests.Exceptions
             );
 
             //--------------- Assert -----------------------
-            Expect(sut.Message, Is.EqualTo(expected));
+            Expect(sut.Message).To.Equal(expected);
         }
 
         [Test]
@@ -46,7 +47,7 @@ namespace PeanutButter.DuckTyping.Tests.Exceptions
             );
 
             //--------------- Assert -----------------------
-            Expect(sut.Message, Is.EqualTo(expected));
+            Expect(sut.Message).To.Equal(expected);
         }
 
 

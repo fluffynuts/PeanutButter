@@ -2,11 +2,13 @@
 using System.Linq;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.AutoConversion;
+using NExpect;
+using static NExpect.Expectations;
 
 namespace PeanutButter.DuckTyping.Tests.AutoConversion
 {
     [TestFixture]
-    public class TestConverterLocator: AssertionHelper
+    public class TestConverterLocator
     {
         [Test]
         public void GetConverterFor_GivenStringAndGuid_ShouldReturnConverter()
@@ -20,11 +22,11 @@ namespace PeanutButter.DuckTyping.Tests.AutoConversion
             var result2 = ConverterLocator.GetConverter(typeof(Guid), typeof(string));
 
             //--------------- Assert -----------------------
-            Expect(result1, Is.Not.Null);
-            Expect(result2, Is.Not.Null);
-            Expect(result1, Is.EqualTo(result2));
+            Expect(result1).Not.To.Be.Null();
+            Expect(result2).Not.To.Be.Null();
+            Expect(result1).To.Equal(result2);
             var useful1 = result1 as IConverter<string, Guid>;
-            Expect(useful1, Is.Not.Null);
+            Expect(useful1).Not.To.Be.Null();
         }
 
         [Test]
@@ -39,26 +41,30 @@ namespace PeanutButter.DuckTyping.Tests.AutoConversion
             var result2 = ConverterLocator.GetConverter(typeof(string), typeof(int));
 
             //--------------- Assert -----------------------
-            Expect(result1, Is.Not.Null);
-            Expect(result2, Is.Not.Null);
-            Expect(result1, Is.EqualTo(result2));
+            Expect(result1).Not.To.Be.Null();
+            Expect(result2).Not.To.Be.Null();
+            Expect(result1).To.Equal(result2);
             var useful2 = result1 as IConverter<string, int>;
-            Expect(useful2, Is.Not.Null);
+            Expect(useful2).Not.To.Be.Null();
         }
 
         public class Type1
         {
         }
+
         public class Type2
         {
         }
+
         public class Type3
         {
         }
-        public class LyingConverter: IConverter<Type1, Type2>
+
+        public class LyingConverter : IConverter<Type1, Type2>
         {
             public Type T1 => typeof(Type1);
             public Type T2 => typeof(Type3);
+
             public Type1 Convert(Type2 input)
             {
                 throw new NotImplementedException();
@@ -83,13 +89,14 @@ namespace PeanutButter.DuckTyping.Tests.AutoConversion
             var result = ConverterLocator.Converters.Where(t => t.GetType() == typeof(LyingConverter));
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Empty);
+            Expect(result).To.Be.Empty();
         }
 
-        public class HonestConverter: IConverter<Type1, Type3>
+        public class HonestConverter : IConverter<Type1, Type3>
         {
             public Type T1 => typeof(Type1);
             public Type T2 => typeof(Type3);
+
             public Type1 Convert(Type3 input)
             {
                 throw new NotImplementedException();
@@ -112,25 +119,29 @@ namespace PeanutButter.DuckTyping.Tests.AutoConversion
             var result = ConverterLocator.Converters.Where(t => t.GetType() == typeof(HonestConverter));
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Not.Empty);
+            Expect(result).Not.To.Be.Empty();
         }
 
 
         public interface IConvertMe1
         {
         }
+
         public interface IConvertMe2
         {
         }
-        public class ConverterWithConstructorParameters: IConverter<IConvertMe1, IConvertMe2>
+
+        public class ConverterWithConstructorParameters : IConverter<IConvertMe1, IConvertMe2>
         {
             public Type T1 => typeof(IConvertMe1);
             public Type T2 => typeof(IConvertMe2);
             public string Moo { get; }
+
             public ConverterWithConstructorParameters(string moo)
             {
                 Moo = moo;
             }
+
             public IConvertMe1 Convert(IConvertMe2 input)
             {
                 throw new NotImplementedException();
@@ -141,6 +152,7 @@ namespace PeanutButter.DuckTyping.Tests.AutoConversion
                 throw new NotImplementedException();
             }
         }
+
         [Test]
         public void ShouldNotExplodeWhenUnableToLoadConverter()
         {
@@ -149,16 +161,14 @@ namespace PeanutButter.DuckTyping.Tests.AutoConversion
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            Expect(() => converters = ConverterLocator.Converters,
-                Throws.Nothing);
+            Expect(() => converters = ConverterLocator.Converters)
+                .Not.To.Throw();
 
             //--------------- Assert -----------------------
             Expect(
-                converters.Any(c => c is ConverterWithConstructorParameters), 
-                Is.False);
+                    converters.Any(c => c is ConverterWithConstructorParameters)
+                )
+                .To.Be.False();
         }
-
-
-
     }
 }

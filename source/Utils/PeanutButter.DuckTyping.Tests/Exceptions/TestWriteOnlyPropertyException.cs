@@ -2,12 +2,13 @@
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Exceptions;
 using PeanutButter.RandomGenerators;
-using PeanutButter.TestUtils.Generic;
+using NExpect;
+using static NExpect.Expectations;
 
 namespace PeanutButter.DuckTyping.Tests.Exceptions
 {
     [TestFixture]
-    public class TestWriteOnlyPropertyException: AssertionHelper
+    public class TestWriteOnlyPropertyException
     {
         [Test]
         public void Type_ShouldInheritFrom_NotImplementedException()
@@ -18,7 +19,7 @@ namespace PeanutButter.DuckTyping.Tests.Exceptions
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            sut.ShouldInheritFrom<NotImplementedException>();
+            Expect(sut).To.Inherit<NotImplementedException>();
 
             //--------------- Assert -----------------------
         }
@@ -36,7 +37,7 @@ namespace PeanutButter.DuckTyping.Tests.Exceptions
             var result = new WriteOnlyPropertyException(owningType, propertyName);
 
             //--------------- Assert -----------------------
-            Expect(result.Message, Is.EqualTo(expected));
+            Expect(result.Message).To.Equal(expected);
         }
 
     }

@@ -3,11 +3,13 @@ using NUnit.Framework;
 using PeanutButter.DuckTyping.Exceptions;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
+using NExpect;
+using static NExpect.Expectations;
 
 namespace PeanutButter.DuckTyping.Tests.Exceptions
 {
     [TestFixture]
-    public class TestParameterCountMismatchException: AssertionHelper
+    public class TestParameterCountMismatchException
     {
         [Test]
         public void Type_ShouldInheritFrom_ArgumentException()
@@ -32,7 +34,7 @@ namespace PeanutButter.DuckTyping.Tests.Exceptions
         public void Construct_ShouldSetMessage()
         {
             //--------------- Arrange -------------------
-            var methodInfo = GetType().GetMethod("SomeMethod");
+            var methodInfo = GetType().GetMethod(nameof(SomeMethod));
             var count = RandomValueGen.GetRandomInt();
 
             //--------------- Assume ----------------
@@ -43,10 +45,9 @@ namespace PeanutButter.DuckTyping.Tests.Exceptions
             );
 
             //--------------- Assert -----------------------
-            Expect(result.Message,
-                Does.Contain($"{count} parameters were provided for method {methodInfo.DeclaringType.Name}.{methodInfo.Name}"));
-            Expect(result.Message,
-                Does.Contain($"but it requires 2 parameters"));
+            Expect(result.Message)
+                .To.Contain($"{count} parameters were provided for method {methodInfo.DeclaringType.Name}.{methodInfo.Name}")
+                .Then("but it requires 2 parameters");
         }
     }
 }

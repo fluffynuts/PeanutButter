@@ -2,20 +2,22 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Extensions;
-using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using NExpect;
+using static NExpect.Expectations;
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnassignedGetOnlyAutoProperty
+// ReSharper disable UsePatternMatching
+
 // ReSharper disable PossibleNullReferenceException
 
 namespace PeanutButter.DuckTyping.Tests.Extensions
 {
     [TestFixture]
-    public class TestDuckTypingHelperExtensions : AssertionHelper
+    public class TestDuckTypingHelperExtensions
     {
         [Test]
         public void IsCaseSensitive_OperatingOnCaseSensitiveDictionary_ShouldReturnTrue()
@@ -29,11 +31,10 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = input.IsCaseSensitive();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.True);
+            Expect(result).To.Be.True();
         }
 
-        private static IEqualityComparer<string>[] _caseInsensitiveComparers = new[]
-        {
+        private static IEqualityComparer<string>[] _caseInsensitiveComparers = {
             StringComparer.OrdinalIgnoreCase,
             StringComparer.CurrentCultureIgnoreCase,
             StringComparer.InvariantCultureIgnoreCase
@@ -53,11 +54,12 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = input.IsCaseSensitive();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.False);
+            Expect(result).To.Be.False();
         }
 
         [Test]
-        public void IsCaseSensitive_OperatingOnSomethingWithoutComparerProperty_ShouldResortToBruteForce_EmptyIsNotSensitive()
+        public void
+            IsCaseSensitive_OperatingOnSomethingWithoutComparerProperty_ShouldResortToBruteForce_EmptyIsNotSensitive()
         {
             //--------------- Arrange -------------------
             var dict = new MyDictionary(true);
@@ -68,15 +70,17 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = dict.IsCaseSensitive();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.False);
+            Expect(result).To.Be.False();
         }
 
         [Test]
         public void IsCaseSensitive_OperatingOnSomethingWithoutComparerProperty_ShouldResortToBruteForce_CaseSensitive()
         {
             //--------------- Arrange -------------------
-            var dict = new MyDictionary(true);
-            dict.Add(new KeyValuePair<string, object>("Foo", "bar"));
+            var dict = new MyDictionary(true) 
+            {
+                new KeyValuePair<string, object>("Foo", "bar")
+            };
 
             //--------------- Assume ----------------
 
@@ -84,7 +88,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = dict.IsCaseSensitive();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.True);
+            Expect(result).To.Be.True();
         }
 
         [Test]
@@ -93,39 +97,40 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             //--------------- Arrange -------------------
             var dict = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
             {
-                { "Id", 1 }
+                {"Id", 1}
             };
 
             //--------------- Assume ----------------
-            Expect(dict.IsCaseSensitive(), Is.False);
+            Expect(dict.IsCaseSensitive()).To.Be.False();
 
             //--------------- Act ----------------------
             var result = dict.ToCaseInsensitiveDictionary();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(dict));
+            Expect(result).To.Equal(dict);
         }
 
         [Test]
-        public void ToCaseInsensitiveDictionary_OperatingOnCaseSensitiveFlatDictionary_ShouldReturnNewCaseInsensitiveVariant()
+        public void
+            ToCaseInsensitiveDictionary_OperatingOnCaseSensitiveFlatDictionary_ShouldReturnNewCaseInsensitiveVariant()
         {
             //--------------- Arrange -------------------
             var expected = GetRandomInt();
             var dict = new Dictionary<string, object>()
             {
-                { "Id", expected }
+                {"Id", expected}
             };
 
             //--------------- Assume ----------------
-            Expect(dict.IsCaseSensitive(), Is.True);
+            Expect(dict.IsCaseSensitive()).To.Be.True();
 
             //--------------- Act ----------------------
             var result = dict.ToCaseInsensitiveDictionary();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Not.Null);
-            Expect(result.IsCaseSensitive(), Is.False);
-            Expect(() => result["id"], Throws.Nothing);
+            Expect(result).Not.To.Be.Null();
+            Expect(result.IsCaseSensitive()).To.Be.False();
+            Expect(() => result["id"]).Not.To.Throw();
         }
 
         [Test]
@@ -135,7 +140,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var expected = GetRandomInt();
             var dict = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
             {
-                { "Inner", new Dictionary<string, object>() { {  "Id", expected } } }
+                {"Inner", new Dictionary<string, object>() {{"Id", expected}}}
             };
 
             //--------------- Assume ----------------
@@ -144,7 +149,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = dict.ToCaseInsensitiveDictionary();
 
             //--------------- Assert -----------------------
-            Expect((result["Inner"] as Dictionary<string, object>)["id"], Is.EqualTo(expected));
+            Expect((result["Inner"] as Dictionary<string, object>)["id"])
+                .To.Equal(expected);
         }
 
         [Test]
@@ -160,8 +166,9 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
             //--------------- Act ----------------------
             Expect(() =>
-                outer.ToCaseInsensitiveDictionary(),
-                Throws.Nothing);
+                    outer.ToCaseInsensitiveDictionary()
+                )
+                .Not.To.Throw();
 
             //--------------- Assert -----------------------
         }
@@ -173,8 +180,9 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             {
                 _isCaseSensitive = isCaseSensitive;
             }
-            private List<KeyValuePair<string, object>> _data = new List<KeyValuePair<string, object>>();
-            private bool _isCaseSensitive;
+
+            private readonly List<KeyValuePair<string, object>> _data = new List<KeyValuePair<string, object>>();
+            private readonly bool _isCaseSensitive;
 
             public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
             {
@@ -213,6 +221,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
             public int Count { get; }
             public bool IsReadOnly { get; }
+
             public bool ContainsKey(string key)
             {
                 return _data.Any(kvp => KeysMatch(kvp.Key, key));
@@ -221,8 +230,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             private bool KeysMatch(string k1, string k2)
             {
                 return _isCaseSensitive
-                        ? k1 == k2
-                        : k1?.ToLower() == k2?.ToLower();
+                    ? k1 == k2
+                    : k1?.ToLower() == k2?.ToLower();
             }
 
 
@@ -238,7 +247,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
             public bool TryGetValue(string key, out object value)
             {
-                if (!Keys.Select(k => _isCaseSensitive ? k : k.ToLower()).Contains(_isCaseSensitive ? key : key.ToLower()))
+                if (!Keys.Select(k => _isCaseSensitive ? k : k.ToLower())
+                    .Contains(_isCaseSensitive ? key : key.ToLower()))
                 {
                     value = null;
                     return false;
@@ -249,16 +259,15 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
             public object this[string key]
             {
-                get { throw new NotImplementedException(); }
-                set { throw new NotImplementedException(); }
+                get => throw new NotImplementedException();
+                set => throw new NotImplementedException();
             }
 
             public ICollection<string> Keys => _data.Select(kvp => kvp.Key).ToList();
             public ICollection<object> Values => _data.Select(kvp => kvp.Value).ToList();
         }
-
-
     }
+
     public static class JObjectExtensions
     {
         // just because JsonCovert doesn't believe in using your provided type all the way down >_<
@@ -274,24 +283,24 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             return result;
         }
 
-        private static Dictionary<JTokenType, Func<JToken, object>> _resolvers = new Dictionary<JTokenType, Func<JToken, object>>()
-        {
-            { JTokenType.None, o => null },
-            { JTokenType.Array, ConvertJTokenArray },
-            { JTokenType.Property, ConvertJTokenProperty },
-            { JTokenType.Integer, o => o.Value<int>() },
-            { JTokenType.String, o => o.Value<string>() },
-            { JTokenType.Boolean, o => o.Value<bool>() },
-            { JTokenType.Null, o => null },
-            { JTokenType.Undefined, o => null },
-            { JTokenType.Date, o => o.Value<DateTime>() },
-            { JTokenType.Bytes, o => o.Value<byte[]>() },
-            { JTokenType.Guid, o => o.Value<Guid>() },
-            { JTokenType.Uri, o => o.Value<Uri>() },
-            { JTokenType.TimeSpan, o => o.Value<TimeSpan>() },
-            { JTokenType.Object, TryConvertObject }
-
-        };
+        private static readonly Dictionary<JTokenType, Func<JToken, object>> _resolvers =
+            new Dictionary<JTokenType, Func<JToken, object>>()
+            {
+                {JTokenType.None, o => null},
+                {JTokenType.Array, ConvertJTokenArray},
+                {JTokenType.Property, ConvertJTokenProperty},
+                {JTokenType.Integer, o => o.Value<int>()},
+                {JTokenType.String, o => o.Value<string>()},
+                {JTokenType.Boolean, o => o.Value<bool>()},
+                {JTokenType.Null, o => null},
+                {JTokenType.Undefined, o => null},
+                {JTokenType.Date, o => o.Value<DateTime>()},
+                {JTokenType.Bytes, o => o.Value<byte[]>()},
+                {JTokenType.Guid, o => o.Value<Guid>()},
+                {JTokenType.Uri, o => o.Value<Uri>()},
+                {JTokenType.TimeSpan, o => o.Value<TimeSpan>()},
+                {JTokenType.Object, TryConvertObject}
+            };
 
         private static object TryConvertObject(JToken arg)
         {
@@ -308,8 +317,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
         private static object ConvertJTokenProperty(JToken arg)
         {
-            Func<JToken, object> resolver;
-            if (_resolvers.TryGetValue(arg.Type, out resolver))
+            if (_resolvers.TryGetValue(arg.Type, out var resolver))
                 return resolver(arg);
             throw new InvalidOperationException($"Unable to handle JToken of type: {arg.Type}");
         }

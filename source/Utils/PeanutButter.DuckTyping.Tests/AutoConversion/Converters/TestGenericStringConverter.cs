@@ -8,6 +8,8 @@ using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using NExpect;
 using static NExpect.Expectations;
+// ReSharper disable SpecifyACultureInStringConversionExplicitly
+// ReSharper disable RedundantArgumentDefaultValue
 
 namespace PeanutButter.DuckTyping.Tests.AutoConversion.Converters
 {

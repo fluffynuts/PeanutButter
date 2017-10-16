@@ -4,15 +4,17 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using NUnit.Framework;
-using PeanutButter.DuckTyping.Extensions;
 using PeanutButter.DuckTyping.Shimming;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using NExpect;
+using static NExpect.Expectations;
+// ReSharper disable PossibleMultipleEnumeration
 
 namespace PeanutButter.DuckTyping.Tests.Extensions
 {
     [TestFixture]
-    public class TestDictionaryWrappingNameValueCollection : AssertionHelper
+    public class TestDictionaryWrappingNameValueCollection
     {
         [Test]
         public void ExplicitIEnumerator_GetEnumerator_ShouldReturnSameAs_GenericMethod()
@@ -24,10 +26,12 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var reference = sut.GetEnumerator();
             var result = (sut as IEnumerable).GetEnumerator();
             // Assert
-            Expect(reference, Is.InstanceOf<DictionaryWrappingNameValueCollectionEnumerator>());
-            Expect(result, Is.InstanceOf<DictionaryWrappingNameValueCollectionEnumerator>());
-            Expect(reference.Get<DictionaryWrappingNameValueCollection>("Data"), Is.EqualTo(sut));
-            Expect(result.Get<DictionaryWrappingNameValueCollection>("Data"), Is.EqualTo(sut));
+            Expect(reference).To.Be.An.Instance.Of<DictionaryWrappingNameValueCollectionEnumerator>();
+            Expect(result).To.Be.An.Instance.Of<DictionaryWrappingNameValueCollectionEnumerator>();
+            Expect(reference.Get<DictionaryWrappingNameValueCollection>("Data"))
+                .To.Equal(sut);
+            Expect(result.Get<DictionaryWrappingNameValueCollection>("Data"))
+                .To.Equal(sut);
         }
 
         [Test]
@@ -41,7 +45,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             // Act
             sut.Add(kvp);
             // Assert
-            Expect(collection[kvp.Key], Is.EqualTo(kvp.Value));
+            Expect(collection).To.Contain.Key(kvp.Key).With.Value(kvp.Value as string);
         }
 
         [Test]
@@ -55,7 +59,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             // Act
             sut.Clear();
             // Assert
-            Expect(collection, Is.Empty);
+            Expect(collection).To.Be.Empty();
         }
 
         [Test]
@@ -65,11 +69,11 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var arena = CreateArena();
             var kvp = GetRandom<KeyValuePair<string, object>>();
             // Pre-Assert
-            Expect(arena.Collection, Is.Empty);
+            Expect(arena.Collection).To.Be.Empty();;
             // Act
             var result = arena.Sut.Contains(kvp);
             // Assert
-            Expect(result, Is.False);
+            Expect(result).To.Be.False();
         }
 
         [Test]
@@ -84,7 +88,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             // Act
             var result = arena.Sut.Contains(notInCollection);
             // Assert
-            Expect(result, Is.False);
+            Expect(result).To.Be.False();
         }
 
         [Test]
@@ -99,7 +103,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             // Act
             var result = arena.Sut.Contains(notInCollection);
             // Assert
-            Expect(result, Is.False);
+            Expect(result).To.Be.False();
         }
 
         [Test]
@@ -114,7 +118,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             // Act
             var result = arena.Sut.Contains(notInCollection);
             // Assert
-            Expect(result, Is.True);
+            Expect(result).To.Be.True();
         }
 
         [Test]
@@ -125,8 +129,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var sut = Create();
             // Pre-Assert
             // Act
-            Expect(() => sut.CopyTo(new KeyValuePair<string, object>[5], 0),
-                Throws.Exception.InstanceOf<NotImplementedException>());
+            Expect(() => sut.CopyTo(new KeyValuePair<string, object>[5], 0))
+                .To.Throw<NotImplementedException>();
             // Assert
         }
 
@@ -139,14 +143,14 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var notInCollection = GetRandom<KeyValuePair<string, string>>(kvp => kvp.Key != inCollection.Key);
             arena.Collection.Add(inCollection.Key, inCollection.Value);
             // Pre-Assert
-            Expect(arena.Sut.Contains(
-                notInCollection.AsKeyValuePairOfStringObject()
-            ), Is.False);
+            Expect(arena.Sut).Not.To.Contain(notInCollection.AsKeyValuePairOfStringObject());
             // Act
             var result = arena.Sut.Remove(notInCollection.AsKeyValuePairOfStringObject());
             // Assert
-            Expect(result, Is.False);
-            Expect(arena.Collection[inCollection.Key], Is.EqualTo(inCollection.Value));
+            Expect(result).To.Be.False();
+            Expect(arena.Collection)
+                .To.Contain.Key(inCollection.Key)
+                .With.Value(inCollection.Value);
         }
 
         [Test]
@@ -160,8 +164,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             // Act
             var result = arena.Sut.Remove(inCollection.AsKeyValuePairOfStringObject());
             // Assert
-            Expect(result, Is.True);
-            Expect(arena.Collection, Is.Empty);
+            Expect(result).To.Be.True();
+            Expect(arena.Collection).To.Be.Empty();
         }
 
         [Test]
@@ -173,7 +177,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             // Act
             var result = sut.IsReadOnly;
             // Assert
-            Expect(result, Is.False);
+            Expect(result).To.Be.False();
         }
 
         [Test]
@@ -189,9 +193,9 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             // Act
             var result = arena.Sut.Remove(search);
             // Assert
-            Expect(result, Is.False);
-            Expect(arena.Collection.Count, Is.EqualTo(1));
-            Expect(arena.Collection[key], Is.EqualTo(value));
+            Expect(result).To.Be.False();
+            Expect(arena.Collection).To.Contain.Only(1).Item();
+            Expect(arena.Collection).To.Contain.Key(key).With.Value(value);
         }
 
         [Test]
@@ -206,8 +210,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             // Act
             var result = arena.Sut.Remove(key);
             // Assert
-            Expect(result, Is.True);
-            Expect(arena.Collection.Count, Is.EqualTo(0));
+            Expect(result).To.Be.True();
+            Expect(arena.Collection).To.Be.Empty();
         }
 
         [Test]
@@ -218,11 +222,11 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var key = GetRandomString(4);
             var value = GetRandomString(4);
             // Pre-Assert
-            Expect(arena.Collection, Is.Empty);
+            Expect(arena.Collection).To.Be.Empty();
             // Act
             arena.Sut.Add(key, value);
             // Assert
-            Expect(arena.Collection[key], Is.EqualTo(value));
+            Expect(arena.Collection).To.Contain.Key(key).With.Value(value);
         }
 
         [Test]
@@ -237,7 +241,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             // Act
             var result = arena.Sut.Values;
             // Assert
-            Expect(result, Is.EquivalentTo(expected));
+            Expect(result).To.Be.Equivalent.To(expected);
         }
 
         private TestArena CreateArena()
@@ -248,14 +252,18 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         private class TestArena
         {
             public NameValueCollection Collection { get; }
-            public DictionaryWrappingNameValueCollection Sut { get; }
-            public bool CaseInsensitive { get; }
+            public IDictionary<string, object> Sut { get; }
 
-            public TestArena(
-            )
+            public TestArena(): this(false)
+            {
+            }
+            public TestArena(bool isCaseInSensitive)
             {
                 Collection = new NameValueCollection();
-                Sut = new DictionaryWrappingNameValueCollection(Collection, CaseInsensitive);
+                Sut = new DictionaryWrappingNameValueCollection(
+                    Collection, 
+                    isCaseInSensitive
+                );
             }
         }
 

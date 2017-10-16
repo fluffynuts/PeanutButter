@@ -2,6 +2,8 @@
 using System.Reflection;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Extensions;
+using NExpect;
+using static NExpect.Expectations;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMember.Global
@@ -9,8 +11,8 @@ using PeanutButter.DuckTyping.Extensions;
 
 namespace PeanutButter.DuckTyping.Tests.Extensions
 {
-  [TestFixture]
-    public class TestCustomAttributeHelperExtensions: AssertionHelper
+    [TestFixture]
+    public class TestCustomAttributeHelperExtensions
     {
         [Test]
         public void ToAttributeBuilder_GivenNullCustomAttributeData_ShouldThrow()
@@ -20,13 +22,11 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            Expect(() => data.ToAttributeBuilder(), 
-                Throws.Exception
-                    .InstanceOf<ArgumentNullException>()
-                    .With.Message.Contains("data"));
+            Expect(() => data.ToAttributeBuilder())
+                .To.Throw<ArgumentNullException>()
+                .With.Message.Containing("data");
 
             //--------------- Assert -----------------------
         }
     }
-
 }

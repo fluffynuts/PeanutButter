@@ -3,11 +3,13 @@ using NUnit.Framework;
 using PeanutButter.DuckTyping.Exceptions;
 using PeanutButter.TestUtils.Generic;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using NExpect;
+using static NExpect.Expectations;
 
 namespace PeanutButter.DuckTyping.Tests.Exceptions
 {
     [TestFixture]
-    public class TestBackingFieldForPropertyNotFoundException: AssertionHelper
+    public class TestBackingFieldForPropertyNotFoundException
     {
         [Test]
         public void Type_ShouldInheritFrom_NotImplementedException()
@@ -38,9 +40,8 @@ namespace PeanutButter.DuckTyping.Tests.Exceptions
                 property);
 
             //--------------- Assert -----------------------
-            Expect(sut.Message, 
-                Does.Contain($"find backing field _{property} on type {owningType.Name}")
-            );
+            Expect(sut.Message)
+                .To.Contain($"find backing field _{property} on type {owningType.Name}");
         }
     }
 }
