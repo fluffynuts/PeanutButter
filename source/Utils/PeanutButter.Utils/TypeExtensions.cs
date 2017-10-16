@@ -334,6 +334,7 @@ namespace PeanutButter.Utils
                 return $"{underlyingType.PrettyName()}?";
             }
             var parts = type.FullName
+                            // ReSharper disable once ConstantNullCoalescingCondition
                             ?.Substring(0, type.FullName?.IndexOf("`") ?? 0)
                             .Split('.') ??
                         new[] {type.Name};
