@@ -4,14 +4,16 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Shimming;
-using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
+using NExpect;
+using static NExpect.Expectations;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.DuckTyping.Tests.Shimming
 {
     [TestFixture]
-    public class TestRedirectingDictionary : AssertionHelper
+    public class TestRedirectingDictionary
     {
         [TestCase(typeof(object))]
         [TestCase(typeof(int))]
@@ -39,11 +41,10 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
 
             // Act
             Expect(
-                () => new RedirectingDictionary<object>(null, null, null),
-                Throws
-                    .Exception.InstanceOf<ArgumentNullException>()
-                    .With.Message.Contains("data")
-            );
+                    () => new RedirectingDictionary<object>(null, null, null)
+                )
+                .To.Throw<ArgumentException>()
+                .With.Message.Containing("data");
 
             // Assert
         }
@@ -57,11 +58,10 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
 
             // Act
             Expect(
-                () => new RedirectingDictionary<object>(MakeData(), null, null),
-                Throws
-                    .Exception.InstanceOf<ArgumentNullException>()
-                    .With.Message.Contains("toNativeTransform")
-            );
+                    () => new RedirectingDictionary<object>(MakeData(), null, null)
+                )
+                .To.Throw<ArgumentNullException>()
+                .With.Message.Containing("toNativeTransform");
 
             // Assert
         }
@@ -75,11 +75,10 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
 
             // Act
             Expect(
-                () => new RedirectingDictionary<object>(MakeData(), s => s, null),
-                Throws
-                    .Exception.InstanceOf<ArgumentNullException>()
-                    .With.Message.Contains("fromNativeTransform")
-            );
+                    () => new RedirectingDictionary<object>(MakeData(), s => s, null)
+                )
+                .To.Throw<ArgumentNullException>()
+                .With.Message.Containing("fromNativeTransform");
 
             // Assert
         }
@@ -89,9 +88,9 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
         {
             // Arrange
             var data = MakeData();
-            var prefix = RandomValueGen.GetRandomString(2);
-            var key = RandomValueGen.GetRandomString(2);
-            var expected = RandomValueGen.GetRandomString(4);
+            var prefix = GetRandomString(2);
+            var key = GetRandomString(2);
+            var expected = GetRandomString(4);
             data[$"{prefix}.{key}"] = expected;
             var sut = Create(data, s => prefix + "." + s);
             // Pre-Assert
@@ -100,7 +99,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var result = sut[key];
 
             // Assert
-            Expect(result, Is.EqualTo(expected));
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -108,9 +107,9 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
         {
             // Arrange
             var innerData = MakeData();
-            var prefix = RandomValueGen.GetRandomString(2);
-            var key = RandomValueGen.GetRandomString(2);
-            var expected = RandomValueGen.GetRandomString(4);
+            var prefix = GetRandomString(2);
+            var key = GetRandomString(2);
+            var expected = GetRandomString(4);
             innerData[$"{prefix}.{key}"] = expected;
             var data = new ReadOnlyDictionary<string, object>(innerData);
             var sut = Create(data, s => prefix + "." + s);
@@ -118,11 +117,10 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
 
             // Act
             Expect(
-                () => sut[key] = expected,
-                Throws
-                    .Exception.InstanceOf<InvalidOperationException>()
-                    .With.Message.Contains("Collection is read-only")
-            );
+                    () => sut[key] = expected
+                )
+                .To.Throw<InvalidOperationException>()
+                .With.Message.Containing("Collection is read-only");
 
             // Assert
         }
@@ -133,22 +131,24 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
         {
             // Arrange
             var data = MakeData();
-            var prefix = RandomValueGen.GetRandomString(2);
-            var key = RandomValueGen.GetRandomString(2);
-            var expected = RandomValueGen.GetRandomString(4);
+            var prefix = GetRandomString(2);
+            var key = GetRandomString(2);
+            var expected = GetRandomString(4);
             var nativeKey = $"{prefix}.{key}";
-            data[nativeKey] = RandomValueGen.GetRandom<string>(o => o != expected);
+            data[nativeKey] = GetRandom<string>(o => o != expected);
             var sut = Create(data, s => prefix + "." + s);
             // Pre-Assert
 
             // Act
             Expect(
-                () => sut[key] = expected,
-                Throws.Nothing
-            );
+                    () => sut[key] = expected
+                )
+                .Not.To.Throw();
 
             // Assert
-            Expect(data[nativeKey], Is.EqualTo(expected));
+            Expect(data)
+                .To.Contain.Key(nativeKey)
+                .With.Value(expected);
         }
 
         [Test]
@@ -163,10 +163,10 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var result = sut.Count;
 
             // Assert
-            Expect(result, Is.EqualTo(data.Count));
-            data.Add(RandomValueGen.GetRandomString(5), RandomValueGen.GetRandomString(5));
+            Expect(result).To.Equal(sut.Count);
+            data.Add(GetRandomString(5), GetRandomString(5));
             result = sut.Count;
-            Expect(result, Is.EqualTo(data.Count));
+            Expect(result).To.Equal(data.Count);
         }
 
         [Test]
@@ -174,21 +174,23 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
         {
             // Arrange
             var data = MakeData();
-            var prefix = RandomValueGen.GetRandomString(3);
+            var prefix = GetRandomString(3);
             var sut = Create(data, s => prefix + s);
-            var key = RandomValueGen.GetRandomString(3);
+            var key = GetRandomString(3);
             var nativeKey = $"{prefix}{key}";
-            var expected = RandomValueGen.GetRandomString();
+            var expected = GetRandomString();
 
             // Pre-Assert
-            Expect(data, Has.Count.EqualTo(0));
+            Expect(data).To.Be.Empty();
 
             // Act
             sut.Add(key, expected);
 
             // Assert
-            Expect(data, Has.Count.EqualTo(1));
-            Expect(data[nativeKey], Is.EqualTo(expected));
+            Expect(data).To.Contain.Only(1).Item();
+            Expect(data)
+                .To.Contain.Key(nativeKey)
+                .With.Value(expected);
         }
 
         [Test]
@@ -196,21 +198,23 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
         {
             // Arrange
             var data = MakeData();
-            var prefix = RandomValueGen.GetRandomString(3);
+            var prefix = GetRandomString(3);
             var sut = Create(data, s => prefix + s);
-            var key = RandomValueGen.GetRandomString(3);
+            var key = GetRandomString(3);
             var nativeKey = $"{prefix}{key}";
-            var expected = RandomValueGen.GetRandomString();
+            var expected = GetRandomString();
 
             // Pre-Assert
-            Expect(data, Has.Count.EqualTo(0));
+            Expect(data).To.Be.Empty();
 
             // Act
             sut.Add(new KeyValuePair<string, object>(key, expected));
 
             // Assert
-            Expect(data, Has.Count.EqualTo(1));
-            Expect(data[nativeKey], Is.EqualTo(expected));
+            Expect(data).To.Contain.Only(1).Item();
+            Expect(data)
+                .To.Contain.Key(nativeKey)
+                .With.Value(expected);
         }
 
         [Test]
@@ -221,14 +225,14 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var sut = Create(data, s => s);
 
             // Pre-Assert
-            Expect(data, Has.Count.GreaterThan(0));
+            Expect(data).Not.To.Be.Empty();
 
             // Act
             sut.Clear();
 
             // Assert
-            Expect(sut, Has.Count.EqualTo(0));
-            Expect(data, Has.Count.EqualTo(0));
+            Expect(sut).To.Be.Empty();
+            Expect(data).To.Be.Empty();
         }
 
         [Test]
@@ -236,21 +240,27 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
         {
             // Arrange
             var data = MakeData();
-            var suffix = RandomValueGen.GetRandomString(2);
-            var key = RandomValueGen.GetRandomString(2);
+            var suffix = GetRandomString(2);
+            var key = GetRandomString(2);
             var nativeKey = $"{key}{suffix}";
             var sut = Create(data, s => s + suffix, s => s.RegexReplace($"{suffix}$", ""));
-            var expected = RandomValueGen.GetRandomString(5);
+            var expected = GetRandomString(5);
             sut[key] = expected;
 
             // Pre-Assert
-            Expect(data[nativeKey], Is.EqualTo(expected));
+            Expect(data)
+                .To.Contain.Key(nativeKey)
+                .With.Value(expected);
 
             // Act
             foreach (var kvp in sut)
             {
-                Expect(kvp.Key, Is.EqualTo(key));
-                Expect(kvp.Value, Is.EqualTo(expected));
+                var seek = new KeyValuePair<string, object>(
+                    kvp.Key + suffix,
+                    kvp.Value
+                );
+                Expect(data)
+                    .To.Contain(seek);
             }
 
             // Assert
@@ -260,47 +270,49 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
         public void Contains_GivenUnknownKeyValuePair_ShouldReturnFalse()
         {
             // Arrange
-            var prefix = RandomValueGen.GetRandomString(3);
+            var prefix = GetRandomString(3);
             var data = MakeRandomData(prefix);
-            var seek = new KeyValuePair<string, object>(prefix + RandomValueGen.GetRandomString(11), RandomValueGen.GetRandomString(11));
+            var seek = new KeyValuePair<string, object>(prefix + GetRandomString(11),
+                GetRandomString(11));
             var sut = Create(data, s => prefix + s);
 
             // Pre-Assert
-            Expect(data, Is.Not.Empty);
+            Expect(data).Not.To.Be.Empty();
 
             // Act
             var result = sut.Contains(seek);
 
             // Assert
-            Expect(result, Is.False);
+            Expect(result).To.Be.False();
         }
 
         [Test]
         public void Contains_GivenKnownKeyValuePair_ShouldReturnTrue()
         {
             // Arrange
-            var prefix = RandomValueGen.GetRandomString(3);
+            var prefix = GetRandomString(3);
             var data = MakeRandomData(prefix);
-            var seek = new KeyValuePair<string, object>(RandomValueGen.GetRandomString(11), RandomValueGen.GetRandomString(11));
+            var seek = new KeyValuePair<string, object>(GetRandomString(11),
+                GetRandomString(11));
             var actual = new KeyValuePair<string, object>(prefix + seek.Key, seek.Value);
             data.Add(actual);
             var sut = Create(data, s => prefix + s);
 
             // Pre-Assert
-            Expect(data, Is.Not.Empty);
+            Expect(data).Not.To.Be.Empty();
 
             // Act
             var result = sut.Contains(seek);
 
             // Assert
-            Expect(result, Is.True);
+            Expect(result).To.Be.True();
         }
 
         [Test]
         public void Keys_ShouldReturnAllKeys()
         {
             // Arrange
-            var prefix = RandomValueGen.GetRandomString(3);
+            var prefix = GetRandomString(3);
             var data = MakeRandomData(prefix);
             var expected = data.Keys.Select(k => k.RegexReplace($"^{prefix}", "")).ToArray();
             var sut = Create(data, s => prefix + s, s => s.RegexReplace($"^{prefix}", ""));
@@ -311,16 +323,16 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var result = sut.Keys;
 
             // Assert
-            Expect(result, Is.EquivalentTo(expected));
+            Expect(result).To.Be.Equivalent.To(expected);
         }
 
         [Test]
         public void CopyTo_ShouldCopyItemsToArray()
         {
             // Arrange
-            var prefix = RandomValueGen.GetRandomString(3) + ":";
+            var prefix = GetRandomString(3) + ":";
             var data = MakeRandomData(prefix);
-            var offset = RandomValueGen.GetRandomInt();
+            var offset = GetRandomInt();
             var target = new KeyValuePair<string, object>[data.Count + offset];
             var sut = Create(data, s => prefix + s, s => s.RegexReplace($"^{prefix}", ""));
 
@@ -330,21 +342,23 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             sut.CopyTo(target, offset);
 
             // Assert
-            target.Skip(offset).ForEach(kvp => 
-            {
-                Expect(sut.Contains(kvp));
-            });
+            target.Skip(offset)
+                .ForEach(kvp =>
+                {
+                    Expect(sut).To.Contain(kvp);
+                });
         }
 
         [Test]
         public void Remove_GivenKnownItem_ShouldRemoveIt()
         {
             // Arrange
-            var prefix = RandomValueGen.GetRandomString(2);
+            var prefix = GetRandomString(2);
             var data = MakeRandomData(prefix);
             var sut = Create(data, s => prefix + s, s => s.RegexReplace($"^{prefix}", ""));
-            var randomItem = RandomValueGen.GetRandomFrom(data);
-            var toRemove = new KeyValuePair<string, object>(randomItem.Key.RegexReplace($"^{prefix}", ""), randomItem.Value);
+            var randomItem = GetRandomFrom(data);
+            var toRemove =
+                new KeyValuePair<string, object>(randomItem.Key.RegexReplace($"^{prefix}", ""), randomItem.Value);
 
             // Pre-Assert
 
@@ -352,20 +366,20 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var result = sut.Remove(toRemove);
 
             // Assert
-            Expect(result, Is.True);
-            Expect(sut, Does.Not.Contains(randomItem));
+            Expect(result).To.Be.True();
+            Expect(sut).Not.To.Contain(randomItem);
         }
 
         [Test]
         public void Remove_GivenUnknownItem_ShouldReturnFalse()
         {
             // Arrange
-            var prefix = RandomValueGen.GetRandomString(2);
+            var prefix = GetRandomString(2);
             var data = MakeRandomData(prefix);
             var sut = Create(data, s => prefix + s);
-            var randomItem = RandomValueGen.GetRandomFrom(data);
+            var randomItem = GetRandomFrom(data);
             var toRemove = new KeyValuePair<string, object>(
-                randomItem.Key.RegexReplace($"^{prefix}", "") + "moo", 
+                randomItem.Key.RegexReplace($"^{prefix}", "") + "moo",
                 randomItem.Value
             );
 
@@ -375,18 +389,19 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var result = sut.Remove(toRemove);
 
             // Assert
-            Expect(result, Is.False);
-            Expect(sut[randomItem.Key.RegexReplace($"^{prefix}", "")], Is.EqualTo(randomItem.Value));
+            Expect(result).To.Be.False();
+            Expect(sut[randomItem.Key.RegexReplace($"^{prefix}", "")])
+                .To.Equal(randomItem.Value);
         }
 
         [Test]
         public void ContainsKey_WhenNativeKeyIsNotFound_ShouldReturnFalse()
         {
             // Arrange
-            var prefix = RandomValueGen.GetRandomString(4);
+            var prefix = GetRandomString(4);
             var data = MakeRandomData(prefix);
-            var randomItem = RandomValueGen.GetRandomFrom(data);
-            var searchKey = RandomValueGen.GetRandom<string>(s => s != randomItem.Key.RegexReplace($"^{prefix}", ""));
+            var randomItem = GetRandomFrom(data);
+            var searchKey = GetRandom<string>(s => s != randomItem.Key.RegexReplace($"^{prefix}", ""));
             var sut = Create(data, s => prefix + s);
 
             // Pre-Assert
@@ -395,16 +410,16 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var result = sut.ContainsKey(searchKey);
 
             // Assert
-            Expect(result, Is.False);
+            Expect(result).To.Be.False();
         }
 
         [Test]
         public void ContainsKey_WhenNativeKeyIsFound_ShouldReturnFalse()
         {
             // Arrange
-            var prefix = RandomValueGen.GetRandomString(4);
+            var prefix = GetRandomString(4);
             var data = MakeRandomData(prefix);
-            var randomItem = RandomValueGen.GetRandomFrom(data);
+            var randomItem = GetRandomFrom(data);
             var searchKey = randomItem.Key.RegexReplace($"^{prefix}", "");
             var sut = Create(data, s => prefix + s);
 
@@ -414,36 +429,35 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var result = sut.ContainsKey(searchKey);
 
             // Assert
-            Expect(result, Is.True);
+            Expect(result).To.Be.True();
         }
 
         [Test]
         public void TryGetValue_WhenKeyNotFound_ShouldReturnFalseAndSetValueToNull()
         {
             // Arrange
-            var prefix = RandomValueGen.GetRandomString(3);
+            var prefix = GetRandomString(3);
             var data = MakeRandomData(prefix);
-            var searchKey = RandomValueGen.GetRandomString(15);
+            var searchKey = GetRandomString(15);
             var sut = Create(data, s => prefix + s);
 
             // Pre-Assert
 
             // Act
-            object found = new object();
-            var result = sut.TryGetValue(searchKey, out found);
+            var result = sut.TryGetValue(searchKey, out var found);
 
             // Assert
-            Expect(result, Is.False);
-            Expect(found, Is.Null);
+            Expect(result).To.Be.False();
+            Expect(found).To.Be.Null();
         }
 
         [Test]
         public void TryGetValue_WhenKeyIsFound_ShouldReturnTrueAndSetValue()
         {
             // Arrange
-            var prefix = RandomValueGen.GetRandomString(3);
+            var prefix = GetRandomString(3);
             var data = MakeRandomData(prefix);
-            var randomItem = RandomValueGen.GetRandomFrom(data);
+            var randomItem = GetRandomFrom(data);
             var searchKey = randomItem.Key.RegexReplace($"^{prefix}", "");
             var expected = randomItem.Value;
             var sut = Create(data, s => prefix + s);
@@ -451,12 +465,11 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             // Pre-Assert
 
             // Act
-            object found;
-            var result = sut.TryGetValue(searchKey, out found);
+            var result = sut.TryGetValue(searchKey, out var found);
 
             // Assert
-            Expect(result, Is.True);
-            Expect(found, Is.EqualTo(expected));
+            Expect(result).To.Be.True();
+            Expect(found).To.Equal(expected);
         }
 
         [Test]
@@ -473,14 +486,15 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var result = sut.Values;
 
             // Assert
-            Expect(result, Is.EquivalentTo(expected));
+            Expect(result).To.Be.Equivalent.To(expected);
         }
 
         private IDictionary<string, object> MakeRandomData(string prefix = "")
         {
             var result = MakeData();
-            var howMany = RandomValueGen.GetRandomInt(3);
-            howMany.TimesDo(i => result[prefix + RandomValueGen.GetRandomString(5)] = RandomValueGen.GetRandomString(5));
+            var howMany = GetRandomInt(3);
+            howMany.TimesDo(i =>
+                result[prefix + GetRandomString(5)] = GetRandomString(5));
             return result;
         }
 
@@ -497,14 +511,14 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
         )
         {
             return new RedirectingDictionary<object>(
-                data, 
-                toNativeTransform, 
-                fromNativeTransform ?? (s => 
+                data,
+                toNativeTransform,
+                fromNativeTransform ??
+                (s =>
                 {
                     throw new NotImplementedException("SUT created without fromNativeTransform");
                 })
             );
         }
-
     }
 }

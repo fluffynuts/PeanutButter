@@ -1,11 +1,13 @@
 ﻿using System.Reflection;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Shimming;
+using NExpect;
+using static NExpect.Expectations;
 
 namespace PeanutButter.DuckTyping.Tests.Shimming
 {
     [TestFixture]
-    public class TestPropertyInfoContainer: AssertionHelper
+    public class TestPropertyInfoContainer
     {
         [Test]
         public void Construct_GivenNoProperties_ShouldNotThrow()
@@ -18,8 +20,8 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var sut = Create();
 
             //--------------- Assert -----------------------
-            Expect(sut.FuzzyPropertyInfos, Has.Count.EqualTo(0));
-            Expect(sut.PropertyInfos, Has.Count.EqualTo(0));
+            Expect(sut.FuzzyPropertyInfos).To.Be.Empty();
+            Expect(sut.PropertyInfos).To.Be.Empty();
 
         }
 
@@ -35,16 +37,20 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var input = typeof(IHasOneProperty).GetProperties();
 
             //--------------- Assume ----------------
-            Expect(input, Has.Length.EqualTo(1));
+            Expect(input).To.Contain.Only(1).Item();
 
             //--------------- Act ----------------------
             var sut = Create(input);
 
             //--------------- Assert -----------------------
-            Expect(sut.FuzzyPropertyInfos, Has.Count.EqualTo(1));
-            Expect(sut.PropertyInfos, Has.Count.EqualTo(1));
-            Expect(sut.FuzzyPropertyInfos.ContainsValue(input[0]), Is.True);
-            Expect(sut.PropertyInfos.ContainsValue(input[0]), Is.True);
+            Expect(sut.FuzzyPropertyInfos).To.Contain.Only(1).Item();
+            Expect(sut.PropertyInfos).To.Contain.Only(1).Item();
+            Expect(sut.FuzzyPropertyInfos)
+                .To.Contain.Key(nameof(IHasOneProperty.Name))
+                .With.Value(input[0]);
+            Expect(sut.PropertyInfos)
+                .To.Contain.Key(nameof(IHasOneProperty.Name))
+                .With.Value(input[0]);
         }
 
         [Test]
@@ -60,13 +66,15 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var sut = Create(input);
 
             //--------------- Assert -----------------------
-            Expect(sut.FuzzyPropertyInfos, Has.Count.EqualTo(1));
-            Expect(sut.PropertyInfos, Has.Count.EqualTo(1));
-            Expect(sut.FuzzyPropertyInfos.ContainsValue(input[0]), Is.True);
-            Expect(sut.PropertyInfos.ContainsValue(input[0]), Is.True);
+            Expect(sut.FuzzyPropertyInfos).To.Contain.Only(1).Item();
+            Expect(sut.PropertyInfos).To.Contain.Only(1).Item();
+            Expect(sut.FuzzyPropertyInfos)
+                .To.Contain.Key(nameof(IHasOneProperty.Name))
+                .With.Value(input[0]);
+            Expect(sut.PropertyInfos)
+                .To.Contain.Key(nameof(IHasOneProperty.Name))
+                .With.Value(input[0]);
         }
-
-
 
         private PropertyInfoContainer Create(params PropertyInfo[] propertyInfos)
         {

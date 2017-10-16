@@ -4,14 +4,18 @@ using NUnit.Framework;
 using PeanutButter.DuckTyping.Exceptions;
 using PeanutButter.DuckTyping.Shimming;
 using PeanutButter.RandomGenerators;
+using NExpect;
+using static NExpect.Expectations;
 
+// ReSharper disable UnusedMember.Global
+// ReSharper disable ExpressionIsAlwaysNull
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable PossibleNullReferenceException
 
 namespace PeanutButter.DuckTyping.Tests.Shimming
 {
     [TestFixture]
-    public class TestDictionaryShimSham: AssertionHelper
+    public class TestDictionaryShimSham
     {
         [Test]
         public void Construct_GivenNullDictionary_ShouldNotThrow()
@@ -22,8 +26,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            Expect(() => Create(input),
-                Throws.Nothing);
+            Expect(() => Create(input)).Not.To.Throw();
 
             //--------------- Assert -----------------------
         }
@@ -38,8 +41,8 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
 
             //--------------- Act ----------------------
             Expect(() =>
-                sut.GetPropertyValue(RandomValueGen.GetRandomString()),
-                Throws.Exception.InstanceOf<PropertyNotFoundException>());
+                    sut.GetPropertyValue(RandomValueGen.GetRandomString()))
+                .To.Throw<PropertyNotFoundException>();
 
             //--------------- Assert -----------------------
         }
@@ -50,7 +53,8 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
         }
 
         [Test]
-        public void GetPropertyValue_WhenMimickedInterfaceDoesNotContainMentionedProperty_ShouldThrowPropertyNotFoundException()
+        public void
+            GetPropertyValue_WhenMimickedInterfaceDoesNotContainMentionedProperty_ShouldThrowPropertyNotFoundException()
         {
             //--------------- Arrange -------------------
             var data = new Dictionary<string, object>();
@@ -60,14 +64,15 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            Expect(() => sut.GetPropertyValue(RandomValueGen.GetRandomString(10, 20)),
-                Throws.Exception.InstanceOf<PropertyNotFoundException>());
+            Expect(() => sut.GetPropertyValue(RandomValueGen.GetRandomString(10, 20)))
+                .To.Throw<PropertyNotFoundException>();
 
             //--------------- Assert -----------------------
         }
 
         [Test]
-        public void GetPropertyValue_WhenMimickedInterfaceContainsPropertyANdDictionaryDoesNot_ShouldReturnDefaultValue()
+        public void
+            GetPropertyValue_WhenMimickedInterfaceContainsPropertyANdDictionaryDoesNot_ShouldReturnDefaultValue()
         {
             //--------------- Arrange -------------------
             var data = new Dictionary<string, object>();
@@ -80,9 +85,8 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var result = sut.GetPropertyValue("Id");
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(default(int)));
+            Expect(result).To.Equal(default(int));
         }
-
 
 
         [Test]
@@ -92,7 +96,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var expected = RandomValueGen.GetRandomInt();
             var data = new Dictionary<string, object>()
             {
-                { "Id", expected }
+                {"Id", expected}
             };
             var sut = Create(data, typeof(IHaveId));
 
@@ -102,7 +106,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var result = sut.GetPropertyValue("Id");
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(expected));
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -112,7 +116,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var expected = RandomValueGen.GetRandomInt();
             var data = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
             {
-                { "id", expected }
+                {"id", expected}
             };
             var sut = Create(data, typeof(IHaveId));
 
@@ -122,7 +126,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var result = sut.GetPropertyValue("iD");
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(expected));
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -132,7 +136,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var expected = default(int);
             var data = new Dictionary<string, object>()
             {
-                { "Id", RandomValueGen.GetRandomAlphaString() }
+                {"Id", RandomValueGen.GetRandomAlphaString()}
             };
             var sut = Create(data, typeof(IHaveId));
 
@@ -142,7 +146,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var result = sut.GetPropertyValue("Id");
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(expected));
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -155,8 +159,9 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
 
             //--------------- Act ----------------------
             Expect(() =>
-                sut.SetPropertyValue(RandomValueGen.GetRandomString(10, 20), RandomValueGen.GetRandomInt()),
-                Throws.Exception.InstanceOf<PropertyNotFoundException>());
+                    sut.SetPropertyValue(RandomValueGen.GetRandomString(10, 20), RandomValueGen.GetRandomInt())
+                )
+                .To.Throw<PropertyNotFoundException>();
 
             //--------------- Assert -----------------------
         }
@@ -173,11 +178,13 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
 
             //--------------- Act ----------------------
             Expect(() =>
-                sut.SetPropertyValue("Id", expected.ToString()),
-                Throws.Nothing);
+                    sut.SetPropertyValue("Id", expected.ToString()))
+                    .Not.To.Throw();
 
             //--------------- Assert -----------------------
-            Expect(data["Id"], Is.EqualTo(expected));
+            Expect(data)
+                .To.Contain.Key("Id")
+                .With.Value(expected);
         }
 
         [Test]
@@ -194,7 +201,9 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             sut.SetPropertyValue("Id", expected.ToString());
 
             //--------------- Assert -----------------------
-            Expect(data["Id"], Is.EqualTo(expected));
+            Expect(data)
+                .To.Contain.Key("Id")
+                .With.Value(expected);
         }
 
         public interface INested
@@ -209,7 +218,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var expected = RandomValueGen.GetRandomInt();
             var data = new Dictionary<string, object>()
             {
-                { "HaveId", new Dictionary<string, object>() { { "Id", expected }} }
+                {"HaveId", new Dictionary<string, object>() {{"Id", expected}}}
             };
             var sut = Create(data, typeof(INested));
 
@@ -220,8 +229,8 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
 
             //--------------- Assert -----------------------
             var castResult = result as IHaveId;
-            Expect(castResult, Is.Not.Null);
-            Expect(castResult.Id, Is.EqualTo(expected));
+            Expect(castResult).Not.To.Be.Null();
+            Expect(castResult.Id).To.Equal(expected);
         }
 
         [Test]
@@ -232,23 +241,24 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var original = RandomValueGen.GetAnother(expected);
             var data = new Dictionary<string, object>()
             {
-                { "HaveId", new Dictionary<string, object>() { { "Id", original } } }
+                {"HaveId", new Dictionary<string, object>() {{"Id", original}}}
             };
             var sut = Create(data, typeof(INested));
             var sub = sut.GetPropertyValue("HaveId") as IHaveId;
 
             //--------------- Assume ----------------
-            Expect(sub, Is.Not.Null);
+            Expect(sub).Not.To.Be.Null();
 
             //--------------- Act ----------------------
             sub.Id = expected;
 
             //--------------- Assert -----------------------
-            Expect((data["HaveId"] as Dictionary<string, object>)["Id"], Is.EqualTo(expected));
+            var cast = data["HaveId"] as Dictionary<string, object>;
+            Expect(cast).Not.To.Be.Null();
+            Expect(cast)
+                .To.Contain.Key("Id")
+                .With.Value(expected);
         }
-
-
-
 
 
         public interface IEmpty
@@ -260,10 +270,10 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             Type interfaceToMimick = null)
         {
             return new DictionaryShimSham(
-                new[] { data },
+                // ReSharper disable once CoVariantArrayConversion
+                new[] {data},
                 interfaceToMimick ?? typeof(IEmpty)
             );
         }
-
     }
 }
