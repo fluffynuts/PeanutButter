@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Data;
 using NUnit.Framework;
 using PeanutButter.FluentMigrator.Fakes;
 using PeanutButter.TestUtils.Generic;
+using NExpect;
+using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.FluentMigrator.Tests.Fakes
 {
     [TestFixture]
-    public class TestFakeDbConnection: AssertionHelper
+    public class TestFakeDbConnection
     {
         [Test]
         public void Type_ShouldImplement_IDbConnection()
@@ -41,8 +38,8 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut.BeginTransaction(isolationLevel);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.InstanceOf<FakeDbTransaction>());
-            Expect(result.IsolationLevel, Is.EqualTo(isolationLevel));
+            Expect(result).To.Be.An.Instance.Of<FakeDbTransaction>();
+            Expect(result.IsolationLevel).To.Equal(isolationLevel);
         }
 
         [Test]
@@ -57,9 +54,9 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut.BeginTransaction();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.InstanceOf<FakeDbTransaction>());
-            Expect(result.IsolationLevel, 
-                    Is.EqualTo(IsolationLevel.ReadUncommitted));
+            Expect(result).To.Be.An.Instance.Of<FakeDbTransaction>();
+            Expect(result.IsolationLevel)
+                .To.Equal(IsolationLevel.ReadUncommitted);
         }
 
         [Test]
@@ -74,7 +71,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut.State;
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(ConnectionState.Closed));
+            Expect(result).To.Equal(ConnectionState.Closed);
         }
 
 
@@ -90,7 +87,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             sut.Open();
 
             //--------------- Assert -----------------------
-            Expect(sut.State, Is.EqualTo(ConnectionState.Open));
+            Expect(sut.State).To.Equal(ConnectionState.Open);
         }
 
         [Test]
@@ -101,13 +98,13 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             sut.Open();
 
             //--------------- Assume ----------------
-            Expect(sut.State, Is.EqualTo(ConnectionState.Open));
+            Expect(sut.State).To.Equal(ConnectionState.Open);
 
             //--------------- Act ----------------------
             sut.Close();
 
             //--------------- Assert -----------------------
-            Expect(sut.State, Is.EqualTo(ConnectionState.Closed));
+            Expect(sut.State).To.Equal(ConnectionState.Closed);
         }
 
         [Test]
@@ -123,13 +120,13 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result2 = sut.CreateCommand();
 
             //--------------- Assert -----------------------
-            Expect(result1, Is.Not.Null);
-            Expect(result2, Is.Not.Null);
-            Expect(result1, Is.Not.EqualTo(result2));
-            Expect(result1, Is.InstanceOf<FakeDbCommand>());
-            Expect(result2, Is.InstanceOf<FakeDbCommand>());
-            Expect(result1.Connection, Is.EqualTo(sut));
-            Expect(result2.Connection, Is.EqualTo(sut));
+            Expect(result1).Not.To.Be.Null();
+            Expect(result2).Not.To.Be.Null();
+            Expect(result1).Not.To.Equal(result2);
+            Expect(result1).To.Be.An.Instance.Of<FakeDbCommand>();
+            Expect(result2).To.Be.An.Instance.Of<FakeDbCommand>();
+            Expect(result1.Connection).To.Equal(sut);
+            Expect(result2.Connection).To.Equal(sut);
         }
 
 
@@ -142,8 +139,8 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            Expect(() => sut.ChangeDatabase(GetRandomString()),
-                Throws.Nothing);
+            Expect(() => sut.ChangeDatabase(GetRandomString()))
+                .Not.To.Throw();
 
             //--------------- Assert -----------------------
         }
@@ -161,7 +158,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             sut.Database = expected;
 
             //--------------- Assert -----------------------
-            Expect(sut.Database, Is.EqualTo(expected));
+            Expect(sut.Database).To.Equal(expected);
         }
 
         [Test]
@@ -176,7 +173,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut.ConnectionTimeout;
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(30));
+            Expect(result).To.Equal(30);
         }
 
 
