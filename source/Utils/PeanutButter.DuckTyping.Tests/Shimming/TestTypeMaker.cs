@@ -5,16 +5,19 @@ using PeanutButter.DuckTyping.Exceptions;
 using PeanutButter.DuckTyping.Shimming;
 using PeanutButter.RandomGenerators;
 using PeanutButter.Utils;
-
+using NExpect;
+using static NExpect.Expectations;
+// ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMember.Global
 // ReSharper disable UnassignedGetOnlyAutoProperty
+// ReSharper disable InconsistentNaming
 
 namespace PeanutButter.DuckTyping.Tests.Shimming
 {
     [TestFixture]
-    public class TestTypeMaker : AssertionHelper
+    public class TestTypeMaker
     {
         public interface ISample1
         {
@@ -34,8 +37,8 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            Expect(() => sut.MakeTypeImplementing<NotAnInterface>(),
-                Throws.Exception.InstanceOf<InvalidOperationException>());
+            Expect(() => sut.MakeTypeImplementing<NotAnInterface>())
+                .To.Throw<InvalidOperationException>();
 
             //--------------- Assert -----------------------
         }
@@ -49,8 +52,8 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            Expect(() => sut.MakeFuzzyTypeImplementing<NotAnInterface>(),
-                Throws.Exception.InstanceOf<InvalidOperationException>());
+            Expect(() => sut.MakeFuzzyTypeImplementing<NotAnInterface>())
+                .To.Throw<InvalidOperationException>();
 
             //--------------- Assert -----------------------
         }
@@ -68,8 +71,8 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var instance = CreateInstanceOf(type);
 
             //--------------- Assert -----------------------
-            Expect(instance, Is.Not.Null);
-            Expect(instance, Is.InstanceOf<ISample1>());
+            Expect(instance).Not.To.Be.Null();
+            Expect(instance).To.Be.An.Instance.Of<ISample1>();
         }
 
         public interface ISample2
@@ -95,8 +98,8 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             instance.SetPropertyValue("Name", expectedName);
 
             //--------------- Assert -----------------------
-            Expect(instance.Id, Is.EqualTo(expectedId));
-            Expect(instance.Name, Is.EqualTo(expectedName));
+            Expect(instance.Id).To.Equal(expectedId);
+            Expect(instance.Name).To.Equal(expectedName);
         }
 
         public class Sample1 // "implements" ISample1
@@ -120,7 +123,8 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
 
             //--------------- Act ----------------------
             var result = sut.MakeTypeImplementing<ISample3>();
-            Expect(() => CreateInstanceOf(result, toWrap), Throws.Nothing);
+            Expect(() => CreateInstanceOf(result, toWrap))
+                .Not.To.Throw();
 
             //--------------- Assert -----------------------
         }
@@ -137,11 +141,11 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
 
             //--------------- Act ----------------------
             var result = sut.MakeTypeImplementing<ISample1>();
-            var instance = (ISample1)CreateInstanceOf(result, new[] { new[] { toWrap } });
+            var instance = (ISample1)CreateInstanceOf(result, new object[] { new[] { toWrap } });
             instance.SetPropertyValue("Name", expected);
 
             //--------------- Assert -----------------------
-            Expect(toWrap.Name, Is.EqualTo(expected));
+            Expect(toWrap.Name).To.Equal(expected);
         }
 
         public interface ISample4
@@ -165,7 +169,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             //--------------- Assert -----------------------
             instance.SetPropertyValue("Sample", expected);
             var result = instance.GetPropertyValue("Sample");
-            Expect(result, Is.EqualTo(expected));
+            Expect(result).To.Equal(expected);
         }
 
         public class ToWrapSample1
@@ -188,12 +192,12 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var instance = CreateInstanceOf(type, new[] { new[] { toWrap } });
+            var instance = CreateInstanceOf(type, new object[] { new[] { toWrap } });
 
             //--------------- Assert -----------------------
             instance.SetPropertyValue("Sample", expected);
             var result = toWrap.Sample;
-            Expect(result, Is.EqualTo(expected));
+            Expect(result).To.Equal(expected);
         }
 
         public class ToWrapSample1ReadOnly
@@ -213,10 +217,11 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var instance = (ISample4)CreateInstanceOf(type, new[] { new[] { toWrap } });
+            var instance = (ISample4)CreateInstanceOf(type, new object[] { new[] { toWrap } });
 
             //--------------- Assert -----------------------
-            Expect(() => instance.Sample = expected, Throws.Exception.InstanceOf<ReadOnlyPropertyException>());
+            Expect(() => instance.Sample = expected)
+                .To.Throw<ReadOnlyPropertyException>();
         }
 
         public interface IVoidVoid
@@ -237,7 +242,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var instance = CreateInstanceOf(type);
 
             //--------------- Assert -----------------------
-            Expect(instance, Is.InstanceOf<IVoidVoid>());
+            Expect(instance).To.Be.An.Instance.Of<IVoidVoid>();
         }
 
         public class VoidVoidImpl
@@ -257,15 +262,15 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var toWrap = new VoidVoidImpl();
 
             //--------------- Assume ----------------
-            Expect(toWrap.Called, Is.False);
+            Expect(toWrap.Called).To.Be.False();
 
             //--------------- Act ----------------------
             var type = sut.MakeTypeImplementing<IVoidVoid>();
-            var instance = (IVoidVoid)CreateInstanceOf(type, new[] { new[] { toWrap } });
+            var instance = (IVoidVoid)CreateInstanceOf(type, new object[] { new[] { toWrap } });
             instance.Moo();
 
             //--------------- Assert -----------------------
-            Expect(toWrap.Called, Is.True);
+            Expect(toWrap.Called).To.Be.True();
         }
 
         public interface IVoidArgs
@@ -286,7 +291,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var instance = CreateInstanceOf(type);
 
             //--------------- Assert -----------------------
-            Expect(instance, Is.InstanceOf<IVoidArgs>());
+            Expect(instance).To.Be.An.Instance.Of<IVoidArgs>();
         }
 
         public class VoidArgsImpl
@@ -310,17 +315,17 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var expectedCount = RandomValueGen.GetRandomInt(2);
 
             //--------------- Assume ----------------
-            Expect(toWrap.Pitch, Is.Null);
-            Expect(toWrap.HowMany, Is.EqualTo(0));
+            Expect(toWrap.Pitch).To.Be.Null();
+            Expect(toWrap.HowMany).To.Equal(0);
 
             //--------------- Act ----------------------
             var type = sut.MakeTypeImplementing<IVoidArgs>();
-            var instance = (IVoidArgs)CreateInstanceOf(type, new[] { new[] { toWrap } });
+            var instance = (IVoidArgs)CreateInstanceOf(type, new object[] { new[] { toWrap } });
             instance.Moo(expectedPitch, expectedCount);
 
             //--------------- Assert -----------------------
-            Expect(toWrap.Pitch, Is.EqualTo(expectedPitch));
-            Expect(toWrap.HowMany, Is.EqualTo(expectedCount));
+            Expect(toWrap.Pitch).To.Equal(expectedPitch);
+            Expect(toWrap.HowMany).To.Equal((expectedCount));
         }
 
         public interface IArgsNonVoid
@@ -341,7 +346,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var instance = CreateInstanceOf(type);
 
             //--------------- Assert -----------------------
-            Expect(instance, Is.InstanceOf<IArgsNonVoid>());
+            Expect(instance).To.Be.An.Instance.Of<IArgsNonVoid>();
         }
 
         public class ArgsNonVoidImpl
@@ -366,11 +371,11 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var instance = (IArgsNonVoid)CreateInstanceOf(type, new[] { new[] { toWrap } });
+            var instance = (IArgsNonVoid)CreateInstanceOf(type, new object[] { new[] { toWrap } });
             var result = instance.Add(first, second);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(expected));
+            Expect(result).To.Equal((expected));
         }
 
 
@@ -391,8 +396,8 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var instance = CreateInstanceOf(type);
 
             //--------------- Assert -----------------------
-            Expect(instance, Is.InstanceOf<IInherited>());
-            Expect(instance, Is.InstanceOf<ISample1>());
+            Expect(instance).To.Be.An.Instance.Of<IInherited>();
+            Expect(instance).To.Be.An.Instance.Of<ISample1>();
         }
 
         public interface IInheritedWithMethod : IArgsNonVoid
@@ -412,8 +417,8 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var instance = CreateInstanceOf(type);
 
             //--------------- Assert -----------------------
-            Expect(instance, Is.InstanceOf<IInheritedWithMethod>());
-            Expect(instance, Is.InstanceOf<IArgsNonVoid>());
+            Expect(instance).To.Be.An.Instance.Of<IInheritedWithMethod>();
+            Expect(instance).To.Be.An.Instance.Of<IArgsNonVoid>();
         }
 
         public class ToWrapSample1CaseInsensitive
@@ -436,23 +441,24 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var instance = (ISample4)CreateInstanceOf(type, new[] { new[] { toWrap } });
+            var instance = (ISample4)CreateInstanceOf(type, new object[] { new[] { toWrap } });
             instance.Sample = expected;
 
             //--------------- Assert -----------------------
             var result = toWrap.sAmple;
-            Expect(result, Is.EqualTo(expected));
+            Expect(result).To.Equal((expected));
         }
 
         public class LabelAttribute: Attribute
         {
-            public string Label { get; private set; }
+            public string Label { get; }
 
             public LabelAttribute(string label)
             {
                 Label = label;
             }
         }
+
         [Label("cow!")]
         public interface IAttributeCopyTester
         {
@@ -474,9 +480,9 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var attr = result.GetProperties().FirstOrDefault(p => p.Name == "Name")
                                 ?.GetCustomAttributes(true)
                                 .FirstOrDefault();
-            Expect(attr, Is.Not.Null);
-            Expect(attr, Is.InstanceOf<LabelAttribute>());
-            Expect(((LabelAttribute)attr)?.Label, Is.EqualTo("moo"));
+            Expect(attr).Not.To.Be.Null();
+            Expect(attr).To.Be.An.Instance.Of<LabelAttribute>();
+            Expect(((LabelAttribute)attr)?.Label).To.Equal("moo");
         }
 
         [Test]
@@ -494,8 +500,8 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var attr = result.GetCustomAttributes(true)
                                 .OfType<LabelAttribute>()
                                 .FirstOrDefault();
-            Expect(attr, Is.Not.Null);
-            Expect(attr?.Label, Is.EqualTo("cow!"));
+            Expect(attr).Not.To.Be.Null();
+            Expect(attr?.Label).To.Equal("cow!");
         }
 
 
