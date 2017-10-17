@@ -3,12 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using NExpect;
+using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedMember.Global
+// ReSharper disable AssignNullToNotNullAttribute
+// ReSharper disable PossibleMultipleEnumeration
+// ReSharper disable MemberCanBeProtected.Global
+// ReSharper disable UnusedMemberInSuper.Global
 
 namespace PeanutButter.DuckTyping.Tests
 {
     [TestFixture]
-    public class TestCreate : AssertionHelper
+    public class TestCreate
     {
         public interface ICreateMe
         {
@@ -26,8 +34,8 @@ namespace PeanutButter.DuckTyping.Tests
             var result1 = Create.InstanceOf<ICreateMe>();
 
             //--------------- Assert -----------------------
-            Expect(result1, Is.Not.Null);
-            Expect(result1, Is.InstanceOf<ICreateMe>());
+            Expect(result1).Not.To.Be.Null();
+            Expect(result1).To.Be.An.Instance.Of<ICreateMe>();
         }
 
         [Test]
@@ -42,7 +50,7 @@ namespace PeanutButter.DuckTyping.Tests
             var result2 = Create.InstanceOf<ICreateMe>();
 
             //--------------- Assert -----------------------
-            Expect(result1.GetType(), Is.EqualTo(result2.GetType()));
+            Expect(result1.GetType()).To.Equal(result2.GetType());
         }
 
         [Test]
@@ -58,14 +66,12 @@ namespace PeanutButter.DuckTyping.Tests
             var result = Create.InstanceOf<ICreateMe>();
 
             //--------------- Assert -----------------------
-            Expect(() =>
-                result.Id = expectedId,
-                Throws.Nothing);
-            Expect(() =>
-                result.Name = expectedName,
-                Throws.Nothing);
-            Expect(result.Id, Is.EqualTo(expectedId));
-            Expect(result.Name, Is.EqualTo(expectedName));
+            Expect(() =>result.Id = expectedId)
+                .Not.To.Throw();
+            Expect(() => result.Name = expectedName)
+                .Not.To.Throw();
+            Expect(result.Id).To.Equal(expectedId);
+            Expect(result.Name).To.Equal(expectedName);
         }
 
         [Test]
@@ -125,11 +131,12 @@ namespace PeanutButter.DuckTyping.Tests
 
             //--------------- Act ----------------------
             var propInfo = result.GetType().GetProperty("Name");
+            Expect(propInfo).Not.To.Be.Null();
             var attribs = propInfo.GetCustomAttributes().OfType<MyAttribute>();
 
             //--------------- Assert -----------------------
-            Expect(attribs, Is.Not.Empty);
-            Expect(attribs.First().Data, Is.EqualTo("goodness"));
+            Expect(attribs).Not.To.Be.Empty();
+            Expect(attribs.First().Data).To.Equal("goodness");
         }
 
         [Test]
@@ -145,8 +152,8 @@ namespace PeanutButter.DuckTyping.Tests
             var attribs = propInfo.GetCustomAttributes().OfType<MyAttribute>();
 
             //--------------- Assert -----------------------
-            Expect(attribs, Is.Not.Empty);
-            Expect(attribs.First().Data, Is.EqualTo("Cow"));
+            Expect(attribs).Not.To.Be.Empty();
+            Expect(attribs.First().Data).To.Equal("Cow");
         }
 
         public interface IActor
@@ -196,8 +203,8 @@ namespace PeanutButter.DuckTyping.Tests
             var result = Create.InstanceOf<IHasAnArray>();
 
             //--------------- Assert -----------------------
-            Expect(result.Stuff, Is.Not.Null);
-            Expect(result.Stuff, Is.Empty);
+            Expect(result.Stuff).Not.To.Be.Null();
+            Expect(result.Stuff).To.Be.Empty();
         }
 
         public interface IHasAList
@@ -216,16 +223,13 @@ namespace PeanutButter.DuckTyping.Tests
             var result = Create.InstanceOf<IHasAnArray>();
 
             //--------------- Assert -----------------------
-            Expect(result.Stuff, Is.Not.Null);
-            Expect(result.Stuff, Is.Empty);
+            Expect(result.Stuff).Not.To.Be.Null();
+            Expect(result.Stuff).To.Be.Empty();
         }
-
-
-
 
         public class ActivityParameters<T> : ActivityParameters, IActivityParameters<T>
         {
-            public T Payload { get; set; }
+            public T Payload { get; }
 
             public ActivityParameters(Guid actorId, Guid taskId, T payload)
                 : base(actorId, taskId)
@@ -233,6 +237,7 @@ namespace PeanutButter.DuckTyping.Tests
                 Payload = payload;
             }
         }
+        
         public class ActivityParameters : IActivityParameters
         {
             public Guid ActorId { get; }
@@ -255,14 +260,17 @@ namespace PeanutButter.DuckTyping.Tests
             Guid TaskId { get; }
             void DoNothing();
         }
-        public interface IActivityParameters<T> : IActivityParameters
+        
+        public interface IActivityParameters<out T> : IActivityParameters
         {
             T Payload { get; }
         }
+
         public interface ICaptureDetailsTravelRequestActivityParameters :
             IActivityParameters<ITravelRequestDetails>
         {
         }
+        
         public interface ITravelRequestDetails
         {
             DateTime Initiated { get; set; }

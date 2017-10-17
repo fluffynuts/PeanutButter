@@ -3,12 +3,14 @@ using NSubstitute;
 using NUnit.Framework;
 using PeanutButter.FluentMigrator.Fakes;
 using PeanutButter.TestUtils.Generic;
+using NExpect;
+using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.FluentMigrator.Tests.Fakes
 {
     [TestFixture]
-    public class TestFakeDbCommand: AssertionHelper
+    public class TestFakeDbCommand
     {
         [Test]
         public void Type_ShouldImplement_IDbCommand()
@@ -33,7 +35,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            Expect(() => sut.Dispose(), Throws.Nothing);
+            Expect(() => sut.Dispose()).Not.To.Throw();
 
             //--------------- Assert -----------------------
         }
@@ -46,7 +48,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            Expect(() => sut.Prepare(), Throws.Nothing);
+            Expect(() => sut.Prepare()).Not.To.Throw();
 
             //--------------- Assert -----------------------
         }
@@ -59,7 +61,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            Expect(() => sut.Cancel(), Throws.Nothing);
+            Expect(() => sut.Cancel()).Not.To.Throw();
 
             //--------------- Assert -----------------------
         }
@@ -77,11 +79,11 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result2 = sut.CreateParameter();
 
             //--------------- Assert -----------------------
-            Expect(result1, Is.Not.Null);
-            Expect(result2, Is.Not.Null);
-            Expect(result1, Is.InstanceOf<FakeDbParameter>());
-            Expect(result2, Is.InstanceOf<FakeDbParameter>());
-            Expect(result1, Is.Not.EqualTo(result2));
+            Expect(result1).Not.To.Be.Null();
+            Expect(result2).Not.To.Be.Null();
+            Expect(result1).To.Be.An.Instance.Of<FakeDbParameter>();
+            Expect(result2).To.Be.An.Instance.Of<FakeDbParameter>();
+            Expect(result1).Not.To.Equal(result2);
         }
 
         [Test]
@@ -97,7 +99,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             sut.Connection = expected;
 
             //--------------- Assert -----------------------
-            Expect(sut.Connection, Is.EqualTo(expected));
+            Expect(sut.Connection).To.Equal(expected);
         }
 
         [Test]
@@ -113,7 +115,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             sut.Transaction = expected;
 
             //--------------- Assert -----------------------
-            Expect(sut.Transaction, Is.EqualTo(expected));
+            Expect(sut.Transaction).To.Equal(expected);
         }
 
         [Test]
@@ -129,7 +131,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             sut.CommandText = expected;
 
             //--------------- Assert -----------------------
-            Expect(sut.CommandText, Is.EqualTo(expected));
+            Expect(sut.CommandText).To.Equal(expected);
         }
 
         [Test]
@@ -145,7 +147,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             sut.CommandTimeout = expected;
 
             //--------------- Assert -----------------------
-            Expect(sut.CommandTimeout, Is.EqualTo(expected));
+            Expect(sut.CommandTimeout).To.Equal(expected);
         }
 
         [Test]
@@ -161,7 +163,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             sut.CommandType = expected;
 
             //--------------- Assert -----------------------
-            Expect(sut.CommandType, Is.EqualTo(expected));
+            Expect(sut.CommandType).To.Equal(expected);
         }
 
         [Test]
@@ -177,7 +179,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             sut.UpdatedRowSource = expected;
 
             //--------------- Assert -----------------------
-            Expect(sut.UpdatedRowSource, Is.EqualTo(expected));
+            Expect(sut.UpdatedRowSource).To.Equal(expected);
         }
 
 
