@@ -5,11 +5,18 @@ using NUnit.Framework;
 using PeanutButter.FluentMigrator.Fakes;
 using PeanutButter.TestUtils.Generic;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using NExpect;
+using NExpect.Interfaces;
+using NExpect.MatcherLogic;
+using static NExpect.Expectations;
+// ReSharper disable ConditionIsAlwaysTrueOrFalse
+// ReSharper disable ExpressionIsAlwaysNull
+// ReSharper disable PossibleNullReferenceException
 
 namespace PeanutButter.FluentMigrator.Tests.Fakes
 {
     [TestFixture]
-    public class TestFakeDbReader: AssertionHelper
+    public class TestFakeDbReader
     {
         [Test]
         public void Type_ShouldImplement_IDataReader()
@@ -34,8 +41,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            Expect(() => sut.Dispose(),
-                Throws.Nothing);
+            Expect(() => sut.Dispose()).Not.To.Throw();
 
             //--------------- Assert -----------------------
         }
@@ -53,7 +59,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut.GetName(input);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(""));
+            Expect(result).To.Be.Empty();
         }
 
         [Test]
@@ -69,7 +75,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut.GetDataTypeName(input);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(""));
+            Expect(result).To.Be.Empty();
         }
 
         [Test]
@@ -85,7 +91,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut.GetFieldType(input);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(typeof(object)));
+            Expect(result).To.Equal(typeof(object));
         }
 
         [Test]
@@ -101,7 +107,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut.GetValue(input);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(default(object)));
+            Expect(result).To.Equal(default(object));
         }
 
 
@@ -118,7 +124,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut.GetValues(input);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(0));
+            Expect(result).To.Equal(0);
         }
 
         [Test]
@@ -134,7 +140,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut.GetOrdinal(input);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(-1));
+            Expect(result).To.Equal(-1);
         }
 
         [Test]
@@ -151,7 +157,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut.GetBoolean(input);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(expected));
+            Expect(result).To.Equal(expected);
         }
 
 
@@ -169,7 +175,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut.GetByte(input);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(expected));
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -186,7 +192,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut.GetChar(input);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(expected));
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -203,7 +209,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut.GetGuid(input);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(expected));
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -220,7 +226,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut.GetInt16(input);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(expected));
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -237,7 +243,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut.GetInt32(input);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(expected));
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -254,7 +260,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut.GetInt64(input);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(expected));
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -271,7 +277,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut.GetFloat(input);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(expected));
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -288,7 +294,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut.GetDouble(input);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(expected));
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -305,7 +311,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut.GetString(input);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(expected));
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -322,7 +328,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut.GetDecimal(input);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(expected));
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -339,7 +345,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut.GetDateTime(input);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(expected));
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -355,7 +361,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut.GetBytes(GetRandomInt(), GetRandomInt(), new byte[0], GetRandomInt(), GetRandomInt());
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(expected));
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -371,7 +377,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut.GetChars(GetRandomInt(), GetRandomInt(), new char[0], GetRandomInt(), GetRandomInt());
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(expected));
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -388,11 +394,11 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result2 = sut.GetData(index);
 
             //--------------- Assert -----------------------
-            Expect(result1, Is.Not.Null);
-            Expect(result2, Is.Not.Null);
-            Expect(result1, Is.InstanceOf<FakeDbReader>());
-            Expect(result2, Is.InstanceOf<FakeDbReader>());
-            Expect(result1, Is.Not.EqualTo(result2));
+            Expect(result1).Not.To.Be.Null();
+            Expect(result2).Not.To.Be.Null();
+            Expect(result1).To.Be.An.Instance.Of<FakeDbReader>();
+            Expect(result2).To.Be.An.Instance.Of<FakeDbReader>();
+            Expect(result1).Not.To.Equal(result2);
         }
 
         [Test]
@@ -408,7 +414,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut.IsDBNull(index);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.True);
+            Expect(result).To.Be.True();
         }
 
         [Test]
@@ -423,7 +429,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut.FieldCount;
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(0));
+            Expect(result).To.Equal(0);
         }
 
         [Test]
@@ -439,7 +445,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut[index];
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(default(object)));
+            Expect(result).To.Equal(default(object));
         }
 
 
@@ -456,7 +462,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut[index];
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(default(object)));
+            Expect(result).To.Equal(default(object));
         }
 
         [Test]
@@ -466,13 +472,13 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var sut = Create();
 
             //--------------- Assume ----------------
-            Expect(sut.IsClosed, Is.False);
+            Expect(sut.IsClosed).To.Be.False();
 
             //--------------- Act ----------------------
             sut.Close();
 
             //--------------- Assert -----------------------
-            Expect(sut.IsClosed, Is.True);
+            Expect(sut.IsClosed).To.Be.True();
         }
 
         [Test]
@@ -488,11 +494,11 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result2 = sut.GetSchemaTable();
 
             //--------------- Assert -----------------------
-            Expect(result1, Is.Not.Null);
-            Expect(result1.Rows, Is.Empty);
-            Expect(result2, Is.Not.Null);
-            Expect(result2.Rows, Is.Empty);
-            Expect(result1, Is.Not.EqualTo(result2));
+            Expect(result1).Not.To.Be.Null();
+            Expect(result1.Rows).To.Be.Empty();
+            Expect(result2).Not.To.Be.Null();
+            Expect(result2.Rows).To.Be.Empty();
+            Expect(result1).Not.To.Equal(result2);
         }
 
         [Test]
@@ -507,7 +513,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut.NextResult();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.False);
+            Expect(result).To.Be.False();
         }
 
         [Test]
@@ -522,7 +528,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut.Read();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.False);
+            Expect(result).To.Be.False();
         }
 
         [Test]
@@ -537,7 +543,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut.Depth;
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Zero);
+            Expect(result).To.Equal(0);
         }
 
 
@@ -553,12 +559,29 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut.RecordsAffected;
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Zero);
+            Expect(result).To.Equal(0);
         }
 
         private FakeDbReader Create()
         {
             return new FakeDbReader();
+        }
+    }
+
+    internal static class DataRowMatchers
+    {
+        public static void Empty(
+            this IBe<DataRowCollection> be
+        )
+        {
+            be.Compose(actual =>
+            {
+                Expect(actual.Count)
+                    .To.Equal(
+                        0,
+                        $"Expected no rows, but found {actual.Count}"
+                    );
+            });
         }
     }
 }
