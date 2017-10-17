@@ -3,13 +3,16 @@ using NUnit.Framework;
 using PeanutButter.DuckTyping.Exceptions;
 using PeanutButter.DuckTyping.Shimming;
 using PeanutButter.RandomGenerators;
+using NExpect;
+using static NExpect.Expectations;
 
+// ReSharper disable UnusedMember.Global
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.DuckTyping.Tests.Shimming
 {
     [TestFixture]
-    public class TestShimSham: AssertionHelper
+    public class TestShimSham
     {
         // Most of ShimSham is tested indirectly throug tests on TypeMaker
         //  However I'd like to start testing more from basics (:
@@ -18,12 +21,14 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
         {
             public string LastPitch { get; set; }
             public int LastCount { get; set; }
+
             public void Moo(int howManyTimes, string withPitch)
             {
                 LastCount = howManyTimes;
                 LastPitch = withPitch;
             }
         }
+
         [Test]
         public void CallThrough_GivenParameterOrderMisMatch_WhenConstructedWithFlimFlamFalse_ShouldExplode()
         {
@@ -35,8 +40,9 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
 
             //--------------- Act ----------------------
             Expect(() =>
-                sut.CallThrough("Moo", new object[] { "high-pitched", 2 }),
-                Throws.Exception.InstanceOf<ArgumentException>());
+                    sut.CallThrough("Moo", new object[] {"high-pitched", 2})
+                )
+                .To.Throw<ArgumentException>();
 
             //--------------- Assert -----------------------
         }
@@ -54,12 +60,13 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
 
             //--------------- Act ----------------------
             Expect(() =>
-                sut.CallThrough("Moo", new object[] { expectedPitch, expectedCount } ),
-                Throws.Nothing);
+                    sut.CallThrough("Moo", new object[] {expectedPitch, expectedCount})
+                )
+                .Not.To.Throw();
 
             //--------------- Assert -----------------------
-            Expect(toWrap.LastPitch, Is.EqualTo(expectedPitch));
-            Expect(toWrap.LastCount, Is.EqualTo(expectedCount));
+            Expect(toWrap.LastPitch).To.Equal(expectedPitch);
+            Expect(toWrap.LastCount).To.Equal(expectedCount);
         }
 
 
@@ -75,8 +82,9 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
 
             //--------------- Act ----------------------
             Expect(() =>
-                sut.GetPropertyValue("lastPitch"),
-                Throws.Exception.InstanceOf<PropertyNotFoundException>());
+                    sut.GetPropertyValue("lastPitch")
+                )
+                .To.Throw<PropertyNotFoundException>();
 
             //--------------- Assert -----------------------
         }
@@ -96,7 +104,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var result = sut.GetPropertyValue("lastPitch");
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(expected));
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -113,7 +121,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             sut.SetPropertyValue("LasTpItch", expected);
 
             //--------------- Assert -----------------------
-            Expect(toWrap.LastPitch, Is.EqualTo(expected));
+            Expect(toWrap.LastPitch).To.Equal(expected);
         }
 
         [Test]
@@ -128,8 +136,9 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
 
             //--------------- Act ----------------------
             Expect(() =>
-                sut.SetPropertyValue("LasTpItch", expected),
-                Throws.Exception.InstanceOf<PropertyNotFoundException>());
+                    sut.SetPropertyValue("LasTpItch", expected)
+                )
+                .To.Throw<PropertyNotFoundException>();
 
             //--------------- Assert -----------------------
         }
@@ -147,11 +156,11 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
 
             //--------------- Act ----------------------
             Expect(() =>
-                sut.CallThrough("mOo", new object[] { count, pitch }),
-                Throws.Exception.InstanceOf<MethodNotFoundException>());
+                    sut.CallThrough("mOo", new object[] {count, pitch})
+                )
+                .To.Throw<MethodNotFoundException>();
 
             //--------------- Assert -----------------------
-
         }
 
 
@@ -167,12 +176,11 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            sut.CallThrough("mOo", new object[] { count, pitch });
+            sut.CallThrough("mOo", new object[] {count, pitch});
 
             //--------------- Assert -----------------------
-            Expect(toWrap.LastCount, Is.EqualTo(count));
-            Expect(toWrap.LastPitch, Is.EqualTo(pitch));
-
+            Expect(toWrap.LastCount).To.Equal(count);
+            Expect(toWrap.LastPitch).To.Equal(pitch);
         }
 
         public interface IFarmAnimal
@@ -182,9 +190,8 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
 
         public interface ISingleAnimalFarm
         {
-            IFarmAnimal Animal { get; set ; }
+            IFarmAnimal Animal { get; set; }
         }
-
 
 
         [Test]
@@ -193,7 +200,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             //--------------- Arrange -------------------
             var toWrap = new
             {
-                Animal = new SomeArbitraryAnimal() { Legs = 4 }
+                Animal = new SomeArbitraryAnimal() {Legs = 4}
             };
             var sut = Create(toWrap, typeof(ISingleAnimalFarm), false);
 
@@ -203,9 +210,9 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var result = sut.GetPropertyValue("Animal") as IFarmAnimal;
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Not.Null);
+            Expect(result).Not.To.Be.Null();
             // ReSharper disable once PossibleNullReferenceException
-            Expect(result.Legs, Is.EqualTo(4));
+            Expect(result.Legs).To.Equal(4);
         }
 
         public class SomeSingleAnimalFarm
@@ -222,9 +229,9 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
         public void SettingPropertyValuesOnNestedMismatchingTypes()
         {
             //--------------- Arrange -------------------
-            var toWrap = new SomeSingleAnimalFarm() { Animal = new SomeArbitraryAnimal() { Legs = 4 } };
+            var toWrap = new SomeSingleAnimalFarm() {Animal = new SomeArbitraryAnimal() {Legs = 4}};
             var sut = Create(toWrap, typeof(ISingleAnimalFarm), false);
-            var newAnimal = new SomeArbitraryAnimal() { Legs = 100 };
+            var newAnimal = new SomeArbitraryAnimal() {Legs = 100};
 
             //--------------- Assume ----------------
 
@@ -233,15 +240,16 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var result = sut.GetPropertyValue("Animal") as IFarmAnimal;
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Not.Null);
+            Expect(result).Not.To.Be.Null();
             // ReSharper disable once PossibleNullReferenceException
-            Expect(result.Legs, Is.EqualTo(100));
+            Expect(result.Legs).To.Equal(100);
             result.Legs = 123;
             var newResult = sut.GetPropertyValue("Animal") as IFarmAnimal;
-            Expect(newResult.Legs, Is.EqualTo(123));
+            Expect(newResult.Legs).To.Equal(123);
         }
 
-        public interface IHasGuidId {
+        public interface IHasGuidId
+        {
             Guid Id { get; }
         }
 
@@ -250,7 +258,8 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
         {
             //--------------- Arrange -------------------
             var guid = Guid.NewGuid();
-            var toWrap = new {
+            var toWrap = new
+            {
                 Id = guid.ToString()
             };
             var sut = Create(toWrap, typeof(IHasGuidId), true);
@@ -261,14 +270,16 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var result = sut.GetPropertyValue("Id");
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(guid));
+            Expect(result).To.Equal(guid);
         }
 
         public class WithStringId
         {
-            public string id { get; set ; }
+            public string id { get; set; }
         }
-        public interface IHasReadWriteGuidId {
+
+        public interface IHasReadWriteGuidId
+        {
             Guid Id { get; set; }
         }
 
@@ -286,7 +297,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             sut.SetPropertyValue("id", guid);
 
             //--------------- Assert -----------------------
-            Expect(toWrap.id, Is.EqualTo(guid.ToString()));
+            Expect(toWrap.id).To.Equal(guid.ToString());
         }
 
         public class WithIntId
@@ -303,7 +314,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
         public void SetPropertyValue_WhenUnderlyingFieldIsNotNullable_GivenNull_ShouldSetDefaultValueForFieldType()
         {
             //--------------- Arrange -------------------
-            var inner = new WithIntId() { Id = 12 };
+            var inner = new WithIntId() {Id = 12};
             var sut = Create(inner, typeof(IWithIntId), true);
 
             //--------------- Assume ----------------
@@ -312,17 +323,19 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             sut.SetPropertyValue("Id", null);
 
             //--------------- Assert -----------------------
-            Expect(inner.Id, Is.EqualTo(0));
+            Expect(inner.Id).To.Equal(0);
         }
 
         public interface IWithWriteOnlyId
         {
             int Id { set; }
         }
+
         public class WithWriteOnlyId
         {
             public int Id { private get; set; }
         }
+
         [Test]
         public void GetPropertyValue_WhenPropertyIsWriteOnly_ShouldThrow()
         {
@@ -332,8 +345,8 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            Expect(() => sut.GetPropertyValue("Id"),
-                Throws.Exception.InstanceOf<WriteOnlyPropertyException>());
+            Expect(() => sut.GetPropertyValue("Id"))
+                .To.Throw<WriteOnlyPropertyException>();
 
             //--------------- Assert -----------------------
         }
@@ -342,10 +355,12 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
         {
             int Id { get; }
         }
+
         public class WithReadOnlyId
         {
             public int Id { get; }
         }
+
         [Test]
         public void SetPropertyValue_WhenPropertyIsReadOnly_ShouldThrow()
         {
@@ -355,15 +370,15 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            Expect(() => sut.SetPropertyValue("Id", 1),
-                Throws.Exception.InstanceOf<ReadOnlyPropertyException>());
+            Expect(() => sut.SetPropertyValue("Id", 1))
+                .To.Throw<ReadOnlyPropertyException>();
 
             //--------------- Assert -----------------------
         }
 
         public class UnderlyingWithNull
         {
-            public object Foo { get; set ;}
+            public object Foo { get; set; }
         }
 
         public interface IOverlyingNotNullable
@@ -372,10 +387,11 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
         }
 
         [Test]
-        public void GetPropertyValue_WhenUnderlyingValueNotNull_AndPropertyTypeIsNotNullable_AndNoConverter_ShouldReturnDefaultValue()
+        public void
+            GetPropertyValue_WhenUnderlyingValueNotNull_AndPropertyTypeIsNotNullable_AndNoConverter_ShouldReturnDefaultValue()
         {
             //--------------- Arrange -------------------
-            var sut = Create(new UnderlyingWithNull() { Foo = null }, typeof(IOverlyingNotNullable), true);
+            var sut = Create(new UnderlyingWithNull() {Foo = null}, typeof(IOverlyingNotNullable), true);
 
             //--------------- Assume ----------------
 
@@ -383,15 +399,16 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var result = sut.GetPropertyValue("Foo");
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(0));
+            Expect(result).To.Equal(0);
         }
 
 
         [Test]
-        public void GetPropertyValue_WhenUnderlyingValueIsNotNull_AndPropertyTypeIsNotNullable_AndNoConverter_ShouldReturnDefaultValue()
+        public void
+            GetPropertyValue_WhenUnderlyingValueIsNotNull_AndPropertyTypeIsNotNullable_AndNoConverter_ShouldReturnDefaultValue()
         {
             //--------------- Arrange -------------------
-            var sut = Create(new UnderlyingWithNull() { Foo = new object() }, typeof(IOverlyingNotNullable), true);
+            var sut = Create(new UnderlyingWithNull() {Foo = new object()}, typeof(IOverlyingNotNullable), true);
 
             //--------------- Assume ----------------
 
@@ -399,17 +416,17 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             var result = sut.GetPropertyValue("Foo");
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(0));
+            Expect(result).To.Equal(0);
         }
 
         private ShimSham Create(object toWrap, Type toMimick, bool isFuzzy = false)
         {
-            return new ShimSham(new[] { toWrap }, toMimick, isFuzzy);
+            return new ShimSham(new[] {toWrap}, toMimick, isFuzzy);
         }
 
         private ShimSham Create(Cow toWrap, bool fuzzy)
         {
-            return new ShimSham(new[] { toWrap }, toWrap.GetType(), fuzzy);
+            return new ShimSham(new[] {toWrap}, toWrap.GetType(), fuzzy);
         }
     }
 }
