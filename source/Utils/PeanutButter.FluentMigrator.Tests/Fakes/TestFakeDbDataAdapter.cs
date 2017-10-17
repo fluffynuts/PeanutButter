@@ -5,11 +5,14 @@ using NUnit.Framework;
 using PeanutButter.FluentMigrator.Fakes;
 using PeanutButter.TestUtils.Generic;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using NExpect;
+using static NExpect.Expectations;
+// ReSharper disable PossibleNullReferenceException
 
 namespace PeanutButter.FluentMigrator.Tests.Fakes
 {
     [TestFixture]
-    public class TestFakeDbDataAdapter: AssertionHelper
+    public class TestFakeDbDataAdapter
     {
         [Test]
         public void Type_ShouldImplement_IDbDataAdapter()
@@ -37,7 +40,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             sut.MissingMappingAction = expected;
 
             //--------------- Assert -----------------------
-            Expect(sut.MissingMappingAction, Is.EqualTo(expected));
+            Expect(sut.MissingMappingAction).To.Equal(expected);
         }
 
         [Test]
@@ -52,7 +55,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             sut.MissingSchemaAction = expected;
 
             //--------------- Assert -----------------------
-            Expect(sut.MissingSchemaAction, Is.EqualTo(expected));
+            Expect(sut.MissingSchemaAction).To.Equal(expected);
         }
 
         [Test]
@@ -66,13 +69,13 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
                                 .FirstOrDefault(fi => fi.FieldType.IsAssignableFrom(typeof(ITableMappingCollection)));
 
             //--------------- Assume ----------------
-            Expect(fieldInfo, Is.Not.Null);
+            Expect(fieldInfo).Not.To.Be.Null();
 
             //--------------- Act ----------------------
             fieldInfo.SetValue(sut, expected);
 
             //--------------- Assert -----------------------
-            Expect(sut.TableMappings, Is.EqualTo(expected));
+            Expect(sut.TableMappings).To.Equal(expected);
         }
 
 
@@ -88,7 +91,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             sut.SelectCommand = expected;
 
             //--------------- Assert -----------------------
-            Expect(sut.SelectCommand, Is.EqualTo(expected));
+            Expect(sut.SelectCommand).To.Equal(expected);
         }
 
         [Test]
@@ -103,7 +106,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             sut.InsertCommand = expected;
 
             //--------------- Assert -----------------------
-            Expect(sut.InsertCommand, Is.EqualTo(expected));
+            Expect(sut.InsertCommand).To.Equal(expected);
         }
 
         [Test]
@@ -118,7 +121,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             sut.UpdateCommand = expected;
 
             //--------------- Assert -----------------------
-            Expect(sut.UpdateCommand, Is.EqualTo(expected));
+            Expect(sut.UpdateCommand).To.Equal(expected);
         }
 
         [Test]
@@ -133,7 +136,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             sut.DeleteCommand = expected;
 
             //--------------- Assert -----------------------
-            Expect(sut.DeleteCommand, Is.EqualTo(expected));
+            Expect(sut.DeleteCommand).To.Equal(expected);
         }
 
 
@@ -151,8 +154,8 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut.FillSchema(dataSet, schemaType);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Not.Null);
-            Expect(result, Is.Empty);
+            Expect(result).Not.To.Be.Null();
+            Expect(result).To.Be.Empty();
         }
 
         [Test]
@@ -168,7 +171,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut.Fill(dataset);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(0));
+            Expect(result).To.Equal(0);
         }
 
         [Test]
@@ -183,8 +186,8 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut.GetFillParameters();
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Not.Null);
-            Expect(result, Is.Empty);
+            Expect(result).Not.To.Be.Null();
+            Expect(result).To.Be.Empty();
         }
 
         [Test]
@@ -200,7 +203,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result = sut.Update(dataset);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(0));
+            Expect(result).To.Equal(0);
         }
 
         private FakeDbDataAdapter Create()

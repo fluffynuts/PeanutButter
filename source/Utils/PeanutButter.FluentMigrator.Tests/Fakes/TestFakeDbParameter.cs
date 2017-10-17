@@ -3,11 +3,13 @@ using NUnit.Framework;
 using PeanutButter.FluentMigrator.Fakes;
 using PeanutButter.TestUtils.Generic;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using NExpect;
+using static NExpect.Expectations;
 
 namespace PeanutButter.FluentMigrator.Tests.Fakes
 {
     [TestFixture]
-    public class TestFakeDbParameter: AssertionHelper
+    public class TestFakeDbParameter
     {
         [Test]
         public void Type_ShouldImplement_IDbDataParameter()
@@ -36,7 +38,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             sut.DbType = expected;
 
             //--------------- Assert -----------------------
-            Expect(sut.DbType, Is.EqualTo(expected));
+            Expect(sut.DbType).To.Equal((expected));
         }
 
         [Test]
@@ -52,7 +54,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             sut.Direction = expected;
 
             //--------------- Assert -----------------------
-            Expect(sut.Direction, Is.EqualTo(expected));
+            Expect(sut.Direction).To.Equal((expected));
         }
 
         [Test]
@@ -68,7 +70,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             sut.ParameterName = expected;
 
             //--------------- Assert -----------------------
-            Expect(sut.ParameterName, Is.EqualTo(expected));
+            Expect(sut.ParameterName).To.Equal((expected));
         }
 
         [Test]
@@ -84,7 +86,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             sut.SourceColumn = expected;
 
             //--------------- Assert -----------------------
-            Expect(sut.SourceColumn, Is.EqualTo(expected));
+            Expect(sut.SourceColumn).To.Equal((expected));
         }
 
         [Test]
@@ -100,7 +102,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             sut.SourceVersion= expected;
 
             //--------------- Assert -----------------------
-            Expect(sut.SourceVersion, Is.EqualTo(expected));
+            Expect(sut.SourceVersion).To.Equal((expected));
         }
 
         [Test]
@@ -116,7 +118,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             sut.Value = expected;
 
             //--------------- Assert -----------------------
-            Expect(sut.Value, Is.EqualTo(expected));
+            Expect(sut.Value).To.Equal((expected));
         }
 
         [Test]
@@ -132,7 +134,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             sut.Precision = expected;
 
             //--------------- Assert -----------------------
-            Expect(sut.Precision, Is.EqualTo(expected));
+            Expect(sut.Precision).To.Equal((expected));
         }
 
         [Test]
@@ -148,7 +150,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             sut.Scale = expected;
 
             //--------------- Assert -----------------------
-            Expect(sut.Scale, Is.EqualTo(expected));
+            Expect(sut.Scale).To.Equal((expected));
         }
 
         [Test]
@@ -164,7 +166,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             sut.Size = expected;
 
             //--------------- Assert -----------------------
-            Expect(sut.Size, Is.EqualTo(expected));
+            Expect(sut.Size).To.Equal((expected));
         }
 
 
