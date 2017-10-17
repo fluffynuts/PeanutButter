@@ -3,11 +3,13 @@ using NSubstitute;
 using NUnit.Framework;
 using PeanutButter.FluentMigrator.Fakes;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using NExpect;
+using static NExpect.Expectations;
 
 namespace PeanutButter.FluentMigrator.Tests.Fakes
 {
     [TestFixture]
-    public class TestFakeDbConnectionFactory: AssertionHelper
+    public class TestFakeDbConnectionFactory
     {
         [Test]
         public void CreateConnection_GivenConnectionString_ShouldReturnNewFakeConnectionWithThatConnectionString()
@@ -24,13 +26,13 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result2 = sut.CreateConnection(expected2);
 
             //--------------- Assert -----------------------
-            Expect(result1, Is.Not.Null);
-            Expect(result1, Is.InstanceOf<FakeDbConnection>());
-            Expect(result1.ConnectionString, Is.EqualTo(expected1));
-            Expect(result2, Is.Not.Null);
-            Expect(result2, Is.InstanceOf<FakeDbConnection>());
-            Expect(result2.ConnectionString, Is.EqualTo(expected2));
-            Expect(result1, Is.Not.EqualTo(result2));
+            Expect(result1).Not.To.Be.Null();
+            Expect(result1).To.Be.An.Instance.Of<FakeDbConnection>();
+            Expect(result1.ConnectionString).To.Equal(expected1);
+            Expect(result2).Not.To.Be.Null();
+            Expect(result2).To.Be.An.Instance.Of<FakeDbConnection>();
+            Expect(result2.ConnectionString).To.Equal(expected2);
+            Expect(result1).Not.To.Equal(result2);
         }
 
         [Test]
@@ -52,17 +54,17 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result2 = sut.CreateCommand(text2, connection2, transaction2);
 
             //--------------- Assert -----------------------
-            Expect(result1, Is.Not.Null);
-            Expect(result1, Is.InstanceOf<FakeDbCommand>());
-            Expect(result1.Connection, Is.EqualTo(connection1));
-            Expect(result1.CommandText, Is.EqualTo(text1));
-            Expect(result1.Transaction, Is.EqualTo(transaction1));
-            Expect(result2, Is.Not.Null);
-            Expect(result2, Is.InstanceOf<FakeDbCommand>());
-            Expect(result2.Connection, Is.EqualTo(connection2));
-            Expect(result2.CommandText, Is.EqualTo(text2));
-            Expect(result2.Transaction, Is.EqualTo(transaction2));
-            Expect(result1, Is.Not.EqualTo(result2));
+            Expect(result1).Not.To.Be.Null();
+            Expect(result1).To.Be.An.Instance.Of<FakeDbCommand>();
+            Expect(result1.Connection).To.Equal(connection1);
+            Expect(result1.CommandText).To.Equal(text1);
+            Expect(result1.Transaction).To.Equal(transaction1);
+
+            Expect(result2).Not.To.Be.Null();
+            Expect(result2).To.Be.An.Instance.Of<FakeDbCommand>();
+            Expect(result2.Connection).To.Equal(connection2);
+            Expect(result2.CommandText).To.Equal(text2);
+            Expect(result2.Transaction).To.Equal(transaction2);
         }
 
         [Test]
@@ -82,17 +84,19 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result2 = sut.CreateCommand(text2, connection2);
 
             //--------------- Assert -----------------------
-            Expect(result1, Is.Not.Null);
-            Expect(result1, Is.InstanceOf<FakeDbCommand>());
-            Expect(result1.Connection, Is.EqualTo(connection1));
-            Expect(result1.CommandText, Is.EqualTo(text1));
-            Expect(result2, Is.Not.Null);
-            Expect(result2, Is.InstanceOf<FakeDbCommand>());
-            Expect(result2.Connection, Is.EqualTo(connection2));
-            Expect(result2.CommandText, Is.EqualTo(text2));
-            Expect(result1, Is.Not.EqualTo(result2));
-            Expect(result1.Transaction, Is.Not.Null);
-            Expect(result2.Transaction, Is.Not.Null);
+            Expect(result1).Not.To.Be.Null();
+            Expect(result1).To.Be.An.Instance.Of<FakeDbCommand>();
+            Expect(result1.Connection).To.Equal(connection1);
+            Expect(result1.CommandText).To.Equal(text1);
+
+            Expect(result2).Not.To.Be.Null();
+            Expect(result2).To.Be.An.Instance.Of<FakeDbCommand>();
+            Expect(result2.Connection).To.Equal(connection2);
+            Expect(result2.CommandText).To.Equal(text2);
+
+            Expect(result1).Not.To.Equal(result2);
+            Expect(result1.Transaction).Not.To.Be.Null();
+            Expect(result2.Transaction).Not.To.Be.Null();
         }
 
         [Test]
@@ -110,19 +114,21 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
             var result2 = sut.CreateDataAdapter(command2);
 
             //--------------- Assert -----------------------
-            Expect(result1, Is.Not.Null);
-            Expect(result1, Is.InstanceOf<FakeDbDataAdapter>());
-            Expect(result1.DeleteCommand, Is.EqualTo(command1));
-            Expect(result1.InsertCommand, Is.EqualTo(command1));
-            Expect(result1.SelectCommand, Is.EqualTo(command1));
-            Expect(result1.UpdateCommand, Is.EqualTo(command1));
-            Expect(result2, Is.Not.Null);
-            Expect(result2, Is.InstanceOf<FakeDbDataAdapter>());
-            Expect(result2.DeleteCommand, Is.EqualTo(command2));
-            Expect(result2.InsertCommand, Is.EqualTo(command2));
-            Expect(result2.SelectCommand, Is.EqualTo(command2));
-            Expect(result2.UpdateCommand, Is.EqualTo(command2));
-            Expect(result1, Is.Not.EqualTo(result2));
+            Expect(result1).Not.To.Be.Null();
+            Expect(result1).To.Be.An.Instance.Of<FakeDbDataAdapter>();
+            Expect(result1.DeleteCommand).To.Equal(command1);
+            Expect(result1.InsertCommand).To.Equal(command1);
+            Expect(result1.SelectCommand).To.Equal(command1);
+            Expect(result1.UpdateCommand).To.Equal(command1);
+
+            Expect(result2).Not.To.Be.Null();
+            Expect(result2).To.Be.An.Instance.Of<FakeDbDataAdapter>();
+            Expect(result2.DeleteCommand).To.Equal(command2);
+            Expect(result2.InsertCommand).To.Equal(command2);
+            Expect(result2.SelectCommand).To.Equal(command2);
+            Expect(result2.UpdateCommand).To.Equal(command2);
+
+            Expect(result1).Not.To.Equal(result2);
         }
 
 
