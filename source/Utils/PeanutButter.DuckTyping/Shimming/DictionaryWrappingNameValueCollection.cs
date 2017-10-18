@@ -72,7 +72,9 @@ namespace PeanutButter.DuckTyping.Shimming
         public void CopyTo(KeyValuePair<string, object>[] array, int arrayIndex)
         {
             // TODO -- not necessary for my requirements
-            throw new NotImplementedException();
+            foreach (var kvp in this) {
+                array[arrayIndex++] = kvp;
+            }
         }
 
         /// <inheritdoc />
