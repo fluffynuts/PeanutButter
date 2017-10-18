@@ -122,16 +122,18 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
         [Test]
-        public void CopyTo_ShouldThrowNotImplementedException()
+        public void CopyTo_ShouldCopyItemsToArray()
         {
-            // DictionaryWrappingNameValueCollection is internal and I don't need this functionality (yet)
             // Arrange
             var sut = Create();
+            var kvp = new KeyValuePair<string, object>(GetRandomString(2), GetRandomString(2));
+            sut.Add(kvp);
+            var target = new KeyValuePair<string, object>[2];
             // Pre-Assert
             // Act
-            Expect(() => sut.CopyTo(new KeyValuePair<string, object>[5], 0))
-                .To.Throw<NotImplementedException>();
+            sut.CopyTo(target, 1);
             // Assert
+            Expect(target[1]).To.Equal(kvp);
         }
 
         [Test]
