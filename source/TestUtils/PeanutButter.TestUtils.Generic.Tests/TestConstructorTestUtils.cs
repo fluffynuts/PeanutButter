@@ -1,6 +1,12 @@
 ﻿using System;
 using NUnit.Framework;
 using PeanutButter.Utils;
+// ReSharper disable NotAccessedField.Local
+// ReSharper disable UnusedParameter.Local
+// ReSharper disable UnusedMember.Local
+// ReSharper disable ClassNeverInstantiated.Global
+// ReSharper disable ClassNeverInstantiated.Local
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.TestUtils.Generic.Tests
 {
@@ -222,8 +228,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
                 ISomeOtherInterface someDependency
             )
             {
-                if (someDependency == null) throw new ArgumentNullException(nameof(someDependency));
-                _someDependency = someDependency;
+                _someDependency = someDependency ?? throw new ArgumentNullException(nameof(someDependency));
             }
         }
         [Test]
@@ -242,7 +247,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
         }
 
 
-        class ClassWithConstructorWithSubstitutableParameterThatThrowsCorrectExceptions
+        private class ClassWithConstructorWithSubstitutableParameterThatThrowsCorrectExceptions
         {
 #pragma warning disable 169
             private readonly SubstitutableAbstractClass _parameter1;
@@ -250,11 +255,11 @@ namespace PeanutButter.TestUtils.Generic.Tests
 
             public ClassWithConstructorWithSubstitutableParameterThatThrowsCorrectExceptions(SubstitutableAbstractClass parameter1)
             {
-                if (parameter1 == null) throw new ArgumentNullException("parameter1");
+                if (parameter1 == null) throw new ArgumentNullException(nameof(parameter1));
             }
         }
 
-        class ClassWithConstructorWithSubstitutableParameterThatThrowsIncorrectExceptions
+        private class ClassWithConstructorWithSubstitutableParameterThatThrowsIncorrectExceptions
         {
 #pragma warning disable 169
             private readonly SubstitutableAbstractClass _parameter1;
@@ -262,11 +267,12 @@ namespace PeanutButter.TestUtils.Generic.Tests
 
             public ClassWithConstructorWithSubstitutableParameterThatThrowsIncorrectExceptions(SubstitutableAbstractClass parameter1)
             {
+                // ReSharper disable once NotResolvedInText
                 if (parameter1 == null) throw new ArgumentNullException("WrongParameterName");
             }
         }
 
-        class ClassWithConstructorWithSubstitutableParameter
+        private class ClassWithConstructorWithSubstitutableParameter
         {
             public ClassWithConstructorWithSubstitutableParameter(IInterface parameter1)
             {
@@ -274,34 +280,34 @@ namespace PeanutButter.TestUtils.Generic.Tests
         }
 
 
-        class ClassWithConstructorWithMultipleSubstitutableAbstractParametersThatThrowsCorrectExceptions
+        private class ClassWithConstructorWithMultipleSubstitutableAbstractParametersThatThrowsCorrectExceptions
         {
             public ClassWithConstructorWithMultipleSubstitutableAbstractParametersThatThrowsCorrectExceptions(SubstitutableAbstractClass parameter1, SubstitutableAbstractClass parameter2)
             {
-                if (parameter1 == null) throw new ArgumentNullException("parameter1");
-                if (parameter2 == null) throw new ArgumentNullException("parameter2");
+                if (parameter1 == null) throw new ArgumentNullException(nameof(parameter1));
+                if (parameter2 == null) throw new ArgumentNullException(nameof(parameter2));
             }
         }
 
-        class ClassWithConstructorWithMultipleSubstitutableInterfaceParametersThatThrowsCorrectExceptions
+        private class ClassWithConstructorWithMultipleSubstitutableInterfaceParametersThatThrowsCorrectExceptions
         {
             public ClassWithConstructorWithMultipleSubstitutableInterfaceParametersThatThrowsCorrectExceptions(IInterface parameter1, IInterface parameter2)
             {
-                if (parameter1 == null) throw new ArgumentNullException("parameter1");
-                if (parameter2 == null) throw new ArgumentNullException("parameter2");
+                if (parameter1 == null) throw new ArgumentNullException(nameof(parameter1));
+                if (parameter2 == null) throw new ArgumentNullException(nameof(parameter2));
             }
         }
 
-        class ClassWithConstructorWithMultipleSubstitutableParametersImplementingAnInterfaceThatThrowsCorrectExceptions
+        private class ClassWithConstructorWithMultipleSubstitutableParametersImplementingAnInterfaceThatThrowsCorrectExceptions
         {
             public ClassWithConstructorWithMultipleSubstitutableParametersImplementingAnInterfaceThatThrowsCorrectExceptions(SubstitutableClassImplementingAnInterface parameter1, SubstitutableClassImplementingAnInterface parameter2)
             {
-                if (parameter1 == null) throw new ArgumentNullException("parameter1");
-                if (parameter2 == null) throw new ArgumentNullException("parameter2");
+                if (parameter1 == null) throw new ArgumentNullException(nameof(parameter1));
+                if (parameter2 == null) throw new ArgumentNullException(nameof(parameter2));
             }
         }
 
-        class ClassWithMultipleConstructors
+        private class ClassWithMultipleConstructors
         {
             public ClassWithMultipleConstructors(object parameter)
             {
@@ -312,21 +318,21 @@ namespace PeanutButter.TestUtils.Generic.Tests
             }
         }
 
-        class ClassWithNonAbstractConstructorParameter
+        private class ClassWithNonAbstractConstructorParameter
         {
             public ClassWithNonAbstractConstructorParameter(int? parameter)
             {
             }
         }
 
-        class ClassWithPrimitiveConstructorParameter
+        private class ClassWithPrimitiveConstructorParameter
         {
             public ClassWithPrimitiveConstructorParameter(int parameter)
             {
             }
         }
 
-        class ClassWithNonSubstitutableConstructorParameter
+        private class ClassWithNonSubstitutableConstructorParameter
         {
             public ClassWithNonSubstitutableConstructorParameter(RandomStruct parameter)
             {
