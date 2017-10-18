@@ -1,5 +1,6 @@
 ﻿using System;
 using NUnit.Framework;
+using PeanutButter.Utils;
 
 namespace PeanutButter.TestUtils.Generic.Tests
 {

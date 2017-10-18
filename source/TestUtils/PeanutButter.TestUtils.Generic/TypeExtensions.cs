@@ -85,25 +85,6 @@ namespace PeanutButter.TestUtils.Generic
             ShouldNotBeAssignableFrom(type, shouldNotBeAncestor);
         }
 
-        public static string PrettyName(this Type type)
-        {
-            if (type == null)
-                return "(null Type)";
-            if (type.IsGenericType)
-            {
-                if (type.GetGenericTypeDefinition() == typeof(Nullable<>))
-                {
-                    var underlyingType = type.GetGenericArguments()[0];
-                    return string.Format("{0}?", PrettyName(underlyingType));
-                }
-                var baseName = type.FullName.Substring(0, type.FullName.IndexOf("`"));
-                var parts = baseName.Split(new[] { '.' });
-                return parts.Last() + "<" + string.Join(", ", type.GetGenericArguments().Select(PrettyName)) + ">";
-            }
-            else
-                return type.Name;
-        }
-
         public static void ShouldBeAbstract(this Type type)
         {
             if (!type.IsAbstract)

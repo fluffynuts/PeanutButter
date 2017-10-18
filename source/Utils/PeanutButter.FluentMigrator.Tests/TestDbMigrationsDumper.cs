@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NExpect;
 using NUnit.Framework;
+using PeanutButter.DuckTyping.Extensions;
 using PeanutButter.FluentMigrator.MigrationDumping;
 using PeanutButter.FluentMigrator.MigrationDumping.Examples;
 using PeanutButter.FluentMigrator.Tests.Shared;
@@ -9,11 +11,14 @@ using PeanutButter.RandomGenerators;
 using PeanutButter.TempDb.LocalDb;
 using PeanutButter.TestUtils.Entity;
 using PeanutButter.Utils;
+using static NExpect.Expectations;
+// ReSharper disable PossibleMultipleEnumeration
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.FluentMigrator.Tests
 {
     [TestFixture]
-    public class TestDbMigrationsDumper : AssertionHelper
+    public class TestDbMigrationsDumper
     {
         [Test]
         public void DumpMigrationScript_ShouldReturnMigrationScript()
@@ -27,10 +32,9 @@ namespace PeanutButter.FluentMigrator.Tests
             var result = sut.DumpMigrationScript(GetType().Assembly);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Not.Null);
-            Expect(result, Is.Not.Empty);
-            Expect(result.Any(r => r.ToLower().Contains("create table [cows]")),
-                Is.True);
+            Expect(result).Not.To.Be.Null();
+            Expect(result).Not.To.Be.Empty();
+            Expect(result.ToLower().JoinWith(" ")).To.Contain("create table [cows]");
             ExpectScriptsCanSupportDatabase(result);
         }
 
@@ -51,12 +55,10 @@ namespace PeanutButter.FluentMigrator.Tests
             var result = sut.DumpMigrationScript(GetType().Assembly);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Not.Null);
-            Expect(result, Is.Not.Empty);
-            Expect(result.Any(r => r.ToLower().Contains("create table [cows]")),
-                Is.True);
-            Expect(result.Any(r => r.Contains("/*")), Is.False);
-            Console.WriteLine(string.Join("\n", result));
+            Expect(result).Not.To.Be.Null();
+            Expect(result).Not.To.Be.Empty();
+            Expect(result.ToLower().JoinWith(" ")).To.Contain("create table [cows]");
+            Expect(result).Not.To.Contain("/*");
             ExpectScriptsCanSupportDatabase(result);
         }
 
@@ -77,12 +79,10 @@ namespace PeanutButter.FluentMigrator.Tests
             var result = sut.DumpMigrationScript(GetType().Assembly);
 
             //--------------- Assert -----------------------
-            Expect(result, Is.Not.Null);
-            Expect(result, Is.Not.Empty);
-            Expect(result.Any(r => r.ToLower().Contains("create table [cows]")),
-                Is.True);
-            Console.Write(string.Join("\n", result.Where(r => r.Contains("VersionInfo"))));
-            Expect(result.Any(r => r.Contains("VersionInfo")), Is.False);
+            Expect(result).Not.To.Be.Null();
+            Expect(result).Not.To.Be.Empty();
+            Expect(result.ToUpper().JoinWith(" ")).To.Contain("CREATE TABLE [COWS]");
+            Expect(result).Not.To.Contain("VersionInfo");
             ExpectScriptsCanSupportDatabase(result);
         }
 
@@ -118,9 +118,9 @@ namespace PeanutButter.FluentMigrator.Tests
                 using (var ctx = new MooContext(db.CreateConnection()))
                 {
                     var allCows = ctx.Cows.ToArray();
-                    Expect(allCows, Has.Length.EqualTo(1));
-                    var stored = allCows[0];
-                    Expect(stored.DeepEquals(cow, ObjectComparisons.PropertiesOnly, "Id"), Is.True);
+                    Expect(allCows).To.Contain.Exactly(1).Item();
+                    var stored = allCows[0].DuckAs<ICow>();
+                    Expect(cow.DuckAs<ICow>()).To.Deep.Equal(stored);
                 }
             }
         }

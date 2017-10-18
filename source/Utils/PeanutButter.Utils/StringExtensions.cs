@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+
 // ReSharper disable MemberCanBePrivate.Global
 
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
@@ -159,6 +160,62 @@ namespace PeanutButter.Utils
         public static Stream AsStream(this string src)
         {
             return src.AsStream(Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// Lowercases a string collection with Invariant culture. Tolerates nulls.
+        /// </summary>
+        /// <param name="src">Collection to lower-case</param>
+        /// <returns>Input, lower-cased</returns>
+        public static IEnumerable<string> ToLower(
+            this IEnumerable<string> src
+        )
+        {
+            return src.ToLower(CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
+        /// Lowercases a string collection with Invariant culture. Tolerates nulls.
+        /// </summary>
+        /// <param name="src">Collection to lower-case</param>
+        /// <param name="cultureInfo">Culture to use in the operation</param>
+        /// <returns>Input, lower-cased</returns>
+        public static IEnumerable<string> ToLower(
+            this IEnumerable<string> src,
+            CultureInfo cultureInfo
+        )
+        {
+            return src.Select(s => s?.ToLower(cultureInfo));
+        }
+
+        /// <summary>
+        /// Uppercases a string collection with Invariant culture. Tolerates nulls.
+        /// </summary>
+        /// <param name="src">Collection to lower-case</param>
+        /// <returns>Input, lower-cased</returns>
+        public static IEnumerable<string> ToUpper(
+            this IEnumerable<string> src
+        )
+        {
+            return src.ToUpper(CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
+        /// Uppercases a string collection with Invariant culture. Tolerates nulls.
+        /// </summary>
+        /// <param name="src">Collection to lower-case</param>
+        /// <param name="cultureInfo">Culture to use in the operation. Note that .NET's ToUpper doesn't accept a culture, so really, your only choices here are "Invariant" or "whatever .Net uses by default".</param>
+        /// <returns>Input, lower-cased</returns>
+        public static IEnumerable<string> ToUpper(
+            this IEnumerable<string> src,
+            CultureInfo cultureInfo
+        )
+        {
+            return src.Select(s =>
+                cultureInfo.Equals(CultureInfo.InvariantCulture)
+                    ? s?.ToUpperInvariant()
+                    : s?.ToUpper()
+            );
         }
 
         /// <summary>

@@ -1,6 +1,7 @@
 using System;
 using NUnit.Framework;
 using NExpect;
+using NExpect.Implementations;
 using static NExpect.Expectations;
 
 namespace PeanutButter.Utils.Tests
@@ -54,6 +55,18 @@ namespace PeanutButter.Utils.Tests
             Expect(result).To.Equal(data.Item2.TrimStart().Replace("\r", ""));
         }
 
+        [Test]
+        public void CollectionsOfCollections()
+        {
+            // Arrange
+            // Pre-Assert
+            // Act
+            Console.WriteLine(new[] {
+                new[] { 1, 2 },
+                new[] { 5, 6, 7 }
+            }.Stringify());
+            // Assert
+        }
 
     }
 }

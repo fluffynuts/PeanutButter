@@ -2,6 +2,7 @@ using System;
 using NExpect;
 using NUnit.Framework;
 using PeanutButter.TestUtils.Generic;
+using PeanutButter.Utils;
 using static NExpect.Expectations;
 
 namespace PeanutButter.RandomGenerators.Tests

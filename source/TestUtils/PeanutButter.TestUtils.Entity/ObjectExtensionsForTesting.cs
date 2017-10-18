@@ -8,6 +8,7 @@ using System.Reflection;
 using NUnit.Framework;
 using PeanutButter.TempDb.LocalDb;
 using PeanutButter.TestUtils.Generic;
+using PeanutButter.Utils;
 
 namespace PeanutButter.TestUtils.Entity
 {

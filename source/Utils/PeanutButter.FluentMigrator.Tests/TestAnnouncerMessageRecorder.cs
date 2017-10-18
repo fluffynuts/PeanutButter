@@ -1,11 +1,12 @@
 ﻿using NUnit.Framework;
 using PeanutButter.FluentMigrator.MigrationDumping;
-using static PeanutButter.RandomGenerators.RandomValueGen;
+using NExpect;
+using static NExpect.Expectations;
 
 namespace PeanutButter.FluentMigrator.Tests
 {
     [TestFixture]
-    public class TestAnnouncerMessageRecorder : AssertionHelper
+    public class TestAnnouncerMessageRecorder
     {
         public class Opts : IMigrationDumperOptions
         {
@@ -21,13 +22,13 @@ namespace PeanutButter.FluentMigrator.Tests
             var sut = Create(opts);
 
             //--------------- Assume ----------------
-            Expect(sut.Statements, Is.Empty);
+            Expect(sut.Statements).To.Be.Empty();
 
             //--------------- Act ----------------------
             sut.Record("/* some comment */");
 
             //--------------- Assert -----------------------
-            Expect(sut.Statements, Is.Empty);
+            Expect(sut.Statements).To.Be.Empty();
         }
 
         [Test]
@@ -39,15 +40,13 @@ namespace PeanutButter.FluentMigrator.Tests
             var expected = "/* some comment */";
 
             //--------------- Assume ----------------
-            Expect(sut.Statements, Is.Empty);
+            Expect(sut.Statements).To.Be.Empty();
 
             //--------------- Act ----------------------
             sut.Record(expected);
 
             //--------------- Assert -----------------------
-            Expect(sut.Statements, Is.Not.Empty);
-            Expect(sut.Statements,
-                Does.Contain(expected));
+            Expect(sut.Statements).To.Contain.Only(1).Equal.To(expected);
         }
 
         [TestCase("Create table VersionInfo")]
@@ -61,13 +60,13 @@ namespace PeanutButter.FluentMigrator.Tests
             var sut = Create(opts);
 
             //--------------- Assume ----------------
-            Expect(sut.Statements, Is.Empty);
+            Expect(sut.Statements).To.Be.Empty();
 
             //--------------- Act ----------------------
             sut.Record(statement);
 
             //--------------- Assert -----------------------
-            Expect(sut.Statements, Is.Empty);
+            Expect(sut.Statements).To.Be.Empty();
         }
 
         [TestCase("Create table VersionInfo")]
@@ -81,15 +80,13 @@ namespace PeanutButter.FluentMigrator.Tests
             var sut = Create(opts);
 
             //--------------- Assume ----------------
-            Expect(sut.Statements, Is.Empty);
+            Expect(sut.Statements).To.Be.Empty();
 
             //--------------- Act ----------------------
             sut.Record(statement);
 
             //--------------- Assert -----------------------
-            Expect(sut.Statements, Is.Not.Empty);
-            Expect(sut.Statements,
-                Does.Contain(statement));
+            Expect(sut.Statements).To.Contain.Only(1).Equal.To(statement);
         }
 
 
