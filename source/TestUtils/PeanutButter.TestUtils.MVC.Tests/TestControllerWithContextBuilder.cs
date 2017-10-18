@@ -1,17 +1,20 @@
-﻿using System.Collections.Specialized;
+﻿using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Security.Principal;
 using System.Web.Mvc;
 using System.Web.Routing;
-using System.Web.UI.WebControls;
 using NSubstitute;
 using NUnit.Framework;
 using PeanutButter.TestUtils.MVC.Builders;
+using NExpect;
+using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.TestUtils.MVC.Tests
 {
     [TestFixture]
-    public class TestControllerWithContextBuilder: AssertionHelper
+    public class TestControllerWithContextBuilder
     {
         [Test]
         public void Build_Default_ShouldBuild()
@@ -21,9 +24,10 @@ namespace PeanutButter.TestUtils.MVC.Tests
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            Expect(() => 
-                ControllerWithContextBuilder<SomeController>.Create().Build(),
-                Throws.Nothing);
+            Expect(() =>
+                    ControllerWithContextBuilder<SomeController>.Create().Build()
+                )
+                .Not.To.Throw();
 
             //--------------- Assert -----------------------
         }
@@ -37,11 +41,11 @@ namespace PeanutButter.TestUtils.MVC.Tests
 
             //--------------- Act ----------------------
             var controller = ControllerWithContextBuilder<SomeController>
-                                .Create()
-                                .Build();
+                .Create()
+                .Build();
 
             //--------------- Assert -----------------------
-            Expect(controller.ControllerContext, Is.Not.Null);
+            Expect(controller.ControllerContext).Not.To.Be.Null();
         }
 
 
@@ -55,13 +59,12 @@ namespace PeanutButter.TestUtils.MVC.Tests
 
             //--------------- Act ----------------------
             var controller = ControllerWithContextBuilder<SomeController>
-                                .Create()
-                                .WithPrincipal(principal)
-                                .Build();
+                .Create()
+                .WithPrincipal(principal)
+                .Build();
 
             //--------------- Assert -----------------------
-            Expect(controller.User, Is.Not.Null);
-            Expect(controller.User, Is.EqualTo(principal));
+            Expect(controller.User).To.Equal(principal);
         }
 
         [Test]
@@ -76,15 +79,15 @@ namespace PeanutButter.TestUtils.MVC.Tests
 
             //--------------- Act ----------------------
             var controller = ControllerWithContextBuilder<SomeController>
-                                .Create()
-                                .ForAction(action)
-                                .WithQueryStringParameter(parameter, value)
-                                .Build();
+                .Create()
+                .ForAction(action)
+                .WithQueryStringParameter(parameter, value)
+                .Build();
 
             //--------------- Assert -----------------------
-            Expect(controller.RouteData.Values["action"], Is.EqualTo(action));
-            Expect(controller.RouteData.Values["controller"], 
-                Is.EqualTo(nameof(SomeController).Replace("Controller", "")));
+            Expect(controller.RouteData.Values["action"]).To.Equal(action);
+            Expect(controller.RouteData.Values["controller"])
+                .To.Equal(nameof(SomeController).Replace("Controller", ""));
         }
 
         [Test]
@@ -99,13 +102,13 @@ namespace PeanutButter.TestUtils.MVC.Tests
 
             //--------------- Act ----------------------
             var controller = ControllerWithContextBuilder<SomeController>
-                                .Create()
-                                .ForAction(action)
-                                .WithQueryStringParameter(parameter, value)
-                                .Build();
+                .Create()
+                .ForAction(action)
+                .WithQueryStringParameter(parameter, value)
+                .Build();
 
             //--------------- Assert -----------------------
-            Expect(controller.Request.QueryString[parameter], Is.EqualTo(value));
+            Expect(controller.Request.QueryString[parameter]).To.Equal(value);
         }
 
         [Test]
@@ -118,12 +121,12 @@ namespace PeanutButter.TestUtils.MVC.Tests
 
             //--------------- Act ----------------------
             var controller = ControllerWithContextBuilder<SomeController>
-                                .Create()
-                                .WithRouteData(expected)
-                                .Build();
+                .Create()
+                .WithRouteData(expected)
+                .Build();
 
             //--------------- Assert -----------------------
-            Expect(controller.RouteData, Is.EqualTo(expected));
+            Expect(controller.RouteData).To.Equal(expected);
         }
 
         [Test]
@@ -139,12 +142,12 @@ namespace PeanutButter.TestUtils.MVC.Tests
 
             //--------------- Act ----------------------
             var controller = ControllerWithContextBuilder<SomeController>
-                                .Create()
-                                .WithRouteValues(expected)
-                                .Build();
+                .Create()
+                .WithRouteValues(expected)
+                .Build();
 
             //--------------- Assert -----------------------
-            Expect(controller.RouteData.Values[key], Is.EqualTo(expected[key]));
+            Expect(controller.RouteData.Values[key]).To.Equal(expected[key]);
         }
 
 
@@ -159,12 +162,12 @@ namespace PeanutButter.TestUtils.MVC.Tests
 
             //--------------- Act ----------------------
             var controller = ControllerWithContextBuilder<SomeController>
-                                .Create()
-                                .WithSessionItem(key, value)
-                                .Build();
+                .Create()
+                .WithSessionItem(key, value)
+                .Build();
 
             //--------------- Assert -----------------------
-            Expect(controller.Session[key], Is.EqualTo(value));
+            Expect(controller.Session[key]).To.Equal(value);
         }
 
         [Test]
@@ -178,12 +181,12 @@ namespace PeanutButter.TestUtils.MVC.Tests
 
             //--------------- Act ----------------------
             var controller = ControllerWithContextBuilder<SomeController>
-                                .Create()
-                                .WithCookie(key, value)
-                                .Build();
+                .Create()
+                .WithCookie(key, value)
+                .Build();
 
             //--------------- Assert -----------------------
-            Expect(controller.Request.Cookies[key]?.Value, Is.EqualTo(value));
+            Expect(controller.Request.Cookies[key]?.Value).To.Equal(value);
         }
 
 
@@ -198,12 +201,12 @@ namespace PeanutButter.TestUtils.MVC.Tests
 
             //--------------- Act ----------------------
             var controller = ControllerWithContextBuilder<SomeController>
-                                .Create()
-                                .WithFormParameter(key, value)
-                                .Build();
+                .Create()
+                .WithFormParameter(key, value)
+                .Build();
 
             //--------------- Assert -----------------------
-            Expect(controller.Request.Form[key], Is.EqualTo(value));
+            Expect(controller.Request.Form[key]).To.Equal(value);
         }
 
         [Test]
@@ -216,12 +219,12 @@ namespace PeanutButter.TestUtils.MVC.Tests
 
             //--------------- Act ----------------------
             var controller = ControllerWithContextBuilder<SomeController>
-                                .Create()
-                                .WithFormParameters(expected)
-                                .Build();
+                .Create()
+                .WithFormParameters(expected)
+                .Build();
 
             //--------------- Assert -----------------------
-            Expect(controller.Request.Form, Is.EqualTo(expected));
+            Expect(controller.Request.Form == expected).To.Be.True();
         }
 
         [Test]
@@ -234,12 +237,12 @@ namespace PeanutButter.TestUtils.MVC.Tests
 
             //--------------- Act ----------------------
             var controller = ControllerWithContextBuilder<SomeController>
-                                .Create()
-                                .WithControllerFactory(() => expected)
-                                .Build();
+                .Create()
+                .WithControllerFactory(() => expected)
+                .Build();
 
             //--------------- Assert -----------------------
-            Expect(controller, Is.EqualTo(expected));
+            Expect(controller).To.Equal(expected);
         }
 
         [Test]
@@ -251,21 +254,19 @@ namespace PeanutButter.TestUtils.MVC.Tests
 
             //--------------- Act ----------------------
             Expect(() => ControllerWithContextBuilder<HasConstructorArgumentsController>
-                            .Create()
-                            .Build(),
-                    Throws.Exception.Message.Contain("no parameterless constructor"));
+                    .Create()
+                    .Build()
+               ).To.Throw().With.Message.Containing("no parameterless constructor");
 
             //--------------- Assert -----------------------
         }
-
-
     }
 
-    public class SomeController: Controller
+    public class SomeController : Controller
     {
     }
 
-    public class HasConstructorArgumentsController: Controller
+    public class HasConstructorArgumentsController : Controller
     {
         public bool IsContrived { get; }
 
