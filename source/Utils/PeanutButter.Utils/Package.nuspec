@@ -1,7 +1,7 @@
 <package>
   <metadata>
     <id>PeanutButter.Utils</id>
-    <version>1.2.188</version>
+    <version>1.2.189</version>
     <title>PeanutButter.Utils</title>
     <authors>Davyd McColl</authors>
     <owners>Davyd McColl</owners>
@@ -29,6 +29,5 @@
     <file src="bin/Release/net452/PeanutButter.Utils.xml" target="lib/netstandard1.6" />
     <file src="bin/Release/netstandard1.6/PeanutButter.Utils.dll" target="lib/netstandard1.6" />
     <file src="bin/Release/netstandard1.6/PeanutButter.Utils.deps.json" target="lib/netstandard1.6" />
-    <file src="tools\" target="tools" />
   </files>
 </package>
