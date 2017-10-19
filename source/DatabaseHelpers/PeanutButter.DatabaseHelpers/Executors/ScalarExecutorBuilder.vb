@@ -49,7 +49,7 @@ Namespace Executors
           throw new Exception("No connection factory defined for ScalarExecutorBuilder.Execute")
         End If
         sqlStatement = GetSqlString()
-        If sqlStatement Is Nothing Then Throw New ArgumentException(Me.GetType().Name, ":: sql not set")
+        If sqlStatement Is Nothing Then Throw New ArgumentException([GetType]().Name, $":: sql not set")
         Dim cmd = New OleDbCommand
         Dim conn = _connFactory()
         Dim transaction = conn.BeginTransaction
@@ -73,9 +73,9 @@ Namespace Executors
     End Function
 
     Public Overridable Function ExecuteInsert() As Object Implements IScalarExecutorBuilder.ExecuteInsert
-      Me.Execute()
-      Me._sql = "select @@IDENTITY"
-      Return Me.Execute()
+      Execute()
+      _sql = "select @@IDENTITY"
+      Return Execute()
     End Function
 
     Public Overridable Function WithConnectionFactory(connFactory As Func(Of IDbConnection)) As IScalarExecutorBuilder Implements IScalarExecutorBuilder.WithConnectionFactory
@@ -84,33 +84,35 @@ Namespace Executors
     End Function
 
     Public Overridable Function WithSql(sql As String) As IScalarExecutorBuilder Implements IScalarExecutorBuilder.WithSql
-      Me.SetSQLSource(sql, Nothing, Nothing, Nothing)
+      SetSQLSource(sql, Nothing, Nothing, Nothing)
       Return Me
     End Function
 
     ' TESTME
     Public Overridable Function WithSql(builder As IUpdateStatementBuilder) As IScalarExecutorBuilder Implements IScalarExecutorBuilder.WithSql
-      Me.SetSQLSource(Nothing, builder, Nothing, Nothing)
+      SetSQLSource(Nothing, builder, Nothing, Nothing)
       Return Me
     End Function
 
     ' TESTME
     Public Overridable Function WithSql(builder As IInsertStatementBuilder) As IScalarExecutorBuilder Implements IScalarExecutorBuilder.WithSql
-      Me.SetSQLSource(Nothing, Nothing, builder, Nothing)
+      SetSQLSource(Nothing, Nothing, builder, Nothing)
       Return Me
     End Function
 
     ' TESTME
     Public Overridable Function WithSql(builder As IDeleteStatementBuilder) As IScalarExecutorBuilder Implements IScalarExecutorBuilder.WithSql
-      Me.SetSQLSource(Nothing, Nothing, Nothing, builder)
+      SetSQLSource(Nothing, Nothing, Nothing, builder)
       Return Me
     End Function
 
+' ReSharper disable InconsistentNaming
     Private Sub SetSQLSource(str As String, up As IUpdateStatementBuilder, ins As IInsertStatementBuilder, del As IDeleteStatementBuilder)
-      Me._sql = str
-      Me._updateBuilder = up
-      Me._insertBuilder = ins
-      Me._deleteBuilder = del
+' ReSharper restore InconsistentNaming
+      _sql = str
+      _updateBuilder = up
+      _insertBuilder = ins
+      _deleteBuilder = del
     End Sub
   End Class
 

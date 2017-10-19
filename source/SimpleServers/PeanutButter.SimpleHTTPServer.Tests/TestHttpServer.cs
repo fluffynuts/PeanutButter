@@ -100,13 +100,12 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             var route = "api/foo";
             using (var server = Create())
             {
-                string contentType;
                 server.AddJsonDocumentHandler((p, s) => p.Path == "/" + route ? data : null);
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
 
-                var stringResult = DownloadResultFrom(server, route, null, out contentType).ToUTF8String();
+                var stringResult = DownloadResultFrom(server, route, null, out string _).ToUTF8String();
 
                 //---------------Test Result -----------------------
                 var resultAsObject = JsonConvert.DeserializeObject<SimpleData>(stringResult);
@@ -496,7 +495,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             {
                 var expectedSize = long.Parse(response.Headers[CONTENT_LENGTH_HEADER]);
                 Console.WriteLine("Should get {0} bytes to {1}", expectedSize, outFile);
-                DownloadFile(response, outFile, expectedSize, expectedSize + existingSize, existingSize);
+                DownloadFile(response, outFile, expectedSize, expectedSize + existingSize);
                 return outFile;
             }
         }
@@ -509,7 +508,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                 return long.Parse(response.Headers[CONTENT_LENGTH_HEADER]);
             }
         }
-        private void DownloadFile(WebResponse response, string outFile, long expectedSize, long totalSize, long offset)
+        private void DownloadFile(WebResponse response, string outFile, long expectedSize, long totalSize)
         {
             if (totalSize <= 0) throw new ArgumentOutOfRangeException(nameof(totalSize));
             var parentFolder = Path.GetDirectoryName(outFile);
@@ -539,8 +538,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
 
         private byte[] DownloadResultFrom(HttpServer server, string path, Dictionary<string, string> addHeaders = null)
         {
-            string contentType;
-            return DownloadResultFrom(server, path, addHeaders, out contentType);
+            return DownloadResultFrom(server, path, addHeaders, out var _);
         }
 
         private byte[] DownloadResultFrom(HttpServer server, HttpMethods method, string path, Dictionary<string, string> addHeaders, out string contentType)

@@ -39,7 +39,7 @@ Namespace StatementBuilders
 
     Public Overrides Function ToString() As String Implements IField.ToString
       Dim parts = New List(Of String)
-      parts.Add(Me.ComputeFunction.ToString())
+      parts.Add(ComputeFunction.ToString())
       parts.Add("(")
       parts.Add(_openObjectQuote)
       parts.Add(FieldName)
@@ -53,7 +53,7 @@ Namespace StatementBuilders
     End Function
 
     Public Sub UseDatabaseProvider(provider As DatabaseProviders) Implements IField.UseDatabaseProvider
-      MyBase.SetDatabaseProvider(provider)
+      SetDatabaseProvider(provider)
     End Sub
   End Class
 End NameSpace

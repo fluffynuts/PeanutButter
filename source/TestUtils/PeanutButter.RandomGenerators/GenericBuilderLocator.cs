@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using PeanutButter.Utils;
+// ReSharper disable UnusedMember.Local
+#pragma warning disable 168
 
 namespace PeanutButter.RandomGenerators
 {
@@ -165,11 +167,10 @@ namespace PeanutButter.RandomGenerators
 #endif
         }
 
-        private static readonly object _referenceLoadLock = new object();
-        private static bool _haveLoadedImmediateAssemblies;
-
 #if NETSTANDARD
 #else
+        private static readonly object _referenceLoadLock = new object();
+        private static bool _haveLoadedImmediateAssemblies;
         private static void LoadImmediateAssembliesIfRequired()
         {
             lock (_referenceLoadLock)

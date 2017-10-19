@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using PeanutButter.FluentMigrator;
 using PeanutButter.Utils;
+// ReSharper disable AccessToDisposedClosure
 
 namespace PeanutButter.TestUtils.Entity
 {

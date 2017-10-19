@@ -7,6 +7,7 @@ using PeanutButter.RandomGenerators;
 using PeanutButter.TempDb.LocalDb;
 using PeanutButter.Utils;
 using PeanutButter.TestUtils.Generic;
+// ReSharper disable InconsistentNaming
 
 namespace PeanutButter.TempDb.Tests
 {
@@ -69,7 +70,7 @@ namespace PeanutButter.TempDb.Tests
         public void Dispose_ShouldRemoveTheTempDatabase()
         {
             //---------------Set up test pack-------------------
-            string file = null;
+            string file;
             using (var db = new TempDBLocalDb())
             {
                 //---------------Assert Precondition----------------
@@ -82,7 +83,7 @@ namespace PeanutButter.TempDb.Tests
                 cmd.ExecuteNonQuery();
                 cmd = conn.CreateCommand();
                 cmd.CommandText = "select * from [test];";
-                var rdr = cmd.ExecuteReader();
+                cmd.ExecuteReader();
                 file = db.DatabaseFile;
                 Assert.IsTrue(File.Exists(file));
 
@@ -160,7 +161,7 @@ namespace PeanutButter.TempDb.Tests
             var createTable = "create table TheTable(id int primary key, name nvarchar(128));";
             var insertData = "insert into TheTable(id, name) values (1, 'one');";
             var selectData = "select * from TheTable; "; //"select name from TheTable where id = 1;";
-            string theFile = null;
+            string theFile;
             using (var db = new TempDBLocalDb(new[] { createTable, insertData }))
             {
                 theFile = db.DatabaseFile;
@@ -198,6 +199,7 @@ namespace PeanutButter.TempDb.Tests
                 //  running all tests viable
                 Parallel.For(0, 10, i =>
                 {
+                    // ReSharper disable once AccessToDisposedClosure
                     disposer.Add(new TempDBLocalDb());
                 });
 

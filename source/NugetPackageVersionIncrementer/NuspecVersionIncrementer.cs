@@ -4,18 +4,19 @@ using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using PeanutButter.XmlUtils;
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace NugetPackageVersionIncrementer
 {
     public class NuspecVersionIncrementer
     {
         public string Version { get; set; }
-        public string PackageID { get; private set; }
+        public string PackageId { get; private set; }
         private XDocument _doc;
 
         public NuspecVersionIncrementer(string nuspec)
         {
-            if (string.IsNullOrWhiteSpace(nuspec)) throw new ArgumentException("Nuspec is not valid XML", "nuspec");
+            if (string.IsNullOrWhiteSpace(nuspec)) throw new ArgumentException("Nuspec is not valid XML", nameof(nuspec));
             Parse(nuspec.Trim());
         }
 
@@ -27,17 +28,17 @@ namespace NugetPackageVersionIncrementer
             }
             catch (Exception ex)
             {
-                throw new ArgumentException("Nuspec is not valid XML: " + ex.Message, "nuspec");
+                throw new ArgumentException("Nuspec is not valid XML: " + ex.Message, nameof(nuspec));
             }
             GrokVersion();
-            GrokPackageID();
+            GrokPackageId();
         }
 
-        private void GrokPackageID()
+        private void GrokPackageId()
         {
             var idNode = _doc.XPathSelectElements("/package/metadata/id").FirstOrDefault();
             if (idNode == null) throw new Exception("No package id node found");
-            PackageID = idNode.Text();
+            PackageId = idNode.Text();
         }
 
         private void GrokVersion()
@@ -59,7 +60,7 @@ namespace NugetPackageVersionIncrementer
                 Version = "0.0.1";
                 return;
             }
-            var versionNumbers = GetVersionAsNumbers();
+            var versionNumbers = GetVersionAsNumbers().ToArray();
             var minor = versionNumbers.Last();
             var preMinor = versionNumbers.Reverse().Skip(1).Reverse();
             var incremented = new List<int>(preMinor) {minor + 1};

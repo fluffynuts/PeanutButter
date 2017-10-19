@@ -1,8 +1,5 @@
-﻿Namespace StatementBuilders
-
-  Public Interface IJoin
-    Function ToString() as String
-  End Interface
+﻿' ReSharper disable MemberCanBePrivate.Global
+Namespace StatementBuilders
   Public Class Join
     Inherits StatementBuilderBase
     Private _noLock As Boolean
@@ -21,19 +18,19 @@
     public Property RightTableAlias as String
     Public Property EqualityOperator As Condition.EqualityOperators
 
-    Public Sub New(_direction As JoinDirections,
-                   _leftTable As String,
-                   _leftField As String,
-                   _op As Condition.EqualityOperators,
-                   _rightTable As String,
-                   _rightField As String)
-      Me.Direction = _direction
-      Me.LeftTable = _leftTable
-      Me.LeftField = _leftField
-      Me.RightTable = _rightTable
-      Me.RightField = _rightField
-      Me.EqualityOperator = _op
-      Me._hasSingleCondition = True
+    Public Sub New(direction As JoinDirections,
+                   leftTable As String,
+                   leftField As String,
+                   op As Condition.EqualityOperators,
+                   rightTable As String,
+                   rightField As String)
+      Me.Direction = direction
+      Me.LeftTable = leftTable
+      Me.LeftField = leftField
+      Me.RightTable = rightTable
+      Me.RightField = rightField
+      EqualityOperator = op
+      _hasSingleCondition = True
       SetupSingleCondition()
     End Sub
 
@@ -48,9 +45,6 @@
     End Sub
 
     Private Sub SetupSingleCondition()
-      'Dim localLeftField  = _openObjectQuote + LeftTable + _closeObjectQuote + "." + _openObjectQuote + LeftField + _closeObjectQuote
-      'Dim localRightField  = _openObjectQuote + RightTable + _closeObjectQuote + "." + _openObjectQuote + RightField + _closeObjectQuote
-      'Me.Conditions.Add(New Condition(localLeftField, EqualityOperator, localRightField, False))
       Conditions.Add(New Condition(New SelectField(LeftTable, LeftField), _
                                    EqualityOperator, _
                                    New SelectField(RightAliasOrName(), RightField)))
@@ -70,10 +64,10 @@
     Public Overrides Function ToString() As String
       Dim parts As New List(Of String)
       SetConditionDatabaseProviders()
-      parts.Add(Me.Direction.ToString().ToLower())
+      parts.Add(Direction.ToString().ToLower())
       parts.Add(" join ")
       parts.Add(_openObjectQuote)
-      parts.Add(Me.RightTable)
+      parts.Add(RightTable)
       parts.Add(_closeObjectQuote)
       If _noLock AndAlso _databaseProvider = DatabaseProviders.SQLServer Then
         parts.Add(" WITH (NOLOCK)")

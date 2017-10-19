@@ -6,6 +6,8 @@ using System.Text;
 using NUnit.Framework;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+// ReSharper disable InconsistentNaming
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.INI.Tests
 {
@@ -14,8 +16,8 @@ namespace PeanutButter.INI.Tests
     {
         public class AutoDeletingTempFile: IDisposable
         {
-            public string Path { get { return _tempFile; } }
-            private string _tempFile;
+            public string Path => _tempFile;
+            private readonly string _tempFile;
 
             public AutoDeletingTempFile(string append = null)
             {
@@ -40,7 +42,10 @@ namespace PeanutButter.INI.Tests
                 {
                     File.Delete(_tempFile);
                 }
-                catch { }
+                catch
+                {
+                    // ignored
+                }
             }
         }
 
@@ -382,7 +387,6 @@ namespace PeanutButter.INI.Tests
         {
             //---------------Set up test pack-------------------
             var section = RandString();
-            var key = RandString();
             var iniFile = Create();
             iniFile.AddSection(section);
             //---------------Assert Precondition----------------
@@ -399,8 +403,6 @@ namespace PeanutButter.INI.Tests
         {
             //---------------Set up test pack-------------------
             var section = RandString();
-            var key = RandString();
-            var value = RandString();
             var iniFile = Create();
             iniFile.AddSection(section);
             //---------------Assert Precondition----------------
@@ -477,7 +479,7 @@ namespace PeanutButter.INI.Tests
                 Assert.IsFalse(File.Exists(tempFile.Path));
 
                 //---------------Execute Test ----------------------
-                var iniFile = Create(tempFile.Path);
+                Create(tempFile.Path);
 
                 //---------------Test Result -----------------------
                 Assert.IsTrue(File.Exists(tempFile.Path));

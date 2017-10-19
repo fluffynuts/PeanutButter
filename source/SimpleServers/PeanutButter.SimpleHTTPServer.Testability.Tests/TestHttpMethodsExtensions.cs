@@ -1,9 +1,8 @@
 ﻿using NExpect;
 using NUnit.Framework;
-using static PeanutButter.RandomGenerators.RandomValueGen;
-using static NExpect.Expectations;
+using PeanutButter.RandomGenerators;
 
-namespace PeanutButter.SimpleHTTPServer.Testability
+namespace PeanutButter.SimpleHTTPServer.Testability.Tests
 {
     [TestFixture]
     public class TestHttpMethodsExtensions
@@ -22,8 +21,8 @@ namespace PeanutButter.SimpleHTTPServer.Testability
             var result2 = right.Matches(left);
 
             //--------------- Assert -----------------------
-            Expect(result1).To.Be.True();
-            Expect(result2).To.Be.True();
+            Expectations.Expect(result1).To.Be.True();
+            Expectations.Expect(result2).To.Be.True();
         }
 
         [Test]
@@ -42,8 +41,8 @@ namespace PeanutButter.SimpleHTTPServer.Testability
             var result2 = right.Matches(left);
 
             //--------------- Assert -----------------------
-            Expect(result1).To.Be.False();
-            Expect(result2).To.Be.False();
+            Expectations.Expect(result1).To.Be.False();
+            Expectations.Expect(result2).To.Be.False();
         }
 
         [Test]
@@ -60,8 +59,8 @@ namespace PeanutButter.SimpleHTTPServer.Testability
             var result2 = right.Matches(left);
 
             //--------------- Assert -----------------------
-            Expect(result1).To.Be.True();
-            Expect(result2).To.Be.True();
+            Expectations.Expect(result1).To.Be.True();
+            Expectations.Expect(result2).To.Be.True();
         }
 
         [Test]
@@ -78,8 +77,8 @@ namespace PeanutButter.SimpleHTTPServer.Testability
             var result2 = right.Matches(left);
 
             //--------------- Assert -----------------------
-            Expect(result1).To.Be.True();
-            Expect(result2).To.Be.True();
+            Expectations.Expect(result1).To.Be.True();
+            Expectations.Expect(result2).To.Be.True();
         }
 
         [TestCase(HttpMethods.Get, "GET")]
@@ -97,7 +96,7 @@ namespace PeanutButter.SimpleHTTPServer.Testability
             var result = method.Matches(verb);
 
             //--------------- Assert -----------------------
-            Expect(result).To.Be.True();
+            Expectations.Expect(result).To.Be.True();
         }
 
         [Test]
@@ -109,15 +108,15 @@ namespace PeanutButter.SimpleHTTPServer.Testability
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var result = method.Matches(GetRandomFrom(new[] { "GET", "PUT", "POST", "Options", "PATCH" } ));
+            var result = method.Matches(RandomValueGen.GetRandomFrom(new[] { "GET", "PUT", "POST", "Options", "PATCH" } ));
 
             //--------------- Assert -----------------------
-            Expect(result).To.Be.True();
+            Expectations.Expect(result).To.Be.True();
         }
 
         private HttpMethods GetRandomMethodButNotAny()
         {
-            var result = GetRandom<HttpMethods>();
+            var result = RandomValueGen.GetRandom<HttpMethods>();
             return result == HttpMethods.Any 
                     ? GetRandomMethodButNotAny() 
                     : result;

@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+// ReSharper disable InconsistentNaming
+// ReSharper disable UnusedMemberInSuper.Global
 
 namespace EmailSpooler.Win32Service.SMTP
 {

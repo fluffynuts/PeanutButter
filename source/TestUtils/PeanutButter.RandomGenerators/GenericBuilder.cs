@@ -13,6 +13,8 @@ using PeanutButter.Utils;
 // ReSharper disable InheritdocConsiderUsage
 // ReSharper disable UsePatternMatching
 // ReSharper disable ClassWithVirtualMembersNeverInherited.Global
+// ReSharper disable UnusedMember.Local
+#pragma warning disable 168
 
 
 namespace PeanutButter.RandomGenerators

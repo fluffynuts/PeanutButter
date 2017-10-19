@@ -1,4 +1,5 @@
 ﻿using EmailSpooler.Win32Service.Entity;
+using EmailSpooler.Win32Service.SMTP;
 using NSubstitute;
 using NUnit.Framework;
 using PeanutButter.ServiceShell;

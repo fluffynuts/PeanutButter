@@ -3,6 +3,9 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+// ReSharper disable VirtualMemberCallInConstructor
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.SimpleTcpServer
 {

@@ -14,6 +14,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using PeanutButter.SimpleTcpServer;
+// ReSharper disable InconsistentNaming
 
 namespace PeanutButter.SimpleHTTPServer
 {

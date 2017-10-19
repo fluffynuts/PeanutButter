@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Configuration;
+using EmailSpooler.Win32Service.SMTP;
 using NSubstitute;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
@@ -80,6 +81,7 @@ namespace EmailSpooler.Win32Service.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
+            // ReSharper disable once ObjectCreationAsStatement
             var ex = Assert.Throws<ArgumentNullException>(() => new EmailSpoolerConfig(null));
 
             //---------------Test Result -----------------------

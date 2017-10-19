@@ -10,6 +10,8 @@ using PeanutButter.RandomGenerators;
 using PeanutButter.ServiceShell;
 using PeanutButter.TestUtils.Generic;
 using EmailAttachment = EmailSpooler.Win32Service.SMTP.EmailAttachment;
+// ReSharper disable ObjectCreationAsStatement
+// ReSharper disable RedundantArgumentDefaultValue
 
 namespace EmailSpooler.Win32Service.Tests
 {
@@ -29,14 +31,15 @@ namespace EmailSpooler.Win32Service.Tests
             return new EmailSpooler(deps);
         }
 
-        public class IFakeEmailSpoolerDependenciesBuilder: BuilderBase<IFakeEmailSpoolerDependenciesBuilder, IEmailSpoolerDependencies>, IBuilder<IEmailSpoolerDependencies>
+        public class FakeEmailSpoolerDependenciesBuilder: BuilderBase<FakeEmailSpoolerDependenciesBuilder, IEmailSpoolerDependencies>, IBuilder<IEmailSpoolerDependencies>
         {
-            public IFakeEmailSpoolerDependenciesBuilder()
+            public FakeEmailSpoolerDependenciesBuilder()
             {
                 var emailSpoolerConfig = Substitute.For<IEmailSpoolerConfig>();
                 emailSpoolerConfig.MaxSendAttempts.ReturnsForAnyArgs(ci => 5);
                 emailSpoolerConfig.BackoffMultiplier.ReturnsForAnyArgs(ci => 2);
                 WithEmailSpoolerConfig(emailSpoolerConfig)
+                    .WithSimpleLogger(_simpleLogger)
                     .WithDbContext(SubstituteEmailContextBuilder.BuildDefault())
                     .WithEmailConfig(Substitute.For<IEmailConfiguration>())
                     .WithSimpleLogger(Substitute.For<ISimpleLogger>())
@@ -46,40 +49,40 @@ namespace EmailSpooler.Win32Service.Tests
             public IEmailSpoolerDependencies Build()
             {
                 var deps = Substitute.For<IEmailSpoolerDependencies>();
-                deps.EmailGenerator.ReturnsForAnyArgs(ci => _EmailGenerator);
-                deps.DbContext.ReturnsForAnyArgs(ci => _DbContext);
-                deps.EmailSpoolerConfig.ReturnsForAnyArgs(ci => _Config);
-                deps.EmailConfig.ReturnsForAnyArgs(ci => _EmailConfig);
+                deps.EmailGenerator.ReturnsForAnyArgs(ci => _emailGenerator);
+                deps.DbContext.ReturnsForAnyArgs(ci => _dbContext);
+                deps.EmailSpoolerConfig.ReturnsForAnyArgs(ci => _config);
+                deps.EmailConfig.ReturnsForAnyArgs(ci => _emailConfig);
                 return deps;
             }
-            private Func<IEmail> _EmailGenerator;
-            public IFakeEmailSpoolerDependenciesBuilder WithEmailGenerator(Func<IEmail> EmailGenerator)
+            private Func<IEmail> _emailGenerator;
+            public FakeEmailSpoolerDependenciesBuilder WithEmailGenerator(Func<IEmail> emailGenerator)
             {
-                _EmailGenerator = EmailGenerator;
+                _emailGenerator = emailGenerator;
                 return this;
             }
-            private IEmailContext _DbContext;
-            public IFakeEmailSpoolerDependenciesBuilder WithDbContext(IEmailContext DbContext)
+            private IEmailContext _dbContext;
+            public FakeEmailSpoolerDependenciesBuilder WithDbContext(IEmailContext dbContext)
             {
-                _DbContext = DbContext;
+                _dbContext = dbContext;
                 return this;
             }
-            private IEmailSpoolerConfig _Config;
-            public IFakeEmailSpoolerDependenciesBuilder WithEmailSpoolerConfig(IEmailSpoolerConfig Config)
+            private IEmailSpoolerConfig _config;
+            public FakeEmailSpoolerDependenciesBuilder WithEmailSpoolerConfig(IEmailSpoolerConfig config)
             {
-                _Config = Config;
+                _config = config;
                 return this;
             }
-            private IEmailConfiguration _EmailConfig;
-            public IFakeEmailSpoolerDependenciesBuilder WithEmailConfig(IEmailConfiguration EmailConfig)
+            private IEmailConfiguration _emailConfig;
+            public FakeEmailSpoolerDependenciesBuilder WithEmailConfig(IEmailConfiguration emailConfig)
             {
-                _EmailConfig = EmailConfig;
+                _emailConfig = emailConfig;
                 return this;
             }
-            private ISimpleLogger _SimpleLogger;
-            public IFakeEmailSpoolerDependenciesBuilder WithSimpleLogger(ISimpleLogger SimpleLogger)
+            private ISimpleLogger _simpleLogger;
+            public FakeEmailSpoolerDependenciesBuilder WithSimpleLogger(ISimpleLogger simpleLogger)
             {
-                _SimpleLogger = SimpleLogger;
+                _simpleLogger = simpleLogger;
                 return this;
             }
 
@@ -89,7 +92,7 @@ namespace EmailSpooler.Win32Service.Tests
         public void Construct_WhenGivenNullDBContext_ThrowsArgumentNullException()
         {
             // test setup
-            var deps = IFakeEmailSpoolerDependenciesBuilder.Create().WithDbContext(null).Build();
+            var deps = FakeEmailSpoolerDependenciesBuilder.Create().WithDbContext(null).Build();
             // pre-conditions
 
             // execute test
@@ -103,7 +106,7 @@ namespace EmailSpooler.Win32Service.Tests
         public void Construct_WhenGivenNullEmailGenerator_ThrowsArgumentNullException()
         {
             // test setup
-                var deps = IFakeEmailSpoolerDependenciesBuilder.Create().WithEmailGenerator(null).Build();
+                var deps = FakeEmailSpoolerDependenciesBuilder.Create().WithEmailGenerator(null).Build();
             
             // pre-conditions
 
@@ -118,7 +121,7 @@ namespace EmailSpooler.Win32Service.Tests
         public void Construct_WhenGivenNullEmailSpoolerConfig_ThrowsArgumentNullException()
         {
             // test setup
-            var deps = IFakeEmailSpoolerDependenciesBuilder.Create().WithEmailSpoolerConfig(null).Build();
+            var deps = FakeEmailSpoolerDependenciesBuilder.Create().WithEmailSpoolerConfig(null).Build();
             
             // pre-conditions
 
@@ -133,7 +136,7 @@ namespace EmailSpooler.Win32Service.Tests
         public void Dispose_DisposesDbContext()
         {
             // test setup
-            var deps = IFakeEmailSpoolerDependenciesBuilder.BuildDefault();
+            var deps = FakeEmailSpoolerDependenciesBuilder.BuildDefault();
             var ctx = deps.DbContext;
 
             // pre-conditions
@@ -151,11 +154,6 @@ namespace EmailSpooler.Win32Service.Tests
         {
             // test setup
             var generatedMails = 0;
-            Func<IEmail> emailGen = () =>
-                {
-                    generatedMails++;
-                    return Substitute.For<IEmail>();
-                };
             var ctx = SubstituteEmailContextBuilder.BuildDefault();
             var spooler = Create(ctx);
             
@@ -201,7 +199,7 @@ namespace EmailSpooler.Win32Service.Tests
             var func = EmailGeneratorWith(email);
             var dto = EmailBuilder.BuildRandomWithRecipient();
             var ctx = SubstituteEmailContextBuilder.Create().WithEmails(dto).Build();
-            var deps = IFakeEmailSpoolerDependenciesBuilder.Create()
+            var deps = FakeEmailSpoolerDependenciesBuilder.Create()
                         .WithDbContext(ctx)
                         .WithEmailGenerator(func)
                         .Build();
@@ -232,7 +230,7 @@ namespace EmailSpooler.Win32Service.Tests
                 recipient.IsBCC = false;
             }
             var ctx = SubstituteEmailContextBuilder.Create().WithEmails(dto).Build();
-            var deps = IFakeEmailSpoolerDependenciesBuilder.Create()
+            var deps = FakeEmailSpoolerDependenciesBuilder.Create()
                         .WithDbContext(ctx)
                         .WithEmailGenerator(func)
                         .Build();
@@ -262,7 +260,7 @@ namespace EmailSpooler.Win32Service.Tests
             var func = EmailGeneratorWith(email);
             var dto = EmailBuilder.Create().WithRandomProps().WithRandomCC(2).Build();
             var ctx = SubstituteEmailContextBuilder.Create().WithEmails(dto).Build();
-            var deps = IFakeEmailSpoolerDependenciesBuilder.Create()
+            var deps = FakeEmailSpoolerDependenciesBuilder.Create()
                         .WithDbContext(ctx)
                         .WithEmailGenerator(func)
                         .Build();
@@ -292,7 +290,7 @@ namespace EmailSpooler.Win32Service.Tests
             var func = EmailGeneratorWith(email);
             var dto = EmailBuilder.Create().WithRandomProps().WithRandomBCC(2).Build();
             var ctx = SubstituteEmailContextBuilder.Create().WithEmails(dto).Build();
-            var deps = IFakeEmailSpoolerDependenciesBuilder.Create()
+            var deps = FakeEmailSpoolerDependenciesBuilder.Create()
                         .WithDbContext(ctx)
                         .WithEmailGenerator(func)
                         .Build();
@@ -324,7 +322,7 @@ namespace EmailSpooler.Win32Service.Tests
             dto.EmailRecipients.First().IsBCC = true;
             dto.EmailRecipients.First().IsCC = true;
             var ctx = SubstituteEmailContextBuilder.Create().WithEmails(dto).Build();
-            var deps = IFakeEmailSpoolerDependenciesBuilder.Create()
+            var deps = FakeEmailSpoolerDependenciesBuilder.Create()
                         .WithDbContext(ctx)
                         .WithEmailGenerator(func)
                         .Build();
@@ -358,7 +356,7 @@ namespace EmailSpooler.Win32Service.Tests
             dto.EmailRecipients.First().IsBCC = true;
             dto.EmailRecipients.First().IsCC = true;
             var ctx = SubstituteEmailContextBuilder.Create().WithEmails(dto).Build();
-            var deps = IFakeEmailSpoolerDependenciesBuilder.Create()
+            var deps = FakeEmailSpoolerDependenciesBuilder.Create()
                         .WithDbContext(ctx)
                         .WithEmailGenerator(func)
                         .Build();
@@ -389,7 +387,7 @@ namespace EmailSpooler.Win32Service.Tests
             dto.EmailRecipients.First().IsBCC = true;
             dto.EmailRecipients.First().IsCC = true;
             var ctx = SubstituteEmailContextBuilder.Create().WithEmails(dto).Build();
-            var deps = IFakeEmailSpoolerDependenciesBuilder.Create()
+            var deps = FakeEmailSpoolerDependenciesBuilder.Create()
                         .WithDbContext(ctx)
                         .WithEmailGenerator(func)
                         .Build();
@@ -420,7 +418,7 @@ namespace EmailSpooler.Win32Service.Tests
             dto.EmailRecipients.First().IsBCC = true;
             dto.EmailRecipients.First().IsCC = true;
             var ctx = SubstituteEmailContextBuilder.Create().WithEmails(dto).Build();
-            var deps = IFakeEmailSpoolerDependenciesBuilder.Create()
+            var deps = FakeEmailSpoolerDependenciesBuilder.Create()
                         .WithDbContext(ctx)
                         .WithEmailGenerator(func)
                         .Build();
@@ -449,7 +447,7 @@ namespace EmailSpooler.Win32Service.Tests
             dto.EmailRecipients.First().IsCC = true;
             dto.SendAt = DateTime.Now.AddYears(1);
             var ctx = SubstituteEmailContextBuilder.Create().WithEmails(dto).Build();
-            var deps = IFakeEmailSpoolerDependenciesBuilder.Create()
+            var deps = FakeEmailSpoolerDependenciesBuilder.Create()
                         .WithDbContext(ctx)
                         .WithEmailGenerator(func)
                         .Build();
@@ -481,7 +479,7 @@ namespace EmailSpooler.Win32Service.Tests
             dto.SendAttempts = maxAttempts + 1;
             
             var ctx = SubstituteEmailContextBuilder.Create().WithEmails(dto).Build();
-            var deps = IFakeEmailSpoolerDependenciesBuilder.Create()
+            var deps = FakeEmailSpoolerDependenciesBuilder.Create()
                         .WithDbContext(ctx)
                         .WithEmailGenerator(func)
                         .Build();
@@ -506,14 +504,13 @@ namespace EmailSpooler.Win32Service.Tests
             var email = CreateSubstituteEmail();
             var func = EmailGeneratorWith(email);
             var dto = EmailBuilder.Create().WithRandomProps().WithRandomRecipient().WithRandomAttachment(2).Build();
-            var maxAttempts = RandomValueGen.GetRandomInt(3, 6);
             dto.EmailRecipients.First().IsBCC = true;
             dto.EmailRecipients.First().IsCC = true;
             dto.SendAt = DateTime.Now.AddYears(-1);
             dto.Enabled = false;
             
             var ctx = SubstituteEmailContextBuilder.Create().WithEmails(dto).Build();
-            var deps = IFakeEmailSpoolerDependenciesBuilder.Create()
+            var deps = FakeEmailSpoolerDependenciesBuilder.Create()
                         .WithDbContext(ctx)
                         .WithEmailGenerator(func)
                         .Build();
@@ -540,7 +537,7 @@ namespace EmailSpooler.Win32Service.Tests
             dto.EmailRecipients.First().IsBCC = true;
             dto.EmailRecipients.First().IsCC = true;
             var ctx = SubstituteEmailContextBuilder.Create().WithEmails(dto).Build();
-            var deps = IFakeEmailSpoolerDependenciesBuilder.Create()
+            var deps = FakeEmailSpoolerDependenciesBuilder.Create()
                         .WithDbContext(ctx)
                         .WithEmailGenerator(func)
                         .Build();
@@ -573,7 +570,7 @@ namespace EmailSpooler.Win32Service.Tests
             dto.EmailRecipients.First().IsBCC = true;
             dto.EmailRecipients.First().IsCC = true;
             var ctx = SubstituteEmailContextBuilder.Create().WithEmails(dto).Build();
-            var deps = IFakeEmailSpoolerDependenciesBuilder.Create()
+            var deps = FakeEmailSpoolerDependenciesBuilder.Create()
                         .WithDbContext(ctx)
                         .WithEmailGenerator(func)
                         .Build();
@@ -616,7 +613,7 @@ namespace EmailSpooler.Win32Service.Tests
             dto.EmailRecipients.First().IsCC = true;
             dto.SendAttempts = 1;
             var ctx = SubstituteEmailContextBuilder.Create().WithEmails(dto).Build();
-            var deps = IFakeEmailSpoolerDependenciesBuilder.Create()
+            var deps = FakeEmailSpoolerDependenciesBuilder.Create()
                         .WithDbContext(ctx)
                         .WithEmailGenerator(func)
                         .Build();
@@ -652,7 +649,7 @@ namespace EmailSpooler.Win32Service.Tests
             var func = EmailGeneratorWith(email);
             var dto = EmailBuilder.BuildRandomWithRecipient();
             var ctx = SubstituteEmailContextBuilder.Create().WithEmails(dto).Build();
-            var deps = IFakeEmailSpoolerDependenciesBuilder.Create()
+            var deps = FakeEmailSpoolerDependenciesBuilder.Create()
                         .WithDbContext(ctx)
                         .WithEmailGenerator(func)
                         .Build();
@@ -677,7 +674,7 @@ namespace EmailSpooler.Win32Service.Tests
             var func = EmailGeneratorWith(email);
             var dto = EmailBuilder.BuildRandomWithRecipient();
             var ctx = SubstituteEmailContextBuilder.Create().WithEmails(dto).Build();
-            var deps = IFakeEmailSpoolerDependenciesBuilder.Create()
+            var deps = FakeEmailSpoolerDependenciesBuilder.Create()
                         .WithDbContext(ctx)
                         .WithEmailGenerator(func)
                         .Build();
@@ -710,7 +707,7 @@ namespace EmailSpooler.Win32Service.Tests
             var func = EmailGeneratorWith(email);
             var dto = EmailBuilder.BuildRandomWithRecipient();
             var ctx = SubstituteEmailContextBuilder.Create().WithEmails(dto).Build();
-            var deps = IFakeEmailSpoolerDependenciesBuilder.Create()
+            var deps = FakeEmailSpoolerDependenciesBuilder.Create()
                         .WithDbContext(ctx)
                         .WithEmailGenerator(func)
                         .Build();

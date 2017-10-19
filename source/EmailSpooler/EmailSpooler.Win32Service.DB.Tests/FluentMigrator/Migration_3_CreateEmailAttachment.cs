@@ -1,5 +1,6 @@
 using FluentMigrator;
 // ReSharper disable UnusedMember.Global
+// ReSharper disable InconsistentNaming
 
 namespace EmailSpooler.Win32Service.DB.Tests.FluentMigrator
 {

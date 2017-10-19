@@ -19,7 +19,9 @@
       End Get
     End Property
 
+' ReSharper disable InconsistentNaming
     Private Shared ReadOnly _operatorResolutions As IDictionary(Of BooleanOperators, String)
+' ReSharper restore InconsistentNaming
     Shared Sub New()
       Dim opRes = New Dictionary(Of BooleanOperators, String)
       opRes(BooleanOperators.OperatorAnd) = "and"
@@ -30,7 +32,7 @@
     Public Sub New(leftCondition As ICondition, logicalOp As BooleanOperators, rightCondition As ICondition)
       Me.LeftCondition = leftCondition
       Me.RightCondition = rightCondition
-      Me.LogicalOperator = logicalOp
+      LogicalOperator = logicalOp
     End Sub
 
     Public Overrides Function ToString() As String Implements ICondition.ToString
@@ -38,11 +40,11 @@
       RightCondition.UseDatabaseProvider(_databaseProvider)
       Return String.Join("", New String() { _
                                             "(", _
-                                            Me.LeftCondition.ToString(), _
+                                            LeftCondition.ToString(), _
                                             " ", _
-                                            _operatorResolutions(Me.LogicalOperator), _
+                                            _operatorResolutions(LogicalOperator), _
                                             " ", _
-                                            Me.RightCondition.ToString(), _
+                                            RightCondition.ToString(), _
                                             ")" _
                                           })
     End Function
@@ -50,7 +52,7 @@
     Public Sub UseDatabaseProvider(provider As DatabaseProviders) Implements ICondition.UseDatabaseProvider
       LeftCondition.UseDatabaseProvider(provider)
       RightCondition.UseDatabaseProvider(provider)
-      MyBase.SetDatabaseProvider(provider)
+      SetDatabaseProvider(provider)
     End Sub
   End Class
 End NameSpace

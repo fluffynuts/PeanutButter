@@ -2,13 +2,12 @@
 using System.Collections.Specialized;
 using System.Configuration;
 using PeanutButter.ServiceShell;
-using ServiceShell;
 
 namespace EmailSpooler.Win32Service
 {
     public class EmailSpoolerConfig : IEmailSpoolerConfig
     {
-        private NameValueCollection _appSettings;
+        private readonly NameValueCollection _appSettings;
         // ReSharper disable once MemberCanBePrivate.Global
         public ISimpleLogger Logger { get; protected set; }
         public int MaxSendAttempts { get; private set; }

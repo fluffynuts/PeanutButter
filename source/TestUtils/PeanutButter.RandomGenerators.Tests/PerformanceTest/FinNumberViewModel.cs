@@ -1,11 +1,15 @@
 ﻿using System;
+// ReSharper disable ClassNeverInstantiated.Global
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedMember.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
 {
     public class FinNumberViewModel
     {
-        private const string Prefix = "FIN";
-        private const string Separator = "-";
+        private const string PREFIX = "FIN";
+        private const string SEPARATOR = "-";
         private FinNumberYearHelper _finNumberYearHelper;
         public int Year { get; set; }
         public int SequenceNumber { get; set; }
@@ -18,7 +22,7 @@ namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
                 var yearDifference = 0;
                 if (FinNumberYearHelper.FinYear > 2000)
                     yearDifference = FinNumberYearHelper.FinYear - 2000;
-                return $"{Prefix}{Separator}{yearDifference}{Separator}****";
+                return $"{PREFIX}{SEPARATOR}{yearDifference}{SEPARATOR}****";
             }
         }
 
@@ -29,7 +33,7 @@ namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
                 var yearDifference = 0;
                 if (Year > 2000)
                     yearDifference = Year - 2000;
-                return $"{Prefix}{Separator}{yearDifference}{Separator}{SequenceNumber:D4}";
+                return $"{PREFIX}{SEPARATOR}{yearDifference}{SEPARATOR}{SequenceNumber:D4}";
             }
         }
 

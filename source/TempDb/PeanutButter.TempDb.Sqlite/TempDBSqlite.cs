@@ -1,4 +1,5 @@
 ﻿using System.Data.SQLite;
+// ReSharper disable InconsistentNaming
 
 namespace PeanutButter.TempDb.Sqlite
 {

@@ -1,7 +1,7 @@
 ﻿using System.Data.SqlServerCe;
-using PeanutButter.TempDb;
+// ReSharper disable InconsistentNaming
 
-namespace PeanutButter.TestUtils.Generic
+namespace PeanutButter.TempDb.SqlCe
 {
     public class TempDBSqlCe : TempDB<SqlCeConnection>
     {

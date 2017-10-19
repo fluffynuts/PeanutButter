@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Globalization;
+// ReSharper disable UnusedMember.Global
 
 namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
 {
     public static class DateTimeExtensions
     {
-        public const string DateFormat = "yyyy-MM-dd";
-        public const string DateTimeFormat = "yyyy-MM-dd HH.mm.ss";
+        public const string DATE_FORMAT = "yyyy-MM-dd";
+        public const string DATE_TIME_FORMAT = "yyyy-MM-dd HH.mm.ss";
 
         public static string AsFormattedDate(this DateTime? dateTime)
         {
@@ -15,18 +16,18 @@ namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
 
         public static string AsFormattedDate(this DateTime dateTime)
         {
-            return dateTime.ToString(DateFormat, CultureInfo.InvariantCulture);
+            return dateTime.ToString(DATE_FORMAT, CultureInfo.InvariantCulture);
         }
 
 
         public static string AsFormattedDateTime(this DateTime? date)
         {
-            return date?.ToString(DateTimeFormat, CultureInfo.InvariantCulture) ?? "";
+            return date?.ToString(DATE_TIME_FORMAT, CultureInfo.InvariantCulture) ?? "";
         }
 
         public static string AsFormattedDateTime(this DateTime date)
         {
-            return date.ToString(DateTimeFormat, CultureInfo.InvariantCulture);
+            return date.ToString(DATE_TIME_FORMAT, CultureInfo.InvariantCulture);
         }
 
         public static DateTime AsFirstDayOfTheMonth(this DateTime date)

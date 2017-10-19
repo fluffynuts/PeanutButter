@@ -7,11 +7,11 @@
         public void IncrementVersionOn(string path)
         {
             var readerWriter = new NuspecReaderWriter(path);
-            var incrementer = new NuspecVersionIncrementer(readerWriter.NuspecXML);
+            var incrementer = new NuspecVersionIncrementer(readerWriter.NuspecXml);
             BeforeVersion = incrementer.Version;
             incrementer.IncrementMinorVersion();
             AfterVersion = incrementer.Version;
-            readerWriter.NuspecXML = incrementer.GetUpdatedNuspec();
+            readerWriter.NuspecXml = incrementer.GetUpdatedNuspec();
             readerWriter.Rewrite();
         }
     }

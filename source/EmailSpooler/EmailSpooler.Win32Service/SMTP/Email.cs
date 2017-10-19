@@ -9,7 +9,7 @@ namespace EmailSpooler.Win32Service.SMTP
 {
     public class Email : IEmail
     {
-        public IEmailConfiguration EmailConfiguration { get; private set; }
+        public IEmailConfiguration EmailConfiguration { get; }
         public List<string> To { get; protected set; }
         public List<string> CC { get; protected set; }
         public List<string> BCC { get; protected set; }
@@ -27,7 +27,7 @@ namespace EmailSpooler.Win32Service.SMTP
 
         public static Email Create()
         {
-            return new Email(Win32Service.EmailConfiguration.CreateFromAppConfig());
+            return new Email(SMTP.EmailConfiguration.CreateFromAppConfig());
         }
 
         public string AddPDFAttachment(string fileName, byte[] data)
@@ -156,6 +156,7 @@ namespace EmailSpooler.Win32Service.SMTP
             }
         }
 
+        // ReSharper disable once InconsistentNaming
         protected virtual ISmtpClient CreateSMTPClient()
         {
             var client = new SmtpClientFacade()
@@ -169,6 +170,7 @@ namespace EmailSpooler.Win32Service.SMTP
             return client;
         }
 
+        // ReSharper disable once InconsistentNaming
         protected bool DetermineIfBodyIsHTML()
         {
             return Body.IndexOf("<html", StringComparison.Ordinal) > -1 && 

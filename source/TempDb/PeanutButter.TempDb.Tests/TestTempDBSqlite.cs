@@ -6,6 +6,7 @@ using NUnit.Framework;
 using PeanutButter.TempDb.Sqlite;
 using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
+// ReSharper disable InconsistentNaming
 
 namespace PeanutButter.TempDb.Tests
 {
@@ -27,6 +28,7 @@ namespace PeanutButter.TempDb.Tests
             }
             catch
             {
+                // ignored
             }
         }
         [Test]
@@ -65,7 +67,7 @@ namespace PeanutButter.TempDb.Tests
         public void Dispose_ShouldRemoveTheTempDatabase()
         {
             //---------------Set up test pack-------------------
-            string file = null;
+            string file;
             using (var db = new TempDBSqlite())
             {
                 //---------------Assert Precondition----------------
@@ -85,7 +87,7 @@ namespace PeanutButter.TempDb.Tests
             var createTable = "create table TheTable(id int primary key, name nvarchar(128));";
             var insertData = "insert into TheTable(id, name) values (1, 'one');";
             var selectData = "select name from TheTable where id = 1;";
-            using (var db = new TempDBSqlite(new[] { createTable, insertData }))
+            using (var db = new TempDBSqlite(createTable, insertData))
             {
                 //---------------Set up test pack-------------------
 
@@ -120,6 +122,7 @@ namespace PeanutButter.TempDb.Tests
                 //---------------Execute Test ----------------------
                 Parallel.For(0, 100, i =>
                                      {
+                                         // ReSharper disable once AccessToDisposedClosure
                                          disposer.Add(new TempDBSqlite());
                                      });
 

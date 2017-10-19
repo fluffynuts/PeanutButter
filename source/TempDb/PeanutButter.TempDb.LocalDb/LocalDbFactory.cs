@@ -11,7 +11,7 @@ namespace PeanutButter.TempDb.LocalDb
         /// LocalDb instance, usually something like "v11.0"
         /// </summary>
         public string InstanceName { get; set; }
-        private const string MasterConnectionString = @"Data Source=(localdb)\{0};Initial Catalog=master;Integrated Security=True";
+        private const string MASTER_CONNECTION_STRING = @"Data Source=(localdb)\{0};Initial Catalog=master;Integrated Security=True";
 
         /// <summary>
         /// Default constructor for a LocalDbFactory
@@ -57,7 +57,7 @@ namespace PeanutButter.TempDb.LocalDb
         /// <returns></returns>
         public string GetMasterConnectionString()
         {
-            var result = string.Format(MasterConnectionString, 
+            var result = string.Format(MASTER_CONNECTION_STRING, 
                 InstanceName ?? new LocalDbInstanceEnumerator().FindFirstAvailableInstance());
             System.Diagnostics.Trace.WriteLine($"Connecting to LocalDb with: \"{result}\"");
             return result;

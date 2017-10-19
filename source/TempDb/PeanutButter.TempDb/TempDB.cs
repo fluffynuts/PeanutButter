@@ -7,6 +7,8 @@ using System.Threading;
 using PeanutButter.Utils;
 // ReSharper disable PossibleMultipleEnumeration
 // ReSharper disable VirtualMemberCallInConstructor
+// ReSharper disable InconsistentNaming
+// ReSharper disable UnusedMemberInSuper.Global
 
 namespace PeanutButter.TempDb
 {
@@ -16,8 +18,6 @@ namespace PeanutButter.TempDb
         string DatabaseFile { get; }
         string ConnectionString { get; }
         DbConnection CreateConnection();
-        // TODO: add in to interface
-        // string DatabaseName { get; }
     }
 
     public abstract class TempDB<TDatabaseConnection> : ITempDB where TDatabaseConnection: DbConnection

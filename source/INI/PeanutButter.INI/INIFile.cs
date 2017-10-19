@@ -154,11 +154,6 @@ namespace PeanutButter.INIFile
             Data.Clear();
         }
 
-        private static Dictionary<string, string> CreateCaseInsensitiveStringsDictionary()
-        {
-            return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        }
-
         private static IEnumerable<string> GetLinesFrom(string path)
         {
             EnsureFolderExistsFor(path);
@@ -185,7 +180,9 @@ namespace PeanutButter.INIFile
         {
             var folder = Path.GetDirectoryName(path);
             if (!Directory.Exists(folder))
-                Directory.CreateDirectory(folder);
+                Directory.CreateDirectory(folder ?? throw new InvalidOperationException(
+                    $"{nameof(EnsureFolderExistsFor)} must be called with a non-null folder name"
+                ));
         }
 
         public void AddSection(string section)

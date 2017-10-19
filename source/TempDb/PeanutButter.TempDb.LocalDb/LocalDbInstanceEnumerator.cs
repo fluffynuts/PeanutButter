@@ -110,7 +110,7 @@ namespace PeanutButter.TempDb.LocalDb
 
         private static Process RunToCompletion(string toRun)
         {
-            var process = new Process()
+            var process = new Process
             {
                 StartInfo = new ProcessStartInfo(toRun)
                 {
@@ -121,7 +121,7 @@ namespace PeanutButter.TempDb.LocalDb
                     UseShellExecute = false,
                     WindowStyle = ProcessWindowStyle.Hidden,
                     CreateNoWindow = true
-                },
+                }
             };
             process.Start();
             process.WaitForExit();
@@ -130,7 +130,7 @@ namespace PeanutButter.TempDb.LocalDb
 
         private static string FindLocalDbUtility()
         {
-            return Enumerable.OrderBy<string, string>(SafeWalk.EnumerateFiles("C:\\Program Files\\Microsoft SQL Server", "SqlLocalDb.exe", SearchOption.AllDirectories), p => p)
+            return SafeWalk.EnumerateFiles("C:\\Program Files\\Microsoft SQL Server", "SqlLocalDb.exe", SearchOption.AllDirectories).OrderBy(p => p)
                 .LastOrDefault();
         }
     }

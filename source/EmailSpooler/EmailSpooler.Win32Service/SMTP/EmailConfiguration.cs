@@ -1,8 +1,7 @@
-﻿using System;
-using System.Configuration;
-using ServiceShell;
+﻿using System.Configuration;
+// ReSharper disable InconsistentNaming
 
-namespace EmailSpooler.Win32Service
+namespace EmailSpooler.Win32Service.SMTP
 {
     public interface IEmailConfiguration
     {
@@ -15,11 +14,11 @@ namespace EmailSpooler.Win32Service
 
     public class EmailConfiguration : IEmailConfiguration
     {
-        public string Host { get; private set; }
-        public int Port { get; private set; }
-        public string UserName { get; private set; }
-        public string Password { get; private set; }
-        public bool SSLEnabled { get; private set; }
+        public string Host { get; }
+        public int Port { get; }
+        public string UserName { get; }
+        public string Password { get; }
+        public bool SSLEnabled { get; }
         public EmailConfiguration(string host, int port, string userName, string password, bool sslEnabled)
         {
             Host = host;

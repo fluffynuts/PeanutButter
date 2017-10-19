@@ -5,6 +5,7 @@ using System.Net;
 using NUnit.Framework;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+// ReSharper disable PossibleMultipleEnumeration
 
 namespace PeanutButter.SimpleHTTPServer.Testability.Tests
 {
@@ -48,7 +49,7 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
             //---------------Set up test pack-------------------
             using (var server = Create())
             {
-                var requests = GetRandomCollection<string>(3,3);
+                var requests = GetRandomArray<string>(3,3);
                 var skip = requests.Skip(1).First();
                 RequestSuppressed(server, requests.First());
                 RequestSuppressed(server, requests.Skip(1).First());
@@ -394,7 +395,7 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
             var request = WebRequest.CreateHttp(url);
             request.Method = method;
             headers?.ForEach(h => request.Headers[h.Key] = h.Value);
-            using (var stream = request.GetResponse())
+            using (request.GetResponse())
             {
                 /* intentially left blank */
             }

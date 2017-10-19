@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting;
-using System.Text;
-using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
 using PeanutButter.ServiceShell;
@@ -75,7 +72,7 @@ namespace EmailSpooler.Win32Service.Tests
 
             public void BaseRunOnce()
             {
-                base.RunOnce();
+                RunOnce();
             }
         }
 

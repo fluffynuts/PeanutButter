@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Castle.Windsor;
 using NSubstitute;
 using NUnit.Framework;
 using PeanutButter.TestUtils.Generic;
+// ReSharper disable ObjectCreationAsStatement
 
 namespace NugetPackageVersionIncrementer.Tests
 {

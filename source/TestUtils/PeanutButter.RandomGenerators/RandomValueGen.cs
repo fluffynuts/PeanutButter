@@ -436,6 +436,7 @@ namespace PeanutButter.RandomGenerators
         {
             var folders = GetRandomCollection<string>(1, 4);
             var drive = GetRandomString(1, 1, "ABCDEGHIJKLMNOPQRSTUVWXYZ") + ":";
+            // ReSharper disable once ImpureMethodCallOnReadonlyValueField
             return string.Join(Path.DirectorySeparatorChar.ToString(),
                 new[] {drive}.And(folders.ToArray()));
         }

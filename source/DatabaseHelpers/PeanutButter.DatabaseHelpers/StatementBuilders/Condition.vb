@@ -24,7 +24,9 @@ Namespace StatementBuilders
         Return _operatorResolutions
       End Get
     End Property
+' ReSharper disable InconsistentNaming
     Protected Shared ReadOnly _operatorResolutions As ReadOnlyDictionary(Of EqualityOperators, String) = New ReadOnlyDictionary(Of EqualityOperators, String)
+' ReSharper restore InconsistentNaming
     Shared Sub New()
       Dim operators As New Dictionary(Of EqualityOperators, String)
       operators(EqualityOperators.Equals) = "="

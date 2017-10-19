@@ -1,6 +1,5 @@
 ﻿using System;
 using NUnit.Framework;
-using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
 
 namespace PeanutButter.SimpleTcpServer.Tests
@@ -26,7 +25,6 @@ namespace PeanutButter.SimpleTcpServer.Tests
         public void Construct_GivenPort_ShouldSetMessage()
         {
             //---------------Set up test pack-------------------
-            var port = RandomValueGen.GetRandomInt();
             var expected = "Can't find a port to listen on ):";
 
             //---------------Assert Precondition----------------

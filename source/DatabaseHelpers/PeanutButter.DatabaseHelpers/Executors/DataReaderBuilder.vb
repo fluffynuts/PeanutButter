@@ -1,4 +1,5 @@
-﻿Imports System.Data.Common
+﻿' ReSharper disable UnusedMember.Global
+Imports System.Data.Common
 Imports System.Data.OleDb
 Imports PeanutButter.DatabaseHelpers.StatementBuilders
 
@@ -12,12 +13,10 @@ Namespace Executors
     Function WithConnectionFactory(connectionResolver as Func(Of IDbConnection)) as IDataReaderBuilder
   End Interface
 
-' ReSharper disable once UnusedMember.Global
   Public Class DataReaderBuilder
     Implements IDataReaderBuilder
     Implements IDisposable
 
-' ReSharper disable once UnusedMember.Global
     Public Shared Function Create() As DataReaderBuilder
       Return New DataReaderBuilder()
     End Function
@@ -28,7 +27,7 @@ Namespace Executors
     Private _connectionResolver As Func(Of IDbConnection)
 
     Public Function Build() As DbDataReader Implements IDataReaderBuilder.Build
-      Dim sql = Me.GetSQLString()
+      Dim sql = GetSQLString()
       If sql Is Nothing Then
         Throw New ArgumentException(Me.GetType().Name & " :: sql not set and no builder provided")
       End If
@@ -44,7 +43,9 @@ Namespace Executors
       Return command.ExecuteReader
     End Function
 
+#Disable Warning InconsistentNaming
     Private Function GetSQLString() As String
+#Enable Warning InconsistentNaming
       If _sql Is Nothing Then
         If _selectBuilder Is Nothing Then
           Return Nothing

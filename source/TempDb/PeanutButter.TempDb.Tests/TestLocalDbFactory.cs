@@ -5,7 +5,6 @@ using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TempDb.LocalDb;
 using PeanutButter.TestUtils.Generic;
-using PeanutButter.Utils;
 
 // ReSharper disable ObjectCreationAsStatement
 // ReSharper disable MemberCanBePrivate.Global
@@ -79,10 +78,12 @@ namespace PeanutButter.TempDb.Tests
                 sut.CreateDatabase(dbName, dbFile);
 
                 //---------------Test Result -----------------------
-                var builder = new SqlConnectionStringBuilder();
-                builder.InitialCatalog = dbName;
-                builder.DataSource = $"(localdb)\\{new LocalDbInstanceEnumerator().FindFirstAvailableInstance()}";
-                builder.IntegratedSecurity = true;
+                var builder = new SqlConnectionStringBuilder
+                {
+                    InitialCatalog = dbName,
+                    DataSource = $"(localdb)\\{new LocalDbInstanceEnumerator().FindFirstAvailableInstance()}",
+                    IntegratedSecurity = true
+                };
                 using (var conn = new SqlConnection(builder.ToString()))
                 {
                     Assert.DoesNotThrow(() => conn.Open());
@@ -101,11 +102,11 @@ namespace PeanutButter.TempDb.Tests
             public string DatabaseFile { get; set; }
             public string DatabaseName { get; set; }
             public string InstanceName { get; set; } = new LocalDbInstanceEnumerator().FindFirstAvailableInstance();
-            private const string MasterConnectionString = @"Data Source=(localdb)\{0};Initial Catalog=master;Integrated Security=True";
+            private const string MASTER_CONNECTION_STRING = @"Data Source=(localdb)\{0};Initial Catalog=master;Integrated Security=True";
 
             public string GetMasterConnectionString()
             {
-                return string.Format(MasterConnectionString, InstanceName);
+                return string.Format(MASTER_CONNECTION_STRING, InstanceName);
             }
 
             private void DeleteTemporaryDatabase()

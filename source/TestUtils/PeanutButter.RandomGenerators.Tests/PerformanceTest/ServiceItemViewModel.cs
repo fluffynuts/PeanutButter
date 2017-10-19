@@ -65,10 +65,10 @@ namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
                 var info = "Not Available";
                 if (!string.IsNullOrEmpty(CreatedUsername))
                 {
-                    info = $"Created by {CreatedUsername} on {DateCreated.ToString(DateTimeExtensions.DateTimeFormat)}";
+                    info = $"Created by {CreatedUsername} on {DateCreated.ToString(DateTimeExtensions.DATE_TIME_FORMAT)}";
                     if (!string.IsNullOrEmpty(LastModifiedUsername))
                         info +=
-                            $"\nLast Modified by {LastModifiedUsername} on {DateLastModified.ToString(DateTimeExtensions.DateTimeFormat)}";
+                            $"\nLast Modified by {LastModifiedUsername} on {DateLastModified.ToString(DateTimeExtensions.DATE_TIME_FORMAT)}";
                 }
                 return info;
             }
