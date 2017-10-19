@@ -5,12 +5,14 @@ using NUnit.Framework;
 using PeanutButter.TestUtils.MVC.Builders;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using NExpect;
+using static NExpect.Expectations;
 // ReSharper disable PossibleMultipleEnumeration
 
 namespace PeanutButter.TestUtils.MVC.Tests
 {
     [TestFixture]
-    public class TestFakePrincipal: AssertionHelper
+    public class TestFakePrincipal
     {
         [Test]
         public void Construct_ShouldStoreParametersOnProperties()
@@ -28,12 +30,12 @@ namespace PeanutButter.TestUtils.MVC.Tests
             var sut = new FakePrincipal(identity, roles.ToArray());
 
             //--------------- Assert -----------------------
-            roles.ForEach(r => Expect(sut.IsInRole(r), Is.True));
+            roles.ForEach(r => Expect(sut.IsInRole(r)).To.Be.True());
 
-            Expect(sut.Identity, Is.EqualTo(identity));
+            Expect(sut.Identity).To.Equal(identity);
             var identities = sut.Identities;
-            Expect(identities.Count(), Is.EqualTo(1));
-            Expect(identities.Single().Name, Is.EqualTo(expectedName));
+            Expect(identities).To.Contain.Only(1)
+                .Matched.By(o => o.Name == expectedName);
         }
 
     }
