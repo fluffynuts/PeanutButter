@@ -1,11 +1,13 @@
 ﻿using System.Drawing;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using NExpect;
+using static NExpect.Expectations;
 
 namespace PeanutButter.TrayIcon.Tests
 {
     [TestFixture]
-    public class TestTrayIconAnimator: AssertionHelper
+    public class TestTrayIconAnimator
     {
         [Test]
         public void Busy_GivenNoText_ShouldSetTextToDefault()
@@ -20,7 +22,7 @@ namespace PeanutButter.TrayIcon.Tests
             sut.Busy();
 
             //--------------- Assert -----------------------
-            Expect(trayIcon.DefaultTipText, Is.EqualTo("busy..."));
+            Expect(trayIcon.DefaultTipText).To.Equal("busy...");
         }
 
         [Test]
@@ -37,7 +39,7 @@ namespace PeanutButter.TrayIcon.Tests
             sut.Busy(expected);
 
             //--------------- Assert -----------------------
-            Expect(trayIcon.DefaultTipText, Is.EqualTo(expected));
+            Expect(trayIcon.DefaultTipText).To.Equal(expected);
         }
 
         [Test]
@@ -55,7 +57,7 @@ namespace PeanutButter.TrayIcon.Tests
             sut.Rest(expected);
 
             //--------------- Assert -----------------------
-            Expect(trayIcon.DefaultTipText, Is.EqualTo(expected));
+            Expect(trayIcon.DefaultTipText).To.Equal(expected);
         }
 
 
@@ -76,9 +78,8 @@ namespace PeanutButter.TrayIcon.Tests
             sut.Rest();
 
             //--------------- Assert -----------------------
-            Expect(trayIcon.DefaultTipText, Is.EqualTo(expected));
+            Expect(trayIcon.DefaultTipText).To.Equal(expected);
         }
-
 
         private TrayIconAnimator Create(TrayIcon trayIcon)
         {
