@@ -6,11 +6,13 @@ using NSubstitute;
 using NUnit.Framework;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using NExpect;
+using static NExpect.Expectations;
 
 namespace PeanutButter.TrayIcon.Tests
 {
     [TestFixture]
-    public class TestTrayIcon: AssertionHelper
+    public class TestTrayIcon
     {
         [Test]
         [STAThread]
@@ -108,10 +110,10 @@ namespace PeanutButter.TrayIcon.Tests
             var result = sut.MouseClickHandlers.First();
 
             //--------------- Assert -----------------------
-            Expect(result.Clicks, Is.EqualTo(clicks));
-            Expect(result.Button, Is.EqualTo(button));
+            Expect(result.Clicks).To.Equal(clicks);
+            Expect(result.Button).To.Equal(button);
             result.Action();
-            Expect(called, Is.True);
+            Expect(called).To.Be.True();
         }
 
         [Test]
@@ -123,13 +125,13 @@ namespace PeanutButter.TrayIcon.Tests
             var button = GetRandom<MouseButtons>();
             var handler = sut.AddMouseClickHandler(clicks, button, () => { });
             //--------------- Assume ----------------
-            Expect(sut.MouseClickHandlers, Is.Not.Empty);
+            Expect(sut.MouseClickHandlers).Not.To.Be.Empty();
 
             //--------------- Act ----------------------
             sut.RemoveMouseClickHandler(handler);
 
             //--------------- Assert -----------------------
-            Expect(sut.MouseClickHandlers, Is.Empty);
+            Expect(sut.MouseClickHandlers).To.Be.Empty();
         }
         [Test]
         public void AddMenuItem_ShouldAddHandler()
@@ -145,9 +147,9 @@ namespace PeanutButter.TrayIcon.Tests
             var result = sut.NotifyIcon.ContextMenu.MenuItems[0];
 
             //--------------- Assert -----------------------
-            Expect(result.Text, Is.EqualTo(text));
+            Expect(result.Text).To.Equal(text);
             result.PerformClick();
-            Expect(called, Is.True);
+            Expect(called).To.Be.True();
         }
 
         [Test]
@@ -163,7 +165,7 @@ namespace PeanutButter.TrayIcon.Tests
             sut.RemoveMenuItem(text);
 
             //--------------- Assert -----------------------
-            Expect(sut.NotifyIcon.ContextMenu.MenuItems.Count, Is.EqualTo(0));
+            Expect(sut.NotifyIcon.ContextMenu.MenuItems.Count).To.Equal(0);
         }
 
         [Test]
@@ -179,7 +181,7 @@ namespace PeanutButter.TrayIcon.Tests
             sut.DefaultTipText = expected;
 
             //--------------- Assert -----------------------
-            Expect(sut.DefaultTipText, Is.EqualTo(expected));
+            Expect(sut.DefaultTipText).To.Equal(expected);
         }
 
         [Test]
@@ -195,7 +197,7 @@ namespace PeanutButter.TrayIcon.Tests
             sut.DefaultTipTitle = expected;
 
             //--------------- Assert -----------------------
-            Expect(sut.DefaultTipTitle, Is.EqualTo(expected));
+            Expect(sut.DefaultTipTitle).To.Equal(expected);
         }
 
         [Test]
@@ -211,7 +213,7 @@ namespace PeanutButter.TrayIcon.Tests
             sut.DefaultBalloonTipClickedAction = expected;
 
             //--------------- Assert -----------------------
-            Expect(sut.DefaultBalloonTipClickedAction, Is.EqualTo(expected));
+            Expect(sut.DefaultBalloonTipClickedAction).To.Equal(expected);
         }
 
         [Test]
@@ -227,7 +229,7 @@ namespace PeanutButter.TrayIcon.Tests
             sut.DefaultBalloonTipClosedAction = expected;
 
             //--------------- Assert -----------------------
-            Expect(sut.DefaultBalloonTipClosedAction, Is.EqualTo(expected));
+            Expect(sut.DefaultBalloonTipClosedAction).To.Equal(expected);
         }
 
         [Test]
@@ -242,7 +244,8 @@ namespace PeanutButter.TrayIcon.Tests
             sut.AddMenuSeparator();
 
             //--------------- Assert -----------------------
-            Expect(sut.NotifyIcon.ContextMenu.MenuItems[0].Text, Is.EqualTo("-"));
+            Expect(sut.NotifyIcon.ContextMenu.MenuItems[0].Text)
+                .To.Equal("-");
         }
 
         [Test]
@@ -262,8 +265,8 @@ namespace PeanutButter.TrayIcon.Tests
             sut.BalloonTipClickHandlers.ClosedAction();
 
             //--------------- Assert -----------------------
-            Expect(sut.ShowingDefaultBaloonTip, Is.False);
-            Expect(sut.BalloonTipClickHandlers, Is.Null);
+            Expect(sut.ShowingDefaultBaloonTip).To.Be.False();
+            Expect(sut.BalloonTipClickHandlers).To.Be.Null();
         }
 
         [Test]
@@ -316,7 +319,7 @@ namespace PeanutButter.TrayIcon.Tests
 
 
             //--------------- Assert -----------------------
-            Expect(sub.Visible, Is.False);
+            Expect(sub.Visible).To.Be.False();
         }
 
         [Test]
@@ -336,7 +339,7 @@ namespace PeanutButter.TrayIcon.Tests
             sut.Show();
 
             //--------------- Assert -----------------------
-            Expect(sub.Visible, Is.True);
+            Expect(sub.Visible).To.Be.True();
         }
 
         [Test]
@@ -381,8 +384,8 @@ namespace PeanutButter.TrayIcon.Tests
             sut.OnIconMouseClick(null, new MouseEventArgs(forButton, 1, 0, 0, 0));
 
             //--------------- Assert -----------------------
-            Expect(clickCalled, Is.True);
-            Expect(doubleClickCalled, Is.False);
+            Expect(clickCalled).To.Be.True();
+            Expect(doubleClickCalled).To.Be.False();
         }
 
         [TestCase(MouseButtons.Left)]
@@ -410,8 +413,8 @@ namespace PeanutButter.TrayIcon.Tests
             sut.OnIconMouseDoubleClick(null, new MouseEventArgs(forButton, 1, 0, 0, 0));
 
             //--------------- Assert -----------------------
-            Expect(clickCalled, Is.False);
-            Expect(doubleClickCalled, Is.True);
+            Expect(clickCalled).To.Be.False();
+            Expect(doubleClickCalled).To.Be.True();
         }
 
     }
