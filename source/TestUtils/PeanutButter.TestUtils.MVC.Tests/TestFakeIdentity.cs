@@ -2,11 +2,13 @@ using System;
 using NUnit.Framework;
 using PeanutButter.TestUtils.MVC.Builders;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using NExpect;
+using static NExpect.Expectations;
 
 namespace PeanutButter.TestUtils.MVC.Tests
 {
     [TestFixture]
-    public class TestFakeIdentity: AssertionHelper
+    public class TestFakeIdentity
     {
         [Test]
         public void Construct_ShouldSetName()
@@ -20,7 +22,7 @@ namespace PeanutButter.TestUtils.MVC.Tests
             var sut = Create(expected);
 
             //--------------- Assert -----------------------
-            Expect(sut.Name, Is.EqualTo(expected));
+            Expect(sut.Name).To.Equal(expected);
         }
 
         [Test]
@@ -35,7 +37,7 @@ namespace PeanutButter.TestUtils.MVC.Tests
             var result = sut.IsAuthenticated;
 
             //--------------- Assert -----------------------
-            Expect(result, Is.True);
+            Expect(result).To.Be.True();
         }
 
         [TestCase(null)]
@@ -51,7 +53,7 @@ namespace PeanutButter.TestUtils.MVC.Tests
             var result = sut.IsAuthenticated;
 
             //--------------- Assert -----------------------
-            Expect(result, Is.False);
+            Expect(result).To.Be.False();
         }
 
         [Test]
@@ -63,13 +65,11 @@ namespace PeanutButter.TestUtils.MVC.Tests
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            Expect(() => sut.AuthenticationType,
-                Throws.Exception.InstanceOf<NotImplementedException>());
+            Expect(() => sut.AuthenticationType)
+                .To.Throw<NotImplementedException>();
 
             //--------------- Assert -----------------------
         }
-
-
 
         private FakeIdentity Create(string name)
         {

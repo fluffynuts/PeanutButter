@@ -1,13 +1,37 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Linq;
 using System.Web.SessionState;
 using NUnit.Framework;
 using PeanutButter.TestUtils.MVC.Builders;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using NExpect;
+using static NExpect.Expectations;
 
 namespace PeanutButter.TestUtils.MVC.Tests
 {
+    internal static class Ext
+    {
+        internal static IEnumerable<string> AsEnumerable(this NameObjectCollectionBase.KeysCollection collection)
+        {
+            for (var i = 0; i < collection.Count; i++)
+                yield return collection.Get(i);
+        }
+
+        internal static IDictionary<string, object> ToDictionary(
+            this FakeHttpSessionState state
+        ) 
+        {
+            return state.Keys.AsEnumerable().Aggregate(new List<KeyValuePair<string, object>>(),
+                (acc, cur) =>
+                {
+                    acc.Add(new KeyValuePair<string, object>(cur, state[cur]));
+                    return acc;
+                }).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        }
+    }
     [TestFixture]
-    public class TestFakeHttpSessionState: AssertionHelper
+    public class TestFakeHttpSessionState
     {
         [Test]
         public void Construct_ShouldSetSessionStateItemCollectionInternal()
@@ -24,7 +48,7 @@ namespace PeanutButter.TestUtils.MVC.Tests
             var sut = Create(items);
 
             //--------------- Assert -----------------------
-            Expect(sut[key], Is.EqualTo(value));
+            Expect(sut[key]).To.Equal(value);
         }
 
         [Test]
@@ -36,13 +60,13 @@ namespace PeanutButter.TestUtils.MVC.Tests
             var sut = Create();
 
             //--------------- Assume ----------------
-            Expect(sut.Keys, Does.Not.Contain(key));
+            Expect(sut.Keys.AsEnumerable()).Not.To.Contain(key);
 
             //--------------- Act ----------------------
             sut.Add(key, value);
 
             //--------------- Assert -----------------------
-            Expect(sut[key], Is.EqualTo(value));
+            Expect(sut[key]).To.Equal(value);
         }
 
         [Test]
@@ -52,15 +76,15 @@ namespace PeanutButter.TestUtils.MVC.Tests
             var sut = Create();
 
             //--------------- Assume ----------------
-            Expect(sut.Count, Is.EqualTo(0));
+            Expect(sut.Count).To.Equal(0);
 
             //--------------- Act ----------------------
             sut.Add(GetRandomString(5), GetRandomString());
-            Expect(sut.Count, Is.EqualTo(1));
+            Expect(sut.Count).To.Equal(1);
             sut.Add(GetRandomString(5), GetRandomString());
 
             //--------------- Assert -----------------------
-            Expect(sut.Count, Is.EqualTo(2));
+            Expect(sut.Count).To.Equal(2);
         }
 
         [Test]
@@ -83,8 +107,8 @@ namespace PeanutButter.TestUtils.MVC.Tests
                 collected.Add(val);
 
             //--------------- Assert -----------------------
-            Expect(collected, Does.Contain(key1));
-            Expect(collected, Does.Contain(key2));
+            Expect(collected).To.Contain.Exactly(1).Equal.To(key1);
+            Expect(collected).To.Contain.Exactly(1).Equal.To(key2);
         }
 
         [Test]
@@ -101,7 +125,7 @@ namespace PeanutButter.TestUtils.MVC.Tests
             var result = sut.Timeout;
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(expected));
+            Expect(result).To.Equal(expected);
         }
 
 
@@ -120,7 +144,7 @@ namespace PeanutButter.TestUtils.MVC.Tests
             sut.Remove(key);
 
             //--------------- Assert -----------------------
-            Expect(sut.Keys, Does.Not.Contain(key));
+            Expect(sut.Keys.AsEnumerable()).Not.To.Contain(key);
         }
 
         [Test]
@@ -137,7 +161,7 @@ namespace PeanutButter.TestUtils.MVC.Tests
             sut[key] = value;
 
             //--------------- Assert -----------------------
-            Expect(sut[key], Is.EqualTo(value));
+            Expect(sut[key]).To.Equal(value);
         }
 
         [Test]
@@ -150,14 +174,14 @@ namespace PeanutButter.TestUtils.MVC.Tests
             sut[key] = value;
 
             //--------------- Assume ----------------
-            Expect(sut.ClearWasCalled, Is.False);
+            Expect(sut.ClearWasCalled).To.Be.False();
 
             //--------------- Act ----------------------
             sut.Clear();
 
             //--------------- Assert -----------------------
-            Expect(sut.ClearWasCalled, Is.True);
-            Expect(sut, Is.Empty);
+            Expect(sut.ClearWasCalled).To.Be.True();
+            Expect(sut.ToDictionary()).To.Be.Empty();
         }
 
 
