@@ -2,11 +2,13 @@
 using System.Windows.Forms;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using NExpect;
+using static NExpect.Expectations;
 
 namespace PeanutButter.TrayIcon.Tests
 {
     [TestFixture]
-    public class TestNotifyIconWrapper: AssertionHelper
+    public class TestNotifyIconWrapper
     {
         [Test]
         public void Icon_ShouldPassThroughToActualIcon()
@@ -23,7 +25,7 @@ namespace PeanutButter.TrayIcon.Tests
             var result = sut.Icon;
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(icon));
+            Expect(result).To.Equal(icon);
         }
 
         [Test]
@@ -41,7 +43,7 @@ namespace PeanutButter.TrayIcon.Tests
             var result = sut.Visible;
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(expected));
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -59,7 +61,7 @@ namespace PeanutButter.TrayIcon.Tests
             var result = sut.ContextMenu;
 
             //--------------- Assert -----------------------
-            Expect(result, Is.EqualTo(expected));
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -77,9 +79,8 @@ namespace PeanutButter.TrayIcon.Tests
             sut.Dispose();
 
             //--------------- Assert -----------------------
-            Expect(called, Is.True);
+            Expect(called).To.Be.True();
         }
-
 
         private NotifyIconWrapper Create(NotifyIcon actual)
         {

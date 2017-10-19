@@ -2,11 +2,14 @@
 using System.Windows.Forms;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using NExpect;
+using static NExpect.Expectations;
+// ReSharper disable ConvertToLocalFunction
 
 namespace PeanutButter.TrayIcon.Tests
 {
     [TestFixture]
-    public class TestMouseClickHandler: AssertionHelper
+    public class TestMouseClickHandler
     {
         [Test]
         public void Construct_ShouldCopyParameters_ToProperties()
@@ -23,11 +26,11 @@ namespace PeanutButter.TrayIcon.Tests
             var sut = new MouseClickHandler(clicks, button, action);
 
             //--------------- Assert -----------------------
-            Expect(sut.Clicks, Is.EqualTo(clicks));
-            Expect(sut.Button, Is.EqualTo(button));
-            Expect(sut.Action, Is.EqualTo(action));
+            Expect(sut.Clicks).To.Equal(clicks);
+            Expect(sut.Button).To.Equal(button);
+            Expect(sut.Action).To.Equal(action);
             sut.Action();
-            Expect(called, Is.True);
+            Expect(called).To.Be.True();
         }
 
     }
