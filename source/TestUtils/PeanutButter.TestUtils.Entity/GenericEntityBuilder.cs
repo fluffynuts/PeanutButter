@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using PeanutButter.RandomGenerators;
-using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
 
 namespace PeanutButter.TestUtils.Entity
@@ -55,7 +54,7 @@ namespace PeanutButter.TestUtils.Entity
                     !propertyInfo.PropertyType.IsCollection();
         }
 
-        private static Type _stringType = typeof(string);
+        private static readonly Type _stringType = typeof(string);
         private void ConstrainMaxlengthStringOn(object o, PropertyInfo pi)
         {
             if (pi.PropertyType != _stringType)

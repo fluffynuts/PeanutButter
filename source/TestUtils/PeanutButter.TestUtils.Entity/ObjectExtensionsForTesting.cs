@@ -7,22 +7,23 @@ using System.Linq.Expressions;
 using System.Reflection;
 using NUnit.Framework;
 using PeanutButter.TempDb.LocalDb;
-using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
 
 namespace PeanutButter.TestUtils.Entity
 {
     public static class ObjectExtensionsForTesting
     {
-        public static void ShouldHaveMaxLengthOf<T>(this T item, int expectedMaxLength, Expression<Func<T, object>> expression)
+        public static void ShouldHaveMaxLengthOf<T>(this T item, int expectedMaxLength,
+            Expression<Func<T, object>> expression)
         {
             var propData = item.PropertyDataFor(expression);
             var maxLengthAttribute = propData.CustomAttribute<MaxLengthAttribute>();
             var stringLengthAttribute = propData.CustomAttribute<StringLengthAttribute>();
             var errorSuffix = ErrorSuffixFor<T>(propData.PropertyPath);
-            if (maxLengthAttribute == null && stringLengthAttribute == null)
+            if (maxLengthAttribute == null &&
+                stringLengthAttribute == null)
                 Assert.Fail("No MaxLength or StringLength attribute applied to " + errorSuffix);
-            var specifiedMaxLength = GetMaxLengthFrom<T>(maxLengthAttribute, stringLengthAttribute, propData);
+            var specifiedMaxLength = GetMaxLengthFrom(maxLengthAttribute, stringLengthAttribute, propData);
             Assert.AreEqual(expectedMaxLength, specifiedMaxLength, "Incorrect MaxLength value on " + errorSuffix);
         }
 
@@ -62,12 +63,15 @@ namespace PeanutButter.TestUtils.Entity
         {
             var parts = path.Split('.');
             var type = item.GetType();
-            return parts.Aggregate((PropertyInfo) null, (acc, cur) =>
-            {
-                var pi = type.GetProperty(cur);
-                item = pi.GetValue(item);
-                return pi;
-            });
+            return parts.Aggregate((PropertyInfo) null,
+                (acc, cur) =>
+                {
+                    var pi = type.GetProperty(cur);
+                    if (pi == null)
+                        throw new InvalidOperationException($"Unable to find property {cur} on {item?.GetType()}");
+                    item = pi.GetValue(item);
+                    return pi;
+                });
         }
 
         public static void ShouldHaveIDbSetFor<TEntity>(this Type contextType)
@@ -125,14 +129,19 @@ namespace PeanutButter.TestUtils.Entity
         private static void AssertHasExpectedDatabaseGeneratedOption<T>(DatabaseGeneratedOption databaseGeneratedOption,
             DatabaseGeneratedAttribute attrib, PropertyData<T> propData)
         {
-            Assert.AreEqual(databaseGeneratedOption, attrib.DatabaseGeneratedOption,
-                "Expected [DatabaseGenerated(DatabaseGeneratedOption." + databaseGeneratedOption.ToString() + ")] on " +
+            Assert.AreEqual(databaseGeneratedOption,
+                attrib.DatabaseGeneratedOption,
+                "Expected [DatabaseGenerated(DatabaseGeneratedOption." +
+                databaseGeneratedOption.ToString() +
+                ")] on " +
                 ErrorSuffixFor<T>(propData.PropertyPath));
         }
 
-        private static void AssertHasDatabaseGeneratedattribute<T>(DatabaseGeneratedAttribute attrib, PropertyData<T> propData)
+        private static void AssertHasDatabaseGeneratedattribute<T>(DatabaseGeneratedAttribute attrib,
+            PropertyData<T> propData)
         {
-            Assert.IsNotNull(attrib, "No DatabaseGeneratedAttribute applied to " + ErrorSuffixFor<T>(propData.PropertyPath));
+            Assert.IsNotNull(attrib,
+                "No DatabaseGeneratedAttribute applied to " + ErrorSuffixFor<T>(propData.PropertyPath));
         }
     }
 }
