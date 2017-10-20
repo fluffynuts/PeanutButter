@@ -2,6 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Management;
 using System.Security.Principal;
+// ReSharper disable UnusedMember.Global
+// ReSharper disable InconsistentNaming
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedMethodReturnValue.Global
 
 namespace PeanutButter.FileSystem.Tests
 {
@@ -42,67 +46,34 @@ namespace PeanutButter.FileSystem.Tests
             ReadOnly = 1179817
         }
 
-        private ManagementObject _winShareObject;
+        private readonly ManagementObject _winShareObject;
 
         private WindowsShare(ManagementObject obj)
         {
             _winShareObject = obj;
         }
 
-        public ManagementObject ManagementObject
-        {
-            get { return _winShareObject; }
-        }
+        public ManagementObject ManagementObject => _winShareObject;
 
-        public uint AccessMask
-        {
-            get { return Convert.ToUInt32(_winShareObject["AccessMask"]); }
-        }
+        public uint AccessMask => Convert.ToUInt32(_winShareObject["AccessMask"]);
 
-        public bool AllowMaximum
-        {
-            get { return Convert.ToBoolean(_winShareObject["AllowMaximum"]); }
-        }
+        public bool AllowMaximum => Convert.ToBoolean(_winShareObject["AllowMaximum"]);
 
-        public string Caption
-        {
-            get { return Convert.ToString(_winShareObject["Caption"]); }
-        }
+        public string Caption => Convert.ToString(_winShareObject["Caption"]);
 
-        public string Description
-        {
-            get { return Convert.ToString(_winShareObject["Description"]); }
-        }
+        public string Description => Convert.ToString(_winShareObject["Description"]);
 
-        public DateTime InstallDate
-        {
-            get { return Convert.ToDateTime(_winShareObject["InstallDate"]); }
-        }
+        public DateTime InstallDate => Convert.ToDateTime(_winShareObject["InstallDate"]);
 
-        public uint MaximumAllowed
-        {
-            get { return Convert.ToUInt32(_winShareObject["MaximumAllowed"]); }
-        }
+        public uint MaximumAllowed => Convert.ToUInt32(_winShareObject["MaximumAllowed"]);
 
-        public string Name
-        {
-            get { return Convert.ToString(_winShareObject["Name"]); }
-        }
+        public string Name => Convert.ToString(_winShareObject["Name"]);
 
-        public string Path
-        {
-            get { return Convert.ToString(_winShareObject["Path"]); }
-        }
+        public string Path => Convert.ToString(_winShareObject["Path"]);
 
-        public string Status
-        {
-            get { return Convert.ToString(_winShareObject["Status"]); }
-        }
+        public string Status => Convert.ToString(_winShareObject["Status"]);
 
-        public ShareType Type
-        {
-            get { return (ShareType)Convert.ToUInt32(_winShareObject["Type"]); }
-        }
+        public ShareType Type => (ShareType)Convert.ToUInt32(_winShareObject["Type"]);
 
 
         public MethodStatus Delete()
@@ -131,6 +102,7 @@ namespace PeanutButter.FileSystem.Tests
 
             ManagementBaseObject result = mc.InvokeMethod("Create", shareParams, null);
 
+            // ReSharper disable once PossibleNullReferenceException
             return (MethodStatus)(result.Properties["ReturnValue"].Value);
         }
 
@@ -140,9 +112,9 @@ namespace PeanutButter.FileSystem.Tests
             ManagementClass mc = new ManagementClass("Win32_Share");
             ManagementObjectCollection moc = mc.GetInstances();
 
-            foreach (ManagementObject mo in moc)
+            foreach (var o in moc)
             {
-                WindowsShare share = new WindowsShare(mo);
+                WindowsShare share = new WindowsShare(o as ManagementObject);
                 result.Add(share);
             }
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Security.Cryptography;
 using System.Text;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;

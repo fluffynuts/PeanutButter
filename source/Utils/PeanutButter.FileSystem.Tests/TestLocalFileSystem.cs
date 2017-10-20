@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Management;
 using NUnit.Framework;
 using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
@@ -890,7 +889,7 @@ namespace PeanutButter.FileSystem.Tests
                 //---------------Execute Test ----------------------
                 using (var stream = sut.Open(targetPath))
                 {
-                    var inFile = stream.ReadAllBytes();
+                    stream.ReadAllBytes();
                     stream.Position = stream.Length;
                     stream.Append(append);
                 }
@@ -946,7 +945,7 @@ namespace PeanutButter.FileSystem.Tests
                 var sourceFileName = CreateRandomFileIn(Path.Combine(folder.Path, sourceFolder));
                 var sourceRelativePath = Path.Combine(sourceFolder, sourceFileName);
                 var sourceAbsolutePath = Path.Combine(folder.Path, sourceRelativePath);
-                var sourceData = File.ReadAllBytes(sourceAbsolutePath);
+                File.ReadAllBytes(sourceAbsolutePath);
                 var destinationFolder = GetAnother(sourceFolder);
                 var target = Path.Combine(destinationFolder, GetRandomString());
                 var targetAbsolutePath = Path.Combine(folder.Path, target);

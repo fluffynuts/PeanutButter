@@ -11,6 +11,7 @@ using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using static NExpect.Expectations;
+// ReSharper disable InconsistentNaming
 
 // ReSharper disable UnusedMethodReturnValue.Global
 // ReSharper disable MemberHidesStaticFromOuterClass

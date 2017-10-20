@@ -1,12 +1,8 @@
-using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using NExpect;
-using NExpect.Interfaces;
-using NExpect.MatcherLogic;
 using NUnit.Framework;
-using PeanutButter.DuckTyping.Extensions;
 using PeanutButter.DuckTyping.Shimming;
 using PeanutButter.Utils;
 using static NExpect.Expectations;

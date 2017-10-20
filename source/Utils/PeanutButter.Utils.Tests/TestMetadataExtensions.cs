@@ -1,5 +1,4 @@
 ﻿using System;
-using NExpect.Implementations;
 using NUnit.Framework;
 using NExpect;
 using static NExpect.Expectations;

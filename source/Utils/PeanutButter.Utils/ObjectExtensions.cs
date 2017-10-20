@@ -17,11 +17,13 @@ namespace PeanutButter.Utils
         /// Test properties and fields (default behavior for DeepEquals)
         /// </summary>
         PropertiesAndFields,
+
         /// <summary>
         /// Only test properties (behavior for PropertyAssert)
         /// </summary>
         PropertiesOnly
     }
+
     /// <summary>
     /// Provides a set of convenience extensions on everything
     /// </summary>
@@ -38,8 +40,8 @@ namespace PeanutButter.Utils
         /// <param name="ignorePropertiesByName">Params array of properties to ignore by name</param>
         /// <returns></returns>
         public static bool DeepEquals(
-            this object objSource, 
-            object objCompare, 
+            this object objSource,
+            object objCompare,
             params string[] ignorePropertiesByName
         )
         {
@@ -61,9 +63,9 @@ namespace PeanutButter.Utils
         )
         {
             return PerformShapeEqualityTesting(
-                objSource, 
-                objCompare, 
-                false, 
+                objSource,
+                objCompare,
+                false,
                 ignorePropertiesByName
             );
         }
@@ -119,8 +121,8 @@ namespace PeanutButter.Utils
         /// <param name="ignorePropertiesByName">Params array of properties to ignore by name</param>
         /// <returns></returns>
         public static bool DeepEquals(
-            this object objSource, 
-            object objCompare, 
+            this object objSource,
+            object objCompare,
             ObjectComparisons comparison,
             params string[] ignorePropertiesByName
         )
@@ -142,7 +144,7 @@ namespace PeanutButter.Utils
         /// <param name="ignorePropertiesByName">Optional params array of properties to ignore by name</param>
         /// <returns>True if relevant properties are found and match; false otherwise</returns>
         public static bool DeepSubEquals(
-            this object objSource, 
+            this object objSource,
             object objCompare,
             params string[] ignorePropertiesByName)
         {
@@ -279,11 +281,13 @@ namespace PeanutButter.Utils
         )
         {
             return collection.Aggregate(0, (acc, cur) =>
-            {
-                if (acc > 1) return acc;
-                acc += comparer(cur, item) ? 1 : 0;
-                return acc;
-            }) == 1;
+                   {
+                       if (acc > 1)
+                           return acc;
+                       acc += comparer(cur, item) ? 1 : 0;
+                       return acc;
+                   }) ==
+                   1;
         }
 
         /// <summary>
@@ -320,8 +324,10 @@ namespace PeanutButter.Utils
         /// <param name="ignoreProperties"></param>
         public static void CopyPropertiesTo(this object src, object dst, bool deep, params string[] ignoreProperties)
         {
-            if (src == null || dst == null) return;
-            var srcPropInfos = src.GetType().GetProperties()
+            if (src == null || dst == null)
+                return;
+            var srcPropInfos = src.GetType()
+                .GetProperties()
                 .Where(pi => !ignoreProperties.Contains(pi.Name));
             var dstPropInfos = dst.GetType().GetProperties();
 
@@ -330,7 +336,8 @@ namespace PeanutButter.Utils
                 var matchingTarget = dstPropInfos.FirstOrDefault(dp => dp.Name == srcPropInfo.Name &&
                                                                        dp.PropertyType == srcPropInfo.PropertyType &&
                                                                        dp.CanWrite);
-                if (matchingTarget == null) continue;
+                if (matchingTarget == null)
+                    continue;
 
                 var srcVal = srcPropInfo.GetValue(src);
 
@@ -350,9 +357,9 @@ namespace PeanutButter.Utils
             };
 
         private static bool SetEnumValue(
-            bool deep, 
-            PropertyInfo srcPropertyInfo, 
-            PropertyInfo dstPropertyInfo, 
+            bool deep,
+            PropertyInfo srcPropertyInfo,
+            PropertyInfo dstPropertyInfo,
             object dst, object srcValue)
         {
             if (!srcPropertyInfo.PropertyType.IsEnum())
@@ -529,9 +536,9 @@ namespace PeanutButter.Utils
         private static bool IsSimpleTypeOrNullableOfSimpleType(Type t)
         {
             return Types.PrimitivesAndImmutables.Any(si => si == t ||
-                                              (t.IsGenericType() &&
-                                               t.GetGenericTypeDefinition() == typeof(Nullable<>) &&
-                                               Nullable.GetUnderlyingType(t) == si));
+                                                           (t.IsGenericType() &&
+                                                            t.GetGenericTypeDefinition() == typeof(Nullable<>) &&
+                                                            Nullable.GetUnderlyingType(t) == si));
         }
 
         /// <summary>
@@ -599,9 +606,15 @@ namespace PeanutButter.Utils
             var valueType = valueAsObject.GetType();
             if (!valueType.IsAssignableTo<T>())
                 throw new ArgumentException(
-                    "Get<> must be invoked with a type to which the property value could be assigned ("
-                    + type.Name + "." + propertyPath + " has type '" + valueType.Name
-                    + "', but expected '" + typeof(T).Name + "' or derivative");
+                    "Get<> must be invoked with a type to which the property value could be assigned (" +
+                    type.Name +
+                    "." +
+                    propertyPath +
+                    " has type '" +
+                    valueType.Name +
+                    "', but expected '" +
+                    typeof(T).Name +
+                    "' or derivative");
             return (T) valueAsObject;
         }
 

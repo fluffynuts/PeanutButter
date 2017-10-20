@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
+// ReSharper disable PossibleNullReferenceException
 
 namespace PeanutButter.JObjectExtensions.Tests
 {

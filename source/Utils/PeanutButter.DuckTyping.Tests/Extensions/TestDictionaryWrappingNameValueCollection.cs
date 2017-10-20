@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
@@ -9,7 +8,10 @@ using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using NExpect;
 using static NExpect.Expectations;
+// ReSharper disable MemberCanBePrivate.Local
+
 // ReSharper disable PossibleMultipleEnumeration
+// ReSharper disable TryCastAlwaysSucceeds
 
 namespace PeanutButter.DuckTyping.Tests.Extensions
 {
@@ -52,8 +54,10 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         public void Clear_ShouldClearTheUnderlyingNameValueCollection()
         {
             // Arrange
-            var collection = new NameValueCollection();
-            collection.Add(GetRandomString(), GetRandomString());
+            var collection = new NameValueCollection
+            {
+                {GetRandomString(), GetRandomString()}
+            };
             var sut = Create(collection);
             // Pre-Assert
             // Act
@@ -69,7 +73,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var arena = CreateArena();
             var kvp = GetRandom<KeyValuePair<string, object>>();
             // Pre-Assert
-            Expect(arena.Collection).To.Be.Empty();;
+            Expect(arena.Collection).To.Be.Empty();
             // Act
             var result = arena.Sut.Contains(kvp);
             // Assert
@@ -256,14 +260,15 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             public NameValueCollection Collection { get; }
             public IDictionary<string, object> Sut { get; }
 
-            public TestArena(): this(false)
+            public TestArena() : this(false)
             {
             }
+
             public TestArena(bool isCaseInSensitive)
             {
                 Collection = new NameValueCollection();
                 Sut = new DictionaryWrappingNameValueCollection(
-                    Collection, 
+                    Collection,
                     isCaseInSensitive
                 );
             }

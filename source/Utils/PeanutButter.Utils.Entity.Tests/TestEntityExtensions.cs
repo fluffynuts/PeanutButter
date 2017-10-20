@@ -5,8 +5,11 @@ using EmailSpooler.Win32Service.DB.Tests;
 using EmailSpooler.Win32Service.DB.Tests.Builders;
 using EmailSpooler.Win32Service.Entity;
 using NUnit.Framework;
-using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Entity;
+using static PeanutButter.RandomGenerators.RandomValueGen;
+// ReSharper disable PossibleMultipleEnumeration
+// ReSharper disable AccessToDisposedClosure
+// ReSharper disable TryCastAlwaysSucceeds
 
 namespace PeanutButter.Utils.Entity.Tests
 {
@@ -72,7 +75,7 @@ namespace PeanutButter.Utils.Entity.Tests
             {
                 //---------------Set up test pack-------------------
                 var email = EmailBuilder.BuildRandom();
-                var items = RandomValueGen.GetRandomCollection(EmailAttachmentBuilder.BuildRandom, 2);
+                var items = GetRandomArray(EmailAttachmentBuilder.BuildRandom, 2);
 
                 //---------------Assert Precondition----------------
                 CollectionAssert.IsEmpty(email.EmailAttachments);
@@ -151,6 +154,7 @@ namespace PeanutButter.Utils.Entity.Tests
                 //---------------Set up test pack-------------------
                 var email = EmailBuilder.BuildRandom();
                 var anotherEmail = EmailBuilder.BuildRandom();
+                // ReSharper disable once ConvertToLocalFunction
                 Func<EmailAttachment> createAttachment = () => EmailAttachmentBuilder.Create().WithRandomProps().WithProp(o => o.Email = email).Build();
                 var item1 = createAttachment();
                 var item2 = createAttachment();
@@ -179,11 +183,11 @@ namespace PeanutButter.Utils.Entity.Tests
             using (var ctx = GetContext())
             {
                 //---------------Set up test pack-------------------
-                var emails = RandomValueGen.GetRandomCollection(EmailBuilder.BuildRandom, 3);
+                var emails = GetRandomCollection(EmailBuilder.BuildRandom, 3);
                 ctx.Emails.AddRange(emails);
                 ctx.SaveChangesWithErrorReporting();
-                var remove1 = RandomValueGen.GetRandomFrom(emails);
-                var remove2 = RandomValueGen.GetRandomFrom(emails, remove1);
+                var remove1 = GetRandomFrom(emails);
+                var remove2 = GetRandomFrom(emails, remove1);
 
                 //---------------Assert Precondition----------------
                 Assert.AreEqual(emails.Count(), ctx.Emails.Count());
@@ -204,7 +208,7 @@ namespace PeanutButter.Utils.Entity.Tests
             using (var ctx = GetContext())
             {
                 //---------------Set up test pack-------------------
-                var emails = RandomValueGen.GetRandomCollection(EmailBuilder.BuildRandom, 2);
+                var emails = GetRandomCollection(EmailBuilder.BuildRandom, 2);
                 ctx.Emails.AddRange(emails);
                 ctx.SaveChanges();
 
@@ -232,8 +236,8 @@ namespace PeanutButter.Utils.Entity.Tests
 
                 //---------------Execute Test ----------------------
                 var email = ctx.Emails.AddNew();
-                email.Subject = RandomValueGen.GetRandomString(2);
-                email.Body = RandomValueGen.GetRandomString(2);
+                email.Subject = GetRandomString(2);
+                email.Body = GetRandomString(2);
                 email.SendAt = DateTime.Now;
                 ctx.SaveChangesWithErrorReporting();
 
@@ -257,8 +261,8 @@ namespace PeanutButter.Utils.Entity.Tests
                 //---------------Execute Test ----------------------
                 var email = ctx.Emails.AddNew(e =>
                 {
-                    e.Subject = RandomValueGen.GetRandomString(2);
-                    e.Body = RandomValueGen.GetRandomString(2);
+                    e.Subject = GetRandomString(2);
+                    e.Body = GetRandomString(2);
                     e.SendAt = DateTime.Now;
                     called = true;
                 });
@@ -279,11 +283,13 @@ namespace PeanutButter.Utils.Entity.Tests
                 //---------------Set up test pack-------------------
                 CollectionAssert.IsEmpty(ctx.Emails);
                 var called = false;
-                Action saveChanges = () =>
+
+                void SaveChanges()
                 {
+                    // ReSharper disable once AccessToDisposedClosure
                     ctx.SaveChangesWithErrorReporting();
                     called = true;
-                };
+                }
 
                 //---------------Assert Precondition----------------
                 CollectionAssert.IsEmpty(ctx.Emails);
@@ -291,13 +297,13 @@ namespace PeanutButter.Utils.Entity.Tests
                 //---------------Execute Test ----------------------
                 var email = ctx.Emails.AddNew(e =>
                 {
-                    e.Subject = RandomValueGen.GetRandomString(2);
-                    e.Body = RandomValueGen.GetRandomString(2);
+                    e.Subject = GetRandomString(2);
+                    e.Body = GetRandomString(2);
                     e.SendAt = DateTime.Now;
                     called = true;
                 }, o =>
                 {
-                    saveChanges();
+                    SaveChanges();
                 });
 
                 //---------------Test Result -----------------------
@@ -323,8 +329,8 @@ namespace PeanutButter.Utils.Entity.Tests
                 //---------------Execute Test ----------------------
                 var attachment = email.EmailAttachments.AddNew(a =>
                 {
-                    a.Data = RandomValueGen.GetRandomBytes(100);
-                    a.MIMEType = RandomValueGen.GetRandomString(2);
+                    a.Data = GetRandomBytes(100);
+                    a.MIMEType = GetRandomString(2);
                     called = true;
                 });
                 ctx.SaveChangesWithErrorReporting();    // would fail if the entity wasn't set up properly
@@ -344,11 +350,13 @@ namespace PeanutButter.Utils.Entity.Tests
                 //---------------Set up test pack-------------------
                 CollectionAssert.IsEmpty(ctx.Emails);
                 var called = false;
-                Action saveChanges = () =>
+
+                void SaveChanges()
                 {
                     ctx.SaveChangesWithErrorReporting();
                     called = true;
-                };
+                }
+
                 var email = EmailBuilder.BuildRandom();
 
                 //---------------Assert Precondition----------------
@@ -356,12 +364,12 @@ namespace PeanutButter.Utils.Entity.Tests
                 //---------------Execute Test ----------------------
                 var attachment = email.EmailAttachments.AddNew(a =>
                 {
-                    a.Data = RandomValueGen.GetRandomBytes(100);
-                    a.MIMEType = RandomValueGen.GetRandomString(2);
+                    a.Data = GetRandomBytes(100);
+                    a.MIMEType = GetRandomString(2);
                     called = true;
                 }, o =>
                 {
-                    saveChanges();
+                    SaveChanges();
                 });
 
                 //---------------Test Result -----------------------

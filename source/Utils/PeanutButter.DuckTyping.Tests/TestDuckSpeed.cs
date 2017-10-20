@@ -3,6 +3,10 @@ using System.Diagnostics;
 using ImpromptuInterface;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Extensions;
+// ReSharper disable PossibleNullReferenceException
+// ReSharper disable RedundantArgumentDefaultValue
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedMember.Global
 
 namespace PeanutButter.DuckTyping.Tests
 {
@@ -15,6 +19,7 @@ namespace PeanutButter.DuckTyping.Tests
             i.ToString();
         }
 
+        private const int TIMES = 1000000;
 
         [Test]
         [Category("performance")]
@@ -23,7 +28,6 @@ namespace PeanutButter.DuckTyping.Tests
             // Compares PB duck-typing with plain reflection and ImpromptuInterfaces (InvokeSet and using an ActLike<> invocation)
             // So far, PB-duck-typing is about twice as slow (when profiled) as II. Perhaps this can get better... Though the penalty
             // may be worth it when considering the extra features (like fuzzy-ducking)
-            const int TIMES = 1000000;
             var tPoco = new PropPoco();
 
             var tSetValue = "1";

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Entity;
+// ReSharper disable AccessToDisposedClosure
 
 namespace PeanutButter.Utils.Entity.Tests
 {

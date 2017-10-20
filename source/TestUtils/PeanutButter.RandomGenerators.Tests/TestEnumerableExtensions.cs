@@ -7,6 +7,7 @@ using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using static NExpect.Expectations;
+
 // ReSharper disable ExpressionIsAlwaysNull
 // ReSharper disable CollectionNeverUpdated.Local
 // ReSharper disable PossibleMultipleEnumeration

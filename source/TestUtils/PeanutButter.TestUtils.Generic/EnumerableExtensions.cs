@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using PeanutButter.TestUtils.Generic.NUnitAbstractions;
 using PeanutButter.Utils;
-using static PeanutButter.Utils.Stringifier;
 
 namespace PeanutButter.TestUtils.Generic
 {
@@ -72,8 +71,10 @@ namespace PeanutButter.TestUtils.Generic
         {
             if (src == null && other == null) return true;
             if (src == null || other == null) return false;
-            return src.Count() == other.Count() &&
-                   !src.Except(other).Any();
+            var srcArray = src as T[] ?? src.ToArray();
+            var otherArray = other as T[] ?? other.ToArray();
+            return srcArray.Length == otherArray.Length &&
+                   !srcArray.Except(otherArray).Any();
         }
 
         /// <summary>
@@ -99,12 +100,13 @@ namespace PeanutButter.TestUtils.Generic
         public static void ShouldContainOneDeepEqualTo<T>(this IEnumerable<T> src, T seek,
             params string[] ignoreProperties)
         {
-            if (src.ContainsOneDeepEqualTo(seek, ignoreProperties))
+            var srcArray = src as T[] ?? src.ToArray();
+            if (srcArray.ContainsOneDeepEqualTo(seek, ignoreProperties))
                 return;
-            var message = src.ContainsAtLeastOneDeepEqualTo(seek, ignoreProperties)
+            var message = srcArray.ContainsAtLeastOneDeepEqualTo(seek, ignoreProperties)
                 ? "more than one match"
                 : "no matches";
-                Assertions.Throw($"Expected to find one {seek.Stringify()} in {src.Stringify()} but found {message}");
+                Assertions.Throw($"Expected to find one {seek.Stringify()} in {srcArray.Stringify()} but found {message}");
         }
 
         /// <summary>

@@ -6,6 +6,7 @@ using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using NExpect;
 using static NExpect.Expectations;
+
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable UnusedMember.Global
@@ -625,7 +626,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
 
         public class ReadOnlyPropertyTestClass
         {
-            public int ReadOnlyProperty { get;  }
+            public int ReadOnlyProperty { get; }
             public int ReadWriteProperty { get; set; }
         }
 

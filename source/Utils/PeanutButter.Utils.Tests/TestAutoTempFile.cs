@@ -46,6 +46,7 @@ namespace PeanutButter.Utils.Tests
             }
             catch (Exception)
             {
+                // ignored
             }
         }
 
@@ -274,7 +275,7 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            using (var tempFile = new AutoTempFile(baseFolder, fileName, data))
+            using (new AutoTempFile(baseFolder, fileName, data))
             {
                 //---------------Test Result -----------------------
                 Assert.IsTrue(File.Exists(expectedPath));

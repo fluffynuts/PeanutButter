@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using PeanutButter.Utils.Entity;
+
 // ReSharper disable ConvertClosureToMethodGroup
 // ReSharper disable InconsistentNaming
 // ReSharper disable MemberCanBePrivate.Global
@@ -9,7 +10,7 @@ using PeanutButter.Utils.Entity;
 namespace PeanutButter.TestUtils.Entity.Tests
 {
     [TestFixture]
-    public class TestComBlockListReason: EntityPersistenceTestFixtureBase<CommunicatorContext>
+    public class TestComBlockListReason : EntityPersistenceTestFixtureBase<CommunicatorContext>
     {
         private int _clearCalled;
 
@@ -44,31 +45,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
         {
             //---------------Set up test pack-------------------
             Assert.AreEqual(0, _clearCalled);
-            using (var ctx = GetContext())
-            {
-                Assert.AreEqual(1, _clearCalled);
-            }
-
-            //---------------Assert Precondition----------------
-            Assert.AreEqual(1, _clearCalled);
-
-            //---------------Execute Test ----------------------
-            using (var ctx = GetContext())
-            {
-                Assert.AreEqual(1, _clearCalled);
-            }
-
-            //---------------Test Result -----------------------
-            Assert.AreEqual(1, _clearCalled);
-        }
-
-
-        [Test]
-        public void RunBeforeFirstGettingContext_ActionShouldOnlyBeRunOncePerTest()
-        {
-            //---------------Set up test pack-------------------
-            Assert.AreEqual(0, _clearCalled);
-            using (var ctx = GetContext())
+            using (GetContext())
             {
                 Assert.AreEqual(1, _clearCalled);
             }
@@ -86,7 +63,31 @@ namespace PeanutButter.TestUtils.Entity.Tests
             Assert.AreEqual(1, _clearCalled);
         }
 
-        public class SomeEntity: EntityBase
+
+        [Test]
+        public void RunBeforeFirstGettingContext_ActionShouldOnlyBeRunOncePerTest()
+        {
+            //---------------Set up test pack-------------------
+            Assert.AreEqual(0, _clearCalled);
+            using (GetContext())
+            {
+                Assert.AreEqual(1, _clearCalled);
+            }
+
+            //---------------Assert Precondition----------------
+            Assert.AreEqual(1, _clearCalled);
+
+            //---------------Execute Test ----------------------
+            using (GetContext())
+            {
+                Assert.AreEqual(1, _clearCalled);
+            }
+
+            //---------------Test Result -----------------------
+            Assert.AreEqual(1, _clearCalled);
+        }
+
+        public class SomeEntity : EntityBase
         {
         }
 
@@ -94,7 +95,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
         public void Type_ShouldInheritFromEntityBase_GivenTypeInheritingFromEntityBase_ShouldNotThrow()
         {
             //--------------- Arrange -------------------
-            _clearCalled = 1;   // work around kludgey test and lazy me
+            _clearCalled = 1; // work around kludgey test and lazy me
 
             //--------------- Assume ----------------
 
@@ -105,14 +106,16 @@ namespace PeanutButter.TestUtils.Entity.Tests
 
             //--------------- Assert -----------------------
         }
+
         public class SomeNonEntity
         {
         }
+
         [Test]
         public void Type_ShouldInheritFromEntityBase_GivenTypeNotInheritingFromEntityBase_ShouldThrow()
         {
             //--------------- Arrange -------------------
-            _clearCalled = 1;   // work around kludgey test and lazy me
+            _clearCalled = 1; // work around kludgey test and lazy me
 
             //--------------- Assume ----------------
 
@@ -125,21 +128,19 @@ namespace PeanutButter.TestUtils.Entity.Tests
         }
 
 
-
         [Test]
         public void COMCategory_ShouldBeAbleToPersistAndRecall()
         {
-            ShouldBeAbleToPersist<ComBlockListReasonBuilder, COMBlockListReason>(ctx => ctx.BlockListReasons, (ctx, entity) =>
-            {
-            }, (before, after) =>
-            {
-            });
+            ShouldBeAbleToPersist<ComBlockListReasonBuilder, COMBlockListReason>(ctx => ctx.BlockListReasons,
+                (ctx, entity) =>
+                {
+                }, (before, after) =>
+                {
+                });
         }
-
     }
 
-    public class ComBlockListReasonBuilder: GenericBuilder<ComBlockListReasonBuilder, COMBlockListReason>
+    public class ComBlockListReasonBuilder : GenericBuilder<ComBlockListReasonBuilder, COMBlockListReason>
     {
     }
-
 }

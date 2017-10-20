@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -53,8 +52,7 @@ namespace PeanutButter.JObjectExtensions
 
         private static Func<JToken, object> GetResolverFor(JToken arg)
         {
-            Func<JToken, object> result;
-            return _resolvers.TryGetValue(arg.Type, out result)
+            return _resolvers.TryGetValue(arg.Type, out var result)
                 ? result
                 : PassThrough;
         }
@@ -91,11 +89,11 @@ namespace PeanutButter.JObjectExtensions
 
         private static object ConvertToTypedArray(IEnumerable<object> src, Type newType)
         {
-            var method = ConvertToTypedArrayGenericMethod.MakeGenericMethod(newType);
-            return method.Invoke(null, new[] {src});
+            var method = _convertToTypedArrayGenericMethod.MakeGenericMethod(newType);
+            return method.Invoke(null, new object[] {src});
         }
 
-        private static readonly MethodInfo ConvertToTypedArrayGenericMethod
+        private static readonly MethodInfo _convertToTypedArrayGenericMethod
             = typeof(JObjectExtensions).GetMethod(
                 nameof(ConvertToTypedArrayGeneric),
                 BindingFlags.NonPublic | BindingFlags.Static

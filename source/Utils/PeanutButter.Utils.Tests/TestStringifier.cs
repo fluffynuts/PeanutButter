@@ -1,7 +1,6 @@
 using System;
 using NUnit.Framework;
 using NExpect;
-using NExpect.Implementations;
 using static NExpect.Expectations;
 
 namespace PeanutButter.Utils.Tests
@@ -21,24 +20,24 @@ namespace PeanutButter.Utils.Tests
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var result = Stringifier.Stringify(value);
+            var result = value.Stringify();
 
             //--------------- Assert -----------------------
             Expect(result).To.Equal(expected);
         }
 
-        private static readonly Tuple<object, string>[] _complexSource = new[]
+        private static readonly Tuple<object, string>[] _complexSource =
         {
-            Tuple.Create(new { foo = 1 } as object, @"
+            Tuple.Create(new {foo = 1} as object, @"
 {
   foo: 1
 }"),
-            Tuple.Create(new { foo = new { bar = 1 } } as object, @"
+            Tuple.Create(new {foo = new {bar = 1}} as object, @"
 {
   foo: {
     bar: 1
   }
-}") 
+}")
         };
 
         [TestCaseSource(nameof(_complexSource))]
@@ -49,7 +48,7 @@ namespace PeanutButter.Utils.Tests
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var result = Stringifier.Stringify(data.Item1);
+            var result = data.Item1.Stringify();
 
             //--------------- Assert -----------------------
             Expect(result).To.Equal(data.Item2.TrimStart().Replace("\r", ""));
@@ -61,12 +60,12 @@ namespace PeanutButter.Utils.Tests
             // Arrange
             // Pre-Assert
             // Act
-            Console.WriteLine(new[] {
-                new[] { 1, 2 },
-                new[] { 5, 6, 7 }
+            Console.WriteLine(new[]
+            {
+                new[] {1, 2},
+                new[] {5, 6, 7}
             }.Stringify());
             // Assert
         }
-
     }
 }

@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+// ReSharper disable UnusedMethodReturnValue.Global
+// ReSharper disable UnusedMember.Global
 
 namespace PeanutButter.TinyEventAggregator
 {
@@ -23,7 +27,7 @@ namespace PeanutButter.TinyEventAggregator
         public SubscriptionRemovedEventHandler OnSubscriptionRemoved { get; set; }
 
         private readonly List<Subscription<TPayload>> _subscriptions;
-        private string _eventName;
+        private readonly string _eventName;
 
         protected EventBase()
         {
@@ -88,7 +92,7 @@ namespace PeanutButter.TinyEventAggregator
 
         private SubscriptionToken PerformSubscription(Action<TPayload> action, int limit)
         {
-            if (action == null) throw new ArgumentNullException("callback");
+            if (action == null) throw new ArgumentNullException(nameof(action));
             lock (this)
             {
                 var subscription = new Subscription<TPayload>(action, limit);
@@ -130,7 +134,7 @@ namespace PeanutButter.TinyEventAggregator
             [CallerMemberName] string requestingMethod = "(unknown)",
             [CallerLineNumber] int unsubscribingSourceLine = -1)
         {
-            if (token == null) throw new ArgumentNullException("token");
+            if (token == null) throw new ArgumentNullException(nameof(token));
             lock (this)
             {
                 var match = _subscriptions.FirstOrDefault(s => s.Token == token);

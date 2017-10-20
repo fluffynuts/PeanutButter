@@ -46,7 +46,7 @@ namespace PeanutButter.DuckTyping.Tests.Exceptions
 
             //--------------- Assert -----------------------
             Expect(result.Message)
-                .To.Contain($"{count} parameters were provided for method {methodInfo.DeclaringType.Name}.{methodInfo.Name}")
+                .To.Contain($"{count} parameters were provided for method {methodInfo?.DeclaringType?.Name ?? "(unknown type)"}.{methodInfo?.Name ?? "(unknown method)"}")
                 .Then("but it requires 2 parameters");
         }
     }

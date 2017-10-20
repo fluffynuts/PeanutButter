@@ -2,6 +2,9 @@
 using System.Threading;
 using NUnit.Framework;
 
+// ReSharper disable ObjectCreationAsStatement
+// ReSharper disable MemberCanBePrivate.Global
+
 namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
@@ -15,7 +18,7 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<ArgumentNullException>(() => new AutoLocker((Semaphore)null));
+            var ex = Assert.Throws<ArgumentNullException>(() => new AutoLocker((Semaphore) null));
 
             //---------------Test Result -----------------------
             Assert.AreEqual("semaphore", ex.ParamName);
@@ -29,7 +32,7 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<ArgumentNullException>(() => new AutoLocker((Mutex)null));
+            var ex = Assert.Throws<ArgumentNullException>(() => new AutoLocker((Mutex) null));
 
             //---------------Test Result -----------------------
             Assert.AreEqual("mutex", ex.ParamName);
@@ -84,7 +87,7 @@ namespace PeanutButter.Utils.Tests
         public class MutexLockTest
         {
             public bool GotLock { get; private set; }
-            private Mutex _mutex;
+            private readonly Mutex _mutex;
 
             public MutexLockTest(Mutex mutex)
             {
@@ -95,7 +98,6 @@ namespace PeanutButter.Utils.Tests
             {
                 GotLock = _mutex.WaitOne(1);
             }
-
         }
 
         [Test]
@@ -120,8 +122,8 @@ namespace PeanutButter.Utils.Tests
             Assert.IsTrue(gotLockAfter);
             theLock.ReleaseMutex();
         }
-
     }
+
     [TestFixture]
     public class TestAutoLockerSlim
     {
@@ -133,7 +135,7 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<ArgumentNullException>(() => new AutoLocker((SemaphoreSlim)null));
+            var ex = Assert.Throws<ArgumentNullException>(() => new AutoLocker((SemaphoreSlim) null));
 
             //---------------Test Result -----------------------
             Assert.AreEqual("semaphore", ex.ParamName);
@@ -147,7 +149,7 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<ArgumentNullException>(() => new AutoLocker((Mutex)null));
+            var ex = Assert.Throws<ArgumentNullException>(() => new AutoLocker((Mutex) null));
 
             //---------------Test Result -----------------------
             Assert.AreEqual("mutex", ex.ParamName);
@@ -202,7 +204,7 @@ namespace PeanutButter.Utils.Tests
         public class MutexLockTest
         {
             public bool GotLock { get; private set; }
-            private Mutex _mutex;
+            private readonly Mutex _mutex;
 
             public MutexLockTest(Mutex mutex)
             {
@@ -213,7 +215,6 @@ namespace PeanutButter.Utils.Tests
             {
                 GotLock = _mutex.WaitOne(1);
             }
-
         }
 
         [Test]
@@ -238,6 +239,5 @@ namespace PeanutButter.Utils.Tests
             Assert.IsTrue(gotLockAfter);
             theLock.ReleaseMutex();
         }
-
     }
 }

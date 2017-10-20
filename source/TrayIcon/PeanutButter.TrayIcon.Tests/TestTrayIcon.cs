@@ -8,6 +8,7 @@ using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using NExpect;
 using static NExpect.Expectations;
+// ReSharper disable LocalizableElement
 
 namespace PeanutButter.TrayIcon.Tests
 {
@@ -51,7 +52,11 @@ namespace PeanutButter.TrayIcon.Tests
                 {
                     handlers.Add(trayIcon.AddMouseClickHandler(mc, button, () =>
                     {
-                        trayIcon.ShowBalloonTipFor(500, "Mouse Click Handler", string.Format("Mouse click handler: {0} / {1}", mc, button), ToolTipIcon.Info);
+                        trayIcon.ShowBalloonTipFor(
+                            500, 
+                            "Mouse Click Handler", 
+                            $"Mouse click handler: {mc} / {button}", 
+                            ToolTipIcon.Info);
                     }));
                 });
             });

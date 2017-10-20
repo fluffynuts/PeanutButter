@@ -6,6 +6,8 @@ using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
+// ReSharper disable ObjectCreationAsStatement
+// ReSharper disable PossibleMultipleEnumeration
 
 namespace PeanutButter.MVC.Tests
 {

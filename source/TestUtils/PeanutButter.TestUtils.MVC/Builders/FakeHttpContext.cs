@@ -1,5 +1,4 @@
 ﻿using System.Collections.Specialized;
-using System.Security.Claims;
 using System.Security.Principal;
 using System.Web;
 using System.Web.SessionState;
@@ -19,11 +18,11 @@ namespace PeanutButter.TestUtils.MVC.Builders
         private HttpRequestBase _request;
         private HttpSessionStateBase _session;
 
-        public FakeHttpContext(IPrincipal principal, 
-                                NameValueCollection formParams, 
-                                NameValueCollection queryStringParams, 
-                                HttpCookieCollection cookies, 
-                                SessionStateItemCollection sessionItems )
+        public FakeHttpContext(IPrincipal principal,
+            NameValueCollection formParams,
+            NameValueCollection queryStringParams,
+            HttpCookieCollection cookies,
+            SessionStateItemCollection sessionItems)
         {
             _principal = principal;
             _formParams = formParams;
@@ -32,28 +31,15 @@ namespace PeanutButter.TestUtils.MVC.Builders
             _sessionItems = sessionItems;
         }
 
-        public override HttpRequestBase Request
-        {
-            get
-            {
-                return _request ?? (_request = new FakeHttpRequest(_formParams, _queryStringParams, _cookies));
-            }
-        }
+        public override HttpRequestBase Request =>
+            _request ??
+            (_request = new FakeHttpRequest(
+                _formParams, _queryStringParams, _cookies
+            ));
 
-        public override IPrincipal User
-        {
-            get
-            {
-                return _principal;
-            }
-        }
+        public override IPrincipal User => _principal;
 
-        public override HttpSessionStateBase Session
-        {
-            get
-            {
-                return _session ?? (_session = new FakeHttpSessionState(_sessionItems));
-            }
-        }
+        public override HttpSessionStateBase Session =>
+            _session ?? (_session = new FakeHttpSessionState(_sessionItems));
     }
 }

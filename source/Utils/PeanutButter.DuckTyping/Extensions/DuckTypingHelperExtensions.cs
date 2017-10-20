@@ -127,12 +127,8 @@ namespace PeanutButter.DuckTyping.Extensions
         )
         {
             return test.Where(t =>
-            {
-                PropertyInfo authoritativePropInfo;
-                if (!authoritative.TryGetValue(t.Key, out authoritativePropInfo))
-                    return false;
-                return t.Value.IsMoreRestrictiveThan(authoritativePropInfo);
-            });
+                authoritative.TryGetValue(t.Key, out var authoritativePropInfo) &&
+                t.Value.IsMoreRestrictiveThan(authoritativePropInfo));
         }
 
         internal static Dictionary<string, PropertyInfo> FindPrimitivePropertyMismatches(
@@ -195,8 +191,7 @@ namespace PeanutButter.DuckTyping.Extensions
             PropertyInfo needle
         )
         {
-            PropertyInfo matchByName;
-            if (!haystack.TryGetValue(needle.Name, out matchByName))
+            if (!haystack.TryGetValue(needle.Name, out var matchByName))
                 return false;
             if (!matchByName.PropertyType.ShouldTreatAsPrimitive())
                 return false;
@@ -210,13 +205,8 @@ namespace PeanutButter.DuckTyping.Extensions
 
         private static bool MatchesTypeOrCanEnumConvert(PropertyInfo needle, PropertyInfo matchByName)
         {
-            return matchByName.PropertyType == needle.PropertyType || 
+            return matchByName.PropertyType == needle.PropertyType ||
                    EnumConverter.CanPerhapsConvertBetween(matchByName.PropertyType, needle.PropertyType);
-        }
-
-        internal static T Choose<T>(T left, T right, Func<T, bool> selector) where T: class
-        {
-            return selector(left) ? left : (selector(right) ? right : null);
         }
 
         internal static bool IsReadOnly(this PropertyInfo propInfo)
@@ -254,9 +244,8 @@ namespace PeanutButter.DuckTyping.Extensions
             var parameters = mi.GetParameters();
             if (parameters.Length != 2)
                 return false;
-            if (parameters[0].ParameterType != typeof(string))
-                return false;
-            return parameters[1].IsOut;
+            return parameters[0].ParameterType == typeof(string) && 
+                parameters[1].IsOut;
         }
 
         internal static bool HasMethodMatching(
@@ -264,8 +253,7 @@ namespace PeanutButter.DuckTyping.Extensions
             MethodInfo needle
         )
         {
-            MethodInfo matchByName;
-            if (!haystack.TryGetValue(needle.Name, out matchByName))
+            if (!haystack.TryGetValue(needle.Name, out var matchByName))
                 return false;
             return matchByName.ReturnType == needle.ReturnType &&
                    matchByName.ExactlyMatchesParametersOf(needle);
@@ -324,7 +312,8 @@ namespace PeanutButter.DuckTyping.Extensions
 
         private static bool BruteForceIsCaseSensitive(IDictionary<string, object> data)
         {
-            if (data == null) return false;
+            if (data == null)
+                return false;
             string upper = null;
             string lower = null;
             foreach (var key in GetKeysOf(data))
@@ -342,7 +331,7 @@ namespace PeanutButter.DuckTyping.Extensions
 
         private static ICollection<TKey> GetKeysOf<TKey, TValue>(IDictionary<TKey, TValue> data)
         {
-            ICollection<TKey> result = null;
+            ICollection<TKey> result;
             try
             {
                 result = data.Keys;

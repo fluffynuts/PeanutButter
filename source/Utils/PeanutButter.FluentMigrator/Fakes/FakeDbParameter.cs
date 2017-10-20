@@ -1,4 +1,5 @@
 ﻿using System.Data;
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace PeanutButter.FluentMigrator.Fakes
 {
@@ -6,7 +7,7 @@ namespace PeanutButter.FluentMigrator.Fakes
     {
         public DbType DbType { get; set; }
         public ParameterDirection Direction { get; set; }
-        public bool IsNullable { get; }
+        public bool IsNullable { get; set; }
         public string ParameterName { get; set; }
         public string SourceColumn { get; set; }
         public DataRowVersion SourceVersion { get; set; }

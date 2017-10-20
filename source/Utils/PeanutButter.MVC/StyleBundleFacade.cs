@@ -4,12 +4,12 @@ using System.Web.Optimization;
 
 namespace PeanutButter.MVC
 {
-    public class StyleBundleFacade: IStyleBundle
+    public class StyleBundleFacade : IStyleBundle
     {
-        public string[] IncludedPaths { get; private set; }
-        private List<string> _includedPaths = new List<string>();
+        public string[] IncludedPaths => _includedPaths.ToArray();
 
-        private StyleBundle _actual;
+        private readonly List<string> _includedPaths = new List<string>();
+        private readonly StyleBundle _actual;
 
         public StyleBundleFacade(string name)
         {

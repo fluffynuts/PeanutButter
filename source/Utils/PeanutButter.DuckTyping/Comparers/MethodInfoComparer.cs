@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
+// ReSharper disable ConstantConditionalAccessQualifier
+// ReSharper disable ConstantNullCoalescingCondition
 
 namespace PeanutButter.DuckTyping.Comparers
 {

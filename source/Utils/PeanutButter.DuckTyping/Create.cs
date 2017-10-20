@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -119,8 +118,7 @@ namespace PeanutButter.DuckTyping
 
         private static Type FindOrCreateTypeImplementing(Type typeToImplement)
         {
-            Type implemented;
-            if (!_typeCache.TryGetValue(typeToImplement, out implemented))
+            if (!_typeCache.TryGetValue(typeToImplement, out var implemented))
             {
                 var method = _genericMake.MakeGenericMethod(typeToImplement);
                 implemented = (Type)method.Invoke(TypeMaker, new object[0]);

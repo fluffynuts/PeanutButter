@@ -7,6 +7,8 @@ using FluentMigrator.Runner.Announcers;
 using FluentMigrator.Runner.Initialization;
 using FluentMigrator.Runner.Processors;
 
+// ReSharper disable InconsistentNaming
+
 namespace PeanutButter.FluentMigrator
 {
     public interface IDBMigrationsRunner
@@ -14,13 +16,14 @@ namespace PeanutButter.FluentMigrator
         void MigrateToLatest();
     }
 
-    public class DBMigrationsRunner<T> : IDBMigrationsRunner where T: MigrationProcessorFactory, new()
+    public class DBMigrationsRunner<T> : IDBMigrationsRunner where T : MigrationProcessorFactory, new()
     {
         private class MigrationOptions : IMigrationProcessorOptions
         {
-            public bool PreviewOnly { get; private set; }
-            public int Timeout { get; private set; }
-            public string ProviderSwitches { get; private set; }
+            public bool PreviewOnly { get; }
+            public int Timeout { get; }
+            public string ProviderSwitches { get; }
+
             public MigrationOptions(bool previewOnly = false, string providerSwitches = null, int timeout = 60)
             {
                 PreviewOnly = previewOnly;
@@ -34,8 +37,8 @@ namespace PeanutButter.FluentMigrator
         private readonly Action<string> _textWriterAction;
 
         public DBMigrationsRunner(
-            Assembly assemblyToLoadMigrationsFrom, 
-            string connectionString, 
+            Assembly assemblyToLoadMigrationsFrom,
+            string connectionString,
             Action<string> textWriterAction = null)
         {
             _assemblyToLoadMigrationsFrom = assemblyToLoadMigrationsFrom;
@@ -43,6 +46,7 @@ namespace PeanutButter.FluentMigrator
             _textWriterAction = textWriterAction ?? (str => Debug.WriteLine(str));
         }
 
+        // ReSharper disable once UnusedMember.Global
         public void MigrateTo(int version)
         {
             DoMigration(runner => runner.MigrateUp(version));
@@ -61,8 +65,10 @@ namespace PeanutButter.FluentMigrator
 
         private void DoMigrationsWithOptions(MigrationOptions options, Action<MigrationRunner> call)
         {
-            var announcer = new TextWriterAnnouncer(_textWriterAction);
-            announcer.ShowSql = true;
+            var announcer = new TextWriterAnnouncer(_textWriterAction)
+            {
+                ShowSql = true
+            };
             var context = new RunnerContext(announcer);
             var factory = new T();
             var processor = factory.Create(_connectionString, announcer, options);

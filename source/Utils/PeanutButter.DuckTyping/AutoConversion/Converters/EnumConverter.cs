@@ -19,11 +19,12 @@ namespace PeanutButter.DuckTyping.AutoConversion.Converters
                 return false;
             if (sourceValue.GetType() != typeof(string))
             {
+                // ReSharper disable once ConstantConditionalAccessQualifier
                 result = sourceValue?.ToString();
                 return true;
             }
             var method = _genericTryParse.MakeGenericMethod(enumType);
-            var args = new object[] {sourceValue, true, null};
+            var args = new[] {sourceValue, true, null};
             var parsed = (bool) method.Invoke(null, args);
             if (parsed)
                 result = args[2];

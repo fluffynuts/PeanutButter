@@ -4,6 +4,7 @@ using System.Reflection;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
+// ReSharper disable AssignNullToNotNullAttribute
 
 namespace PeanutButter.Utils.Tests
 {

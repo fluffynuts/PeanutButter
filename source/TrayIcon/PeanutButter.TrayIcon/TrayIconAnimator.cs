@@ -43,21 +43,21 @@ namespace PeanutButter.TrayIcon
             Busy(null);
         }
 
+        private readonly object _lockObject = new object();
         /// <summary>
         /// Animate as if busy, with provided tooltip text
         /// </summary>
         /// <param name="withText"></param>
         public void Busy(string withText)
         {
-            lock (this)
+            lock (_lockObject)
             {
-                if (_busy) return;
-                _busy = true;
+                if (!SetBusy()) return;
             }
             _lastText = _trayIcon.DefaultTipText;
             _trayIcon.DefaultTipText = withText ?? "busy...";
             _animationTask = new Task(() => {
-                                                while (_busy)
+                                                while (IsBusy())
                                                 {
                                                     foreach (var frame in _animationFrames)
                                                     {
@@ -67,6 +67,30 @@ namespace PeanutButter.TrayIcon
                                                 }
             });
             _animationTask.Start();
+        }
+
+        private readonly object _busyLock = new object();
+        private bool IsBusy() {
+            lock(_busyLock) {
+                return _busy;
+            }
+        }
+        private bool SetBusy() {
+            lock (_busyLock) {
+                if (_busy)
+                    return false;
+                _busy = true;
+                return true;
+            }
+        }
+        private bool SetNotBusy() {
+            lock (_busyLock)
+            {
+                if (!_busy)
+                    return false;
+                _busy = false;
+                return true;
+            }
         }
 
         /// <summary>
@@ -85,8 +109,8 @@ namespace PeanutButter.TrayIcon
         {
             lock (this)
             {
-                if (!_busy) return;
-                _busy = false;
+                if (!SetNotBusy())
+                    return;
             }
             _trayIcon.DefaultTipText = withText ?? _lastText;
             _animationTask?.Wait();

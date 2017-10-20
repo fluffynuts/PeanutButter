@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Text.RegularExpressions;
@@ -14,12 +12,13 @@ using System.Web.SessionState;
 using Microsoft.AspNet.Identity;
 using NSubstitute;
 
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable TryCastAlwaysSucceeds
+
 namespace PeanutButter.TestUtils.MVC.Builders
 {
-
-    public class ControllerWithContextBuilder<T> where T: ControllerBase
+    public class ControllerWithContextBuilder<T> where T : ControllerBase
     {
-
         private string _userName;
         private Guid _userGuid;
         private List<string> _roles;
@@ -63,7 +62,7 @@ namespace PeanutButter.TestUtils.MVC.Builders
                 _sessionState);
             var context = new ControllerContext(httpContext, _routeData, controller);
             controller.ControllerContext = context;
-            return (T)controller;
+            return (T) controller;
         }
 
         public ControllerWithContextBuilder<T> WithPrincipal(IPrincipal principal)
@@ -74,12 +73,14 @@ namespace PeanutButter.TestUtils.MVC.Builders
 
         private ClaimsPrincipal CreatePrincipal()
         {
-            var claims = new List<Claim>();
-            claims.Add(new Claim(ClaimTypes.Name, _userName));
-            claims.Add(new Claim(ExtendedClaimTypes.IdentityProvider, _userGuid.ToString()));
-            claims.Add(new Claim(ClaimTypes.NameIdentifier, _userGuid.ToString()));
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, _userName),
+                new Claim(ExtendedClaimTypes.IDENTITY_PROVIDER, _userGuid.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, _userGuid.ToString())
+            };
             claims.AddRange(_roles.Select(r => new Claim(ClaimTypes.Role, r)));
-            var claimsIdentity = new ClaimsIdentity(claims, 
+            var claimsIdentity = new ClaimsIdentity(claims,
                 DefaultAuthenticationTypes.ApplicationCookie,
                 ClaimTypes.Name,
                 ClaimTypes.Role);
@@ -88,7 +89,7 @@ namespace PeanutButter.TestUtils.MVC.Builders
 
         private ControllerBase SpawnControllerInstance()
         {
-            object controller = null;
+            object controller;
             if (_controllerFactoryFunc == null)
             {
                 try
@@ -97,7 +98,8 @@ namespace PeanutButter.TestUtils.MVC.Builders
                 }
                 catch
                 {
-                    throw new Exception($"Controller builder function not defined to generate controller of type '{typeof(T).Name}' and no parameterless constructor available");
+                    throw new Exception(
+                        $"Controller builder function not defined to generate controller of type '{typeof(T).Name}' and no parameterless constructor available");
                 }
             }
             else
@@ -133,7 +135,7 @@ namespace PeanutButter.TestUtils.MVC.Builders
         private void SetControllerRouteDataFromType()
         {
             var regex = new Regex("Controller$");
-            _routeData.Values["controller"] = regex.Replace(typeof (T).Name, string.Empty);
+            _routeData.Values["controller"] = regex.Replace(typeof(T).Name, string.Empty);
         }
 
         public ControllerWithContextBuilder<T> ForAction(string action)
@@ -221,12 +223,11 @@ namespace PeanutButter.TestUtils.MVC.Builders
             _cookies.Add(cookie);
             return this;
         }
-
     }
 
     public static class ExtendedClaimTypes
     {
-        public const string IdentityProvider =
+        public const string IDENTITY_PROVIDER =
             "http://schemas.microsoft.com/accesscontrolservice/2010/07/claims/identityprovider";
     }
 }

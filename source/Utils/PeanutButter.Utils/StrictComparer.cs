@@ -14,6 +14,7 @@ namespace PeanutButter.Utils
         public int GetHashCode(TKey obj)
         {
             // ReSharper disable once ConstantNullCoalescingCondition
+            // ReSharper disable once ConstantConditionalAccessQualifier
             return obj?.GetHashCode() ?? 0;
         }
     }

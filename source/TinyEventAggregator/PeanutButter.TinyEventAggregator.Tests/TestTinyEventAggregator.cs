@@ -1,4 +1,6 @@
 ﻿using NUnit.Framework;
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable ObjectCreationAsStatement
 
 namespace PeanutButter.TinyEventAggregator.Tests
 {
@@ -9,7 +11,7 @@ namespace PeanutButter.TinyEventAggregator.Tests
         public void Construct_DoesNotThrow()
         {
             // test setup
-            
+
             // pre-conditions
 
             // execute test
@@ -22,7 +24,7 @@ namespace PeanutButter.TinyEventAggregator.Tests
         public void Instance_ReturnsSameInstanceEveryTime()
         {
             // test setup
-            
+
             // pre-conditions
 
             // execute test
@@ -35,12 +37,15 @@ namespace PeanutButter.TinyEventAggregator.Tests
             Assert.AreEqual(i1, i2);
         }
 
-        public class SomeEvent : EventBase<object> { }
+        public class SomeEvent : EventBase<object>
+        {
+        }
+
         [Test]
         public void GetEvent_AlwaysReturnsSameInstanceOfEvent()
         {
             // test setup
-            
+
             // pre-conditions
 
             // execute test
@@ -52,6 +57,5 @@ namespace PeanutButter.TinyEventAggregator.Tests
             Assert.IsNotNull(ev2);
             Assert.AreEqual(ev1, ev2);
         }
-
     }
 }

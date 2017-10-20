@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using PeanutButter.SimpleHTTPServer;
@@ -21,6 +17,7 @@ namespace PeanutButter.NetUtils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
+            // ReSharper disable once ObjectCreationAsStatement
             Assert.DoesNotThrow(() => new WebDownloader());
 
             //---------------Test Result -----------------------

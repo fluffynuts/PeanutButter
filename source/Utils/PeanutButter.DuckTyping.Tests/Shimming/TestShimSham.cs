@@ -6,6 +6,13 @@ using PeanutButter.RandomGenerators;
 using NExpect;
 using static NExpect.Expectations;
 
+// ReSharper disable RedundantArgumentDefaultValue
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+// ReSharper disable PossibleNullReferenceException
+// ReSharper disable InconsistentNaming
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+// ReSharper disable UnassignedGetOnlyAutoProperty
+
 // ReSharper disable UnusedMember.Global
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -74,8 +81,10 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
         public void GetPropertyValue_WhenConstructedWith_FuzzyFalse_AndPropertyCaseMisMatch_ShouldFail()
         {
             //--------------- Arrange -------------------
-            var toWrap = new Cow();
-            toWrap.LastPitch = RandomValueGen.GetRandomString();
+            var toWrap = new Cow
+            {
+                LastPitch = RandomValueGen.GetRandomString()
+            };
             var sut = Create(toWrap, false);
 
             //--------------- Assume ----------------
@@ -245,6 +254,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             Expect(result.Legs).To.Equal(100);
             result.Legs = 123;
             var newResult = sut.GetPropertyValue("Animal") as IFarmAnimal;
+            Expect(newResult).Not.To.Be.Null();
             Expect(newResult.Legs).To.Equal(123);
         }
 
@@ -426,7 +436,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
 
         private ShimSham Create(Cow toWrap, bool fuzzy)
         {
-            return new ShimSham(new[] {toWrap}, toWrap.GetType(), fuzzy);
+            return new ShimSham(new object[] {toWrap}, toWrap.GetType(), fuzzy);
         }
     }
 }

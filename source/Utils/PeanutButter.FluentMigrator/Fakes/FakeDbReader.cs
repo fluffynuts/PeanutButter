@@ -146,7 +146,7 @@ namespace PeanutButter.FluentMigrator.Fakes
         }
 
         public int Depth => 0;
-        public bool IsClosed { get; private set; } = false;
+        public bool IsClosed { get; private set; }
 
         public int RecordsAffected => 0;
     }

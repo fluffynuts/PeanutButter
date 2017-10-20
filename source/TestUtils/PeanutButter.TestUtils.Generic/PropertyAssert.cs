@@ -96,14 +96,14 @@ namespace PeanutButter.TestUtils.Generic
         /// <param name="obj1PropertyName">Property to test on both objects, unless obj2PropertyName is specified</param>
         /// <param name="obj2PropertyName">Specifies the name of the property to test on obj2</param>
         public static void AreEqual(
-            object obj1, 
-            object obj2, 
-            string obj1PropertyName, 
+            object obj1,
+            object obj2,
+            string obj1PropertyName,
             string obj2PropertyName = null)
         {
             PerformEqualityAssertionWith(
-                obj1, 
-                obj2, 
+                obj1,
+                obj2,
                 obj1PropertyName,
                 obj2PropertyName,
                 Assert.AreEqual);
@@ -119,14 +119,14 @@ namespace PeanutButter.TestUtils.Generic
         /// <param name="obj2PropertyName">Specifies the name of the property to test on obj2</param>
         public static void AreNotEqual<T1, T2>(
             T1 obj1,
-            T2 obj2, 
+            T2 obj2,
             string obj1PropertyName,
             string obj2PropertyName = null)
         {
             PerformEqualityAssertionWith(
-                obj1, 
-                obj2, 
-                obj1PropertyName, 
+                obj1,
+                obj2,
+                obj1PropertyName,
                 obj2PropertyName,
                 Assert.AreNotEqual);
         }
@@ -160,7 +160,7 @@ namespace PeanutButter.TestUtils.Generic
             // ReSharper disable once PossibleNullReferenceException
             if (!targetPropInfo.PropertyType
                 // ReSharper disable once PossibleNullReferenceException
-                    .MatchesOrIsNullableOf(srcPropInfo.PropertyType))
+                .MatchesOrIsNullableOf(srcPropInfo.PropertyType))
             {
                 Assert.Fail(CreateTypeMismatchMessageFor(srcPropInfo, targetPropInfo));
             }
@@ -169,7 +169,7 @@ namespace PeanutButter.TestUtils.Generic
         }
 
         private static string CreateTypeMismatchMessageFor(
-            PropertyInfo srcPropInfo, 
+            PropertyInfo srcPropInfo,
             PropertyInfo targetPropInfo
         )
         {

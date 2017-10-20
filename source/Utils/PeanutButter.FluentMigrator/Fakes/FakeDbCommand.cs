@@ -1,4 +1,5 @@
 ﻿using System.Data;
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace PeanutButter.FluentMigrator.Fakes
 {
@@ -49,7 +50,7 @@ namespace PeanutButter.FluentMigrator.Fakes
         public string CommandText { get; set; }
         public int CommandTimeout { get; set; }
         public CommandType CommandType { get; set; }
-        public IDataParameterCollection Parameters { get; }
+        public IDataParameterCollection Parameters { get; set; }
         public UpdateRowSource UpdatedRowSource { get; set; }
     }
 }

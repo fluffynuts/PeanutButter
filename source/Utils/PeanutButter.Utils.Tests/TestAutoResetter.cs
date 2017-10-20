@@ -16,6 +16,7 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
+            // ReSharper disable once ObjectCreationAsStatement
             Assert.DoesNotThrow(() => new AutoResetter(() => { }, () => { }));
 
             //---------------Test Result -----------------------
@@ -30,7 +31,8 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var sut = new AutoResetter(() => constructCalls++,() => { });
+            // ReSharper disable once ObjectCreationAsStatement
+            new AutoResetter(() => constructCalls++,() => { });
 
             //---------------Test Result -----------------------
             Assert.AreEqual(1, constructCalls);

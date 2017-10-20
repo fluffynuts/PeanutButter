@@ -62,8 +62,9 @@ namespace PeanutButter.DuckTyping.Shimming
         /// <param name="interfaceToMimick">Interface type to mimick</param>
         /// <param name="isFuzzy">Flag allowing or preventing approximation</param>
         /// <exception cref="ArgumentNullException">Thrown if the mimick interface or property info fetch are null</exception>
+        // ReSharper disable once UnusedMember.Global
         public ShimSham(object toWrap, Type interfaceToMimick, bool isFuzzy)
-            : this(new [] { toWrap }, interfaceToMimick, isFuzzy)
+            : this(new[] {toWrap}, interfaceToMimick, isFuzzy)
         {
         }
 
@@ -82,11 +83,11 @@ namespace PeanutButter.DuckTyping.Shimming
             bool isFuzzy,
             IPropertyInfoFetcher propertyInfoFetcher)
         {
-            if (interfaceToMimick == null) throw new ArgumentNullException(nameof(interfaceToMimick));
-            if (propertyInfoFetcher == null) throw new ArgumentNullException(nameof(propertyInfoFetcher));
+            if (interfaceToMimick == null)
+                throw new ArgumentNullException(nameof(interfaceToMimick));
+            _propertyInfoFetcher = propertyInfoFetcher ?? throw new ArgumentNullException(nameof(propertyInfoFetcher));
             _isFuzzy = isFuzzy;
             _wrapped = toWrap;
-            _propertyInfoFetcher = propertyInfoFetcher;
             // TODO: store all wrapped types & use to determine proper pass-through
             _wrappedTypes = toWrap.Select(w => w.GetType()).ToArray();
             _wrappingADuck = IsObjectADuck();
@@ -136,8 +137,7 @@ namespace PeanutButter.DuckTyping.Shimming
             {
                 return FieldValueFor(propertyName);
             }
-            object shimmed;
-            if (_shimmedProperties.TryGetValue(propertyName, out shimmed))
+            if (_shimmedProperties.TryGetValue(propertyName, out var shimmed))
                 return shimmed;
             var propInfo = FindPropertyInfoFor(propertyName);
             if (!propInfo.PropertyInfo.CanRead || propInfo.Getter == null)
@@ -150,8 +150,7 @@ namespace PeanutButter.DuckTyping.Shimming
 
         private object DuckIfRequired(PropertyInfoCacheItem propertyInfoCacheItem, string propertyName)
         {
-            object existingShim;
-            if (_shimmedProperties.TryGetValue(propertyName, out existingShim))
+            if (_shimmedProperties.TryGetValue(propertyName, out var existingShim))
                 return existingShim;
             var getter = propertyInfoCacheItem.Getter;
             var propValue = getter();
@@ -175,10 +174,11 @@ namespace PeanutButter.DuckTyping.Shimming
                 return null;
             var duckType = MakeTypeToImplement(correctType, _isFuzzy);
             var asDict = propValue.TryConvertToDictionary();
-            var instance = Activator.CreateInstance(duckType, 
-                                asDict == null
-                                ? new object[] { new object[] { propValue } }
-                                : new object[] { asDict });
+            var instance = Activator.CreateInstance(duckType,
+                asDict == null
+                    // ReSharper disable once RedundantExplicitArrayCreation
+                    ? new object[] {new object[] {propValue}}
+                    : new object[] {asDict});
             _shimmedProperties[propertyName] = instance;
             return instance;
         }
@@ -223,7 +223,7 @@ namespace PeanutButter.DuckTyping.Shimming
                 return;
             }
             var duckType = MakeTypeToImplement(mimickedType, _isFuzzy);
-            var instance = Activator.CreateInstance(duckType, new object[] { new[] { newValue } });
+            var instance = Activator.CreateInstance(duckType, new object[] {new[] {newValue}});
             _shimmedProperties[propertyName] = instance;
         }
 
@@ -243,8 +243,7 @@ namespace PeanutButter.DuckTyping.Shimming
             }
             // TODO: throw for correct wrapped type
             var wrappedType = _wrappedTypes[0];
-            MethodInfo methodInfo;
-            if (!_localMethodInfos.TryGetValue(methodName, out methodInfo))
+            if (!_localMethodInfos.TryGetValue(methodName, out var methodInfo))
                 throw new MethodNotFoundException(wrappedType, methodName);
             if (_isFuzzy)
                 parameters = AttemptToOrderCorrectly(parameters, methodInfo);
@@ -369,15 +368,13 @@ namespace PeanutButter.DuckTyping.Shimming
             PropertyInfoCacheItem cacheItem;
             if (_propertyInfoLookupCache.Contains(propertyName))
                 return (PropertyInfoCacheItem) _propertyInfoLookupCache[propertyName];
-            object shimmed;
-            if (_shimmedProperties.TryGetValue(propertyName, out shimmed))
+            if (_shimmedProperties.TryGetValue(propertyName, out _))
             {
                 cacheItem = CreateCacheItemFor(_localMimickPropertyInfos[propertyName]);
                 _propertyInfoLookupCache[propertyName] = cacheItem;
                 return cacheItem;
             }
-            PropertyInfo pi;
-            if (!_localPropertyInfos.TryGetValue(propertyName, out pi))
+            if (!_localPropertyInfos.TryGetValue(propertyName, out var pi))
                 // TODO: throw for the correct type
                 throw new PropertyNotFoundException(_wrappedTypes[0], propertyName);
             cacheItem = CreateCacheItemFor(pi);
@@ -412,8 +409,7 @@ namespace PeanutButter.DuckTyping.Shimming
         private FieldInfo FindPrivateBackingFieldFor(string propertyName)
         {
             var seek = "_" + propertyName;
-            FieldInfo fieldInfo;
-            if (!_localFieldInfos.TryGetValue(seek, out fieldInfo))
+            if (!_localFieldInfos.TryGetValue(seek, out var fieldInfo))
                 // TODO: throw for the correct type
                 throw new BackingFieldForPropertyNotFoundException(_wrappedTypes[0], propertyName);
             return fieldInfo;

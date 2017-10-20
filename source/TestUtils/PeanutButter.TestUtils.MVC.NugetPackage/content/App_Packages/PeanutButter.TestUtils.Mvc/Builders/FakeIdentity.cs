@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Security.Claims;
 using System.Security.Principal;
 
 namespace PeanutButter.TestUtils.MVC.Builders
@@ -14,16 +13,11 @@ namespace PeanutButter.TestUtils.MVC.Builders
             Name = userName;
         }
 
-        public string AuthenticationType
-        {
-            get { throw new NotImplementedException(); }
-        }
+        public string AuthenticationType =>
+            throw new NotImplementedException();
 
         public bool IsAuthenticated => !string.IsNullOrEmpty(Name);
 
         public string Name { get; }
-
     }
-
-
 }

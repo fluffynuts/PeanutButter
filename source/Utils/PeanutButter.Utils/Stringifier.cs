@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-// ReSharper disable MemberCanBePrivate.Global
 
+// ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable IntroduceOptionalParameters.Global
 
 namespace PeanutButter.Utils
@@ -14,7 +14,7 @@ namespace PeanutButter.Utils
 #if BUILD_PEANUTBUTTER_INTERNAL
     internal
 #else
-    public 
+    public
 #endif
         static class Stringifier
     {
