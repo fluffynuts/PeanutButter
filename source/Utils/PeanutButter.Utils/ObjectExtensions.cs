@@ -592,11 +592,9 @@ namespace PeanutButter.Utils
             return new[] {input};
         }
 
-
         private static T ResolvePropertyValueFor<T>(object src, string propertyPath, Type type)
         {
-            var parts = propertyPath.Split('.');
-            var valueAsObject = parts.Aggregate(src, GetPropertyValue);
+            var valueAsObject = GetPropertyValue(src, propertyPath);
             var valueType = valueAsObject.GetType();
             if (!valueType.IsAssignableTo<T>())
                 throw new ArgumentException(
@@ -611,10 +609,17 @@ namespace PeanutButter.Utils
         /// Gets a property value by name from an object
         /// </summary>
         /// <param name="src">Source object</param>
-        /// <param name="propertyName">Name of the property to search for</param>
+        /// <param name="propertyPath">Name of the property to search for</param>
         /// <returns>Value of the property, cast/boxed to object</returns>
         /// <exception cref="MemberNotFoundException">Thrown when the property is not found by name</exception>
-        public static object GetPropertyValue(this object src, string propertyName)
+        // TODO: GetPropertyValue should also traverse dotted paths
+        public static object GetPropertyValue(this object src, string propertyPath)
+        {
+            var parts = propertyPath.Split('.');
+            return parts.Aggregate(src, GetImmediatePropertyValue);
+        }
+
+        private static object GetImmediatePropertyValue(this object src, string propertyName)
         {
             var type = src.GetType();
             var propInfo = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
@@ -673,12 +678,12 @@ namespace PeanutButter.Utils
         /// Gets an immediate property value, cast to the specified type
         /// </summary>
         /// <param name="src">Source object</param>
-        /// <param name="propertyName">Immediate property name</param>
+        /// <param name="propertyPath">Immediate property name</param>
         /// <typeparam name="T">Required type</typeparam>
         /// <returns>Value of the property, if it can be found and cast. Will throw otherwise.</returns>
-        public static T GetPropertyValue<T>(this object src, string propertyName)
+        public static T GetPropertyValue<T>(this object src, string propertyPath)
         {
-            var objectResult = GetPropertyValue(src, propertyName);
+            var objectResult = GetPropertyValue(src, propertyPath);
             return (T) objectResult;
         }
 

@@ -720,6 +720,24 @@ namespace PeanutButter.Utils.Tests
             Assert.AreEqual(expected, result);
         }
 
+        [Test]
+        public void GetPropertyValue_ShouldTraverseDottedNames()
+        {
+            // Arrange
+            var expected = GetRandomString();
+            var input = new
+            {
+                Child = new {
+                    Name = expected
+                }
+            };
+            // Pre-Assert
+            // Act
+            var result = input.GetPropertyValue("Child.Name");
+            // Assert
+            Expect(result).To.Equal(expected);
+        }
+
         public class SomeSimpleType
         {
             public int Id { get; set; }
