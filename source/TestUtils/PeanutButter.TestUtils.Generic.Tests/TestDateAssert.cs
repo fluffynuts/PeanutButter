@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using NUnit.Framework;
 using PeanutButter.Utils;
 
@@ -40,7 +37,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             var ex = Assert.Throws<AssertionException>(() => DateTimeAssert.IsInRange(test, min, max));
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(test.ToString() + " does not fall in the range " + min.ToString() + " - " + max.ToString(), ex.Message);
+            Assert.AreEqual(test + " does not fall in the range " + min + " - " + max, ex.Message);
 
         }
 
@@ -58,7 +55,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             var ex = Assert.Throws<AssertionException>(() => DateTimeAssert.IsInRange(test, min, max));
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(test.ToString() + " does not fall in the range " + min.ToString() + " - " + max.ToString(), ex.Message);
+            Assert.AreEqual(test + " does not fall in the range " + min + " - " + max, ex.Message);
 
         }
 
@@ -138,7 +135,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             var ex = Assert.Throws<AssertionException>(() => DateTimeAssert.IsInTimeRange(test, min, max));
 
             //---------------Test Result -----------------------
-            Assert.AreEqual("Time of " + test.ToString() + " does not fall within expected range: " + min.AsTimeString() + " - " + max.AsTimeString(), ex.Message);
+            Assert.AreEqual("Time of " + test + " does not fall within expected range: " + min.AsTimeString() + " - " + max.AsTimeString(), ex.Message);
         }
     }
 }

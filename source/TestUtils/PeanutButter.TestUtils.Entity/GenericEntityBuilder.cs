@@ -13,8 +13,8 @@ namespace PeanutButter.TestUtils.Entity
     {
         private class CheckedProperty
         {
-            public object Parent { get; private set; }
-            public string PropertyName { get; private set; }
+            public object Parent { get; }
+            public string PropertyName { get; }
 
             public CheckedProperty(object parent, string name)
             {
@@ -54,6 +54,7 @@ namespace PeanutButter.TestUtils.Entity
                     !propertyInfo.PropertyType.IsCollection();
         }
 
+        // ReSharper disable once StaticMemberInGenericType
         private static readonly Type _stringType = typeof(string);
         private void ConstrainMaxlengthStringOn(object o, PropertyInfo pi)
         {
@@ -62,10 +63,8 @@ namespace PeanutButter.TestUtils.Entity
             var prescribedMaxLength = GetMaxLengthFor(pi);
             if (!prescribedMaxLength.HasValue)
                 return;
-            var propertyValue = (string) pi.GetValue(o);
-            if (propertyValue == null)
-                return;
-            if (propertyValue.Length > prescribedMaxLength.Value)
+            var propertyValue = pi.GetValue(o) as string;
+            if (propertyValue?.Length > prescribedMaxLength)
             {
                 pi.SetValue(o, propertyValue.Substring(0, prescribedMaxLength.Value));
             }

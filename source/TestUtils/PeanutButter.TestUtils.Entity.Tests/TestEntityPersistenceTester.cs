@@ -6,13 +6,17 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using PeanutButter.FluentMigrator;
 using PeanutButter.TempDb;
 using PeanutButter.TempDb.LocalDb;
 using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
 using PeanutButter.Utils.Entity;
-using static PeanutButter.RandomGenerators.RandomValueGen;
+
+// ReSharper disable MemberCanBePrivate.Local
+// ReSharper disable UnusedMember.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable ClassNeverInstantiated.Global
 
 namespace PeanutButter.TestUtils.Entity.Tests
 {

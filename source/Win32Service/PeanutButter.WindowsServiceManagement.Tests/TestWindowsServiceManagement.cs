@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using PeanutButter.Win32ServiceControl;
+// ReSharper disable AssignNullToNotNullAttribute
 
 namespace PeanutButter.WindowsServiceManagement.Tests
 {

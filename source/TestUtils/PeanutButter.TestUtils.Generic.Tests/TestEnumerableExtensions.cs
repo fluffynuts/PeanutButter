@@ -1,8 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using NUnit.Framework;
-using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+// ReSharper disable MemberCanBePrivate.Local
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+// ReSharper disable ExpressionIsAlwaysNull
+// ReSharper disable PossibleMultipleEnumeration
 
 namespace PeanutButter.TestUtils.Generic.Tests
 {
@@ -19,7 +21,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
                 Value = i;
             }
 
-            public int Value { get; private set; }
+            public int Value { get; }
         }
 
         [Test]
@@ -32,7 +34,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<AssertionException>(() => left.ShouldMatchDataIn(right));
+            Assert.Throws<AssertionException>(() => left.ShouldMatchDataIn(right));
             Assert.Throws<AssertionException>(() => right.ShouldMatchDataIn(left));
 
             //---------------Test Result -----------------------

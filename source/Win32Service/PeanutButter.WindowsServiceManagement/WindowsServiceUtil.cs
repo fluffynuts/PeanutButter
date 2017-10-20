@@ -10,6 +10,10 @@ using System.ServiceProcess;
 using System.Threading;
 using Microsoft.Win32;
 using PeanutButter.Win32ServiceControl.Exceptions;
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedMemberInSuper.Global
+// ReSharper disable UnusedMember.Global
 
 namespace PeanutButter.Win32ServiceControl
 {
@@ -39,18 +43,12 @@ namespace PeanutButter.Win32ServiceControl
 
         private readonly string _serviceName;
 
-        public string ServiceName
-        {
-            get { return _serviceName; }
-        }
+        public string ServiceName => _serviceName;
 
         public string DisplayName
         {
-            get { return _displayName; }
-            set
-            {
-                _displayName = value ?? _serviceName;
-            }
+            get => _displayName;
+            set => _displayName = value ?? _serviceName;
         }
 
         private string _displayName;
@@ -71,7 +69,7 @@ namespace PeanutButter.Win32ServiceControl
                     .FirstOrDefault();
                 return _serviceExe;
             }
-            set { _serviceExe = value; }
+            set => _serviceExe = value;
         }
 
         public static WindowsServiceUtil GetServiceByPath(string path)
@@ -133,12 +131,12 @@ namespace PeanutButter.Win32ServiceControl
                 }
                 catch
                 {
-                    return Win32APIMethodForQueryingServiceInstalled();
+                    return Win32ApiMethodForQueryingServiceInstalled();
                 }
             }
         }
 
-        private bool Win32APIMethodForQueryingServiceInstalled()
+        private bool Win32ApiMethodForQueryingServiceInstalled()
         {
             var scm = OpenSCManager(ScmAccessRights.Connect);
             bool ret;
@@ -161,9 +159,7 @@ namespace PeanutButter.Win32ServiceControl
         public WindowsServiceUtil(string serviceName, string displayName = null, string defaultServiceExePath = null)
         {
             _serviceName = serviceName;
-            _displayName = displayName;
-            if (_displayName == null)
-                _displayName = _serviceName;
+            _displayName = displayName ?? _serviceName;
             if (ServiceExe == null) // see if we can get an existing path else set to the defaultServicePath for installations
                 ServiceExe = defaultServiceExePath;
         }
@@ -213,6 +209,7 @@ namespace PeanutButter.Win32ServiceControl
             } while (IsInstalled);
         }
 
+        // ReSharper disable once InconsistentNaming
         public int ServicePID
         {
             get
@@ -360,10 +357,7 @@ namespace PeanutButter.Win32ServiceControl
         {
             try
             {
-                var subKeypath = string.Join("\\", new[]
-                {
-                    "SYSTEM", "CurrentControlSet", "Services", ServiceName
-                });
+                var subKeypath = string.Join("\\", "SYSTEM", "CurrentControlSet", "Services", ServiceName);
                 return Registry.LocalMachine.OpenSubKey(subKeypath, RegistryKeyPermissionCheck.ReadWriteSubTree);
             }
             catch (Exception)
@@ -703,7 +697,7 @@ namespace PeanutButter.Win32ServiceControl
                 catch (Exception)
                 {
                     // happens if a 32-bit process tries to read a 64-bit process' info
-                    if (proc.ProcessName.ToLower() == Path.GetFileName(ServiceExe).ToLower())
+                    if (proc.ProcessName.ToLower() == Path.GetFileName(ServiceExe)?.ToLower())
                         killThese.Add(proc);
                 }
             }

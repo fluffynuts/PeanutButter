@@ -3,6 +3,8 @@ using PeanutButter.RandomGenerators;
 using PeanutButter.Utils.Entity;
 // ReSharper disable ConvertClosureToMethodGroup
 // ReSharper disable InconsistentNaming
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable ClassNeverInstantiated.Global
 
 namespace PeanutButter.TestUtils.Entity.Tests
 {
@@ -75,7 +77,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
             Assert.AreEqual(1, _clearCalled);
 
             //---------------Execute Test ----------------------
-            using (var ctx = GetContext())
+            using (GetContext())
             {
                 Assert.AreEqual(1, _clearCalled);
             }
@@ -140,7 +142,4 @@ namespace PeanutButter.TestUtils.Entity.Tests
     {
     }
 
-    public class ComBlockListBuilder: GenericBuilder<ComBlockListBuilder, COMBlockList>
-    {
-    }
 }

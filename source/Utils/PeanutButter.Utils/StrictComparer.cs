@@ -13,7 +13,7 @@ namespace PeanutButter.Utils
 
         public int GetHashCode(TKey obj)
         {
-            return obj.GetHashCode();
+            return obj?.GetHashCode() ?? 0;
         }
     }
 }

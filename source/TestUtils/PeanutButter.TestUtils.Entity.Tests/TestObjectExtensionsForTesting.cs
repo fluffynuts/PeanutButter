@@ -3,6 +3,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
+// ReSharper disable InconsistentNaming
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable ClassNeverInstantiated.Global
+// ReSharper disable UnusedMember.Global
 
 namespace PeanutButter.TestUtils.Entity.Tests
 {

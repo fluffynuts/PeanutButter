@@ -9,6 +9,8 @@ using NUnit.Framework;
 using PeanutButter.TempDb.LocalDb;
 using PeanutButter.Utils;
 
+// ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
+
 namespace PeanutButter.TestUtils.Entity
 {
     public static class ObjectExtensionsForTesting
@@ -84,17 +86,17 @@ namespace PeanutButter.TestUtils.Entity
 
         public static void ShouldHaveNullInitializer<T>(this T context) where T : DbContext
         {
-            using (var db = new TempDBLocalDb())
+            using (new TempDBLocalDb())
             {
                 /* intentionally left blank */
             }
         }
 
-        private static readonly Type IDbSetGenericType = typeof(IDbSet<>);
+        private static readonly Type _dbSetGenericType = typeof(IDbSet<>);
 
         private static bool IsIDbSetFor<TEntity>(PropertyInfo propInfo)
         {
-            var searchType = IDbSetGenericType.MakeGenericType(typeof(TEntity));
+            var searchType = _dbSetGenericType.MakeGenericType(typeof(TEntity));
             return searchType.IsAssignableFrom(propInfo.PropertyType);
         }
 
@@ -123,7 +125,7 @@ namespace PeanutButter.TestUtils.Entity
 
         private static string ErrorSuffixFor<T>(string propertyPath)
         {
-            return string.Format("property '{0}' on type '{1}'", propertyPath, typeof(T).PrettyName());
+            return $"property '{propertyPath}' on type '{typeof(T).PrettyName()}'";
         }
 
         private static void AssertHasExpectedDatabaseGeneratedOption<T>(DatabaseGeneratedOption databaseGeneratedOption,
@@ -131,14 +133,19 @@ namespace PeanutButter.TestUtils.Entity
         {
             Assert.AreEqual(databaseGeneratedOption,
                 attrib.DatabaseGeneratedOption,
-                "Expected [DatabaseGenerated(DatabaseGeneratedOption." +
-                databaseGeneratedOption.ToString() +
-                ")] on " +
-                ErrorSuffixFor<T>(propData.PropertyPath));
+                new[]
+                {
+                    "Expected [DatabaseGenerated(DatabaseGeneratedOption.",
+                    databaseGeneratedOption.ToString(),
+                    ")] on ",
+                    ErrorSuffixFor<T>(propData.PropertyPath)
+                }.JoinWith(""));
         }
 
-        private static void AssertHasDatabaseGeneratedattribute<T>(DatabaseGeneratedAttribute attrib,
-            PropertyData<T> propData)
+        private static void AssertHasDatabaseGeneratedattribute<T>(
+            DatabaseGeneratedAttribute attrib,
+            PropertyData<T> propData
+        )
         {
             Assert.IsNotNull(attrib,
                 "No DatabaseGeneratedAttribute applied to " + ErrorSuffixFor<T>(propData.PropertyPath));
