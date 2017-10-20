@@ -99,8 +99,12 @@ namespace PeanutButter.TestUtils.Generic
         public static void ShouldContainOneDeepEqualTo<T>(this IEnumerable<T> src, T seek,
             params string[] ignoreProperties)
         {
-            if (!src.ContainsOneDeepEqualTo(seek, ignoreProperties))
-                Assertions.Throw($"Expected to find one {seek} in {src} but found more than one match");
+            if (src.ContainsOneDeepEqualTo(seek, ignoreProperties))
+                return;
+            var message = src.ContainsAtLeastOneDeepEqualTo(seek, ignoreProperties)
+                ? "more than one match"
+                : "no matches";
+                Assertions.Throw($"Expected to find one {seek.Stringify()} in {src.Stringify()} but found {message}");
         }
 
         /// <summary>
@@ -117,9 +121,9 @@ namespace PeanutButter.TestUtils.Generic
         {
             var localArray = src as T[] ?? src.ToArray();
             if (localArray.IsEmpty())
-                Assertions.Throw($"Expected to find {Stringify(seek)} in empty collection");
+                Assertions.Throw($"Expected to find {seek.Stringify()} in empty collection");
             if (!localArray.ContainsAtLeastOneDeepEqualTo(seek, ignoreProperties))
-                Assertions.Throw($"Expected to find {Stringify(seek)} in {Stringify(localArray)}");
+                Assertions.Throw($"Expected to find {seek.Stringify()} in {localArray.Stringify()}");
         }
     }
 }

@@ -23,7 +23,7 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="objs"></param>
         /// <returns>Human-readable representation of collection</returns>
-        public static string Stringify<T>(IEnumerable<T> objs)
+        public static string Stringify<T>(this IEnumerable<T> objs)
         {
             return StringifyCollectionInternal(objs, "null", 0);
         }
@@ -44,7 +44,7 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="obj"></param>
         /// <returns>Human-readable representation of object</returns>
-        public static string Stringify(object obj)
+        public static string Stringify(this object obj)
         {
             return Stringify(obj, "null");
         }
