@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NSubstitute;
+using PeanutButter.TestUtils.Generic.NUnitAbstractions;
 using PeanutButter.Utils;
 
 // Author notice: most of this is not written by me and may be subject to removal at the
@@ -32,6 +33,7 @@ namespace PeanutButter.TestUtils.Generic
             var parameter = parameters.FirstOrDefault(pi => pi.Name == parameterName);
             Assert.IsNotNull(parameter, 
                 $"Unknown parameter for constructor of {typeof(TCheckingConstructorOf).PrettyName()}: {parameterName}");
+            // ReSharper disable once PossibleNullReferenceException
             if (parameter.ParameterType != expectedParameterType)
                 Assert.Fail(new[] 
                             { 
@@ -126,7 +128,7 @@ namespace PeanutButter.TestUtils.Generic
                 var handle = Activator.CreateInstance(
                     AppDomain.CurrentDomain, 
                     parameterType.Assembly.FullName,
-                    parameterType.FullName
+                    parameterType.FullName ?? throw new InvalidOperationException($"No FullName on {parameterType}")
                 );
                 return handle.Unwrap();
             }

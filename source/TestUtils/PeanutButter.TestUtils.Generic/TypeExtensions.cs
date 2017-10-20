@@ -2,22 +2,37 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using PeanutButter.TestUtils.Generic.NUnitAbstractions;
 using PeanutButter.Utils;
 
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.TestUtils.Generic
 {
+    /// <summary>
+    /// Provides extension methods on Type objects
+    /// </summary>
     public static class TypeExtensions
     {
+        /// <summary>
+        /// Tests that a type has a method with the given name and a void return
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="methodName"></param>
+        /// <returns></returns>
         public static bool HasActionMethodWithName(this Type type, string methodName)
         {
             return type.GetMethods(BindingFlags.Public | BindingFlags.Instance)
                        .Any(mi => mi.Name == methodName &&
                                   !mi.GetParameters().Any() &&
-                                  mi.ReturnParameter.ParameterType == typeof(void));
+                                  mi.ReturnParameter?.ParameterType == typeof(void));
         }
 
+        /// <summary>
+        /// Asserts that a type has a method with the given name and void return
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="methodName"></param>
         public static void ShouldHaveActionMethodWithName(this Type type, string methodName)
         {
             var hasMethod = type.HasActionMethodWithName(methodName);
@@ -25,12 +40,22 @@ namespace PeanutButter.TestUtils.Generic
             Assert.Fail("Expected to find method '" + methodName + "' on type '" + type.PrettyName() + "' but didn't.");
         }
 
+        /// <summary>
+        /// Asserts that a type implements the provided interface T
+        /// </summary>
+        /// <param name="type"></param>
+        /// <typeparam name="T"></typeparam>
         public static void ShouldImplement<T>(this Type type)
         {
             var shouldImplementType = typeof(T);
             type.ShouldImplement(shouldImplementType);
         }
 
+        /// <summary>
+        /// Asserts that a type implements the provided interface type
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="shouldImplementType">Provided interface type</param>
         public static void ShouldImplement(this Type type, Type shouldImplementType)
         {
             if (!shouldImplementType.IsInterface)
@@ -38,23 +63,43 @@ namespace PeanutButter.TestUtils.Generic
             type.ShouldBeAssignableFrom(shouldImplementType);
         }
 
+        /// <summary>
+        /// Asserts that the type being operated on inherits T
+        /// </summary>
+        /// <param name="type"></param>
+        /// <typeparam name="T"></typeparam>
         public static void ShouldInheritFrom<T>(this Type type)
         {
             // syntactic sugar
             ShouldInheritFrom(type, typeof (T));
         }
 
+        /// <summary>
+        /// Asserts that the type being operated on is assignable to TBase
+        /// </summary>
+        /// <param name="type"></param>
+        /// <typeparam name="TBase"></typeparam>
         public static void ShouldBeAssignableFrom<TBase>(this Type type)
         {
             type.ShouldBeAssignableFrom(typeof (TBase));
         }
 
+        /// <summary>
+        /// Asserts that the type being operated on is assigneable from the provided type
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="shouldBeImplemented">Provided type to test against</param>
         public static void ShouldBeAssignableFrom(this Type type, Type shouldBeImplemented)
         {
             if (!shouldBeImplemented.IsAssignableFrom(type))
                 Assert.Fail(type.PrettyName() + " should implement " + shouldBeImplemented.PrettyName());
         }
 
+        /// <summary>
+        /// Asserts that the type being operated on does not implement interface T
+        /// </summary>
+        /// <param name="type"></param>
+        /// <typeparam name="T"></typeparam>
         public static void ShouldNotImplement<T>(this Type type)
         {
             var shouldNotImplementType = typeof(T);

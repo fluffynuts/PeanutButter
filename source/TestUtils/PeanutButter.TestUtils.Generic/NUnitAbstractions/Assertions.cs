@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
-namespace PeanutButter.TestUtils.Generic
+namespace PeanutButter.TestUtils.Generic.NUnitAbstractions
 {
     internal static class Assertions
     {

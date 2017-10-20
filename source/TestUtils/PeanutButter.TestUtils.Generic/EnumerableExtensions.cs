@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using PeanutButter.TestUtils.Generic.NUnitAbstractions;
 using PeanutButter.Utils;
 using static PeanutButter.Utils.Stringifier;
 
@@ -38,6 +39,13 @@ namespace PeanutButter.TestUtils.Generic
                 )));
         }
 
+        /// <summary>
+        /// Tests that two collections have the same data in the same order
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="other"></param>
+        /// <typeparam name="T1"></typeparam>
+        /// <typeparam name="T2"></typeparam>
         public static void ShouldMatchDataInAndOrderOf<T1, T2>(
             this IEnumerable<T1> src, IEnumerable<T2> other
         )
@@ -52,12 +60,14 @@ namespace PeanutButter.TestUtils.Generic
             }
         }
 
-        [Obsolete("Please use DeepEquals from PeanutButter.Utils instead")]
-        public static bool Matches<T>(this T src, T other)
-        {
-            return src.DeepEquals(other);
-        }
-
+        /// <summary>
+        /// Tests if two collections have equivalency (same items, order not
+        /// guaranteed). Will rely on .Equals() on T.
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="other"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static bool IsEquivalentTo<T>(this IEnumerable<T> src, IEnumerable<T> other)
         {
             if (src == null && other == null) return true;
@@ -66,20 +76,41 @@ namespace PeanutButter.TestUtils.Generic
                    !src.Except(other).Any();
         }
 
+        /// <summary>
+        /// Asserts that the provided Func filters to one unique value
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="matcher"></param>
+        /// <typeparam name="T"></typeparam>
         public static void ShouldHaveUnique<T>(this IEnumerable<T> src, Func<T, bool> matcher)
         {
             if (!src.HasUnique(matcher))
                 Assert.Fail("Expected single unique result");
         }
 
+        /// <summary>
+        /// Asserts that the collection being operated on contains exactly
+        /// one value deep equal to the provided one.
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="seek"></param>
+        /// <param name="ignoreProperties"></param>
+        /// <typeparam name="T"></typeparam>
         public static void ShouldContainOneDeepEqualTo<T>(this IEnumerable<T> src, T seek,
             params string[] ignoreProperties)
         {
-            src.ShouldContainAtLeastOneDeepEqualTo<T>(seek, ignoreProperties);
             if (!src.ContainsOneDeepEqualTo(seek, ignoreProperties))
                 Assertions.Throw($"Expected to find one {seek} in {src} but found more than one match");
         }
 
+        /// <summary>
+        /// Asserts that the collection being operated on contains at least
+        /// one value deep equal to the provided one.
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="seek"></param>
+        /// <param name="ignoreProperties"></param>
+        /// <typeparam name="T"></typeparam>
         public static void ShouldContainAtLeastOneDeepEqualTo<T>(
             this IEnumerable<T> src, T seek, params string[] ignoreProperties
         )

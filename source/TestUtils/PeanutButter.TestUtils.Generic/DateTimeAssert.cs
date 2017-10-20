@@ -1,4 +1,5 @@
 ﻿using System;
+using PeanutButter.TestUtils.Generic.NUnitAbstractions;
 using PeanutButter.Utils;
 
 namespace PeanutButter.TestUtils.Generic

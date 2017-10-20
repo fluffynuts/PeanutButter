@@ -6,6 +6,10 @@ using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using NExpect;
 using static NExpect.Expectations;
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedParameter.Local
+// ReSharper disable UnusedMember.Global
+// ReSharper disable UnassignedGetOnlyAutoProperty
 
 namespace PeanutButter.TestUtils.Generic.Tests
 {
@@ -142,7 +146,6 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<AssertionException>(t.ShouldImplement<IInterface>);
             Expect(() => t.ShouldImplement<Tests.IInterface>())
                 .To.Throw<AssertionException>()
                 .With.Message.Equal.To(
@@ -370,6 +373,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             Assert.AreEqual("DoesImplement", result);
         }
 
+        // ReSharper disable once UnusedTypeParameter
         public class GenericType<T>
         {
         }
@@ -427,7 +431,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             public CannotHaveNullParameter(string arg)
             {
                 if (arg == null)
-                    throw new ArgumentNullException("arg");
+                    throw new ArgumentNullException(nameof(arg));
             }
         }
 
@@ -621,7 +625,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
 
         public class ReadOnlyPropertyTestClass
         {
-            public int ReadOnlyProperty { get; private set; }
+            public int ReadOnlyProperty { get;  }
             public int ReadWriteProperty { get; set; }
         }
 

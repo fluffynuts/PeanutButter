@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using PeanutButter.TestUtils.Generic.NUnitAbstractions;
 using PeanutButter.Utils;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -21,17 +22,14 @@ namespace PeanutButter.TestUtils.Generic
         /// <param name="ignorePropertiesByName">Properties to ignore, by name</param>
         public static void AreDeepEqual(object obj1, object obj2, params string[] ignorePropertiesByName)
         {
-            var tester = new DeepEqualityTester(obj1, obj2, ignorePropertiesByName);
-            tester.IncludeFields = false; // this is PropertyAssert!
-            tester.RecordErrors = true;
+            var tester = new DeepEqualityTester(obj1, obj2, ignorePropertiesByName)
+            {
+                IncludeFields = false,
+                RecordErrors = true
+            };
+            // this is PropertyAssert!
             if (!tester.AreDeepEqual())
                 Assertions.Throw(string.Join("\n", tester.Errors));
-        }
-
-        [Obsolete("This has been renamed to AreIntersectionEqual")]
-        public static void IntersectionEquals(object obj1, object obj2, params string[] ignorePropertiesByName)
-        {
-            PropertyAssert.AreIntersectionEqual(obj1, obj2, ignorePropertiesByName);
         }
 
         /// <summary>
@@ -62,7 +60,7 @@ namespace PeanutButter.TestUtils.Generic
 
         internal static object ResolveObject(object obj, ref string propName)
         {
-            var propParts = propName.Split(new[] {'.'});
+            var propParts = propName.Split('.');
             if (propParts.Length == 1 || obj == null)
             {
                 return obj;
@@ -95,19 +93,42 @@ namespace PeanutButter.TestUtils.Generic
         /// </summary>
         /// <param name="obj1">Primary object to test</param>
         /// <param name="obj2">Comparison object to test</param>
-        /// <param name="obj1PropName">Property to test on both objects, unless obj2PropName is specified</param>
-        /// <param name="obj2PropName">Specifies the name of the property to test on obj2</param>
-        public static void AreEqual(object obj1, object obj2, string obj1PropName, string obj2PropName = null)
+        /// <param name="obj1PropertyName">Property to test on both objects, unless obj2PropertyName is specified</param>
+        /// <param name="obj2PropertyName">Specifies the name of the property to test on obj2</param>
+        public static void AreEqual(
+            object obj1, 
+            object obj2, 
+            string obj1PropertyName, 
+            string obj2PropertyName = null)
         {
-            PerformEqualityAssertionWith(obj1, obj2, obj1PropName, obj2PropName,
-                (o1, o2, info) => Assert.AreEqual(o1, o2, info));
+            PerformEqualityAssertionWith(
+                obj1, 
+                obj2, 
+                obj1PropertyName,
+                obj2PropertyName,
+                Assert.AreEqual);
         }
 
-        public static void AreNotEqual<T1, T2>(T1 obj1, T2 obj2, string type1PropertyName,
-            string type2PropertyName = null)
+        /// <summary>
+        /// Asserts that two objects have different values for two specified properties, by
+        /// name. If the second name is omitted, it is assumed to test the same-named property on both
+        /// </summary>
+        /// <param name="obj1">Primary object to test</param>
+        /// <param name="obj2">Comparison object to test</param>
+        /// <param name="obj1PropertyName">Property to test on both objects, unless obj2PropertyName is specified</param>
+        /// <param name="obj2PropertyName">Specifies the name of the property to test on obj2</param>
+        public static void AreNotEqual<T1, T2>(
+            T1 obj1,
+            T2 obj2, 
+            string obj1PropertyName,
+            string obj2PropertyName = null)
         {
-            PerformEqualityAssertionWith(obj1, obj2, type1PropertyName, type2PropertyName,
-                (o1, o2, info) => Assert.AreNotEqual(o1, o2, info));
+            PerformEqualityAssertionWith(
+                obj1, 
+                obj2, 
+                obj1PropertyName, 
+                obj2PropertyName,
+                Assert.AreNotEqual);
         }
 
         private static void PerformEqualityAssertionWith(object obj1, object obj2, string obj1PropName,
@@ -136,7 +157,9 @@ namespace PeanutButter.TestUtils.Generic
             var type2 = obj2.GetType();
             var targetPropInfo = type2.GetProperty(obj2PropName);
             Assert.IsNotNull(targetPropInfo, PropNotFoundMessage(type2, obj2PropName));
+            // ReSharper disable once PossibleNullReferenceException
             if (!targetPropInfo.PropertyType
+                // ReSharper disable once PossibleNullReferenceException
                     .MatchesOrIsNullableOf(srcPropInfo.PropertyType))
             {
                 Assert.Fail(CreateTypeMismatchMessageFor(srcPropInfo, targetPropInfo));

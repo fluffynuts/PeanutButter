@@ -1,4 +1,4 @@
-namespace PeanutButter.TestUtils.Generic
+namespace PeanutButter.TestUtils.Generic.NUnitAbstractions
 {
     // provide nunit-like assertions
     internal static class Assert
@@ -32,6 +32,7 @@ namespace PeanutButter.TestUtils.Generic
             if (test != null)
                 return;
             Assertions.Throw(
+                // ReSharper disable once ExpressionIsAlwaysNull
                 FinalMessageFor($"Expected {test} not to be null", message)
             );
         }

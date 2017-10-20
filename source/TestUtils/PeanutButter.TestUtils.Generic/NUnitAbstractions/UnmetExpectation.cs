@@ -1,6 +1,6 @@
 using System;
 
-namespace PeanutButter.TestUtils.Generic
+namespace PeanutButter.TestUtils.Generic.NUnitAbstractions
 {
     internal class UnmetExpectation : Exception
     {
