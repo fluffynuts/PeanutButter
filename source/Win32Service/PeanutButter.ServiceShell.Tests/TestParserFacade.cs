@@ -1,6 +1,5 @@
 using NUnit.Framework;
 using PeanutButter.TestUtils.Generic;
-using ServiceShell;
 
 namespace PeanutButter.ServiceShell.Tests
 {

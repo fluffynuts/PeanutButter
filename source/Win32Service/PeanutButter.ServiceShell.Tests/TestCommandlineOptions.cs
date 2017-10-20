@@ -9,7 +9,6 @@ using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
-using ServiceShell;
 
 namespace PeanutButter.ServiceShell.Tests
 {

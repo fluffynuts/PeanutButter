@@ -98,10 +98,12 @@ namespace PeanutButter.Utils
             params string[] ignorePropsByName
         )
         {
-            var tester = new DeepEqualityTester(left, right, ignorePropsByName);
-            tester.OnlyCompareShape = true;
-            tester.IncludeFields = true;
-            tester.FailOnMissingProperties = !allowMissingProperties;
+            var tester = new DeepEqualityTester(left, right, ignorePropsByName)
+            {
+                OnlyCompareShape = true,
+                IncludeFields = true,
+                FailOnMissingProperties = !allowMissingProperties
+            };
             return tester.AreDeepEqual();
         }
 
@@ -123,12 +125,11 @@ namespace PeanutButter.Utils
             params string[] ignorePropertiesByName
         )
         {
-            var tester =  new DeepEqualityTester(
+            var tester = new DeepEqualityTester(
                 objSource,
                 objCompare,
                 ignorePropertiesByName
-            );
-            tester.IncludeFields = comparison == ObjectComparisons.PropertiesAndFields;
+            ) {IncludeFields = comparison == ObjectComparisons.PropertiesAndFields};
             return tester.AreDeepEqual();
         }
 
@@ -333,13 +334,13 @@ namespace PeanutButter.Utils
 
                 var srcVal = srcPropInfo.GetValue(src);
 
-                PropertySetterStrategies.Aggregate(false, (acc, cur) =>
+                _propertySetterStrategies.Aggregate(false, (acc, cur) =>
                     acc || cur(deep, srcPropInfo, matchingTarget, dst, srcVal));
             }
         }
 
         private static readonly Func<bool, PropertyInfo, PropertyInfo, object, object, bool>[]
-            PropertySetterStrategies =
+            _propertySetterStrategies =
             {
                 SetSimpleOrNullableOfSimpleTypeValue,
                 SetArrayOrGenericIEnumerableValue,
@@ -393,7 +394,7 @@ namespace PeanutButter.Utils
             var itemType = srcPropertyInfo.PropertyType.GetCollectionItemType();
             if (itemType == null)
                 return false;
-            var method = GenericMakeListCopy.MakeGenericMethod(itemType);
+            var method = _genericMakeListCopy.MakeGenericMethod(itemType);
             var newValue = method.Invoke(null, new[] {srcVal});
             dstPropertyInfo.SetValue(dst, newValue);
             return true;
@@ -413,7 +414,7 @@ namespace PeanutButter.Utils
             var underlyingType = srcPropertyInfo.PropertyType.GetCollectionItemType();
             if (underlyingType == null)
                 return false;
-            var specific = GenericMakeArrayCopy.MakeGenericMethod(underlyingType);
+            var specific = _genericMakeArrayCopy.MakeGenericMethod(underlyingType);
             // ReSharper disable once RedundantExplicitArrayCreation
             var newValue = specific.Invoke(null, new[] {srcVal});
             dstPropertyInfo.SetValue(dst, newValue);
@@ -435,11 +436,11 @@ namespace PeanutButter.Utils
             return true;
         }
 
-        private static readonly MethodInfo GenericMakeArrayCopy
+        private static readonly MethodInfo _genericMakeArrayCopy
             = typeof(ObjectExtensions).GetMethod(nameof(MakeArrayCopyOf),
                 BindingFlags.NonPublic | BindingFlags.Static);
 
-        private static readonly MethodInfo GenericMakeListCopy
+        private static readonly MethodInfo _genericMakeListCopy
             = typeof(ObjectExtensions).GetMethod(nameof(MakeListCopyOf),
                 BindingFlags.NonPublic | BindingFlags.Static);
 
@@ -511,11 +512,11 @@ namespace PeanutButter.Utils
 
         private static object DefaultValueForType(Type t)
         {
-            var method = GenericGetDefaultValueMethod.MakeGenericMethod(t);
+            var method = _genericGetDefaultValueMethod.MakeGenericMethod(t);
             return method.Invoke(null, new object[] { });
         }
 
-        private static readonly MethodInfo GenericGetDefaultValueMethod =
+        private static readonly MethodInfo _genericGetDefaultValueMethod =
             typeof(ObjectExtensions).GetMethod(nameof(GetDefaultValueFor),
                 BindingFlags.NonPublic | BindingFlags.Static
             );

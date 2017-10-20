@@ -6,7 +6,7 @@ using System.Threading;
 using log4net;
 using log4net.Config;
 using PeanutButter.Win32ServiceControl;
-using ServiceShell;
+
 // ReSharper disable MemberCanBeProtected.Global
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable InconsistentNaming

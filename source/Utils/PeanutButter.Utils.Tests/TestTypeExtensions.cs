@@ -1,8 +1,10 @@
 ﻿using System;
 using NExpect;
 using NUnit.Framework;
-using PeanutButter.TestUtils.Generic;
 using static NExpect.Expectations;
+// ReSharper disable UnusedParameter.Local
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedMember.Global
 
 namespace PeanutButter.Utils.Tests
 {

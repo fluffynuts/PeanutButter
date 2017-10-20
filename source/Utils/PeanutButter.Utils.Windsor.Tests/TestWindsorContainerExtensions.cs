@@ -9,6 +9,8 @@ using NUnit.Framework;
 using PeanutButter.Utils.Windsor.Tests.TestClasses;
 using NExpect;
 using static NExpect.Expectations;
+// ReSharper disable InconsistentNaming
+// ReSharper disable PossibleNullReferenceException
 
 namespace PeanutButter.Utils.Windsor.Tests
 {

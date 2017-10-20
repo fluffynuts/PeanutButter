@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using CommandLine;
-using CommandLine.Parsing;
 using CommandLine.Text;
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Local
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+// ReSharper disable UnusedMember.Global
 
-namespace ServiceShell
+namespace PeanutButter.ServiceShell
 {
     public class CommandlineOptions
     {
@@ -101,17 +101,16 @@ namespace ServiceShell
 
     internal class ParserFacade: IParser
     {
-        public Parser Actual => _actual;
-        private Parser _actual;
+        public Parser Actual { get; }
 
         internal ParserFacade(Parser actual)
         {
-            _actual = actual;
+            Actual = actual;
         }
 
         public bool ParseArguments(string[] arguments, object optionsObject)
         {
-            return _actual.ParseArguments(arguments, optionsObject);
+            return Actual.ParseArguments(arguments, optionsObject);
         }
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+// ReSharper disable MemberCanBePrivate.Global
 
 // ReSharper disable IntroduceOptionalParameters.Global
 
@@ -67,8 +68,8 @@ namespace PeanutButter.Utils
             return SafeStringifier(obj, level, nullRepresentation ?? "null");
         }
 
-        private const int MaxStringifyDepth = 10;
-        private const int IndentSize = 2;
+        private const int MAX_STRINGIFY_DEPTH = 10;
+        private const int INDENT_SIZE = 2;
 
         private static readonly Dictionary<Type, Func<object, string>> _primitiveStringifiers
             = new Dictionary<Type, Func<object, string>>()
@@ -158,7 +159,7 @@ namespace PeanutButter.Utils
 
         private static bool IsPrimitive(object obj, int level)
         {
-            return level >= MaxStringifyDepth ||
+            return level >= MAX_STRINGIFY_DEPTH ||
                    Types.PrimitivesAndImmutables.Contains(obj.GetType());
         }
 
@@ -169,7 +170,7 @@ namespace PeanutButter.Utils
 
         private static string SafeStringifier(object obj, int level, string nullRepresentation)
         {
-            if (level >= MaxStringifyDepth)
+            if (level >= MAX_STRINGIFY_DEPTH)
             {
                 return StringifyPrimitive(obj, level, nullRepresentation);
             }
@@ -208,8 +209,8 @@ namespace PeanutButter.Utils
         private static string StringifyJsonLike(object obj, int level, string nullRepresentation)
         {
             var props = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            var indentMinus1 = new string(' ', level * IndentSize);
-            var indent = indentMinus1 + new string(' ', IndentSize);
+            var indentMinus1 = new string(' ', level * INDENT_SIZE);
+            var indent = indentMinus1 + new string(' ', INDENT_SIZE);
             var joinWith = props.Aggregate(new List<string>(), (acc, cur) =>
                 {
                     var propValue = cur.GetValue(obj);

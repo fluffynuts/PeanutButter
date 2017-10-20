@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Text;
+// ReSharper disable UnusedMember.Global
 
 namespace PeanutButter.Utils
 {
@@ -23,18 +24,18 @@ namespace PeanutButter.Utils
         /// <summary>
         /// Writes all given bytes to a stream
         /// </summary>
-        /// <param name="target">Target stream to write to</param>
+        /// <param name="source">Target stream to write to</param>
         /// <param name="data">Binary data to write</param>
         /// <exception cref="IOException">Thrown when the target stream is null</exception>
-        public static void WriteAllBytes(this Stream target, byte[] data)
+        public static void WriteAllBytes(this Stream source, byte[] data)
         {
-            if (target == null)
+            if (source == null)
                 throw new IOException("Source stream is null");
-            if ((data ?? new byte[] { }).Length == 0)
+            if (data == null || data.Length == 0)
                 return;
-            target.Seek(0, SeekOrigin.Begin);
-            target.SetLength(0);
-            target.Write(data, 0, data.Length);
+            source.Seek(0, SeekOrigin.Begin);
+            source.SetLength(0);
+            source.Write(data, 0, data.Length);
         }
 
         /// <summary>

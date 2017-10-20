@@ -7,6 +7,7 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 using NExpect;
 using static NExpect.Expectations;
 // ReSharper disable ExpressionIsAlwaysNull
+// ReSharper disable RedundantArgumentDefaultValue
 
 namespace PeanutButter.Utils.Tests
 {

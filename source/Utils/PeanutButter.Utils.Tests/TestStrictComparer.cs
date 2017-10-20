@@ -61,6 +61,7 @@ namespace PeanutButter.Utils.Tests
                 var sut = Create<string>();
                 // Pre-Assert
                 // Act
+                // ReSharper disable once AssignNullToNotNullAttribute
                 var result = sut.GetHashCode(null);
                 // Assert
                 Expect(result).To.Equal(0);

@@ -2,6 +2,11 @@ using System;
 using NExpect;
 using NUnit.Framework;
 using static NExpect.Expectations;
+// ReSharper disable UnassignedGetOnlyAutoProperty
+// ReSharper disable ClassNeverInstantiated.Global
+// ReSharper disable UnusedMember.Global
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace PeanutButter.Utils.Tests
 {

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
@@ -7,6 +6,7 @@ using PeanutButter.RandomGenerators;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using NExpect;
 using static NExpect.Expectations;
+// ReSharper disable ExpressionIsAlwaysNull
 
 namespace PeanutButter.Utils.Tests
 {

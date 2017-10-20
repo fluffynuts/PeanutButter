@@ -22,8 +22,8 @@ namespace PeanutButter.Utils
         /// </summary>
         public byte[] BinaryData
         {
-            get { return File.ReadAllBytes(_tempFile); }
-            set { File.WriteAllBytes(_tempFile, value); }
+            get => File.ReadAllBytes(_tempFile);
+            set => File.WriteAllBytes(_tempFile, value);
         }
 
         /// <summary>
@@ -31,8 +31,8 @@ namespace PeanutButter.Utils
         /// </summary>
         public string StringData
         {
-            get { return Encoding.UTF8.GetString(File.ReadAllBytes(_tempFile)); }
-            set { File.WriteAllBytes(_tempFile, Encoding.UTF8.GetBytes(value ?? string.Empty)); }
+            get => Encoding.UTF8.GetString(File.ReadAllBytes(_tempFile));
+            set => File.WriteAllBytes(_tempFile, Encoding.UTF8.GetBytes(value ?? string.Empty));
         }
 
         private string _tempFile;
@@ -43,7 +43,7 @@ namespace PeanutButter.Utils
         /// Default constructor: creates the temp file with no data and no naming hints
         /// using the OS-level temporary filename generator.
         /// </summary>
-        public AutoTempFile(): this(_Path.GetTempPath(), null, (byte[])null)
+        public AutoTempFile(): this(_Path.GetTempPath(), null, null)
         {
         }
 

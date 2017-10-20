@@ -14,6 +14,7 @@ namespace PeanutButter.Utils
     public class MergeDictionary<TKey, TValue>
         : IDictionary<TKey, TValue>
     {
+        // ReSharper disable once StaticMemberInGenericType
         private static readonly InvalidOperationException _readonlyException
             = new InvalidOperationException($"{typeof(MergeDictionary<,>)} is ALWAYS read-only");
 

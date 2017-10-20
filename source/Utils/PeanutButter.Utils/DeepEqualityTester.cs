@@ -251,15 +251,12 @@ namespace PeanutButter.Utils
             return Zip(source, compare)
                 .Aggregate(
                     true,
-                    (acc, cur) =>
-                    {
-                        return acc &&
-                               DeepCompareAtIndex(
-                                   index++,
-                                   cur.Item1,
-                                   cur.Item2
-                               );
-                    });
+                    (acc, cur) => acc &&
+                                  DeepCompareAtIndex(
+                                      index++,
+                                      cur.Item1,
+                                      cur.Item2
+                                  ));
         }
 
         private bool DeepCompareAtIndex(
@@ -367,9 +364,9 @@ namespace PeanutButter.Utils
                 return CompareWith(objSource, objCompare, srcPropInfos, compareProps);
             AddError(string.Join("\n",
                 "Property count mismatch",
-                $"Source has {srcPropInfos.Count()} properties:",
+                $"Source has {srcPropInfos.Length} properties:",
                 $"{DumpPropertyInfo(srcPropInfos)}",
-                $"\nComparison has {compareProps.Count()} properties:",
+                $"\nComparison has {compareProps.Length} properties:",
                 $"{DumpPropertyInfo(compareProps)}"
             ));
             return false;
@@ -401,12 +398,12 @@ namespace PeanutButter.Utils
             return props;
         }
 
-        private const string DumpDelimiter = "\n* ";
+        private const string DUMP_DELIMITER = "\n* ";
 
         private string DumpPropertyInfo(PropertyOrField[] propInfos)
         {
-            return DumpDelimiter +
-                   string.Join(DumpDelimiter,
+            return DUMP_DELIMITER +
+                   string.Join(DUMP_DELIMITER,
                        propInfos.Select(pi => $"{pi.Type} {pi.Name}")
                    );
         }
@@ -446,8 +443,7 @@ namespace PeanutButter.Utils
 
         private bool IsPending(object objSource, object objCompare)
         {
-            object gotValue;
-            if (_pendingComparisons.TryGetValue(objSource, out gotValue))
+            if (_pendingComparisons.TryGetValue(objSource, out var gotValue))
                 return ReferenceEquals(gotValue, objCompare);
             if (_pendingComparisons.TryGetValue(objCompare, out gotValue))
                 return ReferenceEquals(gotValue, objSource);
