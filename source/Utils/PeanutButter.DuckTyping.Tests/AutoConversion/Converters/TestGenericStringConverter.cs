@@ -9,6 +9,7 @@ using NExpect;
 using static NExpect.Expectations;
 // ReSharper disable SpecifyACultureInStringConversionExplicitly
 // ReSharper disable RedundantArgumentDefaultValue
+// ReSharper disable PossibleNullReferenceException
 
 namespace PeanutButter.DuckTyping.Tests.AutoConversion.Converters
 {

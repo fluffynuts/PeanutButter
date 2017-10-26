@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using PeanutButter.Utils;
+
 // ReSharper disable InheritdocConsiderUsage
 // ReSharper disable UsePatternMatching
 // ReSharper disable ClassWithVirtualMembersNeverInherited.Global
@@ -367,7 +368,8 @@ namespace PeanutButter.RandomGenerators
             return parameters
                 .OrderByDescending(p => p.Length)
                 .Select(AttemptToMakeParameters)
-                .FirstOrDefault(r => r.Success)?.ParameterValues;
+                .FirstOrDefault(r => r.Success)
+                ?.ParameterValues;
         }
 
         private class ParametersAttempt
@@ -416,16 +418,19 @@ namespace PeanutButter.RandomGenerators
                 return GetDefaultValueFor(t);
             }
             var builderType = FindOrCreateDynamicBuilderTypeFor(t);
-            var builder = (IGenericBuilder)Activator.CreateInstance(builderType);
+            var builder = (IGenericBuilder) Activator.CreateInstance(builderType);
             builder.WithBuildLevel(_buildLevel + 1);
             return builder.WithBuildLevel(_buildLevel + 1)
-                    .GenericWithRandomProps()
-                    .GenericBuild();
+                .GenericWithRandomProps()
+                .GenericBuild();
         }
 
         private object GetDefaultValueFor(Type correctType)
         {
-            var method = GetType().GetMethod("GetDefaultFor", BindingFlags.NonPublic | BindingFlags.Static);
+            var method = GetType().GetMethod(nameof(GetDefaultFor), BindingFlags.NonPublic | BindingFlags.Static);
+            if (method == null)
+                throw new InvalidOperationException(
+                    $"Unable to find static, non-public method {nameof(GetDefaultFor)} on {GetType().PrettyName()}");
             return method
                 .MakeGenericMethod(correctType)
                 .Invoke(null, null);
@@ -539,7 +544,8 @@ namespace PeanutButter.RandomGenerators
                 var entityProps = EntityPropInfo;
                 lock (_lockObject)
                 {
-                    if (_randomPropSettersField != null) return _randomPropSettersField;
+                    if (_randomPropSettersField != null)
+                        return _randomPropSettersField;
                     _randomPropSettersField = new Dictionary<string, Action<TEntity, int>>();
                     foreach (var prop in entityProps)
                     {
@@ -638,7 +644,11 @@ namespace PeanutButter.RandomGenerators
 
         private static object ConvertCollectionToArray(object instance)
         {
-            var methodInfo = instance.GetType().GetMethod("ToArray");
+            var methodInfo = instance?.GetType().GetMethod("ToArray");
+            if (methodInfo == null)
+                throw new InvalidOperationException(
+                    $"No ToArray() method found on {instance?.GetType()} (or perhaps instance is null)"
+                );
             instance = methodInfo.Invoke(instance, new object[] { });
             return instance;
         }
@@ -671,8 +681,15 @@ namespace PeanutButter.RandomGenerators
 
         private static void FillContainer(object collectionInstance)
         {
-            var innerType = collectionInstance.GetType().GetGenericArguments()[0];
-            var method = collectionInstance.GetType().GetMethod("Add");
+            if (collectionInstance == null)
+                return;
+            var collectionType = collectionInstance.GetType();
+            var innerType = collectionType.GetGenericArguments()[0];
+            var method = collectionType.GetMethod("Add");
+            if (method == null)
+                throw new InvalidOperationException(
+                    $"No 'Add()' method found on {collectionType.PrettyName()}"
+                );
             var data = RandomValueGen.GetRandomCollection(() => RandomValueGen.GetRandomValue(innerType), 1);
             data.ForEach(item => method.Invoke(collectionInstance, new[] {item}));
         }
@@ -775,13 +792,14 @@ namespace PeanutButter.RandomGenerators
         private static bool SetupBuilderSetterFor(PropertyInfo prop, Type propertyType)
         {
             // FIXME: why am I sending through the type twice? I know I had a reason :/
-            var builderType = TryFindUserBuilderFor(prop.PropertyType)
-                              ?? FindOrCreateDynamicBuilderTypeFor(prop.PropertyType);
+            var builderType = TryFindUserBuilderFor(prop.PropertyType) ??
+                              FindOrCreateDynamicBuilderTypeFor(prop.PropertyType);
             if (builderType == null)
                 return false;
             RandomPropSetters[prop.Name] = (e, i) =>
             {
-                if (TraversedTooManyTurtles(i)) return;
+                if (TraversedTooManyTurtles(i))
+                    return;
                 var dynamicBuilder = Activator.CreateInstance(builderType) as IGenericBuilder;
                 if (dynamicBuilder == null)
                     return;
@@ -843,7 +861,8 @@ namespace PeanutButter.RandomGenerators
             if (!UserBuilders.TryGetValue(propertyType, out var builderType))
             {
                 var existingBuilder = GenericBuilderLocator.TryFindExistingBuilderFor(propertyType);
-                if (existingBuilder == null) return null;
+                if (existingBuilder == null)
+                    return null;
                 UserBuilders[propertyType] = existingBuilder;
                 builderType = existingBuilder;
             }

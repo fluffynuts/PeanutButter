@@ -149,11 +149,10 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj">
-      <Project>{EFC85343-95B4-48C3-BCBE-579EA4868C0A}</Project>
+      <Project>{efc85343-95b4-48c3-bcbe-579ea4868c0a}</Project>
       <Name>PeanutButter.Utils</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>
     <PostBuildEvent>mkdir $(SolutionDir)DatabaseHelpers\$(ProjectName).NugetPackage\lib\net45

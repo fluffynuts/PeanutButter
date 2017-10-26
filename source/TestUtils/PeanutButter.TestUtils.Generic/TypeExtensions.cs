@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using NUnit.Framework;
 using PeanutButter.TestUtils.Generic.NUnitAbstractions;
 using PeanutButter.Utils;
+using Assert = PeanutButter.TestUtils.Generic.NUnitAbstractions.Assert;
 
 // ReSharper disable UnusedMember.Global
 
@@ -180,10 +182,10 @@ namespace PeanutButter.TestUtils.Generic
         public static void ShouldThrowWhenConstructorParameterIsNull(this Type type, string parameterName,
             Type expectedType)
         {
-            var methodName = "ShouldExpectNonNullParameterFor";
+            var methodName = nameof(ConstructorTestUtils.ShouldExpectNonNullParameterFor);
             var methodInfo = typeof(ConstructorTestUtils).GetMethod(methodName);
-            Assert.IsNotNull(methodInfo,
-                "Can't find method '" + methodName + "' on '" + typeof(ConstructorTestUtils).PrettyName() + "'");
+            if (methodInfo == null)
+                throw new AssertionException("Can't find method '" + methodName + "' on '" + typeof(ConstructorTestUtils).PrettyName() + "'");
             var genericMethod = methodInfo.MakeGenericMethod(type);
             try
             {

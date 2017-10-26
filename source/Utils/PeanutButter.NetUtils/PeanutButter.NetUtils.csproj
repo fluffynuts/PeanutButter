@@ -63,7 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PeanutButter.Utils\PeanutButter.Utils.csproj">
-      <Project>{EFC85343-95B4-48C3-BCBE-579EA4868C0A}</Project>
+      <Project>{efc85343-95b4-48c3-bcbe-579ea4868c0a}</Project>
       <Name>PeanutButter.Utils</Name>
     </ProjectReference>
   </ItemGroup>

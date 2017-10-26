@@ -511,6 +511,10 @@ namespace PeanutButter.Utils
                 .GetMethod(nameof(TestCollectionsMatch),
                     BindingFlags.Instance | BindingFlags.NonPublic);
 #endif
+            if (genericMethod == null)
+                throw new InvalidOperationException(
+                    $"No '{nameof(TestCollectionsMatch)}' method found on {GetType().PrettyName()}"
+                );
             var typedMethod = genericMethod.MakeGenericMethod(t1, t2);
             return (bool) typedMethod.Invoke(this, new[] {srcValue, compareValue});
         }

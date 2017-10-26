@@ -100,6 +100,10 @@ namespace PeanutButter.Utils
                            throw new Exception($"{obj.GetType()} is not IEnumerable<T>");
             var method = typeof(Stringifier)
                 .GetMethod(nameof(StringifyCollectionInternal), BindingFlags.NonPublic | BindingFlags.Static);
+            if (method == null)
+                throw new InvalidOperationException(
+                    $"No non-public, static '{nameof(StringifyCollectionInternal)}' method found on {typeof(Stringifier).PrettyName()}"
+                );
             var specific = method.MakeGenericMethod(itemType);
             return (string) (specific.Invoke(null, new[] {obj, nullRep, level}));
         }
