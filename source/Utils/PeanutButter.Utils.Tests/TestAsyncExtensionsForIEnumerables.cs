@@ -5,6 +5,7 @@ using NExpect;
 using NUnit.Framework;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+// ReSharper disable ExpressionIsAlwaysNull
 
 // ReSharper disable PossibleMultipleEnumeration
 
@@ -60,7 +61,7 @@ namespace PeanutButter.Utils.Tests
         public class ToArrayAsync
         {
             [Test]
-            public async Task ShouldProvideAwaitableToArray()
+            public async Task ShouldProvideAwaitableToArrayForIEnumerable()
             {
                 // Arrange
                 var expected = GetRandomCollection<string>(3);
@@ -72,6 +73,51 @@ namespace PeanutButter.Utils.Tests
                 var result = await src.ToArrayAsync();
                 // Assert
                 Expect(result).To.Equal(expected);
+            }
+
+            [Test]
+            public async Task ShouldProvideAwaitableToArrayForArrays()
+            {
+                // Arrange
+                var expected = GetRandomArray<string>(3);
+                var src = Task.FromResult(
+                    expected
+                );
+                // Pre-Assert
+                // Act
+                var result = await src.ToArrayAsync();
+                // Assert
+                Expect(result).To.Equal(expected);
+            }
+
+            [Test]
+            public async Task OperatingOnNullIEnumerable_ShouldReturnNull()
+            {
+                // Arrange
+                IEnumerable<string> expected = null;
+                var src = Task.FromResult(
+                    expected
+                );
+                // Pre-Assert
+                // Act
+                var result = await src.ToArrayAsync();
+                // Assert
+                Expect(result).To.Be.Null();
+            }
+
+            [Test]
+            public async Task OperatingOnNullArray_ShouldReturnNull()
+            {
+                // Arrange
+                string[] expected = null;
+                var src = Task.FromResult(
+                    expected
+                );
+                // Pre-Assert
+                // Act
+                var result = await src.ToArrayAsync();
+                // Assert
+                Expect(result).To.Be.Null();
             }
         }
 
@@ -102,6 +148,64 @@ namespace PeanutButter.Utils.Tests
                 );
                 // Assert
                 Expect(result).To.Equal(expected);
+            }
+
+            [Test]
+            public async Task ShouldReturnTheSeedWhenOperatingOnNull()
+            {
+                // Arrange
+                int[] src = null;
+                // Pre-Assert
+                // Act
+                var result = await src.AggregateAsync(
+                    new List<int>(),
+                    async (acc, cur) =>
+                    {
+                        if (await (IsEven(cur)))
+                            acc.Add(cur);
+                        return acc;
+                    }
+                );
+                // Assert
+                Expect(result).To.Be.Empty();
+            }
+        }
+
+        [TestFixture]
+        public class SelectAsync
+        {
+            private async Task<int> Double(int i)
+            {
+                return await Task.FromResult(i * 2);
+            }
+
+            [Test]
+            public async Task ProvideAwaitableSelectForAsyncOperations()
+            {
+                // Arrange
+                var src = GetRandomCollection<int>(10, 20);
+                var expected = src.Select(i => i * 2);
+                // Pre-Assert
+                // Act
+                var result = await src.SelectAsync(
+                    async i => await Double(i)
+                );
+                // Assert
+                Expect(result).To.Equal(expected);
+            }
+
+            [Test]
+            public async Task ShouldReturnNullForNull()
+            {
+                // Arrange
+                int[] src = null;
+                // Pre-Assert
+                // Act
+                var result = await src.SelectAsync(
+                    async i => await Double(i)
+                );
+                // Assert
+                Expect(result).To.Be.Null();
             }
         }
     }

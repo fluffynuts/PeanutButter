@@ -22,7 +22,7 @@ namespace PeanutButter.Utils
         /// <param name="toRun">Action to run on each member of the collection</param>
         /// <typeparam name="T">Item type of the collection</typeparam>
         public static async Task ForEachAsync<T>(
-            this IEnumerable<T> collection, 
+            this IEnumerable<T> collection,
             Func<T, Task> toRun
         )
         {
@@ -38,7 +38,7 @@ namespace PeanutButter.Utils
         /// <param name="toRunWithIndex">Action to run on each member of the collection</param>
         /// <typeparam name="T">Item type of the collection</typeparam>
         public static async Task ForEachAsync<T>(
-            this IEnumerable<T> collection, 
+            this IEnumerable<T> collection,
             Func<T, int, Task> toRunWithIndex
         )
         {
@@ -58,7 +58,19 @@ namespace PeanutButter.Utils
         /// <returns></returns>
         public static async Task<T[]> ToArrayAsync<T>(this Task<IEnumerable<T>> src)
         {
-            return (await src).ToArray();
+            return (await src)?.ToArray();
+        }
+
+        /// <summary>
+        /// Allows awaiting on making an async result of IEnumerable&lt;T&gt;
+        /// into an array. Think of "ToArray" for an async result.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="src"></param>
+        /// <returns></returns>
+        public static async Task<T[]> ToArrayAsync<T>(this Task<T[]> src)
+        {
+            return (await src)?.ToArray();
         }
 
         /// <summary>
@@ -78,7 +90,7 @@ namespace PeanutButter.Utils
             Func<TAccumulator, TItem, Task<TAccumulator>> reducer
         )
         {
-            foreach (var item in items)
+            foreach (var item in items ?? new TItem[0])
             {
                 seed = await reducer(seed, item);
             }
@@ -86,5 +98,22 @@ namespace PeanutButter.Utils
         }
 
 
+        /// <summary>
+        /// Provides an awaitable variant of Select()
+        /// </summary>
+        /// <typeparam name="TIn"></typeparam>
+        /// <typeparam name="TOut"></typeparam>
+        /// <param name="src">Source collection to operate on</param>
+        /// <param name="transform"></param>
+        /// <returns></returns>
+        public static async Task<TOut[]> SelectAsync<TIn, TOut>(
+            this IEnumerable<TIn> src,
+            Func<TIn, Task<TOut>> transform
+        )
+        {
+            if (src == null)
+                return await Task.FromResult(null as TOut[]);
+            return await Task.WhenAll(src.Select(transform));
+        }
     }
 }
