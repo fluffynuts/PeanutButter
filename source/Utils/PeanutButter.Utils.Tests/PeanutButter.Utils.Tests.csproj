@@ -67,6 +67,7 @@
   <ItemGroup>
     <Compile Include="DeepEqualityTesterExtensions.cs" />
     <Compile Include="TestAssemblyExtensions.cs" />
+    <Compile Include="TestAsyncExtensionsForIEnumerables.cs" />
     <Compile Include="TestAutoDeleter.cs" />
     <Compile Include="TestAutoDisposer.cs" />
     <Compile Include="TestAutoLocker.cs" />

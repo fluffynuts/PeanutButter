@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using NExpect;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
@@ -814,45 +813,6 @@ namespace PeanutButter.Utils.Tests
             CollectionAssert.AreEqual(expected, collectedIndexes);
         }
 
-        [Test]
-        public async Task ForEach_ShouldBeAbleToDoAsync()
-        {
-            //--------------- Arrange -------------------
-            var collection = GetRandomCollection<int>(200);
-            var collector = new List<int>();
-
-            //--------------- Assume ----------------
-
-            //--------------- Act ----------------------
-            await collection.ForEachAsync(async (i) => await Task.Run(() => collector.Add(i)));
-
-            //--------------- Assert -----------------------
-            Expect(collector).To.Be.Equal.To(collection);
-        }
-
-
-        [Test]
-        public async Task ForEach_WithIndex_ShouldBeAbleToDoAsync()
-        {
-            //--------------- Arrange -------------------
-            var collection = GetRandomCollection<int>(200);
-            var collector = new List<int>();
-            var indexes = new List<int>();
-
-            //--------------- Assume ----------------
-
-            //--------------- Act ----------------------
-            await collection.ForEachAsync(async (x, y) => await Task.Run(() =>
-            {
-                collector.Add(x);
-                indexes.Add(y);
-            }));
-
-            //--------------- Assert -----------------------
-            Expect(collector).To.Be.Equal.To(collection);
-            Expect(indexes).To.Contain.Exactly(collection.Count()).Items();
-            Expect(indexes).To.Contain.All().Matched.By((x, y) => x == y);
-        }
 
         [TestFixture]
         public class FindDuplicates
@@ -963,14 +923,14 @@ namespace PeanutButter.Utils.Tests
                     // Arrange
                     var input = new[]
                     {
-                        new {id = 1, name = "bob" },
-                        new {id = 2, name = "andrew" },
-                        new {id = 3, name = "posh" },
-                        new {id = 3, name = "scary" },
-                        new {id = 3, name = "baby" },
-                        new {id = 3, name = "sporty" },
-                        new {id = 3, name = "ginger" },
-                        new {id = 2, name = "dave" }
+                        new {id = 1, name = "bob"},
+                        new {id = 2, name = "andrew"},
+                        new {id = 3, name = "posh"},
+                        new {id = 3, name = "scary"},
+                        new {id = 3, name = "baby"},
+                        new {id = 3, name = "sporty"},
+                        new {id = 3, name = "ginger"},
+                        new {id = 2, name = "dave"}
                     };
                     // Pre-Assert
                     // Act

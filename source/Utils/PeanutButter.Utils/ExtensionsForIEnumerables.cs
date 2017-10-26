@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace PeanutButter.Utils
 {
+
     /// <summary>
     /// Useful extensions for IEnumerable&lt;T&gt; collections
     /// </summary>
@@ -28,18 +28,6 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
-        /// The missing ForEach method - async variant. Don't forget to await on it!
-        /// </summary>
-        /// <param name="collection">Subject collection to operate over</param>
-        /// <param name="toRun">Action to run on each member of the collection</param>
-        /// <typeparam name="T">Item type of the collection</typeparam>
-        public static async Task ForEachAsync<T>(this IEnumerable<T> collection, Func<T, Task> toRun)
-        {
-            foreach (var item in collection)
-                await toRun(item);
-        }
-
-        /// <summary>
         /// The missing ForEach method - synchronous variant which also provides the current item index
         /// </summary>
         /// <param name="collection">Subject collection to operate over</param>
@@ -51,22 +39,6 @@ namespace PeanutButter.Utils
             collection.ForEach(o =>
             {
                 toRunWithIndex(o, idx++);
-            });
-        }
-
-        /// <summary>
-        /// The missing ForEach method - asynchronous variant which also provides the current item index
-        /// -> DON'T forget to await!
-        /// </summary>
-        /// <param name="collection">Subject collection to operate over</param>
-        /// <param name="toRunWithIndex">Action to run on each member of the collection</param>
-        /// <typeparam name="T">Item type of the collection</typeparam>
-        public static async Task ForEachAsync<T>(this IEnumerable<T> collection, Func<T, int, Task> toRunWithIndex)
-        {
-            var idx = 0;
-            await collection.ForEachAsync(async (o) =>
-            {
-                await toRunWithIndex(o, idx++);
             });
         }
 

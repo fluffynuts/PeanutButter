@@ -8,4 +8,7 @@
     <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net452|AnyCPU'">
       <DocumentationFile>bin\Release\net452\PeanutButter.Utils.xml</DocumentationFile>
     </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net452|AnyCPU'">
+      <DocumentationFile>bin\Debug\net452\PeanutButter.Utils.xml</DocumentationFile>
+    </PropertyGroup>
 </Project>
