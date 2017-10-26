@@ -5,6 +5,7 @@ using NExpect;
 using NUnit.Framework;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+
 // ReSharper disable ExpressionIsAlwaysNull
 
 // ReSharper disable PossibleMultipleEnumeration
@@ -60,64 +61,106 @@ namespace PeanutButter.Utils.Tests
         [TestFixture]
         public class ToArrayAsync
         {
-            [Test]
-            public async Task ShouldProvideAwaitableToArrayForIEnumerable()
+            [TestFixture]
+            public class OperatingOnIEnumerable
             {
-                // Arrange
-                var expected = GetRandomCollection<string>(3);
-                var src = Task.FromResult(
-                    expected
-                );
-                // Pre-Assert
-                // Act
-                var result = await src.ToArrayAsync();
-                // Assert
-                Expect(result).To.Equal(expected);
+                [Test]
+                public async Task ShouldProvideAwaitableToArrayForIEnumerable()
+                {
+                    // Arrange
+                    var expected = GetRandomCollection<string>(3);
+                    var src = Task.FromResult(
+                        expected
+                    );
+                    // Pre-Assert
+                    // Act
+                    var result = await src.ToArrayAsync();
+                    // Assert
+                    Expect(result).To.Equal(expected);
+                }
+
+                [Test]
+                public async Task OperatingOnNullIEnumerable_ShouldReturnNull()
+                {
+                    // Arrange
+                    IEnumerable<string> expected = null;
+                    var src = Task.FromResult(
+                        expected
+                    );
+                    // Pre-Assert
+                    // Act
+                    var result = await src.ToArrayAsync();
+                    // Assert
+                    Expect(result).To.Be.Null();
+                }
             }
 
-            [Test]
-            public async Task ShouldProvideAwaitableToArrayForArrays()
+            [TestFixture]
+            public class OperatingOnArray
             {
-                // Arrange
-                var expected = GetRandomArray<string>(3);
-                var src = Task.FromResult(
-                    expected
-                );
-                // Pre-Assert
-                // Act
-                var result = await src.ToArrayAsync();
-                // Assert
-                Expect(result).To.Equal(expected);
+                [Test]
+                public async Task ShouldProvideAwaitableToArrayForArrays()
+                {
+                    // Arrange
+                    var expected = GetRandomArray<string>(3);
+                    var src = Task.FromResult(
+                        expected
+                    );
+                    // Pre-Assert
+                    // Act
+                    var result = await src.ToArrayAsync();
+                    // Assert
+                    Expect(result).To.Equal(expected);
+                }
+
+                [Test]
+                public async Task OperatingOnNullArray_ShouldReturnNull()
+                {
+                    // Arrange
+                    string[] expected = null;
+                    var src = Task.FromResult(
+                        expected
+                    );
+                    // Pre-Assert
+                    // Act
+                    var result = await src.ToArrayAsync();
+                    // Assert
+                    Expect(result).To.Be.Null();
+                }
             }
 
-            [Test]
-            public async Task OperatingOnNullIEnumerable_ShouldReturnNull()
+            [TestFixture]
+            public class OperatingOnList
             {
-                // Arrange
-                IEnumerable<string> expected = null;
-                var src = Task.FromResult(
-                    expected
-                );
-                // Pre-Assert
-                // Act
-                var result = await src.ToArrayAsync();
-                // Assert
-                Expect(result).To.Be.Null();
-            }
+                [Test]
+                public async Task ShouldProvideAwaitableToArrayForArrays()
+                {
+                    // Arrange
+                    var expected = GetRandomArray<string>(3).ToList();
+                    var src = Task.FromResult(
+                        expected
+                    );
+                    // Pre-Assert
+                    // Act
+                    var result = await src.ToArrayAsync();
+                    // Assert
+                    Expect(result).To.Equal(expected);
+                }
 
-            [Test]
-            public async Task OperatingOnNullArray_ShouldReturnNull()
-            {
-                // Arrange
-                string[] expected = null;
-                var src = Task.FromResult(
-                    expected
-                );
-                // Pre-Assert
-                // Act
-                var result = await src.ToArrayAsync();
-                // Assert
-                Expect(result).To.Be.Null();
+                [Test]
+                public async Task OperatingOnNullArray_ShouldReturnNull()
+                {
+                    // Arrange
+                    List<string> expected = null;
+                    var src = Task.FromResult(
+                        expected
+                    );
+                    // Pre-Assert
+                    // Act
+                    var result = await src.ToArrayAsync();
+                    // Assert
+                    Expect(result).To.Be.Null();
+                }
             }
         }
 
@@ -207,6 +250,40 @@ namespace PeanutButter.Utils.Tests
                 // Assert
                 Expect(result).To.Be.Null();
             }
+        }
+    }
+
+    [TestFixture]
+    public class WhereAsync
+    {
+        [Test]
+        public async Task ShouldProvideAwaitableWhere()
+        {
+            // Arrange
+            var src = GetRandomCollection<int>(10, 20);
+            var expected = src.Where(i => i % 2 == 0);
+            // Pre-Assert
+            // Act
+            var result = await src.WhereAsync(
+                async i => await Task.FromResult(i % 2 == 0)
+            );
+            // Assert
+            Expect(result).To.Equal(expected);
+        }
+
+        [Test]
+        public async Task OperatingOnNull_ShouldReturnEmpty()
+        {
+            // Arrange
+            int[] src = null;
+
+            // Pre-Assert
+            // Act
+            var result = await src.WhereAsync(
+                async i => await Task.FromResult(false)
+            );
+            // Assert
+            Expect(result).To.Be.Empty();
         }
     }
 }

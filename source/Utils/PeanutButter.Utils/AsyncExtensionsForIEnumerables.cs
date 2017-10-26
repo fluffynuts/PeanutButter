@@ -74,6 +74,18 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
+        /// Allows awaiting on making an async result of IEnumerable&lt;T&gt;
+        /// into an array. Think of "ToArray" for an async result.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="src"></param>
+        /// <returns></returns>
+        public static async Task<T[]> ToArrayAsync<T>(this Task<List<T>> src)
+        {
+            return (await src)?.ToArray();
+        }
+
+        /// <summary>
         /// Provides an awaitable Aggregate for collections
         /// </summary>
         /// <typeparam name="TAccumulator"></typeparam>
@@ -114,6 +126,29 @@ namespace PeanutButter.Utils
             if (src == null)
                 return await Task.FromResult(null as TOut[]);
             return await Task.WhenAll(src.Select(transform));
+        }
+
+        /// <summary>
+        /// Provides an awaitable .Where() where your discriminator
+        /// function can be async. Will return an empty collection if
+        /// operating on null.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="src">Source collection</param>
+        /// <param name="discriminator">Discriminator function</param>
+        /// <returns></returns>
+        public static async Task<IEnumerable<T>> WhereAsync<T>(
+            this IEnumerable<T> src,
+            Func<T, Task<bool>> discriminator
+        )
+        {
+            var result = new List<T>();
+            await (src ?? new T[0]).ForEachAsync(async i =>
+            {
+                if (await discriminator(i))
+                    result.Add(i);
+            });
+            return result;
         }
     }
 }
