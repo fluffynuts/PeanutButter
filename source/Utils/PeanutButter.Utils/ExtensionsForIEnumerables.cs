@@ -57,7 +57,7 @@ namespace PeanutButter.Utils
                 return false;
             var source = collection.ToArray();
             var target = otherCollection.ToArray();
-            if (source.Count() != target.Count())
+            if (source.Length != target.Length)
                 return false;
             return source.Aggregate(true, (state, item) => state && target.Contains(item));
         }
