@@ -244,16 +244,62 @@ namespace PeanutButter.RandomGenerators
                 }
                 catch (Exception)
                 {
-                    try
-                    {
-                        return AttemptToCreateSubstituteFor<TEntity>();
-                    }
-                    catch (Exception)
-                    {
+                    var result = _fallbackConstructionStrategies.Aggregate(
+                        default(TEntity),
+                        (acc, cur) =>
+                        {
+                            try
+                            {
+                                return acc == null || acc.Equals(default(TEntity)) ? cur() : acc;
+                            } 
+                            catch
+                            {
+                                return acc;
+                            }
+                        });
+                    if (result.Equals(default(TEntity)))
                         throw ex;
-                    }
+                    return result;
                 }
             }
+        }
+
+        private static readonly Func<TEntity>[] _fallbackConstructionStrategies =
+        {
+            AttemptToCreateDuckFor,
+            AttemptToCreateSubstituteFor<TEntity>
+        };
+
+        private static TEntity AttemptToCreateDuckFor()
+        {
+            var asm = FindOrLoadDuckTyping<TEntity>();
+            if (asm == null)
+                throw new Exception("Can't find (or load) PeanutButter.DuckTyping");
+            var typeMakerType = asm.GetTypes().FirstOrDefault(t => t.Name == "TypeMaker");
+            if (typeMakerType == null)
+                throw new Exception("Can't find TypeMaker type in PeanutButter.DuckTyping");
+            var methodInfo = typeMakerType.GetMethods()
+                .FirstOrDefault(mi => mi.Name == "MakeTypeImplementing" &&
+                                      !mi.IsGenericMethod &&
+                                      HasOnlyTypeParameter(mi)
+                );
+            if (methodInfo == null)
+                throw new Exception("Can't find MakeTypeImplementing method on TypeMaker with single parameter (Type to implement)");
+            var instance = Activator.CreateInstance(typeMakerType);
+            ConstructingType = (Type)methodInfo.Invoke(instance, new object[] { typeof(TEntity) });
+            return (TEntity)Activator.CreateInstance(ConstructingType);
+        }
+
+        private static bool HasOnlyTypeParameter(MethodInfo mi)
+        {
+            var parameters = mi.GetParameters();
+            return parameters.Length == 1 &&
+                   parameters[0].ParameterType == typeof(Type);
+        }
+
+        private static Assembly FindOrLoadDuckTyping<T>()
+        {
+            return FindOrLoadAssembly<T>("PeanutButter.DuckTyping", false);
         }
 
         private static T AttemptToCreateSubstituteFor<T>()
@@ -272,25 +318,33 @@ namespace PeanutButter.RandomGenerators
             return (T) specificMethod.Invoke(null, new object[] {new object[] { }});
         }
 
-        private static Assembly FindOrLoadNSubstitute<T>(bool retrying = false)
+        private static Assembly FindOrLoadNSubstitute<T>()
         {
-            var loadedNsubstitute = AppDomain.CurrentDomain.GetAssemblies()
-                .FirstOrDefault(a => a.GetName().Name == "NSubstitute");
-            if (loadedNsubstitute == null && !retrying)
-            {
-                AttemptToLoadNSubstitute<T>();
-                return FindOrLoadNSubstitute<T>(true);
-            }
-            return loadedNsubstitute;
+            return FindOrLoadAssembly<T>("NSubstitute", false);
         }
 
         private static void AttemptToLoadNSubstitute<T>()
+        {
+            AttemptToLoadAssemblyAlongside<T>("NSubstitute.dll");
+        }
+
+        private static Assembly FindOrLoadAssembly<T>(string name, bool retrying)
+        {
+            var loaded = AppDomain.CurrentDomain.GetAssemblies()
+                .FirstOrDefault(a => a.GetName().Name == name);
+            if (loaded != null || retrying)
+                return loaded;
+            AttemptToLoadAssemblyAlongside<T>($"{name}.dll");
+            return FindOrLoadAssembly<T>(name, true);
+        }
+
+        private static void AttemptToLoadAssemblyAlongside<T>(string fileName)
         {
             var codeBase = new Uri(typeof(T).Assembly.CodeBase).LocalPath;
             if (!File.Exists(codeBase))
                 return;
             var folder = Path.GetDirectoryName(codeBase);
-            var search = Path.Combine(folder ?? "", "NSubstitute.dll");
+            var search = Path.Combine(folder ?? "", fileName);
             if (!File.Exists(search))
                 return;
             try
@@ -496,11 +550,6 @@ namespace PeanutButter.RandomGenerators
                         newActions.ForEach(a => a(entity));
                     }
                 }
-
-//                foreach (var action in DefaultPropMods.Union(_propMods))
-//                {
-//                    action(entity);
-//                }
                 return entity;
             }
         }

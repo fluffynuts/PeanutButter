@@ -26,7 +26,7 @@ namespace PeanutButter.DuckTyping
         /// <returns>Instance of an object implementing the provided interface</returns>
         public static T InstanceOf<T>()
         {
-            return (T)CreateOrReuseInstanceOf(typeof(T), new List<object>());
+            return (T) CreateOrReuseInstanceOf(typeof(T), new List<object>());
         }
 
         private static object CreateOrReuseInstanceOf(
@@ -65,11 +65,11 @@ namespace PeanutButter.DuckTyping
         private static void TrySetArrayValue(object result, PropertyInfo pi)
         {
             var specific = _getEmptyArrayGeneric.MakeGenericMethod(pi.PropertyType.GetElementType());
-            var empty = specific.Invoke(null, new object[] { } );
+            var empty = specific.Invoke(null, new object[] { });
             pi.SetValue(result, empty);
         }
 
-        private static readonly MethodInfo _getEmptyArrayGeneric = 
+        private static readonly MethodInfo _getEmptyArrayGeneric =
             typeof(Create).GetMethod("GetEmptyArrayOf", BindingFlags.Static | BindingFlags.NonPublic);
         // ReSharper disable once UnusedMember.Local
 #pragma warning disable S1144
@@ -82,8 +82,8 @@ namespace PeanutButter.DuckTyping
         private static void TrySetNewValue(object result, PropertyInfo pi)
         {
             var hasParameterlessConstructor = pi.PropertyType
-                                                .GetConstructors()
-                                                .Any(c => c.GetParameters().Length == 0);
+                .GetConstructors()
+                .Any(c => c.GetParameters().Length == 0);
             if (hasParameterlessConstructor)
                 TryDo(() => pi.SetValue(result, Activator.CreateInstance(pi.PropertyType)));
         }
@@ -94,10 +94,14 @@ namespace PeanutButter.DuckTyping
             {
                 action();
             }
-            catch { /* intentionally left blank */ }
+            catch
+            {
+                /* intentionally left blank */
+            }
         }
 
-        private static void CreateComplexPropertyValues(List<object> alreadyCreated, PropertyInfo[] propertyInfos, object result)
+        private static void CreateComplexPropertyValues(List<object> alreadyCreated, PropertyInfo[] propertyInfos,
+            object result)
         {
             var resultProps = propertyInfos;
             var complexProps = resultProps
@@ -113,15 +117,18 @@ namespace PeanutButter.DuckTyping
         }
 
         private static readonly MethodInfo _genericMake = typeof(TypeMaker)
-                                                    .GetMethods()
-                                                    .FirstOrDefault(mi => mi.Name == "MakeTypeImplementing" && mi.IsGenericMethod && mi.GetParameters().Length == 0);
+            .GetMethods()
+            .FirstOrDefault(mi =>
+                mi.Name == nameof(TypeMaker.MakeTypeImplementing) &&
+                mi.IsGenericMethod &&
+                mi.GetParameters().Length == 0);
 
         private static Type FindOrCreateTypeImplementing(Type typeToImplement)
         {
             if (!_typeCache.TryGetValue(typeToImplement, out var implemented))
             {
                 var method = _genericMake.MakeGenericMethod(typeToImplement);
-                implemented = (Type)method.Invoke(TypeMaker, new object[0]);
+                implemented = (Type) method.Invoke(TypeMaker, new object[0]);
                 _typeCache[typeToImplement] = implemented;
             }
             return implemented;

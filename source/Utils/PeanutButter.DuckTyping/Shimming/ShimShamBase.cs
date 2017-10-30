@@ -10,9 +10,19 @@ namespace PeanutButter.DuckTyping.Shimming
     /// </summary>
     public abstract class ShimShamBase
     {
-        private readonly MethodInfo _genericMakeType = typeof(TypeMaker).GetMethod("MakeTypeImplementing");
-        private readonly MethodInfo _genericFuzzyMakeType = typeof(TypeMaker).GetMethod("MakeFuzzyTypeImplementing");
-        private static readonly MethodInfo _getDefaultMethodGeneric = typeof(ShimShamBase).GetMethod("GetDefaultFor", BindingFlags.NonPublic | BindingFlags.Static);
+        private static MethodInfo GetTypeMakerMethod(string name)
+        {
+            return typeof(TypeMaker)
+                .GetMethods(BindingFlags.Instance | BindingFlags.Public)
+                .First(mi => mi.Name == name &&
+                             mi.IsGenericMethod &&
+                             mi.GetParameters().Length == 0);
+        }
+        private readonly MethodInfo _genericMakeType = GetTypeMakerMethod(nameof(TypeMaker.MakeTypeImplementing));
+        private readonly MethodInfo _genericFuzzyMakeType = GetTypeMakerMethod(nameof(TypeMaker.MakeFuzzyTypeImplementing));
+        private static readonly MethodInfo _getDefaultMethodGeneric = 
+            typeof(ShimShamBase)
+            .GetMethod(nameof(GetDefaultFor), BindingFlags.NonPublic | BindingFlags.Static);
         private TypeMaker _typeMaker;
 
         /// <summary>

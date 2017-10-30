@@ -65,18 +65,29 @@ namespace PeanutButter.DuckTyping.Shimming
         /// <inheritdoc />
         public Type MakeTypeImplementing<T>()
         {
-            return MakeTypeImplementing<T>(false);
+            return MakeTypeImplementing(typeof(T));
+        }
+
+        /// <inheritdoc />
+        public Type MakeTypeImplementing(Type interfaceType)
+        {
+            return MakeTypeImplementing(interfaceType, false);
         }
 
         /// <inheritdoc />
         public Type MakeFuzzyTypeImplementing<T>()
         {
-            return MakeTypeImplementing<T>(true);
+            return MakeFuzzyTypeImplementing(typeof(T));
         }
 
-        private Type MakeTypeImplementing<T>(bool isFuzzy)
+        /// <inheritdoc />
+        public Type MakeFuzzyTypeImplementing(Type interfaceType)
         {
-            var interfaceType = typeof(T);
+            return MakeTypeImplementing(interfaceType, true);
+        }
+
+        private Type MakeTypeImplementing(Type interfaceType, bool isFuzzy)
+        {
             if (!interfaceType.IsInterface)
                 throw new InvalidOperationException(
                     "MakeTypeImplementing<T> requires an interface for the type parameter");
@@ -100,8 +111,9 @@ namespace PeanutButter.DuckTyping.Shimming
             var allInterfaceTypes = interfaceType.GetAllImplementedInterfaces();
             AddAllPropertiesAsShimmable(typeBuilder, allInterfaceTypes, shimField);
             AddAllMethodsAsShimmable(typeBuilder, allInterfaceTypes, shimField);
+
             AddDefaultConstructor(typeBuilder, shimField, interfaceType, isFuzzy);
-            AddWrappingConstructors(typeBuilder, shimField, interfaceType, isFuzzy);
+            AddObjectWrappingConstructors(typeBuilder, shimField, interfaceType, isFuzzy);
             AddDictionaryWrappingConstructors(typeBuilder, shimField, interfaceType);
 
             return typeBuilder.CreateType();
@@ -132,7 +144,7 @@ namespace PeanutButter.DuckTyping.Shimming
             ImplementMethodReturnWith(il);
         }
 
-        private void AddWrappingConstructors(
+        private void AddObjectWrappingConstructors(
             TypeBuilder typeBuilder,
             FieldBuilder shimField,
             Type interfaceType,
