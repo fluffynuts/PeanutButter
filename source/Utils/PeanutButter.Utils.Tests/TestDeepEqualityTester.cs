@@ -11,11 +11,10 @@ using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using static NExpect.Expectations;
-// ReSharper disable InconsistentNaming
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable UnusedMethodReturnValue.Global
 // ReSharper disable MemberHidesStaticFromOuterClass
-
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMember.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -248,6 +247,115 @@ namespace PeanutButter.Utils.Tests
                         // Act
                         Expect(sut.AreDeepEqual()).To.Be.True(sut.PrintErrors());
                         // Assert
+                    }
+
+                    public class OurVersion
+                    {
+                        public int Major { get; set; }
+                        public int Minor { get; set; }
+                    }
+
+                    public class TheirVersion
+                    {
+                        public int Major { get; set; }
+                        public int Minor { get; set; }
+                    }
+
+                    public class OurObject
+                    {
+                        public OurVersion Version { get; set; }
+                    }
+
+                    public class TheirObject
+                    {
+                        public TheirVersion Version { get; set; }
+                    }
+
+                    [Test]
+                    public void GivenObjectsWithDifferentTypedButSameShapedProps()
+                    {
+                        // Arrange
+                        var mine = GetRandom<OurObject>();
+                        var theirs = GetRandom<TheirObject>();
+                        var tester = new DeepEqualityTester(mine, theirs)
+                        {
+                            OnlyCompareShape = true,
+                            RecordErrors = true
+                        };
+                        // Pre-Assert
+                        // Act
+                        var result = tester.AreDeepEqual();
+                        // Assert
+                        Expect(result)
+                            .To.Be.True(
+                                tester.Errors.JoinWith("\n")
+                            );
+                    }
+
+                    public class OurSemVer
+                    {
+                        public int Major { get; set; }
+                        public int Minor { get; set; }
+                        public int Patch { get; set; }
+                    }
+
+                    public class OurObjectWithSemVer
+                    {
+                        public Guid Id { get; set; }
+                        public OurSemVer Version { get; set; }
+                    }
+
+                    [Test]
+                    public void GivenObjectsWithDifferentTypedButSameSubShapedProps()
+                    {
+                        // Arrange
+                        var mine = GetRandom<OurObjectWithSemVer>();
+                        var theirs = GetRandom<TheirObject>();
+                        var tester = new DeepEqualityTester(mine, theirs)
+                        {
+                            OnlyCompareShape = true,
+                            FailOnMissingProperties = false,
+                            RecordErrors = true
+                        };
+                        // Pre-Assert
+                        // Act
+                        var result = tester.AreDeepEqual();
+                        // Assert
+                        Expect(result)
+                            .To.Be.True(
+                                tester.Errors.AsText()
+                            );
+                    }
+
+                    public class LeVersion
+                    {
+                        public int LeMajor { get; set; }
+                        public int LeMinor { get; set; }
+                    }
+
+                    public class TheirFrenchObject
+                    {
+                        public LeVersion Version { get; set; }
+                    }
+
+                    [Test]
+                    public void GivenObjectsWithDifferentSubShapes_WhenAllowMissingProperties_ButNoMatchedProperties_ShouldThrow()
+                    {
+                        // Arrange
+                        var ours = GetRandom<OurObject>();
+                        var theirs = GetRandom<TheirFrenchObject>();
+                        var tester = new DeepEqualityTester(ours, theirs)
+                        {
+                            FailOnMissingProperties = false,
+                            RecordErrors = true,
+                            OnlyCompareShape = true
+                        };
+                        // Pre-Assert
+                        // Act
+                        var result = tester.AreDeepEqual();
+                        // Assert
+                        Expect(result).To.Be.False();
+                        Console.WriteLine(tester.Errors.AsText());
                     }
                 }
 

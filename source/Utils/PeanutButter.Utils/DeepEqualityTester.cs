@@ -295,33 +295,116 @@ namespace PeanutButter.Utils
         }
 
 
-        private bool CanPerformSimpleTypeMatchFor(PropertyOrField srcProp)
+        private static bool CanPerformSimpleTypeMatchFor(Type srcPropType)
         {
-            return Types.PrimitivesAndImmutables.Any(st => st == srcProp.Type);
+            return Types.PrimitivesAndImmutables.Any(st => st == srcPropType);
         }
 
 
-        private PropertyOrField FindMatchingPropertyInfoFor(
-            IEnumerable<PropertyOrField> properties,
-            PropertyOrField srcPropInfo)
+        private PropertyOrField FindMatchingPropertyInfoFor(PropertyOrField srcPropInfo,
+            IEnumerable<PropertyOrField> compareProperties)
         {
-            var comparePropInfo = properties.FirstOrDefault(pi => pi.Name == srcPropInfo.Name);
+            var comparePropInfo = compareProperties.FirstOrDefault(pi => pi.Name == srcPropInfo.Name);
             if (comparePropInfo == null)
             {
-                AddError("Unable to find comparison property with name: '" + srcPropInfo.Name + "'");
+                if (FailOnMissingProperties)
+                    AddError("Unable to find comparison property with name: '" + srcPropInfo.Name + "'");
                 return null;
             }
             var compareType = comparePropInfo.Type;
             var srcType = srcPropInfo.Type;
-            if (compareType != srcType &&
-                !AreBothEnumerable(compareType, srcType))
+            if (TypesAreComparable(srcType, compareType))
+                return comparePropInfo;
+            var srcIsEnumerable = srcType.ImplementsEnumerableGenericType();
+            var comparisonIsEnumerable = compareType.ImplementsEnumerableGenericType();
+            if (srcIsEnumerable && comparisonIsEnumerable)
+                return comparePropInfo;
+
+            AddErrorForMismatch(srcPropInfo, comparePropInfo, srcIsEnumerable || comparisonIsEnumerable);
+            return null;
+        }
+
+        private void AddErrorForMismatch(
+            PropertyOrField srcPropInfo,
+            PropertyOrField compareType,
+            bool eitherAreEnumerable
+        )
+        {
+            if (eitherAreEnumerable)
             {
                 AddError(
-                    $"Source property '{srcPropInfo.Name}' has type '{srcType.Name}' but comparison property has type '{compareType.Name}' and can't find common enumerable ground"
+                    $"Source property '{srcPropInfo.Name}' has type '{srcPropInfo.Type.Name}' but comparison property has type '{compareType.Name}' and can't find common enumerability"
                 );
-                return null;
             }
-            return comparePropInfo;
+            else
+            {
+                AddError(
+                    $"Source property '{srcPropInfo.Name}' has type '{srcPropInfo.Type.Name}' but comparison property has type '{compareType.Name}' and can't find any common properties"
+                );
+            }
+        }
+
+        private bool TypesAreComparable(Type srcType, Type compareType)
+        {
+            return _comparableStrategies.Aggregate(
+                false,
+                (acc, cur) => acc || cur(this, srcType, compareType)
+            );
+        }
+
+        private readonly Func<DeepEqualityTester, Type, Type, bool>[] _comparableStrategies =
+        {
+            TypesAreIdentical,
+            TypesAreCloseEnough,
+            TypesHaveSimilarImmediateShape
+        };
+
+        private static bool TypesHaveSimilarImmediateShape(
+            DeepEqualityTester tester,
+            Type srcType,
+            Type compareType
+        )
+        {
+            if (CanPerformSimpleTypeMatchFor(srcType) || CanPerformSimpleTypeMatchFor(compareType))
+                return false;
+            var srcProps = tester.GetPropertiesAndFieldsOf(srcType);
+            var compareProps = tester.GetPropertiesAndFieldsOf(compareType);
+            if (!tester.FailOnMissingProperties)
+                compareProps = compareProps
+                    .Where(cp => srcProps.Any(sp => sp.Name == cp.Name))
+                    .ToArray();
+            return compareProps.Any() && compareProps.All(cp => srcProps.Any(sp => sp.Name == cp.Name));
+        }
+
+        private static readonly Tuple<Type, Type>[] _looselyComparableTypes =
+        {
+            Tuple.Create(typeof(int), typeof(long)),
+            Tuple.Create(typeof(int), typeof(short)),
+            Tuple.Create(typeof(long), typeof(short)),
+            Tuple.Create(typeof(float), typeof(double)),
+            Tuple.Create(typeof(float), typeof(decimal)),
+            Tuple.Create(typeof(double), typeof(decimal))
+        };
+
+        private static bool TypesAreCloseEnough(
+            DeepEqualityTester tester,
+            Type srcType,
+            Type compareType
+        )
+        {
+            return _looselyComparableTypes.Any(pair =>
+                (pair.Item1 == srcType && pair.Item2 == compareType) ||
+                (pair.Item2 == srcType && pair.Item1 == compareType)
+            );
+        }
+
+        private static bool TypesAreIdentical(
+            DeepEqualityTester tester,
+            Type srcType,
+            Type compareType
+        )
+        {
+            return srcType == compareType;
         }
 
         private bool AreBothEnumerable(Type t1, Type t2)
@@ -433,10 +516,12 @@ namespace PeanutButter.Utils
             {
                 if (!result)
                     return false;
-                var compareProp = FindMatchingPropertyInfoFor(comparePropInfos, srcProp);
+                var compareProp = FindMatchingPropertyInfoFor(srcProp, comparePropInfos);
                 didAnyComparison = didAnyComparison || compareProp != null;
-                return compareProp != null &&
-                       PropertyValuesMatchFor(objSource, objCompare, srcProp, compareProp);
+                return (compareProp == null &&
+                        !FailOnMissingProperties) ||
+                       (compareProp != null &&
+                        PropertyValuesMatchFor(objSource, objCompare, srcProp, compareProp));
             });
             return (srcPropInfos.IsEmpty() || didAnyComparison) && finalResult;
         }
@@ -459,13 +544,13 @@ namespace PeanutButter.Utils
         {
             var srcValue = srcProp.GetValue(objSource);
             var compareValue = compareProp.GetValue(objCompare);
-            var result = CanPerformSimpleTypeMatchFor(srcProp)
+            var result = CanPerformSimpleTypeMatchFor(srcProp.Type)
                 ? AreDeepEqualInternal(srcValue, compareValue)
                 : MatchPropertiesOrCollection(srcValue, compareValue, srcProp, compareProp);
             if (!result)
             {
                 AddError(
-                    $"Property value mismatch for {srcProp.Name}: {Stringifier.Stringify(objSource)} vs {Stringifier.Stringify(objCompare)}"
+                    $"Property value mismatch for {srcProp.Name}: {objSource.Stringify()} vs {objCompare.Stringify()}"
                 );
             }
             return result;
@@ -550,7 +635,7 @@ namespace PeanutButter.Utils
             var haveMatch = collection.Any(i => AreDeepEqualDetached(i, seek));
             if (!haveMatch)
             {
-                AddError($"Unable to find match for: {Stringifier.Stringify(seek)}");
+                AddError($"Unable to find match for: {seek.Stringify()}");
             }
             return haveMatch;
         }

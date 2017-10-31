@@ -119,6 +119,12 @@ namespace PeanutButter.Utils
             return (bool) specific.Invoke(null, new object[] {t});
         }
 
+        /// <summary>
+        /// Provides an extension method mimicking the full framework
+        /// IsEnum for a single point of code usage
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
         public static bool IsEnum(this Type t)
         {
             return t
@@ -175,6 +181,12 @@ namespace PeanutButter.Utils
         }
 #endif
 
+        /// <summary>
+        /// Provides an extension method mimicking the full framework
+        /// GetAssembly for a single point of code usage
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
         public static Assembly GetAssembly(this Type t)
         {
 #if NETSTANDARD
@@ -184,6 +196,12 @@ namespace PeanutButter.Utils
 #endif
         }
 
+        /// <summary>
+        /// Provides an extension method mimicking the full framework
+        /// BaseType for a single point of code usage
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static Type BaseType(this Type type)
         {
             return type
@@ -193,6 +211,12 @@ namespace PeanutButter.Utils
                 .BaseType;
         }
 
+        /// <summary>
+        /// Provides an extension method mimicking the full framework
+        /// IsGenericType for a single point of code usage
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
         public static bool IsGenericType(this Type t)
         {
             return t
