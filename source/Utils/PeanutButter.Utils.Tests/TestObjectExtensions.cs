@@ -8,6 +8,7 @@ using PeanutButter.TestUtils.Generic;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using NExpect;
 using static NExpect.Expectations;
+// ReSharper disable PossibleNullReferenceException
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ClassNeverInstantiated.Global
