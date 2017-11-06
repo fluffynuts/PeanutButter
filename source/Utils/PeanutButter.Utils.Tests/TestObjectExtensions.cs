@@ -8,6 +8,7 @@ using PeanutButter.TestUtils.Generic;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using NExpect;
 using static NExpect.Expectations;
+
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable ExpressionIsAlwaysNull
@@ -727,7 +728,8 @@ namespace PeanutButter.Utils.Tests
             var expected = GetRandomString();
             var input = new
             {
-                Child = new {
+                Child = new
+                {
                     Name = expected
                 }
             };
@@ -1575,6 +1577,7 @@ namespace PeanutButter.Utils.Tests
                 PropertyAssert.AreDeepEqual(src, result);
             }
 
+
             public class Parent : Node
             {
                 public Node Child { get; set; }
@@ -1610,7 +1613,7 @@ namespace PeanutButter.Utils.Tests
             public void ShouldCopyEnumProperties()
             {
                 // Arrange
-                var src = new Puppy() { Emotion = Emotions.Happy };
+                var src = new Puppy() {Emotion = Emotions.Happy};
 
                 // Pre-Assert
 
@@ -1677,6 +1680,43 @@ namespace PeanutButter.Utils.Tests
                 // Assert
                 Expect(result.Nodes).Not.To.Be.Empty();
                 result.Nodes.ShouldMatchDataIn(src.Nodes);
+            }
+
+            public class HasAName
+            {
+                public string Name { get; set; }
+            }
+
+            public class HasANameAndLabel : HasAName
+            {
+                public string Label { get; set; }
+            }
+
+            [Test]
+            public void ShouldCloneTheActualTypeAndCast()
+            {
+                // Arrange
+                var src = GetRandom<HasANameAndLabel>();
+                var downCast = (HasAName) src;
+                // Pre-Assert
+                // Act
+                var result = downCast.DeepClone();
+                // Assert
+                var upcast = result as HasANameAndLabel;
+                Expect(upcast).Not.To.Be.Null();
+                Expect(upcast.Label).To.Equal(src.Label);
+            }
+
+            [Test]
+            public void ShouldReturnNullFromOriginalNull()
+            {
+                // Arrange
+                HasANameAndLabel src = null;
+                // Pre-Assert
+                // Act
+                var result = src.DeepClone();
+                // Assert
+                Expect(result).To.Be.Null();
             }
         }
 

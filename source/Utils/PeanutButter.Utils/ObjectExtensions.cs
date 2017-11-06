@@ -490,8 +490,9 @@ namespace PeanutButter.Utils
         /// <returns>a new copy of the original item</returns>
         public static T DeepClone<T>(this T item)
         {
-            var type = typeof(T);
-            return (T) item.DeepCloneInternal(type);
+            return item == null || item.Equals(default(T))
+                ? default(T)
+                : (T) item.DeepCloneInternal(item.GetType());
         }
 
         private static object DeepCloneInternal(
