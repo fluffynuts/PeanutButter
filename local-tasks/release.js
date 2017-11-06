@@ -122,9 +122,8 @@ gulp.task("build-nuget-packages", ["clean-nuget-releasedir", "build-binaries-for
 });
 
 gulp.task("increment-package-versions", () => {
-  return findTool("NugetPackageVersionIncrementer.exe", "utils").then(util => {
-    return spawn(util, ["source"]);
-  });
+  var util = findTool("NugetPackageVersionIncrementer.exe", "utils");
+  return spawn(util, ["source"]);
 });
 
 gulp.task("release", ["build-nuget-packages"], function () {
