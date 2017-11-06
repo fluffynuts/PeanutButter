@@ -113,11 +113,14 @@ gulp.task("clean-nuget-releasedir", function () {
   return del(nugetReleaseDir);
 });
 
-gulp.task("build-nuget-packages", ["clean-nuget-releasedir", "build-binaries-for-nuget-packages"], function (done) {
+gulp.task("build-nuget-packages", [
+  "clean-nuget-releasedir", 
+  "build-binaries-for-nuget-packages"
+], function (done) {
   runSequence(
+    "increment-package-versions",
     "build-binary-nuget-packages", 
     "build-source-nuget-packages", 
-    "increment-package-versions",
   done);
 });
 
