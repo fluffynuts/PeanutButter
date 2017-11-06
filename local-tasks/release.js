@@ -4,11 +4,13 @@ var
   runSequence = require("run-sequence"),
   msbuild = require("gulp-msbuild")
   del = require("del"),
-  exec = require("../gulp-tasks/modules/exec"),
-  findLocalNuget = require("../gulp-tasks/modules/find-local-nuget"),
+  exec = requireModule("exec"),
+  spawn = requireModule("spawn"),
+  findLocalNuget = requireModule("find-local-nuget"),
   es = require("event-stream"),
   lsr = requireModule("ls-r"),
   path = require("path"),
+  findTool = requireModule("testutil-finder").findTool,
   commonConfig = {
     toolsVersion: 14.0,
     stdout: true,
@@ -112,7 +114,17 @@ gulp.task("clean-nuget-releasedir", function () {
 });
 
 gulp.task("build-nuget-packages", ["clean-nuget-releasedir", "build-binaries-for-nuget-packages"], function (done) {
-  runSequence("build-binary-nuget-packages", "build-source-nuget-packages", done);
+  runSequence(
+    "build-binary-nuget-packages", 
+    "build-source-nuget-packages", 
+    "increment-package-versions",
+  done);
+});
+
+gulp.task("increment-package-versions", () => {
+  return findTool("NugetPackageVersionIncrementer.exe", "utils").then(util => {
+    return spawn(util, ["source"]);
+  });
 });
 
 gulp.task("release", ["build-nuget-packages"], function () {
