@@ -9,7 +9,7 @@ namespace PeanutButter.Utils.Dictionaries
     /// <summary>
     /// Wraps an object in a dictionary interface
     /// </summary>
-    internal class DictionaryWrappingObject: IDictionary<string, object>
+    public class DictionaryWrappingObject : IDictionary<string, object>
     {
         private readonly object _wrapped;
         private PropertyOrField[] _props;
@@ -21,7 +21,7 @@ namespace PeanutButter.Utils.Dictionaries
             _wrapped = wrapped;
         }
 
-        private void CachePropertyInfos() 
+        private void CachePropertyInfos()
         {
             if (_props != null)
                 return;
@@ -33,15 +33,16 @@ namespace PeanutButter.Utils.Dictionaries
                 return;
             }
             var flags = BindingFlags.Instance | BindingFlags.Public;
-            _props = type.GetProperties(flags).Select(pi => new PropertyOrField(pi))
-                        .Union(type.GetFields(flags).Select(fi => new PropertyOrField(fi)))
-                        .ToArray();
+            _props = type.GetProperties(flags)
+                .Select(pi => new PropertyOrField(pi))
+                .Union(type.GetFields(flags).Select(fi => new PropertyOrField(fi)))
+                .ToArray();
             _keys = _props.Select(p => p.Name).ToArray();
         }
 
         public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
         {
-            throw new NotImplementedException();
+            return new DictionaryWrappingObjectEnumerator(this);
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -51,27 +52,34 @@ namespace PeanutButter.Utils.Dictionaries
 
         public void Add(KeyValuePair<string, object> item)
         {
-            throw new NotImplementedException();
+            Add(item.Key, item.Value);
         }
 
         public void Clear()
         {
-            throw new NotImplementedException();
+            throw new InvalidOperationException("Cannot clear properties on an object");
         }
 
         public bool Contains(KeyValuePair<string, object> item)
         {
-            throw new NotImplementedException();
+            CachePropertyInfos();
+            var prop = _props.FirstOrDefault(o => HasName(o, item.Key));
+            return prop != null &&
+                   prop.GetValue(_wrapped) == item.Value;
         }
 
         public void CopyTo(KeyValuePair<string, object>[] array, int arrayIndex)
         {
-            throw new NotImplementedException();
+            CachePropertyInfos();
+            _props.ForEach((prop, i) =>
+            {
+                array[arrayIndex + i] = new KeyValuePair<string, object>(prop.Name, prop.GetValue(_wrapped));
+            });
         }
 
         public bool Remove(KeyValuePair<string, object> item)
         {
-            throw new NotImplementedException();
+            throw new InvalidOperationException("Cannot remove properties from an object");
         }
 
         public int Count => GetCount();
@@ -83,24 +91,34 @@ namespace PeanutButter.Utils.Dictionaries
         }
 
         public bool IsReadOnly => false;
+
         public bool ContainsKey(string key)
         {
-            throw new NotImplementedException();
+            CachePropertyInfos();
+            return _keys.Any(o => KeysMatch(o, key));
         }
 
         public void Add(string key, object value)
         {
-            throw new NotImplementedException();
+            throw new InvalidOperationException("Cannot add properties to an object");
         }
 
         public bool Remove(string key)
         {
-            throw new NotImplementedException();
+            throw new InvalidOperationException("Cannot remove properties from an object");
         }
 
         public bool TryGetValue(string key, out object value)
         {
-            throw new NotImplementedException();
+            CachePropertyInfos();
+            var prop = FindPropertyByName(key);
+            value = prop?.GetValue(_wrapped);
+            return prop != null;
+        }
+
+        private PropertyOrField FindPropertyByName(string name)
+        {
+            return _props.FirstOrDefault(o => HasName(o, name));
         }
 
         public object this[string key]
@@ -119,8 +137,8 @@ namespace PeanutButter.Utils.Dictionaries
         private object ReadProperty(string key)
         {
             VerifyHasKey(key);
-            var info = _props.First(o => HasName(o, key));
-            return info.GetValue(_wrapped);
+            var prop = _props.First(o => HasName(o, key));
+            return prop.GetValue(_wrapped);
         }
 
         private void VerifyHasKey(string key)
@@ -132,7 +150,12 @@ namespace PeanutButter.Utils.Dictionaries
 
         private bool HasName(PropertyOrField prop, string key)
         {
-            return prop.Name == key;    // TODO: allow case-insensitive
+            return KeysMatch(prop.Name, key);
+        }
+
+        private bool KeysMatch(string key1, string key2)
+        {
+            return key1 == key2; // TODO: allow case-insensitive
         }
 
         /// <inheritdoc />
@@ -153,9 +176,11 @@ namespace PeanutButter.Utils.Dictionaries
         }
 
         private object[] _values;
+
         private object[] GetPropertyAndFieldValues()
         {
             return _props.Select(p => p.GetValue(_wrapped)).ToArray();
         }
+
     }
 }
