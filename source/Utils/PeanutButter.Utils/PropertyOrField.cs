@@ -56,5 +56,13 @@ namespace PeanutButter.Utils
                 ? _propInfo.GetValue(host)
                 : _fieldInfo.GetValue(host);
         }
+
+        public void SetValue(object host, object value)
+        {
+            if (_fieldInfo == null)
+                _propInfo.SetValue(host, value);
+            else
+                _fieldInfo.SetValue(host, value);               
+        }
     }
 }

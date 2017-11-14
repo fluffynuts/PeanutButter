@@ -500,6 +500,8 @@ namespace PeanutButter.Utils
             Type cloneType
         )
         {
+            if (src == null)
+                return null;
             try
             {
                 if (Types.PrimitivesAndImmutables.Contains(cloneType))
@@ -507,13 +509,65 @@ namespace PeanutButter.Utils
                     // FIXME: can we get new instances for Dates and such?
                     return src;
                 }
+                //                var newInstance = Activator.CreateInstance(cloneType);
+                //                src.CopyPropertiesTo(newInstance);
+                //                return newInstance;
+                return _cloneStrategies.Aggregate(null as object,
+                    (acc, cur) => acc ?? cur(src, cloneType));
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine($"Unable to clone item of type {cloneType.Name}: {e.Message}");
+                return DefaultValueForType(cloneType);
+            }
+        }
+
+        private static readonly Func<object, Type, object>[] _cloneStrategies =
+        {
+            CloneObject,
+            CloneArray,
+            CloneList,
+            CloneEnumerable
+        };
+
+        private static object CloneEnumerable(object src, Type cloneType)
+        {
+            if (!cloneType.ImplementsEnumerableGenericType())
+                return null;
+            var itemType = cloneType.GetCollectionItemType();
+            var method = _genericMakeArrayCopy.MakeGenericMethod(itemType);
+            return method.Invoke(null, new[] { src });
+        }
+
+        private static object CloneList(object src, Type cloneType)
+        {
+            if (!cloneType.IsGenericOf(typeof(List<>)) && !cloneType.IsGenericOf(typeof(IList<>)))
+                return null;
+            var itemType = cloneType.GetCollectionItemType();
+            var method = _genericMakeListCopy.MakeGenericMethod(itemType);
+            return method.Invoke(null, new[] { src });
+        }
+
+        private static object CloneArray(object src, Type cloneType)
+        {
+            if (!cloneType.IsArray)
+                return null;
+            var itemType = cloneType.GetCollectionItemType();
+            var method = _genericMakeArrayCopy.MakeGenericMethod(itemType);
+            return method.Invoke(null, new[] { src });
+        }
+
+        private static object CloneObject(object src, Type cloneType)
+        {
+            try
+            {
                 var newInstance = Activator.CreateInstance(cloneType);
                 src.CopyPropertiesTo(newInstance);
                 return newInstance;
             }
             catch (Exception e)
             {
-                Debug.WriteLine($"Unable to clone item of type {cloneType.Name}: {e.Message}");
+                Debug.WriteLine($"Unable to clone object of type {cloneType.Name}: {e.Message}");
                 return DefaultValueForType(cloneType);
             }
         }

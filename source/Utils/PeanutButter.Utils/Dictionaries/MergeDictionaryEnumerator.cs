@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace PeanutButter.Utils
+namespace PeanutButter.Utils.Dictionaries
 {
     internal class MergeDictionaryEnumerator<TKey, TValue> : IEnumerator<KeyValuePair<TKey, TValue>>
     {

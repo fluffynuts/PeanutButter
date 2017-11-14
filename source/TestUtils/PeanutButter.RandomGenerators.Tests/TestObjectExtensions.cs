@@ -7,6 +7,7 @@ using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using NExpect;
 using static NExpect.Expectations;
+// ReSharper disable PossibleMultipleEnumeration
 
 namespace PeanutButter.RandomGenerators.Tests
 {
@@ -18,7 +19,7 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [Test]
-        public void DeepClone_GivenEmptyObject_ShouldReturnNewEmptyObject()
+        public void GivenEmptyObject_ShouldReturnNewEmptyObject()
         {
             // Arrange
             var src = new EmptyType();
@@ -41,7 +42,7 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [Test]
-        public void DeepClone_ShouldCloneFirstLevel()
+        public void ShouldCloneFirstLevel()
         {
             // Arrange
             var src = GetRandom<Node>();
@@ -58,7 +59,7 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [Test]
-        public void DeepClone_ShouldCloneSecondLevelButNotChildRefs()
+        public void ShouldCloneSecondLevelButNotChildRefs()
         {
             // Arrange
             var src = GetRandom<Parent>();
@@ -77,7 +78,7 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [Test]
-        public void DeepClone_ShouldCloneAnArray()
+        public void ShouldCloneAnArrayProperty()
         {
             // Arrange
             var src = GetRandom<HasAnArray>();
@@ -96,7 +97,7 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [Test]
-        public void DeepClone_ShouldCloneAnIEnumerable()
+        public void ShouldCloneAnIEnumerableProperty()
         {
             // Arrange
             var src = GetRandom<HasAnIEnumerable>();
@@ -115,7 +116,7 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [Test]
-        public void DeepClone_ShouldCloneAGenericList()
+        public void ShouldCloneAGenericListProperty()
         {
             // Arrange
             var src = GetRandom<HasAList>();
@@ -129,7 +130,7 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [Test]
-        public void DeepClone_ShouldCloneANullGenericList()
+        public void ShouldCloneANullGenericListProperty()
         {
             // Arrange
             var src = GetRandom<HasAList>();
@@ -140,5 +141,56 @@ namespace PeanutButter.RandomGenerators.Tests
             // Assert
             Expect(result.Nodes).To.Be.Null();
         }
+
+        [Test]
+        public void ShouldCloneAStandaloneArray()
+        {
+            // Arrange
+            var src = GetRandomArray<Node>(2);
+            // Act
+            var result = src.DeepClone();
+            // Assert
+            Expect(result).To.Deep.Equal(src);
+        }
+
+        [Test]
+        public void ShouldCloneAStandaloneList()
+        {
+            // Arrange
+            var src = GetRandomArray<Node>(2).ToList();
+            // Act
+            var result = src.DeepClone();
+            // Assert
+            Expect(result).To.Deep.Equal(src);
+        }
+
+        [Test]
+        public void ShouldCloneAStandaloneIList()
+        {
+            // Arrange
+            IList<Node> src = GetRandomArray<Node>(2).ToList();
+            // Act
+            var result = src.DeepClone();
+            // Assert
+            Expect(result).To.Deep.Equal(src);
+        }
+
+        public static IEnumerable<Node> CollectionOfNodes() {
+            yield return new Node() { Flag = true, Guid = Guid.Parse("CBCEAB18-6A92-48D3-A699-998D7BB8DA0E"), Id = 1, Name = "one" };
+            yield return new Node() { Flag = false, Guid = Guid.Parse("23B63474-911E-409A-9C23-D8A2A8324FAA"), Id = 2, Name = "two" };
+        }
+
+        [Test]
+        public void ShouldCloneAStandaloneIEnumerable()
+        {
+            // Arrange
+            IEnumerable<Node> src = CollectionOfNodes();
+            // Act
+            Console.WriteLine(src.GetType());
+            var result = src.DeepClone();
+            // Assert
+            Expect(result).To.Deep.Equal(src);
+        }
+
     }
 }

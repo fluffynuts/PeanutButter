@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using NExpect;
 using NUnit.Framework;
-using static PeanutButter.RandomGenerators.RandomValueGen;
+using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
-using static NExpect.Expectations;
+using PeanutButter.Utils.Dictionaries;
+
 // ReSharper disable CollectionNeverUpdated.Local
 
-namespace PeanutButter.Utils.Tests
+namespace PeanutButter.Utils.Tests.Dictionaries
 {
     [TestFixture]
     public class TestDefaultDictionary {
@@ -29,7 +30,7 @@ namespace PeanutButter.Utils.Tests
         public void IndexedValue_GivenNoDefaultResolverAtConstruction_WhenAskedForMissingValue_ShouldReturnDefaultOfT() {
             // Arrange
             var sut = Create<string, bool>();
-            var key = GetRandomString();
+            var key = RandomValueGen.GetRandomString();
 
             // Pre-assert
 
@@ -37,14 +38,14 @@ namespace PeanutButter.Utils.Tests
             var result = sut[key];
 
             // Assert
-            Expect(result).To.Equal(default(bool));
+            Expectations.Expect(result).To.Equal(default(bool));
         }
 
         [Test]
         public void IndexedValue_GivenDefaultResolverAtConstruction_ShouldReturnThatValue() {
             // Arrange
-            var expected = GetRandomString();
-            var key = GetRandomString();
+            var expected = RandomValueGen.GetRandomString();
+            var key = RandomValueGen.GetRandomString();
             var sut = Create<string, string>(() => expected);
 
             // Pre-assert
@@ -53,15 +54,15 @@ namespace PeanutButter.Utils.Tests
             var result = sut[key];
 
             // Assert
-            Expect(result).To.Equal(expected);
+            Expectations.Expect(result).To.Equal(expected);
         }
 
         [Test]
         public void IndexedValue_WhenKeyExists_ShouldReturnThatValue() {
             // Arrange
-            var expected = GetRandomString();
-            var key = GetRandomString();
-            var unexpected = GetAnother(expected);
+            var expected = RandomValueGen.GetRandomString();
+            var key = RandomValueGen.GetRandomString();
+            var unexpected = RandomValueGen.GetAnother(expected);
             var sut = Create<string, string>(() => unexpected);
 
             // Pre-assert
@@ -71,16 +72,16 @@ namespace PeanutButter.Utils.Tests
             var result = sut[key];
 
             // Assert
-            Expect(result).To.Equal(expected);
+            Expectations.Expect(result).To.Equal(expected);
         }
 
         [Test]
         public void ContainsKey_ShouldReturnTrue() {
             // Arrange
-            var haveKey = GetRandomString();
-            var missingKey = GetAnother(haveKey);
+            var haveKey = RandomValueGen.GetRandomString();
+            var missingKey = RandomValueGen.GetAnother(haveKey);
             var sut = Create<string, string>();
-            sut[haveKey] = GetRandomString();
+            sut[haveKey] = RandomValueGen.GetRandomString();
 
             // Pre-assert
 
@@ -89,17 +90,17 @@ namespace PeanutButter.Utils.Tests
             var missingResult = sut.ContainsKey(missingKey);
 
             // Assert
-            Expect(haveResult).To.Be.True();
-            Expect(missingResult).To.Be.True();
+            Expectations.Expect(haveResult).To.Be.True();
+            Expectations.Expect(missingResult).To.Be.True();
         }
 
         [Test]
         public void Enumeration_ShouldPassThrough() {
             // Arrange
-            var k1 = GetRandomString();
-            var k2 = GetAnother(k1);
-            var v1 = GetRandomString();
-            var v2 = GetAnother(v1);
+            var k1 = RandomValueGen.GetRandomString();
+            var k2 = RandomValueGen.GetAnother(k1);
+            var v1 = RandomValueGen.GetRandomString();
+            var v2 = RandomValueGen.GetAnother(v1);
             var sut = Create<string, string>();
             sut[k1] = v1;
             sut[k2] = v2;
@@ -113,16 +114,16 @@ namespace PeanutButter.Utils.Tests
             }
 
             // Assert
-            Expect(collector.Count).To.Equal(2);
-            Expect(collector).To.Contain.Exactly(1).Equal.To(new KeyValuePair<string, string>(k1, v1));
-            Expect(collector).To.Contain.Exactly(1).Equal.To(new KeyValuePair<string, string>(k2, v2));
+            Expectations.Expect(collector.Count).To.Equal(2);
+            Expectations.Expect(collector).To.Contain.Exactly(1).Equal.To(new KeyValuePair<string, string>(k1, v1));
+            Expectations.Expect(collector).To.Contain.Exactly(1).Equal.To(new KeyValuePair<string, string>(k2, v2));
         }
 
         [Test]
         public void Add_GivenKeyValuePair_ShouldPassThrough() {
             // Arrange
             var sut = Create<string, string>();
-            var kvp = GetRandom<KeyValuePair<string, string>>();
+            var kvp = RandomValueGen.GetRandom<KeyValuePair<string, string>>();
 
 
             // Pre-assert
@@ -131,31 +132,31 @@ namespace PeanutButter.Utils.Tests
             sut.Add(kvp);
 
             // Assert
-            Expect(sut[kvp.Key]).To.Equal(kvp.Value);
+            Expectations.Expect(sut[kvp.Key]).To.Equal(kvp.Value);
         }
 
         [Test]
         public void Clear_ShouldPassThrough() {
             // Arrange
             var sut = Create<string, string>();
-            var item = GetRandom<KeyValuePair<string, string>>();
+            var item = RandomValueGen.GetRandom<KeyValuePair<string, string>>();
             sut.Add(item);
 
             // Pre-assert
-            Expect(sut[item.Key]).To.Equal(item.Value);
+            Expectations.Expect(sut[item.Key]).To.Equal(item.Value);
 
             // Act
             sut.Clear();
 
             // Assert
-            Expect(sut[item.Key]).To.Be.Null();
+            Expectations.Expect(sut[item.Key]).To.Be.Null();
         }
 
         [Test]
         public void Contains_ShouldReturnTrue() {
             // Arrange
-            var have = GetRandom<KeyValuePair<string, string>>();
-            var missing = GetAnother(have);
+            var have = RandomValueGen.GetRandom<KeyValuePair<string, string>>();
+            var missing = RandomValueGen.GetAnother(have);
             var sut = Create<string, string>();
             sut.Add(have);
 
@@ -166,39 +167,39 @@ namespace PeanutButter.Utils.Tests
             var missingResult = sut.Contains(missing);
 
             // Assert
-            Expect(haveResult).To.Be.True();
-            Expect(missingResult).To.Be.True();
+            Expectations.Expect(haveResult).To.Be.True();
+            Expectations.Expect(missingResult).To.Be.True();
         }
 
         [Test]
         public void Remove_GivenKeyValuePair_ShouldPassThrough_SortOf() {
             // Arrange
-            var have = GetRandom<KeyValuePair<string, string>>();
-            var missing = GetAnother(have);
+            var have = RandomValueGen.GetRandom<KeyValuePair<string, string>>();
+            var missing = RandomValueGen.GetAnother(have);
             var sut = Create<string, string>();
             sut.Add(have);
 
             // Pre-assert
-            Expect(sut[have.Key]).Not.To.Be.Null();
+            Expectations.Expect(sut[have.Key]).Not.To.Be.Null();
 
             // Act
             var haveResult = sut.Remove(have);
             var missingResult = sut.Remove(missing);
 
             // Assert
-            Expect(haveResult).To.Be.True();
-            Expect(missingResult).To.Be.False();
-            Expect(sut[have.Key]).To.Be.Null();
+            Expectations.Expect(haveResult).To.Be.True();
+            Expectations.Expect(missingResult).To.Be.False();
+            Expectations.Expect(sut[have.Key]).To.Be.Null();
         }
 
         [Test]
         public void Remove_GivenKey_ShouldPassThrough() {
             // Arrange
-            var have = GetRandom<KeyValuePair<string, string>>();
-            var missing = GetAnother(have);
+            var have = RandomValueGen.GetRandom<KeyValuePair<string, string>>();
+            var missing = RandomValueGen.GetAnother(have);
             var sut = Create<string, string>();
             sut.Add(have);
-            Expect(sut[have.Key]).Not.To.Be.Null();
+            Expectations.Expect(sut[have.Key]).Not.To.Be.Null();
 
             // Pre-assert
 
@@ -207,16 +208,16 @@ namespace PeanutButter.Utils.Tests
             var missingResult = sut.Remove(missing.Key);
 
             // Assert
-            Expect(haveResult).To.Be.True();
-            Expect(missingResult).To.Be.False();
-            Expect(sut[have.Key]).To.Be.Null();
+            Expectations.Expect(haveResult).To.Be.True();
+            Expectations.Expect(missingResult).To.Be.False();
+            Expectations.Expect(sut[have.Key]).To.Be.Null();
         }
 
         [Test]
         public void Add_GivenKeyAndValue_ShouldPassThrough() {
             // Arrange
             var sut = Create<string, string>();
-            var kvp = GetRandom<KeyValuePair<string, string>>();
+            var kvp = RandomValueGen.GetRandom<KeyValuePair<string, string>>();
 
             // Pre-assert
 
@@ -224,13 +225,13 @@ namespace PeanutButter.Utils.Tests
             sut.Add(kvp.Key, kvp.Value);
 
             // Assert
-            Expect(sut[kvp.Key]).To.Equal(kvp.Value);
+            Expectations.Expect(sut[kvp.Key]).To.Equal(kvp.Value);
         }
 
         [Test]
         public void TryGetValue_WhenKeyIsKnown_ShouldReturnThatValue() {
             // Arrange
-            var have = GetRandom<KeyValuePair<string, string>>();
+            var have = RandomValueGen.GetRandom<KeyValuePair<string, string>>();
             var sut = Create<string, string>();
             sut.Add(have);
 
@@ -240,32 +241,32 @@ namespace PeanutButter.Utils.Tests
             var result = sut.TryGetValue(have.Key, out var found);
 
             // Assert
-            Expect(result).To.Be.True();
-            Expect(found).To.Equal(have.Value);
+            Expectations.Expect(result).To.Be.True();
+            Expectations.Expect(found).To.Equal(have.Value);
         }
 
         [Test]
         public void TryGetValue_WhenKeyIsUnknown_ShouldReturnDefault() {
             // Arrange
-            var expected = GetRandomString();
+            var expected = RandomValueGen.GetRandomString();
             var sut = Create<string, string>(() => expected);
 
             // Pre-assert
 
             // Act
-            var result = sut.TryGetValue(GetRandomString(), out var found);
+            var result = sut.TryGetValue(RandomValueGen.GetRandomString(), out var found);
 
             // Assert
-            Expect(result).To.Be.True();
-            Expect(found).To.Equal(expected);
+            Expectations.Expect(result).To.Be.True();
+            Expectations.Expect(found).To.Equal(expected);
         }
 
         [Test]
         public void CopyTo_ShouldCopyKnownKeyValuePairs() {
             // Arrange
-            var start = GetRandomInt(2, 4);
-            var arraySize = GetRandomInt(10, 15);
-            var items = GetRandomArray<KeyValuePair<string, string>>(2, 4);
+            var start = RandomValueGen.GetRandomInt(2, 4);
+            var arraySize = RandomValueGen.GetRandomInt(10, 15);
+            var items = RandomValueGen.GetRandomArray<KeyValuePair<string, string>>(2, 4);
             var target = new KeyValuePair<string, string>[arraySize];
             var sut = Create<string, string>();
             items.ForEach(sut.Add);
@@ -277,17 +278,17 @@ namespace PeanutButter.Utils.Tests
 
             // Assert
             var defaultValue = default(KeyValuePair<string, string>);
-            PyLike.Range(start).ForEach(i => Expect(target[i]).To.Equal(defaultValue));
+            PyLike.Range(start).ForEach(i => Expectations.Expect(target[i]).To.Equal(defaultValue));
             PyLike.Range(start + items.Length, arraySize).ForEach(
-                                i => Expect(target[i]).To.Equal(defaultValue));
-            items.ForEach(i => Expect(target).To.Contain.Exactly(1).Equal.To(i));
+                                i => Expectations.Expect(target[i]).To.Equal(defaultValue));
+            items.ForEach(i => Expectations.Expect(target).To.Contain.Exactly(1).Equal.To(i));
         }
 
         [Test]
         public void Count_ShouldReturnActualCount() {
             // Arrange
             var sut = Create<string, bool>();
-            var items = GetRandomArray<KeyValuePair<string, bool>>();
+            var items = RandomValueGen.GetRandomArray<KeyValuePair<string, bool>>();
             items.ForEach(sut.Add);
 
             // Pre-assert
@@ -296,7 +297,7 @@ namespace PeanutButter.Utils.Tests
             var result = sut.Count;
 
             // Assert
-            Expect(result).To.Equal(items.Length);
+            Expectations.Expect(result).To.Equal(items.Length);
         }
 
         [Test]
@@ -310,13 +311,13 @@ namespace PeanutButter.Utils.Tests
             var result = sut.IsReadOnly;
 
             // Assert
-            Expect(result).To.Be.False();
+            Expectations.Expect(result).To.Be.False();
         }
 
         [Test]
         public void Keys_ShouldReturnKnownKeys() {
             // Arrange
-            var items = GetRandomArray<KeyValuePair<string, string>>();
+            var items = RandomValueGen.GetRandomArray<KeyValuePair<string, string>>();
             var sut = Create<string, string>();
             items.ForEach(sut.Add);
 
@@ -333,7 +334,7 @@ namespace PeanutButter.Utils.Tests
         [Test]
         public void Values_ShouldReturnKnownValues() {
             // Arrange
-            var items = GetRandomArray<KeyValuePair<string, string>>();
+            var items = RandomValueGen.GetRandomArray<KeyValuePair<string, string>>();
             var sut = Create<string, string>();
             items.ForEach(sut.Add);
 
@@ -352,13 +353,13 @@ namespace PeanutButter.Utils.Tests
         {
             // Arrange
             var sut = new DefaultDictionary<string, string>(s => s + "moo");
-            var index = GetRandomString();
+            var index = RandomValueGen.GetRandomString();
             var expected = index + "moo";
             // Pre-Assert
             // Act
             var result = sut[index];
             // Assert
-            Expect(result).To.Equal(expected);
+            Expectations.Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -370,7 +371,7 @@ namespace PeanutButter.Utils.Tests
             // Act
             var result = dict.GetPropertyValue("Comparer");
             // Assert
-            Expect(result).To.Equal(StringComparer.OrdinalIgnoreCase);
+            Expectations.Expect(result).To.Equal(StringComparer.OrdinalIgnoreCase);
         }
 
         private IDictionary<TKey, TValue> Create<TKey, TValue>(

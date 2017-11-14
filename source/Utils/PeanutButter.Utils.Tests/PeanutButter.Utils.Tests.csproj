@@ -66,6 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DeepEqualityTesterExtensions.cs" />
+    <Compile Include="Dictionaries\TestDictionaryWrappingObject.cs" />
     <Compile Include="TestAssemblyExtensions.cs" />
     <Compile Include="TestAsyncExtensionsForIEnumerables.cs" />
     <Compile Include="TestAutoDeleter.cs" />
@@ -79,10 +80,10 @@
     <Compile Include="TestDecimalDecorator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestDeepEqualityTester.cs" />
-    <Compile Include="TestDefaultDictionary.cs" />
+    <Compile Include="Dictionaries\TestDefaultDictionary.cs" />
     <Compile Include="TestExpressionHelper.cs" />
     <Compile Include="TestExtensionsForIEnumerables.cs" />
-    <Compile Include="TestMergeDictionary.cs" />
+    <Compile Include="Dictionaries\TestMergeDictionary.cs" />
     <Compile Include="TestMetadataExtensions.cs" />
     <Compile Include="TestObjectExtensions.cs" />
     <Compile Include="TestPyLike.cs" />

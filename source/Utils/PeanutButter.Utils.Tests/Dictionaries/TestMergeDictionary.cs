@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using NExpect;
 using NUnit.Framework;
+using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
-using static PeanutButter.RandomGenerators.RandomValueGen;
-using static NExpect.Expectations;
-using static PeanutButter.Utils.PyLike;
+using PeanutButter.Utils.Dictionaries;
+
 // ReSharper disable PossibleNullReferenceException
 // ReSharper disable TryCastAlwaysSucceeds
 
-namespace PeanutButter.Utils.Tests
+namespace PeanutButter.Utils.Tests.Dictionaries
 {
     [TestFixture]
     public class TestMergeDictionary
@@ -35,10 +35,10 @@ namespace PeanutButter.Utils.Tests
         public void GivenTwoDictionariesWhichDontIntersect_ShouldReturnValueFromEach()
         {
             // Arrange
-            var key1 = GetRandomString();
-            var value1 = GetRandomString();
-            var key2 = GetAnother(key1);
-            var value2 = GetAnother(value1);
+            var key1 = RandomValueGen.GetRandomString();
+            var value1 = RandomValueGen.GetRandomString();
+            var key2 = RandomValueGen.GetAnother(key1);
+            var value2 = RandomValueGen.GetAnother(value1);
             var dict1 = new Dictionary<string, string>() {[key1] = value1};
             var dict2 = new Dictionary<string, string>() {[key2] = value2};
             var sut = Create(dict1, dict2);
@@ -50,17 +50,17 @@ namespace PeanutButter.Utils.Tests
             var result2 = sut[key2];
 
             // Assert
-            Expect(result1).To.Equal(value1);
-            Expect(result2).To.Equal(value2);
+            Expectations.Expect(result1).To.Equal(value1);
+            Expectations.Expect(result2).To.Equal(value2);
         }
 
         [Test]
         public void GivenTwoDictionarisWhicCollide_ShouldReturnValueFromFirst()
         {
             // Arrange
-            var key = GetRandomString();
-            var value1 = GetRandomString();
-            var value2 = GetAnother(value1);
+            var key = RandomValueGen.GetRandomString();
+            var value1 = RandomValueGen.GetRandomString();
+            var value2 = RandomValueGen.GetAnother(value1);
             var dict1 = new Dictionary<string, string>() {[key] = value1};
             var dict2 = new Dictionary<string, string>() {[key] = value2};
             var sut = Create(dict1, dict2);
@@ -71,7 +71,7 @@ namespace PeanutButter.Utils.Tests
             var result = sut[key];
 
             // Assert
-            Expect(result).To.Equal(value1);
+            Expectations.Expect(result).To.Equal(value1);
         }
 
         [Test]
@@ -83,7 +83,7 @@ namespace PeanutButter.Utils.Tests
             // Pre-assert
 
             // Act
-            Expect(sut.IsReadOnly).To.Be.True();
+            Expectations.Expect(sut.IsReadOnly).To.Be.True();
 
             // Assert
         }
@@ -92,10 +92,10 @@ namespace PeanutButter.Utils.Tests
         public void ContainsKey_WhenOneLayerContainsTheKey_ShouldReturnTrue()
         {
             // Arrange
-            var key = GetRandomString();
+            var key = RandomValueGen.GetRandomString();
             var sut = Create(
                 new Dictionary<string, string>(),
-                new Dictionary<string, string>() {[key] = GetRandomString()}
+                new Dictionary<string, string>() {[key] = RandomValueGen.GetRandomString()}
             );
 
             // Pre-assert
@@ -104,23 +104,23 @@ namespace PeanutButter.Utils.Tests
             var result = sut.ContainsKey(key);
 
             // Assert
-            Expect(result).To.Be.True();
+            Expectations.Expect(result).To.Be.True();
         }
 
         [Test]
         public void Count_ShouldReturnCombinedCountOfUniqueKeys()
         {
             // Arrange
-            var key1 = GetRandomString();
-            var key2 = GetRandomString();
+            var key1 = RandomValueGen.GetRandomString();
+            var key2 = RandomValueGen.GetRandomString();
             var sut = Create(
                 new Dictionary<string, string>()
                 {
-                    [key1] = GetRandomString(),
-                    [key2] = GetRandomString()
+                    [key1] = RandomValueGen.GetRandomString(),
+                    [key2] = RandomValueGen.GetRandomString()
                 }, new Dictionary<string, string>()
                 {
-                    [key1] = GetRandomString()
+                    [key1] = RandomValueGen.GetRandomString()
                 });
 
             // Pre-assert
@@ -129,20 +129,20 @@ namespace PeanutButter.Utils.Tests
             var result = sut.Count;
 
             // Assert
-            Expect(result).To.Equal(2);
+            Expectations.Expect(result).To.Equal(2);
         }
 
         [Test]
         public void GetEnumerator_ShouldEnumerateOverDistinctKeyValuePairsWithPriority()
         {
             // Arrange
-            var key1 = GetRandomString();
-            var key2 = GetAnother(key1);
-            var key3 = GetAnother<string>(new[] {key1, key2});
-            var expected1 = GetRandomString();
-            var expected2 = GetAnother(expected1);
-            var expected3 = GetAnother<string>(new[] {expected1, expected2});
-            var unexpected = GetAnother<string>(new[] {expected1, expected2, expected3});
+            var key1 = RandomValueGen.GetRandomString();
+            var key2 = RandomValueGen.GetAnother(key1);
+            var key3 = RandomValueGen.GetAnother<string>(new[] {key1, key2});
+            var expected1 = RandomValueGen.GetRandomString();
+            var expected2 = RandomValueGen.GetAnother(expected1);
+            var expected3 = RandomValueGen.GetAnother<string>(new[] {expected1, expected2});
+            var unexpected = RandomValueGen.GetAnother<string>(new[] {expected1, expected2, expected3});
             var sut = Create(
                 new Dictionary<string, string>()
                 {
@@ -164,23 +164,23 @@ namespace PeanutButter.Utils.Tests
             }
 
             // Assert
-            Expect(collector.Count).To.Equal(3);
-            Expect(collector.Any(kvp => kvp.Key == key1 && kvp.Value == expected1)).To.Be.True();
-            Expect(collector.Any(kvp => kvp.Key == key2 && kvp.Value == expected2)).To.Be.True();
-            Expect(collector.Any(kvp => kvp.Key == key3 && kvp.Value == expected3)).To.Be.True();
+            Expectations.Expect(collector.Count).To.Equal(3);
+            Expectations.Expect(collector.Any(kvp => kvp.Key == key1 && kvp.Value == expected1)).To.Be.True();
+            Expectations.Expect(collector.Any(kvp => kvp.Key == key2 && kvp.Value == expected2)).To.Be.True();
+            Expectations.Expect(collector.Any(kvp => kvp.Key == key3 && kvp.Value == expected3)).To.Be.True();
         }
 
         [Test]
         public void GetEnumerator_ShouldEnumerateOverDistinctKeyValuePairsWithPrioritySecondTime()
         {
             // Arrange
-            var key1 = GetRandomString();
-            var key2 = GetAnother(key1);
-            var key3 = GetAnother<string>(new[] {key1, key2});
-            var expected1 = GetRandomString();
-            var expected2 = GetAnother(expected1);
-            var expected3 = GetAnother<string>(new[] {expected1, expected2});
-            var unexpected = GetAnother<string>(new[] {expected1, expected2, expected3});
+            var key1 = RandomValueGen.GetRandomString();
+            var key2 = RandomValueGen.GetAnother(key1);
+            var key3 = RandomValueGen.GetAnother<string>(new[] {key1, key2});
+            var expected1 = RandomValueGen.GetRandomString();
+            var expected2 = RandomValueGen.GetAnother(expected1);
+            var expected3 = RandomValueGen.GetAnother<string>(new[] {expected1, expected2});
+            var unexpected = RandomValueGen.GetAnother<string>(new[] {expected1, expected2, expected3});
             var sut = Create(
                 new Dictionary<string, string>()
                 {
@@ -212,10 +212,10 @@ namespace PeanutButter.Utils.Tests
 
 
             // Assert
-            Expect(collector.Count).To.Equal(3);
-            Expect(collector.Any(kvp => kvp.Key == key1 && kvp.Value == expected1)).To.Be.True();
-            Expect(collector.Any(kvp => kvp.Key == key2 && kvp.Value == expected2)).To.Be.True();
-            Expect(collector.Any(kvp => kvp.Key == key3 && kvp.Value == expected3)).To.Be.True();
+            Expectations.Expect(collector.Count).To.Equal(3);
+            Expectations.Expect(collector.Any(kvp => kvp.Key == key1 && kvp.Value == expected1)).To.Be.True();
+            Expectations.Expect(collector.Any(kvp => kvp.Key == key2 && kvp.Value == expected2)).To.Be.True();
+            Expectations.Expect(collector.Any(kvp => kvp.Key == key3 && kvp.Value == expected3)).To.Be.True();
         }
 
         [Test]
@@ -227,8 +227,8 @@ namespace PeanutButter.Utils.Tests
             // Pre-assert
 
             // Act
-            Expect(
-                    () => sut.Add(new KeyValuePair<string, string>(GetRandomString(), GetRandomString()))
+            Expectations.Expect(
+                    () => sut.Add(new KeyValuePair<string, string>(RandomValueGen.GetRandomString(), RandomValueGen.GetRandomString()))
                 ).To.Throw<InvalidOperationException>()
                 .With.Message.Containing("read-only");
 
@@ -244,7 +244,7 @@ namespace PeanutButter.Utils.Tests
             // Pre-assert
 
             // Act
-            Expect(() => sut.Add(GetRandomString(), GetRandomString()))
+            Expectations.Expect(() => sut.Add(RandomValueGen.GetRandomString(), RandomValueGen.GetRandomString()))
                 .To.Throw<InvalidOperationException>()
                 .With.Message.Containing("read-only");
 
@@ -260,7 +260,7 @@ namespace PeanutButter.Utils.Tests
             // Pre-assert
 
             // Act
-            Expect(() => sut.Clear())
+            Expectations.Expect(() => sut.Clear())
                 .To.Throw<InvalidOperationException>()
                 .With.Message.Containing("read-only");
             // Assert
@@ -270,7 +270,7 @@ namespace PeanutButter.Utils.Tests
         public void Contains_WhenOneDictionaryAndItContainsAMatchingPair_ShouldReturnTrue()
         {
             // Arrange
-            var kvp = new KeyValuePair<string, string>(GetRandomString(), GetRandomString());
+            var kvp = new KeyValuePair<string, string>(RandomValueGen.GetRandomString(), RandomValueGen.GetRandomString());
             var inner = new Dictionary<string, string>()
             {
                 [kvp.Key] = kvp.Value
@@ -283,14 +283,14 @@ namespace PeanutButter.Utils.Tests
             var result = sut.Contains(kvp);
 
             // Assert
-            Expect(result).To.Be.True();
+            Expectations.Expect(result).To.Be.True();
         }
 
         [Test]
         public void Contains_WhenOneDictionaryAndItDoesNotContainAMatchingPair_ShouldReturnFalse()
         {
             // Arrange
-            var kvp = new KeyValuePair<string, string>(GetRandomString(), GetRandomString());
+            var kvp = new KeyValuePair<string, string>(RandomValueGen.GetRandomString(), RandomValueGen.GetRandomString());
             var inner = new Dictionary<string, string>();
             var sut = Create(inner);
 
@@ -300,14 +300,14 @@ namespace PeanutButter.Utils.Tests
             var result = sut.Contains(kvp);
 
             // Assert
-            Expect(result).To.Be.False();
+            Expectations.Expect(result).To.Be.False();
         }
 
         [Test]
         public void Contains_WhenTwoDictionariesAndSecondContainsAMatchingPair_ShouldReturnTrue()
         {
             // Arrange
-            var kvp = new KeyValuePair<string, string>(GetRandomString(), GetRandomString());
+            var kvp = new KeyValuePair<string, string>(RandomValueGen.GetRandomString(), RandomValueGen.GetRandomString());
             var inner1 = new Dictionary<string, string>();
             var inner2 = new Dictionary<string, string>
             {
@@ -321,14 +321,14 @@ namespace PeanutButter.Utils.Tests
             var result = sut.Contains(kvp);
 
             // Assert
-            Expect(result).To.Be.True();
+            Expectations.Expect(result).To.Be.True();
         }
 
         [Test]
         public void Contains_WhenTwoDictionariesAndNeitherContainAMatchingPair_ShouldReturnFalse()
         {
             // Arrange
-            var kvp = new KeyValuePair<string, string>(GetRandomString(), GetRandomString());
+            var kvp = new KeyValuePair<string, string>(RandomValueGen.GetRandomString(), RandomValueGen.GetRandomString());
             var inner1 = new Dictionary<string, string>();
             var inner2 = new Dictionary<string, string>();
             var sut = Create(inner1, inner2);
@@ -339,7 +339,7 @@ namespace PeanutButter.Utils.Tests
             var result = sut.Contains(kvp);
 
             // Assert
-            Expect(result).To.Be.False();
+            Expectations.Expect(result).To.Be.False();
         }
 
         [Test]
@@ -351,7 +351,7 @@ namespace PeanutButter.Utils.Tests
             // Pre-assert
 
             // Act
-            Expect(() => sut.Remove(new KeyValuePair<string, int>("moo", 1)))
+            Expectations.Expect(() => sut.Remove(new KeyValuePair<string, int>("moo", 1)))
                 .To.Throw<InvalidOperationException>()
                 .With.Message.Containing("read-only");
 
@@ -367,7 +367,7 @@ namespace PeanutButter.Utils.Tests
             // Pre-assert
 
             // Act
-            Expect(() => sut.Remove("moo"))
+            Expectations.Expect(() => sut.Remove("moo"))
                 .To.Throw<InvalidOperationException>()
                 .With.Message.Containing("read-only");
 
@@ -404,26 +404,26 @@ namespace PeanutButter.Utils.Tests
 
             // Assert
             var defaultVal = default(KeyValuePair<string, string>);
-            Expect(array[0]).To.Equal(defaultVal);
-            Expect(array.Any(e => e.Equals(kvp1))).To.Be.True();
-            Expect(array.Any(e => e.Equals(kvp2))).To.Be.True();
-            Expect(array.Any(e => e.Equals(kvp3))).To.Be.True();
-            Range(4, 10).ForEach(i => Expect(array[i]).To.Equal(defaultVal));
+            Expectations.Expect(array[0]).To.Equal(defaultVal);
+            Expectations.Expect(array.Any(e => e.Equals(kvp1))).To.Be.True();
+            Expectations.Expect(array.Any(e => e.Equals(kvp2))).To.Be.True();
+            Expectations.Expect(array.Any(e => e.Equals(kvp3))).To.Be.True();
+            PyLike.Range(4, 10).ForEach(i => Expectations.Expect(array[i]).To.Equal(defaultVal));
         }
 
         [Test]
         public void Keys_ShouldReturnAllDistinctKeys()
         {
             // Arrange
-            var k1 = GetRandomString();
-            var k2 = GetAnother(k1);
+            var k1 = RandomValueGen.GetRandomString();
+            var k2 = RandomValueGen.GetAnother(k1);
             var sut = Create(new Dictionary<string, string>()
             {
-                [k1] = GetRandomString(),
-                [k2] = GetRandomString()
+                [k1] = RandomValueGen.GetRandomString(),
+                [k2] = RandomValueGen.GetRandomString()
             }, new Dictionary<string, string>()
             {
-                [k1] = GetRandomString()
+                [k1] = RandomValueGen.GetRandomString()
             });
 
             // Pre-assert
@@ -432,20 +432,20 @@ namespace PeanutButter.Utils.Tests
             var result = sut.Keys;
 
             // Assert
-            Expect(result.Count).To.Equal(2);
-            Expect(result).To.Contain.Exactly(1).Equal.To(k1);
-            Expect(result).To.Contain.Exactly(1).Equal.To(k2);
+            Expectations.Expect(result.Count).To.Equal(2);
+            Expectations.Expect(result).To.Contain.Exactly(1).Equal.To(k1);
+            Expectations.Expect(result).To.Contain.Exactly(1).Equal.To(k2);
         }
 
         [Test]
         public void Values_ShouldReturnAllPriorityValues()
         {
             // Arrange
-            var k1 = GetRandomString();
-            var k2 = GetAnother(k1);
-            var v1 = GetRandomString();
-            var v2 = GetAnother(v1);
-            var v3 = GetAnother<string>(new[] {v1, v2});
+            var k1 = RandomValueGen.GetRandomString();
+            var k2 = RandomValueGen.GetAnother(k1);
+            var v1 = RandomValueGen.GetRandomString();
+            var v2 = RandomValueGen.GetAnother(v1);
+            var v3 = RandomValueGen.GetAnother<string>(new[] {v1, v2});
             var sut = Create(new Dictionary<string, string>()
             {
                 [k1] = v1,
@@ -461,9 +461,9 @@ namespace PeanutButter.Utils.Tests
             var result = sut.Values;
 
             // Assert
-            Expect(result.Count).To.Equal(2);
-            Expect(result).To.Contain.Exactly(1).Equal.To(v1);
-            Expect(result).To.Contain.Exactly(1).Equal.To(v2);
+            Expectations.Expect(result.Count).To.Equal(2);
+            Expectations.Expect(result).To.Contain.Exactly(1).Equal.To(v1);
+            Expectations.Expect(result).To.Contain.Exactly(1).Equal.To(v2);
         }
 
         [Test]
@@ -477,7 +477,7 @@ namespace PeanutButter.Utils.Tests
             // Act
             var result = sut.Comparer;
             // Assert
-            Expect(result as object).To.Equal(StringComparer.OrdinalIgnoreCase);
+            Expectations.Expect(result as object).To.Equal(StringComparer.OrdinalIgnoreCase);
         }
 
         [Test]
@@ -491,7 +491,7 @@ namespace PeanutButter.Utils.Tests
             // Act
             var result = sut.Comparer;
             // Assert
-            Expect(result as object).To.Equal(StringComparer.OrdinalIgnoreCase);
+            Expectations.Expect(result as object).To.Equal(StringComparer.OrdinalIgnoreCase);
         }
 
         [Test]
@@ -507,7 +507,7 @@ namespace PeanutButter.Utils.Tests
             // Act
             var result = sut.Comparer;
             // Assert
-            Expect(result).To.Equal(c1);
+            Expectations.Expect(result).To.Equal(c1);
         }
 
         public class SomeComparer : IEqualityComparer<int>

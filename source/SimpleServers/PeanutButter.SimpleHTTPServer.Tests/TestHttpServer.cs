@@ -144,8 +144,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                string contentType;
-                var result = DownloadResultFrom(server, "/index.html", null, out contentType);
+                var result = DownloadResultFrom(server, "/index.html", null, out var contentType);
 
                 //---------------Test Result -----------------------
                 Assert.AreEqual(doc.ToString(), result.ToUTF8String());

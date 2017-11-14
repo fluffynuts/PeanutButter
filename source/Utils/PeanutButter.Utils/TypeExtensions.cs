@@ -309,6 +309,9 @@ namespace PeanutButter.Utils
                 return collectionType.GetElementType();
             if (collectionType.IsGenericType())
                 return collectionType.GenericTypeArguments[0];
+            var enumerableInterface = collectionType.TryGetEnumerableInterface();
+            if (enumerableInterface != null)
+                return enumerableInterface.GenericTypeArguments[0];
             return null;
         }
 

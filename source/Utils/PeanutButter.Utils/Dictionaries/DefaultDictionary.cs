@@ -1,9 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+
 // ReSharper disable InheritdocConsiderUsage
 
-namespace PeanutButter.Utils
+namespace PeanutButter.Utils.Dictionaries
 {
     /// <summary>
     /// Provides a Dictionary class which returns default values for unknown keys

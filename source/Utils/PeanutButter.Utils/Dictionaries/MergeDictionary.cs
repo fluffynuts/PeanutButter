@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace PeanutButter.Utils
+namespace PeanutButter.Utils.Dictionaries
 {
     /// <summary>
     /// Provides a mechanism to merge multiple dictionaries into one
