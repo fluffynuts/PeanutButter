@@ -264,6 +264,38 @@ namespace PeanutButter.Utils
             return t.IsGenericOfIEnumerable() || TryGetEnumerableInterface(t) != null;
         }
 
+        public static bool ImplementsIDictionaryGenericType(this Type type)
+        {
+            return type.GetAllImplementedInterfaces()
+                .Any(t => t.IsIDictionary());
+        }
+
+        public static bool IsIDictionary(this Type type)
+        {
+            return type.IsGenericType() &&
+                type.GetGenericTypeDefinition() == typeof(IDictionary<,>);
+        }
+
+        public static bool TryGetDictionaryKeyAndValueTypes(
+            this Type type,
+            out Type keyType,
+            out Type valueType
+        )
+        {
+            var dictionaryInterface = type.GetAllImplementedInterfaces()
+                .FirstOrDefault(t => t.IsIDictionary());
+            if (dictionaryInterface == null)
+            {
+                keyType = null;
+                valueType = null;
+                return false;
+            }
+
+            keyType = dictionaryInterface.GenericTypeArguments[0];
+            valueType = dictionaryInterface.GenericTypeArguments[1];
+            return true;
+        }
+
         /// <summary>
         /// Attempts to get the implemented Generic IEnumerable interface for a type, if possible
         /// </summary>

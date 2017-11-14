@@ -196,7 +196,6 @@
     <Compile Include="TestGenericBuilder.cs" />
     <Compile Include="TestGenericBuilderInstanceCreationException.cs" />
     <Compile Include="TestGenericBuilderLocator.cs" />
-    <Compile Include="TestObjectExtensions.cs" />
     <Compile Include="TestRandomBuilderPerformance.cs" />
     <Compile Include="TestRandomValueGen.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

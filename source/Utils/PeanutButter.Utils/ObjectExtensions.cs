@@ -443,13 +443,20 @@ namespace PeanutButter.Utils
             return true;
         }
 
+        private static readonly BindingFlags _privateStatic =
+            BindingFlags.NonPublic | BindingFlags.Static;
+
         private static readonly MethodInfo _genericMakeArrayCopy
             = typeof(ObjectExtensions).GetMethod(nameof(MakeArrayCopyOf),
-                BindingFlags.NonPublic | BindingFlags.Static);
+                _privateStatic);
 
         private static readonly MethodInfo _genericMakeListCopy
             = typeof(ObjectExtensions).GetMethod(nameof(MakeListCopyOf),
-                BindingFlags.NonPublic | BindingFlags.Static);
+                _privateStatic);
+
+        private static readonly MethodInfo _genericMakeDictionaryCopy
+            = typeof(ObjectExtensions).GetMethod(nameof(MakeDictionaryCopyOf),
+                _privateStatic);
 
 #pragma warning disable S1144 // Unused private types or members should be removed
         // ReSharper disable once UnusedMember.Local
@@ -474,6 +481,12 @@ namespace PeanutButter.Utils
             {
                 return null;
             }
+        }
+
+        private static IDictionary<TKey, TValue> MakeDictionaryCopyOf<TKey, TValue>(IDictionary<TKey, TValue> src) {
+            return src?.ToDictionary(
+                kvp => kvp.Key.DeepClone(), 
+                kvp => kvp.Value.DeepClone());
         }
 #pragma warning restore S1144 // Unused private types or members should be removed
 
@@ -509,9 +522,6 @@ namespace PeanutButter.Utils
                     // FIXME: can we get new instances for Dates and such?
                     return src;
                 }
-                //                var newInstance = Activator.CreateInstance(cloneType);
-                //                src.CopyPropertiesTo(newInstance);
-                //                return newInstance;
                 return _cloneStrategies.Aggregate(null as object,
                     (acc, cur) => acc ?? cur(src, cloneType));
             }
@@ -527,8 +537,21 @@ namespace PeanutButter.Utils
             CloneObject,
             CloneArray,
             CloneList,
+            CloneDictionary,
             CloneEnumerable
         };
+
+        private static object CloneDictionary(object src, Type cloneType)
+        {
+            if (!cloneType.TryGetDictionaryKeyAndValueTypes(
+                out var keyType, 
+                out var valueType)) 
+            {
+                return null;
+            }
+            var method = _genericMakeDictionaryCopy.MakeGenericMethod(keyType, valueType);
+            return method.Invoke(null, new[] { src });
+        }
 
         private static object CloneEnumerable(object src, Type cloneType)
         {
