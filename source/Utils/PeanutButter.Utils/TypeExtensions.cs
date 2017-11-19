@@ -7,7 +7,11 @@ using System.Reflection;
 
 // ReSharper disable MemberCanBePrivate.Global
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Helper extensions for Types
@@ -264,18 +268,39 @@ namespace PeanutButter.Utils
             return t.IsGenericOfIEnumerable() || TryGetEnumerableInterface(t) != null;
         }
 
+        /// <summary>
+        /// Returns true if the provided type implements IDictionary&lt;,&gt;
+        /// anywhere in the type heirachy
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static bool ImplementsIDictionaryGenericType(this Type type)
         {
             return type.GetAllImplementedInterfaces()
                 .Any(t => t.IsIDictionary());
         }
 
+        /// <summary>
+        /// Returns true if a type directly implements IDictionary&lt;,&gt;
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static bool IsIDictionary(this Type type)
         {
             return type.IsGenericType() &&
                 type.GetGenericTypeDefinition() == typeof(IDictionary<,>);
         }
 
+        /// <summary>
+        /// Tries to get the key and value types for an object, if
+        /// it implements IDictionary&lt;TKey,TValue&gt;. Returns true
+        /// if sucessful (with the out parameters set) or false if
+        /// the provided type does not implement IDictionary&lt;,&gt;
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="keyType"></param>
+        /// <param name="valueType"></param>
+        /// <returns></returns>
         public static bool TryGetDictionaryKeyAndValueTypes(
             this Type type,
             out Type keyType,
@@ -461,12 +486,26 @@ namespace PeanutButter.Utils
         };
 
 
+        /// <summary>
+        /// Returns true if the type being operated on can be directly assigned
+        /// or implicitly upcast to the target type
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="target"></param>
+        /// <returns></returns>
         public static bool IsAssignableOrUpcastableTo(this Type src, Type target)
         {
             return target.IsAssignableFrom(src) ||
                    src.CanImplicitlyUpcastTo(target);
         }
 
+        /// <summary>
+        /// Returns true if the type being operated on can be
+        /// implicitly upcast to the target type
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="target"></param>
+        /// <returns></returns>
         public static bool CanImplicitlyUpcastTo(
             this Type src, Type target
         )

@@ -4,12 +4,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils.Dictionaries
+#else
 namespace PeanutButter.Utils.Dictionaries
+#endif
 {
     /// <summary>
     /// Wraps an object in a dictionary interface
     /// </summary>
-    public class DictionaryWrappingObject : IDictionary<string, object>
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+class DictionaryWrappingObject : IDictionary<string, object>
     {
         private readonly object _wrapped;
         private PropertyOrField[] _props;
@@ -17,7 +26,17 @@ namespace PeanutButter.Utils.Dictionaries
 
         /// <inheritdoc />
         public DictionaryWrappingObject(object wrapped)
+            : this (wrapped, StringComparer.Ordinal)
         {
+        }
+
+        /// <inheritdoc />
+        public DictionaryWrappingObject(
+            object wrapped,
+            StringComparer keyComparer
+        )
+        {
+            _keyComparer = keyComparer;
             _wrapped = wrapped;
         }
 
@@ -40,6 +59,7 @@ namespace PeanutButter.Utils.Dictionaries
             _keys = _props.Select(p => p.Name).ToArray();
         }
 
+        /// <inheritdoc />
         public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
         {
             return new DictionaryWrappingObjectEnumerator(this);
@@ -50,16 +70,19 @@ namespace PeanutButter.Utils.Dictionaries
             return GetEnumerator();
         }
 
+        /// <inheritdoc />
         public void Add(KeyValuePair<string, object> item)
         {
             Add(item.Key, item.Value);
         }
 
+        /// <inheritdoc />
         public void Clear()
         {
             throw new InvalidOperationException("Cannot clear properties on an object");
         }
 
+        /// <inheritdoc />
         public bool Contains(KeyValuePair<string, object> item)
         {
             CachePropertyInfos();
@@ -68,6 +91,7 @@ namespace PeanutButter.Utils.Dictionaries
                    prop.GetValue(_wrapped) == item.Value;
         }
 
+        /// <inheritdoc />
         public void CopyTo(KeyValuePair<string, object>[] array, int arrayIndex)
         {
             CachePropertyInfos();
@@ -77,11 +101,13 @@ namespace PeanutButter.Utils.Dictionaries
             });
         }
 
+        /// <inheritdoc />
         public bool Remove(KeyValuePair<string, object> item)
         {
             throw new InvalidOperationException("Cannot remove properties from an object");
         }
 
+        /// <inheritdoc />
         public int Count => GetCount();
 
         private int GetCount()
@@ -90,24 +116,29 @@ namespace PeanutButter.Utils.Dictionaries
             return _props.Length;
         }
 
+        /// <inheritdoc />
         public bool IsReadOnly => false;
 
+        /// <inheritdoc />
         public bool ContainsKey(string key)
         {
             CachePropertyInfos();
             return _keys.Any(o => KeysMatch(o, key));
         }
 
+        /// <inheritdoc />
         public void Add(string key, object value)
         {
             throw new InvalidOperationException("Cannot add properties to an object");
         }
 
+        /// <inheritdoc />
         public bool Remove(string key)
         {
             throw new InvalidOperationException("Cannot remove properties from an object");
         }
 
+        /// <inheritdoc />
         public bool TryGetValue(string key, out object value)
         {
             CachePropertyInfos();
@@ -121,6 +152,7 @@ namespace PeanutButter.Utils.Dictionaries
             return _props.FirstOrDefault(o => HasName(o, name));
         }
 
+        /// <inheritdoc />
         public object this[string key]
         {
             get => ReadProperty(key);
@@ -155,7 +187,7 @@ namespace PeanutButter.Utils.Dictionaries
 
         private bool KeysMatch(string key1, string key2)
         {
-            return key1 == key2; // TODO: allow case-insensitive
+            return _keyComparer.Equals(key1, key2);
         }
 
         /// <inheritdoc />
@@ -167,6 +199,7 @@ namespace PeanutButter.Utils.Dictionaries
             return _keys;
         }
 
+        /// <inheritdoc />
         public ICollection<object> Values => GetValues();
 
         private ICollection<object> GetValues()
@@ -176,6 +209,7 @@ namespace PeanutButter.Utils.Dictionaries
         }
 
         private object[] _values;
+        private readonly StringComparer _keyComparer;
 
         private object[] GetPropertyAndFieldValues()
         {

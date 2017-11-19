@@ -1,7 +1,11 @@
 using System;
 using System.Linq;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     internal static class PropertyOrFieldExtensions
     {

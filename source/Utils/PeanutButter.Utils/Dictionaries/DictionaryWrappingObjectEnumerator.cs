@@ -2,7 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils.Dictionaries
+#else
 namespace PeanutButter.Utils.Dictionaries
+#endif
 {
     internal class DictionaryWrappingObjectEnumerator : IEnumerator<KeyValuePair<string, object>>
     {

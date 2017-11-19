@@ -2587,31 +2587,6 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             }
         }
 
-        public class Merging_CanDuckAsOperations
-        {
-            public interface IMerge1
-            {
-                int Id { get; }
-                string Name { get; }
-            }
-
-            [Test]
-            [Ignore("WIP")]
-            public void InternalDuckAs_GivenTwoObjectsWhichCouldMergeExactly_ShouldReturnTrue()
-            {
-                // Arrange
-                var obj1 = new {Id = 42};
-                var obj2 = new {Name = "Douglas Adams"};
-                // Pre-Assert
-
-                // Act
-                var result = new object[] {obj1, obj2}.InternalCanDuckAs<IMerge1>(false,
-                    false);
-
-                // Assert
-                Expect(result).To.Be.True();
-            }
-        }
 
         public class TravelRequestDetails : ITravelRequestDetails
         {

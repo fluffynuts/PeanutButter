@@ -2,8 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils.Dictionaries
+#else
 namespace PeanutButter.Utils.Dictionaries
+#endif
 {
     /// <summary>
     /// Provides a mechanism to merge multiple dictionaries into one
@@ -11,7 +16,12 @@ namespace PeanutButter.Utils.Dictionaries
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="TValue"></typeparam>
-    public class MergeDictionary<TKey, TValue>
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        class MergeDictionary<TKey, TValue>
         : IDictionary<TKey, TValue>
     {
         // ReSharper disable once StaticMemberInGenericType
@@ -32,22 +42,41 @@ namespace PeanutButter.Utils.Dictionaries
                 return FindLeastRestrictiveStringComparer() as IEqualityComparer<TKey>;
             }
             return _layers
-                .Select(l => l.GetPropertyValue("Comparer") as IEqualityComparer<TKey>)
+                .Select(l => GetPropertyValue(l, "Comparer") as IEqualityComparer<TKey>)
                 .FirstOrDefault();
         }
 
         private IEqualityComparer<string> FindLeastRestrictiveStringComparer()
         {
             return _layers
-                .Select(l => l.GetPropertyValue("Comparer") as IEqualityComparer<string>)
+                .Select(l => GetPropertyValue(l, "Comparer") as IEqualityComparer<string>)
                 .Where(c => c != null)
-                .Select(c => new 
-                { 
-                    Comparer = c, 
-                    Rank = _stringComparerRankings.TryGetValue(c, out var rank) ? rank : 99 
+                .Select(c => new
+                {
+                    Comparer = c,
+                    Rank = _stringComparerRankings.TryGetValue(c, out var rank)
+                        ? rank
+                        : 99
                 })
                 .OrderBy(o => o.Rank)
-                .FirstOrDefault()?.Comparer;
+                .FirstOrDefault()
+                ?.Comparer;
+        }
+
+        private static object GetPropertyValue(object src, string propertyPath)
+        {
+            var parts = propertyPath.Split('.');
+            return parts.Aggregate(src, GetImmediatePropertyValue);
+        }
+
+        private static object GetImmediatePropertyValue(object src, string propertyName)
+        {
+            var type = src.GetType();
+            var propInfo = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                .FirstOrDefault(pi => pi.Name == propertyName);
+            if (propInfo == null)
+                throw new Exception($"Member \"${propertyName}\" not found on type \"${type}\"");
+            return propInfo.GetValue(src, null);
         }
 
         // ReSharper disable once StaticMemberInGenericType
@@ -119,8 +148,9 @@ namespace PeanutButter.Utils.Dictionaries
         /// <returns>True if found, False if not</returns>
         public bool Contains(KeyValuePair<TKey, TValue> item)
         {
-            return _layers.Aggregate(false, (acc, cur) =>
-                acc || cur.Contains(item)
+            return _layers.Aggregate(false,
+                (acc, cur) =>
+                    acc || cur.Contains(item)
             );
         }
 
@@ -133,7 +163,8 @@ namespace PeanutButter.Utils.Dictionaries
         {
             using (var enumerator = GetEnumerator())
             {
-                while (enumerator.MoveNext() && arrayIndex < array.Length)
+                while (enumerator.MoveNext() &&
+                       arrayIndex < array.Length)
                 {
                     array[arrayIndex++] = enumerator.Current;
                 }

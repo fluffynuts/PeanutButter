@@ -79,6 +79,7 @@
     <Compile Include="Extensions\TestDictionaryWrappingNameValueCollection.cs" />
     <Compile Include="Extensions\TestDuckTypingHelperExtensions.cs" />
     <Compile Include="Extensions\TestDuckTypingExtensions.cs" />
+    <Compile Include="Extensions\TestMergingExtensions.cs" />
     <Compile Include="Shimming\TestDictionaryShimSham.cs" />
     <Compile Include="TestDuckSpeed.cs" />
     <Compile Include="Extensions\TestDuckTypingCollectionExtensions.cs" />
