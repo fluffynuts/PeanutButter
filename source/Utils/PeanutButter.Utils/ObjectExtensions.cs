@@ -483,11 +483,18 @@ namespace PeanutButter.Utils
             }
         }
 
-        private static IDictionary<TKey, TValue> MakeDictionaryCopyOf<TKey, TValue>(IDictionary<TKey, TValue> src) {
-            return src?.ToDictionary(
-                kvp => kvp.Key.DeepClone(), 
-                kvp => kvp.Value.DeepClone());
+        private static IDictionary<TKey, TValue> MakeDictionaryCopyOf<TKey, TValue>(
+            IDictionary<TKey, TValue> src,
+            Type targetType
+        ) {
+            var instance = Activator.CreateInstance(targetType) as IDictionary<TKey, TValue>;
+            src?.ForEach(kvp => instance.Add(new KeyValuePair<TKey, TValue>(kvp.Key, kvp.Value)));
+            //            return src?.ToDictionary(
+            //                kvp => kvp.Key.DeepClone(), 
+            //                kvp => kvp.Value.DeepClone());
+            return instance;
         }
+
 #pragma warning restore S1144 // Unused private types or members should be removed
 
         /// <summary>
@@ -550,7 +557,7 @@ namespace PeanutButter.Utils
                 return null;
             }
             var method = _genericMakeDictionaryCopy.MakeGenericMethod(keyType, valueType);
-            return method.Invoke(null, new[] { src });
+            return method.Invoke(null, new[] { src, cloneType });
         }
 
         private static object CloneEnumerable(object src, Type cloneType)
