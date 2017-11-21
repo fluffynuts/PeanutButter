@@ -70,7 +70,7 @@
     <Compile Include="Exceptions\TestParameterCountMismatchException.cs" />
     <Compile Include="Exceptions\TestUnresolvedParameterOrderMismatchException.cs" />
     <Compile Include="Exceptions\TestWriteOnlyPropertyException.cs" />
-    <Compile Include="Extensions\ConnectiongStringSettingsBuilder.cs" />
+    <Compile Include="Extensions\ConnectionStringSettingsBuilder.cs" />
     <Compile Include="Extensions\Ext.cs" />
     <Compile Include="Extensions\KeyValueCollectionExtensions.cs" />
     <Compile Include="Extensions\SetupTests.cs" />

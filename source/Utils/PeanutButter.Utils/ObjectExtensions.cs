@@ -488,10 +488,9 @@ namespace PeanutButter.Utils
             Type targetType
         ) {
             var instance = Activator.CreateInstance(targetType) as IDictionary<TKey, TValue>;
+            if (instance == null)
+                throw new InvalidOperationException($"Activator couldn't create instance of {targetType}");
             src?.ForEach(kvp => instance.Add(new KeyValuePair<TKey, TValue>(kvp.Key, kvp.Value)));
-            //            return src?.ToDictionary(
-            //                kvp => kvp.Key.DeepClone(), 
-            //                kvp => kvp.Value.DeepClone());
             return instance;
         }
 

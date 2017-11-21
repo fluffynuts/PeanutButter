@@ -1,7 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedMember.Global
 
 namespace PeanutButter.DuckTyping.Shimming
 {
@@ -11,20 +14,45 @@ namespace PeanutButter.DuckTyping.Shimming
     internal class DictionaryWrappingNameValueCollection : IDictionary<string, object>
     {
         private readonly NameValueCollection _data;
-        private readonly bool _caseInsensitive;
+        public StringComparer Comparer { get; }
 
         /// <summary>
-        /// Construct this dictionary with a NameValueCollection to wrap
+        /// Construct this dictionary with a NameValueCollection to wrap,
+        /// specifying whether or not key lookups are to be case-sensitive
         /// </summary>
         /// <param name="data"></param>
         /// <param name="caseInsensitive">Flag: is this collection to treat keys case-insensitive?</param>
         public DictionaryWrappingNameValueCollection(
             NameValueCollection data, 
             bool caseInsensitive
+        ): this (data, caseInsensitive ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal)
+        {
+        }
+
+        /// <summary>
+        /// Construct this dictionary with a NameValueCollection to wrap
+        /// </summary>
+        /// <param name="data"></param>
+        public DictionaryWrappingNameValueCollection(
+            NameValueCollection data
+        ): this (data, StringComparer.Ordinal)
+        {
+        }
+
+        /// <summary>
+        /// Construct this dictionary with a NameValueCollection to wrap,
+        /// specifying the StringComparer to use when comparing requested
+        /// keys with available keys
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="comparer"></param>
+        public DictionaryWrappingNameValueCollection(
+            NameValueCollection data,
+            StringComparer comparer
         )
         {
             _data = data;
-            _caseInsensitive = caseInsensitive;
+            Comparer = comparer;
         }
 
         public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
@@ -60,11 +88,12 @@ namespace PeanutButter.DuckTyping.Shimming
 
         private string GetKeyFor(string key)
         {
-            return _caseInsensitive
-                ? _data.AllKeys.FirstOrDefault(k => k.ToLowerInvariant() == key?.ToLowerInvariant())
-                : _data.AllKeys.Contains(key)
-                    ? key
-                    : null;
+            return _data.AllKeys.FirstOrDefault(k => KeysMatch(k, key));
+        }
+
+        private bool KeysMatch(string one, string other)
+        {
+            return Comparer.Equals(one, other);
         }
 
         /// <inheritdoc />

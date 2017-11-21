@@ -114,7 +114,7 @@ namespace PeanutButter.Utils.Dictionaries
         /// <returns></returns>
         public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
         {
-            return new MergeDictionaryEnumerator<TKey, TValue>(_layers);
+            return new GenericDictionaryEnumerator<TKey, TValue>(_layers);
         }
 
         IEnumerator IEnumerable.GetEnumerator()

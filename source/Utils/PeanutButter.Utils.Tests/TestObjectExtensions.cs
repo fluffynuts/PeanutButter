@@ -1526,9 +1526,10 @@ namespace PeanutButter.Utils.Tests
             public void ShouldCloneCustomImplementationOfDictionary()
             {
                 // Arrange
-                var src = new HasCustomDictionary();
-                src.Settings = new SerializableDictionary<string, object>();
-                src.Settings["moo"] = "cow";
+                var src = new HasCustomDictionary
+                {
+                    Settings = new SerializableDictionary<string, object> {["moo"] = "cow"}
+                };
                 // Pre-Assert
                 // Act
                 var result = src.DeepClone();
@@ -1543,9 +1544,10 @@ namespace PeanutButter.Utils.Tests
             public void ShouldCloneRegularOldVanillaDictionary()
             {
                 // Arrange
-                var src = new HasVanillaDictionary();
-                src.Settings = new SerializableDictionary<string, object>();
-                src.Settings["moo"] = "cow";
+                var src = new HasVanillaDictionary
+                {
+                    Settings = new SerializableDictionary<string, object> {["moo"] = "cow"}
+                };
                 // Pre-Assert
                 // Act
                 var result = src.DeepClone();
@@ -1599,7 +1601,7 @@ namespace PeanutButter.Utils.Tests
                         TValue value = (TValue) valueSerializer.Deserialize(reader);
                         reader.ReadEndElement();
 
-                        this.Add(key, value);
+                        Add(key, value);
 
                         reader.ReadEndElement();
                         reader.MoveToContent();
@@ -1614,7 +1616,7 @@ namespace PeanutButter.Utils.Tests
                     XmlSerializer keySerializer = new XmlSerializer(typeof(TKey));
                     XmlSerializer valueSerializer = new XmlSerializer(typeof(TValue));
 
-                    foreach (TKey key in this.Keys)
+                    foreach (TKey key in Keys)
                     {
                         writer.WriteStartElement("item");
 

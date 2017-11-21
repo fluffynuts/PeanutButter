@@ -237,6 +237,7 @@ namespace PeanutButter.DuckTyping.Extensions
 
         private static IDictionary<string, object> ConvertDictionary<T>(IDictionary<string, T> src)
         {
+            // TODO: make and use a BoxingDictionary to box down to <string, object>
             return src.ToDictionary(kvp => kvp.Key, kvp => kvp.Value as object);
         }
 

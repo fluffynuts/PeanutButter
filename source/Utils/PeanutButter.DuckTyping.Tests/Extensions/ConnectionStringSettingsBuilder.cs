@@ -3,10 +3,10 @@ using PeanutButter.RandomGenerators;
 
 namespace PeanutButter.DuckTyping.Tests.Extensions
 {
-    public class ConnectiongStringSettingsBuilder :
-        GenericBuilder<ConnectiongStringSettingsBuilder, ConnectionStringSettings>
+    public class ConnectionStringSettingsBuilder :
+        GenericBuilder<ConnectionStringSettingsBuilder, ConnectionStringSettings>
     {
-        public override ConnectiongStringSettingsBuilder WithRandomProps()
+        public override ConnectionStringSettingsBuilder WithRandomProps()
         {
             return base.WithRandomProps().WithProp(o => o.LockItem = false);
         }

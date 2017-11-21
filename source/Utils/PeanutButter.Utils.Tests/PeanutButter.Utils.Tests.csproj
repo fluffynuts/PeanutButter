@@ -66,6 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DeepEqualityTesterExtensions.cs" />
+    <Compile Include="Dictionaries\TestCaseWarpingDictionaryWrapper.cs" />
     <Compile Include="Dictionaries\TestDictionaryWrappingObject.cs" />
     <Compile Include="TestAssemblyExtensions.cs" />
     <Compile Include="TestAsyncExtensionsForIEnumerables.cs" />

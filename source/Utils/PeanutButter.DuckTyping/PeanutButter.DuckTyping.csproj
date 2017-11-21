@@ -68,11 +68,11 @@
     <Compile Include="..\PeanutButter.Utils\Dictionaries\DictionaryWrappingObjectEnumerator.cs">
       <Link>Imported\DictionaryWrappingObjectEnumerator.cs</Link>
     </Compile>
+    <Compile Include="..\PeanutButter.Utils\Dictionaries\GenericDictionaryEnumerator.cs">
+      <Link>Imported\GenericDictionaryEnumerator.cs</Link>
+    </Compile>
     <Compile Include="..\PeanutButter.Utils\Dictionaries\MergeDictionary.cs">
       <Link>Imported\MergeDictionary.cs</Link>
-    </Compile>
-    <Compile Include="..\PeanutButter.Utils\Dictionaries\MergeDictionaryEnumerator.cs">
-      <Link>Imported\MergeDictionaryEnumerator.cs</Link>
     </Compile>
     <Compile Include="..\PeanutButter.Utils\ExtensionsForIEnumerables.cs">
       <Link>Imported\ExtensionsForIEnumerables.cs</Link>

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
@@ -11,11 +12,30 @@ namespace PeanutButter.DuckTyping.Shimming
         private readonly ConnectionStringSettingsCollection _actual;
 
         public DictionaryWrappingConnectionStringSettingCollection(
+            ConnectionStringSettingsCollection connectionStringSettings,
+            bool isCaseInsenstive
+        ) : this(connectionStringSettings,
+            isCaseInsenstive
+                ? StringComparer.OrdinalIgnoreCase
+                : StringComparer.Ordinal)
+        {
+        }
+
+        internal DictionaryWrappingConnectionStringSettingCollection(
             ConnectionStringSettingsCollection connectionStringSettings
+        ) : this(connectionStringSettings, StringComparer.Ordinal)
+        {
+        }
+
+        internal DictionaryWrappingConnectionStringSettingCollection(
+            ConnectionStringSettingsCollection connectionStrings,
+            StringComparer keyComparer
         )
         {
-            _actual = connectionStringSettings;
+            Comparer = keyComparer;
+            _actual = connectionStrings;
         }
+
 
         public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
         {
@@ -112,5 +132,7 @@ namespace PeanutButter.DuckTyping.Shimming
                 .ToArray();
 
         public bool IsReadOnly => false;
+
+        public StringComparer Comparer { get; }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Configuration;
 using System.Linq;
 using System.Reflection;
 using Imported.PeanutButter.Utils;
@@ -25,6 +26,28 @@ namespace PeanutButter.DuckTyping.Extensions
         /// <returns></returns>
         public static bool CanMergeAs<T>(this IEnumerable<object> sources)
         {
+            var merged = MergeObjects(sources, false);
+            return merged.InternalCanDuckAs<T>(false, false);
+        }
+
+        /// <summary>
+        /// Tests if a collection of objects can back
+        /// the given interface T (fuzzy)
+        /// </summary>
+        /// <param name="sources"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool CanFuzzyMergeAs<T>(this IEnumerable<object> sources)
+        {
+            var merged = MergeObjects(sources, true);
+            return merged.InternalCanDuckAs<T>(true, false);
+        }
+
+        private static MergeDictionary<string, object> MergeObjects(
+            IEnumerable<object> sources,
+            bool isFuzzy
+        )
+        {
             var dictionaries = sources.Where(o => o != null)
                 .Aggregate(
                     new List<IDictionary<string, object>>(),
@@ -32,15 +55,14 @@ namespace PeanutButter.DuckTyping.Extensions
                     {
                         var asDict = _mergeConversionStrategies.Aggregate(
                             null as IDictionary<string, object>,
-                            (acc, cur) => acc ?? cur(toConvert, true));
+                            (acc, cur) => acc ?? cur(toConvert, isFuzzy));
                         if (asDict != null)
                             converted.Add(asDict);
                         return converted;
                     })
                 .ToArray();
             var merged = new MergeDictionary<string, object>(dictionaries);
-
-            return merged.InternalCanDuckAs<T>(false, false);
+            return merged;
         }
 
         private static readonly Func<object, bool, IDictionary<string, object>>[] _mergeConversionStrategies =
@@ -48,20 +70,40 @@ namespace PeanutButter.DuckTyping.Extensions
             PassThrough,
             BoxifyDictionary,
             WrapNameValueCollection,
+            WrapConnectionStringCollection,
             WrapObject
         };
 
-        private static IDictionary<string, object> WrapObject(object arg1, bool arg2)
+        private static IDictionary<string, object> WrapConnectionStringCollection(
+            object obj, bool isFuzzy
+        )
         {
-            return new DictionaryWrappingObject(arg1);
+            var asCollection = obj as ConnectionStringSettingsCollection;
+            if (asCollection == null)
+                return null;
+            return new DictionaryWrappingConnectionStringSettingCollection(
+                asCollection,
+                isFuzzy
+            );
         }
 
-        private static IDictionary<string, object> WrapNameValueCollection(object arg, bool caseSensitive)
+        private static IDictionary<string, object> WrapObject(
+            object obj, 
+            bool isFuzzy
+        )
+        {
+            return new DictionaryWrappingObject(obj);
+        }
+
+        private static IDictionary<string, object> WrapNameValueCollection(
+            object arg, 
+            bool isFuzzy
+        )
         {
             var asNameValueCollection = arg as NameValueCollection;
             return asNameValueCollection == null
                 ? null
-                : new DictionaryWrappingNameValueCollection(asNameValueCollection, caseSensitive);
+                : new DictionaryWrappingNameValueCollection(asNameValueCollection, isFuzzy);
         }
 
         private static IDictionary<string, object> BoxifyDictionary(object input, bool caseSensitive)

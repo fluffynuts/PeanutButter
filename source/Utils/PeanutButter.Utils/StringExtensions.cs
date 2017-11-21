@@ -397,6 +397,19 @@ namespace PeanutButter.Utils
             return input.ToPascalCase().ToLowerCasedFirstLetter();
         }
 
+        private static Random _randomField;
+        private static Random Random => _randomField ?? (_randomField = new Random(DateTime.Now.Millisecond));
+
+        public static string ToRandomCase(this string input)
+        {
+            return string.Join("", input
+                .Select(c => c.ToString())
+                .Select(c => Random.NextDouble() < 0.5
+                    ? c.ToLowerInvariant()
+                    : c.ToUpperInvariant()
+                ));
+        }
+
         /// <summary>
         /// Converts an input string to words, where possible
         /// eg: kebab-case => "kebab case"

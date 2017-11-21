@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
@@ -822,6 +823,28 @@ namespace PeanutButter.Utils.Tests
 
             // Assert
             Expect(result).To.Equal(expected);
+        }
+
+        [Test]
+        [Retry(2)]
+        public void ToRandomCase_ShouldRandomiseCasing()
+        {
+            // Arrange
+            var src = GetRandomAlphaString(20, 40);
+            var lowerSource = src.ToLowerInvariant();
+            var runs = 512;
+            // Pre-Assert
+            // Act
+            var collector = new List<string>();
+            for (var i = 0; i < 512; i++)
+            {
+                var thisAttempt = src.ToRandomCase();
+                Expect(thisAttempt.ToLowerInvariant()).To.Equal(lowerSource);
+                collector.Add(thisAttempt);
+            }
+            // Assert
+            Expect(runs - collector.Distinct().Count())
+                .To.Be.Less.Than(2); // allow for some random collision
         }
     }
 }

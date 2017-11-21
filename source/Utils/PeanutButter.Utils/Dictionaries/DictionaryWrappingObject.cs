@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+// ReSharper disable MemberCanBePrivate.Global
 
 #if BUILD_PEANUTBUTTER_INTERNAL
 namespace Imported.PeanutButter.Utils.Dictionaries
@@ -23,6 +24,7 @@ class DictionaryWrappingObject : IDictionary<string, object>
         private readonly object _wrapped;
         private PropertyOrField[] _props;
         private string[] _keys;
+        public StringComparer Comparer { get; }
 
         /// <inheritdoc />
         public DictionaryWrappingObject(object wrapped)
@@ -36,7 +38,7 @@ class DictionaryWrappingObject : IDictionary<string, object>
             StringComparer keyComparer
         )
         {
-            _keyComparer = keyComparer;
+            Comparer = keyComparer;
             _wrapped = wrapped;
         }
 
@@ -187,7 +189,7 @@ class DictionaryWrappingObject : IDictionary<string, object>
 
         private bool KeysMatch(string key1, string key2)
         {
-            return _keyComparer.Equals(key1, key2);
+            return Comparer.Equals(key1, key2);
         }
 
         /// <inheritdoc />
@@ -209,7 +211,6 @@ class DictionaryWrappingObject : IDictionary<string, object>
         }
 
         private object[] _values;
-        private readonly StringComparer _keyComparer;
 
         private object[] GetPropertyAndFieldValues()
         {

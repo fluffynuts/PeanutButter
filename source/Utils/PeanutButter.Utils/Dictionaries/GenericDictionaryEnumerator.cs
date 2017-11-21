@@ -7,14 +7,14 @@ namespace Imported.PeanutButter.Utils.Dictionaries
 namespace PeanutButter.Utils.Dictionaries
 #endif
 {
-    internal class MergeDictionaryEnumerator<TKey, TValue> : IEnumerator<KeyValuePair<TKey, TValue>>
+    internal class GenericDictionaryEnumerator<TKey, TValue> : IEnumerator<KeyValuePair<TKey, TValue>>
     {
         private readonly IDictionary<TKey, TValue>[] _layers;
         private int _currentIndex;
         private IEnumerator<KeyValuePair<TKey, TValue>> _currentEnumerator;
         private readonly HashSet<TKey> _seen = new HashSet<TKey>();
 
-        public MergeDictionaryEnumerator(IDictionary<TKey, TValue>[] layers)
+        public GenericDictionaryEnumerator(IDictionary<TKey, TValue>[] layers)
         {
             _layers = layers;
             Reset();
