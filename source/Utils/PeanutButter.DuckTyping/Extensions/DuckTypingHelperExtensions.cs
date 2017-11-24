@@ -391,15 +391,11 @@ namespace PeanutButter.DuckTyping.Extensions
 
         private static readonly Type _nullableGeneric = typeof(Nullable<>);
 
-        internal static bool IsNullable(this Type t)
+        internal static bool IsNullableType(this Type t)
         {
-            if (t == null)
-                return false; // have no idea
-            if (t == typeof(string))
-                return true;
-            if (!t.IsGenericType)
-                return false;
-            return t.GetGenericTypeDefinition() == _nullableGeneric;
+            return t != null &&
+                t.IsGenericType &&
+                t.GetGenericTypeDefinition() == _nullableGeneric;
         }
     }
 }

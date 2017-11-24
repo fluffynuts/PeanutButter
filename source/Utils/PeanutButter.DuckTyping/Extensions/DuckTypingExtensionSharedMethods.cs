@@ -284,7 +284,7 @@ namespace PeanutButter.DuckTyping.Extensions
 
             if (key == null || !src.TryGetValue(key, out var stored))
             {
-                if (!prop.PropertyType.IsNullable())
+                if (!prop.PropertyType.IsNullableType())
                     errors.Add(
                         $"No value found for {prop.Name} and property is not nullable ({prop.PropertyType.Name})"
                     );

@@ -2121,7 +2121,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
                 [Test]
                 public void
-                    FuzzyDuckAs_OperatingOnDictionary_WhenGivenKeyPrefixAntThrowOnErrorIsTrue_AndCannotDuck_ShouldThrow()
+                    FuzzyDuckAs_OperatingOnDictionary_WhenGivenKeyPrefixAndThrowOnErrorIsTrue_AndCannotDuck_ShouldThrow()
                 {
                     // Arrange
                     var expected = GetRandomHttpUrl();
@@ -2372,20 +2372,6 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 Expect(result).Not.To.Be.Null();
                 Expect(result.Prop.Name).To.Equal(expected);
             }
-
-            [Test]
-            public void ShouldAllowMissingStringPropertyBecauseItsNullable()
-            {
-                // Arrange
-                var src = new Dictionary<string, object>();
-
-                // Pre-Assert
-                // Act
-                var result = src.FuzzyDuckAs<IBackedByDictionary>(true);
-                // Assert
-                Expect(result).Not.To.Be.Null();
-                Expect(result.Name).To.Be.Null();
-            }
         }
 
         [TestFixture]
@@ -2560,7 +2546,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             }
 
             [Test]
-            public void WhenCannotFuzzyDuck_GivenShouldThrow_ShouldThrow()
+            public void WhenCantFuzzyDuckBecauseStringPropertyIsMissing_GivenShouldThrow_ShouldNotThrow()
             {
                 // Arrange
                 var setting = new ConnectionStringSettings("123some string", "some value");
