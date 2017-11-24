@@ -27,7 +27,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         }
 
         [Test]
-        public void ShouldBeAbleToGetExistingPropertyValue()
+        public void ShouldBeAbleToGetExistingPropertyValue_CaseSensitive()
         {
             // Arrange
             var src = new {Prop = GetRandomString()};
@@ -37,6 +37,19 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             var result = sut["Prop"];
             // Assert
             Expect(result).To.Equal(src.Prop);
+        }
+
+        [Test]
+        public void ShouldBeAbleToGetExistingPropertyValue_CaseInSensitive()
+        {
+            // Arrange
+            var src = new { Prop = 1 };
+            var sut = Create(src, StringComparer.OrdinalIgnoreCase);
+            // Pre-Assert
+            // Act
+            var result = sut["proP"];
+            // Assert
+            Expect(result).To.Equal(1);
         }
 
         [Test]
@@ -418,9 +431,12 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             }
         }
 
-        private static DictionaryWrappingObject Create(object wrapped = null)
+        private static DictionaryWrappingObject Create(
+            object wrapped = null,
+            StringComparer stringComparer = null
+        )
         {
-            return new DictionaryWrappingObject(wrapped);
+            return new DictionaryWrappingObject(wrapped, stringComparer ?? StringComparer.Ordinal);
         }
     }
 }

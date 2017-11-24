@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+
 // ReSharper disable MemberCanBePrivate.Global
 
 #if BUILD_PEANUTBUTTER_INTERNAL
@@ -19,16 +20,16 @@ namespace PeanutButter.Utils.Dictionaries
 #else
     public
 #endif
-class DictionaryWrappingObject : IDictionary<string, object>
+        class DictionaryWrappingObject : IDictionary<string, object>
     {
         private readonly object _wrapped;
         private PropertyOrField[] _props;
-        private string[] _keys;
+        private Dictionary<string, string> _keys;
         public StringComparer Comparer { get; }
 
         /// <inheritdoc />
         public DictionaryWrappingObject(object wrapped)
-            : this (wrapped, StringComparer.Ordinal)
+            : this(wrapped, StringComparer.Ordinal)
         {
         }
 
@@ -50,7 +51,7 @@ class DictionaryWrappingObject : IDictionary<string, object>
             if (type == null)
             {
                 _props = new PropertyOrField[0];
-                _keys = new string[0];
+                _keys = new Dictionary<string, string>(Comparer);
                 return;
             }
             var flags = BindingFlags.Instance | BindingFlags.Public;
@@ -58,7 +59,9 @@ class DictionaryWrappingObject : IDictionary<string, object>
                 .Select(pi => new PropertyOrField(pi))
                 .Union(type.GetFields(flags).Select(fi => new PropertyOrField(fi)))
                 .ToArray();
-            _keys = _props.Select(p => p.Name).ToArray();
+            _keys = _props
+                .Select(p => new KeyValuePair<string, string>(p.Name, p.Name))
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value, Comparer);
         }
 
         /// <inheritdoc />
@@ -125,7 +128,7 @@ class DictionaryWrappingObject : IDictionary<string, object>
         public bool ContainsKey(string key)
         {
             CachePropertyInfos();
-            return _keys.Any(o => KeysMatch(o, key));
+            return _keys.ContainsKey(key);
         }
 
         /// <inheritdoc />
@@ -177,7 +180,8 @@ class DictionaryWrappingObject : IDictionary<string, object>
 
         private void VerifyHasKey(string key)
         {
-            if (Keys.Contains(key))
+            CachePropertyInfos();
+            if (_keys.ContainsKey(key))
                 return;
             throw new KeyNotFoundException(key);
         }
@@ -198,7 +202,7 @@ class DictionaryWrappingObject : IDictionary<string, object>
         private ICollection<string> GetKeys()
         {
             CachePropertyInfos();
-            return _keys;
+            return _keys.Select(kvp => kvp.Value).ToArray();
         }
 
         /// <inheritdoc />
@@ -216,6 +220,5 @@ class DictionaryWrappingObject : IDictionary<string, object>
         {
             return _props.Select(p => p.GetValue(_wrapped)).ToArray();
         }
-
     }
 }

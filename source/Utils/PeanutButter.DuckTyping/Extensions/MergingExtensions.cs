@@ -26,8 +26,7 @@ namespace PeanutButter.DuckTyping.Extensions
         /// <returns></returns>
         public static bool CanMergeAs<T>(this IEnumerable<object> sources)
         {
-            var merged = MergeObjects(sources, false);
-            return merged.InternalCanDuckAs<T>(false, false);
+            return InternalCanMergeAs<T>(sources, false, false, out var _);
         }
 
         /// <summary>
@@ -39,8 +38,50 @@ namespace PeanutButter.DuckTyping.Extensions
         /// <returns></returns>
         public static bool CanFuzzyMergeAs<T>(this IEnumerable<object> sources)
         {
-            var merged = MergeObjects(sources, true);
-            return merged.InternalCanDuckAs<T>(true, false);
+            return InternalCanMergeAs<T>(sources, true, false, out var _);
+        }
+
+        public static T MergeAs<T>(this IEnumerable<object> sources) where T : class
+        {
+            return sources.MergeAs<T>(false);
+        }
+
+        public static T MergeAs<T>(
+            this IEnumerable<object> sources,
+            bool throwOnError
+        ) where T : class
+        {
+            return InternalCanMergeAs<T>(sources, false, throwOnError, out var merged)
+                ? merged.DuckAs<T>()
+                : null;
+        }
+
+        public static T FuzzyMergeAs<T>(
+            this IEnumerable<object> sources
+        ) where T : class
+        {
+            return sources.FuzzyMergeAs<T>(false);
+        }
+
+        public static T FuzzyMergeAs<T>(
+            this IEnumerable<object> sources,
+            bool throwOnError
+        ) where T : class
+        {
+            return InternalCanMergeAs<T>(sources, true, throwOnError, out var merged)
+                ? merged.FuzzyDuckAs<T>()
+                : null;
+        }
+
+        private static bool InternalCanMergeAs<T>(
+            this IEnumerable<object> sources,
+            bool allowFuzzy,
+            bool throwOnError,
+            out MergeDictionary<string, object> merged
+        )
+        {
+            merged = MergeObjects(sources, allowFuzzy);
+            return merged.InternalCanDuckAs<T>(allowFuzzy, throwOnError);
         }
 
         private static MergeDictionary<string, object> MergeObjects(
@@ -88,15 +129,19 @@ namespace PeanutButter.DuckTyping.Extensions
         }
 
         private static IDictionary<string, object> WrapObject(
-            object obj, 
+            object obj,
             bool isFuzzy
         )
         {
-            return new DictionaryWrappingObject(obj);
+            return new DictionaryWrappingObject(obj,
+                isFuzzy
+                    ? StringComparer.OrdinalIgnoreCase
+                    : StringComparer.Ordinal
+            );
         }
 
         private static IDictionary<string, object> WrapNameValueCollection(
-            object arg, 
+            object arg,
             bool isFuzzy
         )
         {
@@ -106,14 +151,14 @@ namespace PeanutButter.DuckTyping.Extensions
                 : new DictionaryWrappingNameValueCollection(asNameValueCollection, isFuzzy);
         }
 
-        private static IDictionary<string, object> BoxifyDictionary(object input, bool caseSensitive)
+        private static IDictionary<string, object> BoxifyDictionary(object input, bool isFuzzy)
         {
             if (!input.GetType().TryGetDictionaryKeyAndValueTypes(out var keyType, out var valueType))
                 return null;
             if (keyType != typeof(string))
                 return null;
             var method = _boxDictionaryMethod.MakeGenericMethod(valueType);
-            return method.Invoke(null, new[] {input, caseSensitive}) as IDictionary<string, object>;
+            return method.Invoke(null, new[] {input, isFuzzy}) as IDictionary<string, object>;
         }
 
         private static readonly BindingFlags _privateStatic = BindingFlags.NonPublic | BindingFlags.Static;
@@ -123,22 +168,25 @@ namespace PeanutButter.DuckTyping.Extensions
 
         private static IDictionary<string, object> BoxDictionary<TValue>(
             IDictionary<string, TValue> src,
-            bool caseSensitive
+            bool isFuzzy
         )
         {
-            // TODO: two-way passthrough with dictionary wrapper instead of conversion
             return src.ToDictionary(kvp => kvp.Key,
                 kvp => kvp.Value as object,
-                caseSensitive
-                    ? StringComparer.InvariantCulture
-                    : StringComparer.InvariantCultureIgnoreCase
+                isFuzzy
+                    ? StringComparer.OrdinalIgnoreCase
+                    : StringComparer.Ordinal
             );
         }
 
-        private static IDictionary<string, object> PassThrough(object input, bool caseSensitive)
+        private static IDictionary<string, object> PassThrough(object input, bool isFuzzy)
         {
-            // TODO: handle case-insensitivity
-            return input as IDictionary<string, object>;
+            var asDict = input as IDictionary<string, object>;
+            if (!isFuzzy)
+                return asDict;
+            return asDict == null
+                ? null
+                : new CaseWarpingDictionaryWrapper<object>(asDict, StringComparer.OrdinalIgnoreCase);
         }
     }
 }
