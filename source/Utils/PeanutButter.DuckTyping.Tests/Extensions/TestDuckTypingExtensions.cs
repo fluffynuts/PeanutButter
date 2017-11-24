@@ -2372,6 +2372,20 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 Expect(result).Not.To.Be.Null();
                 Expect(result.Prop.Name).To.Equal(expected);
             }
+
+            [Test]
+            public void ShouldAllowMissingStringPropertyBecauseItsNullable()
+            {
+                // Arrange
+                var src = new Dictionary<string, object>();
+
+                // Pre-Assert
+                // Act
+                var result = src.FuzzyDuckAs<IBackedByDictionary>(true);
+                // Assert
+                Expect(result).Not.To.Be.Null();
+                Expect(result.Name).To.Be.Null();
+            }
         }
 
         [TestFixture]

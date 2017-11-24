@@ -244,8 +244,8 @@ namespace PeanutButter.DuckTyping.Extensions
             var parameters = mi.GetParameters();
             if (parameters.Length != 2)
                 return false;
-            return parameters[0].ParameterType == typeof(string) && 
-                parameters[1].IsOut;
+            return parameters[0].ParameterType == typeof(string) &&
+                   parameters[1].IsOut;
         }
 
         internal static bool HasMethodMatching(
@@ -395,6 +395,8 @@ namespace PeanutButter.DuckTyping.Extensions
         {
             if (t == null)
                 return false; // have no idea
+            if (t == typeof(string))
+                return true;
             if (!t.IsGenericType)
                 return false;
             return t.GetGenericTypeDefinition() == _nullableGeneric;
