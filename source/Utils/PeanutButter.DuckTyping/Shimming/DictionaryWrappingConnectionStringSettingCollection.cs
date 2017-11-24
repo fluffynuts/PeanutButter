@@ -1,3 +1,5 @@
+#if NETSTANDARD
+#else
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -136,3 +138,4 @@ namespace PeanutButter.DuckTyping.Shimming
         public StringComparer Comparer { get; }
     }
 }
+#endif

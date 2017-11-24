@@ -1,7 +1,10 @@
-﻿using System;
+﻿#if NETSTANDARD
+#else
+using System.Configuration;
+#endif
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Configuration;
 using System.Linq;
 using System.Reflection;
 using Imported.PeanutButter.Utils;
@@ -111,10 +114,15 @@ namespace PeanutButter.DuckTyping.Extensions
             PassThrough,
             BoxifyDictionary,
             WrapNameValueCollection,
+#if NETSTANDARD
+#else
             WrapConnectionStringCollection,
+#endif
             WrapObject
         };
 
+#if NETSTANDARD
+#else
         private static IDictionary<string, object> WrapConnectionStringCollection(
             object obj, bool isFuzzy
         )
@@ -127,6 +135,7 @@ namespace PeanutButter.DuckTyping.Extensions
                 isFuzzy
             );
         }
+#endif
 
         private static IDictionary<string, object> WrapObject(
             object obj,

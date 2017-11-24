@@ -1,159 +1,38 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{DE67B50B-6CD0-49C8-9D3C-953B80E08FDC}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PeanutButter.DuckTyping</RootNamespace>
-    <AssemblyName>PeanutButter.DuckTyping</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;BUILD_PEANUTBUTTER_INTERNAL</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\PeanutButter.DuckTyping.XML</DocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;BUILD_PEANUTBUTTER_INTERNAL</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\PeanutButter.DuckTyping.XML</DocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BuildForNuget|AnyCPU'">
-    <OutputPath>bin\BuildForNuget\</OutputPath>
-    <DefineConstants>TRACE;BUILD_PEANUTBUTTER_INTERNAL</DefineConstants>
-    <DocumentationFile>bin\Release\PeanutButter.DuckTyping.XML</DocumentationFile>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'PushToNuget|AnyCPU'">
-    <OutputPath>bin\PushToNuget\</OutputPath>
-    <DefineConstants>TRACE;BUILD_PEANUTBUTTER_INTERNAL</DefineConstants>
-    <DocumentationFile>bin\Release\PeanutButter.DuckTyping.XML</DocumentationFile>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Core" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="..\PeanutButter.Utils\Dictionaries\CaseWarpingDictionaryWrapper.cs">
-      <Link>Imported\CaseWarpingDictionaryWrapper.cs</Link>
-    </Compile>
-    <Compile Include="..\PeanutButter.Utils\Dictionaries\DictionaryWrappingObject.cs">
-      <Link>Imported\DictionaryWrappingObject.cs</Link>
-    </Compile>
-    <Compile Include="..\PeanutButter.Utils\Dictionaries\DictionaryWrappingObjectEnumerator.cs">
-      <Link>Imported\DictionaryWrappingObjectEnumerator.cs</Link>
-    </Compile>
-    <Compile Include="..\PeanutButter.Utils\Dictionaries\GenericDictionaryEnumerator.cs">
-      <Link>Imported\GenericDictionaryEnumerator.cs</Link>
-    </Compile>
-    <Compile Include="..\PeanutButter.Utils\Dictionaries\MergeDictionary.cs">
-      <Link>Imported\MergeDictionary.cs</Link>
-    </Compile>
-    <Compile Include="..\PeanutButter.Utils\ExtensionsForIEnumerables.cs">
-      <Link>Imported\ExtensionsForIEnumerables.cs</Link>
-    </Compile>
-    <Compile Include="..\PeanutButter.Utils\PropertyOrField.cs">
-      <Link>Imported\PropertyOrField.cs</Link>
-    </Compile>
-    <Compile Include="..\PeanutButter.Utils\PropertyOrFieldExtensions.cs">
-      <Link>Imported\PropertyOrFieldExtensions.cs</Link>
-    </Compile>
-    <Compile Include="..\PeanutButter.Utils\TypeExtensions.cs">
-      <Link>Imported\TypeExtensions.cs</Link>
-    </Compile>
-    <Compile Include="AutoConversion\Converters\EnumConverter.cs" />
-    <Compile Include="AutoConversion\IConverter.cs" />
-    <Compile Include="AutoConversion\Converters\GenericStringConverter.cs" />
-    <Compile Include="Comparers\Comparers.cs" />
-    <Compile Include="Extensions\CustomAttributeHelperExtensions.cs" />
-    <Compile Include="Extensions\MergingExtensions.cs" />
-    <Compile Include="Shimming\DictionaryWrappingConnectionStringSettingCollection.cs" />
-    <Compile Include="Extensions\DuckTypingCollectionExtensions.cs" />
-    <Compile Include="Shimming\DefaultPropertyInfoFetcher.cs" />
-    <Compile Include="Shimming\DictionaryShimSham.cs" />
-    <Compile Include="Exceptions\BackingFieldForPropertyNotFoundException.cs" />
-    <Compile Include="Exceptions\MethodNotFoundException.cs" />
-    <Compile Include="Exceptions\PropertyNotFoundException.cs" />
-    <Compile Include="Exceptions\ReadOnlyPropertyException.cs" />
-    <Compile Include="Exceptions\UnresolveableParameterOrderMismatchException.cs" />
-    <Compile Include="AutoConversion\ConverterLocator.cs" />
-    <Compile Include="Shimming\DictionaryWrappingConnectionStringSettingCollectionEnumerator.cs" />
-    <Compile Include="Shimming\DictionaryWrappingNameValueCollection.cs" />
-    <Compile Include="Shimming\DictionaryWrappingNameValueCollectionEnumerator.cs" />
-    <Compile Include="Extensions\DuckTypingDictionaryExtensions.cs" />
-    <Compile Include="Extensions\DuckTypingHelperExtensions.cs" />
-    <Compile Include="Extensions\DuckTypingNameValueCollectionExtensions.cs" />
-    <Compile Include="Extensions\DuckTypingObjectExtensions.cs" />
-    <Compile Include="Extensions\DuckTypingExtensionSharedMethods.cs" />
-    <Compile Include="Exceptions\ParameterCountMismatchException.cs" />
-    <Compile Include="Extensions\TypePair.cs" />
-    <Compile Include="Exceptions\UnDuckableException.cs" />
-    <Compile Include="Shimming\FuzzyKeyFinder.cs" />
-    <Compile Include="Shimming\IPropertyInfoFetcher.cs" />
-    <Compile Include="Shimming\IsADuckAttribute.cs" />
-    <Compile Include="Shimming\IShimSham.cs" />
-    <Compile Include="Shimming\ITypeMaker.cs" />
-    <Compile Include="Comparers\MethodInfoComparer.cs" />
-    <Compile Include="Comparers\MethodInfoContainer.cs" />
-    <Compile Include="Comparers\PropertyInfoComparer.cs" />
-    <Compile Include="Shimming\PropertyInfoContainer.cs" />
-    <Compile Include="Shimming\RedirectingDictionary.cs" />
-    <Compile Include="Shimming\RedirectingDictionaryEnumerator.cs" />
-    <Compile Include="Shimming\ShimSham.cs" />
-    <Compile Include="Create.cs" />
-    <Compile Include="Shimming\ShimShamBase.cs" />
-    <Compile Include="Extensions\StringExtensionsForFuzzyKeyMatching.cs" />
-    <Compile Include="Shimming\TypeMaker.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Exceptions\WriteOnlyPropertyException.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Net.Compilers">
-      <Version>2.3.2</Version>
-    </PackageReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>mkdir $(SolutionDir)Utils\$(ProjectName).NugetPackage\lib\net45
-del /Q $(SolutionDir)Utils\$(ProjectName).NugetPackage\lib\net45\*.*
-copy $(TargetPath) $(SolutionDir)Utils\$(ProjectName).NugetPackage\lib\net45\
-copy $(TargetDir)\$(ProjectName).pdb  $(SolutionDir)Utils\$(ProjectName).NugetPackage\lib\net45\
-copy $(TargetDir)\$(ProjectName).xml $(SolutionDir)Utils\$(ProjectName).NugetPackage\lib\net45\
-</PostBuildEvent>
-  </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
+        <DefineConstants>NETSTANDARD;BUILD_PEANUTBUTTER_INTERNAL</DefineConstants>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net452|AnyCPU'">
+      <DocumentationFile>bin\Release\net452\PeanutButter.DuckTyping.xml</DocumentationFile>
+      <DefineConstants>TRACE;BUILD_PEANUTBUTTER_INTERNAL</DefineConstants>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net452|AnyCPU'">
+      <DocumentationFile>bin\Debug\net452\PeanutButter.DuckTyping.xml</DocumentationFile>
+      <DefineConstants>TRACE;DEBUG;BUILD_PEANUTBUTTER_INTERNAL</DefineConstants>
+    </PropertyGroup>
+    <ItemGroup>
+      <Compile Include="..\PeanutButter.Utils\Dictionaries\CaseWarpingDictionaryWrapper.cs" Link="Imported\CaseWarpingDictionaryWrapper.cs" />
+      <Compile Include="..\PeanutButter.Utils\Dictionaries\DefaultDictionary.cs" Link="Imported\DefaultDictionary.cs" />
+      <Compile Include="..\PeanutButter.Utils\Dictionaries\DictionaryWrappingObject.cs" Link="Imported\DictionaryWrappingObject.cs" />
+      <Compile Include="..\PeanutButter.Utils\Dictionaries\DictionaryWrappingObjectEnumerator.cs" Link="Imported\DictionaryWrappingObjectEnumerator.cs" />
+      <Compile Include="..\PeanutButter.Utils\Dictionaries\GenericDictionaryEnumerator.cs" Link="Imported\GenericDictionaryEnumerator.cs" />
+      <Compile Include="..\PeanutButter.Utils\Dictionaries\MergeDictionary.cs" Link="Imported\MergeDictionary.cs" />
+      <Compile Include="..\PeanutButter.Utils\ExtensionsForIEnumerables.cs" Link="Imported\ExtensionsForIEnumerables.cs" />
+      <Compile Include="..\PeanutButter.Utils\PropertyOrField.cs" Link="Imported\PropertyOrField.cs" />
+      <Compile Include="..\PeanutButter.Utils\PropertyOrFieldExtensions.cs" Link="Imported\PropertyOrFieldExtensions.cs" />
+      <Compile Include="..\PeanutButter.Utils\StrictComparer.cs" Link="Imported\StrictComparer.cs" />
+      <Compile Include="..\PeanutButter.Utils\TypeExtensions.cs" Link="Imported\TypeExtensions.cs" />
+    </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Imported\" />
+    </ItemGroup>
+    <ItemGroup>
+      <PackageReference Include="system.reflection.emit" Version="4.3.0" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(TargetFramework)'=='net452'">
+      <Reference Include="System.Configuration" />
+    </ItemGroup>
 </Project>

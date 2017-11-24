@@ -61,6 +61,7 @@ namespace PeanutButter.DuckTyping.AutoConversion
             catch (Exception ex)
             {
                 var asTargetInvocationException = ex as TargetInvocationException;
+                // ReSharper disable once RedundantAssignment
                 var message = asTargetInvocationException?.Message ?? ex.Message;
                 Trace.WriteLine($"PeanutButter.DuckTyping: Warning: Unable to register automatic string converter for {type}: {message}");
             }

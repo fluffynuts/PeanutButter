@@ -1,6 +1,10 @@
 using System.Collections.Generic;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     internal class StrictComparer<TKey> : IEqualityComparer<TKey>
     {

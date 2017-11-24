@@ -3,8 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 
 // ReSharper disable InheritdocConsiderUsage
-
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils.Dictionaries
+#else
 namespace PeanutButter.Utils.Dictionaries
+#endif
 {
     /// <summary>
     /// Provides a Dictionary class which returns default values for unknown keys
@@ -12,8 +15,13 @@ namespace PeanutButter.Utils.Dictionaries
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="TValue"></typeparam>
-    public class DefaultDictionary<TKey, TValue> :
-        IDictionary<TKey, TValue>
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+        #else
+    public
+#endif
+        class DefaultDictionary<TKey, TValue> :
+            IDictionary<TKey, TValue>
     {
         private readonly Func<TValue> _defaultResolver;
         private readonly Func<TKey, TValue> _smartResolver;
@@ -43,8 +51,7 @@ namespace PeanutButter.Utils.Dictionaries
         /// <param name="defaultResolver"></param>
         public DefaultDictionary(Func<TValue> defaultResolver)
         {
-            _defaultResolver = defaultResolver
-                               ?? throw new ArgumentNullException(nameof(defaultResolver));
+            _defaultResolver = defaultResolver ?? throw new ArgumentNullException(nameof(defaultResolver));
             _actual = new Dictionary<TKey, TValue>();
         }
 
@@ -55,8 +62,7 @@ namespace PeanutButter.Utils.Dictionaries
         /// <param name="smartResolver"></param>
         public DefaultDictionary(Func<TKey, TValue> smartResolver)
         {
-            _smartResolver = smartResolver
-                             ?? throw new ArgumentNullException(nameof(smartResolver));
+            _smartResolver = smartResolver ?? throw new ArgumentNullException(nameof(smartResolver));
             _actual = new Dictionary<TKey, TValue>();
         }
 
@@ -109,7 +115,10 @@ namespace PeanutButter.Utils.Dictionaries
         /// <param name="arrayIndex">position to start copying at</param>
         public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
         {
-            _actual.ForEach(kvp => { array[arrayIndex++] = kvp; });
+            _actual.ForEach(kvp =>
+            {
+                array[arrayIndex++] = kvp;
+            });
         }
 
         /// <summary>

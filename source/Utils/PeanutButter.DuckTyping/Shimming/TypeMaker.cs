@@ -116,7 +116,11 @@ namespace PeanutButter.DuckTyping.Shimming
             AddObjectWrappingConstructors(typeBuilder, shimField, interfaceType, isFuzzy);
             AddDictionaryWrappingConstructors(typeBuilder, shimField, interfaceType);
 
+#if NETSTANDARD
+            return typeBuilder.CreateTypeInfo();
+#else
             return typeBuilder.CreateType();
+#endif
         }
 
         private FieldBuilder AddShimField(TypeBuilder typeBuilder)
@@ -561,9 +565,14 @@ namespace PeanutButter.DuckTyping.Shimming
 
         private static AssemblyBuilder DefineDynamicAssembly(string withName)
         {
-            return AppDomain.CurrentDomain.DefineDynamicAssembly(
-                new AssemblyName(withName),
-                AssemblyBuilderAccess.RunAndSave);
+            return
+#if NETSTANDARD
+                AssemblyBuilder
+                    .DefineDynamicAssembly(new AssemblyName(withName), AssemblyBuilderAccess.RunAndCollect);
+#else
+                AppDomain.CurrentDomain
+                .DefineDynamicAssembly(new AssemblyName(withName), AssemblyBuilderAccess.RunAndCollect);
+#endif
         }
     }
 }

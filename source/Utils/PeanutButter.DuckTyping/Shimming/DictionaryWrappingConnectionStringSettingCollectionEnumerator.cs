@@ -1,3 +1,5 @@
+#if NETSTANDARD
+#else
 using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
@@ -50,3 +52,4 @@ namespace PeanutButter.DuckTyping.Shimming
         object IEnumerator.Current => Current;
     }
 }
+#endif
