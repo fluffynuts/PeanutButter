@@ -10,7 +10,11 @@ using System.Text.RegularExpressions;
 
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Provides utility extensions for strings

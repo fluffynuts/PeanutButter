@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Threading;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Class to use the using() {} pattern to take care of locking / unlocking one of:

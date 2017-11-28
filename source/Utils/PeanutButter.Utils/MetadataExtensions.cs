@@ -1,21 +1,25 @@
 ﻿// ReSharper disable RedundantUsingDirective
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
 #if BUILD_PEANUTBUTTER_INTERNAL
-    internal 
-#else
-    /// <summary>
-    /// Provides extension methods to set and retrieve metadata on any object.
-    /// Under the hood, these methods use a ConditionalWeakTable to store your
-    /// metadata, so the metadata is garbage-collected when your managed objects
-    /// are garbage-collected.
-    /// </summary>
+    internal
+#else /// <summary>
+/// Provides extension methods to set and retrieve metadata on any object.
+/// Under the hood, these methods use a ConditionalWeakTable to store your
+/// metadata, so the metadata is garbage-collected when your managed objects
+/// are garbage-collected.
+/// </summary>
     public 
 #endif
         static class MetadataExtensions
@@ -24,8 +28,7 @@ namespace PeanutButter.Utils
             new ConditionalWeakTable<object, Dictionary<string, object>>();
 
 #if BUILD_PEANUTBUTTER_INTERNAL
-#else
-        // This is only used for testing and is not designed for consumers
+#else // This is only used for testing and is not designed for consumers
         internal static int TrackedObjectCount() {
             var keys = _table.GetPropertyValue("Keys") as IEnumerable<object>;
             return keys?.Count() 
@@ -78,7 +81,7 @@ namespace PeanutButter.Utils
                     return default(T);
 
                 return data.TryGetValue(key, out var result)
-                    ? (T) result    // WILL fail hard if the caller doesn't match the stored type
+                    ? (T) result // WILL fail hard if the caller doesn't match the stored type
                     : default(T);
             }
         }
@@ -100,8 +103,8 @@ namespace PeanutButter.Utils
                 var data = GetMetadataFor(parent);
                 if (data == null)
                     return false;
-                return data.TryGetValue(key, out var stored) && 
-                    CanCast<T>(stored);
+                return data.TryGetValue(key, out var stored) &&
+                       CanCast<T>(stored);
             }
         }
 
@@ -110,7 +113,7 @@ namespace PeanutButter.Utils
             try
             {
                 // ReSharper disable once UnusedVariable
-                var interesting = default(T)?.Equals((T)stored);   // TODO: could this be optimised away?
+                var interesting = default(T)?.Equals((T) stored); // TODO: could this be optimised away?
                 return true;
             }
             catch
@@ -134,7 +137,6 @@ namespace PeanutButter.Utils
             var result = new Dictionary<string, object>();
             _table.Add(parent, result);
             return result;
-
         }
     }
 }

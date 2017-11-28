@@ -1,7 +1,11 @@
 ﻿using System.Linq;
 using System.Text;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Provides some extensions useful for byte arrays
@@ -39,7 +43,8 @@ namespace PeanutButter.Utils
         // ReSharper disable once InconsistentNaming
         public static string ToUTF8String(this byte[] data)
         {
-            if (data == null) return null;
+            if (data == null)
+                return null;
             return Encoding.UTF8.GetString(data);
         }
 
