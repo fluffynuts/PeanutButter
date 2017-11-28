@@ -178,12 +178,26 @@ namespace PeanutButter.Utils
             //  if the types match, use .Equals, otherwise attempt upcasting to decimal
             //  so that, eg: (long)2 == (int)2
             if (sourceType == compareType)
-                return OnlyCompareShape || objSource.Equals(objCompare);
+                return OnlyCompareShape || PerformSameTypeEquals(objSource, objCompare);
             var sourceAsDecimal = TryConvertToDecimal(objSource);
             var compareAsDecimal = TryConvertToDecimal(objCompare);
             if (sourceAsDecimal == null || compareAsDecimal == null)
                 return false;
             return OnlyCompareShape || sourceAsDecimal.Equals(compareAsDecimal);
+        }
+
+        private bool PerformSameTypeEquals(object left, object right)
+        {
+            var result = left.Equals(right);
+            if (!result)
+                return false;
+            
+            if (left is DateTime leftDate && 
+                right is DateTime rightDate)
+            {
+                return leftDate.Kind == rightDate.Kind;
+            }
+            return true;
         }
 
         private decimal? TryConvertToDecimal(object obj)

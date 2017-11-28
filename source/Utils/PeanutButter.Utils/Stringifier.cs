@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 
@@ -87,12 +88,24 @@ namespace PeanutButter.Utils
             _strategies =
             {
                 MakeStrategy(IsNull, PrintNull),
+                MakeStrategy(IsDateTime, StringifyDateTime),
                 MakeStrategy(IsPrimitive, StringifyPrimitive),
                 MakeStrategy(IsEnum, StringifyEnum),
                 MakeStrategy(IsEnumerable, StringifyCollection),
                 MakeStrategy(Default, StringifyJsonLike),
                 MakeStrategy(LastPass, JustToStringIt)
             };
+
+        private static string StringifyDateTime(object obj, int level, string nullRep)
+        {
+            var dt = (DateTime)obj;
+            return $"{dt.ToString(CultureInfo.InvariantCulture)} ({dt.Kind})";
+        }
+
+        private static bool IsDateTime(object obj, int level)
+        {
+            return obj is DateTime;
+        }
 
         private static string StringifyCollection(object obj, int level, string nullRep)
         {

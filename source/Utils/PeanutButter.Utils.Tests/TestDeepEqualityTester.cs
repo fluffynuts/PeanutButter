@@ -556,6 +556,25 @@ namespace PeanutButter.Utils.Tests
             }
         }
 
+        [TestFixture]
+        public class DateTimes
+        {
+            [Test]
+            public void LocalDateTimeShouldNotEqualUtcDateTime()
+            {
+                // Arrange
+                var src = GetRandomDate();
+                var local = new DateTime(src.Year, src.Month, src.Day, src.Hour, src.Minute, src.Second, DateTimeKind.Local);
+                var utc = new DateTime(src.Year, src.Month, src.Day, src.Hour, src.Minute, src.Second, DateTimeKind.Utc);
+                var sut = Create(local, utc);
+                // Pre-Assert
+                // Act
+                var result = sut.AreDeepEqual();
+                // Assert
+                Expect(result).To.Be.False();
+            }
+        }
+
         private static string DataUriFor<T>(T input)
         {
             var json = JsonConvert.SerializeObject(input);

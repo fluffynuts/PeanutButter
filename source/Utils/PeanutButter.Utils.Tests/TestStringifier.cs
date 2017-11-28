@@ -1,7 +1,9 @@
 using System;
+using System.Globalization;
 using NUnit.Framework;
 using NExpect;
 using static NExpect.Expectations;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.Utils.Tests
 {
@@ -66,6 +68,29 @@ namespace PeanutButter.Utils.Tests
                 new[] {5, 6, 7}
             }.Stringify());
             // Assert
+        }
+
+        [Test]
+        public void ShouldInclude_Kind_ForDateTime()
+        {
+            // Arrange
+            var src = GetRandomDate();
+            var local = new DateTime(src.Year, src.Month, src.Day, src.Hour, src.Minute, src.Second, DateTimeKind.Local);
+            var utc = new DateTime(src.Year, src.Month, src.Day, src.Hour, src.Minute, src.Second, DateTimeKind.Utc);
+            var unspecified = new DateTime(src.Year, src.Month, src.Day, src.Hour, src.Minute, src.Second, DateTimeKind.Unspecified);
+            var expectedPre = src.ToString(CultureInfo.InvariantCulture);
+            // Pre-Assert
+            // Act
+            var localResult = local.Stringify();
+            var utcResult = utc.Stringify();
+            var unspecifiedResult = unspecified.Stringify();
+            // Assert
+            Expect(localResult).To.Start.With(expectedPre)
+                .And.End.With(" (Local)");
+            Expect(utcResult).To.Start.With(expectedPre)
+                .And.End.With(" (Utc)");
+            Expect(unspecifiedResult).To.Start.With(expectedPre)
+                .And.End.With(" (Unspecified)");
         }
     }
 }
