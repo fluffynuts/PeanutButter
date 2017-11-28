@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using static PeanutButter.Utils.PyLike;
@@ -189,6 +190,8 @@ namespace PeanutButter.Utils
         private bool PerformSameTypeEquals(object left, object right)
         {
             var result = left.Equals(right);
+            if (IgnoreDateTimeKind())
+                return result;
             if (!result)
                 return false;
             
@@ -198,6 +201,24 @@ namespace PeanutButter.Utils
                 return leftDate.Kind == rightDate.Kind;
             }
             return true;
+        }
+
+        private bool? _ignoreDateTimeKind;
+        private bool IgnoreDateTimeKind()
+        {
+            _ignoreDateTimeKind = _ignoreDateTimeKind ?? (CheckEnvironmentForIgnoreDateTimeKind());
+            return _ignoreDateTimeKind ?? false;
+        }
+
+        private static readonly string[] _positives = {
+            "true",
+            "yes",
+            "1"
+        };
+        private bool? CheckEnvironmentForIgnoreDateTimeKind()
+        {
+            var envVar = Environment.GetEnvironmentVariable("DEEP_EQUALITY_IGNORES_DATETIME_KIND");
+            return _positives.Contains(envVar?.ToLower(CultureInfo.InvariantCulture));
         }
 
         private decimal? TryConvertToDecimal(object obj)
