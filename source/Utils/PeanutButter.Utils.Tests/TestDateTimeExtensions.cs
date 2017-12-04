@@ -2,6 +2,8 @@
 using System.Globalization;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using NExpect;
+using static NExpect.Expectations;
 
 namespace PeanutButter.Utils.Tests
 {
@@ -28,7 +30,7 @@ namespace PeanutButter.Utils.Tests
             var result = date.AsHoursAndMinutes();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result).To.Equal(expected);
         }
 
         [TestCase(0, 0, 0, "00:00:00")]
@@ -51,7 +53,7 @@ namespace PeanutButter.Utils.Tests
             var result = date.AsTimeString();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -66,7 +68,7 @@ namespace PeanutButter.Utils.Tests
             var result = dateTime.MillisecondsSinceStartOfDay();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -82,7 +84,7 @@ namespace PeanutButter.Utils.Tests
             var result = testDate.StartOfDay();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -98,7 +100,7 @@ namespace PeanutButter.Utils.Tests
             var result = testDate.EndOfDay();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -115,7 +117,7 @@ namespace PeanutButter.Utils.Tests
             var result = testDate.AsTimeOnly();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -135,7 +137,23 @@ namespace PeanutButter.Utils.Tests
             var result = testDate.WithTime(hour, minute, second, millisecond);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result).To.Equal(expected);
+        }
+
+        [Test]
+        public void WithTime_ShouldPreserveOriginalKind()
+        {
+            // Arrange
+            var testDate = GetRandomDate(DateTimeKind.Utc);
+            var hour = GetRandomInt(0, 23);
+            var minute = GetRandomInt(0, 59);
+            var second = GetRandomInt(0, 59);
+            var millisecond = GetRandomInt(0, 999);
+            // Pre-Assert
+            // Act
+            var result = testDate.WithTime(hour, minute, second, millisecond);
+            // Assert
+            Expect(result.Kind).To.Equal(testDate.Kind);
         }
 
 
@@ -152,7 +170,7 @@ namespace PeanutButter.Utils.Tests
             var result = GetTruncateTestStringFor(input.TruncateMicroseconds());
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -168,7 +186,7 @@ namespace PeanutButter.Utils.Tests
             var result = GetTruncateTestStringFor(input.TruncateMilliseconds());
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -186,7 +204,7 @@ namespace PeanutButter.Utils.Tests
             var result = GetTruncateTestStringFor(dateResult);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -202,7 +220,7 @@ namespace PeanutButter.Utils.Tests
             var result = GetTruncateTestStringFor(input.TruncateMinutes());
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -218,7 +236,7 @@ namespace PeanutButter.Utils.Tests
             var result = GetTruncateTestStringFor(input.TruncateHours());
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -234,7 +252,7 @@ namespace PeanutButter.Utils.Tests
             var result = GetTruncateTestStringFor(input.TruncateDays());
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -250,7 +268,7 @@ namespace PeanutButter.Utils.Tests
             var result = GetTruncateTestStringFor(input.TruncateMonths());
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -269,7 +287,7 @@ namespace PeanutButter.Utils.Tests
             var result = d.Microseconds();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -286,7 +304,7 @@ namespace PeanutButter.Utils.Tests
             var result = subject.IsWithinRange(start, end);
 
             //--------------- Assert -----------------------
-            Assert.IsFalse(result);
+            Expect(result).To.Be.False();
         }
 
         [Test]
@@ -303,7 +321,7 @@ namespace PeanutButter.Utils.Tests
             var result = subject.IsWithinRange(start, end);
 
             //--------------- Assert -----------------------
-            Assert.IsFalse(result);
+            Expect(result).To.Be.False();
         }
 
         [Test]
@@ -320,7 +338,7 @@ namespace PeanutButter.Utils.Tests
             var result = subject.IsWithinRange(start, end);
 
             //--------------- Assert -----------------------
-            Assert.IsTrue(result);
+            Expect(result).To.Be.True();
         }
 
         [Test]
@@ -337,7 +355,7 @@ namespace PeanutButter.Utils.Tests
             var result = subject.IsWithinRange(start, end);
 
             //--------------- Assert -----------------------
-            Assert.IsTrue(result);
+            Expect(result).To.Be.True();
         }
 
 

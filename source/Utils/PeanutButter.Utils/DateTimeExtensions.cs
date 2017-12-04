@@ -109,7 +109,15 @@ namespace PeanutButter.Utils
         /// </returns>
         public static DateTime WithTime(this DateTime value, int hour, int minute, int second, int millisecond = 0)
         {
-            return new DateTime(value.Year, value.Month, value.Day, hour, minute, second, millisecond);
+            return new DateTime(
+                value.Year, 
+                value.Month, 
+                value.Day, 
+                hour, 
+                minute, 
+                second, 
+                millisecond,
+                value.Kind);
         }
 
         /// <summary>
