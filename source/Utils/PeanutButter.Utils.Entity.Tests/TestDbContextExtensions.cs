@@ -23,7 +23,7 @@ namespace PeanutButter.Utils.Entity.Tests
         }
         public class ThingContext: DbContext
         {
-            public IDbSet<Thing> Things { get; set; } 
+            public IDbSet<Thing> Things { get; set; }
             public ThingContext(DbConnection connection): base(connection, true)
             {
             }

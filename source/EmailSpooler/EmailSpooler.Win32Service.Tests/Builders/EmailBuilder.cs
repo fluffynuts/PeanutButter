@@ -17,7 +17,7 @@ namespace EmailSpooler.Win32Service.Tests.Builders
         }
         public EmailBuilder WithRandomCC(int howMany = 1)
         {
-                WithProp(e => 
+                WithProp(e =>
                     {
                         for (var i = 0; i < howMany; i++)
                             e.EmailRecipients.Add(EmailRecipientBuilder.Create().WithRandomProps()
@@ -36,7 +36,7 @@ namespace EmailSpooler.Win32Service.Tests.Builders
         }
         public EmailBuilder WithRandomRecipient(int howMany = 1)
         {
-                WithProp(e => 
+                WithProp(e =>
                     {
                         for (var i = 0; i < howMany; i++)
                             e.EmailRecipients.Add(EmailRecipientBuilder.Create().WithRandomProps()

@@ -14,8 +14,8 @@ namespace PeanutButter.FluentMigrator.Fakes
         }
 
         public IDbCommand CreateCommand(
-            string commandText, 
-            IDbConnection connection, 
+            string commandText,
+            IDbConnection connection,
             IDbTransaction transaction)
         {
             return new FakeDbCommand()

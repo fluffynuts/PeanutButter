@@ -237,7 +237,7 @@ namespace PeanutButter.DuckTyping.Tests
                 Payload = payload;
             }
         }
-        
+
         public class ActivityParameters : IActivityParameters
         {
             public Guid ActorId { get; }
@@ -260,7 +260,7 @@ namespace PeanutButter.DuckTyping.Tests
             Guid TaskId { get; }
             void DoNothing();
         }
-        
+
         public interface IActivityParameters<out T> : IActivityParameters
         {
             T Payload { get; }
@@ -270,7 +270,7 @@ namespace PeanutButter.DuckTyping.Tests
             IActivityParameters<ITravelRequestDetails>
         {
         }
-        
+
         public interface ITravelRequestDetails
         {
             DateTime Initiated { get; set; }

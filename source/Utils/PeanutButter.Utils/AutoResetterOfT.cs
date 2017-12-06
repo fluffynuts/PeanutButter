@@ -3,14 +3,14 @@
 namespace PeanutButter.Utils
 {
     /// <summary>
-    /// Provides a mechanism to run code on construction and disposal, 
+    /// Provides a mechanism to run code on construction and disposal,
     /// irrespective of exception handling
     /// Use this, for example, to set up and tear down state required for
     /// a test -- your constructionAction is called immediately upon construction
     /// and the using() pattern guarantees that your disposalAction is called at
-    /// disposal, even if your test fails. 
+    /// disposal, even if your test fails.
     /// This is the variant of AutoResetter where:
-    /// 1. The start Func returns a value 
+    /// 1. The start Func returns a value
     /// 2. Upon disposal, the end action is called with the value from (1)
     /// </summary>
     /// <typeparam name="T">Type of value which is passed to the start and end actions</typeparam>

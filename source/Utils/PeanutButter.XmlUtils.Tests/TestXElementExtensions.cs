@@ -15,7 +15,7 @@ namespace PeanutButter.XmlUtils.Tests
             var text = RandomValueGen.GetRandomString(10, 20);
             var tag = RandomValueGen.GetRandomAlphaString(10, 20);
             var el = new XElement(tag, new XText(text));
-            
+
             // pre-conditions
 
             // execute test
@@ -34,7 +34,7 @@ namespace PeanutButter.XmlUtils.Tests
             var t2 = RandomValueGen.GetRandomAlphaString(10, 20);
             var tag = RandomValueGen.GetRandomAlphaString(8, 20);
             var el = new XElement(tag, new XText(t1), new XText(t2));
-            
+
             // pre-conditions
 
             // execute test

@@ -45,7 +45,7 @@ namespace PeanutButter.Utils.Entity
             {
                 return await base.SaveChangesAsync();
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
                 throw;

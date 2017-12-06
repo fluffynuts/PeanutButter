@@ -77,7 +77,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         public void IsCaseSensitive_OperatingOnSomethingWithoutComparerProperty_ShouldResortToBruteForce_CaseSensitive()
         {
             //--------------- Arrange -------------------
-            var dict = new MyDictionary(true) 
+            var dict = new MyDictionary(true)
             {
                 new KeyValuePair<string, object>("Foo", "bar")
             };

@@ -5,7 +5,7 @@ namespace PeanutButter.TinyEventAggregator
     public delegate void SubscriptionAddedEventHandler(object sender, SubscriptionsChangedEventArgs args);
     public delegate void SubscriptionRemovedEventHandler(object sender, SubscriptionsChangedEventArgs args);
 
-    public abstract class EventBase 
+    public abstract class EventBase
     {
         private object _suspensionLock = new object();
         internal bool IsSuspended { get; private set; }

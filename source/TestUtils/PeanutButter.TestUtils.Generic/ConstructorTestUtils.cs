@@ -24,25 +24,25 @@ namespace PeanutButter.TestUtils.Generic
         /// <param name="expectedParameterType"></param>
         /// <typeparam name="TCheckingConstructorOf"></typeparam>
         public static void ShouldExpectNonNullParameterFor<TCheckingConstructorOf>(
-            string parameterName, 
+            string parameterName,
             Type expectedParameterType
         )
         {
             var constructor = GetConstructorInfo<TCheckingConstructorOf>();
             var parameters = GetConstructorParameters(parameterName, constructor).ToArray();
             var parameter = parameters.FirstOrDefault(pi => pi.Name == parameterName);
-            Assert.IsNotNull(parameter, 
+            Assert.IsNotNull(parameter,
                 $"Unknown parameter for constructor of {typeof(TCheckingConstructorOf).PrettyName()}: {parameterName}");
             // ReSharper disable once PossibleNullReferenceException
             if (parameter.ParameterType != expectedParameterType)
-                Assert.Fail(new[] 
-                            { 
-                                "Parameter ", 
-                                parameterName, 
-                                " is expected to have type: '",  
-                                expectedParameterType.PrettyName(), 
-                                "' but actually has type: '", 
-                                parameter.ParameterType.PrettyName(), "'" 
+                Assert.Fail(new[]
+                            {
+                                "Parameter ",
+                                parameterName,
+                                " is expected to have type: '",
+                                expectedParameterType.PrettyName(),
+                                "' but actually has type: '",
+                                parameter.ParameterType.PrettyName(), "'"
                             }.JoinWith(string.Empty));
 
             var parameterValues = CreateParameterValues(parameterName, parameters.ToList());
@@ -100,7 +100,7 @@ namespace PeanutButter.TestUtils.Generic
             var parameterType = parameterInfo.ParameterType;
             if (parameterType.IsPrimitive)
                 return false;
-            return _typeMayBeSubstitutableIfPassesAnyOf.Aggregate(false, 
+            return _typeMayBeSubstitutableIfPassesAnyOf.Aggregate(false,
                         (accumulator, currentFunc) => accumulator || currentFunc(parameterType));
         }
 
@@ -126,7 +126,7 @@ namespace PeanutButter.TestUtils.Generic
             catch
             {
                 var handle = Activator.CreateInstance(
-                    AppDomain.CurrentDomain, 
+                    AppDomain.CurrentDomain,
                     parameterType.Assembly.FullName,
                     parameterType.FullName ?? throw new InvalidOperationException($"No FullName on {parameterType}")
                 );

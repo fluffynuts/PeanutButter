@@ -20,7 +20,7 @@ namespace PeanutButter.TestUtils.MVC.Tests
 
         internal static IDictionary<string, object> ToDictionary(
             this FakeHttpSessionState state
-        ) 
+        )
         {
             return state.Keys.AsEnumerable().Aggregate(new List<KeyValuePair<string, object>>(),
                 (acc, cur) =>

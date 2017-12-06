@@ -69,7 +69,7 @@ namespace PeanutButter.RandomGenerators
             }
         }
 
-        private static readonly Dictionary<Type, Type> _builderTypeCache = 
+        private static readonly Dictionary<Type, Type> _builderTypeCache =
             new Dictionary<Type, Type>();
 
         private static Type TryFindExistingBuilderAndCacheFor(Type type)

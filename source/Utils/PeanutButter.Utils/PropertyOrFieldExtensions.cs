@@ -32,7 +32,7 @@ namespace PeanutButter.Utils
         }
 
         public static bool IsMatchFor(
-            this PropertyOrField master, 
+            this PropertyOrField master,
             PropertyOrField other
         )
         {
@@ -40,8 +40,8 @@ namespace PeanutButter.Utils
         }
 
         public static bool IsMatchFor(
-            this PropertyOrField master, 
-            PropertyOrField other, 
+            this PropertyOrField master,
+            PropertyOrField other,
             bool mustMatchMemberType
         )
         {

@@ -110,23 +110,23 @@ namespace PeanutButter.Utils
         public static DateTime WithTime(this DateTime value, int hour, int minute, int second, int millisecond = 0)
         {
             return new DateTime(
-                value.Year, 
-                value.Month, 
-                value.Day, 
-                hour, 
-                minute, 
-                second, 
+                value.Year,
+                value.Month,
+                value.Day,
+                hour,
+                minute,
+                second,
                 millisecond,
                 value.Kind);
         }
 
         /// <summary>
         /// Provides a new DateTime with all components from the subject except
-        /// Microseconds, which are truncated. 
+        /// Microseconds, which are truncated.
         /// </summary>
         /// <param name="value">Subject DateTime to start with</param>
         /// <returns>
-        /// New DateTime with all components except milliseconds set from the subject. 
+        /// New DateTime with all components except milliseconds set from the subject.
         /// Microseconds are set to zero.
         /// </returns>
         public static DateTime TruncateMicroseconds(this DateTime value)
@@ -140,7 +140,7 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="value">Subject DateTime to start with</param>
         /// <returns>
-        /// New DateTime with all components except milliseconds set from the subject. 
+        /// New DateTime with all components except milliseconds set from the subject.
         /// Milliseconds are set to zero.
         /// </returns>
         public static DateTime TruncateMilliseconds(this DateTime value)
@@ -154,7 +154,7 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="value">Subject DateTime to start with</param>
         /// <returns>
-        /// New DateTime with all components except milliSeconds set from the subject. 
+        /// New DateTime with all components except milliSeconds set from the subject.
         /// Seconds are set to zero.
         /// </returns>
         public static DateTime TruncateSeconds(this DateTime value)
@@ -168,7 +168,7 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="value">Subject DateTime to start with</param>
         /// <returns>
-        /// New DateTime with all components except milliMinutes set from the subject. 
+        /// New DateTime with all components except milliMinutes set from the subject.
         /// Minutes are set to zero.
         /// </returns>
         public static DateTime TruncateMinutes(this DateTime value)
@@ -182,7 +182,7 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="value">Subject DateTime to start with</param>
         /// <returns>
-        /// New DateTime with all components except milliHours set from the subject. 
+        /// New DateTime with all components except milliHours set from the subject.
         /// Hours are set to zero.
         /// </returns>
         public static DateTime TruncateHours(this DateTime value)
@@ -196,7 +196,7 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="value">Subject DateTime to start with</param>
         /// <returns>
-        /// New DateTime with all components except milliDays set from the subject. 
+        /// New DateTime with all components except milliDays set from the subject.
         /// Days are set to zero.
         /// </returns>
         public static DateTime TruncateDays(this DateTime value)
@@ -210,7 +210,7 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="value">Subject DateTime to start with</param>
         /// <returns>
-        /// New DateTime with all components except milliMonths set from the subject. 
+        /// New DateTime with all components except milliMonths set from the subject.
         /// Months are set to zero.
         /// </returns>
         public static DateTime TruncateMonths(this DateTime value)
@@ -229,12 +229,12 @@ namespace PeanutButter.Utils
         }
 
         private static DateTime DateTimeFor(DateTimeKind kind,
-                                            int years, 
-                                            int months = 1, 
-                                            int days = 1, 
-                                            int hours = 0, 
-                                            int minutes = 0, 
-                                            int seconds = 0, 
+                                            int years,
+                                            int months = 1,
+                                            int days = 1,
+                                            int hours = 0,
+                                            int minutes = 0,
+                                            int seconds = 0,
                                             int milliseconds = 0)
         {
             return new DateTime(years, months, days, hours, minutes, seconds, milliseconds, kind);

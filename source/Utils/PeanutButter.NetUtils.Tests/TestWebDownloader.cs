@@ -13,7 +13,7 @@ namespace PeanutButter.NetUtils.Tests
         public void Construct_ShouldNotThrow()
         {
             //---------------Set up test pack-------------------
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------

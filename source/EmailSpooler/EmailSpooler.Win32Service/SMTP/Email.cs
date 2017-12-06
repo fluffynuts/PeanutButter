@@ -173,7 +173,7 @@ namespace EmailSpooler.Win32Service.SMTP
         // ReSharper disable once InconsistentNaming
         protected bool DetermineIfBodyIsHTML()
         {
-            return Body.IndexOf("<html", StringComparison.Ordinal) > -1 && 
+            return Body.IndexOf("<html", StringComparison.Ordinal) > -1 &&
                     Body.IndexOf("</html>", StringComparison.Ordinal) > -1;
         }
     }

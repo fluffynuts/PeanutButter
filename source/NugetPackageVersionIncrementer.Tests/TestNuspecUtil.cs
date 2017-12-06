@@ -56,7 +56,7 @@ namespace NugetPackageVersionIncrementer.Tests
         [Test]
         public void IncrementVersion_ShouldIncrementTheVersion()
         {
-            // not defensive enough -- assumes pass-through to 
+            // not defensive enough -- assumes pass-through to
             //---------------Set up test pack-------------------
             var tempFile = Path.GetTempFileName();
             using (new AutoDeleter(tempFile))
@@ -90,7 +90,7 @@ namespace NugetPackageVersionIncrementer.Tests
         [Test]
         public void Persist_ShouldPersist()
         {
-            // not defensive enough -- assumes pass-through to 
+            // not defensive enough -- assumes pass-through to
             //---------------Set up test pack-------------------
             var tempFile = Path.GetTempFileName();
             using (new AutoDeleter(tempFile))

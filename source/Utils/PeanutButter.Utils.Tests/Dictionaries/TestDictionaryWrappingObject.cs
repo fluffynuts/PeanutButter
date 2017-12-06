@@ -394,7 +394,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                 Expect(target[0]).To.Equal(default(KeyValuePair<string, object>));
                 Expect(target).To.Contain.Exactly(1)
                     .Equal.To(new KeyValuePair<string, object>(
-                        nameof(HasAPropertyAndField.Field), 
+                        nameof(HasAPropertyAndField.Field),
                         src.Field));
                 Expect(target).To.Contain.Exactly(1)
                     .Equal.To(new KeyValuePair<string, object>(

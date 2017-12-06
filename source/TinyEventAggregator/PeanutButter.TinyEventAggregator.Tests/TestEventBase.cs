@@ -16,7 +16,7 @@ namespace PeanutButter.TinyEventAggregator.Tests
         public void Construct_DoesNotThrow()
         {
             // test setup
-            
+
             // pre-conditions
 
             // execute test
@@ -34,7 +34,7 @@ namespace PeanutButter.TinyEventAggregator.Tests
         public void Subscribe_GivenNullAction_ThrowsArgumentNullException()
         {
             // test setup
-            var ev = Create();    
+            var ev = Create();
             // pre-conditions
 
             // execute test
@@ -63,7 +63,7 @@ namespace PeanutButter.TinyEventAggregator.Tests
             // test setup
             var called = false;
             var ev = Create();
-            
+
             // pre-conditions
             Assert.IsFalse(called);
 
@@ -108,7 +108,7 @@ namespace PeanutButter.TinyEventAggregator.Tests
         {
             // test setup
             var ev = Create();
-            
+
             // pre-conditions
 
             // execute test
@@ -123,7 +123,7 @@ namespace PeanutButter.TinyEventAggregator.Tests
             // test setup
             var ev = Create();
             var callCount = 0;
-            
+
             // pre-conditions
 
             // execute test
@@ -190,7 +190,7 @@ namespace PeanutButter.TinyEventAggregator.Tests
                 eventSender = s;
                 eventToken = e.Token;
             };
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -214,7 +214,7 @@ namespace PeanutButter.TinyEventAggregator.Tests
                     eventSender = s;
                     eventToken = e.Token;
                 };
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------

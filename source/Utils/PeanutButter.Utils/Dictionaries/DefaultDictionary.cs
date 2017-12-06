@@ -109,7 +109,7 @@ namespace PeanutButter.Utils.Dictionaries
         }
 
         /// <summary>
-        /// Copies known items to the target array 
+        /// Copies known items to the target array
         /// </summary>
         /// <param name="array">Array to copy to</param>
         /// <param name="arrayIndex">position to start copying at</param>

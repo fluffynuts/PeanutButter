@@ -74,7 +74,7 @@ namespace EmailSpooler.Win32Service
         {
             var cutoff = DateTime.Now.AddDays(-_config.PurgeMessageWithAgeInDays);
             var toRemove = _context.Emails.Where(e => (e.Sent || e.SendAttempts >= _config.MaxSendAttempts)
-                                                            && (e.LastModified.HasValue && 
+                                                            && (e.LastModified.HasValue &&
                                                                 e.LastModified.Value <= cutoff))
                                                                 .ToList();
             if (!toRemove.Any()) return;

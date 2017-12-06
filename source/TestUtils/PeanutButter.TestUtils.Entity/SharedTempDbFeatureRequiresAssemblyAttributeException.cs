@@ -5,7 +5,7 @@ namespace PeanutButter.TestUtils.Entity
 {
     public class SharedTempDbFeatureRequiresAssemblyAttributeException: Exception
     {
-        private static readonly string _requiredAttributeTypeName = 
+        private static readonly string _requiredAttributeTypeName =
             nameof(AllowSharedTempDbInstancesAttribute).Replace("Attribute", "");
         public SharedTempDbFeatureRequiresAssemblyAttributeException(
             Type testFixtureType

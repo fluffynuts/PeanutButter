@@ -20,7 +20,7 @@ namespace EmailSpooler.Win32Service.Tests
         public void CreateFromAppConfig_SetsPropertiesFromConfig()
         {
             // test setup
-            
+
             // pre-conditions
 
             // execute test

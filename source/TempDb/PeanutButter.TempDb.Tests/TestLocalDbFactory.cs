@@ -73,7 +73,7 @@ namespace PeanutButter.TempDb.Tests
                 destroyer.DatabaseFile = dbFile;
                 destroyer.DatabaseName = dbName;
                 //---------------Assert Precondition----------------
-        
+
                 //---------------Execute Test ----------------------
                 sut.CreateDatabase(dbName, dbFile);
 

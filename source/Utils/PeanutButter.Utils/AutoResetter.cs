@@ -3,7 +3,7 @@
 namespace PeanutButter.Utils
 {
     /// <summary>
-    /// Provides a mechanism to run code on construction and disposal, 
+    /// Provides a mechanism to run code on construction and disposal,
     /// irrespective of exception handling
     /// Use this, for example, to set up and tear down state required for
     /// a test -- your constructionAction is called immediately upon construction

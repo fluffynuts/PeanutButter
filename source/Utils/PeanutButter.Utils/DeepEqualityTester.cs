@@ -198,8 +198,8 @@ namespace PeanutButter.Utils
                 return result;
             if (!result)
                 return false;
-            
-            if (left is DateTime leftDate && 
+
+            if (left is DateTime leftDate &&
                 right is DateTime rightDate)
             {
                 return leftDate.Kind == rightDate.Kind;

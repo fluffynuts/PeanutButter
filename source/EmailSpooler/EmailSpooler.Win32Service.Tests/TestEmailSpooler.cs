@@ -107,7 +107,7 @@ namespace EmailSpooler.Win32Service.Tests
         {
             // test setup
                 var deps = FakeEmailSpoolerDependenciesBuilder.Create().WithEmailGenerator(null).Build();
-            
+
             // pre-conditions
 
             // execute test
@@ -122,7 +122,7 @@ namespace EmailSpooler.Win32Service.Tests
         {
             // test setup
             var deps = FakeEmailSpoolerDependenciesBuilder.Create().WithEmailSpoolerConfig(null).Build();
-            
+
             // pre-conditions
 
             // execute test
@@ -156,7 +156,7 @@ namespace EmailSpooler.Win32Service.Tests
             var generatedMails = 0;
             var ctx = SubstituteEmailContextBuilder.BuildDefault();
             var spooler = Create(ctx);
-            
+
             // pre-conditions
             Assert.AreEqual(0, ctx.Emails.Count());
 
@@ -360,7 +360,7 @@ namespace EmailSpooler.Win32Service.Tests
                         .WithDbContext(ctx)
                         .WithEmailGenerator(func)
                         .Build();
-            
+
             // pre-conditions
             Assert.AreEqual(2, dto.EmailAttachments.Count(a => a.Data.Length > 0 && a.Name.Length > 0));
 
@@ -391,7 +391,7 @@ namespace EmailSpooler.Win32Service.Tests
                         .WithDbContext(ctx)
                         .WithEmailGenerator(func)
                         .Build();
-            
+
             // pre-conditions
             Assert.AreEqual(2, dto.EmailAttachments.Count(a => a.Data.Length > 0 && a.Name.Length > 0));
 
@@ -422,7 +422,7 @@ namespace EmailSpooler.Win32Service.Tests
                         .WithDbContext(ctx)
                         .WithEmailGenerator(func)
                         .Build();
-            
+
             // pre-conditions
             Assert.AreEqual(2, dto.EmailAttachments.Count(a => a.Data.Length > 0 && a.Name.Length > 0));
 
@@ -451,7 +451,7 @@ namespace EmailSpooler.Win32Service.Tests
                         .WithDbContext(ctx)
                         .WithEmailGenerator(func)
                         .Build();
-            
+
             // pre-conditions
             Assert.AreEqual(2, dto.EmailAttachments.Count(a => a.Data.Length > 0 && a.Name.Length > 0));
 
@@ -477,7 +477,7 @@ namespace EmailSpooler.Win32Service.Tests
             dto.EmailRecipients.First().IsCC = true;
             dto.SendAt = DateTime.Now.AddYears(-1);
             dto.SendAttempts = maxAttempts + 1;
-            
+
             var ctx = SubstituteEmailContextBuilder.Create().WithEmails(dto).Build();
             var deps = FakeEmailSpoolerDependenciesBuilder.Create()
                         .WithDbContext(ctx)
@@ -508,7 +508,7 @@ namespace EmailSpooler.Win32Service.Tests
             dto.EmailRecipients.First().IsCC = true;
             dto.SendAt = DateTime.Now.AddYears(-1);
             dto.Enabled = false;
-            
+
             var ctx = SubstituteEmailContextBuilder.Create().WithEmails(dto).Build();
             var deps = FakeEmailSpoolerDependenciesBuilder.Create()
                         .WithDbContext(ctx)
@@ -541,7 +541,7 @@ namespace EmailSpooler.Win32Service.Tests
                         .WithDbContext(ctx)
                         .WithEmailGenerator(func)
                         .Build();
-            
+
             // pre-conditions
             Assert.AreEqual(2, dto.EmailAttachments.Count(a => a.Data.Length > 0 && a.Name.Length > 0));
 
@@ -682,7 +682,7 @@ namespace EmailSpooler.Win32Service.Tests
             deps.EmailSpoolerConfig.PurgeMessageWithAgeInDays.ReturnsForAnyArgs(ci => dayVal);
             dto.Sent = true;
             dto.LastModified = DateTime.Now.AddDays(-dayVal).AddSeconds(-10);
-            
+
             // pre-conditions
             Assert.AreEqual(1, ctx.Emails.Count());
 
@@ -716,7 +716,7 @@ namespace EmailSpooler.Win32Service.Tests
             dto.Sent = false;
             dto.SendAttempts = deps.EmailSpoolerConfig.MaxSendAttempts;
             dto.LastModified = DateTime.Now.AddDays(-dayVal).AddSeconds(-10);
-            
+
             // pre-conditions
             Assert.AreEqual(1, ctx.Emails.Count());
 

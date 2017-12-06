@@ -110,12 +110,12 @@ namespace EmailSpooler.Win32Service.Tests
         public void Construct_GivenNullConfiguration_ThrowsException()
         {
             //---------------Set up test pack-------------------
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
             Assert.Throws<ArgumentNullException>(() => new Email(null));
-            
+
             //---------------Test Result -----------------------
         }
 
@@ -123,7 +123,7 @@ namespace EmailSpooler.Win32Service.Tests
         public void Implements_IDisposable()
         {
             //---------------Set up test pack-------------------
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -136,7 +136,7 @@ namespace EmailSpooler.Win32Service.Tests
         public void Construct_SetsUpToList()
         {
             //---------------Set up test pack-------------------
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -149,7 +149,7 @@ namespace EmailSpooler.Win32Service.Tests
         public void Construct_SetsUpCCList()
         {
             //---------------Set up test pack-------------------
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -420,7 +420,7 @@ namespace EmailSpooler.Win32Service.Tests
                 var mimeType = "text/plain";
                 email.Subject = RandomValueGen.GetRandomString();
                 email.Body = RandomValueGen.GetRandomString();
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -508,7 +508,7 @@ namespace EmailSpooler.Win32Service.Tests
             var fileName = RandomValueGen.GetRandomString();
             var data = RandomValueGen.GetRandomBytes();
             var mimeType = "text/plain";
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -543,7 +543,7 @@ namespace EmailSpooler.Win32Service.Tests
             var fileName = RandomValueGen.GetRandomString();
             var data = RandomValueGen.GetRandomBytes();
             var mimeType = "text/plain";
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------

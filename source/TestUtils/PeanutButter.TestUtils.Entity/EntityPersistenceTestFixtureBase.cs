@@ -22,10 +22,10 @@ namespace PeanutButter.TestUtils.Entity
             return _ignoreFields.And(typeof(T).VirtualProperties());
         }
 
-        protected void ShouldBeAbleToPersist<TBuilder, TEntity>(Func<TDbContext, IDbSet<TEntity>>  collectionNabber, 
-            Action<TDbContext, TEntity> beforePersisting = null, 
+        protected void ShouldBeAbleToPersist<TBuilder, TEntity>(Func<TDbContext, IDbSet<TEntity>>  collectionNabber,
+            Action<TDbContext, TEntity> beforePersisting = null,
             Action<TEntity, TEntity> customAssertions = null,
-            params string[] ignoreProperties) 
+            params string[] ignoreProperties)
             where TBuilder: GenericBuilder<TBuilder, TEntity>, new()
             where TEntity: class
         {

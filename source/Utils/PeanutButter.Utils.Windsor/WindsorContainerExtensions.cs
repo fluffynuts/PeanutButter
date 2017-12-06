@@ -10,7 +10,7 @@ namespace PeanutButter.Utils.Windsor
     public static class WindsorContainerExtensions
     {
         public static void RegisterAllOneToOneResolutionsAsTransientFrom(
-            this IWindsorContainer container, 
+            this IWindsorContainer container,
             params Assembly[] assemblies)
         {
             container.RegisterAllOneToOneResolutionsAsTransientExcept(

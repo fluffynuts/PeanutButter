@@ -18,7 +18,7 @@ namespace PeanutButter.TempDb.Tests
         public void ShouldImplementIDisposable()
         {
             //---------------Set up test pack-------------------
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -195,7 +195,7 @@ namespace PeanutButter.TempDb.Tests
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                // localDb seems to take a little longer to spin up; reduced the parallel count to 10 to make 
+                // localDb seems to take a little longer to spin up; reduced the parallel count to 10 to make
                 //  running all tests viable
                 Parallel.For(0, 10, i =>
                 {

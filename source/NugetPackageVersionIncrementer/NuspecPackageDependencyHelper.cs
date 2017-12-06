@@ -5,9 +5,9 @@ namespace NugetPackageVersionIncrementer
 {
     public class NuspecPackageDependencyHelper
     {
-        private XDocument _doc;
+        private readonly XDocument _doc;
 
-        public string NuspecXml { get { return _doc.ToString(); } }
+        public string NuspecXml => _doc.ToString();
 
         public NuspecPackageDependencyHelper(string xml)
         {

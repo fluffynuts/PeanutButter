@@ -64,7 +64,7 @@ namespace PeanutButter.Utils.Tests
             //---------------Test Result -----------------------
             Assert.IsFalse(Directory.Exists(tempFolder));
         }
-     
+
         [Test]
         public void Add_WhenGivenNonEmptyFolder_ShouldDeleteFolderWhenDisposed()
         {

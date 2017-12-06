@@ -16,7 +16,7 @@ namespace PeanutButter.Utils
         /// </summary>
         public IEnumerable<string> Errors => _errors.ToArray();
 
-        
+
         /// <summary>
         /// Allow sub-matching: when True, the comparison type can contain more
         /// properties than the master as long as all master properties are matched
@@ -83,7 +83,7 @@ namespace PeanutButter.Utils
         }
 
         private bool TryFindComplexMatchFor(
-            PropertyOrField master, 
+            PropertyOrField master,
             PropertyOrField[] compareMembers)
         {
             var nameMatch = compareMembers.FirstOrDefault(c => c.Name == master.Name);
@@ -94,7 +94,7 @@ namespace PeanutButter.Utils
 
         private bool DeepCompare(Type masterType, Type compareType)
         {
-            var util = new TypeEqualityTester(masterType, compareType, _errors) 
+            var util = new TypeEqualityTester(masterType, compareType, _errors)
             {
                 SubMatch = SubMatch
             };
@@ -105,7 +105,7 @@ namespace PeanutButter.Utils
         {
             return compareMembers.ContainsOnlyOneMatching(
                        cur,
-                       (o1, o2) => AllowAssignmentEquivalence 
+                       (o1, o2) => AllowAssignmentEquivalence
                                     ? o1.IsAssignmentMatchFor(o2)
                                     : o1.IsMatchFor(o2)
                    ) ||

@@ -57,7 +57,7 @@ namespace PeanutButter.TempDb.LocalDb
         /// <returns></returns>
         public string GetMasterConnectionString()
         {
-            var result = string.Format(MASTER_CONNECTION_STRING, 
+            var result = string.Format(MASTER_CONNECTION_STRING,
                 InstanceName ?? new LocalDbInstanceEnumerator().FindFirstAvailableInstance());
             System.Diagnostics.Trace.WriteLine($"Connecting to LocalDb with: \"{result}\"");
             return result;

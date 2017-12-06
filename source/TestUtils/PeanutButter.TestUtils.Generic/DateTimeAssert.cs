@@ -36,19 +36,19 @@ namespace PeanutButter.TestUtils.Generic
         /// <param name="maxMonth">Maximum month to test against</param>
         /// <param name="maxDay">Maximum day to test against</param>
         public static void IsInRange(
-            DateTime test, 
-            int minYear, 
-            int minMonth, 
-            int minDay, 
-            int maxYear, 
-            int maxMonth, 
+            DateTime test,
+            int minYear,
+            int minMonth,
+            int minDay,
+            int maxYear,
+            int maxMonth,
             int maxDay
         )
         {
             var minDate = new DateTime(minYear, minMonth, minDay, 0, 0, 0);
             var maxDate = new DateTime(maxYear, maxMonth, maxDay, 0, 0, 0);
-            DoAssertion(test, 
-                        minDate, 
+            DoAssertion(test,
+                        minDate,
                         maxDate,
                         IsInDateRangeFailMessageFor(test, minDate, maxDate));
         }

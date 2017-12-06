@@ -20,7 +20,7 @@ namespace PeanutButter.Utils
 /// metadata, so the metadata is garbage-collected when your managed objects
 /// are garbage-collected.
 /// </summary>
-    public 
+    public
 #endif
         static class MetadataExtensions
     {
@@ -31,7 +31,7 @@ namespace PeanutButter.Utils
 #else // This is only used for testing and is not designed for consumers
         internal static int TrackedObjectCount() {
             var keys = _table.GetPropertyValue("Keys") as IEnumerable<object>;
-            return keys?.Count() 
+            return keys?.Count()
                 ?? throw new InvalidOperationException("Reaching into ConditionalWeakTable for the Keys collection has failed");
         }
 #endif
@@ -59,7 +59,7 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
-        /// Attempts to retrieve a piece of metadata for an object. When the 
+        /// Attempts to retrieve a piece of metadata for an object. When the
         /// metadata key for the object is unknown, returns the default value
         /// for the type requested, eg 0 for ints, null for strings and objects.
         /// Note that if metadata exists for the requested key but not for the

@@ -49,7 +49,7 @@ namespace PeanutButter.Utils.Tests
         public void Construct_GivenStringValueWIthPeriodFormattedDecimal_ToDecimalReturnsDecimalValue(string input, decimal expected)
         {
             //---------------Set up test pack-------------------
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -88,7 +88,7 @@ namespace PeanutButter.Utils.Tests
         public void Construct_GivenNullString_ToDecimalReturns0()
         {
             //---------------Set up test pack-------------------
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------

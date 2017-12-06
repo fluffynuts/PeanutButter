@@ -117,8 +117,8 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
         private HttpMethods GetRandomMethodButNotAny()
         {
             var result = RandomValueGen.GetRandom<HttpMethods>();
-            return result == HttpMethods.Any 
-                    ? GetRandomMethodButNotAny() 
+            return result == HttpMethods.Any
+                    ? GetRandomMethodButNotAny()
                     : result;
         }
 

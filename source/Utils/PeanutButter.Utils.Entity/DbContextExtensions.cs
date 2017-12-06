@@ -65,7 +65,7 @@ namespace PeanutButter.Utils.Entity
         private static void ThrowEntityValidationErrorFor(DbEntityValidationException ex)
         {
             var errors = string.Join(
-                "\n", 
+                "\n",
                 ex.EntityValidationErrors.Select(GetErrorString));
             throw new Exception("Error whilst trying to persist to the database:\n" + errors, ex);
         }

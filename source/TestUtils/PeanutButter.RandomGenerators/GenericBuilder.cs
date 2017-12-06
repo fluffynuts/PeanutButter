@@ -150,7 +150,7 @@ namespace PeanutButter.RandomGenerators
 
         // ReSharper disable once UnusedMember.Global
         /// <summary>
-        /// Adds a default property setter, shared amongst all instances of this 
+        /// Adds a default property setter, shared amongst all instances of this
         /// particular builder type
         /// </summary>
         /// <param name="action">
@@ -251,7 +251,7 @@ namespace PeanutButter.RandomGenerators
                             try
                             {
                                 return acc == null || acc.Equals(default(TEntity)) ? cur() : acc;
-                            } 
+                            }
                             catch
                             {
                                 return acc;

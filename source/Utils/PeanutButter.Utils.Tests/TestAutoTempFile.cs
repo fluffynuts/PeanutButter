@@ -39,7 +39,7 @@ namespace PeanutButter.Utils.Tests
             Assert.IsTrue(File.Exists(sut.Path));
             var fileInfo = new FileInfo(sut.Path);
             Assert.AreEqual(0, fileInfo.Length);
-            
+
             try
             {
                 File.Delete(sut.Path);

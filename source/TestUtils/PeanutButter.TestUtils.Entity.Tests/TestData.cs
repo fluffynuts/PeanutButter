@@ -35,7 +35,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
 			base.OnModelCreating(modelBuilder);
 		}
     }
-    
+
     public class COMBlockList
     {
         public int COMBlockListID { get; set; }

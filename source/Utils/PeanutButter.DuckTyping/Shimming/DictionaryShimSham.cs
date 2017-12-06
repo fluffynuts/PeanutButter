@@ -89,7 +89,7 @@ namespace PeanutButter.DuckTyping.Shimming
         /// Gets the value of a property by name
         /// </summary>
         /// <param name="propertyName">Name of the property to get the value of</param>
-        /// <returns>The value of the property, where possible. 
+        /// <returns>The value of the property, where possible.
         /// May return the default value for the property type when it is not found
         /// and may attempt automatic conversion when the type to represent does not
         /// match the underlying type</returns>
@@ -181,7 +181,7 @@ namespace PeanutButter.DuckTyping.Shimming
                 return true;
             var lower = first.ToLower();
             var upper = first.ToUpper();
-            return current.TryGetValue(lower, out var _) && 
+            return current.TryGetValue(lower, out var _) &&
                 data[0].TryGetValue(upper, out _);
         }
 

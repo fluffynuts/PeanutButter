@@ -166,7 +166,7 @@ namespace PeanutButter.FileSystem.Tests
             adminACE["Trustee"] = trustee;
 
             ManagementObject secDescriptor = new ManagementClass(new ManagementPath("Win32_SecurityDescriptor"), null);
-            secDescriptor["ControlFlags"] = 4; //SE_DACL_PRESENT 
+            secDescriptor["ControlFlags"] = 4; //SE_DACL_PRESENT
             secDescriptor["DACL"] = new object[] { adminACE };
 
             object result = _winShareObject.InvokeMethod("SetShareInfo", new object[] { int.MaxValue, Description, secDescriptor });

@@ -499,7 +499,7 @@ namespace PeanutButter.Utils
         /// <summary>
         /// Creates a deep clone of the provided item, as far as possible
         /// Works on properties which are:
-        ///  * simple values, 
+        ///  * simple values,
         ///  * any complex, non-generic value with a parameterless constructor
         ///  * Collections which are arrays, generic IEnumerable or generic List,
         ///      conforming to the rules above
@@ -550,8 +550,8 @@ namespace PeanutButter.Utils
         private static object CloneDictionary(object src, Type cloneType)
         {
             if (!cloneType.TryGetDictionaryKeyAndValueTypes(
-                out var keyType, 
-                out var valueType)) 
+                out var keyType,
+                out var valueType))
             {
                 return null;
             }

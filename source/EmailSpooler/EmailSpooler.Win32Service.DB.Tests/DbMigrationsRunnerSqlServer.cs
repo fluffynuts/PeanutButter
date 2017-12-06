@@ -7,12 +7,12 @@ namespace EmailSpooler.Win32Service.DB.Tests
 {
     public class DbMigrationsRunnerSqlServer : DBMigrationsRunner<SqlServer2000ProcessorFactory>
     {
-        public DbMigrationsRunnerSqlServer(string connectionString) 
+        public DbMigrationsRunnerSqlServer(string connectionString)
             : this(connectionString, null)
         {
         }
 
-        public DbMigrationsRunnerSqlServer(string connectionString, Action<string> textWriterAction) 
+        public DbMigrationsRunnerSqlServer(string connectionString, Action<string> textWriterAction)
             : base(typeof(Migration_1_CreateEmail).Assembly, connectionString, textWriterAction)
         {
         }

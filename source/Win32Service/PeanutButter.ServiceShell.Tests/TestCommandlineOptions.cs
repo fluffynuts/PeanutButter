@@ -132,11 +132,11 @@ namespace PeanutButter.ServiceShell.Tests
             Assert.AreEqual(actual, Parser.Default);
         }
 
-        private CommandlineOptions Create(string[] args, string helpHeading, string copyRightInformation, 
+        private CommandlineOptions Create(string[] args, string helpHeading, string copyRightInformation,
                                             Action<string> helpWriter = null,
                                             IParser parser = null)
         {
-            return new CommandlineOptions(args, helpHeading, copyRightInformation, 
+            return new CommandlineOptions(args, helpHeading, copyRightInformation,
                                             helpWriter ?? Console.WriteLine,
                                             parser ?? new ParserFacade(Parser.Default));
         }

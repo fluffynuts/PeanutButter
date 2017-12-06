@@ -36,7 +36,7 @@ namespace PeanutButter.Utils.Dictionaries
             _index = -1;
         }
 
-        public KeyValuePair<string, object> Current => 
+        public KeyValuePair<string, object> Current =>
             new KeyValuePair<string, object>(_keys[_index], _dict[_keys[_index]]);
 
         object IEnumerator.Current => Current;

@@ -19,13 +19,13 @@ namespace PeanutButter.SimpleHTTPServer.Testability
 
         public static void ShouldHaveReceivedRequestFor(this HttpServer server, string path, HttpMethods method = HttpMethods.Any)
         {
-            Assert.IsTrue(server.GetRequestLogsMatching(path, method).Any(), 
+            Assert.IsTrue(server.GetRequestLogsMatching(path, method).Any(),
                             server.RequestErrorFor($"No request matching path {path} and method {method}."));
         }
 
         public static void ShouldNotHaveReceivedRequestFor(this HttpServer server, string path, HttpMethods method = HttpMethods.Any)
         {
-            Assert.IsFalse(server.GetRequestLogsMatching(path, method).Any(), 
+            Assert.IsFalse(server.GetRequestLogsMatching(path, method).Any(),
                             server.RequestErrorFor($"Should have no requests matching path {path} and method {method}."));
         }
 

@@ -58,7 +58,7 @@ namespace PeanutButter.DuckTyping.Extensions
         /// Attempts to accurately duck-type an object to an interface.
         /// </summary>
         /// <param name="src">Object to duck-type</param>
-        /// <param name="throwOnError">Flag to allow throwing and exception when ducking cannot be achieved. 
+        /// <param name="throwOnError">Flag to allow throwing and exception when ducking cannot be achieved.
         /// The thrown exception contains information about what caused ducking to fail.</param>
         /// <typeparam name="T">Interface required</typeparam>
         /// <returns>
@@ -87,7 +87,7 @@ namespace PeanutButter.DuckTyping.Extensions
         public static object FuzzyDuckAs(this object src, Type toType)
         {
             return NonGenericDuck(
-                src, toType, false, 
+                src, toType, false,
                 GenericFuzzyDuckAsMethod
             );
         }

@@ -92,7 +92,7 @@ namespace PeanutButter.Utils
         /// <typeparam name="TItem"></typeparam>
         /// <param name="items">Collection to operate on</param>
         /// <param name="seed">Seed accumulator object</param>
-        /// <param name="reducer">Function to call on each item, reducing the overall result. 
+        /// <param name="reducer">Function to call on each item, reducing the overall result.
         /// It will be given the accumulator from the last round (or the seed if it is the first
         /// time it is called) and should return an accumulator which the next round can use.</param>
         /// <returns></returns>

@@ -20,7 +20,7 @@ namespace PeanutButter.ServiceShell.Tests
             Program.Main(args);
             Assert.DoesNotThrow(() => Shell.ShouldHaveRunMainFor<SomeService>(args));
             //---------------Test Result -----------------------
-            
+
         }
 
         [Test]
@@ -36,7 +36,7 @@ namespace PeanutButter.ServiceShell.Tests
             Program.Main(args);
             Assert.Throws<ShellTestFailureException>(() => Shell.ShouldHaveRunMainFor<AnotherService>(args));
             //---------------Test Result -----------------------
-            
+
         }
 
         [Test]
@@ -52,7 +52,7 @@ namespace PeanutButter.ServiceShell.Tests
             Program.Main(args);
             Assert.Throws<ShellTestFailureException>(() => Shell.ShouldHaveRunMainFor<SomeService>(otherArgs));
             //---------------Test Result -----------------------
-            
+
         }
 
         [Test]

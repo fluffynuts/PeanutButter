@@ -16,8 +16,8 @@ namespace PeanutButter.RandomGenerators
         /// <param name="builderType">Type of the builder</param>
         /// <param name="entityType">Type of the entity to be built</param>
         public GenericBuilderInstanceCreationException(Type builderType, Type entityType)
-            : base ($"{entityType.Name} does not have a parameterless constructor or is not a class Type. " + 
-                  $"You must override CreateInstance {builderType.PrettyName()} for this type to " + 
+            : base ($"{entityType.Name} does not have a parameterless constructor or is not a class Type. " +
+                  $"You must override CreateInstance {builderType.PrettyName()} for this type to " +
                   "provide an instance to work with.")
         {
         }

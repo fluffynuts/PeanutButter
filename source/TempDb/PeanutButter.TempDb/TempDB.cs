@@ -146,10 +146,10 @@ namespace PeanutButter.TempDb
             Action<string, Action> TryDo = (heading, toRun) =>
             {
                 try { toRun(); }
-                catch (Exception ex) 
+                catch (Exception ex)
                 {
                     Trace("Error whilst: " + heading);
-                    Trace(ex.Message); 
+                    Trace(ex.Message);
                 }
             };
             foreach (var conn in _managedConnections)

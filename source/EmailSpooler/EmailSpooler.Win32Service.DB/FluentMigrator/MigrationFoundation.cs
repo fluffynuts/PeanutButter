@@ -28,7 +28,7 @@ namespace EmailSpooler.Win32Service.DB.FluentMigrator
             lines.Add("as");
             lines.Add("begin");
             lines.Add("set NOCOUNT ON;");
-            lines.Add(Join("update [dbo].[", tableName, "] set LastModified = CURRENT_TIMESTAMP where [", 
+            lines.Add(Join("update [dbo].[", tableName, "] set LastModified = CURRENT_TIMESTAMP where [",
                 idCol, "] in (select [", idCol, "] from inserted);"));
             lines.Add("end");
             return string.Join("\n", lines);

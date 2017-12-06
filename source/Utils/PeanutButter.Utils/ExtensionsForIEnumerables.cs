@@ -15,7 +15,7 @@ namespace PeanutButter.Utils
 #if BUILD_PEANUTBUTTER_INTERNAL
     internal
 #else
-    public 
+    public
 #endif
         static class ExtensionsForIEnumerables
     {
@@ -142,7 +142,7 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
-        /// Convenience wrapper around SelectMany; essentially flattens a nested collection 
+        /// Convenience wrapper around SelectMany; essentially flattens a nested collection
         /// of collection(s) of some item. Exactly equivalent to:
         /// collection.SelectMany(o => o);
         /// </summary>
@@ -213,7 +213,7 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
-        /// Convenience method to test if a collection has a single item matching the 
+        /// Convenience method to test if a collection has a single item matching the
         /// provided matcher function
         /// </summary>
         /// <param name="input">Source collection</param>

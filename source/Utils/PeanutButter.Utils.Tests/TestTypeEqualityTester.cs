@@ -300,7 +300,7 @@ namespace PeanutButter.Utils.Tests
             }
         }
 
-        
+
 
         private static TypeEqualityTester Create(Type master, Type compare)
         {

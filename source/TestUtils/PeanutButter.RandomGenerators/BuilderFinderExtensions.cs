@@ -22,7 +22,7 @@ namespace PeanutButter.RandomGenerators
         private static Type TryFindBuilderTypeInClassHeirachyFor(Type potentialBuilder, Type buildType)
         {
             var current = TryFindGenericBuilderInClassHeirachy(potentialBuilder);
-            if (current == null) 
+            if (current == null)
                 return null;
             var typeParameters = current.GetGenericArguments();
             return typeParameters.Length > 1 && typeParameters[1] == buildType

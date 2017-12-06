@@ -75,7 +75,7 @@ namespace PeanutButter.Utils.Tests
         {
             //---------------Set up test pack-------------------
             var disposer = new AutoDisposer();
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------

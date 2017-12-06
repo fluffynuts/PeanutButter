@@ -38,7 +38,7 @@ namespace PeanutButter.Utils.Tests
 
             var characters = hash.Select(t => t.ToString("X2")).ToList();
             var expected = string.Join(string.Empty, characters.ToArray());
-            
+
 
             //---------------Assert Precondition----------------
 
@@ -113,6 +113,6 @@ namespace PeanutButter.Utils.Tests
             Expect(result).To.Equal(expected);
         }
 
-        
+
     }
 }

@@ -24,7 +24,7 @@ namespace PeanutButter.RandomGenerators
         /// </summary>
         /// <param name="type">Type for which the runtime was attempting to generate a builder</param>
         /// <param name="typeLoadException">The actual exception thrown; may assist in resolving the issue</param>
-        public UnableToCreateDynamicBuilderException(Type type, TypeLoadException typeLoadException): 
+        public UnableToCreateDynamicBuilderException(Type type, TypeLoadException typeLoadException):
             base($"Unable to create dynamic builder for type {type.PrettyName()}. If {type.PrettyName()} is internal, you should make InternalsVisibleTo \"PeanutButter.RandomGenerators.GeneratedBuilders\". If {type.PrettyName()} is nested, ensure that all parents are public.",
                 typeLoadException)
         {

@@ -53,7 +53,7 @@ namespace PeanutButter.MVC.Tests
             var bundleResolver = Substitute.For<IBundleResolver>();
             var script = RandomValueGen.GetRandomString() + ".js";
             bundleResolver.GetBundleContents(AutoInclude.BundleBase + controllerName).Returns(new[] { script });
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -82,7 +82,7 @@ namespace PeanutButter.MVC.Tests
             var bundleResolver = Substitute.For<IBundleResolver>();
             var script = RandomValueGen.GetRandomString() + ".js";
             bundleResolver.GetBundleContents(AutoInclude.BundleBase + controllerName + "/" + actionName).Returns(new[] { script });
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -115,7 +115,7 @@ namespace PeanutButter.MVC.Tests
                     a2 = RandomValueGen.GetRandomString() + ".js";
             bundleResolver.GetBundleContents(AutoInclude.BundleBase + controllerName).Returns(new[] { c1, c2 });
             bundleResolver.GetBundleContents(AutoInclude.BundleBase + controllerName + "/" + actionName).Returns(new[] { a1, a2 });
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------

@@ -30,7 +30,7 @@ namespace PeanutButter.DuckTyping.Extensions
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         public static T[] DuckAsArrayOf<T>(
-            this IEnumerable<object> src, 
+            this IEnumerable<object> src,
             bool throwOnFailure
         ) where T: class
         {

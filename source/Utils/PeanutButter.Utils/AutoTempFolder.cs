@@ -5,7 +5,7 @@ namespace PeanutButter.Utils
 {
     /// <summary>
     /// Provides a mechanism for creating a temporary folder which is automatically
-    /// deleted upon disposal. 
+    /// deleted upon disposal.
     /// </summary>
     public class AutoTempFolder: IDisposable
     {

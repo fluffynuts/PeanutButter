@@ -63,7 +63,7 @@ namespace PeanutButter.Utils
         /// <summary>
         /// Is this a Property or a Field?
         /// </summary>
-        public PropertyOrFieldTypes MemberType 
+        public PropertyOrFieldTypes MemberType
             => _propInfo == null ? PropertyOrFieldTypes.Field : PropertyOrFieldTypes.Property;
 
         private readonly PropertyInfo _propInfo;
@@ -103,7 +103,7 @@ namespace PeanutButter.Utils
             if (_fieldInfo == null)
                 _propInfo.SetValue(host, value);
             else
-                _fieldInfo.SetValue(host, value);               
+                _fieldInfo.SetValue(host, value);
         }
     }
 }

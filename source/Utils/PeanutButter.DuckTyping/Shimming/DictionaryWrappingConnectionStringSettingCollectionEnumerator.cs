@@ -44,7 +44,7 @@ namespace PeanutButter.DuckTyping.Shimming
             _currentIndex = -1;
         }
 
-        public KeyValuePair<string, object> Current 
+        public KeyValuePair<string, object> Current
             => new KeyValuePair<string, object>(
                 _keys[_currentIndex], _actual[_keys[_currentIndex]].ConnectionString
             );

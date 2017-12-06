@@ -77,7 +77,7 @@ namespace PeanutButter.Utils.Tests
             //---------------Set up test pack-------------------
             var testDate = GetRandomDate();
             var expected = new DateTime(testDate.Year, testDate.Month, testDate.Day, 0, 0, 0);
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -93,7 +93,7 @@ namespace PeanutButter.Utils.Tests
             //---------------Set up test pack-------------------
             var testDate = GetRandomDate();
             var expected = new DateTime(testDate.Year, testDate.Month, testDate.Day, 23, 59, 59, 999);
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -108,9 +108,9 @@ namespace PeanutButter.Utils.Tests
         {
             //---------------Set up test pack-------------------
             var testDate = GetRandomDate();
-            var expected = new DateTime(DateTime.MinValue.Year, DateTime.MinValue.Month, DateTime.MinValue.Day, 
+            var expected = new DateTime(DateTime.MinValue.Year, DateTime.MinValue.Month, DateTime.MinValue.Day,
                                 testDate.Hour, testDate.Minute, testDate.Second, testDate.Millisecond);
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -130,7 +130,7 @@ namespace PeanutButter.Utils.Tests
             var second = GetRandomInt(0, 59);
             var millisecond = GetRandomInt(0, 999);
             var expected = new DateTime(testDate.Year, testDate.Month, testDate.Day, hour, minute, second, millisecond);
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------

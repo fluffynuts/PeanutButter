@@ -11,7 +11,7 @@ namespace PeanutButter.Utils
 #if BUILD_PEANUTBUTTER_INTERNAL
     internal
 #else
-    public 
+    public
 #endif
         static class PyLike
     {

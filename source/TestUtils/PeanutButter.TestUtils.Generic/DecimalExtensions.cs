@@ -14,7 +14,7 @@ namespace PeanutButter.TestUtils.Generic
         /// <param name="someValue">Value to compare against</param>
         /// <param name="otherValue">Value to compare with</param>
         public static void ShouldMatch(
-            this decimal someValue, 
+            this decimal someValue,
             decimal otherValue
         )
         {

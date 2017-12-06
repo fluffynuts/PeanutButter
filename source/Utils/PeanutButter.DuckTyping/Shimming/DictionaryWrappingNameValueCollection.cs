@@ -23,7 +23,7 @@ namespace PeanutButter.DuckTyping.Shimming
         /// <param name="data"></param>
         /// <param name="caseInsensitive">Flag: is this collection to treat keys case-insensitive?</param>
         public DictionaryWrappingNameValueCollection(
-            NameValueCollection data, 
+            NameValueCollection data,
             bool caseInsensitive
         ): this (data, caseInsensitive ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal)
         {

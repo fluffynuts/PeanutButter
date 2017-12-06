@@ -9,7 +9,7 @@ using PeanutButter.DuckTyping.Extensions;
 namespace PeanutButter.DuckTyping.Shimming
 {
     /// <summary>
-    /// Utility class to create types on the fly which implement provided interfaces, 
+    /// Utility class to create types on the fly which implement provided interfaces,
     /// when possible.
     /// </summary>
     public class TypeMaker : ITypeMaker

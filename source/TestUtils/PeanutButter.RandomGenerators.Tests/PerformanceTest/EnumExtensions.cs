@@ -16,7 +16,7 @@ namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
                     false);
 
             return attributes.Any()
-                ? attributes[0].Description 
+                ? attributes[0].Description
                 : theEnumeration.ToString();
         }
     }

@@ -155,7 +155,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
         public void ShouldMatchDataIn_ShouldOperateOnCollectionsOfDifferentTypeButSameShape()
         {
             //--------------- Arrange -------------------
-            var left = new[] 
+            var left = new[]
             {
                 new { id = 1 }
             };
@@ -176,7 +176,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
         public void ShouldMatchDataInAndOrderOf_ShouldOperateOnCollectionsOfDifferentTypeButSameShape()
         {
             //--------------- Arrange -------------------
-            var left = new[] 
+            var left = new[]
             {
                 new { id = 1 }
             };

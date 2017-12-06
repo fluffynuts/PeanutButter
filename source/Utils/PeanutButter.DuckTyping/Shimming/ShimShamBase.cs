@@ -20,7 +20,7 @@ namespace PeanutButter.DuckTyping.Shimming
         }
         private readonly MethodInfo _genericMakeType = GetTypeMakerMethod(nameof(TypeMaker.MakeTypeImplementing));
         private readonly MethodInfo _genericFuzzyMakeType = GetTypeMakerMethod(nameof(TypeMaker.MakeFuzzyTypeImplementing));
-        private static readonly MethodInfo _getDefaultMethodGeneric = 
+        private static readonly MethodInfo _getDefaultMethodGeneric =
             typeof(ShimShamBase)
             .GetMethod(nameof(GetDefaultFor), BindingFlags.NonPublic | BindingFlags.Static);
         private TypeMaker _typeMaker;
@@ -53,8 +53,8 @@ namespace PeanutButter.DuckTyping.Shimming
         /// <param name="toType">Required output type</param>
         /// <returns>Value converted to required output type, where possible</returns>
         protected object ConvertWith(
-            IConverter converter, 
-            object propValue, 
+            IConverter converter,
+            object propValue,
             Type toType)
         {
             var convertMethod = converter.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public)

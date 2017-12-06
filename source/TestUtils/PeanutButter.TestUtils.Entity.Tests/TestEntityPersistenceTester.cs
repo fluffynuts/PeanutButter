@@ -443,8 +443,8 @@ namespace PeanutButter.TestUtils.Entity.Tests
         public void UsingDefaultDeltaOf2Ms_ShouldAllowTestItemDateTimePropertyValuesToDifferByThatDelta()
         {
             // Pre-amble: I've noticed that, periodically, a test against an entity
-            //  with a DateTime field will fail: the persisted entity will come back 
-            //  with the field different by one (rarely two) milliseconds. Mostly, 
+            //  with a DateTime field will fail: the persisted entity will come back
+            //  with the field different by one (rarely two) milliseconds. Mostly,
             //  in production, timestamps are only used to seconds precision, so mostly,
             //  we don't actually care. The point of this test is to fail on the few that do
             //  when we're not catering for the delta. The plan is:
@@ -486,8 +486,8 @@ namespace PeanutButter.TestUtils.Entity.Tests
         public void WithAllowedDateTimeDelta_GivenDelta_WhenDeltaIsExceeded_ShouldThrow()
         {
             // Pre-amble: I've noticed that, periodically, a test against an entity
-            //  with a DateTime field will fail: the persisted entity will come back 
-            //  with the field different by one (rarely two) milliseconds. Mostly, 
+            //  with a DateTime field will fail: the persisted entity will come back
+            //  with the field different by one (rarely two) milliseconds. Mostly,
             //  in production, timestamps are only used to seconds precision, so mostly,
             //  we don't actually care. The point of this test is to fail on the few that do
             //  when we're not catering for the delta. The plan is:

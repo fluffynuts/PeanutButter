@@ -18,7 +18,7 @@ namespace PeanutButter.TestUtils.Generic.NUnitAbstractions
                 .Select(TryGetTypes)
                 .SelectMany(a => a)
                 .ToArray()
-                .Aggregate(null as Type, (acc, cur) => 
+                .Aggregate(null as Type, (acc, cur) =>
                     acc ?? TypeMatch(cur, fullName, requiredConstructorParameters));
         }
 

@@ -29,7 +29,7 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         public static void IsVariant<TObject>(
-            IEnumerable<TObject> collection, 
+            IEnumerable<TObject> collection,
             string failMessage = "No variance across {0} samples",
             IEqualityComparer<TObject> comparer = null
         )
@@ -38,6 +38,6 @@ namespace PeanutButter.RandomGenerators.Tests
                 return;
             if (collection.Distinct(comparer).Count() == 1)
                 Assert.Fail(failMessage, collection.Count());
-        } 
+        }
     }
 }

@@ -124,7 +124,7 @@ namespace PeanutButter.Utils.Dictionaries
         /// <inheritdoc />
         public bool Remove(KeyValuePair<string, TValue> item)
         {
-            return TryGetKey(item.Key, out var match) && 
+            return TryGetKey(item.Key, out var match) &&
                 _actual.Remove(new KeyValuePair<string, TValue>(match, item.Value));
         }
 

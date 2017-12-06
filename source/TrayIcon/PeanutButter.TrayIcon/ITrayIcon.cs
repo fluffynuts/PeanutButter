@@ -19,7 +19,7 @@ namespace PeanutButter.TrayIcon
     /// </summary>
     int DefaultBalloonTipTimeout { get; set; }
     /// <summary>
-    /// The 
+    /// The
     /// </summary>
     Icon Icon { get; set; }
     /// <summary>

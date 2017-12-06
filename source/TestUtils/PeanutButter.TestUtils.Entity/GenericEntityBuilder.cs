@@ -8,7 +8,7 @@ using PeanutButter.Utils;
 
 namespace PeanutButter.TestUtils.Entity
 {
-    public class GenericEntityBuilder<TBuilder, TEntity> : GenericBuilder<TBuilder, TEntity> 
+    public class GenericEntityBuilder<TBuilder, TEntity> : GenericBuilder<TBuilder, TEntity>
         where TBuilder: GenericBuilder<TBuilder, TEntity>, new()
     {
         private class CheckedProperty

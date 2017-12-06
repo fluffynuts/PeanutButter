@@ -73,7 +73,7 @@ namespace PeanutButter.ServiceShell
             }
         }
 
-        internal CommandlineOptions(string[] args, string helpHeading, string copyRightInformation, 
+        internal CommandlineOptions(string[] args, string helpHeading, string copyRightInformation,
             Action<string> helpWriter, IParser parser)
         {
             HelpWriter = helpWriter;

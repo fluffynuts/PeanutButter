@@ -63,10 +63,10 @@ namespace PeanutButter.RandomGenerators
             if (type.IsGenericType() && type.GetGenericTypeDefinition() == typeof(Nullable<>))
                 type = Nullable.GetUnderlyingType(type);
             return _primitiveGenerators.TryGetValue(
-                type ?? throw new ArgumentNullException(nameof(type)), 
+                type ?? throw new ArgumentNullException(nameof(type)),
                 out var randomGenerator
-            ) 
-                ? randomGenerator() 
+            )
+                ? randomGenerator()
                 : GetRandomValueForType(type);
         }
 
@@ -89,7 +89,7 @@ namespace PeanutButter.RandomGenerators
         }
 
         /// <summary>
-        /// Exposes the default range values used within RandomValueGen when 
+        /// Exposes the default range values used within RandomValueGen when
         /// the ranges are omitted by calling code
         /// </summary>
         public static class DefaultRanges
@@ -514,7 +514,7 @@ namespace PeanutButter.RandomGenerators
         /// <typeparam name="T">Type of enum to use as a source</typeparam>
         /// <returns>Random enum value from the enum type</returns>
         /// <exception cref="ArgumentException">
-        /// Thrown when GetRandomEnum is called on a 
+        /// Thrown when GetRandomEnum is called on a
         /// non-enum type (since there is no generic constraint for enum types, yet)
         /// </exception>
         public static T GetRandomEnum<T>() where T : struct, IConvertible
@@ -533,7 +533,7 @@ namespace PeanutButter.RandomGenerators
         /// <param name="enumType">Type of enum to use as a source</param>
         /// <returns>Random enum value from the enum type</returns>
         /// <exception cref="ArgumentException">
-        /// Thrown when GetRandomEnum is called on a 
+        /// Thrown when GetRandomEnum is called on a
         /// non-enum type (since there is no generic constraint for enum types, yet)
         /// </exception>
         public static object GetRandomEnum(Type enumType)

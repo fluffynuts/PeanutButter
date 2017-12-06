@@ -62,7 +62,7 @@ namespace PeanutButter.SimpleTcpServer
         }
 
         protected abstract IProcessor CreateProcessorFor(TcpClient client);
-        public void Start() 
+        public void Start()
         {
             lock (_lock)
             {
@@ -210,7 +210,7 @@ namespace PeanutButter.SimpleTcpServer
             }
             return tryThis;
         }
-        
+
         protected virtual int NextRandomPort()
         {
             var minPort = _randomPortMin;

@@ -17,13 +17,11 @@ namespace NugetPackageVersionIncrementer
         private readonly INuspecUtilFactory _nuspecUtilFactory;
         public Action<string> LogAction { get; set; }
 
-        public NuspecVersionCoordinator(INuspecFinder nuspecFinder, 
+        public NuspecVersionCoordinator(INuspecFinder nuspecFinder,
                                         INuspecUtilFactory nuspecUtilFactory)
         {
-            if (nuspecFinder == null) throw new ArgumentNullException(nameof(nuspecFinder));
-            if (nuspecUtilFactory == null) throw new ArgumentNullException(nameof(nuspecUtilFactory));
-            _nuspecFinder = nuspecFinder;
-            _nuspecUtilFactory = nuspecUtilFactory;
+            _nuspecFinder = nuspecFinder ?? throw new ArgumentNullException(nameof(nuspecFinder));
+            _nuspecUtilFactory = nuspecUtilFactory ?? throw new ArgumentNullException(nameof(nuspecUtilFactory));
         }
 
         public void IncrementVersionsUnder(params string[] paths)

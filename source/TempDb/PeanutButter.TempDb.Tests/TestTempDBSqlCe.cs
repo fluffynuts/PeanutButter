@@ -17,7 +17,7 @@ namespace PeanutButter.TempDb.Tests
         public void ShouldImplementIDisposable()
         {
             //---------------Set up test pack-------------------
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------

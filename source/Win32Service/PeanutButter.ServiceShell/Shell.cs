@@ -36,8 +36,8 @@ namespace PeanutButter.ServiceShell
         public VersionInfo Version { get; private set; }
         public bool RunningOnceFromCLI { get; set; }
 
-        public string DisplayName 
-        { 
+        public string DisplayName
+        {
             get
             {
                 return GetDisplayName();
@@ -56,8 +56,8 @@ namespace PeanutButter.ServiceShell
         }
 
         private string _copyright;
-        public string CopyrightInformation 
-        { 
+        public string CopyrightInformation
+        {
             get
             {
                 return _copyright ?? string.Empty;
@@ -68,7 +68,7 @@ namespace PeanutButter.ServiceShell
             }
         }
 
-        public new string ServiceName 
+        public new string ServiceName
         {
             get
             {

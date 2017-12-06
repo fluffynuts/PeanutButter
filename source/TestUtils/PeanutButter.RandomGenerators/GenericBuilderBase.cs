@@ -80,7 +80,7 @@ namespace PeanutButter.RandomGenerators
         {
             lock (_moduleBuilderLock)
             {
-                return _moduleBuilder ?? (_moduleBuilder = 
+                return _moduleBuilder ?? (_moduleBuilder =
                     DynamicAssemblyBuilder.DefineDynamicModule("GeneratedBuilders"));
             }
         }

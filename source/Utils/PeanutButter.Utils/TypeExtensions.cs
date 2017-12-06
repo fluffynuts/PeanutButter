@@ -400,7 +400,7 @@ namespace PeanutButter.Utils
         private static readonly Type _disposableInterface = typeof(IDisposable);
 
         /// <summary>
-        /// Provides a "pretty" name for a type, taking into account 
+        /// Provides a "pretty" name for a type, taking into account
         /// generics and nullable types
         /// </summary>
         /// <param name="type"></param>
@@ -431,7 +431,7 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
-        /// Rudimentary test for if a type is a collection type, testing for 
+        /// Rudimentary test for if a type is a collection type, testing for
         /// IEnumerable&lt;&gt; interface implementation as well as some baked-in
         /// known generic types
         /// </summary>

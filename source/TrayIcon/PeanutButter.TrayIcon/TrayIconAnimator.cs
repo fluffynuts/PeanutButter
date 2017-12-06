@@ -26,8 +26,8 @@ namespace PeanutButter.TrayIcon
         /// <param name="restStateIcon">Icon to use when not animating</param>
         /// <param name="animationFrames">Frames to use during animation</param>
         public TrayIconAnimator(
-            TrayIcon trayIcon, 
-            Icon restStateIcon, 
+            TrayIcon trayIcon,
+            Icon restStateIcon,
             params Icon[] animationFrames)
         {
             _trayIcon = trayIcon;

@@ -144,8 +144,8 @@ namespace PeanutButter.Utils.Tests
             {
                 var file = CreateRandomFileIn(folder.Path);
                 using (var fileStream = File.Open(
-                    Path.Combine(folder.Path, file), 
-                    FileMode.Open, 
+                    Path.Combine(folder.Path, file),
+                    FileMode.Open,
                     FileAccess.ReadWrite)
                 )
                 {

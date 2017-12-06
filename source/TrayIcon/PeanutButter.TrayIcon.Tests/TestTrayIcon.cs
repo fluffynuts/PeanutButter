@@ -53,9 +53,9 @@ namespace PeanutButter.TrayIcon.Tests
                     handlers.Add(trayIcon.AddMouseClickHandler(mc, button, () =>
                     {
                         trayIcon.ShowBalloonTipFor(
-                            500, 
-                            "Mouse Click Handler", 
-                            $"Mouse click handler: {mc} / {button}", 
+                            500,
+                            "Mouse Click Handler",
+                            $"Mouse click handler: {mc} / {button}",
                             ToolTipIcon.Info);
                     }));
                 });
@@ -85,7 +85,7 @@ namespace PeanutButter.TrayIcon.Tests
         public void ShouldExposeInternalNotificationIcon()
         {
             //---------------Set up test pack-------------------
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -374,7 +374,7 @@ namespace PeanutButter.TrayIcon.Tests
             var doubleClickCalled = false;
             sut.AddMouseClickHandler(
                 MouseClicks.Single,
-                forButton, 
+                forButton,
                 () => clickCalled = true
             );
             sut.AddMouseClickHandler(
@@ -403,7 +403,7 @@ namespace PeanutButter.TrayIcon.Tests
             var doubleClickCalled = false;
             sut.AddMouseClickHandler(
                 MouseClicks.Single,
-                forButton, 
+                forButton,
                 () => clickCalled = true
             );
             sut.AddMouseClickHandler(

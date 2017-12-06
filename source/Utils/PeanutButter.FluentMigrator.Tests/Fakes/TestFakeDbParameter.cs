@@ -30,7 +30,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
         {
             //--------------- Arrange -------------------
             var sut = Create();
-            var expected = GetRandom<DbType>(); 
+            var expected = GetRandom<DbType>();
 
             //--------------- Assume ----------------
 
@@ -46,7 +46,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
         {
             //--------------- Arrange -------------------
             var sut = Create();
-            var expected = GetRandom<ParameterDirection>(); 
+            var expected = GetRandom<ParameterDirection>();
 
             //--------------- Assume ----------------
 
@@ -62,7 +62,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
         {
             //--------------- Arrange -------------------
             var sut = Create();
-            var expected = GetRandomString(); 
+            var expected = GetRandomString();
 
             //--------------- Assume ----------------
 
@@ -78,7 +78,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
         {
             //--------------- Arrange -------------------
             var sut = Create();
-            var expected = GetRandomString(); 
+            var expected = GetRandomString();
 
             //--------------- Assume ----------------
 
@@ -94,7 +94,7 @@ namespace PeanutButter.FluentMigrator.Tests.Fakes
         {
             //--------------- Arrange -------------------
             var sut = Create();
-            var expected = GetRandom<DataRowVersion>(); 
+            var expected = GetRandom<DataRowVersion>();
 
             //--------------- Assume ----------------
 

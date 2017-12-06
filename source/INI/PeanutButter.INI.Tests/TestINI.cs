@@ -69,7 +69,7 @@ namespace PeanutButter.INI.Tests
         public void Construct_ShouldNotThrow()
         {
             //---------------Set up test pack-------------------
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -676,7 +676,7 @@ namespace PeanutButter.INI.Tests
         public void ParseAndPersist_ShouldRetainCommentsAboveSetting()
         {
             //---------------Set up test pack-------------------
-            var input = 
+            var input =
 @"
 [general]
 ; this is the general section
@@ -701,7 +701,7 @@ foo=bar
         public void ParseAndPersist_ShouldRetainMultilineCommentsAboveSetting()
         {
             //---------------Set up test pack-------------------
-            var input = 
+            var input =
 @"
 [general]
 ; this is the general section
@@ -728,7 +728,7 @@ foo=bar
         public void ParseAndPersist_ShouldRetainCommentsAboveSection()
         {
             //---------------Set up test pack-------------------
-            var input = 
+            var input =
 @"
 ; this is the general section
 [general]
@@ -754,7 +754,7 @@ foo=bar
         public void ParseAndPersist_ShouldRetainMultiLineCommentsAboveSection()
         {
             //---------------Set up test pack-------------------
-            var input = 
+            var input =
 @"
 ; this is the general section
 ; this is the general section again!

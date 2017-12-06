@@ -14,7 +14,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             var min = new DateTime(2011, 1, 1);
             var max = new DateTime(2022, 2, 2);
             var test = new DateTime(2016, 1, 6);
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -30,7 +30,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             var min = new DateTime(2011, 1, 1);
             var max = new DateTime(2022, 2, 2);
             var test = new DateTime(2026, 1, 6);
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -48,7 +48,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             var min = new DateTime(2011, 1, 1);
             var max = new DateTime(2022, 2, 2);
             var test = new DateTime(2006, 1, 6);
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -65,7 +65,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Set up test pack-------------------
             var min = new DateTime(2011, 1, 1);
             var max = new DateTime(2022, 2, 2);
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -80,7 +80,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Set up test pack-------------------
             var min = new DateTime(2011, 1, 1);
             var max = new DateTime(2022, 2, 2);
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -96,7 +96,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             var min = new DateTime(2011, 1, 1);
             var max = new DateTime(2022, 2, 2);
             var test = new DateTime(2016, 6, 6);
-            
+
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------

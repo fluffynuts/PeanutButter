@@ -11,18 +11,18 @@ namespace PeanutButter.SimpleHTTPServer
         {
             var stream = client.GetStream();
             var data = new List<char>();
-            while (true) 
+            while (true)
             {
                 var thisChar = stream.ReadByte();
                 if (thisChar == '\n') break;
                 if (thisChar == '\r') continue;
-                if (thisChar < 0) 
-                { 
-                    Thread.Sleep(0); 
-                    continue; 
+                if (thisChar < 0)
+                {
+                    Thread.Sleep(0);
+                    continue;
                 }
                 data.Add(Convert.ToChar(thisChar));
-            }            
+            }
             return string.Join(string.Empty, data);
         }
     }
