@@ -13,8 +13,7 @@ namespace NugetPackageVersionIncrementer
 
         public static XElement FindDependencyNodeFor(this XDocument doc, string packageName)
         {
-            return doc.XPathSelectElement($"/package/metadata/dependencies/group/dependency[@id='{packageName}']")
-                ?? doc.XPathSelectElement($"/Project/ItemGroup/PackageReference[Include=[{packageName}]");
+            return doc.XPathSelectElement($"/package/metadata/dependencies/group/dependency[@id='{packageName}']");
         }
 
         public static void SetDependencyVersionIfExistsFor(this XDocument doc, string packageName, string version)
