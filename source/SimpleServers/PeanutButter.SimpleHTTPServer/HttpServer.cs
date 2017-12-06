@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Xml.Linq;
 using Newtonsoft.Json;
 
-namespace PeanutButter.SimpleHTTPServer 
+namespace PeanutButter.SimpleHTTPServer
 {
     public enum HttpServerPipelineResult
     {
@@ -26,7 +27,7 @@ namespace PeanutButter.SimpleHTTPServer
     }
 
     // TODO: allow easier way to throw 404 (or other web exception) from simple handlers (file/document handlers)
-    public class HttpServer : HttpServerBase 
+    public class HttpServer : HttpServerBase
     {
         private List<Func<HttpProcessor, Stream, HttpServerPipelineResult>> _handlers;
 
@@ -71,7 +72,8 @@ namespace PeanutButter.SimpleHTTPServer
         // ReSharper disable once MemberCanBePrivate.Global
         public string BaseUrl => $"http://localhost:{Port}";
 
-        public void AddFileHandler(Func<HttpProcessor, Stream, byte[]> handler, string contentType = HttpConstants.MIMETYPE_BYTES)
+        public void AddFileHandler(Func<HttpProcessor, Stream, byte[]> handler,
+            string contentType = HttpConstants.MIMETYPE_BYTES)
         {
             AddHandler((p, s) =>
             {
@@ -90,18 +92,97 @@ namespace PeanutButter.SimpleHTTPServer
 
         public void AddDocumentHandler(Func<HttpProcessor, Stream, string> handler)
         {
-            HandleDocumentRequestWith(handler, "html", null, HttpConstants.MIMETYPE_HTML);
+            HandleDocumentRequestWith(handler, "auto",
+                AutoSerializer, AutoMime);
+        }
+
+        private static readonly Func<string, string>[] _autoMimeStrategies =
+        {
+            AutoMimeHtml,
+            AutoMimeJson,
+            AutoMimeXml,
+            AutoMimeDefault
+        };
+
+        private static string AutoMimeDefault(string arg)
+        {
+            return HttpConstants.MIMETYPE_BYTES;
+        }
+
+        private static string AutoMimeJson(string content)
+        {
+            return
+                content != null &&
+                content.StartsWith("{") &&
+                content.EndsWith("}")
+                    ? HttpConstants.MIMETYPE_JSON
+                    : null;
+        }
+
+        private static string AutoMimeXml(string content)
+        {
+            return content != null &&
+                   (content.StartsWith("<?xml") || HasOpenAndCloseTags(content))
+                ? HttpConstants.MIMETYPE_XML
+                : null;
+        }
+
+        private static bool HasOpenAndCloseTags(string content, string tag = null)
+        {
+            if (!content.StartsWith("<") && !content.EndsWith(">"))
+                return false;
+            var openingTag = tag ?? FindOpeningTag(content);
+            return content.StartsWith($"<{openingTag}", StringComparison.OrdinalIgnoreCase) &&
+                content.EndsWith($"</{openingTag}>", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static string FindOpeningTag(string content)
+        {
+            var openTag = content.IndexOf("<", StringComparison.Ordinal);
+            var closeTag = content.IndexOf(">", openTag, StringComparison.Ordinal);
+            var space = content.IndexOf(" ", openTag, StringComparison.Ordinal);
+            var end = space == -1 ? closeTag : Math.Min(space, closeTag);
+            return content.Substring(openTag + 1, end - openTag - 1);
+        }
+
+        private static string AutoMimeHtml(string content)
+        {
+            return content != null &&
+                    (content.ToLowerInvariant().StartsWith("<!doctype") ||
+                        HasOpenAndCloseTags(content, "html"))
+                        ? HttpConstants.MIMETYPE_HTML
+                        : null;
+        }
+
+        private string AutoMime(string servedResult)
+        {
+            var trimmed = servedResult.Trim();
+            return _autoMimeStrategies.Aggregate(
+                null as string, (acc, cur) => acc ?? cur(trimmed)
+            );
+        }
+
+        private string AutoSerializer(object servedResult)
+        {
+            if (servedResult is string stringResult)
+                return stringResult;
+            return JsonConvert.SerializeObject(servedResult);
+        }
+
+        public void AddHtmlDocumentHandler(Func<HttpProcessor, Stream, string> handler)
+        {
+            HandleDocumentRequestWith(handler, "html", null, s => HttpConstants.MIMETYPE_HTML);
         }
 
         public void AddJsonDocumentHandler(Func<HttpProcessor, Stream, object> handler)
         {
-            HandleDocumentRequestWith(handler, "json", o => _jsonSerializer(o), HttpConstants.MIMETYPE_JSON);
+            HandleDocumentRequestWith(handler, "json", o => _jsonSerializer(o), s => HttpConstants.MIMETYPE_JSON);
         }
 
-        private void HandleDocumentRequestWith(Func<HttpProcessor, Stream, object> handler, 
-                                                string documentTypeForLogging, 
-                                                Func<object, string> stringProcessor, 
-                                                string mimeType)
+        private void HandleDocumentRequestWith(Func<HttpProcessor, Stream, object> handler,
+            string documentTypeForLogging,
+            Func<object, string> stringProcessor,
+            Func<string, string> mimeTypeGenerator)
         {
             AddHandler((p, s) =>
             {
@@ -124,7 +205,7 @@ namespace PeanutButter.SimpleHTTPServer
                         Log($"Unable to process request to string result: {ex.Message}");
                     }
                 }
-                p.WriteDocument(asString, mimeType);
+                p.WriteDocument(asString, mimeTypeGenerator(asString));
                 Log($" --> Successful {documentTypeForLogging} document handling for {p.FullUrl}");
                 return HttpServerPipelineResult.HandledExclusively;
             });
@@ -163,13 +244,13 @@ namespace PeanutButter.SimpleHTTPServer
 
         public void ServeDocument(string queryPath, XDocument doc, HttpMethods method = HttpMethods.Any)
         {
-            AddDocumentHandler((p, s) =>
-                {
-                    if (p.FullUrl != queryPath || !method.Matches(p.Method))
-                        return null;
-                    Log("Serving html document at {0}", p.FullUrl);
-                    return doc.ToString();
-                });
+            AddHtmlDocumentHandler((p, s) =>
+            {
+                if (p.FullUrl != queryPath || !method.Matches(p.Method))
+                    return null;
+                Log("Serving html document at {0}", p.FullUrl);
+                return doc.ToString();
+            });
         }
 
         public void ServeJsonDocument(string path, object data, HttpMethods method = HttpMethods.Any)
@@ -186,14 +267,12 @@ namespace PeanutButter.SimpleHTTPServer
         public void ServeFile(string path, byte[] data, string contentType = "application/octet-stream")
         {
             AddFileHandler((p, s) =>
-                {
-                    if (p.Path != path) 
-                        return null;
-                    Log("Serving file at {0}", p.FullUrl);
-                    return data;
-                }, contentType);
+            {
+                if (p.Path != path)
+                    return null;
+                Log("Serving file at {0}", p.FullUrl);
+                return data;
+            }, contentType);
         }
     }
 }
-
-

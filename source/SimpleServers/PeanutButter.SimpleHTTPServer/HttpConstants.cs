@@ -9,6 +9,7 @@ namespace PeanutButter.SimpleHTTPServer
         public const string MIMETYPE_HTML = "text/html";
         public const string MIMETYPE_JSON = "application/json";
         public const string MIMETYPE_BYTES = "application/octet-stream";
+        public const string MIMETYPE_XML = "text/xml";
         public const int MAX_POST_SIZE = 10 * 1024 * 1024; // 10MB
         public const string HTTP_STATUS_NOTFOUND = "File not found";
         public const string HTTP_STATUS_INTERNALERROR = "An internal error occurred";

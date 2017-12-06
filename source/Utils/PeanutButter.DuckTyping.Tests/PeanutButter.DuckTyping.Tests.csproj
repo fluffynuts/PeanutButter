@@ -122,7 +122,7 @@
       <Version>2.3.2</Version>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
-      <Version>9.0.1</Version>
+      <Version>10.0.3</Version>
     </PackageReference>
     <PackageReference Include="NExpect">
       <Version>1.0.88</Version>
