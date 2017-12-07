@@ -244,7 +244,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.Async.NugetPac
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TestUtils.Async.NugetPackage", "Async\PeanutButter.TestUtils.Async.NugetPackage\PeanutButter.TestUtils.Async.NugetPackage.csproj", "{9B6325F0-E3F7-4BC7-A2DE-2734770CB4AC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.DuckTyping", "Utils\PeanutButter.DuckTyping\PeanutButter.DuckTyping.csproj", "{DE67B50B-6CD0-49C8-9D3C-953B80E08FDC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeanutButter.DuckTyping", "Utils\PeanutButter.DuckTyping\PeanutButter.DuckTyping.csproj", "{DE67B50B-6CD0-49C8-9D3C-953B80E08FDC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.DuckTyping.Tests", "Utils\PeanutButter.DuckTyping.Tests\PeanutButter.DuckTyping.Tests.csproj", "{C52D1E67-6A15-4A87-A877-7ACACBA543F4}"
 EndProject
@@ -892,20 +892,21 @@ Global
 		{6D6B8665-19BF-49B0-867F-3D4383613122}.Test|Any CPU.ActiveCfg = Release|Any CPU
 		{6D6B8665-19BF-49B0-867F-3D4383613122}.Test|Any CPU.Build.0 = Release|Any CPU
 		{6D6B8665-19BF-49B0-867F-3D4383613122}.Test|x86.ActiveCfg = Release|Any CPU
-		{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}.BuildForNuget|Any CPU.ActiveCfg = BuildForNuget|Any CPU
-		{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}.BuildForNuget|Any CPU.Build.0 = BuildForNuget|Any CPU
-		{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}.BuildForNuget|x86.ActiveCfg = BuildForNuget|Any CPU
-		{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}.BuildForNuget|x86.Build.0 = BuildForNuget|Any CPU
-		{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}.BuildPackages|Any CPU.ActiveCfg = PushToNuget|Any CPU
-		{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}.BuildPackages|x86.ActiveCfg = PushToNuget|Any CPU
-		{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}.BuildPackages|x86.Build.0 = PushToNuget|Any CPU
+		{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}.BuildForNuget|Any CPU.ActiveCfg = Release|Any CPU
+		{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}.BuildForNuget|Any CPU.Build.0 = Release|Any CPU
+		{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}.BuildForNuget|x86.ActiveCfg = Release|Any CPU
+		{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}.BuildForNuget|x86.Build.0 = Release|Any CPU
+		{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}.BuildPackages|Any CPU.ActiveCfg = Release|Any CPU
+		{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}.BuildPackages|Any CPU.Build.0 = Release|Any CPU
+		{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}.BuildPackages|x86.ActiveCfg = Release|Any CPU
+		{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}.BuildPackages|x86.Build.0 = Release|Any CPU
 		{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}.PushToNuget|Any CPU.ActiveCfg = PushToNuget|Any CPU
-		{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}.PushToNuget|Any CPU.Build.0 = PushToNuget|Any CPU
-		{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}.PushToNuget|x86.ActiveCfg = PushToNuget|Any CPU
-		{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}.PushToNuget|x86.Build.0 = PushToNuget|Any CPU
+		{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}.PushToNuget|Any CPU.ActiveCfg = Release|Any CPU
+		{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}.PushToNuget|Any CPU.Build.0 = Release|Any CPU
+		{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}.PushToNuget|x86.ActiveCfg = Release|Any CPU
+		{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}.PushToNuget|x86.Build.0 = Release|Any CPU
 		{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}.Release|x86.ActiveCfg = Release|Any CPU

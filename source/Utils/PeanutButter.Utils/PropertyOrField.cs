@@ -27,6 +27,10 @@ namespace PeanutButter.Utils
         /// </summary>
         Field
     }
+    /// <summary>
+    /// Provides a single storage / representation
+    /// for a Property or a Field
+    /// </summary>
 #if BUILD_PEANUTBUTTER_INTERNAL
     internal
 #else
@@ -34,11 +38,21 @@ namespace PeanutButter.Utils
 #endif
     class PropertyOrField
     {
+        /// <summary>
+        /// Creates a PropertyOrField container for a provided PropertyInfo
+        /// </summary>
+        /// <param name="propertyInfo"></param>
+        /// <returns></returns>
         public static PropertyOrField Create(PropertyInfo propertyInfo)
         {
             return new PropertyOrField(propertyInfo);
         }
 
+        /// <summary>
+        /// Creates a PropertyOrField container for a provided FieldInfo
+        /// </summary>
+        /// <param name="fieldInfo"></param>
+        /// <returns></returns>
         public static PropertyOrField Create(FieldInfo fieldInfo)
         {
             return new PropertyOrField(fieldInfo);

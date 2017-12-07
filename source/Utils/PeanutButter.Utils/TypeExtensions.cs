@@ -526,6 +526,13 @@ namespace PeanutButter.Utils
             return canConvert;
         }
 
+        /// <summary>
+        /// Cross-target shim for the IsInterface property,
+        /// found on Type in NetFramework and on Type.GetTypeInf()
+        /// on NETSTANDARD
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static bool IsInterface(this Type type)
         {
 #if NETSTANDARD

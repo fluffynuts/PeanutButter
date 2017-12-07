@@ -9,16 +9,35 @@ using System.Threading.Tasks;
 
 namespace PeanutButter.SimpleTcpServer
 {
+    /// <summary>
+    /// Interface to be implemented by a service which processes requests
+    /// </summary>
     public interface IProcessor
     {
+        /// <summary>
+        /// Process the request
+        /// </summary>
         void ProcessRequest();
     }
 
+    /// <summary>
+    /// Provides the base TCP server upon which more complex
+    /// TCP-based servers can be built.
+    /// </summary>
     public abstract class TcpServer : IDisposable
     {
+        /// <summary>
+        /// Whether or not to log random port discovery processes
+        /// </summary>
         public bool LogRandomPortDiscovery { get; set; }
+        /// <summary>
+        /// Action to employ when logging (defaults to logging to the console)
+        /// </summary>
         public Action<string> LogAction { get; set; } = Console.WriteLine;
         // ReSharper disable once MemberCanBePrivate.Global
+        /// <summary>
+        /// Port which this server has bound to
+        /// </summary>
         public int Port { get; protected set; }
 
         private TcpListener _listener;
@@ -30,6 +49,11 @@ namespace PeanutButter.SimpleTcpServer
         private readonly int _randomPortMin;
         private readonly int _randomPortMax;
 
+        /// <summary>
+        /// Construct the server with a random port within the provided range
+        /// </summary>
+        /// <param name="minPort"></param>
+        /// <param name="maxPort"></param>
         protected TcpServer(int minPort = 5000, int maxPort = 32000)
         {
             _randomPortMin = minPort;
@@ -38,14 +62,28 @@ namespace PeanutButter.SimpleTcpServer
             Init();
         }
 
+        /// <summary>
+        /// Construct the server with the explicitly-provided port
+        /// </summary>
+        /// <param name="port"></param>
         protected TcpServer(int port)
         {
             _portExplicitlySpecified = true;
             Port = port;
             Init();
         }
+        /// <summary>
+        /// Override in derived classes: this initializes the server
+        /// system
+        /// </summary>
         protected abstract void Init();
 
+        /// <summary>
+        /// Provides a convenience logging mechanism which outputs via
+        /// the established LogAction
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="parameters"></param>
         protected void Log(string message, params object[] parameters)
         {
             var logAction = LogAction;
@@ -61,7 +99,16 @@ namespace PeanutButter.SimpleTcpServer
             }
         }
 
+        /// <summary>
+        /// Create a processor for a particular TCP client
+        /// </summary>
+        /// <param name="client"></param>
+        /// <returns></returns>
         protected abstract IProcessor CreateProcessorFor(TcpClient client);
+
+        /// <summary>
+        /// Start the server
+        /// </summary>
         public void Start()
         {
             lock (_lock)
@@ -147,6 +194,9 @@ namespace PeanutButter.SimpleTcpServer
             });
         }
 
+        /// <summary>
+        /// Stop the server
+        /// </summary>
         public void Stop()
         {
             lock (_lock)
@@ -159,30 +209,36 @@ namespace PeanutButter.SimpleTcpServer
         {
             try
             {
-                if (_listener != null)
-                {
-                    _cancellationTokenSource.Cancel();
-                    _listener.Stop();
-                    try {
-                        _task.Wait();
-                    } catch { /* we can end up in here if the task is cancelled really early */}
+                if (_listener == null)
+                    return;
+                _cancellationTokenSource.Cancel();
+                _listener.Stop();
+                try {
+                    _task.Wait();
+                } catch { /* we can end up in here if the task is cancelled really early */}
 
-                    _listener = null;
-                    _task = null;
-                    _cancellationTokenSource = null;
-                }
+                _listener = null;
+                _task = null;
+                _cancellationTokenSource = null;
             }
             catch (Exception ex)
             {
-                Log("Internal DoStop() fails: {0}", ex.Message);
+                Log($"Internal DoStop() fails: {ex.Message}");
             }
         }
 
+        /// <summary>
+        /// Disposes the server (stops it if it is running)
+        /// </summary>
         public void Dispose()
         {
             Stop();
         }
 
+        /// <summary>
+        /// Attempts to find a random port to bind to
+        /// </summary>
+        /// <returns></returns>
         protected int FindOpenRandomPort()
         {
             var rnd = new Random(DateTime.Now.Millisecond);
@@ -211,6 +267,10 @@ namespace PeanutButter.SimpleTcpServer
             return tryThis;
         }
 
+        /// <summary>
+        /// Guesses the next random port to attempt to bind to
+        /// </summary>
+        /// <returns></returns>
         protected virtual int NextRandomPort()
         {
             var minPort = _randomPortMin;

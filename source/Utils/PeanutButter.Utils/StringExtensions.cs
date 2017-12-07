@@ -404,6 +404,11 @@ namespace PeanutButter.Utils
         private static Random _randomField;
         private static Random Random => _randomField ?? (_randomField = new Random(DateTime.Now.Millisecond));
 
+        /// <summary>
+        /// Returns the input string in RaNdOMizEd case
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public static string ToRandomCase(this string input)
         {
             return string.Join("", input

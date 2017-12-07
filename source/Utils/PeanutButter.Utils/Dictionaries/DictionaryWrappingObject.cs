@@ -25,6 +25,9 @@ namespace PeanutButter.Utils.Dictionaries
         private readonly object _wrapped;
         private PropertyOrField[] _props;
         private Dictionary<string, string> _keys;
+        /// <summary>
+        /// The string comparer used to locate keys
+        /// </summary>
         public StringComparer Comparer { get; }
 
         /// <inheritdoc />

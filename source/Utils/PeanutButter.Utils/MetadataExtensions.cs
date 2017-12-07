@@ -12,14 +12,15 @@ namespace Imported.PeanutButter.Utils
 namespace PeanutButter.Utils
 #endif
 {
-#if BUILD_PEANUTBUTTER_INTERNAL
-    internal
-#else /// <summary>
+/// <summary>
 /// Provides extension methods to set and retrieve metadata on any object.
 /// Under the hood, these methods use a ConditionalWeakTable to store your
 /// metadata, so the metadata is garbage-collected when your managed objects
 /// are garbage-collected.
 /// </summary>
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else 
     public
 #endif
         static class MetadataExtensions
