@@ -95,10 +95,21 @@ namespace PeanutButter.Utils
                 MakeStrategy(IsDateTime, StringifyDateTime),
                 MakeStrategy(IsPrimitive, StringifyPrimitive),
                 MakeStrategy(IsEnum, StringifyEnum),
+                MakeStrategy(IsType, StringifyType),
                 MakeStrategy(IsEnumerable, StringifyCollection),
                 MakeStrategy(Default, StringifyJsonLike),
                 MakeStrategy(LastPass, JustToStringIt)
             };
+
+        private static string StringifyType(object obj, int level, string nullRep)
+        {
+            return (obj as Type).PrettyName();
+        }
+
+        private static bool IsType(object obj, int level)
+        {
+            return obj is Type;
+        }
 
         private static string StringifyDateTime(object obj, int level, string nullRep)
         {
