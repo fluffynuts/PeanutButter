@@ -14,23 +14,47 @@ using PeanutButter.SimpleTcpServer;
 
 namespace PeanutButter.SimpleHTTPServer
 {
+    /// <summary>
+    /// Provides the abstract base HTTP Server
+    /// </summary>
     public abstract class HttpServerBase : TcpServer
     {
+        /// <summary>
+        /// Log action used for requests
+        /// </summary>
         public Action<RequestLogItem> RequestLogAction { get; set; } = null;
+
+        /// <inheritdoc />
         protected HttpServerBase(int port) : base(port)
         {
         }
 
+        /// <inheritdoc />
         protected HttpServerBase()
         {
         }
 
+        /// <summary>
+        /// Factory function to create the processor for a given TcpClient
+        /// </summary>
+        /// <param name="client"></param>
+        /// <returns></returns>
         protected override IProcessor CreateProcessorFor(TcpClient client)
         {
             return new HttpProcessor(client, this);
         }
 
+        /// <summary>
+        /// Handles a GET request
+        /// </summary>
+        /// <param name="p"></param>
         public abstract void HandleGETRequest(HttpProcessor p);
+
+        /// <summary>
+        /// Handles a POST request
+        /// </summary>
+        /// <param name="p"></param>
+        /// <param name="inputData"></param>
         public abstract void HandlePOSTRequest(HttpProcessor p, Stream inputData);
     }
 }

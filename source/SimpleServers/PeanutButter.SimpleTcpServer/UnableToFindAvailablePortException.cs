@@ -8,7 +8,7 @@ namespace PeanutButter.SimpleTcpServer
     public class UnableToFindAvailablePortException: Exception
     {
         /// <inheritdoc />
-        public UnableToFindAvailablePortException(): 
+        public UnableToFindAvailablePortException():
             base("Can't find a port to listen on ):")
         {
         }

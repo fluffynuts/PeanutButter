@@ -12,7 +12,7 @@ var
   path = require("path"),
   findTool = requireModule("testutil-finder").findTool,
   commonConfig = {
-    toolsVersion: 14.0,
+    toolsVersion: "auto",
     stdout: true,
     verbosity: "minimal",
     errorOnFail: true,
@@ -31,7 +31,7 @@ gulp.task("clean-old-packages", [], function () {
 gulp.task("build-binaries-for-nuget-packages", ["nuget-restore"], function () {
   var config = Object.assign({}, commonConfig);
   config.targets = ["Clean", "Build"];
-  config.configuration = "BuildForNuget";
+  config.configuration = "BuildForNuget"; // TODO: change back to Release once all .NugetPackage.csproj projects have been purged
   config.toolsVersion = "auto";
   return gulp.src(["**/*.sln", "!**/node_modules/**/*.sln", "!./tools/**/*.sln"])
     .pipe(msbuild(config));
@@ -59,6 +59,7 @@ function processPathsWith(getNugetArgsFor) {
       Promise.all(promises).then(function () {
         stream.emit("end");
       }).catch(function (e) {
+        console.error(e);
         stream.emit("error", new Error(e));
       })
     });
@@ -98,10 +99,8 @@ gulp.task("build-binary-nuget-packages", [], function () {
     .pipe(buildNugetPackages(true));
 });
 
-var testProject = "PeanutButter.RandomGenerators";
-gulp.task("build-test-package", [], function () {
-  return gulp.src(`source/**/${testProject}/Package.nuspec`)
-    .pipe(buildNugetPackages(true));
+gulp.task("test-package-build", ["build-binaries-for-nuget-packages"], function (done) {
+  runSequence("build-binary-nuget-packages", done);
 });
 
 gulp.task("release-test-package", [], function () {

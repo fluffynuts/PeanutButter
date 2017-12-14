@@ -1,14 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFrameworks>net452;netstandard1.6</TargetFrameworks>
+        <DocumentationFile>bin\$(COnfiguration)\$(TargetFramework)\PeanutButter.Utils.xml</DocumentationFile>
     </PropertyGroup>
     <PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.6'">
         <DefineConstants>NETSTANDARD</DefineConstants>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net452|AnyCPU'">
-      <DocumentationFile>bin\Release\net452\PeanutButter.Utils.xml</DocumentationFile>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net452|AnyCPU'">
-      <DocumentationFile>bin\Debug\net452\PeanutButter.Utils.xml</DocumentationFile>
     </PropertyGroup>
 </Project>

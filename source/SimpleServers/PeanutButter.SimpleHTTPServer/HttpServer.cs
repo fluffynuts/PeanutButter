@@ -4,35 +4,87 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using Newtonsoft.Json;
+using static PeanutButter.SimpleHTTPServer.HttpConstants;
 
 namespace PeanutButter.SimpleHTTPServer
 {
+    /// <summary>
+    /// Result to return from one part of the pipeline
+    /// </summary>
     public enum HttpServerPipelineResult
     {
+        /// <summary>
+        /// The request was handled exclusively and processing should stop
+        /// </summary>
         HandledExclusively,
+
+        /// <summary>
+        /// The request was handled, but may continue along the pipeline
+        /// </summary>
         Handled,
+
+        /// <summary>
+        /// The request was not handled at all: processing should continue
+        /// </summary>
         NotHandled
     }
 
+    /// <summary>
+    /// Http methods supported by requests
+    /// </summary>
     public enum HttpMethods
     {
+        /// <summary>
+        /// This request is for or supports any method
+        /// </summary>
         Any,
+
+        /// <summary>
+        /// This request is for or supports GET
+        /// </summary>
         Get,
+
+        /// <summary>
+        /// This request is for or supports POST
+        /// </summary>
         Post,
+
+        /// <summary>
+        /// This request is for or supports PUT
+        /// </summary>
         Put,
+
+        /// <summary>
+        /// This request is for or supports DELETE
+        /// </summary>
         Delete,
+
+        /// <summary>
+        /// This request is for or supports PATCH
+        /// </summary>
         Patch,
+
+        /// <summary>
+        /// This request is for or supports OPTIONS
+        /// </summary>
         Options,
+        /// <summary>
+        /// This request is for or supports HEAD
+        /// </summary>
         Head
     }
 
     // TODO: allow easier way to throw 404 (or other web exception) from simple handlers (file/document handlers)
+    /// <summary>
+    /// Provides the simple HTTP server you may use ad-hoc
+    /// </summary>
     public class HttpServer : HttpServerBase
     {
         private List<Func<HttpProcessor, Stream, HttpServerPipelineResult>> _handlers;
 
-        private readonly Func<object, string> _jsonSerializer = o => JsonConvert.SerializeObject(o);
+        private readonly Func<object, string> _jsonSerializer = JsonConvert.SerializeObject;
 
+        /// <inheritdoc />
         public HttpServer(int port, bool autoStart = true, Action<string> logAction = null)
             : base(port)
         {
@@ -52,17 +104,29 @@ namespace PeanutButter.SimpleHTTPServer
                 Start();
         }
 
+        /// <inheritdoc />
         protected override void Init()
         {
             _handlers = new List<Func<HttpProcessor, Stream, HttpServerPipelineResult>>();
         }
 
         // ReSharper disable once MemberCanBePrivate.Global
+        /// <summary>
+        /// Adds a handler to the pipeline
+        /// </summary>
+        /// <param name="handler"></param>
         public void AddHandler(Func<HttpProcessor, Stream, HttpServerPipelineResult> handler)
         {
             _handlers.Add(handler);
         }
 
+        /// <summary>
+        /// Provides the full url, including protocol, host and port
+        /// for the provided relative Url: most useful when using an
+        /// automatic port
+        /// </summary>
+        /// <param name="relativeUrl"></param>
+        /// <returns></returns>
         public string GetFullUrlFor(string relativeUrl)
         {
             var joinWith = relativeUrl.StartsWith("/") ? string.Empty : "/";
@@ -70,10 +134,18 @@ namespace PeanutButter.SimpleHTTPServer
         }
 
         // ReSharper disable once MemberCanBePrivate.Global
+        /// <summary>
+        /// Provides the base url from which the server serves
+        /// </summary>
         public string BaseUrl => $"http://localhost:{Port}";
 
+        /// <summary>
+        /// Adds a handler for providing a file download
+        /// </summary>
+        /// <param name="handler"></param>
+        /// <param name="contentType"></param>
         public void AddFileHandler(Func<HttpProcessor, Stream, byte[]> handler,
-            string contentType = HttpConstants.MIMETYPE_BYTES)
+            string contentType = MimeTypes.BYTES)
         {
             AddHandler((p, s) =>
             {
@@ -90,6 +162,11 @@ namespace PeanutButter.SimpleHTTPServer
             });
         }
 
+        /// <summary>
+        /// Adds a handler to serve a text document, with (limited) automatic
+        /// content-type detection.
+        /// </summary>
+        /// <param name="handler"></param>
         public void AddDocumentHandler(Func<HttpProcessor, Stream, string> handler)
         {
             HandleDocumentRequestWith(handler, "auto",
@@ -106,7 +183,7 @@ namespace PeanutButter.SimpleHTTPServer
 
         private static string AutoMimeDefault(string arg)
         {
-            return HttpConstants.MIMETYPE_BYTES;
+            return MimeTypes.BYTES;
         }
 
         private static string AutoMimeJson(string content)
@@ -115,7 +192,7 @@ namespace PeanutButter.SimpleHTTPServer
                 content != null &&
                 content.StartsWith("{") &&
                 content.EndsWith("}")
-                    ? HttpConstants.MIMETYPE_JSON
+                    ? MimeTypes.JSON
                     : null;
         }
 
@@ -123,7 +200,7 @@ namespace PeanutButter.SimpleHTTPServer
         {
             return content != null &&
                    (content.StartsWith("<?xml") || HasOpenAndCloseTags(content))
-                ? HttpConstants.MIMETYPE_XML
+                ? MimeTypes.XML
                 : null;
         }
 
@@ -133,7 +210,7 @@ namespace PeanutButter.SimpleHTTPServer
                 return false;
             var openingTag = tag ?? FindOpeningTag(content);
             return content.StartsWith($"<{openingTag}", StringComparison.OrdinalIgnoreCase) &&
-                content.EndsWith($"</{openingTag}>", StringComparison.OrdinalIgnoreCase);
+                   content.EndsWith($"</{openingTag}>", StringComparison.OrdinalIgnoreCase);
         }
 
         private static string FindOpeningTag(string content)
@@ -148,10 +225,10 @@ namespace PeanutButter.SimpleHTTPServer
         private static string AutoMimeHtml(string content)
         {
             return content != null &&
-                    (content.ToLowerInvariant().StartsWith("<!doctype") ||
-                        HasOpenAndCloseTags(content, "html"))
-                        ? HttpConstants.MIMETYPE_HTML
-                        : null;
+                   (content.ToLowerInvariant().StartsWith("<!doctype") ||
+                    HasOpenAndCloseTags(content, "html"))
+                ? MimeTypes.HTML
+                : null;
         }
 
         private string AutoMime(string servedResult)
@@ -169,14 +246,22 @@ namespace PeanutButter.SimpleHTTPServer
             return JsonConvert.SerializeObject(servedResult);
         }
 
+        /// <summary>
+        /// Specifically add a handler to serve an HTML document
+        /// </summary>
+        /// <param name="handler"></param>
         public void AddHtmlDocumentHandler(Func<HttpProcessor, Stream, string> handler)
         {
-            HandleDocumentRequestWith(handler, "html", null, s => HttpConstants.MIMETYPE_HTML);
+            HandleDocumentRequestWith(handler, "html", null, s => MimeTypes.HTML);
         }
 
+        /// <summary>
+        /// Specifically add a handler to serve a JSON document
+        /// </summary>
+        /// <param name="handler"></param>
         public void AddJsonDocumentHandler(Func<HttpProcessor, Stream, object> handler)
         {
-            HandleDocumentRequestWith(handler, "json", o => _jsonSerializer(o), s => HttpConstants.MIMETYPE_JSON);
+            HandleDocumentRequestWith(handler, "json", o => _jsonSerializer(o), s => MimeTypes.JSON);
         }
 
         private void HandleDocumentRequestWith(Func<HttpProcessor, Stream, object> handler,
@@ -211,6 +296,7 @@ namespace PeanutButter.SimpleHTTPServer
             });
         }
 
+        /// <inheritdoc />
         public override void HandleGETRequest(HttpProcessor p)
         {
             Log("Incoming GET request: {0}", p.FullUrl);
@@ -236,12 +322,19 @@ namespace PeanutButter.SimpleHTTPServer
             }
         }
 
+        /// <inheritdoc />
         public override void HandlePOSTRequest(HttpProcessor p, Stream inputData)
         {
             Log("Incoming POST request: {0}", p.FullUrl);
             InvokeHandlersWith(p, inputData);
         }
 
+        /// <summary>
+        /// Serves an XDocument from the provided path, for the provided method
+        /// </summary>
+        /// <param name="queryPath"></param>
+        /// <param name="doc"></param>
+        /// <param name="method"></param>
         public void ServeDocument(string queryPath, XDocument doc, HttpMethods method = HttpMethods.Any)
         {
             AddHtmlDocumentHandler((p, s) =>
@@ -253,6 +346,13 @@ namespace PeanutButter.SimpleHTTPServer
             });
         }
 
+        /// <summary>
+        /// Serves a JSON document with the provided data at the provided path for the
+        /// provided method
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="data"></param>
+        /// <param name="method"></param>
         public void ServeJsonDocument(string path, object data, HttpMethods method = HttpMethods.Any)
         {
             AddJsonDocumentHandler((p, s) =>
@@ -264,7 +364,14 @@ namespace PeanutButter.SimpleHTTPServer
             });
         }
 
-        public void ServeFile(string path, byte[] data, string contentType = "application/octet-stream")
+        /// <summary>
+        /// Serves an arbitrary file from the provided path for the
+        /// provided content type (defaults to application/octet-stream)
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="data"></param>
+        /// <param name="contentType"></param>
+        public void ServeFile(string path, byte[] data, string contentType = MimeTypes.BYTES)
         {
             AddFileHandler((p, s) =>
             {

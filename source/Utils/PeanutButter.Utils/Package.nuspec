@@ -23,12 +23,12 @@
     <tags></tags>
   </metadata>
   <files>
-    <file src="bin/Release/net452/PeanutButter.Utils.dll" target="lib/net452" />
-    <file src="bin/Release/net452/PeanutButter.Utils.pdb" target="lib/net452" />
-    <file src="bin/Release/net452/PeanutButter.Utils.xml" target="lib/net452" />
-    <file src="bin/Release/net452/PeanutButter.Utils.xml" target="lib/netstandard1.6" />
-    <file src="bin/Release/netstandard1.6/PeanutButter.Utils.dll" target="lib/netstandard1.6" />
-    <file src="bin/Release/netstandard1.6/PeanutButter.Utils.deps.json" target="lib/netstandard1.6" />
+    <file src="bin/BuildForNuget/net452/PeanutButter.Utils.dll" target="lib/net452" />
+    <file src="bin/BuildForNuget/net452/PeanutButter.Utils.pdb" target="lib/net452" />
+    <file src="bin/BuildForNuget/net452/PeanutButter.Utils.xml" target="lib/net452" />
+    <file src="bin/BuildForNuget/netstandard1.6/PeanutButter.Utils.xml" target="lib/netstandard1.6" />
+    <file src="bin/BuildForNuget/netstandard1.6/PeanutButter.Utils.dll" target="lib/netstandard1.6" />
+    <file src="bin/BuildForNuget/netstandard1.6/PeanutButter.Utils.deps.json" target="lib/netstandard1.6" />
     <file src="tools\*" target="tools" />
   </files>
 </package>

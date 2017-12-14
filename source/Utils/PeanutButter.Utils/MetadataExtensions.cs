@@ -20,7 +20,7 @@ namespace PeanutButter.Utils
 /// </summary>
 #if BUILD_PEANUTBUTTER_INTERNAL
     internal
-#else 
+#else
     public
 #endif
         static class MetadataExtensions

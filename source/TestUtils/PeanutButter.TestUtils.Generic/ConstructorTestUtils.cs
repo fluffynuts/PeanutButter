@@ -125,12 +125,16 @@ namespace PeanutButter.TestUtils.Generic
             }
             catch
             {
+#if NETSTANDARD
+                return Activator.CreateInstance(parameterType);
+#else
                 var handle = Activator.CreateInstance(
                     AppDomain.CurrentDomain,
                     parameterType.Assembly.FullName,
                     parameterType.FullName ?? throw new InvalidOperationException($"No FullName on {parameterType}")
                 );
                 return handle.Unwrap();
+#endif
             }
         }
 

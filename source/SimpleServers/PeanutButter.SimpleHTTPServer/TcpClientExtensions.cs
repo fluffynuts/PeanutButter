@@ -5,8 +5,16 @@ using System.Threading;
 
 namespace PeanutButter.SimpleHTTPServer
 {
+    /// <summary>
+    /// Provides the ReadLine extension for a TcpClient
+    /// </summary>
     public static class TcpClientExtensions
     {
+        /// <summary>
+        /// Reads one line of data from the TcpClient
+        /// </summary>
+        /// <param name="client"></param>
+        /// <returns></returns>
         public static string ReadLine(this TcpClient client)
         {
             var stream = client.GetStream();

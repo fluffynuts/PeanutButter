@@ -14,34 +14,74 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using PeanutButter.SimpleTcpServer;
+using static PeanutButter.SimpleHTTPServer.HttpConstants;
+// ReSharper disable MemberCanBePrivate.Global
+
 // ReSharper disable InconsistentNaming
 
 namespace PeanutButter.SimpleHTTPServer
 {
+    /// <summary>
+    /// Processor for HTTP requests on top of the generic TCP processor
+    /// </summary>
     public class HttpProcessor : TcpServerProcessor, IProcessor
     {
+        /// <summary>
+        /// Action to use when attempting to log arbitrary data
+        /// </summary>
         public Action<string> LogAction => Server.LogAction;
+        /// <summary>
+        /// Action to use when attempting to log requests
+        /// </summary>
         public Action<RequestLogItem> RequestLogAction => Server.RequestLogAction;
         private const int BUF_SIZE = 4096;
 
+        /// <summary>
+        /// Provides access to the server associated with this processor
+        /// </summary>
         public HttpServerBase Server { get; protected set; }
 
         private StreamWriter _outputStream;
 
+        /// <summary>
+        /// Method of the current request being processed
+        /// </summary>
         public string Method { get; private set; }
+        /// <summary>
+        /// Full url for the request being processed
+        /// </summary>
         public string FullUrl { get; private set; }
+        /// <summary>
+        /// Just the path for the request being processed
+        /// </summary>
         public string Path { get; private set; }
+        /// <summary>
+        /// Protocol for the request being processed
+        /// </summary>
         public string Protocol { get; private set; }
+        /// <summary>
+        /// Url parameters for the request being processed
+        /// </summary>
         public Dictionary<string, string> UrlParameters { get; set; }
+        /// <summary>
+        /// Headers on the request being processed
+        /// </summary>
         public Dictionary<string, string> HttpHeaders { get; private set; }
 
+        /// <summary>
+        /// Maximum size, in bytes, to accept for a POST
+        /// </summary>
+        public long MaxPostSize { get; set; } = MAX_POST_SIZE;
 
+
+        /// <inheritdoc />
         public HttpProcessor(TcpClient tcpClient, HttpServerBase server) : base(tcpClient)
         {
             Server = server;
             HttpHeaders = new Dictionary<string, string>();
         }
 
+        /// <inheritdoc />
         public void ProcessRequest()
         {
             using (var io = new TcpIoWrapper(TcpClient))
@@ -55,11 +95,11 @@ namespace PeanutButter.SimpleHTTPServer
                 }
                 catch (FileNotFoundException)
                 {
-                    WriteFailure(HttpStatusCode.NotFound, HttpConstants.HTTP_STATUS_NOTFOUND);
+                    WriteFailure(HttpStatusCode.NotFound, Statuses.NOTFOUND);
                 }
                 catch (Exception ex)
                 {
-                    WriteFailure(HttpStatusCode.InternalServerError, $"{HttpConstants.HTTP_STATUS_INTERNALERROR}: {ex.Message}");
+                    WriteFailure(HttpStatusCode.InternalServerError, $"{Statuses.INTERNALERROR}: {ex.Message}");
                     LogAction("Unable to process request: " + ex.Message);
                 }
                 finally
@@ -69,17 +109,24 @@ namespace PeanutButter.SimpleHTTPServer
             }
         }
 
-        private void HandleRequest(TcpIoWrapper io)
+        /// <summary>
+        /// Handles the request, given an IO wrapper
+        /// </summary>
+        /// <param name="io"></param>
+        public void HandleRequest(TcpIoWrapper io)
         {
-            if (Method.Equals(HttpConstants.METHOD_GET))
+            if (Method.Equals(Methods.GET))
             {
                 HandleGETRequest();
                 return;
             }
-            if (Method.Equals(HttpConstants.METHOD_POST))
+            if (Method.Equals(Methods.POST))
                 HandlePOSTRequest(io.RawStream);
         }
 
+        /// <summary>
+        /// Parses the request from the TcpClient
+        /// </summary>
         public void ParseRequest()
         {
             var request = TcpClient.ReadLine();
@@ -114,6 +161,9 @@ namespace PeanutButter.SimpleHTTPServer
             }).ToDictionary(x => x.key, x => x.value);
         }
 
+        /// <summary>
+        /// Reads in the headers from the TcpClient
+        /// </summary>
         public void ReadHeaders()
         {
             string line;
@@ -141,22 +191,29 @@ namespace PeanutButter.SimpleHTTPServer
             }
         }
 
+        /// <summary>
+        /// Handles this request as a GET
+        /// </summary>
         public void HandleGETRequest()
         {
             Server.HandleGETRequest(this);
         }
 
+        /// <summary>
+        /// Handles this request as a POST
+        /// </summary>
+        /// <param name="stream"></param>
         public void HandlePOSTRequest(Stream stream)
         {
             using (var ms = new MemoryStream())
             {
-                if (HttpHeaders.ContainsKey(HttpConstants.CONTENT_LENGTH_HEADER))
+                if (HttpHeaders.ContainsKey(Headers.CONTENT_LENGTH))
                 {
-                    var contentLength = Convert.ToInt32(HttpHeaders[HttpConstants.CONTENT_LENGTH_HEADER]);
-                    if (contentLength > HttpConstants.MAX_POST_SIZE)
+                    var contentLength = Convert.ToInt32(HttpHeaders[Headers.CONTENT_LENGTH]);
+                    if (contentLength > MaxPostSize)
                     {
                         throw new Exception(
-                            $"POST Content-Length({contentLength}) too big for this simple server"
+                            $"POST Content-Length({contentLength}) too big for this simple server (max: {MaxPostSize})"
                         );
                     }
                     var buf = new byte[BUF_SIZE];
@@ -185,10 +242,14 @@ namespace PeanutButter.SimpleHTTPServer
             }
         }
 
-        private void ParseFormElementsIfRequired(MemoryStream ms)
+        /// <summary>
+        /// Parses form data on the request, if available
+        /// </summary>
+        /// <param name="ms"></param>
+        public void ParseFormElementsIfRequired(MemoryStream ms)
         {
-            if (!HttpHeaders.ContainsKey(HttpConstants.CONTENT_TYPE_HEADER)) return;
-            if (HttpHeaders[HttpConstants.CONTENT_TYPE_HEADER] != "application/x-www-form-urlencoded") return;
+            if (!HttpHeaders.ContainsKey(Headers.CONTENT_TYPE)) return;
+            if (HttpHeaders[Headers.CONTENT_TYPE] != "application/x-www-form-urlencoded") return;
             try
             {
                 var formData = Encoding.UTF8.GetString(ms.ToArray());
@@ -200,9 +261,18 @@ namespace PeanutButter.SimpleHTTPServer
             }
         }
 
+        /// <summary>
+        /// Form data associated with the request
+        /// </summary>
         public Dictionary<string, string> FormData { get; set; }
 
-        public void WriteSuccess(string mimeType = HttpConstants.MIMETYPE_HTML, byte[] data = null)
+        /// <summary>
+        /// Perform a successful write (ie, HTTP status 200) with the optionally
+        /// provided mime type and data data
+        /// </summary>
+        /// <param name="mimeType"></param>
+        /// <param name="data"></param>
+        public void WriteSuccess(string mimeType = MimeTypes.HTML, byte[] data = null)
         {
             WriteOKStatusHeader();
             WriteMIMETypeHeader(mimeType);
@@ -215,50 +285,85 @@ namespace PeanutButter.SimpleHTTPServer
             WriteDataToStream(data);
         }
 
+        /// <summary>
+        /// Writes the specified MIME header (Content-Type)
+        /// </summary>
+        /// <param name="mimeType"></param>
         public void WriteMIMETypeHeader(string mimeType)
         {
-            WriteResponseLine(HttpConstants.CONTENT_TYPE_HEADER + ": " + mimeType);
+            WriteResponseLine(Headers.CONTENT_TYPE + ": " + mimeType);
         }
 
+        /// <summary>
+        /// Writes the OK status header
+        /// </summary>
         public void WriteOKStatusHeader()
         {
             WriteStatusHeader(HttpStatusCode.OK, "OK");
         }
 
+        /// <summary>
+        /// Writes the Content-Length header with the provided length
+        /// </summary>
+        /// <param name="length"></param>
         public void WriteContentLengthHeader(int length)
         {
             WriteHeader("Content-Length", length);
         }
 
+        /// <summary>
+        /// Writes the header informing the client that the connection
+        /// will not be held open
+        /// </summary>
         public void WriteConnectionClosesAfterCommsHeader()
         {
             WriteHeader("Connection", "close");
         }
 
+        /// <summary>
+        /// Writes an arbitrary header to the response stream
+        /// </summary>
+        /// <param name="header"></param>
+        /// <param name="value"></param>
         public void WriteHeader(string header, string value)
         {
-            WriteResponseLine(string.Join(": ", new[] {header, value}));
+            WriteResponseLine(string.Join(": ", header, value));
         }
 
+        /// <summary>
+        /// Writes an integer-value header to the response stream
+        /// </summary>
+        /// <param name="header"></param>
+        /// <param name="value"></param>
         public void WriteHeader(string header, int value)
         {
             WriteHeader(header, value.ToString());
         }
 
+        /// <summary>
+        /// Writes the specified status header to the response stream,
+        /// with the optional message
+        /// </summary>
+        /// <param name="code"></param>
+        /// <param name="message"></param>
         public void WriteStatusHeader(HttpStatusCode code, string message = null)
         {
             LogRequest(code, message);
-            WriteResponseLine(string.Join(" ", "HTTP/1.0", ((int) code).ToString(), message ?? code.ToString()));
+            WriteResponseLine($"HTTP/1.0 {code} {message ?? code.ToString()}");
         }
 
         private void LogRequest(HttpStatusCode code, string message)
         {
             var action = RequestLogAction;
-            if (action == null)
-                return;
-            action(new RequestLogItem(FullUrl, code, Method, message, HttpHeaders));
+            action?.Invoke(
+                new RequestLogItem(FullUrl, code, Method, message, HttpHeaders)
+            );
         }
 
+        /// <summary>
+        /// Writes arbitrary byte data to the response stream
+        /// </summary>
+        /// <param name="data"></param>
         public void WriteDataToStream(byte[] data)
         {
             if (data == null) return;
@@ -267,6 +372,12 @@ namespace PeanutButter.SimpleHTTPServer
             _outputStream.BaseStream.Flush();
         }
 
+        /// <summary>
+        /// Writes a failure code and message to the response stream and closes
+        /// the response
+        /// </summary>
+        /// <param name="code"></param>
+        /// <param name="message"></param>
         public void WriteFailure(HttpStatusCode code, string message)
         {
             WriteStatusHeader(code, message);
@@ -274,17 +385,32 @@ namespace PeanutButter.SimpleHTTPServer
             WriteEmptyLineToStream();
         }
 
+        /// <summary>
+        /// Writes an empty line to the stream: HTTP is line-based,
+        /// so the client will probably interpret this as an end
+        /// of section / request
+        /// </summary>
         public void WriteEmptyLineToStream()
         {
             WriteResponseLine(string.Empty);
         }
 
+        /// <summary>
+        /// Write an arbitrary string response to the response stream
+        /// </summary>
+        /// <param name="response"></param>
         public void WriteResponseLine(string response)
         {
             _outputStream.WriteLine(response);
         }
 
-        public void WriteDocument(string document, string mimeType = HttpConstants.MIMETYPE_HTML)
+        /// <summary>
+        /// Write a textural document to the response stream with
+        /// the optionally-provided mime type
+        /// </summary>
+        /// <param name="document"></param>
+        /// <param name="mimeType"></param>
+        public void WriteDocument(string document, string mimeType = MimeTypes.HTML)
         {
             WriteSuccess(mimeType, Encoding.UTF8.GetBytes(document));
         }
