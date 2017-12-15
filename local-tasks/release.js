@@ -31,7 +31,7 @@ gulp.task("clean-old-packages", [], function () {
 gulp.task("build-binaries-for-nuget-packages", ["nuget-restore"], function () {
   var config = Object.assign({}, commonConfig);
   config.targets = ["Clean", "Build"];
-  config.configuration = "BuildForNuget"; // TODO: change back to Release once all .NugetPackage.csproj projects have been purged
+  config.configuration = "Release"; // TODO: change back to Release once all .NugetPackage.csproj projects have been purged
   config.toolsVersion = "auto";
   return gulp.src(["**/*.sln", "!**/node_modules/**/*.sln", "!./tools/**/*.sln"])
     .pipe(msbuild(config));
@@ -104,10 +104,10 @@ gulp.task("build-binaries-for-nuget-packages-from-zero", ["purge"], function (do
 });
 
 gulp.task("test-package-build", ["build-binaries-for-nuget-packages-from-zero"], function (done) {
-  runSequence("build-binary-nuget-packages", "build-source-packages", "test-packages-exist", done);
+  runSequence("build-binary-nuget-packages", "build-source-nuget-packages", "test-packages-exist", done);
 });
 
-gulp.task("test-package-exist", () => {
+gulp.task("test-packages-exist", () => {
   return Promise.resolve("wip");
 });
 

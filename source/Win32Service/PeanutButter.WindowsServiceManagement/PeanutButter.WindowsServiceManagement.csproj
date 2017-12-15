@@ -7,8 +7,8 @@
     <ProjectGuid>{C97C82C9-8975-4367-8B5E-386F93B6130C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PeanutButter.Win32ServiceControl</RootNamespace>
-    <AssemblyName>PeanutButter.Win32ServiceControl</AssemblyName>
+    <RootNamespace>PeanutButter.WindowsServiceManagement</RootNamespace>
+    <AssemblyName>PeanutButter.WindowsServiceManagement</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>

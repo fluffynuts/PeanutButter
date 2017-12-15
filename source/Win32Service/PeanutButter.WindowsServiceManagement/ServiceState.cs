@@ -1,4 +1,4 @@
-namespace PeanutButter.Win32ServiceControl
+namespace PeanutButter.WindowsServiceManagement
 {
     public enum ServiceState
     {

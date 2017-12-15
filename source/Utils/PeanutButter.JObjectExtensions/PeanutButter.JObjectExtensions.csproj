@@ -60,8 +60,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>mkdir $(SolutionDir)Utils\$(ProjectName).NugetPackage\lib\net45
-del /Q $(SolutionDir)Utils\$(ProjectName).NugetPackage\lib\net45\*.*
-copy $(TargetPath) $(SolutionDir)Utils\$(ProjectName).NugetPackage\lib\net45\</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>

@@ -104,11 +104,8 @@
     </PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>mkdir $(SolutionDir)EmailSpooler\$(ProjectName).NugetPackage\lib\net45
-del /Q $(SolutionDir)EmailSpooler\$(ProjectName).NugetPackage\lib\net45\*.*
-copy $(TargetPath) $(SolutionDir)EmailSpooler\$(ProjectName).NugetPackage\lib\net45\
-mkdir $(SolutionDir)EmailSpooler\$(ProjectName).NugetPackage\content\MSSQL
-copy $(SolutionDir)EmailSpooler\$(ProjectName)\MSSQL\* $(SolutionDir)EmailSpooler\$(ProjectName).NugetPackage\content\MSSQL</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

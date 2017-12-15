@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedMember.Global
 // ReSharper disable UnassignedField.Global
 
-namespace PeanutButter.Win32ServiceControl
+namespace PeanutButter.WindowsServiceManagement
 {
     public class Win32Api
     {

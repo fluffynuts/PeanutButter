@@ -1,0 +1,35 @@
+<package>
+  <metadata>
+    <id>PeanutButter.TinyEventAggregator</id>
+    <version>1.2.209</version>
+    <title>PeanutButter.TinyEventAggregator</title>
+    <authors>daf</authors>
+    <owners></owners>
+    <description>
+      A really tiny Event Aggregator
+    </description>
+    <releaseNotes></releaseNotes>
+    <summary>
+      Provides a very simple, unthreaded Event Aggregator implementation with a few convenient extras:
+      * one-time subscription
+      * limited-time subscription
+      * the ability to suspend and resume the eventing engine. Events raised during suspension are routed
+        once the engine is resumed
+    </summary>
+    <language>en-US</language>
+    <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
+    <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/fluffynuts/PeanutButter/blob/master/LICENSE</licenseUrl>
+    <copyright>Copyright  2014</copyright>
+    <dependencies>
+      <group targetFramework="net40"></group>
+    </dependencies>
+    <references></references>
+    <tags></tags>
+  </metadata>
+  <files>
+    <file src="bin/Release/PeanutButter.TinyEventAggregator.dll" target="lib/net452" />
+    <file src="bin/Release/PeanutButter.TinyEventAggregator.pdb" target="lib/net452" />
+  </files>
+</package>

@@ -1,6 +1,6 @@
 using System;
 
-namespace PeanutButter.Win32ServiceControl
+namespace PeanutButter.WindowsServiceManagement
 {
     [Flags]
     public enum ServiceAccessRights

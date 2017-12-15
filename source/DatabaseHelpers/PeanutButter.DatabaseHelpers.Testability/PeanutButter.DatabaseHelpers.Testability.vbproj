@@ -47,26 +47,6 @@
   <PropertyGroup>
     <OptionInfer>On</OptionInfer>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BuildForNuget|AnyCPU'">
-    <DefineTrace>true</DefineTrace>
-    <OutputPath>bin\BuildForNuget\</OutputPath>
-    <DocumentationFile>PeanutButter.DatabaseHelpers.Testability.xml</DocumentationFile>
-    <Optimize>true</Optimize>
-    <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'PushToNuget|AnyCPU'">
-    <DefineTrace>true</DefineTrace>
-    <OutputPath>bin\PushToNuget\</OutputPath>
-    <DocumentationFile>PeanutButter.DatabaseHelpers.Testability.xml</DocumentationFile>
-    <Optimize>true</Optimize>
-    <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -137,9 +117,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>
-    <PostBuildEvent>mkdir $(SolutionDir)DatabaseHelpers\$(ProjectName).NugetPackage\lib\net45
-del /Q $(SolutionDir)DatabaseHelpers\$(ProjectName).NugetPackage\lib\net45\*.*
-copy $(TargetPath) $(SolutionDir)DatabaseHelpers\$(ProjectName).NugetPackage\lib\net45\</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

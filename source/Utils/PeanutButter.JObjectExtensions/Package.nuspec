@@ -1,0 +1,39 @@
+<package>
+  <metadata>
+    <id>PeanutButter.JObjectExtensions</id>
+    <version>1.2.209</version>
+    <title>PeanutButter.JObjectExtensions</title>
+    <authors>Davyd McColl</authors>
+    <owners></owners>
+    <description>
+    Helper utility to convert Newtonsoft JObjects recursively to dictionaries,
+    most especially useful when coupled with PeanutButter.DuckTyping, which can
+    duck onto dictionaries, without having to make PeanutButter.DuckTyping depend
+    unecessarily on Newtonsoft.Json
+    </description>
+    <releaseNotes></releaseNotes>
+    <summary>
+    Provides the ToDictionary() extension method for JObjects which converts a JObject
+    recursively to a Dictionary of Dictionaries. Keys are strings, values are boxed as
+    object but have "proper" underlying types. Works on collections within the JSON blob
+    too.
+    </summary>
+    <language>en-US</language>
+    <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
+    <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/fluffynuts/PeanutButter/blob/master/LICENSE</licenseUrl>
+    <copyright>Copyright  2017</copyright>
+    <dependencies>
+      <group targetFramework="net45">
+        <dependency id="Newtonsoft.Json" version="10.0.3" />
+      </group>
+    </dependencies>
+    <references></references>
+    <tags></tags>
+  </metadata>
+  <files>
+    <file src="bin/Release/PeanutButter.JObjectExtensions.dll" target="lib/net452" />
+    <file src="bin/Release/PeanutButter.JObjectExtensions.pdb" target="lib/net452" />
+  </files>
+</package>

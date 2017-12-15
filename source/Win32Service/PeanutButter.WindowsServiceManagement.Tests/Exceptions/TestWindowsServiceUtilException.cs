@@ -2,7 +2,7 @@
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
-using PeanutButter.Win32ServiceControl.Exceptions;
+using PeanutButter.WindowsServiceManagement.Exceptions;
 
 namespace PeanutButter.WindowsServiceManagement.Tests.Exceptions
 {

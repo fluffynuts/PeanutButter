@@ -1,4 +1,4 @@
-namespace PeanutButter.Win32ServiceControl.Exceptions
+namespace PeanutButter.WindowsServiceManagement.Exceptions
 {
     public class ServiceNotInstalledException : WindowsServiceUtilException
     {

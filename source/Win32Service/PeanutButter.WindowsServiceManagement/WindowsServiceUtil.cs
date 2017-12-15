@@ -9,13 +9,14 @@ using System.Runtime.InteropServices;
 using System.ServiceProcess;
 using System.Threading;
 using Microsoft.Win32;
-using PeanutButter.Win32ServiceControl.Exceptions;
+using PeanutButter.WindowsServiceManagement.Exceptions;
+
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMemberInSuper.Global
 // ReSharper disable UnusedMember.Global
 
-namespace PeanutButter.Win32ServiceControl
+namespace PeanutButter.WindowsServiceManagement
 {
     public interface IWindowsServiceUtil
     {

@@ -73,12 +73,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>mkdir $(SolutionDir)TrayIcon\$(ProjectName).NugetPackage\lib\net45
-del /Q $(SolutionDir)TrayIcon\$(ProjectName).NugetPackage\lib\net45\*.*
-copy $(TargetPath) $(SolutionDir)TrayIcon\$(ProjectName).NugetPackage\lib\net45\
-copy $(TargetDir)$(ProjectName).pdb $(SolutionDir)TrayIcon\$(ProjectName).NugetPackage\lib\net45\
-copy $(TargetDir)$(ProjectName).xml $(SolutionDir)TrayIcon\$(ProjectName).NugetPackage\lib\net45\
-</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
