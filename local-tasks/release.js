@@ -99,7 +99,10 @@ gulp.task("build-binary-nuget-packages", [], function () {
     .pipe(buildNugetPackages(true));
 });
 
-gulp.task("test-package-build", ["build-binaries-for-nuget-packages"], function (done) {
+gulp.task("build-binaries-for-nuget-packages-from-zero", ["purge"], function (done) {
+  runSequence("build-binaries-for-nuget-packages", done);
+});
+gulp.task("test-package-build", ["build-binaries-for-nuget-packages-from-zero"], function (done) {
   runSequence("build-binary-nuget-packages", done);
 });
 
