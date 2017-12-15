@@ -2,9 +2,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFrameworks>net452;netstandard1.6</TargetFrameworks>
-        <DocumentationFile>bin\$(COnfiguration)\$(TargetFramework)\PeanutButter.Utils.xml</DocumentationFile>
+        <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\PeanutButter.Utils.xml</DocumentationFile>
     </PropertyGroup>
     <PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.6'">
         <DefineConstants>NETSTANDARD</DefineConstants>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net452|AnyCPU'">
+      <OutputPath>bin\BuildForNuget\net452\</OutputPath>
     </PropertyGroup>
 </Project>

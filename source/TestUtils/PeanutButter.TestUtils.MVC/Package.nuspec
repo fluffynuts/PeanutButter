@@ -1,0 +1,46 @@
+<package>
+  <metadata>
+    <id>PeanutButter.TestUtils.MVC</id>
+    <version>1.2.209</version>
+    <title>PeanutButter.TestUtils.MVC.Sources</title>
+    <authors>Davyd McColl</authors>
+    <owners></owners>
+    <description>
+            Contains utilities for facilitating easier testing of MVC projects:
+            - JsonResultExtensions let you .Get("(property name)") on JsonResults
+            from an MVC controller action to easily fetch values from the Json result
+            - ControllerWithContextBuilder facilitates testing of controllers which require
+            a valid context, user, roles, etc.
+        </description>
+    <releaseNotes></releaseNotes>
+    <summary>
+            (deprecated until I can figure out a way to effectively not tie this to a specific release of MVC)
+        </summary>
+    <language>en-US</language>
+    <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
+    <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/fluffynuts/PeanutButter/blob/master/LICENSE</licenseUrl>
+    <copyright>Copyright  2016</copyright>
+    <dependencies>
+      <group targetFramework="net40">
+        <dependency id="Microsoft.AspNet.Identity.Core" version="2.2.1" />
+        <dependency id="Microsoft.AspNet.Mvc" version="5.2.3" />
+        <dependency id="Microsoft.AspNet.Razor" version="3.2.3" />
+        <dependency id="Microsoft.AspNet.WebPages" version="3.2.3" />
+        <dependency id="Microsoft.Web.Infrastructure" version="1.0.0.0" />
+        <dependency id="NSubstitute" version="1.10.0.0" />
+      </group>
+    </dependencies>
+    <references></references>
+    <tags></tags>
+  </metadata>
+  <files>
+    <file src="Builders/ControllerWithContextBuilder.cs" target="content/PeanutButter.TestUtils.MVC" />
+    <file src="Builders/FakeHttpContext.cs" target="content/PeanutButter.TestUtils.MVC" />
+    <file src="Builders/FakeHttpRequest.cs" target="content/PeanutButter.TestUtils.MVC" />
+    <file src="Builders/FakeHttpSessionState.cs" target="content/PeanutButter.TestUtils.MVC" />
+    <file src="Builders/FakeIdentity.cs" target="content/PeanutButter.TestUtils.MVC" />
+    <file src="Builders/FakePrincipal.cs" target="content/PeanutButter.TestUtils.MVC" />
+  </files>
+</package>

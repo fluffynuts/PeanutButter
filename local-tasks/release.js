@@ -102,8 +102,13 @@ gulp.task("build-binary-nuget-packages", [], function () {
 gulp.task("build-binaries-for-nuget-packages-from-zero", ["purge"], function (done) {
   runSequence("build-binaries-for-nuget-packages", done);
 });
+
 gulp.task("test-package-build", ["build-binaries-for-nuget-packages-from-zero"], function (done) {
-  runSequence("build-binary-nuget-packages", done);
+  runSequence("build-binary-nuget-packages", "build-source-packages", "test-packages-exist", done);
+});
+
+gulp.task("test-package-exist", () => {
+  return Promise.resolve("wip");
 });
 
 gulp.task("release-test-package", [], function () {

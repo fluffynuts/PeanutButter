@@ -1,0 +1,34 @@
+<package>
+  <metadata>
+    <id>PeanutButter.TempDb.LocalDb</id>
+    <version>1.2.209</version>
+    <title>PeanutButter.TempDb.LocalDb</title>
+    <authors>Davyd</authors>
+    <owners></owners>
+    <description>
+	The LocalDb TempDb implementation
+    </description>
+    <releaseNotes></releaseNotes>
+    <summary>
+	Use this if you need an automagic temporary SqlCe database, for example in testing.
+    </summary>
+    <language>en-US</language>
+    <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
+    <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/fluffynuts/PeanutButter/blob/master/LICENSE</licenseUrl>
+    <copyright>Copyright  2015</copyright>
+    <dependencies>
+      <group targetFramework="net40">
+        <dependency id="PeanutButter.TempDb" version="1.2.209" />
+        <dependency id="PeanutButter.Utils" version="1.2.209" />
+      </group>
+    </dependencies>
+    <references></references>
+    <tags></tags>
+  </metadata>
+  <files>
+    <file src="bin/Release/PeanutButter.TempDb.LocalDb.dll" target="lib/net452" />
+    <file src="bin/Release/PeanutButter.TempDb.LocalDb.pdb" target="lib/net452" />
+  </files>
+</package>

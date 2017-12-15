@@ -1,0 +1,37 @@
+<package>
+  <metadata>
+    <id>PeanutButter.DatabaseHelpers</id>
+    <version>1.2.209</version>
+    <title>PeanutButter.DatabaseHelpers</title>
+    <authors>Davyd McColl</authors>
+    <owners>Davyd McColl</owners>
+    <description>
+      The Database Helpers component of the Peanut Butter mini-suite
+    </description>
+    <releaseNotes></releaseNotes>
+    <summary>
+      Provides statement builders for Select, Insert, Update and Delete, compliant with MSSQL, SqlCE, Access, and, more
+      recently, Firebird. Also contains executors (for datareader and scalar exectution) compliant with Oledb connections
+      since the primary focus was support for apps with legacy ties into Access, but the idea is to be able to extend
+      as necessary to support other engines
+    </summary>
+    <language>en-US</language>
+    <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
+    <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/fluffynuts/PeanutButter/blob/master/LICENSE</licenseUrl>
+    <copyright>Copyright  2014</copyright>
+    <dependencies>
+      <group targetFramework="net45">
+        <dependency id="PeanutButter.Utils" version="1.2.209" />
+      </group>
+    </dependencies>
+    <references></references>
+    <tags></tags>
+  </metadata>
+  <files>
+    <file src="bin/Release/PeanutButter.DatabaseHelpers.dll" target="lib/net452" />
+    <file src="bin/Release/PeanutButter.DatabaseHelpers.xml" target="lib/net452" />
+    <file src="bin/Release/PeanutButter.DatabaseHelpers.pdb" target="lib/net453" />
+  </files>
+</package>
