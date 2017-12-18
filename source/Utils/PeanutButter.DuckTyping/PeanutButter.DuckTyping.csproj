@@ -2,20 +2,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
-        <Configurations>Debug;Release;BuildForNuget</Configurations>
+        <Configurations>Debug;Release</Configurations>
         <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\PeanutButter.DuckTyping.xml</DocumentationFile>
     </PropertyGroup>
     <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
         <DefineConstants>NETSTANDARD;BUILD_PEANUTBUTTER_INTERNAL</DefineConstants>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net452|AnyCPU'">
-      <DefineConstants>TRACE;BUILD_PEANUTBUTTER_INTERNAL</DefineConstants>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='BuildForNuget|net452|AnyCPU'">
-      <DefineConstants>TRACE;BUILD_PEANUTBUTTER_INTERNAL</DefineConstants>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net452|AnyCPU'">
-      <DefineConstants>TRACE;DEBUG;BUILD_PEANUTBUTTER_INTERNAL</DefineConstants>
+    <PropertyGroup Condition="'$(TargetFramework)'=='net452'">
+        <DefineConstants>BUILD_PEANUTBUTTER_INTERNAL</DefineConstants>
     </PropertyGroup>
     <ItemGroup>
       <Compile Include="..\PeanutButter.Utils\Dictionaries\CaseWarpingDictionaryWrapper.cs" Link="Imported\CaseWarpingDictionaryWrapper.cs" />

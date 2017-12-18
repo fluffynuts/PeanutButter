@@ -31,7 +31,7 @@
     <tags></tags>
   </metadata>
   <files>
-    <file src="PeanutButter.WindowsServiceManagement.dll" target="lib/net452" />
-    <file src="PeanutButter.WindowsServiceManagement.pdb" target="lib/net452" />
+    <file src="bin/Release/PeanutButter.WindowsServiceManagement.dll" target="lib/net452" />
+    <file src="bin/Release/PeanutButter.WindowsServiceManagement.pdb" target="lib/net452" />
   </files>
 </package>

@@ -85,16 +85,15 @@ function buildNugetPackages(includeSymbols) {
 }
 
 gulp.task("build-source-nuget-packages", function () {
-  return gulp.src(["**/PeanutButter.TestUtils.MVC.NugetPackage/*.nuspec"])
+  return gulp.src(["**/PeanutButter.TestUtils.MVC/*.nuspec"])
     .pipe(buildNugetPackages(false));
 });
 
 gulp.task("build-binary-nuget-packages", [], function () {
   return gulp.src(["**/source/**/*.nuspec",
     "!**/packages/**/*.nuspec",
-    /* deprecated */
-    "!**/PeanutButter.Utils.NugetPackage/**",
-    "!**/PeanutButter.TestUtils.MVC.NugetPackage/**"
+    /* source */
+    "!**/PeanutButter.TestUtils.MVC/**"
   ])
     .pipe(buildNugetPackages(true));
 });
