@@ -114,7 +114,7 @@ namespace PeanutButter.Utils
         private static string StringifyDateTime(object obj, int level, string nullRep)
         {
             var dt = (DateTime)obj;
-            return $"{dt.ToString(CultureInfo.InvariantCulture)} ({dt.Kind})";
+            return $"{dt.ToString(CultureInfo.InvariantCulture)}.{dt.Millisecond} ({dt.Kind})";
         }
 
         private static bool IsDateTime(object obj, int level)

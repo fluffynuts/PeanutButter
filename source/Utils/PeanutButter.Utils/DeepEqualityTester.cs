@@ -210,17 +210,20 @@ namespace PeanutButter.Utils
         }
 
         private bool? _ignoreDateTimeKind;
+
         private bool IgnoreDateTimeKind()
         {
             _ignoreDateTimeKind = _ignoreDateTimeKind ?? (CheckEnvironmentForIgnoreDateTimeKind());
             return _ignoreDateTimeKind ?? false;
         }
 
-        private static readonly string[] _positives = {
+        private static readonly string[] _positives =
+        {
             "true",
             "yes",
             "1"
         };
+
         private bool? CheckEnvironmentForIgnoreDateTimeKind()
         {
             var envVar = Environment.GetEnvironmentVariable("DEEP_EQUALITY_IGNORES_DATETIME_KIND");
