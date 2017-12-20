@@ -222,7 +222,7 @@ namespace PeanutButter.Utils.Tests
             var result = src.IsEmpty();
 
             //---------------Test Result -----------------------
-            Assert.IsFalse(result);
+            Expect(result).To.Be.False();
         }
 
         [Test]
@@ -236,9 +236,9 @@ namespace PeanutButter.Utils.Tests
             var result = src.EmptyIfNull();
 
             //---------------Test Result -----------------------
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOf<int[]>(result);
-            CollectionAssert.IsEmpty(result);
+            Expect(result).Not.To.Be.Null();
+            Expect(result).To.Be.An.Instance.Of<int[]>();
+            Expect(result).To.Be.Empty();
         }
 
         [Test]
