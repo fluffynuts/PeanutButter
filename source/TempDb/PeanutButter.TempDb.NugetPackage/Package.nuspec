@@ -31,8 +31,7 @@
     <tags></tags>
   </metadata>
   <files>
-    <file src="lib\" target="lib" />
-    <file src="tools\" target="tools" />
-    <file src="content\" target="content" />
+    <file src="bin/Release/PeanutButter.TempDb.dll" target="lib/net452" />
+    <file src="bin/Release/PeanutButter.TempDb.pdb" target="lib/net452" />
   </files>
 </package>
