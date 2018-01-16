@@ -600,6 +600,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             out string contentType)
         {
             var request = WebRequest.Create(server.GetFullUrlFor(path));
+            (request as HttpWebRequest).KeepAlive = false;
             request.Method = method.ToString().ToUpper();
             addHeaders?.ForEach(kvp => request.Headers[kvp.Key] = kvp.Value);
             var response = request.GetResponse();

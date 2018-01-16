@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.SqlServerCe;
+using System.Data.SQLite;
 using System.IO;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -45,7 +46,7 @@ namespace PeanutButter.TempDb.Tests
         }
 
         [Test]
-        public void Construct_ShouldCreateTemporarySqlCeDatabase()
+        public void Construct_ShouldCreateTemporarySqliteDatabase()
         {
             //---------------Set up test pack-------------------
             using (var db = new TempDBSqlite())
@@ -56,7 +57,7 @@ namespace PeanutButter.TempDb.Tests
 
                 //---------------Test Result -----------------------
                 Assert.IsTrue(File.Exists(db.DatabaseFile));
-                using (var conn = new SqlCeConnection(db.ConnectionString))
+                using (var conn = new SQLiteConnection(db.ConnectionString))
                 {
                     Assert.DoesNotThrow(conn.Open);
                 }

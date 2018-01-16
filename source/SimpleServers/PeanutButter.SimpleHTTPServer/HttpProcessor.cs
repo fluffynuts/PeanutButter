@@ -349,7 +349,7 @@ namespace PeanutButter.SimpleHTTPServer
         public void WriteStatusHeader(HttpStatusCode code, string message = null)
         {
             LogRequest(code, message);
-            WriteResponseLine($"HTTP/1.0 {code} {message ?? code.ToString()}");
+            WriteResponseLine($"HTTP/1.0 {(int)code} {message ?? code.ToString()}");
         }
 
         private void LogRequest(HttpStatusCode code, string message)
