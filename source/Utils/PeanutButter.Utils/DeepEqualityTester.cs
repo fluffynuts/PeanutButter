@@ -475,10 +475,6 @@ namespace PeanutButter.Utils
                 : srcProps.ToArray();
             if (OnlyTestIntersectingProperties)
             {
-                srcPropInfos = srcPropInfos.Where(
-                        s => compareProps.Any(c => c.Name == s.Name && c.Type == s.Type)
-                    )
-                    .ToArray();
                 if (srcPropInfos.IsEmpty())
                 {
                     AddError("No intersecting properties found");
@@ -541,7 +537,7 @@ namespace PeanutButter.Utils
         )
         {
             var result = left.Where(
-                    s => right.Any(c => c.Name == s.Name && c.Type == s.Type)
+                    s => FindMatchingPropertyInfoFor(s, right) != null // right.Any(c => c.Name == s.Name && c.Type == s.Type)
                 )
                 .ToArray();
             if (result.IsEmpty())

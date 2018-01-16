@@ -11,6 +11,7 @@ namespace PeanutButter.Utils
         public static readonly Type[] PrimitivesAndImmutables =
         {
             typeof(int),
+            typeof(short),
             typeof(char),
             typeof(byte),
             typeof(long),
