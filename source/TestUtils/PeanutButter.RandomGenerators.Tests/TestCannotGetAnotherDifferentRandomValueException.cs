@@ -1,6 +1,8 @@
 using System;
 using NUnit.Framework;
-using PeanutButter.TestUtils.Generic;
+using static NExpect.Expectations;
+using NExpect;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.RandomGenerators.Tests
 {
@@ -11,12 +13,12 @@ namespace PeanutButter.RandomGenerators.Tests
         public void Type_ShouldInheritFrom_Exception()
         {
             //---------------Set up test pack-------------------
-            var sut = typeof (CannotGetAnotherDifferentRandomValueException<>);
+            var sut = typeof(CannotGetAnotherDifferentRandomValueException<>);
 
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            sut.ShouldInheritFrom<Exception>();
+            Expect(sut).To.Inherit<Exception>();
 
             //---------------Test Result -----------------------
         }
@@ -25,7 +27,7 @@ namespace PeanutButter.RandomGenerators.Tests
         public void Construct_GivenIntValue_ShouldProduceExpectedMessage()
         {
             //---------------Set up test pack-------------------
-            var value = RandomValueGen.GetRandomInt();
+            var value = GetRandomInt();
 
             //---------------Assert Precondition----------------
 
@@ -33,10 +35,10 @@ namespace PeanutButter.RandomGenerators.Tests
             var sut = Create(value);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(
-                $"Unable to get a value different from ${value} after ${RandomValueGen.MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS} attempts )':",
-                sut.Message);
-            Assert.AreEqual(sut.Value, value);
+            Expect(sut.Message).To.Equal(
+                $"Unable to get a value different from ${value} after ${MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS} attempts )':"
+            );
+            Expect(sut.Value).To.Equal(value);
 
         }
 
@@ -44,7 +46,7 @@ namespace PeanutButter.RandomGenerators.Tests
         public void Construct_GivenStringValue_ShouldProduceExpectedMessage()
         {
             //---------------Set up test pack-------------------
-            var value = RandomValueGen.GetRandomString();
+            var value = GetRandomString();
 
             //---------------Assert Precondition----------------
 
@@ -52,18 +54,17 @@ namespace PeanutButter.RandomGenerators.Tests
             var sut = Create(value);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(
-                $"Unable to get a value different from ${value} after ${RandomValueGen.MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS} attempts )':",
-                sut.Message);
-            Assert.AreEqual(sut.Value, value);
-
+            Expect(sut.Message).To.Equal(
+                $"Unable to get a value different from ${value} after ${MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS} attempts )':"
+            );
+            Expect(sut.Value).To.Equal(value);
         }
 
         [Test]
         public void Construct_GivenDecimalValue_ShouldProduceExpectedMessage()
         {
             //---------------Set up test pack-------------------
-            var value = RandomValueGen.GetRandomString();
+            var value = GetRandomString();
 
             //---------------Assert Precondition----------------
 
@@ -71,10 +72,10 @@ namespace PeanutButter.RandomGenerators.Tests
             var sut = Create(value);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(
-                $"Unable to get a value different from ${value} after ${RandomValueGen.MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS} attempts )':",
-                sut.Message);
-            Assert.AreEqual(sut.Value, value);
+            Expect(sut.Message).To.Equal(
+                $"Unable to get a value different from ${value} after ${MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS} attempts )':"
+            );
+            Expect(sut.Value).To.Equal(value);
 
         }
 
@@ -82,7 +83,7 @@ namespace PeanutButter.RandomGenerators.Tests
         public void Construct_GivenBooleanValue_ShouldProduceExpectedMessage()
         {
             //---------------Set up test pack-------------------
-            var value = RandomValueGen.GetRandomBoolean();
+            var value = GetRandomBoolean();
 
             //---------------Assert Precondition----------------
 
@@ -90,10 +91,10 @@ namespace PeanutButter.RandomGenerators.Tests
             var sut = Create(value);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(
-                $"Unable to get a value different from ${value} after ${RandomValueGen.MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS} attempts )':",
-                sut.Message);
-            Assert.AreEqual(sut.Value, value);
+            Expect(sut.Message).To.Equal(
+                $"Unable to get a value different from ${value} after ${MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS} attempts )':"
+            );
+            Expect(sut.Value).To.Equal(value);
 
         }
 

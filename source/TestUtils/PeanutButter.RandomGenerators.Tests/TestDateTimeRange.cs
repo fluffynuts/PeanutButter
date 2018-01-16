@@ -17,7 +17,7 @@ namespace PeanutButter.RandomGenerators.Tests
             var to = GetAnother(from, () => GetRandomDate(), (d1, d2) => d1 >= d2);
 
             //---------------Assert Precondition----------------
-            Assert.That(from, Is.LessThan(to));
+            Expect(from).To.Be.Less.Than(to);
 
             //---------------Execute Test ----------------------
             var sut = Create(from, to);
@@ -35,7 +35,7 @@ namespace PeanutButter.RandomGenerators.Tests
             var to = GetAnother(from, () => GetRandomDate(), (d1, d2) => d1 >= d2);
 
             //---------------Assert Precondition----------------
-            Assert.That(from, Is.LessThan(to));
+            Expect(from).To.Be.Less.Than(to);
 
             //---------------Execute Test ----------------------
             var sut = Create(to, from);

@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GenericBuilderTestMatchers.cs" />
     <Compile Include="PerformanceTest\Address.cs" />
     <Compile Include="PerformanceTest\AddressType.cs" />
     <Compile Include="PerformanceTest\AddressViewModel.cs" />

@@ -71,6 +71,21 @@ namespace PeanutButter.Utils.Tests
         }
 
         [Test]
+        public void Stringifying_PropertiesOfTypeShort()
+        {
+            // Arrange
+            var obj = new {x = short.MaxValue};
+            var expected = (@"{
+  x: " + short.MaxValue + @"
+}").Replace("\r", "");
+            // Pre-Assert
+            // Act
+            var result = obj.Stringify();
+            // Assert
+            Expect(result).To.Equal(expected);
+        }
+
+        [Test]
         public void ShouldInclude_Kind_ForDateTime()
         {
             // Arrange

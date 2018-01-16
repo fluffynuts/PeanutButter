@@ -10,7 +10,6 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 using static NExpect.Expectations;
 // ReSharper disable UnusedMemberInSuper.Global
 // ReSharper disable PossibleNullReferenceException
-
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMember.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Local
@@ -20,7 +19,6 @@ using static NExpect.Expectations;
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 // ReSharper disable MemberHidesStaticFromOuterClass
 // ReSharper disable InconsistentNaming
-
 // ReSharper disable ClassNeverInstantiated.Local
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable StringIndexOfIsCultureSpecific.1
@@ -50,11 +48,12 @@ namespace PeanutButter.RandomGenerators.Tests
             var b2 = SimpleBuilder.Create();
 
             //---------------Test Result -----------------------
-            Assert.IsNotNull(b1);
-            Assert.IsNotNull(b2);
-            Assert.IsInstanceOf<SimpleBuilder>(b1);
-            Assert.IsInstanceOf<SimpleBuilder>(b2);
-            Assert.AreNotEqual(b1, b2);
+
+            Expect(b1).Not.To.Be.Null();
+            Expect(b2).Not.To.Be.Null();
+            Expect(b1).To.Be.An.Instance.Of<SimpleBuilder>();
+            Expect(b2).To.Be.An.Instance.Of<SimpleBuilder>();
+            Expect(b1).Not.To.Be(b2);
         }
 
         [Test]
@@ -69,11 +68,11 @@ namespace PeanutButter.RandomGenerators.Tests
             var simple2 = builder.Build();
 
             //---------------Test Result -----------------------
-            Assert.IsNotNull(simple1);
-            Assert.IsNotNull(simple2);
-            Assert.IsInstanceOf<SimpleClass>(simple1);
-            Assert.IsInstanceOf<SimpleClass>(simple2);
-            Assert.AreNotEqual(simple1, simple2);
+            Expect(simple1).Not.To.Be.Null();
+            Expect(simple2).Not.To.Be.Null();
+            Expect(simple1).To.Be.An.Instance.Of<SimpleClass>();
+            Expect(simple2).To.Be.An.Instance.Of<SimpleClass>();
+            Expect(simple1).Not.To.Be(simple2);
         }
 
         public enum SomeValues
@@ -115,13 +114,9 @@ namespace PeanutButter.RandomGenerators.Tests
             var obj = NotAsSimpleBuilder.BuildDefault();
 
             //---------------Test Result -----------------------
-            Assert.IsNotNull(obj);
-            Assert.IsInstanceOf<NotAsSimpleClass>(obj);
-            Assert.AreEqual(blank.Name, obj.Name);
-            Assert.AreEqual(blank.Value, obj.Value);
-            Assert.AreEqual(blank.Flag, obj.Flag);
-            Assert.AreEqual(blank.Created, obj.Created);
-            Assert.AreEqual(blank.Cost, obj.Cost);
+            Expect(obj).Not.To.Be.Null();
+            Expect(obj).To.Be.An.Instance.Of<NotAsSimpleClass>();
+            Expect(obj).To.Deep.Equal(blank);
         }
 
 
@@ -181,15 +176,14 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.IsTrue(LooksLikeEmail(sut.Email), $"{sut.Email} does not look like an email address");
-            Assert.IsTrue(LooksLikeEmail(sut.EmailAddress), $"{sut.EmailAddress} does not look like an email address");
-            Assert.IsTrue(LooksLikeUrl(sut.Url), $"{sut.Url} does not look like a url");
-            Assert.IsTrue(LooksLikeUrl(sut.Website), $"{sut.Website} does not look like a url");
-            Assert.IsTrue(IsAllNumeric(sut.Phone), $"{sut.Phone} should be all numeric");
-            Assert.IsTrue(IsAllNumeric(sut.Tel), $"{sut.Tel} should be all numeric");
-            Assert.IsTrue(IsAllNumeric(sut.Mobile), $"{sut.Mobile} should be all numeric");
-            Assert.IsTrue(IsAllNumeric(sut.Fax), $"{sut.Fax} should be all numeric");
-
+            Expect(sut.EmailAddress).To.LookLikeEmailAddress();
+            Expect(sut.Email).To.LookLikeEmailAddress();
+            Expect(sut.Website).To.LookLikeUrl();
+            Expect(sut.Url).To.LookLikeUrl();
+            Expect(sut.Fax).To.Be.AllNumeric();
+            Expect(sut.Mobile).To.Be.AllNumeric();
+            Expect(sut.Tel).To.Be.AllNumeric();
+            Expect(sut.Phone).To.Be.AllNumeric();
             //---------------Test Result -----------------------
         }
 
@@ -222,30 +216,6 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Test Result -----------------------
             Assert.IsTrue(items.Select(i => i.Enabled).All(v => v));
             VarianceAssert.IsVariant<TestBooleans, bool>(items, "SomeOtherBoolean");
-        }
-
-
-        private bool IsAllNumeric(string phone)
-        {
-            return phone.All(c => "0123456789".Contains(c));
-        }
-
-        private bool LooksLikeUrl(string url)
-        {
-            var proto = "://";
-            return !string.IsNullOrWhiteSpace(url) &&
-                   url.Contains(proto) &&
-                   !url.StartsWith(proto) &&
-                   !url.EndsWith("://");
-        }
-
-        private bool LooksLikeEmail(string email)
-        {
-            return !string.IsNullOrWhiteSpace(email) &&
-                   email.IndexOf("@") > 0 &&
-                   email.IndexOf("@") < email.Length - 2 &&
-                   email.IndexOf(".") > 0 &&
-                   email.IndexOf(".") < email.Length - 2;
         }
 
         private class BuilderInspector : GenericBuilder<BuilderInspector, SimpleClass>
@@ -560,7 +530,7 @@ namespace PeanutButter.RandomGenerators.Tests
             {
                 return WithProp(o => o.Message.Options = o.Message.Options
                     .EmptyIfNull()
-                    .And(new FakeMessagePlatformOption() {Name = name, Value = value}));
+                    .And(new FakeMessagePlatformOption() { Name = name, Value = value }));
             }
         }
 

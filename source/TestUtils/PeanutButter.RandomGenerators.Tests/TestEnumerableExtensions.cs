@@ -11,7 +11,6 @@ using static NExpect.Expectations;
 // ReSharper disable ExpressionIsAlwaysNull
 // ReSharper disable CollectionNeverUpdated.Local
 // ReSharper disable PossibleMultipleEnumeration
-
 // ReSharper disable RedundantArgumentDefaultValue
 
 namespace PeanutButter.RandomGenerators.Tests
@@ -32,11 +31,11 @@ namespace PeanutButter.RandomGenerators.Tests
             {
                 var input = GetRandomCollection(() => GetRandomString(2, 10), 5, 10).ToArray();
                 var jumbled = input.Randomize().ToArray();
-                Assert.AreEqual(input.Length, jumbled.Length);
+                Expect(input).To.Contain.Exactly(jumbled.Length).Items();
                 var outOfPlace = input
                     .Where((t, j) => t != jumbled[j])
                     .Count();
-                results.Add(outOfPlace / (decimal) input.Length);
+                results.Add(outOfPlace / (decimal)input.Length);
             }
 
             //---------------Test Result -----------------------
@@ -55,7 +54,7 @@ namespace PeanutButter.RandomGenerators.Tests
             var result = ints.Randomize();
 
             //---------------Test Result -----------------------
-            Assert.IsNull(result);
+            Expect(result).To.Be.Null();
         }
 
         [Test]
@@ -69,8 +68,8 @@ namespace PeanutButter.RandomGenerators.Tests
             var result = ints.Randomize();
 
             //---------------Test Result -----------------------
-            Assert.IsNotNull(result);
-            CollectionAssert.IsEmpty(result);
+            Expect(result).Not.To.Be.Null();
+            Expect(result).To.Be.Empty();
         }
 
         [Test]
@@ -84,16 +83,16 @@ namespace PeanutButter.RandomGenerators.Tests
                 var src = GetRandomCollection(() => GetRandomString(), 3);
 
                 //---------------Assert Precondition----------------
-                CollectionAssert.IsNotEmpty(src);
+                Expect(src).Not.To.Be.Empty();
 
                 //---------------Execute Test ----------------------
                 var result = src.Randomize();
 
                 //---------------Test Result -----------------------
-                CollectionAssert.AreEquivalent(result, src);
+                Expect(result).To.Be.Equivalent.To(src);
                 try
                 {
-                    CollectionAssert.AreNotEqual(result, src);
+                    Expect(result).Not.To.Equal(src);
                     return;
                 }
                 catch (Exception)
