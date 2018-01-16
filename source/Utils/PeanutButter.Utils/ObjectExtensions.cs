@@ -331,7 +331,8 @@ namespace PeanutButter.Utils
                 .Where(pi => !ignoreProperties.Contains(pi.Name));
             var dstPropInfos = dst.GetType().GetProperties();
 
-            foreach (var srcPropInfo in srcPropInfos.Where(pi => pi.CanRead))
+            foreach (var srcPropInfo in srcPropInfos.Where(pi => pi.CanRead &&
+                                                                 pi.GetIndexParameters().Length == 0))
             {
                 var matchingTarget = dstPropInfos.FirstOrDefault(dp => dp.Name == srcPropInfo.Name &&
                                                                        dp.PropertyType == srcPropInfo.PropertyType &&
@@ -540,11 +541,11 @@ namespace PeanutButter.Utils
 
         private static readonly Func<object, Type, object>[] _cloneStrategies =
         {
-            CloneObject,
             CloneArray,
             CloneList,
             CloneDictionary,
-            CloneEnumerable
+            CloneEnumerable,
+            CloneObject
         };
 
         private static object CloneDictionary(object src, Type cloneType)

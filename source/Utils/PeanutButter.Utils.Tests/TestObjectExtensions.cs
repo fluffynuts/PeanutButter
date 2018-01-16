@@ -1708,6 +1708,32 @@ namespace PeanutButter.Utils.Tests
                 Expect(result.Prop).Not.To.Be.Null();
                 Expect(result.Prop).To.Be.Deep.Equivalent.To(src.Prop);
             }
+
+            public class HasWritableIndexer
+            {
+                public string NormalProp { get; set; }
+                public object this[int index]
+                {
+                    get { return null; }
+                    set { }
+                }
+            }
+
+            [Test]
+            public void ShouldCloneAObjectWithAWritableIndexer()
+            {
+                // Arrange
+                var src = new HasWritableIndexer()
+                {
+                    NormalProp = "value"
+                };
+                // Pre-Assert
+                // Act
+                var result = src.DeepClone();
+                // Assert
+                Expect(result).Not.To.Be.Null();
+                Expect(result.NormalProp).To.Equal(src.NormalProp);
+            }
         }
 
         [TestFixture]
