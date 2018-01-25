@@ -104,7 +104,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
             var db = CreateTempDb();
             var migrator = new DbSchemaImporter(db.ConnectionString, TestResources.dbscript);
             migrator.MigrateToLatest();
-            Console.WriteLine(db.DatabaseFile);
+            Console.WriteLine(db.DatabasePath);
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------

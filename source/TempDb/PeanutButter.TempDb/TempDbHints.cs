@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 
 namespace PeanutButter.TempDb
@@ -28,10 +29,8 @@ namespace PeanutButter.TempDb
             }
         }
 
-        public static bool UsingOverrideBasePath
-        {
-            get { return PreferredBasePath != Path.GetTempPath(); }
-        }
+        public static bool UsingOverrideBasePath => 
+            PreferredBasePath != Path.GetTempPath();
 
         private static bool FolderExists(string preferredBasePath)
         {
@@ -52,7 +51,10 @@ namespace PeanutButter.TempDb
 
         static TempDbHints()
         {
-            _preferredBasePath = Path.GetTempPath();
+            var env = Environment.GetEnvironmentVariable("TEMPDB_BASE_PATH");
+            _preferredBasePath = string.IsNullOrWhiteSpace(env)
+                ? Path.GetTempPath()
+                : env;
         }
     }
 }

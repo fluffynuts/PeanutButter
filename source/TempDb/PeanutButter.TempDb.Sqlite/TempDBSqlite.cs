@@ -11,7 +11,7 @@ namespace PeanutButter.TempDb.Sqlite
         }
         protected override void CreateDatabase()
         {
-            SQLiteConnection.CreateFile(DatabaseFile);
+            SQLiteConnection.CreateFile(DatabasePath);
         }
     }
 }

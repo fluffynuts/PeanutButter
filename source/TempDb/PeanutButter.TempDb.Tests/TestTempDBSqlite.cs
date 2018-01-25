@@ -56,7 +56,7 @@ namespace PeanutButter.TempDb.Tests
                 //---------------Execute Test ----------------------
 
                 //---------------Test Result -----------------------
-                Assert.IsTrue(File.Exists(db.DatabaseFile));
+                Assert.IsTrue(File.Exists(db.DatabasePath));
                 using (var conn = new SQLiteConnection(db.ConnectionString))
                 {
                     Assert.DoesNotThrow(conn.Open);
@@ -72,7 +72,7 @@ namespace PeanutButter.TempDb.Tests
             using (var db = new TempDBSqlite())
             {
                 //---------------Assert Precondition----------------
-                file = db.DatabaseFile;
+                file = db.DatabasePath;
                 Assert.IsTrue(File.Exists(file));
 
                 //---------------Execute Test ----------------------

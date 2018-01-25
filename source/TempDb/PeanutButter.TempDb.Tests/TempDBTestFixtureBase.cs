@@ -5,7 +5,6 @@ namespace PeanutButter.TempDb.Tests
     {
         static TempDBTestFixtureBase()
         {
-            TempDbHints.PreferredBasePath = "C:\\tmp\\tempdb\\wat";
         }
     }
 }

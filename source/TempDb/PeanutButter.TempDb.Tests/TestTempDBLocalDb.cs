@@ -38,7 +38,7 @@ namespace PeanutButter.TempDb.Tests
                 //---------------Execute Test ----------------------
 
                 //---------------Test Result -----------------------
-                Assert.IsTrue(File.Exists(db.DatabaseFile));
+                Assert.IsTrue(File.Exists(db.DatabasePath));
                 using (var conn = new SqlConnection(db.ConnectionString))
                 {
                     Assert.DoesNotThrow(conn.Open);
@@ -58,7 +58,7 @@ namespace PeanutButter.TempDb.Tests
                 //---------------Execute Test ----------------------
 
                 //---------------Test Result -----------------------
-                Assert.IsTrue(File.Exists(db.DatabaseFile));
+                Assert.IsTrue(File.Exists(db.DatabasePath));
                 using (var conn = new SqlConnection(db.ConnectionString))
                 {
                     Assert.DoesNotThrow(conn.Open);
@@ -84,7 +84,7 @@ namespace PeanutButter.TempDb.Tests
                 cmd = conn.CreateCommand();
                 cmd.CommandText = "select * from [test];";
                 cmd.ExecuteReader();
-                file = db.DatabaseFile;
+                file = db.DatabasePath;
                 Assert.IsTrue(File.Exists(file));
 
                 //---------------Execute Test ----------------------
@@ -164,7 +164,7 @@ namespace PeanutButter.TempDb.Tests
             string theFile;
             using (var db = new TempDBLocalDb(new[] { createTable, insertData }))
             {
-                theFile = db.DatabaseFile;
+                theFile = db.DatabasePath;
                 Assert.IsTrue(File.Exists(theFile));
                 //---------------Set up test pack-------------------
 

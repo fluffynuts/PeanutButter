@@ -39,7 +39,7 @@ namespace PeanutButter.TempDb.Tests {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("PeanutButter.TempDb.Tests.TestResources", typeof(TestResources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("PeanutButter.TempDB.Tests.TestResources", typeof(TestResources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

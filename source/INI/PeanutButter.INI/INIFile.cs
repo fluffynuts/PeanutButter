@@ -224,6 +224,14 @@ namespace PeanutButter.INIFile
             });
         }
 
+        public override string ToString()
+        {
+            return string.Join(
+                Environment.NewLine, 
+                GetLinesForCurrentData()
+            );
+        }
+
         private List<string> GetLinesForCurrentData()
         {
             var lines = new List<string>();

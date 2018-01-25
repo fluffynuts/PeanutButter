@@ -9,21 +9,27 @@ using PeanutButter.Utils;
 // ReSharper disable VirtualMemberCallInConstructor
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedMemberInSuper.Global
+// ReSharper disable PublicConstructorInAbstractClass
 
 namespace PeanutButter.TempDb
 {
     // ReSharper disable once InconsistentNaming
     public interface ITempDB : IDisposable
     {
-        string DatabaseFile { get; }
+        string DatabasePath { get; }
         string ConnectionString { get; }
         DbConnection CreateConnection();
     }
 
     public abstract class TempDB<TDatabaseConnection> : ITempDB where TDatabaseConnection: DbConnection
     {
-        public string DatabaseFile { get; private set; }
-        public string ConnectionString { get { return GenerateConnectionString(); } }
+        /// <summary>
+        /// Path to where the temporary database resides. May be a file
+        /// for single-file databases or a folder.
+        /// </summary>
+        public string DatabasePath { get; private set; }
+        public string ConnectionString => GenerateConnectionString();
+
         // ReSharper disable once StaticMemberInGenericType
         private static readonly Semaphore _lock = new Semaphore(1, 1);
         private List<DbConnection> _managedConnections;
@@ -43,6 +49,10 @@ namespace PeanutButter.TempDb
         {
             try
             {
+                if (Directory.Exists(TempDbHints.PreferredBasePath))
+                {
+                    Directory.CreateDirectory(TempDbHints.PreferredBasePath);
+                }
                 AttemptToCreateDatabaseWith(TempDbHints.PreferredBasePath);
             }
             catch (Exception ex)
@@ -65,15 +75,15 @@ namespace PeanutButter.TempDb
             {
                 do
                 {
-                    DatabaseFile = Path.Combine(basePath, Guid.NewGuid().ToString() + ".db");
-                } while (File.Exists(DatabaseFile));
+                    DatabasePath = Path.Combine(basePath, $"{Guid.NewGuid()}.db");
+                } while (File.Exists(DatabasePath) || Directory.Exists(DatabasePath));
                 CreateDatabase();
             }
         }
 
         protected virtual string GenerateConnectionString()
         {
-            return $"DataSource=\"{DatabaseFile}\"";
+            return $"DataSource=\"{DatabasePath}\"";
         }
 
         protected abstract void CreateDatabase();
@@ -126,13 +136,21 @@ namespace PeanutButter.TempDb
         {
             try
             {
-                File.Delete(DatabaseFile);
-                DatabaseFile = null;
+                if (Directory.Exists(DatabasePath))
+                {
+                    Directory.Delete(DatabasePath, true);
+                }
+                else if (File.Exists(DatabasePath))
+                {
+                    File.Delete(DatabasePath);
+                }
+
+                DatabasePath = null;
             }
             catch
             {
                 System.Diagnostics.Trace.WriteLine(
-                    $"WARNING: Unable to delete temporary database at: {DatabaseFile}; probably still locked. Artifact will remain on disk.");
+                    $"WARNING: Unable to delete temporary database at: {DatabasePath}; probably still locked. Artifact will remain on disk.");
             }
         }
 

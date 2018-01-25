@@ -7,7 +7,7 @@ using System.IO;
 namespace PeanutButter.TempDb.LocalDb
 {
     //<summary>
-    //  LocalDb implementation of TempDb. TempDb will destroy the temporary database on disposal. However,
+    //  LocalDb implementation of TempDB. TempDB will destroy the temporary database on disposal. However,
     //      it is feasible that the Dispose method may not be called (eg aborting a test you're debugging),
     //      so you can end up with orphaned tempdb databases registered against your localdb instance. Unlike
     //      sqlite and SqlCe, where the file is the be-all and end-all of the database, localdb has a registration
@@ -82,7 +82,7 @@ namespace PeanutButter.TempDb.LocalDb
                 using (SqlCommand cmd = connection.CreateCommand())
                 {
                     cmd.CommandText =
-                        $"CREATE DATABASE [{DatabaseName}] ON (NAME = N'[{DatabaseName}]', FILENAME = '{DatabaseFile}')";
+                        $"CREATE DATABASE [{DatabaseName}] ON (NAME = N'[{DatabaseName}]', FILENAME = '{DatabasePath}')";
                     cmd.ExecuteNonQuery();
                     cmd.CommandText = $"ALTER DATABASE [{DatabaseName}] SET TRUSTWORTHY ON";
                     cmd.ExecuteNonQuery();
@@ -106,7 +106,7 @@ namespace PeanutButter.TempDb.LocalDb
 
         protected override string GenerateConnectionString()
         {
-            return $@"Data Source=(localdb)\{InstanceName};AttachDbFilename={DatabaseFile}; Initial Catalog={
+            return $@"Data Source=(localdb)\{InstanceName};AttachDbFilename={DatabasePath}; Initial Catalog={
                     DatabaseName
                 };Integrated Security=True";
         }
@@ -125,7 +125,7 @@ namespace PeanutButter.TempDb.LocalDb
                     cmd.ExecuteNonQuery();
                 }
             }
-            File.Delete(DatabaseFile);
+            File.Delete(DatabasePath);
         }
     }
 }
