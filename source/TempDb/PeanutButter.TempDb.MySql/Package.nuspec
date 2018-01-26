@@ -1,0 +1,36 @@
+<package>
+  <metadata>
+    <id>PeanutButter.TempDb.MySql</id>
+    <version>1.2.211</version>
+    <title>PeanutButter.TempDb.MySql</title>
+    <authors>Davyd McColl</authors>
+    <owners></owners>
+    <description>
+	The MySql TempDb&lt;&gt; implementation
+    </description>
+    <releaseNotes></releaseNotes>
+    <summary>
+	Use this if you need an automagic temporary MySql database, for example in testing.
+    </summary>
+    <language>en-US</language>
+    <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
+    <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/fluffynuts/PeanutButter/blob/master/LICENSE</licenseUrl>
+    <copyright>Copyright  2015</copyright>
+    <dependencies>
+      <group targetFramework="net40">
+        <dependency id="PeanutButter.TempDb" version="1.2.210" />
+        <dependency id="PeanutButter.Utils" version="1.2.211" />
+        <dependency id="PeanutButter.INI" version="1.2.211" />
+        <dependency id="MySql.Data" version="6.10.6" />
+      </group>
+    </dependencies>
+    <references></references>
+    <tags></tags>
+  </metadata>
+  <files>
+    <file src="bin/Release/PeanutButter.TempDb.MySql.dll" target="lib/net452" />
+    <file src="bin/Release/PeanutButter.TempDb.MySql.pdb" target="lib/net452" />
+  </files>
+</package>

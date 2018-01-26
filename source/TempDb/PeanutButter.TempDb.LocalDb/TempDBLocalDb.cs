@@ -112,7 +112,7 @@ namespace PeanutButter.TempDb.LocalDb
         }
 
 
-        protected override void DeleteTemporaryDatabaseFile()
+        protected override void DeleteTemporaryDataArtifacts()
         {
             using (var connection = new SqlConnection(GenerateMasterConnectionString()))
             {

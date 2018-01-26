@@ -53,6 +53,7 @@
     <Compile Include="TempDBTestFixtureBase.cs" />
     <Compile Include="TestLocalDbFactory.cs" />
     <Compile Include="TestLocalDbInstanceEnumerator.cs" />
+    <Compile Include="TestMySqlConfigGenerator.cs" />
     <Compile Include="TestResources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

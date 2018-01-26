@@ -9,23 +9,23 @@ namespace PeanutButter.TempDb.MySql
     {
         private const string SECTION = "mysqld";
 
-        public string GenerateFor(MySqlSettings mySqlSettings)
+        public string GenerateFor(TempDbMySqlServerSettings tempDbMySqlSettings)
         {
-            if (mySqlSettings == null) throw new ArgumentNullException(nameof(mySqlSettings));
+            if (tempDbMySqlSettings == null) throw new ArgumentNullException(nameof(tempDbMySqlSettings));
 
             var iniFile = new INIFile.INIFile();
             iniFile.AddSection(SECTION);
-            mySqlSettings
+            tempDbMySqlSettings
                 .GetType()
                 .GetProperties()
-                .ForEach(prop => AddSetting(iniFile, prop, mySqlSettings));
+                .ForEach(prop => AddSetting(iniFile, prop, tempDbMySqlSettings));
             return iniFile.ToString();
         }
 
         private void AddSetting(
             INIFile.INIFile iniFile,
             PropertyInfo prop, 
-            MySqlSettings mySqlSettings
+            TempDbMySqlServerSettings tempDbMySqlSettings
         )
         {
             var settingAttrib = prop.GetCustomAttributes()
@@ -33,7 +33,7 @@ namespace PeanutButter.TempDb.MySql
                 .FirstOrDefault();
             if (settingAttrib == null)
                 return;
-            iniFile[SECTION][settingAttrib.Name] = $"{prop.GetValue(mySqlSettings)}";
+            iniFile[SECTION][settingAttrib.Name] = $"{prop.GetValue(tempDbMySqlSettings)}";
         }
     }
 }

@@ -55,7 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MySqlIniGenerator.cs" />
-    <Compile Include="MySqlSettings.cs" />
+    <Compile Include="TempDbMySqlServerSettings.cs" />
     <Compile Include="SettingAttribute.cs" />
     <Compile Include="TempDbMySql.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

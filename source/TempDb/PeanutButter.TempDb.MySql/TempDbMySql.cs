@@ -12,46 +12,71 @@ using MySql.Data.MySqlClient;
 using PeanutButter.Utils;
 using PeanutButter.WindowsServiceManagement;
 
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
+
 namespace PeanutButter.TempDb.MySql
 {
+    // ReSharper disable once InconsistentNaming
     public class TempDBMySql : TempDB<MySqlConnection>
     {
-        public bool LogRandomPortDiscovery { get; set; }
-        public int RandomPortMin { get; set; } = 13306;
-        public int RandomPortMax { get; set; } = 23306;
-        public Action<string> LogAction { get; set; } = Console.WriteLine;
+        /// <summary>
+        /// Set to true to see trace logging about discovery of a port to
+        /// instruct mysqld to bind to
+        /// </summary>
+        public TempDbMySqlServerSettings Settings { get; private set; }
+
         private readonly Random _random = new Random();
         private Process _serverProcess;
         private int _port;
-        private readonly MySqlSettings _settings;
-        private static object _mysqldLock = new object();
+        private static readonly object _mysqldLock = new object();
         private static string _mysqld;
 
-        public TempDBMySql(params string[] creationScripts) 
-            : this(new MySqlSettings(), creationScripts)
-        {
-        }
+        private readonly FatalTempDbInitializationException _noMySqlInstalledException =
+            new FatalTempDbInitializationException(
+                "Unable to locate MySql service via Windows service registry. Please install an instance of MySql on this machine to use temporary MySql databases.");
 
-        public TempDBMySql(MySqlSettings settings, params string[] creationScripts) 
-            : this(settings, o => { }, creationScripts)
+        public TempDBMySql(params string[] creationScripts)
+            : this(new TempDbMySqlServerSettings(), creationScripts)
         {
         }
 
         public TempDBMySql(
-            MySqlSettings settings, 
-            Action<object> beforeInit, 
-            params string[] creationScripts)
+            TempDbMySqlServerSettings settings,
+            params string[] creationScripts
+        )
+            : this(settings, o =>
+            {
+            }, creationScripts)
         {
-            _settings = settings;
         }
 
-        private string FindMySqlD()
+        public TempDBMySql(
+            TempDbMySqlServerSettings settings,
+            Action<object> beforeInit,
+            params string[] creationScripts
+        ) : base(
+            o => BeforeInit(o as TempDBMySql, beforeInit, settings),
+            creationScripts
+        )
+        {
+        }
+
+        private static void BeforeInit(
+            TempDBMySql self,
+            Action<object> beforeInit,
+            TempDbMySqlServerSettings settings)
+        {
+            self.Settings = settings;
+            beforeInit?.Invoke(self);
+        }
+
+        private string FindInstalledMySqlD()
         {
             lock (_mysqldLock)
             {
                 return _mysqld ?? (_mysqld = QueryForMySqld());
             }
-
         }
 
         private string QueryForMySqld()
@@ -59,14 +84,20 @@ namespace PeanutButter.TempDb.MySql
             var mysqlService = ServiceController.GetServices()
                 .FirstOrDefault(s => s.ServiceName.ToLower().Contains("mysql"));
             if (mysqlService == null)
-                throw new NotImplementedException("Only know how to query existing mysql service for mysqld");
+                throw _noMySqlInstalledException;
             var util = new WindowsServiceUtil(mysqlService.ServiceName);
             if (!util.IsInstalled)
-                throw new InvalidOperationException($"{mysqlService.ServiceName} is apparently not installed?");
-            var parts = util.ServiceExe.Split(' ');
+                throw _noMySqlInstalledException;
+            return FindServiceExecutablePartIn(util.ServiceExe);
+        }
+
+        private static string FindServiceExecutablePartIn(string utilServiceExe)
+        {
+            var strings = utilServiceExe.Split(' ');
+            var parts = strings;
             var offset = 0;
             var mysqldPath = new List<string>();
-            ;
+
             do
             {
                 var thisPart = parts.Skip(offset).FirstOrDefault();
@@ -81,11 +112,11 @@ namespace PeanutButter.TempDb.MySql
 
         protected override void CreateDatabase()
         {
-            var mysqld = FindMySqlD();
+            var mysqld = Settings?.Options?.PathToMySqlD ?? FindInstalledMySqlD();
             _port = FindOpenRandomPort();
 
             EnsureIsFolder(DatabasePath);
-            InitializeWith(mysqld, _port);
+            InitializeWith(mysqld);
             DumpDefaultsFileAt(DatabasePath);
             StartServer(mysqld, _port);
         }
@@ -104,7 +135,7 @@ namespace PeanutButter.TempDb.MySql
             File.WriteAllBytes(
                 Path.Combine(databasePath, "my.cnf"),
                 Encoding.UTF8.GetBytes(
-                    generator.GenerateFor(_settings ?? new MySqlSettings()) // FIXME: base ctor is called first, which calls into init, so this is null
+                    generator.GenerateFor(Settings)
                 )
             );
         }
@@ -113,24 +144,61 @@ namespace PeanutButter.TempDb.MySql
         {
             try
             {
-                // FIXME: process is not being killed!
-                _serverProcess.Kill();
+                AttemptShutdown();
+                EndServerProcess();
             }
-            catch
+            catch (Exception ex)
             {
-                /* ignore */
+                Log($"Unable to kill MySql instance {_serverProcess?.Id}: {ex.Message}");
             }
 
             base.Dispose();
         }
 
+        private void EndServerProcess()
+        {
+            lock (_mysqldLock)
+            {
+                if (_serverProcess == null)
+                    return;
+                Trace.WriteLine($"Stopping mysqld with process id {_serverProcess.Id}");
+                _serverProcess.Kill();
+                _serverProcess.WaitForExit(3000);
+                if (!_serverProcess.HasExited)
+                    throw new Exception($"MySql process {_serverProcess.Id} has not shut down!");
+                _serverProcess = null;
+            }
+        }
+
+        private void AttemptShutdown()
+        {
+            if (_serverProcess == null)
+                return;
+            using (var connection = CreateConnection())
+            using (var command = connection.CreateCommand())
+            {
+                // this is only available from mysql 5.7.9 onward (https://dev.mysql.com/doc/refman/5.7/en/shutdown.html)
+                command.CommandText = "SHUTDOWN";
+                try
+                {
+                    command.ExecuteNonQuery();
+                }
+                catch
+                {
+                    /* ignore */
+                }
+            }
+        }
+
         protected override string GenerateConnectionString()
         {
-            var builder = new MySqlConnectionStringBuilder();
-            builder.Port = (uint)_port;
-            builder.UserID = "root";
-            builder.Password = "";
-            builder.Server = "localhost";
+            var builder = new MySqlConnectionStringBuilder
+            {
+                Port = (uint) _port,
+                UserID = "root",
+                Password = "",
+                Server = "localhost"
+            };
             return builder.ToString();
         }
 
@@ -140,13 +208,42 @@ namespace PeanutButter.TempDb.MySql
                 $"--defaults-file={Path.Combine(DatabasePath, "my.cnf")}",
                 $"--datadir={DatabasePath}",
                 $"--port={port}");
-            Thread.Sleep(1000);
-            if (_serverProcess.HasExited)
+            TestIsRunning();
+        }
+
+        private void TestIsRunning()
+        {
+            var start = DateTime.Now;
+            var max = TimeSpan.FromSeconds(5);
+            do
             {
+                if (CanConnect())
+                    return;
+                Thread.Sleep(1);
+            } while (DateTime.Now - start < max);
+
+            _keepTemporaryDatabaseArtifactsForDiagnostics = true;
+
+            _serverProcess?.Kill();
+            throw new FatalTempDbInitializationException(
+                $"MySql doesn't want to start up. Please check logging in {DatabasePath}"
+            );
+        }
+
+        private bool CanConnect()
+        {
+            try
+            {
+                CreateConnection()?.Dispose();
+                return true;
+            }
+            catch
+            {
+                return false;
             }
         }
 
-        private void InitializeWith(string mysqld, int port)
+        private void InitializeWith(string mysqld)
         {
             Directory.CreateDirectory(DatabasePath);
             Log($"Initializing MySql in {DatabasePath}");
@@ -177,47 +274,62 @@ namespace PeanutButter.TempDb.MySql
             return process;
         }
 
-
-        protected int FindOpenRandomPort()
+        private int FindOpenRandomPort()
         {
             var rnd = new Random(DateTime.Now.Millisecond);
             var tryThis = NextRandomPort();
-            var seekingPort = true;
-            Action<string> log = s =>
+            var attempts = 0;
+            while (attempts++ < 1000)
             {
-                if (LogRandomPortDiscovery) Log(s);
-            };
-            while (seekingPort)
-            {
-                try
+                LogPortDiscoveryInfo($"Testing if port can be bound {tryThis} on any available IP address");
+                if (!PortIsInUse(tryThis))
                 {
-                    log($"Attempting to bind to random port {tryThis} on any available IP address");
-                    var listener = new TcpListener(IPAddress.Any, (int)tryThis);
-                    log("Attempt to listen...");
-                    listener.Start();
-                    log("Attempt to stop listening...");
-                    listener.Stop();
-                    log($"HUZZAH! We have a port, squire! ({tryThis})");
-                    seekingPort = false;
+                    LogPortDiscoveryInfo($"Port looks to be available: {tryThis}");
+                    break;
                 }
-                catch
+
+                if (attempts == 1000)
                 {
-                    Thread.Sleep(rnd.Next(1, 50));
-                    tryThis = NextRandomPort();
+                    throw new FatalTempDbInitializationException(
+                        "Unable to find high random port to bind on."
+                    );
                 }
+
+                LogPortDiscoveryInfo($"Port {tryThis} looks to be unavailable. Seeking another...");
+                Thread.Sleep(rnd.Next(1, 50));
+                tryThis = NextRandomPort();
             }
 
             return tryThis;
         }
 
-        /// <summary>
-        /// Guesses the next random port to attempt to bind to
-        /// </summary>
-        /// <returns></returns>
-        protected int NextRandomPort()
+        private void LogPortDiscoveryInfo(string message)
         {
-            var minPort = RandomPortMin;
-            var maxPort = RandomPortMax;
+            if (Settings?.Options?.LogRandomPortDiscovery ?? false)
+                Log(message);
+        }
+
+        private bool PortIsInUse(int port)
+        {
+            try
+            {
+                var listener = new TcpListener(IPAddress.Any, port);
+                listener.Start();
+                listener.Stop();
+                return false;
+            }
+            catch
+            {
+                return true;
+            }
+        }
+
+        private int NextRandomPort()
+        {
+            var minPort = Settings?.Options?.RandomPortMin
+                          ?? TempDbMySqlServerSettings.TempDbOptions.DEFAULT_RANDOM_PORT_MIN;
+            var maxPort = Settings?.Options?.RandomPortMax
+                          ?? TempDbMySqlServerSettings.TempDbOptions.DEFAULT_RANDOM_PORT_MAX;
             if (minPort > maxPort)
             {
                 var swap = minPort;
@@ -236,7 +348,7 @@ namespace PeanutButter.TempDb.MySql
         /// <param name="parameters"></param>
         protected void Log(string message, params object[] parameters)
         {
-            var logAction = LogAction;
+            var logAction = Settings?.Options?.LogAction;
             if (logAction == null)
                 return;
             try

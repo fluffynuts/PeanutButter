@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using PeanutButter.Utils;
+
 // ReSharper disable PossibleMultipleEnumeration
 // ReSharper disable VirtualMemberCallInConstructor
 // ReSharper disable InconsistentNaming
@@ -21,18 +22,19 @@ namespace PeanutButter.TempDb
         DbConnection CreateConnection();
     }
 
-    public abstract class TempDB<TDatabaseConnection> : ITempDB where TDatabaseConnection: DbConnection
+    public abstract class TempDB<TDatabaseConnection> : ITempDB where TDatabaseConnection : DbConnection
     {
         /// <summary>
         /// Path to where the temporary database resides. May be a file
         /// for single-file databases or a folder.
         /// </summary>
         public string DatabasePath { get; private set; }
+
         public string ConnectionString => GenerateConnectionString();
 
         // ReSharper disable once StaticMemberInGenericType
         private static readonly Semaphore _lock = new Semaphore(1, 1);
-        private List<DbConnection> _managedConnections;
+        private readonly List<DbConnection> _managedConnections = new List<DbConnection>();
 
         public TempDB(params string[] creationScripts)
         {
@@ -53,19 +55,26 @@ namespace PeanutButter.TempDb
                 {
                     Directory.CreateDirectory(TempDbHints.PreferredBasePath);
                 }
+
                 AttemptToCreateDatabaseWith(TempDbHints.PreferredBasePath);
+            }
+            catch (FatalTempDbInitializationException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
                 if (TempDbHints.UsingOverrideBasePath)
                 {
+                    Trace(
+                        "An error was encountered whilst attempting to use the configured TempDbHints.PreferredBasePath: " +
+                        ex.Message);
+                    Trace(" -> falling back on using %TEMP%");
                     AttemptToCreateDatabaseWith(Path.GetTempPath());
-                    System.Diagnostics.Trace.WriteLine("An error was encountered whilst attempting to use the configured TempDbHints.PreferredBasePath: " + ex.Message);
-                    System.Diagnostics.Trace.WriteLine(" -> falling back on using %TEMP%");
                     TempDbHints.PreferredBasePath = TempDbHints.DefaultBasePath;
                 }
             }
-            _managedConnections = new List<DbConnection>();
+
             RunScripts(creationScripts);
         }
 
@@ -77,6 +86,7 @@ namespace PeanutButter.TempDb
                 {
                     DatabasePath = Path.Combine(basePath, $"{Guid.NewGuid()}.db");
                 } while (File.Exists(DatabasePath) || Directory.Exists(DatabasePath));
+
                 CreateDatabase();
             }
         }
@@ -97,13 +107,19 @@ namespace PeanutButter.TempDb
 
         private DbConnection CreateOpenDatabaseConnection()
         {
-            var connection = Activator.CreateInstance(typeof (TDatabaseConnection), ConnectionString) as DbConnection;
-            if (connection != null)
-            {
-                connection.Open();
-                return connection;
-            }
-            else throw new InvalidOperationException($"Unable to instantate connection of type {typeof(TDatabaseConnection)} as a DbConnection");
+            var connection = Activator.CreateInstance(
+                typeof(TDatabaseConnection), 
+                ConnectionString
+            )as DbConnection;
+
+            if (connection == null)
+                throw new InvalidOperationException(
+                    $"Unable to instantate connection of type {typeof(TDatabaseConnection)} as a DbConnection"
+                );
+
+            connection.Open();
+            return connection;
+
         }
 
         private void RunScripts(IEnumerable<string> scripts)
@@ -114,12 +130,15 @@ namespace PeanutButter.TempDb
             {
                 var conn = disposer.Add(CreateOpenDatabaseConnection());
                 var cmd = disposer.Add(conn.CreateCommand());
-                Action<string> exec = s => {
-                                               cmd.CommandText = s;
-                                               cmd.ExecuteNonQuery();
-                };
+
+                void Exec(string s)
+                {
+                    cmd.CommandText = s;
+                    cmd.ExecuteNonQuery();
+                }
+
                 foreach (var script in scripts)
-                    exec(script);
+                    Exec(script);
             }
         }
 
@@ -128,12 +147,15 @@ namespace PeanutButter.TempDb
             lock (this)
             {
                 DisposeOfManagedConnections();
-                DeleteTemporaryDatabaseFile();
+                DeleteTemporaryDataArtifacts();
             }
         }
 
-        protected virtual void DeleteTemporaryDatabaseFile()
+        protected bool _keepTemporaryDatabaseArtifactsForDiagnostics;
+        protected virtual void DeleteTemporaryDataArtifacts()
         {
+            if (_keepTemporaryDatabaseArtifactsForDiagnostics)
+                return;
             try
             {
                 if (Directory.Exists(DatabasePath))
@@ -149,12 +171,13 @@ namespace PeanutButter.TempDb
             }
             catch
             {
-                System.Diagnostics.Trace.WriteLine(
-                    $"WARNING: Unable to delete temporary database at: {DatabasePath}; probably still locked. Artifact will remain on disk.");
+                Trace(
+                    $"WARNING: Unable to delete temporary database at: {DatabasePath}; probably still locked. Artifact will remain on disk."
+                );
             }
         }
 
-        private void Trace(string message)
+        private static void Trace(string message)
         {
             System.Diagnostics.Trace.WriteLine(message);
         }
@@ -163,7 +186,10 @@ namespace PeanutButter.TempDb
         {
             Action<string, Action> TryDo = (heading, toRun) =>
             {
-                try { toRun(); }
+                try
+                {
+                    toRun();
+                }
                 catch (Exception ex)
                 {
                     Trace("Error whilst: " + heading);

@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FatalTempDbInitializationException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TempDB.cs" />
     <Compile Include="TempDbHints.cs" />

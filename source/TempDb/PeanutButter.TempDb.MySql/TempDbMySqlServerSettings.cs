@@ -1,7 +1,33 @@
-﻿namespace PeanutButter.TempDb.MySql
+﻿// ReSharper disable UnusedMember.Global
+
+using System;
+using System.Diagnostics;
+
+namespace PeanutButter.TempDb.MySql
 {
-    public class MySqlSettings
+    /// <summary>
+    /// Settings for starting up a TempDbMySql instance
+    /// - Settings decorated with a [Setting("setting_name")] attribute
+    ///     will be included in the defaults file provided to MySql at startup
+    ///     in the [mysqld] section
+    /// - you may inherit from this to add settings not already provide or override
+    ///     default settings values with your own instance of TempDbMySqlServerSettings
+    /// </summary>
+    public class TempDbMySqlServerSettings
     {
+        public class TempDbOptions
+        {
+            public const int DEFAULT_RANDOM_PORT_MIN = 13306;
+            public const int DEFAULT_RANDOM_PORT_MAX = 23306;
+            public bool LogRandomPortDiscovery { get; set; }
+            public int RandomPortMin { get; set; } = DEFAULT_RANDOM_PORT_MIN;
+            public int RandomPortMax { get; set; } = DEFAULT_RANDOM_PORT_MAX;
+            public Action<string> LogAction { get; set; } = s => Trace.WriteLine(s);
+            public string PathToMySqlD { get; set; }
+        }
+
+        public TempDbOptions Options { get; } = new TempDbOptions();
+
         [Setting("sync_relay_log_info")]
         public int SyncRelayLogInfo { get; set; } = 10000;
 
