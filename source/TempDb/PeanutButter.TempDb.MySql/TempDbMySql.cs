@@ -36,6 +36,8 @@ namespace PeanutButter.TempDb.MySql
             new FatalTempDbInitializationException(
                 "Unable to locate MySql service via Windows service registry. Please install an instance of MySql on this machine to use temporary MySql databases.");
 
+        private string _schema;
+
         public TempDBMySql(params string[] creationScripts)
             : this(new TempDbMySqlServerSettings(), creationScripts)
         {
@@ -119,6 +121,18 @@ namespace PeanutButter.TempDb.MySql
             InitializeWith(mysqld);
             DumpDefaultsFileAt(DatabasePath);
             StartServer(mysqld, _port);
+            CreateInitialSchema();
+        }
+
+        private void CreateInitialSchema()
+        {
+            using (var connection = CreateConnection())
+            using (var command = connection.CreateCommand())
+            {
+                _schema = Settings?.Options?.DefaultSchema ?? "tempdb";
+                command.CommandText = $"create schema `{_schema}`";
+                command.ExecuteNonQuery();
+            }
         }
 
         private void EnsureIsFolder(string databasePath)
@@ -197,7 +211,8 @@ namespace PeanutButter.TempDb.MySql
                 Port = (uint) _port,
                 UserID = "root",
                 Password = "",
-                Server = "localhost"
+                Server = "localhost",
+                Database = _schema
             };
             return builder.ToString();
         }

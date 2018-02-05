@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 
 namespace PeanutButter.TempDb
@@ -41,8 +42,9 @@ namespace PeanutButter.TempDb
                 Directory.CreateDirectory(preferredBasePath);
                 return Directory.Exists(preferredBasePath);
             }
-            catch
+            catch (Exception ex)
             {
+                Trace.WriteLine($"Unable to establish folder specified by TEMPDB_BASE_PATH environment variable ({preferredBasePath})\n{ex.Message}");
                 return false;
             }
         }

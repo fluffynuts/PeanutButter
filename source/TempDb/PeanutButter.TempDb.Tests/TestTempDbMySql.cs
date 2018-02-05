@@ -5,6 +5,7 @@ using static NExpect.Expectations;
 using NExpect;
 using PeanutButter.TempDb.MySql;
 using PeanutButter.Utils;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.TempDb.Tests
 {
@@ -77,6 +78,45 @@ namespace PeanutButter.TempDb.Tests
                     catch (MySqlException)
                     {
                         
+                    }
+                }
+            }
+
+            [Test]
+            public void Construction_ShouldCreateSchemaAndSwitchToIt()
+            {
+                // Arrange
+                var expectedId = GetRandomInt();
+                var expectedName = GetRandomAlphaNumericString(5);
+                // Pre-Assert
+                // Act
+                using (var db = new TempDBMySql())
+                {
+                    var builder = new MySqlConnectionStringBuilder(db.ConnectionString);
+                    Expect(builder.Database).Not.To.Be.Null.Or.Empty();
+                    using (var connection = db.CreateConnection())
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = new[]
+                        {
+                            "create table cows (id int, name varchar(128));",
+                            $"insert into cows (id, name) values ({expectedId}, '{expectedName}');"
+                        }.JoinWith("\n");
+                        command.ExecuteNonQuery();
+                    }
+                    using (var connection = db.CreateConnection())
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = "select id, name from cows;";
+                        using (var reader = command.ExecuteReader())
+                        {
+                            Expect(reader.HasRows).To.Be.True();
+                            Expect(reader.Read()).To.Be.True();
+                            Expect(reader["id"]).To.Equal(expectedId);
+                            Expect(reader["name"]).To.Equal(expectedName);
+                            Expect(reader.Read()).To.Be.False();
+                            // Assert
+                        }
                     }
                 }
             }

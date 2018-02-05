@@ -24,6 +24,7 @@ namespace PeanutButter.TempDb.MySql
             public int RandomPortMax { get; set; } = DEFAULT_RANDOM_PORT_MAX;
             public Action<string> LogAction { get; set; } = s => Trace.WriteLine(s);
             public string PathToMySqlD { get; set; }
+            public string DefaultSchema { get; set; } = "tempdb";
         }
 
         public TempDbOptions Options { get; } = new TempDbOptions();

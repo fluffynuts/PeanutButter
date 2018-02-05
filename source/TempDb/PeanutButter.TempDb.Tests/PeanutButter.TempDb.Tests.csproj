@@ -37,7 +37,10 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MySql.Data, Version=6.10.6.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d" />
+    <Reference Include="MySql.Data, Version=6.10.6.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\MySql.Data.6.10.6\lib\net452\MySql.Data.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
@@ -123,6 +126,9 @@
     </PackageReference>
     <PackageReference Include="Microsoft.SqlServer.Compact">
       <Version>4.0.8876.1</Version>
+    </PackageReference>
+    <PackageReference Include="MySql.Data">
+      <Version>6.10.6</Version>
     </PackageReference>
     <PackageReference Include="NExpect">
       <Version>1.0.88</Version>
