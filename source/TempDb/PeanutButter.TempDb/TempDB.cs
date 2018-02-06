@@ -184,7 +184,13 @@ namespace PeanutButter.TempDb
 
         private void DisposeOfManagedConnections()
         {
-            Action<string, Action> TryDo = (heading, toRun) =>
+            foreach (var conn in _managedConnections)
+            {
+                var localConnection = conn;
+                TryDo("disposing of managed connections", localConnection.Dispose);
+            }
+
+            void TryDo(string heading, Action toRun)
             {
                 try
                 {
@@ -195,11 +201,6 @@ namespace PeanutButter.TempDb
                     Trace("Error whilst: " + heading);
                     Trace(ex.Message);
                 }
-            };
-            foreach (var conn in _managedConnections)
-            {
-                var localConnection = conn;
-                TryDo("disposing of managed connections", localConnection.Dispose);
             }
         }
     }
