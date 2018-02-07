@@ -261,12 +261,98 @@ namespace PeanutButter.TempDb.MySql
         private void InitializeWith(string mysqld)
         {
             Directory.CreateDirectory(DatabasePath);
+            var mysqlVersion = GetVersionOf(mysqld);
+            if (IsWindows5_6OrLower(mysqlVersion))
+            {
+                AttemptManualInitialization(mysqld);
+                return;
+            }
+
             Log($"Initializing MySql in {DatabasePath}");
             var process = RunCommand(mysqld,
                 "--initialize-insecure",
                 $"--datadir={DatabasePath}"
             );
             process.WaitForExit();
+        }
+
+        private void AttemptManualInitialization(string mysqld)
+        {
+            var installFolder = Path.GetDirectoryName(
+                Path.GetDirectoryName(
+                    mysqld
+                ));
+            var dataDir = Path.Combine(installFolder, "data");
+            if (!Directory.Exists(dataDir))
+                throw new FatalTempDbInitializationException(
+                    $"Unable to manually initialize: folder not found: {dataDir}"
+                );
+            Directory.EnumerateDirectories(dataDir)
+                .ForEach(d => CopyFolder(d, Path.Combine(DatabasePath, Path.GetFileName(d))));
+            Directory.EnumerateFiles(dataDir)
+                .ForEach(f => File.Copy(Path.Combine(f), Path.Combine(DatabasePath, Path.GetFileName(f))));
+        }
+
+        private static void CopyFolder(string sourceFolder, string destFolder)
+        {
+            if (!Directory.Exists(destFolder))
+                Directory.CreateDirectory(destFolder);
+
+            Directory.GetFiles(sourceFolder)
+                .ForEach(f => CopyFileToFolder(f, destFolder));
+
+            Directory.GetDirectories(sourceFolder)
+                .ForEach(d => CopyFolderIntoFolder(d, destFolder));
+        }
+
+        private static void CopyFolderIntoFolder(string srcFolder, string targetFolder)
+        {
+            CopyItemToFolder(srcFolder, targetFolder, CopyFolder);
+        }
+
+        private static void CopyItemToFolder(string src, string targetFolder, Action<string, string> copyAction)
+        {
+            var baseName = Path.GetFileName(src);
+            if (baseName == null)
+                return;
+            copyAction(src, Path.Combine(targetFolder, baseName));
+        }
+
+        private static void CopyFileToFolder(string srcFile, string targetFolder)
+        {
+            CopyItemToFolder(srcFile, targetFolder, File.Copy);
+        }
+
+        private bool IsWindows5_6OrLower(MySqlVersionInfo mysqlVersion)
+        {
+            return (mysqlVersion.Platform?.StartsWith("win") ?? false) &&
+                   mysqlVersion.Version.Major <= 5 &&
+                   mysqlVersion.Version.Minor <= 6;
+        }
+
+        private class MySqlVersionInfo
+        {
+            public string Platform { get; set; }
+            public Version Version { get; set; }
+        }
+
+        private MySqlVersionInfo GetVersionOf(string mysqld)
+        {
+            var process = RunCommand(mysqld, "--version");
+            process.WaitForExit();
+            var result = process.StandardOutput.ReadToEnd();
+            var parts = result.ToLower().Split(' ');
+            var versionInfo = new MySqlVersionInfo();
+            var last = "";
+            parts.ForEach(p =>
+            {
+                if (last == "ver")
+                    versionInfo.Version = new Version(p);
+                else if (last == "for" && versionInfo.Platform == null)
+                    versionInfo.Platform = p;
+                last = p;
+            });
+            return versionInfo;
         }
 
         private Process RunCommand(string filename, params string[] args)
