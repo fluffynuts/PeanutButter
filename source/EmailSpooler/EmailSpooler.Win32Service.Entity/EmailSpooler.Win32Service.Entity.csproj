@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Package.nuspec" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Utils\PeanutButter.Utils.Entity\PeanutButter.Utils.Entity.csproj">

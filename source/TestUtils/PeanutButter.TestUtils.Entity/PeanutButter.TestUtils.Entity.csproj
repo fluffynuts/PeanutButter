@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Package.nuspec" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Utils\PeanutButter.FluentMigrator\PeanutButter.FluentMigrator.csproj">

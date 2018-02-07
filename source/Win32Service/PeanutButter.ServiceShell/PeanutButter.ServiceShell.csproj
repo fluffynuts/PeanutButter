@@ -56,6 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Package.nuspec" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PeanutButter.WindowsServiceManagement\PeanutButter.WindowsServiceManagement.csproj">

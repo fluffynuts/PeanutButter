@@ -103,6 +103,7 @@
       <CustomToolNamespace>My</CustomToolNamespace>
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
+    <None Include="Package.nuspec" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PeanutButter.DatabaseHelpers\PeanutButter.DatabaseHelpers.vbproj">

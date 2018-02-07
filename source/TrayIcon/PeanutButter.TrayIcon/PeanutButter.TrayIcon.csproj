@@ -53,6 +53,9 @@
     <Compile Include="TrayIconAlreadyInitializedException.cs" />
     <Compile Include="TrayIconAnimator.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Package.nuspec" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

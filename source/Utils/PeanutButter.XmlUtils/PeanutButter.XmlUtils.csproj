@@ -45,6 +45,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="XElementExtensions.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Package.nuspec" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

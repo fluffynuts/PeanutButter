@@ -56,6 +56,9 @@
       <Version>4.0.8876.1</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Package.nuspec" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

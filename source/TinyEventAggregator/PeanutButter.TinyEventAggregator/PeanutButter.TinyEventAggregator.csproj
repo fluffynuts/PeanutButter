@@ -66,6 +66,9 @@
     <Compile Include="SubscriptionsChangedEventArgs.cs" />
     <Compile Include="SubscriptionToken.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Package.nuspec" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
