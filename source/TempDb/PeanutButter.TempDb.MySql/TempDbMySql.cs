@@ -37,6 +37,7 @@ namespace PeanutButter.TempDb.MySql
                 "Unable to locate MySql service via Windows service registry. Please install an instance of MySql on this machine to use temporary MySql databases.");
 
         private string _schema;
+        private AutoDeleter _autoDeleter;
 
         public TempDBMySql(params string[] creationScripts)
             : this(new TempDbMySqlServerSettings(), creationScripts)
@@ -69,6 +70,7 @@ namespace PeanutButter.TempDb.MySql
             Action<object> beforeInit,
             TempDbMySqlServerSettings settings)
         {
+            self._autoDeleter = new AutoDeleter();
             self.Settings = settings;
             beforeInit?.Invoke(self);
         }
@@ -117,11 +119,20 @@ namespace PeanutButter.TempDb.MySql
             var mysqld = Settings?.Options?.PathToMySqlD ?? FindInstalledMySqlD();
             _port = FindOpenRandomPort();
 
-            EnsureIsFolder(DatabasePath);
-            InitializeWith(mysqld);
+            var tempDefaultsPath = CreateTemporaryDefaultsFile();
+            EnsureIsRemoved(DatabasePath);
+            InitializeWith(mysqld, tempDefaultsPath);
             DumpDefaultsFileAt(DatabasePath);
             StartServer(mysqld, _port);
             CreateInitialSchema();
+        }
+
+        private string CreateTemporaryDefaultsFile()
+        {
+            var tempPath = Path.GetTempPath();
+            var tempDefaultsPath = DumpDefaultsFileAt(tempPath, $"{Path.GetFileName(DatabasePath)}.cnf");
+            _autoDeleter.Add(tempDefaultsPath);
+            return tempDefaultsPath;
         }
 
         private void CreateInitialSchema()
@@ -135,23 +146,28 @@ namespace PeanutButter.TempDb.MySql
             }
         }
 
-        private void EnsureIsFolder(string databasePath)
+        private void EnsureIsRemoved(string databasePath)
         {
             if (File.Exists(databasePath))
                 File.Delete(databasePath);
-            if (!Directory.Exists(databasePath))
-                Directory.CreateDirectory(databasePath);
+            if (Directory.Exists(databasePath))
+                Directory.Delete(databasePath);
         }
 
-        private void DumpDefaultsFileAt(string databasePath)
+        private string DumpDefaultsFileAt(
+            string databasePath,
+            string configFileName = "my.cnf"
+        )
         {
             var generator = new MySqlConfigGenerator();
+            var outputFile = Path.Combine(databasePath, configFileName);
             File.WriteAllBytes(
-                Path.Combine(databasePath, "my.cnf"),
+                outputFile,
                 Encoding.UTF8.GetBytes(
                     generator.GenerateFor(Settings)
                 )
             );
+            return outputFile;
         }
 
         public override void Dispose()
@@ -160,6 +176,8 @@ namespace PeanutButter.TempDb.MySql
             {
                 AttemptShutdown();
                 EndServerProcess();
+                _autoDeleter?.Dispose();
+                _autoDeleter = null;
             }
             catch (Exception ex)
             {
@@ -221,9 +239,15 @@ namespace PeanutButter.TempDb.MySql
         {
             _serverProcess = RunCommand(mysqld,
                 $"--defaults-file={Path.Combine(DatabasePath, "my.cnf")}",
+                $"--basedir={BaseDirOf(mysqld)}",
                 $"--datadir={DatabasePath}",
                 $"--port={port}");
             TestIsRunning();
+        }
+
+        private string BaseDirOf(string mysqld)
+        {
+            return Path.GetDirectoryName(Path.GetDirectoryName(mysqld));
         }
 
         private void TestIsRunning()
@@ -239,7 +263,16 @@ namespace PeanutButter.TempDb.MySql
 
             _keepTemporaryDatabaseArtifactsForDiagnostics = true;
 
-            _serverProcess?.Kill();
+            try
+            {
+                _serverProcess?.Kill();
+                _serverProcess = null;
+            }
+            catch
+            {
+                /* ignore */
+            }
+
             throw new FatalTempDbInitializationException(
                 $"MySql doesn't want to start up. Please check logging in {DatabasePath}"
             );
@@ -258,7 +291,7 @@ namespace PeanutButter.TempDb.MySql
             }
         }
 
-        private void InitializeWith(string mysqld)
+        private void InitializeWith(string mysqld, string tempDefaultsFile)
         {
             Directory.CreateDirectory(DatabasePath);
             var mysqlVersion = GetVersionOf(mysqld);
@@ -270,7 +303,9 @@ namespace PeanutButter.TempDb.MySql
 
             Log($"Initializing MySql in {DatabasePath}");
             var process = RunCommand(mysqld,
+                $"--defaults-file={tempDefaultsFile}",
                 "--initialize-insecure",
+                $"--basedir={BaseDirOf(mysqld)}",
                 $"--datadir={DatabasePath}"
             );
             process.WaitForExit();
