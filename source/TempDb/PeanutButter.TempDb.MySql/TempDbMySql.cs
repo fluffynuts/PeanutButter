@@ -137,12 +137,18 @@ namespace PeanutButter.TempDb.MySql
 
         private void CreateInitialSchema()
         {
+            var schema = Settings?.Options.DefaultSchema ?? "tempdb";
+            SwitchToSchema(schema);
+        }
+
+        public void SwitchToSchema(string schema)
+        {
             using (var connection = CreateConnection())
             using (var command = connection.CreateCommand())
             {
-                _schema = Settings?.Options?.DefaultSchema ?? "tempdb";
-                command.CommandText = $"create schema `{_schema}`";
+                command.CommandText = $"create schema if not exists `{schema}`";
                 command.ExecuteNonQuery();
+                _schema = schema;
             }
         }
 
