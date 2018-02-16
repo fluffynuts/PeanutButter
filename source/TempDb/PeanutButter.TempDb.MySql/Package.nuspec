@@ -24,7 +24,7 @@
         <dependency id="PeanutButter.Utils" version="1.2.218" />
         <dependency id="PeanutButter.INI" version="1.2.218" />
         <dependency id="PeanutButter.WindowsServiceManagement" version="1.2.218" />
-        <dependency id="MySql.Data" version="6.10.6" />
+        <dependency id="MySql.Data" version="6.9.10" />
       </group>
     </dependencies>
     <references></references>
