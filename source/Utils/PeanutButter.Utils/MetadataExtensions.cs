@@ -114,8 +114,11 @@ namespace PeanutButter.Utils
             try
             {
                 // ReSharper disable once UnusedVariable
-                var interesting = default(T)?.Equals((T) stored); // TODO: could this be optimised away?
-                return true;
+                var defaultValue = default(T);
+                var cast = (T) stored;
+                return cast.Equals(defaultValue)
+                    ? true
+                    : true;
             }
             catch
             {
