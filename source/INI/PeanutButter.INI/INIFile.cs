@@ -29,9 +29,12 @@ namespace PeanutButter.INIFile
 
         private string _path;
         private readonly char[] _sectionTrimChars;
+
         // ReSharper disable once MemberCanBePrivate.Global
-        protected Dictionary<string, Dictionary<string, string>> Data { get; } = CreateCaseInsensitiveDictionary();
-        private Dictionary<string, Dictionary<string, string>> Comments { get; } = CreateCaseInsensitiveDictionary();
+        protected Dictionary<string, Dictionary<string, string>> Data { get; } = 
+            CreateCaseInsensitiveDictionary();
+        private Dictionary<string, Dictionary<string, string>> Comments { get; } = 
+            CreateCaseInsensitiveDictionary();
 
         private const string SECTION_COMMENT_KEY = "="; // bit of a hack: this can never be a key name in a section
 
@@ -63,12 +66,12 @@ namespace PeanutButter.INIFile
                     AddSection(index);
                 return Data[index];
             }
-            set { Data[index] = value; }
+            set => Data[index] = value;
         }
 
         private static Dictionary<string, Dictionary<string, string>> CreateCaseInsensitiveDictionary()
         {
-            return new Dictionary<string, Dictionary<string, string>>(StringComparer.CurrentCultureIgnoreCase);
+            return new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
         }
 
         private void Parse(IEnumerable<string> lines)
@@ -76,7 +79,7 @@ namespace PeanutButter.INIFile
             ClearSections();
             var currentSection = string.Empty;
             var recentComments = new List<string>();
-            foreach (var line in lines.Where(l => !string.IsNullOrEmpty(l)))
+            foreach (var line in lines.Where(l => l != null))
             {
                 var dataAndComment = SplitCommentFrom(line);
                 var dataPart = dataAndComment.Item1;
@@ -86,17 +89,37 @@ namespace PeanutButter.INIFile
                     continue;
                 if (IsSectionHeading(dataPart))
                 {
-                    currentSection = GetSectionNameFrom(dataPart);
-                    AddSection(currentSection);
-                    StoreCommentsForSection(currentSection, recentComments);
+                    currentSection = StartSection(dataPart, recentComments);
                     continue;
                 }
-                var parts = dataPart.Split('=');
-                var key = parts[0].Trim();
-                var value = parts.Count() > 1 ? string.Join("=", parts.Skip(1)) : null;
-                this[currentSection][key] = TrimOuterQuotesFrom(value);
-                StoreCommentsForItem(currentSection, key, recentComments);
+
+                StoreSetting(currentSection, dataPart, recentComments);
             }
+        }
+
+        private string StartSection(
+            string dataPart,
+            List<string> recentComments
+        )
+        {
+            var currentSection = GetSectionNameFrom(dataPart);
+            AddSection(currentSection);
+            StoreCommentsForSection(currentSection, recentComments);
+            return currentSection;
+        }
+
+        private void StoreSetting(
+            string currentSection,
+            string dataPart, List<string> recentComments
+        )
+        {
+            var parts = dataPart.Split('=');
+            var key = parts[0].Trim();
+            var value = parts.Count() > 1
+                ? string.Join("=", parts.Skip(1))
+                : null;
+            this[currentSection][key] = TrimOuterQuotesFrom(value);
+            StoreCommentsForItem(currentSection, key, recentComments);
         }
 
         private void StoreCommentsForSection(string section, List<string> recentComments)
@@ -106,7 +129,9 @@ namespace PeanutButter.INIFile
 
         private void StoreCommentsForItem(string section, string key, List<string> recentComments)
         {
-            if (!recentComments.Any()) return;
+            if (!recentComments.Any())
+                return;
+
             var sectionComments = Comments.ContainsKey(section)
                 ? Comments[section]
                 : CreateCommentsForSection(section);
@@ -116,7 +141,7 @@ namespace PeanutButter.INIFile
 
         private Dictionary<string, string> CreateCommentsForSection(string section)
         {
-            var result = new Dictionary<string, string>();
+            var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             Comments[section] = result;
             return result;
         }
@@ -146,7 +171,8 @@ namespace PeanutButter.INIFile
 
         private bool IsSectionHeading(string line)
         {
-            return line.StartsWith(_sectionTrimChars[0].ToString()) && line.EndsWith(_sectionTrimChars[1].ToString());
+            return line.StartsWith(_sectionTrimChars[0].ToString()) &&
+                   line.EndsWith(_sectionTrimChars[1].ToString());
         }
 
         private void ClearSections()
@@ -156,17 +182,21 @@ namespace PeanutButter.INIFile
 
         private static IEnumerable<string> GetLinesFrom(string path)
         {
-            EnsureFolderExistsFor(path);
-            if (!File.Exists(path))
-            {
-                using (File.Create(path))
-                {
-                    /* intentionally left blank */
-                }
-            }
+            EnsureFileExistsAt(path);
             var fileContents = Encoding.UTF8.GetString(File.ReadAllBytes(path));
             var lines = SplitIntoLines(fileContents);
             return lines;
+        }
+
+        private static void EnsureFileExistsAt(string path)
+        {
+            if (File.Exists(path))
+                return;
+            EnsureFolderExistsFor(path);
+            using (File.Create(path))
+            {
+                /* intentionally left blank */
+            }
         }
 
         private static IEnumerable<string> SplitIntoLines(string fileContents)
@@ -181,16 +211,22 @@ namespace PeanutButter.INIFile
             var folder = Path.GetDirectoryName(path);
             if (!Directory.Exists(folder))
                 Directory.CreateDirectory(folder ?? throw new InvalidOperationException(
-                    $"{nameof(EnsureFolderExistsFor)} must be called with a non-null folder name"
-                ));
+                                              $"{nameof(EnsureFolderExistsFor)} must be called with a non-null folder name"
+                                          ));
         }
 
         public void AddSection(string section)
         {
-            if (!Data.Keys.Contains(section))
-            {
-                Data[section] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            }
+            if (section == null || HasSection(section))
+                return;
+            Data[section] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        }
+
+        public void RemoveSection(string section)
+        {
+            if (section == null)
+                return;
+            Data.Remove(section);
         }
 
         private string TrimOuterQuotesFrom(string value)
@@ -227,7 +263,7 @@ namespace PeanutButter.INIFile
         public override string ToString()
         {
             return string.Join(
-                Environment.NewLine, 
+                Environment.NewLine,
                 GetLinesForCurrentData()
             );
         }
@@ -244,6 +280,7 @@ namespace PeanutButter.INIFile
                     .Keys
                     .Select(key => LineFor(section, key)));
             }
+
             return lines;
         }
 
@@ -259,18 +296,20 @@ namespace PeanutButter.INIFile
             var lines = new List<string>();
             AddCommentsTo(lines, section, key);
             var dataValue = Data[section][key];
-            var writeValue = dataValue == null ? "" : "=\"" + dataValue + "\"";
+            var writeValue = dataValue == null
+                ? ""
+                : "=\"" + dataValue + "\"";
             lines.Add(string.Join(string.Empty, key.Trim(), writeValue));
             return string.Join(Environment.NewLine, lines);
         }
 
         private string CheckPersistencePath(string path)
         {
-            if (path == null)
-                path = _path;
-            if (path == null)
-                throw new ArgumentException("No path specified to persist to and INIFile instantiated without an auto-path", "path");
-            return path;
+            path = path ?? _path;
+            return path ?? throw new ArgumentException(
+                       "No path specified to persist to and INIFile instantiated without an auto-path",
+                       nameof(path)
+                   );
         }
 
         public void SetValue(string section, string key, string value)
@@ -281,19 +320,29 @@ namespace PeanutButter.INIFile
 
         public string GetValue(string section, string key, string defaultValue = null)
         {
-            if (Data.Keys.All(s => s != section)) return defaultValue;
-            if (Data[section].Keys.All(k => k != key)) return defaultValue;
-            return Data[section][key];
+            if (!HasSection(section))
+                return defaultValue;
+            return HasKey(Data[section], key)
+                ? Data[section][key]
+                : defaultValue;
         }
 
         public bool HasSection(string section)
         {
-            return Data.Keys.Contains(section);
+            return section != null &&
+                   Data.Keys.Contains(section, StringComparer.OrdinalIgnoreCase);
         }
 
         public bool HasSetting(string section, string key)
         {
-            return HasSection(section) && Data[section].Keys.Contains(key);
+            return key != null &&
+                   HasSection(section) &&
+                   HasKey(Data[section], key);
+        }
+
+        private bool HasKey(Dictionary<string, string> dict, string key)
+        {
+            return dict.Keys.Contains(key, StringComparer.OrdinalIgnoreCase);
         }
     }
 }

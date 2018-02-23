@@ -107,7 +107,7 @@
       <Version>10.0.3</Version>
     </PackageReference>
     <PackageReference Include="NExpect">
-      <Version>1.0.88</Version>
+      <Version>1.0.100</Version>
     </PackageReference>
     <PackageReference Include="NUnit">
       <Version>3.9.0</Version>
