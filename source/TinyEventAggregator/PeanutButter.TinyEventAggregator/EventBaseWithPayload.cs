@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable UnusedMethodReturnValue.Global
@@ -35,7 +36,8 @@ namespace PeanutButter.TinyEventAggregator
             _eventName = GetType().Name;
         }
 
-        public SubscriptionToken Subscribe(Action<TPayload> callback,
+        public SubscriptionToken Subscribe(
+            Action<TPayload> callback,
             [CallerFilePath] string sourceFile = "",
             [CallerMemberName] string requestingMethod = "(unknown)",
             [CallerLineNumber] int subscribingSourceLine = -1)
@@ -63,7 +65,8 @@ namespace PeanutButter.TinyEventAggregator
             }
         }
 
-        public SubscriptionToken SubscribeOnce(Action<TPayload> action,
+        public SubscriptionToken SubscribeOnce(
+            Action<TPayload> action,
             [CallerFilePath] string sourceFile = "",
             [CallerMemberName] string requestingMethod = "(unknown)",
             [CallerLineNumber] int subscribingSourceLine = -1)
@@ -71,12 +74,15 @@ namespace PeanutButter.TinyEventAggregator
             lock (this)
             {
                 var token = PerformSubscription(action, 1);
-                Debug.WriteLine($"Subscribing [{token}] once-off to event [{_eventName}] ({sourceFile}:{requestingMethod}:{subscribingSourceLine})");
+                Debug.WriteLine(
+                    $"Subscribing [{token}] once-off to event [{_eventName}] ({sourceFile}:{requestingMethod}:{subscribingSourceLine})");
                 return token;
             }
         }
 
-        public SubscriptionToken LimitedSubscription(Action<TPayload> action, int limit,
+        public SubscriptionToken LimitedSubscription(
+            Action<TPayload> action,
+            int limit,
             [CallerFilePath] string sourceFile = "",
             [CallerMemberName] string requestingMethod = "(unknown)",
             [CallerLineNumber] int subscribingSourceLine = -1)
@@ -102,7 +108,8 @@ namespace PeanutButter.TinyEventAggregator
             }
         }
 
-        public void Publish(TPayload data,
+        public void Publish(
+            TPayload data,
             [CallerFilePath] string sourceFile = "",
             [CallerMemberName] string requestingMethod = "(unknown)",
             [CallerLineNumber] int publishingSourceLine = -1)
@@ -118,6 +125,7 @@ namespace PeanutButter.TinyEventAggregator
                     if (sub.OnlyOneCallLeft())
                         _subscriptions.Remove(sub);
                 }
+
                 foreach (var sub in subscriptions)
                 {
                     sub.Receiver(data);
@@ -129,7 +137,8 @@ namespace PeanutButter.TinyEventAggregator
             }
         }
 
-        public void Unsubscribe(SubscriptionToken token,
+        public void Unsubscribe(
+            SubscriptionToken token,
             [CallerFilePath] string sourceFile = "",
             [CallerMemberName] string requestingMethod = "(unknown)",
             [CallerLineNumber] int unsubscribingSourceLine = -1)
@@ -138,13 +147,14 @@ namespace PeanutButter.TinyEventAggregator
             lock (this)
             {
                 var match = _subscriptions.FirstOrDefault(s => s.Token == token);
-                if (match != null)
-                {
-                    Debug.WriteLine(
-                        $"Unsubscribing [{match.Token}] from event [{_eventName}] ({sourceFile}:{requestingMethod}:{unsubscribingSourceLine})");
-                    _subscriptions.Remove(match);
-                    RaiseSubscriptionRemovedEventHandler(match.Token);
-                }
+                if (match == null)
+                    return;
+
+                Debug.WriteLine(
+                    $"Unsubscribing [{match.Token}] from event [{_eventName}] ({sourceFile}:{requestingMethod}:{unsubscribingSourceLine})"
+                );
+                _subscriptions.Remove(match);
+                RaiseSubscriptionRemovedEventHandler(match.Token);
             }
         }
 

@@ -4,11 +4,19 @@ using System.Linq;
 
 namespace PeanutButter.TinyEventAggregator
 {
-    public class EventAggregator
+    public interface IEventAggregator
     {
-        private static object _lock = new object();
+        TEvent GetEvent<TEvent>() where TEvent: EventBase, new();
+        void Unsuspend();
+        void Suspend();
+    }
+
+    public class EventAggregator
+        : IEventAggregator
+    {
+        private static readonly object _lock = new object();
         private static EventAggregator _instance;
-        private List<EventBase> _events;
+        private readonly List<EventBase> _events;
 
         public static EventAggregator Instance
         {
@@ -16,9 +24,7 @@ namespace PeanutButter.TinyEventAggregator
             {
                 lock (_lock)
                 {
-                    if (_instance == null)
-                        _instance = new EventAggregator();
-                    return _instance;
+                    return _instance ?? (_instance = new EventAggregator());
                 }
             }
         }
@@ -33,12 +39,11 @@ namespace PeanutButter.TinyEventAggregator
             lock (this)
             {
                 var match = _events.FirstOrDefault(ev => (ev as TEvent) != null);
-                if (match == null)
-                {
-                    match = Activator.CreateInstance<TEvent>();
-                    _events.Add(match);
-                }
-                return match as TEvent;
+                if (match != null)
+                    return match as TEvent;
+                match = Activator.CreateInstance<TEvent>();
+                _events.Add(match);
+                return (TEvent)match;
             }
         }
 

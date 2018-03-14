@@ -3,12 +3,12 @@
     public class SubscriptionToken
     {
         private static int _id;
-        private static object _lock = new object();
+        private static readonly object Lock = new object();
         // only useful to spot the difference between two tokens
-        public int Id { get; private set; }
+        public int Id { get; }
         public SubscriptionToken()
         {
-            lock(_lock)
+            lock(Lock)
             {
                 Id = ++_id;
             }

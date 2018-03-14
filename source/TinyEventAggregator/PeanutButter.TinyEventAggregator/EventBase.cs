@@ -7,7 +7,7 @@ namespace PeanutButter.TinyEventAggregator
 
     public abstract class EventBase
     {
-        private object _suspensionLock = new object();
+        private readonly object _suspensionLock = new object();
         internal bool IsSuspended { get; private set; }
         public void Unsuspend()
         {
