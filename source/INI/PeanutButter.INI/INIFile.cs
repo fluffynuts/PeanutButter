@@ -11,15 +11,56 @@ namespace PeanutButter.INIFile
     // ReSharper disable once InconsistentNaming
     public interface IINIFile
     {
+        /// <summary>
+        /// Interface to treat IINIFile like a dictionary of dictionaries
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         Dictionary<string, string> this[string index] { get; }
+        /// <summary>
+        /// List all the currently-available sections
+        /// </summary>
         IEnumerable<string> Sections { get; }
         void Load(string path);
+        /// <summary>
+        /// Add a section by name
+        /// </summary>
+        /// <param name="section"></param>
         void AddSection(string section);
         void Persist(string path = null);
+        /// <summary>
+        /// Sets a value by section and key
+        /// </summary>
+        /// <param name="section"></param>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
         void SetValue(string section, string key, string value);
+        /// <summary>
+        /// Get a configured value by section and key, optionally provide a fallback default value
+        /// </summary>
+        /// <param name="section"></param>
+        /// <param name="key"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
         string GetValue(string section, string key, string defaultValue = null);
+        /// <summary>
+        /// Test if a section exists by name
+        /// </summary>
+        /// <param name="section"></param>
+        /// <returns></returns>
         bool HasSection(string section);
+        /// <summary>
+        /// Test if a setting exists by section and key
+        /// </summary>
+        /// <param name="section"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
         bool HasSetting(string section, string key);
+        /// <summary>
+        /// Remove a section by name
+        /// </summary>
+        /// <param name="section"></param>
+        void RemoveSection(string section);
     }
 
     // ReSharper disable once InconsistentNaming
