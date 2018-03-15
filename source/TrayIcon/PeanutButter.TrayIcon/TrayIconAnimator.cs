@@ -8,11 +8,40 @@ using System.Threading.Tasks;
 namespace PeanutButter.TrayIcon
 {
     /// <summary>
+    /// Provides animation for a TrayIcon
+    /// </summary>
+    public interface ITrayIconAnimator
+    {
+        /// <summary>
+        /// Animate as if busy
+        /// </summary>
+        void Busy();
+
+        /// <summary>
+        /// Animate as if busy, with provided tooltip text
+        /// </summary>
+        /// <param name="withText"></param>
+        void Busy(string withText);
+
+        /// <summary>
+        /// Stop animating, as if at rest
+        /// </summary>
+        void Rest();
+
+        /// <summary>
+        /// Stop animating, as if at rest, with specific tooltip text
+        /// </summary>
+        /// <param name="withText"></param>
+        void Rest(string withText);
+    }
+
+    /// <summary>
     /// Animator for the Tray Icon
     /// </summary>
     public class TrayIconAnimator
+        : ITrayIconAnimator
     {
-        private readonly TrayIcon _trayIcon;
+        private readonly ITrayIcon _trayIcon;
         private readonly Icon _restStateIcon;
         private readonly Icon[] _animationFrames;
         private string _lastText;
@@ -26,7 +55,7 @@ namespace PeanutButter.TrayIcon
         /// <param name="restStateIcon">Icon to use when not animating</param>
         /// <param name="animationFrames">Frames to use during animation</param>
         public TrayIconAnimator(
-            TrayIcon trayIcon,
+            ITrayIcon trayIcon,
             Icon restStateIcon,
             params Icon[] animationFrames)
         {
