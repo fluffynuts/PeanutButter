@@ -80,6 +80,8 @@ namespace PeanutButter.Utils
         public PropertyOrFieldTypes MemberType
             => _propInfo == null ? PropertyOrFieldTypes.Field : PropertyOrFieldTypes.Property;
 
+        public Type DeclaringType => _propInfo?.DeclaringType ?? _fieldInfo?.DeclaringType;
+
         private readonly PropertyInfo _propInfo;
         private readonly FieldInfo _fieldInfo;
 

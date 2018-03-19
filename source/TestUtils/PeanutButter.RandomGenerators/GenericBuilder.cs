@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using PeanutButter.Utils;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 
 // ReSharper disable InheritdocConsiderUsage
 // ReSharper disable UsePatternMatching
@@ -27,11 +28,10 @@ namespace PeanutButter.RandomGenerators
     /// </summary>
     /// <typeparam name="TBuilder">Concrete type of the current builder, required to be able to return the builder from all With* methods</typeparam>
     /// <typeparam name="TEntity">Type of entity this builder builds</typeparam>
-    public class GenericBuilder<TBuilder, TEntity> :
-        GenericBuilderBase, IGenericBuilder, IBuilder<TEntity>
+    public class GenericBuilder<TBuilder, TEntity> : GenericBuilderBase, IGenericBuilder, IBuilder<TEntity>
         where TBuilder : GenericBuilder<TBuilder, TEntity>
     {
-        private static readonly List<Action<TEntity>> _defaultPropMods = new List<Action<TEntity>>();
+        private static readonly List<Action<TEntity>> DefaultPropMods = new List<Action<TEntity>>();
         private readonly List<Action<TEntity>> _propMods = new List<Action<TEntity>>();
         private readonly List<Action<TEntity>> _buildTimePropMods = new List<Action<TEntity>>();
         private bool _currentlyBuilding;
@@ -42,7 +42,7 @@ namespace PeanutButter.RandomGenerators
             get => _constructingTypeBackingField;
             set
             {
-                lock (_lockObject)
+                lock (LockObject)
                 {
                     _constructingTypeBackingField = value;
                     _randomPropSettersField = null;
@@ -88,17 +88,19 @@ namespace PeanutButter.RandomGenerators
             {
                 return null;
             }
+
             var result = Build();
             var complexProps = result.GetType()
                 .GetProperties()
                 .Where(pi => !Types.PrimitivesAndImmutables.Contains(pi.PropertyType))
                 .ToArray();
-            complexProps.ForEach(p =>
-            {
-                var propertyType = p.PropertyType;
-                var value = TryBuildInstanceOf(propertyType);
-                p.SetValue(result, value);
-            });
+            complexProps.ForEach(
+                p =>
+                {
+                    var propertyType = p.PropertyType;
+                    var value = TryBuildInstanceOf(propertyType);
+                    p.SetValue(result, value);
+                });
             return result;
         }
 
@@ -110,6 +112,7 @@ namespace PeanutButter.RandomGenerators
                 {
                     return MakeEmptyArrayOf(propertyType.GetCollectionItemType());
                 }
+
                 var builder = GenericBuilderLocator.GetGenericBuilderInstanceFor(propertyType);
                 return builder.WithBuildLevel(_buildLevel + 1).GenericBuild();
             }
@@ -159,7 +162,7 @@ namespace PeanutButter.RandomGenerators
         /// </param>
         public static void WithDefaultProp(Action<TEntity> action)
         {
-            _defaultPropMods.Add(action);
+            DefaultPropMods.Add(action);
         }
 
         /// <summary>
@@ -169,7 +172,9 @@ namespace PeanutButter.RandomGenerators
         /// <returns>The current instance of the builder</returns>
         public TBuilder WithProp(Action<TEntity> action)
         {
-            var collection = _currentlyBuilding ? _buildTimePropMods : _propMods;
+            var collection = _currentlyBuilding
+                ? _buildTimePropMods
+                : _propMods;
             collection.Add(action);
             return this as TBuilder;
         }
@@ -210,23 +215,23 @@ namespace PeanutButter.RandomGenerators
 
         private void CheckUnconstructable(Type type)
         {
-            lock (_unconstructables)
+            lock (Unconstructables)
             {
-                if (_unconstructables.Contains(type))
+                if (Unconstructables.Contains(type))
                     throw CreateUnconstructableException();
             }
         }
 
         private static void CacheUnconstructable(Type type)
         {
-            lock (_unconstructables)
+            lock (Unconstructables)
             {
-                _unconstructables.Add(type);
+                Unconstructables.Add(type);
             }
         }
 
         // ReSharper disable once StaticMemberInGenericType
-        private static readonly HashSet<Type> _unconstructables = new HashSet<Type>();
+        private static readonly HashSet<Type> Unconstructables = new HashSet<Type>();
 
         private TEntity AttemptToConstructEntity()
         {
@@ -244,13 +249,15 @@ namespace PeanutButter.RandomGenerators
                 }
                 catch (Exception)
                 {
-                    var result = _fallbackConstructionStrategies.Aggregate(
+                    var result = FallbackConstructionStrategies.Aggregate(
                         default(TEntity),
                         (acc, cur) =>
                         {
                             try
                             {
-                                return acc == null || acc.Equals(default(TEntity)) ? cur() : acc;
+                                return acc == null || acc.Equals(default(TEntity))
+                                    ? cur()
+                                    : acc;
                             }
                             catch
                             {
@@ -264,7 +271,7 @@ namespace PeanutButter.RandomGenerators
             }
         }
 
-        private static readonly Func<TEntity>[] _fallbackConstructionStrategies =
+        private static readonly Func<TEntity>[] FallbackConstructionStrategies =
         {
             AttemptToCreateDuckFor,
             AttemptToCreateSubstituteFor<TEntity>
@@ -279,15 +286,17 @@ namespace PeanutButter.RandomGenerators
             if (typeMakerType == null)
                 throw new Exception("Can't find TypeMaker type in PeanutButter.DuckTyping");
             var methodInfo = typeMakerType.GetMethods()
-                .FirstOrDefault(mi => mi.Name == "MakeTypeImplementing" &&
-                                      !mi.IsGenericMethod &&
-                                      HasOnlyTypeParameter(mi)
+                .FirstOrDefault(
+                    mi => mi.Name == "MakeTypeImplementing" &&
+                          !mi.IsGenericMethod &&
+                          HasOnlyTypeParameter(mi)
                 );
             if (methodInfo == null)
-                throw new Exception("Can't find MakeTypeImplementing method on TypeMaker with single parameter (Type to implement)");
+                throw new Exception(
+                    "Can't find MakeTypeImplementing method on TypeMaker with single parameter (Type to implement)");
             var instance = Activator.CreateInstance(typeMakerType);
-            ConstructingType = (Type)methodInfo.Invoke(instance, new object[] { typeof(TEntity) });
-            return (TEntity)Activator.CreateInstance(ConstructingType);
+            ConstructingType = (Type) methodInfo.Invoke(instance, new object[] {typeof(TEntity)});
+            return (TEntity) Activator.CreateInstance(ConstructingType);
         }
 
         private static bool HasOnlyTypeParameter(MethodInfo mi)
@@ -433,19 +442,20 @@ namespace PeanutButter.RandomGenerators
             public bool Success { get; set; } = true;
         }
 
-        private ParametersAttempt AttemptToMakeParameters
-        (
+        private ParametersAttempt AttemptToMakeParameters(
             ParameterInfo[] parameters
         )
         {
-            return parameters.Aggregate(new ParametersAttempt(),
+            return parameters.Aggregate(
+                new ParametersAttempt(),
                 (acc, cur) => acc.Success
                     ? TryAddValue(acc, cur)
                     : acc);
         }
 
         private ParametersAttempt TryAddValue(
-            ParametersAttempt acc, ParameterInfo cur
+            ParametersAttempt acc,
+            ParameterInfo cur
         )
         {
             try
@@ -458,6 +468,7 @@ namespace PeanutButter.RandomGenerators
             {
                 acc.Success = false;
             }
+
             return acc;
         }
 
@@ -465,12 +476,14 @@ namespace PeanutButter.RandomGenerators
         {
             if (Types.PrimitivesAndImmutables.Contains(t))
             {
-                return RandomValueGen.GetRandomValue(t);
+                return GetRandomValue(t);
             }
+
             if (_buildLevel >= MaxRandomPropsLevel)
             {
                 return GetDefaultValueFor(t);
             }
+
             var builderType = FindOrCreateDynamicBuilderTypeFor(t);
             var builder = (IGenericBuilder) Activator.CreateInstance(builderType);
             builder.WithBuildLevel(_buildLevel + 1);
@@ -502,21 +515,23 @@ namespace PeanutButter.RandomGenerators
         private static Type FindImplementingTypeFor<TInterface>(IEnumerable<Assembly> assemblies)
         {
             var interfaceType = typeof(TInterface);
-            return assemblies.SelectMany(a =>
-                {
-                    try
+            return assemblies.SelectMany(
+                    a =>
                     {
-                        return a.GetExportedTypes();
-                    }
-                    catch
-                    {
-                        return new Type[] { };
-                    }
-                })
-                .FirstOrDefault(t => interfaceType.IsAssignableFrom(t) &&
-                                     t.IsClass &&
-                                     !t.IsAbstract &&
-                                     t.HasDefaultConstructor());
+                        try
+                        {
+                            return a.GetExportedTypes();
+                        }
+                        catch
+                        {
+                            return new Type[] { };
+                        }
+                    })
+                .FirstOrDefault(
+                    t => interfaceType.IsAssignableFrom(t) &&
+                         t.IsClass &&
+                         !t.IsAbstract &&
+                         t.HasDefaultConstructor());
         }
 
         /// <summary>
@@ -531,7 +546,7 @@ namespace PeanutButter.RandomGenerators
             using (new AutoResetter(() => _currentlyBuilding = true, () => _currentlyBuilding = false))
             {
                 var entity = ConstructEntity();
-                var actions = new Queue<Action<TEntity>>(_defaultPropMods.Union(_propMods).ToArray());
+                var actions = new Queue<Action<TEntity>>(DefaultPropMods.Union(_propMods).ToArray());
 
                 while (actions.Count > 0)
                 {
@@ -545,11 +560,13 @@ namespace PeanutButter.RandomGenerators
                                 $"{GetType().PrettyName()}::Build -> Too many property modifiers added by property modifiers. Check the sanity of this builder"
                             );
                         }
+
                         var newActions = _buildTimePropMods.ToArray();
                         _buildTimePropMods.Clear();
                         newActions.ForEach(a => a(entity));
                     }
                 }
+
                 return entity;
             }
         }
@@ -567,22 +584,30 @@ namespace PeanutButter.RandomGenerators
         }
 
         // ReSharper disable once StaticMemberInGenericType
-        private static readonly object _lockObject = new object();
+        private static readonly object LockObject = new object();
 
 #pragma warning disable S2743 // Static fields should not be used in generic types
         // ReSharper disable once StaticMemberInGenericType
-        private static PropertyInfo[] _entityPropInfoField;
-        private static PropertyInfo[] EntityPropInfo
+        private static PropertyOrField[] _entityPropInfoField;
+
+        private static PropertyOrField[] EntityPropInfo
         {
             get
             {
-                lock (_lockObject)
+                lock (LockObject)
                 {
-                    return _entityPropInfoField ?? (_entityPropInfoField = ConstructingType.GetProperties());
+                    return _entityPropInfoField ?? (_entityPropInfoField = GetAllPropertiesAndFieldsOfConstructingType());
                 }
             }
         }
-#pragma warning restore S2743 // Static fields should not be used in generic types
+
+        private static PropertyOrField[] GetAllPropertiesAndFieldsOfConstructingType()
+        {
+            return ConstructingType.GetProperties().Select(pi => new PropertyOrField(pi))
+                .Union(ConstructingType.GetFields().Select(fi => new PropertyOrField(fi)))
+                .ToArray();
+        }
+
 
         private static Dictionary<string, Action<TEntity, int>> _randomPropSettersField;
 
@@ -591,96 +616,100 @@ namespace PeanutButter.RandomGenerators
             get
             {
                 var entityProps = EntityPropInfo;
-                lock (_lockObject)
+                lock (LockObject)
                 {
                     if (_randomPropSettersField != null)
                         return _randomPropSettersField;
                     _randomPropSettersField = new Dictionary<string, Action<TEntity, int>>();
-                    foreach (var prop in entityProps)
-                    {
-                        SetSetterForType(prop);
-                    }
+                    entityProps.ForEach(
+                        prop =>
+                        {
+                            SetSetterForType(prop);
+                        });
+
                     return _randomPropSettersField;
                 }
             }
         }
 
-        private static readonly Dictionary<Type, Func<PropertyInfo, Action<TEntity, int>>> _simpleTypeSetters =
-            new Dictionary<Type, Func<PropertyInfo, Action<TEntity, int>>>()
+        private static readonly Dictionary<Type, Func<PropertyOrField, Action<TEntity, int>>> SimpleTypeSetters =
+            new Dictionary<Type, Func<PropertyOrField, Action<TEntity, int>>>()
             {
-                {typeof(int), pi => ((e, i) => pi.SetValue(e, RandomValueGen.GetRandomInt(), null))},
-                {typeof(long), pi => ((e, i) => pi.SetValue(e, RandomValueGen.GetRandomInt(), null))},
+                {typeof(int), pi => ((e, i) => pi.SetValue(e, GetRandomInt()))},
+                {typeof(long), pi => ((e, i) => pi.SetValue(e, GetRandomInt()))},
                 {
                     typeof(float),
-                    pi => ((e, i) => pi.SetValue(e,
-                        Convert.ToSingle(RandomValueGen.GetRandomDouble(float.MinValue, float.MaxValue), null)))
+                    pi => ((e, i) => pi.SetValue(
+                        e,
+                        Convert.ToSingle(GetRandomDouble(float.MinValue, float.MaxValue), null)))
                 },
-                {typeof(double), pi => ((e, i) => pi.SetValue(e, RandomValueGen.GetRandomDouble(), null))},
-                {typeof(decimal), pi => ((e, i) => pi.SetValue(e, RandomValueGen.GetRandomDecimal(), null))},
-                {typeof(DateTime), pi => ((e, i) => pi.SetValue(e, RandomValueGen.GetRandomDate(), null))},
-                {typeof(Guid), pi => ((e, i) => pi.SetValue(e, Guid.NewGuid(), null))},
+                {typeof(double), pi => ((e, i) => pi.SetValue(e, GetRandomDouble()))},
+                {typeof(decimal), pi => ((e, i) => pi.SetValue(e, GetRandomDecimal()))},
+                {typeof(DateTime), pi => ((e, i) => pi.SetValue(e, GetRandomDate()))},
+                {typeof(Guid), pi => ((e, i) => pi.SetValue(e, Guid.NewGuid()))},
                 {typeof(string), CreateStringPropertyRandomSetterFor},
                 {typeof(bool), CreateBooleanPropertyRandomSetterFor},
-                {typeof(byte[]), pi => ((e, i) => pi.SetValue(e, RandomValueGen.GetRandomBytes(), null))}
+                {typeof(byte[]), pi => ((e, i) => pi.SetValue(e, GetRandomBytes()))}
             };
 
-        private static Action<TEntity, int> CreateStringPropertyRandomSetterFor(PropertyInfo pi)
+#pragma warning restore S2743 // Static fields should not be used in generic types
+
+        private static Action<TEntity, int> CreateStringPropertyRandomSetterFor(PropertyOrField pi)
         {
             if (MayBeEmail(pi))
-                return (e, i) => pi.SetValue(e, RandomValueGen.GetRandomEmail(), null);
+                return (e, i) => pi.SetValue(e, GetRandomEmail());
             if (MayBeUrl(pi))
-                return (e, i) => pi.SetValue(e, RandomValueGen.GetRandomHttpUrl(), null);
+                return (e, i) => pi.SetValue(e, GetRandomHttpUrl());
             if (MayBePhone(pi))
-                return (e, i) => pi.SetValue(e, RandomValueGen.GetRandomNumericString(), null);
-            return (e, i) => pi.SetValue(e, RandomValueGen.GetRandomString(), null);
+                return (e, i) => pi.SetValue(e, GetRandomNumericString());
+            return (e, i) => pi.SetValue(e, GetRandomString());
         }
 
-        private static bool MayBePhone(PropertyInfo pi)
+        private static bool MayBePhone(PropertyOrField pi)
         {
             return pi != null &&
                    (pi.Name.ContainsOneOf("phone", "mobile", "fax") ||
                     pi.Name.StartsWithOneOf("tel"));
         }
 
-        private static bool MayBeUrl(PropertyInfo pi)
+        private static bool MayBeUrl(PropertyOrField pi)
         {
             return pi != null &&
                    pi.Name.ContainsOneOf("url", "website");
         }
 
-        private static bool MayBeEmail(PropertyInfo pi)
+        private static bool MayBeEmail(PropertyOrField pi)
         {
             return pi != null && pi.Name.ToLower().Contains("email");
         }
 
-        private static Action<TEntity, int> CreateBooleanPropertyRandomSetterFor(PropertyInfo pi)
+        private static Action<TEntity, int> CreateBooleanPropertyRandomSetterFor(PropertyOrField pi)
         {
             if (pi.Name == "Enabled")
-                return (e, i) => pi.SetValue(e, true, null);
-            return (e, i) => pi.SetValue(e, RandomValueGen.GetRandomBoolean(), null);
+                return (e, i) => pi.SetValue(e, true);
+            return (e, i) => pi.SetValue(e, GetRandomBoolean());
         }
 
-        private static bool IsCollectionType(PropertyInfo propertyInfo, Type type)
+        private static bool IsCollectionType(PropertyOrField propertyInfo, Type type)
         {
-            // TODO: figure out the stack overflow introduced by cyclic references when enabling this
-            //  code below
             if (!type.IsCollection())
                 return false;
             SetCollectionSetterFor(propertyInfo);
             return true;
         }
 
-        private static void SetCollectionSetterFor(PropertyInfo propertyInfo)
+        private static void SetCollectionSetterFor(PropertyOrField propertyInfo)
         {
             RandomPropSetters[propertyInfo.Name] = (e, i) =>
             {
                 try
                 {
                     var instance = CreateListContainerFor(propertyInfo);
-                    if (propertyInfo.PropertyType.IsArray)
+                    if (propertyInfo.Type.IsArray)
                     {
                         instance = ConvertCollectionToArray(instance);
                     }
+
                     e.SetPropertyValue(propertyInfo.Name, instance);
                 }
                 catch (Exception ex)
@@ -705,25 +734,29 @@ namespace PeanutButter.RandomGenerators
         // ReSharper disable once VirtualMemberNeverOverridden.Global
         /// <summary>
         /// Attempts to fill collections with random data. May fail with stack-overflows
-        /// on complex, cyclic-referencing objects. Use with caution.
+        /// on complex, cyclic-referencing objects. Not enabled by default on random builds,
+        /// use with caution -- may lead to a stack overflow with collections which contain
+        /// items whose types which have collections with items whose types... and so on. 
         /// </summary>
         /// <returns>The current instance of the builder</returns>
         public virtual TBuilder WithFilledCollections()
         {
-            return WithProp(o =>
-            {
-                // TODO: figure out why filling collections can cause an SO with cyclic classes
-                var collectionProperties = typeof(TEntity).GetProperties()
-                    .Where(pi => IsCollectionType(pi, pi.PropertyType));
-                collectionProperties.ForEach(prop => FillCollection(o, prop));
-            });
+            return WithProp(
+                o =>
+                {
+                    // TODO: fix potential stack-overflows in cyclic classes by creating proper
+                    //  cyclic references instead of gen1 -> gen2 -> genN (boom!)
+                    var collectionProperties = EntityPropInfo
+                        .Where(pi => IsCollectionType(pi, pi.Type));
+                    collectionProperties.ForEach(prop => FillCollection(o, prop));
+                });
         }
 
-        private void FillCollection(object entity, PropertyInfo pi)
+        private void FillCollection(object entity, PropertyOrField pi)
         {
             var container = CreateListContainerFor(pi);
             FillContainer(container);
-            if (pi.PropertyType.IsArray)
+            if (pi.Type.IsArray)
                 container = ConvertCollectionToArray(container);
             pi.SetValue(entity, container);
         }
@@ -739,11 +772,11 @@ namespace PeanutButter.RandomGenerators
                 throw new InvalidOperationException(
                     $"No 'Add()' method found on {collectionType.PrettyName()}"
                 );
-            var data = RandomValueGen.GetRandomCollection(() => RandomValueGen.GetRandomValue(innerType), 1);
+            var data = GetRandomCollection(() => GetRandomValue(innerType), 1);
             data.ForEach(item => method.Invoke(collectionInstance, new[] {item}));
         }
 
-        private static object CreateListContainerFor(PropertyInfo propertyInfo)
+        private static object CreateListContainerFor(PropertyOrField propertyInfo)
         {
             var innerType = GetCollectionInnerTypeFor(propertyInfo);
             var listType = typeof(List<>);
@@ -752,19 +785,19 @@ namespace PeanutButter.RandomGenerators
             return instance;
         }
 
-        private static Type GetCollectionInnerTypeFor(PropertyInfo propertyInfo)
+        private static Type GetCollectionInnerTypeFor(PropertyOrField propertyInfo)
         {
-            return propertyInfo.PropertyType.IsGenericType
-                ? propertyInfo.PropertyType.GetGenericArguments()[0]
-                : propertyInfo.PropertyType.GetElementType();
+            return propertyInfo.Type.IsGenericType
+                ? propertyInfo.Type.GetGenericArguments()[0]
+                : propertyInfo.Type.GetElementType();
         }
 
-        private static void SetSetterForType(PropertyInfo prop, Type propertyType = null)
+        private static void SetSetterForType(PropertyOrField prop, Type propertyType = null)
         {
             // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var setter in _propertySetterStrategies)
+            foreach (var setter in PropertySetterStrategies)
             {
-                if (setter(prop, propertyType ?? prop.PropertyType))
+                if (setter(prop, propertyType ?? prop.Type))
                     return;
             }
         }
@@ -776,7 +809,7 @@ namespace PeanutButter.RandomGenerators
         // SUPPRESSED ON PURPOSE (:
 #pragma warning disable S2743 // Static fields should not be used in generic types
         // ReSharper disable once StaticMemberInGenericType
-        private static readonly Func<PropertyInfo, Type, bool>[] _propertySetterStrategies =
+        private static readonly Func<PropertyOrField, Type, bool>[] PropertySetterStrategies =
 #pragma warning restore S2743 // Static fields should not be used in generic types
         {
             IsNotWritable,
@@ -787,20 +820,20 @@ namespace PeanutButter.RandomGenerators
             SetupBuilderSetterFor
         };
 
-        private static bool IsEnumType(PropertyInfo prop, Type propertyType)
+        private static bool IsEnumType(PropertyOrField prop, Type propertyType)
         {
             if (!propertyType.IsEnum)
                 return false;
             RandomPropSetters[prop.Name] = (entity, idx) =>
             {
-                prop.SetValue(entity, RandomValueGen.GetRandomEnum(propertyType));
+                prop.SetValue(entity, GetRandomEnum(propertyType));
             };
             return true;
         }
 
-        private static bool HaveSetSimpleSetterFor(PropertyInfo prop, Type propertyType)
+        private static bool HaveSetSimpleSetterFor(PropertyOrField prop, Type propertyType)
         {
-            if (!_simpleTypeSetters.TryGetValue(propertyType, out var setterGenerator))
+            if (!SimpleTypeSetters.TryGetValue(propertyType, out var setterGenerator))
                 return false;
             RandomPropSetters[prop.Name] = setterGenerator(prop);
             return true;
@@ -812,7 +845,7 @@ namespace PeanutButter.RandomGenerators
         //  provides write access on the property. I'm specifically thinking about
         //  builders doing funky stuff with interfaces...
 #pragma warning disable S1172 // Unused method parameters should be removed
-        private static bool IsNotWritable(PropertyInfo prop, Type propertyType)
+        private static bool IsNotWritable(PropertyOrField prop, Type propertyType)
 #pragma warning restore S1172 // Unused method parameters should be removed
         {
             if (prop?.CanWrite ?? true)
@@ -829,7 +862,7 @@ namespace PeanutButter.RandomGenerators
         }
 
 
-        private static bool HaveSetNullableTypeSetterFor(PropertyInfo prop, Type propertyType)
+        private static bool HaveSetNullableTypeSetterFor(PropertyOrField prop, Type propertyType)
         {
             if (!IsNullableType(propertyType))
                 return false;
@@ -838,11 +871,11 @@ namespace PeanutButter.RandomGenerators
             return true;
         }
 
-        private static bool SetupBuilderSetterFor(PropertyInfo prop, Type propertyType)
+        private static bool SetupBuilderSetterFor(PropertyOrField prop, Type propertyType)
         {
             // FIXME: why am I sending through the type twice? I know I had a reason :/
-            var builderType = TryFindUserBuilderFor(prop.PropertyType) ??
-                              FindOrCreateDynamicBuilderTypeFor(prop.PropertyType);
+            var builderType = TryFindUserBuilderFor(prop.Type) ??
+                              FindOrCreateDynamicBuilderTypeFor(prop.Type);
             if (builderType == null)
                 return false;
             RandomPropSetters[prop.Name] = (e, i) =>
@@ -852,12 +885,12 @@ namespace PeanutButter.RandomGenerators
                 var dynamicBuilder = Activator.CreateInstance(builderType) as IGenericBuilder;
                 if (dynamicBuilder == null)
                     return;
-                prop.SetValue(e,
+                prop.SetValue(
+                    e,
                     dynamicBuilder
                         .WithBuildLevel(i)
                         .GenericWithRandomProps()
-                        .GenericBuild(),
-                    null);
+                        .GenericBuild());
             };
             return true;
         }
@@ -873,19 +906,22 @@ namespace PeanutButter.RandomGenerators
 
         private static bool HaveReenteredOwnRandomPropsTooManyTimesFor(StackFrame[] frames)
         {
-            var level = frames.Aggregate(0, (acc, cur) =>
-            {
-                var thisMethod = cur.GetMethod();
-                var thisType = thisMethod.DeclaringType;
-                if (thisType != null &&
-                    thisType.IsGenericType &&
-                    GenericBuilderBaseType.IsAssignableFrom(thisType) &&
-                    thisMethod.Name == "SetRandomProps")
+            var level = frames.Aggregate(
+                0,
+                (acc, cur) =>
                 {
-                    return acc + 1;
-                }
-                return acc;
-            });
+                    var thisMethod = cur.GetMethod();
+                    var thisType = thisMethod.DeclaringType;
+                    if (thisType != null &&
+                        thisType.IsGenericType &&
+                        GenericBuilderBaseType.IsAssignableFrom(thisType) &&
+                        thisMethod.Name == "SetRandomProps")
+                    {
+                        return acc + 1;
+                    }
+
+                    return acc;
+                });
             return level >= MaxRandomPropsLevel;
         }
 
@@ -899,8 +935,9 @@ namespace PeanutButter.RandomGenerators
             }
             catch (Exception ex)
             {
-                Trace.WriteLine($"Error defining dynamic builder for property of type: {type.Name}: " +
-                                ex.Message);
+                Trace.WriteLine(
+                    $"Error defining dynamic builder for property of type: {type.Name}: " +
+                    ex.Message);
                 return null;
             }
         }
@@ -915,6 +952,7 @@ namespace PeanutButter.RandomGenerators
                 UserBuilders[propertyType] = existingBuilder;
                 builderType = existingBuilder;
             }
+
             return builderType;
         }
 
@@ -927,24 +965,25 @@ namespace PeanutButter.RandomGenerators
 
         private void SetRandomProps(TEntity entity)
         {
-            foreach (var prop in EntityPropInfo)
-            {
-                try
+            EntityPropInfo.ForEach(
+                prop =>
                 {
-                    var setter = GetRandomPropSetterFor(prop);
-                    setter?.Invoke(entity, _buildLevel + 1);
-                }
-                catch (Exception ex)
-                {
-                    RandomPropSetters[prop.Name] = null;
-                    Trace.WriteLine(
-                        $"Unable to set random prop: {prop.DeclaringType?.Name}.{prop.Name} ({prop.PropertyType.Name}) {ex.Message}"
-                    );
-                }
-            }
+                    try
+                    {
+                        var setter = GetRandomPropSetterFor(prop);
+                        setter?.Invoke(entity, _buildLevel + 1);
+                    }
+                    catch (Exception ex)
+                    {
+                        RandomPropSetters[prop.Name] = null;
+                        Trace.WriteLine(
+                            $"Unable to set random prop: {prop.DeclaringType?.Name}.{prop.Name} ({prop.Type.Name}) {ex.Message}"
+                        );
+                    }
+                });
         }
 
-        private Action<TEntity, int> GetRandomPropSetterFor(PropertyInfo prop)
+        private Action<TEntity, int> GetRandomPropSetterFor(PropertyOrField prop)
         {
             if (RandomPropSetters.TryGetValue(prop.Name, out var result))
                 return result;

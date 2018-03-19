@@ -8,6 +8,7 @@ using NUnit.Framework;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using static NExpect.Expectations;
+using static PeanutButter.Utils.PyLike;
 // ReSharper disable UnusedMemberInSuper.Global
 // ReSharper disable PossibleNullReferenceException
 // ReSharper disable MemberCanBePrivate.Global
@@ -848,18 +849,27 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
 
-        [Test]
-        [Ignore("TODO: implement random field maker")]
-        public void WithRandomFields_ShouldPopulateFieldsWithRandomValues()
+        public struct SomeStruct
         {
-            //---------------Set up test pack-------------------
+            int Id;
+            string Name;
+        }
 
-            //---------------Assert Precondition----------------
+        public class SomeStructBuilder : GenericBuilder<SomeStructBuilder, SomeStruct>
+        {
+        }
 
-            //---------------Execute Test ----------------------
-
-            //---------------Test Result -----------------------
-            Assert.Fail("Test Not Yet Implemented");
+        [Test]
+        public void WithRandomProps_ShouldPopulateFieldsWithRandomValues()
+        {
+            // Arrange
+            // Pre-assert
+            // Act
+            var result = Range(0, 10).Select(
+                    i => SomeStructBuilder.Create().WithRandomProps().Build())
+                .ToArray();
+            // Assert
+            Expect(result.All(o => o.Equals(default(SomeStruct)))).To.Be.True();
         }
     }
 }
