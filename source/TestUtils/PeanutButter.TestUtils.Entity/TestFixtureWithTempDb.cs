@@ -22,7 +22,7 @@ namespace PeanutButter.TestUtils.Entity
 #pragma warning disable S2743
         private bool _databaseShouldHaveAspNetTables = true;
         // ReSharper disable once StaticMemberInGenericType
-        private static readonly List<string> _aspNetTables = new List<string>();
+        private static readonly List<string> AspNetTables = new List<string>();
 #pragma warning restore S2743
         private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
         private readonly List<Action<TDbContext>> _toRunBeforeProvidingContext = new List<Action<TDbContext>>();
@@ -115,30 +115,30 @@ namespace PeanutButter.TestUtils.Entity
 
         static TestFixtureWithTempDb()
         {
-            _aspNetTables.Add(@"
+            AspNetTables.Add(@"
 CREATE TABLE [AspNetRoles](
     [Id] [nvarchar](128) NOT NULL,
     [Name] [nvarchar](256) NOT NULL
 )");
-            _aspNetTables.Add(@"
+            AspNetTables.Add(@"
 CREATE Table [AspNetUserClaims](
     [Id] [int] IDENTITY(1,1) NOT NULL,
     [UserId] [nvarchar](128) NOT NULL,
     [ClaimType] [nvarchar](4000) NULL,
     [ClaimValue] [nvarchar](4000) NULL
 )");
-            _aspNetTables.Add(@"
+            AspNetTables.Add(@"
 CREATE TABLE [AspNetUserLogins](
     [LoginProvider] [nvarchar](128) NOT NULL,
     [ProviderKey] [nvarchar](128) NOT NULL,
     [UserId] [nvarchar](128) NOT NULL
 )");
-            _aspNetTables.Add(@"
+            AspNetTables.Add(@"
 CREATE TABLE [AspNetUserRoles](
     [UserId] [nvarchar](128) NOT NULL,
     [RoleId] [nvarchar](128) NOT NULL
 )");
-            _aspNetTables.Add(@"
+            AspNetTables.Add(@"
 CREATE TABLE [AspNetUsers](
     [Id] [nvarchar](128) NOT NULL,
     [Email] [nvarchar](256) NULL,
@@ -233,7 +233,7 @@ CREATE TABLE [AspNetUsers](
             using (var connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-                _aspNetTables.ForEach(sql =>
+                AspNetTables.ForEach(sql =>
                 {
                     using (var cmd = connection.CreateCommand())
                     {

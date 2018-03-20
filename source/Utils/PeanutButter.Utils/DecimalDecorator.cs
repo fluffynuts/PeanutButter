@@ -14,14 +14,14 @@ namespace PeanutButter.Utils
     /// </summary>
     public class DecimalDecorator
     {
-        private static readonly object _lock = new object();
+        private static readonly object Lock = new object();
         private static NumberFormatInfo _numberFormatInfoField;
 
         private static NumberFormatInfo NumberFormatInfo
         {
             get
             {
-                lock (_lock)
+                lock (Lock)
                 {
                     return _numberFormatInfoField ?? (_numberFormatInfoField = CreateNumberFormatInfo());
                 }

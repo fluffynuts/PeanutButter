@@ -75,10 +75,10 @@ namespace PeanutButter.RandomGenerators
         }
 
         private static ModuleBuilder _moduleBuilder;
-        private static readonly object _moduleBuilderLock = new object();
+        private static readonly object ModuleBuilderLock = new object();
         private static ModuleBuilder CreateOrReuseDynamicModule()
         {
-            lock (_moduleBuilderLock)
+            lock (ModuleBuilderLock)
             {
                 return _moduleBuilder ?? (_moduleBuilder =
                     DynamicAssemblyBuilder.DefineDynamicModule("GeneratedBuilders"));

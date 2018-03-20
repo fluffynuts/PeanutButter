@@ -66,10 +66,10 @@ namespace PeanutButter.Utils
         {
             if (string.IsNullOrWhiteSpace(input))
                 return false;
-            return _truthy.Any(item => item == input.ToLower());
+            return Truthy.Any(item => item == input.ToLower());
         }
 
-        private static readonly string[] _truthy = {"yes", "y", "1", "true"};
+        private static readonly string[] Truthy = {"yes", "y", "1", "true"};
 
         /// <summary>
         /// Searches a master string for occurrences of any of the given strings

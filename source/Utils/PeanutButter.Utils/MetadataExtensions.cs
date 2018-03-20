@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Threading;
 
 #if BUILD_PEANUTBUTTER_INTERNAL
@@ -25,13 +26,13 @@ namespace PeanutButter.Utils
 #endif
         static class MetadataExtensions
     {
-        private static readonly ConditionalWeakTable<object, Dictionary<string, object>> _table =
+        private static readonly ConditionalWeakTable<object, Dictionary<string, object>> Table =
             new ConditionalWeakTable<object, Dictionary<string, object>>();
 
 #if BUILD_PEANUTBUTTER_INTERNAL
 #else // This is only used for testing and is not designed for consumers
         internal static int TrackedObjectCount() {
-            var keys = _table.GetPropertyValue("Keys") as IEnumerable<object>;
+            var keys = Table.GetPropertyValue("Keys") as IEnumerable<object>;
             return keys?.Count()
                 ?? throw new InvalidOperationException("Reaching into ConditionalWeakTable for the Keys collection has failed");
         }
@@ -52,7 +53,7 @@ namespace PeanutButter.Utils
             object value
         )
         {
-            using (new AutoLocker(_lock))
+            using (new AutoLocker(Lock))
             {
                 var data = GetMetadataFor(parent) ?? AddMetadataFor(parent);
                 data[key] = value;
@@ -75,7 +76,7 @@ namespace PeanutButter.Utils
             string key
         )
         {
-            using (new AutoLocker(_lock))
+            using (new AutoLocker(Lock))
             {
                 var data = GetMetadataFor(parent);
                 if (data == null)
@@ -99,7 +100,7 @@ namespace PeanutButter.Utils
             string key
         )
         {
-            using (new AutoLocker(_lock))
+            using (new AutoLocker(Lock))
             {
                 var data = GetMetadataFor(parent);
                 if (data == null)
@@ -116,7 +117,11 @@ namespace PeanutButter.Utils
                 // ReSharper disable once UnusedVariable
                 var defaultValue = default(T);
                 var cast = (T) stored;
+                // Just want to run some actual logic to ensure that the
+                //  cast isn't optimised away
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                 return cast.Equals(defaultValue)
+                    // ReSharper disable once ConditionalTernaryEqualBranch
                     ? true
                     : true;
             }
@@ -126,12 +131,11 @@ namespace PeanutButter.Utils
             }
         }
 
-
-        private static readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
+        private static readonly SemaphoreSlim Lock = new SemaphoreSlim(1, 1);
 
         private static Dictionary<string, object> GetMetadataFor(object parent)
         {
-            return _table.TryGetValue(parent, out var result)
+            return Table.TryGetValue(parent, out var result)
                 ? result
                 : null;
         }
@@ -139,7 +143,7 @@ namespace PeanutButter.Utils
         private static Dictionary<string, object> AddMetadataFor(object parent)
         {
             var result = new Dictionary<string, object>();
-            _table.Add(parent, result);
+            Table.Add(parent, result);
             return result;
         }
     }

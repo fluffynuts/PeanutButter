@@ -217,7 +217,7 @@ namespace PeanutButter.Utils
             return _ignoreDateTimeKind ?? false;
         }
 
-        private static readonly string[] _positives =
+        private static readonly string[] Positives =
         {
             "true",
             "yes",
@@ -227,7 +227,7 @@ namespace PeanutButter.Utils
         private bool? CheckEnvironmentForIgnoreDateTimeKind()
         {
             var envVar = Environment.GetEnvironmentVariable("DEEP_EQUALITY_IGNORES_DATETIME_KIND");
-            return _positives.Contains(envVar?.ToLower(CultureInfo.InvariantCulture));
+            return Positives.Contains(envVar?.ToLower(CultureInfo.InvariantCulture));
         }
 
         private decimal? TryConvertToDecimal(object obj)
@@ -256,7 +256,7 @@ namespace PeanutButter.Utils
         {
             var sourceItemType = GetItemTypeFor(sourceType);
             var compareItemType = GetItemTypeFor(compareType);
-            var method = _deepCollectionCompareGenericMethod.MakeGenericMethod(
+            var method = DeepCollectionCompareGenericMethod.MakeGenericMethod(
                 sourceItemType, compareItemType
             );
             return (bool) method.Invoke(this, new[] {objSource, objCompare});
@@ -267,7 +267,7 @@ namespace PeanutButter.Utils
             return collectionType.GenericTypeArguments[0];
         }
 
-        private static readonly MethodInfo _deepCollectionCompareGenericMethod =
+        private static readonly MethodInfo DeepCollectionCompareGenericMethod =
 #if NETSTANDARD
             typeof(DeepEqualityTester).GetRuntimeMethods()
                 .FirstOrDefault(mi => mi.Name == nameof(DeepCollectionCompare));
@@ -420,7 +420,7 @@ namespace PeanutButter.Utils
             return compareProps.Any() && compareProps.All(cp => srcProps.Any(sp => sp.Name == cp.Name));
         }
 
-        private static readonly Tuple<Type, Type>[] _looselyComparableTypes =
+        private static readonly Tuple<Type, Type>[] LooselyComparableTypes =
         {
             Tuple.Create(typeof(int), typeof(long)),
             Tuple.Create(typeof(int), typeof(short)),
@@ -436,7 +436,7 @@ namespace PeanutButter.Utils
             Type compareType
         )
         {
-            return _looselyComparableTypes.Any(pair =>
+            return LooselyComparableTypes.Any(pair =>
                 (pair.Item1 == srcType && pair.Item2 == compareType) ||
                 (pair.Item2 == srcType && pair.Item1 == compareType)
             );

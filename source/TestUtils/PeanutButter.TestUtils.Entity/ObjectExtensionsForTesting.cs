@@ -92,11 +92,11 @@ namespace PeanutButter.TestUtils.Entity
             }
         }
 
-        private static readonly Type _dbSetGenericType = typeof(IDbSet<>);
+        private static readonly Type DbSetGenericType = typeof(IDbSet<>);
 
         private static bool IsIDbSetFor<TEntity>(PropertyInfo propInfo)
         {
-            var searchType = _dbSetGenericType.MakeGenericType(typeof(TEntity));
+            var searchType = DbSetGenericType.MakeGenericType(typeof(TEntity));
             return searchType.IsAssignableFrom(propInfo.PropertyType);
         }
 

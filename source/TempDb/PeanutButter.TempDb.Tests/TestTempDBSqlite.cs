@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data.SqlServerCe;
 using System.Data.SQLite;
 using System.IO;
 using System.Threading.Tasks;
@@ -12,7 +11,7 @@ using PeanutButter.Utils;
 namespace PeanutButter.TempDb.Tests
 {
     [TestFixture]
-    public class TestTempDBSqlite: TempDBTestFixtureBase
+    public class TestTempDBSqlite
     {
         [OneTimeSetUp]
         public void TestFixtureSetUp()

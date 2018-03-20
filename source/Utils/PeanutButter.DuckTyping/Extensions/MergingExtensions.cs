@@ -97,7 +97,7 @@ namespace PeanutButter.DuckTyping.Extensions
                     new List<IDictionary<string, object>>(),
                     (converted, toConvert) =>
                     {
-                        var asDict = _mergeConversionStrategies.Aggregate(
+                        var asDict = MergeConversionStrategies.Aggregate(
                             null as IDictionary<string, object>,
                             (acc, cur) => acc ?? cur(toConvert, isFuzzy));
                         if (asDict != null)
@@ -109,7 +109,7 @@ namespace PeanutButter.DuckTyping.Extensions
             return merged;
         }
 
-        private static readonly Func<object, bool, IDictionary<string, object>>[] _mergeConversionStrategies =
+        private static readonly Func<object, bool, IDictionary<string, object>>[] MergeConversionStrategies =
         {
             PassThrough,
             BoxifyDictionary,
@@ -166,14 +166,14 @@ namespace PeanutButter.DuckTyping.Extensions
                 return null;
             if (keyType != typeof(string))
                 return null;
-            var method = _boxDictionaryMethod.MakeGenericMethod(valueType);
+            var method = BoxDictionaryMethod.MakeGenericMethod(valueType);
             return method.Invoke(null, new[] {input, isFuzzy}) as IDictionary<string, object>;
         }
 
-        private static readonly BindingFlags _privateStatic = BindingFlags.NonPublic | BindingFlags.Static;
+        private const BindingFlags PRIVATE_STATIC = BindingFlags.NonPublic | BindingFlags.Static;
 
-        private static readonly MethodInfo _boxDictionaryMethod =
-            typeof(MergingExtensions).GetMethod(nameof(BoxDictionary), _privateStatic);
+        private static readonly MethodInfo BoxDictionaryMethod =
+            typeof(MergingExtensions).GetMethod(nameof(BoxDictionary), PRIVATE_STATIC);
 
         private static IDictionary<string, object> BoxDictionary<TValue>(
             IDictionary<string, TValue> src,

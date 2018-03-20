@@ -1,5 +1,7 @@
 using System;
 using System.Linq;
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedMember.Global
 
 #if BUILD_PEANUTBUTTER_INTERNAL
 namespace Imported.PeanutButter.Utils
@@ -39,6 +41,13 @@ namespace PeanutButter.Utils
             return master.IsMatchFor(other, false);
         }
 
+        /// <summary>
+        /// Tests if this PropertyOrField is a match for another
+        /// </summary>
+        /// <param name="master"></param>
+        /// <param name="other"></param>
+        /// <param name="mustMatchMemberType"></param>
+        /// <returns></returns>
         public static bool IsMatchFor(
             this PropertyOrField master,
             PropertyOrField other,
@@ -60,12 +69,18 @@ namespace PeanutButter.Utils
                     master.CanWrite == other.CanWrite;
         }
 
+        /// <summary>
+        /// Prints out a pretty representation of this PropertyOrField
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        // ReSharper disable once UnusedMember.Global
         public static string PrettyPrint(this PropertyOrField item)
         {
             return $"{item.Name} ({item.Type}) [{item.PrintAccess()}]";
         }
 
-        private static readonly Tuple<bool, bool, string>[] _accessNames =
+        private static readonly Tuple<bool, bool, string>[] AccessNames =
         {
             Tuple.Create(true, true, "read-write"),
             Tuple.Create(true, false, "read-only"),
@@ -74,7 +89,7 @@ namespace PeanutButter.Utils
 
         public static string PrintAccess(this PropertyOrField item)
         {
-            return _accessNames
+            return AccessNames
                 .First(t => t.Item1 == item.CanRead && t.Item2 == item.CanWrite)
                 .Item3;
         }

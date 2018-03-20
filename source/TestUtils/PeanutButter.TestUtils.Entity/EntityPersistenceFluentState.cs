@@ -39,8 +39,8 @@ namespace PeanutButter.TestUtils.Entity
         private Func<TEntity> _entityFactory;
         private Action<string> _contextLogAction;
         // ReSharper disable once StaticMemberInGenericType
-        private static readonly IEnumerable<PropertyInfo> _decimalProps;
-        private static readonly IEnumerable<PropertyInfo> _dateTimeProps;
+        private static readonly IEnumerable<PropertyInfo> DecimalProps;
+        private static readonly IEnumerable<PropertyInfo> DateTimeProps;
         private Func<string, IDBMigrationsRunner> _migrationsRunnerFactory;
         private Func<ITempDB> _tempDbFactoryFunction;
         private ITempDB _sharedDatabase;
@@ -63,9 +63,9 @@ namespace PeanutButter.TestUtils.Entity
         {
             var allProperties = typeof(TEntity)
                 .GetProperties();
-            _decimalProps = allProperties
+            DecimalProps = allProperties
                 .Where(pi => pi.PropertyType == typeof(decimal) || pi.PropertyType == typeof(decimal?));
-            _dateTimeProps = allProperties
+            DateTimeProps = allProperties
                 .Where(pi => pi.PropertyType == typeof(DateTime) || pi.PropertyType == typeof(DateTime?));
         }
 
@@ -186,7 +186,7 @@ namespace PeanutButter.TestUtils.Entity
 
 
                 var ignoreAndCrankyProperties = toIgnore.Union(
-                    _decimalProps.Union(_dateTimeProps).Select(pi => pi.Name)
+                    DecimalProps.Union(DateTimeProps).Select(pi => pi.Name)
                 ).ToArray();
                 PropertyAssert.AreDeepEqual(persisted, sut, ignoreAndCrankyProperties);
                 TestDecimalPropertiesOn(sut, persisted);
@@ -199,7 +199,7 @@ namespace PeanutButter.TestUtils.Entity
         private void TestDateTimePropertiesOn(TEntity sut, TEntity persisted)
         {
             var allowed = Math.Abs(_allowedDateTimeDelta.TotalMilliseconds);
-            _dateTimeProps.ForEach(pi =>
+            DateTimeProps.ForEach(pi =>
             {
                 var beforeValue = (DateTime?) pi.GetValue(sut);
                 var afterValue = (DateTime?) pi.GetValue(persisted);
@@ -219,7 +219,7 @@ namespace PeanutButter.TestUtils.Entity
 
         private static void TestDecimalPropertiesOn(TEntity sut, TEntity persisted)
         {
-            foreach (var pi in _decimalProps)
+            foreach (var pi in DecimalProps)
             {
                 var beforeValue = (decimal?) pi.GetValue(sut);
                 var afterValue = (decimal?) pi.GetValue(persisted);

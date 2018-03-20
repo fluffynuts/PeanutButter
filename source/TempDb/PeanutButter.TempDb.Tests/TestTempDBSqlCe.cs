@@ -11,7 +11,7 @@ using PeanutButter.Utils;
 namespace PeanutButter.TempDb.Tests
 {
     [TestFixture]
-    public class TestTempDBSqlCe: TempDBTestFixtureBase
+    public class TestTempDBSqlCe
     {
         [Test]
         public void ShouldImplementIDisposable()

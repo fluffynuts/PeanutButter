@@ -29,7 +29,7 @@ namespace PeanutButter.TempDb.MySql
         private readonly Random _random = new Random();
         private Process _serverProcess;
         private int _port;
-        private static readonly object _mysqldLock = new object();
+        private static readonly object MysqldLock = new object();
         private static string _mysqld;
 
         private readonly FatalTempDbInitializationException _noMySqlInstalledException =
@@ -48,9 +48,12 @@ namespace PeanutButter.TempDb.MySql
             TempDbMySqlServerSettings settings,
             params string[] creationScripts
         )
-            : this(settings, o =>
-            {
-            }, creationScripts)
+            : this(
+                settings,
+                o =>
+                {
+                },
+                creationScripts)
         {
         }
 
@@ -77,7 +80,7 @@ namespace PeanutButter.TempDb.MySql
 
         private string FindInstalledMySqlD()
         {
-            lock (_mysqldLock)
+            lock (MysqldLock)
             {
                 return _mysqld ?? (_mysqld = QueryForMySqld());
             }
@@ -195,7 +198,7 @@ namespace PeanutButter.TempDb.MySql
 
         private void EndServerProcess()
         {
-            lock (_mysqldLock)
+            lock (MysqldLock)
             {
                 if (_serverProcess == null)
                     return;
@@ -243,7 +246,8 @@ namespace PeanutButter.TempDb.MySql
 
         private void StartServer(string mysqld, int port)
         {
-            _serverProcess = RunCommand(mysqld,
+            _serverProcess = RunCommand(
+                mysqld,
                 $"--defaults-file={Path.Combine(DatabasePath, "my.cnf")}",
                 $"--basedir={BaseDirOf(mysqld)}",
                 $"--datadir={DatabasePath}",
@@ -308,7 +312,8 @@ namespace PeanutButter.TempDb.MySql
             }
 
             Log($"Initializing MySql in {DatabasePath}");
-            var process = RunCommand(mysqld,
+            var process = RunCommand(
+                mysqld,
                 $"--defaults-file={tempDefaultsFile}",
                 "--initialize-insecure",
                 $"--basedir={BaseDirOf(mysqld)}",
@@ -323,15 +328,26 @@ namespace PeanutButter.TempDb.MySql
                 Path.GetDirectoryName(
                     mysqld
                 ));
-            var dataDir = Path.Combine(installFolder, "data");
+            var dataDir = Path.Combine(
+                installFolder ??
+                throw new InvalidOperationException($"Unable to determine hosting folder for {mysqld}"),
+                "data");
             if (!Directory.Exists(dataDir))
                 throw new FatalTempDbInitializationException(
                     $"Unable to manually initialize: folder not found: {dataDir}"
                 );
             Directory.EnumerateDirectories(dataDir)
-                .ForEach(d => CopyFolder(d, Path.Combine(DatabasePath, Path.GetFileName(d))));
+                .ForEach(d => CopyFolder(d, CombinePaths(DatabasePath, Path.GetFileName(d))));
             Directory.EnumerateFiles(dataDir)
-                .ForEach(f => File.Copy(Path.Combine(f), Path.Combine(DatabasePath, Path.GetFileName(f))));
+                .ForEach(f => File.Copy(Path.Combine(f), CombinePaths(DatabasePath, Path.GetFileName(f))));
+        }
+
+        private static string CombinePaths(params string[] parts)
+        {
+            var nonNull = parts.Where(p => p != null).ToArray();
+            if (nonNull.IsEmpty())
+                throw new InvalidOperationException($"no paths provided for {nameof(CombinePaths)}");
+            return Path.Combine(nonNull);
         }
 
         private static void CopyFolder(string sourceFolder, string destFolder)
@@ -385,14 +401,15 @@ namespace PeanutButter.TempDb.MySql
             var parts = result.ToLower().Split(' ');
             var versionInfo = new MySqlVersionInfo();
             var last = "";
-            parts.ForEach(p =>
-            {
-                if (last == "ver")
-                    versionInfo.Version = new Version(p);
-                else if (last == "for" && versionInfo.Platform == null)
-                    versionInfo.Platform = p;
-                last = p;
-            });
+            parts.ForEach(
+                p =>
+                {
+                    if (last == "ver")
+                        versionInfo.Version = new Version(p);
+                    else if (last == "for" && versionInfo.Platform == null)
+                        versionInfo.Platform = p;
+                    last = p;
+                });
             return versionInfo;
         }
 

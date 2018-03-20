@@ -49,10 +49,9 @@ namespace PeanutButter.RandomGenerators
         {
             if (type == null)
                 return null;
-            lock (_builderTypeCache)
+            lock (BuilderTypeCache)
             {
-                Type result;
-                if (_builderTypeCache.TryGetValue(type, out result))
+                if (BuilderTypeCache.TryGetValue(type, out var result))
                     return result;
             }
             return TryFindExistingBuilderAndCacheFor(type);
@@ -63,13 +62,13 @@ namespace PeanutButter.RandomGenerators
         /// </summary>
         public static void InvalidateBuilderTypeCache()
         {
-            lock (_builderTypeCache)
+            lock (BuilderTypeCache)
             {
-                _builderTypeCache.Clear();
+                BuilderTypeCache.Clear();
             }
         }
 
-        private static readonly Dictionary<Type, Type> _builderTypeCache =
+        private static readonly Dictionary<Type, Type> BuilderTypeCache =
             new Dictionary<Type, Type>();
 
         private static Type TryFindExistingBuilderAndCacheFor(Type type)
@@ -84,9 +83,9 @@ namespace PeanutButter.RandomGenerators
         {
             if (type == null)
                 return;
-            lock (_builderTypeCache)
+            lock (BuilderTypeCache)
             {
-                _builderTypeCache[type] = builderType;
+                BuilderTypeCache[type] = builderType;
             }
         }
 
@@ -169,11 +168,11 @@ namespace PeanutButter.RandomGenerators
 
 #if NETSTANDARD
 #else
-        private static readonly object _referenceLoadLock = new object();
+        private static readonly object ReferenceLoadLock = new object();
         private static bool _haveLoadedImmediateAssemblies;
         private static void LoadImmediateAssembliesIfRequired()
         {
-            lock (_referenceLoadLock)
+            lock (ReferenceLoadLock)
             {
                 if (_haveLoadedImmediateAssemblies)
                     return;

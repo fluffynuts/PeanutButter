@@ -104,13 +104,13 @@ namespace PeanutButter.DuckTyping.AutoConversion
             }
         }
 
-        private static readonly object _allTypesLock = new object();
+        private static readonly object AllTypesLock = new object();
         private static Type[] _allLoadedTypes;
         private static Type[] AllLoadedTypes
         {
             get
             {
-                lock (_allTypesLock)
+                lock (AllTypesLock)
                 {
                     return _allLoadedTypes ?? (_allLoadedTypes = FindAllLoadedTypes());
                 }

@@ -25,7 +25,7 @@ namespace PeanutButter.Utils.Dictionaries
         : IDictionary<TKey, TValue>
     {
         // ReSharper disable once StaticMemberInGenericType
-        private static readonly InvalidOperationException _readonlyException
+        private static readonly InvalidOperationException ReadonlyException
             = new InvalidOperationException($"{typeof(MergeDictionary<,>)} is ALWAYS read-only");
 
         private readonly IDictionary<TKey, TValue>[] _layers;
@@ -33,6 +33,7 @@ namespace PeanutButter.Utils.Dictionaries
         /// <summary>
         /// Expose the first (or least-restrictive, for strings) key comparer
         /// </summary>
+        // ReSharper disable once UnusedMember.Global
         public IEqualityComparer<TKey> Comparer => GetComparer();
 
         private IEqualityComparer<TKey> GetComparer()
@@ -54,7 +55,7 @@ namespace PeanutButter.Utils.Dictionaries
                 .Select(c => new
                 {
                     Comparer = c,
-                    Rank = _stringComparerRankings.TryGetValue(c, out var rank)
+                    Rank = StringComparerRankings.TryGetValue(c, out var rank)
                         ? rank
                         : 99
                 })
@@ -80,7 +81,7 @@ namespace PeanutButter.Utils.Dictionaries
         }
 
         // ReSharper disable once StaticMemberInGenericType
-        private static readonly Dictionary<IEqualityComparer<string>, int> _stringComparerRankings =
+        private static readonly Dictionary<IEqualityComparer<string>, int> StringComparerRankings =
             new Dictionary<IEqualityComparer<string>, int>()
             {
                 [StringComparer.OrdinalIgnoreCase] = 1,
@@ -129,7 +130,7 @@ namespace PeanutButter.Utils.Dictionaries
         /// <exception cref="InvalidOperationException"></exception>
         public void Add(KeyValuePair<TKey, TValue> item)
         {
-            throw _readonlyException;
+            throw ReadonlyException;
         }
 
         /// <summary>
@@ -138,7 +139,7 @@ namespace PeanutButter.Utils.Dictionaries
         /// <exception cref="InvalidOperationException"></exception>
         public void Clear()
         {
-            throw _readonlyException;
+            throw ReadonlyException;
         }
 
         /// <summary>
@@ -179,7 +180,7 @@ namespace PeanutButter.Utils.Dictionaries
         /// <exception cref="InvalidOperationException"></exception>
         public bool Remove(KeyValuePair<TKey, TValue> item)
         {
-            throw _readonlyException;
+            throw ReadonlyException;
         }
 
         /// <summary>
@@ -210,7 +211,7 @@ namespace PeanutButter.Utils.Dictionaries
         /// <exception cref="InvalidOperationException"></exception>
         public void Add(TKey key, TValue value)
         {
-            throw _readonlyException;
+            throw ReadonlyException;
         }
 
         /// <summary>
@@ -221,7 +222,7 @@ namespace PeanutButter.Utils.Dictionaries
         /// <exception cref="InvalidOperationException"></exception>
         public bool Remove(TKey key)
         {
-            throw _readonlyException;
+            throw ReadonlyException;
         }
 
         /// <summary>
@@ -253,7 +254,7 @@ namespace PeanutButter.Utils.Dictionaries
             get => TryGetValue(key, out var value)
                 ? value
                 : throw new KeyNotFoundException(key.ToString());
-            set => throw _readonlyException;
+            set => throw ReadonlyException;
         }
 
         /// <summary>

@@ -8,35 +8,35 @@ namespace PeanutButter.TestUtils.Entity
 {
     internal static class SharedDatabaseLocator
     {
-        private static readonly SemaphoreSlim _lock = new SemaphoreSlim(1);
+        private static readonly SemaphoreSlim Lock = new SemaphoreSlim(1);
 
-        private static readonly Dictionary<string, ITempDB> _sharedDatabases
+        private static readonly Dictionary<string, ITempDB> SharedDatabases
             = new Dictionary<string, ITempDB>();
 
         public static void Register(string name, ITempDB database)
         {
-            if (_sharedDatabases.ContainsKey(name))
+            if (SharedDatabases.ContainsKey(name))
             {
                 throw new SharedDatabaseAlreadyRegisteredException(name);
             }
-            _sharedDatabases[name] = database;
+            SharedDatabases[name] = database;
         }
 
         public static ITempDB Find(string name)
         {
-            using (new AutoLocker(_lock))
+            using (new AutoLocker(Lock))
             {
                 ITempDB result;
-                _sharedDatabases.TryGetValue(name, out result);
+                SharedDatabases.TryGetValue(name, out result);
                 return result;
             }
         }
 
         public static void Cleanup()
         {
-            using (new AutoLocker(_lock))
+            using (new AutoLocker(Lock))
             {
-                foreach (var kvp in _sharedDatabases)
+                foreach (var kvp in SharedDatabases)
                 {
                     try
                     {

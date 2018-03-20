@@ -17,7 +17,7 @@ namespace PeanutButter.RandomGenerators
     /// </summary>
     public class RandomValueGen
     {
-        private static readonly Dictionary<Type, Func<object>> _primitiveGenerators =
+        private static readonly Dictionary<Type, Func<object>> PrimitiveGenerators =
             new Dictionary<Type, Func<object>>()
             {
                 {typeof(int), () => GetRandomInt()},
@@ -62,7 +62,7 @@ namespace PeanutButter.RandomGenerators
                 throw new ArgumentException(nameof(type));
             if (type.IsGenericType() && type.GetGenericTypeDefinition() == typeof(Nullable<>))
                 type = Nullable.GetUnderlyingType(type);
-            return _primitiveGenerators.TryGetValue(
+            return PrimitiveGenerators.TryGetValue(
                 type ?? throw new ArgumentNullException(nameof(type)),
                 out var randomGenerator
             )
@@ -140,7 +140,7 @@ namespace PeanutButter.RandomGenerators
             public const int MAX_ITEMS = 10;
         }
 
-        private static readonly Random _rand = new Random();
+        private static readonly Random RandomGenerator = new Random();
         private const string DEFAULT_RANDOM_STRING_CHARS = "abcdefghijklmnopqrstuvwxyz1234567890";
 
         /// <summary>
@@ -164,7 +164,7 @@ namespace PeanutButter.RandomGenerators
             return GetRandomInt(1, 100) < 50;
         }
 
-        private static readonly string[] _mimeTypes =
+        private static readonly string[] MimeTypes =
         {
             "text/plain",
             "text/html",
@@ -180,8 +180,8 @@ namespace PeanutButter.RandomGenerators
         /// <returns>String which is a valid mime type</returns>
         public static string GetRandomMIMEType()
         {
-            var idx = GetRandomInt(0, _mimeTypes.Length - 1);
-            return _mimeTypes[idx];
+            var idx = GetRandomInt(0, MimeTypes.Length - 1);
+            return MimeTypes[idx];
         }
 
         /// <summary>
@@ -199,7 +199,7 @@ namespace PeanutButter.RandomGenerators
                 minValue = maxValue;
                 maxValue = swap;
             }
-            var dec = _rand.NextDouble();
+            var dec = RandomGenerator.NextDouble();
             var range = maxValue - minValue + 1;
             return minValue + (long) (range * dec);
         }
@@ -374,7 +374,7 @@ namespace PeanutButter.RandomGenerators
             double max = DefaultRanges.MAX_INT_VALUE
         )
         {
-            return (_rand.NextDouble() * (max - min)) + min;
+            return (RandomGenerator.NextDouble() * (max - min)) + min;
         }
 
         /// <summary>
@@ -402,8 +402,8 @@ namespace PeanutButter.RandomGenerators
             int maxLength = DefaultRanges.MAXLENGTH_BYTES
         )
         {
-            var bytes = new byte[_rand.Next(minLength, maxLength)];
-            _rand.NextBytes(bytes);
+            var bytes = new byte[RandomGenerator.Next(minLength, maxLength)];
+            RandomGenerator.NextBytes(bytes);
             return bytes;
         }
 

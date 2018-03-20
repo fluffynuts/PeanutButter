@@ -55,10 +55,10 @@ namespace PeanutButter.TestUtils.Entity
         }
 
         // ReSharper disable once StaticMemberInGenericType
-        private static readonly Type _stringType = typeof(string);
+        private static readonly Type StringType = typeof(string);
         private void ConstrainMaxlengthStringOn(object o, PropertyInfo pi)
         {
-            if (pi.PropertyType != _stringType)
+            if (pi.PropertyType != StringType)
                 return;
             var prescribedMaxLength = GetMaxLengthFor(pi);
             if (!prescribedMaxLength.HasValue)

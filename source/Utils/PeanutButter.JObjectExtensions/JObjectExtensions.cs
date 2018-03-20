@@ -8,7 +8,7 @@ namespace PeanutButter.JObjectExtensions
 {
     public static class JObjectExtensions
     {
-        private static readonly JTokenResolvers _resolvers = new JTokenResolvers
+        private static readonly JTokenResolvers Resolvers = new JTokenResolvers
         {
             {JTokenType.None, o => null},
             {JTokenType.Array, ConvertJTokenArray},
@@ -33,7 +33,7 @@ namespace PeanutButter.JObjectExtensions
             if (src == null)
                 return result;
             foreach (var prop in src.Properties())
-                result[prop.Name] = _resolvers[prop.Type](prop.Value);
+                result[prop.Name] = Resolvers[prop.Type](prop.Value);
             return result;
         }
 
@@ -52,7 +52,7 @@ namespace PeanutButter.JObjectExtensions
 
         private static Func<JToken, object> GetResolverFor(JToken arg)
         {
-            return _resolvers.TryGetValue(arg.Type, out var result)
+            return Resolvers.TryGetValue(arg.Type, out var result)
                 ? result
                 : PassThrough;
         }
@@ -89,11 +89,11 @@ namespace PeanutButter.JObjectExtensions
 
         private static object ConvertToTypedArray(IEnumerable<object> src, Type newType)
         {
-            var method = _convertToTypedArrayGenericMethod.MakeGenericMethod(newType);
+            var method = ConvertToTypedArrayGenericMethod.MakeGenericMethod(newType);
             return method.Invoke(null, new object[] {src});
         }
 
-        private static readonly MethodInfo _convertToTypedArrayGenericMethod
+        private static readonly MethodInfo ConvertToTypedArrayGenericMethod
             = typeof(JObjectExtensions).GetMethod(
                 nameof(ConvertToTypedArrayGeneric),
                 BindingFlags.NonPublic | BindingFlags.Static

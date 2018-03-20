@@ -6,7 +6,7 @@ namespace PeanutButter.TempDb
 {
     public static class TempDbHints
     {
-        private static readonly object _pathLock = new object();
+        private static readonly object PathLock = new object();
 
         public static string DefaultBasePath => Path.GetTempPath();
 
@@ -14,16 +14,16 @@ namespace PeanutButter.TempDb
         {
             get
             {
-                lock (_pathLock)
+                lock (PathLock)
                 {
-                    if (FolderExists(_preferredBasePath))
-                        return _preferredBasePath;
-                    return Path.GetTempPath();
+                    return FolderExists(_preferredBasePath)
+                        ? _preferredBasePath
+                        : Path.GetTempPath();
                 }
             }
             set
             {
-                lock (_pathLock)
+                lock (PathLock)
                 {
                     _preferredBasePath = value;
                 }

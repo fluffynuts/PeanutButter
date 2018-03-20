@@ -173,7 +173,7 @@ namespace PeanutButter.SimpleHTTPServer
                 AutoSerializer, AutoMime);
         }
 
-        private static readonly Func<string, string>[] _autoMimeStrategies =
+        private static readonly Func<string, string>[] AutoMimeStrategies =
         {
             AutoMimeHtml,
             AutoMimeJson,
@@ -234,7 +234,7 @@ namespace PeanutButter.SimpleHTTPServer
         private string AutoMime(string servedResult)
         {
             var trimmed = servedResult.Trim();
-            return _autoMimeStrategies.Aggregate(
+            return AutoMimeStrategies.Aggregate(
                 null as string, (acc, cur) => acc ?? cur(trimmed)
             );
         }

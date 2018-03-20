@@ -13,7 +13,7 @@ namespace PeanutButter.TempDb.Tests
         {
             // Arrange
             var defaultIni = new INIFile.INIFile();
-            defaultIni.Parse(_defaults);
+            defaultIni.Parse(DEFAULTS);
             var sut = Create();
             // Pre-Assert
             // Act
@@ -44,7 +44,7 @@ namespace PeanutButter.TempDb.Tests
             return new MySqlConfigGenerator();
         }
 
-        private const string _defaults =
+        private const string DEFAULTS =
             @"[mysqld]
 character-set-server=utf8
 default-storage-engine=INNODB

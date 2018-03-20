@@ -13,61 +13,63 @@ namespace PeanutButter.DuckTyping.Extensions
 {
     internal static class DuckTypingHelperExtensions
     {
-        private static readonly Dictionary<Type, PropertyInfoContainer> _propertyCache =
+        private static readonly Dictionary<Type, PropertyInfoContainer> PropertyCache =
             new Dictionary<Type, PropertyInfoContainer>();
 
-        private static readonly Dictionary<Type, MethodInfoContainer> _methodCache =
+        private static readonly Dictionary<Type, MethodInfoContainer> MethodCache =
             new Dictionary<Type, MethodInfoContainer>();
 
-        private static readonly IPropertyInfoFetcher _defaultPropertyInfoFetcher = new DefaultPropertyInfoFetcher();
+        private static readonly IPropertyInfoFetcher DefaultPropertyInfoFetcher = new DefaultPropertyInfoFetcher();
 
         internal static Dictionary<string, PropertyInfo> FindProperties(this Type type)
         {
-            return type.FindProperties(_defaultPropertyInfoFetcher);
+            return type.FindProperties(DefaultPropertyInfoFetcher);
         }
 
         internal static Dictionary<string, PropertyInfo> FindProperties(
             this Type type,
             IPropertyInfoFetcher fetcher)
         {
-            lock (_propertyCache)
+            lock (PropertyCache)
             {
                 CachePropertiesIfRequired(type, fetcher);
-                return _propertyCache[type].PropertyInfos;
+                return PropertyCache[type].PropertyInfos;
             }
         }
 
         private static void CachePropertiesIfRequired(Type type, IPropertyInfoFetcher fetcher)
         {
-            if (!_propertyCache.ContainsKey(type))
+            if (!PropertyCache.ContainsKey(type))
             {
-                _propertyCache[type] = GetPropertiesFor(type, fetcher);
+                PropertyCache[type] = GetPropertiesFor(type, fetcher);
             }
         }
 
         internal static Dictionary<string, PropertyInfo> FindFuzzyProperties(this Type type)
         {
-            return FindFuzzyProperties(type, _defaultPropertyInfoFetcher);
+            return FindFuzzyProperties(type, DefaultPropertyInfoFetcher);
         }
 
         internal static Dictionary<string, PropertyInfo> FindFuzzyProperties(this Type type,
             IPropertyInfoFetcher fetcher)
         {
-            lock (_propertyCache)
+            lock (PropertyCache)
             {
                 CachePropertiesIfRequired(type, fetcher);
-                return _propertyCache[type].FuzzyPropertyInfos;
+                return PropertyCache[type].FuzzyPropertyInfos;
             }
         }
 
-        private static readonly BindingFlags _seekFlags =
-            BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy;
+        private const BindingFlags SEEK_FLAGS = 
+            BindingFlags.Instance | 
+            BindingFlags.Public | 
+            BindingFlags.FlattenHierarchy;
 
         private static PropertyInfoContainer GetPropertiesFor(Type type, IPropertyInfoFetcher fetcher)
         {
-            var immediateProperties = fetcher.GetProperties(type, _seekFlags);
+            var immediateProperties = fetcher.GetProperties(type, SEEK_FLAGS);
             var interfaceProperties = type.GetAllImplementedInterfaces()
-                .Select(itype => fetcher.GetProperties(itype, _seekFlags))
+                .Select(itype => fetcher.GetProperties(itype, SEEK_FLAGS))
                 .SelectMany(p => p);
             var all = immediateProperties.Union(interfaceProperties).ToArray();
             return new PropertyInfoContainer(all);
@@ -75,10 +77,10 @@ namespace PeanutButter.DuckTyping.Extensions
 
         internal static Dictionary<string, MethodInfo> FindMethods(this Type type)
         {
-            lock (_methodCache)
+            lock (MethodCache)
             {
                 CacheMethodInfosIfRequired(type);
-                return _methodCache[type].MethodInfos;
+                return MethodCache[type].MethodInfos;
             }
         }
 
@@ -86,10 +88,10 @@ namespace PeanutButter.DuckTyping.Extensions
             this Type type
         )
         {
-            lock (_methodCache)
+            lock (MethodCache)
             {
                 CacheMethodInfosIfRequired(type);
-                return _methodCache[type].FuzzyMethodInfos;
+                return MethodCache[type].FuzzyMethodInfos;
             }
         }
 
@@ -106,16 +108,16 @@ namespace PeanutButter.DuckTyping.Extensions
 
         private static void CacheMethodInfosIfRequired(Type type)
         {
-            if (!_methodCache.ContainsKey(type))
+            if (!MethodCache.ContainsKey(type))
             {
-                _methodCache[type] = GetMethodsFor(type);
+                MethodCache[type] = GetMethodsFor(type);
             }
         }
 
         private static MethodInfoContainer GetMethodsFor(Type type)
         {
             return new MethodInfoContainer(
-                type.GetMethods(_seekFlags)
+                type.GetMethods(SEEK_FLAGS)
                     .Where(mi => !mi.IsSpecial())
                     .ToArray()
             );
@@ -154,7 +156,7 @@ namespace PeanutButter.DuckTyping.Extensions
         }
 
 
-        static readonly HashSet<Type> _treatAsPrimitives = new HashSet<Type>(new[]
+        static readonly HashSet<Type> TreatAsPrimitives = new HashSet<Type>(new[]
         {
             typeof(string),
             typeof(Guid),
@@ -183,7 +185,7 @@ namespace PeanutButter.DuckTyping.Extensions
             return type.IsPrimitive || // types .net thinks are primitive
                    type.IsValueType || // includes enums, structs, https://msdn.microsoft.com/en-us/library/s1ax56ch.aspx
                    type.IsArray ||
-                   _treatAsPrimitives.Contains(type); // catch cases like strings and Date(/Time) containers
+                   TreatAsPrimitives.Contains(type); // catch cases like strings and Date(/Time) containers
         }
 
         internal static bool HasNonComplexPropertyMatching(
@@ -279,7 +281,7 @@ namespace PeanutButter.DuckTyping.Extensions
             return true;
         }
 
-        private static readonly IEqualityComparer<string>[] _caseInsensitiveComparers =
+        private static readonly IEqualityComparer<string>[] CaseInsensitiveComparers =
         {
             StringComparer.OrdinalIgnoreCase,
             StringComparer.CurrentCultureIgnoreCase,
@@ -293,7 +295,7 @@ namespace PeanutButter.DuckTyping.Extensions
             var comparerProp = dictionary?.GetType().GetProperty("Comparer");
             return comparerProp == null
                 ? BruteForceIsCaseSensitive(dictionary)
-                : !_caseInsensitiveComparers.Contains(comparerProp.GetValue(dictionary));
+                : !CaseInsensitiveComparers.Contains(comparerProp.GetValue(dictionary));
         }
 
         internal static bool ContainsCaseSensitiveDictionary(
@@ -389,13 +391,13 @@ namespace PeanutButter.DuckTyping.Extensions
             return outer;
         }
 
-        private static readonly Type _nullableGeneric = typeof(Nullable<>);
+        private static readonly Type NullableGeneric = typeof(Nullable<>);
 
         internal static bool IsNullableType(this Type t)
         {
             return t != null &&
                 t.IsGenericType &&
-                t.GetGenericTypeDefinition() == _nullableGeneric;
+                t.GetGenericTypeDefinition() == NullableGeneric;
         }
     }
 }

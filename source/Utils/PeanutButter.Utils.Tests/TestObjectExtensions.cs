@@ -1714,7 +1714,9 @@ namespace PeanutButter.Utils.Tests
                 public string NormalProp { get; set; }
                 public object this[int index]
                 {
-                    get { return null; }
+                    get => null;
+                    // not actually testing the set -- just expect DeepClone not to break on the indexer
+                    // ReSharper disable once ValueParameterNotUsed
                     set { }
                 }
             }

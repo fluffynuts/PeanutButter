@@ -15,7 +15,7 @@ namespace PeanutButter.DuckTyping
     {
         private static TypeMaker _typeMakerField;
         private static TypeMaker TypeMaker => _typeMakerField ?? (_typeMakerField = new TypeMaker());
-        private static readonly Dictionary<Type, Type> _typeCache = new Dictionary<Type, Type>();
+        private static readonly Dictionary<Type, Type> TypeCache = new Dictionary<Type, Type>();
 
         /// <summary>
         /// Creates an instance of a type implementing the interface T
@@ -64,12 +64,12 @@ namespace PeanutButter.DuckTyping
 
         private static void TrySetArrayValue(object result, PropertyInfo pi)
         {
-            var specific = _getEmptyArrayGeneric.MakeGenericMethod(pi.PropertyType.GetElementType());
+            var specific = GetEmptyArrayGeneric.MakeGenericMethod(pi.PropertyType.GetElementType());
             var empty = specific.Invoke(null, new object[] { });
             pi.SetValue(result, empty);
         }
 
-        private static readonly MethodInfo _getEmptyArrayGeneric =
+        private static readonly MethodInfo GetEmptyArrayGeneric =
             typeof(Create).GetMethod("GetEmptyArrayOf", BindingFlags.Static | BindingFlags.NonPublic);
         // ReSharper disable once UnusedMember.Local
 #pragma warning disable S1144
@@ -116,7 +116,7 @@ namespace PeanutButter.DuckTyping
             }
         }
 
-        private static readonly MethodInfo _genericMake = typeof(TypeMaker)
+        private static readonly MethodInfo GenericMake = typeof(TypeMaker)
             .GetMethods()
             .FirstOrDefault(mi =>
                 mi.Name == nameof(TypeMaker.MakeTypeImplementing) &&
@@ -125,11 +125,11 @@ namespace PeanutButter.DuckTyping
 
         private static Type FindOrCreateTypeImplementing(Type typeToImplement)
         {
-            if (!_typeCache.TryGetValue(typeToImplement, out var implemented))
+            if (!TypeCache.TryGetValue(typeToImplement, out var implemented))
             {
-                var method = _genericMake.MakeGenericMethod(typeToImplement);
+                var method = GenericMake.MakeGenericMethod(typeToImplement);
                 implemented = (Type) method.Invoke(TypeMaker, new object[0]);
-                _typeCache[typeToImplement] = implemented;
+                TypeCache[typeToImplement] = implemented;
             }
             return implemented;
         }

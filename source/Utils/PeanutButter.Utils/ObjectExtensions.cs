@@ -342,13 +342,13 @@ namespace PeanutButter.Utils
 
                 var srcVal = srcPropInfo.GetValue(src);
 
-                _propertySetterStrategies.Aggregate(false, (acc, cur) =>
+                PropertySetterStrategies.Aggregate(false, (acc, cur) =>
                     acc || cur(deep, srcPropInfo, matchingTarget, dst, srcVal));
             }
         }
 
         private static readonly Func<bool, PropertyInfo, PropertyInfo, object, object, bool>[]
-            _propertySetterStrategies =
+            PropertySetterStrategies =
             {
                 SetSimpleOrNullableOfSimpleTypeValue,
                 SetArrayOrGenericIEnumerableValue,
@@ -402,7 +402,7 @@ namespace PeanutButter.Utils
             var itemType = srcPropertyInfo.PropertyType.GetCollectionItemType();
             if (itemType == null)
                 return false;
-            var method = _genericMakeListCopy.MakeGenericMethod(itemType);
+            var method = GenericMakeListCopy.MakeGenericMethod(itemType);
             var newValue = method.Invoke(null, new[] {srcVal});
             dstPropertyInfo.SetValue(dst, newValue);
             return true;
@@ -422,7 +422,7 @@ namespace PeanutButter.Utils
             var underlyingType = srcPropertyInfo.PropertyType.GetCollectionItemType();
             if (underlyingType == null)
                 return false;
-            var specific = _genericMakeArrayCopy.MakeGenericMethod(underlyingType);
+            var specific = GenericMakeArrayCopy.MakeGenericMethod(underlyingType);
             // ReSharper disable once RedundantExplicitArrayCreation
             var newValue = specific.Invoke(null, new[] {srcVal});
             dstPropertyInfo.SetValue(dst, newValue);
@@ -444,20 +444,20 @@ namespace PeanutButter.Utils
             return true;
         }
 
-        private static readonly BindingFlags _privateStatic =
+        private static readonly BindingFlags PrivateStatic =
             BindingFlags.NonPublic | BindingFlags.Static;
 
-        private static readonly MethodInfo _genericMakeArrayCopy
+        private static readonly MethodInfo GenericMakeArrayCopy
             = typeof(ObjectExtensions).GetMethod(nameof(MakeArrayCopyOf),
-                _privateStatic);
+                PrivateStatic);
 
-        private static readonly MethodInfo _genericMakeListCopy
+        private static readonly MethodInfo GenericMakeListCopy
             = typeof(ObjectExtensions).GetMethod(nameof(MakeListCopyOf),
-                _privateStatic);
+                PrivateStatic);
 
-        private static readonly MethodInfo _genericMakeDictionaryCopy
+        private static readonly MethodInfo GenericMakeDictionaryCopy
             = typeof(ObjectExtensions).GetMethod(nameof(MakeDictionaryCopyOf),
-                _privateStatic);
+                PrivateStatic);
 
 #pragma warning disable S1144 // Unused private types or members should be removed
         // ReSharper disable once UnusedMember.Local
@@ -529,7 +529,7 @@ namespace PeanutButter.Utils
                     // FIXME: can we get new instances for Dates and such?
                     return src;
                 }
-                return _cloneStrategies.Aggregate(null as object,
+                return CloneStrategies.Aggregate(null as object,
                     (acc, cur) => acc ?? cur(src, cloneType));
             }
             catch (Exception e)
@@ -539,7 +539,7 @@ namespace PeanutButter.Utils
             }
         }
 
-        private static readonly Func<object, Type, object>[] _cloneStrategies =
+        private static readonly Func<object, Type, object>[] CloneStrategies =
         {
             CloneArray,
             CloneList,
@@ -556,7 +556,7 @@ namespace PeanutButter.Utils
             {
                 return null;
             }
-            var method = _genericMakeDictionaryCopy.MakeGenericMethod(keyType, valueType);
+            var method = GenericMakeDictionaryCopy.MakeGenericMethod(keyType, valueType);
             return method.Invoke(null, new[] { src, cloneType });
         }
 
@@ -565,7 +565,7 @@ namespace PeanutButter.Utils
             if (!cloneType.ImplementsEnumerableGenericType())
                 return null;
             var itemType = cloneType.GetCollectionItemType();
-            var method = _genericMakeArrayCopy.MakeGenericMethod(itemType);
+            var method = GenericMakeArrayCopy.MakeGenericMethod(itemType);
             return method.Invoke(null, new[] { src });
         }
 
@@ -574,7 +574,7 @@ namespace PeanutButter.Utils
             if (!cloneType.IsGenericOf(typeof(List<>)) && !cloneType.IsGenericOf(typeof(IList<>)))
                 return null;
             var itemType = cloneType.GetCollectionItemType();
-            var method = _genericMakeListCopy.MakeGenericMethod(itemType);
+            var method = GenericMakeListCopy.MakeGenericMethod(itemType);
             return method.Invoke(null, new[] { src });
         }
 
@@ -583,7 +583,7 @@ namespace PeanutButter.Utils
             if (!cloneType.IsArray)
                 return null;
             var itemType = cloneType.GetCollectionItemType();
-            var method = _genericMakeArrayCopy.MakeGenericMethod(itemType);
+            var method = GenericMakeArrayCopy.MakeGenericMethod(itemType);
             return method.Invoke(null, new[] { src });
         }
 
@@ -604,11 +604,11 @@ namespace PeanutButter.Utils
 
         private static object DefaultValueForType(Type t)
         {
-            var method = _genericGetDefaultValueMethod.MakeGenericMethod(t);
+            var method = GenericGetDefaultValueMethod.MakeGenericMethod(t);
             return method.Invoke(null, new object[] { });
         }
 
-        private static readonly MethodInfo _genericGetDefaultValueMethod =
+        private static readonly MethodInfo GenericGetDefaultValueMethod =
             typeof(ObjectExtensions).GetMethod(nameof(GetDefaultValueFor),
                 BindingFlags.NonPublic | BindingFlags.Static
             );

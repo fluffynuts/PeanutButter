@@ -32,9 +32,9 @@ namespace PeanutButter.DuckTyping.Extensions
             }
         }
 
-        private static readonly List<DuckCacheItem> _duckables = new List<DuckCacheItem>();
-        private static readonly List<DuckCacheItem> _fuzzyDuckables = new List<DuckCacheItem>();
-        private static readonly object _lock = new object();
+        private static readonly List<DuckCacheItem> Duckables = new List<DuckCacheItem>();
+        private static readonly List<DuckCacheItem> FuzzyDuckables = new List<DuckCacheItem>();
+        private static readonly object Lock = new object();
 
         internal static void CacheDuckable(
             Type from,
@@ -42,28 +42,28 @@ namespace PeanutButter.DuckTyping.Extensions
             bool result,
             bool fuzzy)
         {
-            lock (_lock)
+            lock (Lock)
             {
                 var cacheItem = new DuckCacheItem(from, to, result);
-                _duckables.Add(cacheItem);
+                Duckables.Add(cacheItem);
                 if (fuzzy)
-                    _fuzzyDuckables.Add(cacheItem);
+                    FuzzyDuckables.Add(cacheItem);
             }
         }
 
         internal static bool CanDuckAs<T>(Type toDuckFrom, bool fuzzy)
         {
-            lock (_lock)
+            lock (Lock)
             {
-                return HaveMatch(fuzzy ? _fuzzyDuckables : _duckables, toDuckFrom, typeof(T));
+                return HaveMatch(fuzzy ? FuzzyDuckables : Duckables, toDuckFrom, typeof(T));
             }
         }
 
         internal static bool CanDuckAs(Type toDuckFrom, Type toDuckTo, bool fuzzy)
         {
-            lock (_lock)
+            lock (Lock)
             {
-                return HaveMatch(fuzzy ? _fuzzyDuckables : _duckables, toDuckFrom, toDuckTo);
+                return HaveMatch(fuzzy ? FuzzyDuckables : Duckables, toDuckFrom, toDuckTo);
             }
         }
 
@@ -73,7 +73,7 @@ namespace PeanutButter.DuckTyping.Extensions
             Type toDuckTo
         )
         {
-            lock (_lock)
+            lock (Lock)
             {
                 var match = cache.FirstOrDefault(
                     o => o.FromType == toDuckFrom &&
@@ -145,6 +145,7 @@ namespace PeanutButter.DuckTyping.Extensions
 
         // ReSharper disable UnusedParameter.Global
         // ReSharper disable once UnusedTypeParameter
+        // ReSharper disable once UnusedMember.Global
         internal static bool InternalCanDuckAs<T>(
             this object[] sources,
             bool allowFuzzy,
@@ -233,11 +234,11 @@ namespace PeanutButter.DuckTyping.Extensions
             if (dictionaryTypes == null || dictionaryTypes.KeyType != typeof(string))
                 return null;
 
-            var method = _genericConvertDictionaryMethod.MakeGenericMethod(dictionaryTypes.ValueType);
+            var method = GenericConvertDictionaryMethod.MakeGenericMethod(dictionaryTypes.ValueType);
             return (IDictionary<string, object>) method.Invoke(null, new[] {src});
         }
 
-        private static readonly MethodInfo _genericConvertDictionaryMethod =
+        private static readonly MethodInfo GenericConvertDictionaryMethod =
             typeof(DuckTypingExtensionSharedMethods).GetMethod(nameof(ConvertDictionary),
                 BindingFlags.Static | BindingFlags.NonPublic);
 
@@ -336,7 +337,7 @@ namespace PeanutButter.DuckTyping.Extensions
             }
         }
 
-        private static readonly string[] _objectMethodNames =
+        private static readonly string[] ObjectMethodNames =
             typeof(object).GetMethods().Select(m => m.Name).ToArray();
 
         internal static bool InternalCanDuckAs(
@@ -415,7 +416,7 @@ namespace PeanutButter.DuckTyping.Extensions
 
             var expectedMethods = allowFuzzy ? type.FindFuzzyMethods() : type.FindMethods();
             if (toType.IsInterface)
-                expectedMethods = expectedMethods.Except(_objectMethodNames);
+                expectedMethods = expectedMethods.Except(ObjectMethodNames);
             var srcMethods = allowFuzzy ? toType.FindFuzzyMethods() : toType.FindMethods();
             if (!srcMethods.IsSuperSetOf(expectedMethods))
                 errors.Add("One or more methods could not be ducked");
@@ -560,7 +561,7 @@ namespace PeanutButter.DuckTyping.Extensions
             return (T) Activator.CreateInstance(duckType, ctorArgs);
         }
 
-        private static readonly Dictionary<Type, TypePair> _duckTypes
+        private static readonly Dictionary<Type, TypePair> DuckTypes
             = new Dictionary<Type, TypePair>();
 
         private static Type FindOrCreateDuckTypeFor<T>(bool isFuzzy)
@@ -571,13 +572,13 @@ namespace PeanutButter.DuckTyping.Extensions
 
         private static Type FindOrCreateDuckTypeFor<T>(Type key, bool isFuzzy)
         {
-            lock (_duckTypes)
+            lock (DuckTypes)
             {
-                if (!_duckTypes.ContainsKey(key))
+                if (!DuckTypes.ContainsKey(key))
                 {
-                    _duckTypes[key] = new TypePair();
+                    DuckTypes[key] = new TypePair();
                 }
-                var match = _duckTypes[key];
+                var match = DuckTypes[key];
                 return isFuzzy ? GetFuzzyTypeFrom<T>(match) : GetTypeFrom<T>(match);
             }
         }

@@ -8,6 +8,7 @@ using PeanutButter.TempDb.MySql;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using static PeanutButter.Utils.PyLike;
+// ReSharper disable AccessToDisposedClosure
 
 namespace PeanutButter.TempDb.Tests
 {
@@ -217,11 +218,6 @@ namespace PeanutButter.TempDb.Tests
                     }
                 }
             }
-        }
-
-        private TempDBMySql Create()
-        {
-            return new TempDBMySql();
         }
     }
 }

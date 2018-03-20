@@ -28,7 +28,7 @@ namespace PeanutButter.Utils.Tests
             Expect(result).To.Equal(expected);
         }
 
-        private static readonly Tuple<object, string>[] _complexSource =
+        private static readonly Tuple<object, string>[] ComplexSource =
         {
             Tuple.Create(new {foo = 1} as object, @"
 {
@@ -42,7 +42,7 @@ namespace PeanutButter.Utils.Tests
 }")
         };
 
-        [TestCaseSource(nameof(_complexSource))]
+        [TestCaseSource(nameof(ComplexSource))]
         public void Stringify_GivenObject_ShouldReturnExpected(Tuple<object, string> data)
         {
             //--------------- Arrange -------------------

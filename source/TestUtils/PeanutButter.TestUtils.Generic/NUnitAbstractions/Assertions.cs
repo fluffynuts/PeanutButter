@@ -7,8 +7,8 @@ namespace PeanutButter.TestUtils.Generic.NUnitAbstractions
 {
     internal static class Assertions
     {
-        private static readonly Type[] _empty = new Type[0];
-        private static readonly Type _assertionExceptionWithMessageOnlyType =
+        private static readonly Type[] Empty = new Type[0];
+        private static readonly Type AssertionExceptionWithMessageOnlyType =
             FindType("NUnit.Framework.AssertionException", new[] {typeof(string)})
             ?? typeof(UnmetExpectation);
 
@@ -57,14 +57,14 @@ namespace PeanutButter.TestUtils.Generic.NUnitAbstractions
             catch (Exception ex)
             {
                 Debug.WriteLine($"Unable to get types from assembly {a.FullName}: {ex.Message}");
-                return _empty;
+                return Empty;
             }
         }
 
 
         internal static void Throw(string message)
         {
-            throw (Exception) Activator.CreateInstance(_assertionExceptionWithMessageOnlyType, message);
+            throw (Exception) Activator.CreateInstance(AssertionExceptionWithMessageOnlyType, message);
         }
     }
 }

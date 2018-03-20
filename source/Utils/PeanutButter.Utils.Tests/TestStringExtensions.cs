@@ -385,7 +385,7 @@ namespace PeanutButter.Utils.Tests
         }
 
 
-        private static readonly string[] _nullOrWhitespaceStrings =
+        private static readonly string[] NullOrWhitespaceStrings =
         {
             null,
             "\t",
@@ -393,7 +393,7 @@ namespace PeanutButter.Utils.Tests
             "\n"
         };
 
-        [TestCaseSource(nameof(_nullOrWhitespaceStrings))]
+        [TestCaseSource(nameof(NullOrWhitespaceStrings))]
         public void IsNullOrWhitespace_ShouldReturnTrueWhenActingOnNullOrWhitespaceString_(string src)
         {
             //---------------Set up test pack-------------------

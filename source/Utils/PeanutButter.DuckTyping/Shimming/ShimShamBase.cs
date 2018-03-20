@@ -20,7 +20,7 @@ namespace PeanutButter.DuckTyping.Shimming
         }
         private readonly MethodInfo _genericMakeType = GetTypeMakerMethod(nameof(TypeMaker.MakeTypeImplementing));
         private readonly MethodInfo _genericFuzzyMakeType = GetTypeMakerMethod(nameof(TypeMaker.MakeFuzzyTypeImplementing));
-        private static readonly MethodInfo _getDefaultMethodGeneric =
+        private static readonly MethodInfo GetDefaultMethodGeneric =
             typeof(ShimShamBase)
             .GetMethod(nameof(GetDefaultFor), BindingFlags.NonPublic | BindingFlags.Static);
         private TypeMaker _typeMaker;
@@ -32,7 +32,7 @@ namespace PeanutButter.DuckTyping.Shimming
         /// <returns>The value that would be returned by default(T) for that type</returns>
         public static object GetDefaultValueFor(Type correctType)
         {
-            return _getDefaultMethodGeneric
+            return GetDefaultMethodGeneric
                 .MakeGenericMethod(correctType)
                 .Invoke(null, null);
         }

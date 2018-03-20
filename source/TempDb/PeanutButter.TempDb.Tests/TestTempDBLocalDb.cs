@@ -12,7 +12,7 @@ using PeanutButter.TestUtils.Generic;
 namespace PeanutButter.TempDb.Tests
 {
     [TestFixture]
-    public class TestTempDBLocalDb: TempDBTestFixtureBase
+    public class TestTempDBLocalDb
     {
         [Test]
         public void ShouldImplementIDisposable()

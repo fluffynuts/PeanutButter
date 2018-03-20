@@ -278,12 +278,12 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 return result;
             foreach (var prop in src.Properties())
             {
-                result[prop.Name] = _resolvers[prop.Type](prop.Value);
+                result[prop.Name] = Resolvers[prop.Type](prop.Value);
             }
             return result;
         }
 
-        private static readonly Dictionary<JTokenType, Func<JToken, object>> _resolvers =
+        private static readonly Dictionary<JTokenType, Func<JToken, object>> Resolvers =
             new Dictionary<JTokenType, Func<JToken, object>>()
             {
                 {JTokenType.None, o => null},
@@ -317,7 +317,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
         private static object ConvertJTokenProperty(JToken arg)
         {
-            if (_resolvers.TryGetValue(arg.Type, out var resolver))
+            if (Resolvers.TryGetValue(arg.Type, out var resolver))
                 return resolver(arg);
             throw new InvalidOperationException($"Unable to handle JToken of type: {arg.Type}");
         }

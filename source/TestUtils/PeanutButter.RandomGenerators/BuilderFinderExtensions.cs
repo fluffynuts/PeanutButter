@@ -5,8 +5,8 @@ namespace PeanutButter.RandomGenerators
 {
     internal static class BuilderFinderExtensions
     {
-        private static readonly Type _genericBuilderBaseType = typeof(GenericBuilder<,>);
-        private static readonly Type _objectType = typeof(object);
+        private static readonly Type GenericBuilderBaseType = typeof(GenericBuilder<,>);
+        private static readonly Type ObjectType = typeof(object);
 
         public static bool IsBuilderFor(this Type t, Type toBuild)
         {
@@ -32,17 +32,17 @@ namespace PeanutButter.RandomGenerators
 
         internal static Type TryFindGenericBuilderInClassHeirachy(this Type current)
         {
-            while (current != _objectType && current != null)
+            while (current != ObjectType && current != null)
             {
                 if (current.IsGenericType())
                 {
                     var genericBase = current.GetGenericTypeDefinition();
-                    if (genericBase == _genericBuilderBaseType)
+                    if (genericBase == GenericBuilderBaseType)
                         break;
                 }
                 current = current.BaseType();
             }
-            if (current == _objectType || current == null)
+            if (current == ObjectType || current == null)
                 return null;
             return current;
         }

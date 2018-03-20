@@ -903,10 +903,6 @@ foo=bar
 
         private class INIFile_EXPOSES_Sections : INIFile.INIFile
         {
-            public INIFile_EXPOSES_Sections()
-            {
-            }
-
             public INIFile_EXPOSES_Sections(string path) : base(path)
             {
             }

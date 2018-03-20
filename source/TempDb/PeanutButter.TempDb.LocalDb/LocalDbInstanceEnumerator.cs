@@ -13,11 +13,11 @@ namespace PeanutButter.TempDb.LocalDb
     /// </summary>
     public class LocalDbInstanceEnumerator
     {
-        private static readonly string[] _availableDefaultInstances;
+        private static readonly string[] AvailableDefaultInstances;
 
         static LocalDbInstanceEnumerator()
         {
-            _availableDefaultInstances = FindInstancesWithUtil();
+            AvailableDefaultInstances = FindInstancesWithUtil();
         }
 
         /// <summary>
@@ -26,7 +26,7 @@ namespace PeanutButter.TempDb.LocalDb
         /// <returns>String array of found LocalDb instance names</returns>
         public string[] FindInstances()
         {
-            return _availableDefaultInstances;
+            return AvailableDefaultInstances;
         }
 
         private static string[] FindInstancesWithUtil()
@@ -99,8 +99,7 @@ namespace PeanutButter.TempDb.LocalDb
 
         private static string VersionedName(string arg)
         {
-            decimal _;
-            return arg.StartsWith("v") && decimal.TryParse(arg.Substring(1), out _)
+            return arg.StartsWith("v") && decimal.TryParse(arg.Substring(1), out decimal _)
                 ? arg.Substring(1)
                 : "99999999999999999999";
         }

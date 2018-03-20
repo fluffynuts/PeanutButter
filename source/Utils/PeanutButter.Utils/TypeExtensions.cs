@@ -119,7 +119,7 @@ namespace PeanutButter.Utils
             if (t.IsArray) return true;
             var collectionType = t.GetCollectionItemType();
             if (collectionType == null) return false;
-            var specific = _genericIsAssignableFromArrayOf.MakeGenericMethod(collectionType);
+            var specific = GenericIsAssignableFromArrayOf.MakeGenericMethod(collectionType);
             return (bool) specific.Invoke(null, new object[] {t});
         }
 
@@ -231,7 +231,7 @@ namespace PeanutButter.Utils
         }
 
 
-        private static readonly MethodInfo _genericIsAssignableFromArrayOf
+        private static readonly MethodInfo GenericIsAssignableFromArrayOf
             = typeof(TypeExtensions).GetMethod(nameof(IsAssignableFromArrayOf),
                 BindingFlags.Static | BindingFlags.Public);
 
@@ -394,10 +394,10 @@ namespace PeanutButter.Utils
         /// <returns>True if it implements IDisposable; false otherwise</returns>
         public static bool IsDisposable(this Type t)
         {
-            return t.GetAllImplementedInterfaces().Contains(_disposableInterface);
+            return t.GetAllImplementedInterfaces().Contains(DisposableInterface);
         }
 
-        private static readonly Type _disposableInterface = typeof(IDisposable);
+        private static readonly Type DisposableInterface = typeof(IDisposable);
 
         /// <summary>
         /// Provides a "pretty" name for a type, taking into account
@@ -444,7 +444,7 @@ namespace PeanutButter.Utils
             return type.IsArray ||
                    (type.IsGenericType() &&
                     (type.ImplementsEnumerableGenericType() ||
-                     _collectionGenerics.Contains(type.GetGenericTypeDefinition())));
+                     CollectionGenerics.Contains(type.GetGenericTypeDefinition())));
         }
 
         /// <summary>
@@ -475,7 +475,7 @@ namespace PeanutButter.Utils
         }
 
 
-        private static readonly Type[] _collectionGenerics =
+        private static readonly Type[] CollectionGenerics =
         {
             typeof(ICollection<>),
             typeof(IEnumerable<>),
@@ -510,8 +510,8 @@ namespace PeanutButter.Utils
             this Type src, Type target
         )
         {
-            var convertSpecific = _tryConvertGeneric.MakeGenericMethod(target);
-            var defaultSpecific = _defaultvalueGeneric.MakeGenericMethod(src);
+            var convertSpecific = TryConvertGeneric.MakeGenericMethod(target);
+            var defaultSpecific = DefaultvalueGeneric.MakeGenericMethod(src);
             var defaultValue = defaultSpecific.Invoke(null, null);
             bool canConvert;
             try
@@ -543,7 +543,7 @@ namespace PeanutButter.Utils
         }
 
 
-        private static readonly MethodInfo _tryConvertGeneric =
+        private static readonly MethodInfo TryConvertGeneric =
             typeof(TypeExtensions).GetMethod(nameof(TryConvert), BindingFlags.Static | BindingFlags.NonPublic);
 
 
@@ -552,7 +552,7 @@ namespace PeanutButter.Utils
             return value;
         }
 
-        private static readonly MethodInfo _defaultvalueGeneric =
+        private static readonly MethodInfo DefaultvalueGeneric =
             typeof(TypeExtensions).GetMethod(nameof(DefaultValue), BindingFlags.Static | BindingFlags.NonPublic);
 
         private static T DefaultValue<T>()

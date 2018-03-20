@@ -26,13 +26,13 @@ namespace PeanutButter.DuckTyping.Shimming
         private readonly Type[] _wrappedTypes;
         private readonly bool _wrappingADuck;
 
-        private static readonly Dictionary<Type, PropertyInfoContainer> _propertyInfos =
+        private static readonly Dictionary<Type, PropertyInfoContainer> PropertyInfos =
             new Dictionary<Type, PropertyInfoContainer>();
 
-        private static readonly Dictionary<Type, MethodInfoContainer> _methodInfos =
+        private static readonly Dictionary<Type, MethodInfoContainer> MethodInfos =
             new Dictionary<Type, MethodInfoContainer>();
 
-        private static readonly Dictionary<Type, Dictionary<string, FieldInfo>> _fieldInfos =
+        private static readonly Dictionary<Type, Dictionary<string, FieldInfo>> FieldInfos =
             new Dictionary<Type, Dictionary<string, FieldInfo>>();
 
         private Dictionary<string, FieldInfo> _localFieldInfos;
@@ -113,13 +113,13 @@ namespace PeanutButter.DuckTyping.Shimming
 
         private void StaticallyCacheMethodInfosFor(Type[] wrappedTypes)
         {
-            lock (_methodInfos)
+            lock (MethodInfos)
             {
                 foreach (var wrappedType in wrappedTypes)
                 {
-                    if (_methodInfos.ContainsKey(wrappedType))
+                    if (MethodInfos.ContainsKey(wrappedType))
                         return;
-                    _methodInfos[wrappedType] = new MethodInfoContainer(
+                    MethodInfos[wrappedType] = new MethodInfoContainer(
                         wrappedType
                             .GetMethods(BindingFlags.Instance | BindingFlags.Public)
                             // TODO: handle method overloads, which this won't
@@ -303,10 +303,10 @@ namespace PeanutButter.DuckTyping.Shimming
             // TODO: cache all wrapped type property infos
             var wrappedType = _wrappedTypes[0];
             _localPropertyInfos = _isFuzzy
-                ? _propertyInfos[wrappedType].FuzzyPropertyInfos
-                : _propertyInfos[wrappedType].PropertyInfos;
+                ? PropertyInfos[wrappedType].FuzzyPropertyInfos
+                : PropertyInfos[wrappedType].PropertyInfos;
             if (_wrappingADuck)
-                _localFieldInfos = _fieldInfos[wrappedType];
+                _localFieldInfos = FieldInfos[wrappedType];
         }
 
         private void LocallyCacheMimickedPropertyInfos()
@@ -321,26 +321,26 @@ namespace PeanutButter.DuckTyping.Shimming
             // TODO: get all cached method infos for all types
             var wrappedType = _wrappedTypes[0];
             _localMethodInfos = _isFuzzy
-                ? _methodInfos[wrappedType].FuzzyMethodInfos
-                : _methodInfos[wrappedType].MethodInfos;
+                ? MethodInfos[wrappedType].FuzzyMethodInfos
+                : MethodInfos[wrappedType].MethodInfos;
         }
 
         private void StaticallyCachePropertyInfosFor(object[] cacheAll, bool cacheFieldInfosToo)
         {
-            lock (_propertyInfos)
+            lock (PropertyInfos)
             {
                 // TODO: cache for all objects
                 var toCacheFor = cacheAll[0];
                 var type = toCacheFor.GetType();
-                if (_propertyInfos.ContainsKey(type))
+                if (PropertyInfos.ContainsKey(type))
                     return;
-                _propertyInfos[type] = new PropertyInfoContainer(
+                PropertyInfos[type] = new PropertyInfoContainer(
                     _propertyInfoFetcher
                         .GetPropertiesFor(toCacheFor,
                             BindingFlags.Instance | BindingFlags.Public));
                 if (!cacheFieldInfosToo)
                     return;
-                _fieldInfos[type] = type
+                FieldInfos[type] = type
                     .GetFields(BindingFlags.Instance | BindingFlags.NonPublic)
                     .ToDictionary(
                         fi => fi.Name,

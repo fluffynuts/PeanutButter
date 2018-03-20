@@ -76,20 +76,20 @@ namespace PeanutButter.Utils
         private const int MAX_STRINGIFY_DEPTH = 10;
         private const int INDENT_SIZE = 2;
 
-        private static readonly Dictionary<Type, Func<object, string>> _primitiveStringifiers
+        private static readonly Dictionary<Type, Func<object, string>> PrimitiveStringifiers
             = new Dictionary<Type, Func<object, string>>()
             {
                 [typeof(string)] = o => $"\"{o}\"",
                 [typeof(bool)] = o => o.ToString().ToLower()
             };
 
-        private static readonly string[] _ignoreAssembliesByName =
+        private static readonly string[] IgnoreAssembliesByName =
         {
             "mscorlib"
         };
 
         private static readonly Tuple<Func<object, int, bool>, Func<object, int, string, string>>[]
-            _strategies =
+            Strategies =
             {
                 MakeStrategy(IsNull, PrintNull),
                 MakeStrategy(IsDateTime, StringifyDateTime),
@@ -206,7 +206,7 @@ namespace PeanutButter.Utils
             {
                 return StringifyPrimitive(obj, level, nullRepresentation);
             }
-            return _strategies.Aggregate(null as string,
+            return Strategies.Aggregate(null as string,
                 (acc, cur) => acc ??
                               ApplyStrategy(
                                   cur.Item1,
@@ -246,7 +246,7 @@ namespace PeanutButter.Utils
             var joinWith = props.Aggregate(new List<string>(), (acc, cur) =>
                 {
                     var propValue = cur.GetValue(obj);
-                    if (_ignoreAssembliesByName.Contains(
+                    if (IgnoreAssembliesByName.Contains(
 #if NETSTANDARD
                             cur.DeclaringType?.AssemblyQualifiedName.Split(
                             new[] { "," }, StringSplitOptions.RemoveEmptyEntries
@@ -282,7 +282,7 @@ namespace PeanutButter.Utils
         {
             if (obj == null)
                 return nullRep;
-            return _primitiveStringifiers.TryGetValue(obj.GetType(), out var strategy)
+            return PrimitiveStringifiers.TryGetValue(obj.GetType(), out var strategy)
                 ? strategy(obj)
                 : obj.ToString();
         }

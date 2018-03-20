@@ -23,7 +23,7 @@ namespace PeanutButter.DuckTyping.AutoConversion.Converters
                 result = sourceValue?.ToString();
                 return true;
             }
-            var method = _genericTryParse.MakeGenericMethod(enumType);
+            var method = GenericTryParse.MakeGenericMethod(enumType);
             var args = new[] {sourceValue, true, null};
             var parsed = (bool) method.Invoke(null, args);
             if (parsed)
@@ -43,7 +43,7 @@ namespace PeanutButter.DuckTyping.AutoConversion.Converters
             return stringType != null;
         }
 
-        private static readonly MethodInfo _genericTryParse
+        private static readonly MethodInfo GenericTryParse
             = typeof(Enum).GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .First(mi => mi.Name == nameof(Enum.TryParse) && mi.HasExpectedParametersForCaseInsensitiveTryParse());
 

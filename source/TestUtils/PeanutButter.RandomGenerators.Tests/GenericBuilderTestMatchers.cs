@@ -1,8 +1,7 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using NExpect.Interfaces;
 using NExpect.MatcherLogic;
-using static NExpect.Expectations;
-using NExpect;
 using NExpect.Implementations;
 
 namespace PeanutButter.RandomGenerators.Tests
@@ -16,10 +15,10 @@ namespace PeanutButter.RandomGenerators.Tests
             to.AddMatcher(email =>
             {
                 var passed = !string.IsNullOrWhiteSpace(email) &&
-                       email.IndexOf("@") > 0 &&
-                       email.IndexOf("@") < email.Length - 2 &&
-                       email.IndexOf(".") > 0 &&
-                       email.IndexOf(".") < email.Length - 2;
+                       email.IndexOf("@", StringComparison.Ordinal) > 0 &&
+                       email.IndexOf("@", StringComparison.Ordinal) < email.Length - 2 &&
+                       email.IndexOf(".", StringComparison.Ordinal) > 0 &&
+                       email.IndexOf(".", StringComparison.Ordinal) < email.Length - 2;
                 return new MatcherResult(
                     passed,
                     $"Expected \"{email}\" {passed.AsNot()}to look like an email address"
