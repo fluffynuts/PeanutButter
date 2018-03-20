@@ -1,7 +1,7 @@
 <package>
   <metadata>
     <id>PeanutButter.TempDb.SqlCe</id>
-    <version>1.2.224</version>
+    <version>1.2.225</version>
     <title>PeanutButter.TempDb.SqlCe</title>
     <authors>Davyd McColl</authors>
     <owners></owners>
@@ -20,8 +20,8 @@
     <copyright>Copyright  2015</copyright>
     <dependencies>
       <group targetFramework="net40">
-        <dependency id="PeanutButter.TempDb" version="1.2.224" />
-        <dependency id="PeanutButter.Utils" version="1.2.224" />
+        <dependency id="PeanutButter.TempDb" version="1.2.225" />
+        <dependency id="PeanutButter.Utils" version="1.2.225" />
         <dependency id="Microsoft.SqlServer.Compact" version="4.0.8876.1" />
       </group>
     </dependencies>

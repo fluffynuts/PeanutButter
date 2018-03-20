@@ -5,6 +5,9 @@ using System.Linq;
 using System.Xml.Linq;
 using Newtonsoft.Json;
 using static PeanutButter.SimpleHTTPServer.HttpConstants;
+// ReSharper disable UnusedMember.Global
+// ReSharper disable IntroduceOptionalParameters.Global
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.SimpleHTTPServer
 {
@@ -85,14 +88,52 @@ namespace PeanutButter.SimpleHTTPServer
         private readonly Func<object, string> _jsonSerializer = JsonConvert.SerializeObject;
 
         /// <inheritdoc />
-        public HttpServer(int port, bool autoStart = true, Action<string> logAction = null)
+        public HttpServer(int port, bool autoStart, Action<string> logAction)
             : base(port)
         {
             LogAction = logAction;
             AutoStart(autoStart);
         }
 
-        public HttpServer(bool autoStart = true, Action<string> logAction = null)
+        /// <summary>
+        /// Constructs an HttpServer listening on the configured port with the given logAction
+        /// </summary>
+        /// <param name="port"></param>
+        /// <param name="logAction"></param>
+        public HttpServer(int port, Action<string> logAction) 
+            : this(port, true, logAction)
+        {
+        }
+
+        /// <summary>
+        /// Constructs an HttpServer with autoStart true and no logAction
+        /// </summary>
+        public HttpServer() : this(true, null)
+        {
+        }
+
+        /// <summary>
+        /// Constructs an HttpServer with autoStart true and provided logAction
+        /// </summary>
+        /// <param name="logAction">Action to log messages with</param>
+        public HttpServer(Action<string> logAction) : this(true, logAction)
+        {
+        }
+
+        /// <summary>
+        /// Constructs an HttpServer based on passed in autoStart, with no logAction
+        /// </summary>
+        /// <param name="autoStart">Start immediately?</param>
+        public HttpServer(bool autoStart) : this(autoStart, null)
+        {
+        }
+
+        /// <summary>
+        /// Constructs an HttpServer
+        /// </summary>
+        /// <param name="autoStart">Start immediately?</param>
+        /// <param name="logAction">Action to log messages</param>
+        public HttpServer(bool autoStart, Action<string> logAction)
         {
             LogAction = logAction;
             AutoStart(autoStart);

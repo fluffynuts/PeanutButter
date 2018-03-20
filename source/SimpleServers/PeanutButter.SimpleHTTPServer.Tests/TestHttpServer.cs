@@ -515,8 +515,8 @@ namespace PeanutButter.SimpleHTTPServer.Tests
         private HttpServer CreateWithPort(int? port)
         {
             return port.HasValue
-                ? new HttpServer(port.Value, logAction: Console.WriteLine)
-                : new HttpServer(logAction: Console.WriteLine);
+                ? new HttpServer(port.Value, true, Console.WriteLine)
+                : new HttpServer(Console.WriteLine);
         }
 
         private const string CONTENT_LENGTH_HEADER = "Content-Length";
