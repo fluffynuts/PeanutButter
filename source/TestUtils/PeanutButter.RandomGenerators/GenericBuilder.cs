@@ -11,6 +11,7 @@ using System.Linq;
 using System.Reflection;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+// ReSharper disable MemberCanBePrivate.Global
 
 // ReSharper disable InheritdocConsiderUsage
 // ReSharper disable UsePatternMatching
@@ -31,9 +32,18 @@ namespace PeanutButter.RandomGenerators
     public class GenericBuilder<TBuilder, TEntity> : GenericBuilderBase, IGenericBuilder, IBuilder<TEntity>
         where TBuilder : GenericBuilder<TBuilder, TEntity>
     {
-        private static readonly List<Action<TEntity>> DefaultPropMods = new List<Action<TEntity>>();
-        private readonly List<Action<TEntity>> _propMods = new List<Action<TEntity>>();
-        private readonly List<Action<TEntity>> _buildTimePropMods = new List<Action<TEntity>>();
+        /// <summary>
+        /// The delegate type for an action which takes one parameter
+        /// of any type, by reference.
+        /// </summary>
+        /// <typeparam name="T1">Type of the parameter</typeparam>
+        /// <param name="item">Reference to the item being passed in</param>
+        public delegate void ActionRef<T1>(ref T1 item);
+        private delegate void ActionRef<T1, in T2>(ref T1 item, T2 index);
+
+        private static readonly List<ActionRef<TEntity>> DefaultPropMods = new List<ActionRef<TEntity>>();
+        private readonly List<ActionRef<TEntity>> _propMods = new List<ActionRef<TEntity>>();
+        private readonly List<ActionRef<TEntity>> _buildTimePropMods = new List<ActionRef<TEntity>>();
         private bool _currentlyBuilding;
         private static Type _constructingTypeBackingField = typeof(TEntity);
 
@@ -90,16 +100,19 @@ namespace PeanutButter.RandomGenerators
             }
 
             var result = Build();
-            var complexProps = result.GetType()
+            var resultType = result.GetType();
+            var complexProps = resultType
                 .GetProperties()
-                .Where(pi => !Types.PrimitivesAndImmutables.Contains(pi.PropertyType))
+                .Select(pi => new PropertyOrField(pi))
+                .Union(resultType.GetFields().Select(fi => new PropertyOrField(fi)))
+                .Where(pi => !Types.PrimitivesAndImmutables.Contains(pi.Type))
                 .ToArray();
             complexProps.ForEach(
                 p =>
                 {
-                    var propertyType = p.PropertyType;
+                    var propertyType = p.Type;
                     var value = TryBuildInstanceOf(propertyType);
-                    p.SetValue(result, value);
+                    p.SetValue(ref result, value);
                 });
             return result;
         }
@@ -162,15 +175,30 @@ namespace PeanutButter.RandomGenerators
         /// </param>
         public static void WithDefaultProp(Action<TEntity> action)
         {
-            DefaultPropMods.Add(action);
+            DefaultPropMods.Add((ref TEntity e) => action(e));
         }
 
         /// <summary>
-        /// Generric method to set a property on the entity.
+        /// Generic method to set a property on the entity.
         /// </summary>
         /// <param name="action">Action to run on the entity at build time</param>
         /// <returns>The current instance of the builder</returns>
         public TBuilder WithProp(Action<TEntity> action)
+        {
+            var collection = _currentlyBuilding
+                ? _buildTimePropMods
+                : _propMods;
+            collection.Add((ref TEntity e) => action(e));
+            return this as TBuilder;
+        }
+
+        /// <summary>
+        /// Generic method to set a property on an entity
+        /// when that entity is a struct type.
+        /// </summary>
+        /// <param name="action">Action to run on the entity</param>
+        /// <returns>The current instance of the builder</returns>
+        public TBuilder WithProp(ActionRef<TEntity> action)
         {
             var collection = _currentlyBuilding
                 ? _buildTimePropMods
@@ -403,7 +431,7 @@ namespace PeanutButter.RandomGenerators
         private TInterface ConstructInCurrentDomain<TInterface>(Type type)
         {
 #if NETSTANDARD
-            return (TInterface)Activator.CreateInstance(type);
+            return (TInterface) Activator.CreateInstance(type);
 #else
             var handle = Activator.CreateInstance(
                 AppDomain.CurrentDomain,
@@ -546,12 +574,12 @@ namespace PeanutButter.RandomGenerators
             using (new AutoResetter(() => _currentlyBuilding = true, () => _currentlyBuilding = false))
             {
                 var entity = ConstructEntity();
-                var actions = new Queue<Action<TEntity>>(DefaultPropMods.Union(_propMods).ToArray());
+                var actions = new Queue<ActionRef<TEntity>>(DefaultPropMods.Union(_propMods).ToArray());
 
                 while (actions.Count > 0)
                 {
                     var action = actions.Dequeue();
-                    action(entity);
+                    action(ref entity);
                     while (_buildTimePropMods.Any())
                     {
                         if (++dynamicCount > MaxRandomPropsLevel)
@@ -563,7 +591,10 @@ namespace PeanutButter.RandomGenerators
 
                         var newActions = _buildTimePropMods.ToArray();
                         _buildTimePropMods.Clear();
-                        newActions.ForEach(a => a(entity));
+                        foreach (var a in newActions)
+                        {
+                            a(ref entity);
+                        }
                     }
                 }
 
@@ -596,7 +627,8 @@ namespace PeanutButter.RandomGenerators
             {
                 lock (LockObject)
                 {
-                    return _entityPropInfoField ?? (_entityPropInfoField = GetAllPropertiesAndFieldsOfConstructingType());
+                    return _entityPropInfoField ??
+                           (_entityPropInfoField = GetAllPropertiesAndFieldsOfConstructingType());
                 }
             }
         }
@@ -608,10 +640,8 @@ namespace PeanutButter.RandomGenerators
                 .ToArray();
         }
 
-
-        private static Dictionary<string, Action<TEntity, int>> _randomPropSettersField;
-
-        private static Dictionary<string, Action<TEntity, int>> RandomPropSetters
+        private static Dictionary<string, ActionRef<TEntity, int>> _randomPropSettersField;
+        private static Dictionary<string, ActionRef<TEntity, int>> RandomPropSetters
         {
             get
             {
@@ -620,7 +650,7 @@ namespace PeanutButter.RandomGenerators
                 {
                     if (_randomPropSettersField != null)
                         return _randomPropSettersField;
-                    _randomPropSettersField = new Dictionary<string, Action<TEntity, int>>();
+                    _randomPropSettersField = new Dictionary<string, ActionRef<TEntity, int>>();
                     entityProps.ForEach(
                         prop =>
                         {
@@ -632,37 +662,37 @@ namespace PeanutButter.RandomGenerators
             }
         }
 
-        private static readonly Dictionary<Type, Func<PropertyOrField, Action<TEntity, int>>> SimpleTypeSetters =
-            new Dictionary<Type, Func<PropertyOrField, Action<TEntity, int>>>()
+        private static readonly Dictionary<Type, Func<PropertyOrField, ActionRef<TEntity, int>>> SimpleTypeSetters =
+            new Dictionary<Type, Func<PropertyOrField, ActionRef<TEntity, int>>>()
             {
-                {typeof(int), pi => ((e, i) => pi.SetValue(e, GetRandomInt()))},
-                {typeof(long), pi => ((e, i) => pi.SetValue(e, GetRandomInt()))},
+                {typeof(int), pi => ((ref TEntity e, int i) => pi.SetValue(ref e, GetRandomInt()))},
+                {typeof(long), pi => ((ref TEntity e, int i) => pi.SetValue(ref e, GetRandomInt()))},
                 {
                     typeof(float),
-                    pi => ((e, i) => pi.SetValue(
-                        e,
+                    pi => ((ref TEntity e, int i) => pi.SetValue(
+                        ref e,
                         Convert.ToSingle(GetRandomDouble(float.MinValue, float.MaxValue), null)))
                 },
-                {typeof(double), pi => ((e, i) => pi.SetValue(e, GetRandomDouble()))},
-                {typeof(decimal), pi => ((e, i) => pi.SetValue(e, GetRandomDecimal()))},
-                {typeof(DateTime), pi => ((e, i) => pi.SetValue(e, GetRandomDate()))},
-                {typeof(Guid), pi => ((e, i) => pi.SetValue(e, Guid.NewGuid()))},
+                {typeof(double), pi => ((ref TEntity e, int i) => pi.SetValue(ref e, GetRandomDouble()))},
+                {typeof(decimal), pi => ((ref TEntity e, int i) => pi.SetValue(ref e, GetRandomDecimal()))},
+                {typeof(DateTime), pi => ((ref TEntity e, int i) => pi.SetValue(ref e, GetRandomDate()))},
+                {typeof(Guid), pi => ((ref TEntity e, int i) => pi.SetValue(ref e, Guid.NewGuid()))},
                 {typeof(string), CreateStringPropertyRandomSetterFor},
                 {typeof(bool), CreateBooleanPropertyRandomSetterFor},
-                {typeof(byte[]), pi => ((e, i) => pi.SetValue(e, GetRandomBytes()))}
+                {typeof(byte[]), pi => ((ref TEntity e, int i) => pi.SetValue(ref e, GetRandomBytes()))}
             };
 
 #pragma warning restore S2743 // Static fields should not be used in generic types
 
-        private static Action<TEntity, int> CreateStringPropertyRandomSetterFor(PropertyOrField pi)
+        private static ActionRef<TEntity, int> CreateStringPropertyRandomSetterFor(PropertyOrField pi)
         {
             if (MayBeEmail(pi))
-                return (e, i) => pi.SetValue(e, GetRandomEmail());
+                return (ref TEntity e, int i) => pi.SetValue(ref e, GetRandomEmail());
             if (MayBeUrl(pi))
-                return (e, i) => pi.SetValue(e, GetRandomHttpUrl());
+                return (ref TEntity e, int i) => pi.SetValue(ref e, GetRandomHttpUrl());
             if (MayBePhone(pi))
-                return (e, i) => pi.SetValue(e, GetRandomNumericString());
-            return (e, i) => pi.SetValue(e, GetRandomString());
+                return (ref TEntity e, int i) => pi.SetValue(ref e, GetRandomNumericString());
+            return (ref TEntity e, int i) => pi.SetValue(ref e, GetRandomString());
         }
 
         private static bool MayBePhone(PropertyOrField pi)
@@ -683,11 +713,11 @@ namespace PeanutButter.RandomGenerators
             return pi != null && pi.Name.ToLower().Contains("email");
         }
 
-        private static Action<TEntity, int> CreateBooleanPropertyRandomSetterFor(PropertyOrField pi)
+        private static ActionRef<TEntity, int> CreateBooleanPropertyRandomSetterFor(PropertyOrField pi)
         {
             if (pi.Name == "Enabled")
-                return (e, i) => pi.SetValue(e, true);
-            return (e, i) => pi.SetValue(e, GetRandomBoolean());
+                return (ref TEntity e, int i) => pi.SetValue(ref e, true);
+            return (ref TEntity e, int i) => pi.SetValue(ref e, GetRandomBoolean());
         }
 
         private static bool IsCollectionType(PropertyOrField propertyInfo, Type type)
@@ -700,7 +730,7 @@ namespace PeanutButter.RandomGenerators
 
         private static void SetCollectionSetterFor(PropertyOrField propertyInfo)
         {
-            RandomPropSetters[propertyInfo.Name] = (e, i) =>
+            RandomPropSetters[propertyInfo.Name] = (ref TEntity e, int i) =>
             {
                 try
                 {
@@ -742,13 +772,16 @@ namespace PeanutButter.RandomGenerators
         public virtual TBuilder WithFilledCollections()
         {
             return WithProp(
-                o =>
+                (ref TEntity o) =>
                 {
                     // TODO: fix potential stack-overflows in cyclic classes by creating proper
                     //  cyclic references instead of gen1 -> gen2 -> genN (boom!)
                     var collectionProperties = EntityPropInfo
                         .Where(pi => IsCollectionType(pi, pi.Type));
-                    collectionProperties.ForEach(prop => FillCollection(o, prop));
+                    foreach (var prop in collectionProperties)
+                    {
+                        FillCollection(o, prop);
+                    }
                 });
         }
 
@@ -758,7 +791,7 @@ namespace PeanutButter.RandomGenerators
             FillContainer(container);
             if (pi.Type.IsArray)
                 container = ConvertCollectionToArray(container);
-            pi.SetValue(entity, container);
+            pi.SetValue(ref entity, container);
         }
 
         private static void FillContainer(object collectionInstance)
@@ -824,9 +857,9 @@ namespace PeanutButter.RandomGenerators
         {
             if (!propertyType.IsEnum)
                 return false;
-            RandomPropSetters[prop.Name] = (entity, idx) =>
+            RandomPropSetters[prop.Name] = (ref TEntity entity, int idx) =>
             {
-                prop.SetValue(entity, GetRandomEnum(propertyType));
+                prop.SetValue(ref entity, GetRandomEnum(propertyType));
             };
             return true;
         }
@@ -878,17 +911,17 @@ namespace PeanutButter.RandomGenerators
                               FindOrCreateDynamicBuilderTypeFor(prop.Type);
             if (builderType == null)
                 return false;
-            RandomPropSetters[prop.Name] = (e, i) =>
+            RandomPropSetters[prop.Name] = (ref TEntity e, int depth) =>
             {
-                if (TraversedTooManyTurtles(i))
+                if (TraversedTooManyTurtles(depth))
                     return;
                 var dynamicBuilder = Activator.CreateInstance(builderType) as IGenericBuilder;
                 if (dynamicBuilder == null)
                     return;
                 prop.SetValue(
-                    e,
+                    ref e,
                     dynamicBuilder
-                        .WithBuildLevel(i)
+                        .WithBuildLevel(depth)
                         .GenericWithRandomProps()
                         .GenericBuild());
             };
@@ -963,27 +996,26 @@ namespace PeanutButter.RandomGenerators
 
         private int _buildLevel;
 
-        private void SetRandomProps(TEntity entity)
+        private void SetRandomProps(ref TEntity entity)
         {
-            EntityPropInfo.ForEach(
-                prop =>
+            foreach (var prop in EntityPropInfo)
+            {
+                try
                 {
-                    try
-                    {
-                        var setter = GetRandomPropSetterFor(prop);
-                        setter?.Invoke(entity, _buildLevel + 1);
-                    }
-                    catch (Exception ex)
-                    {
-                        RandomPropSetters[prop.Name] = null;
-                        Trace.WriteLine(
-                            $"Unable to set random prop: {prop.DeclaringType?.Name}.{prop.Name} ({prop.Type.Name}) {ex.Message}"
-                        );
-                    }
-                });
+                    var setter = GetRandomPropSetterFor(prop);
+                    setter?.Invoke(ref entity, _buildLevel + 1);
+                }
+                catch (Exception ex)
+                {
+                    RandomPropSetters[prop.Name] = null;
+                    Trace.WriteLine(
+                        $"Unable to set random prop: {prop.DeclaringType?.Name}.{prop.Name} ({prop.Type.Name}) {ex.Message}"
+                    );
+                }
+            }
         }
 
-        private Action<TEntity, int> GetRandomPropSetterFor(PropertyOrField prop)
+        private ActionRef<TEntity, int> GetRandomPropSetterFor(PropertyOrField prop)
         {
             if (RandomPropSetters.TryGetValue(prop.Name, out var result))
                 return result;

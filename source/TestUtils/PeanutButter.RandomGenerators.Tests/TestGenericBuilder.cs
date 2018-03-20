@@ -9,6 +9,7 @@ using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using static NExpect.Expectations;
 using static PeanutButter.Utils.PyLike;
+
 // ReSharper disable UnusedMemberInSuper.Global
 // ReSharper disable PossibleNullReferenceException
 // ReSharper disable MemberCanBePrivate.Global
@@ -162,9 +163,10 @@ namespace PeanutButter.RandomGenerators.Tests
             public string Fax { get; set; }
         }
 
-        public class TestCleverRandomStringsBuilder : GenericBuilder<TestCleverRandomStringsBuilder,
-            TestCleverRandomStrings
-        >
+        public class TestCleverRandomStringsBuilder
+            : GenericBuilder<TestCleverRandomStringsBuilder,
+                TestCleverRandomStrings
+            >
         {
         }
 
@@ -271,8 +273,9 @@ namespace PeanutButter.RandomGenerators.Tests
             public virtual ComplexMember2 ComplexMember2 { get; set; }
         }
 
-        private class ClassWithComplexMembersBuilder : GenericBuilder<ClassWithComplexMembersBuilder,
-            ClassWithComplexMembers>
+        private class ClassWithComplexMembersBuilder
+            : GenericBuilder<ClassWithComplexMembersBuilder,
+                ClassWithComplexMembers>
         {
         }
 
@@ -488,8 +491,9 @@ namespace PeanutButter.RandomGenerators.Tests
             public object Value { get; set; }
         }
 
-        public class FakeMessagePlatformOptionBuilder : GenericBuilder<FakeMessagePlatformOptionBuilder,
-            FakeMessagePlatformOption>
+        public class FakeMessagePlatformOptionBuilder
+            : GenericBuilder<FakeMessagePlatformOptionBuilder,
+                FakeMessagePlatformOption>
         {
         }
 
@@ -505,8 +509,9 @@ namespace PeanutButter.RandomGenerators.Tests
 
             private FakeMessageDataBuilder WithRandomOptions()
             {
-                return WithProp(o => o.Message.Options =
-                    GetRandomCollection(FakeMessagePlatformOptionBuilder.BuildRandom, 2));
+                return WithProp(
+                    o => o.Message.Options =
+                        GetRandomCollection(FakeMessagePlatformOptionBuilder.BuildRandom, 2));
             }
 
             public FakeMessageDataBuilder AsOneProtocolToOneRecipient()
@@ -517,26 +522,35 @@ namespace PeanutButter.RandomGenerators.Tests
 
             public FakeMessageDataBuilder WithRandomProtocols(int min = 1, int max = 10)
             {
-                return WithProp(o => o.Protocols =
-                    GetRandomCollection(() => GetRandomString(), min, max));
+                return WithProp(
+                    o => o.Protocols =
+                        GetRandomCollection(() => GetRandomString(), min, max));
             }
 
             public FakeMessageDataBuilder WithRandomRecipients(int min = 1, int max = 10)
             {
-                return WithProp(o => o.Recipients =
-                    GetRandomCollection(FakeMessagePlatformRecipientBuilder.BuildRandom, min, max));
+                return WithProp(
+                    o => o.Recipients =
+                        GetRandomCollection(FakeMessagePlatformRecipientBuilder.BuildRandom, min, max));
             }
 
             public FakeMessageDataBuilder WithOption(string name, string value)
             {
-                return WithProp(o => o.Message.Options = o.Message.Options
-                    .EmptyIfNull()
-                    .And(new FakeMessagePlatformOption() { Name = name, Value = value }));
+                return WithProp(
+                    o => o.Message.Options = o.Message.Options
+                        .EmptyIfNull()
+                        .And(
+                            new FakeMessagePlatformOption()
+                            {
+                                Name = name,
+                                Value = value
+                            }));
             }
         }
 
-        public class FakeMessagePlatformRecipientBuilder : GenericBuilder<FakeMessagePlatformRecipientBuilder,
-            FakeMessagePlatformRecipient>
+        public class FakeMessagePlatformRecipientBuilder
+            : GenericBuilder<FakeMessagePlatformRecipientBuilder,
+                FakeMessagePlatformRecipient>
         {
         }
 
@@ -548,13 +562,14 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Expect(() => FakeMessageDataBuilder.Create()
-                .WithRandomProps()
-                .WithOption("message", "hello world")
-                .WithOption("user", "bob saget")
-                .WithOption("AnotherOption", "wibble socks")
-                .AsOneProtocolToOneRecipient()
-                .Build()).Not.To.Throw();
+            Expect(
+                () => FakeMessageDataBuilder.Create()
+                    .WithRandomProps()
+                    .WithOption("message", "hello world")
+                    .WithOption("user", "bob saget")
+                    .WithOption("AnotherOption", "wibble socks")
+                    .AsOneProtocolToOneRecipient()
+                    .Build()).Not.To.Throw();
 
             //---------------Test Result -----------------------
         }
@@ -566,8 +581,9 @@ namespace PeanutButter.RandomGenerators.Tests
             public virtual ICollection<string> Strings { get; set; }
         }
 
-        public class SomePOCOWithCollectionBuilder : GenericBuilder<SomePOCOWithCollectionBuilder,
-            SomePOCOWithCollection>
+        public class SomePOCOWithCollectionBuilder
+            : GenericBuilder<SomePOCOWithCollectionBuilder,
+                SomePOCOWithCollection>
         {
         }
 
@@ -656,8 +672,8 @@ namespace PeanutButter.RandomGenerators.Tests
             string Name { get; set; }
         }
 
-        public class SomeInterfaceWithNoImplementationBuilder :
-            GenericBuilder<SomeInterfaceWithNoImplementationBuilder, IInterfaceWithNoImplementation>
+        public class SomeInterfaceWithNoImplementationBuilder
+            : GenericBuilder<SomeInterfaceWithNoImplementationBuilder, IInterfaceWithNoImplementation>
         {
         }
 
@@ -671,8 +687,9 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() =>
-                result = SomeInterfaceWithNoImplementationBuilder.BuildRandom()
+            Assert.DoesNotThrow(
+                () =>
+                    result = SomeInterfaceWithNoImplementationBuilder.BuildRandom()
             );
 
             //---------------Test Result -----------------------
@@ -704,8 +721,7 @@ namespace PeanutButter.RandomGenerators.Tests
             public string Name { get; set; }
         }
 
-        public class SomeImplementingClassBuilder :
-            GenericBuilder<SomeImplementingClassBuilder, IImplementedInterface>
+        public class SomeImplementingClassBuilder : GenericBuilder<SomeImplementingClassBuilder, IImplementedInterface>
         {
         }
 
@@ -851,8 +867,8 @@ namespace PeanutButter.RandomGenerators.Tests
 
         public struct SomeStruct
         {
-            int Id;
-            string Name;
+            public int Id;
+            public string Name;
         }
 
         public class SomeStructBuilder : GenericBuilder<SomeStructBuilder, SomeStruct>
@@ -869,7 +885,32 @@ namespace PeanutButter.RandomGenerators.Tests
                     i => SomeStructBuilder.Create().WithRandomProps().Build())
                 .ToArray();
             // Assert
-            Expect(result.All(o => o.Equals(default(SomeStruct)))).To.Be.True();
+            Expect(result.All(o => o.Equals(default(SomeStruct)))).To.Be.False();
+        }
+
+        public class SomeClass
+        {
+            public SomeStruct Moo { get; }
+
+            public SomeClass(SomeStruct moo)
+            {
+                Moo = moo;
+            }
+        }
+
+        [Test]
+        public void ShouldConstructWithRandomStructParameter()
+        {
+            // Arrange
+            // Pre-assert
+            // Act
+            var result = Range(0, 10).Select(
+                i => GetRandom<SomeClass>()
+            ).ToArray();
+
+            // Assert
+            Expect(result.All(o => o.Moo.Equals(default(SomeStruct))))
+                .To.Be.False();
         }
     }
 }

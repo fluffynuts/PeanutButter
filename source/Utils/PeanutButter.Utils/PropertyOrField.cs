@@ -121,5 +121,15 @@ namespace PeanutButter.Utils
             else
                 _fieldInfo.SetValue(host, value);
         }
+
+        public void SetValue<T>(ref T host, object value)
+        {
+            var asObject = (object)host;
+            if (_fieldInfo == null)
+                _propInfo.SetValue(asObject, value);
+            else
+                _fieldInfo.SetValue(asObject, value);
+            host = (T)asObject;
+        }
     }
 }
