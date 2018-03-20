@@ -14,7 +14,8 @@ namespace PeanutButter.Utils
         /// <param name="start">Minimum value of DateTime range</param>
         /// <param name="end">MaximumValue of DateTime range</param>
         /// <returns>True if the value is within the provided range or false if it is not</returns>
-        public static bool IsWithinRange(this DateTime value,
+        public static bool IsWithinRange(
+            this DateTime value,
             DateTime start,
             DateTime end
         )
@@ -28,8 +29,9 @@ namespace PeanutButter.Utils
                 testStart = testEnd;
                 testEnd = swap;
             }
+
             return test >= testStart.ToUniversalTime() &&
-                    test <= testEnd.ToUniversalTime();
+                   test <= testEnd.ToUniversalTime();
         }
 
         /// <summary>
@@ -60,7 +62,7 @@ namespace PeanutButter.Utils
         public static long MillisecondsSinceStartOfDay(this DateTime value)
         {
             var timeSpan = new TimeSpan(0, value.Hour, value.Minute, value.Second, value.Millisecond);
-            return (long)timeSpan.TotalMilliseconds;
+            return (long) timeSpan.TotalMilliseconds;
         }
 
         /// <summary>
@@ -91,8 +93,14 @@ namespace PeanutButter.Utils
         /// <returns>new DateTime with date components set from DateTime.MinValue and time components set from the subject</returns>
         public static DateTime AsTimeOnly(this DateTime value)
         {
-            return new DateTime(DateTime.MinValue.Year, DateTime.MinValue.Month, DateTime.MinValue.Day,
-                                value.Hour, value.Minute, value.Second, value.Millisecond);
+            return new DateTime(
+                DateTime.MinValue.Year,
+                DateTime.MinValue.Month,
+                DateTime.MinValue.Day,
+                value.Hour,
+                value.Minute,
+                value.Second,
+                value.Millisecond);
         }
 
         /// <summary>
@@ -131,7 +139,15 @@ namespace PeanutButter.Utils
         /// </returns>
         public static DateTime TruncateMicroseconds(this DateTime value)
         {
-            return DateTimeFor(value.Kind, value.Year, value.Month, value.Day, value.Hour, value.Minute, value.Second, value.Millisecond);
+            return DateTimeFor(
+                value.Kind,
+                value.Year,
+                value.Month,
+                value.Day,
+                value.Hour,
+                value.Minute,
+                value.Second,
+                value.Millisecond);
         }
 
         /// <summary>
@@ -145,7 +161,32 @@ namespace PeanutButter.Utils
         /// </returns>
         public static DateTime TruncateMilliseconds(this DateTime value)
         {
-            return DateTimeFor(value.Kind, value.Year, value.Month, value.Day, value.Hour, value.Minute, value.Second);
+            return DateTimeFor(
+                value.Kind,
+                value.Year,
+                value.Month,
+                value.Day,
+                value.Hour,
+                value.Minute,
+                value.Second);
+        }
+
+        /// <summary>
+        /// Provides a new DateTime object with the DateTimeKind set as required
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="kind"></param>
+        /// <returns></returns>
+        public static DateTime ToKind(this DateTime value, DateTimeKind kind)
+        {
+            return DateTimeFor(
+                kind,
+                value.Year,
+                value.Month,
+                value.Day,
+                value.Hour,
+                value.Minute,
+                value.Second);
         }
 
         /// <summary>
@@ -228,16 +269,25 @@ namespace PeanutButter.Utils
             return int.Parse(value.ToString("ffffff").Substring(3));
         }
 
-        private static DateTime DateTimeFor(DateTimeKind kind,
-                                            int years,
-                                            int months = 1,
-                                            int days = 1,
-                                            int hours = 0,
-                                            int minutes = 0,
-                                            int seconds = 0,
-                                            int milliseconds = 0)
+        private static DateTime DateTimeFor(
+            DateTimeKind kind,
+            int years,
+            int months = 1,
+            int days = 1,
+            int hours = 0,
+            int minutes = 0,
+            int seconds = 0,
+            int milliseconds = 0)
         {
-            return new DateTime(years, months, days, hours, minutes, seconds, milliseconds, kind);
+            return new DateTime(
+                years,
+                months,
+                days,
+                hours,
+                minutes,
+                seconds,
+                milliseconds,
+                kind);
         }
     }
 }

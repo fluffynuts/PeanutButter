@@ -129,7 +129,15 @@ namespace PeanutButter.Utils.Tests
             var minute = GetRandomInt(0, 59);
             var second = GetRandomInt(0, 59);
             var millisecond = GetRandomInt(0, 999);
-            var expected = new DateTime(testDate.Year, testDate.Month, testDate.Day, hour, minute, second, millisecond);
+            var expected = new DateTime(
+                testDate.Year, 
+                testDate.Month, 
+                testDate.Day, 
+                hour, 
+                minute, 
+                second, 
+                millisecond,
+                DateTimeKind.Local);
 
             //---------------Assert Precondition----------------
 
