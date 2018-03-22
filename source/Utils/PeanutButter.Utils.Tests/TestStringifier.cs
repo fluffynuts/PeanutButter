@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Xml.Linq;
 using NUnit.Framework;
 using NExpect;
 using static NExpect.Expectations;
@@ -106,6 +107,19 @@ namespace PeanutButter.Utils.Tests
                 .And.End.With(" (Utc)");
             Expect(unspecifiedResult).To.Start.With(expectedPre)
                 .And.End.With(" (Unspecified)");
+        }
+
+        [Test]
+        public void ShouldOutputXmlForXDocument()
+        {
+            // Arrange
+            var raw = "<doc><node>1</node></doc>";
+            var doc = XDocument.Parse(raw);
+            // Pre-assert
+            // Act
+            var result = doc.Stringify();
+            // Assert
+            Expect(result.RegexReplace("\\s", "")).To.Equal(raw);
         }
     }
 }

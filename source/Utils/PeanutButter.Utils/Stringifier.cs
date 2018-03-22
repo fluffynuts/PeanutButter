@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Xml.Linq;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable IntroduceOptionalParameters.Global
@@ -51,6 +52,8 @@ namespace PeanutButter.Utils
         /// <returns>Human-readable representation of object</returns>
         public static string Stringify(this object obj)
         {
+            if (obj is XDocument doc)
+                return doc.ToString();
             return Stringify(obj, "null");
         }
 
