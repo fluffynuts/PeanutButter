@@ -264,7 +264,7 @@ namespace PeanutButter.Utils
 
         private static Type GetItemTypeFor(Type collectionType)
         {
-            return collectionType.GenericTypeArguments[0];
+            return collectionType.TryGetEnumerableItemType();
         }
 
         private static readonly MethodInfo DeepCollectionCompareGenericMethod =
