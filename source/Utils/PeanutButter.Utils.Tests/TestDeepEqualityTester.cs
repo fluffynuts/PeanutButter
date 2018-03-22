@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Xml.Serialization;
 using Newtonsoft.Json;
 using NExpect;
 using NUnit.Framework;
@@ -575,6 +576,99 @@ namespace PeanutButter.Utils.Tests
             }
         }
 
+        [TestFixture]
+        public class Dictionary
+        {
+            [Test]
+            public void WhenValuesAndKeysAreTheSame_ShouldReturnTrue() 
+            {
+                // Arrange
+                var key1 = GetRandomString();
+                var key2 = GetRandomString();
+                var value1 = GetRandomString();
+                var value2 = GetRandomInt();
+                var dictionary1 = DictionaryBuilder<string, object>.Create()
+                    .WithItem(key1, value1)
+                    .WithItem(key2, value2)
+                    .Build();
+                var dictionary2 = DictionaryBuilder<string, object>.Create()
+                    .WithItem(key1, value1)
+                    .WithItem(key2, value2)
+                    .Build();
+                var sut = Create(dictionary1, dictionary2);
+                // Pre-Assert
+                // Act
+                var result = sut.AreDeepEqual();
+                // Assert
+                Expect(result).To.Be.True();
+            }
+
+            [Test]
+            public void WhenKeysAreTheSame_ButValuesAreDifferent_ShouldReturnFalse() 
+            {
+                // Arrange
+                var key1 = GetRandomString();
+                var key2 = GetRandomString();
+                var dictionary1 = DictionaryBuilder<string, object>.Create()
+                    .WithItem(key1, GetRandomString())
+                    .WithItem(key2, GetRandomInt())
+                    .Build();
+                var dictionary2 = DictionaryBuilder<string, object>.Create()
+                    .WithItem(key1, GetRandomString())
+                    .WithItem(key2, GetRandomInt())
+                    .Build();
+                var sut = Create(dictionary1, dictionary2);
+                // Pre-Assert
+                // Act
+                var result = sut.AreDeepEqual();
+                // Assert
+                Expect(result).To.Be.False();
+            }
+
+            [Test]
+            public void WhenValuesAreTheSame_ButKeysAreDifferent_ShouldReturnFalse() {
+                  // Arrange
+                  var value1 = GetRandomString();
+                  var value2 = GetRandomInt();
+                  var dictionary1 = DictionaryBuilder<string, object>.Create()
+                      .WithItem(GetRandomString(), value1)
+                      .WithItem(GetRandomString(), value2)
+                      .Build();
+                  var dictionary2 = DictionaryBuilder<string, object>.Create()
+                      .WithItem(GetRandomString(), value1)
+                      .WithItem(GetRandomString(), value2)
+                      .Build();
+                var sut = Create(dictionary1, dictionary2);
+                // Pre-Assert
+                // Act
+                var result = sut.AreDeepEqual();
+                // Assert
+                Expect(result).To.Be.False();
+            }
+
+            [Test]
+            public void WhenDifferentNumberOfEntries_ShouldReturnFalse() {
+                // Arrange
+                var key1 = GetRandomString();
+                var key2 = GetRandomString();
+                var value1 = GetRandomString();
+                var value2 = GetRandomInt();
+                var dictionary1 = DictionaryBuilder<string, object>.Create()
+                    .WithItem(key1, value1)
+                    .Build();
+                var dictionary2 = DictionaryBuilder<string, object>.Create()
+                    .WithItem(key1, value1)
+                    .WithItem(key2, value2)
+                    .Build();
+                var sut = Create(dictionary1, dictionary2);
+                // Pre-Assert
+                // Act
+                var result = sut.AreDeepEqual();
+                // Assert
+                Expect(result).To.Be.False();
+            }
+        }
+
         private static string DataUriFor<T>(T input)
         {
             var json = JsonConvert.SerializeObject(input);
@@ -1109,6 +1203,12 @@ namespace PeanutButter.Utils.Tests
             {
                 return WithProp(o => o.ThingyMaBobs = o.ThingyMaBobs.And(_start));
             }
+        }
+    }
+
+    public class DictionaryBuilder<TKey, TValue> : GenericBuilder<DictionaryBuilder<TKey, TValue>, Dictionary<TKey, TValue>> {
+        public DictionaryBuilder<TKey, TValue> WithItem(TKey key, TValue value) {
+          return WithProp(o => o.Add(key, value));
         }
     }
 }
