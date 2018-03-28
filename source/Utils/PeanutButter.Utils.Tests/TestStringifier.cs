@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using System.Xml.Linq;
+using System.Xml.XPath;
 using NUnit.Framework;
 using NExpect;
 using static NExpect.Expectations;
@@ -120,6 +121,19 @@ namespace PeanutButter.Utils.Tests
             var result = doc.Stringify();
             // Assert
             Expect(result.RegexReplace("\\s", "")).To.Equal(raw);
+        }
+
+        [Test]
+        public void ShouldOutputXmlForXElement()
+        {
+            // Arrange
+            var raw = "<doc><node>1</node></doc>";
+            var el = XDocument.Parse(raw).XPathSelectElement("/doc/node");
+            // Pre-assert
+            // Act
+            var result = el.Stringify();
+            // Assert
+            Expect(result).To.Equal("<node>1</node>");
         }
     }
 }

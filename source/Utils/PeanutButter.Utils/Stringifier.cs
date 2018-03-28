@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Xml.Linq;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -52,8 +53,6 @@ namespace PeanutButter.Utils
         /// <returns>Human-readable representation of object</returns>
         public static string Stringify(this object obj)
         {
-            if (obj is XDocument doc)
-                return doc.ToString();
             return Stringify(obj, "null");
         }
 
@@ -100,9 +99,31 @@ namespace PeanutButter.Utils
                 MakeStrategy(IsEnum, StringifyEnum),
                 MakeStrategy(IsType, StringifyType),
                 MakeStrategy(IsEnumerable, StringifyCollection),
+                MakeStrategy(IsXDocument, StringifyXDocument),
+                MakeStrategy(IsXElement, StringifyXElement),
                 MakeStrategy(Default, StringifyJsonLike),
                 MakeStrategy(LastPass, JustToStringIt)
             };
+
+        private static string StringifyXElement(object arg1, int arg2, string arg3)
+        {
+            return ((XElement)arg1).ToString();
+        }
+
+        private static bool IsXElement(object arg1, int arg2)
+        {
+            return arg1 is XElement;
+        }
+
+        private static string StringifyXDocument(object arg1, int arg2, string arg3)
+        {
+            return ((XDocument)arg1).ToString();
+        }
+
+        private static bool IsXDocument(object obj, int level)
+        {
+            return obj is XDocument;
+        }
 
         private static string StringifyType(object obj, int level, string nullRep)
         {
@@ -116,7 +137,7 @@ namespace PeanutButter.Utils
 
         private static string StringifyDateTime(object obj, int level, string nullRep)
         {
-            var dt = (DateTime)obj;
+            var dt = (DateTime) obj;
             return $"{dt.ToString(CultureInfo.InvariantCulture)}.{dt.Millisecond} ({dt.Kind})";
         }
 
@@ -186,7 +207,8 @@ namespace PeanutButter.Utils
         }
 
         private static Tuple<Func<object, int, bool>, Func<object, int, string, string>> MakeStrategy(
-            Func<object, int, bool> matcher, Func<object, int, string, string> writer
+            Func<object, int, bool> matcher,
+            Func<object, int, string, string> writer
         )
         {
             return Tuple.Create(matcher, writer);
@@ -209,7 +231,9 @@ namespace PeanutButter.Utils
             {
                 return StringifyPrimitive(obj, level, nullRepresentation);
             }
-            return Strategies.Aggregate(null as string,
+
+            return Strategies.Aggregate(
+                null as string,
                 (acc, cur) => acc ??
                               ApplyStrategy(
                                   cur.Item1,
@@ -246,32 +270,36 @@ namespace PeanutButter.Utils
             var props = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
             var indentMinus1 = new string(' ', level * INDENT_SIZE);
             var indent = indentMinus1 + new string(' ', INDENT_SIZE);
-            var joinWith = props.Aggregate(new List<string>(), (acc, cur) =>
-                {
-                    var propValue = cur.GetValue(obj);
-                    if (IgnoreAssembliesByName.Contains(
+            var joinWith = props.Aggregate(
+                    new List<string>(),
+                    (acc, cur) =>
+                    {
+                        var propValue = cur.GetValue(obj);
+                        if (IgnoreAssembliesByName.Contains(
 #if NETSTANDARD
                             cur.DeclaringType?.AssemblyQualifiedName.Split(
-                            new[] { "," }, StringSplitOptions.RemoveEmptyEntries
-                        ).Skip(1).FirstOrDefault()
+                                new[] {","},
+                                StringSplitOptions.RemoveEmptyEntries
+                            ).Skip(1).FirstOrDefault()
 #else
                         cur.DeclaringType?.Assembly.GetName().Name
 #endif
-                    ))
-                    {
-                        acc.Add(string.Join("", cur.Name, ": ", propValue?.ToString()));
-                    }
-                    else
-                    {
-                        acc.Add(string.Join(
-                            "",
-                            cur.Name,
-                            ": ",
-                            SafeStringifier(propValue, level + 1, nullRepresentation)));
-                    }
+                        ))
+                        {
+                            acc.Add(string.Join("", cur.Name, ": ", propValue?.ToString()));
+                        }
+                        else
+                        {
+                            acc.Add(
+                                string.Join(
+                                    "",
+                                    cur.Name,
+                                    ": ",
+                                    SafeStringifier(propValue, level + 1, nullRepresentation)));
+                        }
 
-                    return acc;
-                })
+                        return acc;
+                    })
                 .JoinWith($"\n{indent}");
             return ("{\n" +
                     string.Join(
@@ -299,13 +327,15 @@ namespace PeanutButter.Utils
                 {
                     "\r\n",
                     "\n"
-                }.Aggregate(str, (acc, cur) =>
-                {
-                    var twice = $"{cur}{cur}";
-                    while (acc.Contains(twice))
-                        acc = acc.Replace(twice, "");
-                    return acc;
-                })
+                }.Aggregate(
+                    str,
+                    (acc, cur) =>
+                    {
+                        var twice = $"{cur}{cur}";
+                        while (acc.Contains(twice))
+                            acc = acc.Replace(twice, "");
+                        return acc;
+                    })
                 .SquashEmptyObjects();
         }
 
