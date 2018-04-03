@@ -256,8 +256,8 @@ namespace PeanutButter.Utils
             T right
         )
         {
-            var comparer = _customComparers.OfType<IComparer<T>>().FirstOrDefault();
-            return comparer?.Compare(left, right) == 0;
+            var comparer = _customComparers.OfType<IEqualityComparer<T>>().FirstOrDefault();
+            return comparer?.Equals(left, right);
         }
 
         private bool? _ignoreDateTimeKind;
@@ -782,7 +782,7 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="comparer"></param>
         /// <typeparam name="T"></typeparam>
-        public void AddCustomComparer<T>(IComparer<T> comparer)
+        public void AddCustomComparer<T>(IEqualityComparer<T> comparer)
         {
             _customComparers.Add(comparer);
         }

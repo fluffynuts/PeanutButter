@@ -753,29 +753,32 @@ namespace PeanutButter.Utils.Tests
             }
         }
 
-        public class DecimalComparerWhichAllowsUpTo2Delta : IComparer<decimal>
+        public class DecimalComparerWhichAllowsUpTo2Delta : IEqualityComparer<decimal>
         {
-            public int Compare(decimal x, decimal y)
+            public bool Equals(decimal x, decimal y)
             {
-                var delta = x - y;
-                if (Math.Abs(delta) < 2) return 0;
-                return delta < 0 ? -1 : 1;
+                return Math.Abs(x - y) < 2;
+            }
+
+            public int GetHashCode(decimal obj)
+            {
+                return 0;
             }
         }
 
 
-        public class DateComparerByDayOnly : IComparer<DateTime>
+        public class DateComparerByDayOnly : IEqualityComparer<DateTime>
         {
-            public int Compare(DateTime x, DateTime y)
+            public bool Equals(DateTime x, DateTime y)
             {
-                if (x.Year < y.Year) return -1;
-                if (x.Month < y.Month) return -1;
-                if (x.Day < y.Day) return -1;
                 return x.Year == y.Year &&
                        x.Month == y.Month &&
-                       x.Day == y.Day
-                    ? 0
-                    : 1;
+                       x.Day == y.Day;
+            }
+
+            public int GetHashCode(DateTime obj)
+            {
+                return 0;
             }
         }
 
