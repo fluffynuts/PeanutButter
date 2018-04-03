@@ -339,7 +339,8 @@ namespace PeanutButter.Utils.Tests
                     }
 
                     [Test]
-                    public void GivenObjectsWithDifferentSubShapes_WhenAllowMissingProperties_ButNoMatchedProperties_ShouldThrow()
+                    public void
+                        GivenObjectsWithDifferentSubShapes_WhenAllowMissingProperties_ButNoMatchedProperties_ShouldThrow()
                     {
                         // Arrange
                         var ours = GetRandom<OurObject>();
@@ -389,8 +390,16 @@ namespace PeanutButter.Utils.Tests
                             },
                             Stuffs = new[]
                             {
-                                new {Id = 2, Name = "Billy"},
-                                new {Id = 3, Name = "Bob"}
+                                new
+                                {
+                                    Id = 2,
+                                    Name = "Billy"
+                                },
+                                new
+                                {
+                                    Id = 3,
+                                    Name = "Bob"
+                                }
                             },
                             Ints = new[] {1, 2, 3}
                         };
@@ -404,9 +413,18 @@ namespace PeanutButter.Utils.Tests
                             },
                             Stuffs = new[]
                             {
-                                new {Id = 2, Name = "Billy"},
+                                new
+                                {
+                                    Id = 2,
+                                    Name = "Billy"
+                                },
                             },
-                            Ints = new List<int>() {0, 12, 43}
+                            Ints = new List<int>()
+                            {
+                                0,
+                                12,
+                                43
+                            }
                         };
                         var sut = Create(left, right);
                         sut.OnlyCompareShape = true;
@@ -458,8 +476,16 @@ namespace PeanutButter.Utils.Tests
                         },
                         Stuffs = new[]
                         {
-                            new {Id = 2, Name = "Billy"},
-                            new {Id = 3, Name = "Bob"}
+                            new
+                            {
+                                Id = 2,
+                                Name = "Billy"
+                            },
+                            new
+                            {
+                                Id = 3,
+                                Name = "Bob"
+                            }
                         },
                         Ints = new[] {1, 2, 3}
                     };
@@ -473,9 +499,18 @@ namespace PeanutButter.Utils.Tests
                         },
                         Stuffs = new[]
                         {
-                            new {Id = 2, Name = "Billy"},
+                            new
+                            {
+                                Id = 2,
+                                Name = "Billy"
+                            },
                         },
-                        Ints = new List<int>() {0, 12, 43}
+                        Ints = new List<int>()
+                        {
+                            0,
+                            12,
+                            43
+                        }
                     };
                     // Pre-Assert
                     // Act
@@ -564,8 +599,22 @@ namespace PeanutButter.Utils.Tests
             {
                 // Arrange
                 var src = GetRandomDate();
-                var local = new DateTime(src.Year, src.Month, src.Day, src.Hour, src.Minute, src.Second, DateTimeKind.Local);
-                var utc = new DateTime(src.Year, src.Month, src.Day, src.Hour, src.Minute, src.Second, DateTimeKind.Utc);
+                var local = new DateTime(
+                    src.Year,
+                    src.Month,
+                    src.Day,
+                    src.Hour,
+                    src.Minute,
+                    src.Second,
+                    DateTimeKind.Local);
+                var utc = new DateTime(
+                    src.Year,
+                    src.Month,
+                    src.Day,
+                    src.Hour,
+                    src.Minute,
+                    src.Second,
+                    DateTimeKind.Utc);
                 var sut = Create(local, utc);
                 // Pre-Assert
                 // Act
@@ -579,7 +628,7 @@ namespace PeanutButter.Utils.Tests
         public class Dictionary
         {
             [Test]
-            public void WhenValuesAndKeysAreTheSame_ShouldReturnTrue() 
+            public void WhenValuesAndKeysAreTheSame_ShouldReturnTrue()
             {
                 // Arrange
                 var key1 = GetRandomString();
@@ -603,7 +652,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
-            public void WhenKeysAreTheSame_ButValuesAreDifferent_ShouldReturnFalse() 
+            public void WhenKeysAreTheSame_ButValuesAreDifferent_ShouldReturnFalse()
             {
                 // Arrange
                 var key1 = GetRandomString();
@@ -625,18 +674,19 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
-            public void WhenValuesAreTheSame_ButKeysAreDifferent_ShouldReturnFalse() {
-                  // Arrange
-                  var value1 = GetRandomString();
-                  var value2 = GetRandomInt();
-                  var dictionary1 = DictionaryBuilder<string, object>.Create()
-                      .WithItem(GetRandomString(), value1)
-                      .WithItem(GetRandomString(), value2)
-                      .Build();
-                  var dictionary2 = DictionaryBuilder<string, object>.Create()
-                      .WithItem(GetRandomString(), value1)
-                      .WithItem(GetRandomString(), value2)
-                      .Build();
+            public void WhenValuesAreTheSame_ButKeysAreDifferent_ShouldReturnFalse()
+            {
+                // Arrange
+                var value1 = GetRandomString();
+                var value2 = GetRandomInt();
+                var dictionary1 = DictionaryBuilder<string, object>.Create()
+                    .WithItem(GetRandomString(), value1)
+                    .WithItem(GetRandomString(), value2)
+                    .Build();
+                var dictionary2 = DictionaryBuilder<string, object>.Create()
+                    .WithItem(GetRandomString(), value1)
+                    .WithItem(GetRandomString(), value2)
+                    .Build();
                 var sut = Create(dictionary1, dictionary2);
                 // Pre-Assert
                 // Act
@@ -646,7 +696,8 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
-            public void WhenDifferentNumberOfEntries_ShouldReturnFalse() {
+            public void WhenDifferentNumberOfEntries_ShouldReturnFalse()
+            {
                 // Arrange
                 var key1 = GetRandomString();
                 var key2 = GetRandomString();
@@ -665,6 +716,66 @@ namespace PeanutButter.Utils.Tests
                 var result = sut.AreDeepEqual();
                 // Assert
                 Expect(result).To.Be.False();
+            }
+        }
+
+        [TestFixture]
+        public class CustomEqualityTesting
+        {
+            [Test]
+            public void GivenCustomDateTimeComparer()
+            {
+                // Arrange
+                var left = new {Date = DateTime.Now.AddSeconds(-1)};
+                var right = new {Date = left.Date.AddSeconds(1)};
+                var sut = Create(left, right);
+                sut.AddCustomComparer(new DateComparerByDayOnly());
+                // Pre-assert
+                // Act
+                var result = sut.AreDeepEqual();
+                // Assert
+                Expect(result).To.Be.True();
+            }
+
+            [Test]
+            public void GivenDisparateNumericTypesAndCustomDecimalComparer()
+            {
+                // Arrange
+                var left = new {id = (long)1};
+                var right = new {id = 2};
+                var sut = Create(left, right);
+                sut.AddCustomComparer(new DecimalComparerWhichAllowsUpTo2Delta());
+                // Pre-assert
+                // Act
+                var result = sut.AreDeepEqual();
+                // Assert
+                Expect(result).To.Be.True();
+            }
+        }
+
+        public class DecimalComparerWhichAllowsUpTo2Delta : IComparer<decimal>
+        {
+            public int Compare(decimal x, decimal y)
+            {
+                var delta = x - y;
+                if (Math.Abs(delta) < 2) return 0;
+                return delta < 0 ? -1 : 1;
+            }
+        }
+
+
+        public class DateComparerByDayOnly : IComparer<DateTime>
+        {
+            public int Compare(DateTime x, DateTime y)
+            {
+                if (x.Year < y.Year) return -1;
+                if (x.Month < y.Month) return -1;
+                if (x.Day < y.Day) return -1;
+                return x.Year == y.Year &&
+                       x.Month == y.Month &&
+                       x.Day == y.Day
+                    ? 0
+                    : 1;
             }
         }
 
@@ -884,6 +995,7 @@ namespace PeanutButter.Utils.Tests
                         Convert.FromBase64String(GetDataPartOf(EnkiEnki))
                             .ToUTF8String());
             }
+
             return result;
         }
 
@@ -916,6 +1028,7 @@ namespace PeanutButter.Utils.Tests
                 var myVal = match.GetValue(this);
                 propertyInfo.SetValue(moo, myVal);
             }
+
             return moo;
         }
 
@@ -928,6 +1041,7 @@ namespace PeanutButter.Utils.Tests
                 var srcVal = match.GetValue(moo);
                 propertyInfo.SetValue(result, srcVal);
             }
+
             result.EnkiEnki =
                 $"data:application/json;base64,{Convert.ToBase64String(JsonConvert.SerializeObject(moo.WubWubs).AsBytes())}";
             return result;
@@ -1008,41 +1122,50 @@ namespace PeanutButter.Utils.Tests
 
         public MooBuilder WithNoInitiatingTrigger()
         {
-            return WithProp(o => o.WubWubs.WerkelSchmerkels =
-                o.WubWubs.WerkelSchmerkels
-                    .EmptyIfNull()
-                    .Where(c => c.FromId != "WibbleStix")
-                    .ToArray()
+            return WithProp(
+                o => o.WubWubs.WerkelSchmerkels =
+                    o.WubWubs.WerkelSchmerkels
+                        .EmptyIfNull()
+                        .Where(c => c.FromId != "WibbleStix")
+                        .ToArray()
             );
         }
 
         public MooBuilder WithUnconfiguredAction()
         {
-            return WithProp(o =>
-            {
-                var widget = o.WubWubs.ThingyMaBobs.Second();
-                widget.CakesOfMoos.First().Settings["Moo"] = GetRandomBoolean() ? null : new object[] { };
-            });
+            return WithProp(
+                o =>
+                {
+                    var widget = o.WubWubs.ThingyMaBobs.Second();
+                    widget.CakesOfMoos.First().Settings["Moo"] = GetRandomBoolean()
+                        ? null
+                        : new object[] { };
+                });
         }
 
         public MooBuilder WithUnconfiguredCondition()
         {
-            return WithProp(o =>
-            {
-                var widget = o.WubWubs.ThingyMaBobs.Second();
-                widget.ThingConditions.First().SelectedValues = GetRandomBoolean() ? null : new Option[0];
-            });
+            return WithProp(
+                o =>
+                {
+                    var widget = o.WubWubs.ThingyMaBobs.Second();
+                    widget.ThingConditions.First().SelectedValues = GetRandomBoolean()
+                        ? null
+                        : new Option[0];
+                });
         }
 
         public MooBuilder WithMultipleEventsButNoActions()
         {
-            return WithProp(o =>
-            {
-                o.WubWubs.ThingyMaBobs.ForEach(w =>
+            return WithProp(
+                o =>
                 {
-                    w.CakesOfMoos = null;
+                    o.WubWubs.ThingyMaBobs.ForEach(
+                        w =>
+                        {
+                            w.CakesOfMoos = null;
+                        });
                 });
-            });
         }
 
         public class EventConditionBuilder : GenericBuilder<EventConditionBuilder, ThingCondition>
@@ -1063,10 +1186,11 @@ namespace PeanutButter.Utils.Tests
                 return WithProp(o => o.CakeId = Guid.NewGuid())
                     .WithProp(o => o.CakeName = GetRandomString(4))
                     .WithProp(o => o.Id = Guid.NewGuid())
-                    .WithProp(o => o.Settings = new Dictionary<string, object[]>()
-                    {
-                        [GetRandomString(2, 4)] = GetRandomCollection<int>(2).Cast<object>().ToArray()
-                    });
+                    .WithProp(
+                        o => o.Settings = new Dictionary<string, object[]>()
+                        {
+                            [GetRandomString(2, 4)] = GetRandomCollection<int>(2).Cast<object>().ToArray()
+                        });
             }
         }
 
@@ -1107,8 +1231,9 @@ namespace PeanutButter.Utils.Tests
 
             public WaitEventWidgetDtoBuilder WithRandomMooCakes()
             {
-                return WithProp(o =>
-                    WithMooCakes(GetRandomCollection<CakesOfMoo>(1, 3).ToArray())
+                return WithProp(
+                    o =>
+                        WithMooCakes(GetRandomCollection<CakesOfMoo>(1, 3).ToArray())
                 );
             }
 
@@ -1119,15 +1244,17 @@ namespace PeanutButter.Utils.Tests
 
             public WaitEventWidgetDtoBuilder WithMooCakes(params CakesOfMoo[] actions)
             {
-                return WithProp(o =>
-                    o.CakesOfMoos = o.CakesOfMoos.EmptyIfNull().And(actions)
+                return WithProp(
+                    o =>
+                        o.CakesOfMoos = o.CakesOfMoos.EmptyIfNull().And(actions)
                 );
             }
 
             public WaitEventWidgetDtoBuilder WithRandomThingConditions()
             {
-                return WithProp(o =>
-                    WithThingConditions(GetRandomCollection<ThingCondition>(1, 3).ToArray())
+                return WithProp(
+                    o =>
+                        WithThingConditions(GetRandomCollection<ThingCondition>(1, 3).ToArray())
                 );
             }
 
@@ -1137,8 +1264,9 @@ namespace PeanutButter.Utils.Tests
             }
         }
 
-        public class YacopBuilder : GenericBuilder<YacopBuilder, TestDeepEqualityTester.YetAnotherCollectionOfProperties
-        >
+        public class YacopBuilder
+            : GenericBuilder<YacopBuilder, TestDeepEqualityTester.YetAnotherCollectionOfProperties
+            >
         {
             private static readonly ThingyMaBob _start = new ThingyMaBob()
             {
@@ -1151,36 +1279,40 @@ namespace PeanutButter.Utils.Tests
             {
                 return base.WithRandomProps()
                     .WithStart()
-                    .WithProp(o =>
-                    {
-                        var waitEventWidgets = GetRandomCollection<ThingyMaBob>(2, 4).ToArray();
-                        WithThingies(waitEventWidgets);
-                    })
+                    .WithProp(
+                        o =>
+                        {
+                            var waitEventWidgets = GetRandomCollection<ThingyMaBob>(2, 4).ToArray();
+                            WithThingies(waitEventWidgets);
+                        })
                     .WithSomePlan();
             }
 
             private YacopBuilder WithSomePlan()
             {
-                return WithProp(o =>
-                {
-                    var start = o.ThingyMaBobs.FirstOrDefault(w => w.Id == "WibbleStix");
-                    if (start == null)
-                        return;
-                    var others = new Queue<ThingyMaBob>(o.ThingyMaBobs.Except(new[] {start}).ToArray());
-                    var last = start;
-                    while (others.Count > 0)
+                return WithProp(
+                    o =>
                     {
-                        var next = others.Dequeue();
-                        o.WerkelSchmerkels = o.WerkelSchmerkels.EmptyIfNull().And(ConnectWibbleStix(last, next));
-                        last = next;
-                    }
-                });
+                        var start = o.ThingyMaBobs.FirstOrDefault(w => w.Id == "WibbleStix");
+                        if (start == null)
+                            return;
+                        var others = new Queue<ThingyMaBob>(o.ThingyMaBobs.Except(new[] {start}).ToArray());
+                        var last = start;
+                        while (others.Count > 0)
+                        {
+                            var next = others.Dequeue();
+                            o.WerkelSchmerkels = o.WerkelSchmerkels.EmptyIfNull().And(ConnectWibbleStix(last, next));
+                            last = next;
+                        }
+                    });
 
                 TestDeepEqualityTester.WerkelSchmerkel ConnectWibbleStix(BiltongSlab fromWidget, BiltongSlab toWidget)
                 {
                     return new TestDeepEqualityTester.WerkelSchmerkel()
                     {
-                        FromId = fromWidget.Id == "WibbleStix" ? fromWidget.Id : $"success.{fromWidget.Id}",
+                        FromId = fromWidget.Id == "WibbleStix"
+                            ? fromWidget.Id
+                            : $"success.{fromWidget.Id}",
                         ToId = $"wait-event.{toWidget.Id}"
                     };
                 }
@@ -1188,8 +1320,9 @@ namespace PeanutButter.Utils.Tests
 
             public YacopBuilder WithThingies(params ThingyMaBob[] connections)
             {
-                return WithProp(o =>
-                    o.ThingyMaBobs = o.ThingyMaBobs.EmptyIfNull().And(connections)
+                return WithProp(
+                    o =>
+                        o.ThingyMaBobs = o.ThingyMaBobs.EmptyIfNull().And(connections)
                 );
             }
 
@@ -1205,9 +1338,12 @@ namespace PeanutButter.Utils.Tests
         }
     }
 
-    public class DictionaryBuilder<TKey, TValue> : GenericBuilder<DictionaryBuilder<TKey, TValue>, Dictionary<TKey, TValue>> {
-        public DictionaryBuilder<TKey, TValue> WithItem(TKey key, TValue value) {
-          return WithProp(o => o.Add(key, value));
+    public class DictionaryBuilder<TKey, TValue>
+        : GenericBuilder<DictionaryBuilder<TKey, TValue>, Dictionary<TKey, TValue>>
+    {
+        public DictionaryBuilder<TKey, TValue> WithItem(TKey key, TValue value)
+        {
+            return WithProp(o => o.Add(key, value));
         }
     }
 }

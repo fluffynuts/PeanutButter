@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using static PeanutButter.Utils.PyLike;
+
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable UnusedMember.Global
 
@@ -160,6 +161,7 @@ namespace PeanutButter.Utils
             {
                 return AreSimpleEqual(sourceType, objSource, compareType, objCompare);
             }
+
             // TODO: see if this can be done a bit better
             if (AreBothEnumerable(sourceType, compareType) &&
                 BothHaveGenericTypeParameters(sourceType, compareType))
@@ -171,6 +173,7 @@ namespace PeanutButter.Utils
                     objCompare
                 );
             }
+
             return DeepCompare(
                 sourceType,
                 objSource,
@@ -179,7 +182,11 @@ namespace PeanutButter.Utils
             );
         }
 
-        private bool AreSimpleEqual(Type sourceType, object objSource, Type compareType, object objCompare)
+        private bool AreSimpleEqual(
+            Type sourceType, 
+            object objSource, 
+            Type compareType, 
+            object objCompare)
         {
             // naive simple equality tester:
             //  if the types match, use .Equals, otherwise attempt upcasting to decimal
@@ -190,11 +197,23 @@ namespace PeanutButter.Utils
             var compareAsDecimal = TryConvertToDecimal(objCompare);
             if (sourceAsDecimal == null || compareAsDecimal == null)
                 return false;
-            return OnlyCompareShape || sourceAsDecimal.Equals(compareAsDecimal);
+            return OnlyCompareShape || PerformDecimalEquals(sourceAsDecimal.Value, compareAsDecimal.Value);
         }
 
-        private bool PerformSameTypeEquals(object left, object right)
+        private bool PerformDecimalEquals(
+            decimal left, decimal right)
         {
+            var customResult = TryCompareWithCustomComparer(left, right);
+            return customResult ?? left.Equals(right);
+        }
+
+        private bool PerformSameTypeEquals(
+            object left,
+            object right)
+        {
+            var customResult = TryCompareWithCustomComparer(left, right);
+            if (customResult.HasValue)
+                return customResult.Value;
             var result = left.Equals(right);
             if (IgnoreDateTimeKind())
                 return result;
@@ -206,7 +225,39 @@ namespace PeanutButter.Utils
             {
                 return leftDate.Kind == rightDate.Kind;
             }
+
             return true;
+        }
+
+        private bool? TryCompareWithCustomComparer(
+            object left,
+            object right
+        )
+        {
+            var method = TryCompareWithCustomComparerGenericMethod.MakeGenericMethod(left.GetType());
+            try
+            {
+                return (bool?) method.Invoke(this, new[] {left, right});
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static readonly MethodInfo TryCompareWithCustomComparerGenericMethod
+            = typeof(DeepEqualityTester).GetMethod(
+                nameof(TryCompareWithCustomComparerGeneric),
+                BindingFlags.Instance | BindingFlags.NonPublic
+            );
+
+        private bool? TryCompareWithCustomComparerGeneric<T>(
+            T left,
+            T right
+        )
+        {
+            var comparer = _customComparers.OfType<IComparer<T>>().FirstOrDefault();
+            return comparer?.Compare(left, right) == 0;
         }
 
         private bool? _ignoreDateTimeKind;
@@ -251,13 +302,16 @@ namespace PeanutButter.Utils
         }
 
         private bool DeepCollectionCompare(
-            Type sourceType, object objSource,
-            Type compareType, object objCompare)
+            Type sourceType,
+            object objSource,
+            Type compareType,
+            object objCompare)
         {
             var sourceItemType = GetItemTypeFor(sourceType);
             var compareItemType = GetItemTypeFor(compareType);
             var method = DeepCollectionCompareGenericMethod.MakeGenericMethod(
-                sourceItemType, compareItemType
+                sourceItemType,
+                compareItemType
             );
             return (bool) method.Invoke(this, new[] {objSource, objCompare});
         }
@@ -291,6 +345,7 @@ namespace PeanutButter.Utils
                 AddError($"Collection sizes do not match: {sourceCount} vs {compareCount}");
                 return false;
             }
+
             var index = 0;
             return Zip(source, compare)
                 .Aggregate(
@@ -317,6 +372,7 @@ namespace PeanutButter.Utils
             {
                 AddError($"Collection comparison fails at index {index}");
             }
+
             return result;
         }
 
@@ -328,14 +384,15 @@ namespace PeanutButter.Utils
         private static bool IsSimpleTypeOrNullableOfSimpleType(Type t)
         {
             return t != null &&
-                   Types.PrimitivesAndImmutables.Any(si => si == t ||
+                   Types.PrimitivesAndImmutables.Any(
+                       si => si == t ||
 #if NETSTANDARD
-                   (t.IsConstructedGenericType &&
+                             (t.IsConstructedGenericType &&
 #else
                                                            (t.IsGenericType &&
 #endif
-                                                            t.GetGenericTypeDefinition() == typeof(Nullable<>) &&
-                                                            Nullable.GetUnderlyingType(t) == si));
+                              t.GetGenericTypeDefinition() == typeof(Nullable<>) &&
+                              Nullable.GetUnderlyingType(t) == si));
         }
 
 
@@ -345,7 +402,8 @@ namespace PeanutButter.Utils
         }
 
 
-        private PropertyOrField FindMatchingPropertyInfoFor(PropertyOrField srcPropInfo,
+        private PropertyOrField FindMatchingPropertyInfoFor(
+            PropertyOrField srcPropInfo,
             IEnumerable<PropertyOrField> compareProperties)
         {
             var comparePropInfo = compareProperties.FirstOrDefault(pi => pi.Name == srcPropInfo.Name);
@@ -355,6 +413,7 @@ namespace PeanutButter.Utils
                     AddError("Unable to find comparison property with name: '" + srcPropInfo.Name + "'");
                 return null;
             }
+
             var compareType = comparePropInfo.Type;
             var srcType = srcPropInfo.Type;
             if (TypesAreComparable(srcType, compareType))
@@ -420,11 +479,15 @@ namespace PeanutButter.Utils
             return compareProps.Any() && compareProps.All(cp => srcProps.Any(sp => sp.Name == cp.Name));
         }
 
+        // TODO: add a flag & even fuzzier matching to allow, for instance,
+        //    comparison between int and decimal, when enabled by the consumer
+        //    -> should not be default behavior
         private static readonly Tuple<Type, Type>[] LooselyComparableTypes =
         {
             Tuple.Create(typeof(int), typeof(long)),
             Tuple.Create(typeof(int), typeof(short)),
             Tuple.Create(typeof(long), typeof(short)),
+            Tuple.Create(typeof(long), typeof(float)),
             Tuple.Create(typeof(float), typeof(double)),
             Tuple.Create(typeof(float), typeof(decimal)),
             Tuple.Create(typeof(double), typeof(decimal))
@@ -436,9 +499,10 @@ namespace PeanutButter.Utils
             Type compareType
         )
         {
-            return LooselyComparableTypes.Any(pair =>
-                (pair.Item1 == srcType && pair.Item2 == compareType) ||
-                (pair.Item2 == srcType && pair.Item1 == compareType)
+            return LooselyComparableTypes.Any(
+                pair =>
+                    (pair.Item1 == srcType && pair.Item2 == compareType) ||
+                    (pair.Item2 == srcType && pair.Item1 == compareType)
             );
         }
 
@@ -481,17 +545,20 @@ namespace PeanutButter.Utils
                     return false;
                 }
             }
+
             if (!FailOnMissingProperties ||
                 OnlyTestIntersectingProperties ||
                 srcPropInfos.Length == compareProps.Length)
                 return CompareWith(objSource, objCompare, srcPropInfos, compareProps);
-            AddError(string.Join("\n",
-                "Property count mismatch",
-                $"Source has {srcPropInfos.Length} properties:",
-                $"{DumpPropertyInfo(srcPropInfos)}",
-                $"\nComparison has {compareProps.Length} properties:",
-                $"{DumpPropertyInfo(compareProps)}"
-            ));
+            AddError(
+                string.Join(
+                    "\n",
+                    "Property count mismatch",
+                    $"Source has {srcPropInfos.Length} properties:",
+                    $"{DumpPropertyInfo(srcPropInfos)}",
+                    $"\nComparison has {compareProps.Length} properties:",
+                    $"{DumpPropertyInfo(compareProps)}"
+                ));
             return false;
         }
 
@@ -518,6 +585,7 @@ namespace PeanutButter.Utils
                     .Where(o => !_ignorePropertiesByName.Contains(o.Name));
                 props = props.And(fields.ToArray());
             }
+
             return props;
         }
 
@@ -526,7 +594,8 @@ namespace PeanutButter.Utils
         private string DumpPropertyInfo(PropertyOrField[] propInfos)
         {
             return DUMP_DELIMITER +
-                   string.Join(DUMP_DELIMITER,
+                   string.Join(
+                       DUMP_DELIMITER,
                        propInfos.Select(pi => $"{pi.Type} {pi.Name}")
                    );
         }
@@ -537,7 +606,9 @@ namespace PeanutButter.Utils
         )
         {
             var result = left.Where(
-                    s => FindMatchingPropertyInfoFor(s, right) != null // right.Any(c => c.Name == s.Name && c.Type == s.Type)
+                    s =>
+                        FindMatchingPropertyInfoFor(s, right) !=
+                        null // right.Any(c => c.Name == s.Name && c.Type == s.Type)
                 )
                 .ToArray();
             if (result.IsEmpty())
@@ -552,17 +623,19 @@ namespace PeanutButter.Utils
             PropertyOrField[] comparePropInfos)
         {
             var didAnyComparison = false;
-            var finalResult = srcPropInfos.Aggregate(true, (result, srcProp) =>
-            {
-                if (!result)
-                    return false;
-                var compareProp = FindMatchingPropertyInfoFor(srcProp, comparePropInfos);
-                didAnyComparison = didAnyComparison || compareProp != null;
-                return (compareProp == null &&
-                        !FailOnMissingProperties) ||
-                       (compareProp != null &&
-                        PropertyValuesMatchFor(objSource, objCompare, srcProp, compareProp));
-            });
+            var finalResult = srcPropInfos.Aggregate(
+                true,
+                (result, srcProp) =>
+                {
+                    if (!result)
+                        return false;
+                    var compareProp = FindMatchingPropertyInfoFor(srcProp, comparePropInfos);
+                    didAnyComparison = didAnyComparison || compareProp != null;
+                    return (compareProp == null &&
+                            !FailOnMissingProperties) ||
+                           (compareProp != null &&
+                            PropertyValuesMatchFor(objSource, objCompare, srcProp, compareProp));
+                });
             return (srcPropInfos.IsEmpty() || didAnyComparison) && finalResult;
         }
 
@@ -593,6 +666,7 @@ namespace PeanutButter.Utils
                     $"Property value mismatch for {srcProp.Name}: {objSource.Stringify()} vs {objCompare.Stringify()}"
                 );
             }
+
             return result;
         }
 
@@ -677,13 +751,20 @@ namespace PeanutButter.Utils
             {
                 AddError($"Unable to find match for: {seek.Stringify()}");
             }
+
             return haveMatch;
         }
 
         private bool AreDeepEqualDetached(object left, object right)
         {
             var tester = new DeepEqualityTester(left, right, _ignorePropertiesByName);
+            tester.UseCustomComparers(_customComparers);
             return tester.AreDeepEqual(_pendingComparisons);
+        }
+
+        private void UseCustomComparers(List<object> customComparers)
+        {
+            _customComparers.AddRange(customComparers);
         }
 
 #pragma warning restore S1144 // Unused private types or members should be removed
@@ -692,6 +773,18 @@ namespace PeanutButter.Utils
         {
             return prop.Type
                 .TryGetEnumerableInterface();
+        }
+
+        private readonly List<object> _customComparers = new List<object>();
+
+        /// <summary>
+        /// Adds a custom comparer for the type T
+        /// </summary>
+        /// <param name="comparer"></param>
+        /// <typeparam name="T"></typeparam>
+        public void AddCustomComparer<T>(IComparer<T> comparer)
+        {
+            _customComparers.Add(comparer);
         }
     }
 }
