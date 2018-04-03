@@ -786,5 +786,10 @@ namespace PeanutButter.Utils
         {
             _customComparers.Add(comparer);
         }
+
+        public void AddCustomComparer(object comparer)
+        {
+            _customComparers.Add(comparer);
+        }
     }
 }
