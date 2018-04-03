@@ -736,6 +736,21 @@ namespace PeanutButter.Utils.Tests
                 // Assert
                 Expect(result).To.Be.True();
             }
+            
+            [Test]
+            public void GivenCustomDateTimeComparerAsObject()
+            {
+                // Arrange
+                var left = new {Date = DateTime.Now.AddSeconds(-1)};
+                var right = new {Date = left.Date.AddSeconds(1)};
+                var sut = Create(left, right);
+                sut.AddCustomComparer(new DateComparerByDayOnly() as object);
+                // Pre-assert
+                // Act
+                var result = sut.AreDeepEqual();
+                // Assert
+                Expect(result).To.Be.True();
+            }
 
             [Test]
             public void GivenDisparateNumericTypesAndCustomDecimalComparer()
@@ -765,7 +780,6 @@ namespace PeanutButter.Utils.Tests
                 return 0;
             }
         }
-
 
         public class DateComparerByDayOnly : IEqualityComparer<DateTime>
         {
