@@ -135,5 +135,27 @@ namespace PeanutButter.Utils.Tests
             // Assert
             Expect(result).To.Equal("<node>1</node>");
         }
+
+        public class Node
+        {
+            public Node Parent { get; set; }
+            public string Name { get; set; }
+        }
+
+        [Timeout(2000)]
+        [Test]
+        public void ShouldNeverGetInAnInfiniteLoop()
+        {
+            // Arrange
+            var node1 = new Node() { Name = GetRandomString(10) };
+            var node2 = new Node() { Name = GetRandomString(10) };
+            node1.Parent = node2;
+            node2.Parent = node1;
+            // Pre-assert
+            // Act
+            var result = node1.Stringify();
+            // Assert
+            Expect(result).Not.To.Be.Null.Or.Empty();
+        }
     }
 }
