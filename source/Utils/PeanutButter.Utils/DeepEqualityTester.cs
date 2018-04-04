@@ -162,7 +162,6 @@ namespace PeanutButter.Utils
                 return AreSimpleEqual(sourceType, objSource, compareType, objCompare);
             }
 
-            // TODO: see if this can be done a bit better
             if (AreBothEnumerable(sourceType, compareType) &&
                 BothHaveGenericTypeParameters(sourceType, compareType))
             {
@@ -174,18 +173,19 @@ namespace PeanutButter.Utils
                 );
             }
 
-            return DeepCompare(
-                sourceType,
-                objSource,
-                compareType,
-                objCompare
-            );
+            return TryCompareWithCustomComparer(objSource, objCompare) ??
+                   DeepCompare(
+                       sourceType,
+                       objSource,
+                       compareType,
+                       objCompare
+                   );
         }
 
         private bool AreSimpleEqual(
-            Type sourceType, 
-            object objSource, 
-            Type compareType, 
+            Type sourceType,
+            object objSource,
+            Type compareType,
             object objCompare)
         {
             // naive simple equality tester:
@@ -201,7 +201,8 @@ namespace PeanutButter.Utils
         }
 
         private bool PerformDecimalEquals(
-            decimal left, decimal right)
+            decimal left,
+            decimal right)
         {
             var customResult = TryCompareWithCustomComparer(left, right);
             return customResult ?? left.Equals(right);

@@ -766,6 +766,51 @@ namespace PeanutButter.Utils.Tests
                 // Assert
                 Expect(result).To.Be.True();
             }
+            
+            [Test]
+            public void GivenCustomComparerForComplexType()
+            {
+                // Arrange
+                var left = GetRandom<Parent>();
+                var right = GetRandom<Parent>();
+                right.Id = left.Id;
+                right.Name = left.Name;
+                var sut = Create(left, right);
+                sut.RecordErrors = true;
+                sut.AddCustomComparer(new ChildEqualityComparer());
+                // Pre-assert
+                Expect(left.Child).Not.To.Deep.Equal(right.Child);
+                // Act
+                var result = sut.AreDeepEqual();
+                // Assert
+                Expect(result).To.Be.True(sut.Errors.JoinWith("\n"));
+            }
+
+            public class ChildEqualityComparer : IEqualityComparer<Child>
+            {
+                public bool Equals(Child x, Child y)
+                {
+                    return true;    // all children are loved just the same!
+                }
+
+                public int GetHashCode(Child obj)
+                {
+                    return 0;
+                }
+            }
+
+            public class Parent
+            {
+                public int Id { get; set; }
+                public string Name { get; set; }
+                public Child Child { get; set; }
+            }
+
+            public class Child
+            {
+                public int Id { get; set; }
+                public string Name { get; set; }
+            }
         }
 
         public class DecimalComparerWhichAllowsUpTo2Delta : IEqualityComparer<decimal>
