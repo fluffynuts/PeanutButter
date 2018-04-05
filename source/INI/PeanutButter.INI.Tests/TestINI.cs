@@ -11,6 +11,7 @@ using NExpect;
 using NExpect.Implementations;
 using NExpect.Interfaces;
 using NExpect.MatcherLogic;
+using PeanutButter.INIFile;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable MemberCanBePrivate.Global
@@ -41,7 +42,7 @@ namespace PeanutButter.INI.Tests
             public void GivenFileName_ShouldLoadFile()
             {
                 //---------------Set up test pack-------------------
-                using (var tempFile = new AutoDeletingTempFile(".ini"))
+                using (var tempFile = new AutoDeletingIniFile())
                 {
                     var section = RandString();
                     var key = RandString();
@@ -63,11 +64,163 @@ namespace PeanutButter.INI.Tests
                 }
             }
 
+            [TestFixture]
+            public class PathProperty
+            {
+                [Test]
+                public void AfterLoadingFile_ShouldBePathToFile()
+                {
+                    // Arrange
+                    using (var tempFile = new AutoDeletingIniFile())
+                    {
+                        // Pre-assert
+                        var sut = Create(tempFile.Path);
+                        // Act
+                        var result = sut.Path;
+                        // Assert
+                        Expect(result).To.Equal(tempFile.Path);
+                    }
+                }
+
+                [Test]
+                public void WhenHaveNoLoadedFile_ShouldBeNull()
+                {
+                    // Arrange
+                    var sut = new INIFile.INIFile();
+                    // Pre-assert
+                    // Act
+                    var result = sut.Path;
+                    // Assert
+                    Expect(result).To.Be.Null();
+                }
+
+                [Test]
+                public void AfterLoad_ShouldBeLoadedPath()
+                {
+                    // Arrange
+                    using (var tempFile = new AutoDeletingIniFile())
+                    {
+                        var sut = new INIFile.INIFile();
+                        // Pre-assert
+                        Expect(sut.Path).To.Be.Null();
+                        // Act
+                        sut.Load(tempFile.Path);
+                        // Assert
+                        Expect(sut.Path).To.Equal(tempFile.Path);
+                    }
+                }
+            }
+
+            [TestFixture]
+            public class MergingConfigurations
+            {
+                [Test]
+                public void GivenInvalidPath_ShouldDoNothing()
+                {
+                    // Arrange
+                    using (var original = new AutoDeletingIniFile())
+                    using (var mergeFile = new AutoDeletingIniFile())
+                    {
+                        var section = GetRandomString(2);
+                        var setting = GetRandomString(2);
+                        var value = GetRandomString(2);
+                        var sut = Create(original.Path);
+                        sut.SetValue(section, setting, value);
+                        File.Delete(mergeFile.Path);
+                        // Pre-assert
+                        Expect(mergeFile.Path).Not.To.Be.A.File();
+                        // Act
+                        sut.Merge(mergeFile.Path, MergeStrategies.AddIfMissing);
+                        // Assert
+                    }
+                }
+
+                [Test]
+                public void GivenValidPath_AndAddIfMissingStrategy_ShouldMergeInWhereNotAlreadyExisting()
+                {
+                    // Arrange
+                    var section1 = $"original-section-{GetRandomString(4)}";
+                    var section2 = $"merged-section-{GetAnother(section1)}";
+                    var setting1 = $"original-setting-{GetRandomString(4)}";
+                    var value1 = $"original-value-{GetRandomString(4)}";
+                    var setting2 = $"merged-setting-{GetRandomString(4)}";
+                    var value2 = $"merged-value-{GetRandomString(4)}";
+                    var sharedSection = $"shared-section-{GetAnother<string>(new[] { section1, section2 })}";
+                    var sharedSetting = $"shared-setting-{GetRandomString(4)}";
+                    var originalSharedValue = $"original-shared-value-{GetRandomString(4)}";
+                    var mergedSharedValue = $"merged-shared-value-{GetRandomString(4)}";
+                    
+                    using (var original = new AutoDeletingIniFile())
+                    using (var merge = new AutoDeletingIniFile())
+                    {
+                        var sut = Create(original.Path);
+                        var other = Create(merge.Path);
+                        sut.SetValue(section1, setting1, value1);
+                        sut.SetValue(sharedSection, sharedSetting, originalSharedValue);
+                        other.SetValue(section2, setting2, value2);
+                        other.SetValue(sharedSection, sharedSetting, mergedSharedValue);
+                        other.Persist();
+                        // Pre-assert
+                        
+                        // Act
+                        sut.Merge(merge.Path, MergeStrategies.AddIfMissing);
+                        
+                        // Assert
+                        Expect(sut.GetValue(section1, setting1))
+                            .To.Equal(value1, "Missing original setting");
+                        Expect(sut.GetValue(section2, setting2))
+                            .To.Equal(value2, "Missing distinct merged-in setting");
+                        Expect(sut.GetValue(sharedSection, sharedSetting))
+                               .To.Equal(originalSharedValue, "Should have original shared setting");
+                    }
+                }
+                
+                [Test]
+                public void GivenValidPath_AndOverrideStrategy_ShouldMergeInWhereNotAlreadyExisting()
+                {
+                    // Arrange
+                    var section1 = $"original-section-{GetRandomString(4)}";
+                    var section2 = $"merged-section-{GetAnother(section1)}";
+                    var setting1 = $"original-setting-{GetRandomString(4)}";
+                    var value1 = $"original-value-{GetRandomString(4)}";
+                    var setting2 = $"merged-setting-{GetRandomString(4)}";
+                    var value2 = $"merged-value-{GetRandomString(4)}";
+                    var sharedSection = $"shared-section-{GetAnother<string>(new[] { section1, section2 })}";
+                    var sharedSetting = $"shared-setting-{GetRandomString(4)}";
+                    var originalSharedValue = $"original-shared-value-{GetRandomString(4)}";
+                    var mergedSharedValue = $"merged-shared-value-{GetRandomString(4)}";
+                    
+                    using (var original = new AutoDeletingIniFile())
+                    using (var merge = new AutoDeletingIniFile())
+                    {
+                        var sut = Create(original.Path);
+                        var other = Create(merge.Path);
+                        sut.SetValue(section1, setting1, value1);
+                        sut.SetValue(sharedSection, sharedSetting, originalSharedValue);
+                        other.SetValue(section2, setting2, value2);
+                        other.SetValue(sharedSection, sharedSetting, mergedSharedValue);
+                        other.Persist();
+                        // Pre-assert
+                        
+                        // Act
+                        sut.Merge(merge.Path, MergeStrategies.Override);
+                        
+                        // Assert
+                        Expect(sut.GetValue(section1, setting1))
+                            .To.Equal(value1, "Missing original setting");
+                        Expect(sut.GetValue(section2, setting2))
+                            .To.Equal(value2, "Missing distinct merged-in setting");
+                        Expect(sut.GetValue(sharedSection, sharedSetting))
+                               .To.Equal(mergedSharedValue, "Should have original shared setting");
+                    }
+                }
+            }
+
             [Test]
             public void GivenFileNameWhichDoesntExist_ShouldNotThrow()
             {
                 //---------------Set up test pack-------------------
-                using (var tempFile = new AutoDeletingTempFile(".ini"))
+                using (var tempFile = new AutoDeletingIniFile())
                 {
                     File.Delete(tempFile.Path);
                     //---------------Assert Precondition----------------
@@ -86,7 +239,7 @@ namespace PeanutButter.INI.Tests
             public void WhenGivenPathButFileDoesntExist_ShouldCreateFile()
             {
                 //---------------Set up test pack-------------------
-                using (var tempFile = new AutoDeletingTempFile(".ini"))
+                using (var tempFile = new AutoDeletingIniFile())
                 {
                     File.Delete(tempFile.Path);
                     //---------------Assert Precondition----------------
@@ -103,7 +256,7 @@ namespace PeanutButter.INI.Tests
             [Test]
             public void WhenSourceContainsComments_ShouldIgnoreCommentedParts()
             {
-                using (var tempFile = new AutoDeletingTempFile(".ini"))
+                using (var tempFile = new AutoDeletingIniFile())
                 {
                     //---------------Set up test pack-------------------
                     var src = new[]
@@ -140,7 +293,7 @@ namespace PeanutButter.INI.Tests
             public void WhenValueIsQuoted_ShouldSetDataValueUnQuoted()
             {
                 //---------------Set up test pack-------------------
-                using (var tempFile = new AutoDeletingTempFile(".ini"))
+                using (var tempFile = new AutoDeletingIniFile())
                 {
                     var section = RandString();
                     var key = RandString();
@@ -197,7 +350,7 @@ namespace PeanutButter.INI.Tests
             [Test]
             public void ShouldLoadMultipleSectionsAndKeys_WithCaseInsensitivityForSectionNamesAndSettingNames()
             {
-                using (var tempFile = new AutoDeletingTempFile(".ini"))
+                using (var tempFile = new AutoDeletingIniFile())
                 {
                     //---------------Set up test pack-------------------
                     var lines = new[]
@@ -290,12 +443,13 @@ namespace PeanutButter.INI.Tests
                     //---------------Test Result -----------------------
                     var outputData = File.ReadAllLines(tempFile.Path);
 
-                    Expect(outputData).To.Equal(new[]
-                    {
-                        "[section]",
-                        key1,
-                        key2
-                    });
+                    Expect(outputData).To.Equal(
+                        new[]
+                        {
+                            "[section]",
+                            key1,
+                            key2
+                        });
                 }
             }
         }
@@ -338,7 +492,7 @@ namespace PeanutButter.INI.Tests
             public void GivenFileName_ShouldWriteINIDataToFile()
             {
                 //---------------Set up test pack-------------------
-                using (var tempFile = new AutoDeletingTempFile(".ini"))
+                using (var tempFile = new AutoDeletingIniFile())
                 {
                     //---------------Assert Precondition----------------
                     var writer = Create(tempFile.Path);
@@ -363,7 +517,7 @@ namespace PeanutButter.INI.Tests
             public void GivenNoFileName_ShouldWriteINIDataToOriginalFile()
             {
                 //---------------Set up test pack-------------------
-                using (var tempFile = new AutoDeletingTempFile(".ini"))
+                using (var tempFile = new AutoDeletingIniFile())
                 {
                     //---------------Assert Precondition----------------
                     var writer = Create(tempFile.Path);
@@ -388,7 +542,7 @@ namespace PeanutButter.INI.Tests
             public void GivenFileName_ShouldPersistTheGlobalEmptySection()
             {
                 //---------------Set up test pack-------------------
-                using (var tempFile = new AutoDeletingTempFile(".ini"))
+                using (var tempFile = new AutoDeletingIniFile())
                 {
                     //---------------Assert Precondition----------------
                     var writer = Create(tempFile.Path);
@@ -674,7 +828,7 @@ namespace PeanutButter.INI.Tests
                 var value = GetRandomString();
 
                 //---------------Assert Precondition----------------
-                using (var tempFile = new AutoDeletingTempFile(".ini"))
+                using (var tempFile = new AutoDeletingIniFile())
                 {
                     var ini = new INIFile.INIFile(tempFile.Path);
                     ini[section][key] = value;
@@ -711,12 +865,13 @@ namespace PeanutButter.INI.Tests
             ini.Parse(string.Join(Environment.NewLine, src));
 
             //---------------Test Result -----------------------
-            Expect(ini.Sections).To.Equal(new[]
-            {
-                "general",
-                "section1",
-                "section2"
-            });
+            Expect(ini.Sections).To.Equal(
+                new[]
+                {
+                    "general",
+                    "section1",
+                    "section2"
+                });
         }
 
         [TestFixture]
@@ -910,6 +1065,13 @@ foo=bar
             public new Dictionary<string, Dictionary<string, string>> Data => base.Data;
         }
 
+        public class AutoDeletingIniFile : AutoDeletingTempFile
+        {
+            public AutoDeletingIniFile() : base(".ini")
+            {
+            }
+        }
+
         public class AutoDeletingTempFile : IDisposable
         {
             public string Path => _tempFile;
@@ -950,14 +1112,15 @@ foo=bar
     {
         public static void File(this IA<string> to)
         {
-            to.AddMatcher(actual =>
-            {
-                var passed = System.IO.File.Exists(actual);
-                return new MatcherResult(
-                    passed,
-                    $"Expected '{actual}' {passed.AsNot()}to be a file"
-                );
-            });
+            to.AddMatcher(
+                actual =>
+                {
+                    var passed = System.IO.File.Exists(actual);
+                    return new MatcherResult(
+                        passed,
+                        $"Expected '{actual}' {passed.AsNot()}to be a file"
+                    );
+                });
         }
     }
 }

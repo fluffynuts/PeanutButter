@@ -12,22 +12,36 @@ namespace PeanutButter.INIFile
     public interface IINIFile
     {
         /// <summary>
+        /// Exposes the path of the loaded INIFile
+        /// </summary>
+        string Path { get; }
+
+        /// <summary>
         /// Interface to treat IINIFile like a dictionary of dictionaries
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
         Dictionary<string, string> this[string index] { get; }
+
         /// <summary>
         /// List all the currently-available sections
         /// </summary>
         IEnumerable<string> Sections { get; }
+
+        /// <summary>
+        /// Attempts to load the file at the given path, discarding any existing config
+        /// </summary>
+        /// <param name="path"></param>
         void Load(string path);
+
         /// <summary>
         /// Add a section by name
         /// </summary>
         /// <param name="section"></param>
         void AddSection(string section);
+
         void Persist(string path = null);
+
         /// <summary>
         /// Sets a value by section and key
         /// </summary>
@@ -35,6 +49,7 @@ namespace PeanutButter.INIFile
         /// <param name="key"></param>
         /// <param name="value"></param>
         void SetValue(string section, string key, string value);
+
         /// <summary>
         /// Get a configured value by section and key, optionally provide a fallback default value
         /// </summary>
@@ -43,12 +58,14 @@ namespace PeanutButter.INIFile
         /// <param name="defaultValue"></param>
         /// <returns></returns>
         string GetValue(string section, string key, string defaultValue = null);
+
         /// <summary>
         /// Test if a section exists by name
         /// </summary>
         /// <param name="section"></param>
         /// <returns></returns>
         bool HasSection(string section);
+
         /// <summary>
         /// Test if a setting exists by section and key
         /// </summary>
@@ -56,28 +73,50 @@ namespace PeanutButter.INIFile
         /// <param name="key"></param>
         /// <returns></returns>
         bool HasSetting(string section, string key);
+
         /// <summary>
         /// Remove a section by name
         /// </summary>
         /// <param name="section"></param>
         void RemoveSection(string section);
+
+        /// <summary>
+        /// Merges in the ini config from the provided file path
+        /// - ignores paths which don't exist
+        /// </summary>
+        /// <param name="iniPath">File to merge in to current config</param>
+        /// <param name="mergeStrategy">Strategy to pick when merging</param>
+        void Merge(string iniPath, MergeStrategies mergeStrategy);
+    }
+
+    public enum MergeStrategies
+    {
+        AddIfMissing,
+        Override
     }
 
     // ReSharper disable once InconsistentNaming
+
     public class INIFile : IINIFile
     {
         public IEnumerable<string> Sections => Data.Keys;
+        public string Path => _path;
 
         private string _path;
         private readonly char[] _sectionTrimChars;
+        private List<MergedIniFile> _merged = new List<MergedIniFile>();
+
 
         // ReSharper disable once MemberCanBePrivate.Global
-        protected Dictionary<string, Dictionary<string, string>> Data { get; } = 
+
+        protected Dictionary<string, Dictionary<string, string>> Data { get; } =
             CreateCaseInsensitiveDictionary();
-        private Dictionary<string, Dictionary<string, string>> Comments { get; } = 
+
+        private Dictionary<string, Dictionary<string, string>> Comments { get; } =
             CreateCaseInsensitiveDictionary();
 
         private const string SECTION_COMMENT_KEY = "="; // bit of a hack: this can never be a key name in a section
+
 
         public INIFile(string path = null)
         {
@@ -151,7 +190,8 @@ namespace PeanutButter.INIFile
 
         private void StoreSetting(
             string currentSection,
-            string dataPart, List<string> recentComments
+            string dataPart,
+            List<string> recentComments
         )
         {
             var parts = dataPart.Split('=');
@@ -249,11 +289,12 @@ namespace PeanutButter.INIFile
 
         private static void EnsureFolderExistsFor(string path)
         {
-            var folder = Path.GetDirectoryName(path);
+            var folder = System.IO.Path.GetDirectoryName(path);
             if (!Directory.Exists(folder))
-                Directory.CreateDirectory(folder ?? throw new InvalidOperationException(
-                                              $"{nameof(EnsureFolderExistsFor)} must be called with a non-null folder name"
-                                          ));
+                Directory.CreateDirectory(
+                    folder ?? throw new InvalidOperationException(
+                        $"{nameof(EnsureFolderExistsFor)} must be called with a non-null folder name"
+                    ));
         }
 
         public void AddSection(string section)
@@ -268,6 +309,19 @@ namespace PeanutButter.INIFile
             if (section == null)
                 return;
             Data.Remove(section);
+        }
+
+        public void Merge(string iniPath, MergeStrategies mergeStrategy)
+        {
+            if (!File.Exists(iniPath))
+                return;
+            var toMerge = new INIFile(iniPath);
+            Merge(toMerge, mergeStrategy);
+        }
+
+        public void Merge(IINIFile other, MergeStrategies mergeStrategy)
+        {
+            _merged.Add(new MergedIniFile(other, mergeStrategy));
         }
 
         private string TrimOuterQuotesFrom(string value)
@@ -290,15 +344,16 @@ namespace PeanutButter.INIFile
             var lines = GetLinesForCurrentData();
             var shouldAddNewline = false;
             var newLine = Encoding.UTF8.GetBytes(Environment.NewLine);
-            lines.ForEach(l =>
-            {
-                if (shouldAddNewline)
-                    toStream.Write(newLine, 0, newLine.Length);
-                else
-                    shouldAddNewline = true;
-                var lineAsBytes = Encoding.UTF8.GetBytes(l);
-                toStream.Write(lineAsBytes, 0, lineAsBytes.Length);
-            });
+            lines.ForEach(
+                l =>
+                {
+                    if (shouldAddNewline)
+                        toStream.Write(newLine, 0, newLine.Length);
+                    else
+                        shouldAddNewline = true;
+                    var lineAsBytes = Encoding.UTF8.GetBytes(l);
+                    toStream.Write(lineAsBytes, 0, lineAsBytes.Length);
+                });
         }
 
         public override string ToString()
@@ -317,9 +372,10 @@ namespace PeanutButter.INIFile
                 AddCommentsTo(lines, section, SECTION_COMMENT_KEY);
                 if (section.Length > 0)
                     lines.Add(string.Join(string.Empty, "[", section, "]"));
-                lines.AddRange(Data[section]
-                    .Keys
-                    .Select(key => LineFor(section, key)));
+                lines.AddRange(
+                    Data[section]
+                        .Keys
+                        .Select(key => LineFor(section, key)));
             }
 
             return lines;
@@ -353,37 +409,107 @@ namespace PeanutButter.INIFile
                    );
         }
 
-        public void SetValue(string section, string key, string value)
+        public void SetValue(
+            string section,
+            string key,
+            string value)
         {
             AddSection(section);
             Data[section][key] = value;
         }
 
-        public string GetValue(string section, string key, string defaultValue = null)
+        public string GetValue(
+            string section,
+            string key,
+            string defaultValue = null)
         {
-            if (!HasSection(section))
+            if (!HasSetting(section, key))
                 return defaultValue;
-            return HasKey(Data[section], key)
+            var start = HasLocalKey(Data, section, key)
                 ? Data[section][key]
-                : defaultValue;
+                : null;
+            return GetMergedValue(section, key, defaultValue, start);
+        }
+
+        private bool HasLocalKey(
+            Dictionary<string, Dictionary<string, string>> data,
+            string section,
+            string key)
+        {
+            return HasKey(data, section) &&
+                   HasKey(data[section], key);
+        }
+
+        private string GetMergedValue(
+            string section,
+            string key,
+            string defaultValue,
+            string startingValue)
+        {
+            return _merged.Aggregate(
+                       startingValue,
+                       (acc, cur) =>
+                       {
+                           var mergeValue = cur.IniFile.GetValue(section, key);
+                           if (mergeValue != null &&
+                               cur.MergeStrategy == MergeStrategies.Override)
+                               return mergeValue;
+                           return acc ?? mergeValue;
+                       }
+                   ) ?? defaultValue;
         }
 
         public bool HasSection(string section)
+        {
+            return HasLocalSection(section) ||
+                   HaveMergedSection(section);
+        }
+
+        private bool HasLocalSection(string section)
         {
             return section != null &&
                    Data.Keys.Contains(section, StringComparer.OrdinalIgnoreCase);
         }
 
+        private bool HaveMergedSection(string section)
+        {
+            return _merged.Aggregate(
+                false,
+                (acc, cur) => acc || cur.IniFile.HasSection(section));
+        }
+
         public bool HasSetting(string section, string key)
         {
             return key != null &&
-                   HasSection(section) &&
-                   HasKey(Data[section], key);
+                   (HasLocalSection(section) &&
+                    HasKey(Data[section], key) ||
+                    HasMergedSetting(section, key));
         }
 
-        private bool HasKey(Dictionary<string, string> dict, string key)
+        private bool HasMergedSetting(string section, string key)
+        {
+            return _merged.Aggregate(
+                false,
+                (acc, cur) => acc || cur.IniFile.HasSetting(section, key));
+        }
+
+        private bool HasKey<T>(Dictionary<string, T> dict, string key)
         {
             return dict.Keys.Contains(key, StringComparer.OrdinalIgnoreCase);
+        }
+    }
+
+    internal class MergedIniFile
+    {
+        public IINIFile IniFile { get; }
+        public MergeStrategies MergeStrategy { get; }
+
+        internal MergedIniFile(
+            IINIFile iniFile,
+            MergeStrategies mergeStrategy)
+        {
+            IniFile = iniFile;
+            MergeStrategy = mergeStrategy;
         }
     }
 }
