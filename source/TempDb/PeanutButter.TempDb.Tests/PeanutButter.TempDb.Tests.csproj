@@ -122,9 +122,7 @@
     <PackageReference Include="Microsoft.SqlServer.Compact">
       <Version>4.0.8876.1</Version>
     </PackageReference>
-    <PackageReference Include="MySql.Data">
-      <Version>6.9.10</Version>
-    </PackageReference>
+    <PackageReference Include="MySql.Data" Version="6.9.11" />
     <PackageReference Include="NExpect" Version="1.0.112" />
     <PackageReference Include="NUnit">
       <Version>3.9.0</Version>
