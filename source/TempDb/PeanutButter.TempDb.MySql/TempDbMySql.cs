@@ -305,7 +305,7 @@ namespace PeanutButter.TempDb.MySql
         {
             Directory.CreateDirectory(DatabasePath);
             var mysqlVersion = GetVersionOf(mysqld);
-            if (IsWindows5_6OrLower(mysqlVersion))
+            if (IsWindowsAndMySql56OrLower(mysqlVersion))
             {
                 AttemptManualInitialization(mysqld);
                 return;
@@ -380,7 +380,7 @@ namespace PeanutButter.TempDb.MySql
             CopyItemToFolder(srcFile, targetFolder, File.Copy);
         }
 
-        private bool IsWindows5_6OrLower(MySqlVersionInfo mysqlVersion)
+        private bool IsWindowsAndMySql56OrLower(MySqlVersionInfo mysqlVersion)
         {
             return (mysqlVersion.Platform?.StartsWith("win") ?? false) &&
                    mysqlVersion.Version.Major <= 5 &&
