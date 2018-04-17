@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+
+// ReSharper disable IntroduceOptionalParameters.Global
 
 // ReSharper disable UnusedMemberInSuper.Global
 
@@ -21,7 +24,7 @@ namespace PeanutButter.INIFile
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        Dictionary<string, string> this[string index] { get; }
+        IDictionary<string, string> this[string index] { get; }
 
         /// <summary>
         /// List all the currently-available sections
@@ -40,7 +43,7 @@ namespace PeanutButter.INIFile
         /// <param name="section"></param>
         void AddSection(string section);
 
-        void Persist(string path = null);
+        IDictionary<string, string> GetSection(string name);
 
         /// <summary>
         /// Sets a value by section and key
@@ -87,6 +90,15 @@ namespace PeanutButter.INIFile
         /// <param name="iniPath">File to merge in to current config</param>
         /// <param name="mergeStrategy">Strategy to pick when merging</param>
         void Merge(string iniPath, MergeStrategies mergeStrategy);
+
+        void Parse(string contents);
+        void Persist(PersistStrategies persistStrategy);
+        void Persist(string saveToPath);
+        void Persist(string saveToPath, PersistStrategies persistStrategy);
+        void Persist(Stream toStream);
+        void Persist(Stream toStream, PersistStrategies persistStrategy);
+        void Persist();
+        void Reload();
     }
 
     public enum MergeStrategies
@@ -95,8 +107,36 @@ namespace PeanutButter.INIFile
         Override
     }
 
+    public enum PersistStrategies
+    {
+        ExcludeMergedConfigurations,
+        IncludeMergedConfigurations
+    }
+
     // ReSharper disable once InconsistentNaming
 
+    public class EmptyEnumerator<T>
+        : IEnumerator<T>
+    {
+        public void Dispose()
+        {
+        }
+
+        public bool MoveNext()
+        {
+            return false;
+        }
+
+        public void Reset()
+        {
+        }
+
+        public T Current => default(T);
+
+        object IEnumerator.Current => Current;
+    }
+
+    // ReSharper disable once InconsistentNaming
     public class INIFile : IINIFile
     {
         public IEnumerable<string> Sections => Data.Keys;
@@ -104,15 +144,15 @@ namespace PeanutButter.INIFile
 
         private string _path;
         private readonly char[] _sectionTrimChars;
-        private List<MergedIniFile> _merged = new List<MergedIniFile>();
+        private readonly List<MergedIniFile> _merged = new List<MergedIniFile>();
 
 
         // ReSharper disable once MemberCanBePrivate.Global
 
-        protected Dictionary<string, Dictionary<string, string>> Data { get; } =
+        protected Dictionary<string, IDictionary<string, string>> Data { get; } =
             CreateCaseInsensitiveDictionary();
 
-        private Dictionary<string, Dictionary<string, string>> Comments { get; } =
+        private Dictionary<string, IDictionary<string, string>> Comments { get; } =
             CreateCaseInsensitiveDictionary();
 
         private const string SECTION_COMMENT_KEY = "="; // bit of a hack: this can never be a key name in a section
@@ -138,20 +178,37 @@ namespace PeanutButter.INIFile
             Parse(SplitIntoLines(contents));
         }
 
-        public Dictionary<string, string> this[string index]
+        public IDictionary<string, string> this[string index]
         {
             get
             {
-                if (!Data.ContainsKey(index))
-                    AddSection(index);
-                return Data[index];
+                lock (sectionWrappers)
+                {
+                    if (sectionWrappers.TryGetValue(index, out var wrapper))
+                        return wrapper;
+                    wrapper = new DictionaryWrappingIniFileSection(this, index);
+                    sectionWrappers.Add(index, wrapper);
+                    return wrapper;
+                }
+
+                //if (!Data.ContainsKey(index))
+                //    AddSection(index);
+                //return Data[index];
             }
             set => Data[index] = value;
         }
 
-        private static Dictionary<string, Dictionary<string, string>> CreateCaseInsensitiveDictionary()
+        private Dictionary<string, IDictionary<string, string>> sectionWrappers
+            = new Dictionary<string, IDictionary<string, string>>();
+
+        public IDictionary<string, string> GetSection(string section)
         {
-            return new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
+            return Data[section];
+        }
+
+        private static Dictionary<string, IDictionary<string, string>> CreateCaseInsensitiveDictionary()
+        {
+            return new Dictionary<string, IDictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
         }
 
         private void Parse(IEnumerable<string> lines)
@@ -332,14 +389,42 @@ namespace PeanutButter.INIFile
             return value.Trim();
         }
 
-        public void Persist(string path = null)
+        public void Persist()
         {
-            path = CheckPersistencePath(path);
+            Persist(null as string, PersistStrategies.ExcludeMergedConfigurations);
+        }
+
+        public void Reload()
+        {
+            if (_path == null)
+                return;     // TODO: throw? or just ignore like as is?
+            Load(_path);
+            _merged.ForEach(ini => ini.IniFile.Reload());
+        }
+
+        public void Persist(PersistStrategies persistStrategy)
+        {
+            Persist(null as string, persistStrategy);
+        }
+
+        public void Persist(string saveToPath)
+        {
+            Persist(saveToPath, PersistStrategies.ExcludeMergedConfigurations);
+        }
+
+        public void Persist(string saveToPath, PersistStrategies persistStrategy)
+        {
+            saveToPath = CheckPersistencePath(saveToPath);
             var lines = GetLinesForCurrentData();
-            File.WriteAllBytes(path, Encoding.UTF8.GetBytes(string.Join(Environment.NewLine, lines)));
+            File.WriteAllBytes(saveToPath, Encoding.UTF8.GetBytes(string.Join(Environment.NewLine, lines)));
         }
 
         public void Persist(Stream toStream)
+        {
+            Persist(toStream, PersistStrategies.ExcludeMergedConfigurations);
+        }
+
+        public void Persist(Stream toStream, PersistStrategies persistStrategy)
         {
             var lines = GetLinesForCurrentData();
             var shouldAddNewline = false;
@@ -432,7 +517,7 @@ namespace PeanutButter.INIFile
         }
 
         private bool HasLocalKey(
-            Dictionary<string, Dictionary<string, string>> data,
+            IDictionary<string, IDictionary<string, string>> data,
             string section,
             string key)
         {
@@ -493,7 +578,7 @@ namespace PeanutButter.INIFile
                 (acc, cur) => acc || cur.IniFile.HasSetting(section, key));
         }
 
-        private bool HasKey<T>(Dictionary<string, T> dict, string key)
+        private bool HasKey<T>(IDictionary<string, T> dict, string key)
         {
             return dict.Keys.Contains(key, StringComparer.OrdinalIgnoreCase);
         }

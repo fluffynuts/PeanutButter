@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DictionaryWrappingINIFileSection.cs" />
     <Compile Include="INIFile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
