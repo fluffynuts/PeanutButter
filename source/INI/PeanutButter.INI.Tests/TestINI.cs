@@ -1208,7 +1208,7 @@ key=value2";
                     var sut = Create(tempFile.Path);
                     // Pre-assert
                     // Act
-                    tempFile.Write(updatedContents);
+                    tempFile.Write(updatedContents);    
                     sut.Reload();
                     // Assert
                     Expect(sut["section"]["key"]).To.Equal("value2");

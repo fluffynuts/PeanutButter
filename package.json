@@ -50,5 +50,8 @@
     "sinon": "^2.2.0",
     "through2": "^2.0.3",
     "which": "^1.2.14"
+  },
+  "dependencies": {
+    "npm": "^5.8.0"
   }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 
@@ -105,7 +106,9 @@ namespace PeanutButter.Utils.Dictionaries
         public MergeDictionary(params IDictionary<TKey, TValue>[] layers)
         {
             // TODO: test that we have any layers
-            _layers = layers;
+            _layers = layers.Where(l => l != null).ToArray();
+            if (_layers.IsEmpty())
+                throw new InvalidOperationException("No non-null layers provided");
         }
 
         /// <summary>
