@@ -98,12 +98,46 @@ namespace PeanutButter.INIFile
         /// <param name="contents"></param>
         void Parse(string contents);
 
-        void Persist(PersistStrategies persistStrategy);
-        void Persist(string saveToPath);
-        void Persist(string saveToPath, PersistStrategies persistStrategy);
-        void Persist(Stream toStream);
-        void Persist(Stream toStream, PersistStrategies persistStrategy);
+        /// <summary>
+        /// Persists to the last-loaded file, excluding merged configuration
+        /// </summary>
         void Persist();
+
+        /// <summary>
+        /// Persists to the last-loaded file with the specified strategy
+        /// </summary>
+        /// <param name="persistStrategy">Strategy to employ for merged config</param>
+        void Persist(PersistStrategies persistStrategy);
+
+        /// <summary>
+        /// Persists to the specified path, excluding merged configuration
+        /// </summary>
+        /// <param name="saveToPath"></param>
+        void Persist(string saveToPath);
+
+        /// <summary>
+        /// Persists to the specified path with the specified strategy
+        /// </summary>
+        /// <param name="saveToPath">File to save to</param>
+        /// <param name="persistStrategy">Strategy to employ for merged config</param>
+        void Persist(string saveToPath, PersistStrategies persistStrategy);
+
+        /// <summary>
+        /// Persists to the specified stream, excluding merged configuration
+        /// <param name="toStream">Stream to persist to</param>
+        /// </summary>
+        void Persist(Stream toStream);
+
+        /// <summary>
+        /// Persists to the specified stream, excluding merged configuration
+        /// <param name="toStream">Stream to persist to</param>
+        /// <param name="persistStrategy">Strategy to employ for merged config</param>
+        /// </summary>
+        void Persist(Stream toStream, PersistStrategies persistStrategy);
+
+        /// <summary>
+        /// Reload config (and all merged config) from disk
+        /// </summary>
         void Reload();
     }
 

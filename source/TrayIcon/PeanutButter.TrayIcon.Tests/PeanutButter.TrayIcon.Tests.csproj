@@ -89,7 +89,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.0-preview-20180320-02" />
-    <PackageReference Include="NExpect" Version="1.0.112" />
+    <PackageReference Include="NExpect" Version="1.0.114" />
     <PackageReference Include="NSubstitute">
       <Version>3.1.0</Version>
     </PackageReference>
