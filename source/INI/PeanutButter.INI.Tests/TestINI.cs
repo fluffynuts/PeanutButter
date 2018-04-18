@@ -1358,7 +1358,7 @@ key=value2";
             {
                 Expect(actual).To.Have.Setting(section, setting);
                 Expect(actual[section][setting])
-                    .To.Equal(value, () => $"Expected '[{section}]'/'{setting}' to equal '{value}'");
+                    .To.Equal(value, $"Expected '[{section}]'/'{setting}' to equal '{value}'");
             });
         }
 
