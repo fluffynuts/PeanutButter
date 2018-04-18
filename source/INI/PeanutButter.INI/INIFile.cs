@@ -91,7 +91,13 @@ namespace PeanutButter.INIFile
         /// <param name="mergeStrategy">Strategy to pick when merging</param>
         void Merge(string iniPath, MergeStrategies mergeStrategy);
 
+        /// <summary>
+        /// Parses the string contents, loading as ini config.    
+        /// Will remove any prior config.
+        /// </summary>
+        /// <param name="contents"></param>
         void Parse(string contents);
+
         void Persist(PersistStrategies persistStrategy);
         void Persist(string saveToPath);
         void Persist(string saveToPath, PersistStrategies persistStrategy);
@@ -140,6 +146,16 @@ namespace PeanutButter.INIFile
     public class INIFile : IINIFile
     {
         public IEnumerable<string> Sections => Data.Keys;
+        public IEnumerable<string> MergedSections => GetMergedSections();
+        public IEnumerable<string> AllSections => Data.Keys.Concat(GetMergedSections()).Distinct();
+
+        private IEnumerable<string> GetMergedSections()
+        {
+            return _merged.Select(m => m.IniFile.Sections)
+                .SelectMany(s => s)
+                .Distinct();
+        }
+
         public string Path => _path;
 
         private string _path;
@@ -203,7 +219,11 @@ namespace PeanutButter.INIFile
 
         public IDictionary<string, string> GetSection(string section)
         {
-            return Data[section];
+            var result = HasLocalSection(section)
+                ? Data[section]
+                : _merged.FirstOrDefault(m => m.IniFile.HasSection(section))
+                    ?.IniFile[section];
+            return result ?? throw new KeyNotFoundException(section);
         }
 
         private static Dictionary<string, IDictionary<string, string>> CreateCaseInsensitiveDictionary()
@@ -356,7 +376,7 @@ namespace PeanutButter.INIFile
 
         public void AddSection(string section)
         {
-            if (section == null || HasSection(section))
+            if (section == null || HasLocalSection(section))
                 return;
             Data[section] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         }
@@ -397,7 +417,7 @@ namespace PeanutButter.INIFile
         public void Reload()
         {
             if (_path == null)
-                return;     // TODO: throw? or just ignore like as is?
+                return; // TODO: throw? or just ignore like as is?
             Load(_path);
             _merged.ForEach(ini => ini.IniFile.Reload());
         }
@@ -415,7 +435,7 @@ namespace PeanutButter.INIFile
         public void Persist(string saveToPath, PersistStrategies persistStrategy)
         {
             saveToPath = CheckPersistencePath(saveToPath);
-            var lines = GetLinesForCurrentData();
+            var lines = GetLinesForCurrentData(persistStrategy);
             File.WriteAllBytes(saveToPath, Encoding.UTF8.GetBytes(string.Join(Environment.NewLine, lines)));
         }
 
@@ -426,7 +446,7 @@ namespace PeanutButter.INIFile
 
         public void Persist(Stream toStream, PersistStrategies persistStrategy)
         {
-            var lines = GetLinesForCurrentData();
+            var lines = GetLinesForCurrentData(persistStrategy);
             var shouldAddNewline = false;
             var newLine = Encoding.UTF8.GetBytes(Environment.NewLine);
             lines.ForEach(
@@ -445,26 +465,54 @@ namespace PeanutButter.INIFile
         {
             return string.Join(
                 Environment.NewLine,
-                GetLinesForCurrentData()
+                GetLinesForCurrentData(PersistStrategies.IncludeMergedConfigurations)
             );
         }
 
-        private List<string> GetLinesForCurrentData()
+        private List<string> GetLinesForCurrentData(PersistStrategies persistStrategy)
         {
+            var sectionFetcher = PersistFetchStrategies[persistStrategy];
+            var sections = persistStrategy == PersistStrategies.ExcludeMergedConfigurations
+                ? Sections
+                : AllSections;
             var lines = new List<string>();
-            foreach (var section in Sections)
+            foreach (var section in sections)
             {
                 AddCommentsTo(lines, section, SECTION_COMMENT_KEY);
                 if (section.Length > 0)
                     lines.Add(string.Join(string.Empty, "[", section, "]"));
+                var dictionary = sectionFetcher(section, this);
                 lines.AddRange(
-                    Data[section]
+                    dictionary
                         .Keys
                         .Select(key => LineFor(section, key)));
             }
 
             return lines;
         }
+
+        private static Dictionary<PersistStrategies, Func<string, INIFile, IDictionary<string, string>>>
+            PersistFetchStrategies =
+                new Dictionary<PersistStrategies, Func<string, INIFile, IDictionary<string, string>>>()
+                {
+                    [PersistStrategies.ExcludeMergedConfigurations] = FetchSectionFromData,
+                    [PersistStrategies.IncludeMergedConfigurations] = FetchSectionFromThis
+                };
+
+        private static IDictionary<string, string> FetchSectionFromThis(
+            string section,
+            INIFile ini)
+        {
+            return ini[section];
+        }
+
+        private static IDictionary<string, string> FetchSectionFromData(
+            string section,
+            INIFile ini)
+        {
+            return ini.Data[section];
+        }
+
 
         private void AddCommentsTo(List<string> lines, string forSection, string forKey)
         {
@@ -477,7 +525,7 @@ namespace PeanutButter.INIFile
         {
             var lines = new List<string>();
             AddCommentsTo(lines, section, key);
-            var dataValue = Data[section][key];
+            var dataValue = this[section][key];
             var writeValue = dataValue == null
                 ? ""
                 : "=\"" + dataValue + "\"";

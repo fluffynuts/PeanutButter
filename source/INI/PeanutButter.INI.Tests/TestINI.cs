@@ -303,6 +303,55 @@ namespace PeanutButter.INI.Tests
                         }
                     }
                 }
+
+                [TestFixture]
+                public class Persistence
+                {
+                    [Test]
+                    public void GivenExcludeMergedConfigurations_ShouldNotPersistMergedConfig()
+                    {
+                        // Arrange
+                        using (var original = new AutoDeletingIniFile())
+                        using (var merge = new AutoDeletingIniFile())
+                        {
+                            original.Write("[section]\nkey=value");
+                            merge.Write("[merge]\nmerge_key=merge_value");
+                            var sut = Create(original);
+                            sut.Merge(merge.Path, MergeStrategies.AddIfMissing);
+                            // Pre-assert
+                            // Act
+                            sut["section"]["key"] = "new_value";
+                            sut.Persist();
+                            // Assert
+                            var other = Create(original);
+                            Expect(other.Sections).Not.To.Contain("merge");
+                            Expect(other["section"]["key"]).To.Equal("new_value");
+                        }
+                    }
+
+                    [Test]
+                    public void GivenIncludeMergedConfigurations_WhenOnlyAddMerge_ShouldPersistEntireConfig()
+                    {
+                        // Arrange
+                        using (var original = new AutoDeletingIniFile())
+                        using (var merge = new AutoDeletingIniFile())
+                        {
+                            original.Write("[section]\nkey=value");
+                            merge.Write("[section]\nkey=other_value\n[merge]\nmerge_key=merge_value");
+                            var sut = Create(original);
+                            sut.Merge(merge.Path, MergeStrategies.AddIfMissing);
+                            // Pre-assert
+                            // Act
+                            sut.Persist(PersistStrategies.IncludeMergedConfigurations);
+                            // Assert
+                            var other = Create(original);
+                            Expect(other["section"]["key"]).To.Equal("value");
+                            Expect(other.Sections).To.Contain("merge");
+                            Expect(other["merge"]).To.Contain.Key("merge_key")
+                                .With.Value("merge_value");
+                        }
+                    }
+                }
             }
 
             [TestFixture]
@@ -332,32 +381,6 @@ otherSetting=otherValue";
                         var result = Create(original.Path);
                         Expect(result).Not.To.Have.Section("merged");
                         Expect(result).To.Have.Setting("original", "setting", "value");
-                    }
-                }
-
-                [Test]
-                public void DefaultPersist_WhenHaveOverriddenMergeValue_ShouldPersistOverriddenValue()
-                {
-                    // Arrange
-                    var originalContents = @"
-[original]
-setting=value";
-                    var mergeContents = @"
-[merged]
-otherSetting=otherValue";
-                    using (var original = new AutoDeletingIniFile(originalContents))
-                    using (var merge = new AutoDeletingIniFile(mergeContents))
-                    {
-                        // Pre-assert
-                        var sut = Create(original.Path);
-                        sut.Merge(merge.Path, MergeStrategies.Override);
-                        var expected = GetRandomString(5);
-                        // Act
-                        sut["merged"]["otherSetting"] = expected;
-                        sut.Persist();
-                        // Assert
-                        var result = Create(original.Path);
-                        Expect(result).To.Have.Section("merged");
                     }
                 }
             }
@@ -1240,6 +1263,11 @@ key=value2";
         private static string RandString()
         {
             return GetRandomAlphaString(1, 10);
+        }
+
+        private static IINIFile Create(AutoDeletingIniFile iniFile)
+        {
+            return Create(iniFile.Path);
         }
 
         private static IINIFile Create(string path = null)
