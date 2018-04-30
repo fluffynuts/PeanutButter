@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -41,6 +43,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                         //---------------Test Result -----------------------
                         Assert.AreEqual(port, server.Port);
                     }
+
                     return;
                 }
                 catch (PortUnavailableException)
@@ -48,6 +51,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                     Console.WriteLine($"Port {port} is currently not available");
                 }
             }
+
             Assert.Fail($"Unable to bind to any specified port in {maxTries} attempts");
         }
 
@@ -77,7 +81,10 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             const string theDocName = "index.html";
             using (var server = Create())
             {
-                server.AddHtmlDocumentHandler((p, s) => p.Path == "/" + theDocName ? doc : null);
+                server.AddHtmlDocumentHandler(
+                    (p, s) => p.Path == "/" + theDocName
+                        ? doc
+                        : null);
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
@@ -103,21 +110,55 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                 // Pre-Assert
 
                 // Act
-                server.AddDocumentHandler((p, s) => p.Path == "/html1" ? html1 : null);
-                server.AddDocumentHandler((p, s) => p.Path == "/html2" ? html2 : null);
-                server.AddDocumentHandler((p, s) => p.Path == "/json" ? json : null);
-                server.AddDocumentHandler((p, s) => p.Path == "/text" ? text : null);
-                server.AddDocumentHandler((p, s) => p.Path == "/xml1" ? xml1 : null);
-                server.AddDocumentHandler((p, s) => p.Path == "/xml2" ? xml2 : null);
-                DownloadResultFrom(server, HttpMethods.Get, "/html1", null,
+                server.AddDocumentHandler(
+                    (p, s) => p.Path == "/html1"
+                        ? html1
+                        : null);
+                server.AddDocumentHandler(
+                    (p, s) => p.Path == "/html2"
+                        ? html2
+                        : null);
+                server.AddDocumentHandler(
+                    (p, s) => p.Path == "/json"
+                        ? json
+                        : null);
+                server.AddDocumentHandler(
+                    (p, s) => p.Path == "/text"
+                        ? text
+                        : null);
+                server.AddDocumentHandler(
+                    (p, s) => p.Path == "/xml1"
+                        ? xml1
+                        : null);
+                server.AddDocumentHandler(
+                    (p, s) => p.Path == "/xml2"
+                        ? xml2
+                        : null);
+                DownloadResultFrom(
+                    server,
+                    HttpMethods.Get,
+                    "/html1",
+                    null,
                     out var htmlContentType1);
-                DownloadResultFrom(server, HttpMethods.Get, "/html2", null,
+                DownloadResultFrom(
+                    server,
+                    HttpMethods.Get,
+                    "/html2",
+                    null,
                     out var htmlContentType2);
                 DownloadResultFrom(server, HttpMethods.Get, "/json", null, out var jsonContentType);
                 DownloadResultFrom(server, HttpMethods.Get, "/text", null, out var textContentType);
-                DownloadResultFrom(server, HttpMethods.Get, "/xml1", null,
+                DownloadResultFrom(
+                    server,
+                    HttpMethods.Get,
+                    "/xml1",
+                    null,
                     out var xmlContentType1);
-                DownloadResultFrom(server, HttpMethods.Get, "/xml2", null,
+                DownloadResultFrom(
+                    server,
+                    HttpMethods.Get,
+                    "/xml2",
+                    null,
                     out var xmlContentType2);
 
                 // Assert
@@ -144,7 +185,10 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             var route = "api/foo";
             using (var server = Create())
             {
-                server.AddJsonDocumentHandler((p, s) => p.Path == "/" + route ? data : null);
+                server.AddJsonDocumentHandler(
+                    (p, s) => p.Path == "/" + route
+                        ? data
+                        : null);
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
@@ -168,7 +212,10 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             using (var server = Create())
             {
                 //---------------Assert Precondition----------------
-                server.AddFileHandler((p, s) => p.Path == "/" + theFileName ? theFile : null);
+                server.AddFileHandler(
+                    (p, s) => p.Path == "/" + theFileName
+                        ? theFile
+                        : null);
                 //---------------Execute Test ----------------------
                 var result = DownloadResultFrom(server, theFileName);
                 //---------------Test Result -----------------------
@@ -182,8 +229,10 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             using (var server = Create())
             {
                 //---------------Set up test pack-------------------
-                var doc = new XDocument(new XElement("html",
-                    new XElement("body", new XElement("p", new XText(GetRandomString())))));
+                var doc = new XDocument(
+                    new XElement(
+                        "html",
+                        new XElement("body", new XElement("p", new XText(GetRandomString())))));
                 server.ServeDocument("/index.html", doc);
 
                 //---------------Assert Precondition----------------
@@ -205,9 +254,13 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             using (var server = Create())
             {
                 //---------------Set up test pack-------------------
-                var invalidMethod = serveMethod == HttpMethods.Get ? HttpMethods.Post : HttpMethods.Get;
-                var doc = new XDocument(new XElement("html",
-                    new XElement("body", new XElement("p", new XText(GetRandomString())))));
+                var invalidMethod = serveMethod == HttpMethods.Get
+                    ? HttpMethods.Post
+                    : HttpMethods.Get;
+                var doc = new XDocument(
+                    new XElement(
+                        "html",
+                        new XElement("body", new XElement("p", new XText(GetRandomString())))));
                 var path = "/index.html";
                 server.ServeDocument(path, doc, serveMethod);
 
@@ -217,8 +270,9 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                 //---------------Execute Test ----------------------
                 Console.WriteLine("Attempt to download path: " + path);
                 string contentType;
-                var ex = Assert.Throws<WebException>(() =>
-                    DownloadResultFrom(server, invalidMethod, path, null, out contentType));
+                var ex = Assert.Throws<WebException>(
+                    () =>
+                        DownloadResultFrom(server, invalidMethod, path, null, out contentType));
                 var webResponse = ex.Response as HttpWebResponse;
                 Assert.IsNotNull(webResponse, ex.Message);
                 var statusCode = webResponse.StatusCode;
@@ -235,9 +289,10 @@ namespace PeanutButter.SimpleHTTPServer.Tests
         public void ServeDocument_WhenConfiguredToServeXDocumentFromPathWithParameters_ShouldServeDocument()
         {
             //---------------Set up test pack-------------------
-            var doc = XDocument.Parse("<html><head></head><body><p>" +
-                                      GetRandomAlphaNumericString() +
-                                      "</p></body></html>");
+            var doc = XDocument.Parse(
+                "<html><head></head><body><p>" +
+                GetRandomAlphaNumericString() +
+                "</p></body></html>");
             const string theDocName = "/index?foo=bar";
             using (var server = Create())
             {
@@ -248,7 +303,8 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                 var result = DownloadResultFrom(server, theDocName).ToUTF8String();
 
                 //---------------Test Result -----------------------
-                Assert.AreEqual(doc.ToString(SaveOptions.DisableFormatting),
+                Assert.AreEqual(
+                    doc.ToString(SaveOptions.DisableFormatting),
                     XDocument.Parse(result).ToString(SaveOptions.DisableFormatting));
             }
         }
@@ -308,7 +364,9 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             using (var server = Create())
             {
                 //---------------Set up test pack-------------------
-                var invalid = valid == HttpMethods.Get ? HttpMethods.Post : HttpMethods.Get;
+                var invalid = valid == HttpMethods.Get
+                    ? HttpMethods.Post
+                    : HttpMethods.Get;
                 var obj = GetRandom<SimpleData>();
                 var path = "/api/" + GetRandomString();
                 server.ServeJsonDocument(path, obj, valid);
@@ -334,8 +392,10 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             using (var server = Create())
             {
                 //---------------Set up test pack-------------------
-                var doc = new XDocument(new XElement("html",
-                    new XElement("body", new XElement("p", new XText(GetRandomString())))));
+                var doc = new XDocument(
+                    new XElement(
+                        "html",
+                        new XElement("body", new XElement("p", new XText(GetRandomString())))));
                 server.ServeDocument("/index.html", doc);
 
                 //---------------Assert Precondition----------------
@@ -409,15 +469,17 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                 //---------------Set up test pack-------------------
                 var url = server.GetFullUrlFor(fileName);
                 var expectedBytes = GetRandomBytes(100, 200);
-                server.AddFileHandler((processor, stream) =>
-                {
-                    if (processor.FullUrl == "/" + fileName)
+                server.AddFileHandler(
+                    (processor, stream) =>
                     {
-                        return expectedBytes;
-                    }
-                    processor.WriteStatusHeader(HttpStatusCode.NotFound, "File not found");
-                    return null;
-                });
+                        if (processor.FullUrl == "/" + fileName)
+                        {
+                            return expectedBytes;
+                        }
+
+                        processor.WriteStatusHeader(HttpStatusCode.NotFound, "File not found");
+                        return null;
+                    });
 
                 //---------------Assert Precondition----------------
 
@@ -457,10 +519,11 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                 var message = GetRandomString();
                 var logs = new List<string>();
                 server.LogAction = logs.Add;
-                server.AddHtmlDocumentHandler((p, s) =>
-                {
-                    throw new Exception(message);
-                });
+                server.AddHtmlDocumentHandler(
+                    (p, s) =>
+                    {
+                        throw new Exception(message);
+                    });
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
@@ -506,6 +569,37 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             }
         }
 
+        [Test]
+        public async Task ShouldPopulateUrlParameters()
+        {
+            // Arrange
+            using (var server = Create())
+            {
+                var capturedParams = new Dictionary<string, string>();
+                server.AddJsonDocumentHandler(
+                    (processor, stream) =>
+                    {
+                        processor.UrlParameters.ForEach(
+                            kvp => capturedParams.Add(kvp.Key, kvp.Value));
+                        return new[] {1, 2, 3};
+                    });
+                var client = new HttpClient()
+                {
+                    BaseAddress = new Uri(server.BaseUrl)
+                };
+                // Pre-assert
+                // Act
+                var message = new HttpRequestMessage(HttpMethod.Get, "endpoint?param1=value1&param2=value2");
+                await client.SendAsync(message);
+                // Assert
+                Expect(capturedParams).Not.To.Be.Empty();
+                Expect(capturedParams).To.Contain.Key("param1")
+                    .With.Value("value1");
+                Expect(capturedParams).To.Contain.Key("param2")
+                    .With.Value("value2");
+            }
+        }
+
         private HttpServer Create(int? port = null)
         {
             var result = CreateWithPort(port);
@@ -536,9 +630,11 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                     Console.WriteLine("Already fully downloaded");
                     return outFile;
                 }
+
                 Console.WriteLine("Resuming download from byte: {0}", finfo.Length);
                 req.AddRange(finfo.Length);
             }
+
             req.Timeout = 90000;
             using (var response = req.GetResponse())
             {
@@ -606,7 +702,9 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             var response = request.GetResponse();
             const string contentTypeHeader = "Content-Type";
             var hasContentTypeHeader = response.Headers.AllKeys.Contains(contentTypeHeader);
-            contentType = hasContentTypeHeader ? response.Headers[contentTypeHeader] : null;
+            contentType = hasContentTypeHeader
+                ? response.Headers[contentTypeHeader]
+                : null;
             using (var s = response.GetResponseStream())
             {
                 var memStream = new MemoryStream();
@@ -616,7 +714,10 @@ namespace PeanutButter.SimpleHTTPServer.Tests
         }
 
 
-        private byte[] DownloadResultFrom(HttpServer server, string path, Dictionary<string, string> addHeaders,
+        private byte[] DownloadResultFrom(
+            HttpServer server,
+            string path,
+            Dictionary<string, string> addHeaders,
             out string contentType)
         {
             return DownloadResultFrom(server, HttpMethods.Get, path, addHeaders, out contentType);

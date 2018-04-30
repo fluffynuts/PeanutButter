@@ -912,5 +912,34 @@ namespace PeanutButter.RandomGenerators.Tests
             Expect(result.All(o => o.Moo.Equals(default(SomeStruct))))
                 .To.Be.False();
         }
+
+        public class SomeClassWithDateProp
+        {
+            public DateTime DateTime { get; set; }
+        }
+
+        public class SomeClassWithDatePropBuilder
+            : GenericBuilder<SomeClassWithDatePropBuilder, SomeClassWithDateProp>
+        {
+        }
+
+        [TestCase(DateTimeKind.Local, DateTimeKind.Local)]
+        [TestCase(DateTimeKind.Utc, DateTimeKind.Utc)]
+        [TestCase(DateTimeKind.Unspecified, DateTimeKind.Local)]
+        public void ShouldSetDefaultDateTimeKindFromMethod(
+            DateTimeKind set,
+            DateTimeKind expected
+        )
+        {
+            // Arrange
+            // Pre-assert
+            // Act
+            var result = SomeClassWithDatePropBuilder.Create()
+                .WithDefaultDateTimeKind(set)
+                .WithRandomProps()
+                .Build();
+            // Assert
+            Expect(result.DateTime.Kind).To.Equal(expected);
+        }
     }
 }

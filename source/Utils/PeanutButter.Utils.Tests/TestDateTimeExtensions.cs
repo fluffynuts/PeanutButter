@@ -3,6 +3,7 @@ using System.Globalization;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using NExpect;
+using PeanutButter.RandomGenerators;
 using static NExpect.Expectations;
 
 namespace PeanutButter.Utils.Tests
@@ -366,6 +367,19 @@ namespace PeanutButter.Utils.Tests
             Expect(result).To.Be.True();
         }
 
+        public class ThingWithDate
+        {
+            public DateTime DateProperty { get; set; }
+        }
+
+        public class Builder : GenericBuilder<Builder, ThingWithDate>
+        {
+            public override Builder WithRandomProps()
+            {
+                return base.WithRandomProps()
+                    .WithProp(o => o.DateProperty = o.DateProperty.ToKind(DateTimeKind.Utc));
+            }
+        }
 
 
         private string zeroPad(int value, int places = 2)

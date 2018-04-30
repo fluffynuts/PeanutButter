@@ -87,7 +87,8 @@ namespace PeanutButter.INIFile
 
         public string this[string key]
         {
-            get => _iniFile.GetValue(_section, key) ?? throw new KeyNotFoundException(key);
+            get => _iniFile.GetValue(_section, key) ?? 
+                (_iniFile.HasSetting(_section, key) ? null as string : throw new KeyNotFoundException(key));
             set => _iniFile.SetValue(_section, key, value);
         }
         
