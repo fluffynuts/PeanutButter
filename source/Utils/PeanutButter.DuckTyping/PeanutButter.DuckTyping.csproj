@@ -11,6 +11,10 @@
     <PropertyGroup Condition="'$(TargetFramework)'=='net452'">
         <DefineConstants>BUILD_PEANUTBUTTER_INTERNAL</DefineConstants>
     </PropertyGroup>
+    <PropertyGroup>
+        <DebugType>Full</DebugType>
+        <DebugSymbols>True</DebugSymbols>
+    </PropertyGroup>
     <ItemGroup>
       <Compile Include="..\PeanutButter.Utils\Dictionaries\CaseWarpingDictionaryWrapper.cs" Link="Imported\CaseWarpingDictionaryWrapper.cs" />
       <Compile Include="..\PeanutButter.Utils\Dictionaries\DefaultDictionary.cs" Link="Imported\DefaultDictionary.cs" />

@@ -14,4 +14,8 @@
     <ItemGroup>
       <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj" />
     </ItemGroup>
+    <PropertyGroup>
+        <DebugType>Full</DebugType>
+        <DebugSymbols>True</DebugSymbols>
+    </PropertyGroup>
 </Project>

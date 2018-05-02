@@ -7,13 +7,17 @@
   <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
     <DefineConstants>NETSTANDARD</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup>
+      <DebugType>Full</DebugType>
+      <DebugSymbols>True</DebugSymbols>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.0-preview-20180320-02" />
     <PackageReference Include="NSubstitute">
       <Version>3.1.0</Version>
     </PackageReference>
     <PackageReference Include="NUnit">
-      <Version>3.9.0</Version>
+      <Version>3.10.1</Version>
     </PackageReference>
     <PackageReference Include="NUnit3TestAdapter" Version="3.10.0" />
   </ItemGroup>

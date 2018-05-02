@@ -1068,10 +1068,4 @@ namespace PeanutButter.RandomGenerators
             return null;
         }
     }
-
-    public enum DefaultDateTimeKindPropagation
-    {
-        None,
-        Descendants
-    }
 }

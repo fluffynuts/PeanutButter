@@ -7,4 +7,8 @@
     <PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.6'">
         <DefineConstants>NETSTANDARD</DefineConstants>
     </PropertyGroup>
+    <PropertyGroup>
+        <DebugType>Full</DebugType>
+        <DebugSymbols>True</DebugSymbols>
+    </PropertyGroup>
 </Project>

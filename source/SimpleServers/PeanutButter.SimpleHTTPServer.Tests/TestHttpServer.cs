@@ -465,7 +465,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                 var fileName = GetRandomAlphaNumericString(5, 10) + ".exe";
                 deleter.Add(tempFolder);
                 var expectedFile = Path.Combine(tempFolder, fileName);
-                var server = Create();
+                var server = disposer.Add(Create());
                 //---------------Set up test pack-------------------
                 var url = server.GetFullUrlFor(fileName);
                 var expectedBytes = GetRandomBytes(100, 200);

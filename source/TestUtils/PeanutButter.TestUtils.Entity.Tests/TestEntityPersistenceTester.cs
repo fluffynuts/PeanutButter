@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using NUnit.Framework.Internal;
 using PeanutButter.TempDb;
 using PeanutButter.TempDb.LocalDb;
 using PeanutButter.TestUtils.Generic;
@@ -501,30 +502,37 @@ namespace PeanutButter.TestUtils.Entity.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var attempts = 0;
             var exceptions = new List<Exception>();
-            while (attempts++ < 10)
+            using (new TestExecutionContext.IsolatedContext())
             {
-                Parallel.For(0, 4, (i, state) =>
+                var attempts = 0;
+                while (attempts++ < 10)
                 {
-                    // at least one of these should hit the issue
-                    try
+                    Parallel.For(
+                        0,
+                        4,
+                        (i, state) =>
+                        {
+                            // at least one of these should hit the issue
+                            try
+                            {
+                                EntityPersistenceTester.CreateFor<SomeEntityWithDateTimeValue>()
+                                    .WithContext<ContextForDateTimeDeltaTesting>()
+                                    .WithAllowedDateTimePropertyDelta(
+                                        new TimeSpan(0, 0, 0, 0, 1)) // there should be at least one 2ms delta
+                                    .SuppressMissingMigratorMessage()
+                                    .ShouldPersistAndRecall();
+                            }
+                            catch (Exception ex)
+                            {
+                                state.Stop();
+                                exceptions.Add(ex);
+                            }
+                        });
+                    if (exceptions.Any())
                     {
-                        EntityPersistenceTester.CreateFor<SomeEntityWithDateTimeValue>()
-                            .WithContext<ContextForDateTimeDeltaTesting>()
-                            .WithAllowedDateTimePropertyDelta(new TimeSpan(0, 0, 0, 0, 1))  // there should be at least one 2ms delta
-                            .SuppressMissingMigratorMessage()
-                            .ShouldPersistAndRecall();
+                        break;
                     }
-                    catch (Exception ex)
-                    {
-                        state.Stop();
-                        exceptions.Add(ex);
-                    }
-                });
-                if (exceptions.Any())
-                {
-                    break;
                 }
             }
 

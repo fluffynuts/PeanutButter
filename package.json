@@ -6,11 +6,12 @@
   },
   "license": "BSD-3-Clause",
   "scripts": {
-    "test": "gulp test-dotnet",
+    "pretest": "gulp build",
+    "test": "gulp cover-dotnet",
+    "posttest": "gulp report-generator",
     "build": "gulp build",
     "gulp": "gulp",
-    "release": "gulp release",
-    "coverage": "gulp cover-dotnet"
+    "release": "gulp release"
   },
   "devDependencies": {
     "debug": "^3.0.1",

@@ -81,7 +81,10 @@ namespace PeanutButter.TestUtils.Entity
 
         private static TransactionScope CreateTransactionScopeCapableOfSurvivingAsyncAwait()
         {
-            return new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+            return new TransactionScope(
+                TransactionScopeOption.Required,
+                TimeSpan.FromMinutes(9), 
+                TransactionScopeAsyncFlowOption.Enabled);
         }
 
 
