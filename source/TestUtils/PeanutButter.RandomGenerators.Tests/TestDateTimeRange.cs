@@ -45,7 +45,74 @@ namespace PeanutButter.RandomGenerators.Tests
             Expect(sut.To).To.Equal(to);
         }
 
-        private DateRange Create(DateTime fromDate, DateTime toDate)
+        [TestFixture]
+        public class InRange
+        {
+            [Test]
+            public void WhenGivenDateEqualToStart_ShouldReturnTrue()
+            {
+                // Arrange
+                var from = GetRandomDate();
+                var to = GetRandomDate(from.AddMinutes(1));
+                var sut = Create(from, to);
+                // Pre-assert
+                // Act
+                var result = sut.InRange(from);
+                // Assert
+                Expect(result).To.Be.True();
+            }
+
+            [Test]
+            public void WhenGivenDateEqualToEnd_ShouldReturnTrue()
+            {
+                // Arrange
+                var from = GetRandomDate();
+                var to = GetRandomDate(from.AddMinutes(1));
+                var sut = Create(from, to);
+                // Pre-assert
+                // Act
+                var result = sut.InRange(to);
+                // Assert
+                Expect(result).To.Be.True();
+            }
+
+            [Test]
+            public void WhenGivenDateShouldReturnTrue()
+            {
+                // Arrange
+                var from = GetRandomDate();
+                var to = GetRandomDate(from.AddMinutes(1));
+                var test = GetRandomDate(from, to);
+                var sut = Create(from, to);
+                // Pre-assert
+                // Act
+                var result = sut.InRange(test);
+                // Assert
+                Expect(result).To.Be.True();
+            }
+
+            [Test]
+            public void WhenGivenDateOutOfRange_ShouldReturnFalse()
+            {
+                // Arrange
+                var from = GetRandomDate();
+                var to = GetRandomDate(from.AddMinutes(1));
+                var test = GetRandomDate();
+                while (test >= from && test <= to)
+                {
+                    test = GetRandomDate();
+                }
+
+                var sut = Create(from, to);
+                // Pre-assert
+                // Act
+                var result = sut.InRange(test);
+                // Assert
+                Expect(result).To.Be.False();
+            }
+        }
+
+        private static DateRange Create(DateTime fromDate, DateTime toDate)
         {
             return new DateRange(fromDate, toDate);
         }

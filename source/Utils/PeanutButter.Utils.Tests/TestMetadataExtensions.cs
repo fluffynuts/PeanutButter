@@ -30,6 +30,37 @@ namespace PeanutButter.Utils.Tests
         }
 
         [Test]
+        public void ShouldBeAbleToUpdateAValue()
+        {
+            // Arrange
+            var target = new { };
+            var key = GetRandomString(2);
+            var value = GetRandomInt();
+            var newValue = GetAnother(value);
+            // Pre-assert
+            // Act
+            target.SetMetadata(key, value);
+            var result1 = target.GetMetadata<int>(key);
+            target.SetMetadata(key, newValue);
+            var result2 = target.GetMetadata<int>(key);
+            // Assert
+            Expect(result1).To.Equal(value);
+            Expect(result2).To.Equal(newValue);
+        }
+
+        [Test]
+        public void RetrievingMetadataForNonExistingKeys_ShouldReturnDefaultForT()
+        {
+            // Arrange
+            var target = new {};
+            // Pre-assert
+            // Act
+            var result = target.GetMetadata<int>(GetRandomString(2));
+            // Assert
+            Expect(result).To.Equal(default(int));
+        }
+
+        [Test]
         public void ShouldBeAbleToInformIfThereIsMetadata()
         {
             // Arrange

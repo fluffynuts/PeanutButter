@@ -361,7 +361,7 @@ namespace PeanutButter.Async.Tests
                 }).Using(sut).ContinueWith(lastTask =>
                                                {
                                                    value2 = 2;
-                                               });
+                                               }).Wait();
 
             // Assert
             Assert.That(value1, Is.EqualTo(1));
