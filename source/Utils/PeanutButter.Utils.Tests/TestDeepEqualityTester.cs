@@ -761,7 +761,7 @@ namespace PeanutButter.Utils.Tests
                 // Act
                 var result = sut.AreDeepEqual();
                 // Assert
-                Expect(result).To.Be.False();
+                Expect(result).To.Be.True();
             }
         }
 
