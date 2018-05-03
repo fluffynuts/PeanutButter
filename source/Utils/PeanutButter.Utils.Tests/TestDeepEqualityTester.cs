@@ -720,6 +720,52 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        public class ArbitraryBehaviors
+        {
+            [Test]
+            public void ComparingTwoSimpleTypesWhereOneIsDecimalAndDifferentValues()
+            {
+                // Arrange
+                var left = "123";
+                var right = 124M;
+                var sut = Create(left, right);
+                // Pre-assert
+                // Act
+                var result = sut.AreDeepEqual();
+                // Assert
+                Expect(result).To.Be.False();
+            }
+
+            [Test]
+            public void ComparingTwoSimpleTypesWhereOneIsDecimalAndSameValuesWhereBothNumeric()
+            {
+                // Arrange
+                var left = 123;
+                var right = 123M;
+                var sut = Create(left, right);
+                // Pre-assert
+                // Act
+                var result = sut.AreDeepEqual();
+                // Assert
+                Expect(result).To.Be.True();
+            }
+
+            [Test]
+            public void ComparingTwoSimpleTypesWhereOneIsDecimalAndSameValuesButOneNotNumeric()
+            {
+                // Arrange
+                var left = "123";
+                var right = 123M;
+                var sut = Create(left, right);
+                // Pre-assert
+                // Act
+                var result = sut.AreDeepEqual();
+                // Assert
+                Expect(result).To.Be.False();
+            }
+        }
+
+        [TestFixture]
         public class CustomEqualityTesting
         {
             [Test]

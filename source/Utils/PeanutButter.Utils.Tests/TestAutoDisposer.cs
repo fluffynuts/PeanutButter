@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using NSubstitute;
 using NUnit.Framework;
+using static NExpect.Expectations;
+using NExpect;
 
 namespace PeanutButter.Utils.Tests
 {
@@ -82,10 +84,36 @@ namespace PeanutButter.Utils.Tests
             var thing = disposer.Add(new SomeDisposable());
 
             //---------------Test Result -----------------------
-            Assert.IsInstanceOf<SomeDisposable>(thing);
-            Assert.IsFalse(thing.Disposed);
+            Expect(thing).To.Be.An.Instance.Of<SomeDisposable>();
+            Expect(thing.Disposed).To.Be.False();
             disposer.Dispose();
-            Assert.IsTrue(thing.Disposed);
+            Expect(thing.Disposed).To.Be.True();
+        }
+
+        [Test]
+        public void ShouldNotThrowIfSubThrowsOnDisposal()
+        {
+            // Arrange
+            var called = false;
+            var sub = new SomeDisposableWithCallback(
+                () =>
+                {
+                    called = true;
+                    throw new Exception("moo");
+                });
+            var sut = Create();
+            // Pre-assert
+            // Act
+            sut.Add(sub);
+            Expect(() => sut.Dispose())
+                .Not.To.Throw();
+            // Assert
+            Expect(called).To.Be.True();
+        }
+
+        private AutoDisposer Create()
+        {
+            return new AutoDisposer();
         }
 
         public class SomeDisposableWithCallback : IDisposable

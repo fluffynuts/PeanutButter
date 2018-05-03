@@ -64,9 +64,8 @@ namespace PeanutButter.Utils
         /// <returns>True for truthy values, False otherwise</returns>
         public static bool AsBoolean(this string input)
         {
-            if (string.IsNullOrWhiteSpace(input))
-                return false;
-            return Truthy.Any(item => item == input.ToLower());
+            return !string.IsNullOrWhiteSpace(input) && 
+                   Truthy.Any(item => item == input.ToLower());
         }
 
         private static readonly string[] Truthy = {"yes", "y", "1", "true"};

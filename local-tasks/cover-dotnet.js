@@ -10,6 +10,7 @@ gulp.task("cover-dotnet", "Runs tests from projects matching *.Tests with DotCov
                             "AutoMapper.*",
                             "NUnit.*",
                             "nunit.*",
+                            "Imported.*",
                             "GenericBuilderTest*",
                             "*.Tests.*"]
              }));

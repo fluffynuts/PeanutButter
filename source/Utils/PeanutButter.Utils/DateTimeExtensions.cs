@@ -186,7 +186,8 @@ namespace PeanutButter.Utils
                 value.Day,
                 value.Hour,
                 value.Minute,
-                value.Second);
+                value.Second,
+                value.Millisecond);
         }
 
         /// <summary>
@@ -288,6 +289,7 @@ namespace PeanutButter.Utils
                 seconds,
                 milliseconds,
                 kind);
+
         }
     }
 }

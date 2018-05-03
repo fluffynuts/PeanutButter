@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using MySql.Data.MySqlClient;
 using NUnit.Framework;
 using static NExpect.Expectations;
@@ -9,6 +8,7 @@ using PeanutButter.TempDb.MySql;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using static PeanutButter.Utils.PyLike;
+// ReSharper disable MemberCanBePrivate.Global
 
 // ReSharper disable AccessToDisposedClosure
 
@@ -31,9 +31,9 @@ namespace PeanutButter.TempDb.Tests
                 });
         }
 
-        public static string[] MySQLPathFinders()
+        public static string[] MySqlPathFinders()
         {
-            return new string[]
+            return new[]
             {
                 null,
                 "C:\\apps\\mysql-5.7\\bin\\mysqld.exe",
@@ -67,7 +67,7 @@ namespace PeanutButter.TempDb.Tests
         }
 
 
-        [TestCaseSource(nameof(MySQLPathFinders))]
+        [TestCaseSource(nameof(MySqlPathFinders))]
         public void ShouldBeAbleToCreateATable_InsertData_QueryData(string mysqld)
         {
             using (var sut = Create(mysqld))
@@ -111,7 +111,7 @@ namespace PeanutButter.TempDb.Tests
             }
         }
 
-        [TestCaseSource(nameof(MySQLPathFinders))]
+        [TestCaseSource(nameof(MySqlPathFinders))]
         public void Construction_ShouldCreateSchemaAndSwitchToIt(string mysqld)
         {
             // Arrange
@@ -152,7 +152,7 @@ namespace PeanutButter.TempDb.Tests
         }
 
         [Test]
-        [TestCaseSource(nameof(MySQLPathFinders))]
+        [TestCaseSource(nameof(MySqlPathFinders))]
         public void ShouldBeAbleToSwitch(string mysqld)
         {
             using (var sut = Create(mysqld))
@@ -171,7 +171,7 @@ namespace PeanutButter.TempDb.Tests
         }
 
         [Test]
-        [TestCaseSource(nameof(MySQLPathFinders))]
+        [TestCaseSource(nameof(MySqlPathFinders))]
         public void ShouldBeAbleToSwitchBackAndForthWithoutLoss(string mysqld)
         {
             using (var sut = Create(mysqld))

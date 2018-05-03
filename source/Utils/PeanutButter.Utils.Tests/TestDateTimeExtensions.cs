@@ -367,6 +367,26 @@ namespace PeanutButter.Utils.Tests
             Expect(result).To.Be.True();
         }
 
+        [Test]
+        public void ToKind_ShouldConvertToNewDateTimeWithSameValuesAndProvidedKind()
+        {
+            // Arrange
+            var source = GetRandomDate();
+            // Pre-assert
+            Expect(source.Kind).To.Equal(DateTimeKind.Local);
+            // Act
+            var result = source.ToKind(DateTimeKind.Utc);
+            // Assert
+            Expect(result.Kind).To.Equal(DateTimeKind.Utc);
+            Expect(result.Year).To.Equal(source.Year);
+            Expect(result.Month).To.Equal(source.Month);
+            Expect(result.Day).To.Equal(source.Day);
+            Expect(result.Hour).To.Equal(source.Hour);
+            Expect(result.Minute).To.Equal(source.Minute);
+            Expect(result.Second).To.Equal(source.Second);
+            Expect(result.Millisecond).To.Equal(source.Millisecond);
+        }
+
         public class ThingWithDate
         {
             public DateTime DateProperty { get; set; }

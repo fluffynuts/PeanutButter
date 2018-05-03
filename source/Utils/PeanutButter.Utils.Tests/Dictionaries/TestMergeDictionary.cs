@@ -8,6 +8,8 @@ using PeanutButter.Utils.Dictionaries;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using static NExpect.Expectations;
 
+// ReSharper disable ExpressionIsAlwaysNull
+
 // ReSharper disable PossibleNullReferenceException
 // ReSharper disable TryCastAlwaysSucceeds
 
@@ -119,7 +121,8 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                 {
                     [key1] = GetRandomString(),
                     [key2] = GetRandomString()
-                }, new Dictionary<string, string>()
+                },
+                new Dictionary<string, string>()
                 {
                     [key1] = GetRandomString()
                 });
@@ -418,14 +421,16 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             // Arrange
             var k1 = GetRandomString();
             var k2 = GetAnother(k1);
-            var sut = Create(new Dictionary<string, string>()
-            {
-                [k1] = GetRandomString(),
-                [k2] = GetRandomString()
-            }, new Dictionary<string, string>()
-            {
-                [k1] = GetRandomString()
-            });
+            var sut = Create(
+                new Dictionary<string, string>()
+                {
+                    [k1] = GetRandomString(),
+                    [k2] = GetRandomString()
+                },
+                new Dictionary<string, string>()
+                {
+                    [k1] = GetRandomString()
+                });
 
             // Pre-assert
 
@@ -447,14 +452,16 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             var v1 = GetRandomString();
             var v2 = GetAnother(v1);
             var v3 = GetAnother<string>(new[] {v1, v2});
-            var sut = Create(new Dictionary<string, string>()
-            {
-                [k1] = v1,
-                [k2] = v2
-            }, new Dictionary<string, string>()
-            {
-                [k2] = v3
-            });
+            var sut = Create(
+                new Dictionary<string, string>()
+                {
+                    [k1] = v1,
+                    [k2] = v2
+                },
+                new Dictionary<string, string>()
+                {
+                    [k2] = v3
+                });
 
             // Pre-assert
 
@@ -535,6 +542,97 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                 .To.Throw<InvalidOperationException>()
                 .With.Message.Containing("No non-null layers provided");
             // Assert
+        }
+
+        [Test]
+        public void Clear_ShouldThrow()
+        {
+            // Arrange
+            var sut = Create(new Dictionary<string, string>());
+            // Pre-assert
+            // Act
+            Expect(() => sut.Clear())
+                .To.Throw<InvalidOperationException>()
+                .With.Message.Containing("read-only");
+            // Assert
+        }
+
+        [Test]
+        public void Add_ShouldThrow()
+        {
+            // Arrange
+            var sut = Create(new Dictionary<string, string>());
+            // Pre-assert
+            // Act
+            Expect(() => sut.Add(new KeyValuePair<string, string>(GetRandomString(1), GetRandomString())))
+                .To.Throw<InvalidOperationException>()
+                .With.Message.Containing("read-only");
+            // Assert
+        }
+
+        [Test]
+        public void WhenKeyNotFound_ShouldThrow()
+        {
+            // Arrange
+            var sut = Create(new Dictionary<string, string>());
+            // Pre-assert
+            // Act
+            Expect(() => sut[GetRandomString(10)])
+                .To.Throw<KeyNotFoundException>();
+            // Assert
+        }
+
+        [Test]
+        public void AttemptToSet_ShouldThrow()
+        {
+            // Arrange
+            var sut = Create(new Dictionary<string, string>());
+            // Pre-assert
+            // Act
+            Expect(() => sut[GetRandomString(1)] = GetRandomString())
+                .To.Throw<InvalidOperationException>()
+                .With.Message.Containing("read-only");
+            // Assert
+        }
+
+        [Test]
+        public void TryGetValue_WhenNoMatchingKey_ShouldReturnFalse()
+        {
+            // Arrange
+            var sut = Create(new Dictionary<string, string>());
+            // Pre-assert
+            // Act
+            var result = sut.TryGetValue(GetRandomString(10), out var value);
+            // Assert
+            Expect(result).To.Be.False();
+            Expect(value).To.Be.Null();
+        }
+
+        [Test]
+        public void Enumerating_ShouldEnumerateAllUnderlyingDictionaries()
+        {
+            // Arrange
+            var k1 = GetRandomString(10);
+            var v1 = GetRandomString(10);
+            var k2 = GetRandomString(10);
+            var v2 = GetRandomString(10);
+            var first = new Dictionary<string, string>()
+            {
+                [k1] = v1
+            };
+            var second = new Dictionary<string, string>()
+            {
+                [k2] = v2
+            };
+            var sut = Create(first, second);
+            // Pre-assert
+            // Act
+            var result = sut.ToArray();
+            // Assert
+            Expect(result).To.Contain.Exactly(1).Deep.Equal.To(
+                new KeyValuePair<string, string>(k1, v1));
+            Expect(result).To.Contain.Exactly(1).Deep.Equal.To(
+                new KeyValuePair<string, string>(k2, v2));
         }
 
         public class SomeComparer : IEqualityComparer<int>

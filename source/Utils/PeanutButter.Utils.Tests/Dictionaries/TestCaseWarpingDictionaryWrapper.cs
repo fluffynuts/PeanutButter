@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using NExpect;
 using NSubstitute;
 using NUnit.Framework;
@@ -326,6 +328,156 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             // Assert
             Expect(matchResult).To.Be.True();
             Expect(noMatchResult).To.Be.False();
+        }
+
+        [Test]
+        public void Enumeration()
+        {
+            // Arrange
+            var actual = new Dictionary<string, int>()
+            {
+                ["one"] = 1,
+                ["two"] = 2
+            };
+            var sut = Create(actual, true);
+            // Pre-assert
+            // Act
+            var result = sut.ToArray();
+            // Assert
+            Expect(result).To.Contain.Exactly(1).Deep.Equal.To(
+                new KeyValuePair<string, int>("one", 1)
+            );
+            Expect(result).To.Contain.Exactly(1).Deep.Equal.To(
+                new KeyValuePair<string, int>("two", 2)
+            );
+        }
+
+        [Test]
+        public void EnumerationAsIEnumerable()
+        {
+            // Arrange
+            var actual = new Dictionary<string, int>()
+            {
+                ["one"] = 1,
+                ["two"] = 2
+            };
+            var sut = Create(actual, true) as IEnumerable;
+            // Pre-assert
+            // Act
+            var result = new List<KeyValuePair<string, int>>();
+            foreach (KeyValuePair<string, int> kvp in sut)
+            {
+                result.Add(kvp);
+            }
+
+            // Assert
+            Expect(result).To.Contain.Exactly(1).Deep.Equal.To(
+                new KeyValuePair<string, int>("one", 1)
+            );
+            Expect(result).To.Contain.Exactly(1).Deep.Equal.To(
+                new KeyValuePair<string, int>("two", 2)
+            );
+        }
+
+        [Test]
+        public void SetValue_WhenNewValue()
+        {
+            // Arrange
+            var actual = new Dictionary<string, int>();
+            var key = GetRandomString(10);
+            var value = GetRandomInt();
+            var sut = Create(actual, true);
+            // Pre-assert
+            // Act
+            sut[key] = value;
+            // Assert
+            Expect(actual[key]).To.Equal(value);
+        }
+
+        [Test]
+        public void SetValue_WhenUpdatedValue()
+        {
+            // Arrange
+            var actual = new Dictionary<string, int>();
+            var key = GetRandomString(10);
+            var original = GetRandomInt();
+            var updated = GetAnother(original);
+            var sut = Create(actual, true);
+            // Pre-assert
+            // Act
+            sut[key] = original;
+            sut[key] = updated;
+            // Assert
+            Expect(actual[key]).To.Equal(updated);
+        }
+
+        [Test]
+        public void TryingToRetrieveFromUnkownKey()
+        {
+            // Arrange
+            var known = GetRandomString(2);
+            var unknown = GetAnother(known, () => GetRandomString(2));
+            var sut = Create(
+                new Dictionary<string, int>()
+                {
+                    [known] = GetRandomInt()
+                },
+                true);
+            // Pre-assert
+            // Act
+            Expect(() => sut[unknown])
+                .To.Throw<KeyNotFoundException>();
+            // Assert
+        }
+
+        [Test]
+        public void Keys_ShouldReturnUnderlyingKeys()
+        {
+            // Arrange
+            var k1 = GetRandomString(2).ToPascalCase();
+            var k2 = GetAnother(k1, () => GetRandomString(2).ToPascalCase());
+            var actual = new Dictionary<string, bool>()
+            {
+                [k1] = GetRandomBoolean(),
+                [k2] = GetRandomBoolean()
+            };
+            var sut = Create(actual, true);
+            // Pre-assert
+            // Act
+            var keys = sut.Keys.ToArray();
+            // Assert
+            Expect(keys).To.Be.Equivalent.To(
+                new[]
+                {
+                    k1,
+                    k2
+                });
+        }
+
+        [Test]
+        public void Values_ShouldReturnAllValues()
+        {
+            // Arrange
+            var k1 = GetRandomString(2).ToPascalCase();
+            var k2 = GetAnother(k1, () => GetRandomString(2).ToPascalCase());
+            var v1 = GetRandomInt();
+            var v2 = GetRandomInt();
+            var actual = new Dictionary<string, int>()
+            {
+                [k1] = v1,
+                [k2] = v2
+            };
+            var sut = Create(actual, true);
+            // Pre-assert
+            // Act
+            var values = sut.Values.ToArray();
+            // Assert
+            Expect(values).To.Be.Equivalent.To(
+                new[]
+                {
+                    v1,
+                    v2
+                });
         }
 
         private static IDictionary<string, TValue> Create<TValue>(

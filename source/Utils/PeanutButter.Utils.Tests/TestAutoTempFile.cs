@@ -1,9 +1,12 @@
 using System;
 using System.IO;
 using System.Reflection;
+using System.Text;
 using NUnit.Framework;
-using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
+using static PeanutButter.RandomGenerators.RandomValueGen;
+using static NExpect.Expectations;
+using NExpect;
 
 namespace PeanutButter.Utils.Tests
 {
@@ -22,7 +25,6 @@ namespace PeanutButter.Utils.Tests
             sut.ShouldImplement<IDisposable>();
 
             //---------------Test Result -----------------------
-
         }
 
         [Test]
@@ -70,10 +72,9 @@ namespace PeanutButter.Utils.Tests
         public void Construct_GivenSomeBytes_ShouldPutThemInTheTempFile()
         {
             //---------------Set up test pack-------------------
-            var expected = RandomValueGen.GetRandomBytes();
+            var expected = GetRandomBytes();
             using (var sut = new AutoTempFile(expected))
             {
-
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
@@ -85,13 +86,114 @@ namespace PeanutButter.Utils.Tests
         }
 
         [Test]
+        public void Construct_GivenNonExistentBaseFolder_ShouldCreateIt()
+        {
+            // Arrange
+            using (var folder = new AutoTempFolder())
+            {
+                // Pre-assert
+                // Act
+                var basePath = Path.Combine(folder.Path, "moo", "cow", "duck");
+                var data = GetRandomBytes(64);
+                using (var file = new AutoTempFile(basePath, "stuff.blob", data))
+                {
+                    var onDisk = File.ReadAllBytes(file.Path);
+                    // Assert
+                    Expect(onDisk).To.Equal(data);
+                }
+            }
+        }
+
+        [Test]
+        public void ShouldExposeFileBinaryDataForRead()
+        {
+            // Arrange
+            var data = GetRandomBytes(64);
+            // Pre-assert
+            // Act
+            using (var folder = new AutoTempFolder())
+            using (var file = new AutoTempFile(folder.Path, data))
+            {
+                var result = file.BinaryData;
+                // Assert
+                Expect(result).To.Equal(data);
+            }
+        }
+
+        [Test]
+        public void ShouldExposeFileBinaryDataForWrite()
+        {
+            // Arrange
+            var original = GetRandomBytes(64);
+            var expected = GetAnother(original, () => GetRandomBytes(64));
+            // Pre-assert
+            // Act
+            using (var folder = new AutoTempFolder())
+            using (var file = new AutoTempFile(folder.Path, original))
+            {
+                file.BinaryData = expected;
+                var result = File.ReadAllBytes(file.Path);
+                // Assert
+                Expect(result).To.Equal(expected);
+            }
+        }
+
+        [Test]
+        public void ShouldExposeFileStringData()
+        {
+            // Arrange
+            var data = GetRandomString(128);
+            // Pre-assert
+            // Act
+            using (var file = new AutoTempFile("stuff.blob", data))
+            {
+                var result = file.StringData;
+                // Assert
+                Expect(result).To.Equal(data);
+            }
+        }
+
+        [Test]
+        public void ShouldAllowSettingStringData()
+        {
+            // Arrange
+            var original = GetRandomString(128);
+            var expected = GetAnother(original, () => GetRandomString(128));
+            // Pre-assert
+            // Act
+            using (var folder = new AutoTempFolder())
+            using (var file = new AutoTempFile(folder.Path, original))
+            {
+                file.StringData = expected;
+                var result = Encoding.UTF8.GetString(File.ReadAllBytes(file.Path));
+                // Assert
+                Expect(result).To.Equal(expected);
+            }
+        }
+
+        [Test]
+        public void Construct_GivenOneString_SetsContents()
+        {
+            // Arrange
+            var expected = GetRandomString(128);
+            // Pre-assert
+            // Act
+            using (var file = new AutoTempFile(expected))
+            {
+                // Assert
+                Expect(file.StringData).To.Equal(expected);
+                Expect(Encoding.UTF8.GetString(File.ReadAllBytes(file.Path)))
+                    .To.Equal(expected);
+            }
+        }
+
+        [Test]
         public void BinaryData_get_ShouldReturnBytesInFile()
         {
             //---------------Set up test pack-------------------
-            var expected = RandomValueGen.GetRandomBytes();
+            var expected = GetRandomBytes();
             using (var sut = new AutoTempFile(expected))
             {
-
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
@@ -106,11 +208,10 @@ namespace PeanutButter.Utils.Tests
         public void BinaryData_set_ShouldOverwriteDataInFile()
         {
             //---------------Set up test pack-------------------
-            var unexpected = RandomValueGen.GetRandomBytes();
-            var expected = RandomValueGen.GetRandomBytes();
+            var unexpected = GetRandomBytes();
+            var expected = GetRandomBytes();
             using (var sut = new AutoTempFile(unexpected))
             {
-
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
@@ -121,14 +222,14 @@ namespace PeanutButter.Utils.Tests
                 Assert.AreEqual(expected, result);
             }
         }
+
         [Test]
         public void StringData_get_WhenDataInFileIsText_ShouldReturnBytesInFileAsUtf8EncodedString()
         {
             //---------------Set up test pack-------------------
-            var expected = RandomValueGen.GetRandomString();
+            var expected = GetRandomString();
             using (var sut = new AutoTempFile(expected))
             {
-
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
@@ -143,11 +244,10 @@ namespace PeanutButter.Utils.Tests
         public void StringData_set_ShouldPutStringIntoFile()
         {
             //---------------Set up test pack-------------------
-            var unexpected = RandomValueGen.GetRandomString();
-            var expected = RandomValueGen.GetRandomString();
+            var unexpected = GetRandomString();
+            var expected = GetRandomString();
             using (var sut = new AutoTempFile(unexpected))
             {
-
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
@@ -163,10 +263,9 @@ namespace PeanutButter.Utils.Tests
         public void StringData_set_NULL_ShouldPutStringIntoFile()
         {
             //---------------Set up test pack-------------------
-            var unexpected = RandomValueGen.GetRandomString();
+            var unexpected = GetRandomString();
             using (var sut = new AutoTempFile(unexpected))
             {
-
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
@@ -199,7 +298,7 @@ namespace PeanutButter.Utils.Tests
         {
             //---------------Set up test pack-------------------
             var baseFolder = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
-            var expected = RandomValueGen.GetRandomBytes();
+            var expected = GetRandomBytes();
 
             //---------------Assert Precondition----------------
 
@@ -237,7 +336,7 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            using (var tempFile = new AutoTempFile(baseFolder, (string)null))
+            using (var tempFile = new AutoTempFile(baseFolder, (string) null))
             {
                 //---------------Test Result -----------------------
                 Assert.AreEqual(baseFolder, Path.GetDirectoryName(tempFile.Path));
@@ -250,7 +349,7 @@ namespace PeanutButter.Utils.Tests
         {
             //---------------Set up test pack-------------------
             var baseFolder = GetExecutingAssemblyFolder();
-            var expected = RandomValueGen.GetRandomString();
+            var expected = GetRandomString();
 
             //---------------Assert Precondition----------------
 
@@ -268,8 +367,8 @@ namespace PeanutButter.Utils.Tests
         {
             //---------------Set up test pack-------------------
             var baseFolder = GetExecutingAssemblyFolder();
-            var fileName = RandomValueGen.GetRandomString(5, 10) + "." + RandomValueGen.GetRandomString(3,3);
-            var data = RandomValueGen.GetRandomBytes();
+            var fileName = GetRandomString(5, 10) + "." + GetRandomString(3, 3);
+            var data = GetRandomBytes();
             var expectedPath = Path.Combine(baseFolder, fileName);
 
             //---------------Assert Precondition----------------

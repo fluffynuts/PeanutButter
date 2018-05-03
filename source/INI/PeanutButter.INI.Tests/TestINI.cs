@@ -13,6 +13,7 @@ using NExpect.Interfaces;
 using NExpect.MatcherLogic;
 using PeanutButter.INIFile;
 // ReSharper disable PossibleNullReferenceException
+// ReSharper disable MemberHidesStaticFromOuterClass
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable MemberCanBePrivate.Global

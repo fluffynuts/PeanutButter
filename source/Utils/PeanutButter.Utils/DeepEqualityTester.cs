@@ -284,6 +284,8 @@ namespace PeanutButter.Utils
 
         private decimal? TryConvertToDecimal(object obj)
         {
+            if (!obj.GetType().IsNumericType())
+                return null;
             try
             {
                 return Convert.ToDecimal(obj);

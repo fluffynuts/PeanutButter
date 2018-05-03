@@ -541,6 +541,28 @@ namespace PeanutButter.Utils
             return type?.IsInterface ?? false;
 #endif
         }
+            
+        /// <summary>
+        /// Determines whether the provided type is a known numeric type
+        /// (ie int / short / byte / double / float / decimal )
+        /// </summary>
+        /// <param name="type">Type to operate on</param>
+        /// <returns></returns>
+        public static bool IsNumericType(this Type type)
+        {
+            return NumericTypes.Contains(type);
+        }
+
+        private static readonly Type[] NumericTypes =
+            {
+            typeof(int),
+                typeof(short),
+                typeof(byte),
+                typeof(double),
+                typeof(float),
+                typeof(decimal)
+            };
+
 
 
         private static readonly MethodInfo TryConvertGeneric =

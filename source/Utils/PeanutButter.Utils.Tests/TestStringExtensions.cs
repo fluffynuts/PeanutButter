@@ -80,6 +80,10 @@ namespace PeanutButter.Utils.Tests
         [TestCase("True", true)]
         [TestCase("TRUE", true)]
         [TestCase("true", true)]
+        [TestCase("", false)]
+        [TestCase(" ", false)]
+        [TestCase("\t", false)]
+        [TestCase(null, false)]
         public void AsBoolean_ShouldResolveToBooleanValue(string input, bool expected)
         {
             //---------------Set up test pack-------------------
@@ -845,6 +849,40 @@ namespace PeanutButter.Utils.Tests
             // Assert
             Expect(runs - collector.Distinct().Count())
                 .To.Be.Less.Than(2); // allow for some random collision
+        }
+
+        [TestFixture]
+        public class OperatingOnCollections
+        {
+            [Test]
+            public void ToUpper_ShouldUpperCaseAll()
+            {
+                // Arrange
+                var src = GetRandomArray<string>(10);
+                // Pre-assert
+                Expect(src).To.Contain.At.Least(1)
+                    .Matched.By(s => s != s.ToUpper());
+                // Act
+                var result = src.ToUpper();
+                // Assert
+                Expect(result).To.Contain.All()
+                    .Matched.By(s => s == s.ToUpper());
+            }
+
+            [Test]
+            public void ToLower_ShouldOwerCaseAll()
+            {
+                // Arrange
+                var src = GetRandomArray<string>(10).ToUpper();
+                // Pre-assert
+                Expect(src).To.Contain.All()
+                    .Matched.By(s => s == s.ToUpper());
+                // Act
+                var result = src.ToLower();
+                // Assert
+                Expect(result).To.Contain.All()
+                    .Matched.By(s => s == s.ToLower());
+            }
         }
     }
 }

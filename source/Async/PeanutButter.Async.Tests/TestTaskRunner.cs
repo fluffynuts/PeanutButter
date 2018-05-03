@@ -224,6 +224,7 @@ namespace PeanutButter.Async.Tests
             Assert.AreEqual(expected, result);
         }
 
+        [Test]
         public void Continue_With_ShouldContinueOriginalTaskActionWithNewAction()
         {
             //---------------Set up test pack-------------------
@@ -342,6 +343,29 @@ namespace PeanutButter.Async.Tests
             Console.WriteLine("About to wait on result");
 
             Assert.AreEqual(expected, resultTask.Result);
+        }
+
+        [Test]
+        public void Continue_With_NoResultVariant()
+        {
+            // Arrange
+            var sut = Create();
+            var value1 = 0;
+            var value2 = 0;
+            // Pre-assert
+            // Act
+            sut.Run(
+                () =>
+                {
+                    value1 = 1;
+                }).Using(sut).ContinueWith(lastTask =>
+                                               {
+                                                   value2 = 2;
+                                               });
+
+            // Assert
+            Assert.That(value1, Is.EqualTo(1));
+            Assert.That(value2, Is.EqualTo(2));
         }
 
 

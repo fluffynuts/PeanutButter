@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using NExpect;
@@ -6,6 +7,8 @@ using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils.Dictionaries;
+using static NExpect.Expectations;
+// ReSharper disable InconsistentNaming
 
 // ReSharper disable CollectionNeverUpdated.Local
 
@@ -38,7 +41,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             var result = sut[key];
 
             // Assert
-            Expectations.Expect(result).To.Equal(default(bool));
+            Expect(result).To.Equal(default(bool));
         }
 
         [Test]
@@ -54,7 +57,25 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             var result = sut[key];
 
             // Assert
-            Expectations.Expect(result).To.Equal(expected);
+            Expect(result).To.Equal(expected);
+        }
+
+        [Test]
+        public void IEnumerableEnumerator()
+        {
+            // Arrange
+            var sut = Create<string, string>(() => "moo");
+            // Pre-assert
+            // Act
+            sut["cow"] = "beef";
+            var result = new List<KeyValuePair<string, string>>();
+            foreach (KeyValuePair<string, string> kvp in (sut as IEnumerable))
+            {
+                result.Add(kvp);
+            }
+            // Assert
+            Expect(result).To.Contain.Only(1)
+                .Deep.Equal.To(new KeyValuePair<string, string>("cow", "beef"));
         }
 
         [Test]
@@ -72,7 +93,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             var result = sut[key];
 
             // Assert
-            Expectations.Expect(result).To.Equal(expected);
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -90,8 +111,8 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             var missingResult = sut.ContainsKey(missingKey);
 
             // Assert
-            Expectations.Expect(haveResult).To.Be.True();
-            Expectations.Expect(missingResult).To.Be.True();
+            Expect(haveResult).To.Be.True();
+            Expect(missingResult).To.Be.True();
         }
 
         [Test]
@@ -114,9 +135,9 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             }
 
             // Assert
-            Expectations.Expect(collector.Count).To.Equal(2);
-            Expectations.Expect(collector).To.Contain.Exactly(1).Equal.To(new KeyValuePair<string, string>(k1, v1));
-            Expectations.Expect(collector).To.Contain.Exactly(1).Equal.To(new KeyValuePair<string, string>(k2, v2));
+            Expect(collector.Count).To.Equal(2);
+            Expect(collector).To.Contain.Exactly(1).Equal.To(new KeyValuePair<string, string>(k1, v1));
+            Expect(collector).To.Contain.Exactly(1).Equal.To(new KeyValuePair<string, string>(k2, v2));
         }
 
         [Test]
@@ -132,7 +153,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             sut.Add(kvp);
 
             // Assert
-            Expectations.Expect(sut[kvp.Key]).To.Equal(kvp.Value);
+            Expect(sut[kvp.Key]).To.Equal(kvp.Value);
         }
 
         [Test]
@@ -143,13 +164,13 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             sut.Add(item);
 
             // Pre-assert
-            Expectations.Expect(sut[item.Key]).To.Equal(item.Value);
+            Expect(sut[item.Key]).To.Equal(item.Value);
 
             // Act
             sut.Clear();
 
             // Assert
-            Expectations.Expect(sut[item.Key]).To.Be.Null();
+            Expect(sut[item.Key]).To.Be.Null();
         }
 
         [Test]
@@ -167,8 +188,8 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             var missingResult = sut.Contains(missing);
 
             // Assert
-            Expectations.Expect(haveResult).To.Be.True();
-            Expectations.Expect(missingResult).To.Be.True();
+            Expect(haveResult).To.Be.True();
+            Expect(missingResult).To.Be.True();
         }
 
         [Test]
@@ -180,16 +201,16 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             sut.Add(have);
 
             // Pre-assert
-            Expectations.Expect(sut[have.Key]).Not.To.Be.Null();
+            Expect(sut[have.Key]).Not.To.Be.Null();
 
             // Act
             var haveResult = sut.Remove(have);
             var missingResult = sut.Remove(missing);
 
             // Assert
-            Expectations.Expect(haveResult).To.Be.True();
-            Expectations.Expect(missingResult).To.Be.False();
-            Expectations.Expect(sut[have.Key]).To.Be.Null();
+            Expect(haveResult).To.Be.True();
+            Expect(missingResult).To.Be.False();
+            Expect(sut[have.Key]).To.Be.Null();
         }
 
         [Test]
@@ -199,7 +220,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             var missing = RandomValueGen.GetAnother(have);
             var sut = Create<string, string>();
             sut.Add(have);
-            Expectations.Expect(sut[have.Key]).Not.To.Be.Null();
+            Expect(sut[have.Key]).Not.To.Be.Null();
 
             // Pre-assert
 
@@ -208,9 +229,9 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             var missingResult = sut.Remove(missing.Key);
 
             // Assert
-            Expectations.Expect(haveResult).To.Be.True();
-            Expectations.Expect(missingResult).To.Be.False();
-            Expectations.Expect(sut[have.Key]).To.Be.Null();
+            Expect(haveResult).To.Be.True();
+            Expect(missingResult).To.Be.False();
+            Expect(sut[have.Key]).To.Be.Null();
         }
 
         [Test]
@@ -225,7 +246,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             sut.Add(kvp.Key, kvp.Value);
 
             // Assert
-            Expectations.Expect(sut[kvp.Key]).To.Equal(kvp.Value);
+            Expect(sut[kvp.Key]).To.Equal(kvp.Value);
         }
 
         [Test]
@@ -241,8 +262,8 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             var result = sut.TryGetValue(have.Key, out var found);
 
             // Assert
-            Expectations.Expect(result).To.Be.True();
-            Expectations.Expect(found).To.Equal(have.Value);
+            Expect(result).To.Be.True();
+            Expect(found).To.Equal(have.Value);
         }
 
         [Test]
@@ -257,8 +278,8 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             var result = sut.TryGetValue(RandomValueGen.GetRandomString(), out var found);
 
             // Assert
-            Expectations.Expect(result).To.Be.True();
-            Expectations.Expect(found).To.Equal(expected);
+            Expect(result).To.Be.True();
+            Expect(found).To.Equal(expected);
         }
 
         [Test]
@@ -278,10 +299,10 @@ namespace PeanutButter.Utils.Tests.Dictionaries
 
             // Assert
             var defaultValue = default(KeyValuePair<string, string>);
-            PyLike.Range(start).ForEach(i => Expectations.Expect(target[i]).To.Equal(defaultValue));
+            PyLike.Range(start).ForEach(i => Expect(target[i]).To.Equal(defaultValue));
             PyLike.Range(start + items.Length, arraySize).ForEach(
-                                i => Expectations.Expect(target[i]).To.Equal(defaultValue));
-            items.ForEach(i => Expectations.Expect(target).To.Contain.Exactly(1).Equal.To(i));
+                                i => Expect(target[i]).To.Equal(defaultValue));
+            items.ForEach(i => Expect(target).To.Contain.Exactly(1).Equal.To(i));
         }
 
         [Test]
@@ -297,7 +318,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             var result = sut.Count;
 
             // Assert
-            Expectations.Expect(result).To.Equal(items.Length);
+            Expect(result).To.Equal(items.Length);
         }
 
         [Test]
@@ -311,7 +332,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             var result = sut.IsReadOnly;
 
             // Assert
-            Expectations.Expect(result).To.Be.False();
+            Expect(result).To.Be.False();
         }
 
         [Test]
@@ -359,7 +380,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             // Act
             var result = sut[index];
             // Assert
-            Expectations.Expect(result).To.Equal(expected);
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -371,7 +392,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             // Act
             var result = dict.GetPropertyValue("Comparer");
             // Assert
-            Expectations.Expect(result).To.Equal(StringComparer.OrdinalIgnoreCase);
+            Expect(result).To.Equal(StringComparer.OrdinalIgnoreCase);
         }
 
         private IDictionary<TKey, TValue> Create<TKey, TValue>(
