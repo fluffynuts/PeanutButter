@@ -120,13 +120,13 @@ gulp.task("clean-nuget-releasedir", function () {
 });
 
 gulp.task("build-nuget-packages", [
-  "clean-nuget-releasedir", 
+  "clean-nuget-releasedir",
   "build-binaries-for-nuget-packages"
 ], function (done) {
   runSequence(
     "increment-package-versions",
-    "build-binary-nuget-packages", 
-    "build-source-nuget-packages", 
+    "build-binary-nuget-packages",
+    "build-source-nuget-packages",
   done);
 });
 
@@ -136,6 +136,10 @@ gulp.task("increment-package-versions", () => {
 });
 
 gulp.task("release", ["build-nuget-packages"], function () {
+  return gulp.start("push-packages");
+});
+
+gulp.task("push-packages", [], () => {
   return gulp.src([nugetReleaseDir + "/*.nupkg",
   "!" + nugetReleaseDir + "/*.symbols.nupkg",
     "!**/packages/**/*.nupkg"])
