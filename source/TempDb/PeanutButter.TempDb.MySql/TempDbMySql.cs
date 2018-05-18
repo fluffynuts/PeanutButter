@@ -248,9 +248,9 @@ namespace PeanutButter.TempDb.MySql
         {
             _serverProcess = RunCommand(
                 mysqld,
-                $"--defaults-file={Path.Combine(DatabasePath, "my.cnf")}",
-                $"--basedir={BaseDirOf(mysqld)}",
-                $"--datadir={DatabasePath}",
+                $"\"--defaults-file={Path.Combine(DatabasePath, "my.cnf")}\"",
+                $"\"--basedir={BaseDirOf(mysqld)}\"",
+                $"\"--datadir={DatabasePath}\"",
                 $"--port={port}");
             TestIsRunning();
         }
@@ -314,10 +314,10 @@ namespace PeanutButter.TempDb.MySql
             Log($"Initializing MySql in {DatabasePath}");
             var process = RunCommand(
                 mysqld,
-                $"--defaults-file={tempDefaultsFile}",
+                $"\"--defaults-file={tempDefaultsFile}\"",
                 "--initialize-insecure",
-                $"--basedir={BaseDirOf(mysqld)}",
-                $"--datadir={DatabasePath}"
+                $"\"--basedir={BaseDirOf(mysqld)}\"",
+                $"\"--datadir={DatabasePath}\""
             );
             process.WaitForExit();
         }

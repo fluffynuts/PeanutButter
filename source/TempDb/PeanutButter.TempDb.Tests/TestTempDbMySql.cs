@@ -37,7 +37,8 @@ namespace PeanutButter.TempDb.Tests
             {
                 null,
                 "C:\\apps\\mysql-5.7\\bin\\mysqld.exe",
-                "C:\\apps\\mysql-5.6\\bin\\mysqld.exe"
+                "C:\\apps\\mysql-5.6\\bin\\mysqld.exe",
+                "C:\\apps\\MySQL Server 5.7\\bin\\mysqld.exe"
             };
         }
 
