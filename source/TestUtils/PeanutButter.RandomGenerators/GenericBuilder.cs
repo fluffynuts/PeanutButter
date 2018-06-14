@@ -705,6 +705,7 @@ namespace PeanutButter.RandomGenerators
                 {typeof(double), pi => ((ref TEntity e, int i) => pi.SetValue(ref e, GetRandomDouble()))},
                 {typeof(decimal), pi => ((ref TEntity e, int i) => pi.SetValue(ref e, GetRandomDecimal()))},
                 {typeof(DateTime), pi => ((ref TEntity e, int i) => pi.SetValue(ref e, GetRandomDate()))},
+                {typeof(TimeSpan), pi => ((ref TEntity e, int i) => pi.SetValue(ref e, GetRandomTimeSpan()))},
                 {typeof(Guid), pi => ((ref TEntity e, int i) => pi.SetValue(ref e, Guid.NewGuid()))},
                 {typeof(string), CreateStringPropertyRandomSetterFor},
                 {typeof(bool), CreateBooleanPropertyRandomSetterFor},

@@ -14,7 +14,6 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 using static NExpect.Expectations;
 
 // ReSharper disable AccessToDisposedClosure
-
 // ReSharper disable PossibleMultipleEnumeration
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable InconsistentNaming
@@ -99,7 +98,8 @@ namespace PeanutButter.RandomGenerators.Tests
 
         [TestCase(50, 100)]
         [TestCase(150, 400)]
-        public void GetRandomString_GivenLengthLimits_ReturnsRandomStringsWithinLengthRange(int minLength,
+        public void GetRandomString_GivenLengthLimits_ReturnsRandomStringsWithinLengthRange(
+            int minLength,
             int maxLength)
         {
             //---------------Set up test pack-------------------
@@ -118,7 +118,8 @@ namespace PeanutButter.RandomGenerators.Tests
 
         [TestCase(50, 100)]
         [TestCase(150, 400)]
-        public void GetRandomStringGeneric_GivenLengthLimits_ReturnsRandomStringsWithinLengthRange(int minLength,
+        public void GetRandomStringGeneric_GivenLengthLimits_ReturnsRandomStringsWithinLengthRange(
+            int minLength,
             int maxLength)
         {
             //---------------Set up test pack-------------------
@@ -131,9 +132,11 @@ namespace PeanutButter.RandomGenerators.Tests
 
             //---------------Test Result -----------------------
             Assert.IsTrue(strings.All(s => s.Length >= DefaultRanges.MINLENGTH_STRING));
-            Assert.IsTrue(strings.All(s => s.Length <=
-                                           DefaultRanges.MINLENGTH_STRING +
-                                           DefaultRanges.MINLENGTH_STRING));
+            Assert.IsTrue(
+                strings.All(
+                    s => s.Length <=
+                         DefaultRanges.MINLENGTH_STRING +
+                         DefaultRanges.MINLENGTH_STRING));
             Assert.IsTrue(strings.Distinct().Count() > 1);
         }
 
@@ -252,11 +255,12 @@ namespace PeanutButter.RandomGenerators.Tests
             }
 
             //---------------Test Result -----------------------
-            var flattened = results.SelectMany(r =>
-            {
-                var collections = r as object[] ?? r.ToArray();
-                return collections;
-            });
+            var flattened = results.SelectMany(
+                r =>
+                {
+                    var collections = r as object[] ?? r.ToArray();
+                    return collections;
+                });
             Assert.IsTrue(flattened.All(f => items.Contains(f)));
             var averageCount = results.Select(r => r.Count()).Average();
             Assert.That(averageCount, Is.GreaterThan(1));
@@ -404,236 +408,335 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
 
-        [TestCase(1984, 4, 4, 2001, 1, 1)]
-        [TestCase(1914, 4, 4, 2011, 1, 1)]
-        [TestCase(2001, 4, 4, 2001, 1, 1)]
-        public void GetRandomDate_GivenDateOnlyIsTrue_ShouldReturnDateTimeWithNoTimeComponent(int minYear, int minMonth,
-            int minDay, int maxYear,
-            int maxMonth, int maxDay)
+        [TestFixture]
+        public class GetRandomDates : TestRandomValueGen
         {
-            //---------------Set up test pack-------------------
-            var results = new List<DateTime>();
-            var range = new DateTimeRangeContainer(minYear, minMonth, minDay, maxYear, maxMonth, maxDay);
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            RunCycles(() => results.Add(GetRandomDate(range.From, range.To, true)));
-
-            //---------------Test Result -----------------------
-            Assert.AreEqual(RANDOM_TEST_CYCLES, results.Count);
-            Assert.IsTrue(results.All(range.InRange), "One or more generated value is out of range");
-            Assert.IsTrue(results.All(d => d.Hour == 0), "Hours are not all zeroed");
-            Assert.IsTrue(results.All(d => d.Minute == 0), "Minutes are not all zeroed");
-            Assert.IsTrue(results.All(d => d.Second == 0), "Seconds are not all zeroed");
-            Assert.IsTrue(results.All(d => d.Millisecond == 0), "Seconds are not all zeroed");
-        }
-
-        [Test]
-        public void GetRandomDate_GivenMinTimeOrMaxTime_AndDateOnlyIsTrue_ShouldIgnoreTheGivenTimes()
-        {
-            //---------------Set up test pack-------------------
-            var ticksInOneDay = TimeSpan.FromDays(1).Ticks;
-            var minTicks = GetRandomLong(1, ticksInOneDay - 1);
-            var maxTicks = GetRandomLong(minTicks, ticksInOneDay - 1);
-            var minTime = GetRandomDate().StartOfDay().AddTicks(minTicks);
-            var maxTime = GetRandomDate().StartOfDay().AddTicks(maxTicks);
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = GetRandomDate(dateOnly: true, minTime: minTime, maxTime: maxTime);
-
-            //---------------Test Result -----------------------
-            Assert.AreEqual(result.StartOfDay(), result);
-        }
-
-        [TestCase(1984, 4, 4, 2001, 1, 1)]
-        [TestCase(1914, 4, 4, 2011, 1, 1)]
-        [TestCase(2001, 4, 4, 2001, 1, 1)]
-        public void GetRandomDate_ShouldReturnDatesWithinRange(int minYear, int minMonth, int minDay, int maxYear,
-            int maxMonth, int maxDay)
-        {
-            //---------------Set up test pack-------------------
-            var results = new List<DateTime>();
-            var range = new DateTimeRangeContainer(minYear, minMonth, minDay, maxYear, maxMonth, maxDay);
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            RunCycles(() => results.Add(GetRandomDate(range.From, range.To)));
-
-            //---------------Test Result -----------------------
-            Assert.AreEqual(RANDOM_TEST_CYCLES, results.Count);
-            Assert.IsTrue(results.All(d => d >= range.From), "One or more results is less than the minimum date");
-            Assert.IsTrue(results.All(d => d <= range.To), "One or more results is greater than the maximum date");
-            Assert.IsTrue(results.All(d => d.Microseconds() == 0), "Microseconds should be zeroed on random dates");
-        }
-
-        [Test]
-        public void GetRandomTimeOn_GivenDate_ShouldReturnRandomDateTimeOnThatDay()
-        {
-            //---------------Set up test pack-------------------
-            var theDate = GetRandomDate();
-            var min = new DateTime(theDate.Year, theDate.Month, theDate.Day, 0, 0, 0);
-            var max = new DateTime(theDate.Year, theDate.Month, theDate.Day, 0, 0, 0);
-            max = max.AddDays(1).AddMilliseconds(-1);
-            var results = new List<DateTime>();
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            RunCycles(() => results.Add(GetRandomTimeOn(theDate)));
-
-            //---------------Test Result -----------------------
-            Assert.IsTrue(results.All(d => d >= min));
-            Assert.IsTrue(results.All(d => d <= max));
-        }
-
-        [Test]
-        public void GetRandomDate_GivenMinTime_ShouldProduceRandomDatesWithTimesGreaterOrEqual()
-        {
-            //---------------Set up test pack-------------------
-            var minTime = new DateTime(1900, 1, 1, GetRandomInt(0, 12), GetRandomInt(0, 59), GetRandomInt(0, 59));
-            var maxTime = new DateTime(minTime.Year, minTime.Month, minTime.Day, 0, 0, 0);
-            maxTime = maxTime.AddDays(1).AddMilliseconds(-1);
-            var results = new List<DateTime>();
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            RunCycles(() => results.Add(GetRandomDate(minTime: minTime, maxTime: maxTime)));
-
-            //---------------Test Result -----------------------
-            var outOfRangeLeft = results.Where(d => d.Ticks < minTime.Ticks).ToArray();
-            var outOfRangeRight = results.Where(d => d.Ticks < maxTime.Ticks).ToArray();
-            Assert.IsFalse(outOfRangeLeft.Any() && outOfRangeRight.Any(),
-                GetErrorHelpFor(outOfRangeLeft, outOfRangeRight, minTime, maxTime));
-        }
-
-        [Test]
-        [Repeat(RANDOM_TEST_CYCLES)]
-        public void GetRandomDate_GivenMinDateOnly_ShouldProduceRandomDatesWithin30YearPeriod()
-        {
-            //---------------Set up test pack-------------------
-            var minDate = new DateTime(GetRandomInt(1, 3000), GetRandomInt(1, 12), GetRandomInt(1, 28));
-            var maxDate = minDate.AddYears(30);
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = GetRandomDate(minDate: minDate);
-
-            //---------------Test Result -----------------------
-            Assert.That(result, Is.GreaterThanOrEqualTo(minDate)
-                .And.LessThanOrEqualTo(maxDate));
-        }
-
-        [Test]
-        [Repeat(RANDOM_TEST_CYCLES)]
-        public void GetRandomDate_GivenMaxDateOnly_ShouldProduceRandomDatesWithin30YearPeriod()
-        {
-            //---------------Set up test pack-------------------
-            var maxDate = new DateTime(GetRandomInt(31, 3000), GetRandomInt(1, 12), GetRandomInt(1, 28));
-            var minDate = maxDate.AddYears(-30);
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = GetRandomDate(maxDate: maxDate);
-
-            //---------------Test Result -----------------------
-            Assert.That(result, Is.GreaterThanOrEqualTo(minDate)
-                .And.LessThanOrEqualTo(maxDate));
-        }
-
-        [Test]
-        [Repeat(RANDOM_TEST_CYCLES)]
-        public void
-            GetRandomDate_GivenMinAndMaxTimeWithFractionsOfSeconds_ShouldTruncateTimesToMilliseconds_AndProduceRandomDateWithTimeBetweenMinAndMax()
-        {
-            //---------------Set up test pack-------------------
-            var r = GetRandomDate();
-            var baseDateTime = new DateTime(r.Year, r.Month, r.Day, r.Hour, r.Minute, r.Second);
-            var ticksInOneSecond = TimeSpan.FromSeconds(1).Ticks;
-            var minTicks = GetRandomLong(1, ticksInOneSecond - 1);
-            var maxTicks = GetRandomLong(minTicks, ticksInOneSecond - 1);
-            var minTime = baseDateTime.AddTicks(minTicks);
-            var maxTime = baseDateTime.AddTicks(maxTicks);
-            var expectedMinTime = minTime.TruncateMicroseconds();
-            var expectedMaxTime = maxTime.TruncateMicroseconds();
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = GetRandomDate(minTime: minTime, maxTime: maxTime);
-
-            //---------------Test Result -----------------------
-            Assert.That(result.TimeOfDay, Is.GreaterThanOrEqualTo(expectedMinTime.TimeOfDay)
-                .And.LessThanOrEqualTo(expectedMaxTime.TimeOfDay));
-        }
-
-        [Test]
-        public void GetRandomDate_GivenMaxTime_ShouldProduceRandomDatesWithTimesLessThanOrEqual()
-        {
-            //---------------Set up test pack-------------------
-            var maxTime = new DateTime(1900, 1, 1, GetRandomInt(12, 23), GetRandomInt(0, 59), GetRandomInt(0, 59));
-            var results = new List<DateTime>();
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            RunCycles(() => results.Add(GetRandomDate(maxTime: maxTime)));
-
-            //---------------Test Result -----------------------
-            var outOfRange = results.Where(d => d.MillisecondsSinceStartOfDay() > maxTime.MillisecondsSinceStartOfDay())
-                .ToArray();
-            Assert.IsFalse(outOfRange.Any(),
-                $"One or more results had a time that was too late for {maxTime}.{Environment.NewLine}{Print(outOfRange)}");
-        }
-
-        private string Print(DateTime[] outOfRange)
-        {
-            return string.Join(Environment.NewLine, outOfRange);
-        }
-
-        [Test]
-        public void GetRandomDate_GivenMinDateTimeAndMaxDateTime_WhenDateOnlySpecified_ShouldReturnDateWithinRange()
-        {
-            //---------------Set up test pack-------------------
-            var minDate = new DateTime(2011, 1, 1, 23, 30, 0);
-            var maxDate = new DateTime(2011, 1, 2, 00, 30, 0);
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            RunCycles(() =>
+            [TestCase(1984, 4, 4, 2001, 1, 1)]
+            [TestCase(1914, 4, 4, 2011, 1, 1)]
+            [TestCase(2001, 4, 4, 2001, 1, 1)]
+            public void GetRandomDate_GivenDateOnlyIsTrue_ShouldReturnDateTimeWithNoTimeComponent(
+                int minYear,
+                int minMonth,
+                int minDay,
+                int maxYear,
+                int maxMonth,
+                int maxDay)
             {
-                var result = GetRandomDate(minDate, maxDate, true);
-                Assert.AreEqual(new DateTime(2011, 1, 2, 0, 0, 0), result);
-            });
+                //---------------Set up test pack-------------------
+                var results = new List<DateTime>();
+                var range = new DateTimeRangeContainer(minYear, minMonth, minDay, maxYear, maxMonth, maxDay);
 
-            //---------------Test Result -----------------------
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                RunCycles(() => results.Add(GetRandomDate(range.From, range.To, true)));
+
+                //---------------Test Result -----------------------
+                Assert.AreEqual(RANDOM_TEST_CYCLES, results.Count);
+                Assert.IsTrue(results.All(range.InRange), "One or more generated value is out of range");
+                Assert.IsTrue(results.All(d => d.Hour == 0), "Hours are not all zeroed");
+                Assert.IsTrue(results.All(d => d.Minute == 0), "Minutes are not all zeroed");
+                Assert.IsTrue(results.All(d => d.Second == 0), "Seconds are not all zeroed");
+                Assert.IsTrue(results.All(d => d.Millisecond == 0), "Seconds are not all zeroed");
+            }
+
+            [Test]
+            public void GetRandomDate_GivenMinTimeOrMaxTime_AndDateOnlyIsTrue_ShouldIgnoreTheGivenTimes()
+            {
+                //---------------Set up test pack-------------------
+                var ticksInOneDay = TimeSpan.FromDays(1).Ticks;
+                var minTicks = GetRandomLong(1, ticksInOneDay - 1);
+                var maxTicks = GetRandomLong(minTicks, ticksInOneDay - 1);
+                var minTime = GetRandomDate().StartOfDay().AddTicks(minTicks);
+                var maxTime = GetRandomDate().StartOfDay().AddTicks(maxTicks);
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = GetRandomDate(dateOnly: true, minTime: minTime, maxTime: maxTime);
+
+                //---------------Test Result -----------------------
+                Assert.AreEqual(result.StartOfDay(), result);
+            }
+
+            [TestCase(1984, 4, 4, 2001, 1, 1)]
+            [TestCase(1914, 4, 4, 2011, 1, 1)]
+            [TestCase(2001, 4, 4, 2001, 1, 1)]
+            public void GetRandomDate_ShouldReturnDatesWithinRange(
+                int minYear,
+                int minMonth,
+                int minDay,
+                int maxYear,
+                int maxMonth,
+                int maxDay)
+            {
+                //---------------Set up test pack-------------------
+                var results = new List<DateTime>();
+                var range = new DateTimeRangeContainer(minYear, minMonth, minDay, maxYear, maxMonth, maxDay);
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                RunCycles(() => results.Add(GetRandomDate(range.From, range.To)));
+
+                //---------------Test Result -----------------------
+                Assert.AreEqual(RANDOM_TEST_CYCLES, results.Count);
+                Assert.IsTrue(results.All(d => d >= range.From), "One or more results is less than the minimum date");
+                Assert.IsTrue(results.All(d => d <= range.To), "One or more results is greater than the maximum date");
+                Assert.IsTrue(results.All(d => d.Microseconds() == 0), "Microseconds should be zeroed on random dates");
+            }
+
+            [Test]
+            public void GetRandomTimeOn_GivenDate_ShouldReturnRandomDateTimeOnThatDay()
+            {
+                //---------------Set up test pack-------------------
+                var theDate = GetRandomDate();
+                var min = new DateTime(theDate.Year, theDate.Month, theDate.Day, 0, 0, 0);
+                var max = new DateTime(theDate.Year, theDate.Month, theDate.Day, 0, 0, 0);
+                max = max.AddDays(1).AddMilliseconds(-1);
+                var results = new List<DateTime>();
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                RunCycles(() => results.Add(GetRandomTimeOn(theDate)));
+
+                //---------------Test Result -----------------------
+                Assert.IsTrue(results.All(d => d >= min));
+                Assert.IsTrue(results.All(d => d <= max));
+            }
+
+            [Test]
+            public void GetRandomDate_GivenMinTime_ShouldProduceRandomDatesWithTimesGreaterOrEqual()
+            {
+                //---------------Set up test pack-------------------
+                var minTime = new DateTime(1900, 1, 1, GetRandomInt(0, 12), GetRandomInt(0, 59), GetRandomInt(0, 59));
+                var maxTime = new DateTime(minTime.Year, minTime.Month, minTime.Day, 0, 0, 0);
+                maxTime = maxTime.AddDays(1).AddMilliseconds(-1);
+                var results = new List<DateTime>();
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                RunCycles(() => results.Add(GetRandomDate(minTime: minTime, maxTime: maxTime)));
+
+                //---------------Test Result -----------------------
+                var outOfRangeLeft = results.Where(d => d.Ticks < minTime.Ticks).ToArray();
+                var outOfRangeRight = results.Where(d => d.Ticks < maxTime.Ticks).ToArray();
+                Assert.IsFalse(
+                    outOfRangeLeft.Any() && outOfRangeRight.Any(),
+                    GetErrorHelpFor(outOfRangeLeft, outOfRangeRight, minTime, maxTime));
+            }
+
+            [Test]
+            [Repeat(RANDOM_TEST_CYCLES)]
+            public void GetRandomDate_GivenMinDateOnly_ShouldProduceRandomDatesWithin30YearPeriod()
+            {
+                //---------------Set up test pack-------------------
+                var minDate = new DateTime(GetRandomInt(1, 3000), GetRandomInt(1, 12), GetRandomInt(1, 28));
+                var maxDate = minDate.AddYears(30);
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = GetRandomDate(minDate: minDate);
+
+                //---------------Test Result -----------------------
+                Assert.That(
+                    result,
+                    Is.GreaterThanOrEqualTo(minDate)
+                        .And.LessThanOrEqualTo(maxDate));
+            }
+
+            [Test]
+            [Repeat(RANDOM_TEST_CYCLES)]
+            public void GetRandomDate_GivenMaxDateOnly_ShouldProduceRandomDatesWithin30YearPeriod()
+            {
+                //---------------Set up test pack-------------------
+                var maxDate = new DateTime(GetRandomInt(31, 3000), GetRandomInt(1, 12), GetRandomInt(1, 28));
+                var minDate = maxDate.AddYears(-30);
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = GetRandomDate(maxDate: maxDate);
+
+                //---------------Test Result -----------------------
+                Assert.That(
+                    result,
+                    Is.GreaterThanOrEqualTo(minDate)
+                        .And.LessThanOrEqualTo(maxDate));
+            }
+
+            [Test]
+            [Repeat(RANDOM_TEST_CYCLES)]
+            public void
+                GetRandomDate_GivenMinAndMaxTimeWithFractionsOfSeconds_ShouldTruncateTimesToMilliseconds_AndProduceRandomDateWithTimeBetweenMinAndMax()
+            {
+                //---------------Set up test pack-------------------
+                var r = GetRandomDate();
+                var baseDateTime = new DateTime(r.Year, r.Month, r.Day, r.Hour, r.Minute, r.Second);
+                var ticksInOneSecond = TimeSpan.FromSeconds(1).Ticks;
+                var minTicks = GetRandomLong(1, ticksInOneSecond - 1);
+                var maxTicks = GetRandomLong(minTicks, ticksInOneSecond - 1);
+                var minTime = baseDateTime.AddTicks(minTicks);
+                var maxTime = baseDateTime.AddTicks(maxTicks);
+                var expectedMinTime = minTime.TruncateMicroseconds();
+                var expectedMaxTime = maxTime.TruncateMicroseconds();
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = GetRandomDate(minTime: minTime, maxTime: maxTime);
+
+                //---------------Test Result -----------------------
+                Assert.That(
+                    result.TimeOfDay,
+                    Is.GreaterThanOrEqualTo(expectedMinTime.TimeOfDay)
+                        .And.LessThanOrEqualTo(expectedMaxTime.TimeOfDay));
+            }
+
+            [Test]
+            public void GetRandomDate_GivenMaxTime_ShouldProduceRandomDatesWithTimesLessThanOrEqual()
+            {
+                //---------------Set up test pack-------------------
+                var maxTime = new DateTime(1900, 1, 1, GetRandomInt(12, 23), GetRandomInt(0, 59), GetRandomInt(0, 59));
+                var results = new List<DateTime>();
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                RunCycles(() => results.Add(GetRandomDate(maxTime: maxTime)));
+
+                //---------------Test Result -----------------------
+                var outOfRange = results
+                    .Where(d => d.MillisecondsSinceStartOfDay() > maxTime.MillisecondsSinceStartOfDay())
+                    .ToArray();
+                Assert.IsFalse(
+                    outOfRange.Any(),
+                    $"One or more results had a time that was too late for {maxTime}.{Environment.NewLine}{Print(outOfRange)}");
+            }
+
+            private string Print(DateTime[] outOfRange)
+            {
+                return string.Join(Environment.NewLine, outOfRange);
+            }
+
+            [Test]
+            public void GetRandomDate_GivenMinDateTimeAndMaxDateTime_WhenDateOnlySpecified_ShouldReturnDateWithinRange()
+            {
+                //---------------Set up test pack-------------------
+                var minDate = new DateTime(2011, 1, 1, 23, 30, 0);
+                var maxDate = new DateTime(2011, 1, 2, 00, 30, 0);
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                RunCycles(
+                    () =>
+                    {
+                        var result = GetRandomDate(minDate, maxDate, true);
+                        Assert.AreEqual(new DateTime(2011, 1, 2, 0, 0, 0), result);
+                    });
+
+                //---------------Test Result -----------------------
+            }
+
+            [Test]
+            public void
+                GetRandomDate_GivenMinDateTimeAndMaxDateTime_WhenDateOnlySpecified_AndMinMaxOnSameDay_ShouldGiveThatDay()
+            {
+                //---------------Set up test pack-------------------
+                var minDate = new DateTime(2011, 1, 1, 12, 00, 0);
+                var maxDate = new DateTime(2011, 1, 1, 12, 30, 0);
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                RunCycles(
+                    () =>
+                    {
+                        var result = GetRandomDate(minDate, maxDate, true);
+                        Assert.AreEqual(new DateTime(2011, 1, 1, 0, 0, 0), result);
+                    });
+
+                //---------------Test Result -----------------------
+            }
         }
 
-        [Test]
-        public void
-            GetRandomDate_GivenMinDateTimeAndMaxDateTime_WhenDateOnlySpecified_AndMinMaxOnSameDay_ShouldGiveThatDay()
+        [TestFixture]
+        public class GetRandomTimespans
         {
-            //---------------Set up test pack-------------------
-            var minDate = new DateTime(2011, 1, 1, 12, 00, 0);
-            var maxDate = new DateTime(2011, 1, 1, 12, 30, 0);
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            RunCycles(() =>
+            [Test]
+            public void WhenContextIsMilliseconds_ShouldReturnSecondRange()
             {
-                var result = GetRandomDate(minDate, maxDate, true);
-                Assert.AreEqual(new DateTime(2011, 1, 1, 0, 0, 0), result);
-            });
+                // Arrange
+                // Pre-assert
+                // Act
+                var result = GetRandomTimeSpan(1, 10, TimeSpanContexts.Milliseconds);
+                // Assert
+                Expect(result.Ticks).To.Be
+                    .Greater.Than(TimeSpan.FromMilliseconds(1).Ticks - 1)
+                    .And
+                    .Less.Than(TimeSpan.FromMilliseconds(10).Ticks + 1);
+            }
 
-            //---------------Test Result -----------------------
+            [Test]
+            public void WhenContextIsMinutes_ShouldReturnSecondRange()
+            {
+                // Arrange
+                // Pre-assert
+                // Act
+                var result = GetRandomTimeSpan(1, 10, TimeSpanContexts.Minutes);
+                // Assert
+                Expect(result.Ticks).To.Be
+                    .Greater.Than(TimeSpan.FromMinutes(1).Ticks - 1)
+                    .And
+                    .Less.Than(TimeSpan.FromMinutes(10).Ticks + 1);
+            }
+            
+            [Test]
+            public void WhenContextIsHours_ShouldReturnSecondRange()
+            {
+                // Arrange
+                // Pre-assert
+                // Act
+                var result = GetRandomTimeSpan(1, 10, TimeSpanContexts.Hours);
+                // Assert
+                Expect(result.Ticks).To.Be
+                    .Greater.Than(TimeSpan.FromHours(1).Ticks - 1)
+                    .And
+                    .Less.Than(TimeSpan.FromHours(10).Ticks + 1);
+            }
+                        
+            [Test]
+            public void WhenContextIsDays_ShouldReturnSecondRange()
+            {
+                // Arrange
+                // Pre-assert
+                // Act
+                var result = GetRandomTimeSpan(1, 10, TimeSpanContexts.Days);
+                // Assert
+                Expect(result.Ticks).To.Be
+                    .Greater.Than(TimeSpan.FromDays(1).Ticks - 1)
+                    .And
+                    .Less.Than(TimeSpan.FromDays(10).Ticks + 1);
+            }
+                        
+            [Test]
+            public void WhenContextIsSeconds_ShouldReturnSecondRange()
+            {
+                // Arrange
+                // Pre-assert
+                // Act
+                var result = GetRandomTimeSpan(1, 10, TimeSpanContexts.Seconds);
+                // Assert
+                Expect(result.Ticks).To.Be
+                    .Greater.Than(TimeSpan.FromSeconds(1).Ticks - 1)
+                    .And
+                    .Less.Than(TimeSpan.FromSeconds(10).Ticks + 1);
+            }
+            
         }
 
 
@@ -646,13 +749,14 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            RunCycles(() =>
-            {
-                var thisResult = GetRandomDateRange();
-                Assert.IsNotNull(thisResult);
-                Assert.That(thisResult.From, Is.LessThanOrEqualTo(thisResult.To));
-                allResults.Add(thisResult);
-            });
+            RunCycles(
+                () =>
+                {
+                    var thisResult = GetRandomDateRange();
+                    Assert.IsNotNull(thisResult);
+                    Assert.That(thisResult.From, Is.LessThanOrEqualTo(thisResult.To));
+                    allResults.Add(thisResult);
+                });
 
             //---------------Test Result -----------------------
             var froms = allResults.Select(o => o.From);
@@ -734,14 +838,15 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            RunCycles(() =>
-            {
-                var result = GetRandomDateRange(minTime: minTime);
+            RunCycles(
+                () =>
+                {
+                    var result = GetRandomDateRange(minTime: minTime);
 
-                //---------------Test Result -----------------------
-                Assert.That(result.From.TimeOfDay, Is.GreaterThanOrEqualTo(minTime.TimeOfDay));
-                Assert.That(result.To.TimeOfDay, Is.GreaterThanOrEqualTo(minTime.TimeOfDay));
-            });
+                    //---------------Test Result -----------------------
+                    Assert.That(result.From.TimeOfDay, Is.GreaterThanOrEqualTo(minTime.TimeOfDay));
+                    Assert.That(result.To.TimeOfDay, Is.GreaterThanOrEqualTo(minTime.TimeOfDay));
+                });
         }
 
         [Test]
@@ -753,33 +858,35 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            RunCycles(() =>
-            {
-                var result = GetRandomDateRange(maxTime: maxTime);
+            RunCycles(
+                () =>
+                {
+                    var result = GetRandomDateRange(maxTime: maxTime);
 
-                //---------------Test Result -----------------------
-                Assert.That(result.From.TimeOfDay, Is.LessThanOrEqualTo(maxTime.TimeOfDay));
-                Assert.That(result.To.TimeOfDay, Is.LessThanOrEqualTo(maxTime.TimeOfDay));
-            });
+                    //---------------Test Result -----------------------
+                    Assert.That(result.From.TimeOfDay, Is.LessThanOrEqualTo(maxTime.TimeOfDay));
+                    Assert.That(result.To.TimeOfDay, Is.LessThanOrEqualTo(maxTime.TimeOfDay));
+                });
         }
 
         [Test]
         public void GetRandomDateRange_GivenDateKind_ShouldReturnBothDatesWithThatKind()
         {
-            RunCycles(() =>
-            {
-                //---------------Set up test pack-------------------
-                var expected = GetRandom<DateTimeKind>();
+            RunCycles(
+                () =>
+                {
+                    //---------------Set up test pack-------------------
+                    var expected = GetRandom<DateTimeKind>();
 
-                //---------------Assert Precondition----------------
+                    //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                var result = GetRandomDateRange(expected);
+                    //---------------Execute Test ----------------------
+                    var result = GetRandomDateRange(expected);
 
-                //---------------Test Result -----------------------
-                Assert.AreEqual(expected, result.From.Kind);
-                Assert.AreEqual(expected, result.To.Kind);
-            });
+                    //---------------Test Result -----------------------
+                    Assert.AreEqual(expected, result.From.Kind);
+                    Assert.AreEqual(expected, result.To.Kind);
+                });
         }
 
         [Test]
@@ -818,6 +925,7 @@ namespace PeanutButter.RandomGenerators.Tests
                     min = max;
                     max = swap;
                 }
+
                 var fill = GetRandomInt(1, 1024);
                 var result = GetRandomCollection(() => fill, min, max);
 
@@ -850,19 +958,20 @@ namespace PeanutButter.RandomGenerators.Tests
         public void GetRandomAlphaNumericString_ShouldProduceRandomStringWithOnlyAlphaNumericCharacters()
         {
             var allResults = new List<Tuple<string, int, int>>();
-            RunCycles(() =>
-            {
-                //---------------Set up test pack-------------------
-                var minLength = GetRandomInt(1, 50);
-                var maxLength = GetRandomInt(minLength, minLength + 50);
+            RunCycles(
+                () =>
+                {
+                    //---------------Set up test pack-------------------
+                    var minLength = GetRandomInt(1, 50);
+                    var maxLength = GetRandomInt(minLength, minLength + 50);
 
-                //---------------Assert Precondition----------------
+                    //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                var result = GetRandomAlphaNumericString(minLength, maxLength);
+                    //---------------Execute Test ----------------------
+                    var result = GetRandomAlphaNumericString(minLength, maxLength);
 
-                allResults.Add(Tuple.Create(result, minLength, maxLength));
-            });
+                    allResults.Add(Tuple.Create(result, minLength, maxLength));
+                });
             //---------------Test Result -----------------------
             CollectionAssert.IsNotEmpty(allResults);
             // collisions are possible, but should occur < 1%
@@ -875,7 +984,8 @@ namespace PeanutButter.RandomGenerators.Tests
             var tooLong = allResults.Where(r => r.Item1.Length > r.Item3);
             var alphaNumericChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
             var invalidCharacters = allResults.Where(r => r.Item1.Any(c => !alphaNumericChars.Contains(c)));
-            Assert.IsFalse(tooShort.Any() && tooLong.Any() && invalidCharacters.Any(),
+            Assert.IsFalse(
+                tooShort.Any() && tooLong.Any() && invalidCharacters.Any(),
                 BuildErrorMessageFor(tooShort, tooLong, invalidCharacters));
         }
 
@@ -883,19 +993,20 @@ namespace PeanutButter.RandomGenerators.Tests
         public void GetRandomAlphaString_ShouldProduceRandomStringWithOnlyAlphaCharacters()
         {
             var allResults = new List<Tuple<string, int, int>>();
-            RunCycles(() =>
-            {
-                //---------------Set up test pack-------------------
-                var minLength = GetRandomInt(1, 50);
-                var maxLength = GetRandomInt(minLength, minLength + 50);
+            RunCycles(
+                () =>
+                {
+                    //---------------Set up test pack-------------------
+                    var minLength = GetRandomInt(1, 50);
+                    var maxLength = GetRandomInt(minLength, minLength + 50);
 
-                //---------------Assert Precondition----------------
+                    //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                var result = GetRandomAlphaString(minLength, maxLength);
+                    //---------------Execute Test ----------------------
+                    var result = GetRandomAlphaString(minLength, maxLength);
 
-                allResults.Add(Tuple.Create(result, minLength, maxLength));
-            });
+                    allResults.Add(Tuple.Create(result, minLength, maxLength));
+                });
             //---------------Test Result -----------------------
             CollectionAssert.IsNotEmpty(allResults);
             // collisions are possible, but should occur < 1%
@@ -908,7 +1019,8 @@ namespace PeanutButter.RandomGenerators.Tests
             var tooLong = allResults.Where(r => r.Item1.Length > r.Item3);
             var alphaNumericChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
             var invalidCharacters = allResults.Where(r => r.Item1.Any(c => !alphaNumericChars.Contains(c)));
-            Assert.IsFalse(tooShort.Any() && tooLong.Any() && invalidCharacters.Any(),
+            Assert.IsFalse(
+                tooShort.Any() && tooLong.Any() && invalidCharacters.Any(),
                 BuildErrorMessageFor(tooShort, tooLong, invalidCharacters));
         }
 
@@ -916,19 +1028,20 @@ namespace PeanutButter.RandomGenerators.Tests
         public void GetRandomNumericString_ShouldProduceRandomStringWithOnlyNumericCharacters()
         {
             var allResults = new List<Tuple<string, int, int>>();
-            RunCycles(() =>
-            {
-                //---------------Set up test pack-------------------
-                var minLength = GetRandomInt(1, 50);
-                var maxLength = GetRandomInt(minLength, minLength + 50);
+            RunCycles(
+                () =>
+                {
+                    //---------------Set up test pack-------------------
+                    var minLength = GetRandomInt(1, 50);
+                    var maxLength = GetRandomInt(minLength, minLength + 50);
 
-                //---------------Assert Precondition----------------
+                    //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                var result = GetRandomNumericString(minLength, maxLength);
+                    //---------------Execute Test ----------------------
+                    var result = GetRandomNumericString(minLength, maxLength);
 
-                allResults.Add(Tuple.Create(result, minLength, maxLength));
-            });
+                    allResults.Add(Tuple.Create(result, minLength, maxLength));
+                });
             //---------------Test Result -----------------------
             CollectionAssert.IsNotEmpty(allResults);
             // collisions are possible, but should occur < 1%
@@ -941,44 +1054,47 @@ namespace PeanutButter.RandomGenerators.Tests
             var tooLong = allResults.Where(r => r.Item1.Length > r.Item3);
             var alphaNumericChars = "1234567890";
             var invalidCharacters = allResults.Where(r => r.Item1.Any(c => !alphaNumericChars.Contains(c)));
-            Assert.IsFalse(tooShort.Any() && tooLong.Any() && invalidCharacters.Any(),
+            Assert.IsFalse(
+                tooShort.Any() && tooLong.Any() && invalidCharacters.Any(),
                 BuildErrorMessageFor(tooShort, tooLong, invalidCharacters));
         }
 
         [Test]
         public void GetAnother_GivenOriginalValueAndGenerator_WhenCanGenerateNewValue_ShouldReturnANewValue()
         {
-            RunCycles(() =>
-            {
-                //---------------Set up test pack-------------------
-                var notThis = GetRandomString(1, 1);
+            RunCycles(
+                () =>
+                {
+                    //---------------Set up test pack-------------------
+                    var notThis = GetRandomString(1, 1);
 
-                //---------------Assert Precondition----------------
+                    //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                var result = GetAnother(notThis, () => GetRandomString(1, 1));
+                    //---------------Execute Test ----------------------
+                    var result = GetAnother(notThis, () => GetRandomString(1, 1));
 
-                //---------------Test Result -----------------------
-                Assert.AreNotEqual(notThis, result);
-            });
+                    //---------------Test Result -----------------------
+                    Assert.AreNotEqual(notThis, result);
+                });
         }
 
         [Test]
         public void GetAnother_GivenOriginalValueAndNoGenerator_WhenCanGenerateNewValue_ShouldReturnANewValue()
         {
-            RunCycles(() =>
-            {
-                //---------------Set up test pack-------------------
-                var notThis = GetRandomString(1, 1);
+            RunCycles(
+                () =>
+                {
+                    //---------------Set up test pack-------------------
+                    var notThis = GetRandomString(1, 1);
 
-                //---------------Assert Precondition----------------
+                    //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                var result = GetAnother(notThis);
+                    //---------------Execute Test ----------------------
+                    var result = GetAnother(notThis);
 
-                //---------------Test Result -----------------------
-                Assert.AreNotEqual(notThis, result);
-            });
+                    //---------------Test Result -----------------------
+                    Assert.AreNotEqual(notThis, result);
+                });
         }
 
         [Test]
@@ -990,8 +1106,10 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<CannotGetAnotherDifferentRandomValueException<string>>(() => GetAnother(notThis,
-                () => notThis));
+            Assert.Throws<CannotGetAnotherDifferentRandomValueException<string>>(
+                () => GetAnother(
+                    notThis,
+                    () => notThis));
 
             //---------------Test Result -----------------------
         }
@@ -1006,9 +1124,11 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<CannotGetAnotherDifferentRandomValueException<string>>(() => GetAnother(notThis,
-                () => GetRandomString(),
-                (left, right) => true));
+            Assert.Throws<CannotGetAnotherDifferentRandomValueException<string>>(
+                () => GetAnother(
+                    notThis,
+                    () => GetRandomString(),
+                    (left, right) => true));
 
             //---------------Test Result -----------------------
         }
@@ -1016,38 +1136,42 @@ namespace PeanutButter.RandomGenerators.Tests
         [Test]
         public void GetAnother_GivenOriginalValueCollectionAndGenerator_WhenCanGenerateNewValue_ShouldReturnThatValue()
         {
-            RunCycles(() =>
-            {
-                //---------------Set up test pack-------------------
-                var notThis = "abcdefghijklmnopqrstuvwABCDEFGHIJKLMNOPQRSTUVW".ToCharArray().Select(c => c.ToString());
+            RunCycles(
+                () =>
+                {
+                    //---------------Set up test pack-------------------
+                    var notThis = "abcdefghijklmnopqrstuvwABCDEFGHIJKLMNOPQRSTUVW".ToCharArray()
+                        .Select(c => c.ToString());
 
-                //---------------Assert Precondition----------------
+                    //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                var result = GetAnother(notThis, () => GetRandomString(1, 1));
+                    //---------------Execute Test ----------------------
+                    var result = GetAnother(notThis, () => GetRandomString(1, 1));
 
-                //---------------Test Result -----------------------
-                Assert.IsFalse(notThis.Any(i => i == result));
-            });
+                    //---------------Test Result -----------------------
+                    Assert.IsFalse(notThis.Any(i => i == result));
+                });
         }
 
         [Test]
         public void
             GetAnother_GivenOriginalValueCollectionAndNoGenerator_WhenCanGenerateNewValue_ShouldReturnThatValue()
         {
-            RunCycles(() =>
-            {
-                //---------------Set up test pack-------------------
-                var notThis = "abcdefghijklmnopqrstuvwABCDEFGHIJKLMNOPQRSTUVW".ToCharArray().Select(c => c.ToString());
+            RunCycles(
+                () =>
+                {
+                    //---------------Set up test pack-------------------
+                    var notThis = "abcdefghijklmnopqrstuvwABCDEFGHIJKLMNOPQRSTUVW".ToCharArray()
+                        .Select(c => c.ToString());
 
-                //---------------Assert Precondition----------------
+                    //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                var result = GetAnother(notThis);
+                    //---------------Execute Test ----------------------
+                    var result = GetAnother(notThis);
 
-                //---------------Test Result -----------------------
-                Assert.IsFalse(notThis.Any(i => i == result));
-            });
+                    //---------------Test Result -----------------------
+                    Assert.IsFalse(notThis.Any(i => i == result));
+                });
         }
 
 
@@ -1061,10 +1185,11 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<CannotGetAnotherDifferentRandomValueException<IEnumerable<string>>>(() => GetAnother(
-                notAnyOfThese,
-                () => GetRandomString(),
-                (left, right) => true));
+            Assert.Throws<CannotGetAnotherDifferentRandomValueException<IEnumerable<string>>>(
+                () => GetAnother(
+                    notAnyOfThese,
+                    () => GetRandomString(),
+                    (left, right) => true));
 
             //---------------Test Result -----------------------
         }
@@ -1259,12 +1384,13 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            RunCycles(() =>
-            {
-                var minLength = GetRandomInt(10, 20);
-                var result = GetRandomAlphaNumericString(minLength);
-                Assert.That(result.Length, Is.GreaterThanOrEqualTo(minLength));
-            });
+            RunCycles(
+                () =>
+                {
+                    var minLength = GetRandomInt(10, 20);
+                    var result = GetRandomAlphaNumericString(minLength);
+                    Assert.That(result.Length, Is.GreaterThanOrEqualTo(minLength));
+                });
 
             //---------------Test Result -----------------------
         }
@@ -1284,6 +1410,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 if (result.Distinct().Count() == 256)
                     return;
             }
+
             //---------------Test Result -----------------------
             Assert.Fail("Couldn't find full range of bytes");
         }
@@ -1296,14 +1423,15 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            RunCycles(() =>
-            {
-                var minLength = GetRandomInt(10, 20);
-                var maxLength = GetRandomInt(21, 30);
-                var result = GetRandomString(minLength, maxLength);
-                Assert.That(result.Length, Is.GreaterThanOrEqualTo(minLength));
-                Assert.That(result.Length, Is.LessThanOrEqualTo(maxLength));
-            });
+            RunCycles(
+                () =>
+                {
+                    var minLength = GetRandomInt(10, 20);
+                    var maxLength = GetRandomInt(21, 30);
+                    var result = GetRandomString(minLength, maxLength);
+                    Assert.That(result.Length, Is.GreaterThanOrEqualTo(minLength));
+                    Assert.That(result.Length, Is.LessThanOrEqualTo(maxLength));
+                });
 
             //---------------Test Result -----------------------
         }
@@ -1316,14 +1444,15 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            RunCycles(() =>
-            {
-                var minLength = GetRandomInt(10, 20);
-                var maxLength = GetRandomInt(21, 30);
-                var result = GetRandomString(maxLength, minLength);
-                Assert.That(result.Length, Is.GreaterThanOrEqualTo(minLength));
-                Assert.That(result.Length, Is.LessThanOrEqualTo(maxLength));
-            });
+            RunCycles(
+                () =>
+                {
+                    var minLength = GetRandomInt(10, 20);
+                    var maxLength = GetRandomInt(21, 30);
+                    var result = GetRandomString(maxLength, minLength);
+                    Assert.That(result.Length, Is.GreaterThanOrEqualTo(minLength));
+                    Assert.That(result.Length, Is.LessThanOrEqualTo(maxLength));
+                });
 
             //---------------Test Result -----------------------
         }
@@ -1337,15 +1466,16 @@ namespace PeanutButter.RandomGenerators.Tests
 
             //---------------Execute Test ----------------------
             var allResults = new List<string>();
-            RunCycles(() =>
-            {
-                var result = GetRandomIPv4Address();
-                allResults.Add(result);
-                var parts = result.Split('.');
-                Assert.AreEqual(4, parts.Length);
-                var ints = parts.Select(int.Parse);
-                Assert.IsTrue(ints.All(i => i >= 0 && i < 265));
-            });
+            RunCycles(
+                () =>
+                {
+                    var result = GetRandomIPv4Address();
+                    allResults.Add(result);
+                    var parts = result.Split('.');
+                    Assert.AreEqual(4, parts.Length);
+                    var ints = parts.Select(int.Parse);
+                    Assert.IsTrue(ints.All(i => i >= 0 && i < 265));
+                });
 
             //---------------Test Result -----------------------
             VarianceAssert.IsVariant(allResults);
@@ -1360,14 +1490,15 @@ namespace PeanutButter.RandomGenerators.Tests
 
             //---------------Execute Test ----------------------
             var allResults = new List<string>();
-            RunCycles(() =>
-            {
-                var result = GetRandomHostname();
-                Assert.IsNotNull(result);
-                var parts = result.Split('.');
-                Assert.IsTrue(parts.All(p => p.Length > 0));
-                allResults.Add(result);
-            });
+            RunCycles(
+                () =>
+                {
+                    var result = GetRandomHostname();
+                    Assert.IsNotNull(result);
+                    var parts = result.Split('.');
+                    Assert.IsTrue(parts.All(p => p.Length > 0));
+                    allResults.Add(result);
+                });
 
             //---------------Test Result -----------------------
             VarianceAssert.IsVariant(allResults);
@@ -1381,14 +1512,15 @@ namespace PeanutButter.RandomGenerators.Tests
 
             //---------------Execute Test ----------------------
             var allResults = new List<string>();
-            RunCycles(() =>
-            {
-                var result = GetRandomVersionString();
-                var parts = result.Split('.');
-                Assert.AreEqual(3, parts.Length);
-                Assert.IsTrue(parts.All(p => p.IsInteger()));
-                allResults.Add(result);
-            });
+            RunCycles(
+                () =>
+                {
+                    var result = GetRandomVersionString();
+                    var parts = result.Split('.');
+                    Assert.AreEqual(3, parts.Length);
+                    Assert.IsTrue(parts.All(p => p.IsInteger()));
+                    allResults.Add(result);
+                });
 
             //---------------Test Result -----------------------
             VarianceAssert.IsVariant(allResults);
@@ -1403,15 +1535,16 @@ namespace PeanutButter.RandomGenerators.Tests
 
             //---------------Execute Test ----------------------
             var allResults = new List<string>();
-            RunCycles(() =>
-            {
-                var partCount = GetRandomInt(2, 7);
-                var result = GetRandomVersionString(partCount);
-                var parts = result.Split('.');
-                Assert.AreEqual(partCount, parts.Length);
-                Assert.IsTrue(parts.All(p => p.IsInteger()));
-                allResults.Add(result);
-            });
+            RunCycles(
+                () =>
+                {
+                    var partCount = GetRandomInt(2, 7);
+                    var result = GetRandomVersionString(partCount);
+                    var parts = result.Split('.');
+                    Assert.AreEqual(partCount, parts.Length);
+                    Assert.IsTrue(parts.All(p => p.IsInteger()));
+                    allResults.Add(result);
+                });
 
             //---------------Test Result -----------------------
             VarianceAssert.IsVariant(allResults);
@@ -1426,11 +1559,12 @@ namespace PeanutButter.RandomGenerators.Tests
 
             //---------------Execute Test ----------------------
             var allResults = new List<Version>();
-            RunCycles(() =>
-            {
-                var result = GetRandomVersion();
-                allResults.Add(result);
-            });
+            RunCycles(
+                () =>
+                {
+                    var result = GetRandomVersion();
+                    allResults.Add(result);
+                });
 
             //---------------Test Result -----------------------
             VarianceAssert.IsVariant(allResults);
@@ -1445,18 +1579,19 @@ namespace PeanutButter.RandomGenerators.Tests
 
             //---------------Execute Test ----------------------
             var allResults = new List<string>();
-            RunCycles(() =>
-            {
-                var thisResult = GetRandomWindowsPath();
-                var parts = thisResult.Split('\\');
-                Assert.That(parts.Length, Is.GreaterThan(1));
-                Assert.That(parts.Length, Is.LessThan(6));
-                Assert.That(thisResult.Length, Is.LessThan(248));
-                Assert.That(parts[0].Length == 2);
-                Assert.That(parts[0].EndsWith(":"));
-                StringAssert.Contains(parts[0].First().ToString(), "ABCDEGHIJKLMNOPQRSTUVWXYZ");
-                allResults.Add(thisResult);
-            });
+            RunCycles(
+                () =>
+                {
+                    var thisResult = GetRandomWindowsPath();
+                    var parts = thisResult.Split('\\');
+                    Assert.That(parts.Length, Is.GreaterThan(1));
+                    Assert.That(parts.Length, Is.LessThan(6));
+                    Assert.That(thisResult.Length, Is.LessThan(248));
+                    Assert.That(parts[0].Length == 2);
+                    Assert.That(parts[0].EndsWith(":"));
+                    StringAssert.Contains(parts[0].First().ToString(), "ABCDEGHIJKLMNOPQRSTUVWXYZ");
+                    allResults.Add(thisResult);
+                });
 
             //---------------Test Result -----------------------
             VarianceAssert.IsVariant(allResults);
@@ -1587,10 +1722,12 @@ namespace PeanutButter.RandomGenerators.Tests
                 Assert.IsTrue(File.Exists(Path.Combine(folder.Path, result)));
                 var lines = File.ReadAllLines(Path.Combine(folder.Path, result));
                 CollectionAssert.IsNotEmpty(lines);
-                Assert.IsTrue(lines.All(l =>
-                {
-                    return l.All(c => !Char.IsControl(c));
-                }));
+                Assert.IsTrue(
+                    lines.All(
+                        l =>
+                        {
+                            return l.All(c => !Char.IsControl(c));
+                        }));
             }
         }
 
@@ -1617,20 +1754,21 @@ namespace PeanutButter.RandomGenerators.Tests
         [Test]
         public void RangeCheckTimeOnRandomDate_WhenGivenDateWithTimeExceedingMaxTime_ShouldReturnDateWithTimeAtMaxTime()
         {
-            RunCycles(() =>
-            {
-                //---------------Set up test pack-------------------
-                var input = new DateTime(2011, 1, 1, 12, 30, 0);
-                var maxTime = new DateTime(2011, 1, 1, 9, 30, 0);
+            RunCycles(
+                () =>
+                {
+                    //---------------Set up test pack-------------------
+                    var input = new DateTime(2011, 1, 1, 12, 30, 0);
+                    var maxTime = new DateTime(2011, 1, 1, 9, 30, 0);
 
-                //---------------Assert Precondition----------------
+                    //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                var result = RangeCheckTimeOnRandomDate(null, maxTime, input);
+                    //---------------Execute Test ----------------------
+                    var result = RangeCheckTimeOnRandomDate(null, maxTime, input);
 
-                //---------------Test Result -----------------------
-                Assert.That(result.TimeOfDay, Is.LessThanOrEqualTo(maxTime.TimeOfDay));
-            });
+                    //---------------Test Result -----------------------
+                    Assert.That(result.TimeOfDay, Is.LessThanOrEqualTo(maxTime.TimeOfDay));
+                });
         }
 
         public interface IInterfaceToGetRandomOf
@@ -1666,21 +1804,22 @@ namespace PeanutButter.RandomGenerators.Tests
         [Test]
         public void GetRandom_GivenAValidatorFunction_ShouldReturnADifferentValue()
         {
-            RunCycles(() =>
-            {
-                //--------------- Arrange -------------------
-                var first = GetRandom<IHasAnId>();
+            RunCycles(
+                () =>
+                {
+                    //--------------- Arrange -------------------
+                    var first = GetRandom<IHasAnId>();
 
-                //--------------- Assume ----------------
+                    //--------------- Assume ----------------
 
-                //--------------- Act ----------------------
-                var other = GetRandom<IHasAnId>(test => test.Id != first.Id);
+                    //--------------- Act ----------------------
+                    var other = GetRandom<IHasAnId>(test => test.Id != first.Id);
 
-                //--------------- Assert -----------------------
-                Expect(other).Not.To.Be.Null();
-                Expect(other).Not.To.Equal(first);
-                Expect(other.Id).Not.To.Equal(first.Id);
-            });
+                    //--------------- Assert -----------------------
+                    Expect(other).Not.To.Be.Null();
+                    Expect(other).Not.To.Equal(first);
+                    Expect(other.Id).Not.To.Equal(first.Id);
+                });
         }
 
         [Test]
@@ -1739,6 +1878,7 @@ namespace PeanutButter.RandomGenerators.Tests
                     Assert.Fail("Unable to get non-empty key or value");
                 result = GetRandom<KeyValuePair<string, string>>();
             }
+
             // Assert
             Expect(result).Not.To.Be.Null();
             Expect(result.Key).Not.To.Be.Null();
@@ -1781,13 +1921,30 @@ namespace PeanutButter.RandomGenerators.Tests
             // Pre-assert
 
             // Act
-            Expect(() =>
-                {
-                    var parent = GetRandom<Parent>();
-                    Expect(parent.Children).Not.To.Be.Empty();
-                })
+            Expect(
+                    () =>
+                    {
+                        var parent = GetRandom<Parent>();
+                        Expect(parent.Children).Not.To.Be.Empty();
+                    })
                 .Not.To.Throw();
 
+            // Assert
+        }
+
+        public class PocoWithTimeSpan
+        {
+            public TimeSpan Moo { get; set; }
+        }
+
+        [Test]
+        public void GetRandomOfT_WhenTypeHasTimeSpanProperty_ShouldNotExplode()
+        {
+            // Arrange
+            // Pre-assert
+            // Act
+            Expect(GetRandom<PocoWithTimeSpan>)
+                .Not.To.Throw();
             // Assert
         }
 
@@ -1847,29 +2004,39 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
 
-        private string BuildErrorMessageFor(IEnumerable<Tuple<string, int, int>> tooShort,
+        private string BuildErrorMessageFor(
+            IEnumerable<Tuple<string, int, int>> tooShort,
             IEnumerable<Tuple<string, int, int>> tooLong,
             IEnumerable<Tuple<string, int, int>> invalidCharacters)
         {
             var message = new List<string>();
             if (tooShort.Any())
             {
-                message.Add(string.Join("\n",
-                    "Some results were too short:",
-                    string.Join("\n\t", tooShort.Take(5).Select(i => $"{i.Item1}  (<{i.Item2})"))));
+                message.Add(
+                    string.Join(
+                        "\n",
+                        "Some results were too short:",
+                        string.Join("\n\t", tooShort.Take(5).Select(i => $"{i.Item1}  (<{i.Item2})"))));
             }
+
             if (tooLong.Any())
             {
-                message.Add(string.Join("\n",
-                    "Some results were too long:",
-                    string.Join("\n\t", tooLong.Take(5).Select(i => $"{i.Item1}  (>{i.Item3})"))));
+                message.Add(
+                    string.Join(
+                        "\n",
+                        "Some results were too long:",
+                        string.Join("\n\t", tooLong.Take(5).Select(i => $"{i.Item1}  (>{i.Item3})"))));
             }
+
             if (invalidCharacters.Any())
             {
-                message.Add(string.Join("\n",
-                    "Some results contained invalid characters:",
-                    string.Join("\n\t", invalidCharacters.Take(5).Select(i => i.Item1))));
+                message.Add(
+                    string.Join(
+                        "\n",
+                        "Some results contained invalid characters:",
+                        string.Join("\n\t", invalidCharacters.Take(5).Select(i => i.Item1))));
             }
+
             return message.JoinWith("\n");
         }
 
@@ -1880,7 +2047,8 @@ namespace PeanutButter.RandomGenerators.Tests
                 toRun();
         }
 
-        private string GetErrorHelpFor(IEnumerable<DateTime> outOfRangeLeft,
+        private string GetErrorHelpFor(
+            IEnumerable<DateTime> outOfRangeLeft,
             IEnumerable<DateTime> outOfRangeRight,
             DateTime minTime,
             DateTime maxTime)
@@ -1888,16 +2056,22 @@ namespace PeanutButter.RandomGenerators.Tests
             var message = "";
             if (outOfRangeLeft.Any())
             {
-                message = string.Join("\n", "One or more results had a time that was too early:",
+                message = string.Join(
+                    "\n",
+                    "One or more results had a time that was too early:",
                     "minTime: " + minTime.ToString("yyyy/MM/dd HH:mm:ss.ttt"),
                     "bad values: " + string.Join(",", outOfRangeLeft.Take(5)));
             }
+
             if (outOfRangeRight.Any())
             {
-                message += string.Join("\n", "One or more results had a time that was too late:",
+                message += string.Join(
+                    "\n",
+                    "One or more results had a time that was too late:",
                     "maxTime: " + maxTime.ToString("yyyy/MM/dd HH:mm:ss.ttt"),
                     "bad values: " + string.Join(",", outOfRangeLeft.Take(5)));
             }
+
             return message;
         }
 
@@ -1932,12 +2106,14 @@ namespace PeanutButter.RandomGenerators.Tests
             string basePath
         )
         {
-            be.Compose(actual =>
-            {
-                actual.ForEach(sub =>
-                    Expect(Path.Combine(basePath, sub)).To.Be.A.Folder()
-                );
-            });
+            be.Compose(
+                actual =>
+                {
+                    actual.ForEach(
+                        sub =>
+                            Expect(Path.Combine(basePath, sub)).To.Be.A.Folder()
+                    );
+                });
         }
 
         internal static void TheOnlyFoldersUnder(
@@ -1945,23 +2121,28 @@ namespace PeanutButter.RandomGenerators.Tests
             string folder
         )
         {
-            be.Compose(actual =>
-            {
-                var existing = Directory.EnumerateDirectories(
-                        folder, "*", SearchOption.AllDirectories
-                    )
-                    .Select(p => p.Substring(folder.Length + 1)
-                    );
-                Expect(existing).To.Be.Equivalent.To(actual);
-            });
+            be.Compose(
+                actual =>
+                {
+                    var existing = Directory.EnumerateDirectories(
+                            folder,
+                            "*",
+                            SearchOption.AllDirectories
+                        )
+                        .Select(
+                            p => p.Substring(folder.Length + 1)
+                        );
+                    Expect(existing).To.Be.Equivalent.To(actual);
+                });
         }
 
         internal static void Folder(
             this IA<string> a
         )
         {
-            a.Compose(path =>
-                Expect(Directory.Exists(path)).To.Be.True()
+            a.Compose(
+                path =>
+                    Expect(Directory.Exists(path)).To.Be.True()
             );
         }
     }
