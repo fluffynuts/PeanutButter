@@ -455,12 +455,18 @@ namespace PeanutButter.TestUtils.Generic
         /// <returns></returns>
         public static bool MatchesOrIsNullableOf(this Type type, Type other)
         {
-            var underlyingType = type.GetUnderlyingType();
-            var underlyingOther = other.GetUnderlyingType();
+            var underlyingType = type.GetNullableGenericUnderlyingType();
+            var underlyingOther = other.GetNullableGenericUnderlyingType();
             return underlyingType == underlyingOther;
         }
 
-        private static Type GetUnderlyingType(this Type type)
+        /// <summary>
+        /// Gets the underlying type constraint for a nullable or returns the original
+        ///  type if the original type was not a Nullable<T>
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static Type GetNullableGenericUnderlyingType(this Type type)
         {
             return (!type.IsGenericType || type.GetGenericTypeDefinition() != typeof(Nullable<>))
                 ? type

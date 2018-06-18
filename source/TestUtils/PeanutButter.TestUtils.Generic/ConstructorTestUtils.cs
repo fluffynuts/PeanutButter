@@ -5,6 +5,7 @@ using System.Reflection;
 using NSubstitute;
 using PeanutButter.TestUtils.Generic.NUnitAbstractions;
 using PeanutButter.Utils;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 
 // Author notice: most of this is not written by me and may be subject to removal at the
 //  behest of the original author: Brendon Page <brendonpage@live.co.za>
@@ -98,6 +99,9 @@ namespace PeanutButter.TestUtils.Generic
         private static bool IsParameterSubstitutable(ParameterInfo parameterInfo)
         {
             var parameterType = parameterInfo.ParameterType;
+            var underlying = parameterType.GetNullableGenericUnderlyingType();
+            if (underlying != parameterType)
+                return true; // we have Nullable<T>
             if (parameterType.IsPrimitive)
                 return false;
             return TypeMayBeSubstitutableIfPassesAnyOf.Aggregate(false,
@@ -121,6 +125,12 @@ namespace PeanutButter.TestUtils.Generic
         {
             try
             {
+                var underlyingType = parameterType.GetNullableGenericUnderlyingType();
+                if (underlyingType != parameterType)
+                {
+                    return GetRandomValue(underlyingType);
+                }
+
                 return CreateSubstituteWithLinkedNSubstitute(parameterType);
             }
             catch

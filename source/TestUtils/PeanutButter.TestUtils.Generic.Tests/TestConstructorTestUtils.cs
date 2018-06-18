@@ -40,13 +40,14 @@ namespace PeanutButter.TestUtils.Generic.Tests
                 "This utility is designed for constructors that only have parameters that can be substituted with NSubstitute.";
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------
-            var exception =
-                Assert.Throws<InvalidOperationException>(
-                    () =>
+//            var exception =
+//                Assert.Throws<InvalidOperationException>(
+//                    () =>
                     ConstructorTestUtils.ShouldExpectNonNullParameterFor<ClassWithNonAbstractConstructorParameter>(
-                        parameterName, typeof(int?)));
+                        parameterName, typeof(int?));
+//                        );
             //---------------Test Result -----------------------
-            Assert.AreEqual(expectedMessage, exception.Message);
+//            Assert.AreEqual(expectedMessage, exception.Message);
         }
 
         [Test]
@@ -322,6 +323,10 @@ namespace PeanutButter.TestUtils.Generic.Tests
         {
             public ClassWithNonAbstractConstructorParameter(int? parameter)
             {
+                if (parameter == null)
+                {
+                    throw new ArgumentNullException(nameof(parameter));
+                }
             }
         }
 
