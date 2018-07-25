@@ -77,20 +77,20 @@ namespace PeanutButter.Utils
         private const int MAX_STRINGIFY_DEPTH = 10;
         private const int INDENT_SIZE = 2;
 
-        private static readonly Dictionary<Type, Func<object, string>> PrimitiveStringifiers
+        private static readonly Dictionary<Type, Func<object, string>> _primitiveStringifiers
             = new Dictionary<Type, Func<object, string>>()
             {
                 [typeof(string)] = o => $"\"{o}\"",
                 [typeof(bool)] = o => o.ToString().ToLower()
             };
 
-        private static readonly string[] IgnoreAssembliesByName =
+        private static readonly string[] _ignoreAssembliesByName =
         {
             "mscorlib"
         };
 
         private static readonly Tuple<Func<object, int, bool>, Func<object, int, string, string>>[]
-            Strategies =
+            _strategies =
             {
                 MakeStrategy(IsNull, PrintNull),
                 MakeStrategy(IsDateTime, StringifyDateTime),
@@ -106,7 +106,7 @@ namespace PeanutButter.Utils
 
         private static string StringifyXElement(object arg1, int arg2, string arg3)
         {
-            return ((XElement)arg1).ToString();
+            return ((XElement) arg1).ToString();
         }
 
         private static bool IsXElement(object arg1, int arg2)
@@ -116,7 +116,7 @@ namespace PeanutButter.Utils
 
         private static string StringifyXDocument(object arg1, int arg2, string arg3)
         {
-            return ((XDocument)arg1).ToString();
+            return ((XDocument) arg1).ToString();
         }
 
         private static bool IsXDocument(object obj, int level)
@@ -137,7 +137,7 @@ namespace PeanutButter.Utils
         private static string StringifyDateTime(object obj, int level, string nullRep)
         {
             var dt = (DateTime) obj;
-            return $"{dt.ToString(CultureInfo.InvariantCulture)}.{dt.Millisecond} ({dt.Kind})";
+            return $"{dt} {dt.Kind}";
         }
 
         private static bool IsDateTime(object obj, int level)
@@ -231,7 +231,7 @@ namespace PeanutButter.Utils
                 return StringifyPrimitive(obj, level, nullRepresentation);
             }
 
-            return Strategies.Aggregate(
+            return _strategies.Aggregate(
                 null as string,
                 (acc, cur) => acc ??
                               ApplyStrategy(
@@ -274,14 +274,14 @@ namespace PeanutButter.Utils
                     (acc, cur) =>
                     {
                         var propValue = cur.GetValue(obj);
-                        if (IgnoreAssembliesByName.Contains(
+                        if (_ignoreAssembliesByName.Contains(
 #if NETSTANDARD
                             cur.DeclaringType?.AssemblyQualifiedName.Split(
                                 new[] {","},
                                 StringSplitOptions.RemoveEmptyEntries
                             ).Skip(1).FirstOrDefault()
 #else
-                        cur.DeclaringType?.Assembly.GetName().Name
+                            cur.DeclaringType?.Assembly.GetName().Name
 #endif
                         ))
                         {
@@ -312,7 +312,7 @@ namespace PeanutButter.Utils
         {
             if (obj == null)
                 return nullRep;
-            return PrimitiveStringifiers.TryGetValue(obj.GetType(), out var strategy)
+            return _primitiveStringifiers.TryGetValue(obj.GetType(), out var strategy)
                 ? strategy(obj)
                 : obj.ToString();
         }
