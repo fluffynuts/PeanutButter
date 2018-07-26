@@ -135,8 +135,9 @@ gulp.task("increment-package-versions", () => {
   return spawn(util, ["source"]);
 });
 
-gulp.task("release", ["build-nuget-packages"], function () {
-  return gulp.start("push-packages");
+gulp.task("release", ["build-nuget-packages"], function (done) {
+  // return gulp.start("push-packages");
+  runSequence("push-packages", "commit-release", "tag-and-push", done);
 });
 
 gulp.task("push-packages", [], () => {

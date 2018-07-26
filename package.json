@@ -19,6 +19,7 @@
     "event-stream": "^3.3.4",
     "gulp": "^3.9.1",
     "gulp-debug": "^3.1.0",
+    "gulp-edit-xml": "^3.0.0",
     "gulp-help": "^1.6.1",
     "gulp-msbuild": "^0.5.2",
     "gulp-npm-run": "0.0.3",
@@ -48,6 +49,7 @@
     "requirejs": "^2.3.3",
     "rimraf": "^2.6.1",
     "run-sequence": "^1.2.2",
+    "simple-git": "^1.96.0",
     "sinon": "^2.2.0",
     "through2": "^2.0.3",
     "which": "^1.2.14"
