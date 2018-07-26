@@ -12,7 +12,7 @@ gulp.task("tag-and-push", () => {
         const node = xml.package.metadata[0].version,
           version = node[0].trim();
 
-        gutil.log(gutil.colors.cyan(`Tagging at: "${version}"`));
+        gutil.log(gutil.colors.cyan(`Tagging at: "v${version}"`));
         git.addAnnotatedTag(
           `v${version}`,
           `chore(release): ${version}`,
