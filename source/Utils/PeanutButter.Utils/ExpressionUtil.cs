@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UsePatternMatching
 
@@ -42,6 +43,7 @@ namespace PeanutButter.Utils
             {
                 return instanceMethodExpression.Method.Name;
             }
+
             throw new Exception("expression is not a member expression");
         }
 
@@ -66,8 +68,7 @@ namespace PeanutButter.Utils
                 if (propInfo == null)
                     throw new InvalidOperationException($"Unable to find property {part} on {result}");
                 result = propInfo.PropertyType;
-            }
-            while (pathParts.Any());
+            } while (pathParts.Any());
 
             return result;
         }
@@ -90,6 +91,7 @@ namespace PeanutButter.Utils
                 parts.Add(next.Member.Name);
                 next = next.Expression as MemberExpression;
             }
+
             parts.Reverse();
             return string.Join(".", parts);
         }

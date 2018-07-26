@@ -76,15 +76,37 @@ namespace PeanutButter.Utils
             string key
         )
         {
+            return parent.GetMetadata<T>(key, default(T));
+        }
+
+        /// <summary>
+        /// Attempts to retrieve a piece of metadata for an object. When the
+        /// metadata key for the object is unknown, returns the default value
+        /// for the type requested, eg 0 for ints, null for strings and objects.
+        /// Note that if metadata exists for the requested key but not for the
+        /// type requested, a type-casting exception will be thrown.
+        /// This overload allows specifying a default value.
+        /// </summary>
+        /// <param name="parent">Parent object to query against</param>
+        /// <param name="key">Key to query for</param>
+        /// <param name="defaultValue"></param>
+        /// <typeparam name="T">Type of data</typeparam>
+        /// <returns></returns>
+        public static T GetMetadata<T>(
+            this object parent,
+            string key,
+            T defaultValue
+        )
+        {
             using (new AutoLocker(Lock))
             {
                 var data = GetMetadataFor(parent);
                 if (data == null)
-                    return default(T);
+                    return defaultValue;
 
                 return data.TryGetValue(key, out var result)
                     ? (T) result // WILL fail hard if the caller doesn't match the stored type
-                    : default(T);
+                    : defaultValue;
             }
         }
 
