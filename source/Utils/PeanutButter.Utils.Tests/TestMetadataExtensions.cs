@@ -49,7 +49,7 @@ namespace PeanutButter.Utils.Tests
         }
 
         [Test]
-        public void RetrievingMetadataForNonExistingKeys_ShouldReturnDefaultForT()
+        public void RetrievingMetadataForNonExistingKeys_WhenNoMetadataAtAll_ShouldReturnDefaultForT()
         {
             // Arrange
             var target = new {};
@@ -58,6 +58,36 @@ namespace PeanutButter.Utils.Tests
             var result = target.GetMetadata<int>(GetRandomString(2));
             // Assert
             Expect(result).To.Equal(default(int));
+        }
+        
+        [Test]
+        public void RetrievingMetadataForNonExistingKeys_WhenHaveOtherMetadata_ShouldReturnDefaultForT()
+        {
+            // Arrange
+            var target = new {};
+            var have = GetRandomString(2);
+            var test = GetAnother(have);
+            var haveValue = GetRandomInt(1);
+            target.SetMetadata(have, haveValue);
+            var expected = GetAnother(haveValue);
+            // Pre-assert
+            // Act
+            var result = target.GetMetadata(test, expected);
+            // Assert
+            Expect(result).To.Equal(expected);
+        }
+
+        [Test]
+        public void RetrievingMetadataForNonExistingKeys_GivenDefaultValue_ShouldReturnThat()
+        {
+            // Arrange
+            var target = new {};
+            var expected = !default(bool);
+            // Pre-assert
+            // Act
+            var result = target.GetMetadata(GetRandomString(2), expected);
+            // Assert
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
