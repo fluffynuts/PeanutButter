@@ -13,23 +13,38 @@ gulp.task("tag-and-push", () => {
           version = node[0].trim();
 
         gutil.log(gutil.colors.cyan(`Tagging at: "v${version}"`));
-        git.addAnnotatedTag(
-          `v${version}`,
-          `chore(release): ${version}`,
-          err => {
-            if (err) {
-              return reject(`Unable to create tag: ${err}`);
-            }
-            git.pushTags("origin", err => {
-              if (err) {
-                return reject(`Unable to push tag: ${err}`);
-              }
-              return resolve();
-            });
-          }
-        );
+        addTag(`v${version}`, `chore: release v${version}`)
+          .then(pushTags)
+          .then(push)
+          .then(resolve)
+        .catch(err => reject(err));
         return xml;
       })
     );
   });
 });
+
+function addTag(tag, msg) {
+  return new Promise((resolve, reject) => {
+    git.addAnnotatedTag(tag, msg, err => {
+        return err ? reject(`Unable to create tag: ${err}`) : resolve();
+    });
+  });
+}
+
+function push() {
+  return new Promise((resolve, reject) => {
+    git.push("origin", err => {
+        return err ? reject(`Unable to push: ${err}`) : resolve;
+    });
+  });
+}
+
+function pushTags() {
+  return new Promise((resolve, reject) => {
+    git.pushTags("origin", err => {
+        return err ? reject(`Unable to push tags: ${err}`) : resolve();
+    });
+  });
+}
+
