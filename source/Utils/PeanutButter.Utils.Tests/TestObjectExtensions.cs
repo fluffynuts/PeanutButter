@@ -479,8 +479,16 @@ namespace PeanutButter.Utils.Tests
             public void InheritedPropertiesShouldMatter()
             {
                 //--------------- Arrange -------------------
-                var item1 = new SomeDerivedClass() {Id = 1, Name = "Bob"};
-                var item2 = new SomeDerivedClass() {Id = 2, Name = "Bob"};
+                var item1 = new SomeDerivedClass()
+                {
+                    Id = 1,
+                    Name = "Bob"
+                };
+                var item2 = new SomeDerivedClass()
+                {
+                    Id = 2,
+                    Name = "Bob"
+                };
 
                 //--------------- Assume ----------------
 
@@ -605,7 +613,11 @@ namespace PeanutButter.Utils.Tests
                     //--------------- Arrange -------------------
                     var collection1 = new[]
                     {
-                        new {id = 1, name = "Bob"}
+                        new
+                        {
+                            id = 1,
+                            name = "Bob"
+                        }
                     };
 
                     //--------------- Assume ----------------
@@ -623,7 +635,11 @@ namespace PeanutButter.Utils.Tests
                     //--------------- Arrange -------------------
                     var collection1 = new[]
                     {
-                        new {id = 1, name = "Bob"}
+                        new
+                        {
+                            id = 1,
+                            name = "Bob"
+                        }
                     };
 
                     //--------------- Assume ----------------
@@ -641,13 +657,22 @@ namespace PeanutButter.Utils.Tests
                     //--------------- Arrange -------------------
                     var collection1 = new[]
                     {
-                        new {id = 1, name = "Bob"}
+                        new
+                        {
+                            id = 1,
+                            name = "Bob"
+                        }
                     };
 
                     //--------------- Assume ----------------
 
                     //--------------- Act ----------------------
-                    var result = collection1.ContainsOnlyOneDeepEqualTo(new {id = 2, name = "Bob"});
+                    var result = collection1.ContainsOnlyOneDeepEqualTo(
+                        new
+                        {
+                            id = 2,
+                            name = "Bob"
+                        });
 
                     //--------------- Assert -----------------------
                     Expect(result).To.Be.False();
@@ -659,13 +684,22 @@ namespace PeanutButter.Utils.Tests
                     //--------------- Arrange -------------------
                     var collection1 = new[]
                     {
-                        new {id = 1, name = "Bob"}
+                        new
+                        {
+                            id = 1,
+                            name = "Bob"
+                        }
                     };
 
                     //--------------- Assume ----------------
 
                     //--------------- Act ----------------------
-                    var result = collection1.ContainsOnlyOneDeepEqualTo(new {id = 1, name = "Bob"});
+                    var result = collection1.ContainsOnlyOneDeepEqualTo(
+                        new
+                        {
+                            id = 1,
+                            name = "Bob"
+                        });
 
                     //--------------- Assert -----------------------
                     Expect(result).To.Be.True();
@@ -678,14 +712,23 @@ namespace PeanutButter.Utils.Tests
                     //--------------- Arrange -------------------
                     var collection1 = new[]
                     {
-                        new {id = 1, name = "Bob", ignore = "moo"}
+                        new
+                        {
+                            id = 1,
+                            name = "Bob",
+                            ignore = "moo"
+                        }
                     };
 
                     //--------------- Assume ----------------
 
                     //--------------- Act ----------------------
                     var result = collection1.ContainsOnlyOneDeepEqualTo(
-                        new {id = 1, name = "Bob"},
+                        new
+                        {
+                            id = 1,
+                            name = "Bob"
+                        },
                         "ignore");
 
                     //--------------- Assert -----------------------
@@ -698,14 +741,27 @@ namespace PeanutButter.Utils.Tests
                     //--------------- Arrange -------------------
                     var collection1 = new[]
                     {
-                        new {id = 1, name = "Bob"},
-                        new {id = 1, name = "Bob"}
+                        new
+                        {
+                            id = 1,
+                            name = "Bob"
+                        },
+                        new
+                        {
+                            id = 1,
+                            name = "Bob"
+                        }
                     };
 
                     //--------------- Assume ----------------
 
                     //--------------- Act ----------------------
-                    var result = collection1.ContainsOnlyOneDeepEqualTo(new {id = 1, name = "Bob"});
+                    var result = collection1.ContainsOnlyOneDeepEqualTo(
+                        new
+                        {
+                            id = 1,
+                            name = "Bob"
+                        });
 
                     //--------------- Assert -----------------------
                     Expect(result).To.Be.False();
@@ -718,13 +774,22 @@ namespace PeanutButter.Utils.Tests
                     //--------------- Arrange -------------------
                     var collection1 = new[]
                     {
-                        new {id = 1, name = "Bob"}
+                        new
+                        {
+                            id = 1,
+                            name = "Bob"
+                        }
                     };
 
                     //--------------- Assume ----------------
 
                     //--------------- Act ----------------------
-                    var result = collection1.ContainsOnlyOneIntersectionEqualTo(new {id = 2, name = "Bob"});
+                    var result = collection1.ContainsOnlyOneIntersectionEqualTo(
+                        new
+                        {
+                            id = 2,
+                            name = "Bob"
+                        });
 
                     //--------------- Assert -----------------------
                     Expect(result).To.Be.False();
@@ -736,13 +801,22 @@ namespace PeanutButter.Utils.Tests
                     //--------------- Arrange -------------------
                     var collection1 = new[]
                     {
-                        new {id = 1, name = "Bob"}
+                        new
+                        {
+                            id = 1,
+                            name = "Bob"
+                        }
                     };
 
                     //--------------- Assume ----------------
 
                     //--------------- Act ----------------------
-                    var result = collection1.ContainsOnlyOneIntersectionEqualTo(new {id = 1, name = "Bob"});
+                    var result = collection1.ContainsOnlyOneIntersectionEqualTo(
+                        new
+                        {
+                            id = 1,
+                            name = "Bob"
+                        });
 
                     //--------------- Assert -----------------------
                     Expect(result).To.Be.True();
@@ -755,13 +829,24 @@ namespace PeanutButter.Utils.Tests
                     //--------------- Arrange -------------------
                     var collection1 = new[]
                     {
-                        new {id = 1, name = "Bob", moo = "cow"}
+                        new
+                        {
+                            id = 1,
+                            name = "Bob",
+                            moo = "cow"
+                        }
                     };
 
                     //--------------- Assume ----------------
 
                     //--------------- Act ----------------------
-                    var result = collection1.ContainsOnlyOneIntersectionEqualTo(new {id = 1, name = "Bob"}, "moo");
+                    var result = collection1.ContainsOnlyOneIntersectionEqualTo(
+                        new
+                        {
+                            id = 1,
+                            name = "Bob"
+                        },
+                        "moo");
 
                     //--------------- Assert -----------------------
                     Expect(result).To.Be.True();
@@ -773,14 +858,27 @@ namespace PeanutButter.Utils.Tests
                     //--------------- Arrange -------------------
                     var collection1 = new[]
                     {
-                        new {id = 1, name = "Bob"},
-                        new {id = 1, name = "Bob"}
+                        new
+                        {
+                            id = 1,
+                            name = "Bob"
+                        },
+                        new
+                        {
+                            id = 1,
+                            name = "Bob"
+                        }
                     };
 
                     //--------------- Assume ----------------
 
                     //--------------- Act ----------------------
-                    var result = collection1.ContainsOnlyOneIntersectionEqualTo(new {id = 1, name = "Bob"});
+                    var result = collection1.ContainsOnlyOneIntersectionEqualTo(
+                        new
+                        {
+                            id = 1,
+                            name = "Bob"
+                        });
 
                     //--------------- Assert -----------------------
                     Expect(result).To.Be.False();
@@ -1142,6 +1240,34 @@ namespace PeanutButter.Utils.Tests
                     Assert.Throws<ArgumentException>(() => o.GetOrDefault<string>("prop"));
 
                     //---------------Test Result -----------------------
+                }
+
+                public interface IPerson
+                {
+                    int Id { get; set; }
+                    string Name { get; set; }
+                }
+
+                public class Person : IPerson
+                {
+                    public int Id { get; set; }
+                    public string Name { get; set; }
+                }
+
+                [Test]
+                public void ShouldBeAbleToRetrieveByInterface()
+                {
+                    // Arrange
+                    var person = GetRandom<Person>();
+                    var o = new {Person = person};
+
+                    Expect(typeof(Person).IsAssignableTo<IPerson>())
+                        .To.Be.True();
+                    // Pre-assert
+                    // Act
+                    var result = o.Get<IPerson>("Person");
+                    // Assert
+                    Expect(result).To.Be(person);
                 }
 
                 [Test]
@@ -1712,6 +1838,7 @@ namespace PeanutButter.Utils.Tests
             public class HasWritableIndexer
             {
                 public string NormalProp { get; set; }
+
                 public object this[int index]
                 {
                     get => null;
@@ -1817,7 +1944,11 @@ namespace PeanutButter.Utils.Tests
                     //--------------- Arrange -------------------
                     var collection1 = new[]
                     {
-                        new {id = 1, name = "Bob"}
+                        new
+                        {
+                            id = 1,
+                            name = "Bob"
+                        }
                     };
 
                     //--------------- Assume ----------------
@@ -1835,7 +1966,11 @@ namespace PeanutButter.Utils.Tests
                     //--------------- Arrange -------------------
                     var collection1 = new[]
                     {
-                        new {id = 1, name = "Bob"}
+                        new
+                        {
+                            id = 1,
+                            name = "Bob"
+                        }
                     };
 
                     //--------------- Assume ----------------
@@ -1854,13 +1989,23 @@ namespace PeanutButter.Utils.Tests
                     //--------------- Arrange -------------------
                     var collection1 = new[]
                     {
-                        new {id = 1, name = "Bob"}
+                        new
+                        {
+                            id = 1,
+                            name = "Bob"
+                        }
                     };
 
                     //--------------- Assume ----------------
 
                     //--------------- Act ----------------------
-                    var result = collection1.ContainsOneIntersectionEqualTo(new {id = 2, name = "Bob"}, "id");
+                    var result = collection1.ContainsOneIntersectionEqualTo(
+                        new
+                        {
+                            id = 2,
+                            name = "Bob"
+                        },
+                        "id");
 
                     //--------------- Assert -----------------------
                     Expect(result).To.Be.True();
@@ -1872,7 +2017,11 @@ namespace PeanutButter.Utils.Tests
                     //--------------- Arrange -------------------
                     var collection1 = new[]
                     {
-                        new {id = 1, name = "Bob"}
+                        new
+                        {
+                            id = 1,
+                            name = "Bob"
+                        }
                     };
 
                     //--------------- Assume ----------------
@@ -1898,7 +2047,12 @@ namespace PeanutButter.Utils.Tests
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                var result = (new {prop = rs}).DeepSubEquals(new {prop = rs, bar = GetRandomString()});
+                var result = (new {prop = rs}).DeepSubEquals(
+                    new
+                    {
+                        prop = rs,
+                        bar = GetRandomString()
+                    });
 
                 //---------------Test Result -----------------------
                 Assert.IsTrue(result);

@@ -164,7 +164,9 @@ namespace PeanutButter.Utils
         /// <param name="objCompare">Comparison object to compare</param>
         /// <param name="ignorePropertiesByName">Optional params array of properties to ignore by name</param>
         /// <returns>True if relevant properties are found and match; false otherwise. If no common properties are found, returns false; caveat: performing this comparison on two vanilla Object() instances will return true.</returns>
-        public static bool DeepIntersectionEquals(this object objSource, object objCompare,
+        public static bool DeepIntersectionEquals(
+            this object objSource,
+            object objCompare,
             params string[] ignorePropertiesByName)
         {
             var tester = new DeepEqualityTester(
@@ -241,7 +243,8 @@ namespace PeanutButter.Utils
             T2 item,
             params string[] ignoreProperties)
         {
-            return collection.ContainsOnlyOneMatching(item,
+            return collection.ContainsOnlyOneMatching(
+                item,
                 (t1, t2) => t1.DeepEquals(t2, ignoreProperties));
         }
 
@@ -260,7 +263,8 @@ namespace PeanutButter.Utils
             params string[] ignoreProperties
         )
         {
-            return collection.ContainsOnlyOneMatching(item,
+            return collection.ContainsOnlyOneMatching(
+                item,
                 (t1, t2) => t1.DeepIntersectionEquals(t2, ignoreProperties));
         }
 
@@ -280,13 +284,17 @@ namespace PeanutButter.Utils
             Func<T1, T2, bool> comparer
         )
         {
-            return collection.Aggregate(0, (acc, cur) =>
-                   {
-                       if (acc > 1)
+            return collection.Aggregate(
+                       0,
+                       (acc, cur) =>
+                       {
+                           if (acc > 1)
+                               return acc;
+                           acc += comparer(cur, item)
+                               ? 1
+                               : 0;
                            return acc;
-                       acc += comparer(cur, item) ? 1 : 0;
-                       return acc;
-                   }) ==
+                       }) ==
                    1;
         }
 
@@ -331,24 +339,28 @@ namespace PeanutButter.Utils
                 .Where(pi => !ignoreProperties.Contains(pi.Name));
             var dstPropInfos = dst.GetType().GetProperties();
 
-            foreach (var srcPropInfo in srcPropInfos.Where(pi => pi.CanRead &&
-                                                                 pi.GetIndexParameters().Length == 0))
+            foreach (var srcPropInfo in srcPropInfos.Where(
+                pi => pi.CanRead &&
+                      pi.GetIndexParameters().Length == 0))
             {
-                var matchingTarget = dstPropInfos.FirstOrDefault(dp => dp.Name == srcPropInfo.Name &&
-                                                                       dp.PropertyType == srcPropInfo.PropertyType &&
-                                                                       dp.CanWrite);
+                var matchingTarget = dstPropInfos.FirstOrDefault(
+                    dp => dp.Name == srcPropInfo.Name &&
+                          dp.PropertyType == srcPropInfo.PropertyType &&
+                          dp.CanWrite);
                 if (matchingTarget == null)
                     continue;
 
                 var srcVal = srcPropInfo.GetValue(src);
 
-                PropertySetterStrategies.Aggregate(false, (acc, cur) =>
-                    acc || cur(deep, srcPropInfo, matchingTarget, dst, srcVal));
+                _propertySetterStrategies.Aggregate(
+                    false,
+                    (acc, cur) =>
+                        acc || cur(deep, srcPropInfo, matchingTarget, dst, srcVal));
             }
         }
 
         private static readonly Func<bool, PropertyInfo, PropertyInfo, object, object, bool>[]
-            PropertySetterStrategies =
+            _propertySetterStrategies =
             {
                 SetSimpleOrNullableOfSimpleTypeValue,
                 SetArrayOrGenericIEnumerableValue,
@@ -361,7 +373,8 @@ namespace PeanutButter.Utils
             bool deep,
             PropertyInfo srcPropertyInfo,
             PropertyInfo dstPropertyInfo,
-            object dst, object srcValue)
+            object dst,
+            object srcValue)
         {
             if (!srcPropertyInfo.PropertyType.IsEnum())
                 return false;
@@ -385,6 +398,7 @@ namespace PeanutButter.Utils
                 dstPropertyInfo.SetValue(dst, clone);
                 return true;
             }
+
             dstPropertyInfo.SetValue(dst, null, null);
             return false;
         }
@@ -402,7 +416,7 @@ namespace PeanutButter.Utils
             var itemType = srcPropertyInfo.PropertyType.GetCollectionItemType();
             if (itemType == null)
                 return false;
-            var method = GenericMakeListCopy.MakeGenericMethod(itemType);
+            var method = _genericMakeListCopy.MakeGenericMethod(itemType);
             var newValue = method.Invoke(null, new[] {srcVal});
             dstPropertyInfo.SetValue(dst, newValue);
             return true;
@@ -422,7 +436,7 @@ namespace PeanutButter.Utils
             var underlyingType = srcPropertyInfo.PropertyType.GetCollectionItemType();
             if (underlyingType == null)
                 return false;
-            var specific = GenericMakeArrayCopy.MakeGenericMethod(underlyingType);
+            var specific = _genericMakeArrayCopy.MakeGenericMethod(underlyingType);
             // ReSharper disable once RedundantExplicitArrayCreation
             var newValue = specific.Invoke(null, new[] {srcVal});
             dstPropertyInfo.SetValue(dst, newValue);
@@ -444,20 +458,23 @@ namespace PeanutButter.Utils
             return true;
         }
 
-        private static readonly BindingFlags PrivateStatic =
+        private static readonly BindingFlags _privateStatic =
             BindingFlags.NonPublic | BindingFlags.Static;
 
-        private static readonly MethodInfo GenericMakeArrayCopy
-            = typeof(ObjectExtensions).GetMethod(nameof(MakeArrayCopyOf),
-                PrivateStatic);
+        private static readonly MethodInfo _genericMakeArrayCopy
+            = typeof(ObjectExtensions).GetMethod(
+                nameof(MakeArrayCopyOf),
+                _privateStatic);
 
-        private static readonly MethodInfo GenericMakeListCopy
-            = typeof(ObjectExtensions).GetMethod(nameof(MakeListCopyOf),
-                PrivateStatic);
+        private static readonly MethodInfo _genericMakeListCopy
+            = typeof(ObjectExtensions).GetMethod(
+                nameof(MakeListCopyOf),
+                _privateStatic);
 
-        private static readonly MethodInfo GenericMakeDictionaryCopy
-            = typeof(ObjectExtensions).GetMethod(nameof(MakeDictionaryCopyOf),
-                PrivateStatic);
+        private static readonly MethodInfo _genericMakeDictionaryCopy
+            = typeof(ObjectExtensions).GetMethod(
+                nameof(MakeDictionaryCopyOf),
+                _privateStatic);
 
 #pragma warning disable S1144 // Unused private types or members should be removed
         // ReSharper disable once UnusedMember.Local
@@ -487,7 +504,8 @@ namespace PeanutButter.Utils
         private static IDictionary<TKey, TValue> MakeDictionaryCopyOf<TKey, TValue>(
             IDictionary<TKey, TValue> src,
             Type targetType
-        ) {
+        )
+        {
             var instance = Activator.CreateInstance(targetType) as IDictionary<TKey, TValue>;
             if (instance == null)
                 throw new InvalidOperationException($"Activator couldn't create instance of {targetType}");
@@ -529,7 +547,9 @@ namespace PeanutButter.Utils
                     // FIXME: can we get new instances for Dates and such?
                     return src;
                 }
-                return CloneStrategies.Aggregate(null as object,
+
+                return _cloneStrategies.Aggregate(
+                    null as object,
                     (acc, cur) => acc ?? cur(src, cloneType));
             }
             catch (Exception e)
@@ -539,7 +559,7 @@ namespace PeanutButter.Utils
             }
         }
 
-        private static readonly Func<object, Type, object>[] CloneStrategies =
+        private static readonly Func<object, Type, object>[] _cloneStrategies =
         {
             CloneArray,
             CloneList,
@@ -556,8 +576,9 @@ namespace PeanutButter.Utils
             {
                 return null;
             }
-            var method = GenericMakeDictionaryCopy.MakeGenericMethod(keyType, valueType);
-            return method.Invoke(null, new[] { src, cloneType });
+
+            var method = _genericMakeDictionaryCopy.MakeGenericMethod(keyType, valueType);
+            return method.Invoke(null, new[] {src, cloneType});
         }
 
         private static object CloneEnumerable(object src, Type cloneType)
@@ -565,8 +586,8 @@ namespace PeanutButter.Utils
             if (!cloneType.ImplementsEnumerableGenericType())
                 return null;
             var itemType = cloneType.GetCollectionItemType();
-            var method = GenericMakeArrayCopy.MakeGenericMethod(itemType);
-            return method.Invoke(null, new[] { src });
+            var method = _genericMakeArrayCopy.MakeGenericMethod(itemType);
+            return method.Invoke(null, new[] {src});
         }
 
         private static object CloneList(object src, Type cloneType)
@@ -574,8 +595,8 @@ namespace PeanutButter.Utils
             if (!cloneType.IsGenericOf(typeof(List<>)) && !cloneType.IsGenericOf(typeof(IList<>)))
                 return null;
             var itemType = cloneType.GetCollectionItemType();
-            var method = GenericMakeListCopy.MakeGenericMethod(itemType);
-            return method.Invoke(null, new[] { src });
+            var method = _genericMakeListCopy.MakeGenericMethod(itemType);
+            return method.Invoke(null, new[] {src});
         }
 
         private static object CloneArray(object src, Type cloneType)
@@ -583,8 +604,8 @@ namespace PeanutButter.Utils
             if (!cloneType.IsArray)
                 return null;
             var itemType = cloneType.GetCollectionItemType();
-            var method = GenericMakeArrayCopy.MakeGenericMethod(itemType);
-            return method.Invoke(null, new[] { src });
+            var method = _genericMakeArrayCopy.MakeGenericMethod(itemType);
+            return method.Invoke(null, new[] {src});
         }
 
         private static object CloneObject(object src, Type cloneType)
@@ -604,12 +625,13 @@ namespace PeanutButter.Utils
 
         private static object DefaultValueForType(Type t)
         {
-            var method = GenericGetDefaultValueMethod.MakeGenericMethod(t);
+            var method = _genericGetDefaultValueMethod.MakeGenericMethod(t);
             return method.Invoke(null, new object[] { });
         }
 
-        private static readonly MethodInfo GenericGetDefaultValueMethod =
-            typeof(ObjectExtensions).GetMethod(nameof(GetDefaultValueFor),
+        private static readonly MethodInfo _genericGetDefaultValueMethod =
+            typeof(ObjectExtensions).GetMethod(
+                nameof(GetDefaultValueFor),
                 BindingFlags.NonPublic | BindingFlags.Static
             );
 
@@ -620,10 +642,11 @@ namespace PeanutButter.Utils
 
         private static bool IsSimpleTypeOrNullableOfSimpleType(Type t)
         {
-            return Types.PrimitivesAndImmutables.Any(si => si == t ||
-                                                           (t.IsGenericType() &&
-                                                            t.GetGenericTypeDefinition() == typeof(Nullable<>) &&
-                                                            Nullable.GetUnderlyingType(t) == si));
+            return Types.PrimitivesAndImmutables.Any(
+                si => si == t ||
+                      (t.IsGenericType() &&
+                       t.GetGenericTypeDefinition() == typeof(Nullable<>) &&
+                       Nullable.GetUnderlyingType(t) == si));
         }
 
         /// <summary>
@@ -633,7 +656,9 @@ namespace PeanutButter.Utils
         /// <param name="propertyPath">Path to the property: may be a property name or a dotted path down an object heirachy, eg: Company.Name</param>
         /// <typeparam name="T">Expected type of the property value</typeparam>
         /// <returns></returns>
-        public static T Get<T>(this object src, string propertyPath)
+        public static T Get<T>(
+            this object src,
+            string propertyPath)
         {
             var type = src.GetType();
             return ResolvePropertyValueFor<T>(src, propertyPath, type);
@@ -647,7 +672,9 @@ namespace PeanutButter.Utils
         /// <param name="propertyPath"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T GetOrDefault<T>(this object src, string propertyPath)
+        public static T GetOrDefault<T>(
+            this object src,
+            string propertyPath)
         {
             return src.GetOrDefault(propertyPath, default(T));
         }
@@ -661,7 +688,10 @@ namespace PeanutButter.Utils
         /// <param name="defaultValue"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T GetOrDefault<T>(this object src, string propertyPath, T defaultValue)
+        public static T GetOrDefault<T>(
+            this object src,
+            string propertyPath,
+            T defaultValue)
         {
             try
             {
@@ -685,7 +715,10 @@ namespace PeanutButter.Utils
             return new[] {input};
         }
 
-        private static T ResolvePropertyValueFor<T>(object src, string propertyPath, Type type)
+        private static T ResolvePropertyValueFor<T>(
+            object src,
+            string propertyPath,
+            Type type)
         {
             var valueAsObject = GetPropertyValue(src, propertyPath);
             var valueType = valueAsObject.GetType();
@@ -711,14 +744,17 @@ namespace PeanutButter.Utils
         /// <param name="propertyPath">Name of the property to search for</param>
         /// <returns>Value of the property, cast/boxed to object</returns>
         /// <exception cref="MemberNotFoundException">Thrown when the property is not found by name</exception>
-        // TODO: GetPropertyValue should also traverse dotted paths
-        public static object GetPropertyValue(this object src, string propertyPath)
+        public static object GetPropertyValue(
+            this object src,
+            string propertyPath)
         {
             var parts = propertyPath.Split('.');
             return parts.Aggregate(src, GetImmediatePropertyValue);
         }
 
-        private static object GetImmediatePropertyValue(this object src, string propertyName)
+        private static object GetImmediatePropertyValue(
+            this object src,
+            string propertyName)
         {
             var type = src.GetType();
             var propInfo = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
@@ -738,7 +774,8 @@ namespace PeanutButter.Utils
         public static object InvokeMethodWithResult(this object src, string methodName, params object[] args)
         {
             var srcType = src.GetType();
-            var method = srcType.GetMethod(methodName,
+            var method = srcType.GetMethod(
+                methodName,
                 BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             if (method == null)
                 throw new InvalidOperationException($"Can't find method {methodName} on {srcType.Name}");
@@ -768,8 +805,10 @@ namespace PeanutButter.Utils
                     propInfo.SetValue(src, newValue);
                     return;
                 }
+
                 src = propInfo.GetValue(src);
             }
+
             throw new MemberNotFoundException(src.GetType(), propertyPath);
         }
 
@@ -794,7 +833,8 @@ namespace PeanutButter.Utils
         /// <returns>True if objects of type {type} can be assigned to objects of type T</returns>
         public static bool IsAssignableTo<T>(this Type type)
         {
-            return type.IsAssignableFrom(typeof(T));
+            var targetType = typeof(T);
+            return targetType.IsAssignableFrom(type);
         }
 
         /// <summary>
