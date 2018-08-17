@@ -459,6 +459,23 @@ namespace PeanutButter.Utils.Tests
                 }
             }
 
+            [Test]
+            public void ShouldHaveOverloadToLogError()
+            {
+                // TODO: update this test when markers are added around deep equality failure
+                // Arrange
+                var left = new { foo = 1 };
+                var right = new { foo = 2 };
+                var logs = new List<string>();
+                // Pre-assert
+                // Act
+                var result = left.DeepEquals(right, s => logs.Add(s));
+                // Assert
+                Expect(result).To.Be.False();
+                Expect(logs).To.Contain.Only(1)
+                    .Matched.By(l => l.Contains(left.Stringify()) && l.Contains(right.Stringify()));
+            }
+
             [TestFixture]
             public class ShapeEquals
             {

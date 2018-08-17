@@ -135,6 +135,21 @@ namespace PeanutButter.Utils
             return tester.AreDeepEqual();
         }
 
+        public static bool DeepEquals(this object objSource,
+            object objCompare,
+            Action<string> failureLogAction,
+            params string[] ignorePropertiesByName)
+        {
+            var tester = new DeepEqualityTester(
+                objSource, objCompare, ignorePropertiesByName)
+                {
+                    RecordErrors = true
+                };
+            var result = tester.AreDeepEqual();
+            tester.Errors.ForEach(failureLogAction);
+            return result;
+        }
+
         /// <summary>
         /// Runs a deep equality test between two objects, using the properties on objSource (and children) as
         /// the set of properties to match on

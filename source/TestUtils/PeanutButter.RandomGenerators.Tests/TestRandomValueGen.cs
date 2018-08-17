@@ -2097,6 +2097,83 @@ namespace PeanutButter.RandomGenerators.Tests
                 return value >= From && value <= To;
             }
         }
+        
+        [TestFixture]
+        public class GettingRandomHttpUrls
+        {
+            [Repeat(RANDOM_TEST_CYCLES)]
+            [Test]
+            public void ShouldReturnAValidUrl()
+            {
+                // Arrange
+                // Pre-assert
+                // Act
+                var url = GetRandomHttpUrl();
+                // Assert
+                Expect(() => new Uri(url))
+                    .Not.To.Throw();
+            }
+
+            [Repeat(RANDOM_TEST_CYCLES)]
+            [Test]
+            public void ShouldReturnUrlInLowerCaseOnly()
+            {
+                // Arrange
+                // Pre-assert
+                // Act
+                var url = GetRandomHttpUrl();
+                // Assert
+                Expect(url).To.Equal(url.ToLowerInvariant());
+            }
+        }
+
+        [TestFixture]
+        public class GettingRandomHttpUrlsWithParameters
+        {
+            [Repeat(RANDOM_TEST_CYCLES)]
+            [Test]
+            public void ShouldReturnAValidUrl()
+            {
+                // Arrange
+                // Pre-assert
+                // Act
+                var url = GetRandomHttpUrlWithParameters();
+                // Assert
+                Expect(() => new Uri(url))
+                    .Not.To.Throw();
+            }
+
+            [Repeat(RANDOM_TEST_CYCLES)]
+            [Test]
+            public void ShouldReturnUrlInLowerCaseOnly()
+            {
+                // Arrange
+                // Pre-assert
+                // Act
+                var url = GetRandomHttpUrlWithParameters();
+                // Assert
+                var uri = new Uri(url);
+                var schemeHostPath = uri.ToString().Replace(uri.Query, "");
+                Expect(schemeHostPath).To.Equal(schemeHostPath.ToLowerInvariant());
+            }
+
+            [Repeat(RANDOM_TEST_CYCLES)]
+            [Test]
+            public void ShouldHaveAtLeastOneParameter()
+            {
+                // Arrange
+                // Pre-assert
+                // Act
+                var url = GetRandomHttpUrlWithParameters();
+                // Assert
+                var uri = new Uri(url);
+                Expect(uri.Query).Not.To.Be.Null.Or.Empty();
+                var parameters = uri.Query.Substring(1)
+                    .Split(new[] {"&"}, StringSplitOptions.RemoveEmptyEntries);
+                Expect(parameters).Not.To.Be.Empty();
+            }
+            
+        }
     }
 
     internal static class Matchers

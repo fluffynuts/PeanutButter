@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using PeanutButter.Utils;
+using static PeanutButter.Utils.PyLike;
 
 // ReSharper disable UnusedMember.Global
 // ReSharper disable ClassNeverInstantiated.Global
@@ -509,8 +510,15 @@ namespace PeanutButter.RandomGenerators
                 "/",
                 "http:",
                 string.Empty,
-                GetRandomAlphaNumericString(3, 12) + ".com",
-                GetRandomAlphaNumericString(0, 20));
+                GetRandomAlphaNumericString(3, 12) + $".{GetRandomString(2, 3)}",
+                GetRandomAlphaNumericString(0, 20)).ToLowerInvariant();
+        }
+
+        public static string GetRandomHttpUrlWithParameters()
+        {
+            var parameters = Range(1, GetRandomInt(2, 5)).Select(
+                i => $"{GetRandomString(1)}={GetRandomString(1)}");
+            return $"{GetRandomHttpUrl()}?{parameters.JoinWith("&")}";
         }
 
         /// <summary>
