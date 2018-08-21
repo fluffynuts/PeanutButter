@@ -106,6 +106,9 @@
       <Version>1.6.2</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.0-preview-20180320-02" />
+    <PackageReference Include="NExpect">
+      <Version>1.0.132</Version>
+    </PackageReference>
     <PackageReference Include="NUnit">
       <Version>3.10.1</Version>
     </PackageReference>

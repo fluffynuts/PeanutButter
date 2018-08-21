@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Net.Sockets;
 using NUnit.Framework;
+using static PeanutButter.RandomGenerators.RandomValueGen;
+using static NExpect.Expectations;
+using NExpect;
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.SimpleTcpServer.Tests
@@ -58,6 +61,39 @@ namespace PeanutButter.SimpleTcpServer.Tests
 
                 //---------------Test Result -----------------------
             }
+        }
+
+        public class MyServer : TcpServer
+        {
+            protected override void Init()
+            {
+            }
+
+            protected override IProcessor CreateProcessorFor(TcpClient client)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override void Dispose()
+            {
+                Disposed = true;
+                base.Dispose();
+            }
+
+            public bool Disposed { get; private set; }
+        }
+
+        [Test]
+        public void DisposeShouldBeOverrideable()
+        {
+            // Arrange
+            var sut = new MyServer() as TcpServer;
+            // Pre-assert
+            // Act
+            sut.Dispose();
+            // Assert
+            var upcast = sut as MyServer;
+            Expect(upcast.Disposed).To.Be.True();
         }
     }
 }

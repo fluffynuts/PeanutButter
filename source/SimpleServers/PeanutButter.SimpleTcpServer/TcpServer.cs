@@ -230,7 +230,7 @@ namespace PeanutButter.SimpleTcpServer
         /// <summary>
         /// Disposes the server (stops it if it is running)
         /// </summary>
-        public void Dispose()
+        public virtual void Dispose()
         {
             Stop();
         }
