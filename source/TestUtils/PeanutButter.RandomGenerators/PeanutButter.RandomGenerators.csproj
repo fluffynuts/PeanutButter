@@ -1,21 +1,21 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
-        <Configurations>Debug;Release</Configurations>
-        <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\PeanutButter.RandomGenerators.xml</DocumentationFile>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
-        <DefineConstants>NETSTANDARD</DefineConstants>
-    </PropertyGroup>
-    <ItemGroup>
-      <PackageReference Include="system.reflection.emit" Version="4.3.0" />
-    </ItemGroup>
-    <ItemGroup>
-      <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj" />
-    </ItemGroup>
-    <PropertyGroup>
-        <DebugType>Full</DebugType>
-        <DebugSymbols>True</DebugSymbols>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
+    <Configurations>Debug;Release</Configurations>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\PeanutButter.RandomGenerators.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
+    <DefineConstants>NETSTANDARD</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="system.reflection.emit" Version="4.3.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj" />
+  </ItemGroup>
+  <PropertyGroup>
+    <DebugType>Full</DebugType>
+    <DebugSymbols>True</DebugSymbols>
+  </PropertyGroup>
 </Project>

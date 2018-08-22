@@ -941,5 +941,46 @@ namespace PeanutButter.RandomGenerators.Tests
             // Assert
             Expect(result.DateTime.Kind).To.Equal(expected);
         }
+
+        [TestFixture]
+        public class Decorations: TestGenericBuilder
+        {
+            [Test]
+            [Repeat(RANDOM_TEST_CYCLES)]
+            public void RequiringIntegerPropertyToBeNonZero()
+            {
+                // Arrange
+                // Pre-assert
+                // Act
+                var result = GetRandom<Poco>();
+                // Assert
+                Expect(result.Wheels).Not.To.Equal(0);
+            }
+
+            [Test]
+            [Repeat(RANDOM_TEST_CYCLES)]
+            public void RequireNonZeroId_ShouldSetIdField()
+            {
+                // Arrange
+                // Pre-assert
+                // Act
+                var result = GetRandom<Poco>();
+                // Assert
+                Expect(result.Id).Not.To.Equal(0);
+            }
+
+            public class Poco
+            {
+                public int Id { get; set; }
+                public int Wheels { get; set; }
+                public string Name { get; set; }
+            }
+
+            [RequireNonZero(nameof(Poco.Wheels))]
+            [RequireNonZeroId]
+            public class PocoBuilder : GenericBuilder<PocoBuilder, Poco>
+            {
+            }
+        }
     }
 }
