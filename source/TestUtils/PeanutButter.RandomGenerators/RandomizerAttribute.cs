@@ -12,18 +12,18 @@ namespace PeanutButter.RandomGenerators
         /// <summary>
         /// The name of the property to which this randomizer attribute pertains
         /// </summary>
-        public string PropertyName { get; }
+        public string[] PropertyNames { get; }
 
         internal delegate void RefAction(PropertyOrField prop, ref object target);
 
         /// <summary>
         /// Constructs this attribute to act against a property by name
         /// </summary>
-        /// <param name="propertyName"></param>
+        /// <param name="propertyNames"></param>
         public RandomizerAttribute(
-            string propertyName)
+            params string[] propertyNames)
         {
-            PropertyName = propertyName;
+            PropertyNames = propertyNames;
         }
 
         /// <summary>
@@ -35,5 +35,14 @@ namespace PeanutButter.RandomGenerators
         public abstract void SetRandomValue(
             PropertyOrField propInfo,
             ref object target);
+
+        /// <summary>
+        /// override in your implementation if you'd like to late-initialize
+        /// relevant property names
+        /// </summary>
+        /// <param name="type"></param>
+        public virtual void Init(Type type)
+        {
+        }
     }
 }

@@ -1189,7 +1189,7 @@ namespace PeanutButter.RandomGenerators
 
         private void SetRandomProps(ref TEntity entity)
         {
-            PopulateSpecificSetters();
+            PopulateSpecificSetters<TEntity>();
             foreach (var prop in EntityPropInfo)
             {
                 try
@@ -1226,19 +1226,27 @@ namespace PeanutButter.RandomGenerators
         private Dictionary<string, RandomizerAttribute.RefAction>
             _specificSetters;
 
-        private void PopulateSpecificSetters()
+        private void PopulateSpecificSetters<TEntity>()
         {
-            _specificSetters = _specificSetters ?? GenerateSpecificSetters();
+            _specificSetters = _specificSetters ?? GenerateSpecificSetters<TEntity>();
         }
 
-        private Dictionary<string, RandomizerAttribute.RefAction> GenerateSpecificSetters()
+        private Dictionary<string, RandomizerAttribute.RefAction> GenerateSpecificSetters<TEntity>()
         {
             return GetType().GetCustomAttributes().OfType<RandomizerAttribute>()
                 .Aggregate(new Dictionary<string, RandomizerAttribute.RefAction>(),
                     (acc,
                         cur) =>
                     {
-                        acc[cur.PropertyName] = cur.SetRandomValue;
+                        cur.Init(typeof(TEntity));
+                        cur.PropertyNames?.ForEach(propName =>
+                        {
+                            if (acc.ContainsKey(propName))
+                            {
+                                return; // ignore multiple handlers -- first found wins
+                            }
+                            acc[propName] = cur.SetRandomValue;
+                        });
                         return acc;
                     });
         }

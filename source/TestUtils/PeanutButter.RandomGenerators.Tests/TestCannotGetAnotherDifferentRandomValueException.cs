@@ -36,7 +36,7 @@ namespace PeanutButter.RandomGenerators.Tests
 
             //---------------Test Result -----------------------
             Expect(sut.Message).To.Equal(
-                $"Unable to get a value different from ${value} after ${MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS} attempts )':"
+                $"Unable to get a value different from {value} after {MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS} attempts )':"
             );
             Expect(sut.Value).To.Equal(value);
 
@@ -55,7 +55,7 @@ namespace PeanutButter.RandomGenerators.Tests
 
             //---------------Test Result -----------------------
             Expect(sut.Message).To.Equal(
-                $"Unable to get a value different from ${value} after ${MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS} attempts )':"
+                $"Unable to get a value different from {value} after {MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS} attempts )':"
             );
             Expect(sut.Value).To.Equal(value);
         }
@@ -73,7 +73,7 @@ namespace PeanutButter.RandomGenerators.Tests
 
             //---------------Test Result -----------------------
             Expect(sut.Message).To.Equal(
-                $"Unable to get a value different from ${value} after ${MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS} attempts )':"
+                $"Unable to get a value different from {value} after {MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS} attempts )':"
             );
             Expect(sut.Value).To.Equal(value);
 
@@ -92,7 +92,7 @@ namespace PeanutButter.RandomGenerators.Tests
 
             //---------------Test Result -----------------------
             Expect(sut.Message).To.Equal(
-                $"Unable to get a value different from ${value} after ${MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS} attempts )':"
+                $"Unable to get a value different from {value} after {MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS} attempts )':"
             );
             Expect(sut.Value).To.Equal(value);
 

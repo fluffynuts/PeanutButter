@@ -103,7 +103,7 @@ namespace PeanutButter.Utils
                 return true;
             return !collection.Any();
         }
-
+        
         /// <summary>
         /// Convenience method to mitigate null checking and errors when
         /// a null collection can be treated as if it were empty, eg:
@@ -368,5 +368,6 @@ namespace PeanutButter.Utils
                 Items = items;
             }
         }
+
     }
 }

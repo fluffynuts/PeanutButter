@@ -18,7 +18,7 @@ namespace PeanutButter.RandomGenerators
         /// </summary>
         /// <param name="unwantedValue">Value which was to be avoided when generating a new value</param>
         public CannotGetAnotherDifferentRandomValueException(T unwantedValue):
-            base($"Unable to get a value different from ${unwantedValue} after ${RandomValueGen.MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS} attempts )':")
+            base($"Unable to get a value different from {unwantedValue} after {RandomValueGen.MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS} attempts )':")
         {
             Value = unwantedValue;
         }
