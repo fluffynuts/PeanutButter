@@ -14,7 +14,8 @@
       The generic parameter is a ProcessorFactory type as exposed by FluentMigrator.Runner
     </summary>
     <language>en-US</language>
-    <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
+    <projectUrl>https://davydm.blogspot.com/search/label/PeanutButter</projectUrl>
+    <repository>https://github.com/fluffynuts/PeanutButter</repository>
     <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <licenseUrl>https://github.com/fluffynuts/PeanutButter/blob/master/LICENSE</licenseUrl>

@@ -1430,20 +1430,21 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             Expect(result).Not.To.Be.Null();
             // ReSharper disable once IsExpressionAlwaysTrue
             Expect(result is ITravelRequestDetails).To.Be.True();
-            Expect(() =>
-                {
-                    result.Initiated = expectedDuck.Initiated;
-                    result.DepartingFrom = expectedDuck.DepartingFrom;
-                    result.TravellingTo = expectedDuck.TravellingTo;
-                    result.Departing = expectedDuck.Departing;
-                    result.PreferredDepartureTime = expectedDuck.PreferredDepartureTime;
-                    result.Returning = expectedDuck.Returning;
-                    result.PreferredReturnTime = expectedDuck.PreferredReturnTime;
-                    result.ReasonForTravel = expectedDuck.ReasonForTravel;
-                    result.CarRequired = expectedDuck.CarRequired;
-                    result.AccomodationRequired = expectedDuck.AccomodationRequired;
-                    result.AccommodationNotes = expectedDuck.AccommodationNotes;
-                })
+            Expect(
+                    () =>
+                    {
+                        result.Initiated = expectedDuck.Initiated;
+                        result.DepartingFrom = expectedDuck.DepartingFrom;
+                        result.TravellingTo = expectedDuck.TravellingTo;
+                        result.Departing = expectedDuck.Departing;
+                        result.PreferredDepartureTime = expectedDuck.PreferredDepartureTime;
+                        result.Returning = expectedDuck.Returning;
+                        result.PreferredReturnTime = expectedDuck.PreferredReturnTime;
+                        result.ReasonForTravel = expectedDuck.ReasonForTravel;
+                        result.CarRequired = expectedDuck.CarRequired;
+                        result.AccomodationRequired = expectedDuck.AccomodationRequired;
+                        result.AccommodationNotes = expectedDuck.AccommodationNotes;
+                    })
                 .Not.To.Throw();
 
             foreach (var prop in result.GetType().GetProperties())
@@ -1504,20 +1505,21 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
             //--------------- Assert -----------------------
             Expect(result).Not.To.Be.Null();
-            Expect(() =>
-                {
-                    result.Initiated = expectedDuck.Initiated;
-                    result.DepartingFrom = expectedDuck.DepartingFrom;
-                    result.TravellingTo = expectedDuck.TravellingTo;
-                    result.Departing = expectedDuck.Departing;
-                    result.PreferredDepartureTime = expectedDuck.PreferredDepartureTime;
-                    result.Returning = expectedDuck.Returning;
-                    result.PreferredReturnTime = expectedDuck.PreferredReturnTime;
-                    result.ReasonForTravel = expectedDuck.ReasonForTravel;
-                    result.CarRequired = expectedDuck.CarRequired;
-                    result.AccomodationRequired = expectedDuck.AccomodationRequired;
-                    result.AccommodationNotes = expectedDuck.AccommodationNotes;
-                })
+            Expect(
+                    () =>
+                    {
+                        result.Initiated = expectedDuck.Initiated;
+                        result.DepartingFrom = expectedDuck.DepartingFrom;
+                        result.TravellingTo = expectedDuck.TravellingTo;
+                        result.Departing = expectedDuck.Departing;
+                        result.PreferredDepartureTime = expectedDuck.PreferredDepartureTime;
+                        result.Returning = expectedDuck.Returning;
+                        result.PreferredReturnTime = expectedDuck.PreferredReturnTime;
+                        result.ReasonForTravel = expectedDuck.ReasonForTravel;
+                        result.CarRequired = expectedDuck.CarRequired;
+                        result.AccomodationRequired = expectedDuck.AccomodationRequired;
+                        result.AccommodationNotes = expectedDuck.AccommodationNotes;
+                    })
                 .Not.To.Throw();
 
             foreach (var prop in result.GetType().GetProperties())
@@ -1860,7 +1862,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                         // Pre-Assert
 
                         // Act
-                        var result = data.DuckAs<IConfig>(s => "Config." + s,
+                        var result = data.DuckAs<IConfig>(
+                            s => "Config." + s,
                             s => s.RegexReplace("Config.", GetRandomString(7)));
 
                         // Assert
@@ -1927,7 +1930,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                         // Pre-Assert
 
                         // Act
-                        var result = data.FuzzyDuckAs<IConfig>(s => "Config." + s,
+                        var result = data.FuzzyDuckAs<IConfig>(
+                            s => "Config." + s,
                             s => s.RegexReplace("Config.", GetRandomString(7)));
 
                         // Assert
@@ -2069,6 +2073,30 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
                 Expect(result).Not.To.Be.Null();
                 Expect(result.BaseUrl).To.Equal(expected);
+            }
+
+            public interface IIgnoringPeriods
+            {
+                string ConfigBaseUrl { get; }
+                bool IsProduction { get; }
+            }
+
+            [Test]
+            public void IgnoringPeriods()
+            {
+                // Arrange
+                var expected = GetRandomHttpUrl();
+                var data = new NameValueCollection()
+                {
+                    ["Config.BaseUrl"] = expected,
+                    ["IsProduction"] = "True"
+                };
+                // Pre-assert
+                // Act
+                var result = data.FuzzyDuckAs<IIgnoringPeriods>();
+                // Assert
+                Expect(result.ConfigBaseUrl).To.Equal(expected);
+                Expect(result.IsProduction).To.Be.True();
             }
         }
 
@@ -2618,8 +2646,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             string AccommodationNotes { get; set; }
         }
 
-        public interface ITravelRequestCaptureDetailsActivityParameters :
-            IActivityParameters<ITravelRequestDetails>
+        public interface ITravelRequestCaptureDetailsActivityParameters : IActivityParameters<ITravelRequestDetails>
         {
         }
 

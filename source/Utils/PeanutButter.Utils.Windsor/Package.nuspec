@@ -16,7 +16,8 @@
           so you don't need to import System.Web.Mvc to use other methods in this package)
     </summary>
     <language>en-US</language>
-    <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
+    <projectUrl>https://davydm.blogspot.com/search/label/PeanutButter</projectUrl>
+    <repository>https://github.com/fluffynuts/PeanutButter</repository>
     <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
     <licenseUrl>https://github.com/fluffynuts/PeanutButter/blob/master/LICENSE</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
