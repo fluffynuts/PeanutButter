@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Formatting;
+using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Newtonsoft.Json;
@@ -168,6 +170,60 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                 Expect(xmlContentType2).To.Equal("text/xml");
                 Expect(jsonContentType).To.Equal("application/json");
                 Expect(textContentType).To.Equal("application/octet-stream");
+            }
+        }
+
+        public class PostBody
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        [Test]
+        public async Task GettingPostBody()
+        {
+            // Arrange
+            using (var server = new HttpServer())
+            {
+                var poco = new
+                {
+                    id = 1,
+                    name = "moo"
+                };
+                var expectedBody = JsonConvert.SerializeObject(poco);
+                string body = null;
+                PostBody bodyObject = null;
+                server.AddJsonDocumentHandler(
+                    (processor, stream) =>
+                    {
+                        if (processor.Path != "/post")
+                            return null;
+                        body = stream.AsString();
+                        bodyObject = stream.As<PostBody>();
+                        return new
+                        {
+                            id = 1,
+                            body
+                        };
+                    });
+                // Pre-assert
+                // Act
+                var client = new HttpClient();
+                var message = new HttpRequestMessage(
+                    HttpMethod.Post,
+                    server.GetFullUrlFor("/post"))
+                {
+                    Method = HttpMethod.Post,
+                    Content = new ObjectContent<object>(
+                        poco,
+                        new JsonMediaTypeFormatter())
+                };
+                await client.SendAsync(message);
+                // Assert
+                Expect(body).To.Equal(expectedBody);
+                Expect(bodyObject).Not.To.Be.Null();
+                Expect(bodyObject.Id).To.Equal(poco.id);
+                Expect(bodyObject.Name).To.Equal(poco.name);
             }
         }
 

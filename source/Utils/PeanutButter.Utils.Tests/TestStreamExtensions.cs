@@ -277,6 +277,7 @@ namespace PeanutButter.Utils.Tests
                 Expect(result).To.Equal(expected);
             }
         }
+        
 
         [TestFixture]
         public class WritingStrings
