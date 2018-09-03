@@ -476,6 +476,36 @@ namespace PeanutButter.Utils.Tests
                     .Matched.By(l => l.Contains(left.Stringify()) && l.Contains(right.Stringify()));
             }
 
+            [Test]
+            public void ShouldReturnFalseForTwoArraysWithSameSizeAndDifferentItems()
+            {
+                // Arrange
+                var left = new[] { 1 };
+                var right = new[] { 2 };
+                // Pre-assert
+                // Act
+                var result1 = left.DeepEquals(right);
+                var result2 = right.DeepEquals(left);
+                // Assert
+                Expect(result1).To.Be.False();
+                Expect(result2).To.Be.False();
+            }
+            
+            [Test]
+            public void ShouldReturnTrueForTwoArraysWithSameSizeAndSameItems()
+            {
+                // Arrange
+                var left = new[] { 1 };
+                var right = new[] { 1 };
+                // Pre-assert
+                // Act
+                var result1 = left.DeepEquals(right);
+                var result2 = right.DeepEquals(left);
+                // Assert
+                Expect(result1).To.Be.True();
+                Expect(result2).To.Be.True();
+            }
+
             [TestFixture]
             public class ShapeEquals
             {

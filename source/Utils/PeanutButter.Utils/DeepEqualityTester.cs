@@ -162,8 +162,7 @@ namespace PeanutButter.Utils
                 return AreSimpleEqual(sourceType, objSource, compareType, objCompare);
             }
 
-            if (AreBothEnumerable(sourceType, compareType) &&
-                BothHaveGenericTypeParameters(sourceType, compareType))
+            if (CanDetermineItemTypeForBoth(sourceType, compareType))
             {
                 return DeepCollectionCompare(
                     sourceType,
@@ -292,14 +291,6 @@ namespace PeanutButter.Utils
             {
                 return null;
             }
-        }
-
-
-        private bool BothHaveGenericTypeParameters(Type sourceType, Type compareType)
-        {
-            return
-                sourceType.GenericTypeArguments.Length > 0 &&
-                compareType.GenericTypeArguments.Length > 0;
         }
 
         private bool DeepCollectionCompare(
@@ -516,11 +507,10 @@ namespace PeanutButter.Utils
             return srcType == compareType;
         }
 
-        private bool AreBothEnumerable(Type t1, Type t2)
+        private bool CanDetermineItemTypeForBoth(Type t1, Type t2)
         {
-            // TODO: should we examine the duck-typed enumerable interface (ie, GetEnumerator())?
-            return t1.ImplementsEnumerableGenericType() &&
-                   t2.ImplementsEnumerableGenericType();
+            return t1.TryGetEnumerableItemType() != null &&
+                   t2.TryGetEnumerableItemType() != null;
         }
 
         private bool DeepCompare(
@@ -788,6 +778,13 @@ namespace PeanutButter.Utils
             _customComparers.Add(comparer);
         }
 
+        /// <summary>
+        /// Adds a custom comparer to use for the specified type.
+        /// Custom comparers must implement IComparer<T> where T
+        /// becomes the type selection to use for when the comparer
+        /// is invoked
+        /// </summary>
+        /// <param name="comparer"></param>
         public void AddCustomComparer(object comparer)
         {
             _customComparers.Add(comparer);

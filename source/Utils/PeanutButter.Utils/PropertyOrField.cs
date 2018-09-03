@@ -80,6 +80,9 @@ namespace PeanutButter.Utils
         public PropertyOrFieldTypes MemberType
             => _propInfo == null ? PropertyOrFieldTypes.Field : PropertyOrFieldTypes.Property;
 
+        /// <summary>
+        /// The type on which this property or field is declared
+        /// </summary>
         public Type DeclaringType => _propInfo?.DeclaringType ?? _fieldInfo?.DeclaringType;
 
         private readonly PropertyInfo _propInfo;
@@ -122,6 +125,13 @@ namespace PeanutButter.Utils
                 _fieldInfo.SetValue(host, value);
         }
 
+        /// <summary>
+        /// Sets the value for the field or property
+        /// as found on the provided host
+        /// </summary>
+        /// <param name="host"></param>
+        /// <param name="value"></param>
+        /// <typeparam name="T"></typeparam>
         public void SetValue<T>(ref T host, object value)
         {
             var asObject = (object)host;

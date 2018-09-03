@@ -460,6 +460,12 @@ namespace PeanutButter.Utils
         }
 
 #if NETSTANDARD
+        /// <summary>
+        /// Provides an in-place shum for the ToLower method
+        /// which is used from .net framework; the latter
+        /// can accept a CultureInfo parameter, where .net standard
+        /// cannot, so the parameter is just dropped
+        /// </summary>
         public static string ToLower(this string input, CultureInfo ci)
         {
             return input.ToLower();

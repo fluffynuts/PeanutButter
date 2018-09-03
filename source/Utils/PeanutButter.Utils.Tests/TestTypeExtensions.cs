@@ -361,5 +361,17 @@ namespace PeanutButter.Utils.Tests
             Expect(result).To.Be.True();
         }
 
+        [Test]
+        public void ShouldBeAbleToGetEnumerableTypeOfArray()
+        {
+            // Arrange
+            var arr = new int[0];
+            // Pre-assert
+            // Act
+            var result = arr.GetType().TryGetEnumerableItemType();
+            // Assert
+            Expect(result).To.Equal(typeof(int));
+        }
+
     }
 }

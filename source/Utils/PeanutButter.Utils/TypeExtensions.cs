@@ -139,46 +139,82 @@ namespace PeanutButter.Utils
         }
 
 #if NETSTANDARD
+        /// <summary>
+        /// provides the method normally found on a .net framework
+        /// Type object, but reachabole on .net standard only via GetTypeInfo();
+        /// </summary>
         public static MethodInfo GetMethod(this Type t, string name, BindingFlags flags)
         {
             return t.GetTypeInfo().GetMethod(name, flags);
         }
 
+        /// <summary>
+        /// provides the method normally found on a .net framework
+        /// Type object, but reachabole on .net standard only via GetTypeInfo();
+        /// </summary>
         public static PropertyInfo[] GetProperties(this Type t)
         {
             return t.GetTypeInfo().GetProperties();
         }
 
+        /// <summary>
+        /// provides the method normally found on a .net framework
+        /// Type object, but reachabole on .net standard only via GetTypeInfo();
+        /// </summary>
         public static PropertyInfo GetProperty(this Type t, string name)
         {
             return t.GetProperty(name, BindingFlags.Instance | BindingFlags.Public);
         }
 
+        /// <summary>
+        /// provides the method normally found on a .net framework
+        /// Type object, but reachabole on .net standard only via GetTypeInfo();
+        /// </summary>
         public static PropertyInfo GetProperty(this Type t, string name, BindingFlags flags)
         {
             return t.GetTypeInfo().GetProperty(name, flags);
         }
 
+        /// <summary>
+        /// provides the method normally found on a .net framework
+        /// Type object, but reachabole on .net standard only via GetTypeInfo();
+        /// </summary>
         public static PropertyInfo[] GetProperties(this Type t, BindingFlags flags)
         {
             return t.GetTypeInfo().GetProperties(flags);
         }
 
+        /// <summary>
+        /// provides the method normally found on a .net framework
+        /// Type object, but reachabole on .net standard only via GetTypeInfo();
+        /// </summary>
         public static FieldInfo[] GetFields(this Type t, BindingFlags flags)
         {
             return t.GetTypeInfo().GetFields(flags);
         }
 
+        /// <summary>
+        /// provides the method normally found on a .net framework
+        /// Type object, but reachabole on .net standard only via GetTypeInfo();
+        /// </summary>
         public static bool IsAssignableFrom(this Type t, Type other)
         {
             return t.GetTypeInfo().IsAssignableFrom(other);
         }
 
+        /// <summary>
+        /// provides the method normally found on a .net framework
+        /// Type object, but reachabole on .net standard only via GetTypeInfo();
+        /// </summary>
         public static Type[] GetInterfaces(this Type t)
         {
             return t.GetTypeInfo().GetInterfaces();
         }
 
+        /// <summary>
+        /// provides the method normally found on a .net framework
+        /// Type object, but reachabole on .net standard only via GetTypeInfo();
+        /// </summary>
         public static Type[] GetGenericArguments(this Type t)
         {
             return t.GetTypeInfo().GetGenericArguments();

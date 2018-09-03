@@ -45,7 +45,10 @@ namespace PeanutButter.Utils
             params string[] ignorePropertiesByName
         )
         {
-            return objSource.DeepEquals(objCompare, ObjectComparisons.PropertiesAndFields, ignorePropertiesByName);
+            return objSource.DeepEquals(
+                objCompare, 
+                ObjectComparisons.PropertiesAndFields, 
+                ignorePropertiesByName);
         }
 
         /// <summary>
@@ -135,6 +138,17 @@ namespace PeanutButter.Utils
             return tester.AreDeepEqual();
         }
 
+        /// <summary>
+        /// Runs a deep equality test between two objects,
+        /// ignoring reference differences wherever possible
+        /// and logging failures with the provided action. Properties
+        /// can be explided by name with the ignorePropertiesByName params
+        /// </summary>
+        /// <param name="objSource"></param>
+        /// <param name="objCompare"></param>
+        /// <param name="failureLogAction"></param>
+        /// <param name="ignorePropertiesByName"></param>
+        /// <returns></returns>
         public static bool DeepEquals(this object objSource,
             object objCompare,
             Action<string> failureLogAction,
