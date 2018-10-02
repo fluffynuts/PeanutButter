@@ -1,7 +1,7 @@
 <package>
   <metadata>
     <id>PeanutButter.Utils.Windsor</id>
-    <version>1.2.248</version>
+    <version>1.2.249</version>
     <title>PeanutButter.Utils.Windsor</title>
     <authors>Davyd McColl</authors>
     <owners></owners>
@@ -26,7 +26,7 @@
       <group targetFramework="net45">
         <dependency id="Castle.Core" version="3.3.0" />
         <dependency id="Castle.Windsor" version="3.3.0" />
-        <dependency id="PeanutButter.Utils" version="1.2.248" />
+        <dependency id="PeanutButter.Utils" version="1.2.249" />
       </group>
     </dependencies>
     <references></references>
