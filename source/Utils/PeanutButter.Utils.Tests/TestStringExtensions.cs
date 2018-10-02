@@ -747,18 +747,40 @@ namespace PeanutButter.Utils.Tests
             Expect(result).To.Be.Null();
         }
 
-        [TestCase("Moo", "Moo")]
-        [TestCase("MooCow", "MooCow")]
-        [TestCase("i_am_snake", "IAmSnake")]
-        [TestCase("is-already-kebabed", "IsAlreadyKebabed")]
-        public void ToPascalCase_ShouldConvert_(string from, string expected)
+        public static IEnumerable<(string input, string expected)> PascalCaseTestCases()
+        {
+            yield return ("Moo", "Moo");
+            yield return ("MooCow", "MooCow");
+            yield return ("i_am_snake", "IAmSnake");
+            yield return ("i am words", "I Am Words");
+            yield return ("is-already-kebabed", "IsAlreadyKebabed");
+        }
+
+        [TestCaseSource(nameof(PascalCaseTestCases))]
+        public void ToPascalCase_ShouldConvert_((string input, string expected) testCase)
         {
             // Arrange
+            var (from, expected) = testCase;
 
             // Pre-Assert
 
             // Act
             var result = from.ToPascalCase();
+
+            // Assert
+            Expect(result).To.Equal(expected);
+        }
+        
+        [TestCaseSource(nameof(PascalCaseTestCases))]
+        public void ToTitleCase_ShouldConvert_((string input, string expected) testCase)
+        {
+            // Arrange
+            var (from, expected) = testCase;
+
+            // Pre-Assert
+
+            // Act
+            var result = from.ToTitleCase();
 
             // Assert
             Expect(result).To.Equal(expected);

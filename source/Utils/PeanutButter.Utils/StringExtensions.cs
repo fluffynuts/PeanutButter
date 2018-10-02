@@ -64,7 +64,7 @@ namespace PeanutButter.Utils
         /// <returns>True for truthy values, False otherwise</returns>
         public static bool AsBoolean(this string input)
         {
-            return !string.IsNullOrWhiteSpace(input) && 
+            return !string.IsNullOrWhiteSpace(input) &&
                    Truthy.Any(item => item == input.ToLower());
         }
 
@@ -78,14 +78,17 @@ namespace PeanutButter.Utils
         /// <returns>True if any of the needles are found in the haystack; False otherwise</returns>
         public static bool ContainsOneOf(this string haystack, params string[] needles)
         {
-            return MultiContains(haystack,
+            return MultiContains(
+                haystack,
                 needles,
-                h => needles.Any(n => h.Contains(n.ToLower(
+                h => needles.Any(
+                    n => h.Contains(
+                        n.ToLower(
 #if NETSTANDARD
 #else
-                    CultureInfo.CurrentCulture
+                            CultureInfo.CurrentCulture
 #endif
-                ))));
+                        ))));
         }
 
         /// <summary>
@@ -96,7 +99,8 @@ namespace PeanutButter.Utils
         /// <returns>True if all of the needles are found in the haystack; False otherwise</returns>
         public static bool ContainsAllOf(this string haystack, params string[] needles)
         {
-            return MultiContains(haystack,
+            return MultiContains(
+                haystack,
                 needles,
                 h => needles.All(n => h.Contains(n.ToLower(CultureInfo.CurrentCulture))));
         }
@@ -214,10 +218,11 @@ namespace PeanutButter.Utils
             CultureInfo cultureInfo
         )
         {
-            return src.Select(s =>
-                cultureInfo.Equals(CultureInfo.InvariantCulture)
-                    ? s?.ToUpperInvariant()
-                    : s?.ToUpper()
+            return src.Select(
+                s =>
+                    cultureInfo.Equals(CultureInfo.InvariantCulture)
+                        ? s?.ToUpperInvariant()
+                        : s?.ToUpper()
             );
         }
 
@@ -252,7 +257,9 @@ namespace PeanutButter.Utils
         /// <returns>The string, if possible; will return null if given null</returns>
         public static string AsString(this byte[] data, Encoding encoding)
         {
-            return data == null ? null : encoding.GetString(data);
+            return data == null
+                ? null
+                : encoding.GetString(data);
         }
 
         /// <summary>
@@ -262,7 +269,9 @@ namespace PeanutButter.Utils
         /// <returns>Stream wrapping the bytes or null if the source is null</returns>
         public static Stream AsStream(this byte[] src)
         {
-            return src == null ? null : new MemoryStream(src);
+            return src == null
+                ? null
+                : new MemoryStream(src);
         }
 
         /// <summary>
@@ -381,13 +390,32 @@ namespace PeanutButter.Utils
         /// Converts an input string to PascalCase
         /// </summary>
         /// <param name="input">string to convert</param>
-        /// <returns>PascalCasedOutput</returns>
+        /// <returns>
+        /// - pascalCasedOutput => PascalCasedOutput
+        /// - pascal-cased-output => PascalCasedOutput
+        /// - pascal_cased_output => PascalCasedOutput
+        /// - pascal cased output => Pascal Cased Output
+        /// </returns>
         public static string ToPascalCase(this string input)
         {
             return input?
-                .SplitOnCapitalsAnd('-', '_')
-                .Select(ToUpperCasedFirstLetter)
-                .JoinWith("");
+                .Split(' ')
+                .Select(
+                    word => word
+                        .SplitOnCapitalsAnd('-', '_')
+                        .Select(ToUpperCasedFirstLetter)
+                        .JoinWith("")
+                ).JoinWith(" ");
+        }
+
+        /// <summary>
+        /// Alias for ToPascalCase
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static string ToTitleCase(this string input)
+        {
+            return input.ToPascalCase();
         }
 
         /// <summary>
@@ -401,7 +429,9 @@ namespace PeanutButter.Utils
         }
 
         private static Random _randomField;
-        private static Random Random => _randomField ?? (_randomField = new Random(DateTime.Now.Millisecond));
+
+        private static Random Random =>
+            _randomField ?? (_randomField = new Random(DateTime.Now.Millisecond));
 
         /// <summary>
         /// Returns the input string in RaNdOMizEd case
@@ -410,12 +440,15 @@ namespace PeanutButter.Utils
         /// <returns></returns>
         public static string ToRandomCase(this string input)
         {
-            return string.Join("", input
-                .Select(c => c.ToString())
-                .Select(c => Random.NextDouble() < 0.5
-                    ? c.ToLowerInvariant()
-                    : c.ToUpperInvariant()
-                ));
+            return string.Join(
+                "",
+                input
+                    .Select(c => c.ToString())
+                    .Select(
+                        c => Random.NextDouble() < 0.5
+                            ? c.ToLowerInvariant()
+                            : c.ToUpperInvariant()
+                    ));
         }
 
         /// <summary>
@@ -460,19 +493,21 @@ namespace PeanutButter.Utils
         }
 
 #if NETSTANDARD
-        /// <summary>
-        /// Provides an in-place shum for the ToLower method
-        /// which is used from .net framework; the latter
-        /// can accept a CultureInfo parameter, where .net standard
-        /// cannot, so the parameter is just dropped
-        /// </summary>
+/// <summary>
+/// Provides an in-place shum for the ToLower method
+/// which is used from .net framework; the latter
+/// can accept a CultureInfo parameter, where .net standard
+/// cannot, so the parameter is just dropped
+/// </summary>
         public static string ToLower(this string input, CultureInfo ci)
         {
             return input.ToLower();
         }
 #endif
 
-        private static IEnumerable<string> SplitOnCapitalsAnd(this string input, params char[] others)
+        private static IEnumerable<string> SplitOnCapitalsAnd(
+            this string input,
+            params char[] others)
         {
             var collector = new List<char>();
             foreach (var c in input)
@@ -486,9 +521,11 @@ namespace PeanutButter.Utils
                     yield return string.Join("", collector);
                     collector.Clear();
                 }
+
                 if (!isOtherMatch)
                     collector.Add(c);
             }
+
             yield return string.Join("", collector);
         }
 
@@ -496,22 +533,24 @@ namespace PeanutButter.Utils
         {
             var collected = new List<string>();
             var intMarker = 0;
-            value.ForEach(c =>
-            {
-                if (intMarker > 1)
-                    return;
-                var asString = c.ToString();
-                if ("1234567890".Contains(asString))
+            value.ForEach(
+                c =>
                 {
-                    intMarker = 1;
-                    collected.Add(asString);
-                    return;
-                }
-                if (intMarker == 1)
-                {
-                    intMarker++;
-                }
-            });
+                    if (intMarker > 1)
+                        return;
+                    var asString = c.ToString();
+                    if ("1234567890".Contains(asString))
+                    {
+                        intMarker = 1;
+                        collected.Add(asString);
+                        return;
+                    }
+
+                    if (intMarker == 1)
+                    {
+                        intMarker++;
+                    }
+                });
             return collected.JoinWith(string.Empty);
         }
     }
