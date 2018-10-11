@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -560,6 +561,24 @@ namespace PeanutButter.Utils
                 canConvert = false;
             }
             return canConvert;
+        }
+
+        private static readonly ConcurrentDictionary<Type, object> _defaultTypeValues
+            = new ConcurrentDictionary<Type, object>();
+        
+        /// <summary>
+        /// Returns the default value for the type being operated on
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static object DefaultValue(this Type type)
+        {
+            if (_defaultTypeValues.TryGetValue(type, out var cached))
+                return cached;
+            var method = DefaultvalueGeneric.MakeGenericMethod(type);
+            var result = method.Invoke(null, null);
+            _defaultTypeValues.TryAdd(type, result);
+            return result;
         }
 
         /// <summary>

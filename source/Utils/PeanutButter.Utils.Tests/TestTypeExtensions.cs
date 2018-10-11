@@ -361,6 +361,21 @@ namespace PeanutButter.Utils.Tests
             Expect(result).To.Be.True();
         }
 
+        [TestCase(typeof(object), null)]
+        [TestCase(typeof(string), null)]
+        [TestCase(typeof(bool), false)]
+        [TestCase(typeof(int), 0)]
+        public void DefaultValue_ShouldReturnDefaultValueForType(
+            Type t, object expected)
+        {
+            // Arrange
+            // Pre-assert
+            // Act
+            var result = t.DefaultValue();
+            // Assert
+            Expect(result).To.Equal(expected);
+        }
+
         [Test]
         public void ShouldBeAbleToGetEnumerableTypeOfArray()
         {
