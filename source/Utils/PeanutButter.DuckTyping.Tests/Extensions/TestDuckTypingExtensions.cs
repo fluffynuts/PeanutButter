@@ -41,7 +41,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
         [Test]
-        public void CanDuckAs_GivenTypeWithOnePropertyAndObjectWhichDoesNotImplement_ShouldReturnFalse()
+        public void
+            CanDuckAs_GivenTypeWithOnePropertyAndObjectWhichDoesNotImplement_ShouldReturnFalse()
         {
             //--------------- Arrange -------------------
             var obj = new
@@ -59,7 +60,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
         [Test]
-        public void CanDuckAs_GivenTypeWithOnePropertyAndObjectImplementingProperty_ShouldReturnTrue()
+        public void
+            CanDuckAs_GivenTypeWithOnePropertyAndObjectImplementingProperty_ShouldReturnTrue()
         {
             //--------------- Arrange -------------------
             var obj = new
@@ -104,7 +106,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
         [Test]
-        public void DuckAs_GivenThrowOnErrorIsTrue_WhenHaveReadWriteMismatch_ShouldGiveBackErrorInException()
+        public void
+            DuckAs_GivenThrowOnErrorIsTrue_WhenHaveReadWriteMismatch_ShouldGiveBackErrorInException()
         {
             //--------------- Arrange -------------------
             var obj = new HasReadOnlyName();
@@ -687,7 +690,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
         [Test]
-        public void FuzzyDuckAs_NonGeneric_ActingOnObject_ShouldThrowWhenInstructedToAndFailingToDuck()
+        public void
+            FuzzyDuckAs_NonGeneric_ActingOnObject_ShouldThrowWhenInstructedToAndFailingToDuck()
         {
             //--------------- Arrange -------------------
             var parameters = new
@@ -706,7 +710,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
         [Test]
-        public void FuzzyDuckAs_NonGeneric_ActingOnDictionary_ShouldThrowWhenInstructedToAndFailingToDuck()
+        public void
+            FuzzyDuckAs_NonGeneric_ActingOnDictionary_ShouldThrowWhenInstructedToAndFailingToDuck()
         {
             //--------------- Arrange -------------------
             var parameters = new Dictionary<string, object>()
@@ -722,6 +727,59 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 .To.Throw<UnDuckableException>();
 
             //--------------- Assert -----------------------
+        }
+
+
+        public interface IStringCollection
+        {
+            string Moo { get; }
+        }
+
+        [Test]
+        public void DuckAs_ActingOnStringStringDictionary()
+        {
+            // Arrange
+            var data = new Dictionary<string, string>()
+            {
+                ["Moo"] = "Cow"
+            };
+
+            // Pre-assert
+            // Act
+            var result = data.DuckAs<IStringCollection>();
+            // Assert
+            Expect(result.Moo).To.Equal("Cow");
+        }
+
+        public interface IConvertMe
+        {
+            bool Flag { get; }
+            int Number { get; }
+        }
+
+        [Test]
+        public void DuckAs_ActingOnStringStringDict_WithConversionProps()
+        {
+            // Arrange
+            var data = new Dictionary<string, string>()
+            {
+                ["Flag"] = "true",
+                ["Number"] = "42"
+            };
+            // Pre-assert
+            // Act
+            try
+            {
+                var result = data.FuzzyDuckAs<IConvertMe>(true);
+                // Assert
+                Expect(result.Flag).To.Be.True();
+                Expect(result.Number).To.Equal(42);
+            }
+            catch (UnDuckableException e)
+            {
+                e.Errors.ForEach(er => Console.WriteLine(er));
+                throw;
+            }
         }
 
         public interface IDictionaryInner
@@ -794,7 +852,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
         [Test]
-        public void CanDuckAs_OperatingOnMultiLevelDictionary_WhenAllPropertiesFound_ShouldReturnTrue()
+        public void
+            CanDuckAs_OperatingOnMultiLevelDictionary_WhenAllPropertiesFound_ShouldReturnTrue()
         {
             //--------------- Arrange -------------------
             var data = new Dictionary<string, object>()
@@ -837,7 +896,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
         [Test]
-        public void CanFuzzyDuckAs_OperatingOnAppropriateCaseInsensitiveDictionary_ShouldReturnTrue()
+        public void
+            CanFuzzyDuckAs_OperatingOnAppropriateCaseInsensitiveDictionary_ShouldReturnTrue()
         {
             //--------------- Arrange -------------------
             var expectedId = GetRandomInt();
@@ -845,7 +905,11 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var input = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
             {
                 {"id", expectedId},
-                {"inner", new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase) {{"nAmE", expectedName}}}
+                {
+                    "inner",
+                    new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
+                        {{"nAmE", expectedName}}
+                }
             };
 
             //--------------- Assume ----------------
@@ -866,7 +930,11 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var input = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
             {
                 {"id", expectedId},
-                {"inner", new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase) {{"nAmE", expectedName}}}
+                {
+                    "inner",
+                    new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
+                        {{"nAmE", expectedName}}
+                }
             };
 
             //--------------- Assume ----------------
@@ -884,7 +952,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
 
         [Test]
-        public void CanFuzzyDuckAs_OperatingOnWouldBeAppropriateCaseSensitiveDictionary_ShouldReturnTrue()
+        public void
+            CanFuzzyDuckAs_OperatingOnWouldBeAppropriateCaseSensitiveDictionary_ShouldReturnTrue()
         {
             //--------------- Arrange -------------------
             var expectedId = GetRandomInt();
@@ -1046,7 +1115,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             //--------------- Assert -----------------------
             var propInfo = result.GetType().GetProperty("Name");
             Expect(propInfo).Not.To.Be.Null();
-            var attrib = propInfo.GetCustomAttributes(false).OfType<MooAttribute>().FirstOrDefault();
+            var attrib = propInfo.GetCustomAttributes(false).OfType<MooAttribute>()
+                .FirstOrDefault();
             Expect(attrib).Not.To.Be.Null();
             Expect(attrib.Dialect).To.Equal("northern");
         }
@@ -1068,7 +1138,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             //--------------- Assert -----------------------
             var propInfo = result.GetType().GetProperty("Name");
             Expect(propInfo).Not.To.Be.Null();
-            var attrib = propInfo.GetCustomAttributes(false).OfType<NamedArgumentAttribute>().FirstOrDefault();
+            var attrib = propInfo.GetCustomAttributes(false).OfType<NamedArgumentAttribute>()
+                .FirstOrDefault();
 
             Expect(attrib).Not.To.Be.Null();
             Expect(attrib.NamedProperty).To.Equal("whizzle");
@@ -1090,7 +1161,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = input.FuzzyDuckAs<IHasCustomAttributes>();
 
             //--------------- Assert -----------------------
-            var attrib = result.GetType().GetCustomAttributes(false).OfType<WoofAttribute>().FirstOrDefault();
+            var attrib = result.GetType().GetCustomAttributes(false).OfType<WoofAttribute>()
+                .FirstOrDefault();
 
             Expect(attrib).Not.To.Be.Null();
             Expect(attrib.Intent).To.Equal("playful");
@@ -1129,7 +1201,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             //--------------- Assert -----------------------
             var propInfo = result.GetType().GetProperty("Moo");
             Expect(propInfo).Not.To.Be.Null();
-            var attrib = propInfo.GetCustomAttributes(true).OfType<DialectAttribute>().FirstOrDefault();
+            var attrib = propInfo.GetCustomAttributes(true).OfType<DialectAttribute>()
+                .FirstOrDefault();
             Expect(attrib).Not.To.Be.Null();
             Expect(attrib.Dialect).To.Equal("Country");
         }
@@ -1261,7 +1334,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
         [Test]
-        public void FuzzyDuckAs_OperatingOnDictionary_WhenSourcePropertyIsNullableAndMissing_SHouldDuckAsNullProperty()
+        public void
+            FuzzyDuckAs_OperatingOnDictionary_WhenSourcePropertyIsNullableAndMissing_SHouldDuckAsNullProperty()
         {
             //--------------- Arrange -------------------
             var input = new Dictionary<string, object>();
@@ -1277,7 +1351,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
         [Test]
-        public void DuckAs_OperatingOnDictionary_WhenSourcePropertyIsNullableAndMissing_SHouldDuckAsNullProperty()
+        public void
+            DuckAs_OperatingOnDictionary_WhenSourcePropertyIsNullableAndMissing_SHouldDuckAsNullProperty()
         {
             //--------------- Arrange -------------------
             var input = new Dictionary<string, object>();
@@ -1399,7 +1474,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
         [Test]
-        public void ForceFuzzyDuckAs_GivenEmptyDictionaryAndInterfaceToMimick_WhenCanWriteBack_ShouldWriteBack()
+        public void
+            ForceFuzzyDuckAs_GivenEmptyDictionaryAndInterfaceToMimick_WhenCanWriteBack_ShouldWriteBack()
         {
             //--------------- Arrange -------------------
             // TODO: provide a shimming layer so that the input dictionary doesn't have to be case-insensitive to allow write-back
@@ -1529,7 +1605,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
         [Test]
-        public void DuckFail_WhenHaveBadDictionaryImplementation_GivingNullKeys_ShouldThrowRecognisableError()
+        public void
+            DuckFail_WhenHaveBadDictionaryImplementation_GivingNullKeys_ShouldThrowRecognisableError()
         {
             // Arrange
             var src = new DictionaryWithNullKeys<string, object>();
@@ -1674,7 +1751,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
         [Test]
-        public void FuzzyDuckAs_OperatingOnStringStringDictionary_ShouldForgiveWhitespaceInPropertyNames()
+        public void
+            FuzzyDuckAs_OperatingOnStringStringDictionary_ShouldForgiveWhitespaceInPropertyNames()
         {
             // Arrange
             var src = new Dictionary<string, string>()
@@ -1736,7 +1814,9 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         [TestCase(" ")]
         [TestCase("  ")]
         [TestCase(".")]
-        public void FuzzyDuckAs_OperatingOnNameValueCollection_ShouldDuck_WhenSourcePropertyIncludes(string chars)
+        public void
+            FuzzyDuckAs_OperatingOnNameValueCollection_ShouldDuck_WhenSourcePropertyIncludes(
+                string chars)
         {
             // Arrange
             var src = new NameValueCollection();
@@ -1841,7 +1921,9 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                         // Pre-Assert
 
                         // Act
-                        var result = data.DuckAs<IConfig>(s => "Config." + s, s => s.RegexReplace("Config.", ""));
+                        var result =
+                            data.DuckAs<IConfig>(s => "Config." + s,
+                                                 s => s.RegexReplace("Config.", ""));
 
                         // Assert
 
@@ -1884,7 +1966,9 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                         // Pre-Assert
 
                         // Act
-                        var result = data.DuckAs<IConfig>(s => "Config." + s, s => s.RegexReplace("Config.", ""), true);
+                        var result = data.DuckAs<IConfig>(s => "Config." + s,
+                                                          s => s.RegexReplace("Config.", ""),
+                                                          true);
 
                         // Assert
 
@@ -1909,7 +1993,9 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                         // Pre-Assert
 
                         // Act
-                        var result = data.FuzzyDuckAs<IConfig>(s => "Config." + s, s => s.RegexReplace("Config.", ""));
+                        var result =
+                            data.FuzzyDuckAs<IConfig>(s => "Config." + s,
+                                                      s => s.RegexReplace("Config.", ""));
 
                         // Assert
 
@@ -1943,7 +2029,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
 
             [Test]
-            public void DuckAs_OperatingOnNameValueCollection_WhenGivenKeyTransformFunctions_AndCanDuck_ShouldDuck()
+            public void
+                DuckAs_OperatingOnNameValueCollection_WhenGivenKeyTransformFunctions_AndCanDuck_ShouldDuck()
             {
                 // Arrange
                 var expected = GetRandomHttpUrl();
@@ -1952,7 +2039,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 // Pre-Assert
 
                 // Act
-                var result = data.DuckAs<IConfig>(s => "Config." + s, s => s.RegexReplace("Config.", ""));
+                var result =
+                    data.DuckAs<IConfig>(s => "Config." + s, s => s.RegexReplace("Config.", ""));
 
                 // Assert
 
@@ -1971,7 +2059,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 // Pre-Assert
 
                 // Act
-                var result = data.DuckAs<IConfig>(s => "Config." + s, s => s.RegexReplace("Config.", "moo"));
+                var result =
+                    data.DuckAs<IConfig>(s => "Config." + s, s => s.RegexReplace("Config.", "moo"));
 
                 // Assert
 
@@ -1992,7 +2081,10 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 // Pre-Assert
 
                 // Act
-                var result = data.FuzzyDuckAs<IConfig>(s => "Config." + s, s => s.RegexReplace("Config.", ""), true);
+                var result =
+                    data.FuzzyDuckAs<IConfig>(s => "Config." + s,
+                                              s => s.RegexReplace("Config.", ""),
+                                              true);
 
                 // Assert
 
@@ -2014,7 +2106,9 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 // Pre-Assert
 
                 // Act
-                Expect(() => data.FuzzyDuckAs<IConfig>(s => "Config." + s, s => s.RegexReplace("Config.", ""), true))
+                Expect(() => data.FuzzyDuckAs<IConfig>(s => "Config." + s,
+                                                       s => s.RegexReplace("Config.", ""),
+                                                       true))
                     .To.Throw<UnDuckableException>();
                 // Assert
             }
@@ -2030,7 +2124,9 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 // Pre-Assert
 
                 // Act
-                var result = data.FuzzyDuckAs<IConfig>(s => "Config." + s, s => s.RegexReplace("Config.", ""));
+                var result =
+                    data.FuzzyDuckAs<IConfig>(s => "Config." + s,
+                                              s => s.RegexReplace("Config.", ""));
 
                 // Assert
 
@@ -2049,7 +2145,9 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 // Pre-Assert
 
                 // Act
-                var result = data.FuzzyDuckAs<IConfig>(s => "Config." + s, s => s.RegexReplace("Config.", "moo"));
+                var result =
+                    data.FuzzyDuckAs<IConfig>(s => "Config." + s,
+                                              s => s.RegexReplace("Config.", "moo"));
 
                 // Assert
 
@@ -2067,7 +2165,10 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 // Pre-Assert
 
                 // Act
-                var result = data.FuzzyDuckAs<IConfig>(s => "Config." + s, s => s.RegexReplace("Config.", ""), true);
+                var result =
+                    data.FuzzyDuckAs<IConfig>(s => "Config." + s,
+                                              s => s.RegexReplace("Config.", ""),
+                                              true);
 
                 // Assert
 
@@ -2107,7 +2208,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             public class OperatingOnDictionary
             {
                 [Test]
-                public void FuzzyDuckAs_OperatingOnDictionary_WhenGivenKeyPrefix_AndCanDuck_ShouldDuck()
+                public void
+                    FuzzyDuckAs_OperatingOnDictionary_WhenGivenKeyPrefix_AndCanDuck_ShouldDuck()
                 {
                     // Arrange
                     var expected = GetRandomHttpUrl();
@@ -2128,7 +2230,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 }
 
                 [Test]
-                public void FuzzyDuckAs_OperatingOnDictionary_WhenGivenKeyPrefix_AndCannotDuck_ShouldReturnNull()
+                public void
+                    FuzzyDuckAs_OperatingOnDictionary_WhenGivenKeyPrefix_AndCannotDuck_ShouldReturnNull()
                 {
                     // Arrange
                     var expected = GetRandomHttpUrl();
@@ -2190,7 +2293,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 }
 
                 [Test]
-                public void DuckAs_OperatingOnDictionary_WhenGivenKeyPrefix_AndCannotDuck_ShouldReturnNull()
+                public void
+                    DuckAs_OperatingOnDictionary_WhenGivenKeyPrefix_AndCannotDuck_ShouldReturnNull()
                 {
                     // Arrange
                     var expected = GetRandomHttpUrl();
@@ -2574,7 +2678,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             }
 
             [Test]
-            public void WhenCantFuzzyDuckBecauseStringPropertyIsMissing_GivenShouldThrow_ShouldNotThrow()
+            public void
+                WhenCantFuzzyDuckBecauseStringPropertyIsMissing_GivenShouldThrow_ShouldNotThrow()
             {
                 // Arrange
                 var setting = new ConnectionStringSettings("123some string", "some value");
@@ -2646,7 +2751,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             string AccommodationNotes { get; set; }
         }
 
-        public interface ITravelRequestCaptureDetailsActivityParameters : IActivityParameters<ITravelRequestDetails>
+        public interface ITravelRequestCaptureDetailsActivityParameters
+            : IActivityParameters<ITravelRequestDetails>
         {
         }
 
