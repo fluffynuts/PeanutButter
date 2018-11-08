@@ -101,6 +101,7 @@ namespace PeanutButter.RandomGenerators
                     TypeAttributes.Public | TypeAttributes.Class);
                 // Typebuilder is a sub class of Type
                 typeBuilder.SetParent(t.MakeGenericType(typeBuilder, type));
+                typeBuilder.DefineDefaultConstructor(MethodAttributes.Public);
                 try
                 {
                     dynamicBuilderType = typeBuilder
