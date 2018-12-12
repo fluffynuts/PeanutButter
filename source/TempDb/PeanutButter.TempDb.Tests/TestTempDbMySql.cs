@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using MySql.Data.MySqlClient;
 using NUnit.Framework;
 using static NExpect.Expectations;
@@ -8,6 +10,7 @@ using PeanutButter.TempDb.MySql;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using static PeanutButter.Utils.PyLike;
+
 // ReSharper disable MemberCanBePrivate.Global
 
 // ReSharper disable AccessToDisposedClosure
@@ -18,8 +21,8 @@ namespace PeanutButter.TempDb.Tests
     [Parallelizable(ParallelScope.None)]
     public class TestTempDbMySql
     {
-
-        private static TempDBMySql Create(string pathToMySql = null)
+        private static TempDBMySql Create(
+            string pathToMySql = null)
         {
             return new TempDBMySql(
                 new TempDbMySqlServerSettings()
@@ -33,13 +36,27 @@ namespace PeanutButter.TempDb.Tests
 
         public static string[] MySqlPathFinders()
         {
+            // add mysql installs at the following folders
+            // to test, eg 5.6 vs 5.7 & effect of spaces in the path
             return new[]
-            {
-                null,
-                "C:\\apps\\mysql-5.7\\bin\\mysqld.exe",
-                "C:\\apps\\mysql-5.6\\bin\\mysqld.exe",
-                "C:\\apps\\MySQL Server 5.7\\bin\\mysqld.exe"
-            };
+                {
+                    null,
+                    "C:\\apps\\mysql-5.7\\bin\\mysqld.exe",
+                    "C:\\apps\\mysql-5.6\\bin\\mysqld.exe",
+                    "C:\\apps\\MySQL Server 5.7\\bin\\mysqld.exe"
+                }.Where(p =>
+                {
+                    var exists = Directory.Exists(p) || File.Exists(p);
+                    if (!exists)
+                    {
+                        Console.WriteLine(
+                            $"WARN: specific test path for mysql not found: {p}"
+                        );
+                    }
+
+                    return exists;
+                })
+                .ToArray();
         }
 
 
@@ -69,7 +86,8 @@ namespace PeanutButter.TempDb.Tests
 
 
         [TestCaseSource(nameof(MySqlPathFinders))]
-        public void ShouldBeAbleToCreateATable_InsertData_QueryData(string mysqld)
+        public void ShouldBeAbleToCreateATable_InsertData_QueryData(
+            string mysqld)
         {
             using (var sut = Create(mysqld))
             {
@@ -113,7 +131,8 @@ namespace PeanutButter.TempDb.Tests
         }
 
         [TestCaseSource(nameof(MySqlPathFinders))]
-        public void Construction_ShouldCreateSchemaAndSwitchToIt(string mysqld)
+        public void Construction_ShouldCreateSchemaAndSwitchToIt(
+            string mysqld)
         {
             // Arrange
             var expectedId = GetRandomInt();
@@ -154,7 +173,8 @@ namespace PeanutButter.TempDb.Tests
 
         [Test]
         [TestCaseSource(nameof(MySqlPathFinders))]
-        public void ShouldBeAbleToSwitch(string mysqld)
+        public void ShouldBeAbleToSwitch(
+            string mysqld)
         {
             using (var sut = Create(mysqld))
             {
@@ -173,7 +193,8 @@ namespace PeanutButter.TempDb.Tests
 
         [Test]
         [TestCaseSource(nameof(MySqlPathFinders))]
-        public void ShouldBeAbleToSwitchBackAndForthWithoutLoss(string mysqld)
+        public void ShouldBeAbleToSwitchBackAndForthWithoutLoss(
+            string mysqld)
         {
             using (var sut = Create(mysqld))
             {
@@ -210,7 +231,9 @@ namespace PeanutButter.TempDb.Tests
             }
         }
 
-        private void Execute(ITempDB tempDb, string sql)
+        private void Execute(
+            ITempDB tempDb,
+            string sql)
         {
             using (var conn = tempDb.CreateConnection())
             using (var cmd = conn.CreateCommand())

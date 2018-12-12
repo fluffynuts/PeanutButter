@@ -114,7 +114,7 @@ namespace PeanutButter.TempDb
 
             if (connection == null)
                 throw new InvalidOperationException(
-                    $"Unable to instantate connection of type {typeof(TDatabaseConnection)} as a DbConnection"
+                    $"Unable to instantiate connection of type {typeof(TDatabaseConnection)} as a DbConnection"
                 );
 
             connection.Open();

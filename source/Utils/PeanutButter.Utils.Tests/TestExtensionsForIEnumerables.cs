@@ -874,6 +874,57 @@ namespace PeanutButter.Utils.Tests
             }
 
             [TestFixture]
+            public class None
+            {
+                [Test]
+                public void ShouldReturnTrueForNullCollection()
+                {
+                    // Arrange
+                    var input = null as IEnumerable<int>;
+                    // Pre-assert
+                    // Act
+                    var result = input.None(i => i == 1);
+                    // Assert
+                    Expect(result).To.Be.True();
+                }
+
+                [Test]
+                public void ShouldReturnTrueForEmptyCollection()
+                {
+                    // Arrange
+                    var input = new int[0];
+                    // Pre-assert
+                    // Act
+                    var result = input.None(i => i == GetRandomInt());
+                    // Assert
+                    Expect(result).To.Be.True();
+                }
+                [Test]
+                public void ShouldReturnTrueWhenAllFail()
+                {
+                    // Arrange
+                    var input = new[] { 1, 2, 3 };
+                    // Pre-assert
+                    // Act
+                    var result = input.None(i => i > 4);
+                    // Assert
+                    Expect(result).To.Be.True();
+                }
+
+                [Test]
+                public void ShouldReturnFalseWhenAnyOnePasses()
+                {
+                    // Arrange
+                    var input = new[] { 2, 4, 6, 7 };
+                    // Pre-assert
+                    // Act
+                    var result = input.None(i => i % 2 == 1);
+                    // Assert
+                    Expect(result).To.Be.False();
+                }
+            }
+
+            [TestFixture]
             public class WithProvidedDiscriminator
             {
                 [Test]

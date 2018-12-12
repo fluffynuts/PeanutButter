@@ -29,8 +29,16 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="objs"></param>
         /// <returns>Human-readable representation of collection</returns>
-        public static string Stringify<T>(this IEnumerable<T> objs)
+        public static string Stringify<T>(
+            this IEnumerable<T> objs)
         {
+            if (typeof(T) == typeof(char))
+            {
+                return objs == null
+                    ? "(null)"
+                    : $"\"{objs as string}\"";
+            }
+
             return StringifyCollectionInternal(objs, "null", 0);
         }
 
@@ -50,7 +58,8 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="obj"></param>
         /// <returns>Human-readable representation of object</returns>
-        public static string Stringify(this object obj)
+        public static string Stringify(
+            this object obj)
         {
             return Stringify(obj, "null");
         }
@@ -61,7 +70,9 @@ namespace PeanutButter.Utils
         /// <param name="obj"></param>
         /// <param name="nullRepresentation">How to represent null values - defaults to the string "null"</param>
         /// <returns>Human-readable representation of object</returns>
-        public static string Stringify(object obj, string nullRepresentation)
+        public static string Stringify(
+            object obj,
+            string nullRepresentation)
         {
             return Stringify(obj, nullRepresentation, 0);
         }
@@ -104,48 +115,71 @@ namespace PeanutButter.Utils
                 MakeStrategy(LastPass, JustToStringIt)
             };
 
-        private static string StringifyXElement(object arg1, int arg2, string arg3)
+        private static string StringifyXElement(
+            object arg1,
+            int arg2,
+            string arg3)
         {
             return ((XElement) arg1).ToString();
         }
 
-        private static bool IsXElement(object arg1, int arg2)
+        private static bool IsXElement(
+            object arg1,
+            int arg2)
         {
             return arg1 is XElement;
         }
 
-        private static string StringifyXDocument(object arg1, int arg2, string arg3)
+        private static string StringifyXDocument(
+            object arg1,
+            int arg2,
+            string arg3)
         {
             return ((XDocument) arg1).ToString();
         }
 
-        private static bool IsXDocument(object obj, int level)
+        private static bool IsXDocument(
+            object obj,
+            int level)
         {
             return obj is XDocument;
         }
 
-        private static string StringifyType(object obj, int level, string nullRep)
+        private static string StringifyType(
+            object obj,
+            int level,
+            string nullRep)
         {
             return (obj as Type).PrettyName();
         }
 
-        private static bool IsType(object obj, int level)
+        private static bool IsType(
+            object obj,
+            int level)
         {
             return obj is Type;
         }
 
-        private static string StringifyDateTime(object obj, int level, string nullRep)
+        private static string StringifyDateTime(
+            object obj,
+            int level,
+            string nullRep)
         {
             var dt = (DateTime) obj;
-            return $"{dt} {dt.Kind}";
+            return $"{dt.ToString(CultureInfo.InvariantCulture)} ({dt.Kind})";
         }
 
-        private static bool IsDateTime(object obj, int level)
+        private static bool IsDateTime(
+            object obj,
+            int level)
         {
             return obj is DateTime;
         }
 
-        private static string StringifyCollection(object obj, int level, string nullRep)
+        private static string StringifyCollection(
+            object obj,
+            int level,
+            string nullRep)
         {
             var itemType = obj.GetType().TryGetEnumerableItemType() ??
                            throw new Exception($"{obj.GetType()} is not IEnumerable<T>");
@@ -159,17 +193,24 @@ namespace PeanutButter.Utils
             return (string) (specific.Invoke(null, new[] {obj, nullRep, level}));
         }
 
-        private static bool IsEnumerable(object obj, int level)
+        private static bool IsEnumerable(
+            object obj,
+            int level)
         {
             return obj.GetType().ImplementsEnumerableGenericType();
         }
 
-        private static string StringifyEnum(object obj, int level, string nullRepresentation)
+        private static string StringifyEnum(
+            object obj,
+            int level,
+            string nullRepresentation)
         {
             return obj.ToString();
         }
 
-        private static bool IsEnum(object obj, int level)
+        private static bool IsEnum(
+            object obj,
+            int level)
         {
 #if NETSTANDARD
             return obj.GetType().GetTypeInfo().IsEnum;
@@ -178,7 +219,10 @@ namespace PeanutButter.Utils
 #endif
         }
 
-        private static string JustToStringIt(object obj, int level, string nullRepresentation)
+        private static string JustToStringIt(
+            object obj,
+            int level,
+            string nullRepresentation)
         {
             try
             {
@@ -190,17 +234,24 @@ namespace PeanutButter.Utils
             }
         }
 
-        private static bool LastPass(object arg1, int arg2)
+        private static bool LastPass(
+            object arg1,
+            int arg2)
         {
             return true;
         }
 
-        private static string PrintNull(object obj, int level, string nullRepresentation)
+        private static string PrintNull(
+            object obj,
+            int level,
+            string nullRepresentation)
         {
             return nullRepresentation;
         }
 
-        private static bool IsNull(object obj, int level)
+        private static bool IsNull(
+            object obj,
+            int level)
         {
             return obj == null;
         }
@@ -213,18 +264,25 @@ namespace PeanutButter.Utils
             return Tuple.Create(matcher, writer);
         }
 
-        private static bool IsPrimitive(object obj, int level)
+        private static bool IsPrimitive(
+            object obj,
+            int level)
         {
             return level >= MAX_STRINGIFY_DEPTH ||
                    Types.PrimitivesAndImmutables.Contains(obj.GetType());
         }
 
-        private static bool Default(object obj, int level)
+        private static bool Default(
+            object obj,
+            int level)
         {
             return true;
         }
 
-        private static string SafeStringifier(object obj, int level, string nullRepresentation)
+        private static string SafeStringifier(
+            object obj,
+            int level,
+            string nullRepresentation)
         {
             if (level >= MAX_STRINGIFY_DEPTH)
             {
@@ -233,14 +291,16 @@ namespace PeanutButter.Utils
 
             return _strategies.Aggregate(
                 null as string,
-                (acc, cur) => acc ??
-                              ApplyStrategy(
-                                  cur.Item1,
-                                  cur.Item2,
-                                  obj,
-                                  level,
-                                  nullRepresentation
-                              )
+                (
+                        acc,
+                        cur) => acc ??
+                                ApplyStrategy(
+                                    cur.Item1,
+                                    cur.Item2,
+                                    obj,
+                                    level,
+                                    nullRepresentation
+                                )
             );
         }
 
@@ -264,14 +324,19 @@ namespace PeanutButter.Utils
         }
 
 
-        private static string StringifyJsonLike(object obj, int level, string nullRepresentation)
+        private static string StringifyJsonLike(
+            object obj,
+            int level,
+            string nullRepresentation)
         {
             var props = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
             var indentMinus1 = new string(' ', level * INDENT_SIZE);
             var indent = indentMinus1 + new string(' ', INDENT_SIZE);
             var joinWith = props.Aggregate(
                     new List<string>(),
-                    (acc, cur) =>
+                    (
+                        acc,
+                        cur) =>
                     {
                         var propValue = cur.GetValue(obj);
                         if (_ignoreAssembliesByName.Contains(
@@ -308,7 +373,10 @@ namespace PeanutButter.Utils
                     $"\n{indentMinus1}}}").Compact();
         }
 
-        private static string StringifyPrimitive(object obj, int level, string nullRep)
+        private static string StringifyPrimitive(
+            object obj,
+            int level,
+            string nullRep)
         {
             if (obj == null)
                 return nullRep;
@@ -320,7 +388,8 @@ namespace PeanutButter.Utils
 
     internal static class StringifierStringExtensions
     {
-        internal static string Compact(this string str)
+        internal static string Compact(
+            this string str)
         {
             return new[]
                 {
@@ -328,7 +397,9 @@ namespace PeanutButter.Utils
                     "\n"
                 }.Aggregate(
                     str,
-                    (acc, cur) =>
+                    (
+                        acc,
+                        cur) =>
                     {
                         var twice = $"{cur}{cur}";
                         while (acc.Contains(twice))
@@ -338,7 +409,8 @@ namespace PeanutButter.Utils
                 .SquashEmptyObjects();
         }
 
-        private static string SquashEmptyObjects(this string str)
+        private static string SquashEmptyObjects(
+            this string str)
         {
             return str.RegexReplace("{\\s*}", "{}");
         }

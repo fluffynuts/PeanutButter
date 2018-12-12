@@ -32,22 +32,15 @@ namespace PeanutButter.TestUtils.Generic.Tests
         }
 
         [Test]
-        public void CheckForExceptionWhenParameterIsNull_GivenNonAbstractParameter_ShouldThrowInvalidOperationException()
+        public void WhenNullableParameter_ShouldAllowNonNullParameter()
         {
             //---------------Set up test pack-------------------
             const string parameterName = "parameter";
-            const string expectedMessage =
-                "This utility is designed for constructors that only have parameters that can be substituted with NSubstitute.";
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------
-//            var exception =
-//                Assert.Throws<InvalidOperationException>(
-//                    () =>
                     ConstructorTestUtils.ShouldExpectNonNullParameterFor<ClassWithNonAbstractConstructorParameter>(
                         parameterName, typeof(int?));
-//                        );
             //---------------Test Result -----------------------
-//            Assert.AreEqual(expectedMessage, exception.Message);
         }
 
         [Test]

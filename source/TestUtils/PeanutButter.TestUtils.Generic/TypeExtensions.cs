@@ -462,7 +462,7 @@ namespace PeanutButter.TestUtils.Generic
 
         /// <summary>
         /// Gets the underlying type constraint for a nullable or returns the original
-        ///  type if the original type was not a Nullable<T>
+        ///  type if the original type was not a Nullable&lt;T&gt;
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>

@@ -33,7 +33,10 @@ namespace PeanutButter.Utils
         /// <param name="pattern">Regex pattern to search for</param>
         /// <param name="replaceWith">String to replace occurrences with</param>
         /// <returns>New string with matches replaces</returns>
-        public static string RegexReplace(this string input, string pattern, string replaceWith)
+        public static string RegexReplace(
+            this string input,
+            string pattern,
+            string replaceWith)
         {
             var regex = new Regex(pattern);
             return regex.Replace(input, replaceWith);
@@ -45,7 +48,9 @@ namespace PeanutButter.Utils
         /// <param name="input">String to test</param>
         /// <param name="alternative">String to return if the input was null or empty</param>
         /// <returns>The original string when it is not null or empty; the alternative when the original is null or empty</returns>
-        public static string Or(this string input, string alternative)
+        public static string Or(
+            this string input,
+            string alternative)
         {
             return string.IsNullOrEmpty(input)
                 ? alternative
@@ -62,7 +67,8 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="input">String to attempt to convert</param>
         /// <returns>True for truthy values, False otherwise</returns>
-        public static bool AsBoolean(this string input)
+        public static bool AsBoolean(
+            this string input)
         {
             return !string.IsNullOrWhiteSpace(input) &&
                    Truthy.Any(item => item == input.ToLower());
@@ -76,7 +82,9 @@ namespace PeanutButter.Utils
         /// <param name="haystack">String to search</param>
         /// <param name="needles">Strings to search for</param>
         /// <returns>True if any of the needles are found in the haystack; False otherwise</returns>
-        public static bool ContainsOneOf(this string haystack, params string[] needles)
+        public static bool ContainsOneOf(
+            this string haystack,
+            params string[] needles)
         {
             return MultiContains(
                 haystack,
@@ -97,7 +105,9 @@ namespace PeanutButter.Utils
         /// <param name="haystack">String to search</param>
         /// <param name="needles">Strings to search for</param>
         /// <returns>True if all of the needles are found in the haystack; False otherwise</returns>
-        public static bool ContainsAllOf(this string haystack, params string[] needles)
+        public static bool ContainsAllOf(
+            this string haystack,
+            params string[] needles)
         {
             return MultiContains(
                 haystack,
@@ -128,7 +138,9 @@ namespace PeanutButter.Utils
         /// <param name="src">String to test</param>
         /// <param name="search">Strings to look for at the start of {src}</param>
         /// <returns>True if {src} starts with any one of provided search strings; False otherwise</returns>
-        public static bool StartsWithOneOf(this string src, params string[] search)
+        public static bool StartsWithOneOf(
+            this string src,
+            params string[] search)
         {
             if (src == null)
                 return false;
@@ -141,7 +153,8 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="src">String to operate on</param>
         /// <returns>Byte array representing string, from UTF8 encoding</returns>
-        public static byte[] AsBytes(this string src)
+        public static byte[] AsBytes(
+            this string src)
         {
             return src.AsBytes(Encoding.UTF8);
         }
@@ -152,7 +165,9 @@ namespace PeanutButter.Utils
         /// <param name="src">String to convert</param>
         /// <param name="encoding">Encoding to use</param>
         /// <returns>Byte array of the {src} string when decoded as UTF-8</returns>
-        public static byte[] AsBytes(this string src, Encoding encoding)
+        public static byte[] AsBytes(
+            this string src,
+            Encoding encoding)
         {
             return src == null
                 ? null
@@ -164,7 +179,8 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="src">String to convert</param>
         /// <returns>Stream or null if src is null</returns>
-        public static Stream AsStream(this string src)
+        public static Stream AsStream(
+            this string src)
         {
             return src.AsStream(Encoding.UTF8);
         }
@@ -232,7 +248,9 @@ namespace PeanutButter.Utils
         /// <param name="src">String to convert</param>
         /// <param name="encoding">Encoding to use</param>
         /// <returns>Stream or null if src is null</returns>
-        public static Stream AsStream(this string src, Encoding encoding)
+        public static Stream AsStream(
+            this string src,
+            Encoding encoding)
         {
             return src?.AsBytes(encoding)?.AsStream();
         }
@@ -243,7 +261,8 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="data">Bytes to encode</param>
         /// <returns>The utf8 string, if possible; will return null if given null</returns>
-        public static string AsString(this byte[] data)
+        public static string AsString(
+            this byte[] data)
         {
             return data.AsString(Encoding.UTF8);
         }
@@ -255,7 +274,9 @@ namespace PeanutButter.Utils
         /// <param name="data">Bytes to encode</param>
         /// <param name="encoding"></param>
         /// <returns>The string, if possible; will return null if given null</returns>
-        public static string AsString(this byte[] data, Encoding encoding)
+        public static string AsString(
+            this byte[] data,
+            Encoding encoding)
         {
             return data == null
                 ? null
@@ -267,7 +288,8 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="src">Bytes to wrapp</param>
         /// <returns>Stream wrapping the bytes or null if the source is null</returns>
-        public static Stream AsStream(this byte[] src)
+        public static Stream AsStream(
+            this byte[] src)
         {
             return src == null
                 ? null
@@ -279,7 +301,8 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="src">String to test</param>
         /// <returns>True if the string can be converted to an integer; False otherwise</returns>
-        public static bool IsInteger(this string src)
+        public static bool IsInteger(
+            this string src)
         {
             return int.TryParse(src, out var _);
         }
@@ -289,7 +312,8 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="value">String to convert</param>
         /// <returns>The integer value of the string; 0 if it cannot be converted</returns>
-        public static int AsInteger(this string value)
+        public static int AsInteger(
+            this string value)
         {
             var interestingPart = GetLeadingIntegerCharsFrom(value ?? string.Empty);
             int.TryParse(interestingPart, out var result);
@@ -301,7 +325,8 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="value">String to test</param>
         /// <returns>True if is null or whitespace; False otherwise</returns>
-        public static bool IsNullOrWhiteSpace(this string value)
+        public static bool IsNullOrWhiteSpace(
+            this string value)
         {
             return string.IsNullOrWhiteSpace(value);
         }
@@ -311,7 +336,8 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="value">String to test</param>
         /// <returns>True if is null or whitespace; False otherwise</returns>
-        public static bool IsNullOrEmpty(this string value)
+        public static bool IsNullOrEmpty(
+            this string value)
         {
             return string.IsNullOrEmpty(value);
         }
@@ -321,7 +347,8 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="value">Input string value</param>
         /// <returns>The base64-encoded representation of the string, or null if the string is null</returns>
-        public static string ToBase64(this string value)
+        public static string ToBase64(
+            this string value)
         {
             return value?.AsBytes()?.ToBase64();
         }
@@ -331,7 +358,8 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="input">String to test</param>
         /// <returns>Original string or "0" if empty or null</returns>
-        public static string ZeroIfEmptyOrNull(this string input)
+        public static string ZeroIfEmptyOrNull(
+            this string input)
         {
             return input.DefaultIfEmptyOrNull("0");
         }
@@ -343,7 +371,9 @@ namespace PeanutButter.Utils
         /// <param name="fallback">Fallback value if the input is whitespace or null</param>
         /// <returns>Original string or the given fallback if the input is whitespace or null</returns>
         // ReSharper disable once MemberCanBePrivate.Global
-        public static string DefaultIfEmptyOrNull(this string input, string fallback)
+        public static string DefaultIfEmptyOrNull(
+            this string input,
+            string fallback)
         {
             return string.IsNullOrWhiteSpace(input)
                 ? fallback
@@ -356,7 +386,9 @@ namespace PeanutButter.Utils
         /// <param name="input">String to trim</param>
         /// <param name="trimChars">Optional params of chars to trim, passed to standard String.Trim() method</param>
         /// <returns>Empty string if input is null, otherwise trimmed input</returns>
-        public static string SafeTrim(this string input, params char[] trimChars)
+        public static string SafeTrim(
+            this string input,
+            params char[] trimChars)
         {
             return input?.Trim(trimChars) ?? "";
         }
@@ -366,7 +398,8 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="input">string to convert</param>
         /// <returns>kebab-cased-output</returns>
-        public static string ToKebabCase(this string input)
+        public static string ToKebabCase(
+            this string input)
         {
             return input?
                 .Replace('_', '-')
@@ -381,7 +414,8 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="input">string to convert</param>
         /// <returns>snake_cased_output</returns>
-        public static string ToSnakeCase(this string input)
+        public static string ToSnakeCase(
+            this string input)
         {
             return input.ToKebabCase()?.Replace('-', '_');
         }
@@ -423,7 +457,8 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="input">string to convert</param>
         /// <returns>camelCasedOutput</returns>
-        public static string ToCamelCase(this string input)
+        public static string ToCamelCase(
+            this string input)
         {
             return input.ToPascalCase().ToLowerCasedFirstLetter();
         }
@@ -438,7 +473,8 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        public static string ToRandomCase(this string input)
+        public static string ToRandomCase(
+            this string input)
         {
             return string.Join(
                 "",
@@ -459,7 +495,8 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        public static string ToWords(this string input)
+        public static string ToWords(
+            this string input)
         {
             return input.ToKebabCase()?.Replace("-", " ");
         }
@@ -470,7 +507,8 @@ namespace PeanutButter.Utils
         /// <param name="input">string to operate on</param>
         /// <returns>string with lower-cased first letter or null if input was null</returns>
         // ReSharper disable once MemberCanBePrivate.Global
-        public static string ToLowerCasedFirstLetter(this string input)
+        public static string ToLowerCasedFirstLetter(
+            this string input)
         {
             return (input?.Length ?? 0) > 0
                 // ReSharper disable once PossibleNullReferenceException
@@ -484,7 +522,8 @@ namespace PeanutButter.Utils
         /// <param name="input">string to operate on</param>
         /// <returns>string with upper-cased first letter or null if input was null</returns>
         // ReSharper disable once MemberCanBePrivate.Global
-        public static string ToUpperCasedFirstLetter(this string input)
+        public static string ToUpperCasedFirstLetter(
+            this string input)
         {
             return (input?.Length ?? 0) > 0
                 // ReSharper disable once PossibleNullReferenceException
@@ -529,7 +568,8 @@ namespace PeanutButter.Utils
             yield return string.Join("", collector);
         }
 
-        private static string GetLeadingIntegerCharsFrom(string value)
+        private static string GetLeadingIntegerCharsFrom(
+            string value)
         {
             var collected = new List<string>();
             var intMarker = 0;
@@ -552,6 +592,65 @@ namespace PeanutButter.Utils
                     }
                 });
             return collected.JoinWith(string.Empty);
+        }
+
+        /// <summary>
+        /// Returns whether or not a string is an integer value
+        /// </summary>
+        /// <param name="str">string to test</param>
+        /// <returns></returns>
+        public static bool IsNumeric(
+            this string str)
+        {
+            return !string.IsNullOrWhiteSpace(str) &&
+                   str.All(IsNumeric);
+        }
+
+        /// <summary>
+        /// Tests if a string is Alphanumeric. Fails on null or whitespace too.
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static bool IsAlphanumeric(
+            this string str)
+        {
+            return !string.IsNullOrWhiteSpace(str) && 
+                   str.All(c => IsAlpha(c) || IsNumeric(c));
+        }
+
+        /// <summary>
+        /// Tests if a string is Alphabetic only. Fails on null or whitespace too.
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static bool IsAlpha(
+            this string str)
+        {
+            return !string.IsNullOrWhiteSpace(str) &&
+                   str.All(IsAlpha);
+        }
+
+        /// <summary>
+        /// Tests if a character is numeric (0-9)
+        /// </summary>
+        /// <param name="c"></param>
+        /// <returns></returns>
+        public static bool IsNumeric(
+            this char c)
+        {
+            return c >= '0' && c <= '9';
+        }
+
+        /// <summary>
+        /// Tests if a character is alphabetic (a-z|A-Z)
+        /// </summary>
+        /// <param name="c"></param>
+        /// <returns></returns>
+        public static bool IsAlpha(
+            this char c)
+        {
+            return (c >= 'A' && c <= 'Z') ||
+                   (c >= 'a' && c <= 'z');
         }
     }
 }

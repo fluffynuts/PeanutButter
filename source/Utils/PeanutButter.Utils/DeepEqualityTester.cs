@@ -780,7 +780,7 @@ namespace PeanutButter.Utils
 
         /// <summary>
         /// Adds a custom comparer to use for the specified type.
-        /// Custom comparers must implement IComparer<T> where T
+        /// Custom comparers must implement IComparer&lt;T&gt; where T
         /// becomes the type selection to use for when the comparer
         /// is invoked
         /// </summary>

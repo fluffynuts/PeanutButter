@@ -7,6 +7,7 @@ using PeanutButter.RandomGenerators;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using NExpect;
 using static NExpect.Expectations;
+
 // ReSharper disable ExpressionIsAlwaysNull
 
 namespace PeanutButter.Utils.Tests
@@ -17,8 +18,11 @@ namespace PeanutButter.Utils.Tests
         [TestCase("Hello World", "^Hello", "Goodbye", "Goodbye World")]
         [TestCase("Hello World", "Wor.*", "Goodbye", "Hello Goodbye")]
         [TestCase("Hello World", "Hello$", "Goodbye", "Hello World")]
-        public void RegexReplace_ShouldReplaceAccordingToRegexWithSuppliedValue(string input, string re,
-            string replaceWith, string expected)
+        public void RegexReplace_ShouldReplaceAccordingToRegexWithSuppliedValue(
+            string input,
+            string re,
+            string replaceWith,
+            string expected)
         {
             //---------------Set up test pack-------------------
 
@@ -34,7 +38,8 @@ namespace PeanutButter.Utils.Tests
 
         [TestCase(null)]
         [TestCase("")]
-        public void Or_ActingOnString_ShouldReturnOtherStringWhenPrimaryIs_(string value)
+        public void Or_ActingOnString_ShouldReturnOtherStringWhenPrimaryIs_(
+            string value)
         {
             // think equivalent to Javascript:
             //  var left = null;
@@ -84,7 +89,9 @@ namespace PeanutButter.Utils.Tests
         [TestCase(" ", false)]
         [TestCase("\t", false)]
         [TestCase(null, false)]
-        public void AsBoolean_ShouldResolveToBooleanValue(string input, bool expected)
+        public void AsBoolean_ShouldResolveToBooleanValue(
+            string input,
+            bool expected)
         {
             //---------------Set up test pack-------------------
 
@@ -375,7 +382,8 @@ namespace PeanutButter.Utils.Tests
         [TestCase("")]
         [TestCase("\r\n")]
         [TestCase(null)]
-        public void AsInteger_WhenStringIsNotInteger_ShouldReturnZero_(string input)
+        public void AsInteger_WhenStringIsNotInteger_ShouldReturnZero_(
+            string input)
         {
             //---------------Set up test pack-------------------
 
@@ -398,7 +406,8 @@ namespace PeanutButter.Utils.Tests
         };
 
         [TestCaseSource(nameof(NullOrWhitespaceStrings))]
-        public void IsNullOrWhitespace_ShouldReturnTrueWhenActingOnNullOrWhitespaceString_(string src)
+        public void IsNullOrWhitespace_ShouldReturnTrueWhenActingOnNullOrWhitespaceString_(
+            string src)
         {
             //---------------Set up test pack-------------------
 
@@ -428,7 +437,8 @@ namespace PeanutButter.Utils.Tests
 
         [TestCase(null)]
         [TestCase("")]
-        public void IsNullOrEmpty_ShouldReturnTrue_WhenOperatingOnString_(string src)
+        public void IsNullOrEmpty_ShouldReturnTrue_WhenOperatingOnString_(
+            string src)
         {
             //---------------Set up test pack-------------------
 
@@ -445,7 +455,8 @@ namespace PeanutButter.Utils.Tests
         [TestCase("\t")]
         [TestCase("\n")]
         [TestCase("\r")]
-        public void IsNullOrEmpty_ShouldReturnFalse_WhenOperatingOnWhitespaceString_(string src)
+        public void IsNullOrEmpty_ShouldReturnFalse_WhenOperatingOnWhitespaceString_(
+            string src)
         {
             //---------------Set up test pack-------------------
 
@@ -687,7 +698,9 @@ namespace PeanutButter.Utils.Tests
         [TestCase("MooCow", "moo-cow")]
         [TestCase("i_am_snake", "i-am-snake")]
         [TestCase("is-already-kebabed", "is-already-kebabed")]
-        public void ToKebabCase_ShouldConvert_(string from, string expected)
+        public void ToKebabCase_ShouldConvert_(
+            string from,
+            string expected)
         {
             // Arrange
 
@@ -719,7 +732,9 @@ namespace PeanutButter.Utils.Tests
         [TestCase("MooCow", "moo_cow")]
         [TestCase("i_am_snake", "i_am_snake")]
         [TestCase("is-already-kebabed", "is_already_kebabed")]
-        public void ToSnakeCase_ShouldConvert_(string from, string expected)
+        public void ToSnakeCase_ShouldConvert_(
+            string from,
+            string expected)
         {
             // Arrange
 
@@ -805,7 +820,9 @@ namespace PeanutButter.Utils.Tests
         [TestCase("MooCow", "mooCow")]
         [TestCase("i_am_snake", "iAmSnake")]
         [TestCase("is-already-kebabed", "isAlreadyKebabed")]
-        public void ToCamelCase_ShouldConvert_(string from, string expected)
+        public void ToCamelCase_ShouldConvert_(
+            string from,
+            string expected)
         {
             // Arrange
 
@@ -838,7 +855,9 @@ namespace PeanutButter.Utils.Tests
         [TestCase("i_am_snake", "i am snake")]
         [TestCase("i am already words", "i am already words")]
         [TestCase("is-already-kebabed", "is already kebabed")]
-        public void ToWords_ShouldConvert_(string from, string expected)
+        public void ToWords_ShouldConvert_(
+            string from,
+            string expected)
         {
             // Arrange
 
@@ -868,6 +887,7 @@ namespace PeanutButter.Utils.Tests
                 Expect(thisAttempt.ToLowerInvariant()).To.Equal(lowerSource);
                 collector.Add(thisAttempt);
             }
+
             // Assert
             Expect(runs - collector.Distinct().Count())
                 .To.Be.Less.Than(2); // allow for some random collision
@@ -904,6 +924,246 @@ namespace PeanutButter.Utils.Tests
                 // Assert
                 Expect(result).To.Contain.All()
                     .Matched.By(s => s == s.ToLower());
+            }
+        }
+
+        [TestFixture]
+        public class CharacterClasses
+        {
+            [TestFixture]
+            public class IsAlpha
+            {
+                [Test]
+                public void OperatingOn_Null_ShouldReturnFalse()
+                {
+                    // Arrange
+                    var input = null as string;
+                    // Pre-assert
+                    // Act
+                    var result = input.IsAlpha();
+                    // Assert
+                    Expect(result).To.Be.False();
+                }
+
+                [Test]
+                public void OperatingOn_EmptyString_ShouldReturnFalse()
+                {
+                    // Arrange
+                    var input = "";
+                    // Pre-assert
+                    // Act
+                    var result = input.IsAlpha();
+                    // Assert
+                    Expect(result).To.Be.False();
+                }
+
+                [Test]
+                public void OperatingOn_Whitespace_ShouldReturnFalse()
+                {
+                    // Arrange
+                    var input = GetRandomFrom(new[] {" ", "\r", "\t"});
+                    // Pre-assert
+                    // Act
+                    var result = input.IsAlpha();
+                    // Assert
+                    Expect(result).To.Be.False();
+                }
+
+                [Test]
+                public void OperatingOn_NumericString_ShouldReturnFalse()
+                {
+                    // Arrange
+                    var input = GetRandomInt(1000, 2000).ToString();
+                    // Pre-assert
+                    // Act
+                    var result = input.IsAlpha();
+                    // Assert
+                    Expect(result).To.Be.False();
+                }
+
+                [Test]
+                public void OperatingOn_AlphaString_ShouldReturnTrue()
+                {
+                    // Arrange
+                    var input = GetRandomAlphaString();
+                    // Pre-assert
+                    // Act
+                    var result = input.IsAlpha();
+                    // Assert
+                    Expect(result).To.Be.True();
+                }
+
+                [Test]
+                public void OperatingOn_AlphaNumericString_ShouldReturnFalse()
+                {
+                    // Arrange
+                    var input = GetRandomAlphaNumericString();
+                    // Pre-assert
+                    // Act
+                    var result = input.IsAlpha();
+                    // Assert
+                    Expect(result).To.Be.False();
+                }
+            }
+
+            [TestFixture]
+            public class IsAlphanumeric
+            {
+                [Test]
+                public void OperatingOn_Null_ShouldReturnFalse()
+                {
+                    // Arrange
+                    var input = null as string;
+                    // Pre-assert
+                    // Act
+                    var result = input.IsAlphanumeric();
+                    // Assert
+                    Expect(result).To.Be.False();
+                }
+
+                [Test]
+                public void OperatingOn_EmptyString_ShouldReturnFalse()
+                {
+                    // Arrange
+                    var input = "";
+                    // Pre-assert
+                    // Act
+                    var result = input.IsAlphanumeric();
+                    // Assert
+                    Expect(result).To.Be.False();
+                }
+
+                [Test]
+                public void OperatingOn_Whitespace_ShouldReturnFalse()
+                {
+                    // Arrange
+                    var input = GetRandomFrom(new[] {" ", "\r", "\t"});
+                    // Pre-assert
+                    // Act
+                    var result = input.IsAlphanumeric();
+                    // Assert
+                    Expect(result).To.Be.False();
+                }
+
+                [Test]
+                public void OperatingOn_NumericString_ShouldReturnTrue()
+                {
+                    // Arrange
+                    var input = GetRandomInt(1000, 2000).ToString();
+                    // Pre-assert
+                    // Act
+                    var result = input.IsAlphanumeric();
+                    // Assert
+                    Expect(result).To.Be.True();
+                }
+
+                [Test]
+                public void OperatingOn_AlphaString_ShouldReturnTrue()
+                {
+                    // Arrange
+                    var input = GetRandomAlphaString(1);
+                    // Pre-assert
+                    // Act
+                    var result = input.IsAlphanumeric();
+                    // Assert
+                    Expect(result).To.Be.True();
+                }
+
+                [Test]
+                [Repeat(100)]
+                public void OperatingOn_AlphaNumericString_ShouldReturnTrue()
+                {
+                    // Arrange
+                    var input = GetRandomAlphaNumericString(1);
+                    // Pre-assert
+                    // Act
+                    var result = input.IsAlphanumeric();
+
+                    // Assert
+                    Expect(result).To.Be.True(
+                        $"{input.Stringify()} should be alpha-numeric"
+                    );
+                }
+            }
+
+            [TestFixture]
+            public class IsNumeric
+            {
+                [Test]
+                public void OperatingOn_Null_ShouldReturnFalse()
+                {
+                    // Arrange
+                    var input = null as string;
+                    // Pre-assert
+                    // Act
+                    var result = input.IsNumeric();
+                    // Assert
+                    Expect(result).To.Be.False();
+                }
+
+                [Test]
+                public void OperatingOn_EmptyString_ShouldReturnFalse()
+                {
+                    // Arrange
+                    var input = "";
+                    // Pre-assert
+                    // Act
+                    var result = input.IsNumeric();
+                    // Assert
+                    Expect(result).To.Be.False();
+                }
+
+                [Test]
+                public void OperatingOn_Whitespace_ShouldReturnFalse()
+                {
+                    // Arrange
+                    var input = GetRandomFrom(new[] {" ", "\t", "\r"});
+                    // Pre-assert
+                    // Act
+                    var result = input.IsNumeric();
+                    // Assert
+                    Expect(result).To.Be.False();
+                }
+
+                [Test]
+                public void OperatingOn_NumericString_ShouldReturnTrue()
+                {
+                    // Arrange
+                    var input = GetRandomInt(1000, 200000).ToString();
+                    // Pre-assert
+                    // Act
+                    var result = input.IsNumeric();
+                    // Assert
+                    Expect(result).To.Be.True();
+                }
+
+                [Test]
+                public void OperatingOn_AlphaString_ShouldReturnFalse()
+                {
+                    // Arrange
+                    var input = GetRandomAlphaString(1);
+                    // Pre-assert
+                    // Act
+                    var result = input.IsNumeric();
+                    // Assert
+                    Expect(result).To.Be.False();
+                }
+
+                [Test]
+                public void OperatingOn_AlphaNumericString_ShouldReturnFalse()
+                {
+                    // Arrange
+                    var input = new[]
+                    {
+                        GetRandomAlphaString(1),
+                        GetRandomInt(1, 100).ToString()
+                    }.Randomize().JoinWith("");
+                    // Pre-assert
+                    // Act
+                    var result = input.IsNumeric();
+                    // Assert
+                    Expect(result).To.Be.False();
+                }
             }
         }
     }

@@ -317,16 +317,6 @@ namespace PeanutButter.TestUtils.Generic.Tests
         }
 
         [Test]
-        public void METHOD()
-        {
-            // Arrange
-            // Pre-assert
-            // Act
-            // Assert
-            Assert.Fail("Not yet implemented");
-        }
-
-        [Test]
         public void ShouldHaveUnique_WhenHasNoMatches_ShouldThrow()
         {
             //---------------Set up test pack-------------------

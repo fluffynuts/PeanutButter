@@ -338,6 +338,20 @@ namespace PeanutButter.Utils
                 .Select(g => new DuplicateResult<TKey, TItem>(g.Key, g.AsEnumerable()));
         }
 
+        /// <summary>
+        /// Inverse of All() LINQ method: test should return false for all elements
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="test"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool None<T>(
+            this IEnumerable<T> collection,
+            Func<T, bool> test)
+        {
+            return (collection ?? new T[0]).All(o => !test(o));
+        }
+
 
         /// <summary>
         /// DTO for conveying results from the more complex FindDuplicates

@@ -990,6 +990,18 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [Test]
+        public void GetRandomNonAlphaNumericString_ShouldProduceNonAlphaNumericStrings()
+        {
+            // Arrange
+            var results = new List<string>();
+            // Pre-assert
+            // Act
+            RunCycles(() => results.Add(GetRandomNonAlphaNumericString(1)));
+            // Assert
+            Expect(results.None(r => r.IsAlphanumeric()));
+        }
+
+        [Test]
         public void GetRandomAlphaString_ShouldProduceRandomStringWithOnlyAlphaCharacters()
         {
             var allResults = new List<Tuple<string, int, int>>();
@@ -1964,7 +1976,7 @@ namespace PeanutButter.RandomGenerators.Tests
             // Assert
             Expect(builder.WithChildrenCallCount).To.Equal(2);
         }
-
+        
         public class Parent
         {
             public string Name { get; set; }
