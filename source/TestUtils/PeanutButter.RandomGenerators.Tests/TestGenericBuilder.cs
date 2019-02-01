@@ -909,7 +909,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 AllMessages += message + "\n";
             }
         }
-
+        
         [Test]
         public void Randomize_ShouldNotTraceLogWhenPropertiesAreWritable()
         {
@@ -953,6 +953,7 @@ namespace PeanutButter.RandomGenerators.Tests
         public class NodeBuilder : GenericBuilder<NodeBuilder, Node>
         {
         }
+        
 
         [Test]
         public void

@@ -608,6 +608,29 @@ namespace PeanutButter.Utils
             return NumericTypes.Contains(type);
         }
 
+        private static readonly Type ObjectType = typeof(object);
+        
+        public static bool IsAncestorOf(this Type type, Type other)
+        {
+            if (other == ObjectType)
+            {
+                return true;
+            }
+
+            var baseType = type.BaseType();
+            if (baseType == null)
+            {
+                return false;
+            }
+
+            if (baseType == other)
+            {
+                return true;
+            }
+
+            return baseType.IsAncestorOf(other);
+        }
+
         private static readonly Type[] NumericTypes =
             {
             typeof(int),

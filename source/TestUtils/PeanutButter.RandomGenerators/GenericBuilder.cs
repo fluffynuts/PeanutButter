@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Mime;
 using System.Reflection;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
@@ -31,8 +32,8 @@ namespace PeanutButter.RandomGenerators
     /// <typeparam name="TEntity">Type of entity this builder builds</typeparam>
     public class GenericBuilder<TBuilder, TEntity>
         : GenericBuilderBase,
-          IGenericBuilder,
-          IBuilder<TEntity>
+            IGenericBuilder,
+            IBuilder<TEntity>
         where TBuilder : GenericBuilder<TBuilder, TEntity>
     {
         /// <summary>
@@ -46,14 +47,19 @@ namespace PeanutButter.RandomGenerators
         private delegate void ActionRef<T1, in T2>(ref T1 item,
             T2 index);
 
-        private static readonly List<ActionRef<TEntity>> DefaultPropMods =
-            new List<ActionRef<TEntity>>();
+        private static List<ActionRef<TEntity>> DefaultPropMods 
+            => DefaultPropModsField ?? (DefaultPropModsField = new List<ActionRef<TEntity>>());
 
-        private readonly List<ActionRef<TEntity>> _propMods =
-            new List<ActionRef<TEntity>>();
+        private static List<ActionRef<TEntity>> DefaultPropModsField;
 
-        private readonly List<ActionRef<TEntity>> _buildTimePropMods =
-            new List<ActionRef<TEntity>>();
+        private List<ActionRef<TEntity>> _propMods 
+            => _propModsField ?? (_propModsField = new List<ActionRef<TEntity>>());
+        private List<ActionRef<TEntity>> _propModsField;
+
+        private List<ActionRef<TEntity>> _buildTimePropModsField;
+
+        private List<ActionRef<TEntity>> _buildTimePropMods => 
+            _buildTimePropModsField ?? (_buildTimePropModsField = new List<ActionRef<TEntity>>());
 
         private bool _currentlyBuilding;
         private static Type _constructingTypeBackingField = typeof(TEntity);
@@ -1134,7 +1140,7 @@ namespace PeanutButter.RandomGenerators
                     var thisType = thisMethod.DeclaringType;
                     if (thisType != null &&
                         thisType.IsGenericType &&
-                        GenericBuilderBaseType.IsAssignableFrom(thisType) &&
+                        thisType.IsAncestorOf(GenericBuilderBaseType) &&
                         thisMethod.Name == "SetRandomProps")
                     {
                         return acc + 1;

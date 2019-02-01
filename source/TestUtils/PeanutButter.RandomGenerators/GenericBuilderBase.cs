@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -42,7 +43,7 @@ namespace PeanutButter.RandomGenerators
         /// <summary>
         /// Provides a lookup to the type which is the GenericBuilder
         /// </summary>
-        protected static readonly Type GenericBuilderBaseType = typeof(GenericBuilder<,>);
+        protected static readonly Type GenericBuilderBaseType = typeof(GenericBuilderBase);
 
         // ReSharper disable once InconsistentNaming
         private static readonly object _dynamicAssemblyLock = new object();
@@ -94,14 +95,14 @@ namespace PeanutButter.RandomGenerators
                 if (DynamicBuilders.TryGetValue(type, out var dynamicBuilderType))
                     return dynamicBuilderType;
                 var t = typeof(GenericBuilder<,>);
-
+                
                 var modBuilder = CreateOrReuseDynamicModule();
                 var typeName = string.Join("_", type.Name, "Builder", Guid.NewGuid().ToString("N"));
                 var typeBuilder = modBuilder.DefineType(typeName,
                     TypeAttributes.Public | TypeAttributes.Class);
                 // Typebuilder is a sub class of Type
-                typeBuilder.SetParent(t.MakeGenericType(typeBuilder, type));
                 typeBuilder.DefineDefaultConstructor(MethodAttributes.Public);
+                typeBuilder.SetParent(t.MakeGenericType(typeBuilder, type));
                 try
                 {
                     dynamicBuilderType = typeBuilder
