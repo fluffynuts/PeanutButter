@@ -35,13 +35,59 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            RunCycles(() => ints.Add(GetRandomInt(min, max)));
+            RunCycles(() => ints.Add(GetRandomInt(min, max)), HIGH_RANDOM_TEST_CYCLES);
 
             //---------------Test Result -----------------------
-            Assert.IsTrue(ints.All(i => i >= min));
-            Assert.IsTrue(ints.All(i => i <= max));
-            Assert.IsTrue(ints.Distinct().Count() > 1);
-            Assert.IsTrue(ints.Count(i => i == max) > 0);
+            Expect(ints.All(i => i >= min))
+                .To.Be.True(() => $"Numbers < min {min}: {ints.Where(i => i < min).JoinWith(",")}");
+            Expect(ints.All(i => i <= max))
+                .To.Be.True(() => $"Numbers > max {max}: {ints.Where(i => i > max).JoinWith(",")}");
+            Expect(ints.Distinct().Count() > 1)
+                .To.Be.True(() => $"Distinct count of numbers: {ints.Distinct().Count()}");
+        }
+
+        [Test]
+        public void GetRandomInt_GivenRange_ShouldFindMinNumber()
+        {
+            // Arrange
+            var min = GetRandomInt(1, 10);
+            var max = GetRandomInt(11, 20);
+            // Pre-assert
+            // Act
+            for (var i = 0; i < HIGH_RANDOM_TEST_CYCLES; i++)
+            {
+                var result = GetRandomInt(min, max);
+                if (result == min)
+                {
+                    Assert.Pass();
+                    return;
+                }
+            }
+
+            // Assert
+            Assert.Fail($"Unable to find {min} in range {min} - {max} over {HIGH_RANDOM_TEST_CYCLES} attempts");
+        }
+        
+        [Test]
+        public void GetRandomInt_GivenRange_ShouldFindMaxNumber()
+        {
+            // Arrange
+            var min = GetRandomInt(1, 10);
+            var max = GetRandomInt(11, 20);
+            // Pre-assert
+            // Act
+            for (var i = 0; i < HIGH_RANDOM_TEST_CYCLES; i++)
+            {
+                var result = GetRandomInt(min, max);
+                if (result == max)
+                {
+                    Assert.Pass();
+                    return;
+                }
+            }
+
+            // Assert
+            Assert.Fail($"Unable to find {max} in range {min} - {max} over {HIGH_RANDOM_TEST_CYCLES} attempts");
         }
 
         [Test]
@@ -168,9 +214,9 @@ namespace PeanutButter.RandomGenerators.Tests
             var d2 = Math.Abs(threePercent - twoPercent);
             var d3 = Math.Abs(threePercent - onePercent);
 
-            Assert.That(d1, Is.LessThan(10));
-            Assert.That(d2, Is.LessThan(10));
-            Assert.That(d3, Is.LessThan(10));
+            Assert.That(d1, Is.LessThan(20));
+            Assert.That(d2, Is.LessThan(20));
+            Assert.That(d3, Is.LessThan(20));
         }
 
         [Test]
@@ -208,9 +254,9 @@ namespace PeanutButter.RandomGenerators.Tests
             var d2 = Math.Abs(threePercent - twoPercent);
             var d3 = Math.Abs(threePercent - onePercent);
 
-            Assert.That(d1, Is.LessThan(10));
-            Assert.That(d2, Is.LessThan(10));
-            Assert.That(d3, Is.LessThan(10));
+            Assert.That(d1, Is.LessThan(20));
+            Assert.That(d2, Is.LessThan(20));
+            Assert.That(d3, Is.LessThan(20));
         }
 
         [Test]
@@ -222,7 +268,7 @@ namespace PeanutButter.RandomGenerators.Tests
             var o3 = new object();
             var items = new[] {o1, o2, o3};
             var results = new List<object>();
-            const int runs = RANDOM_TEST_CYCLES;
+            const int runs = NORMAL_RANDOM_TEST_CYCLES;
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -245,7 +291,7 @@ namespace PeanutButter.RandomGenerators.Tests
             var o3 = new object();
             var items = new[] {o1, o2, o3};
             var results = new List<IEnumerable<object>>();
-            const int runs = RANDOM_TEST_CYCLES;
+            const int runs = NORMAL_RANDOM_TEST_CYCLES;
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -275,7 +321,7 @@ namespace PeanutButter.RandomGenerators.Tests
             var o2 = new object();
             var o3 = new object();
             var items = new[] {o1, o2, o3};
-            const int runs = RANDOM_TEST_CYCLES;
+            const int runs = NORMAL_RANDOM_TEST_CYCLES;
 
             //---------------Assert Precondition----------------
 
@@ -301,7 +347,7 @@ namespace PeanutButter.RandomGenerators.Tests
             var items = new[] {o1, o2, o3, o4, o5, o6};
             var min = GetRandomInt(1, 3);
             var max = GetRandomInt(3, items.Length);
-            const int runs = RANDOM_TEST_CYCLES;
+            const int runs = NORMAL_RANDOM_TEST_CYCLES;
 
             //---------------Assert Precondition----------------
 
@@ -319,7 +365,7 @@ namespace PeanutButter.RandomGenerators.Tests
         public void GetRandomCollection_GivenFactoryFunction_ShouldInvokeItToCreateItems()
         {
             //---------------Set up test pack-------------------
-            const int runs = RANDOM_TEST_CYCLES;
+            const int runs = NORMAL_RANDOM_TEST_CYCLES;
             var generatedValues = new List<int>();
             Func<int> factory = () =>
             {
@@ -365,7 +411,7 @@ namespace PeanutButter.RandomGenerators.Tests
         public void GetRandomArray_GivenFactoryFunction_ShouldInvokeItToCreateItems()
         {
             //---------------Set up test pack-------------------
-            const int runs = RANDOM_TEST_CYCLES;
+            const int runs = NORMAL_RANDOM_TEST_CYCLES;
             var generatedValues = new List<int>();
             Func<int> factory = () =>
             {
@@ -432,7 +478,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 RunCycles(() => results.Add(GetRandomDate(range.From, range.To, true)));
 
                 //---------------Test Result -----------------------
-                Assert.AreEqual(RANDOM_TEST_CYCLES, results.Count);
+                Assert.AreEqual(NORMAL_RANDOM_TEST_CYCLES, results.Count);
                 Assert.IsTrue(results.All(range.InRange), "One or more generated value is out of range");
                 Assert.IsTrue(results.All(d => d.Hour == 0), "Hours are not all zeroed");
                 Assert.IsTrue(results.All(d => d.Minute == 0), "Minutes are not all zeroed");
@@ -480,7 +526,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 RunCycles(() => results.Add(GetRandomDate(range.From, range.To)));
 
                 //---------------Test Result -----------------------
-                Assert.AreEqual(RANDOM_TEST_CYCLES, results.Count);
+                Assert.AreEqual(NORMAL_RANDOM_TEST_CYCLES, results.Count);
                 Assert.IsTrue(results.All(d => d >= range.From), "One or more results is less than the minimum date");
                 Assert.IsTrue(results.All(d => d <= range.To), "One or more results is greater than the maximum date");
                 Assert.IsTrue(results.All(d => d.Microseconds() == 0), "Microseconds should be zeroed on random dates");
@@ -529,7 +575,7 @@ namespace PeanutButter.RandomGenerators.Tests
             }
 
             [Test]
-            [Repeat(RANDOM_TEST_CYCLES)]
+            [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
             public void GetRandomDate_GivenMinDateOnly_ShouldProduceRandomDatesWithin30YearPeriod()
             {
                 //---------------Set up test pack-------------------
@@ -549,7 +595,7 @@ namespace PeanutButter.RandomGenerators.Tests
             }
 
             [Test]
-            [Repeat(RANDOM_TEST_CYCLES)]
+            [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
             public void GetRandomDate_GivenMaxDateOnly_ShouldProduceRandomDatesWithin30YearPeriod()
             {
                 //---------------Set up test pack-------------------
@@ -569,7 +615,7 @@ namespace PeanutButter.RandomGenerators.Tests
             }
 
             [Test]
-            [Repeat(RANDOM_TEST_CYCLES)]
+            [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
             public void
                 GetRandomDate_GivenMinAndMaxTimeWithFractionsOfSeconds_ShouldTruncateTimesToMilliseconds_AndProduceRandomDateWithTimeBetweenMinAndMax()
             {
@@ -910,7 +956,7 @@ namespace PeanutButter.RandomGenerators.Tests
             GetRandomCollection_GivenGeneratorFunctionAndBoundaries_ShouldReturnListOfRandomSizeContainingOutputOfGeneratorPerItem()
         {
             //---------------Set up test pack-------------------
-            const int runs = RANDOM_TEST_CYCLES;
+            const int runs = NORMAL_RANDOM_TEST_CYCLES;
 
             //---------------Assert Precondition----------------
 
@@ -1329,7 +1375,7 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var items = GetRandomCollection(GetRandom<SomePOCO>, RANDOM_TEST_CYCLES, RANDOM_TEST_CYCLES);
+            var items = GetRandomCollection(GetRandom<SomePOCO>, NORMAL_RANDOM_TEST_CYCLES, NORMAL_RANDOM_TEST_CYCLES);
 
             //---------------Test Result -----------------------
             VarianceAssert.IsVariant<SomePOCO, int>(items, "Id");
@@ -1617,7 +1663,9 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => GetRandom<InternalClass>());
+            Assert.DoesNotThrow(
+                () => GetRandom<InternalClass>()
+            );
 
             //---------------Test Result -----------------------
         }
@@ -1626,11 +1674,18 @@ namespace PeanutButter.RandomGenerators.Tests
         public void GetRandom_OnInternalTypeNotShared()
         {
             //---------------Set up test pack-------------------
+            if (Type.GetType("Mono.Runtime") != null)
+            {
+                Assert.Ignore("Mono allows access to internal types, so this test is skipped");
+                return;
+            }
 
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<UnableToCreateDynamicBuilderException>(() => GetRandom<AnotherInternalClass>());
+            Assert.Throws<UnableToCreateDynamicBuilderException>(
+                () => GetRandom<AnotherInternalClass>()
+            );
 
             //---------------Test Result -----------------------
         }
@@ -1825,7 +1880,10 @@ namespace PeanutButter.RandomGenerators.Tests
                     //--------------- Assume ----------------
 
                     //--------------- Act ----------------------
-                    var other = GetRandom<IHasAnId>(test => test.Id != first.Id);
+                    var other = GetRandom<IHasAnId>(test =>
+                    {
+                        return test.Id != first.Id;
+                    });
 
                     //--------------- Assert -----------------------
                     Expect(other).Not.To.Be.Null();
@@ -2053,9 +2111,10 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
 
-        private void RunCycles(Action toRun)
+        private void RunCycles(Action toRun, int? cycles = 0)
         {
-            for (var i = 0; i < RANDOM_TEST_CYCLES; i++)
+            cycles = cycles ?? NORMAL_RANDOM_TEST_CYCLES;
+            for (var i = 0; i < NORMAL_RANDOM_TEST_CYCLES; i++)
                 toRun();
         }
 
@@ -2113,7 +2172,7 @@ namespace PeanutButter.RandomGenerators.Tests
         [TestFixture]
         public class GettingRandomHttpUrls
         {
-            [Repeat(RANDOM_TEST_CYCLES)]
+            [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
             [Test]
             public void ShouldReturnAValidUrl()
             {
@@ -2126,7 +2185,7 @@ namespace PeanutButter.RandomGenerators.Tests
                     .Not.To.Throw();
             }
 
-            [Repeat(RANDOM_TEST_CYCLES)]
+            [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
             [Test]
             public void ShouldReturnUrlInLowerCaseOnly()
             {
@@ -2142,7 +2201,7 @@ namespace PeanutButter.RandomGenerators.Tests
         [TestFixture]
         public class GettingRandomHttpUrlsWithParameters
         {
-            [Repeat(RANDOM_TEST_CYCLES)]
+            [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
             [Test]
             public void ShouldReturnAValidUrl()
             {
@@ -2155,7 +2214,7 @@ namespace PeanutButter.RandomGenerators.Tests
                     .Not.To.Throw();
             }
 
-            [Repeat(RANDOM_TEST_CYCLES)]
+            [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
             [Test]
             public void ShouldReturnUrlInLowerCaseOnly()
             {
@@ -2169,7 +2228,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 Expect(schemeHostPath).To.Equal(schemeHostPath.ToLowerInvariant());
             }
 
-            [Repeat(RANDOM_TEST_CYCLES)]
+            [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
             [Test]
             public void ShouldHaveAtLeastOneParameter()
             {

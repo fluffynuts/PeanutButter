@@ -6,7 +6,7 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 namespace PeanutButter.RandomGenerators
 {
     /// <summary>
-    /// Base class for UniqueRandomValueGenerator<T>
+    /// Base class for UniqueRandomValueGenerator&lt;T&gt;
     /// </summary>
     public abstract class UniqueRandomValueGenerator
     {
@@ -20,6 +20,12 @@ namespace PeanutButter.RandomGenerators
         private static readonly Type _genericType =
             typeof(UniqueRandomValueGenerator<>);
 
+        /// <summary>
+        /// Produces an instance of an UniqueRandomValueGenerator for the
+        /// provided Type t
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
         public static UniqueRandomValueGenerator For(Type t)
         {
             var specific = _genericType.MakeGenericType(t);
@@ -39,9 +45,8 @@ namespace PeanutButter.RandomGenerators
         /// <summary>
         /// Get the next value, Typed
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public T Next<T>()
+        public T Next()
         {
             return (T)NextObjectValue();
         }

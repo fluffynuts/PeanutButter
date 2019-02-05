@@ -2,6 +2,7 @@
 {
     public class TestBase
     {
-        protected const int RANDOM_TEST_CYCLES = 2048;
+        protected const int NORMAL_RANDOM_TEST_CYCLES = 128;
+        protected const int HIGH_RANDOM_TEST_CYCLES = 2048;
     }
 }

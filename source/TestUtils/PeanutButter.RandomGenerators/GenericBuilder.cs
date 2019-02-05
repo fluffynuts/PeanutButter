@@ -48,17 +48,17 @@ namespace PeanutButter.RandomGenerators
             T2 index);
 
         private static List<ActionRef<TEntity>> DefaultPropMods 
-            => DefaultPropModsField ?? (DefaultPropModsField = new List<ActionRef<TEntity>>());
+            => _defaultPropModsField ?? (_defaultPropModsField = new List<ActionRef<TEntity>>());
 
-        private static List<ActionRef<TEntity>> DefaultPropModsField;
+        private static List<ActionRef<TEntity>> _defaultPropModsField;
 
-        private List<ActionRef<TEntity>> _propMods 
+        private List<ActionRef<TEntity>> PropMods 
             => _propModsField ?? (_propModsField = new List<ActionRef<TEntity>>());
         private List<ActionRef<TEntity>> _propModsField;
 
         private List<ActionRef<TEntity>> _buildTimePropModsField;
 
-        private List<ActionRef<TEntity>> _buildTimePropMods => 
+        private List<ActionRef<TEntity>> BuildTimePropMods => 
             _buildTimePropModsField ?? (_buildTimePropModsField = new List<ActionRef<TEntity>>());
 
         private bool _currentlyBuilding;
@@ -213,8 +213,8 @@ namespace PeanutButter.RandomGenerators
         public TBuilder WithProp(Action<TEntity> action)
         {
             var collection = _currentlyBuilding
-                                 ? _buildTimePropMods
-                                 : _propMods;
+                                 ? BuildTimePropMods
+                                 : PropMods;
             collection.Add((ref TEntity e) => action(e));
             return this as TBuilder;
         }
@@ -228,8 +228,8 @@ namespace PeanutButter.RandomGenerators
         public TBuilder WithProp(ActionRef<TEntity> action)
         {
             var collection = _currentlyBuilding
-                                 ? _buildTimePropMods
-                                 : _propMods;
+                                 ? BuildTimePropMods
+                                 : PropMods;
             collection.Add(action);
             return this as TBuilder;
         }
@@ -641,21 +641,21 @@ namespace PeanutButter.RandomGenerators
         /// <returns>An instance of TEntity with all builder actions run on it</returns>
         public virtual TEntity Build()
         {
-            _buildTimePropMods.Clear();
+            BuildTimePropMods.Clear();
             var dynamicCount = 0;
             using (new AutoResetter(() => _currentlyBuilding = true,
                 () => _currentlyBuilding = false))
             {
                 var entity = ConstructEntity();
                 var actions = new Queue<ActionRef<TEntity>>(DefaultPropMods
-                    .Union(_propMods)
+                    .Union(PropMods)
                     .ToArray());
 
                 while (actions.Count > 0)
                 {
                     var action = actions.Dequeue();
                     action(ref entity);
-                    while (_buildTimePropMods.Any())
+                    while (BuildTimePropMods.Any())
                     {
                         if (++dynamicCount > MaxRandomPropsLevel)
                         {
@@ -664,8 +664,8 @@ namespace PeanutButter.RandomGenerators
                             );
                         }
 
-                        var newActions = _buildTimePropMods.ToArray();
-                        _buildTimePropMods.Clear();
+                        var newActions = BuildTimePropMods.ToArray();
+                        BuildTimePropMods.Clear();
                         foreach (var a in newActions)
                         {
                             a(ref entity);
@@ -1195,7 +1195,7 @@ namespace PeanutButter.RandomGenerators
 
         private void SetRandomProps(ref TEntity entity)
         {
-            PopulateSpecificSetters<TEntity>();
+            PopulateSpecificSetters();
             foreach (var prop in EntityPropInfo)
             {
                 try
@@ -1232,12 +1232,12 @@ namespace PeanutButter.RandomGenerators
         private Dictionary<string, RandomizerAttribute.RefAction>
             _specificSetters;
 
-        private void PopulateSpecificSetters<TEntity>()
+        private void PopulateSpecificSetters()
         {
-            _specificSetters = _specificSetters ?? GenerateSpecificSetters<TEntity>();
+            _specificSetters = _specificSetters ?? GenerateSpecificSetters();
         }
 
-        private Dictionary<string, RandomizerAttribute.RefAction> GenerateSpecificSetters<TEntity>()
+        private Dictionary<string, RandomizerAttribute.RefAction> GenerateSpecificSetters()
         {
             return GetType().GetCustomAttributes().OfType<RandomizerAttribute>()
                 .Aggregate(new Dictionary<string, RandomizerAttribute.RefAction>(),

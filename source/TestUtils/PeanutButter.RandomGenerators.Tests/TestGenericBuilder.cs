@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using EmailSpooler.Win32Service.Entity;
 using NExpect;
 using NUnit.Framework;
@@ -145,7 +147,7 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Execute Test ----------------------
             var randomItems = new List<NotAsSimpleClass>();
             for (var i = 0;
-                 i < RANDOM_TEST_CYCLES;
+                 i < NORMAL_RANDOM_TEST_CYCLES;
                  i++)
             {
                 randomItems.Add(NotAsSimpleBuilder.Create()
@@ -267,6 +269,11 @@ namespace PeanutButter.RandomGenerators.Tests
         {
             public static string[] Calls => CallsField.ToArray();
 
+            public static void Clear()
+            {
+                CallsField.Clear();
+            }
+
             private static readonly List<string> CallsField =
                 new List<string>();
 
@@ -287,6 +294,7 @@ namespace PeanutButter.RandomGenerators.Tests
         public void BuildRandom_CallsWithRandomPropsThenBuildAndReturnsResult()
         {
             //---------------Set up test pack-------------------
+            BuilderInspector.Clear();
             Assert.AreEqual(0, BuilderInspector.Calls.Length);
 
             //---------------Assert Precondition----------------
@@ -348,7 +356,7 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Execute Test ----------------------
             var randomItems = new List<ClassWithComplexMembers>();
             for (var i = 0;
-                 i < RANDOM_TEST_CYCLES;
+                 i < NORMAL_RANDOM_TEST_CYCLES;
                  i++)
             {
                 var randomItem = ClassWithComplexMembersBuilder.BuildRandom();
@@ -358,7 +366,7 @@ namespace PeanutButter.RandomGenerators.Tests
             }
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(RANDOM_TEST_CYCLES, randomItems.Count);
+            Assert.AreEqual(NORMAL_RANDOM_TEST_CYCLES, randomItems.Count);
             VarianceAssert.IsVariant<ClassWithComplexMembers, ComplexMember1>(
                 randomItems,
                 "ComplexMember1");
@@ -374,6 +382,7 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [Test]
+        [Timeout(10000)]
         public void
             WhenUsingExistingBuildersWhichWouldCauseStackOverflow_ShouldAttemptToProtectAgainstStackOverflow()
         {
@@ -382,8 +391,7 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => ParentWithBuilderBuilder.BuildRandom());
-
+                Assert.DoesNotThrow(() => ParentWithBuilderBuilder.BuildRandom());
             //---------------Test Result -----------------------
         }
 
@@ -1083,7 +1091,7 @@ namespace PeanutButter.RandomGenerators.Tests
         public class Decorations : TestGenericBuilder
         {
             [Test]
-            [Repeat(RANDOM_TEST_CYCLES)]
+            [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
             public void RequiringIntegerPropertyToBeNonZero()
             {
                 // Arrange
@@ -1096,7 +1104,7 @@ namespace PeanutButter.RandomGenerators.Tests
             }
 
             [Test]
-            [Repeat(RANDOM_TEST_CYCLES)]
+            [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
             public void RequireNonZeroId_ShouldSetIdField()
             {
                 // Arrange
@@ -1127,7 +1135,7 @@ namespace PeanutButter.RandomGenerators.Tests
             private void RunCycles(Action toRun)
             {
                 for (var i = 0;
-                     i < RANDOM_TEST_CYCLES;
+                     i < NORMAL_RANDOM_TEST_CYCLES;
                      i++)
                     toRun();
             }

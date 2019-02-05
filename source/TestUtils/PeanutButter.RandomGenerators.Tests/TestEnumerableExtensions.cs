@@ -27,7 +27,7 @@ namespace PeanutButter.RandomGenerators.Tests
 
             //---------------Execute Test ----------------------
             var results = new List<decimal>();
-            for (var i = 0; i < RANDOM_TEST_CYCLES; i++)
+            for (var i = 0; i < NORMAL_RANDOM_TEST_CYCLES; i++)
             {
                 var input = GetRandomCollection(() => GetRandomString(2, 10), 5, 10).ToArray();
                 var jumbled = input.Randomize().ToArray();

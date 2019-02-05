@@ -534,6 +534,10 @@ namespace PeanutButter.RandomGenerators
                 GetRandomAlphaNumericString(0, 20)).ToLowerInvariant();
         }
 
+        /// <summary>
+        /// Generates a random HTTP url with some query parameters
+        /// </summary>
+        /// <returns></returns>
         public static string GetRandomHttpUrlWithParameters()
         {
             var parameters = Range(1, GetRandomInt(2, 5)).Select(
