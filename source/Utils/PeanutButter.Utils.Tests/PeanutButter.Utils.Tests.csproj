@@ -75,6 +75,7 @@
     <Compile Include="TestStrictComparer.cs" />
     <Compile Include="TestStringExtensions.cs" />
     <Compile Include="TestStringifier.cs" />
+    <Compile Include="TestTaskExtensions.cs" />
     <Compile Include="TestTypeEqualityTester.cs" />
     <Compile Include="TestTypeExtensions.cs" />
   </ItemGroup>
