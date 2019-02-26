@@ -93,7 +93,7 @@ namespace PeanutButter.TempDb.MySql
         public string InnodbBufferPoolSize { get; set; } = "384M";
 
         [Setting("innodb_flush_log_at_trx_commit")]
-        public int InnodbFlushLogAtTrcCommit { get; set; } = 1;
+        public int InnodbFlushLogAtTrxCommit { get; set; } = 1;
 
         [Setting("myisam_max_sort_file_size")]
         public string MyIsamMaxSortFileSize { get; set; } = "100G";
