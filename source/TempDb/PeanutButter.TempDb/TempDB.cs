@@ -24,6 +24,8 @@ namespace PeanutButter.TempDb
 
     public abstract class TempDB<TDatabaseConnection> : ITempDB where TDatabaseConnection : DbConnection
     {
+        public uint DefaultTimeout { get; set; } = 30;
+
         /// <summary>
         /// Path to where the temporary database resides. May be a file
         /// for single-file databases or a folder.

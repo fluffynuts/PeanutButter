@@ -106,9 +106,14 @@ namespace PeanutButter.TempDb.LocalDb
 
         protected override string GenerateConnectionString()
         {
-            return $@"Data Source=(localdb)\{InstanceName};AttachDbFilename={DatabasePath}; Initial Catalog={
-                    DatabaseName
-                };Integrated Security=True";
+            var builder = new SqlConnectionStringBuilder()
+                {
+                    DataSource = $"(localdb)\\{InstanceName}",
+                    AttachDBFilename = DatabasePath,
+                    InitialCatalog = DatabaseName,
+                    ConnectTimeout = (int)DefaultTimeout,
+                };
+            return builder.ToString();
         }
 
 
