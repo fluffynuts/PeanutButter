@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Dapper;
 using MySql.Data.MySqlClient;
 using NUnit.Framework;
 using static NExpect.Expectations;
@@ -10,6 +11,7 @@ using PeanutButter.TempDb.MySql;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using static PeanutButter.Utils.PyLike;
+
 
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -40,12 +42,17 @@ namespace PeanutButter.TempDb.Tests
             // to test, eg 5.6 vs 5.7 & effect of spaces in the path
             return new[]
                 {
-                    null,
+                    null, // will try to seek out the mysql installation
                     "C:\\apps\\mysql-5.7\\bin\\mysqld.exe",
                     "C:\\apps\\mysql-5.6\\bin\\mysqld.exe",
                     "C:\\apps\\MySQL Server 5.7\\bin\\mysqld.exe"
                 }.Where(p =>
                 {
+                    if (p == null)
+                    {
+                        return true;
+                    }
+
                     var exists = Directory.Exists(p) || File.Exists(p);
                     if (!exists)
                     {
@@ -91,43 +98,37 @@ namespace PeanutButter.TempDb.Tests
         {
             using (var sut = Create(mysqld))
             {
-                try
+                // Arrange
+                // Act
+                using (var connection = sut.CreateConnection())
+                using (var command = connection.CreateCommand())
                 {
-                    // Arrange
-                    // Act
-                    using (var connection = sut.CreateConnection())
-                    using (var command = connection.CreateCommand())
+                    command.CommandText = new[]
                     {
-                        command.CommandText = new[]
-                        {
-                            "create schema moocakes;",
-                            "use moocakes;",
-                            "create table `users` (id int, name varchar(100));",
-                            "insert into `users` (id, name) values (1, 'Daisy the cow');"
-                        }.JoinWith("\n");
-                        command.ExecuteNonQuery();
-                    }
-
-                    using (var connection = sut.CreateConnection())
-                    using (var command = connection.CreateCommand())
-                    {
-                        // Assert
-                        command.CommandText = "select * from `users`;";
-                        using (var reader = command.ExecuteReader())
-                        {
-                            Expect(reader.HasRows).To.Be.True();
-                            while (reader.Read())
-                            {
-                                Expect(reader["id"]).To.Equal(1);
-                                Expect(reader["name"]).To.Equal("Daisy the cow");
-                            }
-                        }
-                    }
+                        "create schema moocakes;",
+                        "use moocakes;",
+                        "create table `users` (id int, name varchar(100));",
+                        "insert into `users` (id, name) values (1, 'Daisy the cow');"
+                    }.JoinWith("\n");
+                    command.ExecuteNonQuery();
                 }
-                catch (MySqlException)
+
+                using (var connection = sut.CreateConnection())
                 {
+                    // Assert
+                    var users = connection.Query<User>(
+                        "use moocakes; select * from users where id > @id; ",
+                        new {id = 0});
+                    Expect(users).To.Contain.Only(1).Matched.By(u =>
+                        u.Id == 1 && u.Name == "Daisy the cow");
                 }
             }
+        }
+
+        public class User
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
         }
 
         [TestCaseSource(nameof(MySqlPathFinders))]

@@ -239,6 +239,8 @@ namespace PeanutButter.TempDb.MySql
                 UserID = "root",
                 Password = "",
                 Server = "localhost",
+                AllowUserVariables = true,
+                SslMode = MySqlSslMode.None,
                 Database = _schema
             };
             return builder.ToString();
