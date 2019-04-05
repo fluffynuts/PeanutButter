@@ -2,9 +2,9 @@
 using System.Data.SqlClient;
 using System.IO;
 using NUnit.Framework;
-using PeanutButter.RandomGenerators;
 using PeanutButter.TempDb.LocalDb;
 using PeanutButter.TestUtils.Generic;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 
 // ReSharper disable ObjectCreationAsStatement
 // ReSharper disable MemberCanBePrivate.Global
@@ -45,7 +45,7 @@ namespace PeanutButter.TempDb.Tests
         public void Construct_GivenInstanceName_ShouldUseThatName()
         {
             //---------------Set up test pack-------------------
-            var instanceName = RandomValueGen.GetRandomString();
+            var instanceName = GetRandomString();
             var sut = new LocalDbFactory(instanceName);
 
             //---------------Assert Precondition----------------
@@ -68,7 +68,7 @@ namespace PeanutButter.TempDb.Tests
             using (var destroyer = new LocalDbDestroyer())
             {
                 var sut = Create();
-                var dbName = RandomValueGen.GetRandomAlphaNumericString(5, 10);
+                var dbName = GetRandomAlphaNumericString(5, 10);
                 var dbFile = Path.GetTempFileName() + ".sdb";
                 destroyer.DatabaseFile = dbFile;
                 destroyer.DatabaseName = dbName;

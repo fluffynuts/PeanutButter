@@ -23,6 +23,15 @@
   <ProjectReference Include="..\..\Win32Service\PeanutButter.WindowsServiceManagement\PeanutButter.WindowsServiceManagement.csproj" />
 </ItemGroup>
 <ItemGroup>
-  <Reference Include="System.ServiceProcess"  />
+  <Reference Include="System.ServiceProcess" />
+</ItemGroup>
+<ItemGroup>
+  <Compile Remove="Properties\**" />
+</ItemGroup>
+<ItemGroup>
+  <EmbeddedResource Remove="Properties\**" />
+</ItemGroup>
+<ItemGroup>
+  <None Remove="Properties\**" />
 </ItemGroup>
 </Project>

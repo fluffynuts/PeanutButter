@@ -37,6 +37,9 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="PeanutButter.RandomGenerators, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\NugetPackageVersionIncrementer.Tests\bin\Debug\PeanutButter.RandomGenerators.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
@@ -66,10 +69,6 @@
     <ProjectReference Include="..\..\INI\PeanutButter.INI\PeanutButter.INI.csproj">
       <Project>{64644CCE-0CC9-4CE5-BF0E-E45E425F6339}</Project>
       <Name>PeanutButter.INI</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj">
-      <Project>{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}</Project>
-      <Name>PeanutButter.RandomGenerators</Name>
     </ProjectReference>
     <ProjectReference Include="..\PeanutButter.TempDb.LocalDb\PeanutButter.TempDb.LocalDb.csproj">
       <Project>{DA294B3F-58C7-4255-B6AA-82C2393DA49F}</Project>
