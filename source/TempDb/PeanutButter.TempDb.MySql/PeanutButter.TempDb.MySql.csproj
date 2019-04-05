@@ -1,92 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{95BF1B4E-33FF-44CB-BEC9-5DCB4C8C26EF}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PeanutButter.TempDb.MySql</RootNamespace>
-    <AssemblyName>PeanutButter.TempDb.MySql</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="Google.Protobuf, Version=3.5.1.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604">
-      <HintPath>..\..\packages\Google.Protobuf.3.5.1\lib\net45\Google.Protobuf.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="MySql.Data, Version=8.0.15.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d">
-      <HintPath>..\..\packages\MySql.Data.8.0.15\lib\net452\MySql.Data.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Configuration.Install" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Drawing.Design" />
-    <Reference Include="System.Management" />
-    <Reference Include="System.Runtime" />
-    <Reference Include="System.ServiceProcess" />
-    <Reference Include="System.Transactions" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="MySqlIniGenerator.cs" />
-    <Compile Include="TempDbMySqlServerSettings.cs" />
-    <Compile Include="SettingAttribute.cs" />
-    <Compile Include="TempDbMySql.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\INI\PeanutButter.INI\PeanutButter.INI.csproj">
-      <Project>{64644CCE-0CC9-4CE5-BF0E-E45E425F6339}</Project>
-      <Name>PeanutButter.INI</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj">
-      <Project>{EFC85343-95B4-48C3-BCBE-579EA4868C0A}</Project>
-      <Name>PeanutButter.Utils</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Win32Service\PeanutButter.WindowsServiceManagement\PeanutButter.WindowsServiceManagement.csproj">
-      <Project>{C97C82C9-8975-4367-8B5E-386F93B6130C}</Project>
-      <Name>PeanutButter.WindowsServiceManagement</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PeanutButter.TempDb\PeanutButter.TempDb.csproj">
-      <Project>{265C672B-B6F6-40F8-9180-B0BE5575ABDE}</Project>
-      <Name>PeanutButter.TempDb</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-    <None Include="Package.nuspec" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+<Project Sdk="Microsoft.NET.Sdk">
+<PropertyGroup>
+  <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
+  <DocumentationFile>bin/$(Configuration)/$(TargetFramework)/PeanutButter.SimpleHTTPServer.xml</DocumentationFile>
+  <Configurations>Debug;Release</Configurations>
+</PropertyGroup>
+<PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
+  <DefineConstants>NETSTANDARD</DefineConstants>
+</PropertyGroup>
+<PropertyGroup>
+  <DebugType>Full</DebugType>
+  <DebugSymbols>True</DebugSymbols>
+</PropertyGroup>
+<ItemGroup>
+  <PackageReference Include="MySql.Data" Version="8.0.15" />
+  <PackageReference Include="newtonsoft.json" Version="10.0.3" />
+</ItemGroup>
+<ItemGroup>
+  <ProjectReference Include="..\PeanutButter.TempDb\PeanutButter.TempDb.csproj" />
+  <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj" />
+  <ProjectReference Include="..\..\INI\PeanutButter.INI\PeanutButter.INI.csproj" />
+  <ProjectReference Include="..\..\Win32Service\PeanutButter.WindowsServiceManagement\PeanutButter.WindowsServiceManagement.csproj" />
+</ItemGroup>
+<ItemGroup>
+  <Reference Include="System.ServiceProcess"  />
+</ItemGroup>
 </Project>

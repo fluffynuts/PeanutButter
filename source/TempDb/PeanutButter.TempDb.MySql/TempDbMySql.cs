@@ -5,7 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+#if NETSTANDARD
+#else
 using System.ServiceProcess;
+#endif
 using System.Text;
 using System.Threading;
 using MySql.Data.MySqlClient;
@@ -35,6 +38,9 @@ namespace PeanutButter.TempDb.MySql
         private readonly FatalTempDbInitializationException _noMySqlInstalledException =
             new FatalTempDbInitializationException(
                 "Unable to locate MySql service via Windows service registry. Please install an instance of MySql on this machine to use temporary MySql databases.");
+        private readonly FatalTempDbInitializationException _dotNetStandardRequiresMySqlPathException =
+            new FatalTempDbInitializationException(
+                "When running from .net standard / core, it is _your_ responsibility to find the mysql binary and provide the path, even on windows. If possible, switch to .net framework 4.5.2 or higher");
 
         private string _schema;
         private AutoDeleter _autoDeleter;
@@ -88,6 +94,9 @@ namespace PeanutButter.TempDb.MySql
 
         private string QueryForMySqld()
         {
+            #if NETSTANDARD
+                throw _dotNetStandardRequiresMySqlPathException;
+            #else
             var mysqlService = ServiceController.GetServices()
                 .FirstOrDefault(s => s.ServiceName.ToLower().Contains("mysql"));
             if (mysqlService == null)
@@ -96,6 +105,7 @@ namespace PeanutButter.TempDb.MySql
             if (!util.IsInstalled)
                 throw _noMySqlInstalledException;
             return FindServiceExecutablePartIn(util.ServiceExe);
+            #endif
         }
 
         private static string FindServiceExecutablePartIn(string utilServiceExe)

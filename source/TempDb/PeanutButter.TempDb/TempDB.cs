@@ -53,7 +53,7 @@ namespace PeanutButter.TempDb
         {
             try
             {
-                if (Directory.Exists(TempDbHints.PreferredBasePath))
+                if (!Directory.Exists(TempDbHints.PreferredBasePath))
                 {
                     Directory.CreateDirectory(TempDbHints.PreferredBasePath);
                 }

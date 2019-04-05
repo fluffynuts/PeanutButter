@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.2</TargetFramework>
+        <DefineConstants>NETSTANDARD</DefineConstants>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MySql.Data" Version="8.0.15" />
+        <PackageReference Include="nexpect" Version="1.0.136" />
+        <PackageReference Include="nunit" Version="3.11.0" />
+        <PackageReference Include="NUnit3TestAdapter" Version="3.11.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
+        <PackageReference Include="System.ServiceProcess.ServiceController" Version="4.5.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\PeanutButter.TempDb.MySql\PeanutButter.TempDb.MySql.csproj" />
+      <ProjectReference Include="..\PeanutButter.TempDb\PeanutButter.TempDb.csproj" />
+    </ItemGroup>
+
+</Project>

@@ -48,7 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="nexpect">
-      <Version>1.0.100</Version>
+      <Version>1.0.136</Version>
     </PackageReference>
     <PackageReference Include="nunit">
       <Version>3.9.0</Version>
