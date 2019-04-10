@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.ServiceProcess;
 using Dapper;
 using MySql.Data.MySqlClient;
 using NUnit.Framework;
@@ -23,50 +24,6 @@ namespace PeanutButter.TempDb.Tests
     [Parallelizable(ParallelScope.None)]
     public class TestTempDbMySql
     {
-        private static TempDBMySql Create(
-            string pathToMySql = null)
-        {
-            return new TempDBMySql(
-                new TempDbMySqlServerSettings()
-                {
-                    Options =
-                    {
-                        PathToMySqlD = pathToMySql
-                    }
-                });
-        }
-
-        public static string[] MySqlPathFinders()
-        {
-            // add mysql installs at the following folders
-            // to test, eg 5.6 vs 5.7 & effect of spaces in the path
-            return new[]
-                {
-                    null, // will try to seek out the mysql installation
-                    "C:\\apps\\mysql-5.7\\bin\\mysqld.exe",
-                    "C:\\apps\\mysql-5.6\\bin\\mysqld.exe",
-                    "C:\\apps\\MySQL Server 5.7\\bin\\mysqld.exe"
-                }.Where(p =>
-                {
-                    if (p == null)
-                    {
-                        return true;
-                    }
-
-                    var exists = Directory.Exists(p) || File.Exists(p);
-                    if (!exists)
-                    {
-                        Console.WriteLine(
-                            $"WARN: specific test path for mysql not found: {p}"
-                        );
-                    }
-
-                    return exists;
-                })
-                .ToArray();
-        }
-
-
         [Test]
         public void ShouldImplement_ITempDB()
         {
@@ -92,147 +49,217 @@ namespace PeanutButter.TempDb.Tests
         }
 
 
-        [TestCaseSource(nameof(MySqlPathFinders))]
-        public void ShouldBeAbleToCreateATable_InsertData_QueryData(
-            string mysqld)
+        [TestFixture]
+        public class WhenProvidedPathToMySqlD
         {
-            using (var sut = Create(mysqld))
+            [TestCaseSource(nameof(MySqlPathFinders))]
+            public void Construction_ShouldCreateSchemaAndSwitchToIt(
+                string mysqld)
             {
                 // Arrange
+                var expectedId = GetRandomInt();
+                var expectedName = GetRandomAlphaNumericString(5);
+                // Pre-Assert
                 // Act
-                using (var connection = sut.CreateConnection())
-                using (var command = connection.CreateCommand())
+                using (var db = Create(mysqld))
                 {
-                    command.CommandText = new[]
+                    var builder = new MySqlConnectionStringBuilder(db.ConnectionString);
+                    Expect(builder.Database).Not.To.Be.Null.Or.Empty();
+                    using (var connection = db.CreateConnection())
+                    using (var command = connection.CreateCommand())
                     {
-                        "create schema moocakes;",
-                        "use moocakes;",
-                        "create table `users` (id int, name varchar(100));",
-                        "insert into `users` (id, name) values (1, 'Daisy the cow');"
-                    }.JoinWith("\n");
-                    command.ExecuteNonQuery();
-                }
+                        command.CommandText = new[]
+                        {
+                            "create table cows (id int, name varchar(128));",
+                            $"insert into cows (id, name) values ({expectedId}, '{expectedName}');"
+                        }.JoinWith("\n");
+                        command.ExecuteNonQuery();
+                    }
 
-                using (var connection = sut.CreateConnection())
-                {
-                    // Assert
-                    var users = connection.Query<User>(
-                        "use moocakes; select * from users where id > @id; ",
-                        new {id = 0});
-                    Expect(users).To.Contain.Only(1).Matched.By(u =>
-                        u.Id == 1 && u.Name == "Daisy the cow");
+                    using (var connection = db.CreateConnection())
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = "select id, name from cows;";
+                        using (var reader = command.ExecuteReader())
+                        {
+                            Expect(reader.HasRows).To.Be.True();
+                            Expect(reader.Read()).To.Be.True();
+                            Expect(reader["id"]).To.Equal(expectedId);
+                            Expect(reader["name"]).To.Equal(expectedName);
+                            Expect(reader.Read()).To.Be.False();
+                            // Assert
+                        }
+                    }
                 }
             }
-        }
 
-        public class User
-        {
-            public int Id { get; set; }
-            public string Name { get; set; }
-        }
-
-        [TestCaseSource(nameof(MySqlPathFinders))]
-        public void Construction_ShouldCreateSchemaAndSwitchToIt(
-            string mysqld)
-        {
-            // Arrange
-            var expectedId = GetRandomInt();
-            var expectedName = GetRandomAlphaNumericString(5);
-            // Pre-Assert
-            // Act
-            using (var db = Create(mysqld))
+            [Test]
+            [TestCaseSource(nameof(MySqlPathFinders))]
+            public void ShouldBeAbleToSwitch(
+                string mysqld)
             {
-                var builder = new MySqlConnectionStringBuilder(db.ConnectionString);
-                Expect(builder.Database).Not.To.Be.Null.Or.Empty();
-                using (var connection = db.CreateConnection())
-                using (var command = connection.CreateCommand())
+                using (var sut = Create(mysqld))
                 {
-                    command.CommandText = new[]
-                    {
-                        "create table cows (id int, name varchar(128));",
-                        $"insert into cows (id, name) values ({expectedId}, '{expectedName}');"
-                    }.JoinWith("\n");
-                    command.ExecuteNonQuery();
+                    // Arrange
+                    var expected = GetRandomAlphaString(5, 10);
+                    // Pre-assert
+                    var builder = new MySqlConnectionStringBuilder(sut.ConnectionString);
+                    Expect(builder.Database).To.Equal("tempdb");
+                    // Act
+                    sut.SwitchToSchema(expected);
+                    // Assert
+                    builder = new MySqlConnectionStringBuilder(sut.ConnectionString);
+                    Expect(builder.Database).To.Equal(expected);
                 }
+            }
 
-                using (var connection = db.CreateConnection())
-                using (var command = connection.CreateCommand())
+            [Test]
+            [TestCaseSource(nameof(MySqlPathFinders))]
+            public void ShouldBeAbleToSwitchBackAndForthWithoutLoss(
+                string mysqld)
+            {
+                using (var sut = Create(mysqld))
                 {
-                    command.CommandText = "select id, name from cows;";
-                    using (var reader = command.ExecuteReader())
+                    // Arrange
+                    var schema1 =
+                        "create table cows (id int, name varchar(100)); insert into cows (id, name) values (1, 'Daisy');";
+                    var schema2 =
+                        "create table bovines (id int, name varchar(100)); insert into bovines (id, name) values (42, 'Douglas');";
+                    var schema2Name = GetRandomAlphaString(4);
+                    Execute(sut, schema1);
+
+                    // Pre-assert
+                    var inSchema1 = Query(sut, "select * from cows;");
+                    Expect(inSchema1).To.Contain.Exactly(1).Item();
+                    Expect(inSchema1[0]["id"]).To.Equal(1);
+                    Expect(inSchema1[0]["name"]).To.Equal("Daisy");
+
+                    // Act
+                    sut.SwitchToSchema(schema2Name);
+                    Expect(() => Query(sut, "select * from cows;"))
+                        .To.Throw<MySqlException>();
+                    Execute(sut, schema2);
+                    var results = Query(sut, "select * from bovines;");
+
+                    // Assert
+                    Expect(results).To.Contain.Exactly(1).Item();
+                    Expect(results[0]["id"]).To.Equal(42);
+                    Expect(results[0]["name"]).To.Equal("Douglas");
+
+                    sut.SwitchToSchema("tempdb");
+                    var testAgain = Query(sut, "select * from cows;");
+                    Expect(testAgain).To.Contain.Exactly(1).Item();
+                    Expect(testAgain[0]).To.Deep.Equal(inSchema1[0]);
+                }
+            }
+
+            [TestCaseSource(nameof(MySqlPathFinders))]
+            public void ShouldBeAbleToCreateATable_InsertData_QueryData(
+                string mysqld)
+            {
+                using (var sut = Create(mysqld))
+                {
+                    // Arrange
+                    // Act
+                    using (var connection = sut.CreateConnection())
+                    using (var command = connection.CreateCommand())
                     {
-                        Expect(reader.HasRows).To.Be.True();
-                        Expect(reader.Read()).To.Be.True();
-                        Expect(reader["id"]).To.Equal(expectedId);
-                        Expect(reader["name"]).To.Equal(expectedName);
-                        Expect(reader.Read()).To.Be.False();
+                        command.CommandText = new[]
+                        {
+                            "create schema moocakes;",
+                            "use moocakes;",
+                            "create table `users` (id int, name varchar(100));",
+                            "insert into `users` (id, name) values (1, 'Daisy the cow');"
+                        }.JoinWith("\n");
+                        command.ExecuteNonQuery();
+                    }
+
+                    using (var connection = sut.CreateConnection())
+                    {
                         // Assert
+                        var users = connection.Query<User>(
+                            "use moocakes; select * from users where id > @id; ",
+                            new {id = 0});
+                        Expect(users).To.Contain.Only(1).Matched.By(u =>
+                                                                        u.Id == 1 && u.Name == "Daisy the cow");
                     }
                 }
             }
         }
 
-        [Test]
-        [TestCaseSource(nameof(MySqlPathFinders))]
-        public void ShouldBeAbleToSwitch(
-            string mysqld)
+        [TestFixture]
+        public class WhenInstalledAsWindowsService
         {
-            using (var sut = Create(mysqld))
+            [Test]
+            public void ShouldBeAbleToStartNewInstance()
             {
                 // Arrange
-                var expected = GetRandomAlphaString(5, 10);
-                // Pre-assert
-                var builder = new MySqlConnectionStringBuilder(sut.ConnectionString);
-                Expect(builder.Database).To.Equal("tempdb");
-                // Act
-                sut.SwitchToSchema(expected);
-                // Assert
-                builder = new MySqlConnectionStringBuilder(sut.ConnectionString);
-                Expect(builder.Database).To.Equal(expected);
+                Expect(() =>
+                {
+                    using (var db = Create())
+                    using (db.CreateConnection())
+                    {
+                        // Act
+                        // Assert
+                    }
+                }).Not.To.Throw();
+            }
+
+            [SetUp]
+            public void Setup()
+            {
+                var mysqlServices =
+                    ServiceController.GetServices().Where(s => s.DisplayName.ToLower().Contains("mysql"));
+                if (!mysqlServices.Any())
+                {
+                    Assert.Ignore(
+                        "Test only works when there is at least one mysql service installed and that service has 'mysql' in the name (case-insensitive)"
+                    );
+                }
             }
         }
 
-        [Test]
-        [TestCaseSource(nameof(MySqlPathFinders))]
-        public void ShouldBeAbleToSwitchBackAndForthWithoutLoss(
-            string mysqld)
+        [TestFixture]
+        [Explicit("relies on machine-specific setup")]
+        public class FindingInPath
         {
-            using (var sut = Create(mysqld))
+            [Test]
+            public void ShouldBeAbleToFindInPath_WhenIsInPath()
             {
                 // Arrange
-                var schema1 =
-                    "create table cows (id int, name varchar(100)); insert into cows (id, name) values (1, 'Daisy');";
-                var schema2 =
-                    "create table bovines (id int, name varchar(100)); insert into bovines (id, name) values (42, 'Douglas');";
-                var schema2Name = GetRandomAlphaString(4);
-                Execute(sut, schema1);
+                Expect(() =>
+                {
+                    using (var db = Create(forcePathSearch: true))
+                    using (db.CreateConnection())
+                    {
+                        // Act
+                        // Assert
+                    }
+                }).Not.To.Throw();
+            }
+            
+            private string _envPath;
 
-                // Pre-assert
-                var inSchema1 = Query(sut, "select * from cows;");
-                Expect(inSchema1).To.Contain.Exactly(1).Item();
-                Expect(inSchema1[0]["id"]).To.Equal(1);
-                Expect(inSchema1[0]["name"]).To.Equal("Daisy");
-
-                // Act
-                sut.SwitchToSchema(schema2Name);
-                Expect(() => Query(sut, "select * from cows;"))
-                    .To.Throw<MySqlException>();
-                Execute(sut, schema2);
-                var results = Query(sut, "select * from bovines;");
-
-                // Assert
-                Expect(results).To.Contain.Exactly(1).Item();
-                Expect(results[0]["id"]).To.Equal(42);
-                Expect(results[0]["name"]).To.Equal("Douglas");
-
-                sut.SwitchToSchema("tempdb");
-                var testAgain = Query(sut, "select * from cows;");
-                Expect(testAgain).To.Contain.Exactly(1).Item();
-                Expect(testAgain[0]).To.Deep.Equal(inSchema1[0]);
+            [SetUp]
+            public void Setup()
+            {
+                _envPath = Environment.GetEnvironmentVariable("PATH");
+                if (_envPath == null)
+                {
+                    throw new InvalidOperationException("How can you have no PATH variable?");
+                }
+                var modified = $"C:\\Program Files\\MySQL\\MySQL Server 5.7\\bin;{_envPath}";
+                Environment.SetEnvironmentVariable("PATH", modified);
+            }
+            
+            [TearDown]
+            public void TearDown()
+            {
+                Environment.SetEnvironmentVariable("PATH", _envPath);
             }
         }
 
-        private void Execute(
+        private static void Execute(
             ITempDB tempDb,
             string sql)
         {
@@ -244,7 +271,7 @@ namespace PeanutButter.TempDb.Tests
             }
         }
 
-        private Dictionary<string, object>[] Query(
+        private static Dictionary<string, object>[] Query(
             ITempDB tempDb,
             string sql
         )
@@ -267,6 +294,57 @@ namespace PeanutButter.TempDb.Tests
 
                 return result.ToArray();
             }
+        }
+
+        private static TempDBMySql Create(
+            string pathToMySql = null,
+            bool forcePathSearch = false)
+        {
+            return new TempDBMySql(
+                new TempDbMySqlServerSettings()
+                {
+                    Options =
+                    {
+                        PathToMySqlD = pathToMySql,
+                        ForceFindMySqlInPath = true
+                    }
+                });
+        }
+
+        public static string[] MySqlPathFinders()
+        {
+            // add mysql installs at the following folders
+            // to test, eg 5.6 vs 5.7 & effect of spaces in the path
+            return new[]
+                {
+                    null, // will try to seek out the mysql installation
+                    "C:\\apps\\mysql-5.7\\bin\\mysqld.exe",
+                    "C:\\apps\\mysql-5.6\\bin\\mysqld.exe",
+                    "C:\\apps\\MySQL Server 5.7\\bin\\mysqld.exe"
+                }.Where(p =>
+                 {
+                     if (p == null)
+                     {
+                         return true;
+                     }
+
+                     var exists = Directory.Exists(p) || File.Exists(p);
+                     if (!exists)
+                     {
+                         Console.WriteLine(
+                             $"WARN: specific test path for mysql not found: {p}"
+                         );
+                     }
+
+                     return exists;
+                 })
+                 .ToArray();
+        }
+
+        public class User
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
         }
     }
 }

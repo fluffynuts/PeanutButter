@@ -40,7 +40,7 @@ namespace PeanutButter.TempDb.MySql
                 "Unable to locate MySql service via Windows service registry. Please install an instance of MySql on this machine to use temporary MySql databases.");
         private readonly FatalTempDbInitializationException _dotNetStandardRequiresMySqlPathException =
             new FatalTempDbInitializationException(
-                "When running from .net standard / core, it is _your_ responsibility to find the mysql binary and provide the path, even on windows. If possible, switch to .net framework 4.5.2 or higher");
+                "When running from .net standard / core, you must either provide the path to mysqld or ensure that mysqld is in your PATH, even on windows.");
 
         private string _schema;
         private AutoDeleter _autoDeleter;
@@ -94,8 +94,18 @@ namespace PeanutButter.TempDb.MySql
 
         private string QueryForMySqld()
         {
+            if (Environment.OSVersion.Platform != PlatformID.Win32NT ||
+                Settings.Options.ForceFindMySqlInPath)
+            {
+                var mysqlDaemonPath = Find.InPath("mysqld");
+                if (mysqlDaemonPath != null)
+                {
+                    return mysqlDaemonPath;
+                }
+            }
+
             #if NETSTANDARD
-                throw _dotNetStandardRequiresMySqlPathException;
+            throw _dotNetStandardRequiresMySqlPathException;
             #else
             var mysqlService = ServiceController.GetServices()
                 .FirstOrDefault(s => s.ServiceName.ToLower().Contains("mysql"));

@@ -25,6 +25,11 @@ namespace PeanutButter.TempDb.MySql
             public Action<string> LogAction { get; set; } = s => Trace.WriteLine(s);
             public string PathToMySqlD { get; set; }
             public string DefaultSchema { get; set; } = "tempdb";
+            /// <summary>
+            /// Force finding mysqld in the path
+            /// -> this is the default on !windows, but it can be forced there
+            /// </summary>
+            public bool ForceFindMySqlInPath { get; set; }
         }
 
         public TempDbOptions Options { get; } = new TempDbOptions();
@@ -139,5 +144,6 @@ namespace PeanutButter.TempDb.MySql
 
         [Setting("character-set-server")]
         public string CharacterSetServer { get; set; } = "utf8";
+
     }
 }

@@ -67,6 +67,7 @@
     <Compile Include="TestExpressionHelper.cs" />
     <Compile Include="TestExtensionsForIEnumerables.cs" />
     <Compile Include="Dictionaries\TestMergeDictionary.cs" />
+    <Compile Include="TestFind.cs" />
     <Compile Include="TestLazyWithContext.cs" />
     <Compile Include="TestMetadataExtensions.cs" />
     <Compile Include="TestObjectExtensions.cs" />
