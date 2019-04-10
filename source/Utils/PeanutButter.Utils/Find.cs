@@ -25,8 +25,17 @@ namespace PeanutButter.Utils
             var extensions = IsUnixy ? new string[0] : GenerateWindowsExecutableExtensionsList();
             return paths.Aggregate(
                 null as string,
-                (acc, cur) => acc ?? SearchFor(search, cur, extensions)
+                (acc, cur) => acc ?? ValidateExecutable(SearchFor(search, cur, extensions))
             );
+        }
+
+        private static string ValidateExecutable(string filePath)
+        {
+            if (filePath == null || !IsUnixy)
+            {
+                return filePath;
+            }
+            return null;
         }
 
         private static string[] GenerateWindowsExecutableExtensionsList()

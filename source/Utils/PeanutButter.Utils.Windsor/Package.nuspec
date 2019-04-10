@@ -19,7 +19,7 @@
     <projectUrl>https://davydm.blogspot.com/search/label/PeanutButter</projectUrl>
     <repository type="git" url="https://github.com/fluffynuts/PeanutButter" />
     <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
-    <licenseUrl>https://github.com/fluffynuts/PeanutButter/blob/master/LICENSE</licenseUrl>
+    <license type="expression">BSD-3-Clause</license>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <copyright>Copyright  2016</copyright>
     <dependencies>
