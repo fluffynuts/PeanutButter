@@ -36,7 +36,22 @@ namespace PeanutButter.Utils
                 return filePath;
             }
 
-            return null;
+            using (var io = new ProcessIO("ls", "-l", filePath))
+            {
+                if (!io.Started)
+                {
+                    return null;
+                }
+
+                var first = io.StandardOutput.FirstOrDefault();
+                if (first == null)
+                {
+                    return null;
+                }
+                var parts = first.Split(' ');
+                // look for the attribs section, and assume executable if any 'x'
+                return parts[0].Contains("x") ? filePath : null;
+            }
         }
 
         private static string[] GenerateWindowsExecutableExtensionsList()
