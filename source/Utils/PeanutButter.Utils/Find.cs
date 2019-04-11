@@ -5,24 +5,24 @@ using System.Linq;
 
 namespace PeanutButter.Utils
 {
-    public class Find
+    /// <summary>
+    /// Finds files
+    /// </summary>
+    public static class Find
     {
-        private static PlatformID[] UnixOperatingSystems =
-        {
-            PlatformID.Unix,
-            PlatformID.MacOSX
-        };
+        private static readonly string PathItemSeparator = Platform.IsUnixy ? ":" : ";";
 
-        private static bool IsUnixy => UnixOperatingSystems.Contains(Environment.OSVersion.Platform);
-
-        private static readonly string PathItemSeparator = IsUnixy ? ":" : ";";
-
+        /// <summary>
+        /// Finds the first match for a given filename in the PATH
+        /// </summary>
+        /// <param name="search"></param>
+        /// <returns></returns>
         public static string InPath(string search)
         {
             var paths = (Environment.GetEnvironmentVariable("PATH") ?? "").Split(
-                new[] {PathItemSeparator},
+                new[] { PathItemSeparator },
                 StringSplitOptions.RemoveEmptyEntries);
-            var extensions = IsUnixy ? new string[0] : GenerateWindowsExecutableExtensionsList();
+            var extensions = Platform.IsUnixy ? new string[0] : GenerateWindowsExecutableExtensionsList();
             return paths.Aggregate(
                 null as string,
                 (acc, cur) => acc ?? ValidateExecutable(SearchFor(search, cur, extensions))
@@ -31,17 +31,18 @@ namespace PeanutButter.Utils
 
         private static string ValidateExecutable(string filePath)
         {
-            if (filePath == null || !IsUnixy)
+            if (filePath == null || !Platform.IsUnixy)
             {
                 return filePath;
             }
+
             return null;
         }
 
         private static string[] GenerateWindowsExecutableExtensionsList()
         {
             return (Environment.GetEnvironmentVariable("PATHEXT") ?? "")
-                .Split(new[] {";"}, StringSplitOptions.RemoveEmptyEntries);
+                .Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
         }
 
         private static string SearchFor(
@@ -66,8 +67,8 @@ namespace PeanutButter.Utils
                     }
 
                     var thisTest = $"{fullPath}{cur}";
-                    return File.Exists(thisTest) 
-                        ? thisTest 
+                    return File.Exists(thisTest)
+                        ? thisTest
                         : null;
                 });
         }

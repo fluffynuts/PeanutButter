@@ -24,7 +24,6 @@
         <dependency id="PeanutButter.TempDb" version="1.2.262" />
         <dependency id="PeanutButter.Utils" version="1.2.262" />
         <dependency id="PeanutButter.INI" version="1.2.262" />
-        <dependency id="PeanutButter.WindowsServiceManagement" version="1.2.262" />
         <dependency id="MySql.Data" version="[6.9.12,]" />
       </group>
     </dependencies>

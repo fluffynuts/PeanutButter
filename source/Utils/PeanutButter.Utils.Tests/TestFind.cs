@@ -4,13 +4,18 @@ using NExpect;
 
 namespace PeanutButter.Utils.Tests
 {
-    [Explicit("relies on machine-variant PATH")]
     [TestFixture]
     public class TestFind
     {
         [Test]
         public void ShouldBeAbleToFindNotePad()
         {
+            if (!Platform.IsWindows)
+            {
+                Assert.Ignore("Looking for notepad.exe on !windows is unlikely to succeed");
+                return;
+            }
+
             // Arrange
             var search = "notepad";
             var expected = "C:\\Windows\\system32\\notepad.EXE"; // capitalization of extension is thanks to PATHEXT

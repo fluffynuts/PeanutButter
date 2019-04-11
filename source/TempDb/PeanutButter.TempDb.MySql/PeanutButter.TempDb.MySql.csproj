@@ -20,7 +20,6 @@
   <ProjectReference Include="..\PeanutButter.TempDb\PeanutButter.TempDb.csproj" />
   <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj" />
   <ProjectReference Include="..\..\INI\PeanutButter.INI\PeanutButter.INI.csproj" />
-  <ProjectReference Include="..\..\Win32Service\PeanutButter.WindowsServiceManagement\PeanutButter.WindowsServiceManagement.csproj" />
 </ItemGroup>
 <ItemGroup>
   <Reference Include="System.ServiceProcess" />

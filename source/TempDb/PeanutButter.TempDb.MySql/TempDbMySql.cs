@@ -5,15 +5,14 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-#if NETSTANDARD
-#else
-using System.ServiceProcess;
-#endif
 using System.Text;
 using System.Threading;
 using MySql.Data.MySqlClient;
 using PeanutButter.Utils;
-using PeanutButter.WindowsServiceManagement;
+// ReSharper disable IdentifierTypo
+// ReSharper disable StringLiteralTypo
+// ReSharper disable CommentTypo
+// ReSharper disable UnusedMember.Global
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
@@ -21,6 +20,9 @@ using PeanutButter.WindowsServiceManagement;
 namespace PeanutButter.TempDb.MySql
 {
     // ReSharper disable once InconsistentNaming
+    /// <summary>
+    /// MySql flavor of TempDb
+    /// </summary>
     public class TempDBMySql : TempDB<MySqlConnection>
     {
         /// <summary>
@@ -35,21 +37,35 @@ namespace PeanutButter.TempDb.MySql
         private static readonly object MysqldLock = new object();
         private static string _mysqld;
 
-        private readonly FatalTempDbInitializationException _noMySqlInstalledException =
+        #if NETSTANDARD
+        private readonly FatalTempDbInitializationException _noMySqlFoundException =
             new FatalTempDbInitializationException(
-                "Unable to locate MySql service via Windows service registry. Please install an instance of MySql on this machine to use temporary MySql databases.");
-        private readonly FatalTempDbInitializationException _dotNetStandardRequiresMySqlPathException =
+                "Unable to detect an installed mysqld. Either supply a path as part of your initializing parameters or ensure that mysqld is in your PATH"
+                );
+        #else
+        private readonly FatalTempDbInitializationException _noMySqlFoundException =
             new FatalTempDbInitializationException(
-                "When running from .net standard / core, you must either provide the path to mysqld or ensure that mysqld is in your PATH, even on windows.");
+                "Unable to detect an installed mysqld. Either supply a path as part of your initializing parameters or ensure that mysqld is in your PATH or install as a windows service"
+                );
+        #endif
 
         private string _schema;
         private AutoDeleter _autoDeleter;
 
+        /// <summary>
+        /// Construct a TempDbMySql with zero or more creation scripts and default options
+        /// </summary>
+        /// <param name="creationScripts"></param>
         public TempDBMySql(params string[] creationScripts)
             : this(new TempDbMySqlServerSettings(), creationScripts)
         {
         }
 
+        /// <summary>
+        /// Create a TempDbMySql instance with provided options and zero or more creation scripts
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <param name="creationScripts"></param>
         public TempDBMySql(
             TempDbMySqlServerSettings settings,
             params string[] creationScripts
@@ -63,6 +79,13 @@ namespace PeanutButter.TempDb.MySql
         {
         }
 
+        /// <summary>
+        /// Create a TempDbMySql instance with provided options, an action to run before initializing and
+        /// zero or more creation scripts
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <param name="beforeInit"></param>
+        /// <param name="creationScripts"></param>
         public TempDBMySql(
             TempDbMySqlServerSettings settings,
             Action<object> beforeInit,
@@ -94,7 +117,7 @@ namespace PeanutButter.TempDb.MySql
 
         private string QueryForMySqld()
         {
-            if (Environment.OSVersion.Platform != PlatformID.Win32NT ||
+            if (Platform.IsUnixy ||
                 Settings.Options.ForceFindMySqlInPath)
             {
                 var mysqlDaemonPath = Find.InPath("mysqld");
@@ -104,39 +127,20 @@ namespace PeanutButter.TempDb.MySql
                 }
             }
 
-            #if NETSTANDARD
-            throw _dotNetStandardRequiresMySqlPathException;
-            #else
-            var mysqlService = ServiceController.GetServices()
-                .FirstOrDefault(s => s.ServiceName.ToLower().Contains("mysql"));
-            if (mysqlService == null)
-                throw _noMySqlInstalledException;
-            var util = new WindowsServiceUtil(mysqlService.ServiceName);
-            if (!util.IsInstalled)
-                throw _noMySqlInstalledException;
-            return FindServiceExecutablePartIn(util.ServiceExe);
-            #endif
-        }
-
-        private static string FindServiceExecutablePartIn(string utilServiceExe)
-        {
-            var strings = utilServiceExe.Split(' ');
-            var parts = strings;
-            var offset = 0;
-            var mysqldPath = new List<string>();
-
-            do
+            if (Platform.IsWindows)
             {
-                var thisPart = parts.Skip(offset).FirstOrDefault();
-                if (thisPart == null)
-                    break;
-                mysqldPath.Add(thisPart);
-                offset++;
-            } while (mysqldPath.JoinWith(" ").Count(c => c == '"') % 2 == 1);
+                var path = MySqlWindowsServiceFinder.FindPathToMySql();
+                if (path != null)
+                {
+                    return path;
+                }
+            }
 
-            return mysqldPath.JoinWith(" ").Trim('"');
+
+            throw _noMySqlFoundException;
         }
 
+        /// <inheritdoc />
         protected override void CreateDatabase()
         {
             var mysqld = Settings?.Options?.PathToMySqlD ?? FindInstalledMySqlD();
@@ -164,6 +168,11 @@ namespace PeanutButter.TempDb.MySql
             SwitchToSchema(schema);
         }
 
+        /// <summary>
+        /// Switches to the provided schema name for connections from now on.
+        /// Creates the schema if not already present.
+        /// </summary>
+        /// <param name="schema"></param>
         public void SwitchToSchema(string schema)
         {
             using (var connection = CreateConnection())
@@ -199,6 +208,7 @@ namespace PeanutButter.TempDb.MySql
             return outputFile;
         }
 
+        /// <inheritdoc />
         public override void Dispose()
         {
             try
@@ -251,6 +261,7 @@ namespace PeanutButter.TempDb.MySql
             }
         }
 
+        /// <inheritdoc />
         protected override string GenerateConnectionString()
         {
             var builder = new MySqlConnectionStringBuilder

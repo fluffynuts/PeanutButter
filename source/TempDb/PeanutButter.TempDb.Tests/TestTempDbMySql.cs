@@ -179,11 +179,41 @@ namespace PeanutButter.TempDb.Tests
                         // Assert
                         var users = connection.Query<User>(
                             "use moocakes; select * from users where id > @id; ",
-                            new {id = 0});
+                            new { id = 0 });
                         Expect(users).To.Contain.Only(1).Matched.By(u =>
                                                                         u.Id == 1 && u.Name == "Daisy the cow");
                     }
                 }
+            }
+
+            public static string[] MySqlPathFinders()
+            {
+                // add mysql installs at the following folders
+                // to test, eg 5.6 vs 5.7 & effect of spaces in the path
+                return new[]
+                    {
+                        null, // will try to seek out the mysql installation
+                        "C:\\apps\\mysql-5.7\\bin\\mysqld.exe",
+                        "C:\\apps\\mysql-5.6\\bin\\mysqld.exe",
+                        "C:\\apps\\MySQL Server 5.7\\bin\\mysqld.exe"
+                    }.Where(p =>
+                     {
+                         if (p == null)
+                         {
+                             return true;
+                         }
+
+                         var exists = Directory.Exists(p) || File.Exists(p);
+                         if (!exists)
+                         {
+                             Console.WriteLine(
+                                 $"WARN: specific test path for mysql not found: {p}"
+                             );
+                         }
+
+                         return exists;
+                     })
+                     .ToArray();
             }
         }
 
@@ -237,7 +267,7 @@ namespace PeanutButter.TempDb.Tests
                     }
                 }).Not.To.Throw();
             }
-            
+
             private string _envPath;
 
             [SetUp]
@@ -248,10 +278,11 @@ namespace PeanutButter.TempDb.Tests
                 {
                     throw new InvalidOperationException("How can you have no PATH variable?");
                 }
+
                 var modified = $"C:\\Program Files\\MySQL\\MySQL Server 5.7\\bin;{_envPath}";
                 Environment.SetEnvironmentVariable("PATH", modified);
             }
-            
+
             [TearDown]
             public void TearDown()
             {
@@ -311,35 +342,6 @@ namespace PeanutButter.TempDb.Tests
                 });
         }
 
-        public static string[] MySqlPathFinders()
-        {
-            // add mysql installs at the following folders
-            // to test, eg 5.6 vs 5.7 & effect of spaces in the path
-            return new[]
-                {
-                    null, // will try to seek out the mysql installation
-                    "C:\\apps\\mysql-5.7\\bin\\mysqld.exe",
-                    "C:\\apps\\mysql-5.6\\bin\\mysqld.exe",
-                    "C:\\apps\\MySQL Server 5.7\\bin\\mysqld.exe"
-                }.Where(p =>
-                 {
-                     if (p == null)
-                     {
-                         return true;
-                     }
-
-                     var exists = Directory.Exists(p) || File.Exists(p);
-                     if (!exists)
-                     {
-                         Console.WriteLine(
-                             $"WARN: specific test path for mysql not found: {p}"
-                         );
-                     }
-
-                     return exists;
-                 })
-                 .ToArray();
-        }
 
         public class User
         {

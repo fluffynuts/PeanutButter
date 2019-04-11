@@ -5,10 +5,19 @@ using PeanutButter.Utils;
 
 namespace PeanutButter.TempDb.MySql
 {
+    /// <summary>
+    /// Generates MySql configuiration from TempDbMySqlServerSettings
+    /// </summary>
     public class MySqlConfigGenerator
     {
         private const string SECTION = "mysqld";
 
+        /// <summary>
+        /// Generates MySql configuiration from TempDbMySqlServerSettings
+        /// </summary>
+        /// <param name="tempDbMySqlSettings"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public string GenerateFor(TempDbMySqlServerSettings tempDbMySqlSettings)
         {
             if (tempDbMySqlSettings == null) throw new ArgumentNullException(nameof(tempDbMySqlSettings));
