@@ -273,6 +273,13 @@ namespace PeanutButter.TempDb.Tests
             [SetUp]
             public void Setup()
             {
+                if (Platform.IsUnixy)
+                {
+                    // allow this test to be run on a unixy platform where
+                    //  mysqld is actually in the path
+                    return;
+                }
+
                 _envPath = Environment.GetEnvironmentVariable("PATH");
                 if (_envPath == null)
                 {
