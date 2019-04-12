@@ -127,7 +127,15 @@ namespace PeanutButter.Utils
         {
             if (!_process?.HasExited ?? false)
             {
-                _process?.Kill();
+                try
+                {
+                    _process?.Kill();
+                }
+                catch
+                {
+                    /* intentionally suppressed */
+                }
+
                 _process?.Dispose();
             }
 
