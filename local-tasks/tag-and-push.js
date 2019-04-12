@@ -13,7 +13,7 @@ gulp.task("tag-and-push", () => {
           version = node[0].trim();
 
         gutil.log(gutil.colors.cyan(`Tagging at: "v${version}"`));
-        addTag(`v${version}`, `chore: release v${version}`)
+        addTag(`v${version}`, `:bookmark: release v${version}`)
           .then(pushTags)
           .then(push)
           .then(resolve)

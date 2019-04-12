@@ -17,7 +17,7 @@ gulp.task("commit-release", () => {
           if (err) {
             reject(`Unable to add all files: ${err}`);
           }
-          git.commit(`chore: release version ${version}`, err => {
+          git.commit(`:bookmark: release version ${version}`, err => {
             return err
               ? reject(`Unable to commit release ${version}: ${err}`)
               : resolve(`Release ${version} committed`);
