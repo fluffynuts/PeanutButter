@@ -30,6 +30,11 @@ namespace PeanutButter.Utils
         /// Read lines from stderr
         /// </summary>
         IEnumerable<string> StandardError { get; }
+
+        /// <summary>
+        /// Access to the underlying Process
+        /// </summary>
+        Process Process { get; }
     }
 
     /// <inheritdoc />
@@ -41,6 +46,8 @@ namespace PeanutButter.Utils
         /// <inheritdoc />
         public Exception StartException { get; }
 
+        /// <inheritdoc />
+        public Process Process => _process;
         private Process _process;
 
         /// <inheritdoc />
