@@ -1,7 +1,7 @@
 <package>
   <metadata>
     <id>PeanutButter.FluentMigrator</id>
-    <version>1.2.267</version>
+    <version>1.2.268</version>
     <title>PeanutButter.FluentMigrator</title>
     <authors>Davyd McColl</authors>
     <owners></owners>
@@ -24,7 +24,7 @@
       <group targetFramework="net40">
         <dependency id="FluentMigrator" version="1.6.1" />
         <dependency id="FluentMigrator.Tools" version="1.6.1" />
-        <dependency id="PeanutButter.Utils" version="1.2.267" />
+        <dependency id="PeanutButter.Utils" version="1.2.268" />
       </group>
     </dependencies>
     <references></references>
