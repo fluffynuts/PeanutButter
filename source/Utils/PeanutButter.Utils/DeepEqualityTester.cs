@@ -72,6 +72,11 @@ namespace PeanutButter.Utils
         /// Toggle only testing the shape of the objects provided.
         /// </summary>
         public bool OnlyCompareShape { get; set; }
+        
+        /// <summary>
+        /// Include full object dumps when storing errors about property mismatches
+        /// </summary>
+        public bool VerbosePropertyMismatchErrors { get; set; } = true;
 
         private List<string> _errors;
 
@@ -237,7 +242,7 @@ namespace PeanutButter.Utils
             var method = TryCompareWithCustomComparerGenericMethod.MakeGenericMethod(left.GetType());
             try
             {
-                return (bool?) method.Invoke(this, new[] {left, right});
+                return (bool?) method.Invoke(this, new[] { left, right });
             }
             catch
             {
@@ -305,7 +310,7 @@ namespace PeanutButter.Utils
                 sourceItemType,
                 compareItemType
             );
-            return (bool) method.Invoke(this, new[] {objSource, objCompare});
+            return (bool) method.Invoke(this, new[] { objSource, objCompare });
         }
 
         private static Type GetItemTypeFor(Type collectionType)
@@ -316,7 +321,7 @@ namespace PeanutButter.Utils
         private static readonly MethodInfo DeepCollectionCompareGenericMethod =
 #if NETSTANDARD
             typeof(DeepEqualityTester).GetRuntimeMethods()
-                .FirstOrDefault(mi => mi.Name == nameof(DeepCollectionCompare));
+                                      .FirstOrDefault(mi => mi.Name == nameof(DeepCollectionCompare));
 #else
             typeof(DeepEqualityTester).GetMethod(
                 nameof(DeepCollectionCompareGeneric),
@@ -466,8 +471,8 @@ namespace PeanutButter.Utils
             var compareProps = tester.GetPropertiesAndFieldsOf(compareType);
             if (!tester.FailOnMissingProperties)
                 compareProps = compareProps
-                    .Where(cp => srcProps.Any(sp => sp.Name == cp.Name))
-                    .ToArray();
+                               .Where(cp => srcProps.Any(sp => sp.Name == cp.Name))
+                               .ToArray();
             return compareProps.Any() && compareProps.All(cp => srcProps.Any(sp => sp.Name == cp.Name));
         }
 
@@ -557,23 +562,24 @@ namespace PeanutButter.Utils
         {
             var props = sourceType
 #if NETSTANDARD
-                .GetRuntimeProperties().Where(pi => pi.GetAccessors().Any(a => a.IsPublic)).ToArray()
+                        .GetRuntimeProperties().Where(pi => pi.GetAccessors().Any(a => a.IsPublic)).ToArray()
 #else
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
 #endif
-                .Encapsulate()
-                .Where(pi => !_ignorePropertiesByName.Contains(pi.Name))
-                .ToArray();
+                        .Encapsulate()
+                        .Where(pi => !_ignorePropertiesByName.Contains(pi.Name))
+                        .ToArray();
             if (IncludeFields)
             {
                 var fields = sourceType
 #if NETSTANDARD
-                    .GetRuntimeFields().Where(fi => fi.IsPublic).ToArray() //.Where(fi => fi.IsPublic).ToArray()
+                             .GetRuntimeFields().Where(fi => fi.IsPublic)
+                             .ToArray() //.Where(fi => fi.IsPublic).ToArray()
 #else
                     .GetFields(BindingFlags.Public | BindingFlags.Instance)
 #endif
-                    .Encapsulate()
-                    .Where(o => !_ignorePropertiesByName.Contains(o.Name));
+                             .Encapsulate()
+                             .Where(o => !_ignorePropertiesByName.Contains(o.Name));
                 props = props.And(fields.ToArray());
             }
 
@@ -597,11 +603,11 @@ namespace PeanutButter.Utils
         )
         {
             var result = left.Where(
-                    s =>
-                        FindMatchingPropertyInfoFor(s, right) !=
-                        null // right.Any(c => c.Name == s.Name && c.Type == s.Type)
-                )
-                .ToArray();
+                                 s =>
+                                     FindMatchingPropertyInfoFor(s, right) !=
+                                     null // right.Any(c => c.Name == s.Name && c.Type == s.Type)
+                             )
+                             .ToArray();
             if (result.IsEmpty())
                 AddError("No intersecting properties found");
             return result;
@@ -653,13 +659,24 @@ namespace PeanutButter.Utils
                 : MatchPropertiesOrCollection(srcValue, compareValue, srcProp, compareProp);
             if (!result)
             {
+                var error = new[]
+                {
+                    $"{(srcProp.MemberType == PropertyOrFieldTypes.Property ? "Property" : "Field")}",
+                    $"value mismatch for {srcProp.Name}: {srcValue.Stringify()} vs {compareValue.Stringify()}"
+                };
+                if (VerbosePropertyMismatchErrors)
+                {
+                    error = error.And($"when comparing {objSource.Stringify()} and {objCompare.Stringify()}");
+                }
+
                 AddError(
-                    $"Property value mismatch for {srcProp.Name}: {objSource.Stringify()} vs {objCompare.Stringify()}"
+                    error.JoinWith(" ")
                 );
             }
 
             return result;
         }
+
 
         private bool MatchPropertiesOrCollection(
             object srcValue,
@@ -694,8 +711,8 @@ namespace PeanutButter.Utils
             var t2 = compareEnumerableInterface.GenericTypeArguments[0];
 #if NETSTANDARD
             var genericMethod = GetType()
-                .GetRuntimeMethods()
-                .Single(mi => mi.Name == nameof(TestCollectionsMatch));
+                                .GetRuntimeMethods()
+                                .Single(mi => mi.Name == nameof(TestCollectionsMatch));
 #else
             var genericMethod = GetType()
                 .GetMethod(nameof(TestCollectionsMatch),
@@ -706,7 +723,7 @@ namespace PeanutButter.Utils
                     $"No '{nameof(TestCollectionsMatch)}' method found on {GetType().PrettyName()}"
                 );
             var typedMethod = genericMethod.MakeGenericMethod(t1, t2);
-            return (bool) typedMethod.Invoke(this, new[] {srcValue, compareValue});
+            return (bool) typedMethod.Invoke(this, new[] { srcValue, compareValue });
         }
 
 
@@ -763,7 +780,7 @@ namespace PeanutButter.Utils
         private static Type TryGetEnumerableInterfaceFor(PropertyOrField prop)
         {
             return prop.Type
-                .TryGetEnumerableInterface();
+                       .TryGetEnumerableInterface();
         }
 
         private readonly List<object> _customComparers = new List<object>();
