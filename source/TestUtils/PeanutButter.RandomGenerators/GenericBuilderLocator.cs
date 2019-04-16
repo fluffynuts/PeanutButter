@@ -133,9 +133,6 @@ namespace PeanutButter.RandomGenerators
 
         internal static Type TryFindBuilderInAnyOtherAssemblyInAppDomainFor(Type propertyType)
         {
-#if NETSTANDARD
-            return null;    // FIXME: can we use https://stackoverflow.com/questions/30007264/get-available-types-in-coreclr
-#else
             try
             {
                 LoadImmediateAssembliesIfRequired();
@@ -156,18 +153,12 @@ namespace PeanutButter.RandomGenerators
             }
             catch (Exception ex)
             {
-#if NETSTANDARD
-#else
                 Trace.WriteLine("Error whilst searching for user builder for type '" + propertyType.PrettyName() +
                                 "' in all loaded assemblies: " + ex.Message);
-#endif
                 return null;
             }
-#endif
         }
 
-#if NETSTANDARD
-#else
         private static readonly object ReferenceLoadLock = new object();
         private static bool _haveLoadedImmediateAssemblies;
         private static void LoadImmediateAssembliesIfRequired()
@@ -211,7 +202,6 @@ namespace PeanutButter.RandomGenerators
                 Debug.WriteLine($"Unable to enumerate referenced assemblies for {asm.FullName}: {ex.Message}");
             }
         }
-#endif
 
         private static Type TryFindBuilderInCurrentAssemblyFor(Type propType)
         {
