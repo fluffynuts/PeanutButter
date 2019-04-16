@@ -557,7 +557,7 @@ namespace PeanutButter.Utils
         {
             var props = sourceType
 #if NETSTANDARD
-                .GetRuntimeProperties().ToArray()
+                .GetRuntimeProperties().Where(pi => pi.GetAccessors().Any(a => a.IsPublic)).ToArray()
 #else
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
 #endif
@@ -568,7 +568,7 @@ namespace PeanutButter.Utils
             {
                 var fields = sourceType
 #if NETSTANDARD
-                    .GetRuntimeFields().ToArray()
+                    .GetRuntimeFields().Where(fi => fi.IsPublic).ToArray() //.Where(fi => fi.IsPublic).ToArray()
 #else
                     .GetFields(BindingFlags.Public | BindingFlags.Instance)
 #endif
