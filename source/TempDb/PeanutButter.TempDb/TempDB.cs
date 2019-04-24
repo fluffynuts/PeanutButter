@@ -75,6 +75,10 @@ namespace PeanutButter.TempDb
                     AttemptToCreateDatabaseWith(Path.GetTempPath());
                     TempDbHints.PreferredBasePath = TempDbHints.DefaultBasePath;
                 }
+                else
+                {
+                    throw;
+                }
             }
 
             RunScripts(creationScripts);
