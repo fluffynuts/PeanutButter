@@ -17,12 +17,9 @@ namespace PeanutButter.TempDb.MySql
         public static string FindPathToMySql()
         {
             var mysqlServiceName = FindFirstMySqlServiceName();
-            if (mysqlServiceName == null)
-            {
-                throw new Exception("Unable to find a Mysql service");
-            }
-
-            return FindPathForService(mysqlServiceName);
+            return mysqlServiceName == null 
+                ? null 
+                : FindPathForService(mysqlServiceName);
         }
 
         private static string FindPathForService(string mysqlServiceName)
