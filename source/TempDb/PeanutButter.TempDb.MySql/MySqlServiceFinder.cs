@@ -50,7 +50,7 @@ namespace PeanutButter.TempDb.MySql
 
         private static string FindFirstMySqlServiceName()
         {
-            using (var io = new ProcessIO("sc", "query"))
+            using (var io = new ProcessIO("sc", "query", "state=", "all"))
             {
                 return io.StandardOutput
                          .FirstOrDefault(
