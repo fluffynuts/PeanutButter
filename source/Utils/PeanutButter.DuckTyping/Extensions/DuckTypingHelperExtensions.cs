@@ -392,15 +392,6 @@ namespace PeanutButter.DuckTyping.Extensions
             return outer;
         }
 
-        private static readonly Type NullableGeneric = typeof(Nullable<>);
-
-//        internal static bool IsNullableType(this Type t)
-//        {
-//            return t != null &&
-//                t.IsGenericType &&
-//                t.GetGenericTypeDefinition() == NullableGeneric;
-//        }
-        
         private static readonly ConcurrentDictionary<Type, bool> NullableTypes = new ConcurrentDictionary<Type, bool>();
 
         internal static bool IsNullableType(this Type arg)
