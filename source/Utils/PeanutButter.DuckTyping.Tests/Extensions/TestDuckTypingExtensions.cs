@@ -1352,7 +1352,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
         [Test]
         public void
-            DuckAs_OperatingOnDictionary_WhenSourcePropertyIsNullableAndMissing_SHouldDuckAsNullProperty()
+            FuzzyDuckAs_OperatingOnDictionary_WhenSourcePropertyIsGenericNullableAndMissing_ShouldDuckAsNullProperty()
         {
             //--------------- Arrange -------------------
             var input = new Dictionary<string, object>();
@@ -1360,12 +1360,30 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var result = input.DuckAs<IHasNullableId>();
+            var result = input.FuzzyDuckAs<IHasNullableId>();
 
             //--------------- Assert -----------------------
 
             Expect(result).Not.To.Be.Null();
             Expect(result.Id).To.Be.Null();
+        }
+        
+        [Test]
+        public void
+            FuzzyDuckAs_OperatingOnDictionary_WhenSourcePropertyIsNullableTypeAndMissing_ShouldDuckAsNullProperty()
+        {
+            //--------------- Arrange -------------------
+            var input = new Dictionary<string, string>();
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            var result = input.FuzzyDuckAs<IHasReadOnlyName>();
+
+            //--------------- Assert -----------------------
+
+            Expect(result).Not.To.Be.Null();
+            Expect(result.Name).To.Be.Null();
         }
 
         public interface IHasNullableReadonlyId
@@ -1732,6 +1750,11 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             string BaseUrl { get; set; }
         }
 
+        public interface IConfig2
+        {
+            int Port { get; set; }
+        }
+
         [Test]
         public void DuckAs_OperatingOnStringStringDictionary_WhenCanDuck_ShouldDuck()
         {
@@ -2007,16 +2030,16 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                     public void GivenKeyTransformFunctions_AndCantDuck_ShouldReturnNull()
                     {
                         // Arrange
-                        var expected = GetRandomHttpUrl();
+                        var expected = GetRandomInt();
                         var data = new Dictionary<string, object>
                         {
-                            ["Config.BasEUrl"] = expected
+                            ["Config.Port"] = expected
                         };
 
                         // Pre-Assert
 
                         // Act
-                        var result = data.FuzzyDuckAs<IConfig>(
+                        var result = data.FuzzyDuckAs<IConfig2>(
                             s => "Config." + s,
                             s => s.RegexReplace("Config.", GetRandomString(7)));
 
@@ -2097,16 +2120,16 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 FuzzyDuckAs_OperatingOnDictionary_WhenGivenKeyTransformFunctionsAndMustThrowIsTrue_AndCannotDuck_ShouldThrow()
             {
                 // Arrange
-                var expected = GetRandomHttpUrl();
+                var expected = GetRandomInt();
                 var data = new Dictionary<string, object>
                 {
-                    ["Config.BAseURlMoo"] = expected
+                    ["Config.PortMoo"] = expected
                 };
 
                 // Pre-Assert
 
                 // Act
-                Expect(() => data.FuzzyDuckAs<IConfig>(s => "Config." + s,
+                Expect(() => data.FuzzyDuckAs<IConfig2>(s => "Config." + s,
                                                        s => s.RegexReplace("Config.", ""),
                                                        true))
                     .To.Throw<UnDuckableException>();
@@ -2139,14 +2162,14 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 FuzzyDuckAs_OperatingOnNameValueCollection_WhenGivenKeyTransformFunctionsAndNoThrow_AndCantDuck_ShouldReturnNull()
             {
                 // Arrange
-                var expected = GetRandomHttpUrl();
-                var data = new NameValueCollection {["Config.BasEUrl"] = expected};
+                var expected = GetRandomInt();
+                var data = new NameValueCollection {["Config.Port"] = expected.ToString()};
 
                 // Pre-Assert
 
                 // Act
                 var result =
-                    data.FuzzyDuckAs<IConfig>(s => "Config." + s,
+                    data.FuzzyDuckAs<IConfig2>(s => "Config." + s,
                                               s => s.RegexReplace("Config.", "moo"));
 
                 // Assert
@@ -2234,17 +2257,17 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                     FuzzyDuckAs_OperatingOnDictionary_WhenGivenKeyPrefix_AndCannotDuck_ShouldReturnNull()
                 {
                     // Arrange
-                    var expected = GetRandomHttpUrl();
+                    var expected = GetRandomInt(1);
                     var prefix = GetRandomString(4) + ".";
                     var data = new Dictionary<string, object>
                     {
-                        [$"{prefix}BaseUrl123"] = expected
+                        [$"{prefix}Port123"] = expected
                     };
 
                     // Pre-Assert
 
                     // Act
-                    var result = data.FuzzyDuckAs<IConfig>(prefix);
+                    var result = data.FuzzyDuckAs<IConfig2>(prefix);
 
                     // Assert
                     Expect(result).To.Be.Null();
@@ -2255,17 +2278,17 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                     FuzzyDuckAs_OperatingOnDictionary_WhenGivenKeyPrefixAndThrowOnErrorIsTrue_AndCannotDuck_ShouldThrow()
                 {
                     // Arrange
-                    var expected = GetRandomHttpUrl();
+                    var expected = GetRandomInt();
                     var prefix = GetRandomString(4) + ".";
                     var data = new Dictionary<string, object>
                     {
-                        [$"{prefix}BaseUrl1"] = expected
+                        [$"{prefix}Port1"] = expected
                     };
 
                     // Pre-Assert
 
                     // Act
-                    Expect(() => data.FuzzyDuckAs<IConfig>(prefix, true))
+                    Expect(() => data.FuzzyDuckAs<IConfig2>(prefix, true))
                         .To.Throw<UnDuckableException>();
 
                     // Assert
@@ -2315,7 +2338,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
                 [Test]
                 public void
-                    DuckAs_OperatingOnDictionary_WhenGivenKeyPrefixAntThrowOnErrorIsTrue_AndCannotDuck_ShouldThrow()
+                    DuckAs_OperatingOnDictionary_WhenGivenKeyPrefixAndThrowOnErrorIsTrue_AndCannotDuck_ShouldThrow()
                 {
                     // Arrange
                     var expected = GetRandomHttpUrl();
@@ -2363,17 +2386,17 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             public void FuzzyDuckAs_WhenGivenKeyPrefix_AndCannotDuck_ShouldReturnNull()
             {
                 // Arrange
-                var expected = GetRandomHttpUrl();
+                var expected = GetRandomInt();
                 var prefix = GetRandomString(4) + ".";
                 var data = new NameValueCollection
                 {
-                    [$"{prefix}BaseUrl123"] = expected
+                    [$"{prefix}Port123"] = expected.ToString()
                 };
 
                 // Pre-Assert
 
                 // Act
-                var result = data.FuzzyDuckAs<IConfig>(prefix);
+                var result = data.FuzzyDuckAs<IConfig2>(prefix);
 
                 // Assert
                 Expect(result).To.Be.Null();
@@ -2381,20 +2404,20 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
             [Test]
             public void
-                FuzzyDuckAs_WhenGivenKeyPrefixAntThrowOnErrorIsTrue_AndCannotDuck_ShouldThrow()
+                FuzzyDuckAs_WhenGivenKeyPrefixAndThrowOnErrorIsTrue_AndCannotDuck_ShouldThrow()
             {
                 // Arrange
-                var expected = GetRandomHttpUrl();
+                var expected = GetRandomInt(1);
                 var prefix = GetRandomString(4) + ".";
                 var data = new NameValueCollection
                 {
-                    [$"{prefix}BaseUrl1"] = expected
+                    [$"{prefix}Port1"] = expected.ToString()
                 };
 
                 // Pre-Assert
 
                 // Act
-                Expect(() => data.FuzzyDuckAs<IConfig>(prefix, true))
+                Expect(() => data.FuzzyDuckAs<IConfig2>(prefix, true))
                     .To.Throw<UnDuckableException>();
 
                 // Assert
@@ -2443,7 +2466,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
             [Test]
             public void
-                DuckAs_WhenGivenKeyPrefixAntThrowOnErrorIsTrue_AndCannotDuck_ShouldThrow()
+                DuckAs_WhenGivenKeyPrefixAndThrowOnErrorIsTrue_AndCannotDuck_ShouldThrow()
             {
                 // Arrange
                 var expected = GetRandomHttpUrl();
@@ -2463,6 +2486,53 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             }
         }
 
+        [TestFixture]
+        public class ForcefulDefaultDucking
+        {
+            public interface IHasId
+            {
+                int Id { get; }
+            }
+
+            [TestFixture]
+            public class OperatingOnObject
+            {
+                [Test]
+                public void ShouldAllowDefaultValueForMissingReadonlyProperty()
+                {
+                    // Arrange
+                    var input = new { };
+                    // Act
+                    var result = input.ForceFuzzyDuckAs<IHasId>();
+                    // Assert
+                    Expect(result).Not.To.Be.Null();
+                    Expect(result.Id).To.Equal(default(int));
+                }
+            }
+            
+            [TestFixture]
+            public class OperatingOnDictionary
+            {
+                [Test]
+                public void ShouldAllowDefaultValueForMissingReadonlyProperty()
+                {
+                    // Arrange
+                    var input = new Dictionary<string, object>();
+                    // Act
+                    var result = input.ForceFuzzyDuckAs<IHasId>();
+                    // Assert
+                    Expect(result).Not.To.Be.Null();
+                    Expect(result.Id).To.Equal(default(int));
+                }
+
+                public interface IHasWritableId
+                {
+                    int Id { get; set; }
+                }
+            }
+        }
+
+        [TestFixture]
         public class WildFailures
         {
             public interface IBackedByDictionary
@@ -2503,6 +2573,30 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
                 Expect(result).Not.To.Be.Null();
                 Expect(result.Prop.Name).To.Equal(expected);
+            }
+
+            public interface IHasReadonlyName
+            {
+                string Name { get; }
+            }
+
+            [Test]
+            [Ignore("moo")]
+            public void FuzzyDuckAs_ShouldDuckMissingStringAsNull()
+            {
+                // Arrange
+                var src = new { };
+                // Act
+                try
+                {
+                    var result = src.FuzzyDuckAs<IHasReadonlyName>(true);
+                    // Assert
+                    Expect(result.Name).To.Be.Null();
+                }
+                catch (UnDuckableException ex)
+                {
+                    Assert.Fail(ex.Errors.JoinWith("\n"));
+                }
             }
         }
 
@@ -2679,14 +2773,14 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
             [Test]
             public void
-                WhenCantFuzzyDuckBecauseStringPropertyIsMissing_GivenShouldThrow_ShouldNotThrow()
+                WhenCantDuckBecauseStringPropertyIsMissing_GivenShouldThrow_ShouldNotThrow()
             {
                 // Arrange
                 var setting = new ConnectionStringSettings("123some string", "some value");
                 var settings = new ConnectionStringSettingsCollection() {setting};
                 // Pre-Assert
                 // Act
-                Expect(() => settings.FuzzyDuckAs<IConnectionStrings>(true))
+                Expect(() => settings.DuckAs<IConnectionStrings>(true))
                     .To.Throw<UnDuckableException>();
                 // Assert
             }

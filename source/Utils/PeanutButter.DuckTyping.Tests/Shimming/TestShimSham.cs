@@ -429,14 +429,14 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             Expect(result).To.Equal(0);
         }
 
-        private ShimSham Create(object toWrap, Type toMimick, bool isFuzzy = false)
+        private ShimSham Create(object toWrap, Type toMimick, bool isFuzzy = false, bool allowReadonlyDefaultMembers = false)
         {
-            return new ShimSham(new[] {toWrap}, toMimick, isFuzzy);
+            return new ShimSham(new[] {toWrap}, toMimick, isFuzzy, allowReadonlyDefaultMembers);
         }
 
         private ShimSham Create(Cow toWrap, bool fuzzy)
         {
-            return new ShimSham(new object[] {toWrap}, toWrap.GetType(), fuzzy);
+            return new ShimSham(new object[] {toWrap}, toWrap.GetType(), fuzzy, false);
         }
     }
 }

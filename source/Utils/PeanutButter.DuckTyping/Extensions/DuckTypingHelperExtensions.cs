@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -393,11 +394,37 @@ namespace PeanutButter.DuckTyping.Extensions
 
         private static readonly Type NullableGeneric = typeof(Nullable<>);
 
-        internal static bool IsNullableType(this Type t)
+//        internal static bool IsNullableType(this Type t)
+//        {
+//            return t != null &&
+//                t.IsGenericType &&
+//                t.GetGenericTypeDefinition() == NullableGeneric;
+//        }
+        
+        private static readonly ConcurrentDictionary<Type, bool> NullableTypes = new ConcurrentDictionary<Type, bool>();
+
+        internal static bool IsNullableType(this Type arg)
         {
-            return t != null &&
-                t.IsGenericType &&
-                t.GetGenericTypeDefinition() == NullableGeneric;
+            if (NullableTypes.TryGetValue(arg, out var cachedResult))
+            {
+                return cachedResult;
+            }
+
+            var method = GenericGetDefaultValueMethod.MakeGenericMethod(arg);
+            var defaultValueForType = method.Invoke(null, new object[] { });
+            var result = defaultValueForType == null;
+            return NullableTypes[arg] = result;
         }
+        
+        private static readonly MethodInfo GenericGetDefaultValueMethod =
+            typeof(DuckTypingHelperExtensions).GetMethod(
+                nameof(GetDefaultValueFor),
+                BindingFlags.NonPublic | BindingFlags.Static
+            );
+
+        private static T GetDefaultValueFor<T>()
+        {
+            return default(T);
+        } 
     }
 }

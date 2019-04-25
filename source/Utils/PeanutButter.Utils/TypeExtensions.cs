@@ -548,7 +548,7 @@ namespace PeanutButter.Utils
         )
         {
             var convertSpecific = TryConvertGeneric.MakeGenericMethod(target);
-            var defaultSpecific = DefaultvalueGeneric.MakeGenericMethod(src);
+            var defaultSpecific = DefaultValueGeneric.MakeGenericMethod(src);
             var defaultValue = defaultSpecific.Invoke(null, null);
             bool canConvert;
             try
@@ -575,7 +575,7 @@ namespace PeanutButter.Utils
         {
             if (_defaultTypeValues.TryGetValue(type, out var cached))
                 return cached;
-            var method = DefaultvalueGeneric.MakeGenericMethod(type);
+            var method = DefaultValueGeneric.MakeGenericMethod(type);
             var result = method.Invoke(null, null);
             _defaultTypeValues.TryAdd(type, result);
             return result;
@@ -652,7 +652,7 @@ namespace PeanutButter.Utils
             return value;
         }
 
-        private static readonly MethodInfo DefaultvalueGeneric =
+        private static readonly MethodInfo DefaultValueGeneric =
             typeof(TypeExtensions).GetMethod(nameof(DefaultValue), BindingFlags.Static | BindingFlags.NonPublic);
 
         private static T DefaultValue<T>()

@@ -97,10 +97,10 @@ namespace PeanutButter.DuckTyping.Extensions
         private static MethodInfo FindGenericDuckMethodFromObjectExtensions(string name)
         {
             return typeof(DuckTypingObjectExtensions)
-                .GetMethods(BindingFlags.Public | BindingFlags.Static)
-                .FirstOrDefault(mi => mi.Name == name &&
-                                      mi.IsGenericMethod &&
-                                      IsCorrectSignature(mi));
+                   .GetMethods(BindingFlags.Public | BindingFlags.Static)
+                   .FirstOrDefault(mi => mi.Name == name &&
+                                         mi.IsGenericMethod &&
+                                         IsCorrectSignature(mi));
         }
 
         private static bool IsCorrectSignature(MethodInfo mi)
@@ -131,16 +131,31 @@ namespace PeanutButter.DuckTyping.Extensions
         )
         {
             var specific = genericMethod.MakeGenericMethod(toType);
-            return specific.Invoke(null, new[] {src, throwOnError});
+            return specific.Invoke(null, new[] { src, throwOnError });
         }
 
-        internal static T ForceDuckAs<T>(IDictionary<string, object> src, bool allowFuzzy)
+        internal static T ForceDuckAs<T>(
+            IDictionary<string, object> src,
+            bool allowFuzzy,
+            bool allowDefaultValueForMissingProperties)
         {
-            var typeMaker = new TypeMaker();
             if (allowFuzzy && src.IsCaseSensitive())
+            {
                 src = src.ToCaseInsensitiveDictionary();
-            var type = allowFuzzy ? typeMaker.MakeTypeImplementing<T>() : typeMaker.MakeFuzzyTypeImplementing<T>();
-            return (T) Activator.CreateInstance(type, new object[] {new[] {src}});
+            }
+
+            var type = CreateDuckTypeFor<T>(allowFuzzy, allowDefaultValueForMissingProperties);
+
+            return (T) Activator.CreateInstance(type, new object[] { new[] { src } });
+        }
+
+        internal static T ForceDuckAs<T>(
+            object src,
+            bool allowFuzzy,
+            bool allowDefaultValueForMissingProperties)
+        {
+            var type = CreateDuckTypeFor<T>(allowFuzzy, allowDefaultValueForMissingProperties);
+            return (T) Activator.CreateInstance(type, new object[] { new[] { src } });
         }
 
         // ReSharper disable UnusedParameter.Global
@@ -201,9 +216,9 @@ namespace PeanutButter.DuckTyping.Extensions
         )
         {
             var properties = type
-                .GetAllImplementedInterfaces()
-                .SelectMany(itype => itype.GetProperties())
-                .Distinct(new PropertyInfoComparer());
+                             .GetAllImplementedInterfaces()
+                             .SelectMany(itype => itype.GetProperties())
+                             .Distinct(new PropertyInfoComparer());
             src = allowFuzzy && src.IsCaseSensitive()
                 ? src.ToCaseInsensitiveDictionary()
                 : src;
@@ -212,6 +227,7 @@ namespace PeanutButter.DuckTyping.Extensions
             {
                 FindDictionaryDuckErrorFor(prop, src, allowFuzzy, errors);
             }
+
             return errors;
         }
 
@@ -227,20 +243,20 @@ namespace PeanutButter.DuckTyping.Extensions
             if (result != null)
                 return result;
             var dictionaryTypes = src.GetType()
-                .GetInterfaces()
-                .Select(GetDictionaryTypes)
-                .FirstOrDefault();
+                                     .GetInterfaces()
+                                     .Select(GetDictionaryTypes)
+                                     .FirstOrDefault();
 
             if (dictionaryTypes == null || dictionaryTypes.KeyType != typeof(string))
                 return null;
 
             var method = GenericConvertDictionaryMethod.MakeGenericMethod(dictionaryTypes.ValueType);
-            return (IDictionary<string, object>) method.Invoke(null, new[] {src});
+            return (IDictionary<string, object>) method.Invoke(null, new[] { src });
         }
 
         private static readonly MethodInfo GenericConvertDictionaryMethod =
             typeof(DuckTypingExtensionSharedMethods).GetMethod(nameof(ConvertDictionary),
-                BindingFlags.Static | BindingFlags.NonPublic);
+                                                               BindingFlags.Static | BindingFlags.NonPublic);
 
         private static IDictionary<string, object> ConvertDictionary<T>(IDictionary<string, T> src)
         {
@@ -268,9 +284,9 @@ namespace PeanutButter.DuckTyping.Extensions
             if (generic != typeof(IDictionary<,>))
                 return null;
             var addParameters = t.GetMethods()
-                .Where(mi => mi.Name == "Add")
-                .Select(mi => mi.GetParameters())
-                .FirstOrDefault(p => p.Length == 2);
+                                 .Where(mi => mi.Name == "Add")
+                                 .Select(mi => mi.GetParameters())
+                                 .FirstOrDefault(p => p.Length == 2);
             if (addParameters == null)
                 return null;
             return new KeyValueTypes(addParameters[0].ParameterType, addParameters[1].ParameterType);
@@ -291,12 +307,13 @@ namespace PeanutButter.DuckTyping.Extensions
 
             if (key == null || !src.TryGetValue(key, out var stored))
             {
-                if (!prop.PropertyType.IsNullableType())
+                if (!allowFuzzy || !prop.PropertyType.IsNullableType())
                     errors.Add(
                         $"No value found for {prop.Name} and property is not nullable ({prop.PropertyType.Name})"
                     );
                 return;
             }
+
             if (stored == null)
             {
                 if (ShimShamBase.GetDefaultValueFor(targetType) != null)
@@ -305,6 +322,7 @@ namespace PeanutButter.DuckTyping.Extensions
                     );
                 return;
             }
+
             var srcType = stored.GetType();
             if (EnumConverter.TryConvert(srcType, targetType, stored, out var _))
                 return;
@@ -322,6 +340,7 @@ namespace PeanutButter.DuckTyping.Extensions
                         $"Property {prop.Name} is dictionary but can't be ducked to {targetType.Name}; examine following errors for more information:");
                     errors.AddRange(ex.Errors.Select(e => $"{prop.Name}: {e}"));
                 }
+
                 return;
             }
 
@@ -405,12 +424,13 @@ namespace PeanutButter.DuckTyping.Extensions
             if (primitiveMismatches.Any())
             {
                 AddPrimitivePropertyMismatchErrorsFor(primitiveMismatches, srcPrimitives, expectedPrimitives,
-                    allowFuzzy, errors);
+                                                      allowFuzzy, errors);
             }
+
             var accessMismatches = expectedProperties.Except(expectedPrimitives)
-                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
-                .FindAccessMismatches(srcProperties)
-                .ToArray();
+                                                     .ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
+                                                     .FindAccessMismatches(srcProperties)
+                                                     .ToArray();
             if (accessMismatches.Any())
                 AddAccessMismatchErrorsFor(srcProperties, accessMismatches, errors);
 
@@ -432,21 +452,25 @@ namespace PeanutButter.DuckTyping.Extensions
         )
         {
             var missing = mismatches
-                .Where(kvp => !srcPrimitives.ContainsKey(kvp.Key))
-                .ToArray();
+                          .Where(kvp => !srcPrimitives.ContainsKey(kvp.Key))
+                          .ToArray();
             if (missing.Any())
             {
                 errors.Add($"Missing target {Prop(missing.Length)} {NamesOf(missing)}");
                 return;
             }
+
             var accessMismatches = mismatches.Where(kvp =>
-                    !srcPrimitives[kvp.Key].IsNoMoreRestrictiveThan(expectedPrimitives[kvp.Key]))
-                .ToArray();
+//                    srcPrimitives.Keys.Contains(kvp.Key) && 
+                                                        !srcPrimitives[kvp.Key]
+                                                            .IsNoMoreRestrictiveThan(expectedPrimitives[kvp.Key]))
+                                             .ToArray();
             if (accessMismatches.Any())
             {
                 AddAccessMismatchErrorsFor(srcPrimitives, accessMismatches, errors);
                 return;
             }
+
             var typeMismatchError =
                 $"Type mismatch for {Prop(mismatches.Count)}: {GetTypeMismatchErrorsFor(mismatches, expectedPrimitives)}";
             if (!allowFuzzy)
@@ -454,6 +478,7 @@ namespace PeanutButter.DuckTyping.Extensions
                 errors.Add(typeMismatchError);
                 return;
             }
+
             if (!HaveConvertersFor(mismatches, expectedPrimitives))
             {
                 errors.Add(typeMismatchError + " and one or more could not be auto-converted");
@@ -462,7 +487,8 @@ namespace PeanutButter.DuckTyping.Extensions
 
         private static void AddAccessMismatchErrorsFor(
             Dictionary<string, PropertyInfo> srcPrimitives,
-            KeyValuePair<string, PropertyInfo>[] accessMismatches, List<string> errors)
+            KeyValuePair<string, PropertyInfo>[] accessMismatches,
+            List<string> errors)
         {
             errors.Add(
                 $"Mismatched target accessors for {MakeTargetAccessorMessageFor(accessMismatches, srcPrimitives)}");
@@ -520,6 +546,7 @@ namespace PeanutButter.DuckTyping.Extensions
                 if (!CanAutoConvert(srcType, targetType))
                     return false;
             }
+
             return true;
         }
 
@@ -534,7 +561,7 @@ namespace PeanutButter.DuckTyping.Extensions
         )
         {
             return src.Where(kvp => !others.Contains(kvp.Key))
-                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                      .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
 
         internal static T InternalDuckAs<T>(
@@ -555,8 +582,8 @@ namespace PeanutButter.DuckTyping.Extensions
             var duckType = FindOrCreateDuckTypeFor<T>(allowFuzzy);
             // ReSharper disable RedundantExplicitArrayCreation
             var ctorArgs = srcAsDict == null
-                ? new object[] {new object[] {src}}
-                : new object[] {new IDictionary<string, object>[] {srcAsDict}};
+                ? new object[] { new object[] { src } }
+                : new object[] { new IDictionary<string, object>[] { srcAsDict } };
             // ReSharper restore RedundantExplicitArrayCreation
             return (T) Activator.CreateInstance(duckType, ctorArgs);
         }
@@ -578,28 +605,36 @@ namespace PeanutButter.DuckTyping.Extensions
                 {
                     DuckTypes[key] = new TypePair();
                 }
+
                 var match = DuckTypes[key];
-                return isFuzzy ? GetFuzzyTypeFrom<T>(match) : GetTypeFrom<T>(match);
+                return isFuzzy
+                    ? GetFuzzyTypeFrom<T>(match)
+                    : GetTypeFrom<T>(match);
             }
         }
 
         private static Type GetTypeFrom<T>(TypePair match)
         {
-            return match.Type ?? (match.Type = CreateDuckTypeFor<T>(false));
+            return match.Type ?? (match.Type = CreateDuckTypeFor<T>(false, false));
         }
 
         private static Type GetFuzzyTypeFrom<T>(TypePair match)
         {
-            return match.FuzzyType ?? (match.FuzzyType = CreateDuckTypeFor<T>(true));
+            return match.FuzzyType ?? (match.FuzzyType = CreateDuckTypeFor<T>(true, false));
         }
 
 
-        private static Type CreateDuckTypeFor<T>(bool isFuzzy)
+        private static Type CreateDuckTypeFor<T>(bool isFuzzy, bool allowDefaultsForMissingProperties)
         {
             var typeMaker = new TypeMaker();
-            return isFuzzy
-                ? typeMaker.MakeFuzzyTypeImplementing<T>()
-                : typeMaker.MakeTypeImplementing<T>();
+            if (!isFuzzy)
+            {
+                return typeMaker.MakeTypeImplementing<T>();
+            }
+
+            return allowDefaultsForMissingProperties
+                ? typeMaker.MakeFuzzyDefaultingTypeImplementing<T>()
+                : typeMaker.MakeFuzzyTypeImplementing<T>();
         }
     }
 }

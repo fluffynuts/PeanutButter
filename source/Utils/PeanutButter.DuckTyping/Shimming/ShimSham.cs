@@ -19,9 +19,9 @@ namespace PeanutButter.DuckTyping.Shimming
     {
         // ReSharper disable once MemberCanBePrivate.Global
         // ReSharper disable once InconsistentNaming
-        private bool _isFuzzy { get; }
-
+        private readonly bool _isFuzzy;
         private readonly object[] _wrapped;
+        private readonly bool _allowReadonlyDefaultsForMissingMembers;
         private readonly IPropertyInfoFetcher _propertyInfoFetcher;
         private readonly Type[] _wrappedTypes;
         private readonly bool _wrappingADuck;
@@ -50,8 +50,8 @@ namespace PeanutButter.DuckTyping.Shimming
         /// <param name="toWrap">Objects to wrap (wip: only the first object is considered)</param>
         /// <param name="interfaceToMimick">Interface type to mimick</param>
         /// <param name="isFuzzy">Flag allowing or preventing approximation</param>
-        public ShimSham(object[] toWrap, Type interfaceToMimick, bool isFuzzy)
-            : this(toWrap, interfaceToMimick, isFuzzy, new DefaultPropertyInfoFetcher())
+        public ShimSham(object[] toWrap, Type interfaceToMimick, bool isFuzzy, bool allowReadonlyDefaultMembers)
+            : this(toWrap, interfaceToMimick, isFuzzy, allowReadonlyDefaultMembers, new DefaultPropertyInfoFetcher())
         {
         }
 
@@ -63,8 +63,8 @@ namespace PeanutButter.DuckTyping.Shimming
         /// <param name="isFuzzy">Flag allowing or preventing approximation</param>
         /// <exception cref="ArgumentNullException">Thrown if the mimick interface or property info fetch are null</exception>
         // ReSharper disable once UnusedMember.Global
-        public ShimSham(object toWrap, Type interfaceToMimick, bool isFuzzy)
-            : this(new[] {toWrap}, interfaceToMimick, isFuzzy)
+        public ShimSham(object toWrap, Type interfaceToMimick, bool isFuzzy, bool allowReadonlyDefaultMembers)
+            : this(new[] {toWrap}, interfaceToMimick, isFuzzy, allowReadonlyDefaultMembers)
         {
         }
 
@@ -74,6 +74,7 @@ namespace PeanutButter.DuckTyping.Shimming
         /// <param name="toWrap">Objects to wrap (wip: only the first object is considered)</param>
         /// <param name="interfaceToMimick">Interface type to mimick</param>
         /// <param name="isFuzzy">Flag allowing or preventing approximation</param>
+        /// <param name="allowReadonlyDefaultsForMissingMembers">Whether to allow returning default(T) for properties which are missing on the wrapped source(s)</param>
         /// <param name="propertyInfoFetcher">Utility to fetch property information from the provided object and interface type</param>
         /// <exception cref="ArgumentNullException">Thrown if the mimick interface or property info fetch are null</exception>
         // ReSharper disable once MemberCanBePrivate.Global
@@ -81,6 +82,7 @@ namespace PeanutButter.DuckTyping.Shimming
             object[] toWrap,
             Type interfaceToMimick,
             bool isFuzzy,
+            bool allowReadonlyDefaultsForMissingMembers,
             IPropertyInfoFetcher propertyInfoFetcher)
         {
             if (interfaceToMimick == null)
@@ -88,6 +90,7 @@ namespace PeanutButter.DuckTyping.Shimming
             _propertyInfoFetcher = propertyInfoFetcher ?? throw new ArgumentNullException(nameof(propertyInfoFetcher));
             _isFuzzy = isFuzzy;
             _wrapped = toWrap;
+            _allowReadonlyDefaultsForMissingMembers = allowReadonlyDefaultsForMissingMembers;
             // TODO: store all wrapped types & use to determine proper pass-through
             _wrappedTypes = toWrap.Select(w => w.GetType()).ToArray();
             _wrappingADuck = IsObjectADuck();
@@ -139,7 +142,13 @@ namespace PeanutButter.DuckTyping.Shimming
             }
             if (_shimmedProperties.TryGetValue(propertyName, out var shimmed))
                 return shimmed;
-            var propInfo = FindPropertyInfoFor(propertyName);
+            var foundPropInfo = FindPropertyInfoFor(propertyName);
+            if (foundPropInfo == null)
+            {
+                return GetDefaultValueFor(_localMimickPropertyInfos[propertyName].PropertyType);
+            }
+            var propInfo = foundPropInfo.Value;
+
             if (!propInfo.PropertyInfo.CanRead || propInfo.Getter == null)
             {
                 // TODO: throw for the correct wrapped type for this property
@@ -202,7 +211,14 @@ namespace PeanutButter.DuckTyping.Shimming
                 return;
             }
 
-            var propInfo = FindPropertyInfoFor(propertyName);
+            var foundPropInfo = FindPropertyInfoFor(propertyName);
+            if (foundPropInfo == null)
+            {
+                throw new PropertyNotFoundException(_wrappedTypes[0], propertyName);
+            }
+            
+            var propInfo = foundPropInfo.Value;
+
             if (!propInfo.PropertyInfo.CanWrite || propInfo.Setter == null)
             {
                 // TODO: throw for correct wrapped type for this particular property
@@ -362,8 +378,8 @@ namespace PeanutButter.DuckTyping.Shimming
             public Action<object> Setter;
             public Func<object> Getter;
         }
-
-        private PropertyInfoCacheItem FindPropertyInfoFor(string propertyName)
+        
+        private PropertyInfoCacheItem? FindPropertyInfoFor(string propertyName)
         {
             PropertyInfoCacheItem cacheItem;
             if (_propertyInfoLookupCache.Contains(propertyName))
@@ -374,9 +390,18 @@ namespace PeanutButter.DuckTyping.Shimming
                 _propertyInfoLookupCache[propertyName] = cacheItem;
                 return cacheItem;
             }
+
             if (!_localPropertyInfos.TryGetValue(propertyName, out var pi))
+            {
+                if (_allowReadonlyDefaultsForMissingMembers)
+                {
+                    return null;
+                }
+
                 // TODO: throw for the correct type
                 throw new PropertyNotFoundException(_wrappedTypes[0], propertyName);
+            }
+
             cacheItem = CreateCacheItemFor(pi);
             _propertyInfoLookupCache[propertyName] = cacheItem;
             return cacheItem;

@@ -21,7 +21,15 @@ namespace PeanutButter.DuckTyping.Extensions
         /// <returns></returns>
         public static T ForceFuzzyDuckAs<T>(this IDictionary<string, object> src)
         {
-            return Shared.ForceDuckAs<T>(src, true);
+            return Shared.ForceDuckAs<T>(src, true, true);
+        }
+
+        public static T ForceFuzzyDuckAs<T>(this object src)
+        {
+            return Shared.ForceDuckAs<T>(
+                src,
+                true,
+                true);
         }
 
         /// <summary>
@@ -34,7 +42,7 @@ namespace PeanutButter.DuckTyping.Extensions
         /// <returns></returns>
         public static T ForceDuckAs<T>(this IDictionary<string, object> src)
         {
-            return Shared.ForceDuckAs<T>(src, false);
+            return Shared.ForceDuckAs<T>(src, false, true);
         }
 
 

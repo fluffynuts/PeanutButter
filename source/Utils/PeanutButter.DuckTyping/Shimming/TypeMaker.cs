@@ -20,11 +20,11 @@ namespace PeanutButter.DuckTyping.Shimming
         private static readonly Type DictionaryShim = typeof(DictionaryShimSham);
 
         private static readonly ConstructorInfo ShimConstructorForObjectArray = ShimType.GetConstructor(
-            new[] {typeof(object[]), typeof(Type), typeof(bool)}
+            new[] { typeof(object[]), typeof(Type), typeof(bool), typeof(bool) }
         );
 
         private static readonly ConstructorInfo ShimConstructorForObject = ShimType.GetConstructor(
-            new[] {typeof(object), typeof(Type), typeof(bool)}
+            new[] { typeof(object), typeof(Type), typeof(bool), typeof(bool) }
         );
 
         private static readonly ConstructorInfo DictionaryArrayShimConstructor =
@@ -71,7 +71,7 @@ namespace PeanutButter.DuckTyping.Shimming
         /// <inheritdoc />
         public Type MakeTypeImplementing(Type interfaceType)
         {
-            return MakeTypeImplementing(interfaceType, false);
+            return MakeTypeImplementing(interfaceType, false, false);
         }
 
         /// <inheritdoc />
@@ -83,10 +83,24 @@ namespace PeanutButter.DuckTyping.Shimming
         /// <inheritdoc />
         public Type MakeFuzzyTypeImplementing(Type interfaceType)
         {
-            return MakeTypeImplementing(interfaceType, true);
+            return MakeTypeImplementing(interfaceType, true, false);
         }
 
-        private Type MakeTypeImplementing(Type interfaceType, bool isFuzzy)
+        public Type MakeFuzzyDefaultingTypeImplementing<T>()
+        {
+            return MakeFuzzyDefaultingTypeImplementing(typeof(T));
+        }
+
+        private Type MakeFuzzyDefaultingTypeImplementing(Type interfaceType)
+        {
+            return MakeTypeImplementing(interfaceType, true, true);
+        }
+
+
+        private Type MakeTypeImplementing(
+            Type interfaceType,
+            bool isFuzzy,
+            bool allowDefaultsForReadonlyMembers)
         {
             if (!interfaceType.IsInterface)
                 throw new InvalidOperationException(
@@ -112,8 +126,9 @@ namespace PeanutButter.DuckTyping.Shimming
             AddAllPropertiesAsShimmable(typeBuilder, allInterfaceTypes, shimField);
             AddAllMethodsAsShimmable(typeBuilder, allInterfaceTypes, shimField);
 
-            AddDefaultConstructor(typeBuilder, shimField, interfaceType, isFuzzy);
-            AddObjectWrappingConstructors(typeBuilder, shimField, interfaceType, isFuzzy);
+            AddDefaultConstructor(typeBuilder, shimField, interfaceType, isFuzzy, allowDefaultsForReadonlyMembers);
+            AddObjectWrappingConstructors(typeBuilder, shimField, interfaceType, isFuzzy,
+                                          allowDefaultsForReadonlyMembers);
             AddDictionaryWrappingConstructors(typeBuilder, shimField, interfaceType);
 
 #if NETSTANDARD
@@ -132,7 +147,8 @@ namespace PeanutButter.DuckTyping.Shimming
             TypeBuilder typeBuilder,
             FieldBuilder shimField,
             Type interfaceType,
-            bool isFuzzy)
+            bool isFuzzy,
+            bool allowDefaultsForReadonlyMembers)
         {
             var ctor = typeBuilder.DefineConstructor(
                 MethodAttributes.Public,
@@ -141,7 +157,11 @@ namespace PeanutButter.DuckTyping.Shimming
             var il = ctor.GetILGenerator();
             CallBaseObjectConstructor(il);
 
-            var result = CreateWrappingShimForThisWith(il, interfaceType, isFuzzy);
+            var result = CreateWrappingShimForThisWith(
+                il,
+                interfaceType,
+                isFuzzy,
+                allowDefaultsForReadonlyMembers);
 
             StoreShimInFieldWith(shimField, il, result);
 
@@ -152,13 +172,14 @@ namespace PeanutButter.DuckTyping.Shimming
             TypeBuilder typeBuilder,
             FieldBuilder shimField,
             Type interfaceType,
-            bool isFuzzy
+            bool isFuzzy,
+            bool allowDefaultsForReadonlyMembers
         )
         {
             var paramTypes = new[]
             {
-                new { pt = new[] {typeof(object[])}, ctor = ShimConstructorForObjectArray },
-                new { pt = new[] {typeof(object)}, ctor = ShimConstructorForObject }
+                new { pt = new[] { typeof(object[]) }, ctor = ShimConstructorForObjectArray },
+                new { pt = new[] { typeof(object) }, ctor = ShimConstructorForObject }
             };
             foreach (var pt in paramTypes)
             {
@@ -168,7 +189,12 @@ namespace PeanutButter.DuckTyping.Shimming
                     pt.pt);
                 var il = ctorBuilder.GetILGenerator();
                 CallBaseObjectConstructor(il);
-                var result = CreateWrappingShimForArg1With(il, interfaceType, isFuzzy, pt.ctor);
+                var result = CreateWrappingShimForArg1With(
+                    il,
+                    interfaceType,
+                    isFuzzy,
+                    allowDefaultsForReadonlyMembers,
+                    pt.ctor);
                 StoreShimInFieldWith(shimField, il, result);
                 ImplementMethodReturnWith(il);
             }
@@ -182,8 +208,8 @@ namespace PeanutButter.DuckTyping.Shimming
         {
             var paramTypes = new[]
             {
-                new { pt = new[] {typeof(IDictionary<string, object>[])}, ctor = DictionaryArrayShimConstructor },
-                new { pt = new[] {typeof(IDictionary<string, object>)}, ctor = DictionaryShimConstructor }
+                new { pt = new[] { typeof(IDictionary<string, object>[]) }, ctor = DictionaryArrayShimConstructor },
+                new { pt = new[] { typeof(IDictionary<string, object>) }, ctor = DictionaryShimConstructor }
             };
             foreach (var pt in paramTypes)
             {
@@ -200,7 +226,9 @@ namespace PeanutButter.DuckTyping.Shimming
         }
 
         private static LocalBuilder CreateWrappingDictionaryShimFor(
-            ILGenerator il, Type interfaceType, ConstructorInfo ctor
+            ILGenerator il,
+            Type interfaceType,
+            ConstructorInfo ctor
         )
         {
             var result = il.DeclareLocal(typeof(IShimSham));
@@ -219,24 +247,50 @@ namespace PeanutButter.DuckTyping.Shimming
         }
 
         private static LocalBuilder CreateWrappingShimForArg1With(
-            ILGenerator il, Type interfaceType, bool isFuzzy, ConstructorInfo ctor
+            ILGenerator il,
+            Type interfaceType,
+            bool isFuzzy,
+            bool allowDefaultsForReadonlyMembers,
+            ConstructorInfo ctor
         )
         {
-            return CreateWrappingShimFor(OpCodes.Ldarg_1, il, interfaceType, isFuzzy, ctor);
+            return CreateWrappingShimFor(
+                OpCodes.Ldarg_1,
+                il,
+                interfaceType,
+                isFuzzy,
+                allowDefaultsForReadonlyMembers,
+                ctor);
         }
 
-        private static LocalBuilder CreateWrappingShimForThisWith(ILGenerator il, Type interfaceType, bool isFuzzy)
+        private static LocalBuilder CreateWrappingShimForThisWith(
+            ILGenerator il,
+            Type interfaceType,
+            bool isFuzzy,
+            bool allowDefaultsForReadonlyMembers)
         {
-            return CreateWrappingShimFor(OpCodes.Ldarg_0, il, interfaceType, isFuzzy, ShimConstructorForObject);
+            return CreateWrappingShimFor(
+                OpCodes.Ldarg_0,
+                il,
+                interfaceType,
+                isFuzzy,
+                allowDefaultsForReadonlyMembers,
+                ShimConstructorForObject);
         }
 
-        private static LocalBuilder CreateWrappingShimFor(OpCode code, ILGenerator il, Type interfaceType, bool isFuzzy,
+        private static LocalBuilder CreateWrappingShimFor(
+            OpCode code,
+            ILGenerator il,
+            Type interfaceType,
+            bool isFuzzy,
+            bool allowDefaultsForReadonlyMembers,
             ConstructorInfo shimConstructor)
         {
             var result = il.DeclareLocal(typeof(IShimSham));
             il.Emit(code);
             il.Emit(OpCodes.Ldtoken, interfaceType);
             il.Emit(isFuzzy ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
+            il.Emit(allowDefaultsForReadonlyMembers ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
             il.Emit(OpCodes.Newobj, shimConstructor);
             il.Emit(OpCodes.Stloc, result);
             return result;
@@ -272,8 +326,9 @@ namespace PeanutButter.DuckTyping.Shimming
             FieldBuilder shimField)
         {
             var methodBuilder = typeBuilder.DefineMethod(methodInfo.Name,
-                PropertyGetterSetterMethodAttributes, methodInfo.ReturnType,
-                methodInfo.GetParameters().Select(p => p.ParameterType).ToArray());
+                                                         PropertyGetterSetterMethodAttributes, methodInfo.ReturnType,
+                                                         methodInfo.GetParameters().Select(p => p.ParameterType)
+                                                                   .ToArray());
             var il = methodBuilder.GetILGenerator();
             if (methodInfo.ReturnType == typeof(void))
                 ImplementVoidReturnCallThroughWith(methodInfo, shimField, il);
@@ -325,7 +380,8 @@ namespace PeanutButter.DuckTyping.Shimming
             il.Emit(OpCodes.Call, shimMethod);
         }
 
-        private static void LoadMethodArgumentsIntoArray(ILGenerator il, LocalBuilder boxedParameters,
+        private static void LoadMethodArgumentsIntoArray(ILGenerator il,
+            LocalBuilder boxedParameters,
             ParameterInfo[] methodParameters)
         {
             var boxed = il.DeclareLocal(typeof(object));
@@ -375,24 +431,24 @@ namespace PeanutButter.DuckTyping.Shimming
         private PropertyInfo[] GetAllPropertiesFor(Type[] allImplementedInterfaces)
         {
             return GetAllFor(
-                    allImplementedInterfaces,
-                    t => t.GetProperties())
-                .Distinct(new PropertyInfoComparer())
-                .ToArray();
+                       allImplementedInterfaces,
+                       t => t.GetProperties())
+                   .Distinct(new PropertyInfoComparer())
+                   .ToArray();
         }
 
         private MethodInfo[] GetAllMethodsFor(Type[] allImplementedInterfaces)
         {
             return GetAllFor(allImplementedInterfaces,
-                t => t.GetMethods().Where(MethodIsNotSpecial));
+                             t => t.GetMethods().Where(MethodIsNotSpecial));
         }
 
         private T[] GetAllFor<T>(Type[] interfaces, Func<Type, IEnumerable<T>> fetcher)
         {
             return interfaces
-                .Select(fetcher)
-                .SelectMany(a => a)
-                .ToArray();
+                   .Select(fetcher)
+                   .SelectMany(a => a)
+                   .ToArray();
         }
 
         private static void AddShimmableProperty(
@@ -462,7 +518,8 @@ namespace PeanutButter.DuckTyping.Shimming
         {
             var methodName = "get_" + prop.Name;
             var getMethod = typeBuilder.DefineMethod(methodName,
-                PropertyGetterSetterMethodAttributes, prop.PropertyType, Type.EmptyTypes);
+                                                     PropertyGetterSetterMethodAttributes, prop.PropertyType,
+                                                     Type.EmptyTypes);
             var il = getMethod.GetILGenerator();
 
             var local = StorePropertyValueInLocal(il, shimField, prop.Name);
@@ -510,7 +567,8 @@ namespace PeanutButter.DuckTyping.Shimming
         {
             var methodName = "set_" + prop.Name;
             var setMethod = typeBuilder.DefineMethod(methodName,
-                PropertyGetterSetterMethodAttributes, null, new[] {prop.PropertyType});
+                                                     PropertyGetterSetterMethodAttributes, null,
+                                                     new[] { prop.PropertyType });
             var il = setMethod.GetILGenerator();
 
             var boxed = il.DeclareLocal(typeof(object));
