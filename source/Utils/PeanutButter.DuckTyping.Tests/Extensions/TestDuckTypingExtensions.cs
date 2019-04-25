@@ -282,7 +282,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         public void CanFuzzyDuckAs_OperatingOnSimilarPropertiedThing_ShouldReturnTrue()
         {
             //--------------- Arrange -------------------
-            var thing = new {nAmE = GetRandomString()} as object;
+            var thing = new { nAmE = GetRandomString() } as object;
 
             //--------------- Assume ----------------
 
@@ -718,8 +718,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             //--------------- Arrange -------------------
             var parameters = new Dictionary<string, object>()
             {
-                {"travellerId", new Guid()},
-                {"taskId", new Guid()}
+                { "travellerId", new Guid() },
+                { "taskId", new Guid() }
             };
 
             //--------------- Assume ----------------
@@ -803,7 +803,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             //--------------- Arrange -------------------
             var expected = GetRandomString();
             var data = new Dictionary<string, object>()
-                {{"Name", expected}};
+                { { "Name", expected } };
 
             //--------------- Assume ----------------
 
@@ -820,7 +820,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         {
             //--------------- Arrange -------------------
             var data = new Dictionary<string, object>()
-                {{"Name", null}};
+                { { "Name", null } };
 
             //--------------- Assume ----------------
 
@@ -842,7 +842,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         {
             //--------------- Arrange -------------------
             var data = new Dictionary<string, object>()
-                {{"Id", null}};
+                { { "Id", null } };
 
             //--------------- Assume ----------------
 
@@ -860,8 +860,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             //--------------- Arrange -------------------
             var data = new Dictionary<string, object>()
             {
-                {"Id", GetRandomInt()},
-                {"Inner", new Dictionary<string, object>() {{"Name", GetRandomString()}}}
+                { "Id", GetRandomInt() },
+                { "Inner", new Dictionary<string, object>() { { "Name", GetRandomString() } } }
             };
 
             //--------------- Assume ----------------
@@ -881,8 +881,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var expectedName = GetRandomString();
             var input = new Dictionary<string, object>()
             {
-                {"Id", expectedId},
-                {"Inner", new Dictionary<string, object>() {{"Name", expectedName}}}
+                { "Id", expectedId },
+                { "Inner", new Dictionary<string, object>() { { "Name", expectedName } } }
             };
             //--------------- Assume ----------------
 
@@ -906,11 +906,11 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var expectedName = GetRandomString();
             var input = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
             {
-                {"id", expectedId},
+                { "id", expectedId },
                 {
                     "inner",
                     new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
-                        {{"nAmE", expectedName}}
+                        { { "nAmE", expectedName } }
                 }
             };
 
@@ -931,11 +931,11 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var expectedName = GetRandomString();
             var input = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
             {
-                {"id", expectedId},
+                { "id", expectedId },
                 {
                     "inner",
                     new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
-                        {{"nAmE", expectedName}}
+                        { { "nAmE", expectedName } }
                 }
             };
 
@@ -962,8 +962,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var expectedName = GetRandomString();
             var input = new Dictionary<string, object>()
             {
-                {"id", expectedId},
-                {"inner", new Dictionary<string, object>() {{"nAmE", expectedName}}}
+                { "id", expectedId },
+                { "inner", new Dictionary<string, object>() { { "nAmE", expectedName } } }
             };
 
             //--------------- Assume ----------------
@@ -983,8 +983,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var expectedName = GetRandomString();
             var input = new Dictionary<string, object>()
             {
-                {"id", expectedId},
-                {"inner", new Dictionary<string, object>() {{"nAmE", expectedName}}}
+                { "id", expectedId },
+                { "inner", new Dictionary<string, object>() { { "nAmE", expectedName } } }
             };
 
             //--------------- Assume ----------------
@@ -1027,7 +1027,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var id = Guid.NewGuid();
             var data = new Dictionary<string, object>()
             {
-                {"taskId", id.ToString()}
+                { "taskId", id.ToString() }
             };
 
             //--------------- Assume ----------------
@@ -1052,7 +1052,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             //--------------- Arrange -------------------
             var input = new
             {
-                Statuses = new[] {"foo", "bar"}
+                Statuses = new[] { "foo", "bar" }
             };
 
             //--------------- Assume ----------------
@@ -1118,7 +1118,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var propInfo = result.GetType().GetProperty("Name");
             Expect(propInfo).Not.To.Be.Null();
             var attrib = propInfo.GetCustomAttributes(false).OfType<MooAttribute>()
-                .FirstOrDefault();
+                                 .FirstOrDefault();
             Expect(attrib).Not.To.Be.Null();
             Expect(attrib.Dialect).To.Equal("northern");
         }
@@ -1141,7 +1141,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var propInfo = result.GetType().GetProperty("Name");
             Expect(propInfo).Not.To.Be.Null();
             var attrib = propInfo.GetCustomAttributes(false).OfType<NamedArgumentAttribute>()
-                .FirstOrDefault();
+                                 .FirstOrDefault();
 
             Expect(attrib).Not.To.Be.Null();
             Expect(attrib.NamedProperty).To.Equal("whizzle");
@@ -1164,7 +1164,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
             //--------------- Assert -----------------------
             var attrib = result.GetType().GetCustomAttributes(false).OfType<WoofAttribute>()
-                .FirstOrDefault();
+                               .FirstOrDefault();
 
             Expect(attrib).Not.To.Be.Null();
             Expect(attrib.Intent).To.Equal("playful");
@@ -1204,7 +1204,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var propInfo = result.GetType().GetProperty("Moo");
             Expect(propInfo).Not.To.Be.Null();
             var attrib = propInfo.GetCustomAttributes(true).OfType<DialectAttribute>()
-                .FirstOrDefault();
+                                 .FirstOrDefault();
             Expect(attrib).Not.To.Be.Null();
             Expect(attrib.Dialect).To.Equal("Country");
         }
@@ -1369,7 +1369,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             Expect(result).Not.To.Be.Null();
             Expect(result.Id).To.Be.Null();
         }
-        
+
         [Test]
         public void
             FuzzyDuckAs_OperatingOnDictionary_WhenSourcePropertyIsNullableTypeAndMissing_ShouldDuckAsNullProperty()
@@ -1398,7 +1398,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             DuckAs_OperatingOnObjectWithNotNullableProperty_WhenRequestedInterfaceHasNullableReadOnlyProperty_ShouldDuck()
         {
             //--------------- Arrange -------------------
-            var input = new {Id = Guid.NewGuid()};
+            var input = new { Id = Guid.NewGuid() };
 
             //--------------- Assume ----------------
 
@@ -1416,7 +1416,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             FuzzyDuckAs_OperatingOnObjectWithNotNullableProperty_WhenRequestedInterfaceHasNullableReadOnlyProperty_ShouldDuck()
         {
             //--------------- Arrange -------------------
-            var input = new {id = Guid.NewGuid()};
+            var input = new { id = Guid.NewGuid() };
 
             //--------------- Assume ----------------
 
@@ -1437,7 +1437,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var expected = Guid.NewGuid();
             var input = new Dictionary<string, object>()
             {
-                {"Id", expected}
+                { "Id", expected }
             };
 
             //--------------- Assume ----------------
@@ -1459,7 +1459,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var expected = Guid.NewGuid();
             var input = new Dictionary<string, object>()
             {
-                {"Id", expected}
+                { "Id", expected }
             };
 
             //--------------- Assume ----------------
@@ -1907,7 +1907,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         public void ForceFuzzyDuckAs_OperatingOnNameValueCollection_ShouldGoBothWays()
         {
             // Arrange
-            var src = new NameValueCollection {["name"] = GetRandomString()};
+            var src = new NameValueCollection { ["name"] = GetRandomString() };
             var expected = GetRandomHttpUrl();
 
             // Pre-Assert
@@ -2059,7 +2059,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             {
                 // Arrange
                 var expected = GetRandomHttpUrl();
-                var data = new NameValueCollection {["Config.BaseUrl"] = expected};
+                var data = new NameValueCollection { ["Config.BaseUrl"] = expected };
 
                 // Pre-Assert
 
@@ -2079,7 +2079,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             {
                 // Arrange
                 var expected = GetRandomHttpUrl();
-                var data = new NameValueCollection {["Config.BaseUrl"] = expected};
+                var data = new NameValueCollection { ["Config.BaseUrl"] = expected };
 
                 // Pre-Assert
 
@@ -2132,8 +2132,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
                 // Act
                 Expect(() => data.FuzzyDuckAs<IConfig2>(s => "Config." + s,
-                                                       s => s.RegexReplace("Config.", ""),
-                                                       true))
+                                                        s => s.RegexReplace("Config.", ""),
+                                                        true))
                     .To.Throw<UnDuckableException>();
                 // Assert
             }
@@ -2144,7 +2144,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             {
                 // Arrange
                 var expected = GetRandomHttpUrl();
-                var data = new NameValueCollection {["Config.BAseUrl"] = expected};
+                var data = new NameValueCollection { ["Config.BAseUrl"] = expected };
 
                 // Pre-Assert
 
@@ -2165,14 +2165,14 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             {
                 // Arrange
                 var expected = GetRandomInt();
-                var data = new NameValueCollection {["Config.Port"] = expected.ToString()};
+                var data = new NameValueCollection { ["Config.Port"] = expected.ToString() };
 
                 // Pre-Assert
 
                 // Act
                 var result =
                     data.FuzzyDuckAs<IConfig2>(s => "Config." + s,
-                                              s => s.RegexReplace("Config.", "moo"));
+                                               s => s.RegexReplace("Config.", "moo"));
 
                 // Assert
 
@@ -2185,7 +2185,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             {
                 // Arrange
                 var expected = GetRandomHttpUrl();
-                var data = new NameValueCollection {["Config.BaSeUrl"] = expected};
+                var data = new NameValueCollection { ["Config.BaSeUrl"] = expected };
 
                 // Pre-Assert
 
@@ -2511,7 +2511,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                     Expect(result.Id).To.Equal(default(int));
                 }
             }
-            
+
             [TestFixture]
             public class OperatingOnDictionary
             {
@@ -2567,7 +2567,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             {
                 // Arrange
                 var expected = GetRandomString();
-                var src = new DuckFromMe {Prop = {["Name"] = expected}};
+                var src = new DuckFromMe { Prop = { ["Name"] = expected } };
                 // Pre-Assert
                 // Act
                 var result = src.FuzzyDuckAs<IDuckFromDictionaryProperty>();
@@ -2611,9 +2611,45 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 Expect(settings).Not.To.Be.Null();
                 Expect(settings.NlogConfigLocation).To.Be.Null();
             }
-            
+
+            private void WriteOutAppSettings()
+            {
+                var data = @"{
+  ""Logging"": {
+                ""LogLevel"": {
+                    ""Default"": ""Debug"",
+                    ""System"": ""Information"",
+                    ""Microsoft"": ""Information""
+                },
+                ""ConnectionString"": ""SERVER=localhost; DATABASE=spar_rcms; UID=sqltracking; PASSWORD=sqltracking; Allow User Variables=true;"",
+                ""Console"": {
+                    ""IncludeScopes"": true
+                }
+            },
+            ""AllowedHosts"": ""*"",
+            ""ConnectionStrings"": {
+                ""DefaultConnection"": ""SERVER=localhost; DATABASE=spar_rcms; UID=sqltracking; PASSWORD=sqltracking; Allow User Variables=true;""
+            },
+            ""Settings"": {
+            ""logLevel"": ""debug"",
+            ""RetailStudioUrl"": ""https://test-retailstudio.spar.co.za/rcp"",
+            ""RetailStudioClientId"": ""df77e380-97a7-4029-ac75-0725d5ef0245"",
+            ""RetailStudioSharedKey"": ""39158E459CCF47BC8E1188C60504FD2B"",
+            ""EncryptionKey"": ""AAECAwQFBgcICQoLDA0ODw=="",
+            ""Secret"": ""AAECAwQFBgcICQoLDA0ODw==""
+        }
+    }";
+                File.WriteAllText(
+                    Path.Combine(
+                        Directory.GetCurrentDirectory(),
+                        "appsettings.json"
+                    ),
+                    data);
+            }
+
             private IConfigurationRoot CreateConfig()
             {
+                WriteOutAppSettings();
                 return new ConfigurationBuilder()
                        .SetBasePath(Directory.GetCurrentDirectory())
                        .AddJsonFile("appsettings.json")
@@ -2638,6 +2674,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                     throw;
                 }
             }
+
             public interface IAppSettings
             {
                 LogLevels LogLevel { get; }
@@ -2650,6 +2687,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 string AlgoliaApplicationId { get; }
                 string AlgoliaKey { get; }
             }
+
             public enum LogLevels
             {
                 Debug,
@@ -2822,7 +2860,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 // Arrange
                 var expected = GetRandomString(2);
                 var setting = new ConnectionStringSettings("some string", expected);
-                var settings = new ConnectionStringSettingsCollection() {setting};
+                var settings = new ConnectionStringSettingsCollection() { setting };
                 // Pre-Assert
                 // Act
                 var result = settings.FuzzyDuckAs<IConnectionStrings>();
@@ -2837,7 +2875,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             {
                 // Arrange
                 var setting = new ConnectionStringSettings("123some string", "some value");
-                var settings = new ConnectionStringSettingsCollection() {setting};
+                var settings = new ConnectionStringSettingsCollection() { setting };
                 // Pre-Assert
                 // Act
                 Expect(() => settings.DuckAs<IConnectionStrings>(true))
@@ -2851,7 +2889,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 // Arrange
                 var expected = GetRandomString(2);
                 var setting = new ConnectionStringSettings("SomeString", expected);
-                var settings = new ConnectionStringSettingsCollection() {setting};
+                var settings = new ConnectionStringSettingsCollection() { setting };
                 // Pre-Assert
                 // Act
                 var result = settings.DuckAs<IConnectionStrings>();
@@ -2865,7 +2903,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             {
                 // Arrange
                 var setting = new ConnectionStringSettings("MooSomeString", "some value");
-                var settings = new ConnectionStringSettingsCollection() {setting};
+                var settings = new ConnectionStringSettingsCollection() { setting };
                 // Pre-Assert
                 // Act
                 Expect(() => settings.DuckAs<IConnectionStrings>(true))

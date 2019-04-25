@@ -61,6 +61,7 @@ namespace PeanutButter.DuckTyping.Shimming
 
         private static readonly object DynamicAssemblyLock = new object();
         private static AssemblyBuilder _dynamicAssemblyBuilderField;
+        private static ModuleBuilder _moduleBuilder;
 
         /// <inheritdoc />
         public Type MakeTypeImplementing<T>()
@@ -97,7 +98,14 @@ namespace PeanutButter.DuckTyping.Shimming
         {
             return MakeTypeImplementing(interfaceType, true, true);
         }
+        
+        private static ModuleBuilder ModuleBuilder => _moduleBuilder ?? (_moduleBuilder = CreateModuleBuilder());
 
+        private static ModuleBuilder CreateModuleBuilder()
+        {
+            var moduleName = "__PeanutButter_DuckTyped_Gen__";
+            return DynamicAssemblyBuilder.DefineDynamicModule(moduleName);
+        }
 
         private Type MakeTypeImplementing(
             Type interfaceType,
@@ -108,11 +116,9 @@ namespace PeanutButter.DuckTyping.Shimming
                 throw new InvalidOperationException(
                     "MakeTypeImplementing<T> requires an interface for the type parameter");
             var identifier = Guid.NewGuid().ToString("N");
-            var moduleName = string.Join("_", identifier, "_Gen_", interfaceType.Name);
-            var modBuilder = DynamicAssemblyBuilder.DefineDynamicModule(moduleName);
 
             var generatedTypeName = interfaceType.Name + "_Duck_" + identifier;
-            var typeBuilder = modBuilder.DefineType(generatedTypeName, TypeAttributes.Public);
+            var typeBuilder = ModuleBuilder.DefineType(generatedTypeName, TypeAttributes.Public);
 
             var attribConstructor = typeof(IsADuckAttribute).GetConstructor(new Type[0]);
             // we have full control over the constructor; testing for null is a waste of time.
@@ -130,7 +136,7 @@ namespace PeanutButter.DuckTyping.Shimming
 
             AddDefaultConstructor(typeBuilder, shimField, interfaceType, isFuzzy, allowDefaultsForReadonlyMembers);
             AddObjectWrappingConstructors(typeBuilder, shimField, interfaceType, isFuzzy,
-                                          allowDefaultsForReadonlyMembers);
+                allowDefaultsForReadonlyMembers);
             AddDictionaryWrappingConstructors(typeBuilder, shimField, interfaceType);
 
 #if NETSTANDARD
@@ -328,9 +334,9 @@ namespace PeanutButter.DuckTyping.Shimming
             FieldBuilder shimField)
         {
             var methodBuilder = typeBuilder.DefineMethod(methodInfo.Name,
-                                                         PropertyGetterSetterMethodAttributes, methodInfo.ReturnType,
-                                                         methodInfo.GetParameters().Select(p => p.ParameterType)
-                                                                   .ToArray());
+                PropertyGetterSetterMethodAttributes, methodInfo.ReturnType,
+                methodInfo.GetParameters().Select(p => p.ParameterType)
+                          .ToArray());
             var il = methodBuilder.GetILGenerator();
             if (methodInfo.ReturnType == typeof(void))
                 ImplementVoidReturnCallThroughWith(methodInfo, shimField, il);
@@ -442,7 +448,7 @@ namespace PeanutButter.DuckTyping.Shimming
         private MethodInfo[] GetAllMethodsFor(Type[] allImplementedInterfaces)
         {
             return GetAllFor(allImplementedInterfaces,
-                             t => t.GetMethods().Where(MethodIsNotSpecial));
+                t => t.GetMethods().Where(MethodIsNotSpecial));
         }
 
         private T[] GetAllFor<T>(Type[] interfaces, Func<Type, IEnumerable<T>> fetcher)
@@ -520,8 +526,8 @@ namespace PeanutButter.DuckTyping.Shimming
         {
             var methodName = "get_" + prop.Name;
             var getMethod = typeBuilder.DefineMethod(methodName,
-                                                     PropertyGetterSetterMethodAttributes, prop.PropertyType,
-                                                     Type.EmptyTypes);
+                PropertyGetterSetterMethodAttributes, prop.PropertyType,
+                Type.EmptyTypes);
             var il = getMethod.GetILGenerator();
 
             var local = StorePropertyValueInLocal(il, shimField, prop.Name);
@@ -569,8 +575,8 @@ namespace PeanutButter.DuckTyping.Shimming
         {
             var methodName = "set_" + prop.Name;
             var setMethod = typeBuilder.DefineMethod(methodName,
-                                                     PropertyGetterSetterMethodAttributes, null,
-                                                     new[] { prop.PropertyType });
+                PropertyGetterSetterMethodAttributes, null,
+                new[] { prop.PropertyType });
             var il = setMethod.GetILGenerator();
 
             var boxed = il.DeclareLocal(typeof(object));
@@ -631,7 +637,7 @@ namespace PeanutButter.DuckTyping.Shimming
                     .DefineDynamicAssembly(new AssemblyName(withName), AssemblyBuilderAccess.RunAndCollect);
 #else
                 AppDomain.CurrentDomain
-                .DefineDynamicAssembly(new AssemblyName(withName), AssemblyBuilderAccess.RunAndCollect);
+                         .DefineDynamicAssembly(new AssemblyName(withName), AssemblyBuilderAccess.RunAndCollect);
 #endif
         }
     }
