@@ -610,6 +610,12 @@ namespace PeanutButter.Utils
 
         private static readonly Type ObjectType = typeof(object);
         
+        /// <summary>
+        /// Determines whether the type being operated on is an ancestor of the other type
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public static bool IsAncestorOf(this Type type, Type other)
         {
             if (other == ObjectType)
@@ -623,12 +629,7 @@ namespace PeanutButter.Utils
                 return false;
             }
 
-            if (baseType == other)
-            {
-                return true;
-            }
-
-            return baseType.IsAncestorOf(other);
+            return baseType == other || baseType.IsAncestorOf(other);
         }
 
         private static readonly Type[] NumericTypes =

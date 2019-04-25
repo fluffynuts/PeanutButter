@@ -12,7 +12,7 @@ namespace PeanutButter.DuckTyping.Extensions
     public static class DuckTypingDictionaryExtensions
     {
         /// <summary>
-        /// Forces approxmiate ducking around a dictionary. Will "create" underlying
+        /// Forces approximate ducking around a dictionary. Will "create" underlying
         /// "properties" as required. Will attempt to convert to and from the underlying
         /// types as required. Will match properties case-insensitive.
         /// </summary>
@@ -24,6 +24,14 @@ namespace PeanutButter.DuckTyping.Extensions
             return Shared.ForceDuckAs<T>(src, true, true);
         }
 
+        /// <summary>
+        /// Forces approximate ducking around a dictionary. Will "create" underlying
+        /// "properties" as required. Will attempt to convert to and from the underlying
+        /// types as required. Will match properties case-insensitive.
+        /// </summary>
+        /// <param name="src"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static T ForceFuzzyDuckAs<T>(this object src)
         {
             return Shared.ForceDuckAs<T>(

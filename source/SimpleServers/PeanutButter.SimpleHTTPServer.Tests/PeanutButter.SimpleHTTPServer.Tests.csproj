@@ -74,7 +74,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />
     <PackageReference Include="Newtonsoft.Json">
-      <Version>10.0.3</Version>
+      <Version>12.0.2</Version>
     </PackageReference>
     <PackageReference Include="nexpect">
       <Version>1.0.136</Version>

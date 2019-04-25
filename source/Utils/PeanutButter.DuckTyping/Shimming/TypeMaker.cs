@@ -86,12 +86,14 @@ namespace PeanutButter.DuckTyping.Shimming
             return MakeTypeImplementing(interfaceType, true, false);
         }
 
+        /// <inheritdoc />
         public Type MakeFuzzyDefaultingTypeImplementing<T>()
         {
             return MakeFuzzyDefaultingTypeImplementing(typeof(T));
         }
 
-        private Type MakeFuzzyDefaultingTypeImplementing(Type interfaceType)
+        /// <inheritdoc />
+        public Type MakeFuzzyDefaultingTypeImplementing(Type interfaceType)
         {
             return MakeTypeImplementing(interfaceType, true, true);
         }

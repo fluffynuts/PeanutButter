@@ -3,7 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Configuration;
+using System.IO;
 using System.Linq;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NExpect;
@@ -1493,7 +1495,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
         [Test]
         public void
-            ForceFuzzyDuckAs_GivenEmptyDictionaryAndInterfaceToMimick_WhenCanWriteBack_ShouldWriteBack()
+            ForceFuzzyDuckAs_GivenEmptyDictionaryAndInterfaceToMimic_WhenCanWriteBack_ShouldWriteBack()
         {
             //--------------- Arrange -------------------
             // TODO: provide a shimming layer so that the input dictionary doesn't have to be case-insensitive to allow write-back
@@ -1571,7 +1573,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
         [Test]
-        public void ForceDuckAs_GivenEmptyDictionaryAndInterfaceToMimick_ShouldHandleIt()
+        public void ForceDuckAs_GivenEmptyDictionaryAndInterfaceToMimic_ShouldHandleIt()
         {
             //--------------- Arrange -------------------
             var dict = new Dictionary<string, object>();
@@ -2581,11 +2583,10 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             }
 
             [Test]
-            [Ignore("moo")]
             public void FuzzyDuckAs_ShouldDuckMissingStringAsNull()
             {
                 // Arrange
-                var src = new { };
+                var src = new MergeDictionary<string, string>(new Dictionary<string, string>());
                 // Act
                 try
                 {
@@ -2597,6 +2598,65 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 {
                     Assert.Fail(ex.Errors.JoinWith("\n"));
                 }
+            }
+
+            [Test]
+            public void FuzzyDuckAs_ShouldNotSpazOnConfigWithMissingKeys()
+            {
+                // Arrange
+                var config = CreateConfig();
+                // Act
+                var settings = GetSettingsFrom(config);
+                // Assert
+                Expect(settings).Not.To.Be.Null();
+                Expect(settings.NlogConfigLocation).To.Be.Null();
+            }
+            
+            private IConfigurationRoot CreateConfig()
+            {
+                return new ConfigurationBuilder()
+                       .SetBasePath(Directory.GetCurrentDirectory())
+                       .AddJsonFile("appsettings.json")
+                       .Build();
+            }
+
+            private static IAppSettings GetSettingsFrom(
+                IConfigurationRoot config)
+            {
+                var defaultConfig = new Dictionary<string, string>();
+                var providedConfig = config.GetSection("Settings")
+                                           ?.GetChildren()
+                                           .ToDictionary(s => s.Key, s => s.Value) ?? new Dictionary<string, string>();
+                var merged = new MergeDictionary<string, string>(providedConfig, defaultConfig);
+                try
+                {
+                    return merged.FuzzyDuckAs<IAppSettings>(true);
+                }
+                catch (UnDuckableException ex)
+                {
+                    Console.WriteLine(ex.Errors.JoinWith("\n"));
+                    throw;
+                }
+            }
+            public interface IAppSettings
+            {
+                LogLevels LogLevel { get; }
+                string RetailStudioUrl { get; }
+                string RetailStudioClientId { get; }
+                string RetailStudioSharedKey { get; }
+                string EncryptionKey { get; }
+                string Secret { get; }
+                string NlogConfigLocation { get; }
+                string AlgoliaApplicationId { get; }
+                string AlgoliaKey { get; }
+            }
+            public enum LogLevels
+            {
+                Debug,
+                Info,
+                Warning,
+                Error,
+                Fatal
             }
         }
 

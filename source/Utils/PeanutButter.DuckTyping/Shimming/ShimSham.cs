@@ -41,17 +41,18 @@ namespace PeanutButter.DuckTyping.Shimming
         private readonly Dictionary<string, object> _shimmedProperties = new Dictionary<string, object>();
         private readonly HashSet<string> _unshimmableProperties = new HashSet<string>();
         private PropertyInfoContainer _mimickedPropInfos;
-        private Dictionary<string, PropertyInfo> _localMimickPropertyInfos;
+        private Dictionary<string, PropertyInfo> _localMimicPropertyInfos;
 
         // ReSharper disable once MemberCanBePrivate.Global
         /// <summary>
         /// Constructs a new instance of the ShimSham with a DefaultPropertyInfoFetcher
         /// </summary>
         /// <param name="toWrap">Objects to wrap (wip: only the first object is considered)</param>
-        /// <param name="interfaceToMimick">Interface type to mimick</param>
+        /// <param name="interfaceToMimic">Interface type to mimick</param>
         /// <param name="isFuzzy">Flag allowing or preventing approximation</param>
-        public ShimSham(object[] toWrap, Type interfaceToMimick, bool isFuzzy, bool allowReadonlyDefaultMembers)
-            : this(toWrap, interfaceToMimick, isFuzzy, allowReadonlyDefaultMembers, new DefaultPropertyInfoFetcher())
+        /// <param name="allowReadonlyDefaultMembers">allows properties with no backing to be read as the default value for that type</param>
+        public ShimSham(object[] toWrap, Type interfaceToMimic, bool isFuzzy, bool allowReadonlyDefaultMembers)
+            : this(toWrap, interfaceToMimic, isFuzzy, allowReadonlyDefaultMembers, new DefaultPropertyInfoFetcher())
         {
         }
 
@@ -59,12 +60,13 @@ namespace PeanutButter.DuckTyping.Shimming
         /// Constructs a new instance of the ShimSham with the provided property info fetcher
         /// </summary>
         /// <param name="toWrap">Object to wrap</param>
-        /// <param name="interfaceToMimick">Interface type to mimick</param>
+        /// <param name="interfaceToMimic">Interface type to mimick</param>
         /// <param name="isFuzzy">Flag allowing or preventing approximation</param>
         /// <exception cref="ArgumentNullException">Thrown if the mimick interface or property info fetch are null</exception>
+        /// <param name="allowReadonlyDefaultMembers">allows properties with no backing to be read as the default value for that type</param>
         // ReSharper disable once UnusedMember.Global
-        public ShimSham(object toWrap, Type interfaceToMimick, bool isFuzzy, bool allowReadonlyDefaultMembers)
-            : this(new[] {toWrap}, interfaceToMimick, isFuzzy, allowReadonlyDefaultMembers)
+        public ShimSham(object toWrap, Type interfaceToMimic, bool isFuzzy, bool allowReadonlyDefaultMembers)
+            : this(new[] {toWrap}, interfaceToMimic, isFuzzy, allowReadonlyDefaultMembers)
         {
         }
 
@@ -72,7 +74,7 @@ namespace PeanutButter.DuckTyping.Shimming
         /// Constructs a new instance of the ShimSham with the provided property info fetcher
         /// </summary>
         /// <param name="toWrap">Objects to wrap (wip: only the first object is considered)</param>
-        /// <param name="interfaceToMimick">Interface type to mimick</param>
+        /// <param name="interfaceToMimic">Interface type to mimick</param>
         /// <param name="isFuzzy">Flag allowing or preventing approximation</param>
         /// <param name="allowReadonlyDefaultsForMissingMembers">Whether to allow returning default(T) for properties which are missing on the wrapped source(s)</param>
         /// <param name="propertyInfoFetcher">Utility to fetch property information from the provided object and interface type</param>
@@ -80,13 +82,13 @@ namespace PeanutButter.DuckTyping.Shimming
         // ReSharper disable once MemberCanBePrivate.Global
         public ShimSham(
             object[] toWrap,
-            Type interfaceToMimick,
+            Type interfaceToMimic,
             bool isFuzzy,
             bool allowReadonlyDefaultsForMissingMembers,
             IPropertyInfoFetcher propertyInfoFetcher)
         {
-            if (interfaceToMimick == null)
-                throw new ArgumentNullException(nameof(interfaceToMimick));
+            if (interfaceToMimic == null)
+                throw new ArgumentNullException(nameof(interfaceToMimic));
             _propertyInfoFetcher = propertyInfoFetcher ?? throw new ArgumentNullException(nameof(propertyInfoFetcher));
             _isFuzzy = isFuzzy;
             _wrapped = toWrap;
@@ -95,18 +97,18 @@ namespace PeanutButter.DuckTyping.Shimming
             _wrappedTypes = toWrap.Select(w => w.GetType()).ToArray();
             _wrappingADuck = IsObjectADuck();
             StaticallyCachePropertyInfosFor(_wrapped, _wrappingADuck);
-            StaticallyCachePropertInfosFor(interfaceToMimick);
+            StaticallyCachePropertyInfosFor(interfaceToMimic);
             StaticallyCacheMethodInfosFor(_wrappedTypes);
             LocallyCachePropertyInfos();
             LocallyCacheMethodInfos();
             LocallyCacheMimickedPropertyInfos();
         }
 
-        private void StaticallyCachePropertInfosFor(Type interfaceToMimick)
+        private void StaticallyCachePropertyInfosFor(Type interfaceToMimic)
         {
             var bindingFlags = BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.Public;
             _mimickedPropInfos = new PropertyInfoContainer(
-                interfaceToMimick.GetAllImplementedInterfaces()
+                interfaceToMimic.GetAllImplementedInterfaces()
                     .Select(i => _propertyInfoFetcher
                         .GetProperties(i, bindingFlags))
                     .SelectMany(c => c)
@@ -145,7 +147,7 @@ namespace PeanutButter.DuckTyping.Shimming
             var foundPropInfo = FindPropertyInfoFor(propertyName);
             if (foundPropInfo == null)
             {
-                return GetDefaultValueFor(_localMimickPropertyInfos[propertyName].PropertyType);
+                return GetDefaultValueFor(_localMimicPropertyInfos[propertyName].PropertyType);
             }
             var propInfo = foundPropInfo.Value;
 
@@ -164,7 +166,7 @@ namespace PeanutButter.DuckTyping.Shimming
             var getter = propertyInfoCacheItem.Getter;
             var propValue = getter();
 
-            var correctType = _localMimickPropertyInfos[propertyName].PropertyType;
+            var correctType = _localMimicPropertyInfos[propertyName].PropertyType;
             if (propValue == null)
             {
                 return GetDefaultValueFor(correctType);
@@ -224,7 +226,7 @@ namespace PeanutButter.DuckTyping.Shimming
                 // TODO: throw for correct wrapped type for this particular property
                 throw new ReadOnlyPropertyException(_wrappedTypes[0], propertyName);
             }
-            var mimickedPropInfo = _localMimickPropertyInfos[propertyName];
+            var mimickedPropInfo = _localMimicPropertyInfos[propertyName];
             var newValueType = newValue?.GetType();
             var mimickedType = mimickedPropInfo.PropertyType;
             if (newValueType == null)
@@ -327,7 +329,7 @@ namespace PeanutButter.DuckTyping.Shimming
 
         private void LocallyCacheMimickedPropertyInfos()
         {
-            _localMimickPropertyInfos = _isFuzzy
+            _localMimicPropertyInfos = _isFuzzy
                 ? _mimickedPropInfos.FuzzyPropertyInfos
                 : _mimickedPropInfos.PropertyInfos;
         }
@@ -386,7 +388,7 @@ namespace PeanutButter.DuckTyping.Shimming
                 return (PropertyInfoCacheItem) _propertyInfoLookupCache[propertyName];
             if (_shimmedProperties.TryGetValue(propertyName, out _))
             {
-                cacheItem = CreateCacheItemFor(_localMimickPropertyInfos[propertyName]);
+                cacheItem = CreateCacheItemFor(_localMimicPropertyInfos[propertyName]);
                 _propertyInfoLookupCache[propertyName] = cacheItem;
                 return cacheItem;
             }

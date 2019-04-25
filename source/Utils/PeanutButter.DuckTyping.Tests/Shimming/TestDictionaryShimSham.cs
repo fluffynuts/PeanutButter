@@ -267,12 +267,12 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
 
         private IShimSham Create(
             Dictionary<string, object> data,
-            Type interfaceToMimick = null)
+            Type interfaceToMimic = null)
         {
             return new DictionaryShimSham(
                 // ReSharper disable once CoVariantArrayConversion
                 new[] {data},
-                interfaceToMimick ?? typeof(IEmpty)
+                interfaceToMimic ?? typeof(IEmpty)
             );
         }
     }
