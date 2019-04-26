@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 using PeanutButter.Utils;
 // ReSharper disable IdentifierTypo
@@ -244,7 +245,10 @@ namespace PeanutButter.TempDb.MySql
         private void AttemptShutdown()
         {
             if (_serverProcess == null)
+            {
                 return;
+            }
+            
             using (var connection = CreateConnection())
             using (var command = connection.CreateCommand())
             {
@@ -259,6 +263,31 @@ namespace PeanutButter.TempDb.MySql
                     /* ignore */
                 }
             }
+        }
+
+        private void ShutdownAsync()
+        {
+            var task = Task.Run(() =>
+            {
+                using (var connection = CreateConnection())
+                using (var command = connection.CreateCommand())
+                {
+                    // this is only available from mysql 5.7.9 onward (https://dev.mysql.com/doc/refman/5.7/en/shutdown.html)
+                    command.CommandText = "SHUTDOWN";
+                    try
+                    {
+                        command.ExecuteNonQuery();
+                    }
+                    catch
+                    {
+                        /* ignore */
+                    }
+                }
+            });
+            task.ConfigureAwait(false);
+            var t = Task.WhenAny(task, Task.Delay(3000));
+            t.ConfigureAwait(false);
+            t.Wait();
         }
 
         /// <inheritdoc />
