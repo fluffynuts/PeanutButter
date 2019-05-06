@@ -291,7 +291,9 @@ namespace PeanutButter.SimpleHTTPServer
         /// Specifically add a handler to serve an HTML document
         /// </summary>
         /// <param name="handler"></param>
-        public void AddHtmlDocumentHandler(Func<HttpProcessor, Stream, string> handler)
+        public void AddHtmlDocumentHandler(
+            Func<HttpProcessor, Stream, string> handler
+            )
         {
             HandleDocumentRequestWith(handler, "html", null, s => MimeTypes.HTML);
         }
@@ -373,35 +375,98 @@ namespace PeanutButter.SimpleHTTPServer
         /// <summary>
         /// Serves an XDocument from the provided path, for the provided method
         /// </summary>
-        /// <param name="queryPath"></param>
-        /// <param name="doc"></param>
-        /// <param name="method"></param>
-        public void ServeDocument(string queryPath, XDocument doc, HttpMethods method = HttpMethods.Any)
+        /// <param name="queryPath">Absolute path to serve the document for</param>
+        /// <param name="doc">XDocument to serve</param>
+        /// <param name="method">Which http method to respond to</param>
+        public void ServeDocument(
+            string queryPath, 
+            XDocument doc, 
+            HttpMethods method = HttpMethods.Any)
+        {
+            ServeDocument(queryPath, () => doc.ToString(), method);
+        }
+        
+        /// <summary>
+        /// Serves an XDocument from the provided path, for the provided method
+        /// </summary>
+        /// <param name="queryPath">Absolute path to serve the document for</param>
+        /// <param name="doc">XDocument to serve</param>
+        /// <param name="method">Which http method to respond to</param>
+        public void ServeDocument(
+            string queryPath, 
+            string doc, 
+            HttpMethods method = HttpMethods.Any)
+        {
+            ServeDocument(queryPath, () => doc, method);
+        }
+        
+        /// <summary>
+        /// Serves an XDocument from the provided path, for the provided method
+        /// </summary>
+        /// <param name="queryPath">Absolute path to serve the document for</param>
+        /// <param name="doc">XDocument to serve</param>
+        /// <param name="method">Which http method to respond to</param>
+        public void ServeDocument(
+            string queryPath, 
+            Func<string> doc, 
+            HttpMethods method = HttpMethods.Any)
         {
             AddHtmlDocumentHandler((p, s) =>
             {
                 if (p.FullUrl != queryPath || !method.Matches(p.Method))
                     return null;
                 Log("Serving html document at {0}", p.FullUrl);
-                return doc.ToString();
+                return doc();
             });
+        }
+        
+        /// <summary>
+        /// Serves an XDocument from the provided path, for the provided method
+        /// </summary>
+        /// <param name="queryPath">Absolute path to serve the document for</param>
+        /// <param name="docFactory">Factory function to get the document contents</param>
+        /// <param name="method">Which http method to respond to</param>
+        public void ServeDocument(
+            string queryPath, 
+            Func<XDocument> docFactory, 
+            HttpMethods method = HttpMethods.Any)
+        {
+            ServeDocument(queryPath, () => docFactory().ToString(), method);
         }
 
         /// <summary>
         /// Serves a JSON document with the provided data at the provided path for the
         /// provided method
         /// </summary>
-        /// <param name="path"></param>
-        /// <param name="data"></param>
-        /// <param name="method"></param>
-        public void ServeJsonDocument(string path, object data, HttpMethods method = HttpMethods.Any)
+        /// <param name="path">Absolute path matched for this document</param>
+        /// <param name="data">Any object which will be serialized into JSON for you</param>
+        /// <param name="method">Which http method to respond to</param>
+        public void ServeJsonDocument(
+            string path, 
+            object data, 
+            HttpMethods method = HttpMethods.Any)
+        {
+            ServeJsonDocument(path, () => data, method);
+        }
+
+        /// <summary>
+        /// Serves a JSON document with the provided data at the provided path for the
+        /// provided method
+        /// </summary>
+        /// <param name="path">Absolute path matched for this document</param>
+        /// <param name="dataFactory">Factory function returning any object which will be serialized into JSON for you</param>
+        /// <param name="method">Which http method to respond to</param>
+        public void ServeJsonDocument(
+            string path,
+            Func<object> dataFactory,
+            HttpMethods method = HttpMethods.Any)
         {
             AddJsonDocumentHandler((p, s) =>
             {
                 if (p.FullUrl != path || !method.Matches(p.Method))
                     return null;
                 Log("Serving JSON document at {0}", p.FullUrl);
-                return data;
+                return dataFactory();
             });
         }
 
@@ -409,17 +474,33 @@ namespace PeanutButter.SimpleHTTPServer
         /// Serves an arbitrary file from the provided path for the
         /// provided content type (defaults to application/octet-stream)
         /// </summary>
-        /// <param name="path"></param>
-        /// <param name="data"></param>
-        /// <param name="contentType"></param>
+        /// <param name="path">Absolute path matched for this file</param>
+        /// <param name="data">Data to provide</param>
+        /// <param name="contentType">Content type of the data</param>
         public void ServeFile(string path, byte[] data, string contentType = MimeTypes.BYTES)
+        {
+            ServeFile(path, () => data, contentType);
+        }
+
+        /// <summary>
+        /// Serves a file via a factory Func
+        /// </summary>
+        /// <param name="path">Absolute path matched for this file</param>
+        /// <param name="dataFactory">Factory for the data</param>
+        /// <param name="contentType">Content type</param>
+        public void ServeFile(
+            string path,
+            Func<byte[]> dataFactory,
+            string contentType = MimeTypes.BYTES)
         {
             AddFileHandler((p, s) =>
             {
                 if (p.Path != path)
+                {
                     return null;
+                }
                 Log("Serving file at {0}", p.FullUrl);
-                return data;
+                return dataFactory();
             }, contentType);
         }
     }
