@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Text;
 // ReSharper disable UnusedMember.Global
 
@@ -103,10 +105,25 @@ namespace PeanutButter.Utils
 
         private static byte[] ReadAllBytesFrom(Stream src)
         {
-            src.Rewind();
-            var buffer = new byte[src.Length];
-            src.Read(buffer, 0, buffer.Length);
-            return buffer;
+            if (src.CanSeek)
+            {
+                src.Rewind();
+                var buffer = new byte[src.Length];
+                src.Read(buffer, 0, buffer.Length);
+                return buffer;
+            }
+            
+            var stream = new MemoryStream();
+            var readCount = 0;
+            do
+            {
+                var thisPart = new byte[DEFAULT_CAPACITY];
+                readCount = src.Read(thisPart, 0, DEFAULT_CAPACITY);
+                stream.Write(thisPart, 0, readCount);
+            } while (readCount > 0);
+            return stream.ToArray();
         }
+        
+        private const int DEFAULT_CAPACITY = 1024 * 1024 * 1024; // 1mb default
     }
 }

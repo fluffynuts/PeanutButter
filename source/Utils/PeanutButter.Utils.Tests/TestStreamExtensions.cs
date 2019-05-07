@@ -1,10 +1,12 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using NExpect;
+using PeanutButter.SimpleHTTPServer;
 using static NExpect.Expectations;
 
 // ReSharper disable ExpressionIsAlwaysNull
@@ -17,68 +19,98 @@ namespace PeanutButter.Utils.Tests
     [TestFixture]
     public class TestStreamExtensions
     {
-        [Test]
-        public void ReadAllBytes_OperatingOnNullStream_ShouldReturnNull()
+        [TestFixture]
+        public class ReadingAllBytes
         {
-            //---------------Set up test pack-------------------
-            Stream src = null;
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = src.ReadAllBytes();
-
-            //---------------Test Result -----------------------
-            Expect(result).To.Be.Null();
-        }
-
-        [Test]
-        public void ReadAllBytes_OperatingOnStreamWithNoData_ShouldReturnEmptyArray()
-        {
-            //---------------Set up test pack-------------------
-            using (var memStream = new MemoryStream())
+            [Test]
+            public void OperatingOnNullStream_ShouldReturnNull()
             {
+                //---------------Set up test pack-------------------
+                Stream src = null;
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                var result = memStream.ReadAllBytes();
+                var result = src.ReadAllBytes();
 
                 //---------------Test Result -----------------------
-                Expect(result).To.Be.Empty();
+                Expect(result).To.Be.Null();
             }
-        }
 
-        [Test]
-        public void ReadAllBytes_OperatingOnStreamWithData_ShouldReturnAllData()
-        {
-            //---------------Set up test pack-------------------
-            var expected = GetRandomBytes();
-            using (var memStream = new MemoryStream(expected))
+            [Test]
+            public void OperatingOnStreamWithNoData_ShouldReturnEmptyArray()
             {
-                //---------------Assert Precondition----------------
+                //---------------Set up test pack-------------------
+                using (var memStream = new MemoryStream())
+                {
+                    //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                var result = memStream.ReadAllBytes();
+                    //---------------Execute Test ----------------------
+                    var result = memStream.ReadAllBytes();
 
-                //---------------Test Result -----------------------
-                Expect(result).To.Equal(expected);
+                    //---------------Test Result -----------------------
+                    Expect(result).To.Be.Empty();
+                }
             }
-        }
 
-        [Test]
-        public void ReadAllBytes_OperatingOnStreamWithData_WhenStreamIsNotAtBeginning_ShouldReturnAllData()
-        {
-            //---------------Set up test pack-------------------
-            var expected = GetRandomBytes(20, 50);
-            using (var memStream = new MemoryStream(expected))
+            [Test]
+            public void OperatingOnStreamWithData_ShouldReturnAllData()
             {
-                memStream.Seek(GetRandomInt(1, 10), SeekOrigin.Begin);
-                //---------------Assert Precondition----------------
+                //---------------Set up test pack-------------------
+                var expected = GetRandomBytes();
+                using (var memStream = new MemoryStream(expected))
+                {
+                    //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                var result = memStream.ReadAllBytes();
+                    //---------------Execute Test ----------------------
+                    var result = memStream.ReadAllBytes();
 
-                //---------------Test Result -----------------------
-                Expect(result).To.Equal(expected);
+                    //---------------Test Result -----------------------
+                    Expect(result).To.Equal(expected);
+                }
+            }
+
+            [Test]
+            public void OperatingOnStreamWithData_WhenStreamIsNotAtBeginningAndCanSeek_ShouldReturnAllData()
+            {
+                //---------------Set up test pack-------------------
+                var expected = GetRandomBytes(20, 50);
+                using (var memStream = new MemoryStream(expected))
+                {
+                    memStream.Seek(GetRandomInt(1, 10), SeekOrigin.Begin);
+                    //---------------Assert Precondition----------------
+
+                    //---------------Execute Test ----------------------
+                    var result = memStream.ReadAllBytes();
+
+                    //---------------Test Result -----------------------
+                    Expect(result).To.Equal(expected);
+                }
+            }
+
+            [Test]
+            public void OperatingOnStreamWithData_WhenCannotRewind_ShouldReadRemainingBytes()
+            {
+                // Arrange
+                var data = GetRandomBytes(100, 1000);
+                var part1 = new byte[1];
+                using (var server = new HttpServer())
+                {
+                    server.ServeFile("/bin.dat", data);
+                    // Act
+                    var req = WebRequest.Create(server.GetFullUrlFor("/bin.dat"));
+                    using (var res = req.GetResponse())
+                    using (var stream = res.GetResponseStream())
+                    {
+                        var firstRead = stream.Read(part1, 0, 1);
+                        Expect(firstRead).To.Equal(1);
+                        var remainder = stream.ReadAllBytes();
+                        Expect(remainder.Length).To.Equal(data.Length - 1);
+                        Expect(remainder).To.Equal(
+                            data.Skip(1).ToArray());
+                    }
+
+                    // Assert
+                }
             }
         }
 
@@ -179,7 +211,7 @@ namespace PeanutButter.Utils.Tests
                 Expect(
                         () => (null as MemoryStream).WriteAllBytes(GetRandomBytes())
                     ).To.Throw<IOException>()
-                    .With.Message.Containing("stream is null");
+                     .With.Message.Containing("stream is null");
                 // Assert
             }
 
@@ -277,7 +309,7 @@ namespace PeanutButter.Utils.Tests
                 Expect(result).To.Equal(expected);
             }
         }
-        
+
 
         [TestFixture]
         public class WritingStrings

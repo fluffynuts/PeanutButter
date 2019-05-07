@@ -85,6 +85,14 @@
     <Compile Include="TestTypeExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\SimpleServers\PeanutButter.SimpleHTTPServer\PeanutButter.SimpleHTTPServer.csproj">
+      <Project>{a624cee2-8727-41b8-a6e1-9d819f745add}</Project>
+      <Name>PeanutButter.SimpleHTTPServer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\SimpleServers\PeanutButter.SimpleTcpServer\PeanutButter.SimpleTcpServer.csproj">
+      <Project>{a53a9b36-1307-4dc2-8bcf-dfa3087c62e8}</Project>
+      <Name>PeanutButter.SimpleTcpServer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj">
       <Project>{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}</Project>
       <Name>PeanutButter.RandomGenerators</Name>
