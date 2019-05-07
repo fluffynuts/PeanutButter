@@ -1,7 +1,7 @@
 <package>
   <metadata>
     <id>PeanutButter.TempDb.LocalDb</id>
-    <version>1.2.276</version>
+    <version>1.2.277</version>
     <title>PeanutButter.TempDb.LocalDb</title>
     <authors>Davyd</authors>
     <owners></owners>
@@ -21,8 +21,8 @@
     <copyright>Copyright  2015</copyright>
     <dependencies>
       <group targetFramework="net40">
-        <dependency id="PeanutButter.TempDb" version="1.2.276" />
-        <dependency id="PeanutButter.Utils" version="1.2.276" />
+        <dependency id="PeanutButter.TempDb" version="1.2.277" />
+        <dependency id="PeanutButter.Utils" version="1.2.277" />
       </group>
     </dependencies>
     <references></references>
