@@ -53,6 +53,11 @@ namespace PeanutButter.Utils
             object value
         )
         {
+            if (parent == null)
+            {
+                throw new NotSupportedException("Cannot set metadata for null");
+            }
+
             using (new AutoLocker(Lock))
             {
                 var data = GetMetadataFor(parent) ?? AddMetadataFor(parent);
@@ -102,7 +107,9 @@ namespace PeanutButter.Utils
             {
                 var data = GetMetadataFor(parent);
                 if (data == null)
+                {
                     return defaultValue;
+                }
 
                 return data.TryGetValue(key, out var result)
                     ? (T) result // WILL fail hard if the caller doesn't match the stored type
@@ -122,6 +129,11 @@ namespace PeanutButter.Utils
             string key
         )
         {
+            if (parent == null)
+            {
+                return false;
+            }
+
             using (new AutoLocker(Lock))
             {
                 var data = GetMetadataFor(parent);
