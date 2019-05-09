@@ -632,6 +632,35 @@ namespace PeanutButter.Utils
             return baseType == other || baseType.IsAncestorOf(other);
         }
 
+        
+        
+        /// <summary>
+        /// Tests if the type being operated on implements the provided interfaceType
+        /// </summary>
+        /// <param name="type"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool Implements<T>(this Type type) where T: class
+        {
+            return type.Implements(typeof(T));
+        }
+
+        /// <summary>
+        /// Tests if the type being operated on implements the provided interfaceType
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="interfaceType"></param>
+        /// <returns></returns>
+        public static bool Implements(this Type type, Type interfaceType)
+        {
+            if (!interfaceType.IsInterface)
+            {
+                throw new InvalidOperationException($"{interfaceType} is not an interface type");
+            }
+
+            return type.GetInterfaces().Contains(interfaceType);
+        }
+
         private static readonly Type[] NumericTypes =
             {
             typeof(int),

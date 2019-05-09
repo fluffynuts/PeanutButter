@@ -388,5 +388,55 @@ namespace PeanutButter.Utils.Tests
             Expect(result).To.Equal(typeof(int));
         }
 
+        [TestFixture]
+        public class Implements
+        {
+            public interface IInterface
+            {
+            }
+
+            public class NotImplemented
+            {
+            }
+
+            public class Implemented : IInterface
+            {
+            }
+
+            public class DerivedImplemented : Implemented
+            {
+            }
+
+            [Test]
+            public void ShouldReturnFalseIfInterfaceNotImplemented()
+            {
+                // Arrange
+                // Act
+                var result = typeof(NotImplemented).Implements<IInterface>();
+                // Assert
+                Expect(result).To.Be.False();
+            }
+
+            [Test]
+            public void ShouldReturnTrueIfInterfaceImmediatelyImplemented()
+            {
+                // Arrange
+                // Act
+                var result = typeof(Implemented).Implements<IInterface>();
+                // Assert
+                Expect(result).To.Be.True();
+            }
+
+            [Test]
+            public void ShouldReturnTrueIfInterfaceImplementedByAncestor()
+            {
+                // Arrange
+                // Act
+                var result = typeof(DerivedImplemented).Implements<IInterface>();
+                // Assert
+                Expect(result).To.Be.True();
+            }
+        }
+
     }
 }
