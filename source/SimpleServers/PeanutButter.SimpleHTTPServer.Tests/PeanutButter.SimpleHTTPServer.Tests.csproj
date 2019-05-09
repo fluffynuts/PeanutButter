@@ -49,6 +49,7 @@
     <Compile Include="TestHttpServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestRequestLogItem.cs" />
+    <Compile Include="TestStreamExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj">

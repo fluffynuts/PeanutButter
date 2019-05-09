@@ -49,9 +49,15 @@ namespace PeanutButter.SimpleHTTPServer
 
         private static byte[] ReadAllBytes(this Stream stream)
         {
-            var buffer = new byte[stream.Length];
-            stream.Read(buffer, 0, (int)stream.Length);
-            return buffer;
+            var memStream = new MemoryStream();
+            var buffer = new byte[32768];
+            var read = 0;
+            do
+            {
+                read = stream.Read(buffer, 0, buffer.Length);
+                memStream.Write(buffer, 0, read);
+            } while (read > 0);
+            return memStream.ToArray();
         }
 
         private static bool TryRewind(this Stream stream)

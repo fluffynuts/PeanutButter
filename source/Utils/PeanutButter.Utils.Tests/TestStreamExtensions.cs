@@ -112,6 +112,27 @@ namespace PeanutButter.Utils.Tests
                     // Assert
                 }
             }
+
+            [Test]
+            public void ShouldBeAbleToReadAllBytesFromWebResponseStream()
+            {
+                // Arrange
+                var expected = GetRandomBytes(1024);
+                using (var server = new HttpServer())
+                {
+                    var path = $"/{GetRandomString(2)}";
+                    server.ServeFile(path, expected);
+                    // Act
+                    var req = WebRequest.Create(server.GetFullUrlFor(path));
+                    using (var res = req.GetResponse())
+                    using (var stream = res.GetResponseStream())
+                    {
+                        var result = stream.ReadAllBytes();
+                        // Assert
+                        Expect(result).To.Equal(expected);
+                    }
+                }
+            }
         }
 
         [TestFixture]
