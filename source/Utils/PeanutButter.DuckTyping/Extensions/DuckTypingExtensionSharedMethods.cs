@@ -368,6 +368,11 @@ namespace PeanutButter.DuckTyping.Extensions
             bool throwIfNotAllowed
         )
         {
+            if (ConverterLocator.HaveConverterFor(type, toType))
+            {
+                return true;
+            }
+
             var errors = GetDuckErrorsFor(type, toType, allowFuzzy);
             if (throwIfNotAllowed && errors.Any())
                 throw new UnDuckableException(errors);
@@ -571,10 +576,22 @@ namespace PeanutButter.DuckTyping.Extensions
         ) where T : class
         {
             if (src == null)
+            {
                 return null;
-            var duckable = InternalCanDuckAs<T>(src, allowFuzzy, throwOnError);
-            if (!duckable)
+            }
+            
+            var converter = ConverterLocator.GetConverter(src.GetType(), typeof(T));
+            if (converter != null)
+            {
+                return (T)converter.Convert(src);
+            }
+
+
+            if (!InternalCanDuckAs<T>(src, allowFuzzy, throwOnError))
+            {
                 return null;
+            }
+            
             var srcAsDict = TryConvertToDictionary(src);
             if (allowFuzzy)
                 srcAsDict = srcAsDict?.ToCaseInsensitiveDictionary();

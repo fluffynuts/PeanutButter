@@ -14,6 +14,7 @@ namespace PeanutButter.DuckTyping.AutoConversion
             _converters ?? (_converters = FindConverters());
 
         private static IConverter[] _converters;
+
         private static IConverter[] FindConverters()
         {
             var converterTypes = FindConverterTypes();
@@ -22,16 +23,41 @@ namespace PeanutButter.DuckTyping.AutoConversion
                 .Where(c => c != null)
                 .Where(IsValidConverterType)
                 .Union(MakeStringConverters())
+                .Union(MakeNullableStringConverters())
                 .ToArray();
+        }
+
+        private static IEnumerable<IConverter> MakeNullableStringConverters()
+        {
+            var genericType = typeof(GenericNullableStringConverter<>);
+            return new[]
+            {
+                typeof(byte),
+                typeof(uint),
+                typeof(ulong),
+                typeof(short),
+                typeof(int),
+                typeof(long),
+                typeof(float),
+                typeof(double),
+                typeof(decimal),
+                typeof(bool),
+                typeof(DateTime),
+                typeof(TimeSpan)
+            }.Select(type =>
+            {
+                var converterType = genericType.MakeGenericType(type);
+                return (IConverter) Activator.CreateInstance(converterType);
+            }).ToArray();
         }
 
         private static bool IsValidConverterType(IConverter converter)
         {
             var genericInterface = converter
-                                    .GetType()
-                                    .GetAllImplementedInterfaces()
-                                    .FirstOrDefault(t => t.IsGenericType &&
-                                                t.GetGenericTypeDefinition() == typeof(IConverter<,>));
+                .GetType()
+                .GetAllImplementedInterfaces()
+                .FirstOrDefault(t => t.IsGenericType &&
+                    t.GetGenericTypeDefinition() == typeof(IConverter<,>));
             if (genericInterface == null)
                 return false;
             var types = genericInterface.GetGenericArguments();
@@ -47,6 +73,7 @@ namespace PeanutButter.DuckTyping.AutoConversion
             {
                 TryAddConverterWith(genericType, type, converters);
             }
+
             return converters.ToArray();
         }
 
@@ -55,7 +82,7 @@ namespace PeanutButter.DuckTyping.AutoConversion
             try
             {
                 var specific = genericType.MakeGenericType(type);
-                var instance = (IConverter)Activator.CreateInstance(specific);
+                var instance = (IConverter) Activator.CreateInstance(specific);
                 converters.Add(instance);
             }
             catch (Exception ex)
@@ -63,7 +90,8 @@ namespace PeanutButter.DuckTyping.AutoConversion
                 var asTargetInvocationException = ex as TargetInvocationException;
                 // ReSharper disable once RedundantAssignment
                 var message = asTargetInvocationException?.Message ?? ex.Message;
-                Trace.WriteLine($"PeanutButter.DuckTyping: Warning: Unable to register automatic string converter for {type}: {message}");
+                Trace.WriteLine(
+                    $"PeanutButter.DuckTyping: Warning: Unable to register automatic string converter for {type}: {message}");
             }
         }
 
@@ -75,7 +103,7 @@ namespace PeanutButter.DuckTyping.AutoConversion
         private static bool HasValidTryParseMethod(Type arg)
         {
             return arg.GetMethods(BindingFlags.Static | BindingFlags.Public)
-                                .Any(mi => mi.IsTryParseMethod());
+                .Any(mi => mi.IsTryParseMethod());
         }
 
 
@@ -96,7 +124,7 @@ namespace PeanutButter.DuckTyping.AutoConversion
             {
                 if (arg.IsGenericType)
                     return null;
-                return (IConverter)Activator.CreateInstance(arg);
+                return (IConverter) Activator.CreateInstance(arg);
             }
             catch
             {
@@ -106,6 +134,7 @@ namespace PeanutButter.DuckTyping.AutoConversion
 
         private static readonly object AllTypesLock = new object();
         private static Type[] _allLoadedTypes;
+
         private static Type[] AllLoadedTypes
         {
             get
@@ -120,26 +149,37 @@ namespace PeanutButter.DuckTyping.AutoConversion
         private static Type[] FindAllLoadedTypes()
         {
             return AppDomain.CurrentDomain.GetAssemblies()
-                        .Select(a =>
-                        {
-                            try
-                            {
-                                return a.GetTypes();
-                            }
-                            catch { return new Type[0]; }
-                        })
-                        .SelectMany(a => a)
-                        .ToArray();
+                .Select(a =>
+                {
+                    try
+                    {
+                        return a.GetTypes();
+                    }
+                    catch
+                    {
+                        return new Type[0];
+                    }
+                })
+                .SelectMany(a => a)
+                .ToArray();
         }
 
         private static Type[] FindConverterTypes()
         {
             var baseType = typeof(IConverter<,>);
             return AllLoadedTypes
-                        .Where(t => t.GetAllImplementedInterfaces()
-                            .Any(i => i.IsGenericType &&
-                                      i.GetGenericTypeDefinition() == baseType))
-                        .ToArray();
+                .Where(t => t.GetAllImplementedInterfaces()
+                    .Any(i => i.IsGenericType &&
+                        i.GetGenericTypeDefinition() == baseType))
+                .ToArray();
+        }
+
+        public static bool HaveConverterFor(Type type, Type toType)
+        {
+            return Converters.Any(c =>
+                (c.T1 == type && c.T2 == toType) ||
+                (c.T2 == type && c.T1 == toType)
+            );
         }
     }
 }

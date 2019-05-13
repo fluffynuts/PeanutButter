@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NExpect;
 using NUnit.Framework;
+using PeanutButter.DuckTyping.AutoConversion;
 using PeanutButter.DuckTyping.Exceptions;
 using PeanutButter.DuckTyping.Extensions;
 using PeanutButter.Utils;
@@ -1231,7 +1232,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
         [Test]
-        public void DuckAsNonGeneric_ShouldDUckWhenPossible()
+        public void DuckAsNonGeneric_ShouldDuckWhenPossible()
         {
             //--------------- Arrange -------------------
             var toType = typeof(IHasAnActorId);
@@ -1470,6 +1471,108 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             //--------------- Assert -----------------------
             Expect(result).Not.To.Be.Null();
             Expect(result.Id).To.Equal(expected);
+        }
+
+        public interface IHasFlag
+        {
+            bool? Flag { get; }
+            int? Number1 { get; }
+            long? Number2 { get; }
+            byte? Byte { get; }
+            DateTime? TheDate { get; }
+            TimeSpan? TheTimeSpan { get; }
+        }
+
+        [Test]
+        public void FuzzyDuckingToNullableProps()
+        {
+            var input = new 
+            { 
+                flag = "true", 
+                bYtE = "100",
+                number1 = "1",
+                number2 = "2",
+                theTimeSpan = "",
+                theDate = "2015-01-01"
+            };
+            // Arrange
+            // Act
+            try
+            {
+                var result = input.ForceFuzzyDuckAs<IHasFlag>();
+                // Assert
+                Expect(result.Flag).To.Be.True();
+                Expect(result.Number1).To.Equal(1);
+                Expect(result.Number2).To.Equal(2);
+                Expect(result.Byte).To.Equal((byte) 100);
+                Expect(result.TheDate).To.Equal(new DateTime(2015, 1, 1));
+                Expect(result.TheTimeSpan).To.Be.Null(); // not parseable!
+            }
+            catch (UnDuckableException ex)
+            {
+                Console.WriteLine(ex.Errors.JoinWith("\n"));
+                throw;
+            }
+        }
+
+        public interface IAnimal
+        {
+            int Id { get; }
+            string Name { get; }
+        }
+
+        public class AnimalConverter : IConverter<string, IAnimal>
+        {
+            public class Animal : IAnimal
+            {
+                public int Id { get; }
+                public string Name { get; }
+
+                public Animal(int id, string name)
+                {
+                    Id = id;
+                    Name = name;
+                }
+            }
+
+            public Type T1 => typeof(string);
+            public Type T2 => typeof(IAnimal);
+            public string Convert(IAnimal input)
+            {
+                return $"{input?.Id}/{input?.Name}";
+            }
+
+            public IAnimal Convert(string input)
+            {
+                var parts = (input ?? "").Split('/');
+                if (int.TryParse(parts[0], out var id))
+                {
+                    return new Animal(id, parts.Skip(1).FirstOrDefault());
+                }
+                return null;
+            }
+        }
+
+        [Test]
+        public void AddingCustomConverter()
+        {
+            // Arrange
+            var input = "1/bob";
+            // Act
+            try
+            {
+                var result = input.FuzzyDuckAs<IAnimal>(true);
+                // Assert
+                Expect(result).Not.To.Be.Null();
+                Expect(result).Not.To.Be.Null();
+                Expect(result.Id).To.Equal(1);
+                Expect(result.Name).To.Equal("bob");
+            }
+            catch (UnDuckableException ex)
+            {
+                Console.WriteLine(ex.Errors.JoinWith("\n"));
+                throw;
+            }
         }
 
 

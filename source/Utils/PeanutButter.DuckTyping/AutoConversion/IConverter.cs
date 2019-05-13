@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 namespace PeanutButter.DuckTyping.AutoConversion
 {
@@ -42,4 +43,31 @@ namespace PeanutButter.DuckTyping.AutoConversion
         /// </summary>
         Type T2 { get; }
     }
+
+    public static class ConverterExtensions
+    {
+        public static object Convert(this IConverter converter, object other)
+        {
+            if (other == null)
+            {
+                return null;
+            }
+
+            var otherType = other.GetType();
+            var methodInfo = converter.GetType().GetMethods()
+                .FirstOrDefault(mi =>
+                {
+                    if (mi.Name != "Convert")
+                    {
+                        return false;
+                    }
+                    var parms = mi.GetParameters();
+                    return parms.Length == 1 &&
+                        parms[0].ParameterType == otherType;
+                });
+            return methodInfo?.Invoke(converter, new object[] { other });
+            
+        }
+    }
 }
+
