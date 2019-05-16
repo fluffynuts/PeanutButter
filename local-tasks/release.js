@@ -1,7 +1,7 @@
 var
   fs = require("fs")
   gulp = require("gulp"),
-  runSequence = require("run-sequence"),
+  runSequence = requireModule("run-sequence"),
   msbuild = require("gulp-msbuild")
   del = require("del"),
   exec = requireModule("exec"),
