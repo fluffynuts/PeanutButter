@@ -12,7 +12,9 @@ namespace PeanutButter.Utils.Tests
     {
         public class AsyncSource
         {
-            private int _value;
+            public int DoStuffCalls { get; private set; }
+            
+            private readonly int _value;
 
             public AsyncSource(
                 int value)
@@ -34,6 +36,16 @@ namespace PeanutButter.Utils.Tests
                     return _value;
                 });
             }
+
+            public async Task DoStuffAsync()
+            {
+                await Task.Run(() =>
+                {
+                    Thread.Sleep(100);
+                    DoStuffCalls++;
+                });
+                    
+            }
         }
 
 
@@ -48,6 +60,18 @@ namespace PeanutButter.Utils.Tests
             var result = host.GetValueAsync().GetResultSync();
             // Assert
             Expect(result).To.Equal(expected);
+        }
+
+        [Test]
+        public void ShouldBeAbleToSynchronouslyWaitForVoidAsyncResult()
+        {
+            // Arrange
+            var host = new AsyncSource(GetRandomInt());
+            Expect(host.DoStuffCalls).To.Equal(0);
+            // Act
+            host.DoStuffAsync().WaitSync();
+            // Assert
+            Expect(host.DoStuffCalls).To.Equal(1);
         }
     }
 }

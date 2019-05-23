@@ -2,6 +2,9 @@ using System;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
+using static PeanutButter.RandomGenerators.RandomValueGen;
+using static NExpect.Expectations;
+using NExpect;
 
 namespace PeanutButter.Utils.Tests
 {
@@ -17,7 +20,8 @@ namespace PeanutButter.Utils.Tests
 
             //---------------Execute Test ----------------------
             // ReSharper disable once ObjectCreationAsStatement
-            Assert.DoesNotThrow(() => new AutoResetter(() => { }, () => { }));
+            Expect(() => new AutoResetter(() => { }, () => { }))
+                .Not.To.Throw();
 
             //---------------Test Result -----------------------
         }
@@ -35,7 +39,7 @@ namespace PeanutButter.Utils.Tests
             new AutoResetter(() => constructCalls++,() => { });
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(1, constructCalls);
+            Expect(constructCalls).To.Equal(1);
         }
 
 
@@ -48,7 +52,7 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            sut.ShouldImplement<IDisposable>();
+            Expect(sut).To.Implement<IDisposable>();
 
             //---------------Test Result -----------------------
         }
@@ -60,13 +64,13 @@ namespace PeanutButter.Utils.Tests
             var disposeCalls = 0;
             var sut = new AutoResetter(() => { }, () => disposeCalls++);
             //---------------Assert Precondition----------------
-            Assert.AreEqual(0, disposeCalls);
+            Expect(disposeCalls).To.Equal(0);
 
             //---------------Execute Test ----------------------
             sut.Dispose();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(1, disposeCalls);
+            Expect(disposeCalls).To.Equal(1);
         }
 
         [Test]
@@ -76,14 +80,14 @@ namespace PeanutButter.Utils.Tests
             var disposeCalls = 0;
             var sut = new AutoResetter(() => { }, () => disposeCalls++);
             //---------------Assert Precondition----------------
-            Assert.AreEqual(0, disposeCalls);
+            Expect(disposeCalls).To.Equal(0);
 
             //---------------Execute Test ----------------------
             sut.Dispose();
             sut.Dispose();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(1, disposeCalls);
+            Expect(disposeCalls).To.Equal(1);
         }
 
         [Test]
@@ -101,7 +105,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(initial, output);
+            Expect(initial).To.Equal(output);
         }
 
         [Test]
@@ -115,15 +119,11 @@ namespace PeanutButter.Utils.Tests
 
             //---------------Execute Test ----------------------
             sut.Dispose();
-            Assert.AreEqual(1, disposeCalls);
+            Expect(disposeCalls).To.Equal(1);
             sut.Dispose();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(1, disposeCalls);
+            Expect(disposeCalls).To.Equal(1);
         }
-
-
-
-
     }
 }

@@ -36,11 +36,9 @@ namespace PeanutButter.Utils
         {
             lock (_lock)
             {
-                if (_disposalAction == null)
-                    return;
                 try
                 {
-                    _disposalAction(_initialValue);
+                    _disposalAction?.Invoke(_initialValue);
                 }
                 finally
                 {
