@@ -23,5 +23,16 @@ namespace PeanutButter.Utils
                 .GetResult();
         }
 
+        /// <summary>
+        /// Waits on a void-result task for completion
+        /// </summary>
+        /// <param name="task"></param>
+        public static void WaitSync(
+            this Task task)
+        {
+            task.ConfigureAwait(false);
+            task.Wait();
+        }
+
     }
 }

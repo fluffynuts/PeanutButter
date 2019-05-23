@@ -2181,6 +2181,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 // Act
                 var url = GetRandomHttpUrl();
                 // Assert
+                Expect(url).Not.To.Be.Null.Or.Empty();
                 Expect(() => new Uri(url))
                     .Not.To.Throw();
             }
