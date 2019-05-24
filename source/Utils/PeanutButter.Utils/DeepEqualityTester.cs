@@ -320,8 +320,9 @@ namespace PeanutButter.Utils
 
         private static readonly MethodInfo DeepCollectionCompareGenericMethod =
 #if NETSTANDARD
-            typeof(DeepEqualityTester).GetRuntimeMethods()
-                                      .FirstOrDefault(mi => mi.Name == nameof(DeepCollectionCompare));
+            typeof(DeepEqualityTester)
+                .GetRuntimeMethods()
+                .FirstOrDefault(mi => mi.Name == nameof(DeepCollectionCompareGeneric));
 #else
             typeof(DeepEqualityTester).GetMethod(
                 nameof(DeepCollectionCompareGeneric),
