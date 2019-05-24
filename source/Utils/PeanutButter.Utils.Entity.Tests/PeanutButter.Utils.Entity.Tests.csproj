@@ -109,6 +109,9 @@
       <Version>1.6.2</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies">
+      <Version>1.0.0-preview.2</Version>
+    </PackageReference>
     <PackageReference Include="NExpect">
       <Version>1.0.136</Version>
     </PackageReference>

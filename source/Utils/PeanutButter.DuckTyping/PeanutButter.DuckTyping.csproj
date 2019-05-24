@@ -32,6 +32,7 @@
       <Folder Include="Imported\" />
     </ItemGroup>
     <ItemGroup>
+      <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0-preview.2" />
       <PackageReference Include="system.reflection.emit" Version="4.3.0" />
     </ItemGroup>
     <ItemGroup Condition="'$(TargetFramework)'=='net452'">

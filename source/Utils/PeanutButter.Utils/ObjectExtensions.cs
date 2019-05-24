@@ -671,7 +671,7 @@ namespace PeanutButter.Utils
 
         private static bool IsSimpleTypeOrNullableOfSimpleType(Type t)
         {
-            return Types.PrimitivesAndImmutables.Any(
+            return t.IsEnum ||  Types.PrimitivesAndImmutables.Any(
                 si => si == t ||
                       (t.IsGenericType() &&
                        t.GetGenericTypeDefinition() == typeof(Nullable<>) &&

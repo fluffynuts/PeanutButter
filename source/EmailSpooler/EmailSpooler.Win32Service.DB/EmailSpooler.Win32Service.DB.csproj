@@ -83,6 +83,9 @@
     <PackageReference Include="FluentMigrator.Runner">
       <Version>1.6.2</Version>
     </PackageReference>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies">
+      <Version>1.0.0-preview.2</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

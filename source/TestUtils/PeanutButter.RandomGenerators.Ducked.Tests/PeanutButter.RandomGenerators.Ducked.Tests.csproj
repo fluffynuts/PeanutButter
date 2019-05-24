@@ -50,6 +50,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies">
+      <Version>1.0.0-preview.2</Version>
+    </PackageReference>
     <PackageReference Include="nexpect">
       <Version>1.0.136</Version>
     </PackageReference>
