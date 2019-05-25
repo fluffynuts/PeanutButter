@@ -20,7 +20,7 @@ var
   };
 
 
-gulp.task("clean-old-packages", [], function () {
+gulp.task("clean-old-packages", function () {
   return del("**/*.nupkg.bak").then(function (paths) {
     paths.forEach(function (p) {
       console.log("removed: " + p);
@@ -89,7 +89,7 @@ gulp.task("build-source-nuget-packages", function () {
     .pipe(buildNugetPackages(false));
 });
 
-gulp.task("build-binary-nuget-packages", [], function () {
+gulp.task("build-binary-nuget-packages", function () {
   return gulp.src(["**/source/**/*.nuspec",
     "!**/packages/**/*.nuspec",
     /* source */
@@ -110,7 +110,7 @@ gulp.task("test-packages-exist", () => {
   return Promise.resolve("wip");
 });
 
-gulp.task("release-test-package", [], function () {
+gulp.task("release-test-package", function () {
   return gulp.src([nugetReleaseDir + `/${testProject}*`])
   .pipe(pushNugetPackages());
 });
@@ -140,7 +140,7 @@ gulp.task("release", ["build-nuget-packages"], function (done) {
   runSequence("push-packages", "commit-release", "tag-and-push", done);
 });
 
-gulp.task("push-packages", [], () => {
+gulp.task("push-packages", () => {
   return gulp.src([nugetReleaseDir + "/*.nupkg",
   "!" + nugetReleaseDir + "/*.symbols.nupkg",
     "!**/packages/**/*.nupkg"])
