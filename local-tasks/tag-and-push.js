@@ -35,7 +35,7 @@ function addTag(tag, msg) {
 function push() {
   return new Promise((resolve, reject) => {
     git.push("origin", err => {
-        return err ? reject(`Unable to push: ${err}`) : resolve;
+        return err ? reject(`Unable to push: ${err}`) : resolve();
     });
   });
 }
