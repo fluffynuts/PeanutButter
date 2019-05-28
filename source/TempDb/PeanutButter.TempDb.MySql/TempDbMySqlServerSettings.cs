@@ -286,5 +286,10 @@ namespace PeanutButter.TempDb.MySql
         [Setting("character-set-server")]
         public string CharacterSetServer { get; set; } = "utf8";
 
+        /// <summary>
+        /// mysql server setting: UNIX socket path
+        /// </summary>
+        [Setting("socket")]
+        public string Socket { get; set; } = $"/tmp/mysql-temp-{Guid.NewGuid()}.socket";
     }
 }
