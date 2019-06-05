@@ -1,8 +1,10 @@
 using System;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+
 // ReSharper disable VirtualMemberCallInConstructor
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable MemberCanBePrivate.Global
@@ -27,13 +29,21 @@ namespace PeanutButter.SimpleTcpServer
     public abstract class TcpServer : IDisposable
     {
         /// <summary>
+        /// Maximum time, in milliseconds, to wait on the
+        /// listener task when shutting down
+        /// </summary>
+        public int MaxShutDownTime { get; set; } = 1000;
+
+        /// <summary>
         /// Whether or not to log random port discovery processes
         /// </summary>
         public bool LogRandomPortDiscovery { get; set; }
+
         /// <summary>
         /// Action to employ when logging (defaults to logging to the console)
         /// </summary>
         public Action<string> LogAction { get; set; } = Console.WriteLine;
+
         // ReSharper disable once MemberCanBePrivate.Global
         /// <summary>
         /// Port which this server has bound to
@@ -72,6 +82,7 @@ namespace PeanutButter.SimpleTcpServer
             Port = port;
             Init();
         }
+
         /// <summary>
         /// Override in derived classes: this initializes the server
         /// system
@@ -213,10 +224,19 @@ namespace PeanutButter.SimpleTcpServer
                     return;
                 _cancellationTokenSource.Cancel();
                 _listener.Stop();
-                try {
-                    _task.Wait();
-                } catch { /* we can end up in here if the task is cancelled really early */}
-
+                try
+                {
+                    if (!_task.Wait(MaxShutDownTime))
+                    {
+                        Debug.WriteLine(
+                            $"TcpServer did not shut down gracefully within ${MaxShutDownTime}ms"
+                        );
+                    }
+                }
+                catch
+                {
+                    /* we can end up in here if the task is cancelled really early */
+                }
                 _listener = null;
                 _task = null;
                 _cancellationTokenSource = null;
@@ -244,7 +264,10 @@ namespace PeanutButter.SimpleTcpServer
             var rnd = new Random(DateTime.Now.Millisecond);
             var tryThis = NextRandomPort();
             var seekingPort = true;
-            Action<string> log = s => { if (LogRandomPortDiscovery) Log(s); };
+            Action<string> log = s =>
+            {
+                if (LogRandomPortDiscovery) Log(s);
+            };
             while (seekingPort)
             {
                 try
@@ -264,6 +287,7 @@ namespace PeanutButter.SimpleTcpServer
                     tryThis = NextRandomPort();
                 }
             }
+
             return tryThis;
         }
 
@@ -281,8 +305,8 @@ namespace PeanutButter.SimpleTcpServer
                 minPort = maxPort;
                 maxPort = swap;
             }
+
             return _random.Next(minPort, maxPort);
         }
-
     }
 }
