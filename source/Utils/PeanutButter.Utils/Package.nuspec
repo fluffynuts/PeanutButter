@@ -18,7 +18,6 @@
     <license type="expression">BSD-3-Clause</license>
     <copyright>Copyright  2014</copyright>
     <dependencies>
-      <group targetFramework="net40"></group>
     </dependencies>
     <references></references>
     <tags></tags>
