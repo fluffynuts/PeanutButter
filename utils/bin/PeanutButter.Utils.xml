@@ -1,0 +1,2772 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>PeanutButter.Utils</name>
+    </assembly>
+    <members>
+        <member name="T:PeanutButter.Utils.AssemblyExtensions">
+            <summary>
+            Provides extension methods for Assemblies
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.AssemblyExtensions.FindTypeByName(System.Reflection.Assembly,System.String)">
+            <summary>
+            Finds a Type by name within a given assembly. Returns null
+            if the type cannot be found.
+            </summary>
+            <param name="assembly">The assembly to search</param>
+            <param name="typeName">The name of the Type to find</param>
+            <returns>First type maching given name or null if no match found</returns>
+        </member>
+        <member name="T:PeanutButter.Utils.AsyncExtensionsForIEnumerables">
+            <summary>
+            Useful extensions for IEnumerable&lt;T&gt; collections, with async in mind
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.AsyncExtensionsForIEnumerables.ForEachAsync``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Threading.Tasks.Task})">
+            <summary>
+            The missing ForEach method - async variant. Don't forget to await on it!
+            </summary>
+            <param name="collection">Subject collection to operate over</param>
+            <param name="toRun">Action to run on each member of the collection</param>
+            <typeparam name="T">Item type of the collection</typeparam>
+        </member>
+        <member name="M:PeanutButter.Utils.AsyncExtensionsForIEnumerables.ForEachAsync``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Int32,System.Threading.Tasks.Task})">
+            <summary>
+            The missing ForEach method - asynchronous variant which also provides the current item index
+            -> DON'T forget to await!
+            </summary>
+            <param name="collection">Subject collection to operate over</param>
+            <param name="toRunWithIndex">Action to run on each member of the collection</param>
+            <typeparam name="T">Item type of the collection</typeparam>
+        </member>
+        <member name="M:PeanutButter.Utils.AsyncExtensionsForIEnumerables.ToArrayAsync``1(System.Threading.Tasks.Task{System.Collections.Generic.IEnumerable{``0}})">
+            <summary>
+            Allows awaiting on making an async result of IEnumerable&lt;T&gt;
+            into an array. Think of "ToArray" for an async result.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="src"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.AsyncExtensionsForIEnumerables.ToArrayAsync``1(System.Threading.Tasks.Task{``0[]})">
+            <summary>
+            Allows awaiting on making an async result of IEnumerable&lt;T&gt;
+            into an array. Think of "ToArray" for an async result.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="src"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.AsyncExtensionsForIEnumerables.ToArrayAsync``1(System.Threading.Tasks.Task{System.Collections.Generic.List{``0}})">
+            <summary>
+            Allows awaiting on making an async result of IEnumerable&lt;T&gt;
+            into an array. Think of "ToArray" for an async result.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="src"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.AsyncExtensionsForIEnumerables.AggregateAsync``2(System.Collections.Generic.IEnumerable{``1},``0,System.Func{``0,``1,System.Threading.Tasks.Task{``0}})">
+            <summary>
+            Provides an awaitable Aggregate for collections
+            </summary>
+            <typeparam name="TAccumulator"></typeparam>
+            <typeparam name="TItem"></typeparam>
+            <param name="items">Collection to operate on</param>
+            <param name="seed">Seed accumulator object</param>
+            <param name="reducer">Function to call on each item, reducing the overall result.
+            It will be given the accumulator from the last round (or the seed if it is the first
+            time it is called) and should return an accumulator which the next round can use.</param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.AsyncExtensionsForIEnumerables.SelectAsync``2(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Threading.Tasks.Task{``1}})">
+            <summary>
+            Provides an awaitable variant of Select()
+            </summary>
+            <typeparam name="TIn"></typeparam>
+            <typeparam name="TOut"></typeparam>
+            <param name="src">Source collection to operate on</param>
+            <param name="transform"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.AsyncExtensionsForIEnumerables.WhereAsync``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Threading.Tasks.Task{System.Boolean}})">
+            <summary>
+            Provides an awaitable .Where() where your discriminator
+            function can be async. Will return an empty collection if
+            operating on null.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="src">Source collection</param>
+            <param name="discriminator">Discriminator function</param>
+            <returns></returns>
+        </member>
+        <member name="T:PeanutButter.Utils.AutoDeleter">
+            <summary>
+            Provides a mechanism to autmatically delete one or more files
+            using the IDisposable pattern.
+            Use this when you'd like to clean up some temporary files after an
+            operation completes without having to worry about exception handling, etc.
+            Files which cannot be deleted (eg: locked for reading / writing) will be
+            left behind. No exceptions are thrown. Files which have been removed in the
+            interim do not cause any exceptions.
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.AutoDeleter.#ctor(System.String[])">
+            <summary>
+            Constructs a new AutoDeleter with zero or more paths to delete upon disposal
+            </summary>
+            <param name="paths">Params array of paths to delete upon disposal</param>
+        </member>
+        <member name="M:PeanutButter.Utils.AutoDeleter.Add(System.String[])">
+            <summary>
+            Adds zero or more paths to the list to delete upon disposal
+            </summary>
+            <param name="paths">Params array of paths to add to the list to delete upon disposal</param>
+        </member>
+        <member name="M:PeanutButter.Utils.AutoDeleter.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="T:PeanutButter.Utils.AutoDisposer">
+            <summary>
+            Provides a mechanism to dispose of other disposables when it is disposed.
+            This allows for flattening out nested using() blocks with an outer AutoDisposer
+            which takes care of disposing registered items (in reverse order) when it is
+            disposed
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.AutoDisposer.#ctor(System.IDisposable[])">
+            <summary>
+            Constructs a new AutoDisposer
+            </summary>
+            <param name="toDispose">Params array of objects implementing IDisposable which the AutoDisposer will dispose of when it it disposed</param>
+        </member>
+        <member name="M:PeanutButter.Utils.AutoDisposer.Add(System.IDisposable[])">
+            <summary>
+            Adds zero or more IDisposable objects to the list to be disposed when this AutoDisposer is disposed
+            </summary>
+            <param name="toDispose">Params array of objects to watch. Objects are disposed in reverse order.</param>
+        </member>
+        <member name="M:PeanutButter.Utils.AutoDisposer.Add``1(``0)">
+            <summary>
+            Adds a single IDisposable object to the disposable list and returns that object.
+            Use this to make your code flow better, eg:
+            var someDisposable = autoDisposer.Add(new SomeDisposable());
+            </summary>
+            <param name="toDispose">IDisposable to dispose of at a later date</param>
+            <typeparam name="T">The type of the IDisposable to add</typeparam>
+            <returns>The item added to the auto-disposing collection</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.AutoDisposer.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="T:PeanutButter.Utils.AutoLocker">
+            <summary>
+            Class to use the using() {} pattern to take care of locking / unlocking one of:
+            - Semaphore
+            - SemaphoreSlim
+            - Mutex
+            without the consumer having to worry about unlocking in the event of exception
+            handling
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.AutoLocker.#ctor(System.Threading.Semaphore)">
+            <summary>
+            Constructs a new AutoLocker, immediately locking the provided Semaphore
+            </summary>
+            <param name="semaphore">Semaphore to lock immediately</param>
+            <exception cref="T:System.ArgumentNullException">Throws ArgumentNullException if the provided Semaphore is null</exception>
+        </member>
+        <member name="M:PeanutButter.Utils.AutoLocker.#ctor(System.Threading.SemaphoreSlim)">
+            <summary>
+            Constructs a new AutoLocker, immediately locking the provided SemaphoreSlim
+            </summary>
+            <param name="semaphore">SemaphoreSlim to lock immediately</param>
+            <exception cref="T:System.ArgumentNullException">Thrown if the provided SemaphoreSlim is null</exception>
+        </member>
+        <member name="M:PeanutButter.Utils.AutoLocker.#ctor(System.Threading.Mutex)">
+            <summary>
+            Constructs a new AutoLocker, immediately locking the provided Mutex
+            </summary>
+            <param name="mutex">Mutex to lock immediately</param>
+            <exception cref="T:System.ArgumentNullException">Thrown if the provided Mutex is null</exception>
+        </member>
+        <member name="M:PeanutButter.Utils.AutoLocker.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="T:PeanutButter.Utils.AutoResetter">
+            <summary>
+            Provides a mechanism to run code on construction and disposal,
+            irrespective of exception handling
+            Use this, for example, to set up and tear down state required for
+            a test -- your constructionAction is called immediately upon construction
+            and the using() pattern guarantees that your disposalAction is called at
+            disposal, even if your test fails.
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.AutoResetter.#ctor(System.Action,System.Action)">
+            <summary>
+            Constructs a new AutoResetter and immediately runs the constructionAction
+            </summary>
+            <param name="constructionAction">Action to run at construction time</param>
+            <param name="disposalAction">Action to run at disposal time</param>
+        </member>
+        <member name="M:PeanutButter.Utils.AutoResetter.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="T:PeanutButter.Utils.AutoResetter`1">
+            <summary>
+            Provides a mechanism to run code on construction and disposal,
+            irrespective of exception handling
+            Use this, for example, to set up and tear down state required for
+            a test -- your constructionAction is called immediately upon construction
+            and the using() pattern guarantees that your disposalAction is called at
+            disposal, even if your test fails.
+            This is the variant of AutoResetter where:
+            1. The start Func returns a value
+            2. Upon disposal, the end action is called with the value from (1)
+            </summary>
+            <typeparam name="T">Type of value which is passed to the start and end actions</typeparam>
+        </member>
+        <member name="M:PeanutButter.Utils.AutoResetter`1.#ctor(System.Func{`0},System.Action{`0})">
+            <summary>
+            Construcst a new AutoResetter, runs the start Func and stores the result
+            </summary>
+            <param name="start">Code to run at construction</param>
+            <param name="end">Code to run at disposal; will receive the result provided from the start Func</param>
+        </member>
+        <member name="M:PeanutButter.Utils.AutoResetter`1.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="T:PeanutButter.Utils.AutoTempFile">
+            <summary>
+            Provides a mechanism to create, read and write a temporary file which
+            is automatically removed at disposal time
+            </summary>
+        </member>
+        <member name="P:PeanutButter.Utils.AutoTempFile.Path">
+            <summary>
+            Provides the path to the temporary file on disk
+            </summary>
+        </member>
+        <member name="P:PeanutButter.Utils.AutoTempFile.BinaryData">
+            <summary>
+            Reads and writes binary data from and to the file
+            </summary>
+        </member>
+        <member name="P:PeanutButter.Utils.AutoTempFile.StringData">
+            <summary>
+            Reads and writes string data from and to the file
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.AutoTempFile.#ctor">
+            <summary>
+            Default constructor: creates the temp file with no data and no naming hints
+            using the OS-level temporary filename generator.
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.AutoTempFile.#ctor(System.Byte[])">
+            <summary>
+            Constructs a new AutoTempFile with the provided binary data. The file
+            name is generated by the operating system.
+            </summary>
+            <param name="data"></param>
+        </member>
+        <member name="M:PeanutButter.Utils.AutoTempFile.#ctor(System.String)">
+            <summary>
+            Constructs a new AutoTempFile with the provided string data. The file
+            name is generated by the operating system.
+            </summary>
+            <param name="data"></param>
+        </member>
+        <member name="M:PeanutButter.Utils.AutoTempFile.#ctor(System.String,System.String)">
+            <summary>
+            Constructs a new AutoTempFile in the specified baseFolder with the provided string data
+            </summary>
+            <param name="baseFolder">Folder to create the file within</param>
+            <param name="data">String data to initialize the file with</param>
+        </member>
+        <member name="M:PeanutButter.Utils.AutoTempFile.#ctor(System.String,System.Byte[])">
+            <summary>
+            Constructs a new AutoTempFile in the specified baseFolder with the provided binary data
+            </summary>
+            <param name="baseFolder">Folder to create the file within</param>
+            <param name="data">Binary data to initialize the file with</param>
+        </member>
+        <member name="M:PeanutButter.Utils.AutoTempFile.#ctor(System.String,System.String,System.Byte[])">
+            <summary>
+            Constructs a new AutoTempFile in the provided folder with the provided
+            name, containing the provided binary data
+            </summary>
+            <param name="baseFolder">Folder to create the file within</param>
+            <param name="fileName">Name to use for the file</param>
+            <param name="data">Binary data to initialize the file with</param>
+        </member>
+        <member name="M:PeanutButter.Utils.AutoTempFile.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="T:PeanutButter.Utils.AutoTempFolder">
+            <summary>
+            Provides a mechanism for creating a temporary folder which is automatically
+            deleted upon disposal.
+            </summary>
+        </member>
+        <member name="P:PeanutButter.Utils.AutoTempFolder.Path">
+            <summary>
+            Returns the path to the created folder
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.AutoTempFolder.#ctor">
+            <summary>
+            Default constructor: uses the operating system method to
+            get a temporary path to use for the folder
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.AutoTempFolder.#ctor(System.String)">
+            <summary>
+            Constructs a new AutoTempFolder with the temporary folder
+            hosued under the provided baseFolder
+            </summary>
+            <param name="baseFolder">Folder within which to create the temporary folder</param>
+        </member>
+        <member name="M:PeanutButter.Utils.AutoTempFolder.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="T:PeanutButter.Utils.ByteArrayExtensions">
+            <summary>
+            Provides some extensions useful for byte arrays
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.ByteArrayExtensions.ToMD5String(System.Byte[])">
+            <summary>
+            Calculates the md5sum for the provided binary data
+            </summary>
+            <param name="data">Binary data to hash</param>
+            <returns>hex-encoded md5sum for the provided data</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ByteArrayExtensions.ToUTF8String(System.Byte[])">
+            <summary>
+            Provides a UTF-8 encoded string from the given binary data
+            </summary>
+            <param name="data">Binary data to encode as a UTF-8 string</param>
+            <returns>The string representation of the binary data</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ByteArrayExtensions.ToBase64(System.Byte[])">
+            <summary>
+            Provides a base64 encoding of the given data. Basically a wrapper around
+            System.Convert.ToBase64String
+            </summary>
+            <param name="data">data to encode</param>
+            <returns>base64 representation</returns>
+        </member>
+        <member name="T:PeanutButter.Utils.DateTimeExtensions">
+            <summary>
+            Provides some useful extension methods for DateTime values
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.DateTimeExtensions.IsWithinRange(System.DateTime,System.DateTime,System.DateTime)">
+            <summary>
+            Calculates whether or not a provided DateTime is within the provided range
+            </summary>
+            <param name="value">DateTime subject to test</param>
+            <param name="start">Minimum value of DateTime range</param>
+            <param name="end">MaximumValue of DateTime range</param>
+            <returns>True if the value is within the provided range or false if it is not</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.DateTimeExtensions.AsHoursAndMinutes(System.DateTime)">
+            <summary>
+            Returns a string representation of the form HH:mm for a DateTime
+            </summary>
+            <param name="value">Datetime subject</param>
+            <returns>String representation of the time part of the subject, in the format HH:mm</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.DateTimeExtensions.AsTimeString(System.DateTime)">
+            <summary>
+            Returns a string representation of the form HH:mm:ss for a DateTime
+            </summary>
+            <param name="value">Datetime subject</param>
+            <returns>String representation of the time part of the subject, in the format HH:mm:ss</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.DateTimeExtensions.MillisecondsSinceStartOfDay(System.DateTime)">
+            <summary>
+            Calculates the number of milliseconds since the start of the day for a given DateTime value
+            </summary>
+            <param name="value">DateTime subject to calculate for</param>
+            <returns>Number of milliseconds since the start of the day for the subject DateTime</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.DateTimeExtensions.StartOfDay(System.DateTime)">
+            <summary>
+            Calculates the DateTime of the start of the day for a provided DateTime value
+            </summary>
+            <param name="value">Subject DateTime to calculate the start of day for</param>
+            <returns>A new DateTime value which represents the start of the day for the subject DateTime</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.DateTimeExtensions.EndOfDay(System.DateTime)">
+            <summary>
+            Calculates the DateTime of the end of the day for a provided DateTime value
+            </summary>
+            <param name="value">Subject DateTime to calculate the end of day for</param>
+            <returns>A new DateTime value which represents the end of the day for the subject DateTime</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.DateTimeExtensions.AsTimeOnly(System.DateTime)">
+            <summary>
+            Gets a DateTime value which has the same time components as the provided subject
+            with minimum values (typically 0 or 1) for the date components
+            </summary>
+            <param name="value">Subject DateTime to operate on</param>
+            <returns>new DateTime with date components set from DateTime.MinValue and time components set from the subject</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.DateTimeExtensions.WithTime(System.DateTime,System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Gets a new DateTime with the time component mutated
+            </summary>
+            <param name="value">Subject DateTime to start with</param>
+            <param name="hour">Hours to set on result</param>
+            <param name="minute">Minutes to set on result</param>
+            <param name="second">Seconds to set on result</param>
+            <param name="millisecond">Milliseconds to set on result</param>
+            <returns>
+            A new DateTime with the date component copied from the subject
+            and the time component set from provided arguments
+            </returns>
+        </member>
+        <member name="M:PeanutButter.Utils.DateTimeExtensions.TruncateMicroseconds(System.DateTime)">
+            <summary>
+            Provides a new DateTime with all components from the subject except
+            Microseconds, which are truncated.
+            </summary>
+            <param name="value">Subject DateTime to start with</param>
+            <returns>
+            New DateTime with all components except milliseconds set from the subject.
+            Microseconds are set to zero.
+            </returns>
+        </member>
+        <member name="M:PeanutButter.Utils.DateTimeExtensions.TruncateMilliseconds(System.DateTime)">
+            <summary>
+            Provides a new DateTime with all components from the subject except
+            Milliseconds, which are truncated.
+            </summary>
+            <param name="value">Subject DateTime to start with</param>
+            <returns>
+            New DateTime with all components except milliseconds set from the subject.
+            Milliseconds are set to zero.
+            </returns>
+        </member>
+        <member name="M:PeanutButter.Utils.DateTimeExtensions.ToKind(System.DateTime,System.DateTimeKind)">
+            <summary>
+            Provides a new DateTime object with the DateTimeKind set as required
+            </summary>
+            <param name="value"></param>
+            <param name="kind"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.DateTimeExtensions.TruncateSeconds(System.DateTime)">
+            <summary>
+            Provides a new DateTime with all components from the subject except
+            Seconds, which are truncated.
+            </summary>
+            <param name="value">Subject DateTime to start with</param>
+            <returns>
+            New DateTime with all components except milliSeconds set from the subject.
+            Seconds are set to zero.
+            </returns>
+        </member>
+        <member name="M:PeanutButter.Utils.DateTimeExtensions.TruncateMinutes(System.DateTime)">
+            <summary>
+            Provides a new DateTime with all components from the subject except
+            Minutes, which are truncated.
+            </summary>
+            <param name="value">Subject DateTime to start with</param>
+            <returns>
+            New DateTime with all components except milliMinutes set from the subject.
+            Minutes are set to zero.
+            </returns>
+        </member>
+        <member name="M:PeanutButter.Utils.DateTimeExtensions.TruncateHours(System.DateTime)">
+            <summary>
+            Provides a new DateTime with all components from the subject except
+            Hours, which are truncated.
+            </summary>
+            <param name="value">Subject DateTime to start with</param>
+            <returns>
+            New DateTime with all components except milliHours set from the subject.
+            Hours are set to zero.
+            </returns>
+        </member>
+        <member name="M:PeanutButter.Utils.DateTimeExtensions.TruncateDays(System.DateTime)">
+            <summary>
+            Provides a new DateTime with all components from the subject except
+            Days, which are truncated.
+            </summary>
+            <param name="value">Subject DateTime to start with</param>
+            <returns>
+            New DateTime with all components except milliDays set from the subject.
+            Days are set to zero.
+            </returns>
+        </member>
+        <member name="M:PeanutButter.Utils.DateTimeExtensions.TruncateMonths(System.DateTime)">
+            <summary>
+            Provides a new DateTime with all components from the subject except
+            Months, which are truncated.
+            </summary>
+            <param name="value">Subject DateTime to start with</param>
+            <returns>
+            New DateTime with all components except milliMonths set from the subject.
+            Months are set to zero.
+            </returns>
+        </member>
+        <member name="M:PeanutButter.Utils.DateTimeExtensions.Microseconds(System.DateTime)">
+            <summary>
+            Gets the microseconds component for a DateTime value
+            </summary>
+            <param name="value">Subject DateTime to operate on</param>
+            <returns>Microseconds component of the subject DateTime value</returns>
+        </member>
+        <member name="T:PeanutButter.Utils.DecimalDecorator">
+            <summary>
+            Provides a relatively "safe" interchange between decimal and string
+             notations for numbers, inspecting the input string to try to make the best
+             decision based on the contents of the string instead of just relying on
+             the current thread culture (which causes issues when communicating between
+             machines with different ideas of what constitutes "correct" decimal notation
+             a prime example being transport of decimals from Javascript into a ZA .net
+             culture -- but there are others)
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.DecimalDecorator.#ctor(System.Decimal,System.String)">
+            <summary>
+            Constructs a new DecimalDecorator with the provided decimal value an an
+            optional string format
+            </summary>
+            <param name="value">Decimal value to decorate</param>
+            <param name="format">Optional string format to use</param>
+        </member>
+        <member name="M:PeanutButter.Utils.DecimalDecorator.#ctor(System.String)">
+            <summary>
+            Constructs a new DecimalDecorator with the provided string value to
+            parse as a decimal
+            </summary>
+            <param name="value">String value to parse as Decimal</param>
+        </member>
+        <member name="M:PeanutButter.Utils.DecimalDecorator.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.Utils.DecimalDecorator.ToDecimal">
+            <summary>
+            Returns the decimal version of the underlying data
+            </summary>
+            <returns>The decimal version of the underlying data</returns>
+        </member>
+        <member name="T:PeanutButter.Utils.DeepEqualityTester">
+            <summary>
+            Provides a mechanism to test deep-equality of two objects with
+            an optional list of properties to ignore by name. Deep equality
+            testing bypasses reference-checking of container objects and compares
+            primitive propertyt values. Use this to test whether or not two
+            objects essentially contain the same data. More conveniently,
+            use the following extension methods:
+            - DeepEquals -> performs default deep equality testing
+            - DeepSubEquals -> tests if one object matches another, for all the properties that the first has in common with the second
+            - DeepIntersectionEquals -> tests deep equality only on properties which can be matched by name and type
+            </summary>
+        </member>
+        <member name="P:PeanutButter.Utils.DeepEqualityTester.RecordErrors">
+            <summary>
+            Toggle whether or not to record equality errors
+            </summary>
+        </member>
+        <member name="P:PeanutButter.Utils.DeepEqualityTester.FailOnMissingProperties">
+            <summary>
+            Toggle whether or not equality testing fails when properties found
+            on the first object are not found on the corresponding other object
+            </summary>
+        </member>
+        <member name="P:PeanutButter.Utils.DeepEqualityTester.OnlyTestIntersectingProperties">
+            <summary>
+            Toggle whether or not to only test properties found on both objects
+            </summary>
+        </member>
+        <member name="P:PeanutButter.Utils.DeepEqualityTester.Errors">
+            <summary>
+            Provides a list of errors for diagnosing inequality, if RecordErrors has been
+            set to true
+            </summary>
+        </member>
+        <member name="P:PeanutButter.Utils.DeepEqualityTester.IncludeFields">
+            <summary>
+            Flag: include fields in deep equality testing (false by default)
+            </summary>
+        </member>
+        <member name="P:PeanutButter.Utils.DeepEqualityTester.OnlyCompareShape">
+            <summary>
+            Toggle only testing the shape of the objects provided.
+            </summary>
+        </member>
+        <member name="P:PeanutButter.Utils.DeepEqualityTester.VerbosePropertyMismatchErrors">
+            <summary>
+            Include full object dumps when storing errors about property mismatches
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.DeepEqualityTester.#ctor(System.Object,System.Object,System.String[])">
+            <summary>
+            Constructs a new DeepEqualityTester for a source object and compare object
+            with an optional params array of properties to ignore by name, all the way down
+            </summary>
+            <param name="objSource">Source / master object</param>
+            <param name="objCompare">Object to compare with</param>
+            <param name="ignorePropertiesByName">Params array of properties to ignore by name</param>
+        </member>
+        <member name="M:PeanutButter.Utils.DeepEqualityTester.AreDeepEqual">
+            <summary>
+            Calculates if the two objects provided during construction are DeepEqual
+            according to the properties set. Will always re-calculate, so if one of the
+            provided objects changes, this will always return the current value.
+            </summary>
+            <returns>True if the two objects are found to match; false otherwise.</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.DeepEqualityTester.AddCustomComparer``1(System.Collections.Generic.IEqualityComparer{``0})">
+            <summary>
+            Adds a custom comparer for the type T
+            </summary>
+            <param name="comparer"></param>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:PeanutButter.Utils.DeepEqualityTester.AddCustomComparer(System.Object)">
+            <summary>
+            Adds a custom comparer to use for the specified type.
+            Custom comparers must implement IComparer&lt;T&gt; where T
+            becomes the type selection to use for when the comparer
+            is invoked
+            </summary>
+            <param name="comparer"></param>
+        </member>
+        <member name="T:PeanutButter.Utils.Dictionaries.CaseWarpingDictionaryWrapper`1">
+            <summary>
+            Provides a read/write-through shim for another dictionary with
+            the desired case sensitivity access
+            </summary>
+            <typeparam name="TValue"></typeparam>
+        </member>
+        <member name="P:PeanutButter.Utils.Dictionaries.CaseWarpingDictionaryWrapper`1.Keys">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.Utils.Dictionaries.CaseWarpingDictionaryWrapper`1.Values">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.Utils.Dictionaries.CaseWarpingDictionaryWrapper`1.Comparer">
+            <summary>
+            Provides read-only access to the StringComparer used to match keys
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.CaseWarpingDictionaryWrapper`1.#ctor(System.Collections.Generic.IDictionary{System.String,`0})">
+            <summary>
+            Constructs a CaseWarpingDictionaryWrapper around the provided
+            actual dictionary with no case-warping
+            </summary>
+            <param name="actual"></param>
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.CaseWarpingDictionaryWrapper`1.#ctor(System.Collections.Generic.IDictionary{System.String,`0},System.Boolean)">
+            <summary>
+            Constructs a CaseWarpingDictionaryWrapper around the provided
+            actual dictionary with specified case sensitivity
+            </summary>
+            <param name="actual"></param>
+            <param name="caseInsensitive"></param>
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.CaseWarpingDictionaryWrapper`1.#ctor(System.Collections.Generic.IDictionary{System.String,`0},System.StringComparer)">
+            <summary>
+            Constructs a CaseWarpingDictionaryWrapper around the provided
+            actual dictionary with the provided StringComparer used to look
+            up keys
+            </summary>
+            <param name="actual"></param>
+            <param name="keyComparer"></param>
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.CaseWarpingDictionaryWrapper`1.GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.CaseWarpingDictionaryWrapper`1.System#Collections#IEnumerable#GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.CaseWarpingDictionaryWrapper`1.Add(System.Collections.Generic.KeyValuePair{System.String,`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.CaseWarpingDictionaryWrapper`1.Add(System.String,`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.CaseWarpingDictionaryWrapper`1.Clear">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.CaseWarpingDictionaryWrapper`1.Contains(System.Collections.Generic.KeyValuePair{System.String,`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.CaseWarpingDictionaryWrapper`1.CopyTo(System.Collections.Generic.KeyValuePair{System.String,`0}[],System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.CaseWarpingDictionaryWrapper`1.Remove(System.Collections.Generic.KeyValuePair{System.String,`0})">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.Utils.Dictionaries.CaseWarpingDictionaryWrapper`1.Count">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.Utils.Dictionaries.CaseWarpingDictionaryWrapper`1.IsReadOnly">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.CaseWarpingDictionaryWrapper`1.ContainsKey(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.CaseWarpingDictionaryWrapper`1.Remove(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.CaseWarpingDictionaryWrapper`1.TryGetValue(System.String,`0@)">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.Utils.Dictionaries.CaseWarpingDictionaryWrapper`1.Item(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="T:PeanutButter.Utils.Dictionaries.DefaultDictionary`2">
+            <summary>
+            Provides a Dictionary class which returns default values for unknown keys
+            (like Python's defaultdict)
+            </summary>
+            <typeparam name="TKey"></typeparam>
+            <typeparam name="TValue"></typeparam>
+        </member>
+        <member name="P:PeanutButter.Utils.Dictionaries.DefaultDictionary`2.Comparer">
+            <summary>
+            Always report as case- and culture- insensitive
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.DefaultDictionary`2.#ctor">
+            <summary>
+            Constructs a DefaultDictionary where missing key lookups
+            return the default value for TValue
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.DefaultDictionary`2.#ctor(System.Func{`1})">
+            <summary>
+            Constructs a DefaultDictionary where missing key lookups
+            return the value provided by the default resolver
+            </summary>
+            <param name="defaultResolver"></param>
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.DefaultDictionary`2.#ctor(System.Func{`0,`1})">
+            <summary>
+            Constructs a DefaultDictionary where missing key lookups
+            return the value provided by the default resolver
+            </summary>
+            <param name="smartResolver"></param>
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.DefaultDictionary`2.GetEnumerator">
+            <summary>
+            Gets an enumerator for known items in the dictionary
+            </summary>
+            <returns>Enumerator of TKey/TValue</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.DefaultDictionary`2.Add(System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary>
+            Adds an item to the dictionary
+            </summary>
+            <param name="item">KeyValuePair to add</param>
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.DefaultDictionary`2.Clear">
+            <summary>
+            Removes all known items from the dictionary
+            -> NB: you'll still get default values!
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.DefaultDictionary`2.Contains(System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary>
+            Searches for an item in the dictionary
+            </summary>
+            <param name="item">Item to search for</param>
+            <returns>True if found, False otherwise</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.DefaultDictionary`2.CopyTo(System.Collections.Generic.KeyValuePair{`0,`1}[],System.Int32)">
+            <summary>
+            Copies known items to the target array
+            </summary>
+            <param name="array">Array to copy to</param>
+            <param name="arrayIndex">position to start copying at</param>
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.DefaultDictionary`2.Remove(System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary>
+            Removes an item from the dictionary
+            </summary>
+            <param name="item">Item to remove</param>
+            <returns>True if found and removed, False otherwise</returns>
+        </member>
+        <member name="P:PeanutButter.Utils.Dictionaries.DefaultDictionary`2.Count">
+            <summary>
+            Gives the count of known items in the dictionary
+            </summary>
+        </member>
+        <member name="P:PeanutButter.Utils.Dictionaries.DefaultDictionary`2.IsReadOnly">
+            <summary>
+            Always returns false - DefaultDictionaries are writable!
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.DefaultDictionary`2.ContainsKey(`0)">
+            <summary>
+            Always returns true - if the key is "unknown" a default can still be provided
+            </summary>
+            <param name="key">Key to search for</param>
+            <returns>True</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.DefaultDictionary`2.Add(`0,`1)">
+            <summary>
+            Adds an item by key, value to the dictionary
+            </summary>
+            <param name="key">Key to add</param>
+            <param name="value">Value to add</param>
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.DefaultDictionary`2.Remove(`0)">
+            <summary>
+            Removes an item by key from the dictionary
+            </summary>
+            <param name="key">Key to remove</param>
+            <returns>True if found and removed, False otherwise</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.DefaultDictionary`2.TryGetValue(`0,`1@)">
+            <summary>
+            Tries to get a known value for the key, falling back on the default value
+            </summary>
+            <param name="key">Key to look up</param>
+            <param name="value">(out) parameter containing looked up (or default) value</param>
+            <returns>Always true</returns>
+        </member>
+        <member name="P:PeanutButter.Utils.Dictionaries.DefaultDictionary`2.Item(`0)">
+            <summary>
+            Index into the dictionary
+            </summary>
+            <param name="key">Key to look up</param>
+        </member>
+        <member name="P:PeanutButter.Utils.Dictionaries.DefaultDictionary`2.Keys">
+            <summary>
+            Returns a collection of all known keys
+            </summary>
+        </member>
+        <member name="P:PeanutButter.Utils.Dictionaries.DefaultDictionary`2.Values">
+            <summary>
+            Returns a collection of all known values
+            </summary>
+        </member>
+        <member name="T:PeanutButter.Utils.Dictionaries.DictionaryWrappingObject">
+            <summary>
+            Wraps an object in a dictionary interface
+            </summary>
+        </member>
+        <member name="P:PeanutButter.Utils.Dictionaries.DictionaryWrappingObject.Comparer">
+            <summary>
+            The string comparer used to locate keys
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.DictionaryWrappingObject.#ctor(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.DictionaryWrappingObject.#ctor(System.Object,System.StringComparer)">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.DictionaryWrappingObject.GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.DictionaryWrappingObject.Add(System.Collections.Generic.KeyValuePair{System.String,System.Object})">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.DictionaryWrappingObject.Clear">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.DictionaryWrappingObject.Contains(System.Collections.Generic.KeyValuePair{System.String,System.Object})">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.DictionaryWrappingObject.CopyTo(System.Collections.Generic.KeyValuePair{System.String,System.Object}[],System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.DictionaryWrappingObject.Remove(System.Collections.Generic.KeyValuePair{System.String,System.Object})">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.Utils.Dictionaries.DictionaryWrappingObject.Count">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.Utils.Dictionaries.DictionaryWrappingObject.IsReadOnly">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.DictionaryWrappingObject.ContainsKey(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.DictionaryWrappingObject.Add(System.String,System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.DictionaryWrappingObject.Remove(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.DictionaryWrappingObject.TryGetValue(System.String,System.Object@)">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.Utils.Dictionaries.DictionaryWrappingObject.Item(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.Utils.Dictionaries.DictionaryWrappingObject.Keys">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.Utils.Dictionaries.DictionaryWrappingObject.Values">
+            <inheritdoc />
+        </member>
+        <member name="T:PeanutButter.Utils.Dictionaries.MergeDictionary`2">
+            <summary>
+            Provides a mechanism to merge multiple dictionaries into one
+            Source dictionaries
+            </summary>
+            <typeparam name="TKey"></typeparam>
+            <typeparam name="TValue"></typeparam>
+        </member>
+        <member name="P:PeanutButter.Utils.Dictionaries.MergeDictionary`2.Comparer">
+            <summary>
+            Expose the first (or least-restrictive, for strings) key comparer
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.MergeDictionary`2.#ctor(System.Collections.Generic.IDictionary{`0,`1}[])">
+            <summary>
+            Construct MergeDictionary over other dictionaries
+            </summary>
+            <param name="layers"></param>
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.MergeDictionary`2.GetEnumerator">
+            <summary>
+            Gets an Enumerator for the KeyValuePairs in this merged
+            dictionary, prioritised by the order of provided layers
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.MergeDictionary`2.Add(System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary>
+            Will throw - MergeDictionary is read-only
+            </summary>
+            <param name="item"></param>
+            <exception cref="T:System.InvalidOperationException"></exception>
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.MergeDictionary`2.Clear">
+            <summary>
+            Will throw - MergeDictionary is read-only
+            </summary>
+            <exception cref="T:System.InvalidOperationException"></exception>
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.MergeDictionary`2.Contains(System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary>
+            Returns true if any layer contains the provided item
+            </summary>
+            <param name="item">Item to search for</param>
+            <returns>True if found, False if not</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.MergeDictionary`2.CopyTo(System.Collections.Generic.KeyValuePair{`0,`1}[],System.Int32)">
+            <summary>
+            Copies the prioritised items to the provided array from the given arrayIndex
+            </summary>
+            <param name="array">Target array to copy to</param>
+            <param name="arrayIndex">Index to start copying at</param>
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.MergeDictionary`2.Remove(System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary>
+            Will throw an exception - MergeDictionary is read-only
+            </summary>
+            <param name="item">Item to remove</param>
+            <returns></returns>
+            <exception cref="T:System.InvalidOperationException"></exception>
+        </member>
+        <member name="P:PeanutButter.Utils.Dictionaries.MergeDictionary`2.Count">
+            <summary>
+            Returns the count of distinct keys
+            </summary>
+        </member>
+        <member name="P:PeanutButter.Utils.Dictionaries.MergeDictionary`2.IsReadOnly">
+            <summary>
+            Will return true: MergeDictionaries are read-only
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.MergeDictionary`2.ContainsKey(`0)">
+            <summary>
+            Searches for the given key across all layers
+            </summary>
+            <param name="key">Key to search for</param>
+            <returns>True if found, False otherwise</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.MergeDictionary`2.Add(`0,`1)">
+            <summary>
+            Will throw - MergeDictionaries are read-only
+            </summary>
+            <param name="key"></param>
+            <param name="value"></param>
+            <exception cref="T:System.InvalidOperationException"></exception>
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.MergeDictionary`2.Remove(`0)">
+            <summary>
+            Will throw - MergeDictionaries are read-only
+            </summary>
+            <param name="key"></param>
+            <returns></returns>
+            <exception cref="T:System.InvalidOperationException"></exception>
+        </member>
+        <member name="M:PeanutButter.Utils.Dictionaries.MergeDictionary`2.TryGetValue(`0,`1@)">
+            <summary>
+            Tries to get a value by key from the underlying layers
+            </summary>
+            <param name="key">Key to search for</param>
+            <param name="value">Value to search for</param>
+            <returns>True if found, False otherwise</returns>
+        </member>
+        <member name="P:PeanutButter.Utils.Dictionaries.MergeDictionary`2.Item(`0)">
+            <summary>
+            Index into the layers to find the highest-priority match for the
+            provided key
+            </summary>
+            <param name="key">Key to look up</param>
+        </member>
+        <member name="P:PeanutButter.Utils.Dictionaries.MergeDictionary`2.Keys">
+            <summary>
+            Returns a collection of the distinct keys in all layers
+            </summary>
+        </member>
+        <member name="P:PeanutButter.Utils.Dictionaries.MergeDictionary`2.Values">
+            <summary>
+            Returns a collection of ALL values in all layers
+            </summary>
+        </member>
+        <member name="T:PeanutButter.Utils.ExpressionUtil">
+            <summary>
+            Utility class to assist with dealing with expressions
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.ExpressionUtil.GetMemberPathFor``1(System.Linq.Expressions.Expression{System.Func{``0,System.Object}})">
+            <summary>
+            Calculates the member path of an Expression and returns it as a dotted string
+            </summary>
+            <param name="expression">Subject Expression to operate on</param>
+            <typeparam name="TSource">Type of the source object for the expression</typeparam>
+            <returns>
+            (Dotted) string representing the path in the expression
+            - for example, the expression o => o.Foo.Bar
+                will return "Foo.Bar"
+            </returns>
+            <exception cref="T:System.Exception">
+            Exceptions are thrown when the Expression cannot be grokked. The Exception message
+            will explain why.
+            </exception>
+        </member>
+        <member name="M:PeanutButter.Utils.ExpressionUtil.GetPropertyTypeFor``1(System.Linq.Expressions.Expression{System.Func{``0,System.Object}})">
+            <summary>
+            Gets the type of the property referred to by an expression
+            </summary>
+            <param name="expression">Subject expression to operate on</param>
+            <typeparam name="TSource">Type of the source object of the expression</typeparam>
+            <returns>
+            The type of the property referred to in the expression. For example,
+            o => o.Name would probably return string
+            </returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ExpressionUtil.GetFullPropertyPathNameFrom(System.Linq.Expressions.MemberExpression)">
+            <summary>
+            Calculates the member path of an Expression and returns it as a dotted string
+            </summary>
+            <param name="expression">Subject Expression to operate on</param>
+            <returns>
+            (Dotted) string representing the path in the expression
+            - for example, the expression o => o.Foo.Bar
+                will return "Foo.Bar"
+            </returns>
+        </member>
+        <member name="T:PeanutButter.Utils.ExtensionsForIEnumerables">
+            <summary>
+            Useful extensions for IEnumerable&lt;T&gt; collections
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.ExtensionsForIEnumerables.ForEach``1(System.Collections.Generic.IEnumerable{``0},System.Action{``0})">
+            <summary>
+            The missing ForEach method
+            </summary>
+            <param name="collection">Subject collection to operate over</param>
+            <param name="toRun">Action to run on each member of the collection</param>
+            <typeparam name="T">Item type of the collection</typeparam>
+        </member>
+        <member name="M:PeanutButter.Utils.ExtensionsForIEnumerables.ForEach``1(System.Collections.Generic.IEnumerable{``0},System.Action{``0,System.Int32})">
+            <summary>
+            The missing ForEach method - synchronous variant which also provides the current item index
+            </summary>
+            <param name="collection">Subject collection to operate over</param>
+            <param name="toRunWithIndex">Action to run on each member of the collection</param>
+            <typeparam name="T">Item type of the collection</typeparam>
+        </member>
+        <member name="M:PeanutButter.Utils.ExtensionsForIEnumerables.IsSameAs``1(System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Calculates if two collections hold the same items, irrespective of order
+            </summary>
+            <param name="collection">Source collection</param>
+            <param name="otherCollection">Collection to compare with</param>
+            <typeparam name="T">Item tytpe of the collections</typeparam>
+            <returns>True if all values in the source collection are found in the target collection</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ExtensionsForIEnumerables.JoinWith``1(System.Collections.Generic.IEnumerable{``0},System.String)">
+            <summary>
+            Fluent alternative to string.Join()
+            </summary>
+            <param name="collection">Source collection to operate on</param>
+            <param name="joinWith">String to join items with</param>
+            <typeparam name="T">Underlying type of the collection</typeparam>
+            <returns>
+            string representing items of the collection joined with the joinWith parameter.
+            Where a collection of non-strings is provided, the objects' ToString() methods
+            are used to get a string representation.
+            </returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ExtensionsForIEnumerables.IsEmpty``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Convenience method, essentially opposite to Any(), except
+            that it also handles null collections
+            </summary>
+            <param name="collection">Source collection to operate on</param>
+            <typeparam name="T">Item type of the collection</typeparam>
+            <returns>True if the collection is null or has no items; false otherwise.</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ExtensionsForIEnumerables.EmptyIfNull``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Convenience method to mitigate null checking and errors when
+            a null collection can be treated as if it were empty, eg:
+            someCollection.EmptyIfNull().ForEach(DoSomething);
+            </summary>
+            <param name="collection">Source collection to operate over</param>
+            <typeparam name="T">Item type of the collection</typeparam>
+            <returns>An empty collection if the source is null; otherwise the source.</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ExtensionsForIEnumerables.And``1(System.Collections.Generic.IEnumerable{``0},``0[])">
+            <summary>
+            Convenience method to create a new array with the provided element(s) appended
+            </summary>
+            <param name="source">Source array to start with</param>
+            <param name="toAdd">Item(s) to add to the result array</param>
+            <typeparam name="T">Item type of the array</typeparam>
+            <returns>A new array which is the source with the new items appended</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ExtensionsForIEnumerables.ButNot``1(System.Collections.Generic.IEnumerable{``0},``0[])">
+            <summary>
+            Convenience / fluent method to provide an array without the provided item(s)
+            </summary>
+            <param name="source">Source collection</param>
+            <param name="toRemove">items which should not appear in the result array</param>
+            <typeparam name="T">Item type of the array</typeparam>
+            <returns>A new array of T with the specified items not present</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ExtensionsForIEnumerables.Flatten``1(System.Collections.Generic.IEnumerable{System.Collections.Generic.IEnumerable{``0}})">
+            <summary>
+            Convenience wrapper around SelectMany; essentially flattens a nested collection
+            of collection(s) of some item. Exactly equivalent to:
+            collection.SelectMany(o => o);
+            </summary>
+            <param name="collection">Source collection to operate on</param>
+            <typeparam name="T">Item type of the collection</typeparam>
+            <returns>A new, flat collection</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ExtensionsForIEnumerables.SelectNonNull``2(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Nullable{``1}})">
+            <summary>
+            Convenience method to get the results of a selection where the results are non-null
+            -> this variant works on Nullable types
+            </summary>
+            <param name="collection">Source collection to operate over</param>
+            <param name="grabber">Function to grab the data you're interested in off of each source item</param>
+            <typeparam name="TCollection">Item type of the source collection</typeparam>
+            <typeparam name="TResult">Item type of the result collection</typeparam>
+            <returns>
+            A new collection which is the result of a Select with the provided grabber
+            where the Select results are non-null
+            </returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ExtensionsForIEnumerables.SelectNonNull``2(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1})">
+            <summary>
+            Convenience method to get the results of a selection where the results are non-null
+            -> this variant works on types which can natively hold the value null
+            </summary>
+            <param name="collection">Source collection to operate over</param>
+            <param name="grabber">Function to grab the data you're interested in off of each source item</param>
+            <typeparam name="TCollection">Item type of the source collection</typeparam>
+            <typeparam name="TResult">Item type of the result collection</typeparam>
+            <returns>
+            A new collection which is the result of a Select with the provided grabber
+            where the Select results are non-null
+            </returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ExtensionsForIEnumerables.AsText``1(System.Collections.Generic.IEnumerable{``0},System.String)">
+            <summary>
+            Convenience method to produce a block of text from a collection of items
+            -> optionally, delimit with a string of your choice instead of a newline
+            -> essentially a wrapper around JoinWith()
+            </summary>
+            <param name="input">Source input lines</param>
+            <param name="delimiter">Optional delimiter (default is Environment.NewLine)</param>
+            <typeparam name="T">Item type of collection</typeparam>
+            <returns>String representation of the the items</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ExtensionsForIEnumerables.HasUnique``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Boolean})">
+            <summary>
+            Convenience method to test if a collection has a single item matching the
+            provided matcher function
+            </summary>
+            <param name="input">Source collection</param>
+            <param name="matcher">Function to run over each item to test if it passes</param>
+            <typeparam name="T">Item type of the collection</typeparam>
+            <returns>
+            True if only one item in the collection got a true value from the matcher
+            function; false if zero or more than one items were matched.
+            </returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ExtensionsForIEnumerables.TimesDo(System.Int32,System.Action)">
+            <summary>
+            Fluency method to run an action a certain number of times, eg:
+            10.TimesDo(() => Console.WriteLine("Hello World"));
+            </summary>
+            <param name="howMany">Number of times to run the provided action</param>
+            <param name="toRun">Action to run</param>
+        </member>
+        <member name="M:PeanutButter.Utils.ExtensionsForIEnumerables.TimesDo(System.Int32,System.Action{System.Int32})">
+            <summary>
+            Fluency method to run an action a certain number of times. This
+            variant runs on an action given the current index at each run, eg:
+            10.TimesDo(i => Console.WriteLine($"This action has run {i} times"));
+            </summary>
+            <param name="howMany">Number of times to run the provided action</param>
+            <param name="toRun">Action to run</param>
+        </member>
+        <member name="M:PeanutButter.Utils.ExtensionsForIEnumerables.Second``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Convenience method to get the second item from a collection
+            </summary>
+            <param name="src">Source collection</param>
+            <typeparam name="T">Item type of the collection</typeparam>
+            <returns>The second item, when available. Will throw if there is no item available.</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ExtensionsForIEnumerables.Third``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Convenience method to get the third item from a collection
+            </summary>
+            <param name="src">Source collection</param>
+            <typeparam name="T">Item type of the collection</typeparam>
+            <returns>The third item, when available. Will throw if there is no item available.</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ExtensionsForIEnumerables.FirstAfter``1(System.Collections.Generic.IEnumerable{``0},System.Int32)">
+            <summary>
+            Convenience method to get the first item after skipping N items from a collection
+            -> equivalent to collection.Skip(N).First();
+            -> collection.FirtstAfter(2) returns the 3rd element
+            </summary>
+            <param name="src">Source collection</param>
+            <param name="toSkip">How many items to skip</param>
+            <typeparam name="T">Item type of the collection</typeparam>
+            <returns>The third item, when available. Will throw if there is no item available.</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ExtensionsForIEnumerables.FirstOrDefaultAfter``1(System.Collections.Generic.IEnumerable{``0},System.Int32)">
+            <summary>
+            Convenience method to get the first item after skipping N items from a collection
+            -> equivalent to collection.Skip(N).First();
+            -> collection.FirtstAfter(2) returns the 3rd element
+            -> this variant returns the default value for T if the N is out of bounds
+            </summary>
+            <param name="src">Source collection</param>
+            <param name="toSkip">How many items to skip</param>
+            <typeparam name="T">Item type of the collection</typeparam>
+            <returns>The third item, when available. Will return the default value for T otherwise.</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ExtensionsForIEnumerables.FindDuplicates``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Find duplicates within a collectio according to a provided discriminator
+            </summary>
+            <param name="src">Collection to operate on</param>
+            <typeparam name="TItem">Type of items in the collection</typeparam>
+            <returns>Collection of duplicate items</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ExtensionsForIEnumerables.FindDuplicates``2(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1})">
+            <summary>
+            Find duplicates within a collectio according to a provided discriminator
+            </summary>
+            <param name="src">Collection to operate on</param>
+            <param name="descriminator">Function to determine uniqueness of each item: should
+            return whatever identifies a particular item uniquely</param>
+            <typeparam name="TItem">Type of items in the collection</typeparam>
+            <typeparam name="TKey">Type of key used to discriminate items</typeparam>
+            <returns>Collection of DuplicateResult items which contain duplicates, according to the provided discriminator</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ExtensionsForIEnumerables.None``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Boolean})">
+            <summary>
+            Inverse of All() LINQ method: test should return false for all elements
+            </summary>
+            <param name="collection"></param>
+            <param name="test"></param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="T:PeanutButter.Utils.ExtensionsForIEnumerables.DuplicateResult`2">
+            <summary>
+            DTO for conveying results from the more complex FindDuplicates
+            variant which includes a key discriminator
+            </summary>
+            <typeparam name="TKey">Type of the key that duplication was determined by</typeparam>
+            <typeparam name="TItem">Type of the duplicated item(s)</typeparam>
+        </member>
+        <member name="P:PeanutButter.Utils.ExtensionsForIEnumerables.DuplicateResult`2.Key">
+            <summary>
+            Key of duplication
+            </summary>
+        </member>
+        <member name="P:PeanutButter.Utils.ExtensionsForIEnumerables.DuplicateResult`2.Items">
+            <summary>
+            Duplicated items matching this key
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.ExtensionsForIEnumerables.DuplicateResult`2.#ctor(`0,System.Collections.Generic.IEnumerable{`1})">
+            <summary>
+            Constructs a read-only dto
+            </summary>
+            <param name="key">Key value</param>
+            <param name="items">Duplicated items</param>
+        </member>
+        <member name="T:PeanutButter.Utils.Find">
+            <summary>
+            Finds files
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.Find.InPath(System.String)">
+            <summary>
+            Finds the first match for a given filename in the PATH
+            </summary>
+            <param name="search"></param>
+            <returns></returns>
+        </member>
+        <member name="T:PeanutButter.Utils.ILazyWithContext`1">
+            <summary>
+            Provides a mechanism for lazy evaluation with a provider context
+            </summary>
+        </member>
+        <member name="P:PeanutButter.Utils.ILazyWithContext`1.Value">
+            <summary>
+            The lazily-evaluated value
+            </summary>
+        </member>
+        <member name="T:PeanutButter.Utils.LazyWithContext`2">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.Utils.LazyWithContext`2.Value">
+            <summary>
+            The lazily-evaluated value
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.LazyWithContext`2.#ctor(`0,System.Func{`0,`1})">
+            <summary>
+            Synchronous Lazy constructor
+            </summary>
+            <param name="context">host provider (for `this` context)</param>
+            <param name="valueFactory">method to run to get the value</param>
+        </member>
+        <member name="M:PeanutButter.Utils.LazyWithContext`2.#ctor(`0,System.Func{`0,System.Threading.Tasks.Task{`1}})">
+            <summary>
+            Asynchronous Lazy constructor
+            </summary>
+            <param name="context">host provider (for `this` context)</param>
+            <param name="valueFactory">method to run to get the value</param>
+        </member>
+        <member name="T:PeanutButter.Utils.MemberNotFoundException">
+            <summary>
+            Exception thrown when a property cannot be found by name
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.MemberNotFoundException.#ctor(System.Type,System.String)">
+            <summary>
+            Constructs a new MemberNotFoundException
+            </summary>
+            <param name="type">The Type being searched for the property</param>
+            <param name="propertyName">The name of the property which was not found</param>
+        </member>
+        <member name="T:PeanutButter.Utils.MetadataExtensions">
+            <summary>
+            Provides extension methods to set and retrieve metadata on any object.
+            Under the hood, these methods use a ConditionalWeakTable to store your
+            metadata, so the metadata is garbage-collected when your managed objects
+            are garbage-collected.
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.MetadataExtensions.SetMetadata(System.Object,System.String,System.Object)">
+            <summary>
+            Sets an arbitrary piece of metadata on a managed object. This metadata
+            has the same lifetime as your object, meaning it will be garbage-collected
+            when your object is garbage-collected, assuming nothing else is referencing
+            it.
+            </summary>
+            <param name="parent">Object to store metadata against</param>
+            <param name="key">Name of the metadata item to set</param>
+            <param name="value">Value to store</param>
+        </member>
+        <member name="M:PeanutButter.Utils.MetadataExtensions.GetMetadata``1(System.Object,System.String)">
+            <summary>
+            Attempts to retrieve a piece of metadata for an object. When the
+            metadata key for the object is unknown, returns the default value
+            for the type requested, eg 0 for ints, null for strings and objects.
+            Note that if metadata exists for the requested key but not for the
+            type requested, a type-casting exception will be thrown.
+            </summary>
+            <param name="parent">Parent object to query against</param>
+            <param name="key">Key to query for</param>
+            <typeparam name="T">Type of data</typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.MetadataExtensions.GetMetadata``1(System.Object,System.String,``0)">
+            <summary>
+            Attempts to retrieve a piece of metadata for an object. When the
+            metadata key for the object is unknown, returns the default value
+            for the type requested, eg 0 for ints, null for strings and objects.
+            Note that if metadata exists for the requested key but not for the
+            type requested, a type-casting exception will be thrown.
+            This overload allows specifying a default value.
+            </summary>
+            <param name="parent">Parent object to query against</param>
+            <param name="key">Key to query for</param>
+            <param name="defaultValue"></param>
+            <typeparam name="T">Type of data</typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.MetadataExtensions.HasMetadata``1(System.Object,System.String)">
+            <summary>
+            Tests if a parent object has a piece of metadata with the provided type.
+            </summary>
+            <param name="parent">Parent object to search against</param>
+            <param name="key">Key to search for</param>
+            <typeparam name="T">Expected type of metadata</typeparam>
+            <returns></returns>
+        </member>
+        <member name="T:PeanutButter.Utils.ObjectComparisons">
+            <summary>
+            Determines the comparison strategy for DeepEquals and friends
+            </summary>
+        </member>
+        <member name="F:PeanutButter.Utils.ObjectComparisons.PropertiesAndFields">
+            <summary>
+            Test properties and fields (default behavior for DeepEquals)
+            </summary>
+        </member>
+        <member name="F:PeanutButter.Utils.ObjectComparisons.PropertiesOnly">
+            <summary>
+            Only test properties (behavior for PropertyAssert)
+            </summary>
+        </member>
+        <member name="T:PeanutButter.Utils.ObjectExtensions">
+            <summary>
+            Provides a set of convenience extensions on everything
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.ObjectExtensions.DeepEquals(System.Object,System.Object,System.String[])">
+            <summary>
+            Runs a deep equality test between two objects, glossing over reference
+            differences between class-types and comparing only primitive types. Use
+            this when you'd like to essentially test whether the data in one object
+            hierachy matches that of another
+            </summary>
+            <param name="objSource">Object which is the source of truth</param>
+            <param name="objCompare">Object to compare with</param>
+            <param name="ignorePropertiesByName">Params array of properties to ignore by name</param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ObjectExtensions.ShapeEquals(System.Object,System.Object,System.String[])">
+            <summary>
+            Tests if two objects have the same "shape" -- basically Deep Equality testing
+            without actually testing final property values.
+            </summary>
+            <param name="objSource">Source / Master object</param>
+            <param name="objCompare">Comparison object</param>
+            <param name="ignorePropertiesByName">Ignore these properties by name</param>
+            <returns>True if the "shapes" are the same, false otherwise</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ObjectExtensions.ShapeSubEquals(System.Object,System.Object,System.String[])">
+            <summary>
+            Tests if a second object has at least the "shape" of a primary one. Basically
+            a DeepSubEquals without testing final property values.
+            without actually testing final property values.
+            </summary>
+            <param name="objSource">Source / Master object</param>
+            <param name="objCompare">Comparison object</param>
+            <param name="ignorePropertiesByName">Ignore these properties by name</param>
+            <returns>True if the comparison object "contains the shape" of the source object, false otherwise</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ObjectExtensions.DeepEquals(System.Object,System.Object,PeanutButter.Utils.ObjectComparisons,System.String[])">
+            <summary>
+            Runs a deep equality test between two objects, glossing over reference
+            differences between class-types and comparing only primitive types. Use
+            this when you'd like to essentially test whether the data in one object
+            hierachy matches that of another
+            </summary>
+            <param name="objSource">Object which is the source of truth</param>
+            <param name="objCompare">Object to compare with</param>
+            <param name="comparison">Method for comparison</param>
+            <param name="ignorePropertiesByName">Params array of properties to ignore by name</param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ObjectExtensions.DeepEquals(System.Object,System.Object,System.Action{System.String},System.String[])">
+            <summary>
+            Runs a deep equality test between two objects,
+            ignoring reference differences wherever possible
+            and logging failures with the provided action. Properties
+            can be explided by name with the ignorePropertiesByName params
+            </summary>
+            <param name="objSource"></param>
+            <param name="objCompare"></param>
+            <param name="failureLogAction"></param>
+            <param name="ignorePropertiesByName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ObjectExtensions.DeepSubEquals(System.Object,System.Object,System.String[])">
+            <summary>
+            Runs a deep equality test between two objects, using the properties on objSource (and children) as
+            the set of properties to match on
+            </summary>
+            <param name="objSource">Source object to perform comparison against</param>
+            <param name="objCompare">Comparison object to compare</param>
+            <param name="ignorePropertiesByName">Optional params array of properties to ignore by name</param>
+            <returns>True if relevant properties are found and match; false otherwise</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ObjectExtensions.DeepIntersectionEquals(System.Object,System.Object,System.String[])">
+            <summary>
+            Runs a deep equality test between two objects, using the properties common to both sides
+            of the comparison to match on.
+            </summary>
+            <param name="objSource">Source object to perform comparison against</param>
+            <param name="objCompare">Comparison object to compare</param>
+            <param name="ignorePropertiesByName">Optional params array of properties to ignore by name</param>
+            <returns>True if relevant properties are found and match; false otherwise. If no common properties are found, returns false; caveat: performing this comparison on two vanilla Object() instances will return true.</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ObjectExtensions.ContainsAtLeastOneDeepEqualTo``2(System.Collections.Generic.IEnumerable{``0},``1,System.String[])">
+            <summary>
+            Searches a collection for one or more objects which DeepEquals the provided reference item
+            </summary>
+            <param name="collection">Collection of objects to search</param>
+            <param name="item">Item to find a match for</param>
+            <param name="ignoreProperties">Optional params array of properties to ignore by name</param>
+            <typeparam name="T1">Item type of the collection</typeparam>
+            <typeparam name="T2">Type of the comparison item (can be the same as or different from T1)</typeparam>
+            <returns>True if one or more matching objects were found; false otherwise</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ObjectExtensions.ContainsOneDeepEqualTo``2(System.Collections.Generic.IEnumerable{``0},``1,System.String[])">
+            <summary>
+            Searches a collection for a single object which DeepEquals the provided reference item
+            </summary>
+            <param name="collection">Collection of objects to search</param>
+            <param name="item">Item to find a match for</param>
+            <param name="ignoreProperties">Optional params array of properties to ignore by name</param>
+            <typeparam name="T1">Item type of the collection</typeparam>
+            <typeparam name="T2">Type of the comparison item (can be the same as or different from T1)</typeparam>
+            <returns>True if one or more matching objects were found; false otherwise</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ObjectExtensions.ContainsOneIntersectionEqualTo``2(System.Collections.Generic.IEnumerable{``0},``1,System.String[])">
+            <summary>
+            Searches a collection for an object which IntersectionEquals the provided reference item
+            </summary>
+            <param name="collection">Collection of objects to search</param>
+            <param name="item">Item to find a match for</param>
+            <param name="ignoreProperties">Optional params array of properties to ignore by name</param>
+            <typeparam name="T1">Item type of the collection</typeparam>
+            <typeparam name="T2">Type of the comparison item (can be the same as or different from T1)</typeparam>
+            <returns>True if one or more matching objects were found; false otherwise</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ObjectExtensions.ContainsOnlyOneDeepEqualTo``2(System.Collections.Generic.IEnumerable{``0},``1,System.String[])">
+            <summary>
+            Searches a collection for an object which DeepEquals the provided reference item
+            </summary>
+            <param name="collection">Collection of objects to search</param>
+            <param name="item">Item to find a match for</param>
+            <param name="ignoreProperties">Optional params array of properties to ignore by name</param>
+            <typeparam name="T1">Item type of the collection</typeparam>
+            <typeparam name="T2">Type of the comparison item (can be the same as or different from T1)</typeparam>
+            <returns>True if exactly one matching object was found; false otherwise</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ObjectExtensions.ContainsOnlyOneIntersectionEqualTo``2(System.Collections.Generic.IEnumerable{``0},``1,System.String[])">
+            <summary>
+            Searches a collection for an object which IntersectionEquals the provided reference item
+            </summary>
+            <param name="collection">Collection of objects to search</param>
+            <param name="item">Item to find a match for</param>
+            <param name="ignoreProperties">Optional params array of properties to ignore by name</param>
+            <typeparam name="T1">Item type of the collection</typeparam>
+            <typeparam name="T2">Type of the comparison item (can be the same as or different from T1)</typeparam>
+            <returns>True if exactly one matching object was found; false otherwise</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ObjectExtensions.ContainsOnlyOneMatching``2(System.Collections.Generic.IEnumerable{``0},``1,System.Func{``0,``1,System.Boolean})">
+            <summary>
+            Searches a collection for an object which matches the provided reference item, according
+            to the provided matcher Func
+            </summary>
+            <param name="collection">Collection of objects to search</param>
+            <param name="item">Item to find a match for</param>
+            <param name="comparer">Func to use to perform comparison</param>
+            <typeparam name="T1">Item type of the collection</typeparam>
+            <typeparam name="T2">Type of the comparison item (can be the same as or different from T1)</typeparam>
+            <returns>True if exactly one matching object was found; false otherwise</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ObjectExtensions.CopyPropertiesTo(System.Object,System.Object)">
+            <summary>
+            Copies all public primitive property values of intersecting properties from the source object
+            to the target object, ala poor-man's AutoMapper
+            </summary>
+            <param name="src">Source object</param>
+            <param name="dst">Target object</param>
+        </member>
+        <member name="M:PeanutButter.Utils.ObjectExtensions.CopyPropertiesTo(System.Object,System.Object,System.String[])">
+            <summary>
+            Copies all public primitive property values of intersecting properties from the source object
+            to the target object, ala poor-man's AutoMapper
+            </summary>
+            <param name="src">Source object</param>
+            <param name="dst">Target object</param>
+            <param name="ignoreProperties">Optional list of properties to ignore by name</param>
+        </member>
+        <member name="M:PeanutButter.Utils.ObjectExtensions.CopyPropertiesTo(System.Object,System.Object,System.Boolean,System.String[])">
+            <summary>
+            Copies all public primitive property values of intersecting properties from the source object
+            to the target object, ala poor-man's AutoMapper
+            </summary>
+            <param name="src">Source object</param>
+            <param name="dst">Target object</param>
+            <param name="deep">Flag as to whether or not the process should copy deep (ie, traverse into child objects)</param>
+            <param name="ignoreProperties"></param>
+        </member>
+        <member name="M:PeanutButter.Utils.ObjectExtensions.DeepClone``1(``0)">
+            <summary>
+            Creates a deep clone of the provided item, as far as possible
+            Works on properties which are:
+             * simple values,
+             * any complex, non-generic value with a parameterless constructor
+             * Collections which are arrays, generic IEnumerable or generic List,
+                 conforming to the rules above
+            </summary>
+            <param name="item">Item to clone</param>
+            <typeparam name="T">Type of the item to clone</typeparam>
+            <returns>a new copy of the original item</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ObjectExtensions.Get``1(System.Object,System.String)">
+            <summary>
+            Gets the value of a property on an object, specified by the property path, of the given Type
+            </summary>
+            <param name="src">Object to search for the required property</param>
+            <param name="propertyPath">Path to the property: may be a property name or a dotted path down an object heirachy, eg: Company.Name</param>
+            <typeparam name="T">Expected type of the property value</typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ObjectExtensions.GetOrDefault``1(System.Object,System.String)">
+            <summary>
+            Gets the value of a property on an object, specified by the property path, of the given Type
+            or returns a default value when that property cannot be found by path and/or type
+            </summary>
+            <param name="src"></param>
+            <param name="propertyPath"></param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ObjectExtensions.GetOrDefault``1(System.Object,System.String,``0)">
+            <summary>
+            Gets the value of a property on an object, specified by the property path, of the given Type
+            or returns a default value when that property cannot be found by path and/or type
+            </summary>
+            <param name="src"></param>
+            <param name="propertyPath"></param>
+            <param name="defaultValue"></param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ObjectExtensions.AsArray``1(``0)">
+            <summary>
+            Fluency extension to wrap a single item in an array, eg:
+            new SomeBusinessObject().AsArray().Union(SomeOtherCollection);
+            </summary>
+            <param name="input">The item to wrap</param>
+            <typeparam name="T">The type of the object</typeparam>
+            <returns>A single-element array containing the input object</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ObjectExtensions.GetPropertyValue(System.Object,System.String)">
+            <summary>
+            Gets a property value by name from an object
+            </summary>
+            <param name="src">Source object</param>
+            <param name="propertyPath">Name of the property to search for</param>
+            <returns>Value of the property, cast/boxed to object</returns>
+            <exception cref="T:PeanutButter.Utils.MemberNotFoundException">Thrown when the property is not found by name</exception>
+        </member>
+        <member name="M:PeanutButter.Utils.ObjectExtensions.InvokeMethodWithResult(System.Object,System.String,System.Object[])">
+            <summary>
+            Invokes a method on an object, if available; otherwise 'splodes
+            </summary>
+            <param name="src">Object to invoke the method on</param>
+            <param name="methodName">Method to invoke, by name</param>
+            <param name="args">Any parameters to give to the method</param>
+            <returns>return value of the method</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ObjectExtensions.SetPropertyValue(System.Object,System.String,System.Object)">
+            <summary>
+            Attempts to set a property value on an object by property path
+            </summary>
+            <param name="src">Source object to set property on</param>
+            <param name="propertyPath">Path into the property: could be an immediate property name or something like "Company.Name"</param>
+            <param name="newValue">New value to attempt to set the property to</param>
+            <exception cref="T:PeanutButter.Utils.MemberNotFoundException">Thrown when the property cannot be found</exception>
+        </member>
+        <member name="M:PeanutButter.Utils.ObjectExtensions.GetPropertyValue``1(System.Object,System.String)">
+            <summary>
+            Gets an immediate property value, cast to the specified type
+            </summary>
+            <param name="src">Source object</param>
+            <param name="propertyPath">Immediate property name</param>
+            <typeparam name="T">Required type</typeparam>
+            <returns>Value of the property, if it can be found and cast. Will throw otherwise.</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ObjectExtensions.IsAssignableTo``1(System.Type)">
+            <summary>
+            Tests if a type is assignable to another type (inverse of IsAssignableFrom)
+            </summary>
+            <param name="type">Type to operate on</param>
+            <typeparam name="T">Type to check assignment possibility against</typeparam>
+            <returns>True if objects of type {type} can be assigned to objects of type T</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.ObjectExtensions.TruncateTo(System.Decimal,System.Int32)">
+            <summary>
+            Truncates a decimal value to a required number of places
+            </summary>
+            <param name="value">Source decimal value</param>
+            <param name="places">Number of decimal places required</param>
+            <returns>A new decimal value which is the original value truncated to the required places</returns>
+        </member>
+        <member name="T:PeanutButter.Utils.Platform">
+            <summary>
+            Platform abstractions
+            </summary>
+        </member>
+        <member name="P:PeanutButter.Utils.Platform.IsUnixy">
+            <summary>
+            True when the current platform is Linux or OSX
+            </summary>
+        </member>
+        <member name="P:PeanutButter.Utils.Platform.IsWindows">
+            <summary>
+            True when the current platform is one of the Windows variants
+            </summary>
+        </member>
+        <member name="T:PeanutButter.Utils.IProcessIO">
+            <summary>
+            Wraps process IO (stdout, stderr) into an easy-to-access disposable source
+            </summary>
+        </member>
+        <member name="P:PeanutButter.Utils.IProcessIO.Started">
+            <summary>
+            True if the process started properly
+            </summary>
+        </member>
+        <member name="P:PeanutButter.Utils.IProcessIO.StartException">
+            <summary>
+            Set if the process didn't start properly, to the exception thrown
+            </summary>
+        </member>
+        <member name="P:PeanutButter.Utils.IProcessIO.StandardOutput">
+            <summary>
+            Read lines from stdout
+            </summary>
+        </member>
+        <member name="P:PeanutButter.Utils.IProcessIO.StandardError">
+            <summary>
+            Read lines from stderr
+            </summary>
+        </member>
+        <member name="P:PeanutButter.Utils.IProcessIO.Process">
+            <summary>
+            Access to the underlying Process
+            </summary>
+        </member>
+        <member name="T:PeanutButter.Utils.ProcessIO">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.Utils.ProcessIO.Started">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.Utils.ProcessIO.StartException">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.Utils.ProcessIO.Process">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.Utils.ProcessIO.#ctor(System.String,System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.Utils.ProcessIO.StandardOutput">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.Utils.ProcessIO.StandardError">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.Utils.ProcessIO.Dispose">
+            <summary>
+            Kills the process if it hasn't finished yet
+            - you should always dispose, since you may decide not to read until the process is dead
+            </summary>
+        </member>
+        <member name="T:PeanutButter.Utils.PropertyOrFieldTypes">
+            <summary>
+            Differentiates between PropertyOrField storage for properties or fields
+            </summary>
+        </member>
+        <member name="F:PeanutButter.Utils.PropertyOrFieldTypes.Property">
+            <summary>
+            This member is a Property
+            </summary>
+        </member>
+        <member name="F:PeanutButter.Utils.PropertyOrFieldTypes.Field">
+            <summary>
+            This member is a Field
+            </summary>
+        </member>
+        <member name="T:PeanutButter.Utils.PropertyOrField">
+            <summary>
+            Provides a single storage / representation
+            for a Property or a Field
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.PropertyOrField.Create(System.Reflection.PropertyInfo)">
+            <summary>
+            Creates a PropertyOrField container for a provided PropertyInfo
+            </summary>
+            <param name="propertyInfo"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.PropertyOrField.Create(System.Reflection.FieldInfo)">
+            <summary>
+            Creates a PropertyOrField container for a provided FieldInfo
+            </summary>
+            <param name="fieldInfo"></param>
+            <returns></returns>
+        </member>
+        <member name="P:PeanutButter.Utils.PropertyOrField.Name">
+            <summary>
+            Name of the property or field
+            </summary>
+        </member>
+        <member name="P:PeanutButter.Utils.PropertyOrField.Type">
+            <summary>
+            Type of the property or field
+            </summary>
+        </member>
+        <member name="P:PeanutButter.Utils.PropertyOrField.CanWrite">
+            <summary>
+            Write access to property or field
+            </summary>
+        </member>
+        <member name="P:PeanutButter.Utils.PropertyOrField.CanRead">
+            <summary>
+            Read access to property or field
+            </summary>
+        </member>
+        <member name="P:PeanutButter.Utils.PropertyOrField.MemberType">
+            <summary>
+            Is this a Property or a Field?
+            </summary>
+        </member>
+        <member name="P:PeanutButter.Utils.PropertyOrField.DeclaringType">
+            <summary>
+            The type on which this property or field is declared
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.PropertyOrField.#ctor(System.Reflection.PropertyInfo)">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.Utils.PropertyOrField.#ctor(System.Reflection.FieldInfo)">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.Utils.PropertyOrField.GetValue(System.Object)">
+            <summary>
+            Gets the value of the property or field for the provided host
+            </summary>
+            <param name="host"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.PropertyOrField.SetValue(System.Object,System.Object)">
+            <summary>
+            Sets the value of the property or field on the provided host
+            </summary>
+            <param name="host"></param>
+            <param name="value"></param>
+        </member>
+        <member name="M:PeanutButter.Utils.PropertyOrField.SetValue``1(``0@,System.Object)">
+            <summary>
+            Sets the value for the field or property
+            as found on the provided host
+            </summary>
+            <param name="host"></param>
+            <param name="value"></param>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:PeanutButter.Utils.PropertyOrFieldExtensions.IsMatchFor(PeanutButter.Utils.PropertyOrField,PeanutButter.Utils.PropertyOrField,System.Boolean)">
+            <summary>
+            Tests if this PropertyOrField is a match for another
+            </summary>
+            <param name="master"></param>
+            <param name="other"></param>
+            <param name="mustMatchMemberType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.PropertyOrFieldExtensions.PrettyPrint(PeanutButter.Utils.PropertyOrField)">
+            <summary>
+            Prints out a pretty representation of this PropertyOrField
+            </summary>
+            <param name="item"></param>
+            <returns></returns>
+        </member>
+        <member name="T:PeanutButter.Utils.PyLike">
+            <summary>
+            Provides a Python-like Range method
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.PyLike.Range(System.Int32)">
+            <summary>
+            Produces a sequence of consecutive ints from zero to (stop - 1)
+            </summary>
+            <param name="stop">upper bound of sequence, not included in result</param>
+            <returns>Sequence of ints</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.PyLike.Range(System.Int32,System.Int32)">
+            <summary>
+            Produces a sequence of consecutive ints from start to (stop - 1)
+            </summary>
+            <param name="start"></param>
+            <param name="stop"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.PyLike.Range(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            produces a sequence of ints from start to stop (not inclusive), stepping by step
+            </summary>
+            <param name="start">first item to expect in sequence</param>
+            <param name="stop">go no higher, young padawan!</param>
+            <param name="step">step up by this amount each time</param>
+            <returns>Sequence of ints</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.PyLike.Zip``2(System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEnumerable{``1})">
+            <summary>
+            "Zips" two collections together so you can enumerate over them. The
+              length of the enumeration is determined by the shortest collection
+            </summary>
+            <param name="left">left collection</param>
+            <param name="right">right collection</param>
+            <typeparam name="T1"></typeparam>
+            <typeparam name="T2"></typeparam>
+            <returns>Enumeration over the collections (Tuple of T1, T2)</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.PyLike.Zip``3(System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEnumerable{``1},System.Collections.Generic.IEnumerable{``2})">
+            <summary>
+            "Zips" three collections together so you can enumerate over them. The
+              length of the enumeration is determined by the shortest collection
+            </summary>
+            <param name="left">left collection</param>
+            <param name="middle">right collection</param>
+            <param name="right">right collection</param>
+            <typeparam name="T1"></typeparam>
+            <typeparam name="T2"></typeparam>
+            <typeparam name="T3"></typeparam>
+            <returns>Enumeration over the collections (Tuple of T1, T2, T3)</returns>
+        </member>
+        <member name="T:PeanutButter.Utils.SafeWalk">
+            <summary>
+            Utility class to provide the ability to enumerate files without throwing exceptions on access errors
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.SafeWalk.EnumerateFiles(System.String,System.String,System.IO.SearchOption)">
+            <summary>
+            mostly lifted from http://stackoverflow.com/questions/5098011/directory-enumeratefiles-unauthorizedaccessexception
+            </summary>
+            <param name="path">Base path to start the search from</param>
+            <param name="searchPattern">Filename pattern to match for result files</param>
+            <param name="searchOpt">Whether to search just the given base folder or recurse down the path tree</param>
+            <returns>A collection of strings which are the found file paths. May be empty, will not throw, even on access errors.</returns>
+        </member>
+        <member name="T:PeanutButter.Utils.StreamExtensions">
+            <summary>
+            Provides utility extensions on Stream objects
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.StreamExtensions.ReadAllBytes(System.IO.Stream)">
+            <summary>
+            Reads all bytes from a stream
+            </summary>
+            <param name="src">Source stream to read from</param>
+            <returns>Byte array of the data read from the stream</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StreamExtensions.WriteAllBytes(System.IO.Stream,System.Byte[])">
+            <summary>
+            Writes all given bytes to a stream
+            </summary>
+            <param name="source">Target stream to write to</param>
+            <param name="data">Binary data to write</param>
+            <exception cref="T:System.IO.IOException">Thrown when the target stream is null</exception>
+        </member>
+        <member name="M:PeanutButter.Utils.StreamExtensions.Rewind(System.IO.Stream)">
+            <summary>
+            Rewinds the current stream pointer to the beginning of the stream (when supported by the stream)
+            </summary>
+            <param name="src">Source stream to rewind</param>
+        </member>
+        <member name="M:PeanutButter.Utils.StreamExtensions.Append(System.IO.Stream,System.Byte[])">
+            <summary>
+            Appends binary data to the end of the stream
+            </summary>
+            <param name="target">Target stream to write to</param>
+            <param name="data">Binary data to write</param>
+            <exception cref="T:System.IO.IOException">Thrown when the target stream is null</exception>
+        </member>
+        <member name="M:PeanutButter.Utils.StreamExtensions.AsString(System.IO.Stream,System.Text.Encoding)">
+            <summary>
+            Attempts to get a string representation of the contents of a stream
+            </summary>
+            <param name="src">Source stream to read</param>
+            <param name="encoding">Optional encoding to use (defaults to UTF8 when null)</param>
+            <returns>A string representation of the stream</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StreamExtensions.WriteString(System.IO.Stream,System.String)">
+            <summary>
+            Invokes WriteString() with the UTF8 Encoding
+            </summary>
+            <param name="stream">Stream to operate on</param>
+            <param name="data">String data to write</param>
+        </member>
+        <member name="M:PeanutButter.Utils.StreamExtensions.WriteString(System.IO.Stream,System.String,System.Text.Encoding)">
+            <summary>
+            Writes a string to a stream with the provided encoding
+            </summary>
+            <param name="stream">Stream to write to</param>
+            <param name="data">String data to write</param>
+            <param name="encoding">Encoding to use</param>
+        </member>
+        <member name="T:PeanutButter.Utils.StringExtensions">
+            <summary>
+            Provides utility extensions for strings
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.RegexReplace(System.String,System.String,System.String)">
+            <summary>
+            Replaces patterns matched by the given regex pattern with the given replaceWith string
+            </summary>
+            <param name="input">Starting string</param>
+            <param name="pattern">Regex pattern to search for</param>
+            <param name="replaceWith">String to replace occurrences with</param>
+            <returns>New string with matches replaces</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.Or(System.String,System.String)">
+            <summary>
+            Convenience extension to return another string if the input is null or empty
+            </summary>
+            <param name="input">String to test</param>
+            <param name="alternative">String to return if the input was null or empty</param>
+            <returns>The original string when it is not null or empty; the alternative when the original is null or empty</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.AsBoolean(System.String)">
+            <summary>
+            Attempts conversion from a string value to a boolean value matching the following (case-insensitive) to True:
+            - "yes"
+            - "y"
+            - "1"
+            - "true"
+            All other string values are considered to be false
+            </summary>
+            <param name="input">String to attempt to convert</param>
+            <returns>True for truthy values, False otherwise</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.ContainsOneOf(System.String,System.String[])">
+            <summary>
+            Searches a master string for occurrences of any of the given strings
+            </summary>
+            <param name="haystack">String to search</param>
+            <param name="needles">Strings to search for</param>
+            <returns>True if any of the needles are found in the haystack; False otherwise</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.ContainsAllOf(System.String,System.String[])">
+            <summary>
+            Searches a master string for occurrences of any of the given strings
+            </summary>
+            <param name="haystack">String to search</param>
+            <param name="needles">Strings to search for</param>
+            <returns>True if all of the needles are found in the haystack; False otherwise</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.StartsWithOneOf(System.String,System.String[])">
+            <summary>
+            Tests if a string starts with one of the provided search strings
+            </summary>
+            <param name="src">String to test</param>
+            <param name="search">Strings to look for at the start of {src}</param>
+            <returns>True if {src} starts with any one of provided search strings; False otherwise</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.AsBytes(System.String)">
+            <summary>
+            Calls AsBytes extension method with the UTF8 encoding
+            </summary>
+            <param name="src">String to operate on</param>
+            <returns>Byte array representing string, from UTF8 encoding</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.AsBytes(System.String,System.Text.Encoding)">
+            <summary>
+            Convenience function to convert a string to a byte array
+            </summary>
+            <param name="src">String to convert</param>
+            <param name="encoding">Encoding to use</param>
+            <returns>Byte array of the {src} string when decoded as UTF-8</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.AsStream(System.String)">
+            <summary>
+            Converts a string to a Stream of bytes, assuming utf-8 encoding
+            </summary>
+            <param name="src">String to convert</param>
+            <returns>Stream or null if src is null</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.ToLower(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Lowercases a string collection with Invariant culture. Tolerates nulls.
+            </summary>
+            <param name="src">Collection to lower-case</param>
+            <returns>Input, lower-cased</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.ToLower(System.Collections.Generic.IEnumerable{System.String},System.Globalization.CultureInfo)">
+            <summary>
+            Lowercases a string collection with Invariant culture. Tolerates nulls.
+            </summary>
+            <param name="src">Collection to lower-case</param>
+            <param name="cultureInfo">Culture to use in the operation</param>
+            <returns>Input, lower-cased</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.ToUpper(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Uppercases a string collection with Invariant culture. Tolerates nulls.
+            </summary>
+            <param name="src">Collection to lower-case</param>
+            <returns>Input, lower-cased</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.ToUpper(System.Collections.Generic.IEnumerable{System.String},System.Globalization.CultureInfo)">
+            <summary>
+            Uppercases a string collection with Invariant culture. Tolerates nulls.
+            </summary>
+            <param name="src">Collection to lower-case</param>
+            <param name="cultureInfo">Culture to use in the operation. Note that .NET's ToUpper doesn't accept a culture, so really, your only choices here are "Invariant" or "whatever .Net uses by default".</param>
+            <returns>Input, lower-cased</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.AsStream(System.String,System.Text.Encoding)">
+            <summary>
+            Converts a string to a Stream of bytes with the provided encoding
+            </summary>
+            <param name="src">String to convert</param>
+            <param name="encoding">Encoding to use</param>
+            <returns>Stream or null if src is null</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.AsString(System.Byte[])">
+            <summary>
+            Attempts to encode the given byte array as if it contained a
+            utf8-encoded string
+            </summary>
+            <param name="data">Bytes to encode</param>
+            <returns>The utf8 string, if possible; will return null if given null</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.AsString(System.Byte[],System.Text.Encoding)">
+            <summary>
+            Attempts to encode the given byte array as if it contained a
+            string encoded with the given encoding
+            </summary>
+            <param name="data">Bytes to encode</param>
+            <param name="encoding"></param>
+            <returns>The string, if possible; will return null if given null</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.AsStream(System.Byte[])">
+            <summary>
+            Convenience function to wrap a given byte array in a MemoryStream.
+            </summary>
+            <param name="src">Bytes to wrapp</param>
+            <returns>Stream wrapping the bytes or null if the source is null</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.IsInteger(System.String)">
+            <summary>
+            Tests if a string represents an integer value
+            </summary>
+            <param name="src">String to test</param>
+            <returns>True if the string can be converted to an integer; False otherwise</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.AsInteger(System.String)">
+            <summary>
+            Performs exceptionless conversion of a string to an integer
+            </summary>
+            <param name="value">String to convert</param>
+            <returns>The integer value of the string; 0 if it cannot be converted</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.IsNullOrWhiteSpace(System.String)">
+            <summary>
+            Turns string.IsNullOrWhiteSpace into an extension method for fluency
+            </summary>
+            <param name="value">String to test</param>
+            <returns>True if is null or whitespace; False otherwise</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.IsNullOrEmpty(System.String)">
+            <summary>
+            Turns string.IsNullOrEmpty into an extension method for fluency
+            </summary>
+            <param name="value">String to test</param>
+            <returns>True if is null or whitespace; False otherwise</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.ToBase64(System.String)">
+            <summary>
+            Returns the base64-encoded representation of a string value
+            </summary>
+            <param name="value">Input string value</param>
+            <returns>The base64-encoded representation of the string, or null if the string is null</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.ZeroIfEmptyOrNull(System.String)">
+            <summary>
+            Returns "0" if the input string is empty or null
+            </summary>
+            <param name="input">String to test</param>
+            <returns>Original string or "0" if empty or null</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.DefaultIfEmptyOrNull(System.String,System.String)">
+            <summary>
+            Returns a given fallback value if the input string is whitespace or null
+            </summary>
+            <param name="input">String to test</param>
+            <param name="fallback">Fallback value if the input is whitespace or null</param>
+            <returns>Original string or the given fallback if the input is whitespace or null</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.SafeTrim(System.String,System.Char[])">
+            <summary>
+            Safely trims a string, returning an empty string if given null
+            </summary>
+            <param name="input">String to trim</param>
+            <param name="trimChars">Optional params of chars to trim, passed to standard String.Trim() method</param>
+            <returns>Empty string if input is null, otherwise trimmed input</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.ToKebabCase(System.String)">
+            <summary>
+            Converts an input string to kebab-case
+            </summary>
+            <param name="input">string to convert</param>
+            <returns>kebab-cased-output</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.ToSnakeCase(System.String)">
+            <summary>
+            Converts an input string to snake_case
+            </summary>
+            <param name="input">string to convert</param>
+            <returns>snake_cased_output</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.ToPascalCase(System.String)">
+            <summary>
+            Converts an input string to PascalCase
+            </summary>
+            <param name="input">string to convert</param>
+            <returns>
+            - pascalCasedOutput => PascalCasedOutput
+            - pascal-cased-output => PascalCasedOutput
+            - pascal_cased_output => PascalCasedOutput
+            - pascal cased output => Pascal Cased Output
+            </returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.ToTitleCase(System.String)">
+            <summary>
+            Alias for ToPascalCase
+            </summary>
+            <param name="input"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.ToCamelCase(System.String)">
+            <summary>
+            Converts an input string to camelCase
+            </summary>
+            <param name="input">string to convert</param>
+            <returns>camelCasedOutput</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.ToRandomCase(System.String)">
+            <summary>
+            Returns the input string in RaNdOMizEd case
+            </summary>
+            <param name="input"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.ToWords(System.String)">
+            <summary>
+            Converts an input string to words, where possible
+            eg: kebab-case => "kebab case"
+                snake_case => "snake case"
+                PascalCase => "pascal case"
+            </summary>
+            <param name="input"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.ToLowerCasedFirstLetter(System.String)">
+            <summary>
+            Lower-cases the first letter in your string
+            </summary>
+            <param name="input">string to operate on</param>
+            <returns>string with lower-cased first letter or null if input was null</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.ToUpperCasedFirstLetter(System.String)">
+            <summary>
+            Upper-cases the first letter in your string
+            </summary>
+            <param name="input">string to operate on</param>
+            <returns>string with upper-cased first letter or null if input was null</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.ToLower(System.String,System.Globalization.CultureInfo)">
+            <summary>
+            Provides an in-place shum for the ToLower method
+            which is used from .net framework; the latter
+            can accept a CultureInfo parameter, where .net standard
+            cannot, so the parameter is just dropped
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.IsNumeric(System.String)">
+            <summary>
+            Returns whether or not a string is an integer value
+            </summary>
+            <param name="str">string to test</param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.IsAlphanumeric(System.String)">
+            <summary>
+            Tests if a string is Alphanumeric. Fails on null or whitespace too.
+            </summary>
+            <param name="str"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.IsAlpha(System.String)">
+            <summary>
+            Tests if a string is Alphabetic only. Fails on null or whitespace too.
+            </summary>
+            <param name="str"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.IsNumeric(System.Char)">
+            <summary>
+            Tests if a character is numeric (0-9)
+            </summary>
+            <param name="c"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.StringExtensions.IsAlpha(System.Char)">
+            <summary>
+            Tests if a character is alphabetic (a-z|A-Z)
+            </summary>
+            <param name="c"></param>
+            <returns></returns>
+        </member>
+        <member name="T:PeanutButter.Utils.Stringifier">
+            <summary>
+            Provides convenience functions to get reasonable string representations of objects and collections
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.Stringifier.Stringify``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Provides a reasonable human-readable string representation of a collection
+            </summary>
+            <param name="objs"></param>
+            <returns>Human-readable representation of collection</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.Stringifier.Stringify(System.Object)">
+            <summary>
+            Provides a reasonable human-readable string representation of an object
+            </summary>
+            <param name="obj"></param>
+            <returns>Human-readable representation of object</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.Stringifier.Stringify(System.Object,System.String)">
+            <summary>
+            Provides a reasonable human-readable string representation of an object
+            </summary>
+            <param name="obj"></param>
+            <param name="nullRepresentation">How to represent null values - defaults to the string "null"</param>
+            <returns>Human-readable representation of object</returns>
+        </member>
+        <member name="T:PeanutButter.Utils.TaskExtensions">
+            <summary>
+            Extension methoss for tasks
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.TaskExtensions.GetResultSync``1(System.Threading.Tasks.Task{``0})">
+            <summary>
+            Runs a task which returns a result synchronously, returning that result
+            </summary>
+            <param name="task"></param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TaskExtensions.WaitSync(System.Threading.Tasks.Task)">
+            <summary>
+            Waits on a void-result task for completion
+            </summary>
+            <param name="task"></param>
+        </member>
+        <member name="T:PeanutButter.Utils.TypeEqualityTester">
+            <summary>
+            Tests shape equality between two types
+            </summary>
+        </member>
+        <member name="P:PeanutButter.Utils.TypeEqualityTester.Errors">
+            <summary>
+            Provides a read-only collection of the errors encountered during the last comparison
+            operation
+            </summary>
+        </member>
+        <member name="P:PeanutButter.Utils.TypeEqualityTester.SubMatch">
+            <summary>
+            Allow sub-matching: when True, the comparison type can contain more
+            properties than the master as long as all master properties are matched
+            </summary>
+        </member>
+        <member name="P:PeanutButter.Utils.TypeEqualityTester.AllowAssignmentEquivalence">
+            <summary>
+            Recognises properties on the comparison type to which the master
+            property can be assigned as being equivalent
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeEqualityTester.#ctor(System.Type,System.Type)">
+            <summary>
+            Creates a new TypeEqualityCTester with the two types to test
+            </summary>
+            <param name="master">Master type</param>
+            <param name="compare">Comparison type</param>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeEqualityTester.AreDeepEquivalent">
+            <summary>
+            Performs a new Deep Equivalence test.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:PeanutButter.Utils.TypeExtensions">
+            <summary>
+            Helper extensions for Types
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.Ancestry(System.Type)">
+            <summary>
+            Enumerates the ancestry of a Type
+            </summary>
+            <param name="type">Starting Type</param>
+            <returns>The Type ancestry, starting from Object</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.GetAllConstants(System.Type)">
+            <summary>
+            Returns a dictionary of all constant values defined on a Type
+            </summary>
+            <param name="type">Source type to search for constants</param>
+            <returns>Dictionary of constants, keyed by constant name</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.GetAllConstants``1(System.Type)">
+            <summary>
+            Returns a dictionary of all constant values of a specified Type found on a Type
+            </summary>
+            <param name="type">Type to search for constants</param>
+            <typeparam name="T">Only return constants of this Type</typeparam>
+            <returns>Dictionary of all constant values on a specified type</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.GetAllConstantValues(System.Type)">
+            <summary>
+            Returns a collection of all the constant values defined on a Type
+            </summary>
+            <param name="type">Type to search for constants</param>
+            <returns>Collection of the constant values without their defined names</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.GetAllConstantValues``1(System.Type)">
+            <summary>
+            Returns a collection of all the constant values defined on a Type, restricted to the required Type T
+            </summary>
+            <param name="type">Type to search for constants</param>
+            <typeparam name="T">Only return constants of this Type</typeparam>
+            <returns>Collection of constant values from the source type which match the Type T restriction</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.HasDefaultConstructor(System.Type)">
+            <summary>
+            Tests if a Type has a default constructor (ie, a constructor with no parameters)
+            </summary>
+            <param name="type">Type to inspect</param>
+            <returns>True when the type has a parameterless constructor; False otherwise. Note that a constructor with parameters which have all default values is not considered valid.</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.IsArrayOrAssignableFromArray(System.Type)">
+            <summary>
+            Tests if a type is an array or could be assigned from an array
+            </summary>
+            <param name="t">Type to check</param>
+            <returns>True if {t} is an Array type or could have an array type assigned to it; False otherwise</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.IsEnum(System.Type)">
+            <summary>
+            Provides an extension method mimicking the full framework
+            IsEnum for a single point of code usage
+            </summary>
+            <param name="t"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.GetMethod(System.Type,System.String,System.Reflection.BindingFlags)">
+            <summary>
+            provides the method normally found on a .net framework
+            Type object, but reachabole on .net standard only via GetTypeInfo();
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.GetProperties(System.Type)">
+            <summary>
+            provides the method normally found on a .net framework
+            Type object, but reachabole on .net standard only via GetTypeInfo();
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.GetProperty(System.Type,System.String)">
+            <summary>
+            provides the method normally found on a .net framework
+            Type object, but reachabole on .net standard only via GetTypeInfo();
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.GetProperty(System.Type,System.String,System.Reflection.BindingFlags)">
+            <summary>
+            provides the method normally found on a .net framework
+            Type object, but reachabole on .net standard only via GetTypeInfo();
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.GetProperties(System.Type,System.Reflection.BindingFlags)">
+            <summary>
+            provides the method normally found on a .net framework
+            Type object, but reachabole on .net standard only via GetTypeInfo();
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.GetFields(System.Type,System.Reflection.BindingFlags)">
+            <summary>
+            provides the method normally found on a .net framework
+            Type object, but reachabole on .net standard only via GetTypeInfo();
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.IsAssignableFrom(System.Type,System.Type)">
+            <summary>
+            provides the method normally found on a .net framework
+            Type object, but reachabole on .net standard only via GetTypeInfo();
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.GetInterfaces(System.Type)">
+            <summary>
+            provides the method normally found on a .net framework
+            Type object, but reachabole on .net standard only via GetTypeInfo();
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.GetGenericArguments(System.Type)">
+            <summary>
+            provides the method normally found on a .net framework
+            Type object, but reachabole on .net standard only via GetTypeInfo();
+            </summary>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.GetAssembly(System.Type)">
+            <summary>
+            Provides an extension method mimicking the full framework
+            GetAssembly for a single point of code usage
+            </summary>
+            <param name="t"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.BaseType(System.Type)">
+            <summary>
+            Provides an extension method mimicking the full framework
+            BaseType for a single point of code usage
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.IsGenericType(System.Type)">
+            <summary>
+            Provides an extension method mimicking the full framework
+            IsGenericType for a single point of code usage
+            </summary>
+            <param name="t"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.IsGenericOf(System.Type,System.Type)">
+            <summary>
+            Tests if a type is a generic of a given generic type (eg typeof(List&lt;&gt;))
+            </summary>
+            <param name="t">type to operate on</param>
+            <param name="genericTest">type to test against (eg typeof(List&lt;&gt;))</param>
+            <returns>True if the input type is a match, false otherwise</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.IsAssignableFromArrayOf``1(System.Type)">
+            <summary>
+            Tests if a type is assignable from an array of T
+            </summary>
+            <param name="t">Type to test</param>
+            <typeparam name="T">Item type of array which calling code would like to assign</typeparam>
+            <returns>True if the parameter type is assignable from an array of T</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.ImplementsEnumerableGenericType(System.Type)">
+            <summary>
+            Tests if a type implements IEnumerable&lt;&gt;
+            </summary>
+            <param name="t">Type to test</param>
+            <returns>True if the source type implements IEnumerable&lt;&gt;; False otherwise</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.ImplementsIDictionaryGenericType(System.Type)">
+            <summary>
+            Returns true if the provided type implements IDictionary&lt;,&gt;
+            anywhere in the type heirachy
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.IsIDictionary(System.Type)">
+            <summary>
+            Returns true if a type directly implements IDictionary&lt;,&gt;
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.TryGetDictionaryKeyAndValueTypes(System.Type,System.Type@,System.Type@)">
+            <summary>
+            Tries to get the key and value types for an object, if
+            it implements IDictionary&lt;TKey,TValue&gt;. Returns true
+            if sucessful (with the out parameters set) or false if
+            the provided type does not implement IDictionary&lt;,&gt;
+            </summary>
+            <param name="type"></param>
+            <param name="keyType"></param>
+            <param name="valueType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.TryGetEnumerableInterface(System.Type)">
+            <summary>
+            Attempts to get the implemented Generic IEnumerable interface for a type, if possible
+            </summary>
+            <param name="srcType">Type to search for the interface</param>
+            <returns>Generic IEnumerable type implemented if found or null otherwise</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.TryGetEnumerableItemType(System.Type)">
+            <summary>
+            Attempts to get the item type (T)
+            for a Type which is assumed to implement IEnumerable&lt;T&gt;
+            </summary>
+            <param name="srcType">Type to search for the IEnumerable &lt;T&gt; interface and underlying type</param>
+            <returns>IEnumerable&lt;&gt; item type (T) implemented if found or null otherwise</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.IsGenericOfIEnumerable(System.Type)">
+            <summary>
+            Tests if a type directly implements the generic IEnumerable interface
+            </summary>
+            <param name="arg">Type to test</param>
+            <returns>True if it does implement the generic IEnumerable; false otherwise</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.GetCollectionItemType(System.Type)">
+            <summary>
+            Attempts to get the item type of a colleciton
+            </summary>
+            <param name="collectionType">Type to inspect</param>
+            <returns>Item type, if it can be found, or null</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.GetAllImplementedInterfaces(System.Type)">
+            <summary>
+            Attempts to find all implemented interfaces (and inherited ones) for a Type
+            </summary>
+            <param name="inspectType">Type to inspect</param>
+            <returns>Array of all interfaces which are implemented</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.IsDisposable(System.Type)">
+            <summary>
+            Tests if a type implements IDisposable
+            </summary>
+            <param name="t">Type to test</param>
+            <returns>True if it implements IDisposable; false otherwise</returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.PrettyName(System.Type)">
+            <summary>
+            Provides a "pretty" name for a type, taking into account
+            generics and nullable types
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.IsCollection(System.Type)">
+            <summary>
+            Rudimentary test for if a type is a collection type, testing for
+            IEnumerable&lt;&gt; interface implementation as well as some baked-in
+            known generic types
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.CanBeAssignedNull(System.Type)">
+            <summary>
+            Determines if an object of this type can be assigned null
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.IsValueType(System.Type)">
+            <summary>
+            Provides single method to determine IsValueType (shimmed for NETSTANDARD)
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.IsAssignableOrUpcastableTo(System.Type,System.Type)">
+            <summary>
+            Returns true if the type being operated on can be directly assigned
+            or implicitly upcast to the target type
+            </summary>
+            <param name="src"></param>
+            <param name="target"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.CanImplicitlyUpcastTo(System.Type,System.Type)">
+            <summary>
+            Returns true if the type being operated on can be
+            implicitly upcast to the target type
+            </summary>
+            <param name="src"></param>
+            <param name="target"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.DefaultValue(System.Type)">
+            <summary>
+            Returns the default value for the type being operated on
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.IsInterface(System.Type)">
+            <summary>
+            Cross-target shim for the IsInterface property,
+            found on Type in NetFramework and on Type.GetTypeInf()
+            on NETSTANDARD
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.IsNumericType(System.Type)">
+            <summary>
+            Determines whether the provided type is a known numeric type
+            (ie int / short / byte / double / float / decimal )
+            </summary>
+            <param name="type">Type to operate on</param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.IsAncestorOf(System.Type,System.Type)">
+            <summary>
+            Determines whether the type being operated on is an ancestor of the other type
+            </summary>
+            <param name="type"></param>
+            <param name="other"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.Implements``1(System.Type)">
+            <summary>
+            Tests if the type being operated on implements the provided interfaceType
+            </summary>
+            <param name="type"></param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.Utils.TypeExtensions.Implements(System.Type,System.Type)">
+            <summary>
+            Tests if the type being operated on implements the provided interfaceType
+            </summary>
+            <param name="type"></param>
+            <param name="interfaceType"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>
