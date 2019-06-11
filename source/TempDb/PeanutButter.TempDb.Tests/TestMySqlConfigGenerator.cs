@@ -1,7 +1,12 @@
-﻿using NExpect;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using NExpect;
 using NUnit.Framework;
 using PeanutButter.TempDb.MySql;
 using PeanutButter.Utils;
+using static NExpect.Expectations;
 
 namespace PeanutButter.TempDb.Tests
 {
@@ -21,21 +26,69 @@ namespace PeanutButter.TempDb.Tests
             var resultIni = new INIFile.INIFile();
             resultIni.Parse(rawResult);
             // Assert
-            Expectations.Expect(defaultIni.Sections)
+            Expect(defaultIni.Sections)
                 .To.Be.Equivalent.To(resultIni.Sections);
             defaultIni.Sections.ForEach(section =>
             {
                 var expectedSettings = defaultIni[section];
-                var resultSettings = resultIni[section];
+                // socket is unix-specific and randomly generated
+                var resultSettings = resultIni[section].Where(kvp => kvp.Key != "socket")
+                    .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                var socketSetting = resultIni[section].Where(kvp => kvp.Key == "socket");
+                if (socketSetting.Any())
+                {
+                    var kvp = socketSetting.First();
+                    var parts = kvp.Value.Split('/');
+                    Expect(parts).To.Contain.Only(3).Items();
+                    Expect(parts[0]).To.Be.Empty();
+                    Expect(parts[1]).To.Equal("tmp");
+                    Expect(parts[2]).To.End.With(".socket");
+                    var noExt = Path.GetFileNameWithoutExtension(parts[2]);
+                    var subParts = noExt.Split('-');
+                    Expect(subParts[0]).To.Equal("mysql");
+                    Expect(subParts[1]).To.Equal("temp");
+                    var guidPart = subParts.Skip(2).JoinWith("-");
+                    Expect(Guid.TryParse(guidPart, out var _)).To.Be.True();
+                }
+
                 expectedSettings.ForEach(kvp =>
                 {
-                    Expectations.Expect(resultSettings.TryGetValue(kvp.Key, out var value))
+                    Expect(resultSettings.TryGetValue(kvp.Key, out var value))
                         .To.Be.True($"result is missing setting '{kvp.Key}'");
-                    Expectations.Expect(value).To.Equal(kvp.Value,
+                    Expect(value).To.Equal(kvp.Value,
                         $"Mismatched values for setting '{kvp.Key}'");
                 });
-                Expectations.Expect(resultSettings.Count)
-                    .To.Equal(expectedSettings.Count);
+                Expect(resultSettings.Count)
+                    .To.Equal(expectedSettings.Count, () =>
+                    {
+                            var extraKeys = resultSettings.Keys.Except(
+                                expectedSettings.Keys);
+                            var extraSettings = resultSettings.Where(
+                                kvp => extraKeys.Contains(kvp.Key)
+                                ).Select(KvpLine);
+                            var missingKeys = expectedSettings.Keys.Except(
+                                resultSettings.Keys);
+                            var missingSettings = expectedSettings.Where(
+                                kvp => missingKeys.Contains(kvp.Key)
+                                ).Select(KvpLine);
+                            var final = new List<string>();
+                            if (missingSettings.Any())
+                            {
+                                final.Add("Missing settings;");
+                                final.AddRange(missingSettings);
+                            }
+
+                            if (extraSettings.Any())
+                            {
+                                final.Add("Extra settings:");
+                                final.AddRange(extraSettings);
+                            }
+                            return final.JoinWith("\n");
+                            string KvpLine(KeyValuePair<string, string> kvp)
+                            {
+                                return $"{kvp.Key} = {kvp.Value}"; 
+                            }
+                    });
             });
         }
 
