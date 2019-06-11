@@ -90,7 +90,7 @@ namespace NugetPackageVersionIncrementer
                     "/package/files/file"
                 )
                 .Select(n => n.Attribute("target")?.Value)
-                .Where(t => !t.IsNullOrWhiteSpace())
+                .Where(t => !t.IsNullOrWhiteSpace() && t.StartsWith("lib"))
                 .Select(t => t.RegexReplace("^lib/", ""))
                 .Distinct();
         }
