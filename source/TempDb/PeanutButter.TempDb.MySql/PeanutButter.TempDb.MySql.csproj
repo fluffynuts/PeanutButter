@@ -4,6 +4,7 @@
   <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
   <DocumentationFile>bin/$(Configuration)/$(TargetFramework)/PeanutButter.TempDb.MySql.xml</DocumentationFile>
   <Configurations>Debug;Release</Configurations>
+  <Platforms>AnyCPU</Platforms>
 </PropertyGroup>
 <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
   <DefineConstants>NETSTANDARD</DefineConstants>

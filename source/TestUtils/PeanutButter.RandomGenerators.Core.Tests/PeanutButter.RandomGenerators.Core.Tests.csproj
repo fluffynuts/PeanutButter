@@ -3,6 +3,8 @@
     <PropertyGroup>
         <TargetFramework>netcoreapp2.2</TargetFramework>
         <DefineConstants>NETSTANDARD</DefineConstants>
+        <Configurations>Debug;Release</Configurations>
+        <Platforms>AnyCPU</Platforms>
     </PropertyGroup>
 
     <ItemGroup>
@@ -10,7 +12,7 @@
         <Version>16.0.1</Version>
       </PackageReference>
       <PackageReference Include="NExpect">
-        <Version>1.0.136</Version>
+        <Version>1.0.152</Version>
       </PackageReference>
       <PackageReference Include="nunit">
         <Version>3.11.0</Version>

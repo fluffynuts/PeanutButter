@@ -1,10 +1,13 @@
 ﻿using System.IO;
+using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using NUnit.Framework;
-using PeanutButter.RandomGenerators;
 using PeanutButter.Utils;
+using static NExpect.Expectations;
+using NExpect;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace NugetPackageVersionIncrementer.Tests
 {
@@ -28,7 +31,7 @@ namespace NugetPackageVersionIncrementer.Tests
                 var result = sut.Version;
 
                 //---------------Test Result -----------------------
-                Assert.AreEqual(expected, result);
+                Expect(result).To.Equal(expected);
             }
         }
 
@@ -49,7 +52,7 @@ namespace NugetPackageVersionIncrementer.Tests
                 var result = sut.OriginalVersion;
 
                 //---------------Test Result -----------------------
-                Assert.AreEqual(expected, result);
+                Expect(result).To.Equal(expected);
             }
         }
 
@@ -74,16 +77,17 @@ namespace NugetPackageVersionIncrementer.Tests
                 var result = sut.Version;
 
                 //---------------Test Result -----------------------
-                Assert.AreEqual(expected, result);
-                Assert.AreNotEqual(sut.OriginalVersion, sut.Version);
-                Assert.AreNotEqual(xmlBefore, sut.NuspecXml);
-                Assert.AreEqual(originalVersion, sut.OriginalVersion);
+                Expect(result).To.Equal(expected);
+                Expect(sut.Version).Not.To.Equal(sut.OriginalVersion);
+                Expect(sut.NuspecXml).Not.To.Equal(xmlBefore);
+                Expect(sut.OriginalVersion).To.Equal(originalVersion);
+
                 // test that changes aren't persisted yet
                 var onDisk = Encoding.UTF8.GetString(File.ReadAllBytes(tempFile));
                 var doc = XDocument.Parse(onDisk);
                 var versionNode = doc.XPathSelectElement("/package/metadata/version");
-                Assert.IsNotNull(versionNode);
-                Assert.AreNotEqual(expected, versionNode.Value);
+                Expect(versionNode).Not.To.Be.Null();
+                Expect(versionNode.Value).Not.To.Equal(expected);
             }
         }
 
@@ -108,13 +112,13 @@ namespace NugetPackageVersionIncrementer.Tests
                 var result = sut.Version;
 
                 //---------------Test Result -----------------------
-                Assert.AreEqual(expected, result);
-                Assert.AreNotEqual(xmlBefore, sut.NuspecXml);
+                Expect(result).To.Equal(expected);
+                Expect(sut.NuspecXml).Not.To.Equal(xmlBefore);
                 var onDisk = Encoding.UTF8.GetString(File.ReadAllBytes(tempFile));
                 var doc = XDocument.Parse(onDisk);
                 var versionNode = doc.XPathSelectElement("/package/metadata/version");
-                Assert.IsNotNull(versionNode);
-                Assert.AreEqual(expected, versionNode.Value);
+                Expect(versionNode).Not.To.Be.Null();
+                Expect(versionNode.Value).To.Equal(expected);
             }
         }
 
@@ -139,14 +143,14 @@ namespace NugetPackageVersionIncrementer.Tests
                 var result = sut.Version;
 
                 //---------------Test Result -----------------------
-                Assert.AreEqual(expected, result);
-                Assert.AreNotEqual(xmlBefore, sut.NuspecXml);
+                Expect(result).To.Equal(expected);
+                Expect(sut.NuspecXml).Not.To.Equal(xmlBefore);
                 var onDisk = Encoding.UTF8.GetString(File.ReadAllBytes(tempFile));
                 newMethodArtifact = onDisk;
                 var doc = XDocument.Parse(onDisk);
                 var versionNode = doc.XPathSelectElement("/package/metadata/version");
-                Assert.IsNotNull(versionNode);
-                Assert.AreEqual(expected, versionNode.Value);
+                Expect(versionNode).Not.To.Be.Null();
+                Expect(versionNode.Value).To.Equal(expected);
             }
 
             using (var packageFile = new AutoTempFile(TestResources.package1))
@@ -154,7 +158,8 @@ namespace NugetPackageVersionIncrementer.Tests
                 var legacy = new LegacyPackageVersionIncrementer();
                 legacy.IncrementVersionOn(packageFile.Path);
                 var legacyArtifact = Encoding.UTF8.GetString(File.ReadAllBytes(packageFile.Path));
-                Assert.AreEqual(legacyArtifact, newMethodArtifact);
+                Expect(newMethodArtifact)
+                    .To.Equal(legacyArtifact);
             }
         }
 
@@ -174,7 +179,7 @@ namespace NugetPackageVersionIncrementer.Tests
                 var result = sut.PackageId;
 
                 //---------------Test Result -----------------------
-                Assert.AreEqual(expected, result);
+                Expect(result).To.Equal(expected);
             }
         }
 
@@ -185,12 +190,13 @@ namespace NugetPackageVersionIncrementer.Tests
             {
                 //---------------Set up test pack-------------------
                 var doc = XDocument.Parse(packageFile.StringData);
-                var packageId = RandomValueGen.GetRandomString(10, 20);
+                var packageId = GetRandomString(10, 20);
                 var version = GetRandomVersionString();
                 var sut = CreateAndLoad(packageFile.Path);
 
                 //---------------Assert Precondition----------------
-                Assert.IsNull(doc.GetDependencyVersionFor(packageId));
+                Expect(doc.GetDependencyVersionFor(packageId))
+                    .To.Be.Null();
 
                 //---------------Execute Test ----------------------
                 sut.SetPackageDependencyVersionIfExists(packageId, version);
@@ -198,13 +204,50 @@ namespace NugetPackageVersionIncrementer.Tests
 
                 //---------------Test Result -----------------------
                 var result = packageFile.BinaryData;
-                CollectionAssert.AreEqual(TestResources.package1, result);
+                Expect(result.AsString())
+                    .To.Equal(TestResources.package1);
+            }
+        }
+
+        [Test]
+        public void ShouldSetDepsForAllFrameworks()
+        {
+            using (var packageFile = new AutoTempFile(TestResources.multi_target_package))
+            {
+                // Arrange
+                var doc = XDocument.Parse(packageFile.StringData);
+                var startingNodes = doc.XPathSelectElements(
+                    "/package/metadata/dependencies/group/dependency"
+                );
+
+                var sut = CreateAndLoad(packageFile.Path);
+                Expect(startingNodes).Not.To.Be.Empty();
+                Expect(startingNodes.All(
+                    n => n.Parent?.Attribute("targetFramework")?.Value == "net40"
+                )).To.Be.True();
+                var targetFrameworks = sut.FindTargetedFrameworks();
+                Expect(targetFrameworks)
+                    .To.Be.Equivalent.To(new[] { "net452", "netstandard2.0" });
+                // Act
+                sut.EnsureSameDependencyGroupForAllTargetFrameworks();
+                // Assert
+                sut.Persist();
+                
+                var after = XDocument.Parse(packageFile.StringData);
+                var groups = after.XPathSelectElements(
+                    "/package/metadata/dependencies/group"
+                );
+                Expect(groups).To.Contain.Only(2).Items();
+                Expect(groups).To.Contain.Exactly(1)
+                    .Matched.By(n => n.Attribute("targetFramework")?.Value == "net452");
+                Expect(groups).To.Contain.Exactly(1)
+                    .Matched.By(n => n.Attribute("targetFramework")?.Value == "netstandard2.0");
             }
         }
 
         private static string GetRandomVersionString()
         {
-            return string.Join(".", RandomValueGen.GetRandomCollection<int>(3,3));
+            return string.Join(".", GetRandomCollection<int>(3, 3));
         }
 
 

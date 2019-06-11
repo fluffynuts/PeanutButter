@@ -4,6 +4,7 @@
     <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
     <Configurations>Debug;Release</Configurations>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\PeanutButter.RandomGenerators.xml</DocumentationFile>
+    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
     <DefineConstants>NETSTANDARD</DefineConstants>

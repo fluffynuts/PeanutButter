@@ -22,7 +22,9 @@ namespace NugetPackageVersionIncrementer
             }
         }
 
-        public void SetExistingPackageDependencyVersion(string packageId, string version)
+        public void SetExistingPackageDependencyVersion(
+            string packageId, 
+            string version)
         {
             if (_doc.GetDependencyVersionFor(packageId) == null)
                 return;

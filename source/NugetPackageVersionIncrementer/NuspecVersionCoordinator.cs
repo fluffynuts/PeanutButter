@@ -52,7 +52,11 @@ namespace NugetPackageVersionIncrementer
 
         private static void IncrementPackageVersionsOn(INuspecUtil[] utils)
         {
-            utils.ForEach(u => u.IncrementVersion());
+            utils.ForEach(u =>
+            {
+                u.EnsureSameDependencyGroupForAllTargetFrameworks();
+                u.IncrementVersion();
+            });
         }
 
         private INuspecUtil[] GetNuspecUtilsForNuspecsUnder(string[] paths)

@@ -4,11 +4,13 @@
         <TargetFramework>netcoreapp2.2</TargetFramework>
         <DefineConstants>NETSTANDARD</DefineConstants>
         <IsPackable>false</IsPackable>
+        <Configurations>Debug;Release</Configurations>
+        <Platforms>AnyCPU</Platforms>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="MySql.Data" Version="8.0.15" />
-        <PackageReference Include="nexpect" Version="1.0.136" />
+        <PackageReference Include="nexpect" Version="1.0.152" />
         <PackageReference Include="nunit" Version="3.11.0" />
         <PackageReference Include="NUnit3TestAdapter" Version="3.13.0" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />

@@ -182,7 +182,9 @@ namespace NugetPackageVersionIncrementer.Tests
             //---------------Test Result -----------------------
             Received.InOrder(() =>
             {
+                util1.EnsureSameDependencyGroupForAllTargetFrameworks();
                 util1.IncrementVersion();
+                util2.EnsureSameDependencyGroupForAllTargetFrameworks();
                 util2.IncrementVersion();
 
                 util1.SetPackageDependencyVersionIfExists(util2.PackageId, util2.Version);

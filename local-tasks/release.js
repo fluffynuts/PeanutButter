@@ -28,7 +28,7 @@ gulp.task("clean-old-packages", function () {
   });
 });
 
-gulp.task("build-binaries-for-nuget-packages", ["nuget-restore"], function () {
+gulp.task("build-binaries-for-nuget-packages", ["prebuild"], function () {
   var config = Object.assign({}, commonConfig);
   config.targets = ["Clean", "Build"];
   config.configuration = "Release"; // TODO: change back to Release once all .NugetPackage.csproj projects have been purged

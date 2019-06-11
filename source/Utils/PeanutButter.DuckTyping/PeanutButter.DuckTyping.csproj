@@ -4,6 +4,7 @@
         <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
         <Configurations>Debug;Release</Configurations>
         <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\PeanutButter.DuckTyping.xml</DocumentationFile>
+        <Platforms>AnyCPU</Platforms>
     </PropertyGroup>
     <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
         <DefineConstants>NETSTANDARD;BUILD_PEANUTBUTTER_INTERNAL</DefineConstants>

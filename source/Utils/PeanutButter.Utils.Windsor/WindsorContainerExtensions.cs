@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
+using PeanutButter.Utils;
 
 namespace PeanutButter.Utils.Windsor
 {
@@ -29,20 +30,20 @@ namespace PeanutButter.Utils.Windsor
                 throw NoAssembliesException;
             var allTypes = assemblyArray.SelectMany(a => a.GetTypes()).ToArray();
             var allInterfaces = allTypes.Where(t => t.IsInterface)
-                                        .Where(t => !exclusions.Contains(t))
-                                        .ToArray();
+                .Where(t => !exclusions.Contains(t))
+                .ToArray();
             var allImplementations = allTypes.Where(t => !t.IsInterface &&
-                                                         !t.IsAbstract &&
-                                                         !t.IsGenericType &&
-                                                         !exclusions.Contains(t))
-                                              .ToArray();
+                    !t.IsAbstract &&
+                    !t.IsGenericType &&
+                    !exclusions.Contains(t))
+                .ToArray();
             allInterfaces.ForEach(interfaceType =>
             {
                 if (container.Kernel.HasComponent(interfaceType))
                     return;
                 var implementingTypes = allImplementations
-                                            .Where(interfaceType.IsAssignableFrom)
-                                            .ToArray();
+                    .Where(interfaceType.IsAssignableFrom)
+                    .ToArray();
                 if (implementingTypes.Length != 1)
                     return;
                 var implementation = implementingTypes.Single();
@@ -88,41 +89,52 @@ namespace PeanutButter.Utils.Windsor
             where TImplementation : TService
         {
             container.Register(Component.For<TService>()
-                                    .ImplementedBy<TImplementation>()
-                                    .LifestyleSingleton());
+                .ImplementedBy<TImplementation>()
+                .LifestyleSingleton());
         }
 
-        public static void RegisterSingleton(this IWindsorContainer container, Type serviceType, Type implementationType)
+        public static void RegisterSingleton(this IWindsorContainer container,
+            Type serviceType,
+            Type implementationType)
         {
             container.Register(Component.For(serviceType)
-                                    .ImplementedBy(implementationType)
-                                    .LifestyleSingleton());
+                .ImplementedBy(implementationType)
+                .LifestyleSingleton());
         }
 
-        public static void RegisterTransient<TService, TImplementation>(this IWindsorContainer container)
+        public static void RegisterTransient<TService, TImplementation>(
+            this IWindsorContainer container)
             where TService : class
             where TImplementation : TService
         {
             container.Register(Component.For<TService>()
-                                        .ImplementedBy<TImplementation>()
-                                        .LifestyleTransient());
+                .ImplementedBy<TImplementation>()
+                .LifestyleTransient());
         }
 
-        public static void RegisterPerWebRequest<TService, TImplementation>(this IWindsorContainer container)
+        public static void RegisterPerWebRequest<TService, TImplementation>(
+            this IWindsorContainer container)
             where TService : class
             where TImplementation : TService
         {
-            container.Register(Component.For<TService>()
-                                        .ImplementedBy<TImplementation>()
-                                        .LifestylePerWebRequest());
+            throw new NotImplementedException(
+                    new[]
+                    {
+                        "Castle.Windsor have removed LifestylePerWebRequest",
+                        "so you have some options:",
+                        "- check out https://github.com/castleproject/Windsor/issues/359",
+                        "- use another IOC container. I highly recommend DryIOC"
+                    }.JoinWith("\n")
+                );
         }
 
-        public static void RegisterInstance<TService>(this IWindsorContainer container, TService instance) where TService : class
+        public static void RegisterInstance<TService>(this IWindsorContainer container, TService instance)
+            where TService : class
         {
             container.Register(
                 Component.For<TService>()
-                .Instance(instance)
-                .Named($"{typeof(TService)} -> {instance?.GetType().Name}"));
+                    .Instance(instance)
+                    .Named($"{typeof(TService)} -> {instance?.GetType().Name}"));
         }
 
         private const string API_CONTROLLER_NAMESPACE = "System.Web.Http";
@@ -132,8 +144,8 @@ namespace PeanutButter.Utils.Windsor
         {
             return type.Ancestry()
                 .Any(t => t.Name == "ApiController" &&
-                          t.Namespace == API_CONTROLLER_NAMESPACE &&
-                          t.Assembly.FullName.StartsWith(API_CONTROLLER_ASSEMBLY));
+                    t.Namespace == API_CONTROLLER_NAMESPACE &&
+                    t.Assembly.FullName.StartsWith(API_CONTROLLER_ASSEMBLY));
         }
 
         private const string MVC_CONTROLLER_NAMESPACE = "System.Web.Mvc";
@@ -142,12 +154,12 @@ namespace PeanutButter.Utils.Windsor
         private static bool IsBasedOnMvcController(Type type)
         {
             return type.Ancestry()
-                        .Any(t => t.Name == "Controller" &&
-                                    t.Namespace == MVC_CONTROLLER_NAMESPACE &&
-                                    t.Assembly.FullName.StartsWith(MVC_CONTROLLER_ASSEMBLY));
+                .Any(t => t.Name == "Controller" &&
+                    t.Namespace == MVC_CONTROLLER_NAMESPACE &&
+                    t.Assembly.FullName.StartsWith(MVC_CONTROLLER_ASSEMBLY));
         }
 
         private static ArgumentException NoAssembliesException =>
-                new ArgumentException("No assemblies provided to search for registrations");
+            new ArgumentException("No assemblies provided to search for registrations");
     }
 }

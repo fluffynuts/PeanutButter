@@ -1,97 +1,20 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <RuntimeIdentifiers>win;osx;linux</RuntimeIdentifiers>
-  </PropertyGroup>
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{D74720A9-686C-4A62-A57B-2CD085C3BE46}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NugetPackageVersionIncrementer</RootNamespace>
-    <AssemblyName>NugetPackageVersionIncrementer</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
-    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <TargetFrameworks>netcoreapp2.2;net452</TargetFrameworks>
+    <Configurations>Debug;Release</Configurations>
+    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="LegacyPackageVersionIncrementer.cs" />
-    <Compile Include="NuspecFinder.cs" />
-    <Compile Include="NuspecUtil.cs" />
-    <Compile Include="NuspecPackageDependencyHelper.cs" />
-    <Compile Include="NuspecReaderWriter.cs" />
-    <Compile Include="NuspecUtilFactory.cs" />
-    <Compile Include="NuspecVersion.cs" />
-    <Compile Include="NuspecVersionCoordinator.cs" />
-    <Compile Include="NuspecVersionIncrementer.cs" />
-    <Compile Include="NuspecXDocumentExtensions.cs" />
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ResolvingContainer.cs" />
-    <Compile Include="WindsorBootstrapper.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Utils\PeanutButter.Utils.Windsor\PeanutButter.Utils.Windsor.csproj">
-      <Project>{FA4CE84F-C024-4643-B692-378DE0F9BE24}</Project>
-      <Name>PeanutButter.Utils.Windsor</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj">
-      <Project>{EFC85343-95B4-48C3-BCBE-579EA4868C0A}</Project>
-      <Name>PeanutButter.Utils</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Utils\PeanutButter.XmlUtils\PeanutButter.XmlUtils.csproj">
-      <Project>{d67739cd-944e-4e88-b313-0e091cea185b}</Project>
-      <Name>PeanutButter.XmlUtils</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Castle.Core">
-      <Version>4.2.1</Version>
-    </PackageReference>
     <PackageReference Include="Castle.Windsor">
-      <Version>4.1.0</Version>
+      <Version>5.0.0</Version>
     </PackageReference>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  <ItemGroup>
+    <ProjectReference Include="..\Utils\PeanutButter.Utils.Windsor\PeanutButter.Utils.Windsor.csproj" />
+    <ProjectReference Include="..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj" />
+    <ProjectReference Include="..\Utils\PeanutButter.XmlUtils\PeanutButter.XmlUtils.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -24,8 +24,7 @@
     <copyright>Copyright  2016</copyright>
     <dependencies>
       <group targetFramework="net45">
-        <dependency id="Castle.Core" version="3.3.0" />
-        <dependency id="Castle.Windsor" version="3.3.0" />
+        <dependency id="Castle.Windsor" version="5.0.0" />
         <dependency id="PeanutButter.Utils" version="1.2.285" />
       </group>
     </dependencies>

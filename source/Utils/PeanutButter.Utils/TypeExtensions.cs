@@ -24,8 +24,6 @@ namespace PeanutButter.Utils
 #endif
         static class TypeExtensions
     {
-#if NETSTANDARD
-#else
         /// <summary>
         /// Enumerates the ancestry of a Type
         /// </summary>
@@ -37,12 +35,11 @@ namespace PeanutButter.Utils
             do
             {
                 heirachy.Add(type);
-            } while ((type = type.BaseType) != null);
+            } while ((type = type.BaseType()) != null);
 
             heirachy.Reverse();
             return heirachy.ToArray();
         }
-#endif
 
         /// <summary>
         /// Returns a dictionary of all constant values defined on a Type
