@@ -1,7 +1,7 @@
 <package>
   <metadata>
     <id>PeanutButter.Utils.Entity</id>
-    <version>1.2.285</version>
+    <version>1.2.286</version>
     <title>PeanutButter.Utils.Entity</title>
     <authors>davyd</authors>
     <owners></owners>
@@ -41,9 +41,9 @@
     <license type="expression">BSD-3-Clause</license>
     <copyright>Copyright  2015</copyright>
     <dependencies>
-      <group targetFramework="net40">
+      <group targetFramework="net452">
         <dependency id="EntityFramework" version="[6.1.3,]" />
-        <dependency id="PeanutButter.Utils" version="1.2.285" />
+        <dependency id="PeanutButter.Utils" version="1.2.286" />
       </group>
     </dependencies>
     <references></references>
