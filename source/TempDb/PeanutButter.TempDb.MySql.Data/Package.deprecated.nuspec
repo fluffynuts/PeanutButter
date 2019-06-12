@@ -1,0 +1,30 @@
+<package>
+  <metadata>
+    <id>PeanutButter.TempDb.MySql</id>
+    <version>1.2.287</version>
+    <title>PeanutButter.TempDb.MySql</title>
+    <authors>Davyd McColl</authors>
+    <owners></owners>
+    <description>
+      THIS PACKAGE IS DEPRECATED AND MAY BE DISCONTINUED IN THE FUTURE
+      
+      It's basically just a meta to PeanutButter.TempDb.MySql.Data.
+    </description>
+    <releaseNotes></releaseNotes>
+    <summary>
+      THIS PACKAGE IS DEPRECATED AND MAY BE DISCONTINUED IN THE FUTURE
+
+      It's basically just a meta to PeanutButter.TempDb.MySql.Data.
+    </summary>
+    <language>en-US</language>
+    <projectUrl>https://davydm.blogspot.com/search/label/PeanutButter</projectUrl>
+    <repository type="git" url="https://github.com/fluffynuts/PeanutButter" />
+    <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">BSD-3-Clause</license>
+    <copyright>Copyright  2015</copyright>
+    <dependencies />
+    <references></references>
+    <tags></tags>
+  </metadata>
+</package>
