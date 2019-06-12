@@ -5,6 +5,7 @@ using System.Linq;
 using NExpect;
 using NUnit.Framework;
 using PeanutButter.TempDb.MySql;
+using PeanutButter.TempDb.MySql.Base;
 using PeanutButter.Utils;
 using static NExpect.Expectations;
 

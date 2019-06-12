@@ -18,7 +18,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\PeanutButter.TempDb.MySql\PeanutButter.TempDb.MySql.csproj" />
+      <ProjectReference Include="..\PeanutButter.TempDb.MySql.Base\PeanutButter.TempDb.MySql.Base.csproj" />
+      <ProjectReference Include="..\PeanutButter.TempDb.MySql.Data\PeanutButter.TempDb.MySql.Data.csproj" />
       <ProjectReference Include="..\PeanutButter.TempDb\PeanutButter.TempDb.csproj" />
     </ItemGroup>
 

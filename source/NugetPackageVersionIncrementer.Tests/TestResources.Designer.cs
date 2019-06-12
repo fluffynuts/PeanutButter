@@ -63,9 +63,9 @@ namespace NugetPackageVersionIncrementer.Tests {
         /// <summary>
         ///   Looks up a localized string similar to &lt;package&gt;
         ///  &lt;metadata&gt;
-        ///    &lt;id&gt;PeanutButter.TempDb.MySql&lt;/id&gt;
+        ///    &lt;id&gt;PeanutButter.TempDb.MySql.Data&lt;/id&gt;
         ///    &lt;version&gt;1.2.285&lt;/version&gt;
-        ///    &lt;title&gt;PeanutButter.TempDb.MySql&lt;/title&gt;
+        ///    &lt;title&gt;PeanutButter.TempDb.MySql.Data&lt;/title&gt;
         ///    &lt;authors&gt;Davyd McColl&lt;/authors&gt;
         ///    &lt;owners&gt;&lt;/owners&gt;
         ///    &lt;description&gt;

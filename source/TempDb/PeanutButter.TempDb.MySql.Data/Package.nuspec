@@ -1,16 +1,17 @@
 <package>
   <metadata>
     <id>PeanutButter.TempDb.MySql.Data</id>
-    <version>1.2.285</version>
+    <version>1.2.286</version>
     <title>PeanutButter.TempDb.MySql.Data</title>
     <authors>Davyd McColl</authors>
     <owners></owners>
     <description>
-      The MySql TempDb&lt;&gt; implementation
+      The MySql TempDb&lt;&gt; implementation, using Oracle's MySql.Data
+      connector
     </description>
     <releaseNotes></releaseNotes>
     <summary>
-      Use this if you need an automagic temporary MySql database, for example in testing.
+	Use this if you need an automagic temporary MySql database, for example in testing.
     </summary>
     <language>en-US</language>
     <projectUrl>https://davydm.blogspot.com/search/label/PeanutButter</projectUrl>
@@ -20,10 +21,16 @@
     <license type="expression">BSD-3-Clause</license>
     <copyright>Copyright  2015</copyright>
     <dependencies>
-      <group targetFramework="net40">
-        <dependency id="PeanutButter.TempDb" version="1.2.285" />
-        <dependency id="PeanutButter.Utils" version="1.2.285" />
-        <dependency id="PeanutButter.INI" version="1.2.285" />
+      <group targetFramework="net452">
+        <dependency id="PeanutButter.TempDb" version="1.2.286" />
+        <dependency id="PeanutButter.Utils" version="1.2.286" />
+        <dependency id="PeanutButter.INI" version="1.2.286" />
+        <dependency id="MySql.Data" version="[6.9.12,]" />
+      </group>
+      <group targetFramework="netstandard2.0">
+        <dependency id="PeanutButter.TempDb" version="1.2.286" />
+        <dependency id="PeanutButter.Utils" version="1.2.286" />
+        <dependency id="PeanutButter.INI" version="1.2.286" />
         <dependency id="MySql.Data" version="[6.9.12,]" />
       </group>
     </dependencies>
@@ -33,10 +40,12 @@
   <files>
     <file src="bin/Release/net452/PeanutButter.TempDb.MySql.Data.dll" target="lib/net452" />
     <file src="bin/Release/net452/PeanutButter.TempDb.MySql.Data.pdb" target="lib/net452" />
+    <file src="bin/Release/net452/PeanutButter.TempDb.MySql.Base.dll" target="lib/net452" />
+    <file src="bin/Release/net452/PeanutButter.TempDb.MySql.Base.pdb" target="lib/net452" />
     <file src="bin/Release/netstandard2.0/PeanutButter.TempDb.MySql.Data.dll" target="lib/netstandard2.0" />
     <file src="bin/Release/netstandard2.0/PeanutButter.TempDb.MySql.Data.pdb" target="lib/netstandard2.0" />
+    <file src="bin/Release/netstandard2.0/PeanutButter.TempDb.MySql.Base.dll" target="lib/netstandard2.0" />
+    <file src="bin/Release/netstandard2.0/PeanutButter.TempDb.MySql.Base.pdb" target="lib/netstandard2.0" />
     <file src="bin/Release/netstandard2.0/PeanutButter.TempDb.MySql.Data.deps.json" target="lib/netstandard2.0" />
-    <!-- should not affect dependency generation: it's a content node -->
-    <file src="SomeFile.txt" target="content"/>
   </files>
 </package>

@@ -8,11 +8,11 @@ using MySql.Data.MySqlClient;
 using NUnit.Framework;
 using static NExpect.Expectations;
 using NExpect;
-using PeanutButter.TempDb.MySql;
+using PeanutButter.TempDb.MySql.Base;
+using PeanutButter.TempDb.MySql.Data;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using static PeanutButter.Utils.PyLike;
-
 
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -22,7 +22,7 @@ namespace PeanutButter.TempDb.Tests
 {
     [TestFixture]
     [Parallelizable(ParallelScope.None)]
-    public class TestTempDbMySql
+    public class TestTempDbMySqlData
     {
         [Test]
         public void ShouldImplement_ITempDB()
@@ -63,8 +63,8 @@ namespace PeanutButter.TempDb.Tests
                 // Act
                 using (var db = Create(mysqld))
                 {
-                    var builder = new MySqlConnectionStringBuilder(db.ConnectionString);
-                    Expect(builder.Database).Not.To.Be.Null.Or.Empty();
+                    var util = new MySqlConnectionStringUtil(db.ConnectionString);
+                    Expect(util.Database).Not.To.Be.Null.Or.Empty();
                     using (var connection = db.CreateConnection())
                     using (var command = connection.CreateCommand())
                     {
@@ -103,12 +103,12 @@ namespace PeanutButter.TempDb.Tests
                     // Arrange
                     var expected = GetRandomAlphaString(5, 10);
                     // Pre-assert
-                    var builder = new MySqlConnectionStringBuilder(sut.ConnectionString);
+                    var builder = new MySqlConnectionStringUtil(sut.ConnectionString);
                     Expect(builder.Database).To.Equal("tempdb");
                     // Act
                     sut.SwitchToSchema(expected);
                     // Assert
-                    builder = new MySqlConnectionStringBuilder(sut.ConnectionString);
+                    builder = new MySqlConnectionStringUtil(sut.ConnectionString);
                     Expect(builder.Database).To.Equal(expected);
                 }
             }
@@ -137,7 +137,9 @@ namespace PeanutButter.TempDb.Tests
                     // Act
                     sut.SwitchToSchema(schema2Name);
                     Expect(() => Query(sut, "select * from cows;"))
-                        .To.Throw<MySqlException>();
+                        .To.Throw()
+                        .With.Property(o => o.GetType().Name)
+                        .Containing("MySqlException");
                     Execute(sut, schema2);
                     var results = Query(sut, "select * from bovines;");
 
@@ -181,7 +183,7 @@ namespace PeanutButter.TempDb.Tests
                             "use moocakes; select * from users where id > @id; ",
                             new { id = 0 });
                         Expect(users).To.Contain.Only(1).Matched.By(u =>
-                                                                        u.Id == 1 && u.Name == "Daisy the cow");
+                            u.Id == 1 && u.Name == "Daisy the cow");
                     }
                 }
             }
@@ -197,23 +199,23 @@ namespace PeanutButter.TempDb.Tests
                         "C:\\apps\\mysql-5.6\\bin\\mysqld.exe",
                         "C:\\apps\\MySQL Server 5.7\\bin\\mysqld.exe"
                     }.Where(p =>
-                     {
-                         if (p == null)
-                         {
-                             return true;
-                         }
+                    {
+                        if (p == null)
+                        {
+                            return true;
+                        }
 
-                         var exists = Directory.Exists(p) || File.Exists(p);
-                         if (!exists)
-                         {
-                             Console.WriteLine(
-                                 $"WARN: specific test path for mysql not found: {p}"
-                             );
-                         }
+                        var exists = Directory.Exists(p) || File.Exists(p);
+                        if (!exists)
+                        {
+                            Console.WriteLine(
+                                $"WARN: specific test path for mysql not found: {p}"
+                            );
+                        }
 
-                         return exists;
-                     })
-                     .ToArray();
+                        return exists;
+                    })
+                    .ToArray();
             }
         }
 

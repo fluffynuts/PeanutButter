@@ -1,7 +1,8 @@
 using System;
 using NExpect;
 using NUnit.Framework;
-using PeanutButter.TempDb.MySql;
+using PeanutButter.TempDb.MySql.Base;
+using PeanutButter.TempDb.MySql.Data;
 using static NExpect.Expectations;
 
 namespace PeanutButter.TempDb.Tests.Core

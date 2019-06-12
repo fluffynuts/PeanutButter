@@ -1,7 +1,6 @@
 using NUnit.Framework;
-using static PeanutButter.RandomGenerators.RandomValueGen;
 using NExpect;
-using PeanutButter.TempDb.MySql;
+using PeanutButter.TempDb.MySql.Base;
 using PeanutButter.WindowsServiceManagement;
 using static NExpect.Expectations;
 

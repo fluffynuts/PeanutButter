@@ -5,6 +5,7 @@
   <DocumentationFile>bin/$(Configuration)/$(TargetFramework)/PeanutButter.TempDb.MySql.xml</DocumentationFile>
   <Configurations>Debug;Release</Configurations>
   <Platforms>AnyCPU</Platforms>
+  <RootNamespace>PeanutButter.TempDb.MySql.Data</RootNamespace>
 </PropertyGroup>
 <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
   <DefineConstants>NETSTANDARD</DefineConstants>
@@ -18,17 +19,9 @@
   <PackageReference Include="newtonsoft.json" Version="12.0.2" />
 </ItemGroup>
 <ItemGroup>
+  <ProjectReference Include="..\PeanutButter.TempDb.MySql.Base\PeanutButter.TempDb.MySql.Base.csproj" />
   <ProjectReference Include="..\PeanutButter.TempDb\PeanutButter.TempDb.csproj" />
   <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj" />
   <ProjectReference Include="..\..\INI\PeanutButter.INI\PeanutButter.INI.csproj" />
-</ItemGroup>
-<ItemGroup>
-  <Compile Remove="Properties\**" />
-</ItemGroup>
-<ItemGroup>
-  <EmbeddedResource Remove="Properties\**" />
-</ItemGroup>
-<ItemGroup>
-  <None Remove="Properties\**" />
 </ItemGroup>
 </Project>
