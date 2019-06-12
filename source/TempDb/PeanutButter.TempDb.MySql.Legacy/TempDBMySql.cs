@@ -1,24 +1,14 @@
 ﻿using System;
-using System.Diagnostics;
 using MySql.Data.MySqlClient;
 using PeanutButter.TempDb.MySql.Base;
 
-// ReSharper disable IdentifierTypo
-// ReSharper disable StringLiteralTypo
-// ReSharper disable CommentTypo
-// ReSharper disable UnusedMember.Global
-
-// ReSharper disable MemberCanBePrivate.Global
-// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
-
-namespace PeanutButter.TempDb.MySql.Data
+namespace PeanutButter.TempDb.MySql.Legacy
 {
     /// <summary>
-    /// Provides the TempDB implementation for MySql, using
-    /// MySql.Data as the connector library
+    /// Legacy redirection to newer PeanutButter.TempDb.MySql.Data.TempDbMySql
     /// </summary>
     // ReSharper disable once InconsistentNaming
-    public class TempDBMySql : TempDBMySqlBase<MySqlConnection>
+    public class TempDBMySql: PeanutButter.TempDb.MySql.Data.TempDBMySql
     {
         /// <summary>
         /// Construct a TempDbMySql with zero or more creation scripts and default options
@@ -27,32 +17,6 @@ namespace PeanutButter.TempDb.MySql.Data
         public TempDBMySql(params string[] creationScripts)
             : base(new TempDbMySqlServerSettings(), creationScripts)
         {
-            Warn();
-        }
-
-        private const string WARNING =
-@"The PeanutButter.TempDb.MySql package is deprecated in favor of two 
-new packages:
- - PeanutButter.TempDb.Data
-   which uses Oracle's MySql.Data package for connecting
- - PeanutButter.TempDb.Connector
-   which uses the opensource MySqlConnector package for connecting
-The current installation for PeanutButter.TempDb.MySql is a small wrapper
-around PeanutButter.TempDb.Data and may disappear at any time. Please update
-your references to PeanutButter.TempDb.Data if you plan on continuing to use
-the MySql.Data connector";
-        
-        private void Warn()
-        {
-            Trace.WriteLine(WARNING);
-            if (Debugger.IsAttached)
-            {
-                Debug.WriteLine(WARNING);
-            }
-            else
-            {
-                Console.WriteLine(WARNING);
-            }
         }
 
         /// <summary>

@@ -66,6 +66,7 @@
     <Compile Include="TestTempDBLocalDb.cs" />
     <Compile Include="TestTempDBMySqlConnector.cs" />
     <Compile Include="TestTempDbMySqlData.cs" />
+    <Compile Include="TestTempDbMySqlLegacy.cs" />
     <Compile Include="TestTempDBSqlCe.cs" />
     <Compile Include="TestTempDBSqlite.cs" />
   </ItemGroup>
@@ -97,6 +98,10 @@
     <ProjectReference Include="..\PeanutButter.TempDb.MySql.Data\PeanutButter.TempDb.MySql.Data.csproj">
       <Project>{95bf1b4e-33ff-44cb-bec9-5dcb4c8c26ef}</Project>
       <Name>PeanutButter.TempDb.MySql.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PeanutButter.TempDb.MySql.Legacy\PeanutButter.TempDb.MySql.Legacy.csproj">
+      <Project>{56638156-9684-481c-975d-eef07c0b1cfa}</Project>
+      <Name>PeanutButter.TempDb.MySql.Legacy</Name>
     </ProjectReference>
     <ProjectReference Include="..\PeanutButter.TempDb.SqlCe\PeanutButter.TempDb.SqlCe.csproj">
       <Project>{94857B1A-5627-4B0F-9C75-32D39C3FF674}</Project>
