@@ -342,6 +342,19 @@ namespace PeanutButter.Utils
         /// Inverse of All() LINQ method: test should return false for all elements
         /// </summary>
         /// <param name="collection"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool None<T>(
+            this IEnumerable<T> collection
+        )
+        {
+            return !collection.Any();
+        }
+
+        /// <summary>
+        /// Inverse of All() LINQ method: test should return false for all elements
+        /// </summary>
+        /// <param name="collection"></param>
         /// <param name="test"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
