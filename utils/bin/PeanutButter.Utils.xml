@@ -1291,6 +1291,14 @@
             <typeparam name="TKey">Type of key used to discriminate items</typeparam>
             <returns>Collection of DuplicateResult items which contain duplicates, according to the provided discriminator</returns>
         </member>
+        <member name="M:PeanutButter.Utils.ExtensionsForIEnumerables.None``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Inverse of All() LINQ method: test should return false for all elements
+            </summary>
+            <param name="collection"></param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
         <member name="M:PeanutButter.Utils.ExtensionsForIEnumerables.None``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Boolean})">
             <summary>
             Inverse of All() LINQ method: test should return false for all elements
@@ -2311,14 +2319,6 @@
             <param name="input">string to operate on</param>
             <returns>string with upper-cased first letter or null if input was null</returns>
         </member>
-        <member name="M:PeanutButter.Utils.StringExtensions.ToLower(System.String,System.Globalization.CultureInfo)">
-            <summary>
-            Provides an in-place shum for the ToLower method
-            which is used from .net framework; the latter
-            can accept a CultureInfo parameter, where .net standard
-            cannot, so the parameter is just dropped
-            </summary>
-        </member>
         <member name="M:PeanutButter.Utils.StringExtensions.IsNumeric(System.String)">
             <summary>
             Returns whether or not a string is an integer value
@@ -2499,60 +2499,6 @@
             </summary>
             <param name="t"></param>
             <returns></returns>
-        </member>
-        <member name="M:PeanutButter.Utils.TypeExtensions.GetMethod(System.Type,System.String,System.Reflection.BindingFlags)">
-            <summary>
-            provides the method normally found on a .net framework
-            Type object, but reachabole on .net standard only via GetTypeInfo();
-            </summary>
-        </member>
-        <member name="M:PeanutButter.Utils.TypeExtensions.GetProperties(System.Type)">
-            <summary>
-            provides the method normally found on a .net framework
-            Type object, but reachabole on .net standard only via GetTypeInfo();
-            </summary>
-        </member>
-        <member name="M:PeanutButter.Utils.TypeExtensions.GetProperty(System.Type,System.String)">
-            <summary>
-            provides the method normally found on a .net framework
-            Type object, but reachabole on .net standard only via GetTypeInfo();
-            </summary>
-        </member>
-        <member name="M:PeanutButter.Utils.TypeExtensions.GetProperty(System.Type,System.String,System.Reflection.BindingFlags)">
-            <summary>
-            provides the method normally found on a .net framework
-            Type object, but reachabole on .net standard only via GetTypeInfo();
-            </summary>
-        </member>
-        <member name="M:PeanutButter.Utils.TypeExtensions.GetProperties(System.Type,System.Reflection.BindingFlags)">
-            <summary>
-            provides the method normally found on a .net framework
-            Type object, but reachabole on .net standard only via GetTypeInfo();
-            </summary>
-        </member>
-        <member name="M:PeanutButter.Utils.TypeExtensions.GetFields(System.Type,System.Reflection.BindingFlags)">
-            <summary>
-            provides the method normally found on a .net framework
-            Type object, but reachabole on .net standard only via GetTypeInfo();
-            </summary>
-        </member>
-        <member name="M:PeanutButter.Utils.TypeExtensions.IsAssignableFrom(System.Type,System.Type)">
-            <summary>
-            provides the method normally found on a .net framework
-            Type object, but reachabole on .net standard only via GetTypeInfo();
-            </summary>
-        </member>
-        <member name="M:PeanutButter.Utils.TypeExtensions.GetInterfaces(System.Type)">
-            <summary>
-            provides the method normally found on a .net framework
-            Type object, but reachabole on .net standard only via GetTypeInfo();
-            </summary>
-        </member>
-        <member name="M:PeanutButter.Utils.TypeExtensions.GetGenericArguments(System.Type)">
-            <summary>
-            provides the method normally found on a .net framework
-            Type object, but reachabole on .net standard only via GetTypeInfo();
-            </summary>
         </member>
         <member name="M:PeanutButter.Utils.TypeExtensions.GetAssembly(System.Type)">
             <summary>
