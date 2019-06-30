@@ -10,8 +10,8 @@
 
     <ItemGroup>
         <PackageReference Include="MySql.Data" Version="8.0.15" />
-        <PackageReference Include="nexpect" Version="1.0.152" />
-        <PackageReference Include="nunit" Version="3.11.0" />
+        <PackageReference Include="nexpect" Version="1.0.154" />
+        <PackageReference Include="nunit" Version="3.12.0" />
         <PackageReference Include="NUnit3TestAdapter" Version="3.13.0" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />
         <PackageReference Include="System.ServiceProcess.ServiceController" Version="4.5.0" />

@@ -69,7 +69,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
 
                     //---------------Test Result -----------------------
                     Assert.That(server.Port, Is.GreaterThanOrEqualTo(5000));
-                    Assert.That(server.Port, Is.LessThanOrEqualTo(50000));
+                    Assert.That(server.Port, Is.LessThanOrEqualTo(32768));
                     Console.WriteLine("Server started on port: " + server.Port);
                 }
         }
