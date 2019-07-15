@@ -45,10 +45,16 @@ namespace PeanutButter.SimpleTcpServer
         public Action<string> LogAction { get; set; } = Console.WriteLine;
 
         // ReSharper disable once MemberCanBePrivate.Global
+
         /// <summary>
         /// Port which this server has bound to
         /// </summary>
         public int Port { get; protected set; }
+
+        /// <summary>
+        /// Flag exposing listening state
+        /// </summary>
+        public bool IsListening => _listener != null;
 
         private TcpListener _listener;
         private Task _task;
@@ -58,6 +64,7 @@ namespace PeanutButter.SimpleTcpServer
         private readonly Random _random = new Random(DateTime.Now.Millisecond);
         private readonly int _randomPortMin;
         private readonly int _randomPortMax;
+
 
         /// <summary>
         /// Construct the server with a random port within the provided range
@@ -142,7 +149,7 @@ namespace PeanutButter.SimpleTcpServer
                 {
                     try
                     {
-                        AcceptClient();
+                        AcceptClientAsync();
                     }
                     catch (Exception ex)
                     {
@@ -188,21 +195,63 @@ namespace PeanutButter.SimpleTcpServer
             Log(ex.StackTrace);
         }
 
-        private void AcceptClient()
+        private void AcceptClientAsync()
         {
             var listener = _listener;
             if (listener == null)
-                return;
-            var s = listener.AcceptTcpClient();
-            var clientInfo = s.Client.RemoteEndPoint.ToString();
-            Log("Accepting incoming client request from {0}", clientInfo);
-            var processor = CreateProcessorFor(s);
-            Log("Spawning processor in background task...");
-            Task.Run(() =>
             {
-                Log("Processing request for {0}", clientInfo);
+                return;
+            }
+
+            var state = new AsyncAcceptState(this, listener);
+            listener.BeginAcceptTcpClient(TcpClientAcceptHandler, state);
+            state.ResetEvent.Wait();
+        }
+
+        private void TcpClientAcceptHandler(IAsyncResult ar)
+        {
+            var state = ar.AsyncState as AsyncAcceptState;
+            if (state == null)
+            {
+                throw new InvalidOperationException(
+                    $"Should have received AsyncAcceptState object"
+                );
+            }
+
+            try
+            {
+                if (!state.TcpServer.IsListening)
+                {
+                    return;
+                }
+
+                var client = state.Listener.EndAcceptTcpClient(ar);
+                var clientInfo = client.Client.RemoteEndPoint.ToString();
+                Log($"Accepting incoming client request from {clientInfo}");
+                var processor = CreateProcessorFor(client);
+                Log($"Processing request for {clientInfo}");
                 processor.ProcessRequest();
-            });
+            }
+            finally
+            {
+                state.ResetEvent.Set();
+            }
+        }
+
+        private class AsyncAcceptState
+        {
+            public TcpServer TcpServer { get; }
+            public TcpListener Listener { get; }
+            public ManualResetEventSlim ResetEvent { get; }
+
+            public AsyncAcceptState(
+                TcpServer tcpServer,
+                TcpListener listener)
+            {
+                TcpServer = tcpServer;
+                Listener = listener;
+                ResetEvent = new ManualResetEventSlim();
+            }
         }
 
         /// <summary>
@@ -220,10 +269,15 @@ namespace PeanutButter.SimpleTcpServer
         {
             try
             {
-                if (_listener == null)
+                var listener = _listener;
+                _listener = null;
+                if (listener == null)
+                {
                     return;
+                }
+
                 _cancellationTokenSource.Cancel();
-                _listener.Stop();
+                listener.Stop();
                 try
                 {
                     if (!_task.Wait(MaxShutDownTime))
@@ -237,7 +291,7 @@ namespace PeanutButter.SimpleTcpServer
                 {
                     /* we can end up in here if the task is cancelled really early */
                 }
-                _listener = null;
+
                 _task = null;
                 _cancellationTokenSource = null;
             }
