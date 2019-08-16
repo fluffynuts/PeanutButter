@@ -20,6 +20,13 @@ namespace PeanutButter.TempDb.MySql.Connector
     public class TempDBMySql : TempDBMySqlBase<MySqlConnection>
     {
         /// <summary>
+        /// Constructs a TempDbMySql
+        /// </summary>
+        public TempDBMySql()
+        {
+        }
+
+        /// <summary>
         /// Construct a TempDbMySql with zero or more creation scripts and default options
         /// </summary>
         /// <param name="creationScripts"></param>

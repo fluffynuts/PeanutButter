@@ -8,8 +8,8 @@
   and / or override the default task-set.
  */
 var 
-  os = require("os"),
   fs = require("fs"),
+  path = require("path"),
   gulpTasksFolder = "gulp-tasks", // if you cloned elsewhere, you"ll need to modify this
   requireModule = global.requireModule = function(mod) {
     var modulePath = [".", gulpTasksFolder, "modules", mod].join("/");
@@ -26,18 +26,53 @@ if (!fs.existsSync(gulpTasksFolder)) {
   process.exit(2);
 }
 
+let autoWorking = null;
+function pauseWhilstWorking() {
+  const 
+    args = process.argv,
+    lastTwo = args.slice(args.length - 2),
+    runningGulp = isGulpJs(lastTwo[0]),
+    task = lastTwo[1];
+  if (!runningGulp || !task) {
+    return;
+  }
+  autoWorking = true;
+  try {
+      const localGulp = require("gulp");
+      localGulp.task(task, function() {
+        console.log(`--- taking over your ${task} task whilst we do some bootstrapping ---`);
+        return new Promise(function watchWorker(resolve, reject) {
+          if (!autoWorking) {
+            resolve();
+          }
+          setTimeout(function() {
+            watchWorker(resolve, reject);
+          }, 500);
+        });
+      });
+  } catch (e) {
+    /* suppress: may not have deps installed yet */
+  }
+}
+function isGulpJs(filePath) {
+  return path.basename(filePath) === "gulp.js";
+}
+
 if (!fs.existsSync("package.json")) {
+  pauseWhilstWorking();
   console.log(
     "You need to set up a package.json first. I'll run `npm init` for you (:"
   );
-  initializeNpm();
+  initializeNpm().then(() => autoWorking = false);
 } else if (mustInstallDeps()) {
+  pauseWhilstWorking();
   console.log(
     "Now we just need to install the dependencies required for gulp-tasks to run (:"
   );
-  installGulpTaskDependencies().then(() =>
-    console.log("You're good to go with `gulp-tasks`. Try running `npm run gulp build`")
-  );
+  installGulpTaskDependencies().then(() => {
+    console.log("You're good to go with `gulp-tasks`. Try running `npm run gulp build`");
+    autoWorking = false;
+  });
 } else {
   bootstrapGulp();
 }
@@ -64,6 +99,10 @@ function initializeNpm() {
   .then(() => spawn("cmd", [ "/c", "node", process.argv[1]]));
 }
 
+function addMissingScript(package, name, script) {
+    package.scripts[name] = package.scripts[name] || script;
+}
+
 function installGulpTaskDependencies() {
   var
     findFirstMissing = function() {
@@ -75,14 +114,30 @@ function installGulpTaskDependencies() {
     buildTools = findFirstMissing("tools", "build-tools", ".tools", ".build-tools"),
     prepend = `cross-env BUILD_TOOLS_FOLDER=${buildTools}`;
 
-  package.scripts["gulp"] = `${prepend} gulp`;
-  package.scripts["test"] = `run-s "gulp test-dotnet"`;
-  package.scripts["build"] = `run-s "gulp build"`;
-  package.scripts["pack"] = `BUILD_CONFIGURATION=Release run-s "gulp pack"`;
+  addMissingScript(package, "gulp", `${prepend} gulp`);
+  addMissingScript(package, "test", "run-s \"gulp test-dotnet\"");
 
   fs.writeFileSync("package.json", JSON.stringify(package, null, 4), { encoding: "utf8" });
-
   return runNpmWith(["install", "--save-dev"].concat(deps));
+}
+
+function testBin(cmds, pkg) {
+  if (!Array.isArray(cmds)) {
+    cmds = [ cmds ];
+  }
+  cmds.forEach(cmd => {
+    const 
+      expected = path.join("node_modules", ".bin", "cmd"),
+      modPath = path.join("node_modules", pkg || cmds[0]);
+    if (!fs.existsSync(expected)) {
+      if (fs.existsSync(modPath)) {
+        try {
+        } catch (e) {
+          fs.renameSync(modPath, `${modPath}.b0rked.${new Date().getTime()}`);
+        }
+      }
+    }
+  });
 }
 
 function bootstrapGulp() {
@@ -97,9 +152,6 @@ function bootstrapGulp() {
       }
     });
   } catch (e) {
-    if (looksLikeMissingGulpTasksModule(e)) {
-      return installModuleFor(e).then(() => restart());
-    }
     if (shouldDump(e)) {
       console.error(e);
     } else {
@@ -127,36 +179,12 @@ function bootstrapGulp() {
   }
 }
 
-function looksLikeMissingGulpTasksModule(e) {
-  if (!e || !e.message) {
-    return false;
-  }
-  var mod = grokMissingPackageFrom(e.message);
-  if (!mod) {
-    return false;
-  }
-  var starter = require("./gulp-tasks/start/package.json");
-  return !!starter.devDependencies[mod];
-}
-
-function installModuleFor(e) {
-  var mod = grokMissingPackageFrom(e.message);
-  console.log(`\n\nLooks like you're missing a package required by gulp-tasks: ${mod}\nLet's get that installed and try again (:`);
-  return runNpmWith(["install", mod]);
-}
-
-function grokMissingPackageFrom(message) {
-  var match = message.match("Cannot find module '(.*)'");
-  return match && match.length > 1 ? match[1] : null;
-}
-
-function restart() {
-  return spawn(process.argv[0], process.argv.slice(1), { env: process.env });
-}
-
 function runNpmWith(args) {
   var spawn = requireModule("spawn");
-  return os.platform() === "win32"
-    ? spawn("cmd", ["/c", "npm"].concat(args))
-    : spawn("npm", args);
+
+  testBin(["run-p", "run-s"], "npm-run-all");
+  testBin("cross-env");
+  testBin("gulp");
+
+  return spawn("cmd", ["/c", "npm"].concat(args));
 }

@@ -215,6 +215,7 @@ namespace PeanutButter.TempDb.MySql.Base
         {
             try
             {
+                base.Dispose();
                 AttemptShutdown();
                 EndServerProcess();
                 _autoDeleter?.Dispose();
@@ -225,7 +226,6 @@ namespace PeanutButter.TempDb.MySql.Base
                 Log($"Unable to kill MySql instance {_serverProcess?.Id}: {ex.Message}");
             }
 
-            base.Dispose();
         }
 
         private void EndServerProcess()
@@ -266,7 +266,7 @@ namespace PeanutButter.TempDb.MySql.Base
             }
         }
 
-        private void ShutdownAsync()
+        private void AttemptShutdownAsync()
         {
             var task = Task.Run(() =>
             {

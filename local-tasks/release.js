@@ -103,7 +103,10 @@ gulp.task("build-binaries-for-nuget-packages-from-zero", ["purge"], function (do
 });
 
 gulp.task("test-package-build", ["build-binaries-for-nuget-packages-from-zero"], function (done) {
-  runSequence("build-binary-nuget-packages", "build-source-nuget-packages", "test-packages-exist", done);
+  runSequence(
+    "build-binary-nuget-packages", 
+    "build-source-nuget-packages", 
+    "test-packages-exist", done);
 });
 
 gulp.task("test-packages-exist", () => {
@@ -124,6 +127,7 @@ gulp.task("build-nuget-packages", [
   "build-binaries-for-nuget-packages"
 ], function (done) {
   runSequence(
+    "update-tempdb-runner-files",
     "increment-package-versions",
     "build-binary-nuget-packages",
     "build-source-nuget-packages",

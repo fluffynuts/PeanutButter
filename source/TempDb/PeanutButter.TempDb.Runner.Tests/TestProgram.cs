@@ -1,0 +1,367 @@
+using System;
+using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.Data.SQLite;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using MySql.Data.MySqlClient;
+using NUnit.Framework;
+using NExpect;
+using PeanutButter.Utils;
+using static NExpect.Expectations;
+// ReSharper disable AccessToDisposedClosure
+
+namespace PeanutButter.TempDb.Runner.Tests
+{
+    [TestFixture]
+    public class TestProgram
+    {
+        [TestFixture]
+        public class TestTestArena
+        {
+            [Test]
+            public void ShouldBeAbleFakeStdIn()
+            {
+                // Arrange
+                // Act
+                var arena = new TestArena();
+                var expected = "hello world";
+                Task.Run(() =>
+                {
+                    Thread.Sleep(1000);
+                    arena.WriteStdIn(expected);
+                });
+                var result = arena.ReadLine();
+                // Assert
+                Expect(result).To.Equal(expected);
+            }
+        }
+
+        [Test]
+        public void ShouldBeAbleToStartDefaultAsMySql()
+        {
+            // Arrange
+            using (var arena = new TestArena())
+            {
+                // Act
+                arena.WaitForProgramToListen();
+                var interestingLine = arena.StdOut.FirstOrDefault(
+                    line => line.StartsWith(
+                        "connection string",
+                        StringComparison.InvariantCultureIgnoreCase
+                    ));
+                Expect(interestingLine)
+                    .Not.To.Be.Null(
+                        "TempDb runner should emit the connection string on stdout"
+                    );
+                var connectionString = interestingLine.Split(':')
+                    .Skip(1)
+                    .JoinWith(":")
+                    .Trim();
+                using (var connection = new MySqlConnection(connectionString))
+                {
+                    // Assert
+                    Expect(() => connection.Open())
+                        .Not.To.Throw();
+                }
+                
+            }
+        }
+
+        [TestFixture]
+        public class ExplicitMySqlEngineTesting
+        {
+            [Test]
+            public void ShouldBeAbleToExplicitlyStart()
+            {
+                // Arrange
+                using (var arena = new TestArena("-e", "mysql"))
+                {
+                    // Act
+                    arena.WaitForProgramToListen();
+                    var interestingLine = arena.StdOut.FirstOrDefault(
+                        line => line.StartsWith(
+                            "connection string",
+                            StringComparison.InvariantCultureIgnoreCase
+                        ));
+                    Expect(interestingLine)
+                        .Not.To.Be.Null(
+                            "TempDb runner should emit the connection string on stdout"
+                        );
+                    var connectionString = interestingLine.Split(':')
+                        .Skip(1)
+                        .JoinWith(":")
+                        .Trim();
+                    using (var connection = new MySqlConnection(connectionString))
+                    {
+                        // Assert
+                        Expect(() => connection.Open())
+                            .Not.To.Throw();
+                    }
+                
+                }
+            }
+
+            [Test]
+            public void ShouldBeAbleToStopViaStdIn()
+            {
+                // Arrange
+                using (var arena = new TestArena("-e", "mysql"))
+                {
+                    // Act
+                    arena.WaitForProgramToListen();
+                    var interestingLine = arena.StdOut.FirstOrDefault(
+                        line => line.StartsWith(
+                            "connection string",
+                            StringComparison.InvariantCultureIgnoreCase
+                        ));
+                    Expect(interestingLine)
+                        .Not.To.Be.Null(
+                            "TempDb runner should emit the connection string on stdout"
+                        );
+                    var connectionString = interestingLine.Split(':')
+                        .Skip(1)
+                        .JoinWith(":")
+                        .Trim();
+                    using (var connection = new MySqlConnection(connectionString))
+                    {
+                        // Assert
+                        Expect(() => connection.Open())
+                            .Not.To.Throw();
+                    }
+                
+                    arena.WriteStdIn("stop");
+                    arena.WaitForProgramToExit();
+
+                    using (var dead = new MySqlConnection(connectionString))
+                    {
+                        Expect(() => dead.Open())
+                            .To.Throw<MySqlException>();
+                    }
+                }
+            }
+        }
+        
+        [TestFixture]
+        public class ExplicitLocalDbEngineTesting
+        {
+            [Test]
+            public void ShouldBeAbleToExplicitlyStart()
+            {
+                // Arrange
+                using (var arena = new TestArena("-e", "localdb"))
+                {
+                    // Act
+                    arena.WaitForProgramToListen();
+                    var interestingLine = arena.StdOut.FirstOrDefault(
+                        line => line.StartsWith(
+                            "connection string",
+                            StringComparison.InvariantCultureIgnoreCase
+                        ));
+                    Expect(interestingLine)
+                        .Not.To.Be.Null(
+                            "TempDb runner should emit the connection string on stdout"
+                        );
+                    var connectionString = interestingLine.Split(':')
+                        .Skip(1)
+                        .JoinWith(":")
+                        .Trim();
+                    using (var connection = new SqlConnection(connectionString))
+                    {
+                        // Assert
+                        Expect(() => connection.Open())
+                            .Not.To.Throw();
+                    }
+                
+                }
+            }
+
+            [Test]
+            public void ShouldBeAbleToStopViaStdIn()
+            {
+                // Arrange
+                using (var arena = new TestArena("-e", "localdb"))
+                {
+                    // Act
+                    arena.WaitForProgramToListen();
+                    var interestingLine = arena.StdOut.FirstOrDefault(
+                        line => line.StartsWith(
+                            "connection string",
+                            StringComparison.InvariantCultureIgnoreCase
+                        ));
+                    Expect(interestingLine)
+                        .Not.To.Be.Null(
+                            "TempDb runner should emit the connection string on stdout"
+                        );
+                    var connectionString = interestingLine.Split(':')
+                        .Skip(1)
+                        .JoinWith(":")
+                        .Trim();
+                    using (var connection = new SqlConnection(connectionString))
+                    {
+                        // Assert
+                        Expect(() => connection.Open())
+                            .Not.To.Throw();
+                    }
+                
+                    arena.WriteStdIn("stop");
+                    arena.WaitForProgramToExit();
+
+                    using (var dead = new SqlConnection(connectionString))
+                    {
+                        Expect(() => dead.Open())
+                            .To.Throw<SqlException>();
+                    }
+                }
+            }
+        }
+
+        [TestFixture]
+        public class ExplicitSqliteEngineTesting
+        {
+            [Test]
+            public void ShouldBeAbleToExplicitlyStart()
+            {
+                // Arrange
+                using (var arena = new TestArena("-e", "sqlite"))
+                {
+                    // Act
+                    arena.WaitForProgramToListen();
+                    var interestingLine = arena.StdOut.FirstOrDefault(
+                        line => line.StartsWith(
+                            "connection string",
+                            StringComparison.InvariantCultureIgnoreCase
+                        ));
+                    Expect(interestingLine)
+                        .Not.To.Be.Null(
+                            "TempDb runner should emit the connection string on stdout"
+                        );
+                    var connectionString = interestingLine.Split(':')
+                        .Skip(1)
+                        .JoinWith(":")
+                        .Trim();
+                    using (var connection = new SQLiteConnection(connectionString))
+                    {
+                        // Assert
+                        Expect(() => connection.Open())
+                            .Not.To.Throw();
+                    }
+                
+                }
+            }
+
+            [Test]
+            public void ShouldBeAbleToStopViaStdIn()
+            {
+                // Arrange
+                using (var arena = new TestArena("-e", "sqlite"))
+                {
+                    // Act
+                    arena.WaitForProgramToListen();
+                    var interestingLine = arena.StdOut.FirstOrDefault(
+                        line => line.StartsWith(
+                            "connection string",
+                            StringComparison.InvariantCultureIgnoreCase
+                        ));
+                    Expect(interestingLine)
+                        .Not.To.Be.Null(
+                            "TempDb runner should emit the connection string on stdout"
+                        );
+                    var connectionString = interestingLine.Split(':')
+                        .Skip(1)
+                        .JoinWith(":")
+                        .Trim();
+                    using (var connection = new SQLiteConnection(connectionString))
+                    {
+                        // Assert
+                        Expect(() => connection.Open())
+                            .Not.To.Throw();
+                    }
+                
+                    arena.WriteStdIn("stop");
+                    arena.WaitForProgramToExit();
+
+                    Expect(() =>
+                    {
+                        using (var dead = new SqlConnection(connectionString))
+                        {
+                            dead.Open();
+                        }
+                    });
+                }
+            }
+        }
+
+        public class TestArena : IDisposable
+        {
+            private bool _haveStartedListening = false;
+            private readonly Barrier _waitForListeningBarrier = new Barrier(2);
+            private readonly Barrier _waitForExitBarrier = new Barrier(2);
+            private Barrier _readlineBarrier;
+            private string _waitingInput;
+            public List<string> StdOut { get; } = new List<string>();
+
+            public TestArena(params string[] args)
+            {
+                Program.LineWriter = CaptureLine;
+                InteractiveShell.ReadLine = ReadLine;
+                _readlineBarrier = new Barrier(2);
+                _waitingInput = null;
+                Task.Run(() =>
+                {
+                    Program.Main(args);
+                    _waitForExitBarrier.SignalAndWait();
+                    if (!_haveStartedListening)
+                    {
+                        // let the test fail properly
+                        _waitForListeningBarrier.SignalAndWait();
+                    }
+                });
+            }
+
+            public void WaitForProgramToListen()
+            {
+                _waitForListeningBarrier.SignalAndWait();
+            }
+
+            public void WaitForProgramToExit()
+            {
+                _waitForExitBarrier.SignalAndWait();
+            }
+
+            public void WriteStdIn(string line)
+            {
+                _waitingInput = $"{line}{Environment.NewLine}";
+                _readlineBarrier.SignalAndWait();
+                _readlineBarrier = new Barrier(2);
+            }
+
+            public string ReadLine()
+            {
+                if (!_haveStartedListening)
+                {
+                    _waitForListeningBarrier.SignalAndWait();
+                    _haveStartedListening = true;
+                }
+
+                _readlineBarrier.SignalAndWait();
+                var result = _waitingInput;
+                _waitingInput = null;
+                return result;
+            }
+
+            private void CaptureLine(string line)
+            {
+                StdOut.Add(line);
+            }
+
+            public void Dispose()
+            {
+                Program.Instance?.Dispose();
+                Program.LineWriter = Console.WriteLine;
+                InteractiveShell.ReadLine = Console.ReadLine;
+            }
+        }
+    }
+}
