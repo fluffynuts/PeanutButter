@@ -1,7 +1,7 @@
 <package>
   <metadata>
     <id>PeanutButter.TempDb.Runner</id>
-    <version>1.2.293</version>
+    <version>1.2.294</version>
     <title>PeanutButter.TempDb</title>
     <authors>Davyd McColl</authors>
     <owners />
@@ -64,6 +64,8 @@
     <file src="bin\Release\net462\PeanutButter.Utils.dll" target="lib/net462" />
     <file src="bin\Release\net462\PeanutButter.Utils.pdb" target="lib/net462" />
     <file src="bin\Release\net462\PeanutButter.Utils.xml" target="lib/net462" />
+    <file src="bin\Release\net462\start-tempdb.bat" target="lib/net462" />
+    <file src="bin\Release\net462\start-tempdb.sh" target="lib/net462" />
     <file src="bin\Release\net462\System.AppContext.dll" target="lib/net462" />
     <file src="bin\Release\net462\System.Buffers.dll" target="lib/net462" />
     <file src="bin\Release\net462\System.Collections.Concurrent.dll" target="lib/net462" />
@@ -190,5 +192,7 @@
     <file src="bin\Release\netcoreapp2.2\PeanutButter.Utils.dll" target="lib/netcoreapp2.2" />
     <file src="bin\Release\netcoreapp2.2\PeanutButter.Utils.pdb" target="lib/netcoreapp2.2" />
     <file src="bin\Release\netcoreapp2.2\PeanutButter.Utils.xml" target="lib/netcoreapp2.2" />
+    <file src="bin\Release\netcoreapp2.2\start-tempdb.bat" target="lib/netcoreapp2.2" />
+    <file src="bin\Release\netcoreapp2.2\start-tempdb.sh" target="lib/netcoreapp2.2" />
   </files>
 </package>
