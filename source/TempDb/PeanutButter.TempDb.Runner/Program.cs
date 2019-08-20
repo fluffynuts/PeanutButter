@@ -7,9 +7,6 @@ namespace PeanutButter.TempDb.Runner
 {
     public class Program
     {
-        // really just here for testing
-        public static ITempDB Instance { get; private set; }
-
         public static int Main(string[] args)
         {
             var running = new SemaphoreSlim(1);
@@ -41,6 +38,15 @@ namespace PeanutButter.TempDb.Runner
             running.Wait();
             return 0;
         }
+
+        // really just here for testing
+        public static void DestroyInstance()
+        {
+            Instance?.Dispose();
+            Instance = null;
+        }
+
+        public static ITempDB Instance { get; private set; }
 
         public static Action<string> LineWriter { get; set; } = Console.WriteLine;
 

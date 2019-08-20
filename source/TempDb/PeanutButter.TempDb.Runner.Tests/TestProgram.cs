@@ -17,27 +17,6 @@ namespace PeanutButter.TempDb.Runner.Tests
     [TestFixture]
     public class TestProgram
     {
-        [TestFixture]
-        public class TestTestArena
-        {
-            [Test]
-            public void ShouldBeAbleFakeStdIn()
-            {
-                // Arrange
-                // Act
-                var arena = new TestArena();
-                var expected = "hello world";
-                Task.Run(() =>
-                {
-                    Thread.Sleep(1000);
-                    arena.WriteStdIn(expected);
-                });
-                var result = arena.ReadLine();
-                // Assert
-                Expect(result).To.Equal(expected);
-            }
-        }
-
         [Test]
         public void ShouldBeAbleToStartDefaultAsMySql()
         {
@@ -358,8 +337,7 @@ namespace PeanutButter.TempDb.Runner.Tests
 
             public void Dispose()
             {
-                Program.Instance?.Dispose();
-                Program.Instance = null;
+                Program.DestroyInstance();
                 Program.LineWriter = Console.WriteLine;
                 InteractiveShell.ReadLine = Console.ReadLine;
             }
