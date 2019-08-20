@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using MySql.Data.MySqlClient;
 using PeanutButter.TempDb.MySql.Base;
 
@@ -10,6 +11,30 @@ namespace PeanutButter.TempDb.MySql.Legacy
     // ReSharper disable once InconsistentNaming
     public class TempDBMySql: PeanutButter.TempDb.MySql.Data.TempDBMySql
     {
+        private const string WARNING =
+@"The PeanutButter.TempDb.MySql package is deprecated in favor of two 
+new packages:
+ - PeanutButter.TempDb.Data
+   which uses Oracle's MySql.Data package for connecting
+ - PeanutButter.TempDb.Connector
+   which uses the opensource MySqlConnector package for connecting
+The current installation for PeanutButter.TempDb.MySql is a small wrapper
+around PeanutButter.TempDb.Data and may disappear at any time. Please update
+your references to PeanutButter.TempDb.Data if you plan on continuing to use
+the MySql.Data connector";
+        
+        private void Warn()
+        {
+            Trace.WriteLine(WARNING);
+            if (Debugger.IsAttached)
+            {
+                Debug.WriteLine(WARNING);
+            }
+            else
+            {
+                Console.WriteLine(WARNING);
+            }
+        }
         /// <summary>
         /// Construct a TempDbMySql with zero or more creation scripts and default options
         /// </summary>
@@ -17,6 +42,7 @@ namespace PeanutButter.TempDb.MySql.Legacy
         public TempDBMySql(params string[] creationScripts)
             : base(new TempDbMySqlServerSettings(), creationScripts)
         {
+            Warn();
         }
 
         /// <summary>
@@ -35,6 +61,7 @@ namespace PeanutButter.TempDb.MySql.Legacy
                 },
                 creationScripts)
         {
+            Warn();
         }
 
         /// <summary>
@@ -54,6 +81,7 @@ namespace PeanutButter.TempDb.MySql.Legacy
             creationScripts
         )
         {
+            Warn();
         }
         
         /// <summary>

@@ -27,33 +27,8 @@ namespace PeanutButter.TempDb.MySql.Data
         public TempDBMySql(params string[] creationScripts)
             : base(new TempDbMySqlServerSettings(), creationScripts)
         {
-            Warn();
         }
 
-        private const string WARNING =
-@"The PeanutButter.TempDb.MySql package is deprecated in favor of two 
-new packages:
- - PeanutButter.TempDb.Data
-   which uses Oracle's MySql.Data package for connecting
- - PeanutButter.TempDb.Connector
-   which uses the opensource MySqlConnector package for connecting
-The current installation for PeanutButter.TempDb.MySql is a small wrapper
-around PeanutButter.TempDb.Data and may disappear at any time. Please update
-your references to PeanutButter.TempDb.Data if you plan on continuing to use
-the MySql.Data connector";
-        
-        private void Warn()
-        {
-            Trace.WriteLine(WARNING);
-            if (Debugger.IsAttached)
-            {
-                Debug.WriteLine(WARNING);
-            }
-            else
-            {
-                Console.WriteLine(WARNING);
-            }
-        }
 
         /// <summary>
         /// Create a TempDbMySql instance with provided options and zero or more creation scripts
