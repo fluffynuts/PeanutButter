@@ -669,7 +669,7 @@ create table SomeEntityWithDecimalValue (
                 base.Dispose();
             }
 
-            public override DbConnection CreateConnection()
+            public DbConnection CreateConnection()
             {
                 CreateConnectionCalls++;
                 return base.CreateConnection();

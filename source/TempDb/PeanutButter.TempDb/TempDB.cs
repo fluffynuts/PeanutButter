@@ -104,7 +104,7 @@ namespace PeanutButter.TempDb
 
         protected abstract void CreateDatabase();
 
-        public virtual DbConnection CreateConnection()
+        public DbConnection CreateConnection()
         {
             var connection = CreateOpenDatabaseConnection();
             _managedConnections.Add(connection);

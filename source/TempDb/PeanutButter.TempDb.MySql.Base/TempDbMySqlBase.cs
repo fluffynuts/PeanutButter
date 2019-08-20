@@ -25,7 +25,7 @@ namespace PeanutButter.TempDb.MySql.Base
     /// <summary>
     /// MySql flavor of TempDb
     /// </summary>
-    public abstract class TempDBMySqlBase<T> : TempDB<T> where T: DbConnection
+    public abstract class TempDBMySqlBase<T> : TempDB<T> where T : DbConnection
     {
         /// <summary>
         /// Set to true to see trace logging about discovery of a port to
@@ -39,17 +39,17 @@ namespace PeanutButter.TempDb.MySql.Base
         private static readonly object MysqldLock = new object();
         private static string _mysqld;
 
-        #if NETSTANDARD
+#if NETSTANDARD
         private readonly FatalTempDbInitializationException _noMySqlFoundException =
             new FatalTempDbInitializationException(
                 "Unable to detect an installed mysqld. Either supply a path as part of your initializing parameters or ensure that mysqld is in your PATH"
                 );
-        #else
+#else
         private readonly FatalTempDbInitializationException _noMySqlFoundException =
             new FatalTempDbInitializationException(
                 "Unable to detect an installed mysqld. Either supply a path as part of your initializing parameters or ensure that mysqld is in your PATH or install as a windows service"
-                );
-        #endif
+            );
+#endif
 
         protected string _schema;
         private AutoDeleter _autoDeleter;
@@ -177,11 +177,22 @@ namespace PeanutButter.TempDb.MySql.Base
         /// <param name="schema"></param>
         public void SwitchToSchema(string schema)
         {
+            // last-recorded schema may no longer exist; so go schemaless for this connection
+            _schema = "";
+            if (string.IsNullOrWhiteSpace(schema))
+            {
+                return;
+            }
+
             using (var connection = CreateConnection())
             using (var command = connection.CreateCommand())
             {
                 command.CommandText = $"create schema if not exists `{schema}`";
                 command.ExecuteNonQuery();
+
+                command.CommandText = $"use `{schema}`";
+                command.ExecuteNonQuery();
+
                 _schema = schema;
             }
         }
@@ -216,7 +227,7 @@ namespace PeanutButter.TempDb.MySql.Base
             try
             {
                 base.Dispose();
-                AttemptShutdown();
+                AttemptGracefulShutdown();
                 EndServerProcess();
                 _autoDeleter?.Dispose();
                 _autoDeleter = null;
@@ -225,7 +236,6 @@ namespace PeanutButter.TempDb.MySql.Base
             {
                 Log($"Unable to kill MySql instance {_serverProcess?.Id}: {ex.Message}");
             }
-
         }
 
         private void EndServerProcess()
@@ -233,36 +243,54 @@ namespace PeanutButter.TempDb.MySql.Base
             lock (MysqldLock)
             {
                 if (_serverProcess == null)
+                {
                     return;
+                }
+
                 Trace.WriteLine($"Stopping mysqld with process id {_serverProcess.Id}");
-                _serverProcess.Kill();
-                _serverProcess.WaitForExit(3000);
-                if (!_serverProcess.HasExited)
-                    throw new Exception($"MySql process {_serverProcess.Id} has not shut down!");
+                if (_serverProcess.HasExited)
+                {
+                    _serverProcess.Kill();
+                    _serverProcess.WaitForExit(3000);
+
+                    if (!_serverProcess.HasExited)
+                    {
+                        throw new Exception($"MySql process {_serverProcess.Id} has not shut down!");
+                    }
+                }
+
                 _serverProcess = null;
             }
         }
 
-        private void AttemptShutdown()
+        private void AttemptGracefulShutdown()
         {
             if (_serverProcess == null)
             {
                 return;
             }
-            
-            using (var connection = CreateConnection())
-            using (var command = connection.CreateCommand())
+
+            try
             {
-                // this is only available from mysql 5.7.9 onward (https://dev.mysql.com/doc/refman/5.7/en/shutdown.html)
-                command.CommandText = "SHUTDOWN";
-                try
+                SwitchToSchema("mysql");
+                using (var connection = CreateConnection())
+                using (var command = connection.CreateCommand())
                 {
-                    command.ExecuteNonQuery();
+                    // this is only available from mysql 5.7.9 onward (https://dev.mysql.com/doc/refman/5.7/en/shutdown.html)
+                    command.CommandText = "SHUTDOWN";
+                    try
+                    {
+                        command.ExecuteNonQuery();
+                    }
+                    catch
+                    {
+                        /* ignore */
+                    }
                 }
-                catch
-                {
-                    /* ignore */
-                }
+            }
+            catch (Exception ex)
+            {
+                Log($"Unable to perform graceful shutdown: {ex.Message}");
             }
         }
 
@@ -292,7 +320,6 @@ namespace PeanutButter.TempDb.MySql.Base
         }
 
         /// <inheritdoc />
-
         private void StartServer(string mysqld, int port)
         {
             _serverProcess = RunCommand(
@@ -432,8 +459,8 @@ namespace PeanutButter.TempDb.MySql.Base
         private bool IsWindowsAndMySql56OrLower(MySqlVersionInfo mysqlVersion)
         {
             return (mysqlVersion.Platform?.StartsWith("win") ?? false) &&
-                   mysqlVersion.Version.Major <= 5 &&
-                   mysqlVersion.Version.Minor <= 6;
+                mysqlVersion.Version.Major <= 5 &&
+                mysqlVersion.Version.Minor <= 6;
         }
 
         private class MySqlVersionInfo
@@ -535,9 +562,9 @@ namespace PeanutButter.TempDb.MySql.Base
         private int NextRandomPort()
         {
             var minPort = Settings?.Options?.RandomPortMin
-                          ?? TempDbMySqlServerSettings.TempDbOptions.DEFAULT_RANDOM_PORT_MIN;
+                ?? TempDbMySqlServerSettings.TempDbOptions.DEFAULT_RANDOM_PORT_MIN;
             var maxPort = Settings?.Options?.RandomPortMax
-                          ?? TempDbMySqlServerSettings.TempDbOptions.DEFAULT_RANDOM_PORT_MAX;
+                ?? TempDbMySqlServerSettings.TempDbOptions.DEFAULT_RANDOM_PORT_MAX;
             if (minPort > maxPort)
             {
                 var swap = minPort;
