@@ -248,7 +248,7 @@ namespace PeanutButter.TempDb.MySql.Base
                 }
 
                 Trace.WriteLine($"Stopping mysqld with process id {_serverProcess.Id}");
-                if (_serverProcess.HasExited)
+                if (!_serverProcess.HasExited)
                 {
                     _serverProcess.Kill();
                     _serverProcess.WaitForExit(3000);
