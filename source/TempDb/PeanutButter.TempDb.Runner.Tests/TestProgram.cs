@@ -359,6 +359,7 @@ namespace PeanutButter.TempDb.Runner.Tests
             public void Dispose()
             {
                 Program.Instance?.Dispose();
+                Program.Instance = null;
                 Program.LineWriter = Console.WriteLine;
                 InteractiveShell.ReadLine = Console.ReadLine;
             }

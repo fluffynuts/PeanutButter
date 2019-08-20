@@ -1,7 +1,7 @@
 <package>
   <metadata>
     <id>PeanutButter.TempDb.MySql.Data</id>
-    <version>1.2.296</version>
+    <version>1.2.297</version>
     <title>PeanutButter.TempDb.MySql.Data</title>
     <authors>Davyd McColl</authors>
     <owners></owners>
@@ -22,15 +22,15 @@
     <copyright>Copyright  2015</copyright>
     <dependencies>
       <group targetFramework="net452">
-        <dependency id="PeanutButter.TempDb" version="1.2.296" />
-        <dependency id="PeanutButter.Utils" version="1.2.296" />
-        <dependency id="PeanutButter.INI" version="1.2.296" />
+        <dependency id="PeanutButter.TempDb" version="1.2.297" />
+        <dependency id="PeanutButter.Utils" version="1.2.297" />
+        <dependency id="PeanutButter.INI" version="1.2.297" />
         <dependency id="MySql.Data" version="[6.9.12,]" />
       </group>
       <group targetFramework="netstandard2.0">
-        <dependency id="PeanutButter.TempDb" version="1.2.296" />
-        <dependency id="PeanutButter.Utils" version="1.2.296" />
-        <dependency id="PeanutButter.INI" version="1.2.296" />
+        <dependency id="PeanutButter.TempDb" version="1.2.297" />
+        <dependency id="PeanutButter.Utils" version="1.2.297" />
+        <dependency id="PeanutButter.INI" version="1.2.297" />
         <dependency id="MySql.Data" version="[6.9.12,]" />
       </group>
     </dependencies>
