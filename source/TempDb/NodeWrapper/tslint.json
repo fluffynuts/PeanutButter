@@ -1,0 +1,89 @@
+{
+    "defaultSeverity": "error",
+    "extends": "tslint:recommended",
+    "naming-convention": [
+        true,
+        {
+            "type": "default",
+            "format": "camelCase",
+            "leadingUnderscore": "forbid",
+            "trailingUnderscore": "forbid"
+        },
+        {
+            "type": "variable",
+            "modifiers": "global",
+            "format": "UPPER_CASE"
+        },
+        {
+            "type": "variable",
+            "modifiers": "private",
+            "format": "camelCase",
+            "leadingUnderscore": "require",
+            "trailingUnderscore": "forbid"
+        },
+        {
+            "type": "variable",
+            "modifiers": "protected",
+            "format": "camelCase",
+            "leadingUnderscore": "require",
+            "trailingUnderscore": "forbid"
+        },
+        {
+            "type": "parameter",
+            "leadingUnderscore": "forbid",
+            "trailingUnderscore": "forbid",
+            "final": true
+        },
+        {
+            "type": "member",
+            "modifiers": "private",
+            "leadingUnderscore": "require"
+        },
+        {
+            "type": "member",
+            "modifiers": "protected",
+            "leadingUnderscore": "require"
+        },
+        {
+            "type": "type",
+            "format": "PascalCase"
+        },
+        {
+            "type": "interface",
+            "prefix": "I"
+        },
+        {
+            "type": "genericTypeParameter",
+            "prefix": "T"
+        },
+        {
+            "type": "enumMember",
+            "format": "PascalCase"
+        }
+    ],
+    "jsRules": {},
+    "rules": {
+        "array-type": false,
+        "max-classes-per-file": 2,
+        "no-string-literal": false,
+        "no-var-requires": false,
+        "align": false,
+        "object-literal-sort-keys": false,
+        "arrow-parens": false,
+        "member-ordering": false,
+        "no-angle-bracket-type-assertion": true,
+        "variable-name": false,
+        "no-console": false,
+        "trailing-comma": false,
+        "no-unused-expression": false,
+        "no-empty": false,
+        "ordered-imports": false,
+        "one-variable-per-declaration": false,
+        "no-consecutive-blank-lines": true,
+        "no-bitwise": false,
+        "whitespace": [ true, "check-module" ]
+    },
+    "rulesDirectory": [
+        "tslint-consistent-codestyle"
+    ]
+}
