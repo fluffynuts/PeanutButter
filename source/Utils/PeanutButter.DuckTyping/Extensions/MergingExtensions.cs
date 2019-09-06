@@ -14,11 +14,10 @@ using PeanutButter.DuckTyping.Shimming;
 namespace PeanutButter.DuckTyping.Extensions
 {
     /// <summary>
-    /// Provides extension method for merging multipl objects behind a
+    /// Provides extension method for merging multiple objects behind a
     /// required interface
     /// </summary>
-    // TODO: publicise when ready
-    internal static class MergingExtensions
+    public static class MergingExtensions
     {
         /// <summary>
         /// Tests if a collection of objects can back
@@ -44,11 +43,24 @@ namespace PeanutButter.DuckTyping.Extensions
             return InternalCanMergeAs<T>(sources, true, false, out var _);
         }
 
+        /// <summary>
+        /// Attempts to merge a collection of objects onto one interface, first wins
+        /// </summary>
+        /// <param name="sources"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static T MergeAs<T>(this IEnumerable<object> sources) where T : class
         {
             return sources.MergeAs<T>(false);
         }
 
+        /// <summary>
+        /// Attempts to merge a collection of objects onto one interface, first wins
+        /// </summary>
+        /// <param name="sources"></param>
+        /// <param name="throwOnError"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static T MergeAs<T>(
             this IEnumerable<object> sources,
             bool throwOnError
@@ -59,6 +71,12 @@ namespace PeanutButter.DuckTyping.Extensions
                 : null;
         }
 
+        /// <summary>
+        /// Attempts to fuzzy-merge a collection of objects onto one interface, first wins
+        /// </summary>
+        /// <param name="sources"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static T FuzzyMergeAs<T>(
             this IEnumerable<object> sources
         ) where T : class
@@ -66,6 +84,13 @@ namespace PeanutButter.DuckTyping.Extensions
             return sources.FuzzyMergeAs<T>(false);
         }
 
+        /// <summary>
+        /// Attempts to fuzzy-merge a collection of objects onto one interface, first wins
+        /// </summary>
+        /// <param name="sources"></param>
+        /// <param name="throwOnError"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static T FuzzyMergeAs<T>(
             this IEnumerable<object> sources,
             bool throwOnError
