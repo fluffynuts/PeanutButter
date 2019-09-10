@@ -128,10 +128,13 @@ namespace PeanutButter.TempDb
 
         }
 
-        private void RunScripts(IEnumerable<string> scripts)
+        public void RunScripts(IEnumerable<string> scripts)
         {
             if (scripts == null || !scripts.Any())
+            {
                 return;
+            }
+
             using (var disposer = new AutoDisposer())
             {
                 var conn = disposer.Add(CreateOpenDatabaseConnection());
@@ -144,7 +147,9 @@ namespace PeanutButter.TempDb
                 }
 
                 foreach (var script in scripts)
+                {
                     Exec(script);
+                }
             }
         }
 
