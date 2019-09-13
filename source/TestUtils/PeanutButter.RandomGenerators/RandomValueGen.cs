@@ -36,16 +36,16 @@ namespace PeanutButter.RandomGenerators
         private static readonly Dictionary<Type, Func<object>> PrimitiveGenerators =
             new Dictionary<Type, Func<object>>()
             {
-                {typeof(int), () => GetRandomInt()},
-                {typeof(byte), () => Convert.ToByte(GetRandomInt(0, 255))},
-                {typeof(char), () => Convert.ToChar(GetRandomInt(0, 255))},
-                {typeof(long), () => GetRandomLong()},
-                {typeof(float), () => Convert.ToSingle(GetRandomDecimal(decimal.MinValue, decimal.MaxValue))},
-                {typeof(double), () => Convert.ToDouble(GetRandomDecimal(decimal.MinValue, decimal.MaxValue))},
-                {typeof(decimal), () => GetRandomDecimal(decimal.MinValue, decimal.MaxValue)},
-                {typeof(DateTime), () => GetRandomDate()},
-                {typeof(string), () => GetRandomString()},
-                {typeof(bool), () => GetRandomBoolean()}
+                { typeof(int), () => GetRandomInt() },
+                { typeof(byte), () => Convert.ToByte(GetRandomInt(0, 255)) },
+                { typeof(char), () => Convert.ToChar(GetRandomInt(0, 255)) },
+                { typeof(long), () => GetRandomLong() },
+                { typeof(float), () => Convert.ToSingle(GetRandomDecimal(decimal.MinValue, decimal.MaxValue)) },
+                { typeof(double), () => Convert.ToDouble(GetRandomDecimal(decimal.MinValue, decimal.MaxValue)) },
+                { typeof(decimal), () => GetRandomDecimal(decimal.MinValue, decimal.MaxValue) },
+                { typeof(DateTime), () => GetRandomDate() },
+                { typeof(string), () => GetRandomString() },
+                { typeof(bool), () => GetRandomBoolean() }
             };
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace PeanutButter.RandomGenerators
             Type type)
         {
             var builderType = GenericBuilderLocator.TryFindExistingBuilderFor(type)
-                              ?? GenericBuilderLocator.FindOrGenerateDynamicBuilderFor(type);
+                ?? GenericBuilderLocator.FindOrGenerateDynamicBuilderFor(type);
             return builderType == null
                 ? null
                 : Activator.CreateInstance(builderType) as IGenericBuilder;
@@ -158,6 +158,11 @@ namespace PeanutButter.RandomGenerators
             /// Default Maximum number of items in a random collection
             /// </summary>
             public const int MAX_ITEMS = 10;
+
+            /// <summary>
+            /// Number of seconds in a day
+            /// </summary>
+            public const int ONE_DAY_IN_SECONDS = 86400;
         }
 
         private static readonly Random RandomGenerator = new Random();
@@ -448,6 +453,46 @@ namespace PeanutButter.RandomGenerators
         }
 
         /// <summary>
+        /// Gets a random float value within the specified range
+        /// </summary>
+        /// <param name="min">Minimum value to consider</param>
+        /// <param name="max">Maximum value to consider</param>
+        /// <returns>Float value within the specified range</returns>
+        public static float GetRandomFloat(
+            float min = 0f,
+            float max = DefaultRanges.MAX_INT_VALUE)
+        {
+            return (float) GetRandomDouble(min, max);
+        }
+
+        /// <summary>
+        /// Returns a random time of day
+        /// </summary>
+        /// <param name="min">Minimum time to consider</param>
+        /// <param name="max">Maximum time to consider</param>
+        /// <returns>Timespan representing a time on a day, clamped to within 24 hours</returns>
+        public static TimeSpan GetRandomTimeOfDay(
+            TimeSpan? min = null,
+            TimeSpan? max = null)
+        {
+            var minSeconds = min?.TotalSeconds ?? 0;
+            var maxSeconds = max?.TotalSeconds ?? DefaultRanges.ONE_DAY_IN_SECONDS;
+            if (minSeconds < 0)
+            {
+                minSeconds = 0;
+            }
+
+            if (maxSeconds > DefaultRanges.ONE_DAY_IN_SECONDS)
+            {
+                maxSeconds = DefaultRanges.ONE_DAY_IN_SECONDS;
+            }
+
+            return TimeSpan.FromSeconds(
+                GetRandomInt((int)minSeconds, (int)maxSeconds)
+            );
+        }
+
+        /// <summary>
         /// Gets a randomly-sized, randomly-filled byte array
         /// </summary>
         /// <param name="minLength">Minimum size of the result</param>
@@ -495,7 +540,7 @@ namespace PeanutButter.RandomGenerators
             // ReSharper disable once ImpureMethodCallOnReadonlyValueField
             return string.Join(
                 Path.DirectorySeparatorChar.ToString(),
-                new[] {drive}.And(folders.ToArray()));
+                new[] { drive }.And(folders.ToArray()));
         }
 
         /// <summary>

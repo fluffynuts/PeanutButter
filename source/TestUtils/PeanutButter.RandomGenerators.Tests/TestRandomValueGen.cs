@@ -67,7 +67,7 @@ namespace PeanutButter.RandomGenerators.Tests
             // Assert
             Assert.Fail($"Unable to find {min} in range {min} - {max} over {HIGH_RANDOM_TEST_CYCLES} attempts");
         }
-        
+
         [Test]
         public void GetRandomInt_GivenRange_ShouldFindMaxNumber()
         {
@@ -88,6 +88,87 @@ namespace PeanutButter.RandomGenerators.Tests
 
             // Assert
             Assert.Fail($"Unable to find {max} in range {min} - {max} over {HIGH_RANDOM_TEST_CYCLES} attempts");
+        }
+
+        [Test]
+        public void GetRandomDouble_ShouldProvideSpreadWithinRange()
+        {
+            // Arrange
+            var min = GetRandomDouble(1, 10);
+            var max = GetRandomDouble(11, 20);
+            var collected = new List<Double>();
+            // Pre-assert
+            // Act
+            for (var i = 0; i < HIGH_RANDOM_TEST_CYCLES; i++)
+            {
+                collected.Add(GetRandomDouble(min, max));
+            }
+
+            // Assert
+            Expect(collected).To.Contain.All()
+                .Matched.By(d => d >= min);
+            Expect(collected).To.Contain.All()
+                .Matched.By(d => d <= max);
+        }
+
+        [Test]
+        public void GetRandomDecimal_ShouldProvideSpreadWithinRange()
+        {
+            // Arrange
+            var min = GetRandomDecimal(1, 10);
+            var max = GetRandomDecimal(11, 20);
+            var collected = new List<Decimal>();
+            // Pre-assert
+            // Act
+            for (var i = 0; i < HIGH_RANDOM_TEST_CYCLES; i++)
+            {
+                collected.Add(GetRandomDecimal(min, max));
+            }
+
+            // Assert
+            Expect(collected).To.Contain.All()
+                .Matched.By(d => d >= min);
+            Expect(collected).To.Contain.All()
+                .Matched.By(d => d <= max);
+        }
+
+        [Test]
+        public void GetRandomFloat_ShouldProvideSpreadWithinRange()
+        {
+            // Arrange
+            var min = GetRandomFloat(1, 10);
+            var max = GetRandomFloat(11, 20);
+            var collected = new List<float>();
+            // Pre-assert
+            // Act
+            for (var i = 0; i < HIGH_RANDOM_TEST_CYCLES; i++)
+            {
+                collected.Add(GetRandomFloat(min, max));
+            }
+
+            // Assert
+            Expect(collected).To.Contain.All()
+                .Matched.By(d => d >= min);
+            Expect(collected).To.Contain.All()
+                .Matched.By(d => d <= max);
+        }
+
+        [Test]
+        public void GetRandomTimeOfDay_ShouldReturnTimespanWithin24HourRange()
+        {
+            // Arrange
+            var collected = new List<TimeSpan>();
+            // Act
+            for (var i = 0; i < HIGH_RANDOM_TEST_CYCLES; i++)
+            {
+                collected.Add(GetRandomTimeOfDay());
+            }
+            // Assert
+            Expect(collected).To.Contain.All()
+                .Matched.By(t => t >= TimeSpan.Zero);
+            var oneDay = TimeSpan.FromSeconds(86400);
+            Expect(collected).To.Contain.All()
+                .Matched.By(t => t <= oneDay);
         }
 
         [Test]
