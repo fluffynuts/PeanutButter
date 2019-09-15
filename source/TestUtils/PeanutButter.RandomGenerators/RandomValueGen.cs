@@ -368,6 +368,31 @@ namespace PeanutButter.RandomGenerators
             return _timespanGenerators[context](howMany);
         }
 
+        /// <summary>
+        /// Returns a TimeSpan between min and max
+        /// </summary>
+        /// <param name="min">min timespan -- defaults to TimeSpan.Zero</param>
+        /// <param name="max">max timespan -- defaults to TimeSpan.MaxValue</param>
+        /// <returns></returns>
+        public static TimeSpan GetRandomTimeSpan(
+            TimeSpan? min = null,
+            TimeSpan? max = null)
+        {
+            min = min ?? TimeSpan.MinValue;
+            max = max ?? TimeSpan.MaxValue;
+            var ticksDelta = (max - min).Value.Ticks;
+            return TimeSpan.FromTicks(min.Value.Ticks + ticksDelta);
+        }
+
+        /// <summary>
+        /// Returns a random TimeSpan between TimeSpan.Z
+        /// </summary>
+        /// <returns></returns>
+        public static TimeSpan GetRandomTimeSpan()
+        {
+            return GetRandomTimeSpan(TimeSpan.Zero, TimeSpan.MaxValue);
+        }
+
         private static Dictionary<TimeSpanContexts, Func<double, TimeSpan>> _timespanGenerators
             = new Dictionary<TimeSpanContexts, Func<double, TimeSpan>>()
             {

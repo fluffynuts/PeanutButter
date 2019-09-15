@@ -12,6 +12,7 @@ using NUnit.Framework;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using static NExpect.Expectations;
+using static PeanutButter.Utils.PyLike;
 
 // ReSharper disable AccessToDisposedClosure
 // ReSharper disable PossibleMultipleEnumeration
@@ -792,7 +793,7 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [TestFixture]
-        public class GetRandomTimespans
+        public class GetRandomTimespan
         {
             [Test]
             public void WhenContextIsMilliseconds_ShouldReturnSecondRange()
@@ -862,6 +863,26 @@ namespace PeanutButter.RandomGenerators.Tests
                     .Greater.Than(TimeSpan.FromSeconds(1).Ticks - 1)
                     .And
                     .Less.Than(TimeSpan.FromSeconds(10).Ticks + 1);
+            }
+
+            [Test]
+            public void GivenTimeSpans_ShouldProduceTimeSpanInRange()
+            {
+                // Arrange
+                var min = TimeSpan.FromSeconds(GetRandomInt(1, 100));
+                var max = TimeSpan.FromSeconds(GetRandomInt(200, 300));
+                // Act
+                var collected = 
+                Range(0, NORMAL_RANDOM_TEST_CYCLES).Aggregate(
+                    new List<TimeSpan>(),
+                    (acc, cur) =>
+                    {
+                        acc.Add(GetRandomTimeSpan(min, max));
+                        return acc;
+                    });
+                // Assert
+                Expect(collected).To.Contain.All()
+                    .Matched.By(t => t >= min && t <= max);
             }
             
         }
