@@ -31,7 +31,7 @@ namespace PeanutButter.Utils
             }
 
             return test >= testStart.ToUniversalTime() &&
-                   test <= testEnd.ToUniversalTime();
+                test <= testEnd.ToUniversalTime();
         }
 
         /// <summary>
@@ -115,7 +115,12 @@ namespace PeanutButter.Utils
         /// A new DateTime with the date component copied from the subject
         /// and the time component set from provided arguments
         /// </returns>
-        public static DateTime WithTime(this DateTime value, int hour, int minute, int second, int millisecond = 0)
+        public static DateTime WithTime(
+            this DateTime value,
+            int hour,
+            int minute,
+            int second,
+            int millisecond = 0)
         {
             return new DateTime(
                 value.Year,
@@ -127,6 +132,36 @@ namespace PeanutButter.Utils
                 millisecond,
                 value.Kind);
         }
+
+        /// <summary>
+        /// Produces a new DateTime with the time mutated to the time specified
+        /// by the provided TimeSpan, clamped to within 24 hours
+        /// </summary>
+        /// <param name="value">Subject DateTime to start with</param>
+        /// <param name="time">Required time</param>
+        /// <returns>new DateTime with provided time</returns>
+        public static DateTime WithTime(
+            this DateTime value,
+            TimeSpan time)
+        {
+            if (time < TimeSpan.Zero)
+            {
+                time = TimeSpan.Zero;
+            }
+            else if (time >= TwentyFourHours)
+            {
+                time = TwentyFourHours - OneMillisecond;
+            }
+
+            return value.WithTime(
+                time.Hours,
+                time.Minutes,
+                time.Seconds,
+                time.Milliseconds);
+        }
+        
+        private static readonly TimeSpan TwentyFourHours = TimeSpan.FromHours(24);
+        private static readonly TimeSpan OneMillisecond = TimeSpan.FromMilliseconds(1);
 
         /// <summary>
         /// Provides a new DateTime with all components from the subject except
@@ -289,7 +324,6 @@ namespace PeanutButter.Utils
                 seconds,
                 milliseconds,
                 kind);
-
         }
     }
 }

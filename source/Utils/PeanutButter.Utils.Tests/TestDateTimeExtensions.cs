@@ -121,48 +121,92 @@ namespace PeanutButter.Utils.Tests
             Expect(result).To.Equal(expected);
         }
 
-        [Test]
-        public void WithTime_GivenTimeComponents_ShouldReturnNewDateTimeWithComponentsSet()
+        [TestFixture]
+        public class WithTime
         {
-            //---------------Set up test pack-------------------
-            var testDate = GetRandomDate();
-            var hour = GetRandomInt(0, 23);
-            var minute = GetRandomInt(0, 59);
-            var second = GetRandomInt(0, 59);
-            var millisecond = GetRandomInt(0, 999);
-            var expected = new DateTime(
-                testDate.Year, 
-                testDate.Month, 
-                testDate.Day, 
-                hour, 
-                minute, 
-                second, 
-                millisecond,
-                DateTimeKind.Local);
+            [Test]
+            public void GivenTimeComponents_ShouldReturnNewDateTimeWithComponentsSet()
+            {
+                //---------------Set up test pack-------------------
+                var testDate = GetRandomDate();
+                var hour = GetRandomInt(0, 23);
+                var minute = GetRandomInt(0, 59);
+                var second = GetRandomInt(0, 59);
+                var millisecond = GetRandomInt(0, 999);
+                var expected = new DateTime(
+                    testDate.Year, 
+                    testDate.Month, 
+                    testDate.Day, 
+                    hour, 
+                    minute, 
+                    second, 
+                    millisecond,
+                    DateTimeKind.Local);
 
-            //---------------Assert Precondition----------------
+                //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var result = testDate.WithTime(hour, minute, second, millisecond);
+                //---------------Execute Test ----------------------
+                var result = testDate.WithTime(hour, minute, second, millisecond);
 
-            //---------------Test Result -----------------------
-            Expect(result).To.Equal(expected);
-        }
+                //---------------Test Result -----------------------
+                Expect(result).To.Equal(expected);
+            }
 
-        [Test]
-        public void WithTime_ShouldPreserveOriginalKind()
-        {
-            // Arrange
-            var testDate = GetRandomDate(DateTimeKind.Utc);
-            var hour = GetRandomInt(0, 23);
-            var minute = GetRandomInt(0, 59);
-            var second = GetRandomInt(0, 59);
-            var millisecond = GetRandomInt(0, 999);
-            // Pre-Assert
-            // Act
-            var result = testDate.WithTime(hour, minute, second, millisecond);
-            // Assert
-            Expect(result.Kind).To.Equal(testDate.Kind);
+            [Test]
+            public void ShouldPreserveOriginalKind()
+            {
+                // Arrange
+                var testDate = GetRandomDate(DateTimeKind.Utc);
+                var hour = GetRandomInt(0, 23);
+                var minute = GetRandomInt(0, 59);
+                var second = GetRandomInt(0, 59);
+                var millisecond = GetRandomInt(0, 999);
+                // Pre-Assert
+                // Act
+                var result = testDate.WithTime(hour, minute, second, millisecond);
+                // Assert
+                Expect(result.Kind).To.Equal(testDate.Kind);
+            }
+
+            [Test]
+            public void GivenValidTimeSpan_ShouldSetTime()
+            {
+                // Arrange
+                var kind = GetRandomEnum<DateTimeKind>();
+                var date = GetRandomDate(kind);
+                var timeSpan = GetRandomTimeOfDay();
+                // Act
+                var result = date.WithTime(timeSpan);
+                // Assert
+                Expect(result.TimeOfDay).To.Equal(timeSpan);
+                Expect(result.Kind).To.Equal(kind);
+            }
+
+            [Test]
+            public void GivenTimeSpanLessThanZero_ShouldClampToZero()
+            {
+                // Arrange
+                var kind = GetRandomEnum<DateTimeKind>();
+                var date = GetRandomDate(kind);
+                var timeSpan = TimeSpan.Zero - TimeSpan.FromMinutes(GetRandomInt(1, 100));
+                // Act
+                var result = date.WithTime(timeSpan);
+                // Assert
+                Expect(result.TimeOfDay).To.Equal(TimeSpan.Zero);
+            }
+
+            [Test]
+            public void GivenTimeSpanGreaterThan24Hours_ShouldClampTo235959()
+            {
+                // Arrange
+                var date = GetRandomDate();
+                var expected = TimeSpan.FromHours(24) - TimeSpan.FromMilliseconds(1);
+                var timeSpan = expected + TimeSpan.FromSeconds(GetRandomInt(1, 10000));
+                // Act
+                var result = date.WithTime(timeSpan);
+                // Assert
+                Expect(result.TimeOfDay).To.Equal(expected);
+            }
         }
 
 
