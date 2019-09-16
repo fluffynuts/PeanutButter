@@ -15,16 +15,18 @@ namespace PeanutButter.Utils.Tests
         [TestCase(1, 1, "01:01")]
         [TestCase(12, 0, "12:00")]
         [TestCase(16, 30, "16:30")]
-        public void AsHoursAndMinutes_ShouldReturnZeroPaddedHoursAndMinutesForDateTime(int hours, int minutes, string expected)
+        public void AsHoursAndMinutes_ShouldReturnZeroPaddedHoursAndMinutesForDateTime(int hours,
+            int minutes,
+            string expected)
         {
             //---------------Set up test pack-------------------
             var randomYear = GetRandomInt(1900, 2000);
             var randomMonth = GetRandomInt(1, 12);
             var randomDay = GetRandomInt(1, 28);
             var date = new DateTime(randomYear,
-                                        randomMonth,
-                                        randomDay,
-                                        hours, minutes, 0);
+                randomMonth,
+                randomDay,
+                hours, minutes, 0);
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -38,16 +40,19 @@ namespace PeanutButter.Utils.Tests
         [TestCase(1, 1, 1, "01:01:01")]
         [TestCase(12, 0, 15, "12:00:15")]
         [TestCase(16, 30, 33, "16:30:33")]
-        public void AsTimeString_ShouldReturnZeroPaddedHoursAndMinutesForDateTime(int hours, int minutes, int seconds, string expected)
+        public void AsTimeString_ShouldReturnZeroPaddedHoursAndMinutesForDateTime(int hours,
+            int minutes,
+            int seconds,
+            string expected)
         {
             //---------------Set up test pack-------------------
             var randomYear = GetRandomInt(1900, 2000);
             var randomMonth = GetRandomInt(1, 12);
             var randomDay = GetRandomInt(1, 28);
             var date = new DateTime(randomYear,
-                                        randomMonth,
-                                        randomDay,
-                                        hours, minutes, seconds);
+                randomMonth,
+                randomDay,
+                hours, minutes, seconds);
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -62,7 +67,8 @@ namespace PeanutButter.Utils.Tests
         {
             //---------------Set up test pack-------------------
             var dateTime = GetRandomDate().TruncateMicroseconds();
-            var expected = 1000 * (dateTime.Hour * 3600 + dateTime.Minute * 60 + dateTime.Second) + dateTime.Millisecond;
+            var expected = 1000 * (dateTime.Hour * 3600 + dateTime.Minute * 60 + dateTime.Second) +
+                dateTime.Millisecond;
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -76,8 +82,16 @@ namespace PeanutButter.Utils.Tests
         public void StartOfDay_ShouldReturnDateTimeAsOfStartOfDay()
         {
             //---------------Set up test pack-------------------
-            var testDate = GetRandomDate();
-            var expected = new DateTime(testDate.Year, testDate.Month, testDate.Day, 0, 0, 0);
+            var kind = GetRandomEnum<DateTimeKind>();
+            var testDate = GetRandomDate(kind);
+            var expected = new DateTime(
+                testDate.Year,
+                testDate.Month,
+                testDate.Day,
+                0,
+                0,
+                0,
+                kind);
 
             //---------------Assert Precondition----------------
 
@@ -92,8 +106,18 @@ namespace PeanutButter.Utils.Tests
         public void EndOfDay_ShouldReturnDateTimeAsAtOneMillisecondFromTheEndOfTheDay()
         {
             //---------------Set up test pack-------------------
-            var testDate = GetRandomDate();
-            var expected = new DateTime(testDate.Year, testDate.Month, testDate.Day, 23, 59, 59, 999);
+            var kind = GetRandomEnum<DateTimeKind>();
+            var testDate = GetRandomDate(kind);
+            var expected = new DateTime(
+                testDate.Year,
+                testDate.Month, 
+                testDate.Day, 
+                23, 
+                59, 
+                59, 
+                999,
+                kind
+            );
 
             //---------------Assert Precondition----------------
 
@@ -108,9 +132,10 @@ namespace PeanutButter.Utils.Tests
         public void AsTimeOnly_ShouldReturnTheTimeComponentAttachedToDateTimeDotMinValue()
         {
             //---------------Set up test pack-------------------
-            var testDate = GetRandomDate();
+            var kind = GetRandomEnum<DateTimeKind>();
+            var testDate = GetRandomDate(kind);
             var expected = new DateTime(DateTime.MinValue.Year, DateTime.MinValue.Month, DateTime.MinValue.Day,
-                                testDate.Hour, testDate.Minute, testDate.Second, testDate.Millisecond);
+                testDate.Hour, testDate.Minute, testDate.Second, testDate.Millisecond, kind);
 
             //---------------Assert Precondition----------------
 
@@ -134,12 +159,12 @@ namespace PeanutButter.Utils.Tests
                 var second = GetRandomInt(0, 59);
                 var millisecond = GetRandomInt(0, 999);
                 var expected = new DateTime(
-                    testDate.Year, 
-                    testDate.Month, 
-                    testDate.Day, 
-                    hour, 
-                    minute, 
-                    second, 
+                    testDate.Year,
+                    testDate.Month,
+                    testDate.Day,
+                    hour,
+                    minute,
+                    second,
                     millisecond,
                     DateTimeKind.Local);
 
@@ -215,7 +240,8 @@ namespace PeanutButter.Utils.Tests
         {
             //---------------Set up test pack-------------------
             var input = GetRandomDate();
-            var expected = $"{input.Year}/{zeroPad(input.Month)}/{zeroPad(input.Day)} {zeroPad(input.Hour)}:{zeroPad(input.Minute)}:{zeroPad(input.Second)}.{zeroPad(input.Millisecond, 3)}000";
+            var expected =
+                $"{input.Year}/{zeroPad(input.Month)}/{zeroPad(input.Day)} {zeroPad(input.Hour)}:{zeroPad(input.Minute)}:{zeroPad(input.Second)}.{zeroPad(input.Millisecond, 3)}000";
 
             //---------------Assert Precondition----------------
 
@@ -231,7 +257,8 @@ namespace PeanutButter.Utils.Tests
         {
             //---------------Set up test pack-------------------
             var input = GetRandomDate();
-            var expected = $"{input.Year}/{zeroPad(input.Month)}/{zeroPad(input.Day)} {zeroPad(input.Hour)}:{zeroPad(input.Minute)}:{zeroPad(input.Second)}.000000";
+            var expected =
+                $"{input.Year}/{zeroPad(input.Month)}/{zeroPad(input.Day)} {zeroPad(input.Hour)}:{zeroPad(input.Minute)}:{zeroPad(input.Second)}.000000";
 
             //---------------Assert Precondition----------------
 
@@ -247,7 +274,8 @@ namespace PeanutButter.Utils.Tests
         {
             //---------------Set up test pack-------------------
             var input = GetRandomDate();
-            var expected = $"{input.Year}/{zeroPad(input.Month)}/{zeroPad(input.Day)} {zeroPad(input.Hour)}:{zeroPad(input.Minute)}:00.000000";
+            var expected =
+                $"{input.Year}/{zeroPad(input.Month)}/{zeroPad(input.Day)} {zeroPad(input.Hour)}:{zeroPad(input.Minute)}:00.000000";
 
             //---------------Assert Precondition----------------
 
@@ -265,7 +293,8 @@ namespace PeanutButter.Utils.Tests
         {
             //---------------Set up test pack-------------------
             var input = GetRandomDate();
-            var expected = $"{input.Year}/{zeroPad(input.Month)}/{zeroPad(input.Day)} {zeroPad(input.Hour)}:00:00.000000";
+            var expected =
+                $"{input.Year}/{zeroPad(input.Month)}/{zeroPad(input.Day)} {zeroPad(input.Hour)}:00:00.000000";
 
             //---------------Assert Precondition----------------
 
@@ -453,6 +482,7 @@ namespace PeanutButter.Utils.Tests
                 result = "0" + result;
             return result;
         }
+
         private string GetTruncateTestStringFor(DateTime dateTime)
         {
             return dateTime.ToString("yyyy/MM/dd HH:mm:ss.ffffff", CultureInfo.InvariantCulture);

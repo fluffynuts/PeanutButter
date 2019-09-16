@@ -236,7 +236,7 @@ namespace PeanutButter.RandomGenerators
         /// Gets a random string
         /// </summary>
         /// <param name="minLength">Minimum length required</param>
-        /// <param name="maxLength">Maximum length required. When left null, will be the minium length plus DefaultRanges.MINLENGTH_STRING</param>
+        /// <param name="maxLength">Maximum length required. When left null, will be the minimum length plus DefaultRanges.MINLENGTH_STRING</param>
         /// <param name="charSet">Character set to use, as required</param>
         /// <returns>
         /// A new string which is between the minimum and maximum lengths (inclusive)
@@ -333,6 +333,32 @@ namespace PeanutButter.RandomGenerators
         }
 
         /// <summary>
+        /// Returns a random UTC date within the specified range
+        /// </summary>
+        /// <param name="minDate"></param>
+        /// <param name="maxDate"></param>
+        /// <param name="dateOnly"></param>
+        /// <param name="minTime"></param>
+        /// <param name="maxTime"></param>
+        /// <returns></returns>
+        public static DateTime GetRandomUtcDate(
+            DateTime? minDate = null,
+            DateTime? maxDate = null,
+            bool dateOnly = false,
+            DateTime? minTime = null,
+            DateTime? maxTime = null
+        )
+        {
+            return GetRandomDate(
+                DateTimeKind.Utc,
+                minDate,
+                maxDate,
+                dateOnly,
+                minTime,
+                maxTime);
+        }
+
+        /// <summary>
         /// Gets a random Local DateTime range, by default within SQL-safe range
         /// </summary>
         /// <param name="minDate">Minimum date to consider</param>
@@ -349,7 +375,39 @@ namespace PeanutButter.RandomGenerators
             DateTime? maxTime = null
         )
         {
-            return GetRandomDateRange(DateTimeKind.Local, minDate, maxDate, dateOnly, minTime, maxTime);
+            return GetRandomDateRange(
+                DateTimeKind.Local, 
+                minDate, 
+                maxDate, 
+                dateOnly, 
+                minTime, 
+                maxTime);
+        }
+
+        /// <summary>
+        /// Gets a random Local DateTime range, by default within SQL-safe range
+        /// </summary>
+        /// <param name="minDate">Minimum date to consider</param>
+        /// <param name="maxDate">Maximum date to consider</param>
+        /// <param name="dateOnly">Flag to determine if times should be truncated</param>
+        /// <param name="minTime">Minimum time to consider (default all)</param>
+        /// <param name="maxTime">Maximum time to consider (default all)</param>
+        /// <returns>Random Local DateTime value</returns>
+        public static DateRange GetRandomUtcDateRange(
+            DateTime? minDate = null,
+            DateTime? maxDate = null,
+            bool dateOnly = false,
+            DateTime? minTime = null,
+            DateTime? maxTime = null
+        )
+        {
+            return GetRandomDateRange(
+                DateTimeKind.Utc, 
+                minDate, 
+                maxDate, 
+                dateOnly, 
+                minTime, 
+                maxTime);
         }
 
         /// <summary>
@@ -360,12 +418,12 @@ namespace PeanutButter.RandomGenerators
         /// <param name="context">Context for the min/max length</param>
         /// <returns></returns>
         public static TimeSpan GetRandomTimeSpan(
-            double min = DefaultRanges.MIN_INT_VALUE,
+            double min,
             double max = DefaultRanges.MAX_INT_VALUE,
             TimeSpanContexts context = TimeSpanContexts.Minutes)
         {
             var howMany = GetRandomDouble(min, max);
-            return _timespanGenerators[context](howMany);
+            return TimespanGenerators[context](howMany);
         }
 
         /// <summary>
@@ -375,13 +433,12 @@ namespace PeanutButter.RandomGenerators
         /// <param name="max">max timespan -- defaults to TimeSpan.MaxValue</param>
         /// <returns></returns>
         public static TimeSpan GetRandomTimeSpan(
-            TimeSpan? min = null,
+            TimeSpan min,
             TimeSpan? max = null)
         {
-            min = min ?? TimeSpan.MinValue;
             max = max ?? TimeSpan.MaxValue;
             var ticksDelta = (max - min).Value.Ticks;
-            return TimeSpan.FromTicks(min.Value.Ticks + ticksDelta);
+            return TimeSpan.FromTicks(min.Ticks + ticksDelta);
         }
 
         /// <summary>
@@ -393,8 +450,8 @@ namespace PeanutButter.RandomGenerators
             return GetRandomTimeSpan(TimeSpan.Zero, TimeSpan.MaxValue);
         }
 
-        private static Dictionary<TimeSpanContexts, Func<double, TimeSpan>> _timespanGenerators
-            = new Dictionary<TimeSpanContexts, Func<double, TimeSpan>>()
+        private static readonly Dictionary<TimeSpanContexts, Func<double, TimeSpan>> 
+            TimespanGenerators = new Dictionary<TimeSpanContexts, Func<double, TimeSpan>>()
             {
                 [TimeSpanContexts.Ticks] = i => TimeSpan.FromTicks((long) i),
                 [TimeSpanContexts.Milliseconds] = TimeSpan.FromMilliseconds,
@@ -561,6 +618,7 @@ namespace PeanutButter.RandomGenerators
         public static string GetRandomWindowsPath()
         {
             var folders = GetRandomCollection<string>(1, 4);
+            // ReSharper disable once StringLiteralTypo
             var drive = GetRandomString(1, 1, "ABCDEGHIJKLMNOPQRSTUVWXYZ") + ":";
             // ReSharper disable once ImpureMethodCallOnReadonlyValueField
             return string.Join(
@@ -642,7 +700,7 @@ namespace PeanutButter.RandomGenerators
             int minChars = 0,
             int maxChars = 10)
         {
-            return Range(0, GetRandomInt(1, 10))
+            return Range(0, GetRandomInt(minChars, maxChars))
                 .Select(i =>
                     GetRandom(c => c < 'A' || c > 'z',
                         () => (char) GetRandomInt(32, 255)))
@@ -814,7 +872,6 @@ namespace PeanutButter.RandomGenerators
             int maxValues = DefaultRanges.MAX_ITEMS
         )
         {
-            // TODO: stop using default values, ie, explode out the methods
             var howMany = GetRandomInt(minValues, maxValues);
             var result = new List<T>();
             for (var i = 0; i < howMany; i++)
@@ -839,7 +896,6 @@ namespace PeanutButter.RandomGenerators
             int maxValues = DefaultRanges.MAX_ITEMS
         )
         {
-            // TODO: stop using default values, ie, explode out the methods
             return GetRandomCollection(generator, minValues, maxValues).ToArray();
         }
 
@@ -855,7 +911,6 @@ namespace PeanutButter.RandomGenerators
             int maxValues = DefaultRanges.MAX_ITEMS
         )
         {
-            // TODO: stop using default values, ie, explode out the methods
             return GetRandomCollection(GetRandom<T>, minValues, maxValues);
         }
 
@@ -871,7 +926,6 @@ namespace PeanutButter.RandomGenerators
             int maxValues = DefaultRanges.MAX_ITEMS
         )
         {
-            // TODO: stop using default values, ie, explode out the methods
             return GetRandomCollection<T>(minValues, maxValues).ToArray();
         }
 
@@ -964,8 +1018,9 @@ namespace PeanutButter.RandomGenerators
         )
         {
             areEqual = areEqual ?? DefaultEqualityTest;
-            Func<T, bool> isANewValue = o => notAnyOfThese.All(i => !areEqual(o, i));
-            return GetANewRandomValueUsing(notAnyOfThese, usingThisGenerator, isANewValue);
+            var notTheseArray = notAnyOfThese.ToArray();
+            bool IsANewValue(T o) => notTheseArray.All(i => !areEqual(o, i));
+            return GetANewRandomValueUsing(notTheseArray, usingThisGenerator, IsANewValue);
         }
 
         private static bool DefaultEqualityTest<T>(
