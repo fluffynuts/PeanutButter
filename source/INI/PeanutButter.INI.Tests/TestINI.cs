@@ -1301,6 +1301,7 @@ key=value2";
                     Path.GetDirectoryName(assemblyPath),
                     "ExampleSettings.ini"
                 );
+                var bytesBefore = File.ReadAllBytes(iniFilePath);
                 Expect(iniFilePath).To.Exist();
                 // Act
                 var ini1 = new INIFile.INIFile(iniFilePath);
@@ -1315,6 +1316,47 @@ key=value2";
                 );
                 // Assert
                 Expect(result).Not.To.Equal(enabled);
+                // reset file
+                ini2["DrawingViewer"]["EnableLogging"] = "False";
+                ini2.Persist();
+                var bytesAfter = File.ReadAllBytes(iniFilePath);
+                Expect(bytesBefore)
+                    .To.Equal(bytesAfter,
+                        () => FindDifference(bytesBefore, bytesAfter)
+                    );
+            }
+
+            private string FindDifference(byte[] bytesBefore, byte[] bytesAfter)
+            {
+                var offset = 0;
+                var max = Math.Max(bytesBefore.Length, bytesAfter.Length);
+                while (offset < max)
+                {
+                    if (bytesBefore[offset] != bytesAfter[offset])
+                    {
+                        break;
+                    }
+
+                    offset++;
+                }
+
+                if (offset == max)
+                {
+                    return "Not sure where the difference comes in";
+                }
+
+                var before = Encoding.UTF8.GetString(bytesBefore);
+                var after = Encoding.UTF8.GetString(bytesAfter);
+
+                return new[]
+                {
+                    $"Difference is at {offset} bytes",
+                    $"before bytes: {before.Skip(offset-4).Take(8).JoinWith("")}",
+                    $"after bytes: {after.Skip(offset-4).Take(8).JoinWith("")}",
+                    before,
+                    "\n\n",
+                    after
+                }.JoinWith("\n");
             }
         }
 
