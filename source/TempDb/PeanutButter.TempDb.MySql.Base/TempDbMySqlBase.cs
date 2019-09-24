@@ -43,7 +43,7 @@ namespace PeanutButter.TempDb.MySql.Base
         private readonly FatalTempDbInitializationException _noMySqlFoundException =
             new FatalTempDbInitializationException(
                 "Unable to detect an installed mysqld. Either supply a path as part of your initializing parameters or ensure that mysqld is in your PATH"
-                );
+            );
 #else
         private readonly FatalTempDbInitializationException _noMySqlFoundException =
             new FatalTempDbInitializationException(
@@ -200,9 +200,14 @@ namespace PeanutButter.TempDb.MySql.Base
         private void EnsureIsRemoved(string databasePath)
         {
             if (File.Exists(databasePath))
+            {
                 File.Delete(databasePath);
+            }
+
             if (Directory.Exists(databasePath))
+            {
                 Directory.Delete(databasePath);
+            }
         }
 
         private string DumpDefaultsFileAt(
@@ -270,56 +275,35 @@ namespace PeanutButter.TempDb.MySql.Base
                 return;
             }
 
-            try
-            {
-                SwitchToSchema("mysql");
-                using (var connection = CreateConnection())
-                using (var command = connection.CreateCommand())
-                {
-                    // this is only available from mysql 5.7.9 onward (https://dev.mysql.com/doc/refman/5.7/en/shutdown.html)
-                    command.CommandText = "SHUTDOWN";
-                    try
-                    {
-                        command.ExecuteNonQuery();
-                    }
-                    catch
-                    {
-                        /* ignore */
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Log($"Unable to perform graceful shutdown: {ex.Message}");
-            }
-        }
-
-        private void AttemptShutdownAsync()
-        {
             var task = Task.Run(() =>
             {
-                using (var connection = CreateConnection())
-                using (var command = connection.CreateCommand())
+                try
                 {
-                    // this is only available from mysql 5.7.9 onward (https://dev.mysql.com/doc/refman/5.7/en/shutdown.html)
-                    command.CommandText = "SHUTDOWN";
-                    try
+                    SwitchToSchema("mysql");
+                    using (var connection = CreateConnection())
+                    using (var command = connection.CreateCommand())
                     {
-                        command.ExecuteNonQuery();
+                        // this is only available from mysql 5.7.9 onward (https://dev.mysql.com/doc/refman/5.7/en/shutdown.html)
+                        command.CommandText = "SHUTDOWN";
+                        try
+                        {
+                            command.ExecuteNonQuery();
+                        }
+                        catch
+                        {
+                            /* ignore */
+                        }
                     }
-                    catch
-                    {
-                        /* ignore */
-                    }
+                }
+                catch (Exception ex)
+                {
+                    Log($"Unable to perform graceful shutdown: {ex.Message}");
                 }
             });
             task.ConfigureAwait(false);
-            var t = Task.WhenAny(task, Task.Delay(3000));
-            t.ConfigureAwait(false);
-            t.Wait();
+            task.Wait(TimeSpan.FromSeconds(2));
         }
 
-        /// <inheritdoc />
         private void StartServer(string mysqld, int port)
         {
             _serverProcess = RunCommand(

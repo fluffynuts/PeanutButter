@@ -235,122 +235,136 @@ namespace PeanutButter.Utils.Tests
         }
 
 
-        [Test]
-        public void TruncateMicroseconds_ShouldReturnNewDateTime_TruncatedAfterMilliseconds()
+        [TestFixture]
+        public class Truncation
         {
-            //---------------Set up test pack-------------------
-            var input = GetRandomDate();
-            var expected =
-                $"{input.Year}/{zeroPad(input.Month)}/{zeroPad(input.Day)} {zeroPad(input.Hour)}:{zeroPad(input.Minute)}:{zeroPad(input.Second)}.{zeroPad(input.Millisecond, 3)}000";
+            [TestFixture]
+            public class TruncatingDateTimeValues
+            {
+                [Test]
+                public void TruncateMicroseconds_ShouldReturnNewDateTime_TruncatedAfterMilliseconds()
+                {
+                    //---------------Set up test pack-------------------
+                    var kind = GetRandomEnum<DateTimeKind>();
+                    var input = GetRandomDate(kind);
+                    var expected =
+                        $"{input.Year}/{ZeroPad(input.Month)}/{ZeroPad(input.Day)} {ZeroPad(input.Hour)}:{ZeroPad(input.Minute)}:{ZeroPad(input.Second)}.{ZeroPad(input.Millisecond, 3)}000";
 
-            //---------------Assert Precondition----------------
+                    //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var result = GetTruncateTestStringFor(input.TruncateMicroseconds());
+                    //---------------Execute Test ----------------------
+                    var truncated = input.TruncateMicroseconds();
+                    var result = GetTruncateTestStringFor(truncated);
 
-            //---------------Test Result -----------------------
-            Expect(result).To.Equal(expected);
-        }
+                    //---------------Test Result -----------------------
+                    Expect(result).To.Equal(expected);
+                    Expect(truncated.Kind).To.Equal(kind);
+                }
+            }
 
-        [Test]
-        public void TruncateMilliseconds_ShouldReturnNewDateTime_TruncatedAfterSeconds()
-        {
-            //---------------Set up test pack-------------------
-            var input = GetRandomDate();
-            var expected =
-                $"{input.Year}/{zeroPad(input.Month)}/{zeroPad(input.Day)} {zeroPad(input.Hour)}:{zeroPad(input.Minute)}:{zeroPad(input.Second)}.000000";
+            [Test]
+            public void TruncateMilliseconds_ShouldReturnNewDateTime_TruncatedAfterSeconds()
+            {
+                //---------------Set up test pack-------------------
+                var kind = GetRandomEnum<DateTimeKind>();
+                var input = GetRandomDate(kind);
+                var expected =
+                    $"{input.Year}/{ZeroPad(input.Month)}/{ZeroPad(input.Day)} {ZeroPad(input.Hour)}:{ZeroPad(input.Minute)}:{ZeroPad(input.Second)}.000000";
 
-            //---------------Assert Precondition----------------
+                //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var result = GetTruncateTestStringFor(input.TruncateMilliseconds());
+                //---------------Execute Test ----------------------
+                var truncated = input.TruncateMilliseconds();
+                var result = GetTruncateTestStringFor(truncated);
 
-            //---------------Test Result -----------------------
-            Expect(result).To.Equal(expected);
-        }
+                //---------------Test Result -----------------------
+                Expect(result).To.Equal(expected);
+                Expect(truncated.Kind).To.Equal(kind);
+            }
 
-        [Test]
-        public void TruncateSeconds_ShouldReturnNewDateTime_TruncatedAfterMinutes()
-        {
-            //---------------Set up test pack-------------------
-            var input = GetRandomDate();
-            var expected =
-                $"{input.Year}/{zeroPad(input.Month)}/{zeroPad(input.Day)} {zeroPad(input.Hour)}:{zeroPad(input.Minute)}:00.000000";
+            [Test]
+            public void TruncateSeconds_ShouldReturnNewDateTime_TruncatedAfterMinutes()
+            {
+                //---------------Set up test pack-------------------
+                var input = GetRandomDate();
+                var expected =
+                    $"{input.Year}/{ZeroPad(input.Month)}/{ZeroPad(input.Day)} {ZeroPad(input.Hour)}:{ZeroPad(input.Minute)}:00.000000";
 
-            //---------------Assert Precondition----------------
+                //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var dateResult = input.TruncateSeconds();
-            Assert.AreEqual(input.Kind, dateResult.Kind);
-            var result = GetTruncateTestStringFor(dateResult);
+                //---------------Execute Test ----------------------
+                var dateResult = input.TruncateSeconds();
+                var result = GetTruncateTestStringFor(dateResult);
 
-            //---------------Test Result -----------------------
-            Expect(result).To.Equal(expected);
-        }
+                //---------------Test Result -----------------------
+                Expect(result).To.Equal(expected);
+                Expect(dateResult.Kind).To.Equal(input.Kind);
+            }
 
-        [Test]
-        public void TruncateMinutes_ShouldReturnNewDateTime_TruncatedAfterHours()
-        {
-            //---------------Set up test pack-------------------
-            var input = GetRandomDate();
-            var expected =
-                $"{input.Year}/{zeroPad(input.Month)}/{zeroPad(input.Day)} {zeroPad(input.Hour)}:00:00.000000";
+            [Test]
+            public void TruncateMinutes_ShouldReturnNewDateTime_TruncatedAfterHours()
+            {
+                //---------------Set up test pack-------------------
+                var input = GetRandomDate();
+                var expected =
+                    $"{input.Year}/{ZeroPad(input.Month)}/{ZeroPad(input.Day)} {ZeroPad(input.Hour)}:00:00.000000";
 
-            //---------------Assert Precondition----------------
+                //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var result = GetTruncateTestStringFor(input.TruncateMinutes());
+                //---------------Execute Test ----------------------
+                var result = GetTruncateTestStringFor(input.TruncateMinutes());
 
-            //---------------Test Result -----------------------
-            Expect(result).To.Equal(expected);
-        }
+                //---------------Test Result -----------------------
+                Expect(result).To.Equal(expected);
+            }
 
-        [Test]
-        public void TruncateHours_ShouldReturnNewDateTime_TruncatedAfterDays()
-        {
-            //---------------Set up test pack-------------------
-            var input = GetRandomDate();
-            var expected = $"{input.Year}/{zeroPad(input.Month)}/{zeroPad(input.Day)} 00:00:00.000000";
+            [Test]
+            public void TruncateHours_ShouldReturnNewDateTime_TruncatedAfterDays()
+            {
+                //---------------Set up test pack-------------------
+                var input = GetRandomDate();
+                var expected = $"{input.Year}/{ZeroPad(input.Month)}/{ZeroPad(input.Day)} 00:00:00.000000";
 
-            //---------------Assert Precondition----------------
+                //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var result = GetTruncateTestStringFor(input.TruncateHours());
+                //---------------Execute Test ----------------------
+                var result = GetTruncateTestStringFor(input.TruncateHours());
 
-            //---------------Test Result -----------------------
-            Expect(result).To.Equal(expected);
-        }
+                //---------------Test Result -----------------------
+                Expect(result).To.Equal(expected);
+            }
 
-        [Test]
-        public void TruncateDays_ShouldReturnNewDateTime_TruncatedAfterMonths_OnFirstOfMonth()
-        {
-            //---------------Set up test pack-------------------
-            var input = GetRandomDate();
-            var expected = $"{input.Year}/{zeroPad(input.Month)}/01 00:00:00.000000";
+            [Test]
+            public void TruncateDays_ShouldReturnNewDateTime_TruncatedAfterMonths_OnFirstOfMonth()
+            {
+                //---------------Set up test pack-------------------
+                var input = GetRandomDate();
+                var expected = $"{input.Year}/{ZeroPad(input.Month)}/01 00:00:00.000000";
 
-            //---------------Assert Precondition----------------
+                //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var result = GetTruncateTestStringFor(input.TruncateDays());
+                //---------------Execute Test ----------------------
+                var result = GetTruncateTestStringFor(input.TruncateDays());
 
-            //---------------Test Result -----------------------
-            Expect(result).To.Equal(expected);
-        }
+                //---------------Test Result -----------------------
+                Expect(result).To.Equal(expected);
+            }
 
-        [Test]
-        public void TruncateMonths_ShouldReturnNewDateTime_TruncatedAfterYearss_OnFirstMonth()
-        {
-            //---------------Set up test pack-------------------
-            var input = GetRandomDate();
-            var expected = $"{input.Year}/01/01 00:00:00.000000";
+            [Test]
+            public void TruncateMonths_ShouldReturnNewDateTime_TruncatedAfterYearss_OnFirstMonth()
+            {
+                //---------------Set up test pack-------------------
+                var input = GetRandomDate();
+                var expected = $"{input.Year}/01/01 00:00:00.000000";
 
-            //---------------Assert Precondition----------------
+                //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var result = GetTruncateTestStringFor(input.TruncateMonths());
+                //---------------Execute Test ----------------------
+                var result = GetTruncateTestStringFor(input.TruncateMonths());
 
-            //---------------Test Result -----------------------
-            Expect(result).To.Equal(expected);
+                //---------------Test Result -----------------------
+                Expect(result).To.Equal(expected);
+            }
         }
 
         [Test]
@@ -475,7 +489,7 @@ namespace PeanutButter.Utils.Tests
         }
 
 
-        private string zeroPad(int value, int places = 2)
+        private static string ZeroPad(int value, int places = 2)
         {
             var result = value.ToString();
             while (result.Length < places)
@@ -483,7 +497,7 @@ namespace PeanutButter.Utils.Tests
             return result;
         }
 
-        private string GetTruncateTestStringFor(DateTime dateTime)
+        private static string GetTruncateTestStringFor(DateTime dateTime)
         {
             return dateTime.ToString("yyyy/MM/dd HH:mm:ss.ffffff", CultureInfo.InvariantCulture);
         }

@@ -210,7 +210,7 @@ namespace PeanutButter.INIFile
 
         public INIFile(string path = null)
         {
-            _sectionTrimChars = new[] {'[', ']'};
+            _sectionTrimChars = new[] { '[', ']' };
             if (path != null)
                 Load(path);
         }
@@ -364,7 +364,7 @@ namespace PeanutButter.INIFile
         private bool IsSectionHeading(string line)
         {
             return line.StartsWith(_sectionTrimChars[0].ToString()) &&
-                   line.EndsWith(_sectionTrimChars[1].ToString());
+                line.EndsWith(_sectionTrimChars[1].ToString());
         }
 
         private void ClearSections()
@@ -394,7 +394,7 @@ namespace PeanutButter.INIFile
         private static IEnumerable<string> SplitIntoLines(string fileContents)
         {
             return fileContents
-                .Split(new[] {"\n", "\r"}, StringSplitOptions.RemoveEmptyEntries)
+                .Split(new[] { "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(line => line.Trim());
         }
 
@@ -470,7 +470,12 @@ namespace PeanutButter.INIFile
         {
             saveToPath = CheckPersistencePath(saveToPath);
             var lines = GetLinesForCurrentData(persistStrategy);
-            File.WriteAllBytes(saveToPath, Encoding.UTF8.GetBytes(string.Join(Environment.NewLine, lines)));
+            File.WriteAllBytes(
+                saveToPath,
+                Encoding.UTF8.GetBytes(
+                    string.Join(Environment.NewLine, lines)
+                )
+            );
         }
 
         public void Persist(Stream toStream)
@@ -571,9 +576,9 @@ namespace PeanutButter.INIFile
         {
             path = path ?? _path;
             return path ?? throw new ArgumentException(
-                       "No path specified to persist to and INIFile instantiated without an auto-path",
-                       nameof(path)
-                   );
+                "No path specified to persist to and INIFile instantiated without an auto-path",
+                nameof(path)
+            );
         }
 
         public void SetValue(
@@ -604,7 +609,7 @@ namespace PeanutButter.INIFile
             string key)
         {
             return HasKey(data, section) &&
-                   HasKey(data[section], key);
+                HasKey(data[section], key);
         }
 
         private string GetMergedValue(
@@ -614,28 +619,28 @@ namespace PeanutButter.INIFile
             string startingValue)
         {
             return _merged.Aggregate(
-                       startingValue,
-                       (acc, cur) =>
-                       {
-                           var mergeValue = cur.IniFile.GetValue(section, key);
-                           if (mergeValue != null &&
-                               cur.MergeStrategy == MergeStrategies.Override)
-                               return mergeValue;
-                           return acc ?? mergeValue;
-                       }
-                   ) ?? defaultValue;
+                startingValue,
+                (acc, cur) =>
+                {
+                    var mergeValue = cur.IniFile.GetValue(section, key);
+                    if (mergeValue != null &&
+                        cur.MergeStrategy == MergeStrategies.Override)
+                        return mergeValue;
+                    return acc ?? mergeValue;
+                }
+            ) ?? defaultValue;
         }
 
         public bool HasSection(string section)
         {
             return HasLocalSection(section) ||
-                   HaveMergedSection(section);
+                HaveMergedSection(section);
         }
 
         private bool HasLocalSection(string section)
         {
             return section != null &&
-                   Data.Keys.Contains(section, StringComparer.OrdinalIgnoreCase);
+                Data.Keys.Contains(section, StringComparer.OrdinalIgnoreCase);
         }
 
         private bool HaveMergedSection(string section)
@@ -648,7 +653,7 @@ namespace PeanutButter.INIFile
         public bool HasSetting(string section, string key)
         {
             return key != null &&
-                   (HasLocalSection(section) &&
+                (HasLocalSection(section) &&
                     HasKey(Data[section], key) ||
                     HasMergedSetting(section, key));
         }

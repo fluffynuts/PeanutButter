@@ -12,9 +12,9 @@ using NExpect.Implementations;
 using NExpect.Interfaces;
 using NExpect.MatcherLogic;
 using PeanutButter.INIFile;
+
 // ReSharper disable PossibleNullReferenceException
 // ReSharper disable MemberHidesStaticFromOuterClass
-
 // ReSharper disable InconsistentNaming
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -49,7 +49,7 @@ namespace PeanutButter.INI.Tests
                     var section = RandString();
                     var key = RandString();
                     var value = RandString();
-                    var iniDataLines = new[] {"[" + section + "]", key + "=" + value};
+                    var iniDataLines = new[] { "[" + section + "]", key + "=" + value };
                     tempFile.Write(iniDataLines);
 
                     //---------------Assert Precondition----------------
@@ -150,7 +150,7 @@ namespace PeanutButter.INI.Tests
                         var value1 = $"original-value-{GetRandomString(4)}";
                         var setting2 = $"merged-setting-{GetRandomString(4)}";
                         var value2 = $"merged-value-{GetRandomString(4)}";
-                        var sharedSection = $"shared-section-{GetAnother<string>(new[] {section1, section2})}";
+                        var sharedSection = $"shared-section-{GetAnother<string>(new[] { section1, section2 })}";
                         var sharedSetting = $"shared-setting-{GetRandomString(4)}";
                         var originalSharedValue = $"original-shared-value-{GetRandomString(4)}";
                         var mergedSharedValue = $"merged-shared-value-{GetRandomString(4)}";
@@ -190,7 +190,7 @@ namespace PeanutButter.INI.Tests
                         var value1 = $"original-value-{GetRandomString(4)}";
                         var setting2 = $"merged-setting-{GetRandomString(4)}";
                         var value2 = $"merged-value-{GetRandomString(4)}";
-                        var sharedSection = $"shared-section-{GetAnother<string>(new[] {section1, section2})}";
+                        var sharedSection = $"shared-section-{GetAnother<string>(new[] { section1, section2 })}";
                         var sharedSetting = $"shared-setting-{GetRandomString(4)}";
                         var originalSharedValue = $"original-shared-value-{GetRandomString(4)}";
                         var mergedSharedValue = $"merged-shared-value-{GetRandomString(4)}";
@@ -219,8 +219,8 @@ namespace PeanutButter.INI.Tests
                                 .To.Equal(mergedSharedValue, "Should have original shared setting");
                         }
                     }
-                }                
-                
+                }
+
                 [TestFixture]
                 public class UsingIndexing
                 {
@@ -234,7 +234,7 @@ namespace PeanutButter.INI.Tests
                         var value1 = $"original-value-{GetRandomString(4)}";
                         var setting2 = $"merged-setting-{GetRandomString(4)}";
                         var value2 = $"merged-value-{GetRandomString(4)}";
-                        var sharedSection = $"shared-section-{GetAnother<string>(new[] {section1, section2})}";
+                        var sharedSection = $"shared-section-{GetAnother<string>(new[] { section1, section2 })}";
                         var sharedSetting = $"shared-setting-{GetRandomString(4)}";
                         var originalSharedValue = $"original-shared-value-{GetRandomString(4)}";
                         var mergedSharedValue = $"merged-shared-value-{GetRandomString(4)}";
@@ -274,7 +274,7 @@ namespace PeanutButter.INI.Tests
                         var value1 = $"original-value-{GetRandomString(4)}";
                         var setting2 = $"merged-setting-{GetRandomString(4)}";
                         var value2 = $"merged-value-{GetRandomString(4)}";
-                        var sharedSection = $"shared-section-{GetAnother<string>(new[] {section1, section2})}";
+                        var sharedSection = $"shared-section-{GetAnother<string>(new[] { section1, section2 })}";
                         var sharedSetting = $"shared-setting-{GetRandomString(4)}";
                         var originalSharedValue = $"original-shared-value-{GetRandomString(4)}";
                         var mergedSharedValue = $"merged-shared-value-{GetRandomString(4)}";
@@ -286,7 +286,7 @@ namespace PeanutButter.INI.Tests
                             var other = Create(merge.Path);
                             sut[section1][setting1] = value1;
                             sut[sharedSection][sharedSetting] = originalSharedValue;
-                            other[section2][setting2] =value2;
+                            other[section2][setting2] = value2;
                             other[sharedSection][sharedSetting] = mergedSharedValue;
                             other.Persist();
                             // Pre-assert
@@ -468,7 +468,7 @@ otherSetting=otherValue";
                     var section = RandString();
                     var key = RandString();
                     var value = RandString();
-                    var iniDataLines = new[] {"[" + section + "]", key + "=\"" + value + "\""};
+                    var iniDataLines = new[] { "[" + section + "]", key + "=\"" + value + "\"" };
                     tempFile.Write(iniDataLines);
 
                     //---------------Assert Precondition----------------
@@ -1065,7 +1065,7 @@ foo=bar
                 {
                     //---------------Test Result -----------------------
                     sut.Persist(memStream);
-                    var lines = memStream.AsString().Split(new[] {"\r", "\n"}, StringSplitOptions.RemoveEmptyEntries);
+                    var lines = memStream.AsString().Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
                     Expect(lines).To.Contain.Exactly(1)
                         .Equal.To("; this is the general section");
                 }
@@ -1091,7 +1091,7 @@ foo=bar
                 {
                     //---------------Test Result -----------------------
                     sut.Persist(memStream);
-                    var lines = memStream.AsString().Split(new[] {"\r", "\n"}, StringSplitOptions.RemoveEmptyEntries);
+                    var lines = memStream.AsString().Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
                     Expect(lines).To.Contain.Exactly(1)
                         .Equal.To("; this is the general section");
                     Expect(lines).To.Contain.Exactly(1)
@@ -1118,7 +1118,7 @@ foo=bar
                 {
                     //---------------Test Result -----------------------
                     sut.Persist(memStream);
-                    var lines = memStream.AsString().Split(new[] {"\r", "\n"}, StringSplitOptions.RemoveEmptyEntries);
+                    var lines = memStream.AsString().Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
                     Expect(lines).To.Contain.Exactly(1)
                         .Equal.To("; this is the general section");
                 }
@@ -1145,7 +1145,7 @@ foo=bar
                 {
                     //---------------Test Result -----------------------
                     sut.Persist(memStream);
-                    var lines = memStream.AsString().Split(new[] {"\r", "\n"}, StringSplitOptions.RemoveEmptyEntries);
+                    var lines = memStream.AsString().Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
                     Assert.IsTrue(lines.Any(l => l == "; this is the general section"));
                     Assert.IsTrue(lines.Any(l => l == "; this is the general section again!"));
                 }
@@ -1232,7 +1232,7 @@ key=value2";
                     var sut = Create(tempFile.Path);
                     // Pre-assert
                     // Act
-                    tempFile.Write(updatedContents);    
+                    tempFile.Write(updatedContents);
                     sut.Reload();
                     // Assert
                     Expect(sut["section"]["key"]).To.Equal("value2");
@@ -1258,6 +1258,63 @@ key=value2";
                     // Assert
                     Expect(sut["section2"]["key2"]).To.Equal("value3");
                 }
+            }
+        }
+
+        [TestFixture]
+        public class UTF8CharacterHanding
+        {
+            [Test]
+            public void ShouldPreserveUTF8Characters()
+            {
+                // Arrange
+                using (var tempFile = new AutoTempFile())
+                {
+                    var ini1 = new INIFile.INIFile();
+                    var section = "Section≄";
+                    var setting = "Setting⑹";
+                    var value = "Valueäčɛ";
+                    ini1.SetValue(section, setting, value);
+                    ini1.Persist(tempFile.Path);
+                    // Act
+
+                    var ini2 = new INIFile.INIFile(tempFile.Path);
+
+                    // Assert
+                    Expect(ini2.HasSection(section))
+                        .To.Be.True();
+                    Expect(ini2.HasSetting(section, setting))
+                        .To.Be.True();
+                    Expect(ini2[section][setting])
+                        .To.Equal(value);
+                }
+            }
+
+            [Test]
+            public void ShouldReadAndWriteExampleINIFile()
+            {
+                // Arrange
+                var assemblyPath = new Uri(
+                    GetType().Assembly.Location
+                ).LocalPath;
+                var iniFilePath = Path.Combine(
+                    Path.GetDirectoryName(assemblyPath),
+                    "ExampleSettings.ini"
+                );
+                Expect(iniFilePath).To.Exist();
+                // Act
+                var ini1 = new INIFile.INIFile(iniFilePath);
+                var current = ini1["DrawingViewer"]["EnableLogging"];
+                var enabled = Convert.ToBoolean(current);
+                ini1["DrawingViewer"]["EnableLogging"] = (!enabled).ToString();
+                ini1.Persist();
+
+                var ini2 = new INIFile.INIFile(iniFilePath);
+                var result = Convert.ToBoolean(
+                    ini2["DrawingViewer"]["EnableLogging"]
+                );
+                // Assert
+                Expect(result).Not.To.Equal(enabled);
             }
         }
 
@@ -1306,7 +1363,9 @@ key=value2";
             {
                 _tempFile = System.IO.Path.GetTempFileName();
                 if (append != null)
+                {
                     _tempFile += append;
+                }
             }
 
             public void Write(IEnumerable<string> lines)
@@ -1386,6 +1445,18 @@ key=value2";
                 return new MatcherResult(
                     passed,
                     () => $"Expected {passed.AsNot()}to have section '{section}'"
+                );
+            });
+        }
+
+        public static void Exist(this ITo<string> to)
+        {
+            to.AddMatcher(actual =>
+            {
+                var passed = System.IO.File.Exists(actual);
+                return new MatcherResult(
+                    passed,
+                    () => $"Expected file '{actual}' {passed.AsNot()}to exist"
                 );
             });
         }

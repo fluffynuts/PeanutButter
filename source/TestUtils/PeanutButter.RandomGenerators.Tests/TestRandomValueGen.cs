@@ -1152,7 +1152,20 @@ namespace PeanutButter.RandomGenerators.Tests
                 Expect(collected).To.Contain.All()
                     .Matched.By(t => t >= min && t <= max);
             }
-            
+
+            [Test]
+            [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
+            public void GivenNoArguments_ShouldProduceTimeSpanWithinAWeek()
+            {
+                // Arrange
+                var expectedMin = TimeSpan.Zero;
+                var expectedMax = TimeSpan.FromDays(7);
+                // Act
+                var result = GetRandomTimeSpan();
+                // Assert
+                Expect(result)
+                    .To.Be.Greater.Than(expectedMin);
+            }
         }
 
         [TestFixture]
