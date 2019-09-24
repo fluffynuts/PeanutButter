@@ -1316,9 +1316,14 @@ key=value2";
                 );
                 // Assert
                 Expect(result).Not.To.Equal(enabled);
+                // if you breakpoint above here (before re-writing the file
+                //  with the setting "False", and open the file with Notepad,
+                //  it will render fine!
                 // reset file
+                
                 ini2["DrawingViewer"]["EnableLogging"] = "False";
                 ini2.Persist();
+                // suddenly, Notepad (and no other editor) renders the file in Chinese
                 var bytesAfter = File.ReadAllBytes(iniFilePath);
                 Expect(bytesBefore)
                     .To.Equal(bytesAfter,
