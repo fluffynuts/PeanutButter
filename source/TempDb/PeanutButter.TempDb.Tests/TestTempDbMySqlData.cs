@@ -261,7 +261,7 @@ namespace PeanutButter.TempDb.Tests
                 // Arrange
                 Expect(() =>
                 {
-                    using (var db = Create(forcePathSearch: true))
+                    using (var db = Create())
                     using (db.CreateConnection())
                     {
                         // Act
@@ -337,8 +337,7 @@ namespace PeanutButter.TempDb.Tests
         }
 
         private static TempDBMySql Create(
-            string pathToMySql = null,
-            bool forcePathSearch = false)
+            string pathToMySql = null)
         {
             return new TempDBMySql(
                 new TempDbMySqlServerSettings()

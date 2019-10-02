@@ -3,6 +3,7 @@ using NExpect;
 using NUnit.Framework;
 using PeanutButter.TempDb.MySql.Base;
 using PeanutButter.TempDb.MySql.Data;
+using PeanutButter.Utils;
 using static NExpect.Expectations;
 
 namespace PeanutButter.TempDb.Tests.Core
@@ -14,19 +15,29 @@ namespace PeanutButter.TempDb.Tests.Core
         {
             // Arrange
             // Act
-            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            if(Platform.IsWindows)
             {
                 var mysqld = MySqlWindowsServiceFinder.FindPathToMySql();
                 Expect(mysqld).Not.To.Be.Null(
                     "Unable to find mysql service via sc command on this platform"
                 );
 
-                Expect(() => new TempDBMySql())
-                    .Not.To.Throw<FatalTempDbInitializationException>();
+                Expect(() =>
+                    {
+                        using (new TempDBMySql())
+                        {
+                        }
+                    })
+                .Not.To.Throw<FatalTempDbInitializationException>();
             }
             else
             {
-                Expect(() => new TempDBMySql())
+                Expect(() =>
+                    {
+                        using (new TempDBMySql())
+                        {
+                        }
+                    })
                     .To.Throw<FatalTempDbInitializationException>();
             }
         }
