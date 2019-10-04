@@ -2707,15 +2707,20 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             public void FuzzyDuckAs_ShouldNotSpazOnConfigWithMissingKeys()
             {
                 // Arrange
-                var config = CreateConfig();
-                // Act
-                var settings = GetSettingsFrom(config);
-                // Assert
-                Expect(settings).Not.To.Be.Null();
-                Expect(settings.NlogConfigLocation).To.Be.Null();
+                using (var tempFile = new AutoTempFile(
+                    Path.GetTempPath(),
+                    "appsettings.json"))
+                {
+                    var config = CreateConfig(tempFile.Path);
+                    // Act
+                    var settings = GetSettingsFrom(config);
+                    // Assert
+                    Expect(settings).Not.To.Be.Null();
+                    Expect(settings.NlogConfigLocation).To.Be.Null();
+                }
             }
 
-            private void WriteOutAppSettings()
+            private void WriteOutAppSettings(string target)
             {
                 var data = @"{
   ""Logging"": {
@@ -2745,17 +2750,17 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 File.WriteAllText(
                     Path.Combine(
                         Directory.GetCurrentDirectory(),
-                        "appsettings.json"
+                        target
                     ),
                     data);
             }
 
-            private IConfigurationRoot CreateConfig()
+            private IConfigurationRoot CreateConfig(string appSettingsFile)
             {
-                WriteOutAppSettings();
+                WriteOutAppSettings(appSettingsFile);
                 return new ConfigurationBuilder()
                        .SetBasePath(Directory.GetCurrentDirectory())
-                       .AddJsonFile("appsettings.json")
+                       .AddJsonFile(appSettingsFile)
                        .Build();
             }
 

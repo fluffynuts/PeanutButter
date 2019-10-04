@@ -7,7 +7,9 @@
     "license": "BSD-3-Clause",
     "scripts": {
         "test": "cross-env TEST_EXCLUDE=PeanutButter.RandomGenerators.Core.Tests.Domain run-s \"gulp test-dotnet\"",
-        "posttest": "gulp report-generator",
+        "cover": "cross-env COVERAGE_INCLUDE=*,PeanutButter.* COVERAGE_EXCLUDE_ASSEMBLIES=PeanutButter.RandomGenerators.Core.Tests.Domain COVERAGE_ADDITIONAL_EXCLUDE=GenericBuilderTestLoadLoadedAssemblyObject,GenericBuilderTestNotLoadedAssembly run-s \"gulp cover-dotnet\"",
+        "postcover": "run-s generate-reports",
+        "generate-reports": "cross-env COVERAGE_INCLUDE=*,PeanutButter.* COVERAGE_EXCLUDE_ASSEMBLIES=PeanutButter.RandomGenerators.Core.Tests.Domain COVERAGE_ADDITIONAL_EXCLUDE=GenericBuilderTestLoadLoadedAssemblyObject,GenericBuilderTestNotLoadedAssembly run-s \"gulp generate-reports\"",
         "build": "run-s \"gulp build\"",
         "gulp": "cross-env BUILD_TOOLS_FOLDER=build-tools gulp",
         "release": "run-s test \"gulp release\"",
