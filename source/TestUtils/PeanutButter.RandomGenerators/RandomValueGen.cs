@@ -376,11 +376,11 @@ namespace PeanutButter.RandomGenerators
         )
         {
             return GetRandomDateRange(
-                DateTimeKind.Local, 
-                minDate, 
-                maxDate, 
-                dateOnly, 
-                minTime, 
+                DateTimeKind.Local,
+                minDate,
+                maxDate,
+                dateOnly,
+                minTime,
                 maxTime);
         }
 
@@ -402,11 +402,11 @@ namespace PeanutButter.RandomGenerators
         )
         {
             return GetRandomDateRange(
-                DateTimeKind.Utc, 
-                minDate, 
-                maxDate, 
-                dateOnly, 
-                minTime, 
+                DateTimeKind.Utc,
+                minDate,
+                maxDate,
+                dateOnly,
+                minTime,
                 maxTime);
         }
 
@@ -447,10 +447,13 @@ namespace PeanutButter.RandomGenerators
         /// <returns></returns>
         public static TimeSpan GetRandomTimeSpan()
         {
-            return GetRandomTimeSpan(TimeSpan.Zero, TimeSpan.MaxValue);
+            return GetRandomTimeSpan(
+                TimeSpan.FromDays(-7),
+                TimeSpan.FromDays(7)
+            );
         }
 
-        private static readonly Dictionary<TimeSpanContexts, Func<double, TimeSpan>> 
+        private static readonly Dictionary<TimeSpanContexts, Func<double, TimeSpan>>
             TimespanGenerators = new Dictionary<TimeSpanContexts, Func<double, TimeSpan>>()
             {
                 [TimeSpanContexts.Ticks] = i => TimeSpan.FromTicks((long) i),
@@ -570,7 +573,7 @@ namespace PeanutButter.RandomGenerators
             }
 
             return TimeSpan.FromSeconds(
-                GetRandomInt((int)minSeconds, (int)maxSeconds)
+                GetRandomInt((int) minSeconds, (int) maxSeconds)
             );
         }
 

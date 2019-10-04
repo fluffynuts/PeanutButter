@@ -1158,13 +1158,15 @@ namespace PeanutButter.RandomGenerators.Tests
             public void GivenNoArguments_ShouldProduceTimeSpanWithinAWeek()
             {
                 // Arrange
-                var expectedMin = TimeSpan.Zero;
+                var expectedMin = TimeSpan.FromDays(-7);
                 var expectedMax = TimeSpan.FromDays(7);
                 // Act
                 var result = GetRandomTimeSpan();
                 // Assert
                 Expect(result)
-                    .To.Be.Greater.Than(expectedMin);
+                    .To.Be.Greater.Than.Or.Equal.To(expectedMin);
+                Expect(result)
+                    .To.Be.Less.Than.Or.Equal.To(expectedMax);
             }
         }
 
