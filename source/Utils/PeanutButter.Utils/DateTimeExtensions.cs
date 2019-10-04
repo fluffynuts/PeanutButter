@@ -115,7 +115,8 @@ namespace PeanutButter.Utils
                 value.Hour,
                 value.Minute,
                 value.Second,
-                value.Millisecond);
+                value.Millisecond,
+                value.Kind);
         }
 
         /// <summary>

@@ -104,8 +104,8 @@ gulp.task("build-binaries-for-nuget-packages-from-zero", ["purge"], function (do
 
 gulp.task("test-package-build", ["build-binaries-for-nuget-packages-from-zero"], function (done) {
   runSequence(
-    "build-binary-nuget-packages", 
-    "build-source-nuget-packages", 
+    "build-binary-nuget-packages",
+    "build-source-nuget-packages",
     "test-packages-exist", done);
 });
 

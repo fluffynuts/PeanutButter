@@ -289,7 +289,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(t.ShouldNotImplement<IInterface>);
+            Assert.DoesNotThrow(() => t.ShouldNotImplement<IInterface>());
 
             //---------------Test Result -----------------------
         }

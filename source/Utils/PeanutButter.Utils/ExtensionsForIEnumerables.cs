@@ -348,7 +348,7 @@ namespace PeanutButter.Utils
             this IEnumerable<T> collection
         )
         {
-            return !collection.Any();
+            return !collection?.Any() ?? true;
         }
 
         /// <summary>

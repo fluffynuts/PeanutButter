@@ -6,12 +6,12 @@
     },
     "license": "BSD-3-Clause",
     "scripts": {
-        "pretest": "gulp build",
         "test": "run-s \"gulp test-dotnet\"",
         "posttest": "gulp report-generator",
         "build": "run-s \"gulp build\"",
         "gulp": "cross-env BUILD_TOOLS_FOLDER=build-tools gulp",
-        "release": "gulp release",
+        "release": "run-s test \"gulp release\"",
+        "quick-release": "run-s \"gulp release\"",
         "pack": "cross-env BUILD_CONFIGURATION=Release run-s \"gulp pack\""
     },
     "devDependencies": {

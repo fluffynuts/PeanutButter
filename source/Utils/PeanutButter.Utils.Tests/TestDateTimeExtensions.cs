@@ -134,8 +134,15 @@ namespace PeanutButter.Utils.Tests
             //---------------Set up test pack-------------------
             var kind = GetRandomEnum<DateTimeKind>();
             var testDate = GetRandomDate(kind);
-            var expected = new DateTime(DateTime.MinValue.Year, DateTime.MinValue.Month, DateTime.MinValue.Day,
-                testDate.Hour, testDate.Minute, testDate.Second, testDate.Millisecond, kind);
+            var expected = new DateTime(
+                DateTime.MinValue.Year, 
+                DateTime.MinValue.Month, 
+                DateTime.MinValue.Day,
+                testDate.Hour, 
+                testDate.Minute, 
+                testDate.Second, 
+                testDate.Millisecond, 
+                kind);
 
             //---------------Assert Precondition----------------
 
