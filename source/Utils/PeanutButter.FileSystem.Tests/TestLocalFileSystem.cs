@@ -1000,7 +1000,7 @@ namespace PeanutButter.FileSystem.Tests
 
 
         [Test]
-        [Ignore("WIP: need to be able to reliably, repeatably, CI-style reproduce this")]
+        [Explicit("Environment-specific: works if you have a remote machine called 'speedy' with a share called 'move_test' :D")]
         public void Move_GivenRelativeSourceAndDestination_WhenDestinationExistsOnAnotherVolume_AndOverwriteSetTrue_ShouldOverwrite()
         {
             //---------------Set up test pack-------------------
@@ -1034,7 +1034,7 @@ namespace PeanutButter.FileSystem.Tests
         }
 
         [Test]
-        [Ignore("Testing share code")]
+        [Explicit("Discovery: Testing share code")]
         public void CreateShare()
         {
             //---------------Set up test pack-------------------
@@ -1051,7 +1051,7 @@ namespace PeanutButter.FileSystem.Tests
         }
 
         [Test]
-        [Ignore("Testing share code")]
+        [Explicit("Discovery: Testing share code")]
         public void DeleteShare()
         {
             //---------------Set up test pack-------------------

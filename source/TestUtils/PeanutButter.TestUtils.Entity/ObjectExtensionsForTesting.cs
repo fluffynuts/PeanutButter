@@ -84,14 +84,6 @@ namespace PeanutButter.TestUtils.Entity
                 Assert.Fail($"Expected context of type {contextType.PrettyName()} to have IDbSet<{typeof(TEntity)}>");
         }
 
-        public static void ShouldHaveNullInitializer<T>(this T context) where T : DbContext
-        {
-            using (new TempDBLocalDb())
-            {
-                /* intentionally left blank */
-            }
-        }
-
         private static readonly Type DbSetGenericType = typeof(IDbSet<>);
 
         private static bool IsIDbSetFor<TEntity>(PropertyInfo propInfo)

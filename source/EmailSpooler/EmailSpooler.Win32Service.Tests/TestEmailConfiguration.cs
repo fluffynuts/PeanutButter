@@ -16,7 +16,7 @@ namespace EmailSpooler.Win32Service.Tests
     public class TestEmailConfiguration
     {
         [Test]
-        [Ignore("Run manually as this test requires an app.config and will break when running in multiple-assembly Resharper session")]
+        [Explicit("Run manually as this test requires an app.config and will break when running in multiple-assembly Resharper session")]
         public void CreateFromAppConfig_SetsPropertiesFromConfig()
         {
             // test setup

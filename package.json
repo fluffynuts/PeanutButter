@@ -6,7 +6,7 @@
     },
     "license": "BSD-3-Clause",
     "scripts": {
-        "test": "run-s \"gulp test-dotnet\"",
+        "test": "cross-env TEST_EXCLUDE=PeanutButter.RandomGenerators.Core.Tests.Domain run-s \"gulp test-dotnet\"",
         "posttest": "gulp report-generator",
         "build": "run-s \"gulp build\"",
         "gulp": "cross-env BUILD_TOOLS_FOLDER=build-tools gulp",

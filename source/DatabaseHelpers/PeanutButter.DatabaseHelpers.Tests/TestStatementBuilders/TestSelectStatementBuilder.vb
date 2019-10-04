@@ -761,7 +761,7 @@ Namespace TestStatementBuilders
         ' TODO:
         ' Access requires bracketing around join parts (and SQL Server tolerates them), so this should be implemented
         <Test()>
-        <Ignore("PLEASE FIX ME")>
+        <Explicit("PLEASE FIX ME")>
         Public Sub InnerJoin_GivenTwoTablesToJoinAcross_ShouldProduceSqlWithBracketedJoinParts()
             Dim t1 = RandomValueGen.GetRandomString(),
                 t2 = RandomValueGen.GetRandomString(),

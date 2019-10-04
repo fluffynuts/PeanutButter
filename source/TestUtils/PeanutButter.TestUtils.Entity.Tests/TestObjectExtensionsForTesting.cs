@@ -278,21 +278,6 @@ namespace PeanutButter.TestUtils.Entity.Tests
             //---------------Test Result -----------------------
         }
 
-        [Test]
-        [Ignore("WIP")]
-        public void ShouldHaveNullInitializer_OperatingOnTypeWhereEFMigrationsAreAllowed_ShouldThrow()
-        {
-            //---------------Set up test pack-------------------
-            var sut = new ContextWithDefaultMigrations();
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            Assert.Throws<AssertionException>(() => sut.ShouldHaveNullInitializer());
-
-            //---------------Test Result -----------------------
-        }
-
-
         public class AnotherPOCO
         {
             public int Id { get; set; }

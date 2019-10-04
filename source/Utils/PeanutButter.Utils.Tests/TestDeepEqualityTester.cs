@@ -205,22 +205,6 @@ namespace PeanutButter.Utils.Tests
                 //--------------- Assert -----------------------
             }
 
-
-            [Test]
-            [Ignore(
-                "WIP: for now, short-circuit is ok; I'd like to use this in PropertyAssert though, which attempts to be more explicit about failures")]
-            public void WhenReportingIsEnabled_ShouldNotShortCircuitTests()
-            {
-                //--------------- Arrange -------------------
-
-                //--------------- Assume ----------------
-
-                //--------------- Act ----------------------
-
-                //--------------- Assert -----------------------
-                Assert.Fail("Test Not Yet Implemented");
-            }
-
             [TestFixture]
             public class WithOnlyCompareShapeTrue
             {

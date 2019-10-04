@@ -395,35 +395,6 @@ namespace PeanutButter.Utils.Windsor.Tests
             Expect(result1).Not.To.Equal(result2);
         }
 
-        [Test]
-        public void RegisterPerWebRequest_ShouldRegisterPerWebRequest()
-        {
-            //---------------Set up test pack-------------------
-            var container = Substitute.For<IWindsorContainer>();
-            var registrations = new List<IRegistration>();
-            container.Register(Arg.Any<IRegistration>())
-                .Returns(ci =>
-                {
-                    registrations.Add((ci.Args()[0] as IRegistration[])[0]);
-                    return container;
-                });
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            container.RegisterPerWebRequest<ISingletonService, SingletonService>();
-
-            //---------------Test Result -----------------------
-            var registration = registrations.Single();
-            Expect(registration).Not.To.Be.Null();
-
-            var lifestyle =
-                registration.GetOrDefault<Castle.MicroKernel.Registration.Lifestyle.LifestyleGroup<ISingletonService>>(
-                    "LifeStyle");
-            Expect(lifestyle).Not.To.Be.Null();
-            // TODO: actually prove PerWebRequest lifestyle...
-        }
-
         private interface IDependencyForSingleInstanceBase
         {
         }

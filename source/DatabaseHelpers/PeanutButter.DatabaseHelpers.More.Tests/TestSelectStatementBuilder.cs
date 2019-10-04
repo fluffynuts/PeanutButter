@@ -21,7 +21,7 @@ namespace PeanutButter.DatabaseHelpers.More.Tests
         }
 
         [Test]
-        [Ignore("This is example code, no assertions")]
+        [Explicit("This is example code, no assertions - run to step through for illumination")]
         public void ExampleOf_BuildingQueryWithDynamicColumnName()
         {
             //--------------- Arrange -------------------

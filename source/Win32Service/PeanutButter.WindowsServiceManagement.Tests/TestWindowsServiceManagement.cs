@@ -85,7 +85,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
 
 
         [Test]
-        [Explicit("manually testing something")]
+        [Explicit("Use to manually unregister test-service, if you need to (:")]
         public void ReinstallThing()
         {
             //---------------Set up test pack-------------------
