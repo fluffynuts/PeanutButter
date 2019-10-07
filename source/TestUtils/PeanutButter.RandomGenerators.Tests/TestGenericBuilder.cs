@@ -1164,5 +1164,56 @@ namespace PeanutButter.RandomGenerators.Tests
             {
             }
         }
+
+        [TestFixture]
+        public class WhenImplicitlyUsedForRandomObjectGeneration
+        {
+            public class HasDelegateProp
+            {
+                public delegate void SomeDelegate();
+
+                public SomeDelegate SomeDelegateHandler { get; set; }
+            }
+
+            [Test]
+            public void ShouldNotBreakOnDelegateProperty()
+            {
+                // Arrange
+                // Act
+                Expect(GetRandom<HasDelegateProp>)
+                    .Not.To.Throw();
+                // Assert
+            }
+
+            public class HasActionProp
+            {
+                public Action SomeAction { get; set; }
+            }
+
+            [Test]
+            public void ShouldNotBreakOnActionProperty()
+            {
+                // Arrange
+                // Act
+                Expect(GetRandom<HasActionProp>)
+                    .Not.To.Throw();
+                // Assert
+            }
+
+            public class HasFuncProp<T>
+            {
+                public Func<T> SomeFunc { get; set; }
+            }
+
+            [Test]
+            public void ShouldNotThrowOnFuncProperty()
+            {
+                // Arrange
+                // Act
+                Expect(GetRandom<HasFuncProp<int>>)
+                    .Not.To.Throw();
+                // Assert
+            }
+        }
     }
 }
