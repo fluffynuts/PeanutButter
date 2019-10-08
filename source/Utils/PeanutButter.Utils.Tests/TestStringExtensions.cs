@@ -998,6 +998,12 @@ namespace PeanutButter.Utils.Tests
                 {
                     // Arrange
                     var input = GetRandomAlphaNumericString();
+                    while (input.RegexReplace("[0-9]", "") == input)
+                    {
+                        // ensure we have at least one number in there
+                        input = GetRandomAlphaNumericString();
+                    }
+
                     // Pre-assert
                     // Act
                     var result = input.IsAlpha();
