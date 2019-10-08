@@ -1226,10 +1226,12 @@ namespace PeanutButter.RandomGenerators
                 try
                 {
                     if (_specificSetters.TryGetValue(prop.Name,
-                        out var specificSetter))
+                        out var specificSetters))
                     {
                         var asObject = entity as object;
-                        specificSetter(prop, ref asObject);
+                        specificSetters.ForEach(
+                            setter => TryDo(() =>  setter(prop, ref asObject)));
+
                         continue;
                     }
 
@@ -1254,7 +1256,7 @@ namespace PeanutButter.RandomGenerators
             }
         }
 
-        private Dictionary<string, RandomizerAttribute.RefAction>
+        private Dictionary<string, RandomizerAttribute.RefAction[]>
             _specificSetters;
 
         private void PopulateSpecificSetters()
@@ -1262,25 +1264,36 @@ namespace PeanutButter.RandomGenerators
             _specificSetters = _specificSetters ?? GenerateSpecificSetters();
         }
 
-        private Dictionary<string, RandomizerAttribute.RefAction> GenerateSpecificSetters()
+        private Dictionary<string, RandomizerAttribute.RefAction[]> GenerateSpecificSetters()
         {
-            return GetType().GetCustomAttributes().OfType<RandomizerAttribute>()
-                .Aggregate(new Dictionary<string, RandomizerAttribute.RefAction>(),
+            var attribs = FindAllRandomizerAttributesForThisBuilder();
+//            var attribs = GetType().GetCustomAttributes(true).OfType<RandomizerAttribute>();
+            return attribs
+                .Aggregate(new Dictionary<string, RandomizerAttribute.RefAction[]>(),
                     (acc,
                         cur) =>
                     {
                         cur.Init(typeof(TEntity));
                         cur.PropertyNames?.ForEach(propName =>
                         {
-                            if (acc.ContainsKey(propName))
+                            if (!acc.ContainsKey(propName))
                             {
-                                return; // ignore multiple handlers -- first found wins
+//                                return; // ignore multiple handlers -- first found wins
+                                acc[propName] = new RandomizerAttribute.RefAction[0];
                             }
 
-                            acc[propName] = cur.SetRandomValue;
+                            acc[propName] = acc[propName].And(cur.SetRandomValue);
                         });
                         return acc;
                     });
+        }
+
+        private RandomizerAttribute[] FindAllRandomizerAttributesForThisBuilder()
+        {
+            return GetType().AncestryUntil(typeof(GenericBuilder<,>))
+                .Select(t => t.GetCustomAttributes(false).OfType<RandomizerAttribute>())
+                .SelectMany(o => o)
+                .ToArray();
         }
 
         private ActionRef<TEntity, int> GetRandomPropSetterFor(
@@ -1297,6 +1310,18 @@ namespace PeanutButter.RandomGenerators
                     } (perhaps make a dev request?)");
             RandomPropSetters[prop.Name] = null;
             return null;
+        }
+
+        private void TryDo(Action toDo)
+        {
+            try
+            {
+                toDo();
+            }
+            catch
+            {
+                /* suppress errors */
+            }
         }
     }
 }

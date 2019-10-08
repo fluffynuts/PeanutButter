@@ -20,9 +20,12 @@ namespace PeanutButter.RandomGenerators
         /// <summary>
         /// Constructs this attribute to act against a property by name
         /// </summary>
-        /// <param name="otherPropertyNames"></param>
-        public RandomizerAttribute(
-            string propertyName, params string[] otherPropertyNames)
+        /// <param name="propertyName">initial property name</param>
+        /// <param name="otherPropertyNames">any additional property names</param>
+        protected RandomizerAttribute(
+            string propertyName,
+            params string[] otherPropertyNames
+        )
         {
             PropertyNames = new[] { propertyName }
                 .Concat(otherPropertyNames)

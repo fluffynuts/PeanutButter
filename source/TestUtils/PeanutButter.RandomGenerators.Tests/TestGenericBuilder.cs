@@ -1208,6 +1208,73 @@ namespace PeanutButter.RandomGenerators.Tests
                     propInfo.SetValue(target, value);
                 }
             }
+
+            public class RandomizeHighPositiveAttribute : RandomizerAttribute
+            {
+                public RandomizeHighPositiveAttribute(string propertyName) 
+                    : base(propertyName)
+                {
+                }
+
+                public override void SetRandomValue(
+                    PropertyOrField propInfo, 
+                    ref object target)
+                {
+                    var value = GetRandomInt(100, 1024);
+                    propInfo.SetValue(target, value);
+                }
+            }
+
+            public class Poco3
+            {
+                public int Id { get; set; }
+            }
+
+            [RandomizeNegative("MooCakes")]
+            public class Poco3Builder : NegativeIdBuilder<Poco3Builder, Poco3>
+            {
+            }
+
+            [RandomizeNegative("Id")]
+            public class NegativeIdBuilder<TBuilder, TEntity>
+                : GenericBuilder<TBuilder, TEntity>
+                where TBuilder: GenericBuilder<TBuilder, TEntity>
+            {
+            }
+
+            [Test]
+            public void ShouldSearchEntireInheritanceForAttributes()
+            {
+                // Arrange
+                // Act
+                var result = GetRandom<Poco3>();
+                // Assert
+                Expect(result.Id)
+                    .To.Be.Less.Than(0);
+            }
+
+            public class Poco4
+            {
+                public int Id { get; set; }
+            }
+
+            [RandomizeHighPositive("Id")]
+            public class Poco4Builder : NegativeIdBuilder<Poco4Builder, Poco4>
+            {
+            }
+
+            [Test]
+            public void ShouldRunRandomizersInOrderFromLowestAncestorToHighestAncestor()
+            {
+                // Arrange
+                // Act
+                var result = GetRandom<Poco4>();
+                // Assert
+                Expect(result.Id).To.Be
+                    .Greater.Than.Or.Equal.To(100)
+                    .And
+                    .Less.Than.Or.Equal.To(1024);
+            }
         }
 
         [TestFixture]

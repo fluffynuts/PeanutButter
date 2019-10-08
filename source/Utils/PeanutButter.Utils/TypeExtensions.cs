@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+
 // ReSharper disable ConstantNullCoalescingCondition
 // ReSharper disable UnusedMember.Global
 
@@ -31,14 +32,54 @@ namespace PeanutButter.Utils
         /// <returns>The Type ancestry, starting from Object</returns>
         public static Type[] Ancestry(this Type type)
         {
-            var heirachy = new List<Type>();
+            return type.AncestryUntil(null);
+        }
+
+        /// <summary>
+        /// Enumerates the ancestry of a Type, from the given type
+        /// - if the given type is not found in the ancestry, the entire ancestry
+        ///   will be returned
+        /// - you may provide a generic type without parameters, eg GenericBuilder&lt;,&gt;
+        ///   in which case the search is from the first occurence of that generic base type
+        ///   within the ancestry tree
+        /// </summary>
+        /// <param name="type">Type to operate on (final type in the result)</param>
+        /// <param name="from">Type to truncate history at (first type in the result, when found)</param>
+        /// <returns></returns>
+        public static Type[] AncestryUntil(
+            this Type type,
+            Type from)
+        {
+            var stopAtIsGenericDefinition =
+                from != null &&
+                from.IsGenericType &&
+                from.GetGenericArguments().All(
+                    a => a.GUID == Guid.Empty
+                );
+            var hierarchy = new List<Type>();
             do
             {
-                heirachy.Add(type);
+                if (from != null)
+                {
+                    if (type == from)
+                    {
+                        break;
+                    }
+
+                    if (stopAtIsGenericDefinition && 
+                        type.IsGenericType &&
+                        type.GetGenericTypeDefinition() == from)
+                    {
+                        break;
+                    }
+                }
+
+                hierarchy.Add(type);
             } while ((type = type.BaseType()) != null);
 
-            heirachy.Reverse();
-            return heirachy.ToArray();
+            // we typically want this list from most to least ancient
+            hierarchy.Reverse();
+            return hierarchy.ToArray();
         }
 
         /// <summary>
@@ -51,8 +92,8 @@ namespace PeanutButter.Utils
             // hybrid of http://stackoverflow.com/questions/10261824/how-can-i-get-all-constants-of-a-type-by-reflection
             //  and https://ruscoweb.wordpress.com/2011/02/09/c-using-reflection-to-get-constant-values/
             return type.GetFields(BindingFlags.Public |
-                                  BindingFlags.Static |
-                                  BindingFlags.FlattenHierarchy)
+                    BindingFlags.Static |
+                    BindingFlags.FlattenHierarchy)
                 .Where(fi => fi.IsLiteral && !fi.IsInitOnly)
                 .ToDictionary(x => x.Name, y => y.GetRawConstantValue());
         }
@@ -118,7 +159,7 @@ namespace PeanutButter.Utils
             var collectionType = t.GetCollectionItemType();
             if (collectionType == null) return false;
             var specific = GenericIsAssignableFromArrayOf.MakeGenericMethod(collectionType);
-            return (bool) specific.Invoke(null, new object[] {t});
+            return (bool) specific.Invoke(null, new object[] { t });
         }
 
         /// <summary>
@@ -413,11 +454,12 @@ namespace PeanutButter.Utils
         /// <returns>Array of all interfaces which are implemented</returns>
         public static Type[] GetAllImplementedInterfaces(this Type inspectType)
         {
-            var result = new List<Type> {inspectType};
+            var result = new List<Type> { inspectType };
             foreach (var type in inspectType.GetInterfaces())
             {
                 result.AddRange(type.GetAllImplementedInterfaces());
             }
+
             return result.Distinct().ToArray();
         }
 
@@ -451,11 +493,12 @@ namespace PeanutButter.Utils
                 var underlyingType = type.GetGenericArguments()[0];
                 return $"{underlyingType.PrettyName()}?";
             }
+
             var parts = type.FullName
-                            // ReSharper disable once ConstantNullCoalescingCondition
-                            ?.Substring(0, type.FullName?.IndexOf("`") ?? 0)
-                            .Split('.') ??
-                        new[] {type.Name};
+                    // ReSharper disable once ConstantNullCoalescingCondition
+                    ?.Substring(0, type.FullName?.IndexOf("`") ?? 0)
+                    .Split('.') ??
+                new[] { type.Name };
             return string.Join("",
                 parts.Last(),
                 "<",
@@ -476,9 +519,9 @@ namespace PeanutButter.Utils
             if (type == null)
                 return false;
             return type.IsArray ||
-                   (type.IsGenericType() &&
+                (type.IsGenericType() &&
                     (type.ImplementsEnumerableGenericType() ||
-                     CollectionGenerics.Contains(type.GetGenericTypeDefinition())));
+                        CollectionGenerics.Contains(type.GetGenericTypeDefinition())));
         }
 
         /// <summary>
@@ -530,7 +573,7 @@ namespace PeanutButter.Utils
         public static bool IsAssignableOrUpcastableTo(this Type src, Type target)
         {
             return target.IsAssignableFrom(src) ||
-                   src.CanImplicitlyUpcastTo(target);
+                src.CanImplicitlyUpcastTo(target);
         }
 
         /// <summary>
@@ -541,7 +584,8 @@ namespace PeanutButter.Utils
         /// <param name="target"></param>
         /// <returns></returns>
         public static bool CanImplicitlyUpcastTo(
-            this Type src, Type target
+            this Type src,
+            Type target
         )
         {
             var convertSpecific = TryConvertGeneric.MakeGenericMethod(target);
@@ -550,19 +594,20 @@ namespace PeanutButter.Utils
             bool canConvert;
             try
             {
-                convertSpecific.Invoke(null, new[] {defaultValue});
+                convertSpecific.Invoke(null, new[] { defaultValue });
                 canConvert = true;
             }
             catch
             {
                 canConvert = false;
             }
+
             return canConvert;
         }
 
         private static readonly ConcurrentDictionary<Type, object> _defaultTypeValues
             = new ConcurrentDictionary<Type, object>();
-        
+
         /// <summary>
         /// Returns the default value for the type being operated on
         /// </summary>
@@ -593,7 +638,7 @@ namespace PeanutButter.Utils
             return type?.IsInterface ?? false;
 #endif
         }
-            
+
         /// <summary>
         /// Determines whether the provided type is a known numeric type
         /// (ie int / short / byte / double / float / decimal )
@@ -606,7 +651,7 @@ namespace PeanutButter.Utils
         }
 
         private static readonly Type ObjectType = typeof(object);
-        
+
         /// <summary>
         /// Determines whether the type being operated on is an ancestor of the other type
         /// </summary>
@@ -629,15 +674,14 @@ namespace PeanutButter.Utils
             return baseType == other || baseType.IsAncestorOf(other);
         }
 
-        
-        
+
         /// <summary>
         /// Tests if the type being operated on implements the provided interfaceType
         /// </summary>
         /// <param name="type"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static bool Implements<T>(this Type type) where T: class
+        public static bool Implements<T>(this Type type) where T : class
         {
             return type.Implements(typeof(T));
         }
@@ -659,15 +703,14 @@ namespace PeanutButter.Utils
         }
 
         private static readonly Type[] NumericTypes =
-            {
+        {
             typeof(int),
-                typeof(short),
-                typeof(byte),
-                typeof(double),
-                typeof(float),
-                typeof(decimal)
-            };
-
+            typeof(short),
+            typeof(byte),
+            typeof(double),
+            typeof(float),
+            typeof(decimal)
+        };
 
 
         private static readonly MethodInfo TryConvertGeneric =
