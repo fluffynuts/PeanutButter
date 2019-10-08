@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using PeanutButter.Utils;
 
 namespace PeanutButter.RandomGenerators
@@ -19,11 +20,13 @@ namespace PeanutButter.RandomGenerators
         /// <summary>
         /// Constructs this attribute to act against a property by name
         /// </summary>
-        /// <param name="propertyNames"></param>
+        /// <param name="otherPropertyNames"></param>
         public RandomizerAttribute(
-            params string[] propertyNames)
+            string propertyName, params string[] otherPropertyNames)
         {
-            PropertyNames = propertyNames;
+            PropertyNames = new[] { propertyName }
+                .Concat(otherPropertyNames)
+                .ToArray();
         }
 
         /// <summary>

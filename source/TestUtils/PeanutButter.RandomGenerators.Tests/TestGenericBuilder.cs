@@ -1132,6 +1132,30 @@ namespace PeanutButter.RandomGenerators.Tests
                 Expect(generated).To.Have.Unique.Items();
             }
 
+            [Test]
+            [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
+            public void Randomizer_ShouldUseProvidedRandomizerForNamedProperty()
+            {
+                // Arrange
+                // Act
+                var result = GetRandom<Poco>();
+                // Assert
+                Expect(result.NegativeNumber)
+                    .To.Be.Less.Than(0);
+            }
+
+            [Test]
+            [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
+            public void RandomizerIgnore_ShouldIgnoreSettingProperty()
+            {
+                // Arrange
+                // Act
+                var result = GetRandom<Poco>();
+                // Assert
+                Expect(result.IgnoreMe)
+                    .To.Be.Null();
+            }
+
             private void RunCycles(Action toRun)
             {
                 for (var i = 0;
@@ -1156,12 +1180,33 @@ namespace PeanutButter.RandomGenerators.Tests
                 public int Id { get; set; }
                 public int Wheels { get; set; }
                 public string Name { get; set; }
+                public int NegativeNumber { get; set; }
+
+                public Poco IgnoreMe { get; set; }
             }
 
             [RequireNonZero(nameof(Poco.Wheels))]
             [RequireNonZeroId]
+            [RandomizeNegative(nameof(Poco.NegativeNumber))]
+            [RandomizerIgnore(nameof(Poco.IgnoreMe))]
             public class PocoBuilder : GenericBuilder<PocoBuilder, Poco>
             {
+            }
+
+            public class RandomizeNegativeAttribute : RandomizerAttribute
+            {
+                public RandomizeNegativeAttribute(string propertyName) 
+                    : base(propertyName)
+                {
+                }
+
+                public override void SetRandomValue(
+                    PropertyOrField propInfo, 
+                    ref object target)
+                {
+                    var value = GetRandomInt(-10, -1);
+                    propInfo.SetValue(target, value);
+                }
             }
         }
 
