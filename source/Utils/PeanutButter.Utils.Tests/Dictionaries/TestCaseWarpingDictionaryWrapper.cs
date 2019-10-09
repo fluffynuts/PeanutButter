@@ -161,7 +161,13 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                 [key] = value
             };
             var exactMatch = new KeyValuePair<string, object>(key, value);
-            var fuzzyMatch = new KeyValuePair<string, object>(key.ToRandomCase(), value);
+            var fuzzedKey = key.ToRandomCase();
+            while (fuzzedKey == key)
+            {
+                fuzzedKey = key.ToRandomCase();
+            }
+
+            var fuzzyMatch = new KeyValuePair<string, object>(fuzzedKey, value);
             var sut = Create(actual, false);
 
             // Pre-Assert
