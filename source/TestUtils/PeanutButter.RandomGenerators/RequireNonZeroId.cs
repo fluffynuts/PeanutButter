@@ -1,6 +1,4 @@
-﻿using PeanutButter.Utils;
-
-namespace PeanutButter.RandomGenerators
+﻿namespace PeanutButter.RandomGenerators
 {
     /// <summary>
     /// Requires that the field named "Id" be non-zero
@@ -11,19 +9,6 @@ namespace PeanutButter.RandomGenerators
         public RequireNonZeroId()
             : base("Id")
         {
-        }
-    }
-
-    public class RandomizerIgnore : RandomizerAttribute
-    {
-        public RandomizerIgnore(string propertyName) 
-            : base(propertyName)
-        {
-        }
-
-        public override void SetRandomValue(PropertyOrField propInfo, ref object target)
-        {
-            /* intentionally left blank */
         }
     }
 }

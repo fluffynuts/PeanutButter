@@ -1146,13 +1146,15 @@ namespace PeanutButter.RandomGenerators.Tests
 
             [Test]
             [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
-            public void RandomizerIgnore_ShouldIgnoreSettingProperty()
+            public void NoRandomize_ShouldIgnoreSettingProperty()
             {
                 // Arrange
                 // Act
                 var result = GetRandom<Poco>();
                 // Assert
                 Expect(result.IgnoreMe)
+                    .To.Be.Null();
+                Expect(result.IgnoreMeToo)
                     .To.Be.Null();
             }
 
@@ -1183,12 +1185,13 @@ namespace PeanutButter.RandomGenerators.Tests
                 public int NegativeNumber { get; set; }
 
                 public Poco IgnoreMe { get; set; }
+                public Poco IgnoreMeToo { get; set; }
             }
 
             [RequireNonZero(nameof(Poco.Wheels))]
             [RequireNonZeroId]
             [RandomizeNegative(nameof(Poco.NegativeNumber))]
-            [RandomizerIgnore(nameof(Poco.IgnoreMe))]
+            [NoRandomize(nameof(Poco.IgnoreMe), nameof(Poco.IgnoreMeToo))]
             public class PocoBuilder : GenericBuilder<PocoBuilder, Poco>
             {
             }

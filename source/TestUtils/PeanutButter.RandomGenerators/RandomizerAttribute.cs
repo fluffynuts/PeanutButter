@@ -18,7 +18,8 @@ namespace PeanutButter.RandomGenerators
         internal delegate void RefAction(PropertyOrField prop, ref object target);
 
         /// <summary>
-        /// Constructs this attribute to act against a property by name
+        /// Constructs this attribute to act against one or more
+        /// properties by name
         /// </summary>
         /// <param name="propertyName">initial property name</param>
         /// <param name="otherPropertyNames">any additional property names</param>
