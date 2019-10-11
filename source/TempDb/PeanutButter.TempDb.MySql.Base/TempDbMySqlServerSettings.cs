@@ -176,7 +176,7 @@ namespace PeanutButter.TempDb.MySql.Base
         /// mysql server setting
         /// </summary>
         [Setting("innodb_thread_concurrency")]
-        public int InnodbThreadConcurrency { get; set; } = 8;
+        public int InnodbThreadConcurrency { get; set; } = 0;
 
         /// <summary>
         /// mysql server setting
@@ -195,6 +195,24 @@ namespace PeanutButter.TempDb.MySql.Base
         /// </summary>
         [Setting("innodb_flush_log_at_trx_commit")]
         public int InnodbFlushLogAtTrxCommit { get; set; } = 1;
+
+        /// <summary>
+        /// mysql server setting
+        /// </summary> 
+        [Setting("innodb_flush_log_at_timeout")]
+        public int InnodbFlushLogAtTimeout { get; set; } = 1;
+
+        /// <summary>
+        /// mysql server setting
+        /// </summary> 
+        [Setting("sync_binlog")]
+        public int SyncBinLog { get; set; } = 1;
+        
+        /// <summary>
+        /// mysql server setting
+        /// </summary>
+        [Setting("innodb_io_capacity")]
+        public int InnoDbIoCapacity { get; set; } = 200;
 
         /// <summary>
         /// mysql server setting
@@ -248,7 +266,7 @@ namespace PeanutButter.TempDb.MySql.Base
         /// mysql server setting
         /// </summary>
         [Setting("slow-query-log")]
-        public int SlowQueryLog { get; set; } = 1;
+        public int SlowQueryLog { get; set; } = 0;
 
         /// <summary>
         /// mysql server setting
@@ -291,5 +309,24 @@ namespace PeanutButter.TempDb.MySql.Base
         /// </summary>
         [Setting("socket")]
         public string Socket { get; set; } = $"/tmp/mysql-temp-{Guid.NewGuid()}.socket";
+
+        /// <summary>
+        /// Optimises configuration for performance. Warning, this has an effect on durability in the event
+        /// of a server crash. If you care about your data in the event of a system/process crash, do not
+        /// use this.
+        /// </summary>
+        /// <param name="isRunningOnSsdDisk"></param>
+        public void OptimizeForPerformance(bool isRunningOnSsdDisk = false)
+        {
+            SlowQueryLog = 0;
+            GeneralLog = 0;
+            InnodbThreadConcurrency = 0;
+            InnodbFlushLogAtTrxCommit = 2;
+            InnodbFlushLogAtTimeout = 10;
+            SyncBinLog = 0;
+            InnoDbIoCapacity = isRunningOnSsdDisk
+                ? 3000
+                : InnoDbIoCapacity;
+        }
     }
 }
