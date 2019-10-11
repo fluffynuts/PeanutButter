@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using PeanutButter.Utils;
 using static PeanutButter.Utils.PyLike;
 
@@ -77,8 +78,9 @@ namespace PeanutButter.RandomGenerators
         {
             if (type == null)
                 throw new ArgumentException(nameof(type));
-            if (type.IsGenericType() && type.GetGenericTypeDefinition() == typeof(Nullable<>))
-                type = Nullable.GetUnderlyingType(type);
+            if (type.IsGenericTypeDefinition)
+                throw new ArgumentException($"A generic type definition can't be generated: {type.Name}");
+
             return PrimitiveGenerators.TryGetValue(
                 type ?? throw new ArgumentNullException(nameof(type)),
                 out var randomGenerator
@@ -774,6 +776,33 @@ namespace PeanutButter.RandomGenerators
                     enumType.Name + "')");
             var possible = Enum.GetValues(enumType).Cast<object>();
             return GetRandomFrom(possible);
+        }
+
+        /// <summary>
+        /// Gets an empty delegate
+        /// </summary>
+        /// <param name="delegateType">Type of delegate</param>
+        /// <returns>Action that do nothing, or function that returns the default of return type</returns>
+        internal static object GetEmptyDelegate(Type delegateType)
+        {
+            if (!typeof(Delegate).IsAssignableFrom(delegateType))
+                throw new ArgumentException(
+                    $"{nameof(GetEmptyDelegate)} cannot be called on something other than a delegate ('{delegateType.Name}')");
+
+            if (delegateType.IsGenericTypeDefinition)
+                throw new ArgumentException(
+                    $"{nameof(GetEmptyDelegate)} must be called on a concrete delegate type ('{delegateType.Name}')");
+
+            var method = delegateType.GetMethod("Invoke");
+            return Expression.Lambda(
+                delegateType,
+                method.ReturnType == typeof(void)
+                    ? Expression.Empty()
+                    : Expression.Default(method.ReturnType),
+                method.GetParameters()
+                    .Select(x => Expression.Parameter(x.ParameterType))
+                    .ToArray()
+            ).Compile();
         }
 
         /// <summary>

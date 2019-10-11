@@ -1300,6 +1300,17 @@ namespace PeanutButter.RandomGenerators.Tests
                 // Assert
             }
 
+            [Test]
+            public void ShouldNotBreakOnDelegatePropertyInvocation()
+            {
+                // Arrange
+                // Act
+                var result = GetRandom<HasDelegateProp>();
+                // Assert
+                Expect(() => result.SomeDelegateHandler())
+                    .Not.To.Throw();
+            }
+
             public class HasActionProp
             {
                 public Action SomeAction { get; set; }
@@ -1315,6 +1326,32 @@ namespace PeanutButter.RandomGenerators.Tests
                 // Assert
             }
 
+            [Test]
+            public void ShouldNotBreakOnActionPropertyInvocation()
+            {
+                // Arrange
+                // Act
+                var result = GetRandom<HasActionProp>();
+                // Assert
+                Expect(() => result.SomeAction())
+                    .Not.To.Throw();
+            }
+
+            public class HasActionProp2
+            {
+                public Action<int> MethodThatRequireInt { get; set; }
+            }
+
+            [Test]
+            public void ShouldNotBreakOnActionOfIntPropertyInvokation()
+            {
+                // Arrange
+                var generated = GetRandom<HasActionProp2>();
+                // Act
+                // Assert
+                generated.MethodThatRequireInt(312);
+            }
+
             public class HasFuncProp<T>
             {
                 public Func<T> SomeFunc { get; set; }
@@ -1328,6 +1365,45 @@ namespace PeanutButter.RandomGenerators.Tests
                 Expect(GetRandom<HasFuncProp<int>>)
                     .Not.To.Throw();
                 // Assert
+            }
+
+            [Test]
+            public void ShouldNotThrowOnFuncPropertyInvocation()
+            {
+                // Arrange
+                // Act
+                var result = GetRandom<HasFuncProp<int>>();
+                // Assert
+                Expect(result.SomeFunc)
+                    .Not.To.Throw();
+            }
+
+            public class HasFuncProp2<TIn, TOut>
+            {
+                public Func<TIn, TOut> SomeFunc { get; set; }
+            }
+
+            [Test]
+            public void ShouldReturnDefaultOutputValueFromGeneratedFuncProperty()
+            {
+                // Arrange
+                var generated = GetRandom<HasFuncProp2<string, int>>();
+                // Act
+                var result = generated.SomeFunc(GetRandomString());
+                // Assert
+                Expect(result)
+                    .To.Equal(0);
+            }
+
+            [Test]
+            public void ShouldThrowOnGenericDefinitionType()
+            {
+                // Arrange
+                // Act
+                Action generation = () => GetRandomValue(typeof(Action<>));
+                // Assert
+                Expect(generation)
+                    .To.Throw().With.Message.Containing("A generic type definition can't be generated: ");
             }
         }
     }

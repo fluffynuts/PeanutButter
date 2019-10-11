@@ -277,11 +277,6 @@ namespace PeanutButter.RandomGenerators
 
         private void CheckUnconstructable(Type type)
         {
-            if (typeof(Delegate).IsAssignableFrom(type))
-            {
-                throw CreateUnconstructableException();
-            }
-
             lock (Unconstructables)
             {
                 if (Unconstructables.Contains(type))
@@ -1043,6 +1038,7 @@ namespace PeanutButter.RandomGenerators
                 IsNotWritable,
                 HaveSetSimpleSetterFor,
                 IsEnumType,
+                IsDelegateType,
                 IsCollectionType,
                 HaveSetNullableTypeSetterFor,
                 SetupBuilderSetterFor
@@ -1060,6 +1056,22 @@ namespace PeanutButter.RandomGenerators
             {
                 prop.SetValue(ref entity, GetRandomEnum(propertyType));
             };
+            return true;
+        }
+
+        private static bool IsDelegateType(
+            PropertyOrField prop,
+            Type propertyType)
+        {
+            if (propertyType.IsGenericTypeDefinition || !typeof(Delegate).IsAssignableFrom(propertyType))
+                return false;
+
+            RandomPropSetters[prop.Name] = (ref TEntity entity,
+                int idx) =>
+            {
+                prop.SetValue(ref entity, GetEmptyDelegate(propertyType));
+            };
+
             return true;
         }
 
