@@ -1,19 +1,20 @@
 ﻿using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Reflection;
+using System.Linq;
 using PeanutButter.Utils;
 
 namespace PeanutButter.TempDb.MySql.Base
 {
     /// <summary>
-    /// Generates MySql configuiration from TempDbMySqlServerSettings
+    /// Generates MySql configuration from TempDbMySqlServerSettings
     /// </summary>
     public class MySqlConfigGenerator
     {
-        private const string SECTION = "mysqld";
+        public const string SECTION = "mysqld";
 
         /// <summary>
-        /// Generates MySql configuiration from TempDbMySqlServerSettings
+        /// Generates MySql configuration from TempDbMySqlServerSettings
         /// </summary>
         /// <param name="tempDbMySqlSettings"></param>
         /// <returns></returns>
@@ -21,28 +22,39 @@ namespace PeanutButter.TempDb.MySql.Base
         public string GenerateFor(TempDbMySqlServerSettings tempDbMySqlSettings)
         {
             if (tempDbMySqlSettings == null) throw new ArgumentNullException(nameof(tempDbMySqlSettings));
-
             var iniFile = new INIFile.INIFile();
             iniFile.AddSection(SECTION);
-            tempDbMySqlSettings
-                .GetType()
+            tempDbMySqlSettings.GetType()
                 .GetProperties()
-                .ForEach(prop => AddSetting(iniFile, prop, tempDbMySqlSettings));
+                .Select(prop => GetSetting(prop, tempDbMySqlSettings))
+                .Where(y => y.Key?.Length > 0)
+                .ForEach(x => WriteSetting(iniFile, x));
+            tempDbMySqlSettings
+                .CustomConfiguration
+                ?.Select(x => new KeyValuePair<string, string>(x.Key, x.Value))
+                .ForEach(x => WriteSetting(iniFile, x));
             return iniFile.ToString();
         }
 
-        private void AddSetting(
+        private void WriteSetting(
             INIFile.INIFile iniFile,
-            PropertyInfo prop, 
-            TempDbMySqlServerSettings tempDbMySqlSettings
-        )
+            KeyValuePair<string,string> setting)
+        {
+            iniFile[SECTION][setting.Key] = setting.Value;
+        }
+
+        private KeyValuePair<string, string> GetSetting(
+            PropertyInfo prop,
+            TempDbMySqlServerSettings tempDbMySqlSettings)
         {
             var settingAttrib = prop.GetCustomAttributes()
                 .OfType<SettingAttribute>()
                 .FirstOrDefault();
             if (settingAttrib == null)
-                return;
-            iniFile[SECTION][settingAttrib.Name] = $"{prop.GetValue(tempDbMySqlSettings)}";
+                return new KeyValuePair<string, string>();
+            return new KeyValuePair<string, string>(
+                settingAttrib.Name,
+                $"{prop.GetValue(tempDbMySqlSettings)}");
         }
     }
 }
