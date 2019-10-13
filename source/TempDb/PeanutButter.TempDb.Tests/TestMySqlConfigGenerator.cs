@@ -4,10 +4,10 @@ using System.IO;
 using System.Linq;
 using NExpect;
 using NUnit.Framework;
-using PeanutButter.TempDb.MySql;
 using PeanutButter.TempDb.MySql.Base;
 using PeanutButter.Utils;
 using static NExpect.Expectations;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.TempDb.Tests
 {
@@ -91,6 +91,71 @@ namespace PeanutButter.TempDb.Tests
                             }
                     });
             });
+        }
+
+        [Test]
+        public void WhenCustomSettingsSetToNull_ShouldStillGenerate()
+        {
+            // Arrange
+            var defaultIni = new INIFile.INIFile();
+            defaultIni.Parse(DEFAULTS);
+            var sut = Create();
+            var settings = new TempDbMySqlServerSettings {CustomConfiguration = null};
+
+            // Act
+            var rawResult = sut.GenerateFor(settings);
+            var resultIni = new INIFile.INIFile();
+            resultIni.Parse(rawResult);
+            
+            // Assert
+            Expect(defaultIni.Sections)
+                .To.Be.Equivalent.To(resultIni.Sections);
+
+        }
+
+        [Test]
+        public void WhenHasCustomSettings_ShouldEmitCustomSettings()
+        {
+            // Arrange
+            var defaultIni = new INIFile.INIFile();
+            defaultIni.Parse(DEFAULTS);
+            var sut = Create();
+            var settings = new TempDbMySqlServerSettings();
+            var key = GetRandomString(32);
+            var value = GetRandomString(32);
+            settings.CustomConfiguration[key] = value;
+            
+            // Act
+            var rawResult = sut.GenerateFor(settings);
+            var resultIni = new INIFile.INIFile();
+            resultIni.Parse(rawResult); 
+            
+            // Assert
+            var resultValue = resultIni.GetValue(MySqlConfigGenerator.SECTION, key);
+            Expect(resultValue).To.Equal(value);
+        }
+
+        [Test]
+        public void WhenCustomSettingIsDuplicateOfFirstClassSetting_ShouldOverrideFirstClassSetting()
+        {
+            // Arrange
+            var defaultIni = new INIFile.INIFile();
+            defaultIni.Parse(DEFAULTS);
+            var sut = Create();
+            var settings = new TempDbMySqlServerSettings
+            {
+                MaxConnections = -GetRandomInt(),
+                CustomConfiguration = {["max_connections"] = GetRandomInt(1000, 2000).ToString()}
+            };
+
+            // Act
+            var rawResult = sut.GenerateFor(settings);
+            var resultIni = new INIFile.INIFile();
+            resultIni.Parse(rawResult); 
+            
+            // Assert
+            var resultValue = resultIni.GetValue(MySqlConfigGenerator.SECTION, "max_connections");
+            Expect(resultValue).To.Equal(settings.CustomConfiguration["max_connections"]); 
         }
 
         private MySqlConfigGenerator Create()

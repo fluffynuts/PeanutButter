@@ -1,6 +1,7 @@
 ﻿// ReSharper disable UnusedMember.Global
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace PeanutButter.TempDb.MySql.Base
@@ -58,6 +59,13 @@ namespace PeanutButter.TempDb.MySql.Base
             /// </summary>
             public bool ForceFindMySqlInPath { get; set; }
         }
+        
+        /// <summary>
+        /// Allows any other configuration/settings to be specified - any duplicates of first class
+        /// configuration settings will override the first class setting
+        /// </summary>
+        public Dictionary<string, string> CustomConfiguration {get; set;} = new Dictionary<string, string>();
+        
 
         /// <summary>
         /// Options for the instantiation of the temporary database
