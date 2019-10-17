@@ -93,7 +93,6 @@ namespace PeanutButter.DuckTyping.Shimming
             _isFuzzy = isFuzzy;
             _wrapped = toWrap;
             _allowReadonlyDefaultsForMissingMembers = allowReadonlyDefaultsForMissingMembers;
-            // TODO: store all wrapped types & use to determine proper pass-through
             _wrappedTypes = toWrap.Select(w => w.GetType()).ToArray();
             _wrappingADuck = IsObjectADuck();
             StaticallyCachePropertyInfosFor(_wrapped, _wrappingADuck);

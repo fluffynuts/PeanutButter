@@ -941,7 +941,6 @@ namespace PeanutButter.Utils.Tests
             public string StringField;
         }
 
-        // TODO: obsfucate me
         public class MooCakesAndStuff
         {
             public Guid Id { get; set; }

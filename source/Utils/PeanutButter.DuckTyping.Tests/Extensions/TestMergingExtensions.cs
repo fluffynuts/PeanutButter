@@ -445,7 +445,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                         };
                         var second = new
                         {
-                            Name = GetRandomString() // TODO: it would be nice if the fuzzy ducker could ignore, eg underscores here
+                            Name = GetRandomString()
                         };
                         // Pre-Assert
                         // Act
