@@ -277,6 +277,8 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [Test]
+        // statistically, the ratios can be out
+        [Retry(5)]
         public void GetRandomEnum_GENERIC_WhenGivenEnumTypeSpecifier_ShouldReturnRandomValueFromEnumSelection()
         {
             //---------------Set up test pack-------------------
