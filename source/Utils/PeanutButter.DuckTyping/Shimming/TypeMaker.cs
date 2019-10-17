@@ -98,7 +98,7 @@ namespace PeanutButter.DuckTyping.Shimming
         {
             return MakeTypeImplementing(interfaceType, true, true);
         }
-        
+
         private static ModuleBuilder ModuleBuilder => _moduleBuilder ?? (_moduleBuilder = CreateModuleBuilder());
 
         private static ModuleBuilder CreateModuleBuilder()
@@ -297,8 +297,12 @@ namespace PeanutButter.DuckTyping.Shimming
             var result = il.DeclareLocal(typeof(IShimSham));
             il.Emit(code);
             il.Emit(OpCodes.Ldtoken, interfaceType);
-            il.Emit(isFuzzy ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
-            il.Emit(allowDefaultsForReadonlyMembers ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
+            il.Emit(isFuzzy
+                ? OpCodes.Ldc_I4_1
+                : OpCodes.Ldc_I4_0);
+            il.Emit(allowDefaultsForReadonlyMembers
+                ? OpCodes.Ldc_I4_1
+                : OpCodes.Ldc_I4_0);
             il.Emit(OpCodes.Newobj, shimConstructor);
             il.Emit(OpCodes.Stloc, result);
             return result;
@@ -327,24 +331,39 @@ namespace PeanutButter.DuckTyping.Shimming
             return ((int) mi.Attributes & (int) MethodAttributes.SpecialName) != (int) MethodAttributes.SpecialName;
         }
 
-        private void AddMethod(
+        private static void AddMethod(
             Type interfaceType,
             TypeBuilder typeBuilder,
             MethodInfo methodInfo,
             FieldBuilder shimField)
         {
-            var methodBuilder = typeBuilder.DefineMethod(methodInfo.Name,
-                PropertyGetterSetterMethodAttributes, methodInfo.ReturnType,
-                methodInfo.GetParameters().Select(p => p.ParameterType)
-                          .ToArray());
+            var returnType = methodInfo.ReturnType;
+            var parameterTypes = methodInfo.GetParameters()
+                .Select(p => p.ParameterType)
+                .ToArray();
+            var methodBuilder = typeBuilder.DefineMethod(
+                methodInfo.Name,
+                PropertyGetterSetterMethodAttributes,
+                returnType,
+                parameterTypes);
             var il = methodBuilder.GetILGenerator();
             if (methodInfo.ReturnType == typeof(void))
+            {
                 ImplementVoidReturnCallThroughWith(methodInfo, shimField, il);
+            }
             else
+            {
                 ImplementNonVoidReturnCallThroughWith(methodInfo, shimField, il);
+            }
 
             ImplementMethodReturnWith(il);
-            ImplementInterfaceMethodAsRequired(interfaceType, typeBuilder, methodInfo.Name, methodBuilder);
+            ImplementInterfaceMethodAsRequired(
+                interfaceType,
+                typeBuilder,
+                methodInfo.Name,
+                returnType,
+                parameterTypes,
+                methodBuilder);
 
             CopyCustomAttributes(methodInfo, methodBuilder);
         }
@@ -439,10 +458,10 @@ namespace PeanutButter.DuckTyping.Shimming
         private PropertyInfo[] GetAllPropertiesFor(Type[] allImplementedInterfaces)
         {
             return GetAllFor(
-                       allImplementedInterfaces,
-                       t => t.GetProperties())
-                   .Distinct(new PropertyInfoComparer())
-                   .ToArray();
+                    allImplementedInterfaces,
+                    t => t.GetProperties())
+                .Distinct(new PropertyInfoComparer())
+                .ToArray();
         }
 
         private MethodInfo[] GetAllMethodsFor(Type[] allImplementedInterfaces)
@@ -454,12 +473,12 @@ namespace PeanutButter.DuckTyping.Shimming
         private T[] GetAllFor<T>(Type[] interfaces, Func<Type, IEnumerable<T>> fetcher)
         {
             return interfaces
-                   .Select(fetcher)
-                   .SelectMany(a => a)
-                   .ToArray();
+                .Select(fetcher)
+                .SelectMany(a => a)
+                .ToArray();
         }
 
-        private static void AddShimmableProperty(
+        private void AddShimmableProperty(
             Type interfaceType,
             TypeBuilder typeBuilder,
             PropertyInfo prop,
@@ -539,6 +558,8 @@ namespace PeanutButter.DuckTyping.Shimming
                 interfaceType,
                 typeBuilder,
                 methodName,
+                prop.PropertyType,
+                new Type[0],
                 getMethod);
             return getMethod;
         }
@@ -596,6 +617,8 @@ namespace PeanutButter.DuckTyping.Shimming
                 interfaceType,
                 typeBuilder,
                 methodName,
+                prop.PropertyType,
+                new Type[0],
                 setMethod);
 
             return setMethod;
@@ -610,12 +633,66 @@ namespace PeanutButter.DuckTyping.Shimming
             Type interfaceType,
             TypeBuilder typeBuilder,
             string methodName,
+            Type returnType,
+            Type[] parameterTypes,
             MethodBuilder methodImplementation)
         {
-            var interfaceMethod = interfaceType.GetMethod(methodName);
+            var interfaceMethod = TryFindInterfaceMethodMatching(
+                interfaceType,
+                methodName,
+                returnType,
+                parameterTypes);
             if (interfaceMethod != null)
+            {
                 typeBuilder.DefineMethodOverride(methodImplementation, interfaceMethod);
+            }
         }
+
+        private static MethodInfo TryFindInterfaceMethodMatching(
+            Type interfaceType,
+            string methodName,
+            Type returnType,
+            Type[] parameterTypes)
+        {
+            lock (MethodCache)
+            {
+                PopulateMethodCacheIfNecessaryFor(interfaceType);
+                return MethodCache.TryGetValue(Tuple.Create(
+                    interfaceType,
+                    methodName,
+                    returnType,
+                    parameterTypes), out var result)
+                    ? result
+                    : null;
+            }
+        }
+
+        private static void PopulateMethodCacheIfNecessaryFor(Type interfaceType)
+        {
+            if (TypesWithCachedMethods.Contains(interfaceType))
+            {
+                return;
+            }
+
+            foreach (var methodInfo in interfaceType.GetMethods(BindingFlags.Public | BindingFlags.Instance))
+            {
+                var key = Tuple.Create(
+                    interfaceType,
+                    methodInfo.Name,
+                    methodInfo.ReturnType,
+                    methodInfo.GetParameters().Select(p => p.ParameterType).ToArray()
+                );
+                MethodCache[key] = methodInfo;
+            }
+            
+            TypesWithCachedMethods.Add(interfaceType);
+        }
+
+        private static readonly HashSet<Type> TypesWithCachedMethods = new HashSet<Type>();
+        private static readonly Dictionary<Tuple<Type, string, Type, Type[]>, MethodInfo>
+            MethodCache = new Dictionary<Tuple<Type, string, Type, Type[]>, MethodInfo>()
+            {
+            };
 
         private static AssemblyBuilder DynamicAssemblyBuilder
         {
@@ -624,7 +701,7 @@ namespace PeanutButter.DuckTyping.Shimming
                 lock (DynamicAssemblyLock)
                 {
                     return _dynamicAssemblyBuilderField ??
-                           (_dynamicAssemblyBuilderField = DefineDynamicAssembly(ASSEMBLY_NAME));
+                        (_dynamicAssemblyBuilderField = DefineDynamicAssembly(ASSEMBLY_NAME));
                 }
             }
         }
@@ -637,7 +714,7 @@ namespace PeanutButter.DuckTyping.Shimming
                     .DefineDynamicAssembly(new AssemblyName(withName), AssemblyBuilderAccess.RunAndCollect);
 #else
                 AppDomain.CurrentDomain
-                         .DefineDynamicAssembly(new AssemblyName(withName), AssemblyBuilderAccess.RunAndCollect);
+                    .DefineDynamicAssembly(new AssemblyName(withName), AssemblyBuilderAccess.RunAndCollect);
 #endif
         }
     }

@@ -504,13 +504,34 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             Expect(attr?.Label).To.Equal("cow!");
         }
 
+        [TestFixture]
+        public class WhenInterfaceHasMethodWithDuplicateName
+        {
+            public interface IConfusing
+            {
+                int GetProductId();
+                int GetProductId(string name);
+            }
+
+            [Test]
+            public void ShouldStillBeAbleToMakeType()
+            {
+                // Arrange
+                var sut = Create();
+                // Act
+                Expect(() => sut.MakeTypeImplementing<IConfusing>())
+                    .Not.To.Throw();
+                // Assert
+            }
+        }
+
 
         private object CreateInstanceOf(Type type, params object[] constructorArgs)
         {
             return Activator.CreateInstance(type, constructorArgs);
         }
 
-        private ITypeMaker Create()
+        private static ITypeMaker Create()
         {
             return new TypeMaker();
         }
