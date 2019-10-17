@@ -342,37 +342,58 @@ namespace PeanutButter.RandomGenerators
 
         private static readonly Func<TEntity>[] FallbackConstructionStrategies =
         {
-            AttemptToCreateDuckFor,
-            AttemptToCreateSubstituteFor<TEntity>
+            AttemptToCreateSubstituteFor<TEntity>,
+            AttemptToCreateForcedFuzzyDuckFor
         };
 
-        private static TEntity AttemptToCreateDuckFor()
+        private const string DUCK_ASM = "PeanutButter.DuckTyping";
+        private const string DUCK_TYPE = "DuckTypingDictionaryExtensions";
+        private const string DUCK_METHOD = "ForceFuzzyDuckAs";
+        private static readonly Type DUCK_PARAMETER_TYPE = typeof(IDictionary<string, object>);
+
+        private static TEntity AttemptToCreateForcedFuzzyDuckFor()
         {
             var asm = FindOrLoadDuckTyping<TEntity>();
             if (asm == null)
+            {
                 throw new Exception(
-                    "Can't find (or load) PeanutButter.DuckTyping");
-
-            var typeMakerType = asm.GetTypes()
-                .FirstOrDefault(t => t.Name == "TypeMaker");
-            if (typeMakerType == null)
-                throw new Exception(
-                    "Can't find TypeMaker type in PeanutButter.DuckTyping");
-
-            var methodInfo = typeMakerType.GetMethods()
-                .FirstOrDefault(
-                    mi => mi.Name == "MakeTypeImplementing" &&
-                        !mi.IsGenericMethod &&
-                        HasOnlyTypeParameter(mi)
+                    $"Can't find (or load) {DUCK_ASM}"
                 );
-            if (methodInfo == null)
-                throw new Exception(
-                    "Can't find MakeTypeImplementing method on TypeMaker with single parameter (Type to implement)");
+            }
 
-            var instance = Activator.CreateInstance(typeMakerType);
-            ConstructingType = (Type) methodInfo.Invoke(instance,
-                new object[] { typeof(TEntity) });
-            return (TEntity) Activator.CreateInstance(ConstructingType);
+            var dictionaryExtensions = asm.GetTypes()
+                .FirstOrDefault(t => t.Name == DUCK_TYPE);
+            if (dictionaryExtensions == null)
+            {
+                throw new Exception(
+                    $"Found {DUCK_ASM}, but didn't find expected {DUCK_TYPE}"
+                );
+            }
+
+            var method = dictionaryExtensions.GetMethods(BindingFlags.Public | BindingFlags.Static)
+                .Where(mi => mi.Name == DUCK_METHOD &&
+                    mi.IsGenericMethod)
+                .FirstOrDefault(mi =>
+                {
+                    var parameters = mi.GetParameters();
+                    return parameters.Length == 1 &&
+                        parameters[0].ParameterType == typeof(IDictionary<string, object>);
+                });
+            if (method == null)
+            {
+                throw new Exception(
+                    $"Found {DUCK_ASM}.{DUCK_TYPE}, but unable to find {DUCK_METHOD} with single parameter of type {DUCK_PARAMETER_TYPE}"
+                );
+            }
+
+            var specificMethod = method.MakeGenericMethod(typeof(TEntity));
+            return (TEntity) specificMethod.Invoke(
+                null,
+                new object[]
+                {
+                    new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
+                }
+            );
         }
 
         private static bool HasOnlyTypeParameter(MethodInfo mi)
@@ -386,7 +407,10 @@ namespace PeanutButter.RandomGenerators
 
         private static Assembly FindOrLoadDuckTyping<T>()
         {
-            return FindOrLoadAssembly<T>("PeanutButter.DuckTyping", false);
+            return FindOrLoadAssembly<T>(
+                DUCK_ASM,
+                false
+            );
         }
 
         private static T AttemptToCreateSubstituteFor<T>()
@@ -440,11 +464,14 @@ namespace PeanutButter.RandomGenerators
             bool retrying)
         {
             var loaded = AppDomain.CurrentDomain.GetAssemblies()
-                .FirstOrDefault(a => a.GetName()
-                        .Name ==
-                    name);
-            if (loaded != null || retrying)
+                .FirstOrDefault(
+                    a => a.GetName().Name == name
+                );
+            if (loaded != null ||
+                retrying)
+            {
                 return loaded;
+            }
 
             AttemptToLoadAssemblyAlongside<T>($"{name}.dll");
             return FindOrLoadAssembly<T>(name, true);
@@ -1242,7 +1269,7 @@ namespace PeanutButter.RandomGenerators
                     {
                         var asObject = entity as object;
                         specificSetters.ForEach(
-                            setter => TryDo(() =>  setter(prop, ref asObject)));
+                            setter => TryDo(() => setter(prop, ref asObject)));
 
                         continue;
                     }
