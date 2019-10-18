@@ -316,7 +316,7 @@ namespace PeanutButter.TempDb.MySql.Base
         /// use this.
         /// </summary>
         /// <param name="isRunningOnSsdDisk"></param>
-        public void OptimizeForPerformance(bool isRunningOnSsdDisk = false)
+        public TempDbMySqlServerSettings OptimizeForPerformance(bool isRunningOnSsdDisk = false)
         {
             SlowQueryLog = 0;
             GeneralLog = 0;
@@ -327,6 +327,7 @@ namespace PeanutButter.TempDb.MySql.Base
             InnoDbIoCapacity = isRunningOnSsdDisk
                 ? 3000
                 : InnoDbIoCapacity;
+            return this;
         }
     }
 }

@@ -39,5 +39,18 @@ namespace PeanutButter.TempDb.Tests
             // assert
             Expect(sut.InnoDbIoCapacity).To.Equal(3000);
         }
+
+        [Test]
+        public void WhenOptimizedForPerformance_ShouldReturnSelf()
+        {
+            // arrange
+            var sut = new TempDbMySqlServerSettings();
+            
+            // act
+            var result = sut.OptimizeForPerformance();
+            
+            // assert
+            Expect(result).To.Be.An.Instance.Of<TempDbMySqlServerSettings>();
+        }
     }
 }
