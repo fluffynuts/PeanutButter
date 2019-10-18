@@ -326,7 +326,7 @@ namespace PeanutButter.TempDb.MySql.Base
         /// </summary>
         public TempDbMySqlServerSettings OptimizeForPerformance()
         {
-            OptimizeForPerformance(false);
+            return OptimizeForPerformance(false);
         }
         
         /// <summary>
