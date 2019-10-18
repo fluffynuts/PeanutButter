@@ -314,9 +314,21 @@ namespace PeanutButter.TempDb.MySql.Base
         /// Optimises configuration for performance. Warning, this has an effect on durability in the event
         /// of a server crash. If you care about your data in the event of a system/process crash, do not
         /// use this.
+        /// This overload optimises to run on a non-SSD disk
         /// </summary>
-        /// <param name="isRunningOnSsdDisk"></param>
-        public TempDbMySqlServerSettings OptimizeForPerformance(bool isRunningOnSsdDisk = false)
+        public TempDbMySqlServerSettings OptimizeForPerformance()
+        {
+            OptimizeForPerformance(false);
+        }
+        
+        /// <summary>
+        /// Optimises configuration for performance. Warning, this has an effect on durability in the event
+        /// of a server crash. If you care about your data in the event of a system/process crash, do not
+        /// use this.
+        /// </summary>
+        /// <param name="isRunningOnSsdDisk">Set this to true to cap off InnoDbIoCapacity to 3000 (for 
+        /// spinning rust disks)</param>
+        public TempDbMySqlServerSettings OptimizeForPerformance(bool isRunningOnSsdDisk)
         {
             SlowQueryLog = 0;
             GeneralLog = 0;
