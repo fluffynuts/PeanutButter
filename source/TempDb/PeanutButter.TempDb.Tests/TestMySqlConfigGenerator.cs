@@ -171,7 +171,7 @@ sql-mode=""STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION""
 log-output=FILE
 general-log=0
 general_log_file=""mysql-general.log""
-slow-query-log=1
+slow-query-log=0
 slow_query_log_file=""mysql-slow.log""
 long_query_time=10
 log-error=""mysql-err.log""
@@ -183,13 +183,15 @@ myisam_max_sort_file_size=100G
 innodb_flush_log_at_trx_commit=1
 innodb_buffer_pool_size=384M
 innodb_log_file_size=48M
-innodb_thread_concurrency=8
+innodb_thread_concurrency=0
 innodb_autoextend_increment=64
 innodb_concurrency_tickets=5000
 innodb_old_blocks_time=1000
 innodb_stats_on_metadata=0
 innodb_file_per_table=1
 innodb_checksum_algorithm=0
+innodb_flush_log_at_timeout = 1
+innodb_io_capacity = 200
 back_log=80
 flush_time=0
 join_buffer_size=256K
@@ -202,6 +204,7 @@ binlog_row_event_max_size=8K
 sync_master_info=10000
 sync_relay_log=10000
 sync_relay_log_info=10000
+sync_binlog = 1
 ";
     }
 }

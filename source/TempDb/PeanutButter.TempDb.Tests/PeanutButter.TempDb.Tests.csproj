@@ -66,6 +66,7 @@
     <Compile Include="TestTempDBLocalDb.cs" />
     <Compile Include="TestTempDBMySqlConnector.cs" />
     <Compile Include="TestTempDbMySqlData.cs" />
+    <Compile Include="TestTempDbMySqlServerSettings.cs" />
     <Compile Include="TestTempDBSqlCe.cs" />
     <Compile Include="TestTempDBSqlite.cs" />
   </ItemGroup>
