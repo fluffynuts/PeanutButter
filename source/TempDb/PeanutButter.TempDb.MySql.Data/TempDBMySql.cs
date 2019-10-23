@@ -76,13 +76,13 @@ namespace PeanutButter.TempDb.MySql.Data
         {
             var builder = new MySqlConnectionStringBuilder
             {
-                Port = (uint) _port,
+                Port = (uint) Port,
                 UserID = "root",
                 Password = "",
                 Server = "localhost",
                 AllowUserVariables = true,
                 SslMode = MySqlSslMode.None,
-                Database = _schema,
+                Database = Schema,
                 ConnectionTimeout = DefaultTimeout,
                 DefaultCommandTimeout = DefaultTimeout
             };

@@ -58,6 +58,12 @@ namespace PeanutButter.TempDb.MySql.Base
             /// -> this is the default on !windows, but it can be forced there
             /// </summary>
             public bool ForceFindMySqlInPath { get; set; }
+
+            /// <summary>
+            /// Sets a name for this instance. Named instances will attempt to
+            /// share schema.
+            /// </summary>
+            public string Name { get; set; }
         }
         
         /// <summary>
@@ -348,6 +354,19 @@ namespace PeanutButter.TempDb.MySql.Base
                 ? 3000
                 : InnoDbIoCapacity;
             return this;
+        }
+    }
+
+    public class TempDbMuSqlServerSettingsBuilder
+    {
+        public static TempDbMuSqlServerSettingsBuilder Create()
+        {
+            return new TempDbMuSqlServerSettingsBuilder();
+        }
+
+        public TempDbMySqlServerSettings Build()
+        {
+            throw new NotImplementedException();
         }
     }
 }

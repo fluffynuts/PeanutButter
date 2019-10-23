@@ -35,8 +35,10 @@ namespace PeanutButter.TempDb.MySql.Base
 
         private readonly Random _random = new Random();
         private Process _serverProcess;
-        protected int _port;
+        protected int Port;
+        // ReSharper disable once StaticMemberInGenericType
         private static readonly object MysqldLock = new object();
+        // ReSharper disable once StaticMemberInGenericType
         private static string _mysqld;
 
 #if NETSTANDARD
@@ -51,7 +53,7 @@ namespace PeanutButter.TempDb.MySql.Base
             );
 #endif
 
-        protected string _schema;
+        protected string Schema;
         private AutoDeleter _autoDeleter;
 
         /// <summary>
@@ -146,13 +148,13 @@ namespace PeanutButter.TempDb.MySql.Base
         protected override void CreateDatabase()
         {
             var mysqld = Settings?.Options?.PathToMySqlD ?? FindInstalledMySqlD();
-            _port = FindOpenRandomPort();
+            Port = FindOpenRandomPort();
 
             var tempDefaultsPath = CreateTemporaryDefaultsFile();
             EnsureIsRemoved(DatabasePath);
             InitializeWith(mysqld, tempDefaultsPath);
             DumpDefaultsFileAt(DatabasePath);
-            StartServer(mysqld, _port);
+            StartServer(mysqld, Port);
             CreateInitialSchema();
         }
 
@@ -178,7 +180,7 @@ namespace PeanutButter.TempDb.MySql.Base
         public void SwitchToSchema(string schema)
         {
             // last-recorded schema may no longer exist; so go schemaless for this connection
-            _schema = "";
+            Schema = "";
             if (string.IsNullOrWhiteSpace(schema))
             {
                 return;
@@ -193,7 +195,7 @@ namespace PeanutButter.TempDb.MySql.Base
                 command.CommandText = $"use `{schema}`";
                 command.ExecuteNonQuery();
 
-                _schema = schema;
+                Schema = schema;
             }
         }
 

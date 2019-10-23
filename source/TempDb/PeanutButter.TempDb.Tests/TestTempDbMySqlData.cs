@@ -331,6 +331,23 @@ namespace PeanutButter.TempDb.Tests
             }
         }
 
+        [TestFixture]
+        public class SharingSchemaBetweenNamedInstances
+        {
+            [Test]
+            [Ignore("WIP")]
+            public void SimpleSchemaSharing()
+            {
+                // Arrange
+//                var name = GetRandomString(10, 20);
+//                var settings = TempDbMySqlServerSettings.
+//                using (var outer = new TempDBMySql(
+//                    new
+                // Act
+                // Assert
+            }
+        }
+
         private static void Execute(
             ITempDB tempDb,
             string sql)

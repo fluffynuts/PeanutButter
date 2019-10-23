@@ -3,6 +3,7 @@
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <RuntimeIdentifiers>win;osx;linux</RuntimeIdentifiers>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -61,6 +62,7 @@
     <Compile Include="TestAutoResetter.cs" />
     <Compile Include="TestAutoTempFile.cs" />
     <Compile Include="TestAutoTempFolder.cs" />
+    <Compile Include="TestBuilder.cs" />
     <Compile Include="TestByteArrayExtensions.cs" />
     <Compile Include="TestDateTimeExtensions.cs" />
     <Compile Include="TestDecimalDecorator.cs" />
