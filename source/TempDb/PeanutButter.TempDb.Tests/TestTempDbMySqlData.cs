@@ -252,6 +252,38 @@ namespace PeanutButter.TempDb.Tests
         }
 
         [TestFixture]
+        public class Cleanup
+        {
+            [Test]
+            public void ShouldCleanUpResourcesWhenDisposed()
+            {
+                // Arrange
+                using (var tempFolder = new AutoTempFolder())
+                {
+                    using (new AutoResetter<string>(() =>
+                    {
+                        var original = TempDbHints.PreferredBasePath;
+                        TempDbHints.PreferredBasePath = tempFolder.Path;
+                        return original;
+                    }, original =>
+                    {
+                        TempDbHints.PreferredBasePath = original;
+                    }))
+                    {
+                        // Act
+                        using (new TempDBMySql())
+                        {
+                        };
+
+                        // Assert
+                        var entries = Directory.EnumerateDirectories(tempFolder.Path);
+                        Expect(entries).To.Be.Empty();
+                    }
+                }
+            }
+        }
+
+        [TestFixture]
         [Explicit("relies on machine-specific setup")]
         public class FindingInPath
         {

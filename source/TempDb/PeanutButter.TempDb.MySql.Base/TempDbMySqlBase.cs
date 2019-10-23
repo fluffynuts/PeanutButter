@@ -231,9 +231,9 @@ namespace PeanutButter.TempDb.MySql.Base
         {
             try
             {
-                base.Dispose();
                 AttemptGracefulShutdown();
                 EndServerProcess();
+                base.Dispose();
                 _autoDeleter?.Dispose();
                 _autoDeleter = null;
             }
