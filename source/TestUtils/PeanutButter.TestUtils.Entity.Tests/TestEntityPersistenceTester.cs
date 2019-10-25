@@ -672,7 +672,7 @@ create table SomeEntityWithDecimalValue (
             public new DbConnection OpenConnection()
             {
                 OpenConnectionCalls++;
-                return OpenConnection();
+                return base.OpenConnection();
             }
         }
 
