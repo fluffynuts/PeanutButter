@@ -11,7 +11,6 @@ using NExpect;
 using static NExpect.Expectations;
 
 // ReSharper disable PossibleMultipleEnumeration
-
 // ReSharper disable PossibleNullReferenceException
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ClassNeverInstantiated.Global
@@ -2093,6 +2092,44 @@ namespace PeanutButter.Utils.Tests
 
                 //--------------- Assert -----------------------
                 Expect(result).To.Be.False();
+            }
+        }
+
+        [TestFixture]
+        public class AsEnumerable
+        {
+            [Test]
+            public void ShouldBeAbleToEnumerateIEnumerable()
+            {
+                // Arrange
+                var data = new[] { 1, 2, 3 };
+                // Act
+                var result = data.AsEnumerable<long>().ToArray();
+                // Assert
+                Expect(result).To.Equal(data.Select(o => (long)o));
+            }
+
+            [Test]
+            public void ShouldBeAbleToEnumerateDuckable()
+            {
+                // Arrange
+                var data = new[] { 4, 5, 6 };
+                var enumerable = new MyEnumerable<int>(data);
+                // Act
+                var result = enumerable.AsEnumerable<int>();
+                // Assert
+                Expect(result).To.Equal(data);
+            }
+
+            [Test]
+            public void ShouldBeAbleToEnumerateParseable()
+            {
+                // Arrange
+                var data = new[] { "7", "8", "9" };
+                // Act
+                var result = data.AsEnumerable<int>();
+                // Assert
+                Expect(result).To.Equal(new[] { 7, 8, 9 });
             }
         }
 

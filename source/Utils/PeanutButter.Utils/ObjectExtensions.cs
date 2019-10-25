@@ -879,6 +879,17 @@ namespace PeanutButter.Utils
             return Math.Truncate(value * mul) / mul;
         }
 
+        /// <summary>
+        /// Attempts to convert any object to an IEnumerable&lt;T&gt;
+        /// - existing IEnumerables will "just work"
+        /// - where possible, types are cast or converted
+        ///   - eg an array of strings which are numbers will be converted to ints if required
+        /// - also deals with objects which don't implement IEnumerable, but are enumerable
+        ///   in a foreach as per C#/.NET compile-time duck-typing, like Regex's MatchCollection
+        /// </summary>
+        /// <param name="src">Object to operate on</param>
+        /// <typeparam name="T">Desired collection element type</typeparam>
+        /// <returns></returns>
         public static IEnumerable<T> AsEnumerable<T>(
             this object src)
         {
@@ -893,14 +904,13 @@ namespace PeanutButter.Utils
                 return Enumerate<T>(asEnumerable.GetEnumerator());
             }
 
-            var method = src.GetType().GetMethod("GetEnumerator");
-            if (method == null)
+            var wrapped = new EnumerableWrapper<T>(src);
+            if (!wrapped.IsValid)
             {
                 return new T[0];
             }
 
-            var enumerator = method.Invoke(src, new object[0]);
-            return new T[0];
+            return wrapped;
         }
 
 
@@ -912,6 +922,10 @@ namespace PeanutButter.Utils
                 {
                     yield return current;
                 }
+                else if (TryChangeType<T>(enumerator.Current, out var converted))
+                {
+                    yield return converted;
+                }
                 else
                 {
                     throw new InvalidOperationException(
@@ -919,6 +933,63 @@ namespace PeanutButter.Utils
                     );
                 }
             }
+        }
+
+        /// <summary>
+        /// Analogous to TryParse methods, this will attempt to convert a value to
+        /// the type T, returning true if it can, and populating the output parameter
+        /// </summary>
+        /// <param name="input">Value to work on</param>
+        /// <param name="output">Output parameter to collect result</param>
+        /// <typeparam name="T">Desired type</typeparam>
+        /// <returns>True when can ChangeType, false otherwise</returns>
+        public static bool TryChangeType<T>(
+            this object input,
+            out T output)
+        {
+            if (input is T immediateResult)
+            {
+                output = immediateResult;
+                return true;
+            }
+
+            var result = TryChangeType(input, typeof(T), out var outputObj);
+            output = (T) outputObj;
+            return result;
+        }
+
+        /// <summary>
+        /// Analogous to TryParse methods, this will attempt to convert a value to
+        /// the type requiredType, returning true if it can, and populating the output parameter
+        /// </summary>
+        /// <param name="input">Value to work on</param>
+        /// <param name="requiredType">The required type</param>
+        /// <param name="output">Output parameter to collect result</param>
+        /// <returns>True when can ChangeType, false otherwise</returns>
+        public static bool TryChangeType(
+            this object input,
+            Type requiredType,
+            out object output)
+        {
+            try
+            {
+                output = Convert.ChangeType(input, requiredType);
+                return true;
+            }
+            catch
+            {
+                var method = GenericDefaultOfT.MakeGenericMethod(requiredType);
+                output = method.Invoke(null, new object[0]);
+                return false;
+            }
+        }
+
+        private static readonly MethodInfo GenericDefaultOfT = typeof(ObjectExtensions)
+            .GetMethod(nameof(Default), BindingFlags.Static | BindingFlags.NonPublic);
+
+        private static T Default<T>()
+        {
+            return default(T);
         }
     }
 }

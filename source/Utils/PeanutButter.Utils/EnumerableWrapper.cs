@@ -233,8 +233,9 @@ namespace PeanutButter.Utils
             {
                 return matched;
             }
-
-            return default(T);
+            return getValue.TryChangeType<T>(out var converted)
+                ? converted
+                : default(T);
         }
 
         public void Dispose()

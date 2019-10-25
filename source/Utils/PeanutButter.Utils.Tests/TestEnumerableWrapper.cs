@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +24,6 @@ namespace PeanutButter.Utils.Tests
             {
                 // Arrange
                 var data = new[] { 1, 2, 3 };
-                var foo = (IEnumerable) data;
                 var enumerable = new MyEnumerable<int>(data);
                 var collector = new List<int>();
                 // Act
@@ -52,13 +52,13 @@ namespace PeanutButter.Utils.Tests
                 Expect(sut.IsValid).To.Be.True();
                 foreach (var item in sut)
                 {
-                    collector.Add((int)item);
+                    collector.Add((int) item);
                 }
 
                 // Assert
                 Expect(collector).To.Equal(data);
             }
-            
+
             [Test]
             public void ShouldBeAbleToEnumerateOverEnumerable_Typed()
             {
@@ -71,46 +71,6 @@ namespace PeanutButter.Utils.Tests
                 var result = sut.ToList();
                 // Assert
                 Expect(result).To.Equal(data);
-            }
-        }
-
-        public class MyEnumerator<T>
-        {
-            public T Current => _data[_index];
-
-            private readonly T[] _data;
-            private int _index;
-
-            public MyEnumerator(T[] data)
-            {
-                _data = data;
-                Reset();
-            }
-
-            public bool MoveNext()
-            {
-                _index++;
-                return (_index < _data.Length);
-            }
-
-            public void Reset()
-            {
-                _index = -1;
-            }
-        }
-
-        public class MyEnumerable<T>
-        {
-            private readonly T[] _data;
-
-            public MyEnumerable(T[] data)
-            {
-                _data = data;
-            }
-
-            public MyEnumerator<T> GetEnumerator()
-            {
-                return new MyEnumerator<T>(_data);
             }
         }
     }
