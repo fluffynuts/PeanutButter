@@ -37,7 +37,7 @@ namespace EmailSpooler.Win32Service.Entity.Tests
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                using (var connection = _tempDb.CreateConnection())
+                using (var connection = _tempDb.OpenConnection())
                 {
                     using (var cmd = connection.CreateCommand())
                     {

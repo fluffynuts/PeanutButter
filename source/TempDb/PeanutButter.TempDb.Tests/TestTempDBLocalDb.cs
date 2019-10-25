@@ -74,7 +74,7 @@ namespace PeanutButter.TempDb.Tests
             using (var db = new TempDBLocalDb())
             {
                 //---------------Assert Precondition----------------
-                var conn = db.CreateConnection();
+                var conn = db.OpenConnection();
                 var cmd = conn.CreateCommand();
                 cmd.CommandText = "create table [test] ([id] int primary key identity, [name] nvarchar(128));";
                 cmd.ExecuteNonQuery();
@@ -138,7 +138,7 @@ namespace PeanutButter.TempDb.Tests
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                using (var conn = db.CreateConnection())
+                using (var conn = db.OpenConnection())
                 {
                     using (var cmd = conn.CreateCommand())
                     {
@@ -170,7 +170,7 @@ namespace PeanutButter.TempDb.Tests
 
                 //---------------Assert Precondition----------------
 
-                var conn = db.CreateConnection();
+                var conn = db.OpenConnection();
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = selectData;

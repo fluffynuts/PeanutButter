@@ -94,7 +94,7 @@ namespace PeanutButter.TempDb.Tests
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                using (var conn = db.CreateConnection())
+                using (var conn = db.OpenConnection())
                 {
                     using (var cmd = conn.CreateCommand())
                     {

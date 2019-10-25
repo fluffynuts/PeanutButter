@@ -66,7 +66,7 @@ namespace PeanutButter.TempDb.Tests
                 {
                     var util = new MySqlConnectionStringUtil(db.ConnectionString);
                     Expect(util.Database).Not.To.Be.Null.Or.Empty();
-                    using (var connection = db.CreateConnection())
+                    using (var connection = db.OpenConnection())
                     using (var command = connection.CreateCommand())
                     {
                         command.CommandText = new[]
@@ -77,7 +77,7 @@ namespace PeanutButter.TempDb.Tests
                         command.ExecuteNonQuery();
                     }
 
-                    using (var connection = db.CreateConnection())
+                    using (var connection = db.OpenConnection())
                     using (var command = connection.CreateCommand())
                     {
                         command.CommandText = "select id, name from cows;";
@@ -164,7 +164,7 @@ namespace PeanutButter.TempDb.Tests
                 {
                     // Arrange
                     // Act
-                    using (var connection = sut.CreateConnection())
+                    using (var connection = sut.OpenConnection())
                     using (var command = connection.CreateCommand())
                     {
                         command.CommandText = new[]
@@ -177,7 +177,7 @@ namespace PeanutButter.TempDb.Tests
                         command.ExecuteNonQuery();
                     }
 
-                    using (var connection = sut.CreateConnection())
+                    using (var connection = sut.OpenConnection())
                     {
                         // Assert
                         var users = connection.Query<User>(
@@ -230,7 +230,7 @@ namespace PeanutButter.TempDb.Tests
                 Expect(() =>
                 {
                     using (var db = Create())
-                    using (db.CreateConnection())
+                    using (db.OpenConnection())
                     {
                         // Act
                         // Assert
@@ -295,7 +295,7 @@ namespace PeanutButter.TempDb.Tests
                 Expect(() =>
                 {
                     using (var db = Create())
-                    using (db.CreateConnection())
+                    using (db.OpenConnection())
                     {
                         // Act
                         // Assert
@@ -389,7 +389,7 @@ namespace PeanutButter.TempDb.Tests
             ITempDB tempDb,
             string sql)
         {
-            using (var conn = tempDb.CreateConnection())
+            using (var conn = tempDb.OpenConnection())
             using (var cmd = conn.CreateCommand())
             {
                 cmd.CommandText = sql;
@@ -402,7 +402,7 @@ namespace PeanutButter.TempDb.Tests
             string sql
         )
         {
-            using (var conn = tempDb.CreateConnection())
+            using (var conn = tempDb.OpenConnection())
             using (var cmd = conn.CreateCommand())
             {
                 cmd.CommandText = sql;

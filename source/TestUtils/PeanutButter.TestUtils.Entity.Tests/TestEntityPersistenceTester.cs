@@ -672,7 +672,7 @@ create table SomeEntityWithDecimalValue (
             public new DbConnection CreateConnection()
             {
                 CreateConnectionCalls++;
-                return base.CreateConnection();
+                return OpenConnection();
             }
         }
 
@@ -683,7 +683,7 @@ create table SomeEntityWithDecimalValue (
 
         private static void AssertCanRead(ITempDB tempDb, string sql)
         {
-            using (var conn = tempDb.CreateConnection())
+            using (var conn = tempDb.OpenConnection())
             using (var cmd = conn.CreateCommand())
             {
                 cmd.CommandText = sql;

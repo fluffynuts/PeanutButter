@@ -216,7 +216,7 @@ namespace PeanutButter.TempDb.MySql.Base
                 return;
             }
 
-            using (var connection = CreateConnection())
+            using (var connection = OpenConnection())
             using (var command = connection.CreateCommand())
             {
                 command.CommandText = $"create schema if not exists `{schema}`";
@@ -312,7 +312,7 @@ namespace PeanutButter.TempDb.MySql.Base
                 try
                 {
                     SwitchToSchema("mysql");
-                    using (var connection = CreateConnection())
+                    using (var connection = OpenConnection())
                     using (var command = connection.CreateCommand())
                     {
                         // this is only available from mysql 5.7.9 onward (https://dev.mysql.com/doc/refman/5.7/en/shutdown.html)
@@ -384,7 +384,7 @@ namespace PeanutButter.TempDb.MySql.Base
         {
             try
             {
-                CreateConnection()?.Dispose();
+                OpenConnection()?.Dispose();
                 return true;
             }
             catch
