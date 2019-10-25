@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using PeanutButter.Utils;
 
 namespace PeanutButter.TempDb.MySql.Base
 {
@@ -357,16 +358,12 @@ namespace PeanutButter.TempDb.MySql.Base
         }
     }
 
-    public class TempDbMuSqlServerSettingsBuilder
+    public class TempDbMySqlServerSettingsBuilder: 
+        Builder<TempDbMySqlServerSettingsBuilder, TempDbMySqlServerSettings>
     {
-        public static TempDbMuSqlServerSettingsBuilder Create()
+        public TempDbMySqlServerSettingsBuilder WithName(string name)
         {
-            return new TempDbMuSqlServerSettingsBuilder();
-        }
-
-        public TempDbMySqlServerSettings Build()
-        {
-            throw new NotImplementedException();
+            return WithProp(o => o.Options.Name = name);
         }
     }
 }

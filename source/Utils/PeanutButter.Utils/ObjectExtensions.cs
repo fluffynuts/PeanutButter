@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -46,8 +47,8 @@ namespace PeanutButter.Utils
         )
         {
             return objSource.DeepEquals(
-                objCompare, 
-                ObjectComparisons.PropertiesAndFields, 
+                objCompare,
+                ObjectComparisons.PropertiesAndFields,
                 ignorePropertiesByName);
         }
 
@@ -134,7 +135,7 @@ namespace PeanutButter.Utils
                 objSource,
                 objCompare,
                 ignorePropertiesByName
-            ) {IncludeFields = comparison == ObjectComparisons.PropertiesAndFields};
+            ) { IncludeFields = comparison == ObjectComparisons.PropertiesAndFields };
             return tester.AreDeepEqual();
         }
 
@@ -156,9 +157,9 @@ namespace PeanutButter.Utils
         {
             var tester = new DeepEqualityTester(
                 objSource, objCompare, ignorePropertiesByName)
-                {
-                    RecordErrors = true
-                };
+            {
+                RecordErrors = true
+            };
             var result = tester.AreDeepEqual();
             tester.Errors.ForEach(failureLogAction);
             return result;
@@ -181,7 +182,7 @@ namespace PeanutButter.Utils
                 objSource,
                 objCompare,
                 ignorePropertiesByName
-            ) {FailOnMissingProperties = false};
+            ) { FailOnMissingProperties = false };
             return tester.AreDeepEqual();
         }
 
@@ -202,7 +203,7 @@ namespace PeanutButter.Utils
                 objSource,
                 objCompare,
                 ignorePropertiesByName
-            ) {OnlyTestIntersectingProperties = true};
+            ) { OnlyTestIntersectingProperties = true };
             return tester.AreDeepEqual();
         }
 
@@ -314,17 +315,17 @@ namespace PeanutButter.Utils
         )
         {
             return collection.Aggregate(
-                       0,
-                       (acc, cur) =>
-                       {
-                           if (acc > 1)
-                               return acc;
-                           acc += comparer(cur, item)
-                               ? 1
-                               : 0;
-                           return acc;
-                       }) ==
-                   1;
+                    0,
+                    (acc, cur) =>
+                    {
+                        if (acc > 1)
+                            return acc;
+                        acc += comparer(cur, item)
+                            ? 1
+                            : 0;
+                        return acc;
+                    }) ==
+                1;
         }
 
         /// <summary>
@@ -370,12 +371,12 @@ namespace PeanutButter.Utils
 
             foreach (var srcPropInfo in srcPropInfos.Where(
                 pi => pi.CanRead &&
-                      pi.GetIndexParameters().Length == 0))
+                    pi.GetIndexParameters().Length == 0))
             {
                 var matchingTarget = dstPropInfos.FirstOrDefault(
                     dp => dp.Name == srcPropInfo.Name &&
-                          dp.PropertyType == srcPropInfo.PropertyType &&
-                          dp.CanWrite);
+                        dp.PropertyType == srcPropInfo.PropertyType &&
+                        dp.CanWrite);
                 if (matchingTarget == null)
                     continue;
 
@@ -446,7 +447,7 @@ namespace PeanutButter.Utils
             if (itemType == null)
                 return false;
             var method = _genericMakeListCopy.MakeGenericMethod(itemType);
-            var newValue = method.Invoke(null, new[] {srcVal});
+            var newValue = method.Invoke(null, new[] { srcVal });
             dstPropertyInfo.SetValue(dst, newValue);
             return true;
         }
@@ -467,7 +468,7 @@ namespace PeanutButter.Utils
                 return false;
             var specific = _genericMakeArrayCopy.MakeGenericMethod(underlyingType);
             // ReSharper disable once RedundantExplicitArrayCreation
-            var newValue = specific.Invoke(null, new[] {srcVal});
+            var newValue = specific.Invoke(null, new[] { srcVal });
             dstPropertyInfo.SetValue(dst, newValue);
             return true;
         }
@@ -607,7 +608,7 @@ namespace PeanutButter.Utils
             }
 
             var method = _genericMakeDictionaryCopy.MakeGenericMethod(keyType, valueType);
-            return method.Invoke(null, new[] {src, cloneType});
+            return method.Invoke(null, new[] { src, cloneType });
         }
 
         private static object CloneEnumerable(object src, Type cloneType)
@@ -616,7 +617,7 @@ namespace PeanutButter.Utils
                 return null;
             var itemType = cloneType.GetCollectionItemType();
             var method = _genericMakeArrayCopy.MakeGenericMethod(itemType);
-            return method.Invoke(null, new[] {src});
+            return method.Invoke(null, new[] { src });
         }
 
         private static object CloneList(object src, Type cloneType)
@@ -625,7 +626,7 @@ namespace PeanutButter.Utils
                 return null;
             var itemType = cloneType.GetCollectionItemType();
             var method = _genericMakeListCopy.MakeGenericMethod(itemType);
-            return method.Invoke(null, new[] {src});
+            return method.Invoke(null, new[] { src });
         }
 
         private static object CloneArray(object src, Type cloneType)
@@ -634,7 +635,7 @@ namespace PeanutButter.Utils
                 return null;
             var itemType = cloneType.GetCollectionItemType();
             var method = _genericMakeArrayCopy.MakeGenericMethod(itemType);
-            return method.Invoke(null, new[] {src});
+            return method.Invoke(null, new[] { src });
         }
 
         private static object CloneObject(object src, Type cloneType)
@@ -673,9 +674,9 @@ namespace PeanutButter.Utils
         {
             return Types.PrimitivesAndImmutables.Any(
                 si => si == t ||
-                      (t.IsGenericType() &&
-                       t.GetGenericTypeDefinition() == typeof(Nullable<>) &&
-                       Nullable.GetUnderlyingType(t) == si));
+                    (t.IsGenericType() &&
+                        t.GetGenericTypeDefinition() == typeof(Nullable<>) &&
+                        Nullable.GetUnderlyingType(t) == si));
         }
 
         /// <summary>
@@ -741,7 +742,7 @@ namespace PeanutButter.Utils
         /// <returns>A single-element array containing the input object</returns>
         public static T[] AsArray<T>(this T input)
         {
-            return new[] {input};
+            return new[] { input };
         }
 
         private static T ResolvePropertyValueFor<T>(
@@ -876,6 +877,48 @@ namespace PeanutButter.Utils
         {
             var mul = new decimal(Math.Pow(10, places));
             return Math.Truncate(value * mul) / mul;
+        }
+
+        public static IEnumerable<T> AsEnumerable<T>(
+            this object src)
+        {
+            if (src == null)
+            {
+                return new T[0];
+            }
+
+            var asEnumerable = src as IEnumerable;
+            if (asEnumerable != null)
+            {
+                return Enumerate<T>(asEnumerable.GetEnumerator());
+            }
+
+            var method = src.GetType().GetMethod("GetEnumerator");
+            if (method == null)
+            {
+                return new T[0];
+            }
+
+            var enumerator = method.Invoke(src, new object[0]);
+            return new T[0];
+        }
+
+
+        private static IEnumerable<T> Enumerate<T>(IEnumerator enumerator)
+        {
+            while (enumerator.MoveNext())
+            {
+                if (enumerator.Current is T current)
+                {
+                    yield return current;
+                }
+                else
+                {
+                    throw new InvalidOperationException(
+                        $"Object of type {enumerator.Current} cannot be converted to {typeof(T)}"
+                    );
+                }
+            }
         }
     }
 }

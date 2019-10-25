@@ -1,4 +1,5 @@
-﻿using System.Data.SqlServerCe;
+﻿using System;
+using System.Data.SqlServerCe;
 // ReSharper disable InconsistentNaming
 
 namespace PeanutButter.TempDb.SqlCe
@@ -9,6 +10,14 @@ namespace PeanutButter.TempDb.SqlCe
             : base(creationScripts)
         {
         }
+
+        public override string DumpSchema()
+        {
+            throw new NotImplementedException(
+                "DumpSchema not yet implemented for LocalDb. Open a Pull Request!"
+            );
+        }
+
         protected override void CreateDatabase()
         {
             using (var engine = new SqlCeEngine(ConnectionString))

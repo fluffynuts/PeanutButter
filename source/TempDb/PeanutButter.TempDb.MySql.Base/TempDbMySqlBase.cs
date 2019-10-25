@@ -36,8 +36,10 @@ namespace PeanutButter.TempDb.MySql.Base
         private readonly Random _random = new Random();
         private Process _serverProcess;
         protected int Port;
+
         // ReSharper disable once StaticMemberInGenericType
         private static readonly object MysqldLock = new object();
+
         // ReSharper disable once StaticMemberInGenericType
         private static string _mysqld;
 
@@ -53,8 +55,12 @@ namespace PeanutButter.TempDb.MySql.Base
             );
 #endif
 
-        protected string Schema;
+        protected string SchemaName;
         private AutoDeleter _autoDeleter;
+        private UdpClient _udpClient;
+        private CancellationTokenSource _udpClientCancellationTokenSource;
+        private Task _udpClientListenerTask;
+        private int _ipcPort;
 
         /// <summary>
         /// Construct a TempDbMySql with zero or more creation scripts and default options
@@ -140,22 +146,152 @@ namespace PeanutButter.TempDb.MySql.Base
                 }
             }
 
-
             throw _noMySqlFoundException;
         }
+
+        private string MySqld =>
+            _mysqld ?? (_mysqld = Settings?.Options?.PathToMySqlD ?? FindInstalledMySqlD());
 
         /// <inheritdoc />
         protected override void CreateDatabase()
         {
-            var mysqld = Settings?.Options?.PathToMySqlD ?? FindInstalledMySqlD();
             Port = FindOpenRandomPort();
 
             var tempDefaultsPath = CreateTemporaryDefaultsFile();
             EnsureIsRemoved(DatabasePath);
-            InitializeWith(mysqld, tempDefaultsPath);
+            InitializeWith(MySqld, tempDefaultsPath);
             DumpDefaultsFileAt(DatabasePath);
-            StartServer(mysqld, Port);
+            StartServer(MySqld, Port);
             CreateInitialSchema();
+
+            var instanceName = Settings?.Options?.Name;
+            if (!string.IsNullOrWhiteSpace(instanceName))
+            {
+                var mysqldHome = Path.GetDirectoryName(MySqld);
+                if (!Directory.Exists(mysqldHome))
+                {
+                    throw new InvalidOperationException(
+                        $"Unable to find mysqld home folder {mysqldHome}"
+                    );
+                }
+
+                var mysqldump = Path.Combine(mysqldHome, "mysqldump");
+                if (Platform.IsWindows)
+                {
+                    mysqldump += ".exe";
+                }
+
+                if (!File.Exists(mysqldump))
+                {
+                    throw new InvalidOperationException(
+                        $"mysqldump not found at {mysqldump}"
+                    );
+                }
+
+                if (!SetupSchemaSharingListener(instanceName))
+                {
+                    AttemptToCopySchemaFromExistingInstance(instanceName);
+                }
+            }
+        }
+
+        public override string DumpSchema()
+        {
+            var mysqldHome = Path.GetDirectoryName(MySqld);
+            var mysqldump = Path.Combine(mysqldHome, "mysqldump");
+            if (Platform.IsWindows)
+            {
+                mysqldump += ".exe";
+            }
+
+            if (!File.Exists(mysqldump))
+            {
+                throw new InvalidOperationException(
+                    $"Unable to find mysqldump at {mysqldump}"
+                );
+            }
+
+            using (var io = new ProcessIO(
+                mysqldump,
+                "-u", "root",
+                "--password=",
+                "-h", "localhost",
+                "-P", Port.ToString(),
+                SchemaName))
+            {
+                return string.Join("\n", io.StandardOutput);
+            }
+        }
+
+        private bool SetupSchemaSharingListener(string instanceName)
+        {
+            var possibleRange = 65535 - 1024;
+            _ipcPort = 1024 + (Math.Abs(instanceName.GetHashCode()) % possibleRange);
+            _udpClient = new UdpClient();
+            try
+            {
+                _udpClient.Client.Bind(new IPEndPoint(IPAddress.Loopback, _ipcPort));
+            }
+            catch (SocketException)
+            {
+                return false;
+            }
+
+            _udpClientCancellationTokenSource = new CancellationTokenSource();
+            var token = _udpClientCancellationTokenSource.Token;
+            _udpClientListenerTask = Task.Run(() =>
+            {
+                var source = new IPEndPoint(IPAddress.Loopback, 0);
+                while (!token.IsCancellationRequested)
+                {
+                    var request = _udpClient?.Receive(ref source);
+                    if (request == null)
+                    {
+                        return;
+                    }
+
+                    var requestMessage = Encoding.UTF8.GetString(request);
+                    var parts = requestMessage.Split(':');
+                    if (parts[0] != "dump-request")
+                    {
+                        continue;
+                    }
+
+                    if (parts[1] != instanceName)
+                    {
+                        continue;
+                    }
+
+                    var response = DumpSchema();
+                    var responseBytes = Encoding.UTF8.GetBytes(response);
+                    _udpClient.Send(responseBytes, responseBytes.Length);
+                }
+            }, token);
+            return true;
+        }
+
+        private void AttemptToCopySchemaFromExistingInstance(
+            string instanceName)
+        {
+            var endpoint = new IPEndPoint(IPAddress.Loopback, _ipcPort);
+            var message = Encoding.UTF8.GetBytes($"dump-request:{instanceName}");
+            _udpClient.Send(message, message.Length, endpoint);
+            var request = _udpClient.Receive(ref endpoint);
+            var requestString = Encoding.UTF8.GetString(request);
+            var firstNewline = requestString.IndexOf("\n");
+            var schemaName = requestString.Substring(0, firstNewline)
+                .Trim()
+                .Replace("/*", "")
+                .Replace("*/", "");
+
+            using (var conn = OpenConnection())
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = requestString;
+                cmd.ExecuteNonQuery();
+            }
+
+            SwitchToSchema(schemaName);
         }
 
         private string CreateTemporaryDefaultsFile()
@@ -180,7 +316,7 @@ namespace PeanutButter.TempDb.MySql.Base
         public void SwitchToSchema(string schema)
         {
             // last-recorded schema may no longer exist; so go schemaless for this connection
-            Schema = "";
+            SchemaName = "";
             if (string.IsNullOrWhiteSpace(schema))
             {
                 return;
@@ -195,7 +331,7 @@ namespace PeanutButter.TempDb.MySql.Base
                 command.CommandText = $"use `{schema}`";
                 command.ExecuteNonQuery();
 
-                Schema = schema;
+                SchemaName = schema;
             }
         }
 
@@ -233,6 +369,9 @@ namespace PeanutButter.TempDb.MySql.Base
         {
             try
             {
+                _udpClientCancellationTokenSource.Cancel();
+                _udpClient?.Client?.Dispose();
+                _udpClient = null;
                 AttemptGracefulShutdown();
                 EndServerProcess();
                 base.Dispose();
@@ -582,4 +721,5 @@ namespace PeanutButter.TempDb.MySql.Base
             }
         }
     }
+
 }

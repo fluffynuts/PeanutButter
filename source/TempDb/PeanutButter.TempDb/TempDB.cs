@@ -19,7 +19,11 @@ namespace PeanutButter.TempDb
     {
         string DatabasePath { get; }
         string ConnectionString { get; }
+        [Obsolete("Please use OpenConnection")]
         DbConnection CreateConnection();
+        DbConnection OpenConnection();
+        
+        string DumpSchema();
     }
 
     public abstract class TempDB<TDatabaseConnection> : ITempDB where TDatabaseConnection : DbConnection
@@ -48,6 +52,8 @@ namespace PeanutButter.TempDb
             beforeInit(this);
             Init(creationScripts);
         }
+
+        public abstract string DumpSchema();
 
         protected virtual void Init(string[] creationScripts)
         {
@@ -104,7 +110,13 @@ namespace PeanutButter.TempDb
 
         protected abstract void CreateDatabase();
 
+        [Obsolete("Please use 'OpenConnection' instead")]
         public DbConnection CreateConnection()
+        {
+            return OpenConnection();
+        }
+
+        public DbConnection OpenConnection()
         {
             var connection = CreateOpenDatabaseConnection();
             _managedConnections.Add(connection);

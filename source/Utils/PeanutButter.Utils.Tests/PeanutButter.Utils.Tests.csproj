@@ -44,6 +44,7 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -69,6 +70,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestDeepEqualityTester.cs" />
     <Compile Include="Dictionaries\TestDefaultDictionary.cs" />
+    <Compile Include="TestEnumerableWrapper.cs" />
     <Compile Include="TestExpressionHelper.cs" />
     <Compile Include="TestExtensionsForIEnumerables.cs" />
     <Compile Include="Dictionaries\TestMergeDictionary.cs" />
@@ -85,6 +87,7 @@
     <Compile Include="TestTaskExtensions.cs" />
     <Compile Include="TestTypeEqualityTester.cs" />
     <Compile Include="TestTypeExtensions.cs" />
+    <Compile Include="TestUdpIpc.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\SimpleServers\PeanutButter.SimpleHTTPServer\PeanutButter.SimpleHTTPServer.csproj">

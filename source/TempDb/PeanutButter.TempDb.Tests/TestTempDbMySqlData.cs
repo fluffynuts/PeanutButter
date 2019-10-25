@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.ServiceProcess;
@@ -273,7 +274,9 @@ namespace PeanutButter.TempDb.Tests
                         // Act
                         using (new TempDBMySql())
                         {
-                        };
+                        }
+
+                        ;
 
                         // Assert
                         var entries = Directory.EnumerateDirectories(tempFolder.Path);
@@ -335,16 +338,51 @@ namespace PeanutButter.TempDb.Tests
         public class SharingSchemaBetweenNamedInstances
         {
             [Test]
-            [Ignore("WIP")]
+            public void ShouldBeAbleToQueryDumpedSchema()
+            {
+                // Arrange
+                using (var outer = new TempDBMySql(SCHEMA))
+                {
+                    // Act
+                    var dumped = outer.DumpSchema();
+                    using (var inner = new TempDBMySql(dumped))
+                    {
+                        var result = InsertAnimal(inner, "moo-cow");
+                        // Assert
+                        Expect(result).To.Be.Greater.Than(0);
+                    }
+                }
+            }
+            [Test]
             public void SimpleSchemaSharing()
             {
                 // Arrange
-//                var name = GetRandomString(10, 20);
-//                var settings = TempDbMySqlServerSettings.
-//                using (var outer = new TempDBMySql(
-//                    new
-                // Act
-                // Assert
+                var name = GetRandomString(10, 20);
+                var settings = TempDbMySqlServerSettingsBuilder.Create().WithName(name).Build();
+                using (new TempDBMySql(
+                    settings, SCHEMA))
+                {
+                    using (var inner = new TempDBMySql(settings))
+                    {
+                        // Act
+                        var result = InsertAnimal(inner, "cow");
+                        Expect(result).To.Be.Greater.Than(0);
+                    }
+                }
+            }
+            
+            private const string SCHEMA = "create table animals (id int primary key auto_increment, name text);";
+
+            private int InsertAnimal(
+                ITempDB db,
+                string name)
+            {
+                using (var conn = db.OpenConnection())
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = $"insert into animals (name) values ('{name}'); select LAST_INSERT_ID() as id;";
+                    return int.Parse(cmd.ExecuteScalar()?.ToString() ?? "0");
+                }
             }
         }
 

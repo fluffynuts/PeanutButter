@@ -82,11 +82,12 @@ namespace PeanutButter.TempDb.MySql.Data
                 Server = "localhost",
                 AllowUserVariables = true,
                 SslMode = MySqlSslMode.None,
-                Database = Schema,
+                Database = SchemaName,
                 ConnectionTimeout = DefaultTimeout,
                 DefaultCommandTimeout = DefaultTimeout
             };
             return builder.ToString();
         }
+
     }
 }

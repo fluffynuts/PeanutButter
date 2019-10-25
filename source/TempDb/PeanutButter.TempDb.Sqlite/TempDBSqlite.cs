@@ -1,4 +1,5 @@
-﻿using System.Data.SQLite;
+﻿using System;
+using System.Data.SQLite;
 // ReSharper disable InconsistentNaming
 
 namespace PeanutButter.TempDb.Sqlite
@@ -20,7 +21,14 @@ namespace PeanutButter.TempDb.Sqlite
             : base(creationScripts)
         {
         }
-        
+
+        public override string DumpSchema()
+        {
+            throw new NotImplementedException(
+                "DumpSchema not yet implemented for LocalDb. Open a Pull Request!"
+            );
+        }
+
         protected override void CreateDatabase()
         {
             SQLiteConnection.CreateFile(DatabasePath);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data.SqlClient;
 using System.IO;
+
 // ReSharper disable InconsistentNaming
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -79,6 +80,7 @@ namespace PeanutButter.TempDb.LocalDb
                     Console.WriteLine($"Error opening connection to {connection.ConnectionString}: {ex.Message}");
                     throw;
                 }
+
                 using (SqlCommand cmd = connection.CreateCommand())
                 {
                     cmd.CommandText =
@@ -104,15 +106,22 @@ namespace PeanutButter.TempDb.LocalDb
                 .Replace("}", string.Empty);
         }
 
+        public override string DumpSchema()
+        {
+            throw new NotImplementedException(
+                "DumpSchema not yet implemented for LocalDb. Open a Pull Request!"
+            );
+        }
+
         protected override string GenerateConnectionString()
         {
             var builder = new SqlConnectionStringBuilder()
-                {
-                    DataSource = $"(localdb)\\{InstanceName}",
-                    AttachDBFilename = DatabasePath,
-                    InitialCatalog = DatabaseName,
-                    ConnectTimeout = (int)DefaultTimeout,
-                };
+            {
+                DataSource = $"(localdb)\\{InstanceName}",
+                AttachDBFilename = DatabasePath,
+                InitialCatalog = DatabaseName,
+                ConnectTimeout = (int) DefaultTimeout,
+            };
             return builder.ToString();
         }
 
@@ -130,6 +139,7 @@ namespace PeanutButter.TempDb.LocalDb
                     cmd.ExecuteNonQuery();
                 }
             }
+
             File.Delete(DatabasePath);
         }
     }
