@@ -1,7 +1,7 @@
 <package>
   <metadata>
     <id>PeanutButter.TestUtils.Entity</id>
-    <version>1.2.315</version>
+    <version>1.2.316</version>
     <title>PeanutButter.TestUtils.Entity</title>
     <authors>Davyd McColl</authors>
     <owners></owners>
@@ -30,13 +30,13 @@
       <group targetFramework="net452">
         <dependency id="EntityFramework" version="[6.1.3,]" />
         <dependency id="NUnit" version="3.5.0" />
-        <dependency id="PeanutButter.FluentMigrator" version="1.2.315" />
-        <dependency id="PeanutButter.RandomGenerators" version="1.2.315" />
-        <dependency id="PeanutButter.TempDb" version="1.2.315" />
-        <dependency id="PeanutButter.TempDb.LocalDb" version="1.2.315" />
-        <dependency id="PeanutButter.TestUtils.Generic" version="1.2.315" />
-        <dependency id="PeanutButter.Utils" version="1.2.315" />
-        <dependency id="PeanutButter.Utils.Entity" version="1.2.315" />
+        <dependency id="PeanutButter.FluentMigrator" version="1.2.316" />
+        <dependency id="PeanutButter.RandomGenerators" version="1.2.316" />
+        <dependency id="PeanutButter.TempDb" version="1.2.316" />
+        <dependency id="PeanutButter.TempDb.LocalDb" version="1.2.316" />
+        <dependency id="PeanutButter.TestUtils.Generic" version="1.2.316" />
+        <dependency id="PeanutButter.Utils" version="1.2.316" />
+        <dependency id="PeanutButter.Utils.Entity" version="1.2.316" />
       </group>
     </dependencies>
     <references></references>
