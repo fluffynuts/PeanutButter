@@ -295,7 +295,7 @@ namespace PeanutButter.TestUtils.Entity
         private DbConnection GetConnection()
         {
             var tempDb = GetTempDb();
-            return tempDb.CreateConnection();
+            return tempDb.OpenConnection();
         }
 
         private ITempDB GetTempDb()

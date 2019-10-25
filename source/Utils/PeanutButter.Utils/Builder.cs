@@ -12,24 +12,46 @@ namespace PeanutButter.Utils
     public abstract class Builder<TBuilder, TEntity>
         where TBuilder : Builder<TBuilder, TEntity>, new()
     {
+        /// <summary>
+        /// Delegate describing an action which takes a reference to
+        /// any type (typically a value type)
+        /// </summary>
+        /// <param name="item"></param>
+        /// <typeparam name="T1"></typeparam>
         public delegate void ActionRef<T1>(ref T1 item);
 
         private static readonly Type EntityType = typeof(TEntity);
 
-        private static bool IsInterfaceType = EntityType.IsInterface;
+        // ReSharper disable once StaticMemberInGenericType
+        private static readonly bool IsInterfaceType = EntityType.IsInterface;
 
-        private static bool HasParameterlessConstructor =
+        // ReSharper disable once StaticMemberInGenericType
+        private static readonly bool HasParameterlessConstructor =
             EntityType.GetConstructors()
                 .Any(ctor => ctor.GetParameters().Length == 0);
 
         private readonly List<ActionRef<TEntity>> _transforms
             = new List<ActionRef<TEntity>>();
 
+        /// <summary>
+        /// Creates an instance of this builder; used for fluent
+        /// code like:
+        /// SomeBuilder.Create()
+        ///   .WithStuff()
+        ///   .Build();
+        /// </summary>
         public static TBuilder Create()
         {
             return new TBuilder();
         }
 
+        /// <summary>
+        /// Allows the derivative class to implement a custom
+        /// strategy for entity construction; for example:
+        /// - providing constructor parameters
+        /// - returning an implementation for an interface
+        /// </summary>
+        /// <returns></returns>
         protected virtual TEntity ConstructEntity()
         {
             if (IsInterfaceType)

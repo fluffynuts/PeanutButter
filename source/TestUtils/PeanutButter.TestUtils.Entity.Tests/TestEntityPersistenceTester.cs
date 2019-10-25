@@ -288,7 +288,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
                     .WithDbMigrator(connectionString => new DbSchemaImporter(connectionString, TestResources.dbscript))
                     .ShouldPersistAndRecall();
                 Assert.AreEqual(0, tempDb.DisposeCalls);
-                using (var ctx = new CommunicatorContext(tempDb.CreateConnection()))
+                using (var ctx = new CommunicatorContext(tempDb.OpenConnection()))
                 {
                     ctx.BlockListReasons.Clear(); // required to allow the persistence test to complete
                     ctx.SaveChangesWithErrorReporting();
@@ -553,7 +553,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
                     .ShouldPersistAndRecall();
 
                 // need to clear for the test to work again
-                using (var ctx = new EntityPersistenceContext(db.CreateConnection()))
+                using (var ctx = new EntityPersistenceContext(db.OpenConnection()))
                 {
                     ctx.EntitiesWithDecimalValues.Clear();
                     ctx.SaveChangesWithErrorReporting();
@@ -657,7 +657,7 @@ create table SomeEntityWithDecimalValue (
         private class TempDbWithCallInformation : TempDBLocalDb
         {
             public int DisposeCalls { get; private set; }
-            public int CreateConnectionCalls { get; private set; }
+            public int OpenConnectionCalls { get; private set; }
 
             public override void Dispose()
             {
@@ -669,9 +669,9 @@ create table SomeEntityWithDecimalValue (
                 base.Dispose();
             }
 
-            public new DbConnection CreateConnection()
+            public new DbConnection OpenConnection()
             {
-                CreateConnectionCalls++;
+                OpenConnectionCalls++;
                 return OpenConnection();
             }
         }

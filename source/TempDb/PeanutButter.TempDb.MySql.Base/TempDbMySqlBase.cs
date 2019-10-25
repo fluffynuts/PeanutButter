@@ -55,7 +55,6 @@ namespace PeanutButter.TempDb.MySql.Base
 
         protected string SchemaName;
         private AutoDeleter _autoDeleter;
-        private int _ipcPort;
 
         /// <summary>
         /// Construct a TempDbMySql with zero or more creation scripts and default options

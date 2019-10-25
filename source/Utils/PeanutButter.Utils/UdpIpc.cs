@@ -5,7 +5,7 @@ using System.Text;
 
 namespace PeanutButter.Utils.Experimental
 {
-    public class UdpIpc : IDisposable
+    internal class UdpIpc : IDisposable
     {
         public delegate void Receiver(byte[] message);
 
@@ -92,7 +92,7 @@ namespace PeanutButter.Utils.Experimental
         }
     }
 
-    public abstract class Message
+    internal abstract class Message
     {
         public abstract string Type { get; set; }
         public abstract object PayloadObject { get; }
@@ -103,7 +103,7 @@ namespace PeanutButter.Utils.Experimental
         }
     }
 
-    public class Message<T>: Message
+    internal class Message<T>: Message
     {
         public override string Type { get; set; }
 

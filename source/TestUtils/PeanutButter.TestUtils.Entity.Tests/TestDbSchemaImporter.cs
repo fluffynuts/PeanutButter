@@ -132,7 +132,7 @@ namespace PeanutButter.TestUtils.Entity.Tests
         public void ShouldHaveTableAfterMigration_(string tableName)
         {
             //---------------Set up test pack-------------------
-            using (var connection = _migratedDb.CreateConnection())
+            using (var connection = _migratedDb.OpenConnection())
             {
                 //---------------Assert Precondition----------------
 

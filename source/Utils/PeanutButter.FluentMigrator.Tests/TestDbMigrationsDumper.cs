@@ -109,12 +109,12 @@ namespace PeanutButter.FluentMigrator.Tests
                 );
                 migrator.MigrateToLatest();
                 var cow = RandomValueGen.GetRandom<Cow>();
-                using (var ctx = new MooContext(db.CreateConnection()))
+                using (var ctx = new MooContext(db.OpenConnection()))
                 {
                     ctx.Cows.Add(cow);
                     ctx.SaveChanges();
                 }
-                using (var ctx = new MooContext(db.CreateConnection()))
+                using (var ctx = new MooContext(db.OpenConnection()))
                 {
                     var allCows = ctx.Cows.ToArray();
                     Expect(allCows).To.Contain.Exactly(1).Item();

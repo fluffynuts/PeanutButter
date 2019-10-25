@@ -6,6 +6,10 @@ using System.Reflection;
 
 namespace PeanutButter.Utils
 {
+    /// <summary>
+    /// Used to describe a wrapper
+    /// - IsValid should flag whether or not the wrapping was successful
+    /// </summary>
     public interface IWrapper
     {
         /// <summary>
@@ -16,7 +20,7 @@ namespace PeanutButter.Utils
     }
 
     /// <summary>
-    /// Wraps an object which would be an acceptable enumeratable in a foreach
+    /// Wraps an object which would be an acceptable enumerable in a foreach
     /// (due to .NET compile-time duck-typing) into an actual IEnumerator
     /// </summary>
     public class EnumerableWrapper : IEnumerable, IWrapper
@@ -223,6 +227,8 @@ namespace PeanutButter.Utils
         }
 
         object IEnumerator.Current => Current;
+
+        /// <inheritdoc />
         public T Current => TryConvert(_currentPropInfo.GetValue(_wrapped));
 
         private T TryConvert(object getValue)
@@ -238,6 +244,7 @@ namespace PeanutButter.Utils
                 : default(T);
         }
 
+        /// <inheritdoc />
         public void Dispose()
         {
             // nothing to do

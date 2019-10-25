@@ -91,7 +91,7 @@ namespace PeanutButter.TestUtils.Entity
         // ReSharper disable once VirtualMemberNeverOverridden.Global
         protected virtual TDbContext GetContext(bool logSql = false)
         {
-            var connection = _tempDb.CreateConnection();
+            var connection = _tempDb.OpenConnection();
             lock (_tempDb)
             {
                 var context = (TDbContext) Activator.CreateInstance(typeof(TDbContext), connection);
