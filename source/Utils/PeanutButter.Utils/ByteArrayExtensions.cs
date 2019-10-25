@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using System.Text;
 
 #if BUILD_PEANUTBUTTER_INTERNAL
@@ -43,9 +44,9 @@ namespace PeanutButter.Utils
         // ReSharper disable once InconsistentNaming
         public static string ToUTF8String(this byte[] data)
         {
-            if (data == null)
-                return null;
-            return Encoding.UTF8.GetString(data);
+            return data == null
+                ? null
+                : Encoding.UTF8.GetString(data);
         }
 
         /// <summary>
@@ -57,6 +58,18 @@ namespace PeanutButter.Utils
         public static string ToBase64(this byte[] data)
         {
             return System.Convert.ToBase64String(data);
+        }
+
+        /// <summary>
+        /// Converts a byte array to memory stream
+        /// - treats null like empty array
+        /// </summary>
+        /// <param name="bytes">input bytes</param>
+        /// <returns></returns>
+        public static MemoryStream ToMemoryStream(
+            this byte[] bytes)
+        {
+            return new MemoryStream(bytes ?? new byte[0]);
         }
     }
 }

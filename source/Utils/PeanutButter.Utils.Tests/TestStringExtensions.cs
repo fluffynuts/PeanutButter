@@ -1172,5 +1172,41 @@ namespace PeanutButter.Utils.Tests
                 }
             }
         }
+        [TestFixture]
+        public class ToMemoryStream
+        {
+            [Test]
+            public void ShouldConvertNonEmptyString()
+            {
+                // Arrange
+                var input = GetRandomString(10);
+                // Act
+                var result = input.ToMemoryStream();
+                // Assert
+                Expect(result.ToArray().ToUTF8String()).To.Equal(input);
+            }
+
+            [Test]
+            public void ShouldConvertEmptyByteArray()
+            {
+                // Arrange
+                var input = "";
+                // Act
+                var result = input.ToMemoryStream();
+                // Assert
+                Expect(result.ToArray().ToUTF8String()).To.Be.Empty();
+            }
+
+            [Test]
+            public void ShouldTreatNullAsEmpty()
+            {
+                // Arrange
+                var input = null as byte[];
+                // Act
+                var result = input.ToMemoryStream();
+                // Assert
+                Expect(result.ToArray().ToUTF8String()).To.Be.Empty();
+            }
+        }
     }
 }

@@ -652,5 +652,12 @@ namespace PeanutButter.Utils
             return (c >= 'A' && c <= 'Z') ||
                    (c >= 'a' && c <= 'z');
         }
+
+        public static MemoryStream ToMemoryStream(
+            this string str)
+        {
+            var asBytes = str.AsBytes();
+            return new MemoryStream(asBytes);
+        }
     }
 }

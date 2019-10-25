@@ -3,10 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using System.Xml.Serialization;
+using System.Xml.XPath;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using NExpect;
@@ -60,16 +63,16 @@ namespace PeanutButter.Utils.Tests
                 var serialized = stream.AsString();
                 stream.Position = 0;
                 
-                var re = new Regex("(?:</([a-zA-Z0-9]+)>)$");
-                var messageTag = re.Matches(serialized)
-                    .AsEnumerable<Match>()
-                    .Select(m => m.Groups.AsEnumerable<Group>())
-                    .SelectMany(g => g)
-                    .LastOrDefault()?.Value;
-
-                var baseMessage = (Message)baseSerializer.Deserialize(stream);
+                // this is how to get the name of the type implied by the message
+                // -> we should require consumers to register payload types to avoid
+                //    crazy shit like scanning all assemblies (and having to deal with
+                //    conflicts!)
+                var doc = XDocument.Parse(serialized);
+                var typeElement = doc.XPathSelectElements("//Type").FirstOrDefault();
+                var messageType = typeElement.Value;
+                
                 var genericType = typeof(Message<>);
-                var payloadType = genericType.Assembly.FindTypeByName(baseMessage.Type);
+                var payloadType = typeof(DiscoveryPayload);
                 var specificType = genericType.MakeGenericType(payloadType);
                 var deserializer = new XmlSerializer(specificType);
                 stream.Position = 0;
