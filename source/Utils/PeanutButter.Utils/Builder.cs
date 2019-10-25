@@ -114,15 +114,16 @@ namespace PeanutButter.Utils
                     _transforms
                 ).ToArray();
                 _transforms.Clear();
-                RunTransforms(entity, initialTransforms);
+                RunTransforms(ref entity, initialTransforms);
                 _transforms.AddRange(snapshot);
                 return entity;
             }
         }
 
         private void RunTransforms(
-            TEntity entity,
+            ref TEntity entity,
             ActionRef<TEntity>[] transforms,
+            // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
             int depth = 0)
         {
             if (depth > 15)
@@ -139,7 +140,7 @@ namespace PeanutButter.Utils
                 current(ref entity);
                 var generated = _transforms.ToArray();
                 _transforms.Clear();
-                RunTransforms(entity, generated, depth + 1);
+                RunTransforms(ref entity, generated, depth + 1);
             }
         }
     }

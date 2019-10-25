@@ -1,10 +1,9 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
-using System.Runtime.Serialization;
 using System.Text;
 
-namespace PeanutButter.Utils
+namespace PeanutButter.Utils.Experimental
 {
     public class UdpIpc : IDisposable
     {

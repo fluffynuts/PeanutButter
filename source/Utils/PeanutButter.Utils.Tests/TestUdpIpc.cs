@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text.RegularExpressions;
@@ -9,6 +10,7 @@ using System.Xml.Serialization;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using NExpect;
+using PeanutButter.Utils.Experimental;
 using static NExpect.Expectations;
 
 namespace PeanutButter.Utils.Tests
@@ -59,7 +61,11 @@ namespace PeanutButter.Utils.Tests
                 stream.Position = 0;
                 
                 var re = new Regex("(?:</([a-zA-Z0-9]+)>)$");
-                var matches = re.Matches(serialized);
+                var messageTag = re.Matches(serialized)
+                    .AsEnumerable<Match>()
+                    .Select(m => m.Groups.AsEnumerable<Group>())
+                    .SelectMany(g => g)
+                    .LastOrDefault()?.Value;
 
                 var baseMessage = (Message)baseSerializer.Deserialize(stream);
                 var genericType = typeof(Message<>);

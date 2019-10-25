@@ -2,11 +2,7 @@
 using MySql.Data.MySqlClient;
 using PeanutButter.TempDb.MySql.Base;
 
-// ReSharper disable IdentifierTypo
-// ReSharper disable StringLiteralTypo
-// ReSharper disable CommentTypo
 // ReSharper disable UnusedMember.Global
-
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 

@@ -276,8 +276,6 @@ namespace PeanutButter.TempDb.Tests
                         {
                         }
 
-                        ;
-
                         // Assert
                         var entries = Directory.EnumerateDirectories(tempFolder.Path);
                         Expect(entries).To.Be.Empty();
@@ -354,6 +352,7 @@ namespace PeanutButter.TempDb.Tests
                 }
             }
             [Test]
+            [Explicit("WIP")]
             public void SimpleSchemaSharing()
             {
                 // Arrange

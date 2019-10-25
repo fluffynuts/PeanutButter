@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
@@ -15,7 +14,6 @@ using PeanutButter.Utils;
 // ReSharper disable StringLiteralTypo
 // ReSharper disable CommentTypo
 // ReSharper disable UnusedMember.Global
-
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 
@@ -57,9 +55,6 @@ namespace PeanutButter.TempDb.MySql.Base
 
         protected string SchemaName;
         private AutoDeleter _autoDeleter;
-        private UdpClient _udpClient;
-        private CancellationTokenSource _udpClientCancellationTokenSource;
-        private Task _udpClientListenerTask;
         private int _ipcPort;
 
         /// <summary>
@@ -163,36 +158,6 @@ namespace PeanutButter.TempDb.MySql.Base
             DumpDefaultsFileAt(DatabasePath);
             StartServer(MySqld, Port);
             CreateInitialSchema();
-
-            var instanceName = Settings?.Options?.Name;
-            if (!string.IsNullOrWhiteSpace(instanceName))
-            {
-                var mysqldHome = Path.GetDirectoryName(MySqld);
-                if (!Directory.Exists(mysqldHome))
-                {
-                    throw new InvalidOperationException(
-                        $"Unable to find mysqld home folder {mysqldHome}"
-                    );
-                }
-
-                var mysqldump = Path.Combine(mysqldHome, "mysqldump");
-                if (Platform.IsWindows)
-                {
-                    mysqldump += ".exe";
-                }
-
-                if (!File.Exists(mysqldump))
-                {
-                    throw new InvalidOperationException(
-                        $"mysqldump not found at {mysqldump}"
-                    );
-                }
-
-                if (!SetupSchemaSharingListener(instanceName))
-                {
-                    AttemptToCopySchemaFromExistingInstance(instanceName);
-                }
-            }
         }
 
         public override string DumpSchema()
@@ -222,78 +187,7 @@ namespace PeanutButter.TempDb.MySql.Base
                 return string.Join("\n", io.StandardOutput);
             }
         }
-
-        private bool SetupSchemaSharingListener(string instanceName)
-        {
-            var possibleRange = 65535 - 1024;
-            _ipcPort = 1024 + (Math.Abs(instanceName.GetHashCode()) % possibleRange);
-            _udpClient = new UdpClient();
-            try
-            {
-                _udpClient.Client.Bind(new IPEndPoint(IPAddress.Loopback, _ipcPort));
-            }
-            catch (SocketException)
-            {
-                return false;
-            }
-
-            _udpClientCancellationTokenSource = new CancellationTokenSource();
-            var token = _udpClientCancellationTokenSource.Token;
-            _udpClientListenerTask = Task.Run(() =>
-            {
-                var source = new IPEndPoint(IPAddress.Loopback, 0);
-                while (!token.IsCancellationRequested)
-                {
-                    var request = _udpClient?.Receive(ref source);
-                    if (request == null)
-                    {
-                        return;
-                    }
-
-                    var requestMessage = Encoding.UTF8.GetString(request);
-                    var parts = requestMessage.Split(':');
-                    if (parts[0] != "dump-request")
-                    {
-                        continue;
-                    }
-
-                    if (parts[1] != instanceName)
-                    {
-                        continue;
-                    }
-
-                    var response = DumpSchema();
-                    var responseBytes = Encoding.UTF8.GetBytes(response);
-                    _udpClient.Send(responseBytes, responseBytes.Length);
-                }
-            }, token);
-            return true;
-        }
-
-        private void AttemptToCopySchemaFromExistingInstance(
-            string instanceName)
-        {
-            var endpoint = new IPEndPoint(IPAddress.Loopback, _ipcPort);
-            var message = Encoding.UTF8.GetBytes($"dump-request:{instanceName}");
-            _udpClient.Send(message, message.Length, endpoint);
-            var request = _udpClient.Receive(ref endpoint);
-            var requestString = Encoding.UTF8.GetString(request);
-            var firstNewline = requestString.IndexOf("\n");
-            var schemaName = requestString.Substring(0, firstNewline)
-                .Trim()
-                .Replace("/*", "")
-                .Replace("*/", "");
-
-            using (var conn = OpenConnection())
-            using (var cmd = conn.CreateCommand())
-            {
-                cmd.CommandText = requestString;
-                cmd.ExecuteNonQuery();
-            }
-
-            SwitchToSchema(schemaName);
-        }
-
+        
         private string CreateTemporaryDefaultsFile()
         {
             var tempPath = Path.GetTempPath();
@@ -369,9 +263,6 @@ namespace PeanutButter.TempDb.MySql.Base
         {
             try
             {
-                _udpClientCancellationTokenSource.Cancel();
-                _udpClient?.Client?.Dispose();
-                _udpClient = null;
                 AttemptGracefulShutdown();
                 EndServerProcess();
                 base.Dispose();
