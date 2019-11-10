@@ -106,7 +106,10 @@ namespace PeanutButter.SimpleTcpServer
         {
             var logAction = LogAction;
             if (logAction == null)
+            {
                 return;
+            }
+
             try
             {
                 logAction(string.Format(message, parameters));

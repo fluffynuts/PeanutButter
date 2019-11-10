@@ -7,6 +7,7 @@ namespace PeanutButter.NetUtils
 {
     public class WebDownloader
     {
+        private const int DEFAULT_CHUNK_SIZE = 8192; // 8kb
         public async Task<bool> Download(string linkUrl, string outputPath)
         {
             using (var disposer = new AutoDisposer())
@@ -18,14 +19,13 @@ namespace PeanutButter.NetUtils
 
                 var expectedLength = long.Parse(response.Headers["Content-Length"]);
                 var haveRead = 0;
-                var chunkSize = 8192;
 
-                var thisChunk = new byte[chunkSize];
+                var thisChunk = new byte[DEFAULT_CHUNK_SIZE];
                 while (haveRead < expectedLength)
                 {
                     var toRead = expectedLength - haveRead;
-                    if (toRead > chunkSize)
-                        toRead = chunkSize;
+                    if (toRead > DEFAULT_CHUNK_SIZE)
+                        toRead = DEFAULT_CHUNK_SIZE;
                     var readBytes = await readStream.ReadAsync(thisChunk, 0, (int)toRead);
                     await writeStream.WriteAsync(thisChunk, 0, readBytes);
                     writeStream.Flush();
