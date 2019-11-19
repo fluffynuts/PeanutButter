@@ -42,7 +42,11 @@ namespace PeanutButter.Utils
         private static readonly BindingFlags PublicInstance = BindingFlags.Public | BindingFlags.Instance;
         private static readonly Type EnumeratorType = typeof(IEnumerator);
         private static readonly PropertyInfo[] EnumeratorProps = EnumeratorType.GetProperties(PublicInstance);
-        private static readonly MethodInfo[] EnumeratorMethods = EnumeratorType.GetMethods(PublicInstance);
+        private static readonly MethodInfo[] RequiredEnumeratorMethods = 
+            EnumeratorType.GetMethods(PublicInstance)
+                // Reset is optional!
+                .Where(mi => mi.Name != nameof(IEnumerator.Reset))
+                .ToArray();
 
 
         /// <inheritdoc />
@@ -83,7 +87,7 @@ namespace PeanutButter.Utils
                     EnumeratorProps,
                     returnType.GetProperties(PublicInstance)) &&
                 MethodsAreAtLeast(
-                    EnumeratorMethods,
+                    RequiredEnumeratorMethods,
                     returnType.GetMethods(PublicInstance));
         }
 
@@ -197,8 +201,7 @@ namespace PeanutButter.Utils
             IsValid = _currentPropInfo != null &&
                 _currentPropInfo.CanRead &&
                 typeof(T).IsAssignableFrom(_currentPropInfo.PropertyType) &&
-                _moveNextMethod != null &&
-                _resetMethod != null;
+                _moveNextMethod != null;
         }
 
         private void GrabEnumeratorReturnMembers()
@@ -234,7 +237,9 @@ namespace PeanutButter.Utils
         /// </summary>
         public void Reset()
         {
-            _resetMethod.Invoke(_wrapped, NO_ARGS);
+            // Not always required -- optionally implemented
+            // https://docs.microsoft.com/en-us/dotnet/api/system.collections.ienumerator.reset?view=netframework-4.8
+            _resetMethod?.Invoke(_wrapped, NO_ARGS);
         }
 
         object IEnumerator.Current => Current;

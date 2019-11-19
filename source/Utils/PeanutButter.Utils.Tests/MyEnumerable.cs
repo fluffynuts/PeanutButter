@@ -25,7 +25,8 @@ namespace PeanutButter.Utils.Tests
         public MyEnumerator(T[] data)
         {
             _data = data;
-            Reset();
+            _index = -1;
+//            Reset();
         }
 
         public bool MoveNext()
@@ -34,9 +35,9 @@ namespace PeanutButter.Utils.Tests
             return (_index < _data.Length);
         }
 
-        public void Reset()
-        {
-            _index = -1;
-        }
+//        public void Reset()
+//        {
+//            _index = -1;
+//        }
     }
 }
