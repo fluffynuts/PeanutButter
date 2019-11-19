@@ -457,6 +457,34 @@ otherSetting=otherValue";
         }
 
         [TestFixture]
+        public class AddCommentToSection
+        {
+            [Test]
+            public void ShouldAddCommentToOutput()
+            {
+                using (var tempFile = new AutoDeletingIniFile())
+                {
+                    // Arrange
+                    var sut = Create(tempFile.Path);
+                    // Act
+                    sut.AddSection("whitelist", "some comment");
+                    sut.Persist();
+                    // Assert
+                    var contents = File.ReadAllText(tempFile.Path);
+                    Console.WriteLine(contents);
+                    var lines = contents.Split(
+                            new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(l => l.Trim())
+                        .ToArray();
+                    Expect(lines).To.Contain.Exactly(1)
+                        .Equal.To("[whitelist]");
+                    Expect(lines).To.Contain.Exactly(1)
+                        .Equal.To(";some comment");
+                }
+            }
+        }
+
+        [TestFixture]
         public class ParsingFiles
         {
             [Test]
@@ -1320,7 +1348,7 @@ key=value2";
                 //  with the setting "False", and open the file with Notepad,
                 //  it will render fine!
                 // reset file
-                
+
                 ini2["DrawingViewer"]["EnableLogging"] = "False";
                 ini2.Persist();
                 // suddenly, Notepad (and no other editor) renders the file in Chinese
@@ -1356,8 +1384,8 @@ key=value2";
                 return new[]
                 {
                     $"Difference is at {offset} bytes",
-                    $"before bytes: {before.Skip(offset-4).Take(8).JoinWith("")}",
-                    $"after bytes: {after.Skip(offset-4).Take(8).JoinWith("")}",
+                    $"before bytes: {before.Skip(offset - 4).Take(8).JoinWith("")}",
+                    $"after bytes: {after.Skip(offset - 4).Take(8).JoinWith("")}",
                     before,
                     "\n\n",
                     after

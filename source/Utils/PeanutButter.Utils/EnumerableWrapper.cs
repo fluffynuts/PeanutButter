@@ -4,7 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Used to describe a wrapper
@@ -23,7 +27,12 @@ namespace PeanutButter.Utils
     /// Wraps an object which would be an acceptable enumerable in a foreach
     /// (due to .NET compile-time duck-typing) into an actual IEnumerator
     /// </summary>
-    public class EnumerableWrapper : IEnumerable, IWrapper
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        class EnumerableWrapper : IEnumerable, IWrapper
     {
         /// <inheritdoc />
         public bool IsValid { get; }
@@ -43,7 +52,8 @@ namespace PeanutButter.Utils
             var getEnumeratorMethod = toWrap.GetType()
                 .GetMethod(nameof(GetEnumerator));
             IsValid = getEnumeratorMethod != null &&
-                IsEnumeratorType(getEnumeratorMethod.ReturnType);
+                (IsEnumeratorType(getEnumeratorMethod.ReturnType) ||
+                    IsEnumeratorType(getEnumeratorMethod.Invoke(toWrap, new object[0])?.GetType()));
         }
 
         /// <inheritdoc />
@@ -68,7 +78,8 @@ namespace PeanutButter.Utils
         private bool IsEnumeratorType(
             Type returnType)
         {
-            return PropsAreAtLeast(
+            return returnType != null &&
+                PropsAreAtLeast(
                     EnumeratorProps,
                     returnType.GetProperties(PublicInstance)) &&
                 MethodsAreAtLeast(
@@ -151,8 +162,8 @@ namespace PeanutButter.Utils
     public class EnumeratorWrapper<T> : IEnumerator<T>, IWrapper
     {
         /// <inheritdoc />
-        public bool IsValid { get; set; }
-        
+        public bool IsValid { get; private set; }
+
         private PropertyInfo _currentPropInfo;
         private MethodInfo _moveNextMethod;
         private MethodInfo _resetMethod;
@@ -239,6 +250,7 @@ namespace PeanutButter.Utils
             {
                 return matched;
             }
+
             return getValue.TryChangeType<T>(out var converted)
                 ? converted
                 : default(T);

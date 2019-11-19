@@ -55,6 +55,7 @@
     <Compile Include="DeepEqualityTesterExtensions.cs" />
     <Compile Include="Dictionaries\TestCaseWarpingDictionaryWrapper.cs" />
     <Compile Include="Dictionaries\TestDictionaryWrappingObject.cs" />
+    <Compile Include="DictionaryBuilder.cs" />
     <Compile Include="MyEnumerable.cs" />
     <Compile Include="TestAssemblyExtensions.cs" />
     <Compile Include="TestAsyncExtensionsForIEnumerables.cs" />
@@ -80,6 +81,7 @@
     <Compile Include="TestMetadataExtensions.cs" />
     <Compile Include="TestObjectExtensions.cs" />
     <Compile Include="TestProcessIO.cs" />
+    <Compile Include="TestPropertyOrField.cs" />
     <Compile Include="TestPyLike.cs" />
     <Compile Include="TestStreamExtensions.cs" />
     <Compile Include="TestStrictComparer.cs" />

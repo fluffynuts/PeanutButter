@@ -1,5 +1,7 @@
 using System;
+using System.Diagnostics;
 using System.Reflection;
+
 // ReSharper disable UnusedMember.Global
 
 #if BUILD_PEANUTBUTTER_INTERNAL
@@ -16,27 +18,30 @@ namespace PeanutButter.Utils
 #else
     public
 #endif
-    enum PropertyOrFieldTypes
+        enum PropertyOrFieldTypes
     {
         /// <summary>
         /// This member is a Property
         /// </summary>
         Property,
+
         /// <summary>
         /// This member is a Field
         /// </summary>
         Field
     }
+
     /// <summary>
     /// Provides a single storage / representation
     /// for a Property or a Field
     /// </summary>
+    [DebuggerDisplay("{MemberType} {Type} {Name} read: {CanRead} write: {CanWrite}")]
 #if BUILD_PEANUTBUTTER_INTERNAL
     internal
 #else
     public
 #endif
-    class PropertyOrField
+        class PropertyOrField
     {
         /// <summary>
         /// Creates a PropertyOrField container for a provided PropertyInfo
@@ -61,43 +66,62 @@ namespace PeanutButter.Utils
         /// <summary>
         /// Name of the property or field
         /// </summary>
-        public string Name => _propInfo?.Name ?? _fieldInfo.Name;
+        public string Name { get; }
+
         /// <summary>
         /// Type of the property or field
         /// </summary>
-        public Type Type => _propInfo?.PropertyType ?? _fieldInfo.FieldType;
+        public Type Type { get; }
+
         /// <summary>
         /// Write access to property or field
         /// </summary>
-        public bool CanWrite => _propInfo?.CanWrite ?? true;
+        public bool CanWrite { get; }
+
         /// <summary>
         /// Read access to property or field
         /// </summary>
-        public bool CanRead => _propInfo?.CanRead ?? true;
+        public bool CanRead { get; }
+
         /// <summary>
         /// Is this a Property or a Field?
         /// </summary>
-        public PropertyOrFieldTypes MemberType
-            => _propInfo == null ? PropertyOrFieldTypes.Field : PropertyOrFieldTypes.Property;
+        public PropertyOrFieldTypes MemberType { get; }
 
         /// <summary>
         /// The type on which this property or field is declared
         /// </summary>
-        public Type DeclaringType => _propInfo?.DeclaringType ?? _fieldInfo?.DeclaringType;
+        public Type DeclaringType { get; }
 
-        private readonly PropertyInfo _propInfo;
-        private readonly FieldInfo _fieldInfo;
+        private readonly Func<object, object> _getValue;
+        private readonly Action<object, object> _setValue;
 
         /// <inheritdoc />
         public PropertyOrField(PropertyInfo prop)
         {
-            _propInfo = prop;
+            _getValue = prop.GetValue;
+            _setValue = prop.SetValue;
+            
+            Name = prop.Name;
+            Type = prop.PropertyType;
+            DeclaringType = prop.DeclaringType;
+            MemberType = PropertyOrFieldTypes.Property;
+            CanRead = prop.CanRead;
+            CanWrite = prop.CanWrite;
         }
 
         /// <inheritdoc />
         public PropertyOrField(FieldInfo field)
         {
-            _fieldInfo = field;
+            _getValue = field.GetValue;
+            _setValue = field.SetValue;
+            
+            Name = field.Name;
+            Type = field.FieldType;
+            DeclaringType = field.DeclaringType;
+            MemberType = PropertyOrFieldTypes.Field;
+            CanRead = true;
+            CanWrite = true;
         }
 
         /// <summary>
@@ -107,9 +131,7 @@ namespace PeanutButter.Utils
         /// <returns></returns>
         public object GetValue(object host)
         {
-            return _fieldInfo == null
-                ? _propInfo.GetValue(host)
-                : _fieldInfo.GetValue(host);
+            return _getValue(host);
         }
 
         /// <summary>
@@ -119,10 +141,7 @@ namespace PeanutButter.Utils
         /// <param name="value"></param>
         public void SetValue(object host, object value)
         {
-            if (_fieldInfo == null)
-                _propInfo.SetValue(host, value);
-            else
-                _fieldInfo.SetValue(host, value);
+            _setValue(host, value);
         }
 
         /// <summary>
@@ -134,12 +153,10 @@ namespace PeanutButter.Utils
         /// <typeparam name="T"></typeparam>
         public void SetValue<T>(ref T host, object value)
         {
-            var asObject = (object)host;
-            if (_fieldInfo == null)
-                _propInfo.SetValue(asObject, value);
-            else
-                _fieldInfo.SetValue(asObject, value);
-            host = (T)asObject;
+            var asObject = (object) host;
+            _setValue(asObject, value);
+            // required for referenced by-val sets to work (ie struct values)
+            host = (T) asObject;
         }
     }
 }

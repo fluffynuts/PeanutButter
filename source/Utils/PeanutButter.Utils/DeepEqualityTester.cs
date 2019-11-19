@@ -678,6 +678,26 @@ namespace PeanutButter.Utils
             return result;
         }
 
+        private bool TryWrapEnumerable(
+            object value,
+            out object wrapped,
+            out Type wrappedType)
+        {
+            wrapped = null;
+            wrappedType = null;
+            if (value == null)
+            {
+                return false;
+            }
+            
+            var attempt = new EnumerableWrapper<object>(value);
+            if (attempt.IsValid)
+            {
+                wrapped = attempt;
+                wrappedType = typeof(EnumerableWrapper<object>);
+            }
+            return attempt.IsValid;
+        }
 
         private bool MatchPropertiesOrCollection(
             object srcValue,
@@ -686,12 +706,27 @@ namespace PeanutButter.Utils
             PropertyOrField compareProp
         )
         {
-            var srcEnumerableInterface = TryGetEnumerableInterfaceFor(srcProp);
-            var compareEnumerableInterface = TryGetEnumerableInterfaceFor(compareProp);
-            if (srcEnumerableInterface == null && compareEnumerableInterface == null)
+            TryResolveEnumerable(
+                ref srcValue,
+                srcProp,
+                out var srcEnumerableInterface);
+            TryResolveEnumerable(
+                ref compareValue,
+                compareProp,
+                out var compareEnumerableInterface);
+
+            if (srcEnumerableInterface == null && 
+                compareEnumerableInterface == null)
+            {
                 return AreDeepEqualInternal(srcValue, compareValue);
-            if (srcEnumerableInterface == null || compareEnumerableInterface == null)
+            }
+
+            if (srcEnumerableInterface == null || 
+                compareEnumerableInterface == null)
+            {
                 return false;
+            }
+
             return OnlyCompareShape ||
                    CollectionsMatch(
                        srcValue,
@@ -699,6 +734,21 @@ namespace PeanutButter.Utils
                        compareValue,
                        compareEnumerableInterface
                    );
+        }
+
+        private void TryResolveEnumerable(
+            ref object value,
+            PropertyOrField prop,
+            out Type resolvedType)
+        {
+            var enumerableInterface = TryGetEnumerableInterfaceFor(prop);
+            if (enumerableInterface == null &&
+                TryWrapEnumerable(value, out var resolved, out resolvedType))
+            {
+                value = resolved;
+                return;
+            }
+            resolvedType = enumerableInterface;
         }
 
         private bool CollectionsMatch(

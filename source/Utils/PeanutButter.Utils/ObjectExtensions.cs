@@ -6,13 +6,21 @@ using System.Linq;
 using System.Reflection;
 
 // ReSharper disable MemberCanBePrivate.Global
-
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Determines the comparison strategy for DeepEquals and friends
     /// </summary>
-    public enum ObjectComparisons
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public 
+#endif
+        enum ObjectComparisons
     {
         /// <summary>
         /// Test properties and fields (default behavior for DeepEquals)
@@ -28,7 +36,12 @@ namespace PeanutButter.Utils
     /// <summary>
     /// Provides a set of convenience extensions on everything
     /// </summary>
-    public static class ObjectExtensions
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public 
+#endif
+        static class ObjectExtensions
     {
         /// <summary>
         /// Runs a deep equality test between two objects, glossing over reference

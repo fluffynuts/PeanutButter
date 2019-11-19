@@ -41,7 +41,7 @@ namespace PeanutButter.INIFile
         /// Add a section by name
         /// </summary>
         /// <param name="section"></param>
-        void AddSection(string section);
+        void AddSection(string section, params string[] comments);
 
         IDictionary<string, string> GetSection(string name);
 
@@ -240,10 +240,6 @@ namespace PeanutButter.INIFile
                     sectionWrappers.Add(index, wrapper);
                     return wrapper;
                 }
-
-                //if (!Data.ContainsKey(index))
-                //    AddSection(index);
-                //return Data[index];
             }
             set => Data[index] = value;
         }
@@ -314,21 +310,29 @@ namespace PeanutButter.INIFile
             StoreCommentsForItem(currentSection, key, recentComments);
         }
 
-        private void StoreCommentsForSection(string section, List<string> recentComments)
+        private void StoreCommentsForSection(
+            string section,
+            IEnumerable<string> recentComments)
         {
             StoreCommentsForItem(section, SECTION_COMMENT_KEY, recentComments);
         }
 
-        private void StoreCommentsForItem(string section, string key, List<string> recentComments)
+        private void StoreCommentsForItem(
+            string section,
+            string key,
+            IEnumerable<string> recentComments)
         {
             if (!recentComments.Any())
+            {
                 return;
+            }
 
             var sectionComments = Comments.ContainsKey(section)
                 ? Comments[section]
                 : CreateCommentsForSection(section);
             sectionComments[key] = string.Join(Environment.NewLine + ";", recentComments);
-            recentComments.Clear();
+            var commentsList = recentComments as List<string>;
+            commentsList?.Clear();
         }
 
         private Dictionary<string, string> CreateCommentsForSection(string section)
@@ -408,11 +412,22 @@ namespace PeanutButter.INIFile
                     ));
         }
 
-        public void AddSection(string section)
+        public void AddSection(
+            string section, 
+            params string[] comments)
         {
-            if (section == null || HasLocalSection(section))
+            if (section == null ||
+                HasLocalSection(section))
+            {
+                StoreCommentsForSection(section, comments);
                 return;
+            }
+
             Data[section] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            if (comments.Any())
+            {
+                StoreCommentsForSection(section, comments);
+            }
         }
 
         public void RemoveSection(string section)
@@ -555,8 +570,11 @@ namespace PeanutButter.INIFile
 
         private void AddCommentsTo(List<string> lines, string forSection, string forKey)
         {
-            if (Comments.ContainsKey(forSection) && Comments[forSection].ContainsKey(forKey))
+            if (Comments.ContainsKey(forSection) &&
+                Comments[forSection].ContainsKey(forKey))
+            {
                 lines.Add(";" + Comments[forSection][forKey]);
+            }
         }
 
 

@@ -65,8 +65,8 @@ namespace PeanutButter.Utils.Tests
             public void GivenDifferingComplexObjectsWithOnePropertyOfSameNameAndValue_ShouldRecordError()
             {
                 //--------------- Arrange -------------------
-                var item1 = new {foo = 1};
-                var item2 = new {foo = 2};
+                var item1 = new { foo = 1 };
+                var item2 = new { foo = 2 };
                 var sut = Create(item1, item2);
 
                 //--------------- Assume ----------------
@@ -87,11 +87,11 @@ namespace PeanutButter.Utils.Tests
                 //--------------- Arrange -------------------
                 var item1 = new
                 {
-                    Subs = new[] {1, 2,}
+                    Subs = new[] { 1, 2, }
                 };
                 var item2 = new ThingWithCollection()
                 {
-                    Subs = new[] {1, 2}
+                    Subs = new[] { 1, 2 }
                 };
                 var sut = Create(item1, item2);
 
@@ -109,11 +109,11 @@ namespace PeanutButter.Utils.Tests
                 //--------------- Arrange -------------------
                 var item1 = new ThingWithCollection()
                 {
-                    Subs = new[] {2, 1,}
+                    Subs = new[] { 2, 1, }
                 };
                 var item2 = new
                 {
-                    Subs = new[] {1, 2}
+                    Subs = new[] { 1, 2 }
                 };
                 var sut = Create(item1, item2);
 
@@ -131,11 +131,11 @@ namespace PeanutButter.Utils.Tests
                 //--------------- Arrange -------------------
                 var item1 = new ThingWithCollection()
                 {
-                    Subs = new[] {1, 2, 3}
+                    Subs = new[] { 1, 2, 3 }
                 };
                 var item2 = new ThingWithCollection()
                 {
-                    Subs = new[] {1, 2}
+                    Subs = new[] { 1, 2 }
                 };
                 var sut = Create(item1, item2);
 
@@ -153,7 +153,7 @@ namespace PeanutButter.Utils.Tests
                 //--------------- Arrange -------------------
                 var item1 = new ThingWithCollection()
                 {
-                    Subs = new[] {1, 2, 3}
+                    Subs = new[] { 1, 2, 3 }
                 };
                 var item2 = new ThingWithCollection();
                 var sut = Create(item1, item2);
@@ -174,7 +174,7 @@ namespace PeanutButter.Utils.Tests
                 var item1 = new ThingWithCollection();
                 var item2 = new ThingWithCollection()
                 {
-                    Subs = new[] {1, 2, 3}
+                    Subs = new[] { 1, 2, 3 }
                 };
                 var sut = Create(item1, item2);
 
@@ -385,7 +385,7 @@ namespace PeanutButter.Utils.Tests
                                     Name = "Bob"
                                 }
                             },
-                            Ints = new[] {1, 2, 3}
+                            Ints = new[] { 1, 2, 3 }
                         };
                         var right = new
                         {
@@ -434,8 +434,8 @@ namespace PeanutButter.Utils.Tests
                 public void ShouldNotDerpRoundTwo()
                 {
                     // Arrange
-                    var left = new ThingWithField() {StringField = GetRandomString()};
-                    var right = new ThingWithField() {StringField = GetAnother(left.StringField)};
+                    var left = new ThingWithField() { StringField = GetRandomString() };
+                    var right = new ThingWithField() { StringField = GetAnother(left.StringField) };
                     // Act
                     var result = left.DeepEquals(right);
                     // Assert
@@ -474,7 +474,7 @@ namespace PeanutButter.Utils.Tests
                 Expect(result1).To.Be.False();
                 Expect(result2).To.Be.False();
             }
-            
+
             [Test]
             public void ShouldReturnTrueForTwoArraysWithSameSizeAndSameItems()
             {
@@ -518,7 +518,7 @@ namespace PeanutButter.Utils.Tests
                                 Name = "Bob"
                             }
                         },
-                        Ints = new[] {1, 2, 3}
+                        Ints = new[] { 1, 2, 3 }
                     };
                     var right = new
                     {
@@ -683,18 +683,21 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Repeat(100)]
             public void WhenKeysAreTheSame_ButValuesAreDifferent_ShouldReturnFalse()
             {
                 // Arrange
                 var key1 = GetRandomString();
                 var key2 = GetRandomString();
+                var value1 = GetRandomString();
+                var value2 = GetRandomInt();
                 var dictionary1 = DictionaryBuilder<string, object>.Create()
-                    .WithItem(key1, GetRandomString())
-                    .WithItem(key2, GetRandomInt())
+                    .WithItem(key1, value1)
+                    .WithItem(key2, value2)
                     .Build();
                 var dictionary2 = DictionaryBuilder<string, object>.Create()
-                    .WithItem(key1, GetRandomString())
-                    .WithItem(key2, GetRandomInt())
+                    .WithItem(key1, GetAnother(value1))
+                    .WithItem(key2, GetAnother(value2))
                     .Build();
                 var sut = Create(dictionary1, dictionary2);
                 // Pre-Assert
@@ -797,14 +800,31 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        public class Oddities
+        {
+            [Test]
+            public void ComparingInvalidOperationException()
+            {
+                // Arrange
+                var message = GetRandomString(1);
+                var ex = new InvalidOperationException(message);
+                var sut = Create(ex, ex);
+                // Act
+                var result = sut.AreDeepEqual();
+                // Assert
+                Expect(result).To.Be.True();
+            }
+        }
+
+        [TestFixture]
         public class CustomEqualityTesting
         {
             [Test]
             public void GivenCustomDateTimeComparer()
             {
                 // Arrange
-                var left = new {Date = DateTime.Now.AddSeconds(-1)};
-                var right = new {Date = left.Date.AddSeconds(1)};
+                var left = new { Date = DateTime.Now.AddSeconds(-1) };
+                var right = new { Date = left.Date.AddSeconds(1) };
                 var sut = Create(left, right);
                 sut.AddCustomComparer(new DateComparerByDayOnly());
                 // Pre-assert
@@ -813,13 +833,13 @@ namespace PeanutButter.Utils.Tests
                 // Assert
                 Expect(result).To.Be.True();
             }
-            
+
             [Test]
             public void GivenCustomDateTimeComparerAsObject()
             {
                 // Arrange
-                var left = new {Date = DateTime.Now.AddSeconds(-1)};
-                var right = new {Date = left.Date.AddSeconds(1)};
+                var left = new { Date = DateTime.Now.AddSeconds(-1) };
+                var right = new { Date = left.Date.AddSeconds(1) };
                 var sut = Create(left, right);
                 sut.AddCustomComparer(new DateComparerByDayOnly() as object);
                 // Pre-assert
@@ -833,8 +853,8 @@ namespace PeanutButter.Utils.Tests
             public void GivenDisparateNumericTypesAndCustomDecimalComparer()
             {
                 // Arrange
-                var left = new {id = (long)1};
-                var right = new {id = 2};
+                var left = new { id = (long) 1 };
+                var right = new { id = 2 };
                 var sut = Create(left, right);
                 sut.AddCustomComparer(new DecimalComparerWhichAllowsUpTo2Delta());
                 // Pre-assert
@@ -843,7 +863,7 @@ namespace PeanutButter.Utils.Tests
                 // Assert
                 Expect(result).To.Be.True();
             }
-            
+
             [Test]
             public void GivenCustomComparerForComplexType()
             {
@@ -867,7 +887,7 @@ namespace PeanutButter.Utils.Tests
             {
                 public bool Equals(Child x, Child y)
                 {
-                    return true;    // all children are loved just the same!
+                    return true; // all children are loved just the same!
                 }
 
                 public int GetHashCode(Child obj)
@@ -908,8 +928,8 @@ namespace PeanutButter.Utils.Tests
             public bool Equals(DateTime x, DateTime y)
             {
                 return x.Year == y.Year &&
-                       x.Month == y.Month &&
-                       x.Day == y.Day;
+                    x.Month == y.Month &&
+                    x.Day == y.Day;
             }
 
             public int GetHashCode(DateTime obj)
@@ -932,7 +952,7 @@ namespace PeanutButter.Utils.Tests
 
         private static DeepEqualityTester Create(object obj1, object obj2)
         {
-            var sut = new DeepEqualityTester(obj1, obj2) {RecordErrors = true};
+            var sut = new DeepEqualityTester(obj1, obj2) { RecordErrors = true };
             return sut;
         }
 
@@ -1223,7 +1243,7 @@ namespace PeanutButter.Utils.Tests
         {
             return WithRandomProps()
                 .WithName(GetRandomString(5, 15))
-                .WithProp(dto => dto.SomeOtherData.PartTheFirst.HaveSome = new[] {GetRandomString(5, 11)})
+                .WithProp(dto => dto.SomeOtherData.PartTheFirst.HaveSome = new[] { GetRandomString(5, 11) })
                 .WithProp(dto => dto.SomeOtherData.PartTheSecond.Nerf = DateTime.Now)
                 .WithProp(dto => dto.SomeOtherData.PartTheSecond.DeNerf = DateTime.Now.AddDays(10))
                 .WithProp(dto => dto.SomeOtherData.PartTheThird.IsSomeNumber1 = false)
@@ -1434,7 +1454,7 @@ namespace PeanutButter.Utils.Tests
                         var start = o.ThingyMaBobs.FirstOrDefault(w => w.Id == "WibbleStix");
                         if (start == null)
                             return;
-                        var others = new Queue<ThingyMaBob>(o.ThingyMaBobs.Except(new[] {start}).ToArray());
+                        var others = new Queue<ThingyMaBob>(o.ThingyMaBobs.Except(new[] { start }).ToArray());
                         var last = start;
                         while (others.Count > 0)
                         {
@@ -1473,15 +1493,6 @@ namespace PeanutButter.Utils.Tests
             {
                 return WithProp(o => o.ThingyMaBobs = o.ThingyMaBobs.And(_start));
             }
-        }
-    }
-
-    public class DictionaryBuilder<TKey, TValue>
-        : GenericBuilder<DictionaryBuilder<TKey, TValue>, Dictionary<TKey, TValue>>
-    {
-        public DictionaryBuilder<TKey, TValue> WithItem(TKey key, TValue value)
-        {
-            return WithProp(o => o.Add(key, value));
         }
     }
 }
