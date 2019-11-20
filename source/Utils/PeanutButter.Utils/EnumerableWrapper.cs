@@ -52,6 +52,12 @@ namespace PeanutButter.Utils
         /// <inheritdoc />
         public EnumerableWrapper(object toWrap)
         {
+            if (toWrap == null)
+            {
+                IsValid = false;
+                return;
+            }
+
             _toWrap = toWrap;
             var getEnumeratorMethod = toWrap.GetType()
                 .GetMethod(nameof(GetEnumerator));
@@ -146,7 +152,12 @@ namespace PeanutButter.Utils
     /// Provides the typed EnumerableWrapper
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class EnumerableWrapper<T> : EnumerableWrapper, IEnumerable<T>
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        class EnumerableWrapper<T> : EnumerableWrapper, IEnumerable<T>
     {
         /// <inheritdoc />
         public EnumerableWrapper(object toWrap) : base(toWrap)
