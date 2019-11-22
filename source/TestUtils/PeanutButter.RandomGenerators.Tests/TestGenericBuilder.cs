@@ -1101,6 +1101,8 @@ namespace PeanutButter.RandomGenerators.Tests
                 // Assert
                 Expect(result.Wheels)
                     .Not.To.Equal(0);
+                Expect(result.NonZeroNumber)
+                    .Not.To.Equal(0);
             }
 
             [Test]
@@ -1183,12 +1185,13 @@ namespace PeanutButter.RandomGenerators.Tests
                 public int Wheels { get; set; }
                 public string Name { get; set; }
                 public int NegativeNumber { get; set; }
+                public int NonZeroNumber { get; set; }
 
                 public Poco IgnoreMe { get; set; }
                 public Poco IgnoreMeToo { get; set; }
             }
 
-            [RequireNonZero(nameof(Poco.Wheels))]
+            [RequireNonZero(nameof(Poco.Wheels),  nameof(Poco.NonZeroNumber))]
             [RequireNonZeroId]
             [RandomizeNegative(nameof(Poco.NegativeNumber))]
             [NoRandomize(nameof(Poco.IgnoreMe), nameof(Poco.IgnoreMeToo))]

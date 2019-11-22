@@ -8,8 +8,8 @@ namespace PeanutButter.RandomGenerators
     public class RequireNonZero : RandomizerAttribute
     {
         /// <inheritdoc />
-        public RequireNonZero(string propertyName)
-            : base(propertyName)
+        public RequireNonZero(string propertyName, params string[] moreProps)
+            : base(propertyName, moreProps)
         {
         }
 
