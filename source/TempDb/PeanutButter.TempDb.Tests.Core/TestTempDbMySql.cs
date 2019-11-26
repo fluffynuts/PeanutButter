@@ -1,4 +1,3 @@
-using System;
 using NExpect;
 using NUnit.Framework;
 using PeanutButter.TempDb.MySql.Base;

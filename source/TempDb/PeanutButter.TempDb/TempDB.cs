@@ -19,10 +19,12 @@ namespace PeanutButter.TempDb
     {
         string DatabasePath { get; }
         string ConnectionString { get; }
+
         [Obsolete("Please use OpenConnection")]
         DbConnection CreateConnection();
+
         DbConnection OpenConnection();
-        
+
         string DumpSchema();
     }
 
@@ -126,9 +128,9 @@ namespace PeanutButter.TempDb
         private DbConnection CreateOpenDatabaseConnection()
         {
             var connection = Activator.CreateInstance(
-                typeof(TDatabaseConnection), 
+                typeof(TDatabaseConnection),
                 ConnectionString
-            )as DbConnection;
+            ) as DbConnection;
 
             if (connection == null)
                 throw new InvalidOperationException(
@@ -137,7 +139,6 @@ namespace PeanutButter.TempDb
 
             connection.Open();
             return connection;
-
         }
 
         public void RunScripts(IEnumerable<string> scripts)
@@ -174,11 +175,15 @@ namespace PeanutButter.TempDb
             }
         }
 
-        protected bool _keepTemporaryDatabaseArtifactsForDiagnostics;
+        public bool KeepTemporaryDatabaseArtifactsForDiagnostics { get; set; }
+
         protected virtual void DeleteTemporaryDataArtifacts()
         {
-            if (_keepTemporaryDatabaseArtifactsForDiagnostics)
+            if (KeepTemporaryDatabaseArtifactsForDiagnostics)
+            {
                 return;
+            }
+
             try
             {
                 if (Directory.Exists(DatabasePath))

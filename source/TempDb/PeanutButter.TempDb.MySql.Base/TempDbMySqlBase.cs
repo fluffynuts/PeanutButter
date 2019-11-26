@@ -25,18 +25,22 @@ namespace PeanutButter.TempDb.MySql.Base
     /// </summary>
     public abstract class TempDBMySqlBase<T> : TempDB<T> where T : DbConnection
     {
+        public const int PROCESS_POLL_INTERVAL = 100;
+
         /// <summary>
         /// Set to true to see trace logging about discovery of a port to
         /// instruct mysqld to bind to
         /// </summary>
         public TempDbMySqlServerSettings Settings { get; private set; }
 
+        public int? ServerProcessId => _serverProcess?.Id;
+
         private readonly Random _random = new Random();
         private Process _serverProcess;
         protected int Port;
 
         // ReSharper disable once StaticMemberInGenericType
-        private static readonly object MysqldLock = new object();
+        private static readonly SemaphoreSlim MysqldLock = new SemaphoreSlim(1);
 
         // ReSharper disable once StaticMemberInGenericType
         private static string _mysqld;
@@ -55,6 +59,7 @@ namespace PeanutButter.TempDb.MySql.Base
 
         protected string SchemaName;
         private AutoDeleter _autoDeleter;
+        private bool _disposed;
 
         /// <summary>
         /// Construct a TempDbMySql with zero or more creation scripts and default options
@@ -113,7 +118,7 @@ namespace PeanutButter.TempDb.MySql.Base
 
         private string FindInstalledMySqlD()
         {
-            lock (MysqldLock)
+            using (new AutoLocker(MysqldLock))
             {
                 return _mysqld ?? (_mysqld = QueryForMySqld());
             }
@@ -186,7 +191,7 @@ namespace PeanutButter.TempDb.MySql.Base
                 return string.Join("\n", io.StandardOutput);
             }
         }
-        
+
         private string CreateTemporaryDefaultsFile()
         {
             var tempPath = Path.GetTempPath();
@@ -262,11 +267,16 @@ namespace PeanutButter.TempDb.MySql.Base
         {
             try
             {
-                AttemptGracefulShutdown();
-                EndServerProcess();
-                base.Dispose();
-                _autoDeleter?.Dispose();
-                _autoDeleter = null;
+                _disposed = true;
+                using (new AutoLocker(_disposalLock))
+                {
+                    _watcherThread.Join();
+                    AttemptGracefulShutdown();
+                    EndServerProcess();
+                    base.Dispose();
+                    _autoDeleter?.Dispose();
+                    _autoDeleter = null;
+                }
             }
             catch (Exception ex)
             {
@@ -276,7 +286,7 @@ namespace PeanutButter.TempDb.MySql.Base
 
         private void EndServerProcess()
         {
-            lock (MysqldLock)
+            using (new AutoLocker(MysqldLock))
             {
                 if (_serverProcess == null)
                 {
@@ -344,6 +354,58 @@ namespace PeanutButter.TempDb.MySql.Base
                 $"\"--datadir={DatabasePath}\"",
                 $"--port={port}");
             TestIsRunning();
+            StartProcessWatcher();
+        }
+
+        private Thread _watcherThread;
+        private readonly SemaphoreSlim _disposalLock = new SemaphoreSlim(1);
+
+        private void StartProcessWatcher()
+        {
+            _watcherThread = new Thread(ObserveMySqlProcess);
+            _watcherThread.Start();
+        }
+
+        private void ObserveMySqlProcess()
+        {
+            while (!_disposed)
+            {
+                using (new AutoLocker(_disposalLock))
+                {
+                    if (_disposed)
+                    {
+                        // we're outta here
+                        break;
+                    }
+
+                    if (ServerProcessId == null)
+                    {
+                        // undefined state -- possibly never was started
+                        break;
+                    }
+
+                    bool shouldResurrect;
+                    try
+                    {
+                        var process = Process.GetProcessById(
+                            ServerProcessId.Value
+                        );
+                        shouldResurrect = process.HasExited;
+                    }
+                    catch
+                    {
+                        // unable to query the process
+                        shouldResurrect = true;
+                    }
+
+                    if (shouldResurrect)
+                    {
+                        StartServer(MySqld, Port);
+                    }
+                }
+
+                Thread.Sleep(PROCESS_POLL_INTERVAL);
+            }
         }
 
         private string BaseDirOf(string mysqld)
@@ -362,7 +424,7 @@ namespace PeanutButter.TempDb.MySql.Base
                 Thread.Sleep(1);
             } while (DateTime.Now - start < max);
 
-            _keepTemporaryDatabaseArtifactsForDiagnostics = true;
+            KeepTemporaryDatabaseArtifactsForDiagnostics = true;
 
             try
             {
@@ -611,5 +673,4 @@ namespace PeanutButter.TempDb.MySql.Base
             }
         }
     }
-
 }

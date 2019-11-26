@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Common;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.ServiceProcess;
+using System.Threading;
 using Dapper;
-using MySql.Data.MySqlClient;
 using NUnit.Framework;
 using static NExpect.Expectations;
 using NExpect;
@@ -16,7 +16,6 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 using static PeanutButter.Utils.PyLike;
 
 // ReSharper disable MemberCanBePrivate.Global
-
 // ReSharper disable AccessToDisposedClosure
 
 namespace PeanutButter.TempDb.Tests
@@ -333,6 +332,60 @@ namespace PeanutButter.TempDb.Tests
         }
 
         [TestFixture]
+        public class StayingAlive
+        {
+            [Test]
+            public void ShouldResurrectADerpedServerWhilstNotDisposed()
+            {
+                // Arrange
+                var resurrectedPid = 0;
+                using (var db = new TempDBMySql())
+                {
+                    // Act
+                    var process = Process.GetProcessById(db.ServerProcessId.Value);
+                    process.Kill();
+
+                    var reconnected = false;
+                    var maxWait = DateTime.Now.AddMilliseconds(
+                        TempDBMySql.PROCESS_POLL_INTERVAL * 50
+                    );
+                    while (DateTime.Now < maxWait)
+                    {
+                        try
+                        {
+                            using (db.OpenConnection())
+                            {
+                                reconnected = true;
+                            }
+                        }
+                        catch
+                        {
+                            Console.Error.WriteLine("-- mysql process not yet resurrected --");
+                            /* suppressed */
+                        }
+
+                        Thread.Sleep(50);
+                    }
+
+                    // Assert
+                    Expect(reconnected)
+                        .To.Be.True(
+                            "Should have been able to reconnect to mysql server"
+                        );
+                    resurrectedPid = db.ServerProcessId.Value;
+                }
+
+                Expect(resurrectedPid)
+                    .To.Be.Greater.Than(0);
+                Expect(() => Process.GetProcessById(resurrectedPid))
+                    .To.Throw<ArgumentException>()
+                    .With.Message.Containing(
+                        "not running",
+                        "Server should be dead after disposal");
+            }
+        }
+
+        [TestFixture]
         public class SharingSchemaBetweenNamedInstances
         {
             [Test]
@@ -351,6 +404,7 @@ namespace PeanutButter.TempDb.Tests
                     }
                 }
             }
+
             [Test]
             [Explicit("WIP")]
             public void SimpleSchemaSharing()
@@ -369,7 +423,7 @@ namespace PeanutButter.TempDb.Tests
                     }
                 }
             }
-            
+
             private const string SCHEMA = "create table animals (id int primary key auto_increment, name text);";
 
             private int InsertAnimal(
