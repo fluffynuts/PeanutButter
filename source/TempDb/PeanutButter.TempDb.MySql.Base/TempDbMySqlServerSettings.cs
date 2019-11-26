@@ -29,7 +29,7 @@ namespace PeanutButter.TempDb.MySql.Base
             /// <summary>
             /// Default maximum port to use when selecting a random port
             /// </summary>
-            public const int DEFAULT_RANDOM_PORT_MAX = 23306;
+            public const int DEFAULT_RANDOM_PORT_MAX = 53306;
             /// <summary>
             /// Flag: log attempts to locate a random, usable port to listen on
             /// </summary>

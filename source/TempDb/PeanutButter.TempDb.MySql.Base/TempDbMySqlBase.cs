@@ -35,7 +35,7 @@ namespace PeanutButter.TempDb.MySql.Base
 
         public int? ServerProcessId => _serverProcess?.Id;
 
-        private readonly Random _random = new Random();
+        private readonly Random _random = new Random(Guid.NewGuid().GetHashCode());
         private Process _serverProcess;
         protected int Port;
 
@@ -154,12 +154,11 @@ namespace PeanutButter.TempDb.MySql.Base
         /// <inheritdoc />
         protected override void CreateDatabase()
         {
-            Port = FindOpenRandomPort();
-
             var tempDefaultsPath = CreateTemporaryDefaultsFile();
             EnsureIsRemoved(DatabasePath);
             InitializeWith(MySqld, tempDefaultsPath);
             DumpDefaultsFileAt(DatabasePath);
+            Port = FindOpenRandomPort();
             StartServer(MySqld, Port);
             CreateInitialSchema();
         }
@@ -588,7 +587,7 @@ namespace PeanutButter.TempDb.MySql.Base
 
         private int FindOpenRandomPort()
         {
-            var rnd = new Random(DateTime.Now.Millisecond);
+            var rnd = new Random(Guid.NewGuid().GetHashCode());
             var tryThis = NextRandomPort();
             var attempts = 0;
             while (attempts++ < 1000)

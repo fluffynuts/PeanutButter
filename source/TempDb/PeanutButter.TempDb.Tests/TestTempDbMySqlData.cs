@@ -342,6 +342,27 @@ namespace PeanutButter.TempDb.Tests
                 using (var db = new TempDBMySql())
                 {
                     // Act
+                    using (var conn = db.OpenConnection())
+                    {
+                        using (var cmd = conn.CreateCommand())
+                        {
+                            cmd.CommandText = @"create schema moo_cakes;";
+                            cmd.ExecuteNonQuery();
+                            db.SwitchToSchema("moo_cakes");
+                        }
+                    }
+
+
+                    using (var conn = db.OpenConnection())
+                    using (var cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = "create table cows (id int, name text);";
+                        cmd.ExecuteNonQuery();
+                        cmd.CommandText = "insert into cows (id, name) values (1, 'daisy');";
+                        cmd.ExecuteNonQuery();
+                    }
+
+
                     var process = Process.GetProcessById(db.ServerProcessId.Value);
                     process.Kill();
 
@@ -353,8 +374,16 @@ namespace PeanutButter.TempDb.Tests
                     {
                         try
                         {
-                            using (db.OpenConnection())
+                            using (var conn2 = db.OpenConnection())
+                            using (var cmd2 = conn2.CreateCommand())
                             {
+                                cmd2.CommandText = "select * from moo_cakes.cows;";
+                                using (var reader = cmd2.ExecuteReader())
+                                {
+                                    Expect(reader.Read())
+                                        .To.Be.True();
+                                }
+
                                 reconnected = true;
                             }
                         }
