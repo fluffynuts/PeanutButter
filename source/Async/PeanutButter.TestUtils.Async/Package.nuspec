@@ -1,7 +1,7 @@
 <package>
   <metadata>
     <id>PeanutButter.TestUtils.Async</id>
-    <version>1.2.319</version>
+    <version>1.2.320</version>
     <title>PeanutButter.TestUtils.Async</title>
     <authors>Davyd McColl</authors>
     <owners></owners>
@@ -27,9 +27,9 @@
     <dependencies>
       <group targetFramework="net452">
         <dependency id="NSubstitute" version="1.10.0.0" />
-        <dependency id="PeanutButter.Async" version="1.2.319" />
-        <dependency id="PeanutButter.RandomGenerators" version="1.2.319" />
-        <dependency id="PeanutButter.Utils" version="1.2.319" />
+        <dependency id="PeanutButter.Async" version="1.2.320" />
+        <dependency id="PeanutButter.RandomGenerators" version="1.2.320" />
+        <dependency id="PeanutButter.Utils" version="1.2.320" />
       </group>
     </dependencies>
     <references></references>
