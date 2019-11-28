@@ -1,7 +1,7 @@
 <package>
   <metadata>
     <id>PeanutButter.TempDb.Runner</id>
-    <version>1.2.322</version>
+    <version>1.2.323</version>
     <title>PeanutButter.TempDb</title>
     <authors>Davyd McColl</authors>
     <owners />
@@ -28,10 +28,10 @@
     <copyright>Copyright 2015</copyright>
     <dependencies>
       <group targetFramework="net462">
-        <dependency id="PeanutButter.Utils" version="1.2.321" />
+        <dependency id="PeanutButter.Utils" version="1.2.322" />
       </group>
       <group targetFramework="netcoreapp2.2">
-        <dependency id="PeanutButter.Utils" version="1.2.321" />
+        <dependency id="PeanutButter.Utils" version="1.2.322" />
       </group>
     </dependencies>
     <references />
