@@ -152,6 +152,7 @@ namespace PeanutButter.ServiceShell
             {
                 return;
             }
+
             var root = repository.Root;
             root.Level = DetermineDebugLogLevel();
             repository.RaiseConfigurationChanged(EventArgs.Empty);
@@ -159,14 +160,7 @@ namespace PeanutButter.ServiceShell
 
         private static void EnsureHaveConsoleLogger()
         {
-            try
-            {
-                XmlConfigurator.Configure();
-            }
-            catch
-            {
-                /* suppress */
-            }
+            EnsureHaveConfigured();
 
             var repository = LogManager.GetRepository() as Hierarchy;
             var root = repository.Root;
@@ -193,7 +187,7 @@ namespace PeanutButter.ServiceShell
                 ? level
                 : Level.All;
         }
-        
+
         private static readonly Dictionary<string, Level> LogLevels
             = new Dictionary<string, Level>(StringComparer.OrdinalIgnoreCase)
             {
@@ -211,6 +205,7 @@ namespace PeanutButter.ServiceShell
                 {
                     Console.WriteLine("== Exiting now... ==");
                 }
+
                 instance.Running = false;
             };
         }
@@ -560,16 +555,27 @@ namespace PeanutButter.ServiceShell
         {
             if (!_haveConfiguredLogging)
             {
+                EnsureHaveConfigured();
+                _haveConfiguredLogging = true;
+            }
+
+            return LogManager.GetLogger(ServiceName);
+        }
+
+        private static void EnsureHaveConfigured()
+        {
+            try
+            {
                 var configuredExternally = LogManager.GetRepository().Configured;
                 if (!configuredExternally)
                 {
                     XmlConfigurator.Configure();
                 }
-
-                _haveConfiguredLogging = true;
             }
-
-            return LogManager.GetLogger(ServiceName);
+            catch
+            {
+                /* suppress */
+            }
         }
 
         // test enablers
