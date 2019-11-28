@@ -5,6 +5,7 @@ using System.ServiceProcess;
 using System.Threading;
 using log4net;
 using log4net.Config;
+using log4net.Repository.Hierarchy;
 using PeanutButter.WindowsServiceManagement;
 
 // ReSharper disable MemberCanBeProtected.Global
@@ -459,7 +460,12 @@ namespace PeanutButter.ServiceShell
         {
             if (!_haveConfiguredLogging)
             {
-                XmlConfigurator.Configure();
+                var configuredExternally = LogManager.GetRepository().Configured;
+                if (!configuredExternally)
+                {
+                    XmlConfigurator.Configure();
+                }
+
                 _haveConfiguredLogging = true;
             }
             return LogManager.GetLogger(ServiceName);
