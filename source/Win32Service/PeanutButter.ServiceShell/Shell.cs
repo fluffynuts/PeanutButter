@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.ServiceProcess;
 using System.Threading;
 using log4net;
+using log4net.Appender;
 using log4net.Config;
+using log4net.Core;
+using log4net.Layout;
 using log4net.Repository.Hierarchy;
 using PeanutButter.WindowsServiceManagement;
 
@@ -34,19 +38,14 @@ namespace PeanutButter.ServiceShell
         ///   at a time (ie no concurrency)
         /// </summary>
         public int Interval { get; protected set; }
+
         public VersionInfo Version { get; private set; }
         public bool RunningOnceFromCLI { get; set; }
 
         public string DisplayName
         {
-            get
-            {
-                return GetDisplayName();
-            }
-            protected set
-            {
-                _displayName = value;
-            }
+            get { return GetDisplayName(); }
+            protected set { _displayName = value; }
         }
 
         private string GetDisplayName()
@@ -57,16 +56,11 @@ namespace PeanutButter.ServiceShell
         }
 
         private string _copyright;
+
         public string CopyrightInformation
         {
-            get
-            {
-                return _copyright ?? string.Empty;
-            }
-            set
-            {
-                _copyright = value ?? string.Empty;
-            }
+            get { return _copyright ?? string.Empty; }
+            set { _copyright = value ?? string.Empty; }
         }
 
         public new string ServiceName
@@ -77,11 +71,9 @@ namespace PeanutButter.ServiceShell
                     throw new ServiceUnconfiguredException("ServiceName");
                 return _serviceName;
             }
-            set
-            {
-                _serviceName = value;
-            }
+            set { _serviceName = value; }
         }
+
         private string _serviceName;
         private string _displayName;
 
@@ -90,6 +82,7 @@ namespace PeanutButter.ServiceShell
             public int Major { get; set; }
             public int Minor { get; set; }
             public int Build { get; set; }
+
             public override string ToString()
             {
                 return string.Join(".", new[] { Major, Minor, Build });
@@ -107,7 +100,7 @@ namespace PeanutButter.ServiceShell
             CanPauseAndContinue = true;
         }
 
-        public static int RunMain<T>(string[] args) where T: Shell, new()
+        public static int RunMain<T>(string[] args) where T : Shell, new()
         {
             if (InTestModeFor<T>(args))
                 return -1;
@@ -122,43 +115,136 @@ namespace PeanutButter.ServiceShell
             return 0;
         }
 
-        private static int? CLIRunResultFor<T>(string[] args, T instance) where T: Shell, new()
+        private static int? CLIRunResultFor<T>(string[] args, T instance) where T : Shell, new()
         {
             var cli = new CommandlineOptions(args, instance.DisplayName, instance.CopyrightInformation);
             var runResult = PerformServiceShellTasksFor(instance, cli);
             if (runResult.HasValue)
                 return runResult.Value;
-            return RunOnceResultFor(instance, cli);
+            if (cli.Debug)
+            {
+                ConfigureLogLevel();
+                EnsureHaveConsoleLogger();
+            }
+
+            var lastRun = DateTime.Now;
+            var lastResult = RunOnceResultFor(instance, cli);
+            if (cli.Debug)
+            {
+                instance.Running = true;
+                do
+                {
+                    Console.CancelKeyPress += Stop(instance);
+                    instance.WaitForIntervalFrom(lastRun);
+
+                    lastRun = DateTime.Now;
+                    lastResult = RunOnceResultFor(instance, cli);
+                } while (instance.Running);
+            }
+
+            return lastResult;
         }
 
-        private static int? RunOnceResultFor<T>(T instance, CommandlineOptions cli) where T: Shell, new()
+        private static void ConfigureLogLevel()
         {
-            if (cli.RunOnce)
+            var repository = LogManager.GetRepository() as Hierarchy;
+            if (repository == null)
+            {
+                return;
+            }
+            var root = repository.Root;
+            root.Level = DetermineDebugLogLevel();
+            repository.RaiseConfigurationChanged(EventArgs.Empty);
+        }
+
+        private static void EnsureHaveConsoleLogger()
+        {
+            try
+            {
+                XmlConfigurator.Configure();
+            }
+            catch
+            {
+                /* suppress */
+            }
+
+            var repository = LogManager.GetRepository() as Hierarchy;
+            var root = repository.Root;
+            var haveConsoleAppender = root.Appenders.ToArray().Any(a => a is ConsoleAppender);
+            if (haveConsoleAppender)
+            {
+                return;
+            }
+
+            var consoleAppender = new ConsoleAppender
+            {
+                Layout = new PatternLayout("%date %-5level: %message%newline"),
+                Target = "Console.Out",
+                Threshold = DetermineDebugLogLevel()
+            };
+            root.AddAppender(consoleAppender);
+            repository.RaiseConfigurationChanged(EventArgs.Empty);
+        }
+
+        private static Level DetermineDebugLogLevel()
+        {
+            var env = Environment.GetEnvironmentVariable("LOG_LEVEL");
+            return LogLevels.TryGetValue(env ?? "debug", out var level)
+                ? level
+                : Level.All;
+        }
+        
+        private static readonly Dictionary<string, Level> LogLevels
+            = new Dictionary<string, Level>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["debug"] = Level.Debug,
+                ["info"] = Level.Info,
+                ["warn"] = Level.Warn
+            };
+
+
+        private static ConsoleCancelEventHandler Stop(Shell instance)
+        {
+            return (sender, eventArgs) =>
+            {
+                if (instance.Running)
+                {
+                    Console.WriteLine("== Exiting now... ==");
+                }
+                instance.Running = false;
+            };
+        }
+
+        private static int? RunOnceResultFor<T>(T instance, CommandlineOptions cli) where T : Shell, new()
+        {
+            if (cli.RunOnce || cli.Debug)
             {
                 if (cli.Wait > 0)
                 {
                     Thread.Sleep(cli.Wait);
                 }
+
                 try
                 {
                     instance.RunningOnceFromCLI = true;
                     instance.RunOnce();
-                    return (int)CommandlineOptions.ExitCodes.Success;
+                    return (int) CommandlineOptions.ExitCodes.Success;
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine("Error running main routine:");
                     Console.WriteLine(ex.Message);
-                    return (int)CommandlineOptions.ExitCodes.Failure;
+                    return (int) CommandlineOptions.ExitCodes.Failure;
                 }
             }
+
             return null;
         }
 
-        private static int? PerformServiceShellTasksFor<T>(T instance, CommandlineOptions cli) where T: Shell, new()
+        private static int? PerformServiceShellTasksFor<T>(T instance, CommandlineOptions cli) where T : Shell, new()
         {
             if (cli.ExitCode == CommandlineOptions.ExitCodes.ShowedHelp)
-                return (int)cli.ExitCode;
+                return (int) cli.ExitCode;
             if (cli.ShowVersion)
                 return instance.ShowVersion<T>();
             if (cli.Uninstall)
@@ -166,11 +252,15 @@ namespace PeanutButter.ServiceShell
                 instance.StopMe(true);
                 return instance.UninstallMe();
             }
+
             if (cli.Install)
             {
                 var result = instance.InstallMe();
-                return cli.StartService ? instance.StartMe() : result;
+                return cli.StartService
+                    ? instance.StartMe()
+                    : result;
             }
+
             return null;
         }
 
@@ -185,23 +275,24 @@ namespace PeanutButter.ServiceShell
             if (!existingServiceUtil.IsInstalled)
             {
                 Console.WriteLine("Unable to start service: not installed");
-                return (int)CommandlineOptions.ExitCodes.Failure;
+                return (int) CommandlineOptions.ExitCodes.Failure;
             }
+
             if (!IsStartable(existingServiceUtil))
             {
                 Console.WriteLine("Service cannot be started");
-                return (int)CommandlineOptions.ExitCodes.Failure;
+                return (int) CommandlineOptions.ExitCodes.Failure;
             }
 
             try
             {
                 existingServiceUtil.Start();
-                return (int)CommandlineOptions.ExitCodes.Success;
+                return (int) CommandlineOptions.ExitCodes.Success;
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Unable to start service: " + ex.Message);
-                return (int)CommandlineOptions.ExitCodes.Failure;
+                return (int) CommandlineOptions.ExitCodes.Failure;
             }
         }
 
@@ -223,9 +314,9 @@ namespace PeanutButter.ServiceShell
         private int FailWith(string message, bool silent)
         {
             if (silent)
-                return (int)CommandlineOptions.ExitCodes.Success;
+                return (int) CommandlineOptions.ExitCodes.Success;
             Console.WriteLine(message);
-            return (int)CommandlineOptions.ExitCodes.Failure;
+            return (int) CommandlineOptions.ExitCodes.Failure;
         }
 
 #pragma warning disable S3241 // Methods should not return values that are never used
@@ -237,14 +328,16 @@ namespace PeanutButter.ServiceShell
             {
                 return FailWith("Unable to stop service: not installed", silentFail);
             }
+
             if (!IsStoppable(existingServiceUtil))
             {
                 return FailWith("Service already stopped", silentFail);
             }
+
             try
             {
                 existingServiceUtil.Start();
-                return (int)CommandlineOptions.ExitCodes.Success;
+                return (int) CommandlineOptions.ExitCodes.Success;
             }
             catch (Exception ex)
             {
@@ -276,6 +369,7 @@ namespace PeanutButter.ServiceShell
                 Console.WriteLine("Service already installed correctly");
                 return (int) CommandlineOptions.ExitCodes.Success;
             }
+
             try
             {
                 if (existingSvcUtil.IsInstalled)
@@ -283,20 +377,22 @@ namespace PeanutButter.ServiceShell
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Service already installed at: " + existingSvcUtil.ServiceExe + " and I can't uninstall it: " + ex.Message);
-                return (int)CommandlineOptions.ExitCodes.InstallFailed;
+                Console.WriteLine("Service already installed at: " + existingSvcUtil.ServiceExe +
+                    " and I can't uninstall it: " + ex.Message);
+                return (int) CommandlineOptions.ExitCodes.InstallFailed;
             }
+
             var svcUtil = new WindowsServiceUtil(ServiceName, DisplayName, myExePath);
             try
             {
                 svcUtil.Install();
                 Console.WriteLine("Installed!");
-                return (int)CommandlineOptions.ExitCodes.Success;
+                return (int) CommandlineOptions.ExitCodes.Success;
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Unable to install: " + ex.Message);
-                return (int)CommandlineOptions.ExitCodes.InstallFailed;
+                return (int) CommandlineOptions.ExitCodes.InstallFailed;
             }
         }
 
@@ -306,32 +402,32 @@ namespace PeanutButter.ServiceShell
             if (!svcUtil.IsInstalled)
             {
                 Console.WriteLine("Not installed!");
-                return (int)CommandlineOptions.ExitCodes.UninstallFailed;
+                return (int) CommandlineOptions.ExitCodes.UninstallFailed;
             }
+
             try
             {
                 svcUtil.Uninstall();
                 Console.WriteLine("Uninstalled!");
-                return (int)CommandlineOptions.ExitCodes.Success;
+                return (int) CommandlineOptions.ExitCodes.Success;
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Unable to install: " + ex.Message);
-                return (int)CommandlineOptions.ExitCodes.UninstallFailed;
+                return (int) CommandlineOptions.ExitCodes.UninstallFailed;
             }
         }
 
-        private int ShowVersion<T>() where T: Shell, new()
+        private int ShowVersion<T>() where T : Shell, new()
         {
             var svc = new T();
             Console.WriteLine(string.Join(" ",
-                                          new []
-                                              {
-                                                  Path.GetFileName(Environment.GetCommandLineArgs()[0]), "version:"
-                                                  , svc.Version.ToString()
-                                              }));
+                new[]
+                {
+                    Path.GetFileName(Environment.GetCommandLineArgs()[0]), "version:", svc.Version.ToString()
+                }));
 
-            return (int)CommandlineOptions.ExitCodes.Success;
+            return (int) CommandlineOptions.ExitCodes.Success;
         }
 
         private static void DisableConsoleLogging()
@@ -428,8 +524,10 @@ namespace PeanutButter.ServiceShell
                 {
                     LogWarning("Exception running " + GetType().Name + ".RunOnce: " + ex.Message);
                 }
+
                 WaitForIntervalFrom(lastRun);
             }
+
             GetLogger().Info(ServiceName + ": Exiting");
         }
 
@@ -439,10 +537,11 @@ namespace PeanutButter.ServiceShell
             {
                 Thread.Sleep(500);
             }
+
             return !Running;
         }
 
-        private void WaitForIntervalFrom(DateTime lastRun)
+        public void WaitForIntervalFrom(DateTime lastRun)
         {
             var delta = DateTime.Now - lastRun;
             while (delta.TotalSeconds < Interval)
@@ -456,6 +555,7 @@ namespace PeanutButter.ServiceShell
         }
 
         private bool _haveConfiguredLogging;
+
         protected ILog GetLogger()
         {
             if (!_haveConfiguredLogging)
@@ -468,6 +568,7 @@ namespace PeanutButter.ServiceShell
 
                 _haveConfiguredLogging = true;
             }
+
             return LogManager.GetLogger(ServiceName);
         }
 
@@ -502,6 +603,7 @@ namespace PeanutButter.ServiceShell
                 {
                     return;
                 }
+
                 var allArgs = string.Join(" ", args);
                 throw new ShellTestFailureException($"Expected to run for type {typeof(T).Name} with args {allArgs}");
             }

@@ -30,6 +30,9 @@ namespace PeanutButter.ServiceShell
         [Option('r', "runonce", HelpText = "Run one round of this service's code and exit")]
         public bool RunOnce { get; set; }
 
+        [Option('d', "debug", HelpText = "Run continually, with logging set to ALL")]
+        public bool Debug { get; set; }
+
         [Option('w', "wait", HelpText = "Wait this many seconds before actually doing the round of work")]
         public int Wait { get; set; }
 

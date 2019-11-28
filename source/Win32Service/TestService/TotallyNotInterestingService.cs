@@ -11,6 +11,7 @@ namespace TestService
             var exePath = Assembly.GetEntryAssembly().CodeBase;
             DisplayName = "Totally Not Interesting Service at: " + exePath;
             ServiceName = Path.GetFileNameWithoutExtension(exePath);
+            Interval = 1;
             Version.Major = 1;
         }
 
