@@ -10,4 +10,10 @@
     <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Net.Compilers">
+      <Version>3.3.1</Version>
+    </PackageReference>
+  </ItemGroup>
+
 </Project>

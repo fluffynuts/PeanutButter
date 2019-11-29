@@ -16,6 +16,7 @@ using NExpect;
 using PeanutButter.Utils.Experimental;
 using static NExpect.Expectations;
 
+#pragma warning disable 618
 namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
@@ -83,3 +84,4 @@ namespace PeanutButter.Utils.Tests
         }
     }
 }
+#pragma warning restore 618

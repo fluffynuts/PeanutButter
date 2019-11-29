@@ -211,7 +211,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             public void GivenKVP_WhenCaseSensitive()
             {
                 // Arrange
-                var key = GetRandomString(10);
+                var key = GetRandomAlphaString(10);
                 var value = GetRandomInt();
                 var actual = new Dictionary<string, object>()
                 {
@@ -222,7 +222,9 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                 // Act
                 var mismatchedValueResult = sut.Remove(new KeyValuePair<string, object>(key, GetAnother(value)));
                 Expect(actual).To.Contain.Exactly(1).Item();
-                var mismatchedKeyResult = sut.Remove(new KeyValuePair<string, object>(key.ToRandomCase(), value));
+
+                var mismatchedKeyResult = sut.Remove(
+                    new KeyValuePair<string, object>(key.ToRandomCase(), value));
                 Expect(actual).To.Contain.Exactly(1).Item();
                 var exactMatchResult = sut.Remove(new KeyValuePair<string, object>(key, value));
                 Expect(actual).To.Contain.No().Items();

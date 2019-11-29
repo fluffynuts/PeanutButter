@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.ServiceProcess;
 using System.Threading;
 using log4net;
@@ -103,13 +104,18 @@ namespace PeanutButter.ServiceShell
         public static int RunMain<T>(string[] args) where T : Shell, new()
         {
             if (InTestModeFor<T>(args))
+            {
                 return -1;
+            }
+
             var instance = new T();
             var cliRunResult = CLIRunResultFor(args, instance);
             if (cliRunResult.HasValue)
+            {
                 return cliRunResult.Value;
-            DisableConsoleLogging();
+            }
 
+            DisableConsoleLogging();
             var servicesToRun = new ServiceBase[] { instance };
             ServiceBase.Run(servicesToRun);
             return 0;
@@ -120,8 +126,11 @@ namespace PeanutButter.ServiceShell
             var cli = new CommandlineOptions(args, instance.DisplayName, instance.CopyrightInformation);
             var runResult = PerformServiceShellTasksFor(instance, cli);
             if (runResult.HasValue)
+            {
                 return runResult.Value;
-            if (cli.Debug)
+            }
+
+            if (cli.Debug || cli.RunOnce)
             {
                 ConfigureLogLevel();
                 EnsureHaveConsoleLogger();
@@ -129,18 +138,20 @@ namespace PeanutButter.ServiceShell
 
             var lastRun = DateTime.Now;
             var lastResult = RunOnceResultFor(instance, cli);
-            if (cli.Debug)
+            if (!cli.Debug)
             {
-                instance.Running = true;
-                do
-                {
-                    Console.CancelKeyPress += Stop(instance);
-                    instance.WaitForIntervalFrom(lastRun);
-
-                    lastRun = DateTime.Now;
-                    lastResult = RunOnceResultFor(instance, cli);
-                } while (instance.Running);
+                return lastResult;
             }
+
+            instance.Running = true;
+            do
+            {
+                Console.CancelKeyPress += Stop(instance);
+                instance.WaitForIntervalFrom(lastRun);
+
+                lastRun = DateTime.Now;
+                lastResult = RunOnceResultFor(instance, cli);
+            } while (instance.Running);
 
             return lastResult;
         }
@@ -163,7 +174,15 @@ namespace PeanutButter.ServiceShell
             EnsureHaveConfigured();
 
             var repository = LogManager.GetRepository() as Hierarchy;
+            if (repository == null)
+            {
+                throw new ApplicationException(
+                    "Unable to retrieve log4net repository as Hierarchy"
+                );
+            }
+
             var root = repository.Root;
+
             var haveConsoleAppender = root.Appenders.ToArray().Any(a => a is ConsoleAppender);
             if (haveConsoleAppender)
             {
@@ -239,24 +258,169 @@ namespace PeanutButter.ServiceShell
         private static int? PerformServiceShellTasksFor<T>(T instance, CommandlineOptions cli) where T : Shell, new()
         {
             if (cli.ExitCode == CommandlineOptions.ExitCodes.ShowedHelp)
+            {
                 return (int) cli.ExitCode;
-            if (cli.ShowVersion)
-                return instance.ShowVersion<T>();
-            if (cli.Uninstall)
-            {
-                instance.StopMe(true);
-                return instance.UninstallMe();
             }
 
-            if (cli.Install)
+            var task = ShellTasks.FirstOrDefault(t => t.Selector(cli));
+            return task?.Logic.Invoke(cli, instance);
+        }
+
+        private static readonly ShellTaskStrategy[] ShellTasks =
+        {
+            ShellTask(o => o.ShowVersion, ShowVersionFor),
+            ShellTask(o => o.Uninstall, StopAndUninstall),
+            ShellTask(o => o.Install, InstallAndPerhapsStart),
+            ShellTask(o => o.StartService, StartIfPossible),
+            ShellTask(o => o.StopService, StopIfPossible)
+        };
+
+        private static int StopIfPossible(
+            CommandlineOptions cli,
+            Shell instance)
+        {
+            if (!instance.ServiceUtil.IsStoppable)
             {
-                var result = instance.InstallMe();
-                return cli.StartService
-                    ? instance.StartMe()
-                    : result;
+                return Fail($"Service '{instance.ServiceName}' cannot be stopped in stated '{instance.State}'");
             }
 
-            return null;
+            return TryRunShellTask(
+                () => instance.ServiceUtil.Stop(true),
+                ex => $"Unable to stop '{instance.ServiceName}': {ex.Message}");
+        }
+
+        private static int TryRunShellTask(
+            Action toRun,
+            Func<Exception, string> errorMessageGenerator)
+        {
+            try
+            {
+                toRun();
+                return Success();
+            }
+            catch (Exception ex)
+            {
+                return Fail(errorMessageGenerator(ex));
+            }
+        }
+
+        public ServiceState State => ServiceUtil.State;
+
+        private WindowsServiceUtil ServiceUtil =>
+            _serviceUtil ??= new WindowsServiceUtil(ServiceName);
+
+        private static int StartIfPossible(
+            CommandlineOptions arg1,
+            Shell arg2)
+        {
+            var svc = new WindowsServiceUtil(arg2.ServiceName);
+            if (svc.State == ServiceState.Unknown ||
+                svc.State == ServiceState.NotFound)
+            {
+                return Fail($"{svc.ServiceName} not installed or not queryable");
+            }
+
+            var entryExe = new Uri(Assembly.GetEntryAssembly()?.Location ?? "").LocalPath;
+            if (!entryExe.Equals(svc.ServiceExe, StringComparison.InvariantCultureIgnoreCase))
+            {
+                return Fail(
+                    $"{svc.ServiceName} is installed at {svc.ServiceExe}.",
+                    "Issuing start command here will probably not do what you expect."
+                );
+            }
+
+            return Starters.TryGetValue(svc.State, out var handler)
+                ? handler(svc)
+                : Fail($"No handler found for service state {svc.State}");
+        }
+
+        private static Dictionary<ServiceState, Func<WindowsServiceUtil, int>> Starters
+            = new Dictionary<ServiceState, Func<WindowsServiceUtil, int>>()
+            {
+                [ServiceState.Running] = ServiceIs("already running"),
+                [ServiceState.StartPending] = ServiceIs("already starting up"),
+                [ServiceState.Paused] = ServiceIs("paused"),
+                [ServiceState.Unknown] = ServiceIs("unknown or not queryable"),
+                [ServiceState.NotFound] = ServiceIs("Unknown or not queryable"),
+                [ServiceState.ContinuePending] = ServiceIs("continuing from pause"),
+                [ServiceState.PausePending] = ServiceIs("pausing"),
+                [ServiceState.StopPending] = ServiceIs("stopping"),
+                [ServiceState.Stopped] = StartService
+            };
+
+        private static Func<WindowsServiceUtil, int> ServiceIs(string state)
+        {
+            return (util) => Fail($"{util.ServiceName} is {state}");
+        }
+
+        private static int StartService(WindowsServiceUtil arg)
+        {
+            try
+            {
+                arg.Start(true);
+                return Success();
+            }
+            catch (Exception ex)
+            {
+                return Fail($"Unable to start {arg.ServiceName}: {ex.Message}");
+            }
+        }
+
+        private static int Success()
+        {
+            return (int) CommandlineOptions.ExitCodes.Success;
+        }
+
+        private static int Fail(params string[] message)
+        {
+            Console.WriteLine(message);
+            return (int) CommandlineOptions.ExitCodes.Failure;
+        }
+
+        private static int ShowVersionFor(
+            CommandlineOptions cli,
+            Shell shell)
+        {
+            return shell.ShowVersion();
+        }
+
+        private static int InstallAndPerhapsStart(
+            CommandlineOptions cli,
+            Shell instance)
+        {
+            var result = instance.InstallMe();
+            return cli.StartService
+                ? instance.StartMe()
+                : result;
+        }
+
+        private static int StopAndUninstall(
+            CommandlineOptions options,
+            Shell shell)
+        {
+            shell.StopMe(true);
+            return shell.UninstallMe();
+        }
+
+        private static ShellTaskStrategy ShellTask(
+            Func<CommandlineOptions, bool> selector,
+            Func<CommandlineOptions, Shell, int> logic)
+        {
+            return new ShellTaskStrategy(selector, logic);
+        }
+
+        private class ShellTaskStrategy
+        {
+            public Func<CommandlineOptions, bool> Selector { get; }
+            public Func<CommandlineOptions, Shell, int> Logic { get; }
+
+            public ShellTaskStrategy(
+                Func<CommandlineOptions, bool> selector,
+                Func<CommandlineOptions, Shell, int> logic)
+            {
+                Selector = selector;
+                Logic = logic;
+            }
         }
 
         protected virtual void RunOnce()
@@ -266,43 +430,24 @@ namespace PeanutButter.ServiceShell
 
         private int StartMe()
         {
-            var existingServiceUtil = new WindowsServiceUtil(ServiceName);
-            if (!existingServiceUtil.IsInstalled)
+            if (!ServiceUtil.IsInstalled)
             {
-                Console.WriteLine("Unable to start service: not installed");
-                return (int) CommandlineOptions.ExitCodes.Failure;
+                return Fail("Unable to start service: not installed");
             }
 
-            if (!IsStartable(existingServiceUtil))
+            if (!ServiceUtil.IsStartable) // IsStartable(existingServiceUtil))
             {
-                Console.WriteLine("Service cannot be started");
-                return (int) CommandlineOptions.ExitCodes.Failure;
+                return Fail("Service cannot be started");
             }
 
             try
             {
-                existingServiceUtil.Start();
-                return (int) CommandlineOptions.ExitCodes.Success;
+                ServiceUtil.Start();
+                return Success();
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Unable to start service: " + ex.Message);
-                return (int) CommandlineOptions.ExitCodes.Failure;
-            }
-        }
-
-        private bool IsStartable(WindowsServiceUtil service)
-        {
-            switch (service.State)
-            {
-                case ServiceState.Stopped:
-                case ServiceState.PausePending:
-                case ServiceState.Paused:
-                case ServiceState.Running:
-                case ServiceState.StartPending:
-                    return true;
-                default:
-                    return false;
+                return Fail($"Unable to start '{ServiceUtil.ServiceName}': {ex.Message}");
             }
         }
 
@@ -324,7 +469,7 @@ namespace PeanutButter.ServiceShell
                 return FailWith("Unable to stop service: not installed", silentFail);
             }
 
-            if (!IsStoppable(existingServiceUtil))
+            if (!existingServiceUtil.IsStoppable)
             {
                 return FailWith("Service already stopped", silentFail);
             }
@@ -337,21 +482,6 @@ namespace PeanutButter.ServiceShell
             catch (Exception ex)
             {
                 return FailWith("Unable to start service: " + ex.Message, silentFail);
-            }
-        }
-
-        private bool IsStoppable(WindowsServiceUtil service)
-        {
-            switch (service.State)
-            {
-                case ServiceState.ContinuePending:
-                case ServiceState.PausePending:
-                case ServiceState.Paused:
-                case ServiceState.Running:
-                case ServiceState.StartPending:
-                    return true;
-                default:
-                    return false;
             }
         }
 
@@ -413,13 +543,15 @@ namespace PeanutButter.ServiceShell
             }
         }
 
-        private int ShowVersion<T>() where T : Shell, new()
+        private int ShowVersion()
         {
-            var svc = new T();
             Console.WriteLine(string.Join(" ",
                 new[]
                 {
-                    Path.GetFileName(Environment.GetCommandLineArgs()[0]), "version:", svc.Version.ToString()
+                    Path.GetFileName(
+                        Environment.GetCommandLineArgs()[0]
+                    ),
+                    "version:", Version.ToString()
                 }));
 
             return (int) CommandlineOptions.ExitCodes.Success;
@@ -429,13 +561,15 @@ namespace PeanutButter.ServiceShell
         {
             foreach (var appender in LogManager.GetRepository().GetAppenders())
             {
-                var a = appender as log4net.Appender.AppenderSkeleton;
-                if (a == null)
-                    continue;
-                if ((a is log4net.Appender.ColoredConsoleAppender) ||
-                    (a is log4net.Appender.ConsoleAppender) ||
-                    (a is log4net.Appender.AnsiColorTerminalAppender))
-                    a.Threshold = log4net.Core.Level.Off;
+                if (!(appender is AppenderSkeleton a))
+                {
+                    return;
+                }
+
+                if ((a is ColoredConsoleAppender) ||
+                    (a is ConsoleAppender) ||
+                    (a is AnsiColorTerminalAppender))
+                    a.Threshold = Level.Off;
             }
         }
 
@@ -582,6 +716,7 @@ namespace PeanutButter.ServiceShell
         private static bool _testModeEnabled;
         private static Type _testClass;
         private static string[] _testArgs;
+        private WindowsServiceUtil _serviceUtil;
 
         public static void StartTesting()
         {
@@ -591,9 +726,15 @@ namespace PeanutButter.ServiceShell
         private static bool InTestModeFor<T>(string[] args)
         {
             if (!_testModeEnabled)
+            {
                 return false;
+            }
+
             if (_testClass != null)
+            {
                 throw new Exception($"Already have run for {_testClass.Name}");
+            }
+
             _testClass = typeof(T);
             _testArgs = args;
             return true;

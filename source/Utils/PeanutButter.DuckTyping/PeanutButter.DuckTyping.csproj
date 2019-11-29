@@ -33,6 +33,7 @@
       <Folder Include="Imported\" />
     </ItemGroup>
     <ItemGroup>
+      <PackageReference Include="Microsoft.Net.Compilers" Version="3.3.1" />
       <PackageReference Include="system.reflection.emit" Version="4.3.0" />
     </ItemGroup>
     <ItemGroup Condition="'$(TargetFramework)'=='net452'">

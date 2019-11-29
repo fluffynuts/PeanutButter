@@ -870,27 +870,53 @@ namespace PeanutButter.Utils.Tests
             Expect(result).To.Equal(expected);
         }
 
-        [Test]
-        [Retry(2)]
-        public void ToRandomCase_ShouldRandomiseCasing()
+        [TestFixture]
+        public class ToRandomCase
         {
-            // Arrange
-            var src = GetRandomAlphaString(20, 40);
-            var lowerSource = src.ToLowerInvariant();
-            var runs = 512;
-            // Pre-Assert
-            // Act
-            var collector = new List<string>();
-            for (var i = 0; i < 512; i++)
+            [Test]
+            public void ShouldRandomiseCasingOfAlphaString()
             {
-                var thisAttempt = src.ToRandomCase();
-                Expect(thisAttempt.ToLowerInvariant()).To.Equal(lowerSource);
-                collector.Add(thisAttempt);
+                // Arrange
+                var src = GetRandomAlphaString(20, 40);
+                var lowerSource = src.ToLowerInvariant();
+                var runs = 512;
+                // Pre-Assert
+                // Act
+                var collector = new List<string>();
+                for (var i = 0; i < 512; i++)
+                {
+                    var thisAttempt = src.ToRandomCase();
+                    Expect(thisAttempt.ToLowerInvariant()).To.Equal(lowerSource);
+                    collector.Add(thisAttempt);
+                }
+
+                // Assert
+                Expect(runs - collector.Distinct().Count())
+                    .To.Be.Less.Than(runs / 2); // allow for some random collision
             }
 
-            // Assert
-            Expect(runs - collector.Distinct().Count())
-                .To.Be.Less.Than(2); // allow for some random collision
+            [Test]
+            public void ShouldReturnNumericStringImmediately()
+            {
+                // Arrange
+                var src = GetRandomNumericString(10, 20);
+                // Act
+                var result = src.ToRandomCase();
+                // Assert
+                Expect(result).To.Equal(src);
+            }
+            
+            [TestCase("")]
+            [TestCase(" ")]
+            [TestCase(null)]
+            public void ShouldReturnImmediatelyFor_(string input)
+            {
+                // Arrange
+                // Act
+                var result = input.ToRandomCase();
+                // Assert
+                Expect(result).To.Equal(input);
+            }
         }
 
         [TestFixture]

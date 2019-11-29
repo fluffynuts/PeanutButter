@@ -3,6 +3,7 @@
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <RuntimeIdentifiers>win;osx;linux</RuntimeIdentifiers>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -76,6 +77,14 @@
       <Project>{EFC85343-95B4-48C3-BCBE-579EA4868C0A}</Project>
       <Name>PeanutButter.Utils</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PeanutButter.WindowsServiceManagement\PeanutButter.WindowsServiceManagement.csproj">
+      <Project>{c97c82c9-8975-4367-8b5e-386f93b6130c}</Project>
+      <Name>PeanutButter.WindowsServiceManagement</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TestService\TestService.csproj">
+      <Project>{3e03ac14-f3be-4efe-a37c-ae4b4dcfa458}</Project>
+      <Name>TestService</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
@@ -84,7 +93,13 @@
     <PackageReference Include="CommandLineParser">
       <Version>1.9.71</Version>
     </PackageReference>
+    <PackageReference Include="Microsoft.Net.Compilers">
+      <Version>3.3.1</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />
+    <PackageReference Include="NExpect">
+      <Version>1.0.160</Version>
+    </PackageReference>
     <PackageReference Include="NSubstitute">
       <Version>3.1.0</Version>
     </PackageReference>

@@ -5,7 +5,8 @@ using System.Text;
 
 namespace PeanutButter.Utils.Experimental
 {
-    public class UdpIpc : IDisposable
+    [Obsolete("This is not ready for prime-time yet")]
+    internal class UdpIpc : IDisposable
     {
         public delegate void Receiver(byte[] message);
 

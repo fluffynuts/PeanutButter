@@ -6,4 +6,10 @@
         <Platforms>AnyCPU</Platforms>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Net.Compilers">
+        <Version>3.3.1</Version>
+      </PackageReference>
+    </ItemGroup>
+
 </Project>

@@ -8,7 +8,8 @@ namespace TestService
     {
         public TotallyNotInterestingService()
         {
-            var exePath = Assembly.GetEntryAssembly().CodeBase;
+            var exePath = Assembly.GetEntryAssembly()?.CodeBase
+                ?? "(unknown location)";
             DisplayName = "Totally Not Interesting Service at: " + exePath;
             ServiceName = "Service with spaces";
             Interval = 1;

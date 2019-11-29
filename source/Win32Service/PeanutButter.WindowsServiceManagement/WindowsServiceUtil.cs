@@ -20,7 +20,7 @@ namespace PeanutButter.WindowsServiceManagement
 {
     public interface IWindowsServiceUtil
     {
-        string ServiceExe { get; set; }
+        string ServiceExe { get; }
         ServiceState State { get; }
         bool IsInstalled { get; }
         int ServiceStateExtraWaitSeconds { get; set; }
@@ -46,6 +46,32 @@ namespace PeanutButter.WindowsServiceManagement
 
         public string ServiceName => _serviceName;
 
+        public bool IsStoppable => StoppableStates.Contains(State);
+
+        private static readonly HashSet<ServiceState> StoppableStates
+            = new HashSet<ServiceState>(
+                new[]
+                {
+                    ServiceState.ContinuePending,
+                    ServiceState.PausePending,
+                    ServiceState.Paused,
+                    ServiceState.Running,
+                    ServiceState.StartPending
+                });
+
+        public bool IsStartable => StartableStates.Contains(State);
+
+        private static readonly HashSet<ServiceState> StartableStates
+            = new HashSet<ServiceState>(
+                new[]
+                {
+                    ServiceState.Stopped,
+                    ServiceState.PausePending,
+                    ServiceState.Paused,
+                    ServiceState.Running,
+                    ServiceState.StartPending
+                });
+
         public string DisplayName
         {
             get => _displayName;
@@ -56,26 +82,23 @@ namespace PeanutButter.WindowsServiceManagement
         private string _serviceExe;
 
         public string ServiceExe
-        {
-            get
-            {
-                if (_serviceExe != null)
-                    return _serviceExe;
+            => _serviceExe ?? (_serviceExe = QueryExeForServiceByName(ServiceName));
 
-                var queryString = $"select PathName from Win32_Service where Name = '{_serviceName.Replace("'", "''")}'";
-                var searcher = new ManagementObjectSearcher(queryString);
-                var collection = searcher.Get();
-                _serviceExe = collection.Cast<ManagementBaseObject>()
-                    .Select(o => o.Properties["PathName"].Value.ToString())
-                    .FirstOrDefault();
-                return _serviceExe;
-            }
-            set => _serviceExe = value;
+        private static string QueryExeForServiceByName(string name)
+        {
+            var queryString =
+                $"select PathName from Win32_Service where Name = '{name?.Replace("'", "''")}'";
+            var searcher = new ManagementObjectSearcher(queryString);
+            var collection = searcher.Get();
+            return collection.Cast<ManagementBaseObject>()
+                .Select(o => o.Properties["PathName"].Value.ToString())
+                .FirstOrDefault();
         }
 
         public static WindowsServiceUtil GetServiceByPath(string path)
         {
-            var queryString = $"select Name from Win32_Service where PathName = '{path.Replace("'", "''").Replace("\\", "\\\\")}'";
+            var queryString =
+                $"select Name from Win32_Service where PathName = '{path.Replace("'", "''").Replace("\\", "\\\\")}'";
             var searcher = new ManagementObjectSearcher(queryString);
             var collection = searcher.Get();
             if (collection.Count == 0)
@@ -117,6 +140,7 @@ namespace PeanutButter.WindowsServiceManagement
                 {
                     Win32Api.CloseServiceHandle(scm);
                 }
+
                 return ret;
             }
         }
@@ -151,18 +175,21 @@ namespace PeanutButter.WindowsServiceManagement
             {
                 Win32Api.CloseServiceHandle(scm);
             }
+
             return ret;
         }
 
         // ReSharper disable once MemberCanBePrivate.Global
         public uint ServiceStopTimeoutMs { get; set; }
 
-        public WindowsServiceUtil(string serviceName, string displayName = null, string defaultServiceExePath = null)
+        public WindowsServiceUtil(
+            string serviceName, 
+            string displayName = null,
+            string serviceExe = null)
         {
             _serviceName = serviceName;
             _displayName = displayName ?? _serviceName;
-            if (ServiceExe == null) // see if we can get an existing path else set to the defaultServicePath for installations
-                ServiceExe = defaultServiceExePath;
+            _serviceExe = serviceExe;
         }
 
         public void Uninstall(bool waitForUninstall = false)
@@ -228,7 +255,10 @@ namespace PeanutButter.WindowsServiceManagement
                     {
                         return -1;
                     }
-                    var status = (Win32Api.SERVICE_STATUS_PROCESS) Marshal.PtrToStructure(buf, typeof(Win32Api.SERVICE_STATUS_PROCESS));
+
+                    var status =
+                        (Win32Api.SERVICE_STATUS_PROCESS) Marshal.PtrToStructure(buf,
+                            typeof(Win32Api.SERVICE_STATUS_PROCESS));
                     return status.ProcessID;
                 }
                 finally
@@ -245,10 +275,16 @@ namespace PeanutButter.WindowsServiceManagement
 
             try
             {
-                IntPtr service = Win32Api.OpenService(scm, _serviceName, ServiceAccessRights.AllAccess);
+                IntPtr service = Win32Api.OpenService(
+                    scm,
+                    _serviceName,
+                    ServiceAccessRights.AllAccess
+                );
 
                 if (service == IntPtr.Zero)
+                {
                     service = DoServiceInstall(scm);
+                }
 
                 try
                 {
@@ -287,14 +323,20 @@ namespace PeanutButter.WindowsServiceManagement
         {
             VerifyServiceExecutable();
 
-            var service = Win32Api.CreateService(scm, _serviceName, _displayName, ServiceAccessRights.AllAccess, Win32Api.SERVICE_WIN32_OWN_PROCESS,
+            var service = Win32Api.CreateService(
+                scm,
+                _serviceName,
+                _displayName,
+                ServiceAccessRights.AllAccess,
+                Win32Api.SERVICE_WIN32_OWN_PROCESS,
                 ServiceBootFlag.AutoStart, ServiceError.Normal,
                 _serviceExe, null, IntPtr.Zero, null, null, null);
             var win32Exception = new Win32Exception(Marshal.GetLastWin32Error());
             if (service == IntPtr.Zero)
             {
                 throw new ServiceOperationException(_serviceName, ServiceOperationNames.INSTALL,
-                    $"Failed to install with executable: {_serviceExe}\nMore info:\n{win32Exception.Message}");
+                    $"Failed to install with executable: {_serviceExe}\nMore info:\n{win32Exception.Message}"
+                );
             }
 
             return service;
@@ -376,7 +418,8 @@ namespace PeanutButter.WindowsServiceManagement
                 var service = Win32Api.OpenService(scm, _serviceName,
                     ServiceAccessRights.QueryStatus | ServiceAccessRights.Start);
                 if (service == IntPtr.Zero)
-                    throw new ServiceOperationException(_serviceName, ServiceOperationNames.START, SERVICE_NOT_INSTALLED);
+                    throw new ServiceOperationException(_serviceName, ServiceOperationNames.START,
+                        SERVICE_NOT_INSTALLED);
                 try
                 {
                     StartService(service, wait);
@@ -550,11 +593,13 @@ namespace PeanutButter.WindowsServiceManagement
                         GenerateStopExceptionMessageWith("but threw errors when interrogating process state", ex));
                 case 1:
                     throw new ServiceOperationException(_serviceName, operation,
-                        GenerateStopExceptionMessageWith("and we got an error whilst waiting 10 seconds for graceful exit", ex));
+                        GenerateStopExceptionMessageWith(
+                            "and we got an error whilst waiting 10 seconds for graceful exit", ex));
                 case 2:
                     throw new ServiceOperationException(_serviceName, operation,
                         GenerateStopExceptionMessageWith(
-                            "and we got an error after trying to kill it when it didn't gracefully exit within 10 seconds", ex));
+                            "and we got an error after trying to kill it when it didn't gracefully exit within 10 seconds",
+                            ex));
             }
         }
 
@@ -626,12 +671,15 @@ namespace PeanutButter.WindowsServiceManagement
                     if (Win32Api.QueryServiceStatus(service, status) == 0) break;
                 }
             }
+
             if (status.CurrentState != desiredStatus)
                 return KillService();
             return (status.CurrentState == desiredStatus);
         }
 
-        private static void WaitForServiceToChangeStatusTo(IntPtr service, ServiceState waitStatus, Win32Api.SERVICE_STATUS current)
+        private static void WaitForServiceToChangeStatusTo(IntPtr service,
+            ServiceState waitStatus,
+            Win32Api.SERVICE_STATUS current)
         {
             var startTickCount = Environment.TickCount;
             var oldCheckPoint = current.CheckPoint;
@@ -702,6 +750,7 @@ namespace PeanutButter.WindowsServiceManagement
                         killThese.Add(proc);
                 }
             }
+
             if (killThese.Count == 0)
                 return true; // not running any more
             int killed = 0;
@@ -719,6 +768,7 @@ namespace PeanutButter.WindowsServiceManagement
                     /* intentionally left blank */
                 }
             }
+
             return (killed == killThese.Count);
         }
 

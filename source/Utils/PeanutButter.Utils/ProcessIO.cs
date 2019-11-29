@@ -35,6 +35,12 @@ namespace PeanutButter.Utils
         /// Access to the underlying Process
         /// </summary>
         Process Process { get; }
+
+        /// <summary>
+        /// Provides access to the exit code of the process,
+        /// waiting for it to complete if necessary
+        /// </summary>
+        int ExitCode { get; }
     }
 
     /// <inheritdoc />
@@ -75,6 +81,20 @@ namespace PeanutButter.Utils
             {
                 StartException = ex;
                 _process = null;
+            }
+        }
+
+        /// <inheritdoc />
+        public int ExitCode
+        {
+            get
+            {
+                if (!Process.HasExited)
+                {
+                    Process.WaitForExit();
+                }
+
+                return Process.ExitCode;
             }
         }
 

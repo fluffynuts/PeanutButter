@@ -476,6 +476,28 @@ namespace PeanutButter.Utils
         public static string ToRandomCase(
             this string input)
         {
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                return input;
+            }
+
+            if (!AlphaNumericMatch.IsMatch(input))
+            {
+                return input;
+            }
+
+            var result =  RandomizeCase(input);
+            while (result == input)
+            {
+                result = RandomizeCase(input);
+            }
+            return result;
+        }
+        
+        private static readonly Regex AlphaNumericMatch = new Regex("[a-z]+", RegexOptions.IgnoreCase);
+
+        private static string RandomizeCase(string input)
+        {
             return string.Join(
                 "",
                 input
@@ -653,6 +675,11 @@ namespace PeanutButter.Utils
                    (c >= 'a' && c <= 'z');
         }
 
+        /// <summary>
+        /// Convenience wrapper to provide a memory stream around a string
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
         public static MemoryStream ToMemoryStream(
             this string str)
         {
