@@ -31,7 +31,7 @@
     <tags></tags>
   </metadata>
   <files>
-    <file src="bin/Release/PeanutButter.ServiceShell.dll" target="lib/net452" />
-    <file src="bin/Release/PeanutButter.ServiceShell.pdb" target="lib/net452" />
+    <file src="bin/Release/net452/PeanutButter.ServiceShell.dll" target="lib/net452" />
+    <file src="bin/Release/net452/PeanutButter.ServiceShell.pdb" target="lib/net452" />
   </files>
 </package>
