@@ -135,7 +135,7 @@ gulp.task("build-nuget-packages", [
 });
 
 gulp.task("increment-package-versions", () => {
-  var util = findTool("NugetPackageVersionIncrementer.exe", "utils");
+  var util = findTool("NugetPackageVersionIncrementer.exe", "source");
   return spawn(util, ["source"]);
 });
 
