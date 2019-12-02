@@ -157,7 +157,7 @@
       <Version>1.0.97</Version>
     </PackageReference>
     <PackageReference Include="System.Data.SQLite.Core">
-      <Version>1.0.97</Version>
+      <Version>1.0.112</Version>
     </PackageReference>
     <PackageReference Include="System.Data.SQLite.EF6">
       <Version>1.0.97</Version>

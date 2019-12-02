@@ -1,99 +1,20 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <TargetFramework>net462</TargetFramework>
     <RuntimeIdentifiers>win;osx;linux</RuntimeIdentifiers>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{C52D1E67-6A15-4A87-A877-7ACACBA543F4}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PeanutButter.DuckTyping.Tests</RootNamespace>
-    <AssemblyName>PeanutButter.DuckTyping.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
     <Reference Include="System.Configuration" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AutoConversion\Converters\TestEnumConverter.cs" />
-    <Compile Include="AutoConversion\Converters\TestGenericStringConverter.cs" />
-    <Compile Include="AutoConversion\TestConverterLocator.cs" />
-    <Compile Include="Exceptions\TestBackingFieldForPropertyNotFoundException.cs" />
-    <Compile Include="Exceptions\TestParameterCountMismatchException.cs" />
-    <Compile Include="Exceptions\TestUnresolvedParameterOrderMismatchException.cs" />
-    <Compile Include="Exceptions\TestWriteOnlyPropertyException.cs" />
-    <Compile Include="Extensions\ConnectionStringSettingsBuilder.cs" />
-    <Compile Include="Extensions\Ext.cs" />
-    <Compile Include="Extensions\KeyValueCollectionExtensions.cs" />
-    <Compile Include="Extensions\SetupTests.cs" />
-    <Compile Include="Extensions\TestCustomAttributeHelperExtensions.cs" />
-    <Compile Include="Extensions\TestDictionaryWrappingConnectionStringCollection.cs" />
-    <Compile Include="Extensions\TestDictionaryWrappingNameValueCollection.cs" />
-    <Compile Include="Extensions\TestDuckTypingHelperExtensions.cs" />
-    <Compile Include="Extensions\TestDuckTypingExtensions.cs" />
-    <Compile Include="Extensions\TestMergingExtensions.cs" />
-    <Compile Include="Shimming\TestDictionaryShimSham.cs" />
-    <Compile Include="TestDuckSpeed.cs" />
-    <Compile Include="Extensions\TestDuckTypingCollectionExtensions.cs" />
-    <Compile Include="Shimming\TestPropertyInfoContainer.cs" />
-    <Compile Include="Shimming\TestRedirectingDictionary.cs" />
-    <Compile Include="Shimming\TestShimSham.cs" />
-    <Compile Include="TestCreate.cs" />
-    <Compile Include="Shimming\TestTypeMaker.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj">
-      <Project>{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}</Project>
-      <Name>PeanutButter.RandomGenerators</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TestUtils\PeanutButter.TestUtils.Generic\PeanutButter.TestUtils.Generic.csproj">
-      <Project>{6DDD7F9E-857A-442B-9148-05B34EA279C4}</Project>
-      <Name>PeanutButter.TestUtils.Generic</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PeanutButter.DuckTyping\PeanutButter.DuckTyping.csproj">
-      <Project>{DE67B50B-6CD0-49C8-9D3C-953B80E08FDC}</Project>
-      <Name>PeanutButter.DuckTyping</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PeanutButter.Utils\PeanutButter.Utils.csproj">
-      <Project>{EFC85343-95B4-48C3-BCBE-579EA4868C0A}</Project>
-      <Name>PeanutButter.Utils</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\..\TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj" />
+    <ProjectReference Include="..\..\TestUtils\PeanutButter.TestUtils.Generic\PeanutButter.TestUtils.Generic.csproj" />
+    <ProjectReference Include="..\PeanutButter.DuckTyping\PeanutButter.DuckTyping.csproj" />
+    <ProjectReference Include="..\PeanutButter.Utils\PeanutButter.Utils.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
@@ -102,31 +23,20 @@
     <PackageReference Include="ImpromptuInterface">
       <Version>6.2.2</Version>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Configuration">
-      <Version>2.2.0</Version>
-    </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration.Json">
-      <Version>2.2.0</Version>
+      <Version>3.1.0-preview3.19553.2</Version>
     </PackageReference>
-    <PackageReference Include="Microsoft.Net.Compilers">
-      <Version>3.3.1</Version>
+    <PackageReference Include="newtonsoft.json">
+      <Version>12.0.3</Version>
     </PackageReference>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />
-    <PackageReference Include="Newtonsoft.Json">
-      <Version>12.0.2</Version>
+    <PackageReference Include="NExpect">
+      <Version>1.0.160</Version>
     </PackageReference>
-    <PackageReference Include="NExpect" Version="1.0.160" />
-    <PackageReference Include="NUnit">
+    <PackageReference Include="nunit">
       <Version>3.12.0</Version>
     </PackageReference>
-    <PackageReference Include="NUnit3TestAdapter" Version="3.13.0" />
+    <PackageReference Include="NUnit3TestAdapter">
+      <Version>3.15.1</Version>
+    </PackageReference>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
