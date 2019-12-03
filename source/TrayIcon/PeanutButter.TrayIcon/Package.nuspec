@@ -26,8 +26,11 @@
     <tags></tags>
   </metadata>
   <files>
-    <file src="bin/Release/PeanutButter.TrayIcon.dll" target="lib/net452" />
-    <file src="bin/Release/PeanutButter.TrayIcon.pdb" target="lib/net452" />
-    <file src="bin/Release/PeanutButter.TrayIcon.xml" target="lib/net452" />
+    <file src="bin/Release/net452/PeanutButter.TrayIcon.dll" target="lib/net452" />
+    <file src="bin/Release/net452/PeanutButter.TrayIcon.pdb" target="lib/net452" />
+    <file src="bin/Release/net452/PeanutButter.TrayIcon.xml" target="lib/net452" />
+    <file src="bin/Release/net462/PeanutButter.TrayIcon.dll" target="lib/net462" />
+    <file src="bin/Release/net462/PeanutButter.TrayIcon.pdb" target="lib/net462" />
+    <file src="bin/Release/net462/PeanutButter.TrayIcon.xml" target="lib/net462" />
   </files>
 </package>

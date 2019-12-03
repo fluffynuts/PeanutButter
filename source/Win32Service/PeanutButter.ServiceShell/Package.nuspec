@@ -26,6 +26,11 @@
         <dependency id="CommandLineParser" version="1.9.71" />
         <dependency id="log4net" version="2.0.3" />
       </group>
+      <group targetFramework="net462">
+        <dependency id="PeanutButter.WindowsServiceManagement" version="1.2.324" />
+        <dependency id="CommandLineParser" version="1.9.71" />
+        <dependency id="log4net" version="2.0.3" />
+      </group>
     </dependencies>
     <references></references>
     <tags></tags>
@@ -33,5 +38,7 @@
   <files>
     <file src="bin/Release/net452/PeanutButter.ServiceShell.dll" target="lib/net452" />
     <file src="bin/Release/net452/PeanutButter.ServiceShell.pdb" target="lib/net452" />
+    <file src="bin/Release/net462/PeanutButter.ServiceShell.dll" target="lib/net462" />
+    <file src="bin/Release/net462/PeanutButter.ServiceShell.pdb" target="lib/net462" />
   </files>
 </package>

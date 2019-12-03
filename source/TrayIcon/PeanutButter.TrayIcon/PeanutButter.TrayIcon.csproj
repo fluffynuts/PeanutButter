@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net452</TargetFramework>
+    <TargetFrameworks>net452;net462</TargetFrameworks>
     <OutputType>Library</OutputType>
     <RootNamespace>PeanutButter.TrayIcon</RootNamespace>
     <FileAlignment>512</FileAlignment>

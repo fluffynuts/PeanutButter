@@ -6,6 +6,11 @@ using Newtonsoft.Json.Linq;
 
 namespace PeanutButter.JObjectExtensions
 {
+    /// <summary>
+    /// Provides an easy extension method to convert
+    /// JObjects to nested Dictionary&lt;string, object&gt;
+    /// instances
+    /// </summary>
     public static class JObjectExtensions
     {
         private static readonly JTokenResolvers Resolvers = new JTokenResolvers
@@ -26,7 +31,12 @@ namespace PeanutButter.JObjectExtensions
             {JTokenType.Object, TryConvertObject}
         };
 
-        // just because JsonCovert doesn't believe in using your provided type all the way down >_<
+        /// <summary>
+        /// Generates a nested dictionary of Dictionary&lt;string, object&gt; from a
+        /// JObject so  you can use JObjects easily with DuckTyping
+        /// </summary>
+        /// <param name="src"></param>
+        /// <returns></returns>
         public static Dictionary<string, object> ToDictionary(this JObject src)
         {
             var result = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);

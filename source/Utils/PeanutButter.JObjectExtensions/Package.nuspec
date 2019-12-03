@@ -27,14 +27,27 @@
     <copyright>Copyright  2017</copyright>
     <dependencies>
       <group targetFramework="net452">
-        <dependency id="Newtonsoft.Json" version="10.0.3" />
+        <dependency id="Newtonsoft.Json" version="12.0.3" />
+      </group>
+      <group targetFramework="net462">
+        <dependency id="Newtonsoft.Json" version="12.0.3" />
+      </group>
+      <group targetFramework="netstandard2.0">
+        <dependency id="Newtonsoft.Json" version="12.0.3" />
       </group>
     </dependencies>
     <references></references>
     <tags></tags>
   </metadata>
   <files>
-    <file src="bin/Release/PeanutButter.JObjectExtensions.dll" target="lib/net452" />
-    <file src="bin/Release/PeanutButter.JObjectExtensions.pdb" target="lib/net452" />
+    <file src="bin/Release/net452/PeanutButter.JObjectExtensions.dll" target="lib/net452" />
+    <file src="bin/Release/net452/PeanutButter.JObjectExtensions.pdb" target="lib/net452" />
+    <file src="bin/Release/net452/PeanutButter.JObjectExtensions.xml" target="lib/net452" />
+    <file src="bin/Release/net462/PeanutButter.JObjectExtensions.dll" target="lib/net462" />
+    <file src="bin/Release/net462/PeanutButter.JObjectExtensions.pdb" target="lib/net462" />
+    <file src="bin/Release/net462/PeanutButter.JObjectExtensions.xml" target="lib/net462" />
+    <file src="bin/Release/netstandard2.0/PeanutButter.JObjectExtensions.dll" target="lib/netstandard2.0" />
+    <file src="bin/Release/netstandard2.0/PeanutButter.JObjectExtensions.pdb" target="lib/netstandard2.0" />
+    <file src="bin/Release/netstandard2.0/PeanutButter.JObjectExtensions.xml" target="lib/netstandard2.0" />
   </files>
 </package>

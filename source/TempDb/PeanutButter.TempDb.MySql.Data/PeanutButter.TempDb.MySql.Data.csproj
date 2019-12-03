@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 <PropertyGroup>
-  <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
+  <TargetFrameworks>net452;net462;netstandard2.0</TargetFrameworks>
   <DocumentationFile>bin/$(Configuration)/$(TargetFramework)/PeanutButter.TempDb.MySql.xml</DocumentationFile>
   <Configurations>Debug;Release</Configurations>
   <Platforms>AnyCPU</Platforms>
@@ -17,7 +17,6 @@
 <ItemGroup>
   <PackageReference Include="Microsoft.Net.Compilers" Version="3.3.1" />
   <PackageReference Include="MySql.Data" Version="8.0.17" />
-  <PackageReference Include="newtonsoft.json" Version="12.0.3" />
 </ItemGroup>
 <ItemGroup>
   <ProjectReference Include="..\PeanutButter.TempDb.MySql.Base\PeanutButter.TempDb.MySql.Base.csproj" />

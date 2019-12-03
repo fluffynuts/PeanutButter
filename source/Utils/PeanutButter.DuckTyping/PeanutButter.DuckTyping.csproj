@@ -1,16 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0;net452;net462</TargetFrameworks>
         <Configurations>Debug;Release</Configurations>
         <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\PeanutButter.DuckTyping.xml</DocumentationFile>
         <Platforms>AnyCPU</Platforms>
+        <DefineConstants>BUILD_PEANUTBUTTER_INTERNAL</DefineConstants>
     </PropertyGroup>
     <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
         <DefineConstants>NETSTANDARD;BUILD_PEANUTBUTTER_INTERNAL</DefineConstants>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(TargetFramework)'=='net452'">
-        <DefineConstants>BUILD_PEANUTBUTTER_INTERNAL</DefineConstants>
     </PropertyGroup>
     <PropertyGroup>
         <DebugType>Full</DebugType>
@@ -38,5 +36,8 @@
     </ItemGroup>
     <ItemGroup Condition="'$(TargetFramework)'=='net452'">
       <Reference Include="System.Configuration" />
+    </ItemGroup>
+    <ItemGroup>
+      <Reference Include="System.Configuration" Condition="'$(TargetFramework)' == 'net452' OR '$(TargetFramework)' == 'net462'" />
     </ItemGroup>
 </Project>

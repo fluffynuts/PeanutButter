@@ -30,6 +30,10 @@
         <dependency id="PeanutButter.SimpleTcpServer" version="1.2.324" />
         <dependency id="Newtonsoft.Json" version="12.0.2" />
       </group>
+      <group targetFramework="net462">
+        <dependency id="PeanutButter.SimpleTcpServer" version="1.2.324" />
+        <dependency id="Newtonsoft.Json" version="12.0.2" />
+      </group>
       <group targetFramework="netstandard2.0">
         <dependency id="PeanutButter.SimpleTcpServer" version="1.2.324" />
         <dependency id="Newtonsoft.Json" version="12.0.2" />
@@ -42,6 +46,9 @@
     <file src="bin/Release/net452/PeanutButter.SimpleHTTPServer.dll" target="lib/net452" />
     <file src="bin/Release/net452/PeanutButter.SimpleHTTPServer.pdb" target="lib/net452" />
     <file src="bin/Release/net452/PeanutButter.SimpleHTTPServer.xml" target="lib/net452" />
+    <file src="bin/Release/net462/PeanutButter.SimpleHTTPServer.dll" target="lib/net462" />
+    <file src="bin/Release/net462/PeanutButter.SimpleHTTPServer.pdb" target="lib/net462" />
+    <file src="bin/Release/net462/PeanutButter.SimpleHTTPServer.xml" target="lib/net462" />
     <file src="bin/Release/netstandard2.0/PeanutButter.SimpleHTTPServer.xml" target="lib/netstandard2.0" />
     <file src="bin/Release/netstandard2.0/PeanutButter.SimpleHTTPServer.dll" target="lib/netstandard2.0" />
     <file src="bin/Release/netstandard2.0/PeanutButter.SimpleHTTPServer.deps.json" target="lib/netstandard2.0" />

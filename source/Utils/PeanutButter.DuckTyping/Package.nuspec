@@ -34,6 +34,9 @@
     <file src="bin/Release/net452/PeanutButter.DuckTyping.dll" target="lib/net452" />
     <file src="bin/Release/net452/PeanutButter.DuckTyping.pdb" target="lib/net452" />
     <file src="bin/Release/net452/PeanutButter.DuckTyping.xml" target="lib/net452" />
+    <file src="bin/Release/net462/PeanutButter.DuckTyping.dll" target="lib/net462" />
+    <file src="bin/Release/net462/PeanutButter.DuckTyping.pdb" target="lib/net462" />
+    <file src="bin/Release/net462/PeanutButter.DuckTyping.xml" target="lib/net462" />
     <file src="bin/Release/netstandard2.0/PeanutButter.DuckTyping.xml" target="lib/netstandard2.0" />
     <file src="bin/Release/netstandard2.0/PeanutButter.DuckTyping.dll" target="lib/netstandard2.0" />
     <file src="bin/Release/netstandard2.0/PeanutButter.DuckTyping.deps.json" target="lib/netstandard2.0" />

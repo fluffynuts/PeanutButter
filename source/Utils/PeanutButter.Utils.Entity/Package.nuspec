@@ -45,12 +45,24 @@
         <dependency id="EntityFramework" version="[6.1.3,]" />
         <dependency id="PeanutButter.Utils" version="1.2.324" />
       </group>
+      <group targetFramework="net462">
+        <dependency id="EntityFramework" version="[6.1.3,]" />
+        <dependency id="PeanutButter.Utils" version="1.2.324" />
+      </group>
+      <group targetFramework="netstandard2.0">
+        <dependency id="EntityFramework" version="[6.1.3,]" />
+        <dependency id="PeanutButter.Utils" version="1.2.324" />
+      </group>
     </dependencies>
     <references></references>
     <tags></tags>
   </metadata>
   <files>
-    <file src="bin/Release/PeanutButter.Utils.Entity.dll" target="lib/net452" />
-    <file src="bin/Release/PeanutButter.Utils.Entity.pdb" target="lib/net452" />
+    <file src="bin/Release/net452/PeanutButter.Utils.Entity.dll" target="lib/net452" />
+    <file src="bin/Release/net452/PeanutButter.Utils.Entity.pdb" target="lib/net452" />
+    <file src="bin/Release/net462/PeanutButter.Utils.Entity.dll" target="lib/net462" />
+    <file src="bin/Release/net462/PeanutButter.Utils.Entity.pdb" target="lib/net462" />
+    <file src="bin/Release/netstandard2.0/PeanutButter.Utils.Entity.dll" target="lib/netstandard2.0" />
+    <file src="bin/Release/netstandard2.0/PeanutButter.Utils.Entity.pdb" target="lib/netstandard2.0" />
   </files>
 </package>

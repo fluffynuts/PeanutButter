@@ -30,7 +30,9 @@
     <tags></tags>
   </metadata>
   <files>
-    <file src="bin/Release/EmailSpooler.Win32Service.Entity.dll" target="lib/net452" />
-    <file src="bin/Release/EmailSpooler.Win32Service.Entity.pdb" target="lib/net452" />
+    <file src="bin/Release/net452/EmailSpooler.Win32Service.Entity.dll" target="lib/net452" />
+    <file src="bin/Release/net452/EmailSpooler.Win32Service.Entity.pdb" target="lib/net452" />
+    <file src="bin/Release/net462/EmailSpooler.Win32Service.Entity.dll" target="lib/net462" />
+    <file src="bin/Release/net462/EmailSpooler.Win32Service.Entity.pdb" target="lib/net462" />
   </files>
 </package>

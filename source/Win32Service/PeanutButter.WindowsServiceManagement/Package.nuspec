@@ -26,7 +26,6 @@
     <license type="expression">BSD-3-Clause</license>
     <copyright>Copyright  2014</copyright>
     <dependencies>
-      <group targetFramework="net40"></group>
     </dependencies>
     <references></references>
     <tags></tags>
@@ -34,5 +33,7 @@
   <files>
     <file src="bin/Release/net452/PeanutButter.WindowsServiceManagement.dll" target="lib/net452" />
     <file src="bin/Release/net452/PeanutButter.WindowsServiceManagement.pdb" target="lib/net452" />
+    <file src="bin/Release/net462/PeanutButter.WindowsServiceManagement.dll" target="lib/net462" />
+    <file src="bin/Release/net462/PeanutButter.WindowsServiceManagement.pdb" target="lib/net462" />
   </files>
 </package>

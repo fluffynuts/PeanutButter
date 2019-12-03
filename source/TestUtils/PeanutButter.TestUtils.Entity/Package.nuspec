@@ -38,12 +38,25 @@
         <dependency id="PeanutButter.Utils" version="1.2.324" />
         <dependency id="PeanutButter.Utils.Entity" version="1.2.324" />
       </group>
+      <group targetFramework="net462">
+        <dependency id="EntityFramework" version="[6.1.3,]" />
+        <dependency id="NUnit" version="3.5.0" />
+        <dependency id="PeanutButter.FluentMigrator" version="1.2.324" />
+        <dependency id="PeanutButter.RandomGenerators" version="1.2.324" />
+        <dependency id="PeanutButter.TempDb" version="1.2.324" />
+        <dependency id="PeanutButter.TempDb.LocalDb" version="1.2.324" />
+        <dependency id="PeanutButter.TestUtils.Generic" version="1.2.324" />
+        <dependency id="PeanutButter.Utils" version="1.2.324" />
+        <dependency id="PeanutButter.Utils.Entity" version="1.2.324" />
+      </group>
     </dependencies>
     <references></references>
     <tags></tags>
   </metadata>
   <files>
-    <file src="bin/Release/PeanutButter.TestUtils.Entity.dll" target="lib/net452" />
-    <file src="bin/Release/PeanutButter.TestUtils.Entity.pdb" target="lib/net452" />
+    <file src="bin/Release/net452/PeanutButter.TestUtils.Entity.dll" target="lib/net452" />
+    <file src="bin/Release/net452/PeanutButter.TestUtils.Entity.pdb" target="lib/net452" />
+    <file src="bin/Release/net462/PeanutButter.TestUtils.Entity.dll" target="lib/net462" />
+    <file src="bin/Release/net462/PeanutButter.TestUtils.Entity.pdb" target="lib/net462" />
   </files>
 </package>

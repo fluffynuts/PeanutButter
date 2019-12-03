@@ -30,13 +30,21 @@
         <dependency id="PeanutButter.Utils" version="1.2.324" />
         <dependency id="NSubstitute" version="3.1.0" />
       </group>
+      <group targetFramework="net462">
+        <dependency id="PeanutButter.DatabaseHelpers" version="1.2.324" />
+        <dependency id="PeanutButter.Utils" version="1.2.324" />
+        <dependency id="NSubstitute" version="3.1.0" />
+      </group>
     </dependencies>
     <references></references>
     <tags></tags>
   </metadata>
   <files>
-    <file src="bin/Release/PeanutButter.DatabaseHelpers.Testability.dll" target="lib/net452" />
-    <file src="bin/Release/PeanutButter.DatabaseHelpers.Testability.pdb" target="lib/net452" />
-    <file src="bin/Release/PeanutButter.DatabaseHelpers.Testability.xml" target="lib/net452" />
+    <file src="bin/Release/net452/PeanutButter.DatabaseHelpers.Testability.dll" target="lib/net452" />
+    <file src="bin/Release/net452/PeanutButter.DatabaseHelpers.Testability.pdb" target="lib/net452" />
+    <file src="bin/Release/net452/PeanutButter.DatabaseHelpers.Testability.xml" target="lib/net452" />
+    <file src="bin/Release/net462/PeanutButter.DatabaseHelpers.Testability.dll" target="lib/net462" />
+    <file src="bin/Release/net462/PeanutButter.DatabaseHelpers.Testability.pdb" target="lib/net462" />
+    <file src="bin/Release/net462/PeanutButter.DatabaseHelpers.Testability.xml" target="lib/net462" />
   </files>
 </package>

@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net452</TargetFramework>
+    <TargetFrameworks>net452;net462;netstandard2.0</TargetFrameworks>
     <OutputType>Library</OutputType>
     <RootNamespace>PeanutButter.Async</RootNamespace>
     <FileAlignment>512</FileAlignment>
@@ -17,13 +17,6 @@
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\PeanutButter.Async.xml</DocumentationFile>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
   <ItemGroup>
     <None Include="Package.nuspec" />
   </ItemGroup>

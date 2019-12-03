@@ -27,6 +27,12 @@
         <dependency id="PeanutButter.INI" version="1.2.324" />
         <dependency id="MySql.Data" version="[8.0.17,]" />
       </group>
+      <group targetFramework="net462">
+        <dependency id="PeanutButter.TempDb" version="1.2.324" />
+        <dependency id="PeanutButter.Utils" version="1.2.324" />
+        <dependency id="PeanutButter.INI" version="1.2.324" />
+        <dependency id="MySql.Data" version="[8.0.17,]" />
+      </group>
       <group targetFramework="netstandard2.0">
         <dependency id="PeanutButter.TempDb" version="1.2.324" />
         <dependency id="PeanutButter.Utils" version="1.2.324" />
@@ -42,6 +48,10 @@
     <file src="bin/Release/net452/PeanutButter.TempDb.MySql.Data.pdb" target="lib/net452" />
     <file src="bin/Release/net452/PeanutButter.TempDb.MySql.Base.dll" target="lib/net452" />
     <file src="bin/Release/net452/PeanutButter.TempDb.MySql.Base.pdb" target="lib/net452" />
+    <file src="bin/Release/net462/PeanutButter.TempDb.MySql.Data.dll" target="lib/net462" />
+    <file src="bin/Release/net462/PeanutButter.TempDb.MySql.Data.pdb" target="lib/net462" />
+    <file src="bin/Release/net462/PeanutButter.TempDb.MySql.Base.dll" target="lib/net462" />
+    <file src="bin/Release/net462/PeanutButter.TempDb.MySql.Base.pdb" target="lib/net462" />
     <file src="bin/Release/netstandard2.0/PeanutButter.TempDb.MySql.Data.dll" target="lib/netstandard2.0" />
     <file src="bin/Release/netstandard2.0/PeanutButter.TempDb.MySql.Data.pdb" target="lib/netstandard2.0" />
     <file src="bin/Release/netstandard2.0/PeanutButter.TempDb.MySql.Base.dll" target="lib/netstandard2.0" />

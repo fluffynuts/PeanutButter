@@ -26,12 +26,26 @@
         <dependency id="FluentMigrator.Tools" version="1.6.1" />
         <dependency id="PeanutButter.Utils" version="1.2.324" />
       </group>
+      <group targetFramework="net462">
+        <dependency id="FluentMigrator" version="1.6.1" />
+        <dependency id="FluentMigrator.Tools" version="1.6.1" />
+        <dependency id="PeanutButter.Utils" version="1.2.324" />
+      </group>
+      <group targetFramework="netstandard2.0">
+        <dependency id="FluentMigrator" version="1.6.1" />
+        <dependency id="FluentMigrator.Tools" version="1.6.1" />
+        <dependency id="PeanutButter.Utils" version="1.2.324" />
+      </group>
     </dependencies>
     <references></references>
     <tags></tags>
   </metadata>
   <files>
-    <file src="bin/Release/PeanutButter.FluentMigrator.dll" target="lib/net452" />
-    <file src="bin/Release/PeanutButter.FluentMigrator.pdb" target="lib/net452" />
+    <file src="bin/Release/net452/PeanutButter.FluentMigrator.dll" target="lib/net452" />
+    <file src="bin/Release/net452/PeanutButter.FluentMigrator.pdb" target="lib/net452" />
+    <file src="bin/Release/net462/PeanutButter.FluentMigrator.dll" target="lib/net462" />
+    <file src="bin/Release/net462/PeanutButter.FluentMigrator.pdb" target="lib/net462" />
+    <file src="bin/Release/netstandard2.0/PeanutButter.FluentMigrator.dll" target="lib/netstandard2.0" />
+    <file src="bin/Release/netstandard2.0/PeanutButter.FluentMigrator.pdb" target="lib/netstandard2.0" />
   </files>
 </package>

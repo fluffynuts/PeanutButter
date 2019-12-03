@@ -23,13 +23,28 @@
       <group targetFramework="net452">
         <dependency id="PeanutButter.TempDb" version="1.2.324" />
         <dependency id="PeanutButter.Utils" version="1.2.324" />
+        <dependency id="System.Data.SqlClient" version="4.7.0" />
+      </group>
+      <group targetFramework="net462">
+        <dependency id="PeanutButter.TempDb" version="1.2.324" />
+        <dependency id="PeanutButter.Utils" version="1.2.324" />
+        <dependency id="System.Data.SqlClient" version="4.7.0" />
+      </group>
+      <group targetFramework="netstandard2.0">
+        <dependency id="PeanutButter.TempDb" version="1.2.324" />
+        <dependency id="PeanutButter.Utils" version="1.2.324" />
+        <dependency id="System.Data.SqlClient" version="4.7.0" />
       </group>
     </dependencies>
     <references></references>
     <tags></tags>
   </metadata>
   <files>
-    <file src="bin/Release/PeanutButter.TempDb.LocalDb.dll" target="lib/net452" />
-    <file src="bin/Release/PeanutButter.TempDb.LocalDb.pdb" target="lib/net452" />
+    <file src="bin/Release/net452/PeanutButter.TempDb.LocalDb.dll" target="lib/net452" />
+    <file src="bin/Release/net452/PeanutButter.TempDb.LocalDb.pdb" target="lib/net452" />
+    <file src="bin/Release/net462/PeanutButter.TempDb.LocalDb.dll" target="lib/net462" />
+    <file src="bin/Release/net462/PeanutButter.TempDb.LocalDb.pdb" target="lib/net462" />
+    <file src="bin/Release/netstandard2.0/PeanutButter.TempDb.LocalDb.dll" target="lib/netstandard2.0" />
+    <file src="bin/Release/netstandard2.0/PeanutButter.TempDb.LocalDb.pdb" target="lib/netstandard2.0" />
   </files>
 </package>
