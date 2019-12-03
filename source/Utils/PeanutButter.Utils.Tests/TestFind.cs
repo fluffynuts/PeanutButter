@@ -22,7 +22,7 @@ namespace PeanutButter.Utils.Tests
             // Act
             var result = Find.InPath(search);
             // Assert
-            Expect(result).To.Equal(expected);
+            Expect(result.ToLowerInvariant()).To.Equal(expected.ToLowerInvariant());
         }
     }
 }

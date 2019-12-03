@@ -41,6 +41,7 @@
   </metadata>
   <files>
     <file src="icon.png" target="" />
+    <file src="bin\Release\net462\SQLite.Interop.dll" target="lib/net462" />
     <file src="bin\Release\net462\CommandLine.dll" target="lib/net462" />
     <file src="bin\Release\net462\Microsoft.Win32.Primitives.dll" target="lib/net462" />
     <file src="bin\Release\net462\MySqlConnector.dll" target="lib/net462" />
