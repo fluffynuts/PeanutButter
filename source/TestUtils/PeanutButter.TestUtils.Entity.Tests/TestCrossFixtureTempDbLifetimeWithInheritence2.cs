@@ -13,7 +13,7 @@ using static NExpect.Expectations;
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
-// [assembly: AllowSharedTempDbInstances]
+[assembly: AllowSharedTempDbInstances]
 
 namespace PeanutButter.TestUtils.Entity.Tests
 {

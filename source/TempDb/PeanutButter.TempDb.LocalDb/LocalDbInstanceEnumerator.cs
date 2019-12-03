@@ -13,12 +13,7 @@ namespace PeanutButter.TempDb.LocalDb
     /// </summary>
     public class LocalDbInstanceEnumerator
     {
-        private static readonly string[] AvailableDefaultInstances;
-
-        static LocalDbInstanceEnumerator()
-        {
-            AvailableDefaultInstances = FindInstancesWithUtil();
-        }
+        private static string[] AvailableDefaultInstances;
 
         /// <summary>
         /// Finds the list of found LocalDb instance names
@@ -26,16 +21,29 @@ namespace PeanutButter.TempDb.LocalDb
         /// <returns>String array of found LocalDb instance names</returns>
         public string[] FindInstances()
         {
-            return AvailableDefaultInstances;
+            return FindInstancesWithUtil();
         }
+
+        private static readonly object Lock = new object();
 
         private static string[] FindInstancesWithUtil()
         {
-            var toRun = FindLocalDbUtility();
-            if (toRun == null)
-                throw new UnableToFindLocalDbUtilityException();
-            var process = RunToCompletion(toRun);
-            return FindInstancesFromOutputOf(process);
+            lock (Lock)
+            {
+                if (AvailableDefaultInstances != null)
+                {
+                    return AvailableDefaultInstances;
+                }
+
+                var toRun = FindLocalDbUtility();
+                if (toRun == null)
+                {
+                    throw new UnableToFindLocalDbUtilityException();
+                }
+
+                var process = RunToCompletion(toRun);
+                return FindInstancesFromOutputOf(process);
+            }
         }
 
         /// <summary>
@@ -54,6 +62,10 @@ namespace PeanutButter.TempDb.LocalDb
             {
                 return FindInstances().First(CanConnect);
             }
+            catch (UnableToFindLocalDbUtilityException)
+            {
+                throw;
+            }
             catch (Exception)
             {
                 Debug.WriteLine($"WARNING: Unable to determine actual LocalDb instances; falling back on '{fallback}'");
@@ -65,7 +77,9 @@ namespace PeanutButter.TempDb.LocalDb
 
         private bool CanConnect(string instanceName)
         {
-            using (var conn = new SqlConnection($"Data Source=(localdb)\\{instanceName};Initial Catalog=master;Integrated Security=True"))
+            using (var conn =
+                new SqlConnection(
+                    $"Data Source=(localdb)\\{instanceName};Initial Catalog=master;Integrated Security=True"))
             {
                 try
                 {
@@ -84,7 +98,7 @@ namespace PeanutButter.TempDb.LocalDb
         {
             var lines = process.StandardOutput
                 .ReadToEnd()
-                .Split(new[] {Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries)
+                .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
                 .OrderBy(IsNewLocalDbDefaultInstanceName)
                 .ThenByDescending(VersionedName)
                 .ThenBy(l => l)
@@ -129,7 +143,8 @@ namespace PeanutButter.TempDb.LocalDb
 
         private static string FindLocalDbUtility()
         {
-            return SafeWalk.EnumerateFiles("C:\\Program Files\\Microsoft SQL Server", "SqlLocalDb.exe", SearchOption.AllDirectories).OrderBy(p => p)
+            return SafeWalk.EnumerateFiles("C:\\Program Files\\Microsoft SQL Server", "SqlLocalDb.exe",
+                    SearchOption.AllDirectories).OrderBy(p => p)
                 .LastOrDefault();
         }
     }

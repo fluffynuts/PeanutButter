@@ -1,15 +1,33 @@
 using System;
 using System.Data.Entity;
+using NExpect;
+using NUnit.Framework;
 using PeanutButter.RandomGenerators;
+using PeanutButter.TempDb.LocalDb;
 using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
 using PeanutButter.Utils.Entity;
+using static NExpect.Expectations;
 
 namespace PeanutButter.TestUtils.Entity
 {
     public class EntityPersistenceTestFixtureBase<TDbContext>
         : TestFixtureWithTempDb<TDbContext>  where TDbContext: DbContext
     {
+        [SetUp]
+        public void EntityPersistenceTestFixtureBaseSetup()
+        {
+            try
+            {
+                var instance = new LocalDbInstanceEnumerator().FindFirstAvailableInstance();
+                Expect(instance).Not.To.Be.Null();
+            }
+            catch (UnableToFindLocalDbUtilityException)
+            {
+                Assert.Ignore("LocalDb not found on this machine");
+            }
+        }
+
         private const string CREATED = "Created";
         private const string LAST_MODIFIED = "LastModified";
         private const string ENABLED = "Enabled";
