@@ -25,6 +25,8 @@ namespace PeanutButter.TempDb.MySql.Base
     /// </summary>
     public abstract class TempDBMySqlBase<T> : TempDB<T> where T : DbConnection
     {
+        // ReSharper disable once StaticMemberInGenericType
+        public static int MaxSecondsToWaitForMySqlToStart = 15;
         public const int PROCESS_POLL_INTERVAL = 100;
 
         /// <summary>
@@ -415,12 +417,15 @@ namespace PeanutButter.TempDb.MySql.Base
         private void TestIsRunning()
         {
             var start = DateTime.Now;
-            var max = TimeSpan.FromSeconds(5);
+            var max = TimeSpan.FromSeconds(MaxSecondsToWaitForMySqlToStart);
             do
             {
                 if (CanConnect())
+                {
                     return;
-                Thread.Sleep(1);
+                }
+
+                Thread.Sleep(10);
             } while (DateTime.Now - start < max);
 
             KeepTemporaryDatabaseArtifactsForDiagnostics = true;
