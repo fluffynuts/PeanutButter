@@ -21,7 +21,7 @@
     <language>en-US</language>
     <projectUrl>https://davydm.blogspot.com/search/label/PeanutButter</projectUrl>
     <repository type="git" url="https://github.com/fluffynuts/PeanutButter" />
-    <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
+    <icon>icon.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">BSD-3-Clause</license>
     <copyright>Copyright  2016</copyright>
@@ -32,6 +32,7 @@
     <tags></tags>
   </metadata>
   <files>
+    <file src="icon.png" target="" />
     <file src="bin/Release/net452/PeanutButter.Async.dll" target="lib/net452" />
     <file src="bin/Release/net452/PeanutButter.Async.pdb" target="lib/net452" />
     <file src="bin/Release/net452/PeanutButter.Async.xml" target="lib/net452" />

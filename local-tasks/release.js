@@ -81,7 +81,6 @@ function buildNugetPackages(includeSymbols) {
     if (includeSymbols) {
       args.push("-Symbols");
     }
-    console.log("nuget pack with:", args);
     return args;
   })
 }

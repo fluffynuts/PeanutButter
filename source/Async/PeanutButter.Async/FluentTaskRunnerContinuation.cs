@@ -25,7 +25,7 @@ namespace PeanutButter.Async
         /// <summary>
         /// Creates the continuation with the provided runner and task
         /// </summary>
-        /// <param name="initialWithoutResult"></param>
+        /// <param name="initial"></param>
         /// <param name="taskRunner"></param>
         public FluentTaskRunnerContinuation(Task<T> initial, ITaskRunner taskRunner)
         {
