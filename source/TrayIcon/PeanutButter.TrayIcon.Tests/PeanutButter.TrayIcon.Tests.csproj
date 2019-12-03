@@ -1,91 +1,20 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
   <PropertyGroup>
+    <TargetFramework>net462</TargetFramework>
     <RuntimeIdentifiers>win;osx;linux</RuntimeIdentifiers>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWindowsForms>true</UseWindowsForms>
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
   </PropertyGroup>
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{394C0B79-0B29-426C-B990-474DA0303FB9}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PeanutButter.TrayIcon.Tests</RootNamespace>
-    <AssemblyName>PeanutButter.TrayIcon.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
-    <TargetFrameworkProfile />
-    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Resource1.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resource1.resx</DependentUpon>
-    </Compile>
-    <Compile Include="TestBaloonTipClickHandlerRegistration.cs" />
-    <Compile Include="TestMouseClickHandler.cs" />
-    <Compile Include="TestNotifyIconWrapper.cs" />
-    <Compile Include="TestTrayIcon.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestTrayIconAlreadyInitializedException.cs" />
-    <Compile Include="TestTrayIconAnimator.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj">
-      <Project>{cb22d9ae-a2a8-45d0-92b9-fadc687120f0}</Project>
-      <Name>PeanutButter.RandomGenerators</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TestUtils\PeanutButter.TestUtils.Generic\PeanutButter.TestUtils.Generic.csproj">
-      <Project>{6DDD7F9E-857A-442B-9148-05B34EA279C4}</Project>
-      <Name>PeanutButter.TestUtils.Generic</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PeanutButter.TrayIcon\PeanutButter.TrayIcon.csproj">
-      <Project>{17cdfd2e-e3e0-4ddd-ad71-9aa8434705e7}</Project>
-      <Name>PeanutButter.TrayIcon</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj">
-      <Project>{EFC85343-95B4-48C3-BCBE-579EA4868C0A}</Project>
-      <Name>PeanutButter.Utils</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resource1.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resource1.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Happy_smiley_face.png" />
+    <ProjectReference Include="..\..\TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj" />
+    <ProjectReference Include="..\..\TestUtils\PeanutButter.TestUtils.Generic\PeanutButter.TestUtils.Generic.csproj" />
+    <ProjectReference Include="..\PeanutButter.TrayIcon\PeanutButter.TrayIcon.csproj" />
+    <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
@@ -101,13 +30,9 @@
       <Version>3.12.0</Version>
     </PackageReference>
     <PackageReference Include="NUnit3TestAdapter" Version="3.15.1" />
+    <PackageReference Include="System.Resources.Extensions" Version="4.6.0" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  <ItemGroup>
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+  </ItemGroup>
 </Project>

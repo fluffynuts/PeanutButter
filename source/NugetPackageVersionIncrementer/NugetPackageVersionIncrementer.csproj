@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp2.2;net452</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.0;net462</TargetFrameworks>
     <Configurations>Debug;Release</Configurations>
     <Platforms>AnyCPU</Platforms>
   </PropertyGroup>

@@ -37,8 +37,4 @@
   <ItemGroup>
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.CSharp" Version="4.6.0" />
-  </ItemGroup>
-  <PropertyGroup />
 </Project>

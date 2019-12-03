@@ -1,230 +1,23 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <TargetFramework>net452</TargetFramework>
     <RuntimeIdentifiers>win;osx;linux</RuntimeIdentifiers>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{3885D69D-15A3-4DAB-AC23-D292E1AB8128}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PeanutButter.RandomGenerators.Tests</RootNamespace>
-    <AssemblyName>PeanutButter.RandomGenerators.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
-    <TargetFrameworkProfile />
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="GenericBuilderTestMatchers.cs" />
-    <Compile Include="PerformanceTest\Address.cs" />
-    <Compile Include="PerformanceTest\AddressType.cs" />
-    <Compile Include="PerformanceTest\AddressViewModel.cs" />
-    <Compile Include="PerformanceTest\Attachment.cs" />
-    <Compile Include="PerformanceTest\AttachmentViewModel.cs" />
-    <Compile Include="PerformanceTest\BankingDetails.cs" />
-    <Compile Include="PerformanceTest\BankingDetailsViewModel.cs" />
-    <Compile Include="PerformanceTest\Company.cs" />
-    <Compile Include="PerformanceTest\CompanyBankingDetails.cs" />
-    <Compile Include="PerformanceTest\CompanyBankingDetailsViewModel.cs" />
-    <Compile Include="PerformanceTest\CompanyViewModel.cs" />
-    <Compile Include="PerformanceTest\Contact.cs" />
-    <Compile Include="PerformanceTest\ContactExtensions.cs" />
-    <Compile Include="PerformanceTest\ContactNumber.cs" />
-    <Compile Include="PerformanceTest\ContactNumberType.cs" />
-    <Compile Include="PerformanceTest\ContactNumberViewModel.cs" />
-    <Compile Include="PerformanceTest\ContactViewModel.cs" />
-    <Compile Include="PerformanceTest\ContractDetails.cs" />
-    <Compile Include="PerformanceTest\ContractDetailsViewModel.cs" />
-    <Compile Include="PerformanceTest\Coordinate.cs" />
-    <Compile Include="PerformanceTest\CoordinateViewModel.cs" />
-    <Compile Include="PerformanceTest\DateTimeExtensions.cs" />
-    <Compile Include="PerformanceTest\DecimalExtensions.cs" />
-    <Compile Include="PerformanceTest\DefaultDateTimeProvider.cs" />
-    <Compile Include="PerformanceTest\Designation.cs" />
-    <Compile Include="PerformanceTest\DesignationGroups.cs" />
-    <Compile Include="PerformanceTest\DocumentType.cs" />
-    <Compile Include="PerformanceTest\Domain.cs" />
-    <Compile Include="PerformanceTest\DomainDescriptor.cs" />
-    <Compile Include="PerformanceTest\DomainDescriptorSearchViewModel.cs" />
-    <Compile Include="PerformanceTest\DomainDescriptorViewModel.cs" />
-    <Compile Include="PerformanceTest\DomainViewModel.cs" />
-    <Compile Include="PerformanceTest\ElectronicChecklist.cs" />
-    <Compile Include="PerformanceTest\ElectronicChecklistViewModel.cs" />
-    <Compile Include="PerformanceTest\EntityBase.cs" />
-    <Compile Include="PerformanceTest\EnumExtensions.cs" />
-    <Compile Include="PerformanceTest\ExchangeArea.cs" />
-    <Compile Include="PerformanceTest\ExchangeAreaViewModel.cs" />
-    <Compile Include="PerformanceTest\FinNumber.cs" />
-    <Compile Include="PerformanceTest\FinNumberExtensions.cs" />
-    <Compile Include="PerformanceTest\FinNumberViewModel.cs" />
-    <Compile Include="PerformanceTest\FinNumberYearHelper.cs" />
-    <Compile Include="PerformanceTest\GenericSaveStatus.cs" />
-    <Compile Include="PerformanceTest\GridFsFile.cs" />
-    <Compile Include="PerformanceTest\HeaderViewModel.cs" />
-    <Compile Include="PerformanceTest\IDateTimeProvider.cs" />
-    <Compile Include="PerformanceTest\IDomainDescriptorFinder.cs" />
-    <Compile Include="PerformanceTest\IFinNumberGenerator.cs" />
-    <Compile Include="PerformanceTest\ImajinConfig.cs" />
-    <Compile Include="PerformanceTest\ImajinRecord.cs" />
-    <Compile Include="PerformanceTest\ImajinRecordType.cs" />
-    <Compile Include="PerformanceTest\Invoice.cs" />
-    <Compile Include="PerformanceTest\InvoiceNumbering.cs" />
-    <Compile Include="PerformanceTest\InvoiceNumberingType.cs" />
-    <Compile Include="PerformanceTest\InvoiceNumberingViewModel.cs" />
-    <Compile Include="PerformanceTest\InvoicePaymentRecon.cs" />
-    <Compile Include="PerformanceTest\InvoicePaymentReconViewModel.cs" />
-    <Compile Include="PerformanceTest\InvoiceViewModel.cs" />
-    <Compile Include="PerformanceTest\InvoiceViewModelBuilder.cs" />
-    <Compile Include="PerformanceTest\IUploadedFile.cs" />
-    <Compile Include="PerformanceTest\Job.cs" />
-    <Compile Include="PerformanceTest\JobViewModel.cs" />
-    <Compile Include="PerformanceTest\LibraryDocument.cs" />
-    <Compile Include="PerformanceTest\LibraryDocumentDetails.cs" />
-    <Compile Include="PerformanceTest\LibraryDocumentDetailsInvoice.cs" />
-    <Compile Include="PerformanceTest\LibraryDocumentDetailsInvoiceViewModel.cs" />
-    <Compile Include="PerformanceTest\LibraryDocumentDetailsOrder.cs" />
-    <Compile Include="PerformanceTest\LibraryDocumentDetailsOrderViewModel.cs" />
-    <Compile Include="PerformanceTest\LibraryDocumentDetailsReport.cs" />
-    <Compile Include="PerformanceTest\LibraryDocumentDetailsReportViewModel.cs" />
-    <Compile Include="PerformanceTest\LibraryDocumentDetailsViewModel.cs" />
-    <Compile Include="PerformanceTest\LibraryDocumentSearchViewModel.cs" />
-    <Compile Include="PerformanceTest\LibraryDocumentViewModel.cs" />
-    <Compile Include="PerformanceTest\Location.cs" />
-    <Compile Include="PerformanceTest\LocationType.cs" />
-    <Compile Include="PerformanceTest\LocationViewModel.cs" />
-    <Compile Include="PerformanceTest\Log.cs" />
-    <Compile Include="PerformanceTest\OperationType.cs" />
-    <Compile Include="PerformanceTest\Order.cs" />
-    <Compile Include="PerformanceTest\OrderViewModel.cs" />
-    <Compile Include="PerformanceTest\PasswordChangeViewModel.cs" />
-    <Compile Include="PerformanceTest\PdfEmbeddedFont.cs" />
-    <Compile Include="PerformanceTest\PdfFragment.cs" />
-    <Compile Include="PerformanceTest\PenaltyAmountParametersViewModel.cs" />
-    <Compile Include="PerformanceTest\QualityAssurance.cs" />
-    <Compile Include="PerformanceTest\QualityAssuranceViewModel.cs" />
-    <Compile Include="PerformanceTest\Rate.cs" />
-    <Compile Include="PerformanceTest\RateViewModel.cs" />
-    <Compile Include="PerformanceTest\ReceiptMethod.cs" />
-    <Compile Include="PerformanceTest\Recon.cs" />
-    <Compile Include="PerformanceTest\ReconViewModel.cs" />
-    <Compile Include="PerformanceTest\Region.cs" />
-    <Compile Include="PerformanceTest\ReportParameterType.cs" />
-    <Compile Include="PerformanceTest\ReportSchedule.cs" />
-    <Compile Include="PerformanceTest\ReportScheduleDateParameterDetails.cs" />
-    <Compile Include="PerformanceTest\ReportScheduleParameter.cs" />
-    <Compile Include="PerformanceTest\ReportScheduleParameterViewModel.cs" />
-    <Compile Include="PerformanceTest\ReportScheduleStringParameterDetails.cs" />
-    <Compile Include="PerformanceTest\ReportScheduleViewModel.cs" />
-    <Compile Include="PerformanceTest\ReportType.cs" />
-    <Compile Include="PerformanceTest\Schedule.cs" />
-    <Compile Include="PerformanceTest\ScheduleType.cs" />
-    <Compile Include="PerformanceTest\ScheduleViewModel.cs" />
-    <Compile Include="PerformanceTest\SecurityViewModel.cs" />
-    <Compile Include="PerformanceTest\ServiceItem.cs" />
-    <Compile Include="PerformanceTest\ServiceItemViewModel.cs" />
-    <Compile Include="PerformanceTest\SiteDiary.cs" />
-    <Compile Include="PerformanceTest\SiteDiaryViewModel.cs" />
-    <Compile Include="PerformanceTest\Status.cs" />
-    <Compile Include="PerformanceTest\Team.cs" />
-    <Compile Include="PerformanceTest\TeamViewModel.cs" />
-    <Compile Include="PerformanceTest\TrackOrdersParametersViewModel.cs" />
-    <Compile Include="PerformanceTest\TrackOrdersViewModel.cs" />
-    <Compile Include="PerformanceTest\UnpaidInvoicesViewModel.cs" />
-    <Compile Include="PerformanceTest\User.cs" />
-    <Compile Include="PerformanceTest\UserRole.cs" />
-    <Compile Include="PerformanceTest\UsersViewModel.cs" />
-    <Compile Include="PerformanceTest\VersionViewModel.cs" />
-    <Compile Include="PerformanceTest\ViewModelBase.cs" />
-    <Compile Include="PerformanceTest\Wage.cs" />
-    <Compile Include="PerformanceTest\WagePeriod.cs" />
-    <Compile Include="PerformanceTest\WageViewModel.cs" />
-    <Compile Include="PerformanceTest\WorkType.cs" />
-    <Compile Include="TestBase.cs" />
-    <Compile Include="TestCannotGetAnotherDifferentRandomValueException.cs" />
-    <Compile Include="TestDateTimeRange.cs" />
-    <Compile Include="TestEnumerableExtensions.cs" />
-    <Compile Include="TestGenericBuilder.cs" />
-    <Compile Include="TestGenericBuilderInstanceCreationException.cs" />
-    <Compile Include="TestGenericBuilderLocator.cs" />
-    <Compile Include="TestRandomBuilderPerformance.cs" />
-    <Compile Include="TestRandomValueGen.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestUnableToCreateDynamicBuilderException.cs" />
-    <Compile Include="TestVarianceAssert.cs" />
-    <Compile Include="VarianceAssert.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\EmailSpooler\EmailSpooler.Win32Service.Entity\EmailSpooler.Win32Service.Entity.csproj">
-      <Project>{55c40403-0200-4757-b253-a9dcf56ed39f}</Project>
-      <Name>EmailSpooler.Win32Service.Entity</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Artifacts\GenericBuilderTestArtifactBuilders\GenericBuilderTestArtifactBuilders.csproj">
-      <Project>{94df996d-ab59-4a67-9fb8-ec9db0e75f49}</Project>
-      <Name>GenericBuilderTestArtifactBuilders</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Artifacts\GenericBuilderTestArtifactEntities\GenericBuilderTestArtifactEntities.csproj">
-      <Project>{979f6293-9f94-4dab-92aa-531e42c32f95}</Project>
-      <Name>GenericBuilderTestArtifactEntities</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Artifacts\GenericBuilderTestLoadLoadedAssemblyObject\GenericBuilderTestLoadLoadedAssemblyObject.csproj">
-      <Project>{FB06E50C-5193-4F1F-A902-21DC21904AF3}</Project>
-      <Name>GenericBuilderTestLoadLoadedAssemblyObject</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Artifacts\GenericBuilderTestNotLoadedAssembly\GenericBuilderTestNotLoadedAssembly.csproj">
-      <Project>{ba7f8b6d-c21f-47a5-9708-6034d67396f0}</Project>
-      <Name>GenericBuilderTestNotLoadedAssembly</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj">
-      <Project>{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}</Project>
-      <Name>PeanutButter.RandomGenerators</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PeanutButter.TestUtils.Generic\PeanutButter.TestUtils.Generic.csproj">
-      <Project>{6ddd7f9e-857a-442b-9148-05b34ea279c4}</Project>
-      <Name>PeanutButter.TestUtils.Generic</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Utils\PeanutButter.Utils.Entity\PeanutButter.Utils.Entity.csproj">
-      <Project>{784a35ad-e6a9-46a4-945c-6d62c55503e0}</Project>
-      <Name>PeanutButter.Utils.Entity</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj">
-      <Project>{EFC85343-95B4-48C3-BCBE-579EA4868C0A}</Project>
-      <Name>PeanutButter.Utils</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\..\EmailSpooler\EmailSpooler.Win32Service.Entity\EmailSpooler.Win32Service.Entity.csproj" />
+    <ProjectReference Include="..\..\Artifacts\GenericBuilderTestArtifactBuilders\GenericBuilderTestArtifactBuilders.csproj" />
+    <ProjectReference Include="..\..\Artifacts\GenericBuilderTestArtifactEntities\GenericBuilderTestArtifactEntities.csproj" />
+    <ProjectReference Include="..\..\Artifacts\GenericBuilderTestLoadLoadedAssemblyObject\GenericBuilderTestLoadLoadedAssemblyObject.csproj" />
+    <ProjectReference Include="..\..\Artifacts\GenericBuilderTestNotLoadedAssembly\GenericBuilderTestNotLoadedAssembly.csproj" />
+    <ProjectReference Include="..\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj" />
+    <ProjectReference Include="..\PeanutButter.TestUtils.Generic\PeanutButter.TestUtils.Generic.csproj" />
+    <ProjectReference Include="..\..\Utils\PeanutButter.Utils.Entity\PeanutButter.Utils.Entity.csproj" />
+    <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
@@ -234,13 +27,13 @@
       <Version>2.2.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.AspNet.Mvc">
-      <Version>5.2.3</Version>
+      <Version>5.2.7</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.AspNet.Razor">
-      <Version>3.2.3</Version>
+      <Version>3.2.7</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.AspNet.WebPages">
-      <Version>3.2.3</Version>
+      <Version>3.2.7</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Net.Compilers">
       <Version>3.3.1</Version>
@@ -261,16 +54,7 @@
     </PackageReference>
     <PackageReference Include="NUnit3TestAdapter" Version="3.15.1" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
-  </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  <ItemGroup>
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+  </ItemGroup>
 </Project>

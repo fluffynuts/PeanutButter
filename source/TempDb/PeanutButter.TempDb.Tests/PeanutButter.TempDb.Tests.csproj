@@ -1,130 +1,58 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <TargetFramework>net452</TargetFramework>
     <RuntimeIdentifiers>win-x86;win;osx;linux</RuntimeIdentifiers>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{685D9EE7-16ED-42B2-A7BB-087D788FC6FC}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>PeanutButter.TempDb.Tests</RootNamespace>
     <AssemblyName>PeanutButter.TempDb.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-    <TargetFrameworkProfile />
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MySqlConnectionStringUtil.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestLocalDbFactory.cs" />
-    <Compile Include="TestLocalDbInstanceEnumerator.cs" />
-    <Compile Include="TestMySqlConfigGenerator.cs" />
-    <Compile Include="TestMySqlWindowsServiceFinder.cs" />
-    <Compile Include="TestResources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>TestResources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="TestTempDBLocalDb.cs" />
-    <Compile Include="TestTempDBMySqlConnector.cs" />
-    <Compile Include="TestTempDbMySqlData.cs" />
-    <Compile Include="TestTempDbMySqlServerSettings.cs" />
-    <Compile Include="TestTempDBSqlCe.cs" />
-    <Compile Include="TestTempDBSqlite.cs" />
+    <ProjectReference Include="..\..\INI\PeanutButter.INI\PeanutButter.INI.csproj" />
+    <ProjectReference Include="..\..\TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj" />
+    <ProjectReference Include="..\..\Win32Service\PeanutButter.WindowsServiceManagement\PeanutButter.WindowsServiceManagement.csproj" />
+    <ProjectReference Include="..\PeanutButter.TempDb.LocalDb\PeanutButter.TempDb.LocalDb.csproj" />
+    <ProjectReference Include="..\PeanutButter.TempDb.MySql.Base\PeanutButter.TempDb.MySql.Base.csproj" />
+    <ProjectReference Include="..\PeanutButter.TempDb.MySql.Connector\PeanutButter.TempDb.MySql.Connector.csproj" />
+    <ProjectReference Include="..\PeanutButter.TempDb.MySql.Data\PeanutButter.TempDb.MySql.Data.csproj" />
+    <ProjectReference Include="..\PeanutButter.TempDb.SqlCe\PeanutButter.TempDb.SqlCe.csproj" />
+    <ProjectReference Include="..\PeanutButter.TempDb.Sqlite\PeanutButter.TempDb.Sqlite.csproj" />
+    <ProjectReference Include="..\PeanutButter.TempDb\PeanutButter.TempDb.csproj" />
+    <ProjectReference Include="..\..\TestUtils\PeanutButter.TestUtils.Generic\PeanutButter.TestUtils.Generic.csproj" />
+    <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\INI\PeanutButter.INI\PeanutButter.INI.csproj">
-      <Project>{64644CCE-0CC9-4CE5-BF0E-E45E425F6339}</Project>
-      <Name>PeanutButter.INI</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj">
-      <Project>{cb22d9ae-a2a8-45d0-92b9-fadc687120f0}</Project>
-      <Name>PeanutButter.RandomGenerators</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Win32Service\PeanutButter.WindowsServiceManagement\PeanutButter.WindowsServiceManagement.csproj">
-      <Project>{c97c82c9-8975-4367-8b5e-386f93b6130c}</Project>
-      <Name>PeanutButter.WindowsServiceManagement</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PeanutButter.TempDb.LocalDb\PeanutButter.TempDb.LocalDb.csproj">
-      <Project>{DA294B3F-58C7-4255-B6AA-82C2393DA49F}</Project>
-      <Name>PeanutButter.TempDb.LocalDb</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PeanutButter.TempDb.MySql.Base\PeanutButter.TempDb.MySql.Base.csproj">
-      <Project>{aba37c05-8ee5-43f1-92f9-b5b2a971d729}</Project>
-      <Name>PeanutButter.TempDb.MySql.Base</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PeanutButter.TempDb.MySql.Connector\PeanutButter.TempDb.MySql.Connector.csproj">
-      <Project>{cad849f1-4d4e-41a8-aab7-b0d2a0a975d5}</Project>
-      <Name>PeanutButter.TempDb.MySql.Connector</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PeanutButter.TempDb.MySql.Data\PeanutButter.TempDb.MySql.Data.csproj">
-      <Project>{95bf1b4e-33ff-44cb-bec9-5dcb4c8c26ef}</Project>
-      <Name>PeanutButter.TempDb.MySql.Data</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PeanutButter.TempDb.SqlCe\PeanutButter.TempDb.SqlCe.csproj">
-      <Project>{94857B1A-5627-4B0F-9C75-32D39C3FF674}</Project>
-      <Name>PeanutButter.TempDb.SqlCe</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PeanutButter.TempDb.Sqlite\PeanutButter.TempDb.Sqlite.csproj">
-      <Project>{344CB4A3-74F0-4559-A786-423E6888DB4B}</Project>
-      <Name>PeanutButter.TempDb.Sqlite</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PeanutButter.TempDb\PeanutButter.TempDb.csproj">
-      <Project>{265C672B-B6F6-40F8-9180-B0BE5575ABDE}</Project>
-      <Name>PeanutButter.TempDb</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TestUtils\PeanutButter.TestUtils.Generic\PeanutButter.TestUtils.Generic.csproj">
-      <Project>{6ddd7f9e-857a-442b-9148-05b34ea279c4}</Project>
-      <Name>PeanutButter.TestUtils.Generic</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj">
-      <Project>{EFC85343-95B4-48C3-BCBE-579EA4868C0A}</Project>
-      <Name>PeanutButter.Utils</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="TestResources.resx">
+    <EmbeddedResource Update="TestResources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>TestResources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
@@ -166,7 +94,9 @@
       <Version>1.0.97</Version>
     </PackageReference>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+  </ItemGroup>
   <Import Project="$(SolutionDir)\packages\System.Data.SQLite.Core.1.0.97.0\build\net45\System.Data.SQLite.Core.targets" Condition="Exists('$(SolutionDir)\packages\System.Data.SQLite.Core.1.0.97.0\build\net45\System.Data.SQLite.Core.targets')" />
   <PropertyGroup>
     <PostBuildEvent>if not exist "$(TargetDir)x86" md "$(TargetDir)x86"
@@ -174,11 +104,4 @@
 if not exist "$(TargetDir)amd64" md "$(TargetDir)amd64"
 @rem xcopy /s /y "$(SolutionDir)packages\Microsoft.SqlServer.Compact.4.0.8876.1\NativeBinaries\amd64\*.*" "$(TargetDir)amd64"</PostBuildEvent>
   </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

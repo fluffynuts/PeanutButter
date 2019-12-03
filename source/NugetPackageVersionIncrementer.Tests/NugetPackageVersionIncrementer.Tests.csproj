@@ -1,96 +1,18 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
   <PropertyGroup>
+    <TargetFramework>net462</TargetFramework>
     <RuntimeIdentifiers>win;osx;linux</RuntimeIdentifiers>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{6CF1E2C3-9BF5-4291-89F9-1F6B348F1BBE}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NugetPackageVersionIncrementer.Tests</RootNamespace>
-    <AssemblyName>NugetPackageVersionIncrementer.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
-    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="TestNuspecFinder.cs" />
-    <Compile Include="TestNuspecUtilFactory.cs" />
-    <Compile Include="TestNuspecVersionCoordinator.cs" />
-    <Compile Include="TestNuspecUtil.cs" />
-    <Compile Include="TestNuspecPackageDependencyHelper.cs" />
-    <Compile Include="TestNuspecVersion.cs" />
-    <Compile Include="TestNuspecVersionIncrementer.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestResolvingContainer.cs" />
-    <Compile Include="TestResources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>TestResources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="TestWindsorBootstrapper.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="TestResources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>TestResources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\NugetPackageVersionIncrementer\NugetPackageVersionIncrementer.csproj">
-      <Project>{D74720A9-686C-4A62-A57B-2CD085C3BE46}</Project>
-      <Name>NugetPackageVersionIncrementer</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj">
-      <Project>{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}</Project>
-      <Name>PeanutButter.RandomGenerators</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TestUtils\PeanutButter.TestUtils.Generic\PeanutButter.TestUtils.Generic.csproj">
-      <Project>{6DDD7F9E-857A-442B-9148-05B34EA279C4}</Project>
-      <Name>PeanutButter.TestUtils.Generic</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj">
-      <Project>{EFC85343-95B4-48C3-BCBE-579EA4868C0A}</Project>
-      <Name>PeanutButter.Utils</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\package1.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\package2.xml" />
+    <ProjectReference Include="..\NugetPackageVersionIncrementer\NugetPackageVersionIncrementer.csproj" />
+    <ProjectReference Include="..\TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj" />
+    <ProjectReference Include="..\TestUtils\PeanutButter.TestUtils.Generic\PeanutButter.TestUtils.Generic.csproj" />
+    <ProjectReference Include="..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
@@ -120,12 +42,7 @@
   <ItemGroup>
     <Content Include="Resources\package3.xml" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  <ItemGroup>
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+  </ItemGroup>
 </Project>

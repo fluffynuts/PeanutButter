@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using PeanutButter.SimpleHTTPServer;
@@ -24,7 +25,7 @@ namespace PeanutButter.NetUtils.Tests
         }
 
         [Test]
-        public void DownloadFile_GivenAvailableDownload_WhenNoExistingFile_ShouldDownloadEntireFile()
+        public async Task DownloadFile_GivenAvailableDownload_WhenNoExistingFile_ShouldDownloadEntireFile()
         {
             //---------------Set up test pack-------------------
             using (var http = new HttpServer())
@@ -41,10 +42,10 @@ namespace PeanutButter.NetUtils.Tests
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                var result = sut.Download(linkUrl, expectedFile).Result;
+                var result = await sut.Download(linkUrl, expectedFile);
 
                 //---------------Test Result -----------------------
-                Assert.IsTrue(result);
+                Assert.That(result, Is.True);
                 Assert.IsTrue(File.Exists(expectedFile));
                 CollectionAssert.AreEqual(someBytes, File.ReadAllBytes(expectedFile));
             }

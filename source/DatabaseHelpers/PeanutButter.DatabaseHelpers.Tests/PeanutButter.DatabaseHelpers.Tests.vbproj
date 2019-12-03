@@ -1,109 +1,46 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <TargetFramework>net452</TargetFramework>
     <RuntimeIdentifiers>win;osx;linux</RuntimeIdentifiers>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{06CFA7FB-6B07-45DF-896F-ECCEB6633E0B}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>PeanutButter.DatabaseHelpers.Tests</RootNamespace>
-    <AssemblyName>PeanutButter.DatabaseHelpers.Tests</AssemblyName>
-    <FileAlignment>512</FileAlignment>
     <MyType>Windows</MyType>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\Source\</SolutionDir>
-    <TargetFrameworkProfile />
-    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <DefineDebug>true</DefineDebug>
-    <DefineTrace>true</DefineTrace>
-    <OutputPath>bin\Debug\</OutputPath>
     <DocumentationFile>PeanutButter.DatabaseHelpers.Tests.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022,40000</NoWarn>
-    <Prefer32Bit>false</Prefer32Bit>
+    <OutputPath>bin\Debug\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
     <DefineDebug>false</DefineDebug>
-    <DefineTrace>true</DefineTrace>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
     <DocumentationFile>PeanutButter.DatabaseHelpers.Tests.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup>
-    <OptionExplicit>On</OptionExplicit>
-  </PropertyGroup>
-  <PropertyGroup>
-    <OptionCompare>Binary</OptionCompare>
+    <OutputPath>bin\Release\</OutputPath>
   </PropertyGroup>
   <PropertyGroup>
     <OptionStrict>On</OptionStrict>
   </PropertyGroup>
-  <PropertyGroup>
-    <OptionInfer>On</OptionInfer>
-  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-  </ItemGroup>
-  <ItemGroup>
-    <Import Include="Microsoft.VisualBasic" />
-    <Import Include="System" />
-    <Import Include="System.Collections" />
-    <Import Include="System.Collections.Generic" />
-    <Import Include="System.Data" />
-    <Import Include="System.Diagnostics" />
-    <Import Include="System.Linq" />
-    <Import Include="System.Xml.Linq" />
-    <Import Include="System.Threading.Tasks" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="My Project\AssemblyInfo.vb" />
-    <Compile Include="My Project\Application.Designer.vb">
+    <Compile Update="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
       <DependentUpon>Application.myapp</DependentUpon>
     </Compile>
-    <Compile Include="My Project\Resources.Designer.vb">
+    <Compile Update="My Project\Resources.Designer.vb">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="My Project\Settings.Designer.vb">
+    <Compile Update="My Project\Settings.Designer.vb">
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="TestComputedField.vb" />
-    <Compile Include="TestConnectionStringBuilder.vb" />
-    <Compile Include="TestStatementBuilders\TestCompoundCondition.vb" />
-    <Compile Include="TestStatementBuilders\TestComputedField.vb" />
-    <Compile Include="TestStatementBuilders\TestConcatenatedField.vb" />
-    <Compile Include="TestStatementBuilders\TestCondition.vb" />
-    <Compile Include="TestStatementBuilders\TestConditionChain.vb" />
-    <Compile Include="TestStatementBuilders\TestConditionExtensions.vb" />
-    <Compile Include="TestStatementBuilders\TestDataCopyStatementBuilder.vb" />
-    <Compile Include="TestStatementBuilders\TestDeleteStatementBuilder.vb" />
-    <Compile Include="TestStatementBuilders\TestInsertStatementBuilder.vb" />
-    <Compile Include="TestStatementBuilders\TestMultiOrderBy.vb" />
-    <Compile Include="TestStatementBuilders\TestOrderBy.vb" />
-    <Compile Include="TestStatementBuilders\TestSelectField.vb" />
-    <Compile Include="TestStatementBuilders\TestSelectStatementBuilder.vb" />
-    <Compile Include="TestStatementBuilders\TestUpdateStatementBuilder.vb" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="My Project\Resources.resx">
+    <EmbeddedResource Update="My Project\Resources.resx">
       <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.vb</LastGenOutput>
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
@@ -111,29 +48,20 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="My Project\Application.myapp">
+    <None Update="My Project\Application.myapp">
       <Generator>MyApplicationCodeGenerator</Generator>
       <LastGenOutput>Application.Designer.vb</LastGenOutput>
     </None>
-    <None Include="My Project\Settings.settings">
+    <None Update="My Project\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <CustomToolNamespace>My</CustomToolNamespace>
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PeanutButter.DatabaseHelpers\PeanutButter.DatabaseHelpers.vbproj">
-      <Project>{02DF2FD5-59E2-4EC8-80D1-E745D7D834C5}</Project>
-      <Name>PeanutButter.DatabaseHelpers</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj">
-      <Project>{cb22d9ae-a2a8-45d0-92b9-fadc687120f0}</Project>
-      <Name>PeanutButter.RandomGenerators</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj">
-      <Project>{EFC85343-95B4-48C3-BCBE-579EA4868C0A}</Project>
-      <Name>PeanutButter.Utils</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\PeanutButter.DatabaseHelpers\PeanutButter.DatabaseHelpers.vbproj" />
+    <ProjectReference Include="..\..\TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj" />
+    <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
@@ -151,12 +79,10 @@
     </PackageReference>
     <PackageReference Include="NUnit3TestAdapter" Version="3.15.1" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  <ItemGroup>
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualBasic" Version="10.3.0" />
+  </ItemGroup>
 </Project>

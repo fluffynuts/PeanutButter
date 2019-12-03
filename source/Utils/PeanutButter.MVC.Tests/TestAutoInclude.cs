@@ -6,6 +6,7 @@ using System.Web.Optimization;
 using NSubstitute;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
+using ValueProviderResult = System.Web.Mvc.ValueProviderResult;
 
 namespace PeanutButter.MVC.Tests
 {

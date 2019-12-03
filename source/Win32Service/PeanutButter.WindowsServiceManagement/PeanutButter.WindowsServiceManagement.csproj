@@ -12,6 +12,7 @@
     <Reference Include="System.ServiceProcess" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Net.Compilers" Version="3.3.1" />
     <PackageReference Include="System.Management" Version="4.6.0" />
   </ItemGroup>
   <ItemGroup>

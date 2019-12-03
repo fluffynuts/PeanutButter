@@ -1,104 +1,23 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <TargetFramework>net452</TargetFramework>
     <RuntimeIdentifiers>win;osx;linux</RuntimeIdentifiers>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{75448DD7-4A34-464D-BE4C-7FE41657EB41}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PeanutButter.TestUtils.Entity</RootNamespace>
-    <AssemblyName>PeanutButter.TestUtils.Entity</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
-    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Core" />
     <Reference Include="System.Transactions" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DbSchemaImporter.cs" />
-    <Compile Include="EntityPersistenceFluentState.cs" />
-    <Compile Include="EntityPersistenceFluentStateConstants.cs" />
-    <Compile Include="EntityPersistenceTester.cs" />
-    <Compile Include="EntityPersistenceTesterFor.cs" />
-    <Compile Include="EntityPersistenceTestFixtureBase.cs" />
-    <Compile Include="GenericEntityBuilder.cs" />
-    <Compile Include="ObjectExtensionsForTesting.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PropertyData.cs" />
-    <Compile Include="PropertyDataObjectExtension.cs" />
-    <Compile Include="Attributes\UseSharedTempDbAttribute.cs" />
-    <Compile Include="SharedDatabaseAlreadyRegisteredException.cs" />
-    <Compile Include="SharedDatabaseLocator.cs" />
-    <Compile Include="SharedTempDbFeatureRequiresAssemblyAttributeException.cs" />
-    <Compile Include="TestFixtureWithTempDb.cs" />
-    <Compile Include="Attributes\AllowSharedTempDbInstancesAttribute.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-    <None Include="Package.nuspec" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Utils\PeanutButter.FluentMigrator\PeanutButter.FluentMigrator.csproj">
-      <Project>{6c7a1c15-555e-45a5-921e-f2a56a3d60f6}</Project>
-      <Name>PeanutButter.FluentMigrator</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj">
-      <Project>{CB22D9AE-A2A8-45D0-92B9-FADC687120F0}</Project>
-      <Name>PeanutButter.RandomGenerators</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TempDb\PeanutButter.TempDb.LocalDb\PeanutButter.TempDb.LocalDb.csproj">
-      <Project>{DA294B3F-58C7-4255-B6AA-82C2393DA49F}</Project>
-      <Name>PeanutButter.TempDb.LocalDb</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TempDb\PeanutButter.TempDb\PeanutButter.TempDb.csproj">
-      <Project>{265c672b-b6f6-40f8-9180-b0be5575abde}</Project>
-      <Name>PeanutButter.TempDb</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PeanutButter.TestUtils.Generic\PeanutButter.TestUtils.Generic.csproj">
-      <Project>{6ddd7f9e-857a-442b-9148-05b34ea279c4}</Project>
-      <Name>PeanutButter.TestUtils.Generic</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Utils\PeanutButter.Utils.Entity\PeanutButter.Utils.Entity.csproj">
-      <Project>{784a35ad-e6a9-46a4-945c-6d62c55503e0}</Project>
-      <Name>PeanutButter.Utils.Entity</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj">
-      <Project>{EFC85343-95B4-48C3-BCBE-579EA4868C0A}</Project>
-      <Name>PeanutButter.Utils</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\..\Utils\PeanutButter.FluentMigrator\PeanutButter.FluentMigrator.csproj" />
+    <ProjectReference Include="..\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj" />
+    <ProjectReference Include="..\..\TempDb\PeanutButter.TempDb.LocalDb\PeanutButter.TempDb.LocalDb.csproj" />
+    <ProjectReference Include="..\..\TempDb\PeanutButter.TempDb\PeanutButter.TempDb.csproj" />
+    <ProjectReference Include="..\PeanutButter.TestUtils.Generic\PeanutButter.TestUtils.Generic.csproj" />
+    <ProjectReference Include="..\..\Utils\PeanutButter.Utils.Entity\PeanutButter.Utils.Entity.csproj" />
+    <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="EntityFramework">
@@ -115,16 +34,7 @@
       <Version>3.12.0</Version>
     </PackageReference>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
-  </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  <ItemGroup>
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+  </ItemGroup>
 </Project>
