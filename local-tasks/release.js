@@ -1,6 +1,7 @@
 var
   fs = require("fs")
   gulp = require("gulp"),
+  gdebug = require("gulp-debug"),
   runSequence = requireModule("run-sequence"),
   msbuild = require("gulp-msbuild")
   del = require("del"),
@@ -80,6 +81,7 @@ function buildNugetPackages(includeSymbols) {
     if (includeSymbols) {
       args.push("-Symbols");
     }
+    console.log("nuget pack with:", args);
     return args;
   })
 }
@@ -95,7 +97,7 @@ gulp.task("build-binary-nuget-packages", function () {
     /* source */
     "!**/PeanutButter.TestUtils.MVC/**"
   ])
-    .pipe(buildNugetPackages(true));
+  .pipe(buildNugetPackages(true));
 });
 
 gulp.task("build-binaries-for-nuget-packages-from-zero", ["purge"], function (done) {

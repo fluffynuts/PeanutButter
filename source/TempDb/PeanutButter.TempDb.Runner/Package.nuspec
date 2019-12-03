@@ -27,10 +27,6 @@
     <license type="expression">BSD-3-Clause</license>
     <copyright>Copyright 2015</copyright>
     <dependencies>
-      <group targetFramework="net452">
-        <dependency id="PeanutButter.Utils" version="1.2.324" />
-        <dependency id="System.Data.SqlClient" version="4.7.0" />
-      </group>
       <group targetFramework="net462">
         <dependency id="PeanutButter.Utils" version="1.2.324" />
         <dependency id="System.Data.SqlClient" version="4.7.0" />
@@ -45,8 +41,6 @@
   </metadata>
   <files>
     <file src="bin\Release\net462\CommandLine.dll" target="lib/net462" />
-    <file src="bin\Release\net462\EntityFramework.dll" target="lib/net462" />
-    <file src="bin\Release\net462\EntityFramework.SqlServer.dll" target="lib/net462" />
     <file src="bin\Release\net462\Microsoft.Win32.Primitives.dll" target="lib/net462" />
     <file src="bin\Release\net462\MySqlConnector.dll" target="lib/net462" />
     <file src="bin\Release\net462\netstandard.dll" target="lib/net462" />
@@ -86,8 +80,6 @@
     <file src="bin\Release\net462\System.Data.Common.dll" target="lib/net462" />
     <file src="bin\Release\net462\System.Data.SqlClient.dll" target="lib/net462" />
     <file src="bin\Release\net462\System.Data.SQLite.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Data.SQLite.EF6.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Data.SQLite.Linq.dll" target="lib/net462" />
     <file src="bin\Release\net462\System.Diagnostics.Contracts.dll" target="lib/net462" />
     <file src="bin\Release\net462\System.Diagnostics.Debug.dll" target="lib/net462" />
     <file src="bin\Release\net462\System.Diagnostics.FileVersionInfo.dll" target="lib/net462" />
@@ -177,6 +169,7 @@
     <file src="bin\Release\net462\System.Xml.XPath.XDocument.dll" target="lib/net462" />
     <file src="bin\Release\net462\x64\SQLite.Interop.dll" target="lib/net462" />
     <file src="bin\Release\net462\x86\SQLite.Interop.dll" target="lib/net462" />
+    
     <file src="bin\Release\netcoreapp2.2\PeanutButter.INI.dll" target="lib/netcoreapp2.2" />
     <file src="bin\Release\netcoreapp2.2\PeanutButter.INI.pdb" target="lib/netcoreapp2.2" />
     <file src="bin\Release\netcoreapp2.2\PeanutButter.TempDb.dll" target="lib/netcoreapp2.2" />
