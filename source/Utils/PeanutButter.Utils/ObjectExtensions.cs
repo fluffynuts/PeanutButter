@@ -598,7 +598,7 @@ namespace PeanutButter.Utils
             catch (Exception e)
             {
                 Debug.WriteLine($"Unable to clone item of type {cloneType.Name}: {e.Message}");
-                return DefaultValueForType(cloneType);
+                return cloneType.DefaultValue();
             }
         }
 
@@ -662,25 +662,8 @@ namespace PeanutButter.Utils
             catch (Exception e)
             {
                 Debug.WriteLine($"Unable to clone object of type {cloneType.Name}: {e.Message}");
-                return DefaultValueForType(cloneType);
+                return cloneType.DefaultValue();
             }
-        }
-
-        private static object DefaultValueForType(Type t)
-        {
-            var method = _genericGetDefaultValueMethod.MakeGenericMethod(t);
-            return method.Invoke(null, new object[] { });
-        }
-
-        private static readonly MethodInfo _genericGetDefaultValueMethod =
-            typeof(ObjectExtensions).GetMethod(
-                nameof(GetDefaultValueFor),
-                BindingFlags.NonPublic | BindingFlags.Static
-            );
-
-        private static T GetDefaultValueFor<T>()
-        {
-            return default(T);
         }
 
         private static bool IsSimpleTypeOrNullableOfSimpleType(Type t)

@@ -616,7 +616,10 @@ namespace PeanutButter.Utils
         public static object DefaultValue(this Type type)
         {
             if (_defaultTypeValues.TryGetValue(type, out var cached))
+            {
                 return cached;
+            }
+
             var method = DefaultValueGeneric.MakeGenericMethod(type);
             var result = method.Invoke(null, null);
             _defaultTypeValues.TryAdd(type, result);
