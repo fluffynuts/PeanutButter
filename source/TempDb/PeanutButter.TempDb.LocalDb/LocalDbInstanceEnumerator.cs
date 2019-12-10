@@ -42,7 +42,7 @@ namespace PeanutButter.TempDb.LocalDb
                 }
 
                 var process = RunToCompletion(toRun);
-                return FindInstancesFromOutputOf(process);
+                return (AvailableDefaultInstances = FindInstancesFromOutputOf(process));
             }
         }
 

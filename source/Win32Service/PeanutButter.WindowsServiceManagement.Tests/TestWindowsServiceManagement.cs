@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -8,6 +9,7 @@ using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using NExpect;
 using PeanutButter.Utils;
+using TestService;
 using static NExpect.Expectations;
 
 // ReSharper disable AssignNullToNotNullAttribute
@@ -115,8 +117,8 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             Expect(serviceExe).To.Exist($"Expected to find test service at {serviceExe}");
             EnsureTestServiceIsNotInstalled();
             // Act
-            Do("Install via cli", () => Run(serviceExe, "-i"));
-            var util = new WindowsServiceUtil("Test Service");
+            Do("Install via cli", () => Run(serviceExe, "-i", "-n", TestServiceName));
+            var util = new WindowsServiceUtil(TestServiceName);
             Do("Test is installed",
                 () => Expect(util.IsInstalled)
                     .To.Be.True()
@@ -202,7 +204,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             Do("Uninstall via cli",
                 () =>
                 {
-                    Run(serviceExe, "-u");
+                    Run(serviceExe, "-u", "-n", TestServiceName);
 
                     Expect(util.IsInstalled)
                         .To.Be.False();
@@ -220,9 +222,16 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             Do("Uninstall (api)", () => util.Uninstall());
             // Assert
         }
+        
+        private static readonly string TestServiceName = $"test-service-{Guid.NewGuid()}";
 
-        private void Do(string message, Action toRun)
+        private void Do(
+            string message,
+            Action toRun,
+            TimeSpan? maxWait = null)
         {
+            maxWait = maxWait ?? TimeSpan.FromSeconds(5);
+
             var pad = 32 - message.Length - 7;
             var padString = "";
             if (pad > 0)
@@ -234,7 +243,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             Console.Out.Flush();
             try
             {
-                toRun();
+                TryRun(toRun, maxWait.Value);
                 Console.Out.WriteLine(" [ OK ]");
             }
             catch
@@ -242,6 +251,28 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                 Console.Out.WriteLine(" [FAIL]");
                 throw;
             }
+        }
+
+        private void TryRun(
+            Action toRun,
+            TimeSpan maxWaitForSuccess)
+        {
+            var giveUp = DateTime.Now + maxWaitForSuccess;
+            Exception last = null;
+            while (DateTime.Now <= giveUp)
+            {
+                try
+                {
+                    toRun();
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    last = ex;
+                }
+            }
+
+            throw last ?? new InvalidOperationException($"No last exception captured");
         }
 
         [TearDown]
@@ -275,6 +306,10 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                 }
 
                 proc.WaitForExit();
+                if (proc.ExitCode != 0)
+                {
+                    throw new Exception($"{program} {args.JoinWith(" ")}\nexited with code {proc.ExitCode}");
+                }
             }
         }
 
@@ -294,19 +329,14 @@ namespace PeanutButter.WindowsServiceManagement.Tests
 
         private void EnsureTestServiceIsNotInstalled()
         {
-            EnsureServiceIsNotInstalled("Test service");
-        }
-
-        private void EnsureServiceIsNotInstalled(string serviceName)
-        {
-            var util = new WindowsServiceUtil(serviceName);
-            if (!util.IsInstalled)
+            var util = WindowsServiceUtil.GetServiceByPath(TestServicePath);
+            if (!util?.IsInstalled ?? false)
             {
                 return;
             }
 
-            util.Uninstall();
-            if (!util.IsInstalled)
+            util?.Uninstall();
+            if (!util?.IsInstalled ?? false)
             {
                 return;
             }
@@ -321,7 +351,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                 {
                     service = Win32Api.OpenService(
                         scm,
-                        "test service",
+                        TestServiceName,
                         ServiceAccessRights.AllAccess
                     );
                     if (service == IntPtr.Zero)

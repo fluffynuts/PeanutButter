@@ -3,6 +3,7 @@
     <TargetFrameworks>net452;net462</TargetFrameworks>
     <RuntimeIdentifiers>win</RuntimeIdentifiers>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <DefineConstants>BUILD_PEANUTBUTTER_INTERNAL</DefineConstants>
   </PropertyGroup>
   <PropertyGroup>
     <OutputType>Library</OutputType>
@@ -17,5 +18,10 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Utils\PeanutButter.Utils\ProcessIO.cs">
+      <Link>ProcessIO.cs</Link>
+    </Compile>
   </ItemGroup>
 </Project>

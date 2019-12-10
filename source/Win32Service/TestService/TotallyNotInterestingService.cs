@@ -6,12 +6,13 @@ namespace TestService
 {
     public class TotallyNotInterestingService: Shell
     {
+        public static string CliServiceName;
         public TotallyNotInterestingService()
         {
             var exePath = Assembly.GetEntryAssembly()?.CodeBase
                 ?? "(unknown location)";
             DisplayName = "Totally Not Interesting Service at: " + exePath;
-            ServiceName = "Test Service";
+            ServiceName = CliServiceName ?? "Test Service";
             Interval = 1;
             Version.Major = 1;
         }

@@ -6,9 +6,11 @@ using System.IO;
 using System.Linq;
 using System.Management;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Threading;
 using Microsoft.Win32;
 using PeanutButter.WindowsServiceManagement.Exceptions;
+using Imported.PeanutButter.Utils;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable MemberCanBePrivate.Global
@@ -83,18 +85,35 @@ namespace PeanutButter.WindowsServiceManagement
         public string ServiceExe
             => _serviceExe ?? (_serviceExe = QueryExeForServiceByName(ServiceName));
 
+
         private static string QueryExeForServiceByName(string name)
         {
-            var queryString =
-                $"select PathName from Win32_Service where Name = '{name?.Replace("'", "''")}'";
-            using (var searcher = new ManagementObjectSearcher(queryString))
-            using (var collection = searcher.Get())
+            using (var io = new ProcessIO("sc", "qc", $"\"{name}\""))
             {
-                return collection.Cast<ManagementBaseObject>()
-                    .Select(o => o.Properties["PathName"].Value.ToString())
-                    .FirstOrDefault();
+                var interestingLine = io.StandardOutput
+                    .Select(line => line.Trim())
+                    .FirstOrDefault(line => line.StartsWith("BINARY_PATH_NAME"));
+                if (interestingLine == null)
+                {
+                    return null;
+                }
+
+                var cli = string.Join(
+                    ":",
+                    interestingLine.Split(':')
+                        .Skip(1));
+                var exe = ProgramFinder.Matches(cli).OfType<Match>().FirstOrDefault();
+                if (exe == null)
+                {
+                    throw new InvalidOperationException(
+                        $"Unable to determine program path from cli: \"{cli}\""
+                    );
+                }
+                return exe.Value;
             }
         }
+
+        private static Regex ProgramFinder = new Regex("((\".+\")|([^ ]+))");
 
         public static WindowsServiceUtil GetServiceByPath(string path)
         {

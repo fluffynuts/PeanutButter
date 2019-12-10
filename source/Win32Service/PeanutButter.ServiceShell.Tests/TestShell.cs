@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using NExpect;
 using PeanutButter.Utils;
 using PeanutButter.WindowsServiceManagement;
-using TestService;
 using static NExpect.Expectations;
 
 namespace PeanutButter.ServiceShell.Tests
@@ -90,9 +87,11 @@ namespace PeanutButter.ServiceShell.Tests
             [TestFixture]
             public class WhenServiceIsNotInstalled
             {
+                private string ServiceName;
                 [SetUp]
                 public void OneTimeSetup()
                 {
+                    ServiceName = $"test-service-{Guid.NewGuid()}";
                     EnsureTestServiceIsNotInstalled();
                 }
 
@@ -223,6 +222,8 @@ namespace PeanutButter.ServiceShell.Tests
                     util.Start(true);
                 }
             }
+            
+            private static readonly string TestServiceName = $"test-service-${Guid.NewGuid()}";
 
             private static void EnsureTestServiceIsInstalled()
             {
@@ -284,16 +285,17 @@ namespace PeanutButter.ServiceShell.Tests
                 string program,
                 params string[] args)
             {
-                using (var io = new ProcessIO(program, args))
-                {
-                    return io.ExitCode;
-                }
+                using var io = new ProcessIO(
+                    program, 
+                    args.And("-n", TestServiceName));
+                io.StandardOutput.ForEach(line => Console.WriteLine($"stdout: {line}"));
+                io.StandardError.ForEach(line => Console.WriteLine($"stderr: {line}"));
+                return io.ExitCode;
             }
 
             private static WindowsServiceUtil MakeTestServiceUtil()
             {
-                var instance = new TotallyNotInterestingService();
-                return new WindowsServiceUtil(instance.ServiceName);
+                return new WindowsServiceUtil(TestServiceName);
             }
 
             private static bool ServiceAlreadyInstalled(string name)
@@ -308,16 +310,6 @@ namespace PeanutButter.ServiceShell.Tests
 
             private static string TestService = Path.Combine(MyFolder, "TestService.exe");
 
-            private static string TestServiceName
-                => _testServiceName ??= FetchTestServiceName();
-
-            private static string _testServiceName;
-
-            private static string FetchTestServiceName()
-            {
-                var instance = new TotallyNotInterestingService();
-                return instance.ServiceName;
-            }
         }
     }
 }

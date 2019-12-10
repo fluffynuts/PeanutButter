@@ -232,6 +232,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
         }
 
         [Test]
+        [Repeat(10)]
         public void AddJsonDocumentHandler_ShouldServeJsonDocument()
         {
             //---------------Set up test pack-------------------

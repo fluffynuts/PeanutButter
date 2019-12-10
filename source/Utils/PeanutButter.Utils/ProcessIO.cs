@@ -2,14 +2,24 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+
 // ReSharper disable InconsistentNaming
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Wraps process IO (stdout, stderr) into an easy-to-access disposable source
     /// </summary>
-    public interface IProcessIO: IDisposable
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        interface IProcessIO : IDisposable
     {
         /// <summary>
         /// True if the process started properly
@@ -20,12 +30,12 @@ namespace PeanutButter.Utils
         /// Set if the process didn't start properly, to the exception thrown
         /// </summary>
         Exception StartException { get; }
-        
+
         /// <summary>
         /// Read lines from stdout
         /// </summary>
         IEnumerable<string> StandardOutput { get; }
-        
+
         /// <summary>
         /// Read lines from stderr
         /// </summary>
@@ -44,7 +54,12 @@ namespace PeanutButter.Utils
     }
 
     /// <inheritdoc />
-    public class ProcessIO : IProcessIO
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        class ProcessIO : IProcessIO
     {
         /// <inheritdoc />
         public bool Started { get; }
@@ -54,6 +69,7 @@ namespace PeanutButter.Utils
 
         /// <inheritdoc />
         public Process Process => _process;
+
         private Process _process;
 
         /// <inheritdoc />
@@ -134,9 +150,12 @@ namespace PeanutButter.Utils
 
         private string MakeArgsFrom(string[] parameters)
         {
-            return parameters
-                   .Select(p => p.Contains(" ") ? $"\"{p}\"" : p)
-                   .JoinWith(" ");
+            return string.Join(" ", parameters
+                .Select(p => p.Contains(" ")
+                    ? $"\"{p}\""
+                    : p
+                )
+            );
         }
 
         /// <summary>
