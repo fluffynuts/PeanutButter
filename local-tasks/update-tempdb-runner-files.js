@@ -35,6 +35,12 @@ gulp.task(
 
           xml.package.files = [{ file: [] }];
           const fileNode = xml.package.files[0].file;
+          fileNode.push({
+            $: {
+              src: "icon.png",
+              target: ""
+            }
+          })
           files.forEach(relPath => {
             fileNode.push({
               $: {
