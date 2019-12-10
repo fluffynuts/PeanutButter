@@ -219,10 +219,10 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                     Expect(util.State)
                         .To.Equal(ServiceState.Running);
                 });
-            Do("Uninstall (api)", () => util.Uninstall());
+            // Do("Uninstall (api)", () => util.Uninstall());
             // Assert
         }
-        
+
         private static readonly string TestServiceName = $"test-service-{Guid.NewGuid()}";
 
         private void Do(
@@ -287,7 +287,9 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             EnsureTestServiceIsNotInstalled();
         }
 
-        private void Run(string program, params string[] args)
+        private void Run(
+            string program,
+            params string[] args)
         {
             using (var proc = new Process())
             {
@@ -327,68 +329,39 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                 : arg;
         }
 
-        private void EnsureTestServiceIsNotInstalled()
+        private static void TryDo(Action action)
         {
-            var util = WindowsServiceUtil.GetServiceByPath(TestServicePath);
-            if (!util?.IsInstalled ?? false)
-            {
-                return;
-            }
-
-            util?.Uninstall();
-            if (!util?.IsInstalled ?? false)
-            {
-                return;
-            }
-
-
-            var scm = IntPtr.Zero;
             try
             {
-                scm = Win32Api.OpenSCManager(null, null, ScmAccessRights.AllAccess);
-                var service = IntPtr.Zero;
-                try
-                {
-                    service = Win32Api.OpenService(
-                        scm,
-                        TestServiceName,
-                        ServiceAccessRights.AllAccess
-                    );
-                    if (service == IntPtr.Zero)
-                    {
-                        return;
-                    }
-
-                    if (Win32Api.DeleteService(service))
-                    {
-                        Console.WriteLine("Warning: had to manually delete test service");
-                        return;
-                    }
-
-                    var err = Marshal.GetLastWin32Error();
-                    if (err == Win32Api.ERROR_SERVICE_MARKED_FOR_DELETE)
-                    {
-                        Console.WriteLine("Warning: test service is marked for deletion, not actually gone");
-                        return;
-                    }
-
-                    Assert.Fail($"Unable to uninstall test service");
-                }
-                finally
-                {
-                    if (service != IntPtr.Zero)
-                    {
-                        Win32Api.CloseServiceHandle(service);
-                    }
-                }
+                action();
             }
-            finally
+            catch
             {
-                if (scm != IntPtr.Zero)
-                {
-                    Win32Api.CloseServiceHandle(scm);
-                }
+                /* intentionally left blank */
             }
+        }
+
+        private void EnsureTestServiceIsNotInstalled()
+        {
+            // attempts to stop and uninstall all found test service instances
+            var serviceNames = new List<string>();
+            using (var io = new ProcessIO("sc", "query", "type=", "service"))
+            {
+                serviceNames.AddRange(
+                    io.StandardOutput
+                        .Select(line => line.Trim())
+                        .Where(line => line.StartsWith("SERVICE_NAME"))
+                        .Select(line => string.Join(":", line.Split(':').Skip(1)).Trim())
+                        .Where(serviceName => serviceName.StartsWith("test-service-"))
+                        .ToArray()
+                );
+            }
+
+            serviceNames.ForEach(serviceName =>
+            {
+                TryDo(() => Run("sc", "stop", serviceName));
+                TryDo(() => Run("sc", "delete", serviceName));
+            });
         }
     }
 }

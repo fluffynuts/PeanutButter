@@ -83,37 +83,44 @@ namespace PeanutButter.WindowsServiceManagement
         private string _serviceExe;
 
         public string ServiceExe
-            => _serviceExe ?? (_serviceExe = QueryExeForServiceByName(ServiceName));
+            => _serviceExe ?? (_serviceExe = QueryExeForServiceName(ServiceName));
 
 
-        private static string QueryExeForServiceByName(string name)
+        private static string QueryExeForServiceName(string name)
+        {
+            return FindExecutableForServiceByName(name);
+        }
+
+        private static string FindExecutableForServiceByName(
+            string name)
         {
             using (var io = new ProcessIO("sc", "qc", $"\"{name}\""))
             {
                 var interestingLine = io.StandardOutput
                     .Select(line => line.Trim())
-                    .FirstOrDefault(line => line.StartsWith("BINARY_PATH_NAME"));
+                    .FirstOrDefault(line => line.StartsWith(ScPrefixes.SERVICE_CLI));
                 if (interestingLine == null)
                 {
                     return null;
                 }
 
-                var cli = string.Join(
-                    ":",
+                var cli = string.Join(":",
                     interestingLine.Split(':')
-                        .Skip(1));
-                var exe = ProgramFinder.Matches(cli).OfType<Match>().FirstOrDefault();
-                if (exe == null)
-                {
-                    throw new InvalidOperationException(
-                        $"Unable to determine program path from cli: \"{cli}\""
-                    );
-                }
-                return exe.Value;
+                        .Skip(1)
+                );
+                return ProgramFinder.Matches(cli).OfType<Match>()
+                    .FirstOrDefault()
+                    ?.Value;
             }
         }
 
         private static Regex ProgramFinder = new Regex("((\".+\")|([^ ]+))");
+
+        private static class ScPrefixes
+        {
+            public const string SERVICE_NAME = "SERVICE_NAME";
+            public const string SERVICE_CLI = "BINARY_PATH_NAME";
+        }
 
         public static WindowsServiceUtil GetServiceByPath(string path)
         {
@@ -126,7 +133,7 @@ namespace PeanutButter.WindowsServiceManagement
                 {
                     return null;
                 }
-
+            
                 var svcName = collection.Cast<ManagementBaseObject>()
                     .Select(item => item.Properties["Name"].Value.ToString())
                     .FirstOrDefault();
@@ -134,6 +141,26 @@ namespace PeanutButter.WindowsServiceManagement
                     ? null
                     : new WindowsServiceUtil(svcName);
             }
+            // TODO: this works, but it's SLOW
+            // -> try rather querying the registry directly:
+            //  HKLM/CurrentControlSet/Services/(service-name)/ImagePath
+            //  where type (DWORD) == 16
+            
+            // using (var io = new ProcessIO("sc", "query", "type=", "service"))
+            // {
+            //     var output = io.StandardOutput.ToArray();
+            //     var serviceName = output
+            //         .Select(line => line.Trim())
+            //         .Where(line => line.StartsWith(ScPrefixes.SERVICE_NAME))
+            //         .Select(line => string.Join(":", line.Split(':').Skip(1)).Trim())
+            //         .Select(name => new { name, exe = FindExecutableForServiceByName(name) }).Where(o => path.Equals(o.exe, StringComparison.OrdinalIgnoreCase))
+            //         .Select(o => o.name)
+            //         .FirstOrDefault();
+            //     return serviceName == null
+            //         ? null as WindowsServiceUtil
+            //         : new WindowsServiceUtil(serviceName);
+            //         
+            // }
         }
 
         public int ServiceStateExtraWaitSeconds { get; set; }
