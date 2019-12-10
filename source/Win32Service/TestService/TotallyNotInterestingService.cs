@@ -11,7 +11,7 @@ namespace TestService
             var exePath = Assembly.GetEntryAssembly()?.CodeBase
                 ?? "(unknown location)";
             DisplayName = "Totally Not Interesting Service at: " + exePath;
-            ServiceName = "Service with spaces";
+            ServiceName = "Test Service";
             Interval = 1;
             Version.Major = 1;
         }

@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Windows.Forms;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Threading;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
+using NExpect;
+using PeanutButter.Utils;
+using static NExpect.Expectations;
 
 // ReSharper disable AssignNullToNotNullAttribute
 
@@ -22,26 +27,13 @@ namespace PeanutButter.WindowsServiceManagement.Tests
 
             //---------------Execute Test ----------------------
             var svc1 = new WindowsServiceUtil("mssqlserver");
-            Assert.AreEqual(ServiceStartupTypes.Automatic, svc1.StartupType);
+            Expect(svc1.StartupType)
+                .To.Equal(ServiceStartupTypes.Automatic);
             var svc2 = new WindowsServiceUtil("gupdatem");
-            Assert.AreEqual(ServiceStartupTypes.Manual, svc2.StartupType);
+            Expect(svc2.StartupType)
+                .To.Equal(ServiceStartupTypes.Manual);
 
             //---------------Test Result -----------------------
-        }
-
-        [Test]
-        [STAThread]
-        [Explicit("Just interesting")]
-        public void Method_WhenCondition_ShouldExpectedBehaviour()
-        {
-            //---------------Set up test pack-------------------
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var ver = (new WebBrowser()).Version.Major;
-            //---------------Test Result -----------------------
-            Console.WriteLine(ver);
         }
 
         [Test]
@@ -52,7 +44,8 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             //---------------Assert Precondition----------------
             var svc = new WindowsServiceUtil(RandomValueGen.GetRandomString(20, 30));
             //---------------Execute Test ----------------------
-            Assert.IsFalse(svc.IsInstalled);
+            Expect(svc.IsInstalled)
+                .To.Be.False();
 
             //---------------Test Result -----------------------
         }
@@ -62,23 +55,16 @@ namespace PeanutButter.WindowsServiceManagement.Tests
         public void InstallThing()
         {
             //---------------Set up test pack-------------------
-            var path = Path.Combine(Path.GetDirectoryName(GetType().Assembly.CodeBase), "test-service.exe");
-            var localPath = new Uri(path).LocalPath;
+            var localPath = TestServicePath;
 
             //---------------Assert Precondition----------------
-            Assert.IsTrue(File.Exists(localPath));
+            Expect(localPath)
+                .To.Exist($"Expected to find test service at {localPath}");
 
             //---------------Execute Test ----------------------
-            var proc = new Process()
-            {
-                StartInfo = new ProcessStartInfo()
-                {
-                    FileName = localPath,
-                    Arguments = "-i"
-                }
-            };
-            Assert.IsTrue(proc.Start());
-            proc.WaitForExit();
+            Run(localPath, "-i");
+            var util = new WindowsServiceUtil("test service");
+            Expect(util.IsInstalled).To.Be.True();
 
             //---------------Test Result -----------------------
         }
@@ -92,7 +78,8 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             var util = new WindowsServiceUtil("test-service");
 
             //---------------Assert Precondition----------------
-            Assert.IsTrue(util.IsInstalled);
+            Expect(util.IsInstalled)
+                .To.Be.True();
 
             //---------------Execute Test ----------------------
             util.Uninstall(true);
@@ -108,14 +95,270 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             var util = new WindowsServiceUtil("Themes");
 
             //---------------Assert Precondition----------------
-            Assert.IsTrue(util.IsInstalled);
+            Expect(util.IsInstalled)
+                .To.Be.True();
 
             //---------------Execute Test ----------------------
             var path = util.ServiceExe;
 
             //---------------Test Result -----------------------
-            Assert.IsNotNull(path);
-            Assert.AreEqual("c:\\windows\\system32\\svchost.exe -k netsvcs", path.ToLower());
+            Expect(
+                path?.ToLowerInvariant()
+            ).To.Equal("c:\\windows\\system32\\svchost.exe -k netsvcs");
+        }
+
+        [Test]
+        public void BigHairyIntegrationTest()
+        {
+            // Arrange
+            var serviceExe = TestServicePath;
+            Expect(serviceExe).To.Exist($"Expected to find test service at {serviceExe}");
+            EnsureTestServiceIsNotInstalled();
+            // Act
+            Do("Install via cli", () => Run(serviceExe, "-i"));
+            var util = new WindowsServiceUtil("Test Service");
+            Do("Test is installed",
+                () => Expect(util.IsInstalled)
+                    .To.Be.True()
+            );
+            Do("Test service executable path",
+                () =>
+                    Expect(util.ServiceExe)
+                        .To.Equal(serviceExe)
+            );
+            Do("Test default startup type",
+                () =>
+                    Expect(util.StartupType)
+                        .To.Equal(ServiceStartupTypes.Automatic)
+            );
+
+            Do("Disabled service",
+                () =>
+                {
+                    util.Disable();
+                    Expect(util.StartupType)
+                        .To.Equal(ServiceStartupTypes.Disabled);
+                });
+            Do("Re-enable service",
+                () =>
+                {
+                    util.SetAutomaticStart();
+                    Expect(util.StartupType)
+                        .To.Equal(ServiceStartupTypes.Automatic);
+                });
+
+            Process process = null;
+            Do("Start service",
+                () =>
+                {
+                    util.Start();
+                    Expect(util.State)
+                        .To.Equal(ServiceState.Running);
+                    process = Process.GetProcesses().FirstOrDefault(p =>
+                    {
+                        try
+                        {
+                            return p?.MainModule?.FileName.Equals(serviceExe, StringComparison.OrdinalIgnoreCase) ??
+                                false;
+                        }
+                        catch
+                        {
+                            return false;
+                        }
+                    });
+                    Expect(process).Not.To.Be.Null($"Service should be running: {serviceExe}");
+                    Expect(process.Id)
+                        .To.Equal(util.ServicePID);
+                });
+
+            var byPath = WindowsServiceUtil.GetServiceByPath(serviceExe);
+            Expect(byPath)
+                .Not.To.Be.Null($"Should be able to query service by path {serviceExe}");
+
+            Do("Pause service",
+                () =>
+                {
+                    byPath.Pause();
+                    Expect(byPath.State)
+                        .To.Equal(ServiceState.Paused);
+                });
+
+            Do("Resume service",
+                () =>
+                {
+                    byPath.Continue();
+                    Expect(byPath.State)
+                        .To.Equal(ServiceState.Running);
+                });
+
+            Do("Stop service",
+                () =>
+                {
+                    util.Stop();
+                    Expect(util.State)
+                        .To.Equal(ServiceState.Stopped);
+                });
+
+            Do("Uninstall via cli",
+                () =>
+                {
+                    Run(serviceExe, "-u");
+
+                    Expect(util.IsInstalled)
+                        .To.Be.False();
+                });
+
+            Do("Install and start (api)",
+                () =>
+                {
+                    util.InstallAndStart();
+                    Expect(util.IsInstalled)
+                        .To.Be.True();
+                    Expect(util.State)
+                        .To.Equal(ServiceState.Running);
+                });
+            Do("Uninstall (api)", () => util.Uninstall());
+            // Assert
+        }
+
+        private void Do(string message, Action toRun)
+        {
+            var pad = 32 - message.Length - 7;
+            var padString = "";
+            if (pad > 0)
+            {
+                padString = new String(' ', pad);
+            }
+
+            Console.Out.Write($"{message}{padString}");
+            Console.Out.Flush();
+            try
+            {
+                toRun();
+                Console.Out.WriteLine(" [ OK ]");
+            }
+            catch
+            {
+                Console.Out.WriteLine(" [FAIL]");
+                throw;
+            }
+        }
+
+        [TearDown]
+        public void Teardown()
+        {
+            EnsureTestServiceIsNotInstalled();
+        }
+
+        [SetUp]
+        public void Setup()
+        {
+            EnsureTestServiceIsNotInstalled();
+        }
+
+        private void Run(string program, params string[] args)
+        {
+            using (var proc = new Process())
+            {
+                var si = proc.StartInfo;
+                si.FileName = program;
+                si.Arguments = args.Select(QuoteIfNecessary).JoinWith(" ");
+                si.RedirectStandardError = true;
+                si.RedirectStandardInput = true;
+                si.RedirectStandardOutput = true;
+                si.CreateNoWindow = true;
+                si.UseShellExecute = false;
+
+                if (!proc.Start())
+                {
+                    throw new ApplicationException($"Can't start {program} {args.JoinWith(" ")}");
+                }
+
+                proc.WaitForExit();
+            }
+        }
+
+        private static string TestServicePath =>
+            Path.Combine(
+                Path.GetDirectoryName(
+                    new Uri(typeof(TestWindowsServiceManagement).Assembly.Location).LocalPath
+                ), "TestService.exe"
+            );
+
+        private string QuoteIfNecessary(string arg)
+        {
+            return arg?.Contains(" ") ?? false
+                ? $"\"{arg}\""
+                : arg;
+        }
+
+        private void EnsureTestServiceIsNotInstalled()
+        {
+            EnsureServiceIsNotInstalled("Test service");
+        }
+
+        private void EnsureServiceIsNotInstalled(string serviceName)
+        {
+            var util = new WindowsServiceUtil(serviceName);
+            if (!util.IsInstalled)
+            {
+                return;
+            }
+
+            util.Uninstall();
+            if (!util.IsInstalled)
+            {
+                return;
+            }
+
+
+            var scm = IntPtr.Zero;
+            try
+            {
+                scm = Win32Api.OpenSCManager(null, null, ScmAccessRights.AllAccess);
+                var service = IntPtr.Zero;
+                try
+                {
+                    service = Win32Api.OpenService(
+                        scm,
+                        "test service",
+                        ServiceAccessRights.AllAccess
+                    );
+                    if (service == IntPtr.Zero)
+                    {
+                        return;
+                    }
+
+                    if (Win32Api.DeleteService(service))
+                    {
+                        Console.WriteLine("Warning: had to manually delete test service");
+                        return;
+                    }
+
+                    var err = Marshal.GetLastWin32Error();
+                    if (err == Win32Api.ERROR_SERVICE_MARKED_FOR_DELETE)
+                    {
+                        Console.WriteLine("Warning: test service is marked for deletion, not actually gone");
+                        return;
+                    }
+
+                    Assert.Fail($"Unable to uninstall test service");
+                }
+                finally
+                {
+                    if (service != IntPtr.Zero)
+                    {
+                        Win32Api.CloseServiceHandle(service);
+                    }
+                }
+            }
+            finally
+            {
+                if (scm != IntPtr.Zero)
+                {
+                    Win32Api.CloseServiceHandle(scm);
+                }
+            }
         }
     }
 }
