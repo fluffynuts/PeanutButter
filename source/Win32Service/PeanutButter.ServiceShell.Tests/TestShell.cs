@@ -82,10 +82,10 @@ namespace PeanutButter.ServiceShell.Tests
         }
 
         [TestFixture]
-        public class CommandLine
+        public class CommandLine: TestShell
         {
             [TestFixture]
-            public class WhenServiceIsNotInstalled
+            public class WhenServiceIsNotInstalled: CommandLine
             {
                 private string ServiceName;
 
@@ -130,7 +130,7 @@ namespace PeanutButter.ServiceShell.Tests
             }
 
             [TestFixture]
-            public class WhenServiceInstalled
+            public class WhenServiceInstalled: CommandLine
             {
                 [SetUp]
                 public void OneTimeSetup()
@@ -218,7 +218,6 @@ namespace PeanutButter.ServiceShell.Tests
                 }
             }
 
-            private static readonly string TestServiceName = $"test-service-${Guid.NewGuid()}";
 
             private static void EnsureTestServiceIsInstalled()
             {
@@ -306,6 +305,13 @@ namespace PeanutButter.ServiceShell.Tests
                 MyFolder,
                 "TestService.exe"
             );
+
+            private static string TestServiceName = $"test-service-{Guid.NewGuid()}";
+            [SetUp]
+            public void Setup()
+            {
+                TestServiceName = $"test-service-{Guid.NewGuid()}";
+            }
         }
     }
 }
