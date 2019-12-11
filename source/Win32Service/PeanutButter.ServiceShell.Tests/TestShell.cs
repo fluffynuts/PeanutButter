@@ -81,18 +81,18 @@ namespace PeanutButter.ServiceShell.Tests
             }
         }
 
+        private const string SCM_FLAKY = "Flaky when run from cli because SCM sucks";
         [TestFixture]
+        [Explicit(SCM_FLAKY)]
         public class CommandLine: TestShell
         {
             [TestFixture]
+            [Explicit(SCM_FLAKY)]
             public class WhenServiceIsNotInstalled: CommandLine
             {
-                private string ServiceName;
-
                 [SetUp]
                 public void OneTimeSetup()
                 {
-                    ServiceName = $"test-service-{Guid.NewGuid()}";
                     EnsureTestServiceIsNotInstalled();
                 }
 
@@ -130,6 +130,7 @@ namespace PeanutButter.ServiceShell.Tests
             }
 
             [TestFixture]
+            [Explicit(SCM_FLAKY)]
             public class WhenServiceInstalled: CommandLine
             {
                 [SetUp]
