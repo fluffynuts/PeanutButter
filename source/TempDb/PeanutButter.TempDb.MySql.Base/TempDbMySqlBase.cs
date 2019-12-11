@@ -39,7 +39,7 @@ namespace PeanutButter.TempDb.MySql.Base
 
         private readonly Random _random = new Random(Guid.NewGuid().GetHashCode());
         private Process _serverProcess;
-        protected int Port;
+        public int Port { get; protected set; }
 
         // ReSharper disable once StaticMemberInGenericType
         private static readonly SemaphoreSlim MysqldLock = new SemaphoreSlim(1);
@@ -160,7 +160,7 @@ namespace PeanutButter.TempDb.MySql.Base
             EnsureIsRemoved(DatabasePath);
             InitializeWith(MySqld, tempDefaultsPath);
             DumpDefaultsFileAt(DatabasePath);
-            Port = FindOpenRandomPort();
+            Port = DeterminePortToUse();
             StartServer(MySqld, Port);
             CreateInitialSchema();
         }
@@ -590,10 +590,26 @@ namespace PeanutButter.TempDb.MySql.Base
             return process;
         }
 
-        private int FindOpenRandomPort()
+        private int DeterminePortToUse()
+        {
+            return Settings?.Options?.PortHint != null
+                ? FindFirstPortFrom(Settings.Options.PortHint.Value)
+                : FindRandomOpenPort();
+        }
+
+        private int FindFirstPortFrom(int portHint)
+        {
+            return FindPort(last => last == 0
+                ? portHint
+                : last + 1);
+        }
+
+        private int FindPort(
+            Func<int, int> portGenerator
+        )
         {
             var rnd = new Random(Guid.NewGuid().GetHashCode());
-            var tryThis = NextRandomPort();
+            var tryThis = portGenerator(0);
             var attempts = 0;
             while (attempts++ < 1000)
             {
@@ -613,10 +629,15 @@ namespace PeanutButter.TempDb.MySql.Base
 
                 LogPortDiscoveryInfo($"Port {tryThis} looks to be unavailable. Seeking another...");
                 Thread.Sleep(rnd.Next(1, 50));
-                tryThis = NextRandomPort();
+                tryThis = portGenerator(tryThis);
             }
 
             return tryThis;
+        }
+
+        private int FindRandomOpenPort()
+        {
+            return FindPort(last => NextRandomPort());
         }
 
         private void LogPortDiscoveryInfo(string message)
@@ -629,14 +650,15 @@ namespace PeanutButter.TempDb.MySql.Base
         {
             try
             {
-                var listener = new TcpListener(IPAddress.Any, port);
-                listener.Start();
-                listener.Stop();
-                return false;
+                using (var client = new TcpClient())
+                {
+                    client.Connect(new IPEndPoint(IPAddress.Loopback, port));
+                    return true;
+                }
             }
             catch
             {
-                return true;
+                return false;
             }
         }
 

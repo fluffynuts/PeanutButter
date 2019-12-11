@@ -3,12 +3,16 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.ServiceProcess;
 using System.Threading;
 using Dapper;
+using MySql.Data.MySqlClient;
 using NUnit.Framework;
 using static NExpect.Expectations;
 using NExpect;
+using PeanutButter.SimpleTcpServer;
 using PeanutButter.TempDb.MySql.Base;
 using PeanutButter.TempDb.MySql.Data;
 using PeanutButter.Utils;
@@ -411,6 +415,155 @@ namespace PeanutButter.TempDb.Tests
                     .With.Message.Containing(
                         "not running",
                         "Server should be dead after disposal");
+            }
+        }
+
+        [TestFixture]
+        public class PortHint
+        {
+            [TestFixture]
+            public class ConfiguredFromApi
+            {
+                [Test]
+                public void ShouldListenOnHintedPortWhenAvailable()
+                {
+                    // Arrange
+                    var port = PortFinder.FindPort();
+                    using (var db = new TempDBMySql(CreateForPort(port)))
+                    {
+                        // Act
+                        var configuredPort = GrokPortFrom(db.ConnectionString);
+                        // Assert
+                        Expect(configuredPort)
+                            .To.Equal(port);
+                    }
+                }
+
+                [Test]
+                public void ShouldIncrementPortWhenHintedPortIsNotAvailable()
+                {
+                    // Arrange
+                    var port = PortFinder.FindPort();
+                    while (PortFinder.NextIsUnavailable(port))
+                    {
+                        port = PortFinder.FindPort();
+                    }
+
+                    using (var outer = new TempDBMySql(CreateForPort(port)))
+                    using (var inner = new TempDBMySql(CreateForPort(port)))
+                    {
+                        // Act
+                        var outerPort = GrokPortFrom(outer.ConnectionString);
+                        var innerPort = GrokPortFrom(inner.ConnectionString);
+                        // Assert
+                        Expect(outerPort).To.Equal(port);
+                        Expect(innerPort).To.Equal(port + 1);
+                    }
+                }
+            }
+
+            [TestFixture]
+            public class ConfiguredFromEnvironment
+            {
+                [Test]
+                public void ShouldListenOnHintedPortWhenAvailable()
+                {
+                    // Arrange
+                    var port = PortFinder.FindPort();
+                    using (new AutoResetter<string>(
+                        () => SetPortHintEnvVar(port),
+                        RestorePortHintEnvVar))
+                    {
+                        using (var db = new TempDBMySql())
+                        {
+                            // Act
+                            var configuredPort = GrokPortFrom(db.ConnectionString);
+                            // Assert
+                            Expect(configuredPort)
+                                .To.Equal(port);
+                        }
+                    }
+                }
+
+                private void RestorePortHintEnvVar(string prior)
+                {
+                    Environment.SetEnvironmentVariable(
+                        TempDbMySqlServerSettings.EnvironmentVariables.PORT_HINT,
+                        prior
+                    );
+                }
+
+                private string SetPortHintEnvVar(int port)
+                {
+                    var existing = Environment.GetEnvironmentVariable(
+                        TempDbMySqlServerSettings.EnvironmentVariables.PORT_HINT
+                    );
+                    Environment.SetEnvironmentVariable(
+                        TempDbMySqlServerSettings.EnvironmentVariables.PORT_HINT,
+                        port.ToString()
+                    );
+                    return existing;
+                }
+            }
+
+            private static TempDbMySqlServerSettings CreateForPort(int port)
+            {
+                return new TempDbMySqlServerSettings()
+                {
+                    Options =
+                    {
+                        PortHint = port
+                    }
+                };
+            }
+
+            private static int GrokPortFrom(string connectionString)
+            {
+                // can't use MySqlConnectionStringBuilder because
+                //  of a conflict between Connector and .Data
+                return connectionString
+                    .Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries)
+                    .FirstOrDefault(part => part.StartsWith("port", StringComparison.OrdinalIgnoreCase))
+                    .Split('=')
+                    .Skip(1)
+                    .Select(int.Parse)
+                    .First();
+            }
+
+            public class PortFinder : SimpleTcpServer.TcpServer
+            {
+                public static int FindPort()
+                {
+                    return new PortFinder().FindOpenRandomPort();
+                }
+
+                public static bool NextIsUnavailable(int port)
+                {
+                    try
+                    {
+                        using (var client = new TcpClient())
+                        {
+                            client.Connect(new IPEndPoint(
+                                IPAddress.Loopback,
+                                port + 1
+                            ));
+                            return true;
+                        }
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                }
+
+                protected override void Init()
+                {
+                }
+
+                protected override IProcessor CreateProcessorFor(TcpClient client)
+                {
+                    throw new NotImplementedException();
+                }
             }
         }
 

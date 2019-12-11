@@ -17,6 +17,11 @@ namespace PeanutButter.TempDb.MySql.Base
     /// </summary>
     public class TempDbMySqlServerSettings
     {
+        public static class EnvironmentVariables
+        {
+            public const string PORT_HINT = "TEMPDB_PORT_HINT";
+        }
+
         /// <summary>
         /// Options which define how to start up mysqld
         /// </summary>
@@ -26,34 +31,52 @@ namespace PeanutButter.TempDb.MySql.Base
             /// Default minimum port to use when selecting a random port
             /// </summary>
             public const int DEFAULT_RANDOM_PORT_MIN = 13306;
+
             /// <summary>
             /// Default maximum port to use when selecting a random port
             /// </summary>
             public const int DEFAULT_RANDOM_PORT_MAX = 53306;
+
             /// <summary>
             /// Flag: log attempts to locate a random, usable port to listen on
             /// </summary>
             public bool LogRandomPortDiscovery { get; set; }
+
             /// <summary>
             /// Minimum port to use when selecting a random port
             /// </summary>
             public int RandomPortMin { get; set; } = DEFAULT_RANDOM_PORT_MIN;
+
             /// <summary>
             /// Maximum port to use when selecting a random port
             /// </summary>
             public int RandomPortMax { get; set; } = DEFAULT_RANDOM_PORT_MAX;
+
+            /// <summary>
+            /// If a port hint is set (or implied via the environment
+            /// variable TEMPDB_PORT_HINT), then that port is used as the
+            /// first attempt for an open port and failures to bind on that
+            /// port are dealt with by incrementing the attempted port number
+            /// instead of randomizing. This can be useful if debugging against
+            /// a tempdb instance.
+            /// </summary>
+            public int? PortHint { get; set; }
+
             /// <summary>
             /// Action to invoke when attempting to log
             /// </summary>
             public Action<string> LogAction { get; set; } = s => Trace.WriteLine(s);
+
             /// <summary>
             /// Full path to mysqld.exe, if you wish to specify a specific instance
             /// </summary>
             public string PathToMySqlD { get; set; }
+
             /// <summary>
             /// Default schema name to use
             /// </summary>
             public string DefaultSchema { get; set; } = "tempdb";
+
             /// <summary>
             /// Force finding mysqld in the path
             /// -> this is the default on !windows, but it can be forced there
@@ -66,13 +89,13 @@ namespace PeanutButter.TempDb.MySql.Base
             /// </summary>
             public string Name { get; set; }
         }
-        
+
         /// <summary>
         /// Allows any other configuration/settings to be specified - any duplicates of first class
         /// configuration settings will override the first class setting
         /// </summary>
-        public Dictionary<string, string> CustomConfiguration {get; set;} = new Dictionary<string, string>();
-        
+        public Dictionary<string, string> CustomConfiguration { get; set; } = new Dictionary<string, string>();
+
 
         /// <summary>
         /// Options for the instantiation of the temporary database
@@ -222,7 +245,7 @@ namespace PeanutButter.TempDb.MySql.Base
         /// </summary> 
         [Setting("sync_binlog")]
         public int SyncBinLog { get; set; } = 1;
-        
+
         /// <summary>
         /// mysql server setting
         /// </summary>
@@ -325,6 +348,29 @@ namespace PeanutButter.TempDb.MySql.Base
         [Setting("socket")]
         public string Socket { get; set; } = $"/tmp/mysql-temp-{Guid.NewGuid()}.socket";
 
+        public TempDbMySqlServerSettings()
+        {
+            SetPortHintFromEnvironment();
+        }
+
+        private void SetPortHintFromEnvironment()
+        {
+            if (Options.PortHint != null)
+            {
+                // port hint was set programatically
+                return;
+            }
+
+            var env = Environment.GetEnvironmentVariable(
+                EnvironmentVariables.PORT_HINT
+            );
+
+            if (int.TryParse(env, out var envPort))
+            {
+                Options.PortHint = envPort;
+            }
+        }
+
         /// <summary>
         /// Optimises configuration for performance. Warning, this has an effect on durability in the event
         /// of a server crash. If you care about your data in the event of a system/process crash, do not
@@ -335,7 +381,7 @@ namespace PeanutButter.TempDb.MySql.Base
         {
             return OptimizeForPerformance(false);
         }
-        
+
         /// <summary>
         /// Optimises configuration for performance. Warning, this has an effect on durability in the event
         /// of a server crash. If you care about your data in the event of a system/process crash, do not
@@ -358,8 +404,7 @@ namespace PeanutButter.TempDb.MySql.Base
         }
     }
 
-    public class TempDbMySqlServerSettingsBuilder: 
-        Builder<TempDbMySqlServerSettingsBuilder, TempDbMySqlServerSettings>
+    public class TempDbMySqlServerSettingsBuilder : Builder<TempDbMySqlServerSettingsBuilder, TempDbMySqlServerSettings>
     {
         public TempDbMySqlServerSettingsBuilder WithName(string name)
         {

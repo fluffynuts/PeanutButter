@@ -182,9 +182,15 @@ namespace PeanutButter.SimpleTcpServer
                 {
                     Log(" --> failed ):");
                     if (_portExplicitlySpecified)
+                    {
                         throw new PortUnavailableException(Port);
+                    }
+
                     if (attempts++ > 150)
+                    {
                         throw new UnableToFindAvailablePortException();
+                    }
+
                     Thread.Sleep(10); // back off the bind attempts briefly
                     Port = FindOpenRandomPort();
                 }
@@ -329,19 +335,19 @@ namespace PeanutButter.SimpleTcpServer
             {
                 try
                 {
-                    log($"Attempting to bind to random port {tryThis} on any available IP address");
-                    var listener = new TcpListener(IPAddress.Any, tryThis);
-                    log("Attempt to listen...");
-                    listener.Start();
-                    log("Attempt to stop listening...");
-                    listener.Stop();
-                    log($"HUZZAH! We have a port, squire! ({tryThis})");
-                    seekingPort = false;
+                    log($"Attempting to connect to random port {tryThis} on localhost");
+                    using (var client = new TcpClient())
+                    {
+                        client.Connect(new IPEndPoint(IPAddress.Loopback, tryThis));
+                    }
+
+                    Thread.Sleep(rnd.Next(1, 50));
+                    tryThis = NextRandomPort();
                 }
                 catch
                 {
-                    Thread.Sleep(rnd.Next(1, 50));
-                    tryThis = NextRandomPort();
+                    log($"HUZZAH! We have a port, squire! ({tryThis})");
+                    seekingPort = false;
                 }
             }
 

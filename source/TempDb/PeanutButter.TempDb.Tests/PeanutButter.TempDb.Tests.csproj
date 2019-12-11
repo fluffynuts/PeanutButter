@@ -39,6 +39,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\INI\PeanutButter.INI\PeanutButter.INI.csproj" />
+    <ProjectReference Include="..\..\SimpleServers\PeanutButter.SimpleTcpServer\PeanutButter.SimpleTcpServer.csproj" />
     <ProjectReference Include="..\..\TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj" />
     <ProjectReference Include="..\..\Win32Service\PeanutButter.WindowsServiceManagement\PeanutButter.WindowsServiceManagement.csproj" />
     <ProjectReference Include="..\PeanutButter.TempDb.LocalDb\PeanutButter.TempDb.LocalDb.csproj" />
