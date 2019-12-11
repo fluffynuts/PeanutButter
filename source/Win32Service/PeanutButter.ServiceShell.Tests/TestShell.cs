@@ -88,6 +88,7 @@ namespace PeanutButter.ServiceShell.Tests
             public class WhenServiceIsNotInstalled
             {
                 private string ServiceName;
+
                 [SetUp]
                 public void OneTimeSetup()
                 {
@@ -158,7 +159,7 @@ namespace PeanutButter.ServiceShell.Tests
                     Expect(util.State)
                         .To.Equal(ServiceState.Running);
                 }
-                
+
                 [TestCase("--start")]
                 [TestCase("-s")]
                 public void ShouldErrorWhenServiceRunningAndWhenPassed_(string arg)
@@ -169,11 +170,8 @@ namespace PeanutButter.ServiceShell.Tests
                     var exitCode = RunTestService(arg);
                     // Assert
                     Expect(exitCode).Not.To.Equal(0);
-                    var util = MakeTestServiceUtil();
-                    Expect(util.State)
-                        .To.Equal(ServiceState.Running);
                 }
-                
+
                 [TestCase("--stop")]
                 [TestCase("-x")]
                 public void ShouldStopTheRunningServiceWhenPassed_(string arg)
@@ -199,9 +197,6 @@ namespace PeanutButter.ServiceShell.Tests
                     var exitCode = RunTestService(arg);
                     // Assert
                     Expect(exitCode).Not.To.Equal(0);
-                    var util = MakeTestServiceUtil();
-                    Expect(util.State)
-                        .To.Equal(ServiceState.Stopped);
                 }
             }
 
@@ -222,7 +217,7 @@ namespace PeanutButter.ServiceShell.Tests
                     util.Start(true);
                 }
             }
-            
+
             private static readonly string TestServiceName = $"test-service-${Guid.NewGuid()}";
 
             private static void EnsureTestServiceIsInstalled()
@@ -237,6 +232,7 @@ namespace PeanutButter.ServiceShell.Tests
                 {
                     Assert.Fail("Can't install test service");
                 }
+
                 WaitFor(() => util.IsInstalled, 2000);
 
                 if (!util.IsInstalled)
@@ -257,7 +253,7 @@ namespace PeanutButter.ServiceShell.Tests
                 {
                     Assert.Fail($"Can't uninstall test service: '{util.ServiceName}'");
                 }
-                
+
                 WaitFor(() => !util.IsInstalled, 2000);
 
                 if (util.IsInstalled)
@@ -286,10 +282,14 @@ namespace PeanutButter.ServiceShell.Tests
                 params string[] args)
             {
                 using var io = new ProcessIO(
-                    program, 
+                    program,
                     args.And("-n", TestServiceName));
-                io.StandardOutput.ForEach(line => Console.WriteLine($"stdout: {line}"));
-                io.StandardError.ForEach(line => Console.WriteLine($"stderr: {line}"));
+                io.StandardOutput.ForEach(line =>
+                    Console.WriteLine($"stdout: {line}")
+                );
+                io.StandardError.ForEach(
+                    line => Console.WriteLine($"stderr: {line}")
+                );
                 return io.ExitCode;
             }
 
@@ -298,18 +298,14 @@ namespace PeanutButter.ServiceShell.Tests
                 return new WindowsServiceUtil(TestServiceName);
             }
 
-            private static bool ServiceAlreadyInstalled(string name)
-            {
-                var util = new WindowsServiceUtil(name);
-                return util.IsInstalled;
-            }
-
             private static string MyFolder = Path.GetDirectoryName(
                 new Uri(typeof(TestShell).GetAssembly().Location).LocalPath
             );
 
-            private static string TestService = Path.Combine(MyFolder, "TestService.exe");
-
+            private static string TestService = Path.Combine(
+                MyFolder,
+                "TestService.exe"
+            );
         }
     }
 }

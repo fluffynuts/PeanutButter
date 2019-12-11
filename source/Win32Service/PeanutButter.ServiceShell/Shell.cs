@@ -371,9 +371,12 @@ namespace PeanutButter.ServiceShell
             return (int) CommandlineOptions.ExitCodes.Success;
         }
 
-        private static int Fail(params string[] message)
+        private static int Fail(params string[] messages)
         {
-            Console.WriteLine(message);
+            foreach (var line in messages)
+            {
+                Console.WriteLine(line);
+            }
             return (int) CommandlineOptions.ExitCodes.Failure;
         }
 

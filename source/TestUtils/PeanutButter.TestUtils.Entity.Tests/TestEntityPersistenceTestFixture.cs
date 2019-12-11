@@ -205,11 +205,11 @@ namespace PeanutButter.TestUtils.Entity.Tests
         [Test]
         public void GetDealers()
         {
-            using (APIFeedContext db = GetContext())
+            using (var db = GetContext())
             {
-                Console.WriteLine("Running Test yes?");
                 Expect(db).Not.To.Be.Null("Wasn&#39;t able to get a context");
-                List<AUTOFeedDealer> dealers = db.AutoFeedDealers.ToList();
+                Expect(() => db.AutoFeedDealers.ToList())
+                    .Not.To.Throw();
             }
         }
     }
