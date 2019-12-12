@@ -144,11 +144,10 @@ namespace PeanutButter.ServiceShell
             }
 
             instance.Running = true;
+            Console.CancelKeyPress += Stop(instance);
             do
             {
-                Console.CancelKeyPress += Stop(instance);
                 instance.WaitForIntervalFrom(lastRun);
-
                 lastRun = DateTime.Now;
                 lastResult = RunOnceResultFor(instance, cli);
             } while (instance.Running);
