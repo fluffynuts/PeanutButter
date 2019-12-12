@@ -1,5 +1,15 @@
 <Project>
     <PropertyGroup>
         <UseSharedCompilation>true</UseSharedCompilation>
+        <!-- 
+            PeanutButter multi targets netfx and netstandard
+            but this confuses nuget as it restores for netfx
+            and then warns that the netstandard variant may
+            be unhappy. NetStandard variants are _only_ created
+            for package consumption: I expect consumers to
+            have nuget packages correctly restored for their
+            targeted framework.
+        -->
+        <NoWarn>NU1701</NoWarn>
     </PropertyGroup>
 </Project>
