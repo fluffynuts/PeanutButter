@@ -24,12 +24,12 @@
       <group targetFramework="net452">
         <dependency id="PeanutButter.WindowsServiceManagement" version="1.2.327" />
         <dependency id="CommandLineParser" version="1.9.71" />
-        <dependency id="log4net" version="2.0.3" />
+        <dependency id="log4net" version="2.0.8" />
       </group>
       <group targetFramework="net462">
         <dependency id="PeanutButter.WindowsServiceManagement" version="1.2.327" />
         <dependency id="CommandLineParser" version="1.9.71" />
-        <dependency id="log4net" version="2.0.3" />
+        <dependency id="log4net" version="2.0.8" />
       </group>
     </dependencies>
     <references></references>
