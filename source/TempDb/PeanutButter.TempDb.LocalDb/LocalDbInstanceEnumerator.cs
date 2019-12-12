@@ -41,8 +41,10 @@ namespace PeanutButter.TempDb.LocalDb
                     throw new UnableToFindLocalDbUtilityException();
                 }
 
-                var process = RunToCompletion(toRun);
-                return (AvailableDefaultInstances = FindInstancesFromOutputOf(process));
+                using (var process = RunToCompletion(toRun))
+                {
+                    return (AvailableDefaultInstances = FindInstancesFromOutputOf(process));
+                }
             }
         }
 

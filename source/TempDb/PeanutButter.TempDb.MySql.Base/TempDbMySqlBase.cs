@@ -433,6 +433,7 @@ namespace PeanutButter.TempDb.MySql.Base
             try
             {
                 _serverProcess?.Kill();
+                _serverProcess?.Dispose();
                 _serverProcess = null;
             }
             catch
@@ -469,14 +470,16 @@ namespace PeanutButter.TempDb.MySql.Base
             }
 
             Log($"Initializing MySql in {DatabasePath}");
-            var process = RunCommand(
+            using (var process = RunCommand(
                 mysqld,
                 $"\"--defaults-file={tempDefaultsFile}\"",
                 "--initialize-insecure",
                 $"\"--basedir={BaseDirOf(mysqld)}\"",
                 $"\"--datadir={DatabasePath}\""
-            );
-            process.WaitForExit();
+            ))
+            {
+                process.WaitForExit();
+            }
         }
 
         private void AttemptManualInitialization(string mysqld)
@@ -552,22 +555,24 @@ namespace PeanutButter.TempDb.MySql.Base
 
         private MySqlVersionInfo GetVersionOf(string mysqld)
         {
-            var process = RunCommand(mysqld, "--version");
-            process.WaitForExit();
-            var result = process.StandardOutput.ReadToEnd();
-            var parts = result.ToLower().Split(' ');
-            var versionInfo = new MySqlVersionInfo();
-            var last = "";
-            parts.ForEach(
-                p =>
-                {
-                    if (last == "ver")
-                        versionInfo.Version = new Version(p);
-                    else if (last == "for" && versionInfo.Platform == null)
-                        versionInfo.Platform = p;
-                    last = p;
-                });
-            return versionInfo;
+            using (var process = RunCommand(mysqld, "--version"))
+            {
+                process.WaitForExit();
+                var result = process.StandardOutput.ReadToEnd();
+                var parts = result.ToLower().Split(' ');
+                var versionInfo = new MySqlVersionInfo();
+                var last = "";
+                parts.ForEach(
+                    p =>
+                    {
+                        if (last == "ver")
+                            versionInfo.Version = new Version(p);
+                        else if (last == "for" && versionInfo.Platform == null)
+                            versionInfo.Platform = p;
+                        last = p;
+                    });
+                return versionInfo;
+            }
         }
 
         private Process RunCommand(string filename, params string[] args)
@@ -586,7 +591,10 @@ namespace PeanutButter.TempDb.MySql.Base
             };
             Log($"Running command:\n\"{filename}\" {args.JoinWith(" ")}");
             if (!process.Start())
+            {
                 throw new Exception($"Unable to start process:\n\"{filename}\" {args.JoinWith(" ")}");
+            }
+
             return process;
         }
 
