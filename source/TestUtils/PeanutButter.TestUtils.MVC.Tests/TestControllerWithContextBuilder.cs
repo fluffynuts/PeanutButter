@@ -4,8 +4,8 @@ using System.Web.Mvc;
 using System.Web.Routing;
 using NSubstitute;
 using NUnit.Framework;
-using PeanutButter.TestUtils.MVC.Builders;
 using NExpect;
+using PeanutButter.TestUtils.MVC.Builders;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 // ReSharper disable MemberCanBePrivate.Global

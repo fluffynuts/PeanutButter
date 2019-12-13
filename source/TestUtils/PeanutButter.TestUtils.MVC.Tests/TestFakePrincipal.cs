@@ -2,10 +2,10 @@
 using System.Security.Principal;
 using NSubstitute;
 using NUnit.Framework;
-using PeanutButter.TestUtils.MVC.Builders;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using NExpect;
+using PeanutButter.TestUtils.MVC.Builders;
 using static NExpect.Expectations;
 // ReSharper disable PossibleMultipleEnumeration
 
@@ -33,10 +33,21 @@ namespace PeanutButter.TestUtils.MVC.Tests
             roles.ForEach(r => Expect(sut.IsInRole(r)).To.Be.True());
 
             Expect(sut.Identity).To.Equal(identity);
-            var identities = sut.Identities;
-            Expect(identities).To.Contain.Only(1)
-                .Matched.By(o => o.Name == expectedName);
         }
 
+    }
+
+    [TestFixture]
+    public class TestFakeHttpContextBuilder
+    {
+        [Test]
+        public void ShouldBeAbleToBuildRandom()
+        {
+            // Arrange
+            // Act
+            Expect(FakeHttpContextBuilder.BuildRandom)
+                .Not.To.Throw();
+            // Assert
+        }
     }
 }

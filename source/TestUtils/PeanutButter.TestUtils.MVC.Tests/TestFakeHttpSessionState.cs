@@ -174,13 +174,11 @@ namespace PeanutButter.TestUtils.MVC.Tests
             sut[key] = value;
 
             //--------------- Assume ----------------
-            Expect(sut.ClearWasCalled).To.Be.False();
 
             //--------------- Act ----------------------
             sut.Clear();
 
             //--------------- Assert -----------------------
-            Expect(sut.ClearWasCalled).To.Be.True();
             Expect(sut.ToDictionary()).To.Be.Empty();
         }
 
