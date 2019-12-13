@@ -129,6 +129,7 @@ gulp.task("build-nuget-packages", [
 ], function (done) {
   runSequence(
     "update-tempdb-runner-files",
+    "update-test-utils-mvc-files",
     "increment-package-versions",
     "build-binary-nuget-packages",
     "build-source-nuget-packages",
