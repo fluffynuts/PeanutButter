@@ -8,6 +8,13 @@ namespace PeanutButter.TestUtils.MVC
     public class FakeHttpSessionState : HttpSessionStateBase
     {
         private readonly SessionStateItemCollection _sessionItems;
+        public override int Timeout { get; set; }
+        
+        public override HttpSessionStateBase Contents => this;
+        public override SessionStateMode Mode => SessionStateMode.Custom;
+        public override int CodePage { get; set; }
+        public override HttpCookieMode CookieMode => HttpCookieMode.AutoDetect;
+        public override bool IsReadOnly => false;
 
         public FakeHttpSessionState()
         {
@@ -27,6 +34,11 @@ namespace PeanutButter.TestUtils.MVC
         }
 
         public override void Abandon()
+        {
+            _sessionItems.Clear();
+        }
+
+        public override void Clear()
         {
             _sessionItems.Clear();
         }

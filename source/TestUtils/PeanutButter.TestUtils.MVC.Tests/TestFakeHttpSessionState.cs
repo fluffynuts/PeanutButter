@@ -165,7 +165,25 @@ namespace PeanutButter.TestUtils.MVC.Tests
         }
 
         [Test]
-        public void Clear_ShouldClearAndMarkFlag()
+        public void Abandon_ShouldClear()
+        {
+            //--------------- Arrange -------------------
+            var key = GetRandomString(5);
+            var value = GetRandomString();
+            var sut = Create();
+            sut[key] = value;
+
+            //--------------- Assume ----------------
+
+            //--------------- Act ----------------------
+            sut.Abandon();
+
+            //--------------- Assert -----------------------
+            Expect(sut.ToDictionary()).To.Be.Empty();
+        }
+        
+        [Test]
+        public void Clear_ShouldClear()
         {
             //--------------- Arrange -------------------
             var key = GetRandomString(5);
