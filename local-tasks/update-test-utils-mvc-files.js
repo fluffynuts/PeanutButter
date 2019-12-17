@@ -40,12 +40,18 @@ gulp.task(
               src: "icon.png",
               target: ""
             }
-          })
+          });
+          // ffs, nuget people can't stick with one way to do things
+          // -> projects using PackageReference nodes copy out files from
+          //    contentFiles. Well done, so now each file has to be included
+          //    twice.
+          [ "content", "contentFiles" ].forEach(targetBase => {
+          });
           files.forEach(relPath => {
             fileNode.push({
               $: {
                 src: relPath,
-                target: `content\\${relPath}`
+                target: `${targetBase}\\${relPath}`
               }
             });
           });
