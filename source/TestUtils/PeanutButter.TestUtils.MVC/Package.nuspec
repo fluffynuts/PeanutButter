@@ -32,7 +32,7 @@
     <license type="expression">BSD-3-Clause</license>
     <copyright>Copyright  2016</copyright>
     <dependencies>
-      <dependency id="PeanutButter.RandomGenerators" version="1.2.329" />
+      <dependency id="PeanutButter.RandomGenerators" version="1.2.330" />
       <dependency id="Microsoft.AspNet.Mvc" version="5.2.7" />
     </dependencies>
     <references />
