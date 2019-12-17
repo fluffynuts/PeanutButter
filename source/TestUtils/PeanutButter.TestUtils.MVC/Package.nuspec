@@ -1,7 +1,7 @@
 <package>
   <metadata>
     <id>PeanutButter.TestUtils.MVC</id>
-    <version>1.2.330</version>
+    <version>1.2.331</version>
     <title>PeanutButter.TestUtils.MVC.Sources</title>
     <authors>Davyd McColl</authors>
     <owners />
@@ -64,5 +64,29 @@
     <file src="HttpRequestExtensions.cs" target="content\HttpRequestExtensions.cs" />
     <file src="NameValueCollectionExtensions.cs" target="content\NameValueCollectionExtensions.cs" />
     <file src="Properties\AssemblyInfo.cs" target="content\Properties\AssemblyInfo.cs" />
+    <file src="Builders\ControllerWithContextBuilder.cs" target="contentFiles\Builders\ControllerWithContextBuilder.cs" />
+    <file src="Builders\FakeHttpContextBuilder.cs" target="contentFiles\Builders\FakeHttpContextBuilder.cs" />
+    <file src="Builders\FakeHttpRequestBuilder.cs" target="contentFiles\Builders\FakeHttpRequestBuilder.cs" />
+    <file src="Builders\FakeIdentityBuilder.cs" target="contentFiles\Builders\FakeIdentityBuilder.cs" />
+    <file src="Builders\FakePrincipalBuilder.cs" target="contentFiles\Builders\FakePrincipalBuilder.cs" />
+    <file src="Builders\GenericBuilderWithFieldAccess.cs" target="contentFiles\Builders\GenericBuilderWithFieldAccess.cs" />
+    <file src="Builders\HttpCookieCollectionBuilder.cs" target="contentFiles\Builders\HttpCookieCollectionBuilder.cs" />
+    <file src="Builders\MvcHandlerBuilder.cs" target="contentFiles\Builders\MvcHandlerBuilder.cs" />
+    <file src="Builders\NameValueCollectionBuilder.cs" target="contentFiles\Builders\NameValueCollectionBuilder.cs" />
+    <file src="Builders\RequestContextBuilder.cs" target="contentFiles\Builders\RequestContextBuilder.cs" />
+    <file src="Builders\RouteDataBuilder.cs" target="contentFiles\Builders\RouteDataBuilder.cs" />
+    <file src="Builders\SessionStateItemCollectionBuilder.cs" target="contentFiles\Builders\SessionStateItemCollectionBuilder.cs" />
+    <file src="FakeControllerContext.cs" target="contentFiles\FakeControllerContext.cs" />
+    <file src="FakeHtmlHelper.cs" target="contentFiles\FakeHtmlHelper.cs" />
+    <file src="FakeHttpApplication.cs" target="contentFiles\FakeHttpApplication.cs" />
+    <file src="FakeHttpContext.cs" target="contentFiles\FakeHttpContext.cs" />
+    <file src="FakeHttpRequest.cs" target="contentFiles\FakeHttpRequest.cs" />
+    <file src="FakeHttpResponse.cs" target="contentFiles\FakeHttpResponse.cs" />
+    <file src="FakeHttpSessionState.cs" target="contentFiles\FakeHttpSessionState.cs" />
+    <file src="FakeIdentity.cs" target="contentFiles\FakeIdentity.cs" />
+    <file src="FakePrincipal.cs" target="contentFiles\FakePrincipal.cs" />
+    <file src="HttpRequestExtensions.cs" target="contentFiles\HttpRequestExtensions.cs" />
+    <file src="NameValueCollectionExtensions.cs" target="contentFiles\NameValueCollectionExtensions.cs" />
+    <file src="Properties\AssemblyInfo.cs" target="contentFiles\Properties\AssemblyInfo.cs" />
   </files>
 </package>

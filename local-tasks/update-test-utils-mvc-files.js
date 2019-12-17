@@ -46,13 +46,13 @@ gulp.task(
           //    contentFiles. Well done, so now each file has to be included
           //    twice.
           [ "content", "contentFiles" ].forEach(targetBase => {
-          });
-          files.forEach(relPath => {
-            fileNode.push({
-              $: {
-                src: relPath,
-                target: `${targetBase}\\${relPath}`
-              }
+            files.forEach(relPath => {
+              fileNode.push({
+                $: {
+                  src: relPath,
+                  target: `${targetBase}\\${relPath}`
+                }
+              });
             });
           });
 
