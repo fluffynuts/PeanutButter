@@ -64,12 +64,14 @@ namespace PeanutButter.TinyEventAggregator.Tests
                 Name = "Sam"
             };
 
+#pragma warning disable 4014
             Task.Run(() =>
             {
                 beforeBarrier.SignalAndWait();
                 loginEvent.Publish(sam);
                 afterBarrier.SignalAndWait();
             });
+#pragma warning restore 4014
 
             beforeBarrier.SignalAndWait();
             Thread.Sleep(100); // wait a little to let the Publish call kick off
