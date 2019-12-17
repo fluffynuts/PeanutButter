@@ -1,4 +1,7 @@
 ﻿using NUnit.Framework;
+using static PeanutButter.RandomGenerators.RandomValueGen;
+using NExpect;
+using static NExpect.Expectations;
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ObjectCreationAsStatement
 
@@ -7,55 +10,68 @@ namespace PeanutButter.TinyEventAggregator.Tests
     [TestFixture]
     public class TestTinyEventAggregator
     {
-        [Test]
-        public void Construct_DoesNotThrow()
+        [TestFixture]
+        public class Constructor
         {
-            // test setup
+            [Test]
+            public void ShouldNotThrow()
+            {
+                // test setup
 
-            // pre-conditions
+                // pre-conditions
 
-            // execute test
-            Assert.DoesNotThrow(() => new EventAggregator());
+                // execute test
+                Expect(() => new EventAggregator())
+                    .Not.To.Throw();
 
-            // test result
+                // test result
+            }
         }
 
-        [Test]
-        public void Instance_ReturnsSameInstanceEveryTime()
+        [TestFixture]
+        public class StaticInstance
         {
-            // test setup
+            [Test]
+            public void ShouldBeSingleton()
+            {
+                // test setup
 
-            // pre-conditions
+                // pre-conditions
 
-            // execute test
-            var i1 = EventAggregator.Instance;
-            var i2 = EventAggregator.Instance;
+                // execute test
+                var i1 = EventAggregator.Instance;
+                var i2 = EventAggregator.Instance;
 
-            // test result
-            Assert.IsNotNull(i1);
-            Assert.IsNotNull(i2);
-            Assert.AreEqual(i1, i2);
+                // test result
+                Expect(i1).Not.To.Be.Null();
+                Expect(i2).Not.To.Be.Null();
+                Expect(i1).To.Be(i2);
+            }
+        }
+
+        [TestFixture]
+        public class GetEvent
+        {
+            [Test]
+            public void ShouldReturnTheSameInstanceOfTheSameEvent()
+            {
+                // test setup
+
+                // pre-conditions
+
+                // execute test
+                var ev1 = EventAggregator.Instance.GetEvent<SomeEvent>();
+                var ev2 = EventAggregator.Instance.GetEvent<SomeEvent>();
+
+                // test result
+                Expect(ev1).Not.To.Be.Null();
+                Expect(ev2).Not.To.Be.Null();
+                Expect(ev1).To.Be(ev2);
+            }
         }
 
         public class SomeEvent : EventBase<object>
         {
-        }
-
-        [Test]
-        public void GetEvent_AlwaysReturnsSameInstanceOfEvent()
-        {
-            // test setup
-
-            // pre-conditions
-
-            // execute test
-            var ev1 = EventAggregator.Instance.GetEvent<SomeEvent>();
-            var ev2 = EventAggregator.Instance.GetEvent<SomeEvent>();
-
-            // test result
-            Assert.IsNotNull(ev1);
-            Assert.IsNotNull(ev2);
-            Assert.AreEqual(ev1, ev2);
         }
     }
 }

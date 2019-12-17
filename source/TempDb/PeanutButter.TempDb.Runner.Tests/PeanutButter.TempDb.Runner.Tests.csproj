@@ -9,7 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Net.Compilers" Version="3.3.1" />
     <PackageReference Include="MySqlConnector" Version="0.56.0" />
-    <PackageReference Include="NExpect" Version="1.0.160" />
+    <PackageReference Include="NExpect" Version="1.0.162" />
     <PackageReference Include="nunit" Version="3.12.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.15.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />

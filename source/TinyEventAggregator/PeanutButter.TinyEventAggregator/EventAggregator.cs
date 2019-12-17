@@ -63,13 +63,17 @@ namespace PeanutButter.TinyEventAggregator
         public void Unsuspend()
         {
             foreach (var ev in _events)
-                ev.Suspend();
+            {
+                ev.Unsuspend();
+            }
         }
 
         public void Suspend()
         {
             foreach (var ev in _events)
-                ev.Unsuspend();
+            {
+                ev.Suspend();
+            }
         }
     }
 }

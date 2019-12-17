@@ -2,78 +2,83 @@
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using NExpect;
+using PeanutButter.Utils;
+using static NExpect.Expectations;
 
 namespace PeanutButter.TinyEventAggregator.Tests
 {
     [TestFixture]
     public class TestEventBase
     {
-        public class SomeEvent : EventBase<object>
+        [TestFixture]
+        public class Constructor
         {
-            public bool Suspended => IsSuspended;
-        }
-        [Test]
-        public void Construct_DoesNotThrow()
-        {
-            // test setup
+            [Test]
+            public void ShouldNotThrow()
+            {
+                // test setup
 
-            // pre-conditions
+                // pre-conditions
 
-            // execute test
-            Assert.DoesNotThrow(() => Create());
+                // execute test
+                Expect(Create)
+                    .Not.To.Throw();
 
-            // test result
-        }
-
-        private static SomeEvent Create()
-        {
-            return new SomeEvent();
+                // test result
+            }
         }
 
-        [Test]
-        public void Subscribe_GivenNullAction_ThrowsArgumentNullException()
+        [TestFixture]
+        public class Behavior
         {
-            // test setup
-            var ev = Create();
-            // pre-conditions
+            [Test]
+            public void Subscribe_GivenNullAction_ThrowsArgumentNullException()
+            {
+                // test setup
+                var ev = Create();
+                // pre-conditions
 
-            // execute test
-            Assert.Throws<ArgumentNullException>(() => ev.Subscribe(null));
+                // execute test
+                Expect(() => ev.Subscribe(null))
+                    .To.Throw<ArgumentNullException>();
 
-            // test result
-        }
+                // test result
+            }
 
-        [Test]
-        public void Publish_WhenNoSubscribers_DoesNotThrow()
-        {
-            // test setup
-            var ev = Create();
+            [Test]
+            public void Publish_WhenNoSubscribers_DoesNotThrow()
+            {
+                // test setup
+                var ev = Create();
 
-            // pre-conditions
+                // pre-conditions
 
-            // execute test
-            Assert.DoesNotThrow(() => ev.Publish(null));
+                // execute test
+                Expect(() => ev.Publish(null))
+                    .Not.To.Throw();
 
-            // test result
-        }
+                // test result
+            }
 
-        [Test]
-        public void SubscribeAndPublish_WhenOneSubscribedAndAnotherPublishes_CallsAction()
-        {
-            // test setup
-            var called = false;
-            var ev = Create();
+            [Test]
+            public void SubscribeAndPublish_WhenOneSubscribedAndAnotherPublishes_CallsActionOnce()
+            {
+                // test setup
+                var calls = 0;
+                var ev = Create();
 
-            // pre-conditions
-            Assert.IsFalse(called);
+                // pre-conditions
+                // execute test
+                ev.Subscribe(o => calls++);
+                Expect(calls)
+                    .To.Equal(0);
+                ev.Publish(null);
 
-            // execute test
-            ev.Subscribe(o => called = true);
-            Assert.IsFalse(called);
-            ev.Publish(null);
-
-            // test result
-            Assert.IsTrue(called);
+                // test result
+                Expect(calls)
+                    .To.Equal(1);
+            }
         }
 
         [Test]
@@ -84,23 +89,26 @@ namespace PeanutButter.TinyEventAggregator.Tests
             object received1 = null;
             object received2 = null;
 
-            // pre-conditions
-            Assert.IsNull(received1);
-            Assert.IsNull(received2);
             // execute test
-
             ev.Subscribe(o => received1 = o);
             ev.Subscribe(o => received2 = o);
-            Assert.IsNull(received1);
-            Assert.IsNull(received2);
-            var published = new object();
-            ev.Publish(published);
+
+            Expect(received1)
+                .To.Be.Null();
+            Expect(received2)
+                .To.Be.Null();
+            var expected = new object();
+            ev.Publish(expected);
 
             // test result
-            Assert.IsNotNull(received1);
-            Assert.IsNotNull(received2);
-            Assert.AreEqual(published, received1);
-            Assert.AreEqual(published, received2);
+            Expect(received1)
+                .Not.To.Be.Null();
+            Expect(received2)
+                .Not.To.Be.Null();
+            Expect(received1)
+                .To.Be(expected);
+            Expect(received2)
+                .To.Be(expected);
         }
 
         [Test]
@@ -112,13 +120,14 @@ namespace PeanutButter.TinyEventAggregator.Tests
             // pre-conditions
 
             // execute test
-            Assert.Throws<ArgumentNullException>(() => ev.Unsubscribe(null));
+            Expect(() => ev.Unsubscribe(null))
+                .To.Throw<ArgumentNullException>();
 
             // test result
         }
 
         [Test]
-        public void Unsubscribe_WhenPassedKnownToken_UnsubscribesReciever()
+        public void Unsubscribe_WhenPassedKnownToken_UnsubscribesReceiver()
         {
             // test setup
             var ev = Create();
@@ -128,14 +137,18 @@ namespace PeanutButter.TinyEventAggregator.Tests
 
             // execute test
             var token = ev.Subscribe(o => callCount++);
-            Assert.AreEqual(0, callCount);
+            Expect(callCount)
+                .To.Equal(0);
+
             ev.Publish(null);
-            Assert.AreEqual(1, callCount);
+            Expect(callCount)
+                .To.Equal(1);
             ev.Unsubscribe(token);
             ev.Publish(null);
 
             // test result
-            Assert.AreEqual(1, callCount);
+            Expect(callCount)
+                .To.Equal(1);
         }
 
         [Test]
@@ -153,7 +166,8 @@ namespace PeanutButter.TinyEventAggregator.Tests
             ev.Publish(null);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(1, callCount);
+            Expect(callCount)
+                .To.Equal(1);
         }
 
         [Test]
@@ -163,18 +177,29 @@ namespace PeanutButter.TinyEventAggregator.Tests
             var ev = Create();
 
             //---------------Assert Precondition----------------
-            Assert.AreEqual(0, ev.SubscriptionCount);
+            Expect(ev.SubscriptionCount)
+                .To.Equal(0);
             //---------------Execute Test ----------------------
-            var t1 = ev.Subscribe(o => { });
-            Assert.AreEqual(1, ev.SubscriptionCount);
-            var t2 = ev.Subscribe(o => { });
-            Assert.AreEqual(2, ev.SubscriptionCount);
+            var t1 = ev.Subscribe(o =>
+            {
+            });
+            Expect(ev.SubscriptionCount)
+                .To.Equal(1);
+            var t2 = ev.Subscribe(o =>
+            {
+            });
+            Expect(ev.SubscriptionCount)
+                .To.Equal(2);
             ev.Unsubscribe(t2);
-            Assert.AreEqual(1, ev.SubscriptionCount);
+            Expect(ev.SubscriptionCount)
+                .To.Equal(1);
+            // unknown token should not change subs
             ev.Unsubscribe(new SubscriptionToken());
-            Assert.AreEqual(1, ev.SubscriptionCount);
+            Expect(ev.SubscriptionCount)
+                .To.Equal(1);
             ev.Unsubscribe(t1);
-            Assert.AreEqual(0, ev.SubscriptionCount);
+            Expect(ev.SubscriptionCount)
+                .To.Equal(0);
             //---------------Test Result -----------------------
         }
 
@@ -194,12 +219,17 @@ namespace PeanutButter.TinyEventAggregator.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var token = ev.Subscribe(o => { });
+            var token = ev.Subscribe(o =>
+            {
+            });
 
             //---------------Test Result -----------------------
-            Assert.IsNotNull(eventSender);
-            Assert.AreEqual(ev, eventSender);
-            Assert.AreEqual(token, eventToken);
+            Expect(eventSender)
+                .Not.To.Be.Null();
+            Expect(eventSender)
+                .To.Be(ev);
+            Expect(eventToken)
+                .To.Be(token);
         }
 
         [Test]
@@ -210,20 +240,25 @@ namespace PeanutButter.TinyEventAggregator.Tests
             object eventSender = null;
             SubscriptionToken eventToken = null;
             ev.OnSubscriptionAdded += (s, e) =>
-                {
-                    eventSender = s;
-                    eventToken = e.Token;
-                };
+            {
+                eventSender = s;
+                eventToken = e.Token;
+            };
 
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var token = ev.Subscribe(o => { });
+            var token = ev.Subscribe(o =>
+            {
+            });
 
             //---------------Test Result -----------------------
-            Assert.IsNotNull(eventSender);
-            Assert.AreEqual(ev, eventSender);
-            Assert.AreEqual(token, eventToken);
+            Expect(eventSender)
+                .Not.To.Be.Null();
+            Expect(eventSender)
+                .To.Be(ev);
+            Expect(eventToken)
+                .To.Be(token);
         }
 
         [Test]
@@ -233,13 +268,15 @@ namespace PeanutButter.TinyEventAggregator.Tests
             var sut = Create();
 
             //---------------Assert Precondition----------------
-            Assert.IsFalse(sut.Suspended);
+            Expect(sut.IsSuspended)
+                .To.Be.False();
 
             //---------------Execute Test ----------------------
             sut.Suspend();
 
             //---------------Test Result -----------------------
-            Assert.IsTrue(sut.Suspended);
+            Expect(sut.IsSuspended)
+                .To.Be.True();
         }
 
         [Test]
@@ -249,12 +286,14 @@ namespace PeanutButter.TinyEventAggregator.Tests
             var sut = Create();
             sut.Suspend();
             //---------------Assert Precondition----------------
-            Assert.IsTrue(sut.Suspended);
+            Expect(sut.IsSuspended)
+                .To.Be.True();
             //---------------Execute Test ----------------------
             sut.Unsuspend();
 
             //---------------Test Result -----------------------
-            Assert.IsFalse(sut.Suspended);
+            Expect(sut.IsSuspended)
+                .To.Be.False();
         }
 
         [Test]
@@ -263,7 +302,8 @@ namespace PeanutButter.TinyEventAggregator.Tests
             //---------------Set up test pack-------------------
             var sut = Create();
             //---------------Assert Precondition----------------
-            Assert.IsFalse(sut.Suspended);
+            Expect(sut.IsSuspended)
+                .To.Be.False();
 
             //---------------Execute Test ----------------------
             var beforeTest = DateTime.Now;
@@ -272,7 +312,8 @@ namespace PeanutButter.TinyEventAggregator.Tests
 
             //---------------Test Result -----------------------
             var delta = afterTest - beforeTest;
-            Assert.That(delta.TotalMilliseconds, Is.LessThanOrEqualTo(200));
+            Expect(delta.TotalMilliseconds)
+                .To.Be.Less.Than(200);
         }
 
         [Test]
@@ -282,7 +323,7 @@ namespace PeanutButter.TinyEventAggregator.Tests
             var sut = Create();
             sut.Suspend();
             //---------------Assert Precondition----------------
-            Assert.IsTrue(sut.Suspended);
+            Assert.IsTrue(sut.IsSuspended);
 
             //---------------Execute Test ----------------------
             var barrier = new Barrier(2);
@@ -307,9 +348,13 @@ namespace PeanutButter.TinyEventAggregator.Tests
             Assert.IsTrue(called);
         }
 
+        public class SomeEvent : EventBase<object>
+        {
+        }
 
-
-
-
+        private static SomeEvent Create()
+        {
+            return new SomeEvent();
+        }
     }
 }

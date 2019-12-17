@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -123,7 +124,9 @@ namespace PeanutButter.TinyEventAggregator
                 foreach (var sub in subscriptions)
                 {
                     if (sub.OnlyOneCallLeft())
+                    {
                         _subscriptions.Remove(sub);
+                    }
                 }
 
                 foreach (var sub in subscriptions)
@@ -135,6 +138,20 @@ namespace PeanutButter.TinyEventAggregator
                     }
                 }
             }
+        }
+
+        public Task PublishAsync(
+            TPayload data,
+            [CallerFilePath] string sourceFile = null,
+            [CallerMemberName] string requestingMethod = null,
+            [CallerLineNumber] int publishingSourceLine = -1)
+        {
+            return Task.Run(() => Publish(
+                data,
+                sourceFile,
+                requestingMethod,
+                publishingSourceLine
+            ));
         }
 
         public void Unsubscribe(
