@@ -20,7 +20,8 @@
     /// </summary>
     /// <typeparam name="TConcrete">Concrete implementation of this builder (ie, the class inheriting from this)</typeparam>
     /// <typeparam name="TSubject">Subject type which will be built by this builder</typeparam>
-    public abstract class BuilderBase<TConcrete, TSubject> where TConcrete: IBuilder<TSubject>, new()
+    public abstract class BuilderBase<TConcrete, TSubject> : IBuilder<TSubject>
+        where TConcrete: IBuilder<TSubject>, new()
     {
         /// <summary>
         /// Fluency method to creates a new instance of the builder
@@ -39,5 +40,12 @@
         {
             return Create().Build();
         }
+
+        /// <summary>
+        /// You must override this method in your derived class
+        /// - it does the final build of your entity
+        /// </summary>
+        /// <returns></returns>
+        public abstract TSubject Build();
     }
 }
