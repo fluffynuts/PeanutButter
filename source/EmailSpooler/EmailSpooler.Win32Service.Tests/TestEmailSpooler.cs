@@ -9,6 +9,7 @@ using EmailSpooler.Win32Service.SMTP;
 using PeanutButter.RandomGenerators;
 using PeanutButter.ServiceShell;
 using PeanutButter.TestUtils.Generic;
+using PeanutButter.Utils;
 using EmailAttachment = EmailSpooler.Win32Service.SMTP.EmailAttachment;
 // ReSharper disable ObjectCreationAsStatement
 // ReSharper disable RedundantArgumentDefaultValue
@@ -31,7 +32,8 @@ namespace EmailSpooler.Win32Service.Tests
             return new EmailSpooler(deps);
         }
 
-        public class FakeEmailSpoolerDependenciesBuilder: BuilderBase<FakeEmailSpoolerDependenciesBuilder, IEmailSpoolerDependencies>, IBuilder<IEmailSpoolerDependencies>
+        public class FakeEmailSpoolerDependenciesBuilder: 
+            GenericBuilder<FakeEmailSpoolerDependenciesBuilder, IEmailSpoolerDependencies>
         {
             public FakeEmailSpoolerDependenciesBuilder()
             {
@@ -92,7 +94,10 @@ namespace EmailSpooler.Win32Service.Tests
         public void Construct_WhenGivenNullDBContext_ThrowsArgumentNullException()
         {
             // test setup
-            var deps = FakeEmailSpoolerDependenciesBuilder.Create().WithDbContext(null).Build();
+            var deps = FakeEmailSpoolerDependenciesBuilder
+                .Create()
+                .WithDbContext(null)
+                .Build();
             // pre-conditions
 
             // execute test

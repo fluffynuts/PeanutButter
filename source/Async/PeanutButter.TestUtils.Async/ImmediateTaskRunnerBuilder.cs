@@ -7,8 +7,7 @@ using PeanutButter.RandomGenerators;
 namespace PeanutButter.TestUtils.Async
 {
     public class ImmediateTaskRunnerBuilder :
-        BuilderBase<ImmediateTaskRunnerBuilder, ITaskRunner>,
-        IBuilder<ITaskRunner>
+        GenericBuilder<ImmediateTaskRunnerBuilder, ITaskRunner>
     {
         private ITaskRunner _taskRunner;
 

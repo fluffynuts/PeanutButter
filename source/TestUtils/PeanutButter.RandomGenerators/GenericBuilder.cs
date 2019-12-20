@@ -33,7 +33,7 @@ namespace PeanutButter.RandomGenerators
     public class GenericBuilder<TBuilder, TEntity>
         : GenericBuilderBase,
           IGenericBuilder,
-          IBuilder<TEntity>
+          IBuilder<TBuilder, TEntity>
         where TBuilder : GenericBuilder<TBuilder, TEntity>
     {
         /// <summary>
