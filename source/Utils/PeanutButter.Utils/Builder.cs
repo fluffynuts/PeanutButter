@@ -1,31 +1,60 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+// ReSharper disable StaticMemberInGenericType
 
 namespace PeanutButter.Utils
 {
+    /// <summary>
+    /// Defines an action to run on a reference to a value type
+    /// </summary>
+    /// <param name="item"></param>
+    /// <typeparam name="T1"></typeparam>
+    public delegate void ActionRef<T1>(ref T1 item);
+    
+    /// <summary>
+    /// Most basic interface to implement to be considered a builder
+    /// </summary>
+    /// <typeparam name="TEntity">Type of the entity this builder should build</typeparam>
+    /// <typeparam name="TBuilder"></typeparam>
+    // ReSharper disable once TypeParameterCanBeVariant
+    public interface IBuilder<TBuilder, TEntity>
+    {
+        /// <summary>
+        /// Builds a new instance of TSubject
+        /// </summary>
+        /// <returns>New instance of TSubject</returns>
+        TEntity Build();
+        
+        /// <summary>
+        /// Queues a transform to be run at build time on entities
+        /// you wish to build; use this on reference types
+        /// </summary>
+        /// <param name="transform"></param>
+        /// <returns></returns>
+        TBuilder WithProp(Action<TEntity> transform);
+        
+        /// <summary>
+        /// Queues a transform to be run at build time on entities
+        /// you wish to build; use this on value types
+        /// </summary>
+        /// <param name="transform"></param>
+        /// <returns></returns>
+        TBuilder WithProp(ActionRef<TEntity> transform);
+    }
+    
     /// <summary>
     /// Provides a base class with simple builder functionality
     /// </summary>
     /// <typeparam name="TBuilder"></typeparam>
     /// <typeparam name="TEntity"></typeparam>
-    public abstract class Builder<TBuilder, TEntity>
-        where TBuilder : Builder<TBuilder, TEntity>, new()
+    public abstract class Builder<TBuilder, TEntity>: IBuilder<TBuilder, TEntity>
+        where TBuilder : Builder<TBuilder, TEntity>, IBuilder<TBuilder, TEntity>, new()
     {
-        /// <summary>
-        /// Delegate describing an action which takes a reference to
-        /// any type (typically a value type)
-        /// </summary>
-        /// <param name="item"></param>
-        /// <typeparam name="T1"></typeparam>
-        public delegate void ActionRef<T1>(ref T1 item);
-
         private static readonly Type EntityType = typeof(TEntity);
 
-        // ReSharper disable once StaticMemberInGenericType
         private static readonly bool IsInterfaceType = EntityType.IsInterface;
 
-        // ReSharper disable once StaticMemberInGenericType
         private static readonly bool HasParameterlessConstructor =
             EntityType.GetConstructors()
                 .Any(ctor => ctor.GetParameters().Length == 0);
@@ -43,6 +72,17 @@ namespace PeanutButter.Utils
         public static TBuilder Create()
         {
             return new TBuilder();
+        }
+
+        /// <summary>
+        /// Builds a default instance of TEntity
+        /// based on your builder's ConstructEntity and Build methods
+        /// (ie convenience wrapper around YourBuilder.Create().Build())
+        /// </summary>
+        /// <returns></returns>
+        public static TEntity BuildDefault()
+        {
+            return Create().Build();
         }
 
         /// <summary>

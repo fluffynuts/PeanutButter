@@ -4,6 +4,8 @@ using System.Linq;
 using EmailSpooler.Win32Service.Entity;
 using NSubstitute;
 using PeanutButter.RandomGenerators;
+using PeanutButter.Utils;
+
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMethodReturnValue.Local
 // ReSharper disable UnusedMember.Global
@@ -11,7 +13,8 @@ using PeanutButter.RandomGenerators;
 
 namespace EmailSpooler.Win32Service.Tests.Builders
 {
-    public class SubstituteEmailContextBuilder: BuilderBase<SubstituteEmailContextBuilder, IEmailContext>, IBuilder<IEmailContext>
+    public class SubstituteEmailContextBuilder: 
+        Builder<SubstituteEmailContextBuilder, IEmailContext>
     {
         public SubstituteEmailContextBuilder()
         {
@@ -19,9 +22,15 @@ namespace EmailSpooler.Win32Service.Tests.Builders
                 .WithEmailAttachments(DbSetSubstituteBuilder<EmailAttachment>.BuildDefault())
                 .WithEmailRecipients(DbSetSubstituteBuilder<EmailRecipient>.BuildDefault());
         }
-        public IEmailContext Build()
+
+        protected override IEmailContext ConstructEntity()
         {
-            var ctx = Substitute.For<IEmailContext>();
+            return Substitute.For<IEmailContext>();
+        }
+
+        public override IEmailContext Build()
+        {
+            var ctx = ConstructEntity();
             ctx.EmailAttachments = _emailAttachments;
             ctx.Emails = _emails;
             ctx.EmailRecipients = _emailRecipients;
