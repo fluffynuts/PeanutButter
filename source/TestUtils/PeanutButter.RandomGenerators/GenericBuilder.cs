@@ -36,14 +36,6 @@ namespace PeanutButter.RandomGenerators
           IBuilder<TBuilder, TEntity>
         where TBuilder : GenericBuilder<TBuilder, TEntity>
     {
-        /// <summary>
-        /// The delegate type for an action which takes one parameter
-        /// of any type, by reference.
-        /// </summary>
-        /// <typeparam name="T1">Type of the parameter</typeparam>
-        /// <param name="item">Reference to the item being passed in</param>
-        public delegate void ActionRef<T1>(ref T1 item);
-
         private delegate void ActionRef<T1, in T2>(ref T1 item,
             T2 index);
 
@@ -544,7 +536,9 @@ namespace PeanutButter.RandomGenerators
         private TInterface ConstructInCurrentDomain<TInterface>(Type type)
         {
 #if NETSTANDARD
-            return (TInterface) Activator.CreateInstance(type);
+            return (TInterface) Activator.CreateInstance(
+                type, TryToMakeConstructorParametersFor(type)
+            );
 #else
             var handle = Activator.CreateInstance(
                 AppDomain.CurrentDomain,
