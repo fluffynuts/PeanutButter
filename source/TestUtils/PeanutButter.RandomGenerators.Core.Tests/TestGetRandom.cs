@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System.Collections.Generic;
+using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using NExpect;
 using PeanutButter.RandomGenerators.Core.Tests.Domain;
@@ -29,6 +30,17 @@ namespace PeanutButter.RandomGenerators.Core.Tests
             Expect(result).Not.To.Be.Null();
             Expect(result.Id).To.Be.Greater.Than.Or.Equal.To(100)
                              .And.Less.Than.Or.Equal.To(200);
+        }
+
+        [Test]
+        public void ShouldBeAbleToCreateRandomObjectsFromConstructorParams()
+        {
+            // Arrange
+            // Act
+            var kvp = GetRandom<KeyValuePair<string, int>>();
+            // Assert
+            Expect(kvp.Key)
+                .Not.To.Be.Null();
         }
     }
 }
