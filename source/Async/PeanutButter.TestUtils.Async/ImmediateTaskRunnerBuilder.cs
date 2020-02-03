@@ -96,7 +96,7 @@ namespace PeanutButter.TestUtils.Async
             return this;
         }
 
-        public ITaskRunner Build()
+        public override ITaskRunner Build()
         {
             return _taskRunner;
         }

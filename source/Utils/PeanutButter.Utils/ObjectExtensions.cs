@@ -850,12 +850,6 @@ namespace PeanutButter.Utils
                 newValue);
         }
 
-        private static readonly BindingFlags
-            AnyInstanceMember =
-                BindingFlags.Instance |
-                BindingFlags.Public |
-                BindingFlags.NonPublic;
-        
         private static void SetPropertyOrFieldValue(
             this object src,
             string propertyPath,

@@ -48,7 +48,7 @@ namespace EmailSpooler.Win32Service.Tests
                     .WithEmailGenerator(() => Substitute.For<IEmail>());
             }
 
-            public IEmailSpoolerDependencies Build()
+            public override IEmailSpoolerDependencies Build()
             {
                 var deps = Substitute.For<IEmailSpoolerDependencies>();
                 deps.EmailGenerator.ReturnsForAnyArgs(ci => _emailGenerator);

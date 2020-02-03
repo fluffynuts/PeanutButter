@@ -1469,11 +1469,13 @@ namespace PeanutButter.Utils.Tests
                     .To.Equal(expected2);
             }
 
+#pragma warning disable 169
             public class Poco
             {
                 public int PublicField;
                 private int _privateField;
             }
+#pragma warning restore 169
         }
 
         [TestFixture]
