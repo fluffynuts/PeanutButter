@@ -15,7 +15,9 @@ namespace PeanutButter.DuckTyping.Demo
         protected void Log(params object[] toLog)
         {
             var last = "";
-            var parts = toLog.Select(o => o.IsString() ? o as string : o.Stringify())
+            var parts = toLog.Select(o => o.IsString() 
+                    ? o as string 
+                    : o.Stringify())
                 .Aggregate(new List<string>(),
                     (acc, cur) =>
                     {

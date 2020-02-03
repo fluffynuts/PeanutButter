@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 #if BUILD_PEANUTBUTTER_INTERNAL
 namespace Imported.PeanutButter.Utils
@@ -8,7 +10,6 @@ namespace Imported.PeanutButter.Utils
 namespace PeanutButter.Utils
 #endif
 {
-
     /// <summary>
     /// Useful extensions for IEnumerable&lt;T&gt; collections
     /// </summary>
@@ -28,7 +29,9 @@ namespace PeanutButter.Utils
         public static void ForEach<T>(this IEnumerable<T> collection, Action<T> toRun)
         {
             foreach (var item in collection)
+            {
                 toRun(item);
+            }
         }
 
         /// <summary>
@@ -53,17 +56,27 @@ namespace PeanutButter.Utils
         /// <param name="otherCollection">Collection to compare with</param>
         /// <typeparam name="T">Item tytpe of the collections</typeparam>
         /// <returns>True if all values in the source collection are found in the target collection</returns>
-        public static bool IsSameAs<T>(this IEnumerable<T> collection, IEnumerable<T> otherCollection)
+        public static bool IsSameAs<T>(
+            this IEnumerable<T> collection,
+            IEnumerable<T> otherCollection)
         {
             if (collection == null && otherCollection == null)
+            {
                 return true;
+            }
+
             if (collection == null || otherCollection == null)
+            {
                 return false;
+            }
+
             var source = collection.ToArray();
             var target = otherCollection.ToArray();
-            if (source.Length != target.Length)
-                return false;
-            return source.Aggregate(true, (state, item) => state && target.Contains(item));
+            return source.Length == target.Length &&
+                source.Aggregate(
+                    true,
+                    (state, item) => state && target.Contains(item)
+                );
         }
 
         /// <summary>
@@ -77,16 +90,25 @@ namespace PeanutButter.Utils
         /// Where a collection of non-strings is provided, the objects' ToString() methods
         /// are used to get a string representation.
         /// </returns>
-        public static string JoinWith<T>(this IEnumerable<T> collection, string joinWith)
+        public static string JoinWith<T>(
+            this IEnumerable<T> collection,
+            string joinWith)
         {
             var stringArray = collection as string[];
-            if (stringArray == null)
+            if (stringArray != null)
             {
-                if (typeof(T) == typeof(string))
-                    stringArray = collection.ToArray() as string[];
-                else
-                    stringArray = collection.Select(i => i.ToString()).ToArray();
+                return string.Join(joinWith, stringArray ?? new string[0]);
             }
+
+            if (typeof(T) == typeof(string))
+            {
+                stringArray = collection.ToArray() as string[];
+            }
+            else
+            {
+                stringArray = collection.Select(i => i.ToString()).ToArray();
+            }
+
             return string.Join(joinWith, stringArray ?? new string[0]);
         }
 
@@ -99,11 +121,9 @@ namespace PeanutButter.Utils
         /// <returns>True if the collection is null or has no items; false otherwise.</returns>
         public static bool IsEmpty<T>(this IEnumerable<T> collection)
         {
-            if (collection == null)
-                return true;
-            return !collection.Any();
+            return !collection?.Any() ?? true;
         }
-        
+
         /// <summary>
         /// Convenience method to mitigate null checking and errors when
         /// a null collection can be treated as if it were empty, eg:
@@ -396,5 +416,58 @@ namespace PeanutButter.Utils
             }
         }
 
+        /// <summary>
+        /// Performs implicit casting on a collection
+        /// -> just like .Cast&lt;T&gt;, this will explode if the
+        ///     cast cannot succeed. C'est la vie
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <typeparam name="TOther"></typeparam>
+        /// <returns></returns>
+        public static IEnumerable<TOther> ImplicitCast<TOther>(
+            this IEnumerable collection)
+        {
+            MethodInfo implicitOp = null;
+
+            foreach (var item in collection)
+            {
+                var op = ResolveImplicitOperator(item.GetType());
+                yield return (TOther) op.Invoke(null, new object[] { item });
+            }
+
+            MethodInfo ResolveImplicitOperator(Type inputType)
+            {
+                if (implicitOp != null)
+                {
+                    return implicitOp;
+                }
+
+                var otherType = typeof(TOther);
+
+                var candidates = otherType
+                    .GetMethods(BindingFlags.Static | BindingFlags.Public)
+                    .Where(mi => mi.Name == "op_Implicit" &&
+                        mi.ReturnType == otherType
+                    );
+                foreach (var candidate in candidates)
+                {
+                    var parameters = candidate.GetParameters();
+                    if (parameters.Length != 1)
+                    {
+                        continue;
+                    }
+
+                    var parameterType = parameters[0].ParameterType;
+                    if (parameterType.IsAssignableFrom(inputType))
+                    {
+                        return implicitOp = candidate;
+                    }
+                }
+
+                throw new InvalidCastException(
+                    $"No implicit operator found on {otherType} to get an instance of {inputType}"
+                );
+            }
+        }
     }
 }

@@ -18,7 +18,7 @@ namespace PeanutButter.Utils
 #if BUILD_PEANUTBUTTER_INTERNAL
     internal
 #else
-    public 
+    public
 #endif
         enum ObjectComparisons
     {
@@ -39,7 +39,7 @@ namespace PeanutButter.Utils
 #if BUILD_PEANUTBUTTER_INTERNAL
     internal
 #else
-    public 
+    public
 #endif
         static class ObjectExtensions
     {
@@ -774,8 +774,33 @@ namespace PeanutButter.Utils
             this object src,
             string propertyPath)
         {
-            var parts = propertyPath.Split('.');
-            return parts.Aggregate(src, GetImmediatePropertyValue);
+            var trailingMember = FindPropertyOrField(
+                src,
+                propertyPath,
+                AnyInstanceProperty,
+                AnyInstanceField);
+            if (!trailingMember.Found)
+            {
+                throw new MemberNotFoundException(src?.GetType(), propertyPath);
+            }
+
+            return trailingMember.GetValue();
+        }
+
+        private static PropertyOrField[] AnyInstanceProperty(
+            Type type)
+        {
+            return type.GetProperties(AllOnInstance)
+                .ImplicitCast<PropertyOrField>()
+                .ToArray();
+        }
+
+        private static PropertyOrField[] AnyInstanceField(
+            Type type)
+        {
+            return type.GetFields(AllOnInstance)
+                .ImplicitCast<PropertyOrField>()
+                .ToArray();
         }
 
         private static object GetImmediatePropertyValue(
@@ -815,28 +840,108 @@ namespace PeanutButter.Utils
         /// <param name="propertyPath">Path into the property: could be an immediate property name or something like "Company.Name"</param>
         /// <param name="newValue">New value to attempt to set the property to</param>
         /// <exception cref="MemberNotFoundException">Thrown when the property cannot be found</exception>
-        public static void SetPropertyValue(this object src, string propertyPath, object newValue)
+        public static void SetPropertyValue(
+            this object src,
+            string propertyPath,
+            object newValue)
+        {
+            src.SetPropertyOrFieldValue(
+                propertyPath,
+                newValue);
+        }
+
+        private static readonly BindingFlags
+            AnyInstanceMember =
+                BindingFlags.Instance |
+                BindingFlags.Public |
+                BindingFlags.NonPublic;
+        
+        private static void SetPropertyOrFieldValue(
+            this object src,
+            string propertyPath,
+            object newValue)
+        {
+            var trailingMember = FindPropertyOrField(
+                src, 
+                propertyPath, 
+                AnyInstanceProperty,
+                AnyInstanceField);
+
+            if (!trailingMember.Found)
+            {
+                throw new MemberNotFoundException(src.GetType(), propertyPath);
+            }
+
+            trailingMember.SetValue(newValue);
+        }
+
+        private class TrailingMember
+        {
+            public bool Found => Member != null;
+            public PropertyOrField Member { get; set; }
+            public object Host { get; set; }
+
+            public object GetValue()
+            {
+                return Member.GetValue(Host);
+            }
+
+            public void SetValue(object value)
+            {
+                Member.SetValue(Host, value);
+            }
+        }
+
+        private static TrailingMember FindPropertyOrField(
+            object src,
+            string propertyPath,
+            params Func<Type, PropertyOrField[]>[] fetchers)
         {
             var queue = new Queue<string>(propertyPath.Split('.'));
+            var result = new TrailingMember();
             while (queue.Count > 0)
             {
                 var current = queue.Dequeue();
                 var type = src.GetType();
-                var propInfo = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                    .FirstOrDefault(pi => pi.Name == current);
-                if (propInfo == null)
-                    throw new MemberNotFoundException(type, current);
-                if (queue.Count == 0)
+                var memberInfo = fetchers.Aggregate(
+                    null as PropertyOrField,
+                    (acc, cur) => acc ?? cur(type).FirstOrDefault(mi => mi.Name == current)
+                );
+                if (memberInfo == null)
                 {
-                    propInfo.SetValue(src, newValue);
-                    return;
+                    throw new MemberNotFoundException(type, current);
                 }
 
-                src = propInfo.GetValue(src);
+                if (queue.Count == 0)
+                {
+                    result.Member = memberInfo;
+                    result.Host = src;
+                    break;
+                }
+
+                src = memberInfo.GetValue(src);
             }
 
-            throw new MemberNotFoundException(src.GetType(), propertyPath);
+            return result;
         }
+
+        /// <summary>
+        /// Attempts to set a property value on an object by property path
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="propertyPath"></param>
+        /// <param name="newValue"></param>
+        /// <typeparam name="T"></typeparam>
+        public static void Set<T>(
+            this object src,
+            string propertyPath,
+            T newValue)
+        {
+            src.SetPropertyValue(propertyPath, newValue);
+        }
+
+        private static readonly BindingFlags AllOnInstance =
+            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
 
         /// <summary>
         /// Gets an immediate property value, cast to the specified type

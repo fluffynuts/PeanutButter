@@ -42,16 +42,16 @@ namespace PeanutButter.DuckTyping.Shimming
         private static readonly ConstructorInfo ObjectConstructor = typeof(object).GetConstructor(new Type[0]);
 
         private static readonly MethodInfo ShimGetPropertyValueMethod =
-            ShimInterfaceType.GetMethod("GetPropertyValue");
+            ShimInterfaceType.GetMethod(nameof(IShimSham.GetPropertyValue));
 
         private static readonly MethodInfo ShimSetPropertyValueMethod =
-            ShimInterfaceType.GetMethod("SetPropertyValue");
+            ShimInterfaceType.GetMethod(nameof(IShimSham.SetPropertyValue));
 
         private static readonly MethodInfo ShimCallThroughMethod =
-            ShimInterfaceType.GetMethod("CallThrough");
+            ShimInterfaceType.GetMethod(nameof(IShimSham.CallThrough));
 
         private static readonly MethodInfo ShimCallThroughVoidMethod =
-            ShimInterfaceType.GetMethod("CallThroughVoid");
+            ShimInterfaceType.GetMethod(nameof(IShimSham.CallThroughVoid));
 
         private static readonly MethodAttributes PropertyGetterSetterMethodAttributes =
             MethodAttributes.Public |
@@ -113,8 +113,12 @@ namespace PeanutButter.DuckTyping.Shimming
             bool allowDefaultsForReadonlyMembers)
         {
             if (!interfaceType.IsInterface)
+            {
                 throw new InvalidOperationException(
-                    "MakeTypeImplementing<T> requires an interface for the type parameter");
+                    "MakeTypeImplementing<T> requires an interface for the type parameter"
+                );
+            }
+
             var identifier = Guid.NewGuid().ToString("N");
 
             var generatedTypeName = interfaceType.Name + "_Duck_" + identifier;
@@ -404,7 +408,7 @@ namespace PeanutButter.DuckTyping.Shimming
             il.Emit(OpCodes.Ldstr, callThroughMethod.Name);
             il.Emit(OpCodes.Ldloc, boxedParameters);
 
-            il.Emit(OpCodes.Call, shimMethod);
+            il.Emit(OpCodes.Callvirt, shimMethod);
         }
 
         private static void LoadMethodArgumentsIntoArray(ILGenerator il,
@@ -582,7 +586,7 @@ namespace PeanutButter.DuckTyping.Shimming
             il.Emit(OpCodes.Ldarg_0);
             il.Emit(OpCodes.Ldfld, shimField);
             il.Emit(OpCodes.Ldstr, propertyName);
-            il.Emit(OpCodes.Call, ShimGetPropertyValueMethod);
+            il.Emit(OpCodes.Callvirt, ShimGetPropertyValueMethod);
             il.Emit(OpCodes.Stloc, local);
             return local;
         }
@@ -595,9 +599,12 @@ namespace PeanutButter.DuckTyping.Shimming
         )
         {
             var methodName = "set_" + prop.Name;
-            var setMethod = typeBuilder.DefineMethod(methodName,
-                PropertyGetterSetterMethodAttributes, null,
-                new[] { prop.PropertyType });
+            var setMethod = typeBuilder.DefineMethod(
+                methodName,
+                PropertyGetterSetterMethodAttributes,
+                null, // void return
+                new[] { prop.PropertyType } // one parameter of type of the property
+            );
             var il = setMethod.GetILGenerator();
 
             var boxed = il.DeclareLocal(typeof(object));
@@ -609,7 +616,7 @@ namespace PeanutButter.DuckTyping.Shimming
             il.Emit(OpCodes.Ldfld, shimField);
             il.Emit(OpCodes.Ldstr, prop.Name);
             il.Emit(OpCodes.Ldloc, boxed);
-            il.Emit(OpCodes.Call, ShimSetPropertyValueMethod);
+            il.Emit(OpCodes.Callvirt, ShimSetPropertyValueMethod);
 
             ImplementMethodReturnWith(il);
 
@@ -684,11 +691,12 @@ namespace PeanutButter.DuckTyping.Shimming
                 );
                 MethodCache[key] = methodInfo;
             }
-            
+
             TypesWithCachedMethods.Add(interfaceType);
         }
 
         private static readonly HashSet<Type> TypesWithCachedMethods = new HashSet<Type>();
+
         private static readonly Dictionary<Tuple<Type, string, Type, Type[]>, MethodInfo>
             MethodCache = new Dictionary<Tuple<Type, string, Type, Type[]>, MethodInfo>()
             {

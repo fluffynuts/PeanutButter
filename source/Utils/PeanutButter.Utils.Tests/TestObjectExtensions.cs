@@ -1353,6 +1353,24 @@ namespace PeanutButter.Utils.Tests
                 }
 
                 [Test]
+                public void ShouldSetThePropertyValueGeneric()
+                {
+                    //---------------Set up test pack-------------------
+                    var obj = new SomeSimpleType() {Id = GetRandomInt(2, 5)};
+                    var expected = GetRandomInt(10, 20);
+                    const string propertyName = "Id";
+
+                    //---------------Assert Precondition----------------
+
+                    //---------------Execute Test ----------------------
+                    obj.Set(propertyName, expected);
+                    var result = obj.Get<int>(propertyName);
+
+                    //---------------Test Result -----------------------
+                    Assert.AreEqual(expected, result);
+                }
+
+                [Test]
                 public void ShouldBeAbleToSetImmediateProperty()
                 {
                     //---------------Set up test pack-------------------
@@ -1415,6 +1433,46 @@ namespace PeanutButter.Utils.Tests
                     //---------------Test Result -----------------------
                     Assert.AreEqual(expected, obj.Parent.Child.Name);
                 }
+            }
+        }
+
+        [TestFixture]
+        public class AccessingFieldsByPath
+        {
+            [Test]
+            public void ShouldGetAndSetPublicField()
+            {
+                // Arrange
+                var poco = new Poco();
+                var expected1 = GetRandomInt(1);
+                var expected2 = GetAnother(expected1);
+                // Act
+                poco.Set(nameof(Poco.PublicField), expected2);
+                var result = poco.Get<int>(nameof(Poco.PublicField));
+                // Assert
+                Expect(result)
+                    .To.Equal(expected2);
+            }
+            
+            [Test]
+            public void ShouldGetAndSetPrivateField()
+            {
+                // Arrange
+                var poco = new Poco();
+                var expected1 = GetRandomInt(1);
+                var expected2 = GetAnother(expected1);
+                // Act
+                poco.Set("_privateField", expected2);
+                var result = poco.Get<int>("_privateField");
+                // Assert
+                Expect(result)
+                    .To.Equal(expected2);
+            }
+
+            public class Poco
+            {
+                public int PublicField;
+                private int _privateField;
             }
         }
 

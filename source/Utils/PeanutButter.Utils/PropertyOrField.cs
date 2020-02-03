@@ -110,6 +110,26 @@ namespace PeanutButter.Utils
             CanWrite = prop.CanWrite;
         }
 
+        /// <summary>
+        /// Implicitly converts a PropertyInfo object to a PropertyOrField
+        /// </summary>
+        /// <param name="prop"></param>
+        /// <returns></returns>
+        public static implicit operator PropertyOrField(PropertyInfo prop)
+        {
+            return new PropertyOrField(prop);
+        }
+
+        /// <summary>
+        /// Implicitly converts a FieldInfo object to a FieldOrField
+        /// </summary>
+        /// <param name="field"></param>
+        /// <returns></returns>
+        public static implicit operator PropertyOrField(FieldInfo field)
+        {
+            return new PropertyOrField(field);
+        }
+
         /// <inheritdoc />
         public PropertyOrField(FieldInfo field)
         {

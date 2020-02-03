@@ -1,16 +1,26 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using PeanutButter.DuckTyping.Demo.Strict;
 using PeanutButter.Utils;
 
 namespace PeanutButter.DuckTyping.Demo
 {
+    public class ReadWriteEntity : IReadWriteEntity
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
     // demo names and ids taken from:
     // https://www.ranker.com/list/famous-female-programmers/reference
     class Program
     {
         public static void Main(string[] args)
         {
+            var step = new ReadingAndWritingFromUnrelatedClasses();
+            step.Run();
+            
             var allDemos = typeof(Program).Assembly
                 .GetTypes()
                 .Where(t => t.Implements<IDemo>())

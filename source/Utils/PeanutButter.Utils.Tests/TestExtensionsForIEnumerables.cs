@@ -1052,5 +1052,56 @@ namespace PeanutButter.Utils.Tests
                 }
             }
         }
+
+        [TestFixture]
+        public class IsEmpty
+        {
+            [TestFixture]
+            public class WhenCollectionIsNull
+            {
+                [Test]
+                public void ShouldReturnTrue()
+                {
+                    // Arrange
+                    var collection = null as int[];
+                    // Act
+                    var result = collection.IsEmpty();
+                    // Assert
+                    Expect(result).To.Be.True();
+                }
+            }
+
+            [TestFixture]
+            public class WhenCollectionIsEmpty
+            {
+                [Test]
+                public void ShouldReturnTrue()
+                {
+                    // Arrange
+                    var collection = new int[0];
+                    // Act
+                    var result = collection.IsEmpty();
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
+            }
+
+            [TestFixture]
+            public class WhenCollectionIsNotEmpty
+            {
+                [Test]
+                public void ShouldReturnFalse()
+                {
+                    // Arrange
+                    var collection = GetRandomCollection<int>(1);
+                    // Act
+                    var result = collection.IsEmpty();
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+            }
+        }
     }
 }

@@ -35,7 +35,10 @@ namespace PeanutButter.DuckTyping
         {
             var existing = alreadyCreated.FirstOrDefault(toCreate.IsInstanceOfType);
             if (existing != null)
+            {
                 return existing;
+            }
+
             var type = FindOrCreateTypeImplementing(toCreate);
             var result = Activator.CreateInstance(type);
             alreadyCreated.Add(result);
