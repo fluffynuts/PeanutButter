@@ -1,9 +1,10 @@
 var
   fs = require("fs")
-  gulp = require("gulp"),
+gulp = require("gulp"),
   gdebug = require("gulp-debug"),
   runSequence = requireModule("run-sequence"),
   msbuild = require("gulp-msbuild")
+sleep = requireModule("sleep"),
   del = require("del"),
   exec = requireModule("exec"),
   spawn = requireModule("spawn"),
@@ -12,6 +13,7 @@ var
   lsr = requireModule("ls-r"),
   path = require("path"),
   findTool = requireModule("testutil-finder").findTool,
+  PQueue = require("p-queue").default,
   commonConfig = {
     toolsVersion: "auto",
     stdout: true,
@@ -49,28 +51,50 @@ function processPathsWith(getNugetArgsFor) {
     this.emit("data", file);
   }, function () {
     findLocalNuget().then(function (nuget) {
-      var promises = [];
-      files.forEach(function (pkgPath) {
+      var queue = new PQueue({ concurrency: 3 });
+      queue.addAll(files.map(pkgPath => {
         var args = getNugetArgsFor(pkgPath);
         if (args) {
-          promises.push(exec(nuget, getNugetArgsFor(pkgPath)));
+          return () => {
+            return retry(() => exec(nuget, args), 10);
+          };
+        } else {
+          return () => Promise.reject(`Can't determine nuget args for ${pkgPath}`);
         }
-      });
-      console.log("...waiting...");
-      Promise.all(promises).then(function () {
-        stream.emit("end");
-      }).catch(function (e) {
-        console.error(e);
-        stream.emit("error", new Error(e));
-      })
+      })).then(() => stream.emit("end"))
+        .catch(e => {
+          console.error(e);
+          stream.emit("error", new Error(e));
+        });
     });
   });
   return stream;
 }
 
-function pushNugetPackages() {
+async function retry(func, times) {
+  for (let i = 0; i < times; i++) {
+    try {
+      await func();
+      return;
+    } catch (e) {
+      console.error(e);
+      if (i < (times - 1)) {
+        console.log("will retry in 1s");
+        await sleep(1000);
+      } else {
+        console.error("giving up");
+      }
+    }
+  }
+}
+
+function pushNugetPackages(skipDuplicates) {
   return processPathsWith(function (filePath) {
-    return ["push", filePath, "-NonInteractive", "-Source", "https://www.nuget.org"];
+    var result = ["push", filePath, "-NonInteractive", "-Source", "https://www.nuget.org", "-Timeout", "30"];
+    if (skipDuplicates) {
+      result.push("-SkipDuplicate");
+    }
+    return result;
   });
 }
 
@@ -96,7 +120,7 @@ gulp.task("build-binary-nuget-packages", function () {
     /* source */
     "!**/PeanutButter.TestUtils.MVC/**"
   ])
-  .pipe(buildNugetPackages(true));
+    .pipe(buildNugetPackages(true));
 });
 
 gulp.task("build-binaries-for-nuget-packages-from-zero", ["purge"], function (done) {
@@ -116,7 +140,7 @@ gulp.task("test-packages-exist", () => {
 
 gulp.task("release-test-package", function () {
   return gulp.src([nugetReleaseDir + `/${testProject}*`])
-  .pipe(pushNugetPackages());
+    .pipe(pushNugetPackages());
 });
 
 gulp.task("clean-nuget-releasedir", function () {
@@ -133,7 +157,7 @@ gulp.task("build-nuget-packages", [
     "increment-package-versions",
     "build-binary-nuget-packages",
     "build-source-nuget-packages",
-  done);
+    done);
 });
 
 gulp.task("increment-package-versions", () => {
@@ -142,7 +166,6 @@ gulp.task("increment-package-versions", () => {
 });
 
 gulp.task("release", ["build-nuget-packages"], function (done) {
-  // return gulp.start("push-packages");
   runSequence("push-packages", "commit-release", "tag-and-push", done);
 });
 
@@ -151,6 +174,13 @@ gulp.task("push-packages", () => {
   "!" + nugetReleaseDir + "/*.symbols.nupkg",
     "!**/packages/**/*.nupkg"])
     .pipe(pushNugetPackages());
+});
+
+gulp.task("re-push-packages", "Attempt re-push of all packages, skipping those already found at nuget.org", () => {
+  return gulp.src([nugetReleaseDir + "/*.nupkg",
+  "!" + nugetReleaseDir + "/*.symbols.nupkg",
+    "!**/packages/**/*.nupkg"])
+    .pipe(pushNugetPackages(true));
 });
 
 gulp.task("update-project-nugets", () => {
