@@ -379,12 +379,13 @@ namespace PeanutButter.SimpleHTTPServer
                         ex.Message,
                         ex.StackTrace
                     );
+                    Log(body);
                     
-                    p.WriteStatusHeader(HttpStatusCode.InternalServerError);
-                    p.WriteContentLengthHeader(body.Length);
-                    p.WriteConnectionClosesAfterCommsHeader();
-                    p.WriteEmptyLineToStream();
-                    p.WriteDataToStream(body);
+                    p.WriteFailure(
+                        HttpStatusCode.InternalServerError,
+                        "Internal server error",
+                        body
+                    );
                 }
             }
 

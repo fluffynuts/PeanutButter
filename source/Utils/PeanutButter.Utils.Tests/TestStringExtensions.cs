@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using static PeanutButter.RandomGenerators.RandomValueGen;
@@ -1102,11 +1103,19 @@ namespace PeanutButter.Utils.Tests
                 }
 
                 [Test]
-                [Repeat(100)]
                 public void OperatingOn_AlphaNumericString_ShouldReturnTrue()
                 {
                     // Arrange
-                    var input = GetRandomAlphaNumericString(1);
+                    var numerics = new Regex("[0-9]");
+                    var alpha = new Regex("[a-zA-Z]");
+                    var input = GetRandomAlphaNumericString(10);
+                    while (!numerics.IsMatch(input) || !alpha.IsMatch(input))
+                    {
+                        // random alphanumeric string may contain only alphas / numerics
+                        // -> it is random, after all...
+                        input = GetRandomNumericString(10);
+                    }
+
                     // Pre-assert
                     // Act
                     var result = input.IsAlphanumeric();

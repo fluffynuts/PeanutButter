@@ -401,16 +401,51 @@ namespace PeanutButter.SimpleHTTPServer
         }
 
         /// <summary>
+        /// Writes out a simple http failure
+        /// </summary>
+        /// <param name="code"></param>
+        public void WriteFailure(HttpStatusCode code)
+        {
+            WriteFailure(code, code.ToString());
+        }
+
+        /// <summary>
         /// Writes a failure code and message to the response stream and closes
         /// the response
         /// </summary>
         /// <param name="code"></param>
         /// <param name="message"></param>
-        public void WriteFailure(HttpStatusCode code, string message)
+        public void WriteFailure(
+            HttpStatusCode code,
+            string message
+        )
+        {
+            WriteFailure(code, message, null);
+        }
+
+        /// <summary>
+        /// Writes out an http failure with body text
+        /// </summary>
+        /// <param name="code">The http code to return</param>
+        /// <param name="message">The message to add to the status line</param>
+        /// <param name="body">The body to write out</param>
+        public void WriteFailure(
+            HttpStatusCode code,
+            string message,
+            string body)
         {
             WriteStatusHeader(code, message);
             WriteConnectionClosesAfterCommsHeader();
+            if (string.IsNullOrEmpty(body))
+            {
+                WriteEmptyLineToStream();
+                return;
+            }
+
+            WriteContentLengthHeader(body.Length);
+            WriteConnectionClosesAfterCommsHeader();
             WriteEmptyLineToStream();
+            WriteDataToStream(body);
         }
 
         /// <summary>
@@ -434,11 +469,21 @@ namespace PeanutButter.SimpleHTTPServer
 
         /// <summary>
         /// Write a textural document to the response stream with
+        /// the assumption that the mime type is text/html
+        /// </summary>
+        /// <param name="document"></param>
+        public void WriteDocument(string document)
+        {
+            WriteDocument(document, MimeTypes.HTML);
+        }
+
+        /// <summary>
+        /// Write a textural document to the response stream with
         /// the optionally-provided mime type
         /// </summary>
         /// <param name="document"></param>
         /// <param name="mimeType"></param>
-        public void WriteDocument(string document, string mimeType = MimeTypes.HTML)
+        public void WriteDocument(string document, string mimeType)
         {
             WriteSuccess(mimeType, Encoding.UTF8.GetBytes(document));
         }
