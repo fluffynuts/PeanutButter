@@ -22,6 +22,7 @@ namespace PeanutButter.SimpleHTTPServer
         private StreamWriter _outputStreamWriter;
         private TcpClient _client;
         private BufferedStream _rawStream;
+        private readonly object _lock = new object();
 
         /// <inheritdoc />
         public TcpIoWrapper(TcpClient client)
@@ -69,10 +70,13 @@ namespace PeanutButter.SimpleHTTPServer
 
         private StreamWriter GetStreamWriter()
         {
-            lock (this)
+            lock (_lock)
             {
                 if (_client == null)
+                {
                     return null;
+                }
+
                 return _outputStreamWriter ??
                        (_outputStreamWriter = new StreamWriter(RawStream));
             }
@@ -80,10 +84,13 @@ namespace PeanutButter.SimpleHTTPServer
 
         private Stream GetRawStream()
         {
-            lock (this)
+            lock (_lock)
             {
                 if (_client == null)
+                {
                     return null;
+                }
+
                 return _rawStream ??
                        (_rawStream = new BufferedStream(_client.GetStream()));
             }

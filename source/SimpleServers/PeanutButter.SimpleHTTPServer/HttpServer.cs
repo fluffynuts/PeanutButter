@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Text;
 using System.Xml.Linq;
 using Newtonsoft.Json;
 using static PeanutButter.SimpleHTTPServer.HttpConstants;
+
 // ReSharper disable UnusedMember.Global
 // ReSharper disable IntroduceOptionalParameters.Global
 // ReSharper disable MemberCanBePrivate.Global
@@ -71,6 +74,7 @@ namespace PeanutButter.SimpleHTTPServer
         /// This request is for or supports OPTIONS
         /// </summary>
         Options,
+
         /// <summary>
         /// This request is for or supports HEAD
         /// </summary>
@@ -100,7 +104,7 @@ namespace PeanutButter.SimpleHTTPServer
         /// </summary>
         /// <param name="port"></param>
         /// <param name="logAction"></param>
-        public HttpServer(int port, Action<string> logAction) 
+        public HttpServer(int port, Action<string> logAction)
             : this(port, true, logAction)
         {
         }
@@ -170,7 +174,9 @@ namespace PeanutButter.SimpleHTTPServer
         /// <returns></returns>
         public string GetFullUrlFor(string relativeUrl)
         {
-            var joinWith = relativeUrl.StartsWith("/") ? string.Empty : "/";
+            var joinWith = relativeUrl.StartsWith("/")
+                ? string.Empty
+                : "/";
             return string.Join(joinWith, BaseUrl, relativeUrl);
         }
 
@@ -197,6 +203,7 @@ namespace PeanutButter.SimpleHTTPServer
                     Log(" --> no file handler set up for {0}", p.FullUrl);
                     return HttpServerPipelineResult.NotHandled;
                 }
+
                 p.WriteSuccess(contentType, data);
                 Log(" --> Successful file handling for {0}", p.FullUrl);
                 return HttpServerPipelineResult.HandledExclusively;
@@ -240,9 +247,9 @@ namespace PeanutButter.SimpleHTTPServer
         private static string AutoMimeXml(string content)
         {
             return content != null &&
-                   (content.StartsWith("<?xml") || HasOpenAndCloseTags(content))
-                ? MimeTypes.XML
-                : null;
+                (content.StartsWith("<?xml") || HasOpenAndCloseTags(content))
+                    ? MimeTypes.XML
+                    : null;
         }
 
         private static bool HasOpenAndCloseTags(string content, string tag = null)
@@ -251,7 +258,7 @@ namespace PeanutButter.SimpleHTTPServer
                 return false;
             var openingTag = tag ?? FindOpeningTag(content);
             return content.StartsWith($"<{openingTag}", StringComparison.OrdinalIgnoreCase) &&
-                   content.EndsWith($"</{openingTag}>", StringComparison.OrdinalIgnoreCase);
+                content.EndsWith($"</{openingTag}>", StringComparison.OrdinalIgnoreCase);
         }
 
         private static string FindOpeningTag(string content)
@@ -259,17 +266,19 @@ namespace PeanutButter.SimpleHTTPServer
             var openTag = content.IndexOf("<", StringComparison.Ordinal);
             var closeTag = content.IndexOf(">", openTag, StringComparison.Ordinal);
             var space = content.IndexOf(" ", openTag, StringComparison.Ordinal);
-            var end = space == -1 ? closeTag : Math.Min(space, closeTag);
+            var end = space == -1
+                ? closeTag
+                : Math.Min(space, closeTag);
             return content.Substring(openTag + 1, end - openTag - 1);
         }
 
         private static string AutoMimeHtml(string content)
         {
             return content != null &&
-                   (content.ToLowerInvariant().StartsWith("<!doctype") ||
+                (content.ToLowerInvariant().StartsWith("<!doctype") ||
                     HasOpenAndCloseTags(content, "html"))
-                ? MimeTypes.HTML
-                : null;
+                    ? MimeTypes.HTML
+                    : null;
         }
 
         private string AutoMime(string servedResult)
@@ -293,7 +302,7 @@ namespace PeanutButter.SimpleHTTPServer
         /// <param name="handler"></param>
         public void AddHtmlDocumentHandler(
             Func<HttpProcessor, Stream, string> handler
-            )
+        )
         {
             HandleDocumentRequestWith(handler, "html", null, s => MimeTypes.HTML);
         }
@@ -321,6 +330,7 @@ namespace PeanutButter.SimpleHTTPServer
                     Log($" --> no {documentTypeForLogging} document handler set up for {0}", p.FullUrl);
                     return HttpServerPipelineResult.NotHandled;
                 }
+
                 var asString = doc as string;
                 if (asString == null)
                 {
@@ -333,6 +343,7 @@ namespace PeanutButter.SimpleHTTPServer
                         Log($"Unable to process request to string result: {ex.Message}");
                     }
                 }
+
                 p.WriteDocument(asString, mimeTypeGenerator(asString));
                 Log($" --> Successful {documentTypeForLogging} document handling for {p.FullUrl}");
                 return HttpServerPipelineResult.HandledExclusively;
@@ -351,13 +362,32 @@ namespace PeanutButter.SimpleHTTPServer
             var handled = false;
             foreach (var handler in _handlers)
             {
-                var pipelineResult = handler(p, stream);
-                if (pipelineResult == HttpServerPipelineResult.HandledExclusively)
+                try
                 {
-                    handled = true;
-                    break;
+                    var pipelineResult = handler(p, stream);
+                    if (pipelineResult == HttpServerPipelineResult.HandledExclusively)
+                    {
+                        handled = true;
+                        break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    var body = string.Join(
+                        "\n",
+                        "Internal server error",
+                        ex.Message,
+                        ex.StackTrace
+                    );
+                    
+                    p.WriteStatusHeader(HttpStatusCode.InternalServerError);
+                    p.WriteContentLengthHeader(body.Length);
+                    p.WriteConnectionClosesAfterCommsHeader();
+                    p.WriteEmptyLineToStream();
+                    p.WriteDataToStream(body);
                 }
             }
+
             if (!handled)
             {
                 Log("No handlers found for {0}", p.FullUrl);
@@ -379,13 +409,13 @@ namespace PeanutButter.SimpleHTTPServer
         /// <param name="doc">XDocument to serve</param>
         /// <param name="method">Which http method to respond to</param>
         public void ServeDocument(
-            string queryPath, 
-            XDocument doc, 
+            string queryPath,
+            XDocument doc,
             HttpMethods method = HttpMethods.Any)
         {
             ServeDocument(queryPath, () => doc.ToString(), method);
         }
-        
+
         /// <summary>
         /// Serves an XDocument from the provided path, for the provided method
         /// </summary>
@@ -393,13 +423,13 @@ namespace PeanutButter.SimpleHTTPServer
         /// <param name="doc">XDocument to serve</param>
         /// <param name="method">Which http method to respond to</param>
         public void ServeDocument(
-            string queryPath, 
-            string doc, 
+            string queryPath,
+            string doc,
             HttpMethods method = HttpMethods.Any)
         {
             ServeDocument(queryPath, () => doc, method);
         }
-        
+
         /// <summary>
         /// Serves an XDocument from the provided path, for the provided method
         /// </summary>
@@ -407,8 +437,8 @@ namespace PeanutButter.SimpleHTTPServer
         /// <param name="doc">XDocument to serve</param>
         /// <param name="method">Which http method to respond to</param>
         public void ServeDocument(
-            string queryPath, 
-            Func<string> doc, 
+            string queryPath,
+            Func<string> doc,
             HttpMethods method = HttpMethods.Any)
         {
             AddHtmlDocumentHandler((p, s) =>
@@ -419,7 +449,7 @@ namespace PeanutButter.SimpleHTTPServer
                 return doc();
             });
         }
-        
+
         /// <summary>
         /// Serves an XDocument from the provided path, for the provided method
         /// </summary>
@@ -427,8 +457,8 @@ namespace PeanutButter.SimpleHTTPServer
         /// <param name="docFactory">Factory function to get the document contents</param>
         /// <param name="method">Which http method to respond to</param>
         public void ServeDocument(
-            string queryPath, 
-            Func<XDocument> docFactory, 
+            string queryPath,
+            Func<XDocument> docFactory,
             HttpMethods method = HttpMethods.Any)
         {
             ServeDocument(queryPath, () => docFactory().ToString(), method);
@@ -442,8 +472,8 @@ namespace PeanutButter.SimpleHTTPServer
         /// <param name="data">Any object which will be serialized into JSON for you</param>
         /// <param name="method">Which http method to respond to</param>
         public void ServeJsonDocument(
-            string path, 
-            object data, 
+            string path,
+            object data,
             HttpMethods method = HttpMethods.Any)
         {
             ServeJsonDocument(path, () => data, method);
@@ -499,6 +529,7 @@ namespace PeanutButter.SimpleHTTPServer
                 {
                     return null;
                 }
+
                 Log("Serving file at {0}", p.FullUrl);
                 return dataFactory();
             }, contentType);

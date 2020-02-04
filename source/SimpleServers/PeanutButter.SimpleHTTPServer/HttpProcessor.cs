@@ -15,6 +15,7 @@ using System.Net.Sockets;
 using System.Text;
 using PeanutButter.SimpleTcpServer;
 using static PeanutButter.SimpleHTTPServer.HttpConstants;
+
 // ReSharper disable MemberCanBePrivate.Global
 
 // ReSharper disable InconsistentNaming
@@ -30,10 +31,12 @@ namespace PeanutButter.SimpleHTTPServer
         /// Action to use when attempting to log arbitrary data
         /// </summary>
         public Action<string> LogAction => Server.LogAction;
+
         /// <summary>
         /// Action to use when attempting to log requests
         /// </summary>
         public Action<RequestLogItem> RequestLogAction => Server.RequestLogAction;
+
         private const int BUF_SIZE = 4096;
 
         /// <summary>
@@ -47,22 +50,27 @@ namespace PeanutButter.SimpleHTTPServer
         /// Method of the current request being processed
         /// </summary>
         public string Method { get; private set; }
+
         /// <summary>
         /// Full url for the request being processed
         /// </summary>
         public string FullUrl { get; private set; }
+
         /// <summary>
         /// Just the path for the request being processed
         /// </summary>
         public string Path { get; private set; }
+
         /// <summary>
         /// Protocol for the request being processed
         /// </summary>
         public string Protocol { get; private set; }
+
         /// <summary>
         /// Url parameters for the request being processed
         /// </summary>
         public Dictionary<string, string> UrlParameters { get; set; }
+
         /// <summary>
         /// Headers on the request being processed
         /// </summary>
@@ -120,6 +128,7 @@ namespace PeanutButter.SimpleHTTPServer
                 HandleGETRequest();
                 return;
             }
+
             if (Method.Equals(Methods.POST))
                 HandlePOSTRequest(io.RawStream);
         }
@@ -135,6 +144,7 @@ namespace PeanutButter.SimpleHTTPServer
             {
                 throw new Exception("invalid http request line");
             }
+
             Method = tokens[0].ToUpper();
             FullUrl = tokens[1];
             var parts = FullUrl.Split('?');
@@ -145,6 +155,7 @@ namespace PeanutButter.SimpleHTTPServer
                 var all = string.Join("?", parts.Skip(1));
                 UrlParameters = EncodedStringToDictionary(all);
             }
+
             Path = parts.First();
             Protocol = tokens[2];
         }
@@ -157,7 +168,7 @@ namespace PeanutButter.SimpleHTTPServer
                 var subParts = p.Split('=');
                 var key = subParts.First();
                 var value = string.Join("=", subParts.Skip(1));
-                return new {key, value};
+                return new { key, value };
             }).ToDictionary(x => x.key, x => x.value);
         }
 
@@ -179,6 +190,7 @@ namespace PeanutButter.SimpleHTTPServer
                 {
                     throw new Exception("invalid http header line: " + line);
                 }
+
                 var name = line.Substring(0, separator);
                 var pos = separator + 1;
                 while ((pos < line.Length) && (line[pos] == ' '))
@@ -216,6 +228,7 @@ namespace PeanutButter.SimpleHTTPServer
                             $"POST Content-Length({contentLength}) too big for this simple server (max: {MaxPostSize})"
                         );
                     }
+
                     var buf = new byte[BUF_SIZE];
                     var toRead = contentLength;
                     while (toRead > 0)
@@ -232,11 +245,14 @@ namespace PeanutButter.SimpleHTTPServer
                                 throw new Exception("client disconnected during post");
                             }
                         }
+
                         toRead -= numread;
                         ms.Write(buf, 0, numread);
                     }
+
                     ms.Seek(0, SeekOrigin.Begin);
                 }
+
                 ParseFormElementsIfRequired(ms);
                 Server.HandlePOSTRequest(this, ms);
             }
@@ -281,6 +297,7 @@ namespace PeanutButter.SimpleHTTPServer
             {
                 WriteContentLengthHeader(data.Length);
             }
+
             WriteEmptyLineToStream();
             WriteDataToStream(data);
         }
@@ -349,7 +366,7 @@ namespace PeanutButter.SimpleHTTPServer
         public void WriteStatusHeader(HttpStatusCode code, string message = null)
         {
             LogRequest(code, message);
-            WriteResponseLine($"HTTP/1.0 {(int)code} {message ?? code.ToString()}");
+            WriteResponseLine($"HTTP/1.0 {(int) code} {message ?? code.ToString()}");
         }
 
         private void LogRequest(HttpStatusCode code, string message)
@@ -370,6 +387,17 @@ namespace PeanutButter.SimpleHTTPServer
             _outputStream.Flush();
             _outputStream.BaseStream.Write(data, 0, data.Length);
             _outputStream.BaseStream.Flush();
+        }
+
+        /// <summary>
+        /// Writes an arbitrary string to the response stream
+        /// </summary>
+        /// <param name="data"></param>
+        public void WriteDataToStream(string data)
+        {
+            WriteDataToStream(
+                Encoding.UTF8.GetBytes(data ?? "")
+            );
         }
 
         /// <summary>

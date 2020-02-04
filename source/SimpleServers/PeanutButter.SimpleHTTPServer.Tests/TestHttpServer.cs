@@ -5,6 +5,9 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Newtonsoft.Json;
@@ -237,7 +240,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
         {
             //---------------Set up test pack-------------------
             var expected = GetRandomString();
-            var data = new SimpleData {SomeProperty = expected};
+            var data = new SimpleData { SomeProperty = expected };
             var route = "api/foo";
             using (var server = Create())
             {
@@ -278,7 +281,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                 CollectionAssert.AreEqual(theFile, result);
             }
         }
-        
+
         [Test]
         public void Start_WhenConfiguredToServeFileViaFunc_ShouldReturnTheFileContents()
         {
@@ -405,7 +408,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                     XDocument.Parse(result).ToString(SaveOptions.DisableFormatting));
             }
         }
-        
+
         [Test]
         public void ServeDocument_WhenConfiguredToServeXmlViaFuncFromPathWithParameters_ShouldServeDocument()
         {
@@ -429,7 +432,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                     XDocument.Parse(result).ToString(SaveOptions.DisableFormatting));
             }
         }
-        
+
         [Test]
         public void ServeDocument_WhenConfiguredToServeXDocumentFromPathWithParametersForFunc_ShouldServeDocument()
         {
@@ -477,6 +480,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                 Assert.AreEqual("application/json", contentType);
             }
         }
+
         [Test]
         public void ServeJsonDocument_GivenPathAndDocumentFactory_ShouldServeForThatPath()
         {
@@ -584,7 +588,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             {
                 //---------------Set up test pack-------------------
                 var data = GetRandomBytes(10, 100);
-                var contentType = "text/" + GetRandomFrom(new[] {"xml", "html", "javascript", "plain"});
+                var contentType = "text/" + GetRandomFrom(new[] { "xml", "html", "javascript", "plain" });
                 server.ServeFile("/file.bin", data, contentType);
 
                 //---------------Assert Precondition----------------
@@ -606,7 +610,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             {
                 //---------------Set up test pack-------------------
                 var data = GetRandomBytes(10, 100);
-                var contentType = "text/" + GetRandomFrom(new[] {"xml", "html", "javascript", "plain"});
+                var contentType = "text/" + GetRandomFrom(new[] { "xml", "html", "javascript", "plain" });
                 server.ServeFile("/file.bin", data, contentType);
 
                 //---------------Assert Precondition----------------
@@ -717,7 +721,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                 var key = "X-" + GetRandomString();
                 var headers = new Dictionary<string, string>()
                 {
-                    {key, GetRandomString()}
+                    { key, GetRandomString() }
                 };
                 //---------------Assert Precondition----------------
                 CollectionAssert.IsEmpty(requestLogs);
@@ -748,7 +752,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                     {
                         processor.UrlParameters.ForEach(
                             kvp => capturedParams.Add(kvp.Key, kvp.Value));
-                        return new[] {1, 2, 3};
+                        return new[] { 1, 2, 3 };
                     });
                 var client = new HttpClient()
                 {
@@ -765,6 +769,45 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                 Expect(capturedParams).To.Contain.Key("param2")
                     .With.Value("value2");
             }
+        }
+
+        [Test]
+        public void ShouldReturn500WhenHandlerThrows()
+        {
+            // Arrange
+            using var server = Create();
+            var exceptionMessage = GetRandomString(10);
+            server.AddHandler((p, s) => throw new Exception(exceptionMessage));
+
+            var req = WebRequest.Create(server.GetFullUrlFor("/moo.jpg"));
+            try
+            {
+                using var res = req.GetResponse() as HttpWebResponse;
+            }
+            catch (WebException ex)
+            {
+                if (ex.Response is HttpWebResponse httpWebResponse)
+                {
+                    Expect(httpWebResponse.StatusCode)
+                        .To.Equal(HttpStatusCode.InternalServerError);
+                    using var res = httpWebResponse.GetResponseStream();
+                    var body = Encoding.UTF8.GetString(res.ReadAllBytes());
+                    Expect(body)
+                        .To.Contain(exceptionMessage)
+                        .Then(ThisFile());
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            // Assert
+        }
+
+        private string ThisFile([CallerFilePath] string filePath = null)
+        {
+            return filePath;
         }
 
         private HttpServer Create(int? port = null)
