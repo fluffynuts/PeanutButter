@@ -41,11 +41,23 @@ namespace PeanutButter.Utils
         private readonly string[] _ignorePropertiesByName;
         private Dictionary<object, object> _pendingComparisons;
 
+        /// <summary>
+        /// Describes available methods for comparing enum values
+        /// </summary>
         public enum EnumComparisonStrategies
         {
+            /// <summary>
+            /// Compare enum values by name (default)
+            /// </summary>
+            ByName,
+            /// <summary>
+            /// Compare enum values by object equality (.Equals())
+            /// </summary>
             ByObjectEquals,
-            ByIntegerValue,
-            ByName
+            /// <summary>
+            /// Compare enum values by integer value
+            /// </summary>
+            ByIntegerValue
         }
 
         /// <summary>
@@ -215,15 +227,12 @@ namespace PeanutButter.Utils
             {
                 case EnumComparisonStrategies.ByObjectEquals:
                     return objSource.Equals(objCompare);
-                    break;
                 case EnumComparisonStrategies.ByIntegerValue:
                     return (int)objSource == (int)objCompare;
-                    break;
                 case EnumComparisonStrategies.ByName:
                     return objSource.ToString() == objCompare.ToString();
-                    break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    throw new ArgumentOutOfRangeException($"{EnumComparisonStrategy}");
             }
         }
 
