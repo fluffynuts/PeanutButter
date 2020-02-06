@@ -167,6 +167,7 @@ namespace PeanutButter.TempDb.MySql.Base
 
         public override string DumpSchema()
         {
+            // TODO: rather query INFORMATION_SCHEMA and do the work internally
             var mysqldHome = Path.GetDirectoryName(MySqld);
             var mysqldump = Path.Combine(mysqldHome, "mysqldump");
             if (Platform.IsWindows)
@@ -401,6 +402,7 @@ namespace PeanutButter.TempDb.MySql.Base
 
                     if (shouldResurrect)
                     {
+                        Log($"{MySqld} seems to have gone away; restarting on port {Port}");
                         StartServer(MySqld, Port);
                     }
                 }

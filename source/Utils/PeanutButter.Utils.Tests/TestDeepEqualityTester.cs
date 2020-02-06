@@ -814,6 +814,86 @@ namespace PeanutButter.Utils.Tests
                 // Assert
                 Expect(result).To.Be.True();
             }
+
+            [Test]
+            public void ShouldNotStackOverflowWhenComparingEnumValues()
+            {
+                // Arrange
+                var left = new { LogLevel = LogLevel.Critical };
+                var right = new { LogLevel = LogLevel.Critical };
+                var sut = Create(left, right);
+                sut.IncludeFields = true;
+                // Act
+                var result = sut.AreDeepEqual();
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+
+            [Test]
+            public void ShouldCompareByNameByDefault()
+            {
+                // Arrange
+                var left = new { LogLevel = LogLevel.Critical };
+                var right = new { LogLevel = ExtLogLevel.Critical };
+                var sut = Create(left, right);
+                // Act
+                var result = sut.AreDeepEqual();
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+
+            [Test]
+            public void ShouldCompareDirectlyOnRequest()
+            {
+                // Arrange
+                var left = new { LogLevel = LogLevel.Critical };
+                var right = new { LogLevel = ExtLogLevel.Critical };
+                var sut = Create(left, right);
+                sut.EnumComparisonStrategy = DeepEqualityTester.EnumComparisonStrategies.ByObjectEquals;
+                // Act
+                var result = sut.AreDeepEqual();
+                // Assert
+                Expect(result)
+                    .To.Be.False();
+            }
+
+            [Test]
+            public void ShouldCompareByIntValueOnRequest()
+            {
+                // Arrange
+                var left = new { LogLevel = LogLevel.Error }; // 4
+                var right = new { LogLevel = ExtLogLevel.Warning }; // 4
+                var sut = Create(left, right);
+                sut.EnumComparisonStrategy = DeepEqualityTester.EnumComparisonStrategies.ByIntegerValue;
+                // Act
+                var result = sut.AreDeepEqual();
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+
+            public enum LogLevel
+            {
+                Trace = 0,
+                Debug = 1,
+                Information = 2,
+                Warning = 3,
+                Error = 4,
+                Critical = 5,
+                None = 6,
+            }
+            public enum ExtLogLevel
+            {
+                Trace = 1,
+                Debug = 2,
+                Information = 3,
+                Warning = 4,
+                Error = 5,
+                Critical = 6,
+                None = 7,
+            }
         }
 
         [TestFixture]

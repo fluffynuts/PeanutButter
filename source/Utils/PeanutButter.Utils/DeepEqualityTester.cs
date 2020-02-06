@@ -41,6 +41,13 @@ namespace PeanutButter.Utils
         private readonly string[] _ignorePropertiesByName;
         private Dictionary<object, object> _pendingComparisons;
 
+        public enum EnumComparisonStrategies
+        {
+            ByObjectEquals,
+            ByIntegerValue,
+            ByName
+        }
+
         /// <summary>
         /// Toggle whether or not to record equality errors
         /// </summary>
@@ -77,6 +84,12 @@ namespace PeanutButter.Utils
         /// Include full object dumps when storing errors about property mismatches
         /// </summary>
         public bool VerbosePropertyMismatchErrors { get; set; } = true;
+
+        /// <summary>
+        /// When comparing enum values, forget their type and only compare
+        /// their integer values
+        /// </summary>
+        public EnumComparisonStrategies EnumComparisonStrategy { get; set; } = EnumComparisonStrategies.ByName;
 
         private List<string> _errors;
 
@@ -156,12 +169,22 @@ namespace PeanutButter.Utils
         )
         {
             if (objSource == null && objCompare == null)
+            {
                 return true;
+            }
+
             if (objSource == null || objCompare == null)
+            {
                 return false;
+            }
 
             var sourceType = objSource.GetType();
             var compareType = objCompare.GetType();
+            if (AreBothEnumTypes(sourceType, compareType))
+            {
+                return CompareEnums(objSource, objCompare);
+            }
+
             if (AreBothSimpleOrNullableOfSimpleTypes(sourceType, compareType))
             {
                 return AreSimpleEqual(sourceType, objSource, compareType, objCompare);
@@ -184,6 +207,30 @@ namespace PeanutButter.Utils
                        compareType,
                        objCompare
                    );
+        }
+
+        private bool CompareEnums(object objSource, object objCompare)
+        {
+            switch (EnumComparisonStrategy)
+            {
+                case EnumComparisonStrategies.ByObjectEquals:
+                    return objSource.Equals(objCompare);
+                    break;
+                case EnumComparisonStrategies.ByIntegerValue:
+                    return (int)objSource == (int)objCompare;
+                    break;
+                case EnumComparisonStrategies.ByName:
+                    return objSource.ToString() == objCompare.ToString();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        private bool AreBothEnumTypes(Type sourceType, Type compareType)
+        {
+            return sourceType.IsEnum &&
+                compareType.IsEnum;
         }
 
         private bool AreSimpleEqual(
@@ -457,8 +504,18 @@ namespace PeanutButter.Utils
         {
             TypesAreIdentical,
             TypesAreCloseEnough,
+            TypesAreBothEnums, // defer this to a later choice
             TypesHaveSimilarImmediateShape
         };
+
+        private static bool TypesAreBothEnums(
+            DeepEqualityTester arg1, 
+            Type arg2, 
+            Type arg3)
+        {
+            return arg2.IsEnum &&
+                arg3.IsEnum;
+        }
 
         private static bool TypesHaveSimilarImmediateShape(
             DeepEqualityTester tester,
@@ -816,7 +873,10 @@ namespace PeanutButter.Utils
 
         private bool AreDeepEqualDetached(object left, object right)
         {
-            var tester = new DeepEqualityTester(left, right, _ignorePropertiesByName);
+            var tester = new DeepEqualityTester(left, right, _ignorePropertiesByName)
+            {
+                EnumComparisonStrategy = EnumComparisonStrategy
+            };
             tester.UseCustomComparers(_customComparers);
             return tester.AreDeepEqual(_pendingComparisons);
         }
