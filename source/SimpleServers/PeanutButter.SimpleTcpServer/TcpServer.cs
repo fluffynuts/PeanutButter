@@ -317,41 +317,43 @@ namespace PeanutButter.SimpleTcpServer
         {
             Stop();
         }
-
+        
         /// <summary>
         /// Attempts to find a random port to bind to
         /// </summary>
         /// <returns></returns>
         protected int FindOpenRandomPort()
         {
-            var rnd = new Random(DateTime.Now.Millisecond);
             var tryThis = NextRandomPort();
             var seekingPort = true;
-            Action<string> log = s =>
-            {
-                if (LogRandomPortDiscovery) Log(s);
-            };
+
             while (seekingPort)
             {
                 try
                 {
-                    log($"Attempting to connect to random port {tryThis} on localhost");
+                    Action($"Attempting to connect to random port {tryThis} on localhost");
                     using (var client = new TcpClient())
                     {
                         client.Connect(new IPEndPoint(IPAddress.Loopback, tryThis));
                     }
 
-                    Thread.Sleep(rnd.Next(1, 50));
+                    Thread.Sleep(_random.Next(1, 50));
                     tryThis = NextRandomPort();
                 }
                 catch
                 {
-                    log($"HUZZAH! We have a port, squire! ({tryThis})");
+                    Action($"HUZZAH! We have a port, squire! ({tryThis})");
                     seekingPort = false;
                 }
             }
 
             return tryThis;
+
+            void Action(string s)
+            {
+                if (LogRandomPortDiscovery)
+                    Log(s);
+            }
         }
 
         /// <summary>
