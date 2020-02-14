@@ -197,7 +197,10 @@ namespace PeanutButter.TempDb.MySql.Base
         private string CreateTemporaryDefaultsFile()
         {
             var tempPath = Path.GetTempPath();
-            var tempDefaultsPath = DumpDefaultsFileAt(tempPath, $"{Path.GetFileName(DatabasePath)}.cnf");
+            var tempDefaultsPath = DumpDefaultsFileAt(
+                tempPath,
+                $"{Path.GetFileName(DatabasePath)}.cnf"
+            );
             _autoDeleter.Add(tempDefaultsPath);
             return tempDefaultsPath;
         }
@@ -568,9 +571,14 @@ namespace PeanutButter.TempDb.MySql.Base
                     p =>
                     {
                         if (last == "ver")
+                        {
                             versionInfo.Version = new Version(p);
+                        }
                         else if (last == "for" && versionInfo.Platform == null)
+                        {
                             versionInfo.Platform = p;
+                        }
+
                         last = p;
                     });
                 return versionInfo;
