@@ -11,14 +11,26 @@ using NExpect;
 using PeanutButter.Utils;
 using TestService;
 using static NExpect.Expectations;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 
 // ReSharper disable AssignNullToNotNullAttribute
 
 namespace PeanutButter.WindowsServiceManagement.Tests
 {
     [TestFixture]
-    public class TestWindowsServiceManagement
+    public class TestWindowsServiceUtil
     {
+        [Test]
+        [Explicit("Relies on local installation of mysql 5.7")]
+        public void ServiceExeShouldReturnServiceExe()
+        {
+            // Arrange
+            var service = new WindowsServiceUtil("MYSQL57");
+            // Act
+            var result = service.Commandline;
+            // Assert
+        }
+
         [Test]
         [Explicit("Run manually on known services")]
         public void ACCEPT_WhenTestingStartupStateOfKnownServices_ShouldReturnExpectedState()
@@ -101,7 +113,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                 .To.Be.True();
 
             //---------------Execute Test ----------------------
-            var path = util.ServiceExe;
+            var path = util.Commandline;
 
             //---------------Test Result -----------------------
             Expect(
@@ -125,7 +137,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             );
             Do("Test service executable path",
                 () =>
-                    Expect(util.ServiceExe)
+                    Expect(util.Commandline)
                         .To.Equal(serviceExe)
             );
             Do("Test default startup type",
@@ -223,6 +235,60 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             // Assert
         }
 
+        [Test]
+        [Explicit("Slow; requires SCM")]
+        public void ServiceWithArgs()
+        {
+            // Arrange
+            var myPath = new Uri(GetType().Assembly.Location).LocalPath;
+            var myDir = Path.GetDirectoryName(myPath);
+            var serviceExe = Path.Combine(myDir, "ServiceWithArgs.exe");
+            var logFile = Path.Combine(myDir, "service.log");
+            var arg1 = GetRandomString(3);
+            var arg2 = GetRandomString(3);
+            var args = new[] { logFile, arg1, arg2 }.Select(p => p.QuoteIfSpaced());
+            var serviceName = "test-service-foo-bar";
+            var util = new WindowsServiceUtil(serviceName, serviceName,
+                string.Join(
+                    " ",
+                    new[] { serviceExe }
+                        .Concat(args)
+                )
+            );
+            if (util.IsInstalled)
+            {
+                util.Uninstall();
+            }
+
+            if (File.Exists(logFile))
+            {
+                File.Delete(logFile);
+            }
+
+            // Act
+            util.Install();
+            // Assert
+            Expect(util.IsInstalled)
+                .To.Be.True();
+            util.Start();
+            Expect(util.State)
+                .To.Equal(ServiceState.Running);
+            
+            Expect(logFile)
+                .To.Exist();
+            var logData = File.ReadAllLines(logFile);
+            Expect(logData)
+                .Not.To.Be.Empty();
+            Expect(logData[0])
+                .To.Contain(arg1)
+                .Then(arg2);
+            
+            util.Stop();
+            Expect(util.State)
+                .To.Equal(ServiceState.Stopped);
+            util.Uninstall();
+        }
+
         private static readonly string TestServiceName = $"test-service-{Guid.NewGuid()}";
 
         private void Do(
@@ -318,7 +384,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
         private static string TestServicePath =>
             Path.Combine(
                 Path.GetDirectoryName(
-                    new Uri(typeof(TestWindowsServiceManagement).Assembly.Location).LocalPath
+                    new Uri(typeof(TestWindowsServiceUtil).Assembly.Location).LocalPath
                 ), "TestService.exe"
             );
 

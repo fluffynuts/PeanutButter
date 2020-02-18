@@ -21,7 +21,7 @@ namespace PeanutButter.WindowsServiceManagement
 {
     public interface IWindowsServiceUtil
     {
-        string ServiceExe { get; }
+        string Commandline { get; }
         ServiceState State { get; }
         bool IsInstalled { get; }
         int ServiceStateExtraWaitSeconds { get; set; }
@@ -80,10 +80,10 @@ namespace PeanutButter.WindowsServiceManagement
         }
 
         private string _displayName;
-        private string _serviceExe;
+        private string _serviceCommandline;
 
-        public string ServiceExe
-            => _serviceExe ?? (_serviceExe = QueryExeForServiceName(ServiceName));
+        public string Commandline
+            => _serviceCommandline ?? (_serviceCommandline = QueryExeForServiceName(ServiceName));
 
 
         private static string QueryExeForServiceName(string name)
@@ -133,7 +133,7 @@ namespace PeanutButter.WindowsServiceManagement
                 {
                     return null;
                 }
-            
+
                 var svcName = collection.Cast<ManagementBaseObject>()
                     .Select(item => item.Properties["Name"].Value.ToString())
                     .FirstOrDefault();
@@ -145,7 +145,7 @@ namespace PeanutButter.WindowsServiceManagement
             // -> try rather querying the registry directly:
             //  HKLM/CurrentControlSet/Services/(service-name)/ImagePath
             //  where type (DWORD) == 16
-            
+
             // using (var io = new ProcessIO("sc", "query", "type=", "service"))
             // {
             //     var output = io.StandardOutput.ToArray();
@@ -191,11 +191,11 @@ namespace PeanutButter.WindowsServiceManagement
         public WindowsServiceUtil(
             string serviceName,
             string displayName = null,
-            string serviceExe = null)
+            string serviceCommandline = null)
         {
             _serviceName = serviceName;
             _displayName = displayName ?? _serviceName;
-            _serviceExe = serviceExe;
+            _serviceCommandline = serviceCommandline;
         }
 
         public void Uninstall(bool waitForUninstall = false)
@@ -379,14 +379,14 @@ namespace PeanutButter.WindowsServiceManagement
                 ServiceAccessRights.AllAccess,
                 Win32Api.SERVICE_WIN32_OWN_PROCESS,
                 ServiceBootFlag.AutoStart, ServiceError.Normal,
-                _serviceExe, null, IntPtr.Zero, null, null, null);
+                _serviceCommandline, null, IntPtr.Zero, null, null, null);
             var win32Exception = new Win32Exception(Marshal.GetLastWin32Error());
             if (service == IntPtr.Zero)
             {
                 throw new ServiceOperationException(
                     _serviceName,
                     ServiceOperationNames.INSTALL,
-                    $"Failed to install with executable: {_serviceExe}\nMore info:\n{win32Exception.Message}"
+                    $"Failed to install with executable: {_serviceCommandline}\nMore info:\n{win32Exception.Message}"
                 );
             }
 
@@ -395,7 +395,7 @@ namespace PeanutButter.WindowsServiceManagement
 
         private void VerifyServiceExecutable()
         {
-            if (ServiceExe == null)
+            if (string.IsNullOrWhiteSpace(Commandline))
             {
                 throw new ServiceOperationException(
                     _serviceName,
@@ -404,12 +404,25 @@ namespace PeanutButter.WindowsServiceManagement
                 );
             }
 
-            if (!File.Exists(ServiceExe))
+            var parts = Commandline.Split(new[] { " " }, StringSplitOptions.None);
+            var collected = new List<string>();
+            var skipped = 0;
+            do
+            {
+                collected.Add(parts.Skip(skipped).First());
+                skipped++;
+            } while (skipped < parts.Length && collected.Aggregate(
+                0,
+                (acc, cur) => cur.Count(c => c == '"') + acc
+            ) % 2 == 1);
+            var executable = string.Join(" ", collected);
+
+            if (!File.Exists(executable))
             {
                 throw new ServiceOperationException(
                     _serviceName,
                     ServiceOperationNames.INSTALL,
-                    "Can't find service executable at: " + _serviceExe
+                    "Can't find service executable at: " + _serviceCommandline
                 );
             }
         }
@@ -869,7 +882,7 @@ namespace PeanutButter.WindowsServiceManagement
 
                         try
                         {
-                            if (proc?.MainModule?.FileName.ToLower() != ServiceExe)
+                            if (proc?.MainModule?.FileName.ToLower() != Commandline)
                             {
                                 continue;
                             }
@@ -877,7 +890,7 @@ namespace PeanutButter.WindowsServiceManagement
                         catch (Exception)
                         {
                             // happens if a 32-bit process tries to read a 64-bit process' info
-                            if (proc.ProcessName.ToLower() == Path.GetFileName(ServiceExe)?.ToLower())
+                            if (proc.ProcessName.ToLower() == Path.GetFileName(Commandline)?.ToLower())
                             {
                                 killThese.Add(proc);
                             }

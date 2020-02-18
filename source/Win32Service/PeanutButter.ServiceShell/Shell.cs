@@ -320,10 +320,10 @@ namespace PeanutButter.ServiceShell
             }
 
             var entryExe = new Uri(Assembly.GetEntryAssembly()?.Location ?? "").LocalPath;
-            if (!entryExe.Equals(svc.ServiceExe, StringComparison.InvariantCultureIgnoreCase))
+            if (!entryExe.Equals(svc.Commandline, StringComparison.InvariantCultureIgnoreCase))
             {
                 return Fail(
-                    $"{svc.ServiceName} is installed at {svc.ServiceExe}.",
+                    $"{svc.ServiceName} is installed at {svc.Commandline}.",
                     "Issuing start command here will probably not do what you expect."
                 );
             }
@@ -491,7 +491,7 @@ namespace PeanutButter.ServiceShell
         {
             var myExePath = new FileInfo(Environment.GetCommandLineArgs()[0]).FullName;
             var existingSvcUtil = new WindowsServiceUtil(ServiceName);
-            if (existingSvcUtil.ServiceExe == myExePath)
+            if (existingSvcUtil.Commandline == myExePath)
             {
                 Console.WriteLine("Service already installed correctly");
                 return (int) CommandlineOptions.ExitCodes.Success;
@@ -504,7 +504,7 @@ namespace PeanutButter.ServiceShell
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Service already installed at: " + existingSvcUtil.ServiceExe +
+                Console.WriteLine("Service already installed at: " + existingSvcUtil.Commandline +
                     " and I can't uninstall it: " + ex.Message);
                 return (int) CommandlineOptions.ExitCodes.InstallFailed;
             }

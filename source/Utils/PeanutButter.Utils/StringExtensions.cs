@@ -686,5 +686,25 @@ namespace PeanutButter.Utils
             var asBytes = str.AsBytes();
             return new MemoryStream(asBytes);
         }
+
+        /// <summary>
+        /// Surrounds a string with quotes if it contains any whitespace
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static string QuoteIfSpaced(
+            this string str)
+        {
+            if (str.IsNullOrEmpty())
+            {
+                return "";
+            }
+            return Whitespace.IsMatch(str)
+                ? $"\"{str}\""
+                : str;
+        }
+        
+        private static readonly Regex Whitespace =
+            new Regex("\\s");
     }
 }
