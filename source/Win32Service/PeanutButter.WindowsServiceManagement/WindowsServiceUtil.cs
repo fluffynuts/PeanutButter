@@ -72,7 +72,7 @@ namespace PeanutButter.WindowsServiceManagement
                     ServiceState.Running,
                     ServiceState.StartPending
                 });
-        
+
         // TODO: when displayname is not set for install (ie from query)
         //         then this util should query for the current display name of
         //         the service (if found)
@@ -83,12 +83,11 @@ namespace PeanutButter.WindowsServiceManagement
         }
 
         private string _displayName;
-        private string _serviceCommandline;
+        private readonly string _serviceCommandline;
         private string _serviceExe;
 
-        public string Commandline
-            => _serviceCommandline ??= QueryCommandlineForServiceName(ServiceName);
-        
+        public string Commandline => _serviceCommandline;
+
         public string ServiceExe
             => _serviceExe ??= QueryExeForServiceName(ServiceName);
 
@@ -100,19 +99,34 @@ namespace PeanutButter.WindowsServiceManagement
 
         private static string QueryCommandlineForServiceName(string name)
         {
-            using var io = new ProcessIO("sc", "qc", $"\"{name}\"");
+            return QueryServiceControlForValueOfLineStartingWith(
+                ScPrefixes.SERVICE_CLI,
+                name
+            );
+        }
+
+        private static string QueryServiceControlForValueOfLineStartingWith(
+            string prefix,
+            string serviceName)
+        {
+            using var io = new ProcessIO("sc", "qc", $"\"{serviceName}\"");
             var interestingLine = io.StandardOutput
                 .Select(line => line.Trim())
-                .FirstOrDefault(line => line.StartsWith(ScPrefixes.SERVICE_CLI));
-            if (interestingLine == null)
-            {
-                return null;
-            }
+                .FirstOrDefault(line => line.StartsWith(prefix));
+            return interestingLine == null
+                ? null
+                : string.Join(":",
+                    interestingLine.Split(':')
+                        .Skip(1)
+                ).Trim();
+        }
 
-            return string.Join(":",
-                interestingLine.Split(':')
-                    .Skip(1)
-            ).Trim();
+        private static string QueryDisplayNameForServiceName(string name)
+        {
+            return QueryServiceControlForValueOfLineStartingWith(
+                ScPrefixes.DISPLAY_NAME,
+                name
+            );
         }
 
         private static string FindExecutableForServiceByName(
@@ -128,6 +142,7 @@ namespace PeanutButter.WindowsServiceManagement
 
         private static class ScPrefixes
         {
+            public const string DISPLAY_NAME = "DISPLAY_NAME";
             public const string SERVICE_NAME = "SERVICE_NAME";
             public const string SERVICE_CLI = "BINARY_PATH_NAME";
         }
@@ -136,21 +151,20 @@ namespace PeanutButter.WindowsServiceManagement
         {
             var queryString =
                 $"select Name from Win32_Service where PathName = '{path.Replace("'", "''").Replace("\\", "\\\\")}'";
-            using (var searcher = new ManagementObjectSearcher(queryString))
-            using (var collection = searcher.Get())
+            using var searcher = new ManagementObjectSearcher(queryString);
+            using var collection = searcher.Get();
+            if (collection.Count == 0)
             {
-                if (collection.Count == 0)
-                {
-                    return null;
-                }
-
-                var svcName = collection.Cast<ManagementBaseObject>()
-                    .Select(item => item.Properties["Name"].Value.ToString())
-                    .FirstOrDefault();
-                return svcName == null
-                    ? null
-                    : new WindowsServiceUtil(svcName);
+                return null;
             }
+
+            var svcName = collection.Cast<ManagementBaseObject>()
+                .Select(item => item.Properties["Name"].Value.ToString())
+                .FirstOrDefault();
+            return svcName == null
+                ? null
+                : new WindowsServiceUtil(svcName);
+            
             // TODO: this works, but it's SLOW
             // -> try rather querying the registry directly:
             //  HKLM/CurrentControlSet/Services/(service-name)/ImagePath
@@ -204,11 +218,21 @@ namespace PeanutButter.WindowsServiceManagement
             string serviceCommandline = null)
         {
             _serviceName = serviceName;
-            _displayName = displayName ?? _serviceName;
-            _serviceCommandline = serviceCommandline;
+            _displayName = displayName 
+                // when not given a display name, assume in query mode
+                ?? QueryDisplayNameForServiceName(serviceName) 
+                // fall back on service name -- at least registration won't b0rk
+                ?? serviceName;
+            _serviceCommandline = serviceCommandline 
+                ?? QueryCommandlineForServiceName(serviceName);
         }
 
-        public void Uninstall(bool waitForUninstall = false)
+        public void Uninstall()
+        {
+            Uninstall(false);
+        }
+
+        public void Uninstall(bool waitForUninstall)
         {
             TryDoWithService(service =>
             {
@@ -425,6 +449,7 @@ namespace PeanutButter.WindowsServiceManagement
                 0,
                 (acc, cur) => cur.Count(c => c == '"') + acc
             ) % 2 == 1);
+
             var executable = string.Join(" ", collected);
 
             if (!File.Exists(executable))
@@ -441,20 +466,18 @@ namespace PeanutButter.WindowsServiceManagement
         {
             get
             {
-                using (var regKey = GetServiceRegistryKey())
+                using var regKey = GetServiceRegistryKey();
+                if (!regKey.Exists)
                 {
-                    if (!regKey.Exists)
-                    {
-                        return ServiceStartupTypes.Unknown;
-                    }
-
-                    return Enum.TryParse(
-                        regKey.GetValue("Start").ToString(),
-                        true,
-                        out ServiceStartupTypes result)
-                        ? result
-                        : ServiceStartupTypes.Unknown;
+                    return ServiceStartupTypes.Unknown;
                 }
+
+                return Enum.TryParse(
+                    regKey.GetValue("Start").ToString(),
+                    true,
+                    out ServiceStartupTypes result)
+                    ? result
+                    : ServiceStartupTypes.Unknown;
             }
         }
 
@@ -481,15 +504,13 @@ namespace PeanutButter.WindowsServiceManagement
                 return;
             }
 
-            using (var regKey = GetServiceRegistryKey())
+            using var regKey = GetServiceRegistryKey();
+            if (!regKey.Exists)
             {
-                if (!regKey.Exists)
-                {
-                    throw new Exception($"Unable to open service registry key for '{ServiceName}'");
-                }
-
-                regKey.SetValue("Start", value, RegistryValueKind.DWord);
+                throw new Exception($"Unable to open service registry key for '{ServiceName}'");
             }
+
+            regKey.SetValue("Start", value, RegistryValueKind.DWord);
         }
 
         private RegKey GetServiceRegistryKey()
@@ -650,14 +671,12 @@ namespace PeanutButter.WindowsServiceManagement
                 return;
             }
 
-            using (var process = Process.GetProcessById(ServicePID))
+            using var process = Process.GetProcessById(ServicePID);
+            var status = new Win32Api.SERVICE_STATUS();
+            Win32Api.ControlService(service, ServiceControl.Stop, status);
+            if (wait)
             {
-                var status = new Win32Api.SERVICE_STATUS();
-                Win32Api.ControlService(service, ServiceControl.Stop, status);
-                if (wait)
-                {
-                    WaitForServiceToStop(service, process);
-                }
+                WaitForServiceToStop(service, process);
             }
         }
 
@@ -879,71 +898,69 @@ namespace PeanutButter.WindowsServiceManagement
         public bool KillService()
         {
             var killThese = new List<Process>();
-            using (var myProc = Process.GetCurrentProcess())
+            using var myProc = Process.GetCurrentProcess();
+            foreach (var proc in Process.GetProcesses())
             {
-                foreach (var proc in Process.GetProcesses())
+                using (proc)
                 {
-                    using (proc)
+                    if (proc.Id == myProc.Id)
                     {
-                        if (proc.Id == myProc.Id)
+                        continue;
+                    }
+
+                    try
+                    {
+                        if (proc?.MainModule?.FileName.ToLower() != Commandline)
                         {
                             continue;
                         }
-
-                        try
+                    }
+                    catch (Exception)
+                    {
+                        // happens if a 32-bit process tries to read a 64-bit process' info
+                        if (proc.ProcessName.ToLower() == Path.GetFileName(Commandline)?.ToLower())
                         {
-                            if (proc?.MainModule?.FileName.ToLower() != Commandline)
-                            {
-                                continue;
-                            }
-                        }
-                        catch (Exception)
-                        {
-                            // happens if a 32-bit process tries to read a 64-bit process' info
-                            if (proc.ProcessName.ToLower() == Path.GetFileName(Commandline)?.ToLower())
-                            {
-                                killThese.Add(proc);
-                            }
-                        }
-
-                        try
-                        {
-                            proc.Kill();
-                            return true;
-                        }
-                        catch
-                        {
-                            return false;
+                            killThese.Add(proc);
                         }
                     }
-                }
 
-                if (killThese.Count == 0)
-                {
-                    return true; // not running any more
-                }
-
-                var killed = 0;
-                foreach (var proc in killThese)
-                {
                     try
                     {
-                        if (!proc.HasExited)
-                        {
-                            proc.Kill();
-                        }
-
-                        killed++;
+                        proc.Kill();
+                        return true;
                     }
-                    // ReSharper disable once EmptyGeneralCatchClause
                     catch
                     {
-                        /* intentionally left blank */
+                        return false;
                     }
                 }
-
-                return killed == killThese.Count;
             }
+
+            if (killThese.Count == 0)
+            {
+                return true; // not running any more
+            }
+
+            var killed = 0;
+            foreach (var proc in killThese)
+            {
+                try
+                {
+                    if (!proc.HasExited)
+                    {
+                        proc.Kill();
+                    }
+
+                    killed++;
+                }
+                // ReSharper disable once EmptyGeneralCatchClause
+                catch
+                {
+                    /* intentionally left blank */
+                }
+            }
+
+            return killed == killThese.Count;
         }
 
         // ReSharper disable once InconsistentNaming

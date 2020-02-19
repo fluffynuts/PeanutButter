@@ -248,6 +248,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             var arg2 = GetRandomString(3);
             var args = new[] { logFile, arg1, arg2 }.Select(p => p.QuoteIfSpaced());
             var serviceName = "test-service-foo-bar";
+            var displayName = "Test Service - Foo,Bar";
             var commandline = string.Join(
                 " ",
                 new[] { serviceExe }
@@ -255,7 +256,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             );
             var util = new WindowsServiceUtil(
                 serviceName, 
-                serviceName,
+                displayName,
                 commandline
             );
             if (util.IsInstalled)
@@ -269,6 +270,9 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             }
 
             // Act
+            using var resetter = new AutoResetter(
+                () => util.Install(),
+                () => util.Uninstall(true));
             util.Install();
             // Assert
             Expect(util.IsInstalled)
@@ -279,7 +283,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             
             Expect(logFile)
                 .To.Exist();
-            var logData = File.ReadAllLines(logFile);
+            var logData = TryReadAllLinesFrom(logFile);
             Expect(logData)
                 .Not.To.Be.Empty();
             Expect(logData[0])
@@ -296,8 +300,25 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                 .To.Equal(commandline);
             Expect(anotherUtil.ServiceExe)
                 .To.Equal(serviceExe);
-            
-            util.Uninstall();
+            Expect(anotherUtil.DisplayName)
+                .To.Equal(displayName);
+        }
+
+        private string[] TryReadAllLinesFrom(string path)
+        {
+            var attempts = 0;
+            do
+            {
+                try
+                {
+                    return File.ReadAllLines(path);
+                }
+                catch
+                {
+                    Thread.Sleep(100);
+                }
+            } while(++attempts < 10);
+            throw new Exception($"Can't read from file: {path}");
         }
 
         private static readonly string TestServiceName = $"test-service-{Guid.NewGuid()}";
