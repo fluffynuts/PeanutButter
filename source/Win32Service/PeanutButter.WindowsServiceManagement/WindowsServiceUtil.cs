@@ -72,7 +72,10 @@ namespace PeanutButter.WindowsServiceManagement
                     ServiceState.Running,
                     ServiceState.StartPending
                 });
-
+        
+        // TODO: when displayname is not set for install (ie from query)
+        //         then this util should query for the current display name of
+        //         the service (if found)
         public string DisplayName
         {
             get => _displayName;
@@ -81,9 +84,13 @@ namespace PeanutButter.WindowsServiceManagement
 
         private string _displayName;
         private string _serviceCommandline;
+        private string _serviceExe;
 
         public string Commandline
-            => _serviceCommandline ?? (_serviceCommandline = QueryExeForServiceName(ServiceName));
+            => _serviceCommandline ??= QueryCommandlineForServiceName(ServiceName);
+        
+        public string ServiceExe
+            => _serviceExe ??= QueryExeForServiceName(ServiceName);
 
 
         private static string QueryExeForServiceName(string name)
@@ -91,30 +98,33 @@ namespace PeanutButter.WindowsServiceManagement
             return FindExecutableForServiceByName(name);
         }
 
+        private static string QueryCommandlineForServiceName(string name)
+        {
+            using var io = new ProcessIO("sc", "qc", $"\"{name}\"");
+            var interestingLine = io.StandardOutput
+                .Select(line => line.Trim())
+                .FirstOrDefault(line => line.StartsWith(ScPrefixes.SERVICE_CLI));
+            if (interestingLine == null)
+            {
+                return null;
+            }
+
+            return string.Join(":",
+                interestingLine.Split(':')
+                    .Skip(1)
+            ).Trim();
+        }
+
         private static string FindExecutableForServiceByName(
             string name)
         {
-            using (var io = new ProcessIO("sc", "qc", $"\"{name}\""))
-            {
-                var interestingLine = io.StandardOutput
-                    .Select(line => line.Trim())
-                    .FirstOrDefault(line => line.StartsWith(ScPrefixes.SERVICE_CLI));
-                if (interestingLine == null)
-                {
-                    return null;
-                }
-
-                var cli = string.Join(":",
-                    interestingLine.Split(':')
-                        .Skip(1)
-                );
-                return ProgramFinder.Matches(cli).OfType<Match>()
-                    .FirstOrDefault()
-                    ?.Value;
-            }
+            var cli = QueryCommandlineForServiceName(name);
+            return ProgramFinder.Matches(cli).OfType<Match>()
+                .FirstOrDefault()
+                ?.Value;
         }
 
-        private static Regex ProgramFinder = new Regex("((\".+\")|([^ ]+))");
+        private static readonly Regex ProgramFinder = new Regex("((\".+\")|([^ ]+))");
 
         private static class ScPrefixes
         {

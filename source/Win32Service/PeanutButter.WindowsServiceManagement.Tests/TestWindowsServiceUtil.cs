@@ -248,12 +248,15 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             var arg2 = GetRandomString(3);
             var args = new[] { logFile, arg1, arg2 }.Select(p => p.QuoteIfSpaced());
             var serviceName = "test-service-foo-bar";
-            var util = new WindowsServiceUtil(serviceName, serviceName,
-                string.Join(
-                    " ",
-                    new[] { serviceExe }
-                        .Concat(args)
-                )
+            var commandline = string.Join(
+                " ",
+                new[] { serviceExe }
+                    .Concat(args)
+            );
+            var util = new WindowsServiceUtil(
+                serviceName, 
+                serviceName,
+                commandline
             );
             if (util.IsInstalled)
             {
@@ -284,8 +287,16 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                 .Then(arg2);
             
             util.Stop();
+            
             Expect(util.State)
                 .To.Equal(ServiceState.Stopped);
+            
+            var anotherUtil = new WindowsServiceUtil(serviceName);
+            Expect(anotherUtil.Commandline)
+                .To.Equal(commandline);
+            Expect(anotherUtil.ServiceExe)
+                .To.Equal(serviceExe);
+            
             util.Uninstall();
         }
 

@@ -4,6 +4,7 @@
     <RuntimeIdentifiers>win</RuntimeIdentifiers>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DefineConstants>BUILD_PEANUTBUTTER_INTERNAL</DefineConstants>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <OutputType>Library</OutputType>
