@@ -227,11 +227,20 @@ namespace PeanutButter.WindowsServiceManagement
                 ?? QueryCommandlineForServiceName(serviceName);
         }
 
+        /// <summary>
+        /// Uninstalls the service, waiting for it to stop and be uninstalled
+        /// </summary>
         public void Uninstall()
         {
-            Uninstall(false);
+            Uninstall(true);
         }
 
+        /// <summary>
+        /// Uninstall the service, conditionally don't wait for the process to complete
+        /// </summary>
+        /// <param name="waitForUninstall"></param>
+        /// <exception cref="ServiceNotInstalledException"></exception>
+        /// <exception cref="ServiceOperationException"></exception>
         public void Uninstall(bool waitForUninstall)
         {
             TryDoWithService(service =>

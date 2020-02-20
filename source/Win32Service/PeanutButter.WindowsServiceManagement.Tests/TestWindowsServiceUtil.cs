@@ -9,6 +9,7 @@ using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using NExpect;
 using PeanutButter.Utils;
+using PeanutButter.WindowsServiceManagement.Exceptions;
 using TestService;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
@@ -79,6 +80,14 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             Run(localPath, "-i");
             var util = new WindowsServiceUtil("test service");
             Expect(util.IsInstalled).To.Be.True();
+            
+            // check that we can uninstall
+            util.Uninstall(true);
+            Expect(util.IsInstalled)
+                .To.Be.False();
+            // check that attempting again throws
+            Expect(() => util.Uninstall(true))
+                .To.Throw<ServiceNotInstalledException>();
 
             //---------------Test Result -----------------------
         }
