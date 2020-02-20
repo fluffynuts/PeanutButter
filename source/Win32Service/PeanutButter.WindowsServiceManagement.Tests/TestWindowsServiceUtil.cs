@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using NExpect;
 using PeanutButter.Utils;
 using PeanutButter.WindowsServiceManagement.Exceptions;
-using TestService;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 

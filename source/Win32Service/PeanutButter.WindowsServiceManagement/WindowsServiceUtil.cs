@@ -164,7 +164,7 @@ namespace PeanutButter.WindowsServiceManagement
             return svcName == null
                 ? null
                 : new WindowsServiceUtil(svcName);
-            
+
             // TODO: this works, but it's SLOW
             // -> try rather querying the registry directly:
             //  HKLM/CurrentControlSet/Services/(service-name)/ImagePath
@@ -218,12 +218,12 @@ namespace PeanutButter.WindowsServiceManagement
             string serviceCommandline = null)
         {
             _serviceName = serviceName;
-            _displayName = displayName 
+            _displayName = displayName
                 // when not given a display name, assume in query mode
-                ?? QueryDisplayNameForServiceName(serviceName) 
+                ?? QueryDisplayNameForServiceName(serviceName)
                 // fall back on service name -- at least registration won't b0rk
                 ?? serviceName;
-            _serviceCommandline = serviceCommandline 
+            _serviceCommandline = serviceCommandline
                 ?? QueryCommandlineForServiceName(serviceName);
         }
 
@@ -535,17 +535,36 @@ namespace PeanutButter.WindowsServiceManagement
             }
         }
 
-        public void Start(bool wait = true)
+        /// <summary>
+        /// Starts the service and waits for it to enter running state
+        /// </summary>
+        public void Start()
+        {
+            Start(true);
+        }
+
+        /// <summary>
+        /// Starts the service, optionally waiting for it to enter running state
+        /// </summary>
+        /// <param name="wait"></param>
+        /// <exception cref="ServiceOperationException"></exception>
+        public void Start(bool wait)
         {
             var scm = OpenSCManager(ScmAccessRights.Connect);
 
             try
             {
-                var service = Win32Api.OpenService(scm, _serviceName,
-                    ServiceAccessRights.QueryStatus | ServiceAccessRights.Start);
+                var service = Win32Api.OpenService(
+                    scm,
+                    _serviceName,
+                    ServiceAccessRights.QueryStatus | ServiceAccessRights.Start
+                );
                 if (service == IntPtr.Zero)
+                {
                     throw new ServiceOperationException(_serviceName, ServiceOperationNames.START,
                         SERVICE_NOT_INSTALLED);
+                }
+
                 try
                 {
                     StartService(service, wait);
@@ -565,17 +584,35 @@ namespace PeanutButter.WindowsServiceManagement
             }
         }
 
-        public void Stop(bool wait = true)
+        /// <summary>
+        /// Stops the service, waiting for it to enter stopped state
+        /// </summary>
+        public void Stop()
+        {
+            Stop(true);
+        }
+
+        /// <summary>
+        /// Stops the service, optionally waiting to enter stopped state
+        /// </summary>
+        /// <param name="wait"></param>
+        /// <exception cref="ServiceOperationException"></exception>
+        public void Stop(bool wait)
         {
             var scm = OpenSCManager(ScmAccessRights.Connect);
             try
             {
-                var service = Win32Api.OpenService(scm, _serviceName,
-                    ServiceAccessRights.QueryStatus | ServiceAccessRights.Stop);
+                var service = Win32Api.OpenService(
+                    scm,
+                    _serviceName,
+                    ServiceAccessRights.QueryStatus | ServiceAccessRights.Stop
+                );
                 if (service == IntPtr.Zero)
+                {
                     throw new ServiceOperationException(_serviceName,
                         ServiceOperationNames.STOP,
                         SERVICE_NOT_INSTALLED);
+                }
 
                 try
                 {
@@ -596,7 +633,20 @@ namespace PeanutButter.WindowsServiceManagement
             }
         }
 
+        /// <summary>
+        /// Pauses the service, waiting for it to enter paused state
+        /// </summary>
         public void Pause()
+        {
+            Pause(true);
+        }
+
+        /// <summary>
+        /// Pauses the service, optionally waiting for it to enter paused state
+        /// </summary>
+        /// <param name="wait"></param>
+        /// <exception cref="ServiceOperationException"></exception>
+        public void Pause(bool wait)
         {
             var scm = OpenSCManager(ScmAccessRights.Connect);
             try
@@ -604,12 +654,15 @@ namespace PeanutButter.WindowsServiceManagement
                 var service = Win32Api.OpenService(scm, _serviceName,
                     ServiceAccessRights.QueryStatus | ServiceAccessRights.PauseContinue);
                 if (service == IntPtr.Zero)
+                {
                     throw new ServiceOperationException(_serviceName,
                         ServiceOperationNames.PAUSE,
                         SERVICE_NOT_INSTALLED);
+                }
+
                 try
                 {
-                    PauseService(service);
+                    PauseService(service, wait);
                 }
                 catch (Exception ex)
                 {
@@ -626,20 +679,41 @@ namespace PeanutButter.WindowsServiceManagement
             }
         }
 
+        /// <summary>
+        /// Continues a paused service, waiting for it to enter running state
+        /// </summary>
         public void Continue()
+        {
+            Continue(true);
+        }
+
+        /// <summary>
+        /// Continues a paused service, optionally waiting for it to enter running state
+        /// </summary>
+        /// <param name="wait"></param>
+        /// <exception cref="ServiceOperationException"></exception>
+        public void Continue(bool wait)
         {
             var scm = OpenSCManager(ScmAccessRights.Connect);
             try
             {
-                var service = Win32Api.OpenService(scm, _serviceName,
-                    ServiceAccessRights.QueryStatus | ServiceAccessRights.PauseContinue);
+                var service = Win32Api.OpenService(
+                    scm,
+                    _serviceName,
+                    ServiceAccessRights.QueryStatus | ServiceAccessRights.PauseContinue
+                );
                 if (service == IntPtr.Zero)
-                    throw new ServiceOperationException(_serviceName,
+                {
+                    throw new ServiceOperationException(
+                        _serviceName,
                         ServiceOperationNames.PAUSE,
-                        SERVICE_NOT_INSTALLED);
+                        SERVICE_NOT_INSTALLED
+                    );
+                }
+
                 try
                 {
-                    ContinueService(service);
+                    ContinueService(service, wait);
                 }
                 catch (Exception ex)
                 {
@@ -745,7 +819,9 @@ namespace PeanutButter.WindowsServiceManagement
             }
         }
 
-        private void PauseService(IntPtr service, bool wait = true)
+        private void PauseService(
+            IntPtr service,
+            bool wait)
         {
             if (GetServiceStatus(service) != ServiceState.Running)
             {
@@ -778,7 +854,9 @@ namespace PeanutButter.WindowsServiceManagement
             }
         }
 
-        public void ContinueService(IntPtr service, bool wait = true)
+        public void ContinueService(
+            IntPtr service,
+            bool wait)
         {
             if (GetServiceStatus(service) != ServiceState.Paused)
             {
