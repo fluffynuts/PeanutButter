@@ -216,17 +216,26 @@ namespace PeanutButter.WindowsServiceManagement
                     return false; // definitely not installed
                 }
 
-                try
-                {
-                    GetServiceStatus(service);
-                    return true;
-                }
-                catch
-                {
-                    // scheduled for delete?
-                    return false;
-                }
+                return !ServiceIsMarkedForDelete();
             });
+        }
+
+        private bool ServiceIsMarkedForDelete()
+        {
+            try
+            {
+                // we have to go old-school and expect stuff from the registry
+                var key = Registry.LocalMachine.OpenSubKey(
+                    $"SYSTEM\\CurrentControlSet\\Services\\{ServiceName}"
+                );
+                var deleteFlag = (int) key.GetValue("DeleteFlag");
+                return deleteFlag != 0;
+            }
+            catch
+            {
+                // if we can't query, we can't definitively say it's marked for delete
+                return false;
+            }
         }
 
         // ReSharper disable once MemberCanBePrivate.Global
@@ -298,10 +307,10 @@ namespace PeanutButter.WindowsServiceManagement
 
         private void SleepWhilstInstalled()
         {
-            do
+            while (IsInstalled)
             {
                 Thread.Sleep(1000);
-            } while (IsInstalled);
+            }
         }
 
         // ReSharper disable once InconsistentNaming

@@ -238,7 +238,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                     Expect(util.State)
                         .To.Equal(ServiceState.Running);
                 });
-            // Do("Uninstall (api)", () => util.Uninstall());
+            Do("Uninstall (api)", () => util.Uninstall());
             // Assert
         }
 
