@@ -282,7 +282,6 @@ namespace PeanutButter.WindowsServiceManagement
                 }
 
                 StopService(service);
-                StopService(service);
                 if (Win32Api.DeleteService(service))
                 {
                     return;
@@ -430,16 +429,9 @@ namespace PeanutButter.WindowsServiceManagement
         {
             TryDoWithSCManager(scm =>
             {
-                try
-                {
-                    Win32Api.CloseServiceHandle(
-                        DoServiceInstall(scm)
-                    );
-                }
-                catch (Exception ex)
-                {
-                    Trace.WriteLine(ex.Message);
-                }
+                Win32Api.CloseServiceHandle(
+                    DoServiceInstall(scm)
+                );
             });
         }
 
