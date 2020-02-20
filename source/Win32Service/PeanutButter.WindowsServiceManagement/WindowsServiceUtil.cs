@@ -280,6 +280,7 @@ namespace PeanutButter.WindowsServiceManagement
                 }
 
                 StopService(service);
+                StopService(service);
                 if (Win32Api.DeleteService(service))
                 {
                     return;
