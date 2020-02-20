@@ -27,11 +27,14 @@ namespace PeanutButter.WindowsServiceManagement
         int ServiceStateExtraWaitSeconds { get; set; }
         ServiceStartupTypes StartupType { get; }
 
-        void Uninstall(bool waitForUninstall = false);
+        void Uninstall();
+        void Uninstall(bool waitForUninstall);
         void InstallAndStart();
         void Install();
-        void Start(bool wait = true);
-        void Stop(bool wait = true);
+        void Start();
+        void Start(bool wait);
+        void Stop();
+        void Stop(bool wait);
         void Pause();
         void Continue();
         void Disable();
@@ -206,7 +209,24 @@ namespace PeanutButter.WindowsServiceManagement
 
         private bool Win32ApiMethodForQueryingServiceInstalled()
         {
-            return TryDoWithService(service => service != IntPtr.Zero);
+            return TryDoWithService(service =>
+            {
+                if (service == IntPtr.Zero)
+                {
+                    return false; // definitely not installed
+                }
+
+                try
+                {
+                    GetServiceStatus(service);
+                    return true;
+                }
+                catch
+                {
+                    // scheduled for delete?
+                    return false;
+                }
+            });
         }
 
         // ReSharper disable once MemberCanBePrivate.Global
