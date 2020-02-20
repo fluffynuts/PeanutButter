@@ -21,6 +21,8 @@ namespace PeanutButter.WindowsServiceManagement
 {
     public interface IWindowsServiceUtil
     {
+        string ServiceName { get; }
+        string DisplayName { get; }
         string Commandline { get; }
         ServiceState State { get; }
         bool IsInstalled { get; }
