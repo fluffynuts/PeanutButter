@@ -484,6 +484,8 @@ namespace PeanutButter.WindowsServiceManagement
             ) % 2 == 1);
 
             var executable = string.Join(" ", collected);
+            // need to trim out the quotes, yo
+            executable = executable.Trim('"');
 
             if (!File.Exists(executable))
             {
@@ -996,12 +998,9 @@ namespace PeanutButter.WindowsServiceManagement
 
         private static int DetermineWaitTimeFor(Win32Api.SERVICE_STATUS status)
         {
-            // Do not wait longer than the wait hint. A good interval is
-            // one tenth the wait hint, but no less than 1 second and no
-            // more than 10 seconds.
             var waitTime = status.WaitHint / 10;
 
-            if (waitTime < 1000) waitTime = 1000;
+            if (waitTime < 1000) waitTime = 2000;
             if (waitTime > 10000) waitTime = 10000;
             return waitTime;
         }

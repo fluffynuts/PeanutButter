@@ -13,6 +13,11 @@ namespace PeanutButter.FileSystem
             SetCurrentDirectory(Directory.GetCurrentDirectory());
         }
 
+        public LocalFileSystem(string start)
+        {
+            SetCurrentDirectory(start);
+        }
+
         public IEnumerable<string> List(string searchPattern = "*")
         {
             var path = _currentDirectory;

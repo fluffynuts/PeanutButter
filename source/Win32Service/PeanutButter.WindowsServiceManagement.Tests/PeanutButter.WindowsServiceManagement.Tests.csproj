@@ -16,8 +16,10 @@
   <ItemGroup>
     <ProjectReference Include="..\..\TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj" />
     <ProjectReference Include="..\..\TestUtils\PeanutButter.TestUtils.Generic\PeanutButter.TestUtils.Generic.csproj" />
+    <ProjectReference Include="..\..\Utils\PeanutButter.FileSystem\PeanutButter.FileSystem.csproj" />
     <ProjectReference Include="..\PeanutButter.WindowsServiceManagement\PeanutButter.WindowsServiceManagement.csproj" />
     <ProjectReference Include="..\ServiceWithArgs\ServiceWithArgs.csproj" />
+    <ProjectReference Include="..\SpacedService\SpacedService.csproj" />
     <ProjectReference Include="..\TestService\TestService.csproj" />
   </ItemGroup>
   <ItemGroup>

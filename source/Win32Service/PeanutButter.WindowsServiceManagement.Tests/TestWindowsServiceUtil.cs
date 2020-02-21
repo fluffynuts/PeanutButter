@@ -7,6 +7,7 @@ using System.Threading;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using NExpect;
+using PeanutButter.FileSystem;
 using PeanutButter.Utils;
 using PeanutButter.WindowsServiceManagement.Exceptions;
 using static NExpect.Expectations;
@@ -78,7 +79,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             Run(localPath, "-i");
             var util = new WindowsServiceUtil("test service");
             Expect(util.IsInstalled).To.Be.True();
-            
+
             // check that we can uninstall
             util.Uninstall(true);
             Expect(util.IsInstalled)
@@ -262,7 +263,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                     .Concat(args)
             );
             var util = new WindowsServiceUtil(
-                serviceName, 
+                serviceName,
                 displayName,
                 commandline
             );
@@ -287,7 +288,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             util.Start();
             Expect(util.State)
                 .To.Equal(ServiceState.Running);
-            
+
             Expect(logFile)
                 .To.Exist();
             var logData = TryReadAllLinesFrom(logFile);
@@ -296,13 +297,13 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             Expect(logData[0])
                 .To.Contain(arg1)
                 .Then(arg2);
-            
+
             util.Stop();
-            
+
             Expect(util.State)
                 .To.Equal(ServiceState.Stopped);
-            
-            var anotherUtil = new WindowsServiceUtil(serviceName);
+
+            var anotherUtil = Create(serviceName);
             Expect(anotherUtil.Commandline)
                 .To.Equal(commandline);
             Expect(anotherUtil.ServiceExe)
@@ -310,6 +311,148 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             Expect(anotherUtil.DisplayName)
                 .To.Equal(displayName);
         }
+
+        [Test]
+        public void InstallingServiceWithSpacedPath()
+        {
+            // Arrange
+            var spacedServiceExe = FindPath(
+                "SpacedService",
+                "SpacedService.exe",
+                p => !p.Contains("obj")
+            );
+            var serviceName = "spaced-service";
+            Expect(spacedServiceExe)
+                .Not.To.Be.Null();
+            var sut = Create(serviceName, "Spaced Service", $"\"{spacedServiceExe}\" --arg --another-arg");
+            sut.ServiceStateExtraWaitSeconds = 30;
+            // Act
+            var completed = false;
+            using var _ = new AutoResetter(Noop, () =>
+            {
+                if (completed)
+                {
+                    return;
+                }
+
+                KillService(serviceName, spacedServiceExe);
+            });
+            Expect(sut.Install)
+                .Not.To.Throw();
+            // Assert
+            Expect(sut.Start)
+                .Not.To.Throw();
+            Expect(sut.State)
+                .To.Equal(ServiceState.Running);
+            sut.Stop();
+            Expect(sut.State)
+                .To.Equal(ServiceState.Stopped);
+            sut.Uninstall();
+            // signal the safety-net that it doesn't have to do anything
+            completed = true;
+
+            void Noop()
+            {
+            }
+        }
+
+        private void KillService(string name, string exe)
+        {
+            // big hammer to enforce service non-existence at exit
+
+            // attempt stop
+            using var stop = new ProcessIO("sc", "stop", name);
+            stop.StandardOutput.ForEach(Log);
+            stop.StandardError.ForEach(Log);
+
+            // delete service
+            using var delete = new ProcessIO("sc", "delete", name);
+            delete.StandardOutput.ForEach(Log);
+            delete.StandardError.ForEach(Log);
+
+            // kill remaining process
+            var proc = Process.GetProcesses()
+                .Where(p =>
+                {
+                    try
+                    {
+                        return p.StartInfo.FileName.Equals(exe, StringComparison.OrdinalIgnoreCase);
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                })
+                .ToArray();
+            proc.ForEach(p =>
+            {
+                try
+                {
+                    p.Kill();
+                }
+                catch
+                {
+                    // may already be dead
+                }
+            });
+
+            void Log(string s)
+            {
+                Console.WriteLine(s);
+            }
+        }
+
+        private WindowsServiceUtil Create(string serviceName)
+        {
+            return new WindowsServiceUtil(serviceName);
+        }
+
+        private WindowsServiceUtil Create(
+            string serviceName,
+            string displayName,
+            string commandline)
+        {
+            return new WindowsServiceUtil(
+                serviceName,
+                displayName,
+                commandline
+            );
+        }
+
+        private string FindPath(
+            string travelUpToFindFolder,
+            string searchForThisFile,
+            Func<string, bool> extraMatcher)
+        {
+            var current = Path.GetDirectoryName(
+                new Uri(
+                    GetType()
+                        .Assembly
+                        .Location
+                ).LocalPath
+            );
+            var start = current;
+            string test;
+            do
+            {
+                current = Path.GetDirectoryName(current);
+                if (current is null)
+                {
+                    throw new InvalidOperationException(
+                        $"Can't find {travelUpToFindFolder} traversing up from {start}"
+                    );
+                }
+
+                test = Path.Combine(current, travelUpToFindFolder);
+            } while (!Directory.Exists(test));
+
+            var fs = new LocalFileSystem(test);
+            var matches = fs.ListRecursive(searchForThisFile)
+                .Select(p => Path.Combine(test, p))
+                .ToArray();
+            return matches.FirstOrDefault(extraMatcher);
+        }
+
 
         private string[] TryReadAllLinesFrom(string path)
         {
@@ -324,7 +467,8 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                 {
                     Thread.Sleep(100);
                 }
-            } while(++attempts < 10);
+            } while (++attempts < 10);
+
             throw new Exception($"Can't read from file: {path}");
         }
 
