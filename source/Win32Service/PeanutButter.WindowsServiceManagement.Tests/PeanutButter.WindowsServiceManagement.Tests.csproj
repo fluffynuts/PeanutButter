@@ -41,4 +41,5 @@
     <PreBuildEvent Condition=" '$(OS)' == 'Windows_NT'">mkdir $(SolutionDir)Win32Service\PeanutButter.WindowsServiceManagement.Tests\$(OutDir)
 copy $(SolutionDir)Win32Service\TestService\$(OutDir)* $(TargetDir)</PreBuildEvent>
   </PropertyGroup>
+  <Import Project="..\..\MonoForFramework.targets"/>
 </Project>

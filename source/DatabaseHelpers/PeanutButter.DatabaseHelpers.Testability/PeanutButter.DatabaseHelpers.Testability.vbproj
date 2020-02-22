@@ -56,4 +56,5 @@
     <PackageReference Include="Microsoft.VisualBasic" Version="10.3.0" />
   </ItemGroup>
   <PropertyGroup />
+  <Import Project="..\..\MonoForFramework.targets"/>
 </Project>

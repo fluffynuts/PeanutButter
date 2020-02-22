@@ -36,4 +36,5 @@
   <ItemGroup>
     <ProjectReference Include="..\PeanutButter.TempDb\PeanutButter.TempDb.csproj" />
   </ItemGroup>
+  <Import Project="..\..\MonoForFramework.targets"/>
 </Project>

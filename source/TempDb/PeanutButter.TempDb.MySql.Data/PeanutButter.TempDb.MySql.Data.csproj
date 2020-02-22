@@ -1,27 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-<PropertyGroup>
-  <TargetFrameworks>net452;net462;netstandard2.0</TargetFrameworks>
-  <DocumentationFile>bin/$(Configuration)/$(TargetFramework)/PeanutButter.TempDb.MySql.xml</DocumentationFile>
-  <Configurations>Debug;Release</Configurations>
-  <Platforms>AnyCPU</Platforms>
-  <RootNamespace>PeanutButter.TempDb.MySql.Data</RootNamespace>
-</PropertyGroup>
-<PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
-  <DefineConstants>NETSTANDARD</DefineConstants>
-</PropertyGroup>
-<PropertyGroup>
-  <DebugType>Full</DebugType>
-  <DebugSymbols>True</DebugSymbols>
-</PropertyGroup>
-<ItemGroup>
-  <PackageReference Include="Microsoft.Net.Compilers" Version="3.3.1" />
-  <PackageReference Include="MySql.Data" Version="8.0.17" />
-</ItemGroup>
-<ItemGroup>
-  <ProjectReference Include="..\PeanutButter.TempDb.MySql.Base\PeanutButter.TempDb.MySql.Base.csproj" />
-  <ProjectReference Include="..\PeanutButter.TempDb\PeanutButter.TempDb.csproj" />
-  <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj" />
-  <ProjectReference Include="..\..\INI\PeanutButter.INI\PeanutButter.INI.csproj" />
-</ItemGroup>
+  <PropertyGroup>
+    <TargetFrameworks>net452;net462;netstandard2.0</TargetFrameworks>
+    <DocumentationFile>bin/$(Configuration)/$(TargetFramework)/PeanutButter.TempDb.MySql.xml</DocumentationFile>
+    <Configurations>Debug;Release</Configurations>
+    <Platforms>AnyCPU</Platforms>
+    <RootNamespace>PeanutButter.TempDb.MySql.Data</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
+    <DefineConstants>NETSTANDARD</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DebugType>Full</DebugType>
+    <DebugSymbols>True</DebugSymbols>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Net.Compilers" Version="3.3.1" />
+    <PackageReference Include="MySql.Data" Version="8.0.17" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PeanutButter.TempDb.MySql.Base\PeanutButter.TempDb.MySql.Base.csproj" />
+    <ProjectReference Include="..\PeanutButter.TempDb\PeanutButter.TempDb.csproj" />
+    <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj" />
+    <ProjectReference Include="..\..\INI\PeanutButter.INI\PeanutButter.INI.csproj" />
+  </ItemGroup>
+  <Import Project="..\..\MonoForFramework.targets"/>
 </Project>

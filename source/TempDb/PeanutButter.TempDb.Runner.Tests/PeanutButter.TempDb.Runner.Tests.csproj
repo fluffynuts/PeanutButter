@@ -26,4 +26,5 @@
     </Reference>
   </ItemGroup>
 
+  <Import Project="..\..\MonoForFramework.targets"/>
 </Project>

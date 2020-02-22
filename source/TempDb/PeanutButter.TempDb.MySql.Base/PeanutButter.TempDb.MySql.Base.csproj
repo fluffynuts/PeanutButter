@@ -13,4 +13,5 @@
     <ProjectReference Include="..\..\INI\PeanutButter.INI\PeanutButter.INI.csproj" />
   </ItemGroup>
 
+  <Import Project="..\..\MonoForFramework.targets"/>
 </Project>

@@ -25,4 +25,5 @@
       <Link>ProcessIO.cs</Link>
     </Compile>
   </ItemGroup>
+  <Import Project="..\..\MonoForFramework.targets"/>
 </Project>

@@ -20,4 +20,5 @@
     <DebugType>Full</DebugType>
     <DebugSymbols>True</DebugSymbols>
   </PropertyGroup>
+  <Import Project="..\..\MonoForFramework.targets"/>
 </Project>

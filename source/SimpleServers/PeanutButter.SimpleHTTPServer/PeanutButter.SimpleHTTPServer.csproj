@@ -20,4 +20,5 @@
   <ItemGroup>
     <ProjectReference Include="..\PeanutButter.SimpleTcpServer\PeanutButter.SimpleTcpServer.csproj" />
   </ItemGroup>
+  <Import Project="..\..\MonoForFramework.targets"/>
 </Project>

@@ -100,9 +100,12 @@
   </ItemGroup>
   <Import Project="$(SolutionDir)\packages\System.Data.SQLite.Core.1.0.97.0\build\net45\System.Data.SQLite.Core.targets" Condition="Exists('$(SolutionDir)\packages\System.Data.SQLite.Core.1.0.97.0\build\net45\System.Data.SQLite.Core.targets')" />
   <PropertyGroup>
+      <!--
     <PostBuildEvent>if not exist "$(TargetDir)x86" md "$(TargetDir)x86"
 @rem xcopy /s /y "$(SolutionDir)packages\Microsoft.SqlServer.Compact.4.0.8876.1\NativeBinaries\x86\*.*" "$(TargetDir)x86"
 if not exist "$(TargetDir)amd64" md "$(TargetDir)amd64"
 @rem xcopy /s /y "$(SolutionDir)packages\Microsoft.SqlServer.Compact.4.0.8876.1\NativeBinaries\amd64\*.*" "$(TargetDir)amd64"</PostBuildEvent>
+      -->
   </PropertyGroup>
+  <Import Project="..\..\MonoForFramework.targets"/>
 </Project>

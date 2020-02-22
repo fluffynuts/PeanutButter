@@ -12,4 +12,5 @@
     </PackageReference>
   </ItemGroup>
 
+  <Import Project="..\..\MonoForFramework.targets"/>
 </Project>

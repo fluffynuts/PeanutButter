@@ -33,4 +33,5 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Net.Compilers" Version="3.3.1" />
   </ItemGroup>
+  <Import Project="..\..\MonoForFramework.targets"/>
 </Project>

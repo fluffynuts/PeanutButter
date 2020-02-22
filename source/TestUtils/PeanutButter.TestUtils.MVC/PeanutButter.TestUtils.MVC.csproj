@@ -27,4 +27,5 @@
     <ProjectReference Include="..\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj" />
   </ItemGroup>
   <PropertyGroup />
+  <Import Project="..\..\MonoForFramework.targets"/>
 </Project>
