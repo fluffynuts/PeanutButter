@@ -11,7 +11,7 @@
         "postcover": "run-s generate-reports",
         "generate-reports": "cross-env COVERAGE_INCLUDE=*,PeanutButter.* COVERAGE_EXCLUDE_ASSEMBLIES=PeanutButter.RandomGenerators.Core.Tests.Domain COVERAGE_ADDITIONAL_EXCLUDE=GenericBuilderTestLoadLoadedAssemblyObject,GenericBuilderTestNotLoadedAssembly run-s \"gulp generate-reports\"",
         "build": "run-s \"gulp build\"",
-        "gulp": "cross-env BUILD_TOOLS_FOLDER=build-tools DOTNET_CORE=1 gulp",
+        "gulp": "cross-env BUILD_TOOLS_FOLDER=build-tools gulp",
         "release": "run-s test \"gulp release\"",
         "quick-release": "run-s \"gulp release\"",
         "pack": "cross-env BUILD_CONFIGURATION=Release run-s \"gulp pack\""
