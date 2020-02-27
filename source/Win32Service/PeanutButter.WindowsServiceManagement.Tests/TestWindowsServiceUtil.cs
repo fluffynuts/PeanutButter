@@ -4,10 +4,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Management;
-using System.ServiceProcess;
 using System.Threading;
 using NUnit.Framework;
-using PeanutButter.RandomGenerators;
 using NExpect;
 using PeanutButter.FileSystem;
 using PeanutButter.Utils;
@@ -58,7 +56,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             //---------------Set up test pack-------------------
 
             //---------------Assert Precondition----------------
-            var svc = new WindowsServiceUtil(RandomValueGen.GetRandomString(20, 30));
+            var svc = new WindowsServiceUtil(GetRandomString(20, 30));
             //---------------Execute Test ----------------------
             Expect(svc.IsInstalled)
                 .To.Be.False();
@@ -93,23 +91,6 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             //---------------Test Result -----------------------
         }
 
-
-        [Test]
-        [Explicit("Use to manually unregister test-service, if you need to (:")]
-        public void ReinstallThing()
-        {
-            //---------------Set up test pack-------------------
-            var util = new WindowsServiceUtil("test-service");
-
-            //---------------Assert Precondition----------------
-            Expect(util.IsInstalled)
-                .To.Be.True();
-
-            //---------------Execute Test ----------------------
-            util.Uninstall(true);
-
-            //---------------Test Result -----------------------
-        }
 
         [Test]
         [Explicit("Run manually, may be system-specific")]
@@ -250,6 +231,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
         public class KillService : TestWindowsServiceUtil
         {
             [Test]
+            [SlowAndFlaky]
             public void ShouldKillSingleWithoutArgs()
             {
                 // Arrange
@@ -289,6 +271,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             //    nice for testing this out
 
             [Test]
+            [SlowAndFlaky]
             public void ShouldKillTheCorrectService()
             {
                 // Arrange
@@ -346,7 +329,36 @@ namespace PeanutButter.WindowsServiceManagement.Tests
         }
 
         [Test]
-        [Explicit("Slow; requires SCM")]
+        public void SearchingForMemoryLeaks()
+        {
+            // Arrange
+            // I've seen
+            // - climbing memory usage when repeatedly querying services
+            // - times when an uninstall of a service doesn't complete until the
+            //    hosting process exits (service is marked for deletion)
+            // -> conclusion: something is holding on to something else
+            // -> however, running this tight loop sees memory stabilize at about 32mb :/
+            var util = Create(
+                TestServiceName,
+                TestServiceName,
+                TestServicePath
+            );
+            using var _ = new AutoResetter(Noop, () => TryDo(() => util.Uninstall()));
+            // Act
+            util.InstallAndStart();
+            var run = 0;
+            while (++run < 10000)
+            {
+                var testUtil = Create(TestServiceName);
+                Console.WriteLine(testUtil.State);
+                GC.Collect();
+            }
+
+            // Assert
+        }
+
+        [Test]
+        [SlowAndFlaky]
         public void ServiceWithArgs()
         {
             // Arrange
@@ -436,6 +448,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
         private string _spacedServiceName;
 
         [Test]
+        [SlowAndFlaky]
         public void InstallingServiceWithSpacedPath()
         {
             // Arrange
@@ -736,6 +749,16 @@ namespace PeanutButter.WindowsServiceManagement.Tests
         }
     }
 
+    public class SlowAndFlakyAttribute : ExplicitAttribute
+    {
+        public SlowAndFlakyAttribute() : base("Slow and (due to scm and state), flaky")
+        {
+        }
+    }
+
+    // TODO: this might be useful in PB.Utils; however this very variant is
+    // super-windows-specific, so one needs to come up with a better cross-platform
+    // variant; perhaps 'ps' for *nix?
     public static class ProcessExtensions
     {
         public static string QueryCommandline(
