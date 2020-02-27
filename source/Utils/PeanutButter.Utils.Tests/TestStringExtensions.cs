@@ -1207,6 +1207,7 @@ namespace PeanutButter.Utils.Tests
                 }
             }
         }
+        
         [TestFixture]
         public class ToMemoryStream
         {
@@ -1241,6 +1242,206 @@ namespace PeanutButter.Utils.Tests
                 var result = input.ToMemoryStream();
                 // Assert
                 Expect(result.ToArray().ToUTF8String()).To.Be.Empty();
+            }
+        }
+
+        [TestFixture]
+        public class SplitCommandline
+        {
+            [Test]
+            public void ShouldReturnEmptyCollectionForNull()
+            {
+                // Arrange
+                var input = null as string;
+                // Act
+                var result = input.SplitCommandline();
+                // Assert
+                Expect(result)
+                    .To.Be.Empty();
+            }
+
+            [Test]
+            public void ShouldReturnSingleProgramNameWhenNoSpaces()
+            {
+                // Arrange
+                var program = $"{GetRandomString(1)}.exe";
+                // Act
+                var result = program.SplitCommandline();
+                // Assert
+                Expect(result)
+                    .To.Equal(new[] { program });
+            }
+
+            [Test]
+            public void ShouldReturnSingleQuotedProgramWithoutQuotes()
+            {
+                // Arrange
+                var program = $"{GetRandomString(1)}.exe";
+                var cli = $"\"{program}\"";
+                // Act
+                var result = cli.SplitCommandline();
+                // Assert
+                Expect(result)
+                    .To.Equal(new[] { program });
+            }
+
+            [Test]
+            public void ShouldReturnSpacedProgramWithoutQuotes()
+            {
+                // Arrange
+                var program = $"C:\\Program Files\\MyApp\\{GetRandomString(1)}.exe";
+                var cli = $"\"{program}\"";
+                // Act
+                var result = cli.SplitCommandline();
+                // Assert
+                Expect(result)
+                    .To.Equal(new[] { program });
+            }
+            
+            [Test]
+            public void ShouldReturnSpacedProgramAndNonSpacedArguments()
+            {
+                // Arrange
+                var program = $"C:\\Program Files\\MyApp\\{GetRandomString(1)}.exe";
+                var cli = $"\"{program}\" arg1 arg2";
+                // Act
+                var result = cli.SplitCommandline();
+                // Assert
+                Expect(result)
+                    .To.Equal(new[] { program, "arg1", "arg2" });
+            }
+            
+            [Test]
+            public void ShouldReturnSpacedProgramAndSpacedArgumentsUnQuoted()
+            {
+                // Arrange
+                var program = $"C:\\Program Files\\MyApp\\{GetRandomString(1)}.exe";
+                var cli = $"\"{program}\" \"arg1 arg2\"";
+                // Act
+                var result = cli.SplitCommandline();
+                // Assert
+                Expect(result)
+                    .To.Equal(new[] { program, "arg1 arg2" });
+            }
+        }
+
+        [TestFixture]
+        public class DeQuote
+        {
+            [TestCase(" ")]
+            [TestCase(null)]
+            [TestCase("\t\r")]
+            public void ShouldReturnNullOrWhitespace(string input)
+            {
+                // Arrange
+                // Act
+                var result = input.DeQuote();
+                // Assert
+                Expect(result).To.Equal(input);
+            }
+            
+            [Test]
+            public void ShouldNotInterfereWithNonQuotedString()
+            {
+                // Arrange
+                var input = GetRandomString(1);    
+                // Act
+                var result = input.DeQuote();
+                // Assert
+                Expect(result)
+                    .To.Equal(input);
+            }
+
+            [Test]
+            public void ShouldNotDeQuoteLonelyQuote()
+            {
+                // Arrange
+                var input = "\"";
+                // Act
+                var result = input.DeQuote();
+                // Assert
+                Expect(result)
+                    .To.Equal(input);
+            }
+
+            [TestCase("\"foo")]
+            [TestCase("foo\"")]
+            public void ShouldNotRemoveUnmatchedQuotes(string input)
+            {
+                // Arrange
+                // Act
+                var result = input.DeQuote();
+                // Assert
+                Expect(result).To.Equal(input);
+            }
+
+            [Test]
+            public void ShouldRemoveBoundingQuotes()
+            {
+                // Arrange
+                var expected = GetRandomString(1);
+                var input = $"\"{expected}\"";
+                // Act
+                var result = input.DeQuote();
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+
+            [Test]
+            public void ShouldNotRemoveInternalQuotes()
+            {
+                // Arrange
+                var expected = $"\"{GetRandomString(1)}";
+                var input = $"\"{expected}\"";
+                // Act
+                var result = input.DeQuote();
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+        }
+
+        [TestFixture]
+        public class Matches
+        {
+            [Test]
+            public void ShouldMatchEmptyCollections()
+            {
+                // Arrange
+                var src = new string[0];
+                var dest = new string[0];
+                // Act
+                var result = src.Matches(dest);
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+
+            [Test]
+            public void ShouldMatchIdenticalCollections()
+            {
+                // Arrange
+                var left = new[] { "a", "b", "c" };
+                var right = new[] { "a", "b", "c" };
+                // Act
+                var result = left.Matches(right);
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+
+            [Test]
+            public void ShouldUseGivenStringComparison()
+            {
+                // Arrange
+                var left = new[] { "a", "b", "c" };
+                var right = new[] { "A", "B", "C" };
+                // Act
+                var result = left.Matches(right, StringComparison.OrdinalIgnoreCase);
+                // Assert
+                Expect(result)
+                    .To.Be.True();
             }
         }
     }

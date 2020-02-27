@@ -9,7 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Net.Compilers" Version="3.3.1" />
+        <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="3.4.0" />
         <PackageReference Include="MySql.Data" Version="8.0.17" />
         <PackageReference Include="nexpect" Version="1.0.165" />
         <PackageReference Include="nunit" Version="3.12.0" />

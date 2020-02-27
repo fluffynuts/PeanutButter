@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Management;
 using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
 using System.Threading;
 using Microsoft.Win32;
 using PeanutButter.WindowsServiceManagement.Exceptions;
@@ -91,11 +90,23 @@ namespace PeanutButter.WindowsServiceManagement
         private readonly string _serviceCommandline;
         private string _serviceExe;
 
-        public string Commandline => _serviceCommandline;
+        public string Commandline =>
+            _serviceCommandline ?? QueryCommandlineForServiceName(ServiceName);
 
         public string ServiceExe
             => _serviceExe ??= QueryExeForServiceName(ServiceName);
 
+        public string[] Arguments
+            => _arguments ??= QueryServiceArguments(ServiceName);
+
+        private string[] _arguments;
+
+        private static string[] QueryServiceArguments(string name)
+        {
+            var cli = QueryCommandlineForServiceName(name);
+            var parts = cli.SplitCommandline();
+            return parts.Skip(1).ToArray();
+        }
 
         private static string QueryExeForServiceName(string name)
         {
@@ -138,12 +149,8 @@ namespace PeanutButter.WindowsServiceManagement
             string name)
         {
             var cli = QueryCommandlineForServiceName(name);
-            return ProgramFinder.Matches(cli).OfType<Match>()
-                .FirstOrDefault()
-                ?.Value;
+            return cli.SplitCommandline().FirstOrDefault();
         }
-
-        private static readonly Regex ProgramFinder = new Regex("((\".+\")|([^ ]+))");
 
         private static class ScPrefixes
         {
@@ -243,10 +250,15 @@ namespace PeanutButter.WindowsServiceManagement
         // ReSharper disable once MemberCanBePrivate.Global
         public uint ServiceStopTimeoutMs { get; set; }
 
+        public WindowsServiceUtil(string serviceName)
+            : this(serviceName, null, null)
+        {
+        }
+
         public WindowsServiceUtil(
             string serviceName,
-            string displayName = null,
-            string serviceCommandline = null)
+            string displayName,
+            string serviceCommandline)
         {
             _serviceName = serviceName;
             _displayName = displayName
@@ -254,8 +266,7 @@ namespace PeanutButter.WindowsServiceManagement
                 ?? QueryDisplayNameForServiceName(serviceName)
                 // fall back on service name -- at least registration won't b0rk
                 ?? serviceName;
-            _serviceCommandline = serviceCommandline
-                ?? QueryCommandlineForServiceName(serviceName);
+            _serviceCommandline = serviceCommandline;
         }
 
         /// <summary>
@@ -354,15 +365,31 @@ namespace PeanutButter.WindowsServiceManagement
         {
             TryDoWithService(service =>
             {
+                var installedHere = false;
                 if (service == IntPtr.Zero)
                 {
                     TryDoWithSCManager(scm =>
                     {
                         service = DoServiceInstall(scm);
+                        if (service != IntPtr.Zero)
+                        {
+                            installedHere = true;
+                        }
                     });
                 }
 
-                StartService(service);
+                if (service == IntPtr.Zero)
+                {
+                    throw new ServiceNotInstalledException(
+                        $"'{ServiceName}' not installed and unable to install"
+                    );
+                }
+
+                StartService(service, true);
+                if (installedHere)
+                {
+                    Win32Api.CloseServiceHandle(service);
+                }
             });
         }
 
@@ -550,9 +577,14 @@ namespace PeanutButter.WindowsServiceManagement
 
         private RegKey GetServiceRegistryKey()
         {
+            return ServiceRegistryKeyFor(ServiceName);
+        }
+
+        private RegKey ServiceRegistryKeyFor(string name)
+        {
             try
             {
-                var path = string.Join("\\", "SYSTEM", "CurrentControlSet", "Services", ServiceName);
+                var path = string.Join("\\", "SYSTEM", "CurrentControlSet", "Services", name);
                 return new RegKey(path);
             }
             catch (Exception)
@@ -576,15 +608,8 @@ namespace PeanutButter.WindowsServiceManagement
         /// <exception cref="ServiceOperationException"></exception>
         public void Start(bool wait)
         {
-            var scm = OpenSCManager(ScmAccessRights.Connect);
-
-            try
+            TryDoWithService(service =>
             {
-                var service = Win32Api.OpenService(
-                    scm,
-                    _serviceName,
-                    ServiceAccessRights.QueryStatus | ServiceAccessRights.Start
-                );
                 if (service == IntPtr.Zero)
                 {
                     throw new ServiceOperationException(_serviceName, ServiceOperationNames.START,
@@ -603,11 +628,7 @@ namespace PeanutButter.WindowsServiceManagement
                 {
                     Win32Api.CloseServiceHandle(service);
                 }
-            }
-            finally
-            {
-                Win32Api.CloseServiceHandle(scm);
-            }
+            });
         }
 
         /// <summary>
@@ -625,14 +646,8 @@ namespace PeanutButter.WindowsServiceManagement
         /// <exception cref="ServiceOperationException"></exception>
         public void Stop(bool wait)
         {
-            var scm = OpenSCManager(ScmAccessRights.Connect);
-            try
+            TryDoWithService(service =>
             {
-                var service = Win32Api.OpenService(
-                    scm,
-                    _serviceName,
-                    ServiceAccessRights.QueryStatus | ServiceAccessRights.Stop
-                );
                 if (service == IntPtr.Zero)
                 {
                     throw new ServiceOperationException(_serviceName,
@@ -640,23 +655,8 @@ namespace PeanutButter.WindowsServiceManagement
                         SERVICE_NOT_INSTALLED);
                 }
 
-                try
-                {
-                    StopService(service, wait);
-                }
-                catch (Exception ex)
-                {
-                    Trace.WriteLine(ex.Message);
-                }
-                finally
-                {
-                    Win32Api.CloseServiceHandle(service);
-                }
-            }
-            finally
-            {
-                Win32Api.CloseServiceHandle(scm);
-            }
+                StopService(service, wait);
+            });
         }
 
         /// <summary>
@@ -674,8 +674,7 @@ namespace PeanutButter.WindowsServiceManagement
         /// <exception cref="ServiceOperationException"></exception>
         public void Pause(bool wait)
         {
-            var scm = OpenSCManager(ScmAccessRights.Connect);
-            try
+            TryDoWithSCManager(scm =>
             {
                 var service = Win32Api.OpenService(scm, _serviceName,
                     ServiceAccessRights.QueryStatus | ServiceAccessRights.PauseContinue);
@@ -698,11 +697,7 @@ namespace PeanutButter.WindowsServiceManagement
                 {
                     Win32Api.CloseServiceHandle(service);
                 }
-            }
-            finally
-            {
-                Win32Api.CloseServiceHandle(scm);
-            }
+            });
         }
 
         /// <summary>
@@ -756,10 +751,13 @@ namespace PeanutButter.WindowsServiceManagement
             }
         }
 
-        private void StartService(IntPtr service, bool wait = true)
+        private void StartService(IntPtr service, bool wait)
         {
             if (GetServiceStatus(service) == ServiceState.Running)
+            {
                 return;
+            }
+
             Win32Api.StartService(service, 0, 0);
             if (wait)
             {
@@ -930,7 +928,11 @@ namespace PeanutButter.WindowsServiceManagement
             return status.CurrentState;
         }
 
-        private bool WaitForServiceStatus(IntPtr service, ServiceState waitStatus, ServiceState desiredStatus)
+        private bool WaitForServiceStatus(
+            IntPtr service,
+            ServiceState waitStatus,
+            ServiceState desiredStatus
+        )
         {
             var status = new Win32Api.SERVICE_STATUS();
             Win32Api.QueryServiceStatus(service, status);
@@ -946,23 +948,26 @@ namespace PeanutButter.WindowsServiceManagement
                 return true;
             }
 
-            if (ServiceStateExtraWaitSeconds > 0)
+            if (ServiceStateExtraWaitSeconds <= 0)
             {
-                var waited = 0;
-                while (waited < ServiceStateExtraWaitSeconds &&
-                    status.CurrentState != desiredStatus)
+                return status.CurrentState == desiredStatus;
+            }
+
+            var waited = 0;
+            while (
+                waited < ServiceStateExtraWaitSeconds &&
+                status.CurrentState != desiredStatus
+            )
+            {
+                Thread.Sleep(1000);
+                waited++;
+                if (Win32Api.QueryServiceStatus(service, status) == 0)
                 {
-                    Thread.Sleep(1000);
-                    waited++;
-                    if (Win32Api.QueryServiceStatus(service, status) == 0)
-                    {
-                        break;
-                    }
+                    break;
                 }
             }
 
-            return status.CurrentState == desiredStatus ||
-                KillService();
+            return status.CurrentState == desiredStatus;
         }
 
         private static void WaitForServiceToChangeStatusTo(IntPtr service,
@@ -1005,72 +1010,40 @@ namespace PeanutButter.WindowsServiceManagement
             return waitTime;
         }
 
+        private int TryGetServicePid()
+        {
+            try
+            {
+                return ServicePID;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
         public bool KillService()
         {
-            var killThese = new List<Process>();
-            using var myProc = Process.GetCurrentProcess();
-            foreach (var proc in Process.GetProcesses())
+            var toKill = TryGetServicePid();
+            if (toKill == 0)
             {
-                using (proc)
-                {
-                    if (proc.Id == myProc.Id)
-                    {
-                        continue;
-                    }
-
-                    try
-                    {
-                        if (proc?.MainModule?.FileName.ToLower() != Commandline)
-                        {
-                            continue;
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        // happens if a 32-bit process tries to read a 64-bit process' info
-                        if (proc.ProcessName.ToLower() == Path.GetFileName(Commandline)?.ToLower())
-                        {
-                            killThese.Add(proc);
-                        }
-                    }
-
-                    try
-                    {
-                        proc.Kill();
-                        return true;
-                    }
-                    catch
-                    {
-                        return false;
-                    }
-                }
+                return false;
             }
 
-            if (killThese.Count == 0)
+            var process = Process.GetProcessById(toKill);
+            try
             {
-                return true; // not running any more
-            }
+                if (!process.HasExited)
+                {
+                    process.Kill();
+                }
 
-            var killed = 0;
-            foreach (var proc in killThese)
+                return true;
+            }
+            catch
             {
-                try
-                {
-                    if (!proc.HasExited)
-                    {
-                        proc.Kill();
-                    }
-
-                    killed++;
-                }
-                // ReSharper disable once EmptyGeneralCatchClause
-                catch
-                {
-                    /* intentionally left blank */
-                }
+                return false;
             }
-
-            return killed == killThese.Count;
         }
 
         // ReSharper disable once InconsistentNaming

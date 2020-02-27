@@ -1,5 +1,6 @@
 <Project>
     <PropertyGroup>
         <UseSharedCompilation>true</UseSharedCompilation>
+        <NoWarn>NU1701</NoWarn>
     </PropertyGroup>
 </Project>

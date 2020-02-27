@@ -469,5 +469,205 @@ namespace PeanutButter.Utils
                 );
             }
         }
+
+        /// <summary>
+        /// Similar to LINQ's Zip extension method, this will zip
+        /// two enumerables together using yield
+        /// - however it will throw an exception if one enumerable
+        /// runs out before the other
+        /// </summary>
+        /// <param name="left">left collection</param>
+        /// <param name="right">right collection</param>
+        /// <typeparam name="TLeft"></typeparam>
+        /// <typeparam name="TRight"></typeparam>
+        /// <returns>A new collection of Tuple&lt;TLeft, TRight&gt;</returns>
+        public static IEnumerable<Tuple<TLeft, TRight>> StrictZip<TLeft, TRight>(
+            this IEnumerable<TLeft> left,
+            IEnumerable<TRight> right)
+        {
+            return left.StrictZip(right, Tuple.Create);
+        }
+
+        /// <summary>
+        /// Similar to LINQ's Zip extension method, this will zip
+        /// two enumerables together using yield
+        /// - however it will throw an exception if one enumerable
+        /// runs out before the other
+        /// </summary>
+        /// <param name="left">left collection</param>
+        /// <param name="right">right collection</param>
+        /// <param name="generator">generator function to produce each item of TResult</param>
+        /// <typeparam name="TLeft"></typeparam>
+        /// <typeparam name="TRight"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <returns>A new collection of TResult, as determined by your generator function</returns>
+        public static IEnumerable<TResult> StrictZip<TLeft, TRight, TResult>(
+            this IEnumerable<TLeft> left,
+            IEnumerable<TRight> right,
+            Func<TLeft, TRight, TResult> generator)
+
+        {
+            if (left is null || right is null)
+            {
+                throw new CannotZipNullException();
+            }
+
+            using var leftEnumerator = left.GetEnumerator();
+            using var rightEnumerator = right.GetEnumerator();
+            while (leftEnumerator.MoveNext() && rightEnumerator.MoveNext())
+            {
+                yield return generator(leftEnumerator.Current, rightEnumerator.Current);
+            }
+
+            if (leftEnumerator.MoveNext() || rightEnumerator.MoveNext())
+            {
+                throw new UnevenZipException<TLeft, TRight>(left, right);
+            }
+        }
+
+        /// <summary>
+        /// Performs full-collection matching on two collections of the same type,
+        /// assuming that .Equals() is a valid comparator between two objects of type T
+        /// </summary>
+        /// <param name="left">left collection</param>
+        /// <param name="right">right collection</param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns>
+        /// true if collections are of the same size and each item, in order,
+        /// from the left item, matches the right one
+        /// </returns>
+        public static bool Matches<T>(
+            this IEnumerable<T> left,
+            IEnumerable<T> right
+        )
+        {
+            return left.Matches(right, (a, b) =>
+            {
+                if (a is null && b is null)
+                {
+                    return true;
+                }
+
+                if (a is null || b is null)
+                {
+                    return false;
+                }
+
+                return a.Equals(b);
+            });
+        }
+
+        /// <summary>
+        /// Performs matching on collections of the same type
+        /// </summary>
+        /// <param name="left">left collection</param>
+        /// <param name="right">right collection</param>
+        /// <param name="comparer">function used to compare two values</param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns>
+        /// true if collections are of the same size and each item, in order,
+        /// from the left item, matches the right one
+        /// </returns>
+        public static bool Matches<T>(
+            this IEnumerable<T> left,
+            IEnumerable<T> right,
+            Func<T, T, bool> comparer)
+        {
+            return left.CrossMatches<T, T>(right, comparer);
+        }
+
+        /// <summary>
+        /// Performs cross-type matching on collections
+        /// </summary>
+        /// <param name="left">left collection</param>
+        /// <param name="right">right collection</param>
+        /// <param name="comparer">function to compare items</param>
+        /// <typeparam name="TLeft"></typeparam>
+        /// <typeparam name="TRight"></typeparam>
+        /// <returns>
+        /// true if collections are of the same size and each item, in order,
+        /// from the left item, matches the right one
+        /// </returns>
+        public static bool CrossMatches<TLeft, TRight>(
+            this IEnumerable<TLeft> left,
+            IEnumerable<TRight> right,
+            Func<TLeft, TRight, bool> comparer
+        )
+        {
+            if (left is null && right is null)
+            {
+                return true;
+            }
+
+            if (left is null || right is null)
+            {
+                return false;
+            }
+
+            try
+            {
+                return left.StrictZip(right)
+                    .All(item =>
+                        comparer(
+                            item.Item1,
+                            item.Item2
+                        )
+                    );
+            }
+            catch (UnevenZipException)
+            {
+                return false;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Thrown when an attempt is made to strict-zip null and anything else
+    /// </summary>
+    public class CannotZipNullException : Exception
+    {
+        /// <inheritdoc />
+        public CannotZipNullException() : base("Cannot zip null value")
+        {
+        }
+    }
+
+    /// <summary>
+    /// Thrown when an attempt is made to zip two collections of
+    /// uneven size
+    /// </summary>
+    public class UnevenZipException : Exception
+    {
+        /// <inheritdoc />
+        public UnevenZipException() : base("Could not zip uneven collections")
+        {
+        }
+    }
+
+    /// <summary>
+    /// Thrown when an attempt is made to zip two collections of
+    /// uneven size. Also includes references to the two collections.
+    /// </summary>
+    public class UnevenZipException<T1, T2> : UnevenZipException
+    {
+        /// <summary>
+        /// The left collection
+        /// </summary>
+        public IEnumerable<T1> Left { get; }
+
+        /// <summary>
+        /// The right collection
+        /// </summary>
+        public IEnumerable<T2> Right { get; }
+
+        /// <inheritdoc />
+        public UnevenZipException(
+            IEnumerable<T1> left,
+            IEnumerable<T2> right
+        )
+        {
+            Left = left;
+            Right = right;
+        }
     }
 }

@@ -71,10 +71,10 @@ namespace PeanutButter.Utils
             this string input)
         {
             return !string.IsNullOrWhiteSpace(input) &&
-                   Truthy.Any(item => item == input.ToLower());
+                Truthy.Any(item => item == input.ToLower());
         }
 
-        private static readonly string[] Truthy = {"yes", "y", "1", "true"};
+        private static readonly string[] Truthy = { "yes", "y", "1", "true" };
 
         /// <summary>
         /// Searches a master string for occurrences of any of the given strings
@@ -486,14 +486,15 @@ namespace PeanutButter.Utils
                 return input;
             }
 
-            var result =  RandomizeCase(input);
+            var result = RandomizeCase(input);
             while (result == input)
             {
                 result = RandomizeCase(input);
             }
+
             return result;
         }
-        
+
         private static readonly Regex AlphaNumericMatch = new Regex("[a-z]+", RegexOptions.IgnoreCase);
 
         private static string RandomizeCase(string input)
@@ -554,12 +555,12 @@ namespace PeanutButter.Utils
         }
 
 #if NETSTANDARD
-/// <summary>
-/// Provides an in-place shum for the ToLower method
-/// which is used from .net framework; the latter
-/// can accept a CultureInfo parameter, where .net standard
-/// cannot, so the parameter is just dropped
-/// </summary>
+        /// <summary>
+        /// Provides an in-place shum for the ToLower method
+        /// which is used from .net framework; the latter
+        /// can accept a CultureInfo parameter, where .net standard
+        /// cannot, so the parameter is just dropped
+        /// </summary>
         public static string ToLower(this string input, CultureInfo ci)
         {
             return input.ToLower();
@@ -625,7 +626,7 @@ namespace PeanutButter.Utils
             this string str)
         {
             return !string.IsNullOrWhiteSpace(str) &&
-                   str.All(IsNumeric);
+                str.All(IsNumeric);
         }
 
         /// <summary>
@@ -636,8 +637,8 @@ namespace PeanutButter.Utils
         public static bool IsAlphanumeric(
             this string str)
         {
-            return !string.IsNullOrWhiteSpace(str) && 
-                   str.All(c => IsAlpha(c) || IsNumeric(c));
+            return !string.IsNullOrWhiteSpace(str) &&
+                str.All(c => IsAlpha(c) || IsNumeric(c));
         }
 
         /// <summary>
@@ -649,7 +650,7 @@ namespace PeanutButter.Utils
             this string str)
         {
             return !string.IsNullOrWhiteSpace(str) &&
-                   str.All(IsAlpha);
+                str.All(IsAlpha);
         }
 
         /// <summary>
@@ -672,7 +673,7 @@ namespace PeanutButter.Utils
             this char c)
         {
             return (c >= 'A' && c <= 'Z') ||
-                   (c >= 'a' && c <= 'z');
+                (c >= 'a' && c <= 'z');
         }
 
         /// <summary>
@@ -699,11 +700,96 @@ namespace PeanutButter.Utils
             {
                 return "";
             }
+
             return Whitespace.IsMatch(str)
                 ? $"\"{str}\""
                 : str;
         }
-        
+
+        /// <summary>
+        /// Splits a commandline, respecting quoting
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static string[] SplitCommandline(
+            this string str)
+        {
+            if (string.IsNullOrWhiteSpace(str))
+            {
+                return new string[0];
+            }
+
+            return CommandlinePartsMatcher
+                .Matches(str)
+                .OfType<Match>()
+                .Select(m => m.Value.DeQuote())
+                .ToArray();
+        }
+
+        /// <summary>
+        /// "de-quotes" a string, only removes the outer-most, paired
+        /// quotes, not just trimming, ie
+        /// ""foo"" => "foo"
+        /// "foo" => foo
+        /// "foo => "foo
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static string DeQuote(this string str)
+        {
+            if (string.IsNullOrWhiteSpace(str))
+            {
+                return str;
+            }
+
+            if (str == "\"")
+            {
+                // edge-case
+                return str;
+            }
+            
+            return str.StartsWith("\"") &&
+                str.EndsWith("\"")
+                ? str.Substring(1, str.Length - 2)
+                : str;
+        }
+
+        /// <summary>
+        /// tests if two string collections are identical, taking into account
+        /// the provide comparison
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <param name="comparison"></param>
+        /// <returns>
+        /// true if collections are of the same size and each item, in order,
+        /// from the left item, matches the right one
+        /// </returns>
+        public static bool Matches(
+            this IEnumerable<string> left,
+            IEnumerable<string> right,
+            StringComparison comparison)
+        {
+            return left.Matches(right,
+                (a, b) =>
+                {
+                    if (a is null && b is null)
+                    {
+                        return true;
+                    }
+
+                    if (a is null || b is null)
+                    {
+                        return false;
+                    }
+                    
+                    return a.Equals(b, comparison);
+                });
+        }
+
+        private static readonly Regex CommandlinePartsMatcher = 
+            new Regex("((\"[^\"]+\")|([^ ]+))");
+
         private static readonly Regex Whitespace =
             new Regex("\\s");
     }

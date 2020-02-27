@@ -69,13 +69,11 @@ namespace PeanutButter.Utils
             if (AnyAreNull(left, right))
                 yield break;
 
-            using (var leftEnumerator = left.GetEnumerator())
-            using (var rightEnumerator = right.GetEnumerator())
+            using var leftEnumerator = left.GetEnumerator();
+            using var rightEnumerator = right.GetEnumerator();
+            while (MoveAll(leftEnumerator, rightEnumerator))
             {
-                while (MoveAll(leftEnumerator, rightEnumerator))
-                {
-                    yield return Tuple.Create(leftEnumerator.Current, rightEnumerator.Current);
-                }
+                yield return Tuple.Create(leftEnumerator.Current, rightEnumerator.Current);
             }
         }
 
@@ -99,18 +97,16 @@ namespace PeanutButter.Utils
             if (AnyAreNull(left, middle, right))
                 yield break;
 
-            using (var leftEnumerator = left.GetEnumerator())
-            using (var middleEnumerator = middle.GetEnumerator())
-            using (var rightEnumerator = right.GetEnumerator())
+            using var leftEnumerator = left.GetEnumerator();
+            using var middleEnumerator = middle.GetEnumerator();
+            using var rightEnumerator = right.GetEnumerator();
+            while (MoveAll(leftEnumerator, middleEnumerator, rightEnumerator))
             {
-                while (MoveAll(leftEnumerator, middleEnumerator, rightEnumerator))
-                {
-                    yield return Tuple.Create(
-                        leftEnumerator.Current,
-                        middleEnumerator.Current,
-                        rightEnumerator.Current
-                    );
-                }
+                yield return Tuple.Create(
+                    leftEnumerator.Current,
+                    middleEnumerator.Current,
+                    rightEnumerator.Current
+                );
             }
         }
 

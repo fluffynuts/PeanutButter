@@ -15,7 +15,7 @@
     <DebugSymbols>True</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Net.Compilers" Version="3.3.1" />
+    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="3.4.0" />
     <PackageReference Include="MySql.Data" Version="8.0.17" />
   </ItemGroup>
   <ItemGroup>

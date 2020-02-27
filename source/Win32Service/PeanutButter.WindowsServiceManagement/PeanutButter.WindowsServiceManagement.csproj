@@ -14,7 +14,7 @@
     <Reference Include="System.ServiceProcess" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Net.Compilers" Version="3.3.1" />
+    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="3.4.0" />
     <PackageReference Include="System.Management" Version="4.6.0" />
   </ItemGroup>
   <ItemGroup>
@@ -23,6 +23,15 @@
   <ItemGroup>
     <Compile Include="..\..\Utils\PeanutButter.Utils\ProcessIO.cs">
       <Link>ProcessIO.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Utils\PeanutButter.Utils\StringExtensions.cs">
+      <Link>StringExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Utils\PeanutButter.Utils\ByteArrayExtensions.cs">
+      <Link>ByteArrayExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Utils\PeanutButter.Utils\ExtensionsForIEnumerables.cs">
+      <Link>ExtensionsForIEnumerables.cs</Link>
     </Compile>
   </ItemGroup>
   <Import Project="..\..\MonoForFramework.targets"/>

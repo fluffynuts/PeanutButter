@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Management;
+using System.ServiceProcess;
 using System.Threading;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
@@ -143,15 +145,13 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                 () => Expect(util.IsInstalled)
                     .To.Be.True()
             );
-            Do("Test service executable path",
-                () =>
-                    Expect(util.Commandline)
-                        .To.Equal(serviceExe)
+            Do("Test service commandline",
+                () => Expect(util.Commandline)
+                    .To.Equal(serviceExe)
             );
             Do("Test default startup type",
-                () =>
-                    Expect(util.StartupType)
-                        .To.Equal(ServiceStartupTypes.Automatic)
+                () => Expect(util.StartupType)
+                    .To.Equal(ServiceStartupTypes.Automatic)
             );
 
             Do("Disabled service",
@@ -169,14 +169,13 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                         .To.Equal(ServiceStartupTypes.Automatic);
                 });
 
-            Process process = null;
             Do("Start service",
                 () =>
                 {
                     util.Start();
                     Expect(util.State)
                         .To.Equal(ServiceState.Running);
-                    process = Process.GetProcesses().FirstOrDefault(p =>
+                    var process = Process.GetProcesses().FirstOrDefault(p =>
                     {
                         try
                         {
@@ -233,6 +232,10 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             Do("Install and start (api)",
                 () =>
                 {
+                    util = new WindowsServiceUtil(
+                        TestServiceName,
+                        TestServiceName,
+                        serviceExe);
                     util.InstallAndStart();
                     Expect(util.IsInstalled)
                         .To.Be.True();
@@ -241,6 +244,105 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                 });
             Do("Uninstall (api)", () => util.Uninstall());
             // Assert
+        }
+
+        [TestFixture]
+        public class KillService : TestWindowsServiceUtil
+        {
+            [Test]
+            public void ShouldKillSingleWithoutArgs()
+            {
+                // Arrange
+                var util = Create(
+                    TestServiceName,
+                    TestServiceName,
+                    TestServicePath
+                );
+                util.InstallAndStart();
+                // Act
+                var allProcesses = Process.GetProcesses();
+                var proc = allProcesses
+                    .Single(p => HasMainModule(p, TestServicePath));
+                var result = util.KillService();
+                // Assert
+                Expect(proc.HasExited)
+                    .To.Be.True();
+                Expect(result)
+                    .To.Be.True();
+            }
+
+            private static bool HasMainModule(
+                Process p,
+                string path)
+            {
+                try
+                {
+                    return p.MainModule.FileName == path;
+                }
+                catch // easy to get access denied!
+                {
+                    return false;
+                }
+            }
+
+            // Spaced Service doesn't attempt to do anything with arguments, so it's
+            //    nice for testing this out
+
+            [Test]
+            public void ShouldKillTheCorrectService()
+            {
+                // Arrange
+                var service1Name = $"service-1-{Guid.NewGuid()}";
+                var service2Name = $"service-2-{Guid.NewGuid()}";
+                var args1 = GetRandomArray<string>(2);
+                var args2 = GetRandomArray<string>(2);
+                var cli1 = $"\"{SpacedServiceExe}\" {string.Join(" ", args1)}";
+                var cli2 = $"\"{SpacedServiceExe}\" {string.Join(" ", args2)}";
+                var util1 = Create(service1Name, service1Name, cli1);
+                var util2 = Create(service2Name, service2Name, cli2);
+                util1.InstallAndStart();
+                util2.InstallAndStart();
+
+                using var _ = new AutoResetter(Noop, () =>
+                {
+                    TryDo(() => util1.Uninstall());
+                    TryDo(() => util2.Uninstall());
+                });
+
+                var processes = Process.GetProcesses()
+                    .Where(p => HasMainModule(p, SpacedServiceExe))
+                    .ToArray();
+                var p1 = processes.FirstOrDefault(
+                    p =>
+                    {
+                        var testArgs = p.QueryCommandline()
+                            .SplitCommandline()
+                            .Skip(1)
+                            .ToArray();
+                        return testArgs.Matches(args1);
+                    }
+                );
+                var p2 = processes.FirstOrDefault(
+                    p => p.QueryCommandline()
+                        .SplitCommandline()
+                        .Skip(1)
+                        .Matches(args2)
+                );
+
+                Expect(p1)
+                    .Not.To.Be.Null(() => $"Can't find process for {cli1}");
+                Expect(p2)
+                    .Not.To.Be.Null(() => $"Can't find process for {cli2}");
+
+                // Act
+                util1.KillService();
+
+                // Assert
+                Expect(p1.HasExited)
+                    .To.Be.True();
+                Expect(p2.HasExited)
+                    .To.Be.False();
+            }
         }
 
         [Test]
@@ -312,19 +414,38 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                 .To.Equal(displayName);
         }
 
-        [Test]
-        public void InstallingServiceWithSpacedPath()
-        {
-            // Arrange
-            var spacedServiceExe = FindPath(
+        private string SpacedServiceExe =>
+            _spacedServiceExe ??= FindPath(
                 "SpacedService",
                 "SpacedService.exe",
                 p => !p.Contains("obj")
             );
-            var serviceName = "spaced-service";
-            Expect(spacedServiceExe)
+
+        private string _spacedServiceExe;
+
+        private Guid SpacedServiceIdentifier =>
+            _spacedServiceIdentifier ??= Guid.NewGuid();
+
+        private Guid? _spacedServiceIdentifier;
+
+        private string SpacedServiceName =>
+            _spacedServiceName ??= $"SpacedService-{SpacedServiceIdentifier}";
+
+        private string SpacedServiceDisplayName => $"Spaced Service {SpacedServiceIdentifier}";
+
+        private string _spacedServiceName;
+
+        [Test]
+        public void InstallingServiceWithSpacedPath()
+        {
+            // Arrange
+            Expect(SpacedServiceExe)
                 .Not.To.Be.Null();
-            var sut = Create(serviceName, "Spaced Service", $"\"{spacedServiceExe}\" --arg --another-arg");
+            var sut = Create(
+                SpacedServiceName,
+                SpacedServiceDisplayName,
+                $"\"{SpacedServiceExe}\" --arg --another-arg"
+            );
             sut.ServiceStateExtraWaitSeconds = 30;
             // Act
             var completed = false;
@@ -335,7 +456,10 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                     return;
                 }
 
-                KillService(serviceName, spacedServiceExe);
+                EnsureServiceNotRunning(
+                    SpacedServiceName,
+                    SpacedServiceExe
+                );
             });
             Expect(sut.Install)
                 .Not.To.Throw();
@@ -350,13 +474,13 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             sut.Uninstall();
             // signal the safety-net that it doesn't have to do anything
             completed = true;
-
-            void Noop()
-            {
-            }
         }
 
-        private void KillService(string name, string exe)
+        private static void Noop()
+        {
+        }
+
+        private void EnsureServiceNotRunning(string name, string exe)
         {
             // big hammer to enforce service non-existence at exit
 
@@ -540,27 +664,25 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             string program,
             params string[] args)
         {
-            using (var proc = new Process())
+            using var proc = new Process();
+            var si = proc.StartInfo;
+            si.FileName = program;
+            si.Arguments = args.Select(QuoteIfNecessary).JoinWith(" ");
+            si.RedirectStandardError = true;
+            si.RedirectStandardInput = true;
+            si.RedirectStandardOutput = true;
+            si.CreateNoWindow = true;
+            si.UseShellExecute = false;
+
+            if (!proc.Start())
             {
-                var si = proc.StartInfo;
-                si.FileName = program;
-                si.Arguments = args.Select(QuoteIfNecessary).JoinWith(" ");
-                si.RedirectStandardError = true;
-                si.RedirectStandardInput = true;
-                si.RedirectStandardOutput = true;
-                si.CreateNoWindow = true;
-                si.UseShellExecute = false;
+                throw new ApplicationException($"Can't start {program} {args.JoinWith(" ")}");
+            }
 
-                if (!proc.Start())
-                {
-                    throw new ApplicationException($"Can't start {program} {args.JoinWith(" ")}");
-                }
-
-                proc.WaitForExit();
-                if (proc.ExitCode != 0)
-                {
-                    throw new Exception($"{program} {args.JoinWith(" ")}\nexited with code {proc.ExitCode}");
-                }
+            proc.WaitForExit();
+            if (proc.ExitCode != 0)
+            {
+                throw new Exception($"{program} {args.JoinWith(" ")}\nexited with code {proc.ExitCode}");
             }
         }
 
@@ -594,7 +716,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
         {
             // attempts to stop and uninstall all found test service instances
             var serviceNames = new List<string>();
-            using (var io = new ProcessIO("sc", "query", "type=", "service"))
+            using (var io = new ProcessIO("sc", "query", "type=", "service", "state=", "all"))
             {
                 serviceNames.AddRange(
                     io.StandardOutput
@@ -611,6 +733,28 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                 TryDo(() => Run("sc", "stop", serviceName));
                 TryDo(() => Run("sc", "delete", serviceName));
             });
+        }
+    }
+
+    public static class ProcessExtensions
+    {
+        public static string QueryCommandline(
+            this Process proc)
+        {
+            if (proc == null || proc.HasExited || proc.Id < 1)
+            {
+                return ""; // nothing we can do
+            }
+
+            var query = $"select CommandLine from Win32_Process where ProcessId={proc.Id}";
+            var searcher = new ManagementObjectSearcher(query);
+            var collection = searcher.Get();
+            foreach (var o in collection)
+            {
+                return o["CommandLine"]?.ToString() ?? "";
+            }
+
+            return "";
         }
     }
 }

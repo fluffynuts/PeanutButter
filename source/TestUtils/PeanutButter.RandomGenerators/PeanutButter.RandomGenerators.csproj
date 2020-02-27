@@ -10,7 +10,7 @@
     <DefineConstants>NETSTANDARD</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Net.Compilers" Version="3.3.1" />
+    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="3.4.0" />
     <PackageReference Include="system.reflection.emit" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup>

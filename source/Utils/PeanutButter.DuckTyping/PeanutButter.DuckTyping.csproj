@@ -6,6 +6,7 @@
         <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\PeanutButter.DuckTyping.xml</DocumentationFile>
         <Platforms>AnyCPU</Platforms>
         <DefineConstants>BUILD_PEANUTBUTTER_INTERNAL</DefineConstants>
+        <LangVersion>latest</LangVersion>
     </PropertyGroup>
     <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
         <DefineConstants>NETSTANDARD;BUILD_PEANUTBUTTER_INTERNAL</DefineConstants>
@@ -34,7 +35,7 @@
       <Folder Include="Imported\" />
     </ItemGroup>
     <ItemGroup>
-      <PackageReference Include="Microsoft.Net.Compilers" Version="3.3.1" />
+      <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="3.4.0" />
       <PackageReference Include="system.reflection.emit" Version="4.3.0" />
     </ItemGroup>
     <ItemGroup Condition="'$(TargetFramework)'=='net452'">

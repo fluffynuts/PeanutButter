@@ -26,7 +26,7 @@
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Net.Compilers" Version="3.3.1" />
+    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="3.4.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />
     <PackageReference Include="NExpect" Version="1.0.165" />
     <PackageReference Include="NUnit">
@@ -37,9 +37,12 @@
   <ItemGroup>
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.ServiceProcess" />
+  </ItemGroup>
   <PropertyGroup>
     <PreBuildEvent Condition=" '$(OS)' == 'Windows_NT'">mkdir $(SolutionDir)Win32Service\PeanutButter.WindowsServiceManagement.Tests\$(OutDir)
 copy $(SolutionDir)Win32Service\TestService\$(OutDir)* $(TargetDir)</PreBuildEvent>
   </PropertyGroup>
-  <Import Project="..\..\MonoForFramework.targets"/>
+  <Import Project="..\..\MonoForFramework.targets" />
 </Project>

@@ -27,8 +27,8 @@
     <PackageReference Include="FluentMigrator.Runner">
       <Version>1.6.2</Version>
     </PackageReference>
-    <PackageReference Include="Microsoft.Net.Compilers">
-      <Version>3.3.1</Version>
+    <PackageReference Include="Microsoft.Net.Compilers.Toolset">
+      <Version>3.4.0</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
