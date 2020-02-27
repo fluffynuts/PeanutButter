@@ -20,5 +20,5 @@
     <ProjectReference Include="..\Utils\PeanutButter.XmlUtils\PeanutButter.XmlUtils.csproj" />
   </ItemGroup>
 
-  <Import Project="..\..\MonoForFramework.targets"/>
+  <Import Project="..\MonoForFramework.targets"/>
 </Project>
