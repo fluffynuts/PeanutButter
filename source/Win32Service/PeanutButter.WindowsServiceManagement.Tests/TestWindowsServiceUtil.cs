@@ -231,7 +231,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
         public class KillService : TestWindowsServiceUtil
         {
             [Test]
-            [SlowAndFlaky]
+            [Explicit("Slow and flaky")]
             public void ShouldKillSingleWithoutArgs()
             {
                 // Arrange
@@ -271,7 +271,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             //    nice for testing this out
 
             [Test]
-            [SlowAndFlaky]
+            [Explicit("Slow and flaky")]
             public void ShouldKillTheCorrectService()
             {
                 // Arrange
@@ -358,7 +358,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
         }
 
         [Test]
-        [SlowAndFlaky]
+        [Explicit("Slow and flaky")]
         public void ServiceWithArgs()
         {
             // Arrange
@@ -448,7 +448,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
         private string _spacedServiceName;
 
         [Test]
-        [SlowAndFlaky]
+        [Explicit("Slow and flaky")]
         public void InstallingServiceWithSpacedPath()
         {
             // Arrange
@@ -746,13 +746,6 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                 TryDo(() => Run("sc", "stop", serviceName));
                 TryDo(() => Run("sc", "delete", serviceName));
             });
-        }
-    }
-
-    public class SlowAndFlakyAttribute : ExplicitAttribute
-    {
-        public SlowAndFlakyAttribute() : base("Slow and (due to scm and state), flaky")
-        {
         }
     }
 
