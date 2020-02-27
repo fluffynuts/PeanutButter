@@ -15,6 +15,9 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Castle.Windsor" Version="5.0.0" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Utils\PeanutButter.Utils.Windsor\PeanutButter.Utils.Windsor.csproj" />
     <ProjectReference Include="..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj" />
     <ProjectReference Include="..\Utils\PeanutButter.XmlUtils\PeanutButter.XmlUtils.csproj" />
