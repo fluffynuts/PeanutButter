@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Management;
 using System.Runtime.InteropServices;
+using System.Security;
 using System.Threading;
 using Microsoft.Win32;
 using PeanutButter.WindowsServiceManagement.Exceptions;
@@ -91,7 +92,7 @@ namespace PeanutButter.WindowsServiceManagement
         private string _serviceExe;
 
         public string Commandline =>
-            _serviceCommandline ?? QueryCommandlineForServiceName(ServiceName);
+            _serviceCommandline ?? FindCommandlineForServiceName(ServiceName);
 
         public string ServiceExe
             => _serviceExe ??= QueryExeForServiceName(ServiceName);
@@ -103,7 +104,7 @@ namespace PeanutButter.WindowsServiceManagement
 
         private static string[] QueryServiceArguments(string name)
         {
-            var cli = QueryCommandlineForServiceName(name);
+            var cli = FindCommandlineForServiceName(name);
             var parts = cli.SplitCommandline();
             return parts.Skip(1).ToArray();
         }
@@ -113,7 +114,7 @@ namespace PeanutButter.WindowsServiceManagement
             return FindExecutableForServiceByName(name);
         }
 
-        private static string QueryCommandlineForServiceName(string name)
+        private static string FindCommandlineForServiceName(string name)
         {
             return QueryServiceControlForValueOfLineStartingWith(
                 ScPrefixes.SERVICE_CLI,
@@ -148,7 +149,7 @@ namespace PeanutButter.WindowsServiceManagement
         private static string FindExecutableForServiceByName(
             string name)
         {
-            var cli = QueryCommandlineForServiceName(name);
+            var cli = FindCommandlineForServiceName(name);
             return cli.SplitCommandline().FirstOrDefault();
         }
 
@@ -159,44 +160,51 @@ namespace PeanutButter.WindowsServiceManagement
             public const string SERVICE_CLI = "BINARY_PATH_NAME";
         }
 
+        private const string REG_SERVICES_BASE = "SYSTEM\\CurrentControlSet\\Services";
+
         public static WindowsServiceUtil GetServiceByPath(string path)
         {
-            var queryString =
-                $"select Name from Win32_Service where PathName = '{path.Replace("'", "''").Replace("\\", "\\\\")}'";
-            using var searcher = new ManagementObjectSearcher(queryString);
-            using var collection = searcher.Get();
-            if (collection.Count == 0)
+            using var baseKey = Registry.LocalMachine.OpenSubKey(REG_SERVICES_BASE);
+            if (baseKey is null)
             {
-                return null;
+                throw new SecurityException(
+                    $"Unable to read registry key {REG_SERVICES_BASE}"
+                );
             }
 
-            var svcName = collection.Cast<ManagementBaseObject>()
-                .Select(item => item.Properties["Name"].Value.ToString())
-                .FirstOrDefault();
-            return svcName == null
-                ? null
-                : new WindowsServiceUtil(svcName);
+            var searchParts = path.SplitCommandline();
+            var potentials = new List<string>(); // not direct matches
+            foreach (var serviceName in baseKey.GetSubKeyNames())
+            {
+                using var subKey = baseKey.OpenSubKey(serviceName);
+                var imagePath = subKey?.GetValue("ImagePath") as string;
+                if (imagePath is null)
+                {
+                    continue;
+                }
 
-            // TODO: this works, but it's SLOW
-            // -> try rather querying the registry directly:
-            //  HKLM/CurrentControlSet/Services/(service-name)/ImagePath
-            //  where type (DWORD) == 16
+                var parts = imagePath.SplitCommandline();
+                if (parts.Matches(searchParts, StringComparison.OrdinalIgnoreCase))
+                {
+                    return new WindowsServiceUtil(serviceName);
+                }
 
-            // using (var io = new ProcessIO("sc", "query", "type=", "service"))
-            // {
-            //     var output = io.StandardOutput.ToArray();
-            //     var serviceName = output
-            //         .Select(line => line.Trim())
-            //         .Where(line => line.StartsWith(ScPrefixes.SERVICE_NAME))
-            //         .Select(line => string.Join(":", line.Split(':').Skip(1)).Trim())
-            //         .Select(name => new { name, exe = FindExecutableForServiceByName(name) }).Where(o => path.Equals(o.exe, StringComparison.OrdinalIgnoreCase))
-            //         .Select(o => o.name)
-            //         .FirstOrDefault();
-            //     return serviceName == null
-            //         ? null as WindowsServiceUtil
-            //         : new WindowsServiceUtil(serviceName);
-            //         
-            // }
+                if (parts[0].Equals(searchParts[0], StringComparison.OrdinalIgnoreCase))
+                {
+                    potentials.Add(serviceName);
+                }
+            }
+
+            // matched on service exe, even without args
+            if (potentials.Count == 1)
+            {
+                return new WindowsServiceUtil(potentials[0]);
+            }
+
+            var msg = potentials.Count == 0 ? "No": "Multiple";
+            throw new ArgumentException(
+                $"{msg} matches for queried service path {path}"
+            );
         }
 
         public int ServiceStateExtraWaitSeconds { get; set; }
