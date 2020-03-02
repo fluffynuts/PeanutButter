@@ -29,6 +29,7 @@ namespace PeanutButter.WindowsServiceManagement
         bool IsMarkedForDelete { get; }
         int ServiceStateExtraWaitSeconds { get; set; }
         ServiceStartupTypes StartupType { get; }
+        int ServicePID { get; }
 
         void Uninstall();
         void Uninstall(bool waitForUninstall);
