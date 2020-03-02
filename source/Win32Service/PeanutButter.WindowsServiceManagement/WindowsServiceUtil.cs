@@ -1050,6 +1050,15 @@ namespace PeanutButter.WindowsServiceManagement
                 if (!process.HasExited)
                 {
                     process.Kill();
+
+                    try
+                    {
+                        process.WaitForExit(2000);
+                    }
+                    catch
+                    {
+                        /* */
+                    }
                 }
 
                 return process.HasExited 
