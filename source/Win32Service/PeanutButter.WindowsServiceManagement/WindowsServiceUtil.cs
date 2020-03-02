@@ -26,6 +26,7 @@ namespace PeanutButter.WindowsServiceManagement
         string Commandline { get; }
         ServiceState State { get; }
         bool IsInstalled { get; }
+        bool IsMarkedForDelete { get; }
         int ServiceStateExtraWaitSeconds { get; set; }
         ServiceStartupTypes StartupType { get; }
 
@@ -223,6 +224,9 @@ namespace PeanutButter.WindowsServiceManagement
 
         public bool IsInstalled =>
             Win32ApiMethodForQueryingServiceInstalled();
+
+        public bool IsMarkedForDelete =>
+            ServiceIsMarkedForDelete();
 
         private bool Win32ApiMethodForQueryingServiceInstalled()
         {
