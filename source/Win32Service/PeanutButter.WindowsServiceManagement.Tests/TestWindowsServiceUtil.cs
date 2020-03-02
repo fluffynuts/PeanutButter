@@ -264,7 +264,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                 Expect(proc.HasExited)
                     .To.Be.True();
                 Expect(result)
-                    .To.Be.True();
+                    .To.Equal(KillServiceResult.Killed);
             }
 
             private static bool HasMainModule(

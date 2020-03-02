@@ -34,5 +34,5 @@
       <Link>ExtensionsForIEnumerables.cs</Link>
     </Compile>
   </ItemGroup>
-  <Import Project="..\..\MonoForFramework.targets"/>
+  <Import Project="..\..\MonoForFramework.targets" />
 </Project>

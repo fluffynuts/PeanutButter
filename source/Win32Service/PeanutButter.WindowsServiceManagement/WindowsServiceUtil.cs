@@ -44,7 +44,7 @@ namespace PeanutButter.WindowsServiceManagement
         void Disable();
         void SetAutomaticStart();
         void SetManualStart();
-        bool KillService();
+        KillServiceResult KillService();
     }
 
     public class WindowsServiceUtil : IWindowsServiceUtil
@@ -1036,12 +1036,12 @@ namespace PeanutButter.WindowsServiceManagement
             }
         }
 
-        public bool KillService()
+        public KillServiceResult KillService()
         {
             var toKill = TryGetServicePid();
             if (toKill == 0)
             {
-                return false;
+                return KillServiceResult.NotRunning;
             }
 
             var process = Process.GetProcessById(toKill);
@@ -1052,11 +1052,13 @@ namespace PeanutButter.WindowsServiceManagement
                     process.Kill();
                 }
 
-                return true;
+                return process.HasExited 
+                    ? KillServiceResult.Killed 
+                    : KillServiceResult.UnableToKill;
             }
             catch
             {
-                return false;
+                return KillServiceResult.UnableToKill;
             }
         }
 
