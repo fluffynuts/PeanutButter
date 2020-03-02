@@ -43,6 +43,7 @@ namespace PeanutButter.WindowsServiceManagement
         void Disable();
         void SetAutomaticStart();
         void SetManualStart();
+        bool KillService();
     }
 
     public class WindowsServiceUtil : IWindowsServiceUtil
