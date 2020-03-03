@@ -21,38 +21,126 @@ namespace PeanutButter.WindowsServiceManagement
 {
     public interface IWindowsServiceUtil
     {
+        /// <summary>
+        /// The name of the service, usable from, eg 'net stop {name}'
+        /// </summary>
         string ServiceName { get; }
+        /// <summary>
+        /// The name displayed in the service manager (service.msc)
+        /// </summary>
         string DisplayName { get; }
+        /// <summary>
+        /// The full commandline run for this service
+        /// </summary>
         string Commandline { get; }
+        /// <summary>
+        /// The current state of this service
+        /// </summary>
         ServiceState State { get; }
+        /// <summary>
+        /// Whether or not this service is installed; will
+        /// also return false if the service is marked for deletion.
+        /// </summary>
         bool IsInstalled { get; }
+        /// <summary>
+        /// Test if the service is marked for deletion.
+        /// </summary>
         bool IsMarkedForDelete { get; }
+        /// <summary>
+        /// How many extra seconds to wait on service operations,
+        /// outside of the recommended wait hint provided by
+        /// the ServiceControlManager
+        /// </summary>
         int ServiceStateExtraWaitSeconds { get; set; }
+        /// <summary>
+        /// Startup type for service, eg auto, disabled, manual
+        /// </summary>
         ServiceStartupTypes StartupType { get; }
+        /// <summary>
+        /// The current process id of the service, if running.
+        /// Will return -1 if not running
+        /// </summary>
         int ServicePID { get; }
 
+        /// <summary>
+        /// Uninstall the service, waiting for completion and killing
+        /// the service process if it doesn't stop in time, as
+        /// determined by the SCM wait hint and any extra time specified
+        /// in ServiceStateExtraWaitSeconds
+        /// </summary>
         void Uninstall();
-
         [Obsolete("Rather use the overload with ControlOptions")]
         void Uninstall(bool waitForUninstall);
-
+        /// <summary>
+        /// Uninstall the service, with full control over waiting and
+        /// forceful stopping.
+        /// </summary>
+        /// <param name="options"></param>
         void Uninstall(ControlOptions options);
+        /// <summary>
+        /// Installs and starts the service, waiting for the service
+        /// to report that it's running
+        /// </summary>
         void InstallAndStart();
+        /// <summary>
+        /// Install and start the service, with control over whether
+        /// to wait for the service to have properly started
+        /// </summary>
+        /// <param name="waitForStart"></param>
         void InstallAndStart(bool waitForStart);
+        /// <summary>
+        /// Install the service only
+        /// </summary>
         void Install();
+        /// <summary>
+        /// Start the service only, waiting for it to enter the Running state
+        /// </summary>
         void Start();
+        /// <summary>
+        /// Start the service, optionally waiting to enter the Running state
+        /// </summary>
+        /// <param name="wait"></param>
         void Start(bool wait);
+        /// <summary>
+        /// Stop the service, waiting for it to come to rest and forcing stop
+        /// if it doesn't do so in time, as determined by the SCM wait hint
+        /// and any extra time specified in ServiceStateExtraWaitSeconds
+        /// </summary>
         void Stop();
 
         [Obsolete("Rather use the overload with ControlOptions")]
         void Stop(bool wait);
 
+        /// <summary>
+        /// Stop the service, with full control over whether to wait and
+        /// whether to force stop
+        /// </summary>
+        /// <param name="options"></param>
         void Stop(ControlOptions options);
+        /// <summary>
+        /// Pause the service, if running
+        /// </summary>
         void Pause();
+        /// <summary>
+        /// Continue a paused service
+        /// </summary>
         void Continue();
+        /// <summary>
+        /// Disable the service from running
+        /// </summary>
         void Disable();
+        /// <summary>
+        /// Set the service to automatically start with the host system
+        /// </summary>
         void SetAutomaticStart();
+        /// <summary>
+        /// Set the service to require manual start
+        /// </summary>
         void SetManualStart();
+        /// <summary>
+        /// Kills the service, if running
+        /// </summary>
+        /// <returns></returns>
         KillServiceResult KillService();
     }
 
@@ -823,14 +911,22 @@ namespace PeanutButter.WindowsServiceManagement
             }
 
             Win32Api.StartService(service, 0, 0);
-            if (wait)
+            if (!wait)
             {
-                var changedStatus = WaitForServiceStatus(service, ServiceState.StartPending, ServiceState.Running);
-                if (!changedStatus)
-                    throw new ServiceOperationException(_serviceName,
-                        ServiceOperationNames.START,
-                        "Unable to start service");
+                return;
             }
+
+            if (WaitForServiceStatus(
+                service,
+                ServiceState.StartPending,
+                ServiceState.Running))
+            {
+                return;
+            }
+
+            throw new ServiceOperationException(_serviceName,
+                ServiceOperationNames.START,
+                "Unable to start service");
         }
 
         private void StopService(
@@ -862,6 +958,7 @@ namespace PeanutButter.WindowsServiceManagement
             {
                 return;
             }
+
             var pid = process.Id;
 
             try
@@ -1075,14 +1172,13 @@ namespace PeanutButter.WindowsServiceManagement
                 return status.CurrentState == desiredStatus;
             }
 
-            var waited = 0;
+            var waitUntil = DateTime.Now.AddSeconds(ServiceStateExtraWaitSeconds);
             while (
-                waited < ServiceStateExtraWaitSeconds &&
+                DateTime.Now > waitUntil &&
                 status.CurrentState != desiredStatus
             )
             {
-                Thread.Sleep(1000);
-                waited++;
+                Thread.Sleep(200);
                 if (Win32Api.QueryServiceStatus(service, status) == 0)
                 {
                     break;
