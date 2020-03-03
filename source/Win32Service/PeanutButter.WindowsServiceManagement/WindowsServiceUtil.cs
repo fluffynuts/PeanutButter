@@ -34,6 +34,14 @@ namespace PeanutButter.WindowsServiceManagement
         /// </summary>
         string Commandline { get; }
         /// <summary>
+        /// The executable of the service
+        /// </summary>
+        string ServiceExe { get; }
+        /// <summary>
+        /// Any arguments this service is run with
+        /// </summary>
+        string[] Arguments { get; }
+        /// <summary>
         /// The current state of this service
         /// </summary>
         ServiceState State { get; }
@@ -61,6 +69,14 @@ namespace PeanutButter.WindowsServiceManagement
         /// Will return -1 if not running
         /// </summary>
         int ServicePID { get; }
+        /// <summary>
+        /// True if the service is in a stoppable state
+        /// </summary>
+        bool IsStoppable { get; }
+        /// <summary>
+        /// True if the service is in a startable state
+        /// </summary>
+        bool IsStartable { get; }
 
         /// <summary>
         /// Uninstall the service, waiting for completion and killing
@@ -118,13 +134,21 @@ namespace PeanutButter.WindowsServiceManagement
         /// <param name="options"></param>
         void Stop(ControlOptions options);
         /// <summary>
-        /// Pause the service, if running
+        /// Pause the service, if running and wait for change of state
         /// </summary>
         void Pause();
         /// <summary>
-        /// Continue a paused service
+        /// Pause the service, if running, optionally waiting
+        /// </summary>
+        void Pause(bool wait);
+        /// <summary>
+        /// Continue a paused service, waiting for change of state
         /// </summary>
         void Continue();
+        /// <summary>
+        /// Continue a paused service, optionally waiting for change of state
+        /// </summary>
+        void Continue(bool wait);
         /// <summary>
         /// Disable the service from running
         /// </summary>
@@ -159,8 +183,10 @@ namespace PeanutButter.WindowsServiceManagement
 
         private readonly string _serviceName;
 
+        /// <inheritdoc />
         public string ServiceName => _serviceName;
 
+        /// <inheritdoc />
         public bool IsStoppable => StoppableStates.Contains(State);
 
         private static readonly HashSet<ServiceState> StoppableStates
@@ -174,6 +200,7 @@ namespace PeanutButter.WindowsServiceManagement
                     ServiceState.StartPending
                 });
 
+        /// <inheritdoc />
         public bool IsStartable => StartableStates.Contains(State);
 
         private static readonly HashSet<ServiceState> StartableStates
@@ -190,6 +217,7 @@ namespace PeanutButter.WindowsServiceManagement
         // TODO: when displayname is not set for install (ie from query)
         //         then this util should query for the current display name of
         //         the service (if found)
+        /// <inheritdoc />
         public string DisplayName
         {
             get => _displayName;
@@ -200,12 +228,15 @@ namespace PeanutButter.WindowsServiceManagement
         private readonly string _serviceCommandline;
         private string _serviceExe;
 
+        /// <inheritdoc />
         public string Commandline =>
             _serviceCommandline ?? FindCommandlineForServiceName(ServiceName);
 
+        /// <inheritdoc />
         public string ServiceExe
             => _serviceExe ??= QueryExeForServiceName(ServiceName);
 
+        /// <inheritdoc />
         public string[] Arguments
             => _arguments ??= QueryServiceArguments(ServiceName);
 
@@ -318,8 +349,10 @@ namespace PeanutButter.WindowsServiceManagement
             );
         }
 
+        /// <inheritdoc />
         public int ServiceStateExtraWaitSeconds { get; set; }
 
+        /// <inheritdoc />
         public ServiceState State
         {
             get
@@ -332,9 +365,11 @@ namespace PeanutButter.WindowsServiceManagement
             }
         }
 
+        /// <inheritdoc />
         public bool IsInstalled =>
             Win32ApiMethodForQueryingServiceInstalled();
 
+        /// <inheritdoc />
         public bool IsMarkedForDelete =>
             ServiceIsMarkedForDelete();
 
@@ -369,9 +404,6 @@ namespace PeanutButter.WindowsServiceManagement
             }
         }
 
-        // ReSharper disable once MemberCanBePrivate.Global
-        public uint ServiceStopTimeoutMs { get; set; }
-
         public WindowsServiceUtil(string serviceName)
             : this(serviceName, null, null)
         {
@@ -391,25 +423,19 @@ namespace PeanutButter.WindowsServiceManagement
             _serviceCommandline = serviceCommandline;
         }
 
-        /// <summary>
-        /// Uninstalls the service, waiting for it to stop and be uninstalled
-        /// </summary>
+        /// <inheritdoc />
         public void Uninstall()
         {
             Uninstall(true);
         }
 
-        /// <summary>
-        /// Uninstall the service, conditionally don't wait for the process to complete
-        /// </summary>
-        /// <param name="waitForUninstall"></param>
-        /// <exception cref="ServiceNotInstalledException"></exception>
-        /// <exception cref="ServiceOperationException"></exception>
+        /// <inheritdoc />
         public void Uninstall(bool waitForUninstall)
         {
             Uninstall(ControlOptions.Wait | ControlOptions.Force);
         }
 
+        /// <inheritdoc />
         public void Uninstall(ControlOptions options)
         {
             var wait = options.HasFlag(ControlOptions.Wait);
@@ -456,6 +482,7 @@ namespace PeanutButter.WindowsServiceManagement
         }
 
         // ReSharper disable once InconsistentNaming
+        /// <inheritdoc />
         public int ServicePID
         {
             get
@@ -490,11 +517,13 @@ namespace PeanutButter.WindowsServiceManagement
             }
         }
 
+        /// <inheritdoc />
         public void InstallAndStart()
         {
             InstallAndStart(true);
         }
 
+        /// <inheritdoc />
         public void InstallAndStart(bool waitForStart)
         {
             TryDoWithService(service =>
@@ -586,6 +615,7 @@ namespace PeanutButter.WindowsServiceManagement
             });
         }
 
+        /// <inheritdoc />
         public void Install()
         {
             TryDoWithSCManager(scm =>
@@ -658,6 +688,7 @@ namespace PeanutButter.WindowsServiceManagement
             }
         }
 
+        /// <inheritdoc />
         public ServiceStartupTypes StartupType
         {
             get
@@ -677,16 +708,19 @@ namespace PeanutButter.WindowsServiceManagement
             }
         }
 
+        /// <inheritdoc />
         public void Disable()
         {
             SetStartValue(ServiceStartupTypes.Disabled);
         }
 
+        /// <inheritdoc />
         public void SetAutomaticStart()
         {
             SetStartValue(ServiceStartupTypes.Automatic);
         }
 
+        /// <inheritdoc />
         public void SetManualStart()
         {
             SetStartValue(ServiceStartupTypes.Manual);
@@ -727,19 +761,13 @@ namespace PeanutButter.WindowsServiceManagement
             }
         }
 
-        /// <summary>
-        /// Starts the service and waits for it to enter running state
-        /// </summary>
+        /// <inheritdoc />
         public void Start()
         {
             Start(true);
         }
 
-        /// <summary>
-        /// Starts the service, optionally waiting for it to enter running state
-        /// </summary>
-        /// <param name="wait"></param>
-        /// <exception cref="ServiceOperationException"></exception>
+        /// <inheritdoc />
         public void Start(bool wait)
         {
             TryDoWithService(service =>
@@ -765,19 +793,13 @@ namespace PeanutButter.WindowsServiceManagement
             });
         }
 
-        /// <summary>
-        /// Stops the service, waiting for it to enter stopped state
-        /// </summary>
+        /// <inheritdoc />
         public void Stop()
         {
             Stop(true);
         }
 
-        /// <summary>
-        /// Stops the service, optionally waiting to enter stopped state
-        /// </summary>
-        /// <param name="wait"></param>
-        /// <exception cref="ServiceOperationException"></exception>
+        /// <inheritdoc />
         public void Stop(bool wait)
         {
             TryDoWithService(service =>
@@ -793,6 +815,7 @@ namespace PeanutButter.WindowsServiceManagement
             });
         }
 
+        /// <inheritdoc />
         public void Stop(ControlOptions options)
         {
             TryDoWithService(service =>
@@ -811,19 +834,13 @@ namespace PeanutButter.WindowsServiceManagement
             });
         }
 
-        /// <summary>
-        /// Pauses the service, waiting for it to enter paused state
-        /// </summary>
+        /// <inheritdoc />
         public void Pause()
         {
             Pause(true);
         }
 
-        /// <summary>
-        /// Pauses the service, optionally waiting for it to enter paused state
-        /// </summary>
-        /// <param name="wait"></param>
-        /// <exception cref="ServiceOperationException"></exception>
+        /// <inheritdoc />
         public void Pause(bool wait)
         {
             TryDoWithSCManager(scm =>
@@ -852,19 +869,13 @@ namespace PeanutButter.WindowsServiceManagement
             });
         }
 
-        /// <summary>
-        /// Continues a paused service, waiting for it to enter running state
-        /// </summary>
+        /// <inheritdoc />
         public void Continue()
         {
             Continue(true);
         }
 
-        /// <summary>
-        /// Continues a paused service, optionally waiting for it to enter running state
-        /// </summary>
-        /// <param name="wait"></param>
-        /// <exception cref="ServiceOperationException"></exception>
+        /// <inheritdoc />
         public void Continue(bool wait)
         {
             var scm = OpenSCManager(ScmAccessRights.Connect);
@@ -1022,7 +1033,7 @@ namespace PeanutButter.WindowsServiceManagement
                 }
 
                 waitLevel++;
-                if (process.WaitForExit((int) ServiceStopTimeoutMs))
+                if (process.WaitForExit(ServiceStateExtraWaitSeconds * 1000))
                 {
                     return;
                 }
@@ -1240,6 +1251,7 @@ namespace PeanutButter.WindowsServiceManagement
             }
         }
 
+        /// <inheritdoc />
         public KillServiceResult KillService()
         {
             var toKill = TryGetServicePid();
