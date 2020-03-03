@@ -32,13 +32,22 @@ namespace PeanutButter.WindowsServiceManagement
         int ServicePID { get; }
 
         void Uninstall();
+
+        [Obsolete("Rather use the overload with ControlOptions")]
         void Uninstall(bool waitForUninstall);
+
+        void Uninstall(ControlOptions options);
         void InstallAndStart();
+        void InstallAndStart(bool waitForStart);
         void Install();
         void Start();
         void Start(bool wait);
         void Stop();
+
+        [Obsolete("Rather use the overload with ControlOptions")]
         void Stop(bool wait);
+
+        void Stop(ControlOptions options);
         void Pause();
         void Continue();
         void Disable();
@@ -46,6 +55,15 @@ namespace PeanutButter.WindowsServiceManagement
         void SetManualStart();
         KillServiceResult KillService();
     }
+
+    [Flags]
+    public enum ControlOptions
+    {
+        None = 0,
+        Wait = 1,
+        Force = 2
+    }
+
 
     public class WindowsServiceUtil : IWindowsServiceUtil
     {
@@ -204,7 +222,9 @@ namespace PeanutButter.WindowsServiceManagement
                 return new WindowsServiceUtil(potentials[0]);
             }
 
-            var msg = potentials.Count == 0 ? "No": "Multiple";
+            var msg = potentials.Count == 0
+                ? "No"
+                : "Multiple";
             throw new ArgumentException(
                 $"{msg} matches for queried service path {path}"
             );
@@ -299,6 +319,13 @@ namespace PeanutButter.WindowsServiceManagement
         /// <exception cref="ServiceOperationException"></exception>
         public void Uninstall(bool waitForUninstall)
         {
+            Uninstall(ControlOptions.Wait | ControlOptions.Force);
+        }
+
+        public void Uninstall(ControlOptions options)
+        {
+            var wait = options.HasFlag(ControlOptions.Wait);
+            var force = options.HasFlag(ControlOptions.Force);
             TryDoWithService(service =>
             {
                 if (service == IntPtr.Zero)
@@ -306,7 +333,7 @@ namespace PeanutButter.WindowsServiceManagement
                     throw new ServiceNotInstalledException(_serviceName);
                 }
 
-                StopService(service);
+                StopService(service, wait, force);
                 if (Win32Api.DeleteService(service))
                 {
                     return;
@@ -326,7 +353,7 @@ namespace PeanutButter.WindowsServiceManagement
                 );
             });
 
-            if (waitForUninstall)
+            if (wait)
             {
                 SleepWhilstInstalled();
             }
@@ -377,6 +404,11 @@ namespace PeanutButter.WindowsServiceManagement
 
         public void InstallAndStart()
         {
+            InstallAndStart(true);
+        }
+
+        public void InstallAndStart(bool waitForStart)
+        {
             TryDoWithService(service =>
             {
                 var installedHere = false;
@@ -399,7 +431,7 @@ namespace PeanutButter.WindowsServiceManagement
                     );
                 }
 
-                StartService(service, true);
+                StartService(service, waitForStart);
                 if (installedHere)
                 {
                     Win32Api.CloseServiceHandle(service);
@@ -669,7 +701,25 @@ namespace PeanutButter.WindowsServiceManagement
                         SERVICE_NOT_INSTALLED);
                 }
 
-                StopService(service, wait);
+                StopService(service, wait, true);
+            });
+        }
+
+        public void Stop(ControlOptions options)
+        {
+            TryDoWithService(service =>
+            {
+                if (service == IntPtr.Zero)
+                {
+                    throw new ServiceOperationException(_serviceName,
+                        ServiceOperationNames.STOP,
+                        SERVICE_NOT_INSTALLED);
+                }
+
+                StopService(
+                    service,
+                    // fixme
+                    true, true);
             });
         }
 
@@ -785,7 +835,8 @@ namespace PeanutButter.WindowsServiceManagement
 
         private void StopService(
             IntPtr service,
-            bool wait = true)
+            bool wait,
+            bool forceIfNecessary)
         {
             if (GetServiceStatus(service) != ServiceState.Running)
             {
@@ -797,14 +848,68 @@ namespace PeanutButter.WindowsServiceManagement
             Win32Api.ControlService(service, ServiceControl.Stop, status);
             if (wait)
             {
-                WaitForServiceToStop(service, process);
+                WaitForServiceToStop(service, process, forceIfNecessary);
+            }
+            else if (forceIfNecessary)
+            {
+                SafeKill(process);
             }
         }
 
-        private void WaitForServiceToStop(IntPtr service, Process process)
+        private void SafeKill(Process process)
         {
-            var changedStatus = WaitForServiceStatus(service, ServiceState.StopPending, ServiceState.Stopped);
-            if (!changedStatus)
+            if (process.HasExited)
+            {
+                return;
+            }
+            var pid = process.Id;
+
+            try
+            {
+                process.Kill();
+            }
+            catch
+            {
+                /* intentionally left blank: perhaps process has exited by itself */
+            }
+            finally
+            {
+                if (!process.HasExited)
+                {
+                    try
+                    {
+                        // perhaps the OS is taking a little time to get there...
+                        process.WaitForExit(1000);
+                    }
+                    catch
+                    {
+                        // intentionally suppressed (possible race condition for exit)
+                    }
+
+                    if (!process.HasExited)
+                    {
+                        // ok, give up
+                        throw new InvalidOperationException(
+                            $"Unable to kill process {pid}"
+                        );
+                    }
+                }
+            }
+        }
+
+        private void WaitForServiceToStop(
+            IntPtr service,
+            Process process,
+            bool forceIfNecessary)
+        {
+            var changedStatus = WaitForServiceStatus(
+                service,
+                ServiceState.StopPending,
+                ServiceState.Stopped
+            );
+            if (!changedStatus &&
+                // service is stuck in StopPending & caller has authorised force...
+                !forceIfNecessary)
             {
                 throw new ServiceOperationException(_serviceName,
                     ServiceOperationNames.STOP,
@@ -825,8 +930,11 @@ namespace PeanutButter.WindowsServiceManagement
                     return;
                 }
 
-                waitLevel++;
-                process.Kill();
+                if (forceIfNecessary)
+                {
+                    waitLevel++;
+                    SafeKill(process);
+                }
             }
             catch (Exception ex)
             {
@@ -1047,22 +1155,9 @@ namespace PeanutButter.WindowsServiceManagement
             var process = Process.GetProcessById(toKill);
             try
             {
-                if (!process.HasExited)
-                {
-                    process.Kill();
-
-                    try
-                    {
-                        process.WaitForExit(2000);
-                    }
-                    catch
-                    {
-                        /* */
-                    }
-                }
-
-                return process.HasExited 
-                    ? KillServiceResult.Killed 
+                SafeKill(process);
+                return process.HasExited
+                    ? KillServiceResult.Killed
                     : KillServiceResult.UnableToKill;
             }
             catch

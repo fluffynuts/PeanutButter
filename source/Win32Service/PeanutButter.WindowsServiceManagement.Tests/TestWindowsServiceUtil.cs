@@ -343,6 +343,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
         }
 
         [Test]
+        [Explicit("VERY VERY LONG-RUNNING")]
         public void SearchingForMemoryLeaks()
         {
             // Arrange
@@ -369,6 +370,40 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             }
 
             // Assert
+        }
+
+        [TestFixture]
+        public class StubbornService : TestWindowsServiceUtil
+        {
+            [Test]
+            public void ShouldBeAbleToSuccessfullyUninstall()
+            {
+                // by definition, if this fails, it may require manual cleanup
+                // -> stubborn-service will basically lock for a minute
+                //    when requested to stop
+                // Arrange
+                var serviceExe = StubbornServiceExe;
+                var serviceName = $"stubborn-service-{Guid.NewGuid()}";
+                var util = Create(
+                    serviceName,
+                    serviceName,
+                    serviceExe);
+                // Act
+                util.InstallAndStart();
+                var servicePid = util.ServicePID;
+                util.Uninstall(
+                    ControlOptions.Wait |
+                    ControlOptions.Force
+                );
+                // Assert
+                Expect(() => Process.GetProcessById(servicePid))
+                    .To.Throw<ArgumentException>(); // shouldn't be running
+                var anotherUtil = Create(serviceName);
+                Expect(anotherUtil.IsInstalled)
+                    .To.Be.False();
+                Expect(anotherUtil.IsMarkedForDelete)
+                    .To.Be.False();
+            }
         }
 
         [Test]
@@ -446,6 +481,15 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                 "SpacedService.exe",
                 p => !p.Contains("obj")
             );
+
+        private string StubbornServiceExe =>
+            _stubbornServiceExe ??= FindPath(
+                "StubbornService",
+                "StubbornService.exe",
+                p => !p.Contains("obj")
+            );
+
+        private string _stubbornServiceExe;
 
         private string _spacedServiceExe;
 

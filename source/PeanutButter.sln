@@ -198,6 +198,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceWithArgs", "Win32Ser
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpacedService", "Win32Service\SpacedService\SpacedService.csproj", "{B7D68CF0-B27D-4DAA-B678-ED7C9F5FE224}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StubbornService", "Win32Service\StubbornService\StubbornService.csproj", "{5E306BA6-A1DF-4F6D-ABE7-12B428CD4384}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -798,6 +800,14 @@ Global
 		{B7D68CF0-B27D-4DAA-B678-ED7C9F5FE224}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B7D68CF0-B27D-4DAA-B678-ED7C9F5FE224}.Release|x86.ActiveCfg = Release|Any CPU
 		{B7D68CF0-B27D-4DAA-B678-ED7C9F5FE224}.Release|x86.Build.0 = Release|Any CPU
+		{5E306BA6-A1DF-4F6D-ABE7-12B428CD4384}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E306BA6-A1DF-4F6D-ABE7-12B428CD4384}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E306BA6-A1DF-4F6D-ABE7-12B428CD4384}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5E306BA6-A1DF-4F6D-ABE7-12B428CD4384}.Debug|x86.Build.0 = Debug|Any CPU
+		{5E306BA6-A1DF-4F6D-ABE7-12B428CD4384}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E306BA6-A1DF-4F6D-ABE7-12B428CD4384}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E306BA6-A1DF-4F6D-ABE7-12B428CD4384}.Release|x86.ActiveCfg = Release|Any CPU
+		{5E306BA6-A1DF-4F6D-ABE7-12B428CD4384}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -885,6 +895,7 @@ Global
 		{212F8522-F02E-4E94-8954-98E92357D6B4} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
 		{AD1BFC51-23BF-4F0B-8AEF-F6407986D1A0} = {F16ADAF9-3992-4A86-93DB-53813CF5434A}
 		{B7D68CF0-B27D-4DAA-B678-ED7C9F5FE224} = {F16ADAF9-3992-4A86-93DB-53813CF5434A}
+		{5E306BA6-A1DF-4F6D-ABE7-12B428CD4384} = {F16ADAF9-3992-4A86-93DB-53813CF5434A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3024A467-FC9C-430A-821A-448AF0866E32}

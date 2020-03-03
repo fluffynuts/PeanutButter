@@ -33,6 +33,9 @@
     <Compile Include="..\..\Utils\PeanutButter.Utils\ExtensionsForIEnumerables.cs">
       <Link>ExtensionsForIEnumerables.cs</Link>
     </Compile>
+    <Compile Include="..\..\Utils\PeanutButter.Utils\FlagExtensions.cs">
+      <Link>FlagExtensions.cs</Link>
+    </Compile>
   </ItemGroup>
   <Import Project="..\..\MonoForFramework.targets" />
 </Project>

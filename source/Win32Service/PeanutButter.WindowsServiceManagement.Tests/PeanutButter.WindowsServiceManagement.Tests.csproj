@@ -20,6 +20,7 @@
     <ProjectReference Include="..\PeanutButter.WindowsServiceManagement\PeanutButter.WindowsServiceManagement.csproj" />
     <ProjectReference Include="..\ServiceWithArgs\ServiceWithArgs.csproj" />
     <ProjectReference Include="..\SpacedService\SpacedService.csproj" />
+    <ProjectReference Include="..\StubbornService\StubbornService.csproj" />
     <ProjectReference Include="..\TestService\TestService.csproj" />
   </ItemGroup>
   <ItemGroup>
