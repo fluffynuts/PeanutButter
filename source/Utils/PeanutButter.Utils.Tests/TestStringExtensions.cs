@@ -532,7 +532,7 @@ namespace PeanutButter.Utils.Tests
         {
             //--------------- Arrange -------------------
             var input = "foo";
-            var search = new[] {"bar", "quuz", "wibbles"};
+            var search = new[] { "bar", "quuz", "wibbles" };
 
             //--------------- Assume ----------------
 
@@ -548,7 +548,7 @@ namespace PeanutButter.Utils.Tests
         {
             //--------------- Arrange -------------------
             var input = "foo";
-            var search = new[] {"bar", "quuz", "oo", "wibbles"}.Randomize().ToArray();
+            var search = new[] { "bar", "quuz", "oo", "wibbles" }.Randomize().ToArray();
 
             //--------------- Assume ----------------
 
@@ -605,7 +605,7 @@ namespace PeanutButter.Utils.Tests
         {
             //--------------- Arrange -------------------
             var input = "hello, world";
-            var search = new[] {"hello", ", ", "world"}.Randomize().ToArray();
+            var search = new[] { "hello", ", ", "world" }.Randomize().ToArray();
 
             //--------------- Assume ----------------
 
@@ -621,7 +621,7 @@ namespace PeanutButter.Utils.Tests
         {
             //--------------- Arrange -------------------
             var input = "hello, world";
-            var search = new[] {"hello", ", ", "there"}.Randomize().ToArray();
+            var search = new[] { "hello", ", ", "there" }.Randomize().ToArray();
 
             //--------------- Assume ----------------
 
@@ -695,23 +695,45 @@ namespace PeanutButter.Utils.Tests
             Expect(result).To.Be.Null();
         }
 
-        [TestCase("Moo", "moo")]
-        [TestCase("MooCow", "moo-cow")]
-        [TestCase("i_am_snake", "i-am-snake")]
-        [TestCase("is-already-kebabed", "is-already-kebabed")]
-        public void ToKebabCase_ShouldConvert_(
-            string from,
-            string expected)
+        [TestFixture]
+        public class ToKebabCase
         {
-            // Arrange
+            [TestCase("Moo", "moo")]
+            [TestCase("MooCow", "moo-cow")]
+            [TestCase("i_am_snake", "i-am-snake")]
+            [TestCase("is-already-kebabed", "is-already-kebabed")]
+            [TestCase("has-12345-numeric", "has-12345-numeric")]
+            [TestCase("has-ABBREVIATION-inside", "has-abbreviation-inside")]
+            [TestCase("Today_Is_Great", "today-is-great")]
+            [TestCase("foo--bar", "foo-bar")]
+            public void ShouldConvert_(
+                string from,
+                string expected)
+            {
+                // Arrange
 
-            // Pre-Assert
+                // Pre-Assert
 
-            // Act
-            var result = from.ToKebabCase();
+                // Act
+                var result = from.ToKebabCase();
 
-            // Assert
-            Expect(result).To.Equal(expected);
+                // Assert
+                Expect(result).To.Equal(expected);
+            }
+
+            [Test]
+            public void ShouldPreserveGuids()
+            {
+                // Arrange
+                var guid = Guid.NewGuid();
+                var s = $"some_guid_{guid}";
+                var expected = $"some-guid-{guid.ToString().ToLower()}";
+                // Act
+                var result = s.ToKebabCase();
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
         }
 
         [Test]
@@ -786,7 +808,7 @@ namespace PeanutButter.Utils.Tests
             // Assert
             Expect(result).To.Equal(expected);
         }
-        
+
         [TestCaseSource(nameof(PascalCaseTestCases))]
         public void ToTitleCase_ShouldConvert_((string input, string expected) testCase)
         {
@@ -906,7 +928,7 @@ namespace PeanutButter.Utils.Tests
                 // Assert
                 Expect(result).To.Equal(src);
             }
-            
+
             [TestCase("")]
             [TestCase(" ")]
             [TestCase(null)]
@@ -988,7 +1010,7 @@ namespace PeanutButter.Utils.Tests
                 public void OperatingOn_Whitespace_ShouldReturnFalse()
                 {
                     // Arrange
-                    var input = GetRandomFrom(new[] {" ", "\r", "\t"});
+                    var input = GetRandomFrom(new[] { " ", "\r", "\t" });
                     // Pre-assert
                     // Act
                     var result = input.IsAlpha();
@@ -1070,7 +1092,7 @@ namespace PeanutButter.Utils.Tests
                 public void OperatingOn_Whitespace_ShouldReturnFalse()
                 {
                     // Arrange
-                    var input = GetRandomFrom(new[] {" ", "\r", "\t"});
+                    var input = GetRandomFrom(new[] { " ", "\r", "\t" });
                     // Pre-assert
                     // Act
                     var result = input.IsAlphanumeric();
@@ -1158,7 +1180,7 @@ namespace PeanutButter.Utils.Tests
                 public void OperatingOn_Whitespace_ShouldReturnFalse()
                 {
                     // Arrange
-                    var input = GetRandomFrom(new[] {" ", "\t", "\r"});
+                    var input = GetRandomFrom(new[] { " ", "\t", "\r" });
                     // Pre-assert
                     // Act
                     var result = input.IsNumeric();
@@ -1207,7 +1229,7 @@ namespace PeanutButter.Utils.Tests
                 }
             }
         }
-        
+
         [TestFixture]
         public class ToMemoryStream
         {
@@ -1297,7 +1319,7 @@ namespace PeanutButter.Utils.Tests
                 Expect(result)
                     .To.Equal(new[] { program });
             }
-            
+
             [Test]
             public void ShouldReturnSpacedProgramAndNonSpacedArguments()
             {
@@ -1310,7 +1332,7 @@ namespace PeanutButter.Utils.Tests
                 Expect(result)
                     .To.Equal(new[] { program, "arg1", "arg2" });
             }
-            
+
             [Test]
             public void ShouldReturnSpacedProgramAndSpacedArgumentsUnQuoted()
             {
@@ -1339,12 +1361,12 @@ namespace PeanutButter.Utils.Tests
                 // Assert
                 Expect(result).To.Equal(input);
             }
-            
+
             [Test]
             public void ShouldNotInterfereWithNonQuotedString()
             {
                 // Arrange
-                var input = GetRandomString(1);    
+                var input = GetRandomString(1);
                 // Act
                 var result = input.DeQuote();
                 // Assert

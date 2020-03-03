@@ -404,7 +404,7 @@ namespace PeanutButter.Utils
             return input?
                 .Replace('_', '-')
                 .Replace(' ', '-')
-                .SplitOnCapitalsAnd('-')
+                .SplitWhenNonContinuousAnd('-')
                 .Select(s => s.ToLower())
                 .JoinWith("-");
         }
@@ -436,7 +436,7 @@ namespace PeanutButter.Utils
                 .Split(' ')
                 .Select(
                     word => word
-                        .SplitOnCapitalsAnd('-', '_')
+                        .SplitWhenNonContinuousAnd('-', '_')
                         .Select(ToUpperCasedFirstLetter)
                         .JoinWith("")
                 ).JoinWith(" ");
@@ -567,28 +567,89 @@ namespace PeanutButter.Utils
         }
 #endif
 
-        private static IEnumerable<string> SplitOnCapitalsAnd(
+        private static IEnumerable<string> SplitWhenNonContinuousAnd(
             this string input,
             params char[] others)
         {
             var collector = new List<char>();
             foreach (var c in input)
             {
-                var asString = c.ToString();
-                var upper = asString.ToUpper();
-                var isOtherMatch = others.Contains(c);
-                if (collector.Any() &&
-                    (upper == asString || isOtherMatch))
+                var isDefinitelyBoundary = others.Contains(c);
+                if (collector.Count == 0)
+                {   // nothing gathered yet -> definitely do not yield
+                    if (!isDefinitelyBoundary)
+                    {   // possibly this char is nice for later 
+                        collector.Add(c);
+                    }
+                    continue;
+                }
+
+                if (isDefinitelyBoundary)
+                {
+                    // boundary specified by delimiters
+                    // -> yield (even if empty: caller can choose to discard)
+                    yield return string.Join("", collector);
+                    collector.Clear();
+                    continue;
+                }
+
+                // not a defined break according to specified delimiters
+                //    but would be non-continuous -> yield
+                if (!WouldBeContinuous(collector, c))
                 {
                     yield return string.Join("", collector);
                     collector.Clear();
                 }
 
-                if (!isOtherMatch)
-                    collector.Add(c);
+                collector.Add(c);
             }
 
+            // yield the remnants (again, caller can discard empty)
             yield return string.Join("", collector);
+        }
+
+        private static bool WouldBeContinuous(IEnumerable<char> chars, char next)
+        {
+            var overall = StringFor(chars, next);
+
+            // it's continuous if:
+            //    1. string is alpha-numeric only
+            if (!AlphaNumericRegex.IsMatch(overall))
+            {
+                return false; // have non-alpha-numeric chars (spaces, dashes, whatever)
+            }
+
+            //     2. case doesn't change over the string, after position 1
+            //     eg:    aaa -> continuous
+            //            123 -> continuous
+            //            a12 -> continuous
+            //            aB1 -> not continuous (possible camelCase)
+            //            Ab1 -> continuous (start of word is ok)
+            var most = overall.Substring(1);
+            return most.Length == 0 ||
+                MatchesSelfLowered(most) ||
+                MatchesSelfUpperCased(most);
+        }
+
+        private static bool MatchesSelfLowered(string str)
+        {
+            var lower = str.ToLower(CultureInfo.CurrentCulture);
+            return str.Equals(lower, StringComparison.CurrentCulture);
+        }
+
+        private static bool MatchesSelfUpperCased(string str)
+        {
+            var upper = str.ToUpper(CultureInfo.CurrentCulture);
+            return str.Equals(upper, StringComparison.CurrentCulture);
+        }
+
+        private static readonly Regex AlphaNumericRegex = new Regex(
+            "^[A-Za-zÀ-ÿ0-9]+$"
+        );
+
+        private static string StringFor(IEnumerable<char> chars, char next)
+        {
+            return string.Join("", chars.Concat(new[] { next }));
         }
 
         private static string GetLeadingIntegerCharsFrom(
@@ -747,11 +808,11 @@ namespace PeanutButter.Utils
                 // edge-case
                 return str;
             }
-            
+
             return str.StartsWith("\"") &&
                 str.EndsWith("\"")
-                ? str.Substring(1, str.Length - 2)
-                : str;
+                    ? str.Substring(1, str.Length - 2)
+                    : str;
         }
 
         /// <summary>
@@ -782,12 +843,12 @@ namespace PeanutButter.Utils
                     {
                         return false;
                     }
-                    
+
                     return a.Equals(b, comparison);
                 });
         }
 
-        private static readonly Regex CommandlinePartsMatcher = 
+        private static readonly Regex CommandlinePartsMatcher =
             new Regex("((\"[^\"]+\")|([^ ]+))");
 
         private static readonly Regex Whitespace =
