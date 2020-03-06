@@ -342,41 +342,11 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             }
         }
 
-        [Test]
-        [Explicit("VERY VERY LONG-RUNNING")]
-        public void SearchingForMemoryLeaks()
-        {
-            // Arrange
-            // I've seen
-            // - climbing memory usage when repeatedly querying services
-            // - times when an uninstall of a service doesn't complete until the
-            //    hosting process exits (service is marked for deletion)
-            // -> conclusion: something is holding on to something else
-            // -> however, running this tight loop sees memory stabilize at about 32mb :/
-            var util = Create(
-                TestServiceName,
-                TestServiceName,
-                TestServicePath
-            );
-            using var _ = new AutoResetter(Noop, () => TryDo(() => util.Uninstall()));
-            // Act
-            util.InstallAndStart();
-            var run = 0;
-            while (++run < 10000)
-            {
-                var testUtil = Create(TestServiceName);
-                Console.WriteLine(testUtil.State);
-                GC.Collect();
-            }
-
-            // Assert
-        }
-
         [TestFixture]
         public class StubbornService : TestWindowsServiceUtil
         {
             [Test]
-            public void ShouldBeAbleToSuccessfullyUninstall()
+            public void ShouldBeAbleToSuccessfullyUninstallWithForceOption()
             {
                 // by definition, if this fails, it may require manual cleanup
                 // -> stubborn-service will basically lock for a minute
@@ -402,6 +372,37 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                 Expect(anotherUtil.IsInstalled)
                     .To.Be.False();
                 Expect(anotherUtil.IsMarkedForDelete)
+                    .To.Be.False();
+            }
+
+            [Test]
+            public void ShouldNotSuccessfullyUninstallWithDefaultUninstallMethod()
+            {
+                // by default, Uninstall _should_ wait for the stop / uninstall
+                // but _not_ kill (in case of loss of data)
+                // Arrange
+                var serviceExe = StubbornServiceExe;
+                var serviceName = $"stubborn-service{Guid.NewGuid()}";
+                var util = Create(
+                    serviceName,
+                    serviceName,
+                    serviceExe
+                );
+                using var _ = new AutoResetter(Noop, () => util.Uninstall(
+                    ControlOptions.Force | ControlOptions.Wait
+                ));
+                util.InstallAndStart();
+                // Act
+                Expect(() => util.Uninstall())
+                    .To.Throw<ServiceOperationException>()
+                    .With.Message.Containing("Unable to perform Stop");
+                // Assert
+                Expect(util.IsInstalled)
+                    .To.Be.True();
+                Process process = null;
+                Expect(() => process = Process.GetProcessById(util.ServicePID))
+                    .Not.To.Throw();
+                Expect(process.HasExited)
                     .To.Be.False();
             }
         }

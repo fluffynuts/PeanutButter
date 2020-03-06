@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Management;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Threading;
@@ -25,54 +24,66 @@ namespace PeanutButter.WindowsServiceManagement
         /// The name of the service, usable from, eg 'net stop {name}'
         /// </summary>
         string ServiceName { get; }
+
         /// <summary>
         /// The name displayed in the service manager (service.msc)
         /// </summary>
         string DisplayName { get; }
+
         /// <summary>
         /// The full commandline run for this service
         /// </summary>
         string Commandline { get; }
+
         /// <summary>
         /// The executable of the service
         /// </summary>
         string ServiceExe { get; }
+
         /// <summary>
         /// Any arguments this service is run with
         /// </summary>
         string[] Arguments { get; }
+
         /// <summary>
         /// The current state of this service
         /// </summary>
         ServiceState State { get; }
+
         /// <summary>
         /// Whether or not this service is installed; will
         /// also return false if the service is marked for deletion.
         /// </summary>
         bool IsInstalled { get; }
+
         /// <summary>
         /// Test if the service is marked for deletion.
         /// </summary>
         bool IsMarkedForDelete { get; }
+
         /// <summary>
         /// How many extra seconds to wait on service operations,
         /// outside of the recommended wait hint provided by
         /// the ServiceControlManager
         /// </summary>
         int ServiceStateExtraWaitSeconds { get; set; }
+
         /// <summary>
         /// Startup type for service, eg auto, disabled, manual
         /// </summary>
         ServiceStartupTypes StartupType { get; }
+
         /// <summary>
         /// The current process id of the service, if running.
         /// Will return -1 if not running
         /// </summary>
         int ServicePID { get; }
+
         /// <summary>
         /// True if the service is in a stoppable state
         /// </summary>
         bool IsStoppable { get; }
+
         /// <summary>
         /// True if the service is in a startable state
         /// </summary>
@@ -85,38 +96,46 @@ namespace PeanutButter.WindowsServiceManagement
         /// in ServiceStateExtraWaitSeconds
         /// </summary>
         void Uninstall();
+
         [Obsolete("Rather use the overload with ControlOptions")]
         void Uninstall(bool waitForUninstall);
+
         /// <summary>
         /// Uninstall the service, with full control over waiting and
         /// forceful stopping.
         /// </summary>
         /// <param name="options"></param>
         void Uninstall(ControlOptions options);
+
         /// <summary>
         /// Installs and starts the service, waiting for the service
         /// to report that it's running
         /// </summary>
         void InstallAndStart();
+
         /// <summary>
         /// Install and start the service, with control over whether
         /// to wait for the service to have properly started
         /// </summary>
         /// <param name="waitForStart"></param>
         void InstallAndStart(bool waitForStart);
+
         /// <summary>
         /// Install the service only
         /// </summary>
         void Install();
+
         /// <summary>
         /// Start the service only, waiting for it to enter the Running state
         /// </summary>
         void Start();
+
         /// <summary>
         /// Start the service, optionally waiting to enter the Running state
         /// </summary>
         /// <param name="wait"></param>
         void Start(bool wait);
+
         /// <summary>
         /// Stop the service, waiting for it to come to rest and forcing stop
         /// if it doesn't do so in time, as determined by the SCM wait hint
@@ -133,34 +152,42 @@ namespace PeanutButter.WindowsServiceManagement
         /// </summary>
         /// <param name="options"></param>
         void Stop(ControlOptions options);
+
         /// <summary>
         /// Pause the service, if running and wait for change of state
         /// </summary>
         void Pause();
+
         /// <summary>
         /// Pause the service, if running, optionally waiting
         /// </summary>
         void Pause(bool wait);
+
         /// <summary>
         /// Continue a paused service, waiting for change of state
         /// </summary>
         void Continue();
+
         /// <summary>
         /// Continue a paused service, optionally waiting for change of state
         /// </summary>
         void Continue(bool wait);
+
         /// <summary>
         /// Disable the service from running
         /// </summary>
         void Disable();
+
         /// <summary>
         /// Set the service to automatically start with the host system
         /// </summary>
         void SetAutomaticStart();
+
         /// <summary>
         /// Set the service to require manual start
         /// </summary>
         void SetManualStart();
+
         /// <summary>
         /// Kills the service, if running
         /// </summary>
@@ -432,7 +459,11 @@ namespace PeanutButter.WindowsServiceManagement
         /// <inheritdoc />
         public void Uninstall(bool waitForUninstall)
         {
-            Uninstall(ControlOptions.Wait | ControlOptions.Force);
+            Uninstall(
+                waitForUninstall
+                    ? ControlOptions.Wait
+                    : ControlOptions.None
+            );
         }
 
         /// <inheritdoc />
@@ -945,7 +976,7 @@ namespace PeanutButter.WindowsServiceManagement
             bool wait,
             bool forceIfNecessary)
         {
-            if (GetServiceStatus(service) != ServiceState.Running)
+            if (GetServiceStatus(service) == ServiceState.Stopped)
             {
                 return;
             }

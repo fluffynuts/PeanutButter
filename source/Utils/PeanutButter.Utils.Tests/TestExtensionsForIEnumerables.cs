@@ -242,34 +242,38 @@ namespace PeanutButter.Utils.Tests
             Expect(result).To.Be.Empty();
         }
 
-        [Test]
-        public void And_OperatingOnArrayOfType_ShouldReturnNewArrayWithAddedItems()
+        [TestFixture]
+        public class And
         {
-            //---------------Set up test pack-------------------
-            var src = new[] {1, 2, 3};
+            [Test]
+            public void ShouldReturnNewArrayWithAllAddedItems()
+            {
+                //---------------Set up test pack-------------------
+                var src = new[] {1, 2, 3, 4, 5};
 
-            //---------------Assert Precondition----------------
+                //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var result = src.And(4, 5);
+                //---------------Execute Test ----------------------
+                var result = src.And(4, 5);
 
-            //---------------Test Result -----------------------
-            CollectionAssert.AreEqual(new[] {1, 2, 3, 4, 5}, result);
-        }
+                //---------------Test Result -----------------------
+                CollectionAssert.AreEqual(new[] {1, 2, 3, 4, 5, 4, 5}, result);
+            }
 
-        [Test]
-        public void And_OperatingOnArrayOfType_ShouldReturnNewArrayWithALLAddedItems()
-        {
-            //---------------Set up test pack-------------------
-            var src = new[] {1, 2, 3, 4, 5};
+            [Test]
+            public void ShouldReturnNewArrayWithAddedItems()
+            {
+                //---------------Set up test pack-------------------
+                var src = new[] {1, 2, 3};
 
-            //---------------Assert Precondition----------------
+                //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var result = src.And(4, 5);
+                //---------------Execute Test ----------------------
+                var result = src.And(4, 5);
 
-            //---------------Test Result -----------------------
-            CollectionAssert.AreEqual(new[] {1, 2, 3, 4, 5, 4, 5}, result);
+                //---------------Test Result -----------------------
+                CollectionAssert.AreEqual(new[] {1, 2, 3, 4, 5}, result);
+            }
         }
 
         [Test]

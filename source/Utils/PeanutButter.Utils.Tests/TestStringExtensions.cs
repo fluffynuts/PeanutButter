@@ -706,6 +706,9 @@ namespace PeanutButter.Utils.Tests
             [TestCase("has-ABBREVIATION-inside", "has-abbreviation-inside")]
             [TestCase("Today_Is_Great", "today-is-great")]
             [TestCase("foo--bar", "foo-bar")]
+            [TestCase("Some Service 2", "some-service-2")]
+            [TestCase("some-service-2", "some-service-2")]
+            [TestCase("Some Service 2 Moo", "some-service-2-moo")]
             public void ShouldConvert_(
                 string from,
                 string expected)
