@@ -15,7 +15,7 @@ namespace PeanutButter.DuckTyping.Shimming
     /// </summary>
     public class DictionaryShimSham : ShimShamBase, IShimSham
     {
-        private readonly Type _interfaceToMimick;
+        private readonly Type _interfaceToMimic;
         private readonly IDictionary<string, object>[] _data;
         private readonly Dictionary<string, PropertyInfo> _mimickedProperties;
         private readonly bool _isFuzzy;
@@ -25,12 +25,12 @@ namespace PeanutButter.DuckTyping.Shimming
         /// Constructs an instance of the DictionaryShimSham
         /// </summary>
         /// <param name="toWrap">Dictionary to wrap</param>
-        /// <param name="interfaceToMimick">Interface that must be mimicked</param>
+        /// <param name="interfaceToMimic">Interface that must be mimicked</param>
         // ReSharper disable once UnusedMember.Global
         public DictionaryShimSham(
             IDictionary<string, object> toWrap,
-            Type interfaceToMimick)
-            : this(new[] {toWrap}, interfaceToMimick)
+            Type interfaceToMimic)
+            : this(new[] { toWrap }, interfaceToMimic)
         {
         }
 
@@ -38,26 +38,28 @@ namespace PeanutButter.DuckTyping.Shimming
         /// Constructs an instance of the DictionaryShimSham
         /// </summary>
         /// <param name="toWrap">Dictionaries to wrap (wip: only the first is considered)</param>
-        /// <param name="interfaceToMimick">Interface that must be mimicked</param>
+        /// <param name="interfaceToMimic">Interface that must be mimicked</param>
         public DictionaryShimSham(
             IDictionary<string, object>[] toWrap,
-            Type interfaceToMimick)
+            Type interfaceToMimic)
         {
-            _interfaceToMimick = interfaceToMimick;
+            _interfaceToMimic = interfaceToMimic;
             var incoming = (toWrap?.ToArray() ?? new Dictionary<string, object>[0])
                 .Where(d => d != null)
                 .ToArray();
 
             _data = incoming.Length == 0
-                ? new IDictionary<string, object>[] {new Dictionary<string, object>()}
+                ? new IDictionary<string, object>[] { new Dictionary<string, object>() }
                 : incoming;
             _isFuzzy = IsFuzzy(_data);
-            _mimickedProperties = interfaceToMimick
+            _mimickedProperties = interfaceToMimic
                 .GetAllImplementedInterfaces()
-                .SelectMany(itype => itype.GetProperties())
+                .SelectMany(interfaceType => interfaceType.GetProperties())
                 .Distinct(new PropertyInfoComparer())
                 .ToDictionary(pi => pi.Name, pi => pi,
-                    _isFuzzy ? Comparers.Comparers.FuzzyComparer : Comparers.Comparers.NonFuzzyComparer);
+                    _isFuzzy
+                        ? Comparers.Comparers.FuzzyComparer
+                        : Comparers.Comparers.NonFuzzyComparer);
             ShimShimmableProperties();
         }
 
@@ -70,16 +72,22 @@ namespace PeanutButter.DuckTyping.Shimming
             foreach (var kvp in _mimickedProperties)
             {
                 if (kvp.Value.PropertyType.ShouldTreatAsPrimitive())
+                {
                     continue;
+                }
+
                 if (!data.ContainsKey(kvp.Key))
+                {
                     data[kvp.Key] = new Dictionary<string, object>();
+                }
+
                 var type = MakeTypeToImplement(kvp.Value.PropertyType, _isFuzzy);
                 var toWrap = data[kvp.Key];
                 var asDict = toWrap as IDictionary<string, object>;
                 // ReSharper disable RedundantExplicitArrayCreation
                 var firstArg = asDict == null
-                    ? new object[] {new object[] {toWrap}}
-                    : new object[] {new IDictionary<string, object>[] {asDict}};
+                    ? new object[] { new object[] { toWrap } }
+                    : new object[] { new IDictionary<string, object>[] { asDict } };
                 // ReSharper restore RedundantExplicitArrayCreation
                 _shimmedProperties[kvp.Key] = Activator.CreateInstance(type, firstArg);
             }
@@ -99,24 +107,59 @@ namespace PeanutButter.DuckTyping.Shimming
             var data = _data[0];
             CheckPropertyExists(propertyName);
             if (_shimmedProperties.TryGetValue(propertyName, out var propValue))
+            {
                 return propValue;
+            }
+
             var mimickedProperty = GetMimickedProperty(propertyName);
             var key = _isFuzzy
                 ? FuzzyFindKeyFor(propertyName) ?? propertyName
                 : propertyName;
 
             if (!data.TryGetValue(key, out propValue))
+            {
                 return GetDefaultValueFor(mimickedProperty.PropertyType);
+            }
+
+            if (propValue is null)
+            {
+                return TryResolveNullValueFOr(mimickedProperty);
+            }
+
+
             // ReSharper disable once UseMethodIsInstanceOfType
             var propType = propValue.GetType();
             if (mimickedProperty.PropertyType.IsAssignableFrom(propType))
+            {
                 return propValue;
+            }
+
             var converter = ConverterLocator.GetConverter(propType, mimickedProperty.PropertyType);
             if (converter != null)
+            {
                 return ConvertWith(converter, propValue, mimickedProperty.PropertyType);
+            }
+
             return EnumConverter.TryConvert(propType, mimickedProperty.PropertyType, propValue, out var result)
                 ? result
                 : GetDefaultValueFor(mimickedProperty.PropertyType);
+        }
+
+        private object TryResolveNullValueFOr(PropertyInfo mimickedProperty)
+        {
+            if (mimickedProperty.PropertyType.IsNullableType())
+            {
+                return null;
+            }
+
+            if (_isFuzzy)
+            {
+                return GetDefaultValueFor(mimickedProperty.PropertyType);
+            }
+
+            throw new InvalidOperationException(
+                $"Somehow a strict duck has been constructed around a non-nullable property with null backing value at {mimickedProperty.Name}"
+            );
         }
 
         private readonly Dictionary<string, string> _keyResolutionCache = new Dictionary<string, string>();
@@ -129,10 +172,16 @@ namespace PeanutButter.DuckTyping.Shimming
                 // TODO: find the correct dictionary to examine for this key
                 var data = _data[0];
                 if (_keyResolutionCache.TryGetValue(propertyName, out var resolvedKey))
+                {
                     return resolvedKey;
+                }
+
                 resolvedKey = _fuzzyKeyFinder.FuzzyFindKeyFor(data, propertyName);
                 if (resolvedKey != null)
+                {
                     _keyResolutionCache[propertyName] = resolvedKey;
+                }
+
                 return resolvedKey;
             }
         }
@@ -150,15 +199,34 @@ namespace PeanutButter.DuckTyping.Shimming
             var mimickedProperty = GetMimickedProperty(propertyName);
             var newValueType = newValue?.GetType();
             if (newValueType == null)
+            {
                 SetDefaultValueForType(data, propertyName, mimickedProperty);
+            }
             else if (mimickedProperty.PropertyType.IsAssignableFrom(newValueType))
+            {
                 data[propertyName] = newValue;
+            }
             else
             {
-                var converter = ConverterLocator.GetConverter(newValueType, mimickedProperty.PropertyType);
-                if (converter == null)
-                    SetDefaultValueForType(data, propertyName, mimickedProperty);
-                data[propertyName] = ConvertWith(converter, newValue, mimickedProperty.PropertyType);
+                var converter = ConverterLocator.GetConverter(
+                    newValueType,
+                    mimickedProperty.PropertyType
+                );
+                if (converter is null)
+                {
+                    SetDefaultValueForType(
+                        data,
+                        propertyName,
+                        mimickedProperty
+                    );
+                    return;
+                }
+
+                data[propertyName] = ConvertWith(
+                    converter,
+                    newValue,
+                    mimickedProperty.PropertyType
+                );
             }
         }
 
@@ -178,24 +246,29 @@ namespace PeanutButter.DuckTyping.Shimming
             var keys = current.Keys;
             var first = keys.FirstOrDefault(k => k.ToLower() != k.ToUpper());
             if (first == null)
+            {
                 return true;
+            }
+
             var lower = first.ToLower();
             var upper = first.ToUpper();
-            return current.TryGetValue(lower, out var _) &&
+            return current.TryGetValue(lower, out _) &&
                 data[0].TryGetValue(upper, out _);
         }
 
         private PropertyInfo GetMimickedProperty(string propertyName)
         {
-            if (!_mimickedProperties.TryGetValue(propertyName, out var result))
-                throw new PropertyNotFoundException(_interfaceToMimick, propertyName);
-            return result;
+            return _mimickedProperties.TryGetValue(propertyName, out var result)
+                ? result
+                : throw new PropertyNotFoundException(_interfaceToMimic, propertyName);
         }
 
         private void CheckPropertyExists(string propertyName)
         {
             if (!_mimickedProperties.ContainsKey(propertyName))
+            {
                 throw new PropertyNotFoundException(_data.GetType(), propertyName);
+            }
         }
 
         /// <summary>

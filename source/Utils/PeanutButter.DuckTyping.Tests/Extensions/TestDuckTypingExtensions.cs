@@ -1119,7 +1119,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var propInfo = result.GetType().GetProperty("Name");
             Expect(propInfo).Not.To.Be.Null();
             var attrib = propInfo.GetCustomAttributes(false).OfType<MooAttribute>()
-                                 .FirstOrDefault();
+                .FirstOrDefault();
             Expect(attrib).Not.To.Be.Null();
             Expect(attrib.Dialect).To.Equal("northern");
         }
@@ -1142,7 +1142,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var propInfo = result.GetType().GetProperty("Name");
             Expect(propInfo).Not.To.Be.Null();
             var attrib = propInfo.GetCustomAttributes(false).OfType<NamedArgumentAttribute>()
-                                 .FirstOrDefault();
+                .FirstOrDefault();
 
             Expect(attrib).Not.To.Be.Null();
             Expect(attrib.NamedProperty).To.Equal("whizzle");
@@ -1165,7 +1165,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
             //--------------- Assert -----------------------
             var attrib = result.GetType().GetCustomAttributes(false).OfType<WoofAttribute>()
-                               .FirstOrDefault();
+                .FirstOrDefault();
 
             Expect(attrib).Not.To.Be.Null();
             Expect(attrib.Intent).To.Equal("playful");
@@ -1205,7 +1205,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var propInfo = result.GetType().GetProperty("Moo");
             Expect(propInfo).Not.To.Be.Null();
             var attrib = propInfo.GetCustomAttributes(true).OfType<DialectAttribute>()
-                                 .FirstOrDefault();
+                .FirstOrDefault();
             Expect(attrib).Not.To.Be.Null();
             Expect(attrib.Dialect).To.Equal("Country");
         }
@@ -1486,9 +1486,9 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         [Test]
         public void FuzzyDuckingToNullableProps()
         {
-            var input = new 
-            { 
-                flag = "true", 
+            var input = new
+            {
+                flag = "true",
                 bYtE = "100",
                 number1 = "1",
                 number2 = "2",
@@ -1537,6 +1537,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
             public Type T1 => typeof(string);
             public Type T2 => typeof(IAnimal);
+
             public string Convert(IAnimal input)
             {
                 return $"{input?.Id}/{input?.Name}";
@@ -1549,6 +1550,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 {
                     return new Animal(id, parts.Skip(1).FirstOrDefault());
                 }
+
                 return null;
             }
         }
@@ -2051,7 +2053,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                         // Act
                         var result =
                             data.DuckAs<IConfig>(s => "Config." + s,
-                                                 s => s.RegexReplace("Config.", ""));
+                                s => s.RegexReplace("Config.", ""));
 
                         // Assert
 
@@ -2095,8 +2097,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
                         // Act
                         var result = data.DuckAs<IConfig>(s => "Config." + s,
-                                                          s => s.RegexReplace("Config.", ""),
-                                                          true);
+                            s => s.RegexReplace("Config.", ""),
+                            true);
 
                         // Assert
 
@@ -2123,7 +2125,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                         // Act
                         var result =
                             data.FuzzyDuckAs<IConfig>(s => "Config." + s,
-                                                      s => s.RegexReplace("Config.", ""));
+                                s => s.RegexReplace("Config.", ""));
 
                         // Assert
 
@@ -2211,8 +2213,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 // Act
                 var result =
                     data.FuzzyDuckAs<IConfig>(s => "Config." + s,
-                                              s => s.RegexReplace("Config.", ""),
-                                              true);
+                        s => s.RegexReplace("Config.", ""),
+                        true);
 
                 // Assert
 
@@ -2235,8 +2237,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
                 // Act
                 Expect(() => data.FuzzyDuckAs<IConfig2>(s => "Config." + s,
-                                                        s => s.RegexReplace("Config.", ""),
-                                                        true))
+                        s => s.RegexReplace("Config.", ""),
+                        true))
                     .To.Throw<UnDuckableException>();
                 // Assert
             }
@@ -2254,7 +2256,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 // Act
                 var result =
                     data.FuzzyDuckAs<IConfig>(s => "Config." + s,
-                                              s => s.RegexReplace("Config.", ""));
+                        s => s.RegexReplace("Config.", ""));
 
                 // Assert
 
@@ -2275,7 +2277,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 // Act
                 var result =
                     data.FuzzyDuckAs<IConfig2>(s => "Config." + s,
-                                               s => s.RegexReplace("Config.", "moo"));
+                        s => s.RegexReplace("Config.", "moo"));
 
                 // Assert
 
@@ -2295,8 +2297,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 // Act
                 var result =
                     data.FuzzyDuckAs<IConfig>(s => "Config." + s,
-                                              s => s.RegexReplace("Config.", ""),
-                                              true);
+                        s => s.RegexReplace("Config.", ""),
+                        true);
 
                 // Assert
 
@@ -2759,9 +2761,9 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             {
                 WriteOutAppSettings(appSettingsFile);
                 return new ConfigurationBuilder()
-                       .SetBasePath(Directory.GetCurrentDirectory())
-                       .AddJsonFile(appSettingsFile)
-                       .Build();
+                    .SetBasePath(Directory.GetCurrentDirectory())
+                    .AddJsonFile(appSettingsFile)
+                    .Build();
             }
 
             private static IAppSettings GetSettingsFrom(
@@ -2769,8 +2771,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             {
                 var defaultConfig = new Dictionary<string, string>();
                 var providedConfig = config.GetSection("Settings")
-                                           ?.GetChildren()
-                                           .ToDictionary(s => s.Key, s => s.Value) ?? new Dictionary<string, string>();
+                    ?.GetChildren()
+                    .ToDictionary(s => s.Key, s => s.Value) ?? new Dictionary<string, string>();
                 var merged = new MergeDictionary<string, string>(providedConfig, defaultConfig);
                 try
                 {
@@ -3020,6 +3022,100 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             }
         }
 
+        [TestFixture]
+        public class DuckingDictionaryWithNullPropValue
+        {
+            [TestFixture]
+            public class WhenPropTypeIsNullable
+            {
+                [Test]
+                public void ShouldReturnNull()
+                {
+                    // Arrange
+                    var dict = new Dictionary<string, object>()
+                    {
+                        ["StringProp"] = null as string
+                    };
+                    // Act
+                    var result1 = dict.FuzzyDuckAs<IHasStringProp>();
+                    var result2 = dict.DuckAs<IHasStringProp>();
+                    // Assert
+                    Expect(result1.StringProp)
+                        .To.Be.Null();
+                    Expect(result2.StringProp)
+                        .To.Be.Null();
+                }
+            }
+
+            [TestFixture]
+            public class WhenPropTypeNotNullAble
+            {
+                [TestFixture]
+                public class WhenForcedFuzzy
+                {
+                    [Test]
+                    public void ShouldReturnDefaultValueForType()
+                    {
+                        // Arrange
+                        var dict = new Dictionary<string, object>()
+                        {
+                            ["IntProp"] = null
+                        };
+                        // Act
+                        var result = dict.ForceFuzzyDuckAs<IHasIntProp>();
+                        // Assert
+                        Expect(result.IntProp)
+                            .To.Equal(default(int));
+                    }
+                }
+
+                [TestFixture]
+                public class WhenFuzzy
+                {
+                    [Test]
+                    public void ShouldThrow()
+                    {
+                        // Arrange
+                        var dict = new Dictionary<string, object>()
+                        {
+                            ["IntProp"] = null
+                        };
+                        // Act
+                        Expect(() => dict.FuzzyDuckAs<IHasIntProp>(true))
+                            .To.Throw<UnDuckableException>();
+                        // Assert
+                    }
+                }
+
+                [TestFixture]
+                public class WhenStrict
+                {
+                    [Test]
+                    public void ShouldThrow()
+                    {
+                        // Arrange
+                        var dict = new Dictionary<string, object>()
+                        {
+                            ["IntProp"] = null
+                        };
+                        // Act
+                        Expect(() => dict.DuckAs<IHasIntProp>(true))
+                            .To.Throw<UnDuckableException>();
+                        // Assert
+                    }
+                }
+            }
+
+            public interface IHasStringProp
+            {
+                string StringProp { get; }
+            }
+
+            public interface IHasIntProp
+            {
+                int IntProp { get; }
+            }
+        }
 
         public class TravelRequestDetails : ITravelRequestDetails
         {
