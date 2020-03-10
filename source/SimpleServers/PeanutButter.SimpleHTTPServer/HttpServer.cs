@@ -146,7 +146,9 @@ namespace PeanutButter.SimpleHTTPServer
         private void AutoStart(bool autoStart)
         {
             if (autoStart)
+            {
                 Start();
+            }
         }
 
         /// <inheritdoc />
@@ -534,6 +536,15 @@ namespace PeanutButter.SimpleHTTPServer
                 Log("Serving file at {0}", p.FullUrl);
                 return dataFactory();
             }, contentType);
+        }
+
+        /// <summary>
+        /// Clears any registered handlers so the server can be re-used with completely
+        /// different logic
+        /// </summary>
+        public void Reset()
+        {
+            _handlers.Clear();
         }
     }
 }

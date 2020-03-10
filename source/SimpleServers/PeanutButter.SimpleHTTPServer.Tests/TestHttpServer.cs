@@ -7,7 +7,6 @@ using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Newtonsoft.Json;
@@ -60,21 +59,21 @@ namespace PeanutButter.SimpleHTTPServer.Tests
         }
 
         [Test]
+        [Repeat(10)]
         public void Construct_WhenPortIsNotSpecified_ShouldChooseRandomPortBetween_5000_And_50000()
         {
             //---------------Set up test pack-------------------
-            for (var i = 0; i < 50; i++)
-            {
-                using var server = Create();
-                //---------------Assert Precondition----------------
+            using var server = Create();
+            //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
+            //---------------Execute Test ----------------------
 
-                //---------------Test Result -----------------------
-                Assert.That(server.Port, Is.GreaterThanOrEqualTo(5000));
-                Assert.That(server.Port, Is.LessThanOrEqualTo(32768));
-                Console.WriteLine("Server started on port: " + server.Port);
-            }
+            //---------------Test Result -----------------------
+            Expect(server.Port)
+                .To.Be.Greater.Than.Or.Equal.To(5000)
+                .And
+                .To.Be.Less.Than.Or.Equal.To(32768);
+            Console.WriteLine("Server started on port: " + server.Port);
         }
 
         [Test]
@@ -754,6 +753,64 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             // Assert
         }
 
+        [TestFixture]
+        public class ReUsingServerByClearingAndReRegisteringHandlers
+        {
+            private HttpServer _server;
+
+            [OneTimeSetUp]
+            public void OnetimeSetup()
+            {
+                _server = new HttpServer();
+            }
+
+            [OneTimeTearDown]
+            public void OnetimeTeardown()
+            {
+                _server.Dispose();
+            }
+
+            [TearDown]
+            public void Teardown()
+            {
+                _server.Reset();
+            }
+
+            [Test]
+            public void ShouldGetFile1()
+            {
+                // Arrange
+                var expected = GetRandomString();
+                _server.AddDocumentHandler((processor, stream) =>
+                    processor.Path == "/index.html"
+                        ? expected
+                        : null
+                );
+                // Act
+                var result = DownloadResultFrom(_server, "/index.html");
+                // Assert
+                var asString = Encoding.UTF8.GetString(result);
+                Expect(asString).To.Equal(expected);
+            }
+
+            [Test]
+            public void ShouldGetFile2()
+            {
+                // Arrange
+                var expected = GetRandomString();
+                _server.AddDocumentHandler((processor, stream) =>
+                    processor.Path == "/index.html"
+                        ? expected
+                        : null
+                );
+                // Act
+                var result = DownloadResultFrom(_server, "/index.html");
+                // Assert
+                var asString = Encoding.UTF8.GetString(result);
+                Expect(asString).To.Equal(expected);
+            }
+        }
+
         private string ThisFile([CallerFilePath] string filePath = null)
         {
             return filePath;
@@ -832,12 +889,12 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             }
         }
 
-        private byte[] DownloadResultFrom(HttpServer server, string path, Dictionary<string, string> addHeaders = null)
+        private static byte[] DownloadResultFrom(HttpServer server, string path, Dictionary<string, string> addHeaders = null)
         {
             return DownloadResultFrom(server, path, addHeaders, out var _);
         }
 
-        private byte[] DownloadResultFrom(
+        private static byte[] DownloadResultFrom(
             HttpServer server,
             HttpMethods method,
             string path,
@@ -861,7 +918,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
         }
 
 
-        private byte[] DownloadResultFrom(
+        private static byte[] DownloadResultFrom(
             HttpServer server,
             string path,
             Dictionary<string, string> addHeaders,

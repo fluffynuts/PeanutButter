@@ -45,6 +45,16 @@ namespace PeanutButter.SimpleHTTPServer.Testability
                 Assert.Fail($"Header {header} had should not have had value {request.Headers[header]}.");
         }
 
+
+        public static void Reset(this HttpServer server)
+        {
+            server.Reset();
+            if (_serverRequests.TryGetValue(server, out var logs))
+            {
+                logs.Clear();
+            }
+        }
+
         private static RequestLogItem GetSingleRequestFor(HttpServer server, string path, HttpMethods method)
         {
             var requests = server.GetRequestLogsMatching(path, method);
