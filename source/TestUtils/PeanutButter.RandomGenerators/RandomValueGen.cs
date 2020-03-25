@@ -496,7 +496,7 @@ namespace PeanutButter.RandomGenerators
             DateTime value)
         {
             var baseDate = new DateTime(value.Year, value.Month, value.Day);
-            minTime = baseDate.Add(minTime?.TimeOfDay ?? TimeSpan.Zero);
+            minTime = baseDate.Add(minTime?.TimeOfDay ?? TimeSpan.FromSeconds(0));
             maxTime = baseDate.Add(maxTime?.TimeOfDay ?? TimeSpan.FromDays(1).Subtract(TimeSpan.FromTicks(1)));
 
             if (minTime > maxTime)

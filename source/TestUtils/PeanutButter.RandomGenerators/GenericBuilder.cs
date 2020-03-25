@@ -781,9 +781,9 @@ namespace PeanutButter.RandomGenerators
         private static PropertyOrField[]
             GetAllPropertiesAndFieldsOfConstructingType()
         {
-            return ConstructingType.GetProperties()
+            return ConstructingType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
                 .Select(pi => new PropertyOrField(pi))
-                .Union(ConstructingType.GetFields()
+                .Union(ConstructingType.GetFields(BindingFlags.Public | BindingFlags.Instance)
                     .Select(fi => new PropertyOrField(fi)))
                 .ToArray();
         }

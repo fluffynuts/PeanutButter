@@ -164,6 +164,7 @@ namespace PeanutButter.RandomGenerators.Tests
             {
                 collected.Add(GetRandomTimeOfDay());
             }
+
             // Assert
             Expect(collected).To.Contain.All()
                 .Matched.By(t => t >= TimeSpan.Zero);
@@ -263,8 +264,8 @@ namespace PeanutButter.RandomGenerators.Tests
             Assert.IsTrue(
                 strings.All(
                     s => s.Length <=
-                         DefaultRanges.MINLENGTH_STRING +
-                         DefaultRanges.MINLENGTH_STRING));
+                        DefaultRanges.MINLENGTH_STRING +
+                        DefaultRanges.MINLENGTH_STRING));
             Assert.IsTrue(strings.Distinct().Count() > 1);
         }
 
@@ -351,7 +352,7 @@ namespace PeanutButter.RandomGenerators.Tests
             var o1 = new object();
             var o2 = new object();
             var o3 = new object();
-            var items = new[] {o1, o2, o3};
+            var items = new[] { o1, o2, o3 };
             var results = new List<object>();
             const int runs = NORMAL_RANDOM_TEST_CYCLES;
             //---------------Assert Precondition----------------
@@ -374,7 +375,7 @@ namespace PeanutButter.RandomGenerators.Tests
             var o1 = new object();
             var o2 = new object();
             var o3 = new object();
-            var items = new[] {o1, o2, o3};
+            var items = new[] { o1, o2, o3 };
             var results = new List<IEnumerable<object>>();
             const int runs = NORMAL_RANDOM_TEST_CYCLES;
             //---------------Assert Precondition----------------
@@ -405,7 +406,7 @@ namespace PeanutButter.RandomGenerators.Tests
             var o1 = new object();
             var o2 = new object();
             var o3 = new object();
-            var items = new[] {o1, o2, o3};
+            var items = new[] { o1, o2, o3 };
             const int runs = NORMAL_RANDOM_TEST_CYCLES;
 
             //---------------Assert Precondition----------------
@@ -429,7 +430,7 @@ namespace PeanutButter.RandomGenerators.Tests
             var o4 = new object();
             var o5 = new object();
             var o6 = new object();
-            var items = new[] {o1, o2, o3, o4, o5, o6};
+            var items = new[] { o1, o2, o3, o4, o5, o6 };
             var min = GetRandomInt(1, 3);
             var max = GetRandomInt(3, items.Length);
             const int runs = NORMAL_RANDOM_TEST_CYCLES;
@@ -542,10 +543,27 @@ namespace PeanutButter.RandomGenerators.Tests
         [TestFixture]
         public class GetRandomDate
         {
+            [Test]
+            public void ShouldReturnRandomDateTimeForDefaultCall()
+            {
+                // Arrange
+                var collected = new List<DateTime>();
+                // Act
+                for (var i = 0; i < HIGH_RANDOM_TEST_CYCLES; i++)
+                {
+                    collected.Add(GetRandomDate());
+                }
+
+                // Assert
+                var unique = collected.Distinct();
+                Expect(unique)
+                    .To.Be.Equivalent.To(collected);
+            }
+
             [TestCase(1984, 4, 4, 2001, 1, 1)]
             [TestCase(1914, 4, 4, 2011, 1, 1)]
             [TestCase(2001, 4, 4, 2001, 1, 1)]
-            public void GetRandomDate_GivenDateOnlyIsTrue_ShouldReturnDateTimeWithNoTimeComponent(
+            public void GivenDateOnlyIsTrue_ShouldReturnDateTimeWithNoTimeComponent(
                 int minYear,
                 int minMonth,
                 int minDay,
@@ -572,7 +590,7 @@ namespace PeanutButter.RandomGenerators.Tests
             }
 
             [Test]
-            public void GetRandomDate_GivenMinTimeOrMaxTime_AndDateOnlyIsTrue_ShouldIgnoreTheGivenTimes()
+            public void GivenMinTimeOrMaxTime_AndDateOnlyIsTrue_ShouldIgnoreTheGivenTimes()
             {
                 //---------------Set up test pack-------------------
                 var ticksInOneDay = TimeSpan.FromDays(1).Ticks;
@@ -593,7 +611,7 @@ namespace PeanutButter.RandomGenerators.Tests
             [TestCase(1984, 4, 4, 2001, 1, 1)]
             [TestCase(1914, 4, 4, 2011, 1, 1)]
             [TestCase(2001, 4, 4, 2001, 1, 1)]
-            public void GetRandomDate_ShouldReturnDatesWithinRange(
+            public void ShouldReturnDatesWithinRange(
                 int minYear,
                 int minMonth,
                 int minDay,
@@ -638,7 +656,7 @@ namespace PeanutButter.RandomGenerators.Tests
             }
 
             [Test]
-            public void GetRandomDate_GivenMinTime_ShouldProduceRandomDatesWithTimesGreaterOrEqual()
+            public void GivenMinTime_ShouldProduceRandomDatesWithTimesGreaterOrEqual()
             {
                 //---------------Set up test pack-------------------
                 var minTime = new DateTime(1900, 1, 1, GetRandomInt(0, 12), GetRandomInt(0, 59), GetRandomInt(0, 59));
@@ -661,7 +679,7 @@ namespace PeanutButter.RandomGenerators.Tests
 
             [Test]
             [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
-            public void GetRandomDate_GivenMinDateOnly_ShouldProduceRandomDatesWithin30YearPeriod()
+            public void GivenMinDateOnly_ShouldProduceRandomDatesWithin30YearPeriod()
             {
                 //---------------Set up test pack-------------------
                 var minDate = new DateTime(GetRandomInt(1, 3000), GetRandomInt(1, 12), GetRandomInt(1, 28));
@@ -681,7 +699,7 @@ namespace PeanutButter.RandomGenerators.Tests
 
             [Test]
             [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
-            public void GetRandomDate_GivenMaxDateOnly_ShouldProduceRandomDatesWithin30YearPeriod()
+            public void GivenMaxDateOnly_ShouldProduceRandomDatesWithin30YearPeriod()
             {
                 //---------------Set up test pack-------------------
                 var maxDate = new DateTime(GetRandomInt(31, 3000), GetRandomInt(1, 12), GetRandomInt(1, 28));
@@ -702,7 +720,7 @@ namespace PeanutButter.RandomGenerators.Tests
             [Test]
             [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
             public void
-                GetRandomDate_GivenMinAndMaxTimeWithFractionsOfSeconds_ShouldTruncateTimesToMilliseconds_AndProduceRandomDateWithTimeBetweenMinAndMax()
+                GivenMinAndMaxTimeWithFractionsOfSeconds_ShouldTruncateTimesToMilliseconds_AndProduceRandomDateWithTimeBetweenMinAndMax()
             {
                 //---------------Set up test pack-------------------
                 var r = GetRandomDate();
@@ -728,7 +746,7 @@ namespace PeanutButter.RandomGenerators.Tests
             }
 
             [Test]
-            public void GetRandomDate_GivenMaxTime_ShouldProduceRandomDatesWithTimesLessThanOrEqual()
+            public void GivenMaxTime_ShouldProduceRandomDatesWithTimesLessThanOrEqual()
             {
                 //---------------Set up test pack-------------------
                 var maxTime = new DateTime(1900, 1, 1, GetRandomInt(12, 23), GetRandomInt(0, 59), GetRandomInt(0, 59));
@@ -737,7 +755,9 @@ namespace PeanutButter.RandomGenerators.Tests
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                RunCycles(() => results.Add(GetRandomDate(maxTime: maxTime)));
+                RunCycles(() =>
+                    results.Add(GetRandomDate(maxTime: maxTime))
+                );
 
                 //---------------Test Result -----------------------
                 var outOfRange = results
@@ -754,7 +774,7 @@ namespace PeanutButter.RandomGenerators.Tests
             }
 
             [Test]
-            public void GetRandomDate_GivenMinDateTimeAndMaxDateTime_WhenDateOnlySpecified_ShouldReturnDateWithinRange()
+            public void GivenMinDateTimeAndMaxDateTime_WhenDateOnlySpecified_ShouldReturnDateWithinRange()
             {
                 //---------------Set up test pack-------------------
                 var minDate = new DateTime(2011, 1, 1, 23, 30, 0);
@@ -775,7 +795,7 @@ namespace PeanutButter.RandomGenerators.Tests
 
             [Test]
             public void
-                GetRandomDate_GivenMinDateTimeAndMaxDateTime_WhenDateOnlySpecified_AndMinMaxOnSameDay_ShouldGiveThatDay()
+                GivenMinDateTimeAndMaxDateTime_WhenDateOnlySpecified_AndMinMaxOnSameDay_ShouldGiveThatDay()
             {
                 //---------------Set up test pack-------------------
                 var minDate = new DateTime(2011, 1, 1, 12, 00, 0);
@@ -827,16 +847,16 @@ namespace PeanutButter.RandomGenerators.Tests
                         "One or more generated value is out of range");
                 Expect(results).To.Contain.All()
                     .Matched.By(d => d.Hour == 0,
-                    "Hours are not all zeroed");
+                        "Hours are not all zeroed");
                 Expect(results).To.Contain.All()
                     .Matched.By(d => d.Minute == 0,
-                    "Minutes are not all zeroed");
+                        "Minutes are not all zeroed");
                 Expect(results).To.Contain.All()
                     .Matched.By(d => d.Second == 0,
-                    "Seconds are not all zeroed");
+                        "Seconds are not all zeroed");
                 Expect(results).To.Contain.All()
                     .Matched.By(d => d.Millisecond == 0,
-                    "Milliseconds are not all zeroed");
+                        "Milliseconds are not all zeroed");
             }
 
             [Test]
@@ -1022,7 +1042,8 @@ namespace PeanutButter.RandomGenerators.Tests
             }
 
             [Test]
-            public void GetRandomUtcDate_GivenMinDateTimeAndMaxDateTime_WhenDateOnlySpecified_ShouldReturnDateWithinRange()
+            public void
+                GetRandomUtcDate_GivenMinDateTimeAndMaxDateTime_WhenDateOnlySpecified_ShouldReturnDateWithinRange()
             {
                 //---------------Set up test pack-------------------
                 var minDate = new DateTime(2011, 1, 1, 23, 30, 0);
@@ -1093,7 +1114,7 @@ namespace PeanutButter.RandomGenerators.Tests
                     .And
                     .Less.Than(TimeSpan.FromMinutes(10).Ticks + 1);
             }
-            
+
             [Test]
             public void WhenContextIsHours_ShouldReturnSecondRange()
             {
@@ -1107,7 +1128,7 @@ namespace PeanutButter.RandomGenerators.Tests
                     .And
                     .Less.Than(TimeSpan.FromHours(10).Ticks + 1);
             }
-                        
+
             [Test]
             public void WhenContextIsDays_ShouldReturnSecondRange()
             {
@@ -1121,7 +1142,7 @@ namespace PeanutButter.RandomGenerators.Tests
                     .And
                     .Less.Than(TimeSpan.FromDays(10).Ticks + 1);
             }
-                        
+
             [Test]
             public void WhenContextIsSeconds_ShouldReturnSecondRange()
             {
@@ -1143,14 +1164,14 @@ namespace PeanutButter.RandomGenerators.Tests
                 var min = TimeSpan.FromSeconds(GetRandomInt(1, 100));
                 var max = TimeSpan.FromSeconds(GetRandomInt(200, 300));
                 // Act
-                var collected = 
-                Range(0, NORMAL_RANDOM_TEST_CYCLES).Aggregate(
-                    new List<TimeSpan>(),
-                    (acc, cur) =>
-                    {
-                        acc.Add(GetRandomTimeSpan(min, max));
-                        return acc;
-                    });
+                var collected =
+                    Range(0, NORMAL_RANDOM_TEST_CYCLES).Aggregate(
+                        new List<TimeSpan>(),
+                        (acc, cur) =>
+                        {
+                            acc.Add(GetRandomTimeSpan(min, max));
+                            return acc;
+                        });
                 // Assert
                 Expect(collected).To.Contain.All()
                     .Matched.By(t => t >= min && t <= max);
@@ -1324,7 +1345,6 @@ namespace PeanutButter.RandomGenerators.Tests
                         Assert.AreEqual(expected, result.To.Kind);
                     });
             }
-
         }
 
         [TestFixture]
@@ -1476,7 +1496,8 @@ namespace PeanutButter.RandomGenerators.Tests
         public class GetRandomCollection
         {
             [Test]
-            public void GivenGeneratorFunctionAndBoundaries_ShouldReturnListOfRandomSizeContainingOutputOfGeneratorPerItem()
+            public void
+                GivenGeneratorFunctionAndBoundaries_ShouldReturnListOfRandomSizeContainingOutputOfGeneratorPerItem()
             {
                 //---------------Set up test pack-------------------
                 const int runs = NORMAL_RANDOM_TEST_CYCLES;
@@ -2578,7 +2599,7 @@ namespace PeanutButter.RandomGenerators.Tests
             // Assert
             Expect(builder.WithChildrenCallCount).To.Equal(2);
         }
-        
+
         public class Parent
         {
             public string Name { get; set; }
@@ -2712,7 +2733,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 return value >= From && value <= To;
             }
         }
-        
+
         [TestFixture]
         public class GettingRandomHttpUrls
         {
@@ -2785,13 +2806,25 @@ namespace PeanutButter.RandomGenerators.Tests
                 var uri = new Uri(url);
                 Expect(uri.Query).Not.To.Be.Null.Or.Empty();
                 var parameters = uri.Query.Substring(1)
-                    .Split(new[] {"&"}, StringSplitOptions.RemoveEmptyEntries);
+                    .Split(new[] { "&" }, StringSplitOptions.RemoveEmptyEntries);
                 Expect(parameters).Not.To.Be.Empty();
             }
-            
+        }
+
+        [Test]
+        public void GetRandomOfTShouldNotClobberStaticFields()
+        {
+            // Arrange
+            var zero = TimeSpan.Zero;
+            GetRandom<TimeSpan>();
+            GetRandom<TimeSpan>();
+            // Act
+            Expect(TimeSpan.Zero)
+                .To.Equal(zero);
+            // Assert
         }
     }
-    
+
 
     internal static class Matchers
     {
