@@ -17,7 +17,11 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">BSD-3-Clause</license>
     <copyright>Copyright  2014</copyright>
-    <dependencies></dependencies>
+    <dependencies>
+      <group targetFramework="net452"></group>
+      <group targetFramework="net462"></group>
+      <group targetFramework="netstandard2.0"></group>
+    </dependencies>
     <references></references>
     <tags></tags>
   </metadata>

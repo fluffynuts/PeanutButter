@@ -1,19 +1,20 @@
 var
-  fs = require("fs")
-gulp = require("gulp"),
-  gdebug = require("gulp-debug"),
+  fs = require("fs"),
+  gulp = require("gulp"),
   runSequence = requireModule("run-sequence"),
-  msbuild = require("gulp-msbuild")
-sleep = requireModule("sleep"),
+  msbuild = require("gulp-msbuild"),
+  sleep = requireModule("sleep"),
   del = require("del"),
   exec = requireModule("exec"),
   spawn = requireModule("spawn"),
-  findLocalNuget = requireModule("find-local-nuget"),
+  restoreTool = requireModule("resolve-nuget")(),
   es = require("event-stream"),
   lsr = requireModule("ls-r"),
   path = require("path"),
   findTool = requireModule("testutil-finder").findTool,
   PQueue = require("p-queue").default,
+  env = requireModule("env"),
+  usingDotnetCore = env.resolveFlag("DOTNET_CORE"),
   commonConfig = {
     toolsVersion: "auto",
     stdout: true,
@@ -50,7 +51,10 @@ function processPathsWith(getNugetArgsFor) {
     files.push(filePath);
     this.emit("data", file);
   }, function () {
-    findLocalNuget().then(function (nuget) {
+    Promise.resolve(restoreTool).then(function (nuget) {
+      console.log({
+        nuget
+      });
       var queue = new PQueue({ concurrency: 3 });
       queue.addAll(files.map(pkgPath => {
         var args = getNugetArgsFor(pkgPath);
@@ -88,7 +92,7 @@ async function retry(func, times) {
   }
 }
 
-function pushNugetPackages(skipDuplicates) {
+function pushNugetPackagesWithNugetExe(skipDuplicates) {
   return processPathsWith(function (filePath) {
     var result = ["push", filePath, "-NonInteractive", "-Source", "https://www.nuget.org", "-Timeout", "30"];
     if (skipDuplicates) {
@@ -98,8 +102,22 @@ function pushNugetPackages(skipDuplicates) {
   });
 }
 
+function pushNugetPackagesWithDotNet(skipDuplicates) {
+  return processPathsWith(filePath => {
+    var result = [ "nuget", "push", "--source", "https://www.nuget.org", "--timeout", "30" ];
+    if (skipDuplicates) {
+      result.push("--skip-duplicates");
+    }
+    return result;
+  });
+}
+
+const pushNugetPackages = usingDotnetCore
+  ? pushNugetPackagesWithDotNet
+  : pushNugetPackagesWithNugetExe
+
 var nugetReleaseDir = ".release-packages";
-function buildNugetPackages(includeSymbols) {
+function buildNugetPackagesWithNugetExe(includeSymbols) {
   return processPathsWith(function (filePath) {
     var args = ["pack", filePath, "-NonInteractive", "-Verbosity", "Detailed", "-OutputDirectory", nugetReleaseDir];
     if (includeSymbols) {
@@ -108,6 +126,32 @@ function buildNugetPackages(includeSymbols) {
     return args;
   })
 }
+
+function findProjectNextTo(nuspec) {
+  const
+    dir = path.dirname(nuspec),
+    contents = fs.readdirSync(dir),
+    project = contents.filter(o => o.match(/\.(cs|vb)proj$/))[0];
+  if (!project) {
+    throw new Error(`Can't find project in ${dir}`);
+  }
+  return path.join(dir, project);
+}
+
+function buildNugetPackagesWithDotNet(includeSymbols) {
+  return processPathsWith(filePath => {
+    const projectPath = findProjectNextTo(filePath);
+    var args = ["pack", projectPath, `-p:NuspecFile=${filePath}`, "--verbosity", "detailed", "--output", nugetReleaseDir ];
+    if (includeSymbols) {
+      args.push("--include-symbols");
+    }
+    return args;
+  });
+}
+
+const buildNugetPackages = usingDotnetCore
+  ? buildNugetPackagesWithDotNet
+  : buildNugetPackagesWithNugetExe;
 
 gulp.task("build-source-nuget-packages", function () {
   return gulp.src(["**/PeanutButter.TestUtils.MVC/*.nuspec"])
