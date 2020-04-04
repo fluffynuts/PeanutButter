@@ -11,7 +11,7 @@
         "postcover": "run-s generate-reports",
         "generate-reports": "cross-env COVERAGE_INCLUDE=*,PeanutButter.* COVERAGE_EXCLUDE_ASSEMBLIES=PeanutButter.RandomGenerators.Core.Tests.Domain COVERAGE_ADDITIONAL_EXCLUDE=GenericBuilderTestLoadLoadedAssemblyObject,GenericBuilderTestNotLoadedAssembly run-s \"gulp generate-reports\"",
         "build": "run-s \"gulp build\"",
-        "gulp": "cross-env BUILD_TOOLS_FOLDER=build-tools gulp",
+        "gulp": "cross-env BUILD_TOOLS_FOLDER=build-tools DOTNET_CORE=1 gulp",
         "release": "run-s test \"gulp release\"",
         "quick-release": "run-s \"gulp release\"",
         "pack": "cross-env BUILD_CONFIGURATION=Release run-s \"gulp pack\""
@@ -19,7 +19,7 @@
     "devDependencies": {
         "ansi-colors": "^4.1.1",
         "chai": "^4.2.0",
-        "chalk": "^3.0.0",
+        "chalk": "^4.0.0",
         "cross-env": "^7.0.2",
         "debug": "^4.1.1",
         "del": "^5.1.0",
@@ -48,7 +48,7 @@
         "karma-nyan-reporter": "^0.2.5",
         "karma-requirejs": "^1.1.0",
         "karma-xml-reporter": "^0.1.4",
-        "mkdirp": "^1.0.3",
+        "mkdirp": "^1.0.4",
         "mocha": "^7.1.1",
         "mocha-yar": "^1.0.13",
         "nodemon": "^2.0.2",
