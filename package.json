@@ -18,6 +18,7 @@
     },
     "devDependencies": {
         "ansi-colors": "^4.1.1",
+        "array.prototype.flatmap": "^1.2.3",
         "chai": "^4.2.0",
         "chalk": "^4.0.0",
         "cross-env": "^7.0.2",
