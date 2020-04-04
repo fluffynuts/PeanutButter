@@ -25,6 +25,9 @@
     <PackageReference Include="PeanutButter.Utils" Version="1.2.329" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="System.Runtime"/>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj" />
     <ProjectReference Include="..\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj" />
   </ItemGroup>

@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Mail;
 
+#pragma warning disable 618
 namespace EmailSpooler.Win32Service.SMTP
 {
     public interface ISmtpClient
@@ -53,3 +54,4 @@ namespace EmailSpooler.Win32Service.SMTP
         }
     }
 }
+#pragma warning restore 618
