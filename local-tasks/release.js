@@ -141,7 +141,7 @@ function findProjectNextTo(nuspec) {
 function buildNugetPackagesWithDotNet(includeSymbols) {
   return processPathsWith(filePath => {
     const projectPath = findProjectNextTo(filePath);
-    var args = ["pack", projectPath, `-p:NuspecFile=${filePath}`, "--verbosity", "detailed", "--output", nugetReleaseDir ];
+    var args = ["pack", projectPath, `-p:NuspecFile=${filePath}`, "--verbosity", "minimal", "--output", nugetReleaseDir ];
     if (includeSymbols) {
       args.push("--include-symbols");
     }
