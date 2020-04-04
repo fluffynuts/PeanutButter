@@ -3,6 +3,13 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net462</TargetFramework>
+    <Configurations>Debug;Release;Debug-X</Configurations>
+    <Platforms>AnyCPU</Platforms>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug-X' ">
+    <DebugSymbols Condition=" '$(DebugSymbols)' == '' ">true</DebugSymbols>
+    <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
   </PropertyGroup>
 
   <ItemGroup>
@@ -10,4 +17,5 @@
     <Reference Include="System.ServiceProcess" />
   </ItemGroup>
 
+  <Import Project="..\..\MonoForFramework.targets" />
 </Project>

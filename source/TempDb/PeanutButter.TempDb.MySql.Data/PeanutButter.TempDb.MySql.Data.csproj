@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net452;net462;netstandard2.0</TargetFrameworks>
     <DocumentationFile>bin/$(Configuration)/$(TargetFramework)/PeanutButter.TempDb.MySql.xml</DocumentationFile>
-    <Configurations>Debug;Release</Configurations>
+    <Configurations>Debug;Release;Debug-X</Configurations>
     <Platforms>AnyCPU</Platforms>
     <RootNamespace>PeanutButter.TempDb.MySql.Data</RootNamespace>
   </PropertyGroup>
@@ -13,6 +13,10 @@
   <PropertyGroup>
     <DebugType>Full</DebugType>
     <DebugSymbols>True</DebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug-X' ">
+    <DebugSymbols Condition=" '$(DebugSymbols)' == '' ">true</DebugSymbols>
+    <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="3.4.0" />
@@ -24,5 +28,5 @@
     <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj" />
     <ProjectReference Include="..\..\INI\PeanutButter.INI\PeanutButter.INI.csproj" />
   </ItemGroup>
-  <Import Project="..\..\MonoForFramework.targets"/>
+  <Import Project="..\..\MonoForFramework.targets" />
 </Project>

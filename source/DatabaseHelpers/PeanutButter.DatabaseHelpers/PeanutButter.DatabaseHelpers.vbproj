@@ -6,6 +6,8 @@
     <FileAlignment>512</FileAlignment>
     <MyType>Windows</MyType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Configurations>Debug;Release;Debug-X</Configurations>
+    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DefineDebug>true</DefineDebug>
@@ -21,6 +23,17 @@
     <DocumentationFile>PeanutButter.DatabaseHelpers.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
     <OutputPath>bin\Release\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug-X' ">
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <DocumentationFile>PeanutButter.DatabaseHelpers.xml</DocumentationFile>
+    <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022,40000</NoWarn>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DebugSymbols Condition=" '$(DebugSymbols)' == '' ">true</DebugSymbols>
+    <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
+    <DefineDebug Condition=" '$(DefineDebug)' == '' ">true</DefineDebug>
+    <DefineTrace Condition=" '$(DefineTrace)' == '' ">true</DefineTrace>
   </PropertyGroup>
   <PropertyGroup>
     <OptionExplicit>On</OptionExplicit>
@@ -75,5 +88,5 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualBasic" Version="10.3.0" />
   </ItemGroup>
-  <Import Project="..\..\MonoForFramework.targets"/>
+  <Import Project="..\..\MonoForFramework.targets" />
 </Project>

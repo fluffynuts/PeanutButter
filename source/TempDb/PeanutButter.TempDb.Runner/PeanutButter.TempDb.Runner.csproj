@@ -4,6 +4,13 @@
     <OutputType>Exe</OutputType>
     <TargetFrameworks>netcoreapp2.2;net462</TargetFrameworks>
     <RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
+    <Configurations>Debug;Release;Debug-X</Configurations>
+    <Platforms>AnyCPU</Platforms>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug-X' ">
+    <DebugSymbols Condition=" '$(DebugSymbols)' == '' ">true</DebugSymbols>
+    <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
   </PropertyGroup>
 
   <ItemGroup>
@@ -32,5 +39,5 @@
     <ProjectReference Include="..\PeanutButter.TempDb\PeanutButter.TempDb.csproj" />
   </ItemGroup>
 
-  <Import Project="..\..\MonoForFramework.targets"/>
+  <Import Project="..\..\MonoForFramework.targets" />
 </Project>

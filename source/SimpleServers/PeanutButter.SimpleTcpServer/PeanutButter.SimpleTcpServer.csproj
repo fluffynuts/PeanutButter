@@ -2,7 +2,7 @@
     <PropertyGroup>
         <TargetFrameworks>net452;net462;netstandard2.0</TargetFrameworks>
         <DocumentationFile>bin/$(Configuration)/$(TargetFramework)/PeanutButter.SimpleTcpServer.xml</DocumentationFile>
-        <Configurations>Debug;Release</Configurations>
+        <Configurations>Debug;Release;Debug-X</Configurations>
         <Platforms>AnyCPU</Platforms>
     </PropertyGroup>
     <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
@@ -12,10 +12,14 @@
         <DebugType>Full</DebugType>
         <DebugSymbols>True</DebugSymbols>
     </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug-X' ">
+      <DebugSymbols Condition=" '$(DebugSymbols)' == '' ">true</DebugSymbols>
+      <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
+    </PropertyGroup>
     <ItemGroup>
       <PackageReference Include="Microsoft.Net.Compilers.Toolset">
         <Version>3.4.0</Version>
       </PackageReference>
     </ItemGroup>
-    <Import Project="..\..\MonoForFramework.targets"/>
+    <Import Project="..\..\MonoForFramework.targets" />
 </Project>

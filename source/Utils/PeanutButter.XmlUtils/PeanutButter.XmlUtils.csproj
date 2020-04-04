@@ -3,6 +3,13 @@
   <PropertyGroup>
     <TargetFrameworks>net452;net462;netstandard2.0</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Configurations>Debug;Release;Debug-X</Configurations>
+    <Platforms>AnyCPU</Platforms>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug-X' ">
+    <DebugSymbols Condition=" '$(DebugSymbols)' == '' ">true</DebugSymbols>
+    <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,5 +18,5 @@
     </PackageReference>
   </ItemGroup>
 
-  <Import Project="..\..\MonoForFramework.targets"/>
+  <Import Project="..\..\MonoForFramework.targets" />
 </Project>

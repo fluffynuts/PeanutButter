@@ -3,6 +3,8 @@
     <TargetFramework>net462</TargetFramework>
     <RuntimeIdentifiers>win;osx;linux</RuntimeIdentifiers>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Configurations>Debug;Release;Debug-X</Configurations>
+    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
   <PropertyGroup>
     <OutputType>Library</OutputType>
@@ -11,6 +13,10 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Test|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\Test\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug-X' ">
+    <DebugSymbols Condition=" '$(DebugSymbols)' == '' ">true</DebugSymbols>
+    <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System.Configuration" />
@@ -55,5 +61,5 @@
   <ItemGroup>
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
   </ItemGroup>
-  <Import Project="..\..\MonoForFramework.targets"/>
+  <Import Project="..\..\MonoForFramework.targets" />
 </Project>

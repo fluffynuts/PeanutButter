@@ -1,10 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net462</TargetFramework>
     <RuntimeIdentifiers>win;osx;linux</RuntimeIdentifiers>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <UseWindowsForms>true</UseWindowsForms>
     <LangVersion>latest</LangVersion>
+    <Configurations>Debug;Release;Debug-X</Configurations>
+    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
   <PropertyGroup>
     <OutputType>Library</OutputType>
@@ -44,6 +45,10 @@
   <PropertyGroup>
     <PreBuildEvent Condition=" '$(OS)' == 'Windows_NT'">mkdir $(SolutionDir)Win32Service\PeanutButter.WindowsServiceManagement.Tests\$(OutDir)
 copy $(SolutionDir)Win32Service\TestService\$(OutDir)* $(TargetDir)</PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug-X' ">
+    <DebugSymbols Condition=" '$(DebugSymbols)' == '' ">true</DebugSymbols>
+    <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
   </PropertyGroup>
   <Import Project="..\..\MonoForFramework.targets" />
 </Project>

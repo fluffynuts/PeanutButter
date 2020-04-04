@@ -3,6 +3,8 @@
     <TargetFramework>net462</TargetFramework>
     <RuntimeIdentifiers>win;osx;linux</RuntimeIdentifiers>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Configurations>Debug;Release;Debug-X</Configurations>
+    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
   <PropertyGroup>
     <OutputType>Library</OutputType>
@@ -19,6 +21,15 @@
     <DocumentationFile>PeanutButter.DatabaseHelpers.Tests.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
     <OutputPath>bin\Release\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug-X' ">
+    <DocumentationFile>PeanutButter.DatabaseHelpers.Tests.xml</DocumentationFile>
+    <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022,40000</NoWarn>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DebugSymbols Condition=" '$(DebugSymbols)' == '' ">true</DebugSymbols>
+    <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
+    <DefineDebug Condition=" '$(DefineDebug)' == '' ">true</DefineDebug>
+    <DefineTrace Condition=" '$(DefineTrace)' == '' ">true</DefineTrace>
   </PropertyGroup>
   <PropertyGroup>
     <OptionStrict>On</OptionStrict>
@@ -85,5 +96,5 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualBasic" Version="10.3.0" />
   </ItemGroup>
-  <Import Project="..\..\MonoForFramework.targets"/>
+  <Import Project="..\..\MonoForFramework.targets" />
 </Project>
