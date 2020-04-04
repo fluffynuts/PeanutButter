@@ -1,0 +1,11 @@
+Problem projects:
+- vb test projects
+  - PeanutButter.DatabaseHelpers.Tests
+    - either port to C# or kill the whole thing?
+- windows-specific projects
+  - PeanutButter.TrayIcon
+    - move to own repo, use PB stuff via nuget
+  - EmailSpooler.Win32Service.Db.Tests
+    - can this run on MySql? Currently it wants PeanutButter.TempDb.LocalDb
+  - PeanutButter.TempDb.Tests
+    - LocalDb tests are gonna bork
