@@ -52,9 +52,6 @@ function processPathsWith(getNugetArgsFor) {
     this.emit("data", file);
   }, function () {
     Promise.resolve(restoreTool).then(function (nuget) {
-      console.log({
-        nuget
-      });
       var queue = new PQueue({ concurrency: 3 });
       queue.addAll(files.map(pkgPath => {
         var args = getNugetArgsFor(pkgPath);
@@ -104,7 +101,7 @@ function pushNugetPackagesWithNugetExe(skipDuplicates) {
 
 function pushNugetPackagesWithDotNet(skipDuplicates) {
   return processPathsWith(filePath => {
-    var result = [ "nuget", "push", "--source", "https://www.nuget.org", "--timeout", "30" ];
+    var result = [ "nuget", "push", filePath, "--source", "https://www.nuget.org", "--timeout", "30" ];
     if (skipDuplicates) {
       result.push("--skip-duplicates");
     }
