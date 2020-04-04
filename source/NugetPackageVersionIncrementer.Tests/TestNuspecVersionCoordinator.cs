@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using NExpect;
 using NSubstitute;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
+using static NExpect.Expectations;
+
 // ReSharper disable PossibleMultipleEnumeration
 
 namespace NugetPackageVersionIncrementer.Tests
@@ -166,6 +169,10 @@ namespace NugetPackageVersionIncrementer.Tests
             var path2 = RandomValueGen.GetRandomFileName();
             var util1 = CreateRandomNuspecUtil();
             var util2 = CreateRandomNuspecUtil(util1.PackageId);
+            var packageId1 = util1.PackageId;
+            var packageId2 = util2.PackageId;
+            var version1 = util1.Version;
+            var version2 = util2.Version;
             var factory = Substitute.For<INuspecUtilFactory>();
             factory.LoadNuspecAt(path1).Returns(util1);
             factory.LoadNuspecAt(path2).Returns(util2);
@@ -174,7 +181,8 @@ namespace NugetPackageVersionIncrementer.Tests
             var sut = Create(finder, factory);
 
             //---------------Assert Precondition----------------
-            Assert.AreNotEqual(util1.PackageId, util2.PackageId);
+            Expect(util1.PackageId)
+                .Not.To.Equal(util2.PackageId);
 
             //---------------Execute Test ----------------------
             sut.IncrementVersionsUnder(RandomValueGen.GetRandomString());
@@ -187,8 +195,8 @@ namespace NugetPackageVersionIncrementer.Tests
                 util2.EnsureSameDependencyGroupForAllTargetFrameworks();
                 util2.IncrementVersion();
 
-                util1.SetPackageDependencyVersionIfExists(util2.PackageId, util2.Version);
-                util2.SetPackageDependencyVersionIfExists(util1.PackageId, util1.Version);
+                util1.SetPackageDependencyVersionIfExists(packageId2, version2);
+                util2.SetPackageDependencyVersionIfExists(packageId1, version1);
 
                 util1.Persist();
                 util2.Persist();

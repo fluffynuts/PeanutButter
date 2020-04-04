@@ -199,7 +199,13 @@ Namespace StatementBuilders
     End Function
 
     Public Function WithCondition(field As String, op As Condition.EqualityOperators, fieldValue As Boolean) As ISelectStatementBuilder Implements ISelectStatementBuilder.WithCondition
-      Return WithCondition(New Condition(field, op, CInt(IIf(fieldValue, 1, 0))))
+      Dim value as Integer
+      if fieldValue Then
+        value = 1
+      Else
+        value = 0
+      End If
+      Return WithCondition(New Condition(field, op, value))
     End Function
 
     Public Function Build() As String Implements ISelectStatementBuilder.Build
@@ -299,7 +305,11 @@ Namespace StatementBuilders
       _fields.ForEach(Sub(field)
         field.UseDatabaseProvider(_databaseProvider)
         Dim fieldName = field.ToString()
-        sql.Add(CStr(IIf(addedFields = 0, "", ",")))
+        if addedFields = 0 Then
+          sql.Add("")
+        Else
+          sql.Add(",")
+        End If
         addedFields += 1
         sql.Add(fieldName)
       End Sub)

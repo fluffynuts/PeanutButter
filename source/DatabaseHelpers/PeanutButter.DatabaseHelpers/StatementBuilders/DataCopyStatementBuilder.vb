@@ -27,7 +27,11 @@ Namespace StatementBuilders
       Public Target As String
       Public Sub New(newSource As String, Optional newTarget As String = Nothing)
         Source = newSource
-        Target = CStr(IIf(newTarget Is Nothing, newSource, newTarget))
+        If newTarget is Nothing Then
+          Target = newSource
+        Else
+          Target = newTarget
+        End If
       End Sub
     End Class
 

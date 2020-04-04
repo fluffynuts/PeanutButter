@@ -45,8 +45,13 @@ namespace NugetPackageVersionIncrementer
         {
             utils.ForEach(u =>
             {
-                var toPublish = utils.Where(p => p != u);
-                toPublish.ForEach(p => u.SetPackageDependencyVersionIfExists(p.PackageId, p.Version));
+                var toPublish = utils
+                    .Where(p => p != u)
+                    .ToArray();
+                toPublish.ForEach(p =>
+                {
+                    u.SetPackageDependencyVersionIfExists(p.PackageId, p.Version);
+                });
             });
         }
 

@@ -98,7 +98,11 @@ Namespace StatementBuilders
       Return Me
     End Function
     Public Function WithField(column As String, value As Decimal, Optional format As String = Nothing) As IUpdateStatementBuilder Implements IUpdateStatementBuilder.WithField
-      _fields.Add(New FieldWithValue(column, CStr(IIf(format Is Nothing, New DecimalDecorator(value).ToString(), value.ToString(format))), False))
+      if format is Nothing Then
+        _fields.Add(New FieldWithValue(column, new DecimalDecorator(value).ToString(), False))
+      Else
+        _fields.Add(New FieldWithValue(column, value.ToString(format) , False))
+      End If
       Return Me
     End Function
     Public Function WithField(column As String, value As Nullable(Of Decimal), Optional format As String = Nothing) As IUpdateStatementBuilder Implements IUpdateStatementBuilder.WithField
@@ -109,7 +113,10 @@ Namespace StatementBuilders
       End If
     End Function
     Public Function WithField(column As String, value As DateTime, Optional format As String = Nothing) As IUpdateStatementBuilder Implements IUpdateStatementBuilder.WithField
-      _fields.Add(New FieldWithValue(column, value.ToString(CStr(IIf(format Is Nothing, "yyyy/MM/dd HH:mm:ss", format)), GetSQLDateTimeStringFormatInfo()), True))
+      If format is Nothing Then
+        format = "yyyy/MM/dd HH:mm:ss"
+      End If
+      _fields.Add(New FieldWithValue(column, value.ToString(format, GetSQLDateTimeStringFormatInfo()), True))
       Return Me
     End Function
     Private Shared Function GetSqlDateTimeStringFormatInfo() As DateTimeFormatInfo
@@ -214,7 +221,13 @@ Namespace StatementBuilders
     End Function
 
     Public Function WithField(col As String, val As Boolean) As IUpdateStatementBuilder Implements IUpdateStatementBuilder.WithField
-      _fields.Add(new FieldWithValue(col, CInt(IIF(val, 1, 0)).ToString(), false))
+      Dim value as String
+      if val Then
+        value = "1"
+      Else
+        value = "0"
+      End If
+      _fields.Add(new FieldWithValue(col, value, false))
       return Me
     End Function
 

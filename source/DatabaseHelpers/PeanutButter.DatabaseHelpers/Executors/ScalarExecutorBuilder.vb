@@ -1,4 +1,6 @@
-﻿' ReSharper disable UnusedMember.Global
+﻿#If NETSTANDARD Then
+#Else
+' ReSharper disable UnusedMember.Global
 ' ReSharper disable UnusedMemberInSuper.Global
 Imports System.Data.OleDb
 Imports PeanutButter.DatabaseHelpers.StatementBuilders
@@ -119,3 +121,4 @@ Namespace Executors
 ' ReSharper restore UnusedMember.Global
 ' ReSharper restore UnusedMemberInSuper.Global
 End NameSpace
+#End If

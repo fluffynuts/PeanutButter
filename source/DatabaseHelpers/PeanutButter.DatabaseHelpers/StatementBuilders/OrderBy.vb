@@ -37,7 +37,11 @@
         parts.Add(FieldQuote(Field))
       End If
       parts.Add(" ")
-      parts.Add(CStr(IIf(Direction = Directions.Ascending, "asc", "desc")))
+      If Direction = Directions.Ascending Then
+        parts.Add("asc")
+      Else
+        parts.Add("desc")
+      End If
       Return String.Join("", parts)
     End Function
 

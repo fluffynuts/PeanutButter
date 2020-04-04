@@ -63,7 +63,11 @@ Namespace StatementBuilders
         QuoteValue = True
       Else
         Value = fieldValue
-        QuoteValue = CBool(IIf((Not quote) Or fieldValue = "?", False, True))
+        If not quote or fieldValue = "?" Then
+          QuoteValue = False
+        Else
+          QuoteValue = True
+        End If
       End If
       Me.LeftConditionIsField = leftConditionIsField
       Me.RightConditionIsField = rightConditionIsField
@@ -74,8 +78,16 @@ Namespace StatementBuilders
     End Sub
 
     Public Sub New(fieldName as String, op as EqualityOperators, fieldValue as Boolean)
-      Me.New(fieldName, op, CInt(IIf(fieldValue, 1, 0)).ToString(), false)
+      Me.New(fieldName, op, OneOrZero(fieldValue), false)
     End Sub
+    
+    Private Shared Function OneOrZero(fieldValue as Boolean) as String
+      if fieldValue Then
+        return "1"
+      Else  
+        return "0"
+      End If
+    End Function
 
     Public Sub New(field As IField, fieldValue As String, Optional quote As Boolean = True)
       Me.New(field, EqualityOperators.Equals, fieldValue, quote)
@@ -171,11 +183,19 @@ Namespace StatementBuilders
     End Sub
 
     Public Sub New (fieldName as String, conditionOperator as EqualityOperators, fieldValue as Nullable(of Decimal))
-      Me.New(fieldName, conditionOperator, CStr(IIf(fieldValue.HasValue, new DecimalDecorator(fieldValue.Value).ToString(), "NULL")), false)
+      Me.New(fieldName, conditionOperator, Resolve(fieldValue), false)
     End Sub
+    
+    Private Shared Function Resolve(fieldValue as Nullable(Of Decimal)) as String
+      if fieldValue.HasValue Then
+        Return new DecimalDecorator(fieldValue.Value).ToString()
+      Else
+        Return "NULL"
+      End If
+    End Function
 
     Public Sub New (field as IField, conditionOperator as EqualityOperators, fieldValue as Nullable(of Decimal))
-      Me.New(field, conditionOperator, CStr(IIf(fieldValue.HasValue, new DecimalDecorator(fieldValue.Value).ToString(), "NULL")), false)
+      Me.New(field, conditionOperator, Resolve(fieldValue), false)
     End Sub
 
     Public Sub New(fieldName As String, conditionOperator As EqualityOperators, fieldValue As Double)

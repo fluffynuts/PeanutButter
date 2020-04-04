@@ -10,9 +10,21 @@
 
     Public Overrides Function ToString() As String Implements ICondition.ToString
       Dim parts = New List(Of String)
-      Dim opString = CStr(IIf(_operator = CompoundCondition.BooleanOperators.OperatorAnd, " and ", " or "))
-      Dim leftBracket = CStr(IIf(_conditions.Count > 1, "(", ""))
-      Dim rightBracket = CStr(IIF(_conditions.Count > 1, ")", ""))
+      Dim opString = ""
+      If _operator = CompoundCondition.BooleanOperators.OperatorAnd Then
+        opString = " and "
+      Else
+        opString = " or "
+      End If
+      Dim leftBracket as String '= CStr(IIf(_conditions.Count > 1, "(", ""))
+      Dim rightBracket as String '= CStr(IIF(_conditions.Count > 1, ")", ""))
+      if _conditions.Count > 1 Then
+        leftBracket = "("
+        rightBracket = ")"
+      Else
+        leftBracket = ""
+        rightBracket = ""
+      End If
       For Each c In _conditions
         c.UseDatabaseProvider(_databaseProvider)
         If parts.Count > 0 Then

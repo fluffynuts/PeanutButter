@@ -32,13 +32,20 @@
 
     Private ReadOnly Property FieldQuoteOpen as String
       Get
-        Return CStr(IIf(Field = "*", "", _openObjectQuote))
+        If Field = "*" Then
+          Return ""
+        Else
+          Return _openObjectQuote
+        End If
       End Get
     End Property
 
     Private ReadOnly Property FieldQuoteClose as String
       Get
-        Return CStr(IIf(Field = "*", "", _closeObjectQuote))
+        If Field = "*" Then
+          Return ""
+        End If
+        Return _closeObjectQuote
       End Get
     End Property
 

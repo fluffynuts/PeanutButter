@@ -12,7 +12,7 @@
         Value = "NULL"
         QuoteMe = False
       Else
-        Dim parts = fieldValue.Split(New Char() {Chr(0)})
+        Dim parts = fieldValue.Split(New String() { Char.ConvertFromUtf32(0) }, StringSplitOptions.None)
         Value = parts(0)
         QuoteMe = quote
       End If

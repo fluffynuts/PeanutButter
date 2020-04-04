@@ -139,7 +139,7 @@ Namespace StatementBuilders
 
     Public Function WithNonBlankField(col As String, val As String) As IInsertStatementBuilder Implements IInsertStatementBuilder.WithNonBlankField
       If String.IsNullOrWhiteSpace(val) Then Return Me
-      Return WithField(col, Trim(val))
+      Return WithField(col, val.Trim())
     End Function
 
     Public Function WithConditionalField(condition As Boolean, col As String, trueVal As String, Optional falseVal As String = Nothing) As IInsertStatementBuilder Implements IInsertStatementBuilder.WithConditionalField
@@ -161,7 +161,13 @@ Namespace StatementBuilders
     End Function
 
     Public Function WithField(col As String, val As Boolean) As IInsertStatementBuilder Implements IInsertStatementBuilder.WithField
-      _fields.Add(new FieldWithValue(col, CInt(IIf(val, 1, 0)).ToString(), false))
+      Dim value as String
+      if val Then
+        value = "1"
+      Else
+        value = "0"
+      End If
+      _fields.Add(new FieldWithValue(col, value, false))
       return Me
     End Function
 

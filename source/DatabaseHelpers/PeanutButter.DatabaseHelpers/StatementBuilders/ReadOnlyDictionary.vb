@@ -37,7 +37,7 @@ Namespace StatementBuilders
     End Property
 
     Private Function ThrowReadOnly() as Boolean
-      Throw New ReadOnlyException("ReadOnlyDictionary is ReadOnly. How rare.")
+      Throw New InvalidOperationException("ReadOnlyDictionary is ReadOnly. How rare.")
     End Function
 
     Public Sub Clear() Implements ICollection(Of KeyValuePair(Of TKey, TValue)).Clear
