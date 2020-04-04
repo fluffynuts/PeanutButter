@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Configuration;
+using System.Data;
 using EmailSpooler.Win32Service.SMTP;
 using NSubstitute;
 using NUnit.Framework;
@@ -42,21 +43,28 @@ namespace EmailSpooler.Win32Service.Tests
         [SetUp]
         public void SetUp()
         {
-            // set up app settings so we don't need them in a magic config file for testing
-            //  dot-cover seems to convince nunit to do the right thing, but nunit-runner by itself
-            //  is derping on using a config file; this is also more obvious (I think)
-            new Dictionary<string, string>()
+            try
             {
-                {"MaxSendAttempts", "5"},
-                {"BackoffIntervalInMinutes", "2"},
-                {"BackoffMultiplier", "2"},
-                {"PurgeMessageWithAgeInDays", "30"},
-                { "SMTPHost", "TestHost"},
-                {"SMTPPort", "587"},
-                {"SMTPUserName", "TestUser"},
-                {"SMTPPassword", "TestPassword"},
-                {"SMTPSSL", "True"}
-            }.ForEach(kvp => ConfigurationManager.AppSettings[kvp.Key] = kvp.Value.ToString());
+                // set up app settings so we don't need them in a magic config file for testing
+                //  dot-cover seems to convince nunit to do the right thing, but nunit-runner by itself
+                //  is derping on using a config file; this is also more obvious (I think)
+                new Dictionary<string, string>()
+                {
+                    { "MaxSendAttempts", "5" },
+                    { "BackoffIntervalInMinutes", "2" },
+                    { "BackoffMultiplier", "2" },
+                    { "PurgeMessageWithAgeInDays", "30" },
+                    { "SMTPHost", "TestHost" },
+                    { "SMTPPort", "587" },
+                    { "SMTPUserName", "TestUser" },
+                    { "SMTPPassword", "TestPassword" },
+                    { "SMTPSSL", "True" }
+                }.ForEach(kvp => ConfigurationManager.AppSettings[kvp.Key] = kvp.Value.ToString());
+            }
+            catch (NotSupportedException)
+            {
+                Assert.Ignore("Can't modify appsettings for testing");
+            }
         }
 
         [Test]

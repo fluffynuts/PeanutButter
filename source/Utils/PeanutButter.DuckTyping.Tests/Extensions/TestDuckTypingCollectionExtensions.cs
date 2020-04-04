@@ -1,16 +1,28 @@
 ﻿using NUnit.Framework;
 using PeanutButter.DuckTyping.Extensions;
+using PeanutButter.DuckTyping.Shimming;
 
 namespace PeanutButter.DuckTyping.Tests.Extensions
 {
+    public class ManualDuck : IHasOnlyAnId
+    {
+        private ShimSham _shim;
+        public int Id { get; }
+
+        public ManualDuck(object[] toWrap)
+        {
+            _shim = new ShimSham(toWrap, typeof(IHasOnlyAnId), false, false);
+        }
+    }
+
+    public interface IHasOnlyAnId
+    {
+        int Id { get; }
+    }
+
     [TestFixture]
     public class TestDuckTypingCollectionExtensions
     {
-        public interface IHasOnlyAnId
-        {
-            int Id { get; }
-        }
-
         [Test]
         public void DuckAs_GivenOneDuckableItemInCollection_ShouldDuckIt()
         {

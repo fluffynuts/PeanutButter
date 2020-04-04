@@ -14,6 +14,20 @@ namespace PeanutButter.TempDb.Tests
     [TestFixture]
     public class TestTempDBLocalDb
     {
+        [OneTimeSetUp]
+        public void OnetimeSetup()
+        {
+            var enumerator = new LocalDbInstanceEnumerator();
+            try
+            {
+                enumerator.FindFirstAvailableInstance();
+            }
+            catch
+            {
+                Assert.Ignore("Unable to start localdb");
+            }
+        }
+
         [Test]
         public void ShouldImplementIDisposable()
         {

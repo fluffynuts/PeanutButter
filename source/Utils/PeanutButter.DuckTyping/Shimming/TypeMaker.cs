@@ -246,6 +246,8 @@ namespace PeanutButter.DuckTyping.Shimming
             var result = il.DeclareLocal(typeof(IShimSham));
             il.Emit(OpCodes.Ldarg_1);
             il.Emit(OpCodes.Ldtoken, interfaceType);
+            // required for Mono to be happy
+            il.Emit(OpCodes.Call, GetTypeFromHandleMethod);
             il.Emit(OpCodes.Newobj, ctor);
             il.Emit(OpCodes.Stloc, result);
             return result;
@@ -301,6 +303,8 @@ namespace PeanutButter.DuckTyping.Shimming
             var result = il.DeclareLocal(typeof(IShimSham));
             il.Emit(code);
             il.Emit(OpCodes.Ldtoken, interfaceType);
+            // required for Mono to be happy
+            il.Emit(OpCodes.Call, GetTypeFromHandleMethod);
             il.Emit(isFuzzy
                 ? OpCodes.Ldc_I4_1
                 : OpCodes.Ldc_I4_0);
@@ -311,6 +315,10 @@ namespace PeanutButter.DuckTyping.Shimming
             il.Emit(OpCodes.Stloc, result);
             return result;
         }
+        
+        private static readonly MethodInfo GetTypeFromHandleMethod =
+            typeof(Type).GetMethod(nameof(Type.GetTypeFromHandle)) 
+            ?? throw new InvalidOperationException($"Can't find method System.Type.GetTypeFromHandle");
 
         private static void CallBaseObjectConstructor(ILGenerator generator)
         {

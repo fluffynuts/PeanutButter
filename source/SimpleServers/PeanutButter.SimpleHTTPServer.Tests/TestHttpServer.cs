@@ -5,7 +5,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -742,7 +741,9 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                     var body = Encoding.UTF8.GetString(res.ReadAllBytes());
                     Expect(body)
                         .To.Contain(exceptionMessage)
-                        .Then(ThisFile());
+                        // should have some stack trace info, though what exactly
+                        // will depend on the runtime
+                        .Then(nameof(TestHttpServer));
                 }
                 else
                 {
@@ -809,11 +810,6 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                 var asString = Encoding.UTF8.GetString(result);
                 Expect(asString).To.Equal(expected);
             }
-        }
-
-        private string ThisFile([CallerFilePath] string filePath = null)
-        {
-            return filePath;
         }
 
         private HttpServer Create(int? port = null)

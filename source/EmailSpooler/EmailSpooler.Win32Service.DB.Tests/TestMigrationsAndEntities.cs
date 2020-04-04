@@ -13,16 +13,30 @@ namespace EmailSpooler.Win32Service.DB.Tests
     {
         private TimeSpan _oneSecond = new TimeSpan(0, 0, 0, 1);
         private TempDBLocalDb _sharedTempDb;
+        private bool _ignored;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            _sharedTempDb = new TempDBLocalDb();
+            try
+            {
+                _sharedTempDb = new TempDBLocalDb();
+            }
+            catch
+            {
+                Assert.Ignore("Can't spin up LocalDb for testing");
+                _ignored = true;
+            }
         }
 
         [TearDown]
         public void TearDown()
         {
+            if (_ignored)
+            {
+                return;
+            }
+
             using (var ctx = GetContext())
             {
                 ctx.EmailAttachments.Clear();
