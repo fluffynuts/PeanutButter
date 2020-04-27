@@ -117,6 +117,21 @@ namespace PeanutButter.RandomGenerators
         public static class DefaultRanges
         {
             /// <summary>
+            /// Default minimum number of words to generate
+            /// </summary>
+            public const int MIN_WORDS = 10;
+
+            /// <summary>
+            /// Default maximum number of words to generate
+            /// </summary>
+            public const int MAX_WORDS = 50;
+
+            /// <summary>
+            /// Default range of the number of words to generate
+            /// </summary>
+            public const int DEFAULT_WORD_RANGE = MAX_WORDS - MIN_WORDS;
+
+            /// <summary>
             /// Default minimum length of random strings
             /// </summary>
             public const int MINLENGTH_STRING = 8;
@@ -132,6 +147,11 @@ namespace PeanutButter.RandomGenerators
             public const int MAXLENGTH_BYTES = 1024;
 
             /// <summary>
+            ///  Defines the range of default bytes
+            /// </summary>
+            public const int DEFAULT_BYTES_RANGE = MAXLENGTH_BYTES - MINLENGTH_BYTES;
+
+            /// <summary>
             /// Default minimum integer value returned
             /// </summary>
             public const int MIN_INT_VALUE = 0;
@@ -142,6 +162,11 @@ namespace PeanutButter.RandomGenerators
             public const int MAX_INT_VALUE = 10;
 
             /// <summary>
+            /// Defines the range of default integer max / min
+            /// </summary>
+            public const int DEFAULT_INT_RANGE = MAX_INT_VALUE - MIN_INT_VALUE;
+
+            /// <summary>
             /// Default minimum long value returned
             /// </summary>
             public const int MIN_LONG_VALUE = 0;
@@ -150,6 +175,11 @@ namespace PeanutButter.RandomGenerators
             /// Default maximum long value returned
             /// </summary>
             public const int MAX_LONG_VALUE = 1000;
+
+            /// <summary>
+            /// Defines the range of default long min / max
+            /// </summary>
+            public const int DEFAULT_LONG_RANGE = MAX_LONG_VALUE - MIN_LONG_VALUE;
 
             /// <summary>
             /// Default minimum number of items in a random collection
@@ -171,14 +201,41 @@ namespace PeanutButter.RandomGenerators
         private const string DEFAULT_RANDOM_STRING_CHARS = "abcdefghijklmnopqrstuvwxyz1234567890";
 
         /// <summary>
+        /// Produces a random integer between 0 and 10 inclusive
+        /// </summary>
+        /// <returns></returns>
+        public static int GetRandomInt()
+        {
+            return GetRandomInt(
+                DefaultRanges.MIN_INT_VALUE,
+                DefaultRanges.MAX_INT_VALUE
+            );
+        }
+
+        /// <summary>
+        /// Produces an integer between the provided value and
+        /// that value + 10, inclusive
+        /// </summary>
+        /// <param name="minValue"></param>
+        /// <returns></returns>
+        public static int GetRandomInt(
+            int minValue)
+        {
+            return GetRandomInt(
+                minValue,
+                minValue + DefaultRanges.DEFAULT_INT_RANGE
+            );
+        }
+
+        /// <summary>
         /// Returns a random integer within the specified range
         /// </summary>
         /// <param name="minValue">Minimum value to consider</param>
         /// <param name="maxValue">Maximum value to consider</param>
         /// <returns>Random integer between minValue and maxValue (inclusive)</returns>
         public static int GetRandomInt(
-            int minValue = DefaultRanges.MIN_INT_VALUE,
-            int maxValue = DefaultRanges.MAX_INT_VALUE)
+            int minValue,
+            int maxValue)
         {
             return (int) GetRandomLong(minValue, maxValue);
         }
@@ -213,14 +270,40 @@ namespace PeanutButter.RandomGenerators
         }
 
         /// <summary>
+        /// Produces a random long between 0 and 1000, inclusive
+        /// </summary>
+        /// <returns></returns>
+        public static long GetRandomLong()
+        {
+            return GetRandomLong(
+                DefaultRanges.MIN_LONG_VALUE
+            );
+        }
+
+        /// <summary>
+        /// Returns a random long between the provided min value and
+        /// that value + 1000, inclusive
+        /// </summary>
+        /// <param name="minValue"></param>
+        /// <returns></returns>
+        public static long GetRandomLong(
+            long minValue)
+        {
+            return GetRandomLong(
+                minValue,
+                minValue + DefaultRanges.DEFAULT_LONG_RANGE
+            );
+        }
+
+        /// <summary>
         /// Returns a random long within the specified range
         /// </summary>
         /// <param name="minValue">Minimum value to consider</param>
         /// <param name="maxValue">Maximum value to consider</param>
         /// <returns>Random integer between minValue and maxValue (inclusive)</returns>
         public static long GetRandomLong(
-            long minValue = DefaultRanges.MIN_LONG_VALUE,
-            long maxValue = DefaultRanges.MAX_LONG_VALUE)
+            long minValue,
+            long maxValue)
         {
             if (minValue > maxValue)
             {
@@ -512,14 +595,38 @@ namespace PeanutButter.RandomGenerators
         }
 
         /// <summary>
+        /// Produces a random double value between 0 and 10 inclusive
+        /// </summary>
+        /// <returns></returns>
+        public static double GetRandomDouble()
+        {
+            return GetRandomDouble(DefaultRanges.MIN_INT_VALUE);
+        }
+
+        /// <summary>
+        /// Produces a random double value between the provides
+        /// double value and that value + 10, inclusive
+        /// </summary>
+        /// <param name="minValue"></param>
+        /// <returns></returns>
+        public static double GetRandomDouble(
+            double minValue)
+        {
+            return GetRandomDouble(
+                minValue,
+                minValue + DefaultRanges.DEFAULT_INT_RANGE
+            );
+        }
+
+        /// <summary>
         /// Gets a random double value within the specified range
         /// </summary>
         /// <param name="min">Minimum value to consider</param>
         /// <param name="max">Maximum value to consider</param>
         /// <returns>Double value within the specified range</returns>
         public static double GetRandomDouble(
-            double min = DefaultRanges.MIN_INT_VALUE,
-            double max = DefaultRanges.MAX_INT_VALUE
+            double min,
+            double max
         )
         {
             return (RandomGenerator.NextDouble() * (max - min)) + min;
@@ -540,16 +647,95 @@ namespace PeanutButter.RandomGenerators
         }
 
         /// <summary>
+        /// Produces a random decimal between 0 and 10 inclusive
+        /// </summary>
+        /// <returns></returns>
+        public static decimal GetRandomDecimal()
+        {
+            return GetRandomDecimal(
+                DefaultRanges.MIN_INT_VALUE
+            );
+        }
+
+        /// <summary>
+        /// Produces a random decimal between the provided
+        /// minValue and that value + 10, inclusive
+        /// </summary>
+        /// <param name="minValue"></param>
+        /// <returns></returns>
+        public static decimal GetRandomDecimal(
+            decimal minValue
+        )
+        {
+            return GetRandomDecimal(
+                minValue,
+                minValue + DefaultRanges.DEFAULT_INT_RANGE
+            );
+        }
+
+        /// <summary>
+        /// Produces a random float between 0 and 10 inclusive
+        /// </summary>
+        /// <returns></returns>
+        public static float GetRandomFloat()
+        {
+            return GetRandomFloat(
+                DefaultRanges.MIN_INT_VALUE
+            );
+        }
+
+        /// <summary>
+        /// Produces a random float between the provided
+        /// minValue and that value + 10, inclusive
+        /// </summary>
+        /// <param name="minValue"></param>
+        /// <returns></returns>
+        public static float GetRandomFloat(
+            float minValue)
+        {
+            return GetRandomFloat(
+                minValue,
+                minValue + DefaultRanges.MIN_INT_VALUE
+            );
+        }
+
+        /// <summary>
         /// Gets a random float value within the specified range
         /// </summary>
         /// <param name="min">Minimum value to consider</param>
         /// <param name="max">Maximum value to consider</param>
         /// <returns>Float value within the specified range</returns>
         public static float GetRandomFloat(
-            float min = 0f,
-            float max = DefaultRanges.MAX_INT_VALUE)
+            float min,
+            float max)
         {
             return (float) GetRandomDouble(min, max);
+        }
+
+        /// <summary>
+        /// Produces a random time of day
+        /// </summary>
+        /// <returns></returns>
+        public static TimeSpan GetRandomTimeOfDay()
+        {
+            return GetRandomTimeOfDay(
+                TimeSpan.FromSeconds(0)
+            );
+        }
+
+        /// <summary>
+        /// Produces a random time of day from the provided
+        /// minimum, inclusive
+        /// </summary>
+        /// <param name="min"></param>
+        /// <returns></returns>
+        public static TimeSpan GetRandomTimeOfDay(
+            TimeSpan min)
+        {
+            return GetRandomTimeOfDay(
+                min,
+                TimeSpan.FromSeconds(DefaultRanges.ONE_DAY_IN_SECONDS)
+            );
         }
 
         /// <summary>
@@ -559,11 +745,11 @@ namespace PeanutButter.RandomGenerators
         /// <param name="max">Maximum time to consider</param>
         /// <returns>Timespan representing a time on a day, clamped to within 24 hours</returns>
         public static TimeSpan GetRandomTimeOfDay(
-            TimeSpan? min = null,
-            TimeSpan? max = null)
+            TimeSpan min,
+            TimeSpan max)
         {
-            var minSeconds = min?.TotalSeconds ?? 0;
-            var maxSeconds = max?.TotalSeconds ?? DefaultRanges.ONE_DAY_IN_SECONDS;
+            var minSeconds = min.TotalSeconds;
+            var maxSeconds = max.TotalSeconds;
             if (minSeconds < 0)
             {
                 minSeconds = 0;
@@ -580,14 +766,40 @@ namespace PeanutButter.RandomGenerators
         }
 
         /// <summary>
+        /// Produces an array of random bytes between 0 and 1024
+        /// in length, inclusive
+        /// </summary>
+        /// <returns></returns>
+        public static byte[] GetRandomBytes()
+        {
+            return GetRandomBytes(DefaultRanges.MINLENGTH_BYTES);
+        }
+
+        /// <summary>
+        /// Produces some random bytes, of at least minLength
+        /// in size, up to that length + 1024, inclusive
+        /// </summary>
+        /// <param name="minLength"></param>
+        /// <returns></returns>
+        public static byte[] GetRandomBytes(
+            int minLength
+        )
+        {
+            return GetRandomBytes(
+                minLength,
+                minLength + DefaultRanges.DEFAULT_BYTES_RANGE
+            );
+        }
+
+        /// <summary>
         /// Gets a randomly-sized, randomly-filled byte array
         /// </summary>
         /// <param name="minLength">Minimum size of the result</param>
         /// <param name="maxLength">Maximum size of the result</param>
         /// <returns>Randomly-filled byte array</returns>
         public static byte[] GetRandomBytes(
-            int minLength = DefaultRanges.MINLENGTH_BYTES,
-            int maxLength = DefaultRanges.MAXLENGTH_BYTES
+            int minLength,
+            int maxLength
         )
         {
             var bytes = new byte[RandomGenerator.Next(minLength, maxLength)];
@@ -603,7 +815,13 @@ namespace PeanutButter.RandomGenerators
         /// <returns>Random email-like string</returns>
         public static string GetRandomEmail()
         {
-            return string.Join(string.Empty, GetRandomString(), "@", GetRandomString(), ".com");
+            return string.Join(
+                string.Empty,
+                GetRandomString(),
+                "@",
+                GetRandomString(),
+                GetRandomFrom(new[] { ".com", ".net", ".org" })
+            );
         }
 
         /// <summary>
@@ -613,7 +831,11 @@ namespace PeanutButter.RandomGenerators
         /// <returns>String which is a random filename with a 3 character extension</returns>
         public static string GetRandomFileName()
         {
-            return string.Join(".", GetRandomString(10, 20), GetRandomString(3, 3));
+            return string.Join(
+                ".",
+                GetRandomString(10, 20),
+                GetRandomString(3, 3)
+            );
         }
 
         /// <summary>
@@ -632,18 +854,43 @@ namespace PeanutButter.RandomGenerators
         }
 
         /// <summary>
+        /// Produces a collection of words between 10 and 50 words in
+        /// length, inclusive
+        /// </summary>
+        /// <returns></returns>
+        public static string GetRandomWords()
+        {
+            return GetRandomWords(DefaultRanges.MIN_WORDS);
+        }
+
+        /// <summary>
+        /// Produces a collection of words with count of at
+        /// least minWords up to and including minWords + 50
+        /// </summary>
+        /// <param name="minWords"></param>
+        /// <returns></returns>
+        public static string GetRandomWords(
+            int minWords)
+        {
+            return GetRandomWords(
+                minWords,
+                minWords + DefaultRanges.DEFAULT_WORD_RANGE
+            );
+        }
+
+        /// <summary>
         /// Gets some random pseudo-words. Note that they (probably) won't be
         /// readable words -- just a collection of strings with whitespace in between.
         /// Think of this as something like Lorei Ipsum, except with zero meaning.
         /// </summary>
-        /// <param name="min">Minimum number of "words" to return</param>
-        /// <param name="max">Maximum number of "words" to return</param>
+        /// <param name="minWords">Minimum number of "words" to return</param>
+        /// <param name="maxWords">Maximum number of "words" to return</param>
         /// <returns>Block of text with "words" and whitespace</returns>
         public static string GetRandomWords(
-            int min = 10,
-            int max = 50)
+            int minWords,
+            int maxWords)
         {
-            var actual = GetRandomInt(min, max);
+            var actual = GetRandomInt(minWords, maxWords);
             var words = new List<string>();
             for (var i = 0; i < actual; i++)
             {

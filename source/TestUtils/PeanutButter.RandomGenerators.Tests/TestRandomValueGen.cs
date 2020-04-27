@@ -2825,6 +2825,80 @@ namespace PeanutButter.RandomGenerators.Tests
         }
     }
 
+    [TestFixture]
+    public class WhenGivenLowerBoundOnly: TestBase
+    {
+        [Test]
+        [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
+        public void ShouldProduceIntWithinRange()
+        {
+            // Arrange
+            var lowerBound = GetRandomInt(1000, 10000);
+            // Act
+            var result = GetRandomInt(lowerBound);
+            // Assert
+            Expect(result)
+                .To.Be.Greater.Than
+                .Or.Equal.To(lowerBound);
+        }
+
+        [Test]
+        [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
+        public void ShouldProduceLongWithinRange()
+        {
+            // Arrange
+            var lowerBound = GetRandomLong(1000, 10000);
+            // Act
+            var result = GetRandomLong(lowerBound);
+            // Assert
+            Expect(result)
+                .To.Be.Greater.Than
+                .Or.Equal.To(lowerBound);
+        }
+        
+        [Test]
+        [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
+        public void ShouldProduceDoubleWithinRange()
+        {
+            // Arrange
+            var lowerBound = GetRandomDouble(1000, 10000);
+            // Act
+            var result = GetRandomDouble(lowerBound);
+            // Assert
+            Expect(result)
+                .To.Be.Greater.Than
+                .Or.Equal.To(lowerBound);
+        }
+        
+        [Test]
+        [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
+        public void ShouldProduceDecimalWithinRange()
+        {
+            // Arrange
+            var lowerBound = GetRandomDecimal(1000, 10000);
+            // Act
+            var result = GetRandomDecimal(lowerBound);
+            // Assert
+            Expect(result)
+                .To.Be.Greater.Than
+                .Or.Equal.To(lowerBound);
+        }
+        
+        [Test]
+        [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
+        public void ShouldProduceFloatWithinRange()
+        {
+            // Arrange
+            var lowerBound = GetRandomFloat(1000, 10000);
+            // Act
+            var result = GetRandomFloat(lowerBound);
+            // Assert
+            Expect(result)
+                .To.Be.Greater.Than
+                .Or.Equal.To(lowerBound);
+        }
+    }
+
 
     internal static class Matchers
     {
