@@ -101,7 +101,7 @@ function pushNugetPackagesWithNugetExe(skipDuplicates) {
 
 function pushNugetPackagesWithDotNet(skipDuplicates) {
   return processPathsWith(filePath => {
-    var result = [ "nuget", "push", filePath, "--source", "https://www.nuget.org", "--timeout", "30" ];
+    var result = [ "nuget", "push", filePath, "--source", "https://www.nuget.org", "--timeout", "300" ];
     if (skipDuplicates) {
       result.push("--skip-duplicates");
     }
@@ -208,6 +208,10 @@ gulp.task("increment-package-versions", () => {
 
 gulp.task("release", ["build-nuget-packages"], function (done) {
   runSequence("push-packages", "commit-release", "tag-and-push", done);
+});
+
+gulp.task("after-manual-push", done => {
+  runSequence("commit-release", "tag-and-push", done);
 });
 
 gulp.task("push-packages", () => {
