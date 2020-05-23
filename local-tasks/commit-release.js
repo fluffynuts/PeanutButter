@@ -1,5 +1,5 @@
 const gulp = requireModule("gulp-with-help"),
-  gutil = require("gulp-util"),
+  gutil = requireModule("gulp-util"),
   editXml = require("gulp-edit-xml"),
   Git = require("simple-git"),
   git = new Git(),
