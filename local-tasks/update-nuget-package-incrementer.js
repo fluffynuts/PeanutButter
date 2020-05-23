@@ -38,7 +38,7 @@ gulp.task(
     return gulp
       .src("*", {
         cwd:
-          "source/NugetPackageVersionIncrementer/bin/Release/netcoreapp2.2/win10-x64"
+          "source/NugetPackageVersionIncrementer/bin/Release/netcoreapp3.0/win10-x64"
       })
       .pipe(throwIfNoFiles("No build artifacts for NugetPackageIncrementer, framework netcoreapp2.2, runtime win10-x64"))
       .pipe(gulp.dest("utils/bin"));
