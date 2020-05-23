@@ -1,4 +1,4 @@
-const 
+const
   os = require("os"),
   gulp = requireModule("gulp-with-help"),
   getToolsFolder = requireModule("get-tools-folder"),
@@ -10,8 +10,6 @@ const
   gutil = requireModule("gulp-util"),
   log = requireModule("log"),
   msbuild = require("gulp-msbuild");
-
-gulp.task("prebuild", ["nuget-restore"]);
 
 gulp.task(
   "build-only",

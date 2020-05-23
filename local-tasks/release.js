@@ -7,7 +7,6 @@ var
   del = require("del"),
   exec = requireModule("exec"),
   spawn = requireModule("spawn"),
-  restoreTool = requireModule("resolve-nuget")(),
   es = require("event-stream"),
   lsr = requireModule("ls-r"),
   path = require("path"),
@@ -51,6 +50,7 @@ function processPathsWith(getNugetArgsFor) {
     files.push(filePath);
     this.emit("data", file);
   }, function () {
+    var restoreTool = requireModule("resolve-nuget")();
     Promise.resolve(restoreTool).then(function (nuget) {
       var queue = new PQueue({ concurrency: 3 });
       queue.addAll(files.map(pkgPath => {
