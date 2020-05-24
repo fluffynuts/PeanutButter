@@ -25,7 +25,7 @@ jobs:
         SUPPRESS_DOWNLOAD_PROGRESS: 1
       run: |
         npm ci
-        npm run cover
+        npm run test-core
     - uses: actions/upload-artifact@v2
       with:
         name: build-reports
