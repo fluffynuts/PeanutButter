@@ -38,7 +38,7 @@ namespace PeanutButter.Utils.Tests
                 //--------------- Assert -----------------------
                 Expect(collector).To.Be.Equal.To(collection);
                 Expect(indexes).To.Contain.Exactly(collection.Count()).Items();
-                Expect(indexes).To.Contain.All().Matched.By((x, y) => x == y);
+                Expect(indexes).To.Contain.All.Matched.By((x, y) => x == y);
             }
 
             [Test]

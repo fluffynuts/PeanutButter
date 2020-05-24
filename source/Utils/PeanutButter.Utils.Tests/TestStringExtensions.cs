@@ -959,7 +959,7 @@ namespace PeanutButter.Utils.Tests
                 // Act
                 var result = src.ToUpper();
                 // Assert
-                Expect(result).To.Contain.All()
+                Expect(result).To.Contain.All
                     .Matched.By(s => s == s.ToUpper());
             }
 
@@ -969,12 +969,12 @@ namespace PeanutButter.Utils.Tests
                 // Arrange
                 var src = GetRandomArray<string>(10).ToUpper();
                 // Pre-assert
-                Expect(src).To.Contain.All()
+                Expect(src).To.Contain.All
                     .Matched.By(s => s == s.ToUpper());
                 // Act
                 var result = src.ToLower();
                 // Assert
-                Expect(result).To.Contain.All()
+                Expect(result).To.Contain.All
                     .Matched.By(s => s == s.ToLower());
             }
         }

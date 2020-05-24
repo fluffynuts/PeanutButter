@@ -106,9 +106,9 @@ namespace PeanutButter.RandomGenerators.Tests
             }
 
             // Assert
-            Expect(collected).To.Contain.All()
+            Expect(collected).To.Contain.All
                 .Matched.By(d => d >= min);
-            Expect(collected).To.Contain.All()
+            Expect(collected).To.Contain.All
                 .Matched.By(d => d <= max);
         }
 
@@ -127,9 +127,9 @@ namespace PeanutButter.RandomGenerators.Tests
             }
 
             // Assert
-            Expect(collected).To.Contain.All()
+            Expect(collected).To.Contain.All
                 .Matched.By(d => d >= min);
-            Expect(collected).To.Contain.All()
+            Expect(collected).To.Contain.All
                 .Matched.By(d => d <= max);
         }
 
@@ -148,9 +148,9 @@ namespace PeanutButter.RandomGenerators.Tests
             }
 
             // Assert
-            Expect(collected).To.Contain.All()
+            Expect(collected).To.Contain.All
                 .Matched.By(d => d >= min);
-            Expect(collected).To.Contain.All()
+            Expect(collected).To.Contain.All
                 .Matched.By(d => d <= max);
         }
 
@@ -166,10 +166,10 @@ namespace PeanutButter.RandomGenerators.Tests
             }
 
             // Assert
-            Expect(collected).To.Contain.All()
+            Expect(collected).To.Contain.All
                 .Matched.By(t => t >= TimeSpan.Zero);
             var oneDay = TimeSpan.FromSeconds(86400);
-            Expect(collected).To.Contain.All()
+            Expect(collected).To.Contain.All
                 .Matched.By(t => t <= oneDay);
         }
 
@@ -840,21 +840,21 @@ namespace PeanutButter.RandomGenerators.Tests
 
                 //---------------Test Result -----------------------
                 Expect(results).To.Contain.Only(NORMAL_RANDOM_TEST_CYCLES).Items();
-                Expect(results).To.Contain.All()
+                Expect(results).To.Contain.All
                     .Matched.By(dt => dt.Kind == DateTimeKind.Utc);
-                Expect(results).To.Contain.All()
+                Expect(results).To.Contain.All
                     .Matched.By(range.InRange,
                         "One or more generated value is out of range");
-                Expect(results).To.Contain.All()
+                Expect(results).To.Contain.All
                     .Matched.By(d => d.Hour == 0,
                         "Hours are not all zeroed");
-                Expect(results).To.Contain.All()
+                Expect(results).To.Contain.All
                     .Matched.By(d => d.Minute == 0,
                         "Minutes are not all zeroed");
-                Expect(results).To.Contain.All()
+                Expect(results).To.Contain.All
                     .Matched.By(d => d.Second == 0,
                         "Seconds are not all zeroed");
-                Expect(results).To.Contain.All()
+                Expect(results).To.Contain.All
                     .Matched.By(d => d.Millisecond == 0,
                         "Milliseconds are not all zeroed");
             }
@@ -1173,7 +1173,7 @@ namespace PeanutButter.RandomGenerators.Tests
                             return acc;
                         });
                 // Assert
-                Expect(collected).To.Contain.All()
+                Expect(collected).To.Contain.All
                     .Matched.By(t => t >= min && t <= max);
             }
 
@@ -1222,7 +1222,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 VarianceAssert.IsVariant(froms);
                 VarianceAssert.IsVariant(tos);
                 VarianceAssert.IsVariant(deltas);
-                Expect(allResults).To.Contain.All()
+                Expect(allResults).To.Contain.All
                     .Matched.By(dt => dt.From.Kind == DateTimeKind.Local &&
                         dt.To.Kind == DateTimeKind.Local);
             }

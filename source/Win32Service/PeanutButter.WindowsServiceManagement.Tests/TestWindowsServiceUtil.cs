@@ -115,6 +115,13 @@ namespace PeanutButter.WindowsServiceManagement.Tests
         [Test]
         public void BigHairyIntegrationTest()
         {
+            if (Platform.Is32Bit)
+            {
+                Assert.Ignore(
+                    "Running 32-bit: test will fail: 32-bit process cannot access 64-bit process info"
+                );
+            }
+
             // Arrange
             var serviceExe = TestServicePath;
             Expect(serviceExe).To.Exist($"Expected to find test service at {serviceExe}");
@@ -156,7 +163,8 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                     util.Start();
                     Expect(util.State)
                         .To.Equal(ServiceState.Running);
-                    var process = Process.GetProcesses().FirstOrDefault(p =>
+                    var processes = Process.GetProcesses();
+                    var process = processes.FirstOrDefault(p =>
                     {
                         try
                         {
@@ -168,10 +176,30 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                             return false;
                         }
                     });
-                    Expect(process).Not.To.Be.Null($"Service should be running: {serviceExe}");
+                    Expect(process).Not.To.Be.Null(
+                        () =>
+                            $"@Service should be running: {serviceExe}\nrunning:\n{DumpProcesses()}"
+                    );
                     Expect(process.Id)
                         .To.Equal(util.ServicePID);
+
+                    string DumpProcesses()
+                    {
+                        return processes.Select(p =>
+                        {
+                            try
+                            {
+                                return $"{p.MainModule.FileName}";
+                            }
+                            catch (Exception e)
+                            {
+                                return $"(unknown) ({e.Message})";
+                            }
+                        }).OrderBy(s => s).JoinWith("\n");
+                        ;
+                    }
                 });
+
 
             var byPath = WindowsServiceUtil.GetServiceByPath(serviceExe);
             Expect(byPath)

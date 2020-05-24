@@ -227,7 +227,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                     new KeyValuePair<string, object>(key.ToRandomCase(), value));
                 Expect(actual).To.Contain.Exactly(1).Item();
                 var exactMatchResult = sut.Remove(new KeyValuePair<string, object>(key, value));
-                Expect(actual).To.Contain.No().Items();
+                Expect(actual).To.Contain.No.Items();
                 // Assert
                 Expect(mismatchedValueResult).To.Be.False();
                 Expect(mismatchedKeyResult).To.Be.False();
@@ -248,7 +248,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                 // Pre-Assert
                 // Act
                 var mismatchedKeyResult = sut.Remove(new KeyValuePair<string, object>(key.ToRandomCase(), value));
-                Expect(actual).To.Contain.No().Items();
+                Expect(actual).To.Contain.No.Items();
                 // Assert
                 Expect(mismatchedKeyResult).To.Be.True();
             }
@@ -271,7 +271,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                 var mismatchedKeyResult = sut.Remove(key.ToRandomCase());
                 Expect(actual).To.Contain.Exactly(1).Item();
                 var exactMatchResult = sut.Remove(key);
-                Expect(actual).To.Contain.No().Items();
+                Expect(actual).To.Contain.No.Items();
                 // Assert
                 Expect(mismatchedValueResult).To.Be.False();
                 Expect(mismatchedKeyResult).To.Be.False();
@@ -292,7 +292,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                 // Pre-Assert
                 // Act
                 var mismatchedKeyResult = sut.Remove(key.ToRandomCase());
-                Expect(actual).To.Contain.No().Items();
+                Expect(actual).To.Contain.No.Items();
                 // Assert
                 Expect(mismatchedKeyResult).To.Be.True();
             }
