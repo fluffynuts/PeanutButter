@@ -1,12 +1,13 @@
 PeanutButter
 ============
+![Test status](https://github.com/fluffynuts/PeanutButter/workflows/Tests/badge.svg)
 
 "Some tastiness to add to your dev sandwich"
 
 PeanutButter is a collection of projects which provide useful
 bits of functionality that I've often had to re-use (and also
 provides some concrete examples of usage). Sometimes I can even
-be bothered to write about it at 
+be bothered to write about it at
 [http://davydm.blogspot.co.za/search/label/PeanutButter](http://davydm.blogspot.co.za/search/label/PeanutButter).
 
 Inside, you'll find, amongst other things:
