@@ -2,7 +2,6 @@ PeanutButter
 ============
 ![Test status](https://github.com/fluffynuts/PeanutButter/workflows/Tests/badge.svg)
 
-### Current version:
 ![Nuget current version badge](https://img.shields.io/nuget/v/PeanutButter.Utils)
 
 ### Download stats
