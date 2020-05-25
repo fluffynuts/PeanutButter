@@ -2,6 +2,27 @@ PeanutButter
 ============
 ![Test status](https://github.com/fluffynuts/PeanutButter/workflows/Tests/badge.svg)
 
+### Current version:
+![Nuget current version badge](https://img.shields.io/nuget/v/PeanutButter.Utils)
+
+### Download stats
+![Nuget downloads badge](https://img.shields.io/nuget/dt/PeanutButter.Utils?label=Utils)
+![Nuget downloads badge](https://img.shields.io/nuget/dt/PeanutButter.TrayIcon?label=TrayIcon)
+![Nuget downloads badge](https://img.shields.io/nuget/dt/PeanutButter.INI?label=INI)
+![Nuget downloads badge](https://img.shields.io/nuget/dt/PeanutButter.ServiceShell?label=ServiceShell)
+![Nuget downloads badge](https://img.shields.io/nuget/dt/PeanutButter.WindowsServiceManagement?label=WindowsServiceManagement)
+![Nuget downloads badge](https://img.shields.io/nuget/dt/PeanutButter.XmlUtils?label=XmlUtils)
+![Nuget downloads badge](https://img.shields.io/nuget/dt/PeanutButter.RandomGenerators?label=RandomGenerators)
+![Nuget downloads badge](https://img.shields.io/nuget/dt/PeanutButter.SimpleHttpServer?label=Utils)
+![Nuget downloads badge](https://img.shields.io/nuget/dt/PeanutButter.DatabaseHelpers?label=DatabaseHelpers)
+![Nuget downloads badge](https://img.shields.io/nuget/dt/PeanutButter.FluentMigrator?label=FluentMigrator)
+![Nuget downloads badge](https://img.shields.io/nuget/dt/PeanutButter.TempDb.MySql.Data?label=TempDb.MySql.Data)
+![Nuget downloads badge](https://img.shields.io/nuget/dt/PeanutButter.TempDb.Runner?label=TempDb.Runner)
+![Nuget downloads badge](https://img.shields.io/nuget/dt/PeanutButter.TempDb.MySql.Connector?label=TempDb.MySql.Connector)
+![Nuget downloads badge](https://img.shields.io/nuget/dt/PeanutButter.TempDb.LocalDb?label=TempDb.LocalDb)
+![Nuget downloads badge](https://img.shields.io/nuget/dt/PeanutButter.TempDb.Sqlite?label=TempDb.Sqlite)
+![Nuget downloads badge](https://img.shields.io/nuget/dt/PeanutButter.DuckTyping?label=DuckTyping)
+
 "Some tastiness to add to your dev sandwich"
 
 PeanutButter is a collection of projects which provide useful
