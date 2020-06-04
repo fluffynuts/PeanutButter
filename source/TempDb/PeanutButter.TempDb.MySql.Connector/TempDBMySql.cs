@@ -79,7 +79,7 @@ namespace PeanutButter.TempDb.MySql.Connector
             {
                 Port = (uint) Port,
                 UserID = "root",
-                Password = "",
+                Password = RootPasswordSet ? Settings.Options.RootUserPassword : "",
                 Server = "localhost",
                 AllowUserVariables = true,
                 SslMode = MySqlSslMode.None,

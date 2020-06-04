@@ -40,6 +40,7 @@ namespace PeanutButter.TempDb.MySql.Base
         private readonly Random _random = new Random(Guid.NewGuid().GetHashCode());
         private Process _serverProcess;
         public int Port { get; protected set; }
+        public bool RootPasswordSet { get; private set; }
 
         // ReSharper disable once StaticMemberInGenericType
         private static readonly SemaphoreSlim MysqldLock = new SemaphoreSlim(1);
@@ -151,7 +152,7 @@ namespace PeanutButter.TempDb.MySql.Base
         }
 
         private string MySqld =>
-            _mysqld ?? (_mysqld = Settings?.Options?.PathToMySqlD ?? FindInstalledMySqlD());
+            _mysqld ??= Settings?.Options?.PathToMySqlD ?? FindInstalledMySqlD();
 
         /// <inheritdoc />
         protected override void CreateDatabase()
@@ -162,7 +163,20 @@ namespace PeanutButter.TempDb.MySql.Base
             DumpDefaultsFileAt(DatabasePath);
             Port = DeterminePortToUse();
             StartServer(MySqld, Port);
+            SetRootPassword();
             CreateInitialSchema();
+        }
+
+        private void SetRootPassword()
+        {
+            using var conn = OpenConnection();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText =
+                $@"alter user 'root'@'localhost' identified by '{
+                        Settings.Options.RootUserPassword.Replace("'", "''")
+                    }';";
+            cmd.ExecuteNonQuery();
+            RootPasswordSet = true;
         }
 
         public override string DumpSchema()
@@ -185,7 +199,7 @@ namespace PeanutButter.TempDb.MySql.Base
             using (var io = new ProcessIO(
                 mysqldump,
                 "-u", "root",
-                "--password=",
+                $"--password={Settings.Options.RootUserPassword}",
                 "-h", "localhost",
                 "-P", Port.ToString(),
                 SchemaName))

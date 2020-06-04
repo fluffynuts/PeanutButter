@@ -88,6 +88,14 @@ namespace PeanutButter.TempDb.MySql.Base
             /// share schema.
             /// </summary>
             public string Name { get; set; }
+
+            /// <summary>
+            /// Set the root password; used to default to blank
+            /// but there are stupid connectors which infer that
+            /// a blank password means _no_ password :/
+            /// </summary>
+            public const string DEFAULT_ROOT_PASSWORD = "root";
+            public string RootUserPassword { get; set; } = DEFAULT_ROOT_PASSWORD;
         }
 
         /// <summary>
