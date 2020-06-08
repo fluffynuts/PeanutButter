@@ -80,5 +80,12 @@ function targetFor(relPath) {
       `Can't determine target framework for path: ${relPath} (should be after 'Release')`
     );
   }
-  return `lib/${targetFramework}`;
+  const
+    pathParts = relPath.split(/[\/|\\]/),
+    start = pathParts.indexOf("Release") + 2,
+    subPath = pathParts.slice(start).join("/"),
+    subFolder = path.dirname(subPath);
+  return subFolder === "."
+    ? `lib/${targetFramework}`
+    : `lib/${targetFramework}/${subFolder}`;
 }
