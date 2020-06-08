@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Data.SQLite;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -226,6 +227,10 @@ namespace PeanutButter.TempDb.Runner.Tests
                         Expect(() => connection.Open())
                             .Not.To.Throw();
                     }
+                    
+                    var connInfo = new SQLiteConnectionStringBuilder(connectionString);
+                    Expect(File.Exists(connInfo.DataSource))
+                        .To.Be.False();
                 
                 }
             }
