@@ -370,11 +370,16 @@ namespace PeanutButter.TempDb.MySql.Base
                 mysqld,
                 $"\"--defaults-file={Path.Combine(DatabasePath, "my.cnf")}\"",
                 $"\"--basedir={BaseDirOf(mysqld)}\"",
-                $"\"--datadir={DatabasePath}\"",
+                $"\"--datadir={DataDir}\"",
                 $"--port={port}");
             TestIsRunning();
             StartProcessWatcher();
         }
+        
+        public string DataDir => 
+            MySqlVersion.Version.Major >= 8
+            ? Path.Combine(DatabasePath, "data") // mysql 8 wants a clean dir to init in
+            : DatabasePath;
 
         private Thread _watcherThread;
         private readonly SemaphoreSlim _disposalLock = new SemaphoreSlim(1);
@@ -480,9 +485,9 @@ namespace PeanutButter.TempDb.MySql.Base
 
         private void InitializeWith(string mysqld, string tempDefaultsFile)
         {
-            Directory.CreateDirectory(DatabasePath);
-            var mysqlVersion = GetVersionOf(mysqld);
-            if (IsWindowsAndMySql56OrLower(mysqlVersion))
+            MySqlVersion = GetVersionOf(mysqld);
+            Directory.CreateDirectory(DataDir);
+            if (IsWindowsAndMySql56OrLower(MySqlVersion))
             {
                 AttemptManualInitialization(mysqld);
                 return;
@@ -500,6 +505,8 @@ namespace PeanutButter.TempDb.MySql.Base
                 process.WaitForExit();
             }
         }
+
+        public MySqlVersionInfo MySqlVersion { get; private set; }
 
         private void AttemptManualInitialization(string mysqld)
         {
@@ -566,7 +573,7 @@ namespace PeanutButter.TempDb.MySql.Base
                 mysqlVersion.Version.Minor <= 6;
         }
 
-        private class MySqlVersionInfo
+        public class MySqlVersionInfo
         {
             public string Platform { get; set; }
             public Version Version { get; set; }
