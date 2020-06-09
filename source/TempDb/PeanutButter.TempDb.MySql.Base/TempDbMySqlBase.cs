@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
@@ -158,14 +157,33 @@ namespace PeanutButter.TempDb.MySql.Base
         /// <inheritdoc />
         protected override void CreateDatabase()
         {
-            var tempDefaultsPath = CreateTemporaryDefaultsFile();
+            MySqlVersion = QueryVersionOf(MySqld);
             EnsureIsRemoved(DatabasePath);
-            InitializeWith(MySqld, tempDefaultsPath);
+            if (IsMySql8(MySqlVersion))
+            {
+                RemoveDeprecatedOptions();
+            }
+            
+            // mysql 5.7 wants an empty data base dir, so we have to use
+            // a temp defaults file for init only, which 8 seems to be ok with
+            using var tempDefaults = CreateTemporaryDefaultsFile();
+            InitializeWith(MySqld, tempDefaults.Path);
+            // var tempDefaultsPath = CreateTemporaryDefaultsFile();
+            // InitializeWith(MySqld, tempDefaultsPath);
+            
+            // now we need the real config file, sitting in the db dir
             DumpDefaultsFileAt(DatabasePath);
             Port = DeterminePortToUse();
             StartServer(MySqld, Port);
             SetRootPassword();
             CreateInitialSchema();
+        }
+
+        private void RemoveDeprecatedOptions()
+        {
+            Settings.SqlMode = (Settings.SqlMode ?? "").Split(',')
+                .Where(p => p != "NO_AUTO_CREATE_USER")
+                .JoinWith(",");
         }
 
         private void SetRootPassword()
@@ -184,6 +202,7 @@ namespace PeanutButter.TempDb.MySql.Base
         {
             // TODO: rather query INFORMATION_SCHEMA and do the work internally
             var mysqldHome = Path.GetDirectoryName(MySqld);
+            // ReSharper disable once AssignNullToNotNullAttribute
             var mysqldump = Path.Combine(mysqldHome, "mysqldump");
             if (Platform.IsWindows)
             {
@@ -197,27 +216,21 @@ namespace PeanutButter.TempDb.MySql.Base
                 );
             }
 
-            using (var io = new ProcessIO(
+            using var io = new ProcessIO(
                 mysqldump,
                 "-u", "root",
                 $"--password={Settings.Options.RootUserPassword}",
                 "-h", "localhost",
                 "-P", Port.ToString(),
-                SchemaName))
-            {
-                return string.Join("\n", io.StandardOutput);
-            }
+                SchemaName);
+            return string.Join("\n", io.StandardOutput);
         }
 
-        private string CreateTemporaryDefaultsFile()
+        private AutoTempFile CreateTemporaryDefaultsFile()
         {
-            var tempPath = Path.GetTempPath();
-            var tempDefaultsPath = DumpDefaultsFileAt(
-                tempPath,
-                $"{Path.GetFileName(DatabasePath)}.cnf"
-            );
-            _autoDeleter.Add(tempDefaultsPath);
-            return tempDefaultsPath;
+            var result = new AutoTempFile();
+            DumpDefaultsFileAt($"{result.Path}.cnf");
+            return result;
         }
 
         private void CreateInitialSchema()
@@ -240,17 +253,15 @@ namespace PeanutButter.TempDb.MySql.Base
                 return;
             }
 
-            using (var connection = OpenConnection())
-            using (var command = connection.CreateCommand())
-            {
-                command.CommandText = $"create schema if not exists `{schema}`";
-                command.ExecuteNonQuery();
+            using var connection = OpenConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = $"create schema if not exists `{schema}`";
+            command.ExecuteNonQuery();
 
-                command.CommandText = $"use `{schema}`";
-                command.ExecuteNonQuery();
+            command.CommandText = $"use `{schema}`";
+            command.ExecuteNonQuery();
 
-                SchemaName = schema;
-            }
+            SchemaName = schema;
         }
 
         private void EnsureIsRemoved(string databasePath)
@@ -262,7 +273,7 @@ namespace PeanutButter.TempDb.MySql.Base
 
             if (Directory.Exists(databasePath))
             {
-                Directory.Delete(databasePath);
+                Directory.Delete(databasePath, true);
             }
         }
 
@@ -273,6 +284,13 @@ namespace PeanutButter.TempDb.MySql.Base
         {
             var generator = new MySqlConfigGenerator();
             var outputFile = Path.Combine(databasePath, configFileName);
+            var containingFolder = Path.GetDirectoryName(outputFile);
+            if (!Directory.Exists(containingFolder))
+            {
+                // ReSharper disable once AssignNullToNotNullAttribute
+                Directory.CreateDirectory(containingFolder);
+            }
+
             File.WriteAllBytes(
                 outputFile,
                 Encoding.UTF8.GetBytes(
@@ -376,11 +394,11 @@ namespace PeanutButter.TempDb.MySql.Base
             TestIsRunning();
             StartProcessWatcher();
         }
-        
-        public string DataDir => 
+
+        public string DataDir =>
             MySqlVersion.Version.Major >= 8
-            ? Path.Combine(DatabasePath, "data") // mysql 8 wants a clean dir to init in
-            : DatabasePath;
+                ? Path.Combine(DatabasePath, "data") // mysql 8 wants a clean dir to init in
+                : DatabasePath;
 
         private Thread _watcherThread;
         private readonly SemaphoreSlim _disposalLock = new SemaphoreSlim(1);
@@ -445,6 +463,11 @@ namespace PeanutButter.TempDb.MySql.Base
             var max = TimeSpan.FromSeconds(MaxSecondsToWaitForMySqlToStart);
             do
             {
+                if (_serverProcess.HasExited)
+                {
+                    break;
+                }
+
                 if (CanConnect())
                 {
                     return;
@@ -471,7 +494,7 @@ namespace PeanutButter.TempDb.MySql.Base
 
             throw new FatalTempDbInitializationException(
                 $@"MySql doesn't want to start up. Please check logging in {
-                    DatabasePath
+                        DatabasePath
                     }\nstdout: ${stdout}\nstderr: ${stderr}"
             );
         }
@@ -491,8 +514,8 @@ namespace PeanutButter.TempDb.MySql.Base
 
         private void InitializeWith(string mysqld, string tempDefaultsFile)
         {
-            MySqlVersion = GetVersionOf(mysqld);
             Directory.CreateDirectory(DataDir);
+
             if (IsWindowsAndMySql56OrLower(MySqlVersion))
             {
                 AttemptManualInitialization(mysqld);
@@ -505,11 +528,16 @@ namespace PeanutButter.TempDb.MySql.Base
                 $"\"--defaults-file={tempDefaultsFile}\"",
                 "--initialize-insecure",
                 $"\"--basedir={BaseDirOf(mysqld)}\"",
-                $"\"--datadir={DatabasePath}\""
+                $"\"--datadir={DataDir}\""
             ))
             {
                 process.WaitForExit();
             }
+        }
+
+        private bool IsMySql8(MySqlVersionInfo mySqlVersion)
+        {
+            return mySqlVersion.Version.Major >= 8;
         }
 
         public MySqlVersionInfo MySqlVersion { get; private set; }
@@ -585,7 +613,7 @@ namespace PeanutButter.TempDb.MySql.Base
             public Version Version { get; set; }
         }
 
-        private MySqlVersionInfo GetVersionOf(string mysqld)
+        private MySqlVersionInfo QueryVersionOf(string mysqld)
         {
             using (var process = RunCommand(mysqld, "--version"))
             {

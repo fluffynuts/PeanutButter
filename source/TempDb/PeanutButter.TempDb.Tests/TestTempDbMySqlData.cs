@@ -667,7 +667,8 @@ namespace PeanutButter.TempDb.Tests
                     Options =
                     {
                         PathToMySqlD = pathToMySql,
-                        ForceFindMySqlInPath = true
+                        ForceFindMySqlInPath = true,
+                        LogAction = Console.WriteLine
                     }
                 });
         }
