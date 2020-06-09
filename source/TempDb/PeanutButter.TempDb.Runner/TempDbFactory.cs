@@ -34,7 +34,7 @@ namespace PeanutButter.TempDb.Runner
                     Options =
                     {
                         LogAction = opts.Verbose 
-                            ? Console.WriteLine 
+                            ? s => Console.WriteLine($"debug: {s}")
                             : null as Action<string>
                     }
                 }
