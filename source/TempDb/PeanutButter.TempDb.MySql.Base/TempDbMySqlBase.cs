@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
@@ -454,6 +455,9 @@ namespace PeanutButter.TempDb.MySql.Base
 
             KeepTemporaryDatabaseArtifactsForDiagnostics = true;
 
+            var stderr = _serverProcess?.StandardError.ReadToEnd() ?? "(no stderr)";
+            var stdout = _serverProcess?.StandardOutput.ReadToEnd() ?? "(no stdout)";
+
             try
             {
                 _serverProcess?.Kill();
@@ -466,7 +470,9 @@ namespace PeanutButter.TempDb.MySql.Base
             }
 
             throw new FatalTempDbInitializationException(
-                $"MySql doesn't want to start up. Please check logging in {DatabasePath}"
+                $@"MySql doesn't want to start up. Please check logging in {
+                    DatabasePath
+                    }\nstdout: ${stdout}\nstderr: ${stderr}"
             );
         }
 
