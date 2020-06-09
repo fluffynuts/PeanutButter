@@ -85,7 +85,8 @@ namespace PeanutButter.TempDb.MySql.Connector
                 SslMode = MySqlSslMode.None,
                 Database = SchemaName,
                 ConnectionTimeout = DefaultTimeout,
-                DefaultCommandTimeout = DefaultTimeout
+                DefaultCommandTimeout = DefaultTimeout,
+                AllowPublicKeyRetrieval = true
             };
             return builder.ToString();
         }

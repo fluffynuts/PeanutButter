@@ -253,6 +253,7 @@ namespace PeanutButter.TempDb.MySql.Base
                 return;
             }
 
+            Log($"Attempting to switch to schema {schema} with connection string: {ConnectionString}");
             using var connection = OpenConnection();
             using var command = connection.CreateCommand();
             command.CommandText = $"create schema if not exists `{schema}`";
