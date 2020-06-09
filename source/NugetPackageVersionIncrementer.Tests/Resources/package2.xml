@@ -16,7 +16,7 @@
       as necessary to support other engines
     </summary>
     <language>en-US</language>
-    <projectUrl>https://davydm.blogspot.com/search/label/PeanutButter</projectUrl>
+    <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
     <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">BSD-3-Clause</license>

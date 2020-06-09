@@ -586,7 +586,7 @@ namespace PeanutButter.TempDb.MySql.Base
                     {
                         if (last == "ver")
                         {
-                            versionInfo.Version = new Version(p);
+                            versionInfo.Version = new Version(p.Split('-').First());
                         }
                         else if (last == "for" && versionInfo.Platform == null)
                         {

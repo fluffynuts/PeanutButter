@@ -34,7 +34,7 @@
     DbContext which provide tracking fields (Created/LastModified) and a soft-delete field (Enabled)
     </summary>
     <language>en-US</language>
-    <projectUrl>https://davydm.blogspot.com/search/label/PeanutButter</projectUrl>
+    <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
     <repository type="git" url="https://github.com/fluffynuts/PeanutButter" />
     <icon>icon.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>

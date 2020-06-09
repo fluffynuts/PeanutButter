@@ -14,7 +14,7 @@
 	Use this if you need an automagic temporary MySql database, for example in testing.
     </summary>
     <language>en-US</language>
-    <projectUrl>https://davydm.blogspot.com/search/label/PeanutButter</projectUrl>
+    <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
     <repository type="git" url="https://github.com/fluffynuts/PeanutButter" />
     <icon>icon.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>

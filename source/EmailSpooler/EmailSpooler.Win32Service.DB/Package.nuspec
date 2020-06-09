@@ -19,7 +19,7 @@
       you expect your project to provide a data source for the PeanutButter.EmailSpooler.Win32Service service.
     </summary>
     <language>en-US</language>
-    <projectUrl>https://davydm.blogspot.com/search/label/PeanutButter</projectUrl>
+    <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
     <repository type="git" url="https://github.com/fluffynuts/PeanutButter" />
     <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>

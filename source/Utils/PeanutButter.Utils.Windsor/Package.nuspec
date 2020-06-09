@@ -16,7 +16,7 @@
           so you don't need to import System.Web.Mvc to use other methods in this package)
     </summary>
     <language>en-US</language>
-    <projectUrl>https://davydm.blogspot.com/search/label/PeanutButter</projectUrl>
+    <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
     <repository type="git" url="https://github.com/fluffynuts/PeanutButter" />
     <icon>icon.png</icon>
     <license type="expression">BSD-3-Clause</license>
