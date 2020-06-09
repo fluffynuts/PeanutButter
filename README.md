@@ -6,7 +6,6 @@ PeanutButter
 
 ### Download stats
 ![Nuget downloads badge](https://img.shields.io/nuget/dt/PeanutButter.Utils?label=Utils)
-![Nuget downloads badge](https://img.shields.io/nuget/dt/PeanutButter.TrayIcon?label=TrayIcon)
 ![Nuget downloads badge](https://img.shields.io/nuget/dt/PeanutButter.INI?label=INI)
 ![Nuget downloads badge](https://img.shields.io/nuget/dt/PeanutButter.ServiceShell?label=ServiceShell)
 ![Nuget downloads badge](https://img.shields.io/nuget/dt/PeanutButter.WindowsServiceManagement?label=WindowsServiceManagement)
