@@ -41,7 +41,9 @@ gulp.task(
               target: ""
             }
           })
-          files.forEach(relPath => {
+          files
+          .filter(filterTempDbRunnerFile)
+          .forEach(relPath => {
             fileNode.push({
               $: {
                 src: relPath,
@@ -56,6 +58,14 @@ gulp.task(
       .pipe(gulp.dest(project));
   }
 );
+
+function filterTempDbRunnerFile(filepath) {
+  if ((filepath ||"").match(/netcoreapp.*\\PeanutButter.TempDb.Runner.exe$/)) {
+    console.log(`-- ignoring: ${filepath}`);
+    return false;
+  }
+  return true;
+}
 
 function targetFor(relPath) {
   let next = false;
