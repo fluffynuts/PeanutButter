@@ -129,22 +129,22 @@ namespace PeanutButter.TempDb.MySql.Base
 
         private string QueryForMySqld()
         {
-            if (Platform.IsUnixy ||
-                Settings.Options.ForceFindMySqlInPath)
+            var mysqld = Find.InPath("mysqld");
+            var shouldFindInPath = Platform.IsUnixy || Settings.Options.ForceFindMySqlInPath;
+            if (shouldFindInPath && !(mysqld is null))
             {
-                var mysqlDaemonPath = Find.InPath("mysqld");
-                if (mysqlDaemonPath != null)
-                {
-                    return mysqlDaemonPath;
-                }
+                
+                return mysqld;
             }
 
             if (Platform.IsWindows)
             {
-                var path = MySqlWindowsServiceFinder.FindPathToMySql();
-                if (path != null)
+                var servicePath = MySqlWindowsServiceFinder.FindPathToMySql();
+                // prefer the pathed mysqld, but fall back on service path if available
+                var resolved = mysqld ?? servicePath;
+                if (!(resolved is null))
                 {
-                    return path;
+                    return resolved;
                 }
             }
 
