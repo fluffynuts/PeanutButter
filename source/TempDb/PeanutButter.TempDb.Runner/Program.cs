@@ -19,7 +19,7 @@ namespace PeanutButter.TempDb.Runner
                         running.Wait();
                         Instance = TempDbFactory.Create(opts);
                         WriteLine($"Connection string: {Instance.ConnectionString}");
-                        WaitForStopCommand();
+                        _shell = WaitForStopCommand();
                         Instance = null;
                     }
                     catch (ShowSupportedEngines ex)
@@ -60,18 +60,25 @@ namespace PeanutButter.TempDb.Runner
 
             Console.Write("Shutting down TempDb instance... ");
             Console.Out.Flush();
-            Instance?.Dispose();
+            DestroyInstance();
             Console.Write("done.");
         }
 
-        // really just here for testing
+        
+        private static readonly object DestroyLock = new object();
         public static void DestroyInstance()
         {
-            Instance?.Dispose();
-            Instance = null;
+            lock (DestroyLock)
+            {
+                Instance?.Dispose();
+                Instance = null;
+                _shell?.Dispose();
+                _shell = null;
+            }
         }
 
         public static ITempDB Instance { get; private set; }
+        private static InteractiveShell _shell;
 
         public static Action<string> LineWriter { get; set; } = Console.WriteLine;
 
@@ -80,7 +87,7 @@ namespace PeanutButter.TempDb.Runner
             LineWriter?.Invoke(line);
         }
 
-        private static void WaitForStopCommand()
+        private static InteractiveShell WaitForStopCommand()
         {
             var shell = new InteractiveShell(WriteLine);
             shell.RegisterCommand(
@@ -88,10 +95,10 @@ namespace PeanutButter.TempDb.Runner
                 cmd =>
                 {
                     Console.WriteLine("Shutting down...");
-                    Instance?.Dispose();
-                    Instance = null;
+                    DestroyInstance();
                     shell.Dispose();
                 });
+            return shell;
         }
     }
 }
