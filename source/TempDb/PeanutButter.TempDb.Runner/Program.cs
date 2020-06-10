@@ -19,7 +19,7 @@ namespace PeanutButter.TempDb.Runner
                         running.Wait();
                         Instance = TempDbFactory.Create(opts);
                         WriteLine($"Connection string: {Instance.ConnectionString}");
-                        WaitForStopCommand(Instance);
+                        WaitForStopCommand();
                         Instance = null;
                     }
                     catch (ShowSupportedEngines ex)
@@ -35,8 +35,33 @@ namespace PeanutButter.TempDb.Runner
                 {
                     errors.ForEach(e => WriteLine(e.ToString()));
                 });
+            AppDomain.CurrentDomain.ProcessExit += OnAppExit;
+            Console.CancelKeyPress += OnCancelKeyPress;
             running.Wait();
             return 0;
+        }
+
+        private static void OnCancelKeyPress(object sender, ConsoleCancelEventArgs e)
+        {
+            ShutdownTempDbIfNecessary();
+        }
+
+        private static void OnAppExit(object sender, EventArgs e)
+        {
+            ShutdownTempDbIfNecessary();
+        }
+
+        private static void ShutdownTempDbIfNecessary()
+        {
+            if (Instance is null)
+            {
+                return;
+            }
+
+            Console.Write("Shutting down TempDb instance... ");
+            Console.Out.Flush();
+            Instance?.Dispose();
+            Console.Write("done.");
         }
 
         // really just here for testing
@@ -55,7 +80,7 @@ namespace PeanutButter.TempDb.Runner
             LineWriter?.Invoke(line);
         }
 
-        private static void WaitForStopCommand(ITempDB instance)
+        private static void WaitForStopCommand()
         {
             var shell = new InteractiveShell(WriteLine);
             shell.RegisterCommand(
@@ -63,7 +88,8 @@ namespace PeanutButter.TempDb.Runner
                 cmd =>
                 {
                     Console.WriteLine("Shutting down...");
-                    instance?.Dispose();
+                    Instance?.Dispose();
+                    Instance = null;
                     shell.Dispose();
                 });
         }

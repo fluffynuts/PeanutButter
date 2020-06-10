@@ -191,7 +191,7 @@ namespace PeanutButter.TempDb.MySql.Base
             using var conn = OpenConnection();
             using var cmd = conn.CreateCommand();
             cmd.CommandText =
-                $@"alter user 'root'@'localhost' identified by '{
+                $@"alter user 'root'@'localhost' identified with mysql_native_password by '{
                         Settings.Options.RootUserPassword.Replace("'", "''")
                     }';";
             cmd.ExecuteNonQuery();

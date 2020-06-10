@@ -24,7 +24,7 @@ namespace PeanutButter.TempDb.Runner
         [Option(
             'v',
             "verbose",
-            Default = true,
+            Default = false,
             HelpText = "Run in verbose mode, outputting a lot more diagnostic information (applies more to mysql than other engines)"
         )]
         public bool Verbose { get; set; }
