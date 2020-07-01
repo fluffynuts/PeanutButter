@@ -84,6 +84,7 @@ async function retry(func, times) {
         await sleep(1000);
       } else {
         console.error("giving up");
+        throw e;
       }
     }
   }
