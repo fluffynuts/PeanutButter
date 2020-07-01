@@ -27,7 +27,7 @@ namespace PeanutButter.ServiceShell
         [Option('u', "uninstall", HelpText = "Uninstall this service")]
         public bool Uninstall { get; set; }
 
-        [Option('r', "runonce", HelpText = "Run one round of this service's code and exit")]
+        [Option('r', "run-once", HelpText = "Run one round of this service's code and exit")]
         public bool RunOnce { get; set; }
 
         [Option('d', "debug", HelpText = "Run continually, with logging set to ALL")]
@@ -47,6 +47,12 @@ namespace PeanutButter.ServiceShell
 
         [Option('x', "stop", HelpText = "Stop service")]
         public bool StopService { get; set; }
+
+        [Option('m', "manual-start", HelpText = "Install with Manual startup")]
+        public bool ManualStart { get; set; }
+
+        [Option('z', "disabled", HelpText = "Install as a disabled service")]
+        public bool Disabled { get; set; }
 
         public ExitCodes ExitCode { get; protected set; }
 

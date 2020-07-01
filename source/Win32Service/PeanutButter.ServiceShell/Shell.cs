@@ -390,7 +390,7 @@ namespace PeanutButter.ServiceShell
             CommandlineOptions cli,
             Shell instance)
         {
-            var result = instance.InstallMe();
+            var result = instance.InstallMe(cli);
             return cli.StartService
                 ? instance.StartMe()
                 : result;
@@ -487,7 +487,7 @@ namespace PeanutButter.ServiceShell
             }
         }
 
-        private int InstallMe()
+        private int InstallMe(CommandlineOptions cli)
         {
             var myExePath = new FileInfo(Environment.GetCommandLineArgs()[0]).FullName;
             var existingSvcUtil = new WindowsServiceUtil(ServiceName);
@@ -512,7 +512,8 @@ namespace PeanutButter.ServiceShell
             var svcUtil = new WindowsServiceUtil(ServiceName, DisplayName, myExePath);
             try
             {
-                svcUtil.Install();
+                var bootFlag = ResolveBootFlagFor(cli);
+                svcUtil.Install(bootFlag);
                 Console.WriteLine("Installed!");
                 return (int) CommandlineOptions.ExitCodes.Success;
             }
@@ -521,6 +522,23 @@ namespace PeanutButter.ServiceShell
                 Console.WriteLine("Unable to install: " + ex.Message);
                 return (int) CommandlineOptions.ExitCodes.InstallFailed;
             }
+        }
+
+        private ServiceBootFlag ResolveBootFlagFor(CommandlineOptions cli)
+        {
+            if (!cli.ManualStart && !cli.Disabled)
+            {
+                return ServiceBootFlag.AutoStart;
+            }
+
+            if (cli.ManualStart && cli.Disabled)
+            {
+                throw new ArgumentException("Cannot specify that the service be both disabled and manual start");
+            }
+            
+            return cli.ManualStart
+                ? ServiceBootFlag.ManualStart
+                : ServiceBootFlag.Disabled;
         }
 
         private int UninstallMe()

@@ -112,6 +112,44 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             ).To.Equal("c:\\windows\\system32\\svchost.exe -k netsvcs");
         }
 
+        [TestCase("-m")]
+        [TestCase("--manual-start")]
+        public void ShouldBeAbleToInstallServiceAsManualStart(string arg)
+        {
+            // Arrange
+            var serviceExe = TestServicePath;
+            Expect(serviceExe)
+                .To.Exist($"Expected to find test service at {serviceExe}");
+            EnsureTestServiceIsNotInstalled();
+            // Act
+            Do("Install via cli: manual start",
+                () => Run(serviceExe, "-i", arg, "-n", TestServiceName)
+            );
+            var util = new WindowsServiceUtil(TestServiceName);
+            // Assert
+            Expect(util.StartupType)
+                .To.Equal(ServiceStartupTypes.Manual);
+        }
+
+        [TestCase("-z")]
+        [TestCase("--disabled")]
+        public void ShouldBeAbleToInstallServiceAsDisabled(string arg)
+        {
+            // Arrange
+            var serviceExe = TestServicePath;
+            Expect(serviceExe)
+                .To.Exist($"Expected to find test service at {serviceExe}");
+            EnsureTestServiceIsNotInstalled();
+            // Act
+            Do("Install via cli: manual start",
+                () => Run(serviceExe, "-i", arg, "-n", TestServiceName)
+            );
+            var util = new WindowsServiceUtil(TestServiceName);
+            // Assert
+            Expect(util.StartupType)
+                .To.Equal(ServiceStartupTypes.Disabled);
+        }
+
         [Test]
         public void BigHairyIntegrationTest()
         {
@@ -371,7 +409,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
         }
 
         [TestFixture]
-        public class StubbornService : TestWindowsServiceUtil
+        public class StubbornService
         {
             [Test]
             public void ShouldBeAbleToSuccessfullyUninstallWithForceOption()
@@ -511,14 +549,14 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                 p => !p.Contains("obj")
             );
 
-        private string StubbornServiceExe =>
+        private static string StubbornServiceExe =>
             _stubbornServiceExe ??= FindPath(
                 "StubbornService",
                 "StubbornService.exe",
                 p => !p.Contains("obj")
             );
 
-        private string _stubbornServiceExe;
+        private static string _stubbornServiceExe;
 
         private string _spacedServiceExe;
 
@@ -626,12 +664,12 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             }
         }
 
-        private WindowsServiceUtil Create(string serviceName)
+        private static WindowsServiceUtil Create(string serviceName)
         {
             return new WindowsServiceUtil(serviceName);
         }
 
-        private WindowsServiceUtil Create(
+        private static WindowsServiceUtil Create(
             string serviceName,
             string displayName,
             string commandline)
@@ -643,14 +681,14 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             );
         }
 
-        private string FindPath(
+        private static string FindPath(
             string travelUpToFindFolder,
             string searchForThisFile,
             Func<string, bool> extraMatcher)
         {
             var current = Path.GetDirectoryName(
                 new Uri(
-                    GetType()
+                    typeof(TestWindowsServiceUtil)
                         .Assembly
                         .Location
                 ).LocalPath

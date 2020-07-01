@@ -108,17 +108,26 @@ namespace PeanutButter.WindowsServiceManagement
         void Uninstall(ControlOptions options);
 
         /// <summary>
-        /// Installs and starts the service, waiting for the service
-        /// to report that it's running
+        /// Installs the service as AutoStart and starts it,
+        /// waiting for the service to report that it's running
         /// </summary>
         void InstallAndStart();
+
+        /// <summary>
+        /// Install and start the service as AutoStarting,
+        /// with control over whether to wait for the service
+        /// to have properly started
+        /// </summary>
+        /// <param name="waitForStart"></param>
+        void InstallAndStart(bool waitForStart);
 
         /// <summary>
         /// Install and start the service, with control over whether
         /// to wait for the service to have properly started
         /// </summary>
+        /// <param name="bootFlag"></param>
         /// <param name="waitForStart"></param>
-        void InstallAndStart(bool waitForStart);
+        void InstallAndStart(ServiceBootFlag bootFlag, bool waitForStart);
 
         /// <summary>
         /// Install the service only
@@ -554,8 +563,15 @@ namespace PeanutButter.WindowsServiceManagement
             InstallAndStart(true);
         }
 
-        /// <inheritdoc />
         public void InstallAndStart(bool waitForStart)
+        {
+            InstallAndStart(ServiceBootFlag.AutoStart, waitForStart);
+        }
+
+        /// <inheritdoc />
+        public void InstallAndStart(
+            ServiceBootFlag bootFlag, 
+            bool waitForStart)
         {
             TryDoWithService(service =>
             {
@@ -564,7 +580,7 @@ namespace PeanutButter.WindowsServiceManagement
                 {
                     TryDoWithSCManager(scm =>
                     {
-                        service = DoServiceInstall(scm);
+                        service = DoServiceInstall(scm, bootFlag);
                         if (service != IntPtr.Zero)
                         {
                             installedHere = true;
@@ -649,15 +665,22 @@ namespace PeanutButter.WindowsServiceManagement
         /// <inheritdoc />
         public void Install()
         {
+            Install(ServiceBootFlag.AutoStart);
+        }
+
+        public void Install(ServiceBootFlag bootFlag)
+        {
             TryDoWithSCManager(scm =>
             {
                 Win32Api.CloseServiceHandle(
-                    DoServiceInstall(scm)
+                    DoServiceInstall(scm, bootFlag)
                 );
             });
         }
 
-        private IntPtr DoServiceInstall(IntPtr scm)
+        private IntPtr DoServiceInstall(
+            IntPtr scm, 
+            ServiceBootFlag bootFlag)
         {
             VerifyServiceExecutable();
 
@@ -667,8 +690,15 @@ namespace PeanutButter.WindowsServiceManagement
                 _displayName,
                 ServiceAccessRights.AllAccess,
                 Win32Api.SERVICE_WIN32_OWN_PROCESS,
-                ServiceBootFlag.AutoStart, ServiceError.Normal,
-                _serviceCommandline, null, IntPtr.Zero, null, null, null);
+                bootFlag, 
+                ServiceError.Normal,
+                _serviceCommandline, 
+                null, 
+                IntPtr.Zero, 
+                null, 
+                null, 
+                null
+            );
             var win32Exception = new Win32Exception(Marshal.GetLastWin32Error());
             if (service == IntPtr.Zero)
             {
