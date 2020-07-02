@@ -130,9 +130,14 @@ namespace PeanutButter.WindowsServiceManagement
         void InstallAndStart(ServiceBootFlag bootFlag, bool waitForStart);
 
         /// <summary>
-        /// Install the service only
+        /// Install the service only, with automatic start
         /// </summary>
         void Install();
+
+        /// <summary>
+        /// Install the service only, with provided startup
+        /// </summary>
+        void Install(ServiceBootFlag bootFlag);
 
         /// <summary>
         /// Start the service only, waiting for it to enter the Running state

@@ -1,5 +1,6 @@
 ﻿Imports System.Runtime.CompilerServices
 Imports NSubstitute
+Imports NSubstitute.Core
 Imports PeanutButter.DatabaseHelpers.StatementBuilders
 
 ' ReSharper disable once InconsistentNaming
@@ -8,7 +9,7 @@ Module SelectStatementBuilderExtensions
     <Extension()>
     Public Function HasAllConditions(ByVal builder As ISelectStatementBuilder, ParamArray expectedConditions As ICondition())
         If TryCast(builder, SelectStatementBuilder) IsNot Nothing Then Throw New Exception("HasAllConditions extension method is not meant for concrete implementation of SelectStatementBuilder")
-        Dim conditionCall = builder.ReceivedCalls().FirstOrDefault(Function(theCall)
+        Dim conditionCall = builder.ReceivedCalls().FirstOrDefault(Function(theCall as ICall) as Boolean
                                                                        Dim args = theCall.GetArguments()
                                                                        If args.Length = 0 Then Return False
                                                                        Dim c = TryCast(args(0), ICondition())

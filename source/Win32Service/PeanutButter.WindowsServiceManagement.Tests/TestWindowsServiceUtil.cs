@@ -129,6 +129,27 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             // Assert
             Expect(util.StartupType)
                 .To.Equal(ServiceStartupTypes.Manual);
+            Expect(util.State)
+                .To.Equal(ServiceState.Stopped);
+        }
+
+        [Test]
+        public void ShouldBeAbleToInstallServiceAsManualStartViaApi()
+        {
+            // Arrange
+            var serviceExe = TestServicePath;
+            Expect(serviceExe)
+                .To.Exist($"Expected to find test service at {serviceExe}");
+            EnsureTestServiceIsNotInstalled();
+            var sut = Create(TestServiceName, TestServiceName, serviceExe);
+            // Act
+            sut.Install(ServiceBootFlag.ManualStart);
+            // Assert
+            var util = Create(TestServiceName);
+            Expect(util.StartupType)
+                .To.Equal(ServiceStartupTypes.Manual);
+            Expect(util.State)
+                .To.Equal(ServiceState.Stopped);
         }
 
         [TestCase("-z")]
@@ -669,7 +690,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             return new WindowsServiceUtil(serviceName);
         }
 
-        private static WindowsServiceUtil Create(
+        private static IWindowsServiceUtil Create(
             string serviceName,
             string displayName,
             string commandline)
