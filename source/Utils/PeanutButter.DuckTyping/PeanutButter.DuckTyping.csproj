@@ -9,7 +9,7 @@
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
     <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
-        <DefineConstants>NETSTANDARD;BUILD_PEANUTBUTTER_INTERNAL</DefineConstants>
+        <DefineConstants>$(DefineConstants);NETSTANDARD</DefineConstants>
     </PropertyGroup>
     <PropertyGroup>
         <DebugType>Full</DebugType>

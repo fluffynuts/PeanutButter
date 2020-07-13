@@ -360,7 +360,7 @@ namespace PeanutButter.TempDb.MySql.Base
         {
             SetPortHintFromEnvironment();
         }
-
+        
         private void SetPortHintFromEnvironment()
         {
             if (Options.PortHint != null)

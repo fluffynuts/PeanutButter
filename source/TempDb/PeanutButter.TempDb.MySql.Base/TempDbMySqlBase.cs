@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using PeanutButter.Utils;
@@ -37,7 +38,6 @@ namespace PeanutButter.TempDb.MySql.Base
 
         public int? ServerProcessId => _serverProcess?.Id;
 
-        private readonly Random _random = new Random(Guid.NewGuid().GetHashCode());
         private Process _serverProcess;
         public int Port { get; protected set; }
         public bool RootPasswordSet { get; private set; }
@@ -47,6 +47,9 @@ namespace PeanutButter.TempDb.MySql.Base
 
         // ReSharper disable once StaticMemberInGenericType
         private static string _mysqld;
+
+        public Guid InstanceId { get; } = Guid.NewGuid();
+        private int _conflictingPortRetries = 0;
 
 #if NETSTANDARD
         private readonly FatalTempDbInitializationException _noMySqlFoundException =
@@ -174,7 +177,7 @@ namespace PeanutButter.TempDb.MySql.Base
             // now we need the real config file, sitting in the db dir
             DumpDefaultsFileAt(DatabasePath);
             Port = DeterminePortToUse();
-            StartServer(MySqld, Port);
+            StartServer(MySqld);
             SetRootPassword();
             CreateInitialSchema();
         }
@@ -384,15 +387,30 @@ namespace PeanutButter.TempDb.MySql.Base
             task.Wait(TimeSpan.FromSeconds(2));
         }
 
-        private void StartServer(string mysqld, int port)
+        private void StartServer(string mysqld)
         {
             _serverProcess = RunCommand(
                 mysqld,
                 $"\"--defaults-file={Path.Combine(DatabasePath, "my.cnf")}\"",
                 $"\"--basedir={BaseDirOf(mysqld)}\"",
                 $"\"--datadir={DataDir}\"",
-                $"--port={port}");
-            TestIsRunning();
+                $"--port={Port}");
+            try
+            {
+                TestIsRunning();
+            }
+            catch (TryAnotherPortException)
+            {
+                if (Settings?.Options?.PortHint.HasValue ?? false)
+                {
+                    Settings.Options.PortHint++;
+                }
+
+                Port = DeterminePortToUse();
+                StartServer(mysqld);
+                return;
+            }
+
             StartProcessWatcher();
         }
 
@@ -445,7 +463,7 @@ namespace PeanutButter.TempDb.MySql.Base
                     if (shouldResurrect)
                     {
                         Log($"{MySqld} seems to have gone away; restarting on port {Port}");
-                        StartServer(MySqld, Port);
+                        StartServer(MySqld);
                     }
                 }
 
@@ -456,6 +474,23 @@ namespace PeanutButter.TempDb.MySql.Base
         private string BaseDirOf(string mysqld)
         {
             return Path.GetDirectoryName(Path.GetDirectoryName(mysqld));
+        }
+
+        protected virtual bool IsMyInstance()
+        {
+            using var conn = OpenConnection();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = @$"insert into sys.sys_config (variable, value, set_by) 
+values ('__tempdb_id__', '{InstanceId}', 'root');";
+            try
+            {
+                cmd.ExecuteNonQuery();
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
         }
 
         private void TestIsRunning()
@@ -471,6 +506,11 @@ namespace PeanutButter.TempDb.MySql.Base
 
                 if (CanConnect())
                 {
+                    if (!IsMyInstance())
+                    {
+                        throw new TryAnotherPortException($"Encountered existing instance on port {Port}");
+                    }
+
                     return;
                 }
 
@@ -493,18 +533,46 @@ namespace PeanutButter.TempDb.MySql.Base
                 /* ignore */
             }
 
+            if (LooksLikePortConflict() &&
+                ++_conflictingPortRetries < 5)
+            {
+                KeepTemporaryDatabaseArtifactsForDiagnostics = false;
+                throw new TryAnotherPortException($"Port conflict at {Port}, will try another...");
+            }
+
             throw new FatalTempDbInitializationException(
                 $@"MySql doesn't want to start up. Please check logging in {
                         DatabasePath
-                    }\nstdout: ${stdout}\nstderr: ${stderr}"
+                    }\nstdout: {stdout}\nstderr: {stderr}"
             );
         }
+        
+        private bool LooksLikePortConflict()
+        {
+            var logFile = Path.Combine(DatabasePath, "mysql-err.log");
+            if (!File.Exists(logFile))
+            {
+                return false;
+            }
 
-        private bool CanConnect()
+            try
+            {
+                var lines = File.ReadLines(logFile);
+                var re = new Regex("bind on tcp/ip port: no such file or directory", RegexOptions.IgnoreCase);
+                return lines.Any(l => re.IsMatch(l));
+            }
+            catch
+            {
+                return false; // can't read the file, so can't say it might just be a port conflict
+            }
+        }
+
+        protected bool CanConnect()
         {
             try
             {
                 OpenConnection()?.Dispose();
+                
                 return true;
             }
             catch
@@ -682,7 +750,6 @@ namespace PeanutButter.TempDb.MySql.Base
             Func<int, int> portGenerator
         )
         {
-            var rnd = new Random(Guid.NewGuid().GetHashCode());
             var tryThis = portGenerator(0);
             var attempts = 0;
             while (attempts++ < 1000)
@@ -702,14 +769,14 @@ namespace PeanutButter.TempDb.MySql.Base
                 }
 
                 LogPortDiscoveryInfo($"Port {tryThis} looks to be unavailable. Seeking another...");
-                Thread.Sleep(rnd.Next(1, 50));
+                Thread.Sleep(RandomNumber.Next(1, 50));
                 tryThis = portGenerator(tryThis);
             }
 
             return tryThis;
         }
 
-        private int FindRandomOpenPort()
+        protected virtual int FindRandomOpenPort()
         {
             return FindPort(last => NextRandomPort());
         }
@@ -749,7 +816,7 @@ namespace PeanutButter.TempDb.MySql.Base
                 maxPort = swap;
             }
 
-            return _random.Next(minPort, maxPort);
+            return RandomNumber.Next(minPort, maxPort);
         }
 
         /// <summary>
@@ -771,6 +838,13 @@ namespace PeanutButter.TempDb.MySql.Base
             {
                 /* intentionally left blank */
             }
+        }
+    }
+
+    public class TryAnotherPortException : Exception
+    {
+        public TryAnotherPortException(string message) : base(message)
+        {
         }
     }
 }

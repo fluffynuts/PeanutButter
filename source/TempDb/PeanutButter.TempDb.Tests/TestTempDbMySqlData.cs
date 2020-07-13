@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -621,11 +622,72 @@ namespace PeanutButter.TempDb.Tests
             }
         }
 
+        [TestFixture]
+        public class HandlingPortConflicts
+        {
+            [Test]
+            public void ShouldReconfigurePortOnConflict_QuickStart()
+            {
+                // because sometimes a port is taken after it was tested for
+                // viability :/
+                // Arrange
+                // Act
+                using var db1 = new TempDbMySqlWithDeterministicPort();
+                using var db2 = new TempDbMySqlWithDeterministicPort();
+                using var conn1 = db1.OpenConnection();
+                using var conn2 = db2.OpenConnection();
+                // Assert
+                Expect(conn1.State)
+                    .To.Equal(ConnectionState.Open);
+                Expect(conn2.State)
+                    .To.Equal(ConnectionState.Open);
+                Expect(db1.Port)
+                    .Not.To.Equal(db2.Port);
+            }
+
+            [Test]
+            public void ShouldReconfigurePortOnConflict_SlowerStart()
+            {
+                // because sometimes a port is taken after it was tested for
+                // viability :/
+                // Arrange
+                // Act
+                using var db1 = new TempDbMySqlWithDeterministicPort();
+                // with a slower start, the conflict may be with an existing
+                // tempdb (or other) mysql instance, so the connect test
+                // will appear to work -- hence the `IsMyInstance` check too
+                // -> so we ensure that we can connect to the first instance
+                using var conn1 = db1.OpenConnection();
+                using var db2 = new TempDbMySqlWithDeterministicPort();
+                using var conn2 = db2.OpenConnection();
+                // Assert
+                Expect(conn1.State)
+                    .To.Equal(ConnectionState.Open);
+                Expect(conn2.State)
+                    .To.Equal(ConnectionState.Open);
+                Expect(db1.Port)
+                    .Not.To.Equal(db2.Port);
+            }
+
+            public class TempDbMySqlWithDeterministicPort : TempDBMySql
+            {
+                public const int STARTING_PORT = 21000;
+                private int _lastAttempt = 0;
+
+                protected override int FindRandomOpenPort()
+                {
+                    return _lastAttempt > 0
+                        ? (++_lastAttempt)
+                        : (_lastAttempt = STARTING_PORT);
+                }
+            }
+        }
+
         private static void Execute(
             ITempDB tempDb,
             string sql)
         {
-            using (var conn = tempDb.OpenConnection())
+            using var conn = tempDb.OpenConnection();
             using (var cmd = conn.CreateCommand())
             {
                 cmd.CommandText = sql;

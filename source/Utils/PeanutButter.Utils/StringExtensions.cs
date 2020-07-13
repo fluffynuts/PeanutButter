@@ -463,11 +463,6 @@ namespace PeanutButter.Utils
             return input.ToPascalCase().ToLowerCasedFirstLetter();
         }
 
-        private static Random _randomField;
-
-        private static Random Random =>
-            _randomField ?? (_randomField = new Random(DateTime.Now.Millisecond));
-
         /// <summary>
         /// Returns the input string in RaNdOMizEd case
         /// </summary>
@@ -504,7 +499,7 @@ namespace PeanutButter.Utils
                 input
                     .Select(c => c.ToString())
                     .Select(
-                        c => Random.NextDouble() < 0.5
+                        c => RandomNumber.NextDouble() < 0.5
                             ? c.ToLowerInvariant()
                             : c.ToUpperInvariant()
                     ));

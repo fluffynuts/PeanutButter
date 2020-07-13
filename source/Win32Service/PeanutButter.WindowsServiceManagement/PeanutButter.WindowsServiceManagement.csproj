@@ -33,6 +33,9 @@
     <Compile Include="..\..\Utils\PeanutButter.Utils\StringExtensions.cs">
       <Link>StringExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\..\Utils\PeanutButter.Utils\RandomNumber.cs">
+      <Link>RandomNumber.cs</Link>
+    </Compile>
     <Compile Include="..\..\Utils\PeanutButter.Utils\ByteArrayExtensions.cs">
       <Link>ByteArrayExtensions.cs</Link>
     </Compile>

@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using Imported.PeanutButter.Utils;
 
 // ReSharper disable VirtualMemberCallInConstructor
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -337,7 +338,7 @@ namespace PeanutButter.SimpleTcpServer
                         client.Connect(new IPEndPoint(IPAddress.Loopback, tryThis));
                     }
 
-                    Thread.Sleep(_random.Next(1, 50));
+                    Thread.Sleep(RandomNumber.Next(1, 50));
                     tryThis = NextRandomPort();
                 }
                 catch
