@@ -54,7 +54,7 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="collection">Source collection</param>
         /// <param name="otherCollection">Collection to compare with</param>
-        /// <typeparam name="T">Item tytpe of the collections</typeparam>
+        /// <typeparam name="T">Item type of the collections</typeparam>
         /// <returns>True if all values in the source collection are found in the target collection</returns>
         public static bool IsSameAs<T>(
             this IEnumerable<T> collection,

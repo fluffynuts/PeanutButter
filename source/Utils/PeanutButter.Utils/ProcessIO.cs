@@ -72,7 +72,11 @@ namespace PeanutButter.Utils
 
         private Process _process;
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Run the provided command, pipe output as it streams
+        /// </summary>
+        /// <param name="filename">app to run</param>
+        /// <param name="arguments">args for that app</param>
         public ProcessIO(string filename, params string[] arguments)
         {
             try
