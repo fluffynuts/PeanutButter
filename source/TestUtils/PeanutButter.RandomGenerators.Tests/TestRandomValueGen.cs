@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using GenericBuilderTestArtifactBuilders;
 using GenericBuilderTestArtifactEntities;
 using NExpect;
@@ -2113,15 +2114,26 @@ namespace PeanutButter.RandomGenerators.Tests
 
             //---------------Execute Test ----------------------
             var allResults = new List<string>();
+            var re = new Regex("^[A-Za-z0-9-]+$");
             RunCycles(
                 () =>
                 {
                     var result = GetRandomHostname();
+                    Expect(result)
+                        .Not.To.Be.Null
+                        .Or.Whitespace();
+                    Expect(result.Length)
+                        .To.Be.Less.Than(254);
                     Assert.IsNotNull(result);
                     var parts = result.Split('.');
-                    Assert.IsTrue(parts.All(p => p.Length > 0));
+                    Expect(parts)
+                        .To.Contain.All
+                        .Matched.By(s =>
+                            re.IsMatch(s) &&
+                            s.Length < 64
+                        );
                     allResults.Add(result);
-                });
+                }, 1024);
 
             //---------------Test Result -----------------------
             VarianceAssert.IsVariant(allResults);
@@ -2676,7 +2688,7 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
 
-        private static void RunCycles(Action toRun, int? cycles = 0)
+        private static void RunCycles(Action toRun, int? cycles = null)
         {
             cycles = cycles ?? NORMAL_RANDOM_TEST_CYCLES;
             for (var i = 0; i < NORMAL_RANDOM_TEST_CYCLES; i++)
@@ -2826,7 +2838,7 @@ namespace PeanutButter.RandomGenerators.Tests
     }
 
     [TestFixture]
-    public class WhenGivenLowerBoundOnly: TestBase
+    public class WhenGivenLowerBoundOnly : TestBase
     {
         [Test]
         [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
@@ -2855,7 +2867,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 .To.Be.Greater.Than
                 .Or.Equal.To(lowerBound);
         }
-        
+
         [Test]
         [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
         public void ShouldProduceDoubleWithinRange()
@@ -2869,7 +2881,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 .To.Be.Greater.Than
                 .Or.Equal.To(lowerBound);
         }
-        
+
         [Test]
         [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
         public void ShouldProduceDecimalWithinRange()
@@ -2883,7 +2895,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 .To.Be.Greater.Than
                 .Or.Equal.To(lowerBound);
         }
-        
+
         [Test]
         [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
         public void ShouldProduceFloatWithinRange()
