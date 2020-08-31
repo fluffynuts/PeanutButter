@@ -1,7 +1,7 @@
 <package>
   <metadata>
     <id>EmailSpooler.Win32Service.Entity</id>
-    <version>1.2.375</version>
+    <version>1.2.376</version>
     <title>EmailSpooler.Win32Service.Entity</title>
     <authors>davyd</authors>
     <owners></owners>
@@ -22,13 +22,13 @@
     <dependencies>
       <group targetFramework="net452">
         <dependency id="EntityFramework" version="6.1.3" />
-        <dependency id="PeanutButter.Utils.Entity" version="1.2.375" />
-        <dependency id="PeanutButter.Utils" version="1.2.375" />
+        <dependency id="PeanutButter.Utils.Entity" version="1.2.376" />
+        <dependency id="PeanutButter.Utils" version="1.2.376" />
       </group>
       <group targetFramework="net462">
         <dependency id="EntityFramework" version="6.1.3" />
-        <dependency id="PeanutButter.Utils.Entity" version="1.2.375" />
-        <dependency id="PeanutButter.Utils" version="1.2.375" />
+        <dependency id="PeanutButter.Utils.Entity" version="1.2.376" />
+        <dependency id="PeanutButter.Utils" version="1.2.376" />
       </group>
     </dependencies>
     <references></references>
