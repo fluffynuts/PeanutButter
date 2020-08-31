@@ -17,10 +17,11 @@ namespace PeanutButter.TempDb
     // ReSharper disable once InconsistentNaming
     public interface ITempDB : IDisposable
     {
+        EventHandler Disposed { get; set; }
         string DatabasePath { get; }
         string ConnectionString { get; }
 
-        [Obsolete("Please use OpenConnection")]
+        [Obsolete("Please use OpenConnection. CreateConnection will be removed in a future release.")]
         DbConnection CreateConnection();
 
         DbConnection OpenConnection();
@@ -31,6 +32,8 @@ namespace PeanutButter.TempDb
     public abstract class TempDB<TDatabaseConnection> : ITempDB where TDatabaseConnection : DbConnection
     {
         public uint DefaultTimeout { get; set; } = 30;
+        public EventHandler Disposed { get; set; }
+        public bool KeepTemporaryDatabaseArtifactsForDiagnostics { get; set; }
 
         /// <summary>
         /// Path to where the temporary database resides. May be a file
@@ -172,10 +175,17 @@ namespace PeanutButter.TempDb
             {
                 DisposeOfManagedConnections();
                 DeleteTemporaryDataArtifacts();
+                var handlers = Disposed;
+                try
+                {
+                    handlers.Invoke(this, new EventArgs());
+                }
+                catch
+                {
+                    // suppress
+                }
             }
         }
-
-        public bool KeepTemporaryDatabaseArtifactsForDiagnostics { get; set; }
 
         protected virtual void DeleteTemporaryDataArtifacts()
         {

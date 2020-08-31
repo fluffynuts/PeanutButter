@@ -180,7 +180,51 @@ namespace PeanutButter.TempDb.MySql.Base
             StartServer(MySqld);
             SetRootPassword();
             CreateInitialSchema();
+            SetUpAutoDisposeIfRequired();
         }
+
+        private void SetUpAutoDisposeIfRequired()
+        {
+            var timeout = Settings?.Options?.InactivityTimeout;
+            if (timeout is null)
+            {
+                return;
+            }
+            _timeout = timeout.Value;
+            _eol = DateTime.Now.Add(_timeout);
+            _inactivityWatcherThread = new Thread(CheckForInactivity);
+            _inactivityWatcherThread.Start();
+            _autoDisposeThread = null;
+        }
+
+        private void CheckForInactivity(object obj)
+        {
+            while (!_disposed)
+            {
+                try
+                {
+                    if (FetchCurrentConnectionCount() > 0)
+                    {
+                        _eol = DateTime.Now.Add(_timeout);
+                        return;
+                    }
+
+                    if (DateTime.Now >= _eol)
+                    {
+                        _autoDisposeThread = new Thread(Dispose);
+                        _autoDisposeThread.Start();
+                    }
+                }
+                catch
+                {
+                    // Suppress; this is a background thread; nothing we can really do about it anyway
+                }
+
+                Thread.Sleep(500);
+            }
+        }
+
+        protected abstract int FetchCurrentConnectionCount();
 
         private void RemoveDeprecatedOptions()
         {
@@ -313,6 +357,7 @@ namespace PeanutButter.TempDb.MySql.Base
                 using (new AutoLocker(_disposalLock))
                 {
                     _watcherThread.Join();
+                    _inactivityWatcherThread.Join();
                     AttemptGracefulShutdown();
                     EndServerProcess();
                     base.Dispose();
@@ -421,6 +466,10 @@ namespace PeanutButter.TempDb.MySql.Base
 
         private Thread _watcherThread;
         private readonly SemaphoreSlim _disposalLock = new SemaphoreSlim(1);
+        private Thread _inactivityWatcherThread;
+        private DateTime _eol;
+        private TimeSpan _timeout;
+        private Thread _autoDisposeThread;
 
         private void StartProcessWatcher()
         {

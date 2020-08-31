@@ -1151,6 +1151,20 @@ namespace PeanutButter.RandomGenerators
             int maxValues = DefaultRanges.MAX_ITEMS
         )
         {
+            if (minValues > maxValues)
+            {
+                if (maxValues == DefaultRanges.MAX_ITEMS)
+                {
+                    maxValues = minValues + DefaultRanges.MAX_ITEMS;
+                }
+                else
+                {
+                    var swap = minValues;
+                    minValues = maxValues;
+                    maxValues = swap;
+                }
+            }
+
             var howMany = GetRandomInt(minValues, maxValues);
             var result = new List<T>();
             for (var i = 0; i < howMany; i++)
@@ -1345,7 +1359,28 @@ namespace PeanutButter.RandomGenerators
         /// <returns>New string with at least two parts, separated by .</returns>
         public static string GetRandomHostname()
         {
-            return string.Join(".", GetRandomCollection<string>(2));
+            return GetRandomHostname(2);
+        }
+
+        /// <summary>
+        /// Gets a random hostname-like string
+        /// </summary>
+        /// <param name="minParts">minimum required parts</param>
+        /// <returns>new string with at least the required number of parts, max 5 parts</returns>
+        public static string GetRandomHostname(int minParts)
+        {
+            return GetRandomHostname(minParts, 5);
+        }
+
+        /// <summary>
+        /// Gets a random hostname-like string
+        /// </summary>
+        /// <param name="minParts">minimum required parts</param>
+        /// <param name="maxParts">maximum required parts</param>
+        /// <returns>new string within the required parts range</returns>
+        public static string GetRandomHostname(int minParts, int maxParts)
+        {
+            return string.Join(".", GetRandomCollection<string>(minParts, maxParts));
         }
 
         /// <summary>

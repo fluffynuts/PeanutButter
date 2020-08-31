@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
 using CommandLine;
 using PeanutButter.Utils;
@@ -18,6 +19,7 @@ namespace PeanutButter.TempDb.Runner
                         WriteLine($"Selected engine: {opts.Engine}");
                         running.Wait();
                         Instance = TempDbFactory.Create(opts);
+                        Instance.Disposed += HandleAutoDisposal;
                         WriteLine($"Connection string: {Instance.ConnectionString}");
                         _shell = WaitForStopCommand();
                         Instance = null;
@@ -41,6 +43,12 @@ namespace PeanutButter.TempDb.Runner
             return 0;
         }
 
+        private static void HandleAutoDisposal(object sender, EventArgs e)
+        {
+            Console.Write("Server process terminated due to inactivity");
+            Environment.Exit(1);
+        }
+
         private static void OnCancelKeyPress(object sender, ConsoleCancelEventArgs e)
         {
             ShutdownTempDbIfNecessary();
@@ -58,6 +66,8 @@ namespace PeanutButter.TempDb.Runner
                 return;
             }
 
+            // ReSharper disable once DelegateSubtraction
+            Instance.Disposed -= HandleAutoDisposal;
             Console.Write("Shutting down TempDb instance... ");
             Console.Out.Flush();
             DestroyInstance();

@@ -66,7 +66,7 @@ namespace PeanutButter.TempDb.MySql.Data
         )
         {
         }
-        
+
         /// <summary>
         /// Generates the connection string to use for clients
         /// wishing to connect to this temp instance
@@ -78,7 +78,9 @@ namespace PeanutButter.TempDb.MySql.Data
             {
                 Port = (uint) Port,
                 UserID = "root",
-                Password = RootPasswordSet ? Settings.Options.RootUserPassword : "",
+                Password = RootPasswordSet
+                    ? Settings.Options.RootUserPassword
+                    : "",
                 Server = "localhost",
                 AllowUserVariables = true,
                 SslMode = MySqlSslMode.None,
@@ -90,5 +92,22 @@ namespace PeanutButter.TempDb.MySql.Data
             return builder.ToString();
         }
 
+        /// <summary>
+        /// Fetches the current in-use connection count from
+        /// mysql.data pool stats via reflection
+        /// </summary>
+        /// <returns></returns>
+        protected override int FetchCurrentConnectionCount()
+        {
+            var stats = PoolStatsFetcher.GetPoolStatsViaReflection(
+                ConnectionString
+            );
+            return stats.TotalInUse;
+        }
+
+        private MySqlPoolStatsFetcher PoolStatsFetcher
+            => _poolStatsFetcher ??= new MySqlPoolStatsFetcher();
+
+        private MySqlPoolStatsFetcher _poolStatsFetcher;
     }
 }

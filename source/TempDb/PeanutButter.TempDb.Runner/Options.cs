@@ -29,6 +29,13 @@ namespace PeanutButter.TempDb.Runner
         )]
         public bool Verbose { get; set; }
 
+        [Option(
+            'i',
+            "idle-timeout-seconds",
+            HelpText =
+                "Set an idle timeout for engines which support it (currently: mysql). If no connections are detected within that sliding window then the server process is shut down.")]
+        public int? IdleTimeoutSeconds { get; set; }
+
         private string _engine;
 
         private void ValidateType(string type)

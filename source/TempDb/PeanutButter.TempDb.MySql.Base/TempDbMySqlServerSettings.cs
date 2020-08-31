@@ -94,8 +94,21 @@ namespace PeanutButter.TempDb.MySql.Base
             /// but there are stupid connectors which infer that
             /// a blank password means _no_ password :/
             /// </summary>
-            public const string DEFAULT_ROOT_PASSWORD = "root";
+            
+            /// <summary>
+            /// Use this as the root password; doesn't have to be secure for
+            /// testing purposes, but does have to pass any default mysql
+            /// password constraints for the service to start up
+            /// </summary>
             public string RootUserPassword { get; set; } = DEFAULT_ROOT_PASSWORD;
+            public const string DEFAULT_ROOT_PASSWORD = "root";
+            
+            /// <summary>
+            /// When set, will automatically shut down the service process if
+            /// still alive this long from after first properly started up and
+            /// no new connections have been made in that time via OpenConnection
+            /// </summary>
+            public TimeSpan? InactivityTimeout { get; set; }
         }
 
         /// <summary>

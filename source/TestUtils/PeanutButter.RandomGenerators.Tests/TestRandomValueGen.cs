@@ -2139,6 +2139,42 @@ namespace PeanutButter.RandomGenerators.Tests
             VarianceAssert.IsVariant(allResults);
         }
 
+        [Test]
+        public void GetRandomHostName_ShouldReturnAtLeastMinRequiredParts()
+        {
+            // Arrange
+            // Act
+            RunCycles(() =>
+            {
+                var min = GetRandomInt(3, 5);
+                var result = GetRandomHostname(min);
+                var parts = result.Split('.');
+                Expect(parts.Length)
+                    .To.Be.Greater.Than(min);
+            });
+            // Assert
+        }
+
+        [Test]
+        public void GetRandomHostName_ShouldReturnPartsWithinFullySpecifiedRange()
+        {
+            // Arrange
+            // Act
+            RunCycles(() =>
+            {
+                var min = GetRandomInt(4, 6);
+                var max = GetRandomInt(8, 12);
+                var result = GetRandomHostname();
+                var parts = result.Split('.');
+                Expect(parts.Length)
+                    .To.Be.Greater.Than.Or.Equal.To(min)
+                    .And
+                    .To.Be.Less.Than.Or.Equal.To(max);
+            });
+            // Assert
+        }
+
+        [Test]
         public void GetRandomVersionString_GivenNoParameters_ShouldReturnVersionWithThreeIntegerParts()
         {
             //---------------Set up test pack-------------------

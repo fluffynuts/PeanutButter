@@ -6,6 +6,7 @@
     <Configurations>Debug;Release;Debug-X</Configurations>
     <Platforms>AnyCPU</Platforms>
     <RootNamespace>PeanutButter.TempDb.MySql.Data</RootNamespace>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
     <DefineConstants>NETSTANDARD</DefineConstants>

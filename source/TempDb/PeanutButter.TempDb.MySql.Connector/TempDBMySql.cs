@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Linq;
+using System.Reflection;
 using MySql.Data.MySqlClient;
 using PeanutButter.TempDb.MySql.Base;
+using PeanutButter.Utils;
 
 // ReSharper disable UnusedMember.Global
 // ReSharper disable MemberCanBePrivate.Global
@@ -67,7 +70,7 @@ namespace PeanutButter.TempDb.MySql.Connector
         )
         {
         }
-        
+
         /// <summary>
         /// Generates the connection string to use for clients
         /// wishing to connect to this temp instance
@@ -79,7 +82,9 @@ namespace PeanutButter.TempDb.MySql.Connector
             {
                 Port = (uint) Port,
                 UserID = "root",
-                Password = RootPasswordSet ? Settings.Options.RootUserPassword : "",
+                Password = RootPasswordSet
+                    ? Settings.Options.RootUserPassword
+                    : "",
                 Server = "localhost",
                 AllowUserVariables = true,
                 SslMode = MySqlSslMode.None,
@@ -89,6 +94,64 @@ namespace PeanutButter.TempDb.MySql.Connector
                 AllowPublicKeyRetrieval = true
             };
             return builder.ToString();
+        }
+
+        protected override int FetchCurrentConnectionCount()
+        {
+            return MySqlPoolStatsFetcher.FetchSessionCountFor(
+                ConnectionString
+            );
+        }
+    }
+
+    /// <summary>
+    /// Fetches stats from the MySqlConnector pool using reflection
+    /// </summary>
+    public class MySqlPoolStatsFetcher
+    {
+        private static readonly Type[] MySqlConnectorTypes = typeof(MySqlConnection)
+            .GetAssembly()
+            .GetTypes();
+
+        private static readonly Type ConnectionPoolType =
+            MySqlConnectorTypes.Single(t => t.Name == "ConnectionPool");
+
+        private static readonly BindingFlags PrivateInstance =
+            BindingFlags.Instance | BindingFlags.NonPublic;
+
+        private static readonly FieldInfo LeasedSessionsField
+            = ConnectionPoolType.GetFields(PrivateInstance)
+                .Single(fi => fi.Name.ToLowerInvariant() == "m_leasedsessions");
+
+        private static readonly BindingFlags PublicStatic =
+            BindingFlags.Public | BindingFlags.Static;
+
+        private static MethodInfo GetPoolMethod =
+            ConnectionPoolType.GetMethods(PublicStatic)
+                .Single(mi =>
+                {
+                    if (mi.Name.ToLowerInvariant() != "getpool")
+                    {
+                        return false;
+                    }
+
+                    var parameters = mi.GetParameters();
+                    return parameters.Length == 1 &&
+                        parameters[0].ParameterType == typeof(string);
+                });
+
+        public static int FetchSessionCountFor(string connectionString)
+        {
+            var pool = GetPoolMethod.Invoke(null, new object[] { connectionString });
+            if (pool is null)
+            {
+                return 0;
+            }
+
+            var leasedSessionsValue = LeasedSessionsField.GetValue(pool);
+            return (int) leasedSessionsValue.GetType()
+                .GetProperty("Count")
+                .GetValue(leasedSessionsValue);
         }
     }
 }
