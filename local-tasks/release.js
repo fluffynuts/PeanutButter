@@ -57,7 +57,16 @@ function processPathsWith(getNugetArgsFor) {
         var args = getNugetArgsFor(pkgPath);
         if (args) {
           return () => {
-            return retry(() => exec(nuget, args), 10);
+            return retry(() => exec(nuget, args), 10, e => {
+              if (e && e.info) {
+                const errors = e.info.stderr.join("\n").trim();
+                if (errors.match(/: 409 \(/)) {
+                  console.warn(errors);
+                  return true;
+                }
+              }
+              return false;
+            });
           };
         } else {
           return () => Promise.reject(`Can't determine nuget args for ${pkgPath}`);
@@ -72,12 +81,16 @@ function processPathsWith(getNugetArgsFor) {
   return stream;
 }
 
-async function retry(func, times) {
+async function retry(func, times, considerFailureAsSuccess) {
   for (let i = 0; i < times; i++) {
     try {
       await func();
       return;
     } catch (e) {
+      if (considerFailureAsSuccess &&
+        considerFailureAsSuccess(e)) {
+        return;
+      }
       console.error(e);
       if (i < (times - 1)) {
         console.log("will retry in 1s");
