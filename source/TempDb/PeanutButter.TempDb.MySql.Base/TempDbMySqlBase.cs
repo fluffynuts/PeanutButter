@@ -536,7 +536,7 @@ values ('__tempdb_id__', '{InstanceId}', 'root');";
                 cmd.ExecuteNonQuery();
                 return true;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return false;
             }
