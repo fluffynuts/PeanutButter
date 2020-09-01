@@ -105,7 +105,7 @@ async function retry(func, times, considerFailureAsSuccess) {
 
 function pushNugetPackagesWithNugetExe(skipDuplicates) {
   return processPathsWith(function (filePath) {
-    var result = ["push", filePath, "-NonInteractive", "-Source", "https://www.nuget.org", "-Timeout", "30"];
+    var result = ["push", filePath, "-NonInteractive", "-Source", "https://www.nuget.org", "-Timeout", "300", "-SkipDuplicate"];
     if (skipDuplicates) {
       result.push("-SkipDuplicate");
     }
@@ -115,7 +115,7 @@ function pushNugetPackagesWithNugetExe(skipDuplicates) {
 
 function pushNugetPackagesWithDotNet(skipDuplicates) {
   return processPathsWith(filePath => {
-    var result = [ "nuget", "push", filePath, "--source", "https://www.nuget.org", "--timeout", "300" ];
+    var result = [ "nuget", "push", filePath, "--source", "https://www.nuget.org", "--timeout", "300", "--skip-duplicate" ];
     if (skipDuplicates) {
       result.push("--skip-duplicates");
     }
