@@ -12,31 +12,38 @@ namespace PeanutButter.Utils.Tests
         [Test]
         public void ShouldBeAbleToReadFromStdOut()
         {
+            if (!Platform.IsWindows)
+            {
+                Assert.Ignore("This test uses a win32 commandline for testing");
+                return;
+            }
+
             // Arrange
             // Act
-            using (var io = new ProcessIO("echo", "moo"))
-            {
-                var lines = io.StandardOutput.ToArray().Select(l => l.Trim());
-                // Assert
-                Expect(lines).To.Equal(new[] { "moo" });
-            }
+            using var io = new ProcessIO(
+                "cmd", "/c", "echo", "moo"
+            );
+            Expect(io.StartException)
+                .To.Be.Null();
+            var lines = io.StandardOutput.ToArray().Select(l => l.Trim());
+            // Assert
+            Expect(lines).To.Equal(new[] { "moo" });
         }
+
         [Test]
         public void ShouldBeAbleToReadFromStdErr()
         {
             // Arrange
-            using (var tempFolder = new AutoTempFolder())
-            {
-                var fileName = Path.Combine(tempFolder.Path, "test.bat");
-                File.WriteAllText(fileName, "echo moo 1>&2");
-                // Act
-                using (var io = new ProcessIO(fileName))
-                {
-                    var lines = io.StandardError.ToArray().Select(l => l.Trim());
-                    // Assert
-                    Expect(lines).To.Equal(new[] { "moo" });
-                }
-            }
+            using var tempFolder = new AutoTempFolder();
+            var fileName = Path.Combine(tempFolder.Path, "test.bat");
+            File.WriteAllText(fileName, "echo moo 1>&2");
+            // Act
+            using var io = new ProcessIO(fileName);
+            Expect(io.StartException)
+                .To.Be.Null();
+            var lines = io.StandardError.ToArray().Select(l => l.Trim());
+            // Assert
+            Expect(lines).To.Equal(new[] { "moo" });
         }
     }
 }

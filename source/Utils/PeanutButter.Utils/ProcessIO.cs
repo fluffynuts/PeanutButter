@@ -109,6 +109,11 @@ namespace PeanutButter.Utils
         {
             get
             {
+                if (Process is null)
+                {
+                    throw new InvalidOperationException($"Process has not started yet");
+                }
+
                 if (!Process.HasExited)
                 {
                     Process.WaitForExit();
