@@ -65,7 +65,6 @@ namespace PeanutButter.TempDb.MySql.Base
 
         protected string SchemaName;
         private AutoDeleter _autoDeleter;
-        private bool _disposed;
 
         /// <summary>
         /// Construct a TempDbMySql with zero or more creation scripts and default options
@@ -117,6 +116,7 @@ namespace PeanutButter.TempDb.MySql.Base
             Action<object> beforeInit,
             TempDbMySqlServerSettings settings)
         {
+            self.LogAction = settings?.Options?.LogAction;
             self._autoDeleter = new AutoDeleter();
             self.Settings = settings;
             beforeInit?.Invoke(self);
@@ -126,7 +126,7 @@ namespace PeanutButter.TempDb.MySql.Base
         {
             using (new AutoLocker(MysqldLock))
             {
-                return _mysqld ?? (_mysqld = QueryForMySqld());
+                return _mysqld ??= QueryForMySqld();
             }
         }
 
@@ -136,7 +136,6 @@ namespace PeanutButter.TempDb.MySql.Base
             var shouldFindInPath = Platform.IsUnixy || Settings.Options.ForceFindMySqlInPath;
             if (shouldFindInPath && !(mysqld is null))
             {
-                
                 return mysqld;
             }
 
@@ -166,14 +165,14 @@ namespace PeanutButter.TempDb.MySql.Base
             {
                 RemoveDeprecatedOptions();
             }
-            
+
             // mysql 5.7 wants an empty data base dir, so we have to use
             // a temp defaults file for init only, which 8 seems to be ok with
             using var tempDefaults = CreateTemporaryDefaultsFile();
             InitializeWith(MySqld, tempDefaults.Path);
             // var tempDefaultsPath = CreateTemporaryDefaultsFile();
             // InitializeWith(MySqld, tempDefaultsPath);
-            
+
             // now we need the real config file, sitting in the db dir
             DumpDefaultsFileAt(DatabasePath);
             Port = DeterminePortToUse();
@@ -186,45 +185,10 @@ namespace PeanutButter.TempDb.MySql.Base
         private void SetUpAutoDisposeIfRequired()
         {
             var timeout = Settings?.Options?.InactivityTimeout;
-            if (timeout is null)
-            {
-                return;
-            }
-            _timeout = timeout.Value;
-            _eol = DateTime.Now.Add(_timeout);
-            _inactivityWatcherThread = new Thread(CheckForInactivity);
-            _inactivityWatcherThread.Start();
-            _autoDisposeThread = null;
+            var absoluteLifespan = Settings?.Options?.AbsoluteLifespan;
+            SetupAutoDispose(absoluteLifespan, timeout);
         }
 
-        private void CheckForInactivity(object obj)
-        {
-            while (!_disposed)
-            {
-                try
-                {
-                    if (FetchCurrentConnectionCount() > 0)
-                    {
-                        _eol = DateTime.Now.Add(_timeout);
-                        return;
-                    }
-
-                    if (DateTime.Now >= _eol)
-                    {
-                        _autoDisposeThread = new Thread(Dispose);
-                        _autoDisposeThread.Start();
-                    }
-                }
-                catch
-                {
-                    // Suppress; this is a background thread; nothing we can really do about it anyway
-                }
-
-                Thread.Sleep(500);
-            }
-        }
-
-        protected abstract int FetchCurrentConnectionCount();
 
         private void RemoveDeprecatedOptions()
         {
@@ -353,17 +317,24 @@ namespace PeanutButter.TempDb.MySql.Base
         {
             try
             {
-                _disposed = true;
                 using (new AutoLocker(_disposalLock))
                 {
-                    _watcherThread.Join();
-                    _inactivityWatcherThread.Join();
-                    AttemptGracefulShutdown();
-                    EndServerProcess();
-                    base.Dispose();
-                    _autoDeleter?.Dispose();
-                    _autoDeleter = null;
+                    if (_disposed)
+                    {
+                        return;
+                    }
+
+                    _disposed = true;
                 }
+
+                _processWatcherThread?.Join();
+                _processWatcherThread = null;
+
+                AttemptGracefulShutdown();
+                EndServerProcess();
+                base.Dispose();
+                _autoDeleter?.Dispose();
+                _autoDeleter = null;
             }
             catch (Exception ex)
             {
@@ -464,18 +435,16 @@ namespace PeanutButter.TempDb.MySql.Base
                 ? Path.Combine(DatabasePath, "data") // mysql 8 wants a clean dir to init in
                 : DatabasePath;
 
-        private Thread _watcherThread;
+        private Thread _processWatcherThread;
         private readonly SemaphoreSlim _disposalLock = new SemaphoreSlim(1);
-        private Thread _inactivityWatcherThread;
-        private DateTime _eol;
-        private TimeSpan _timeout;
-        private Thread _autoDisposeThread;
 
         private void StartProcessWatcher()
         {
-            _watcherThread = new Thread(ObserveMySqlProcess);
-            _watcherThread.Start();
+            _processWatcherThread = new Thread(ObserveMySqlProcess);
+            _processWatcherThread.Start();
         }
+
+        private bool _disposed;
 
         private void ObserveMySqlProcess()
         {
@@ -488,32 +457,32 @@ namespace PeanutButter.TempDb.MySql.Base
                         // we're outta here
                         break;
                     }
+                }
 
-                    if (ServerProcessId == null)
-                    {
-                        // undefined state -- possibly never was started
-                        break;
-                    }
+                if (ServerProcessId == null)
+                {
+                    // undefined state -- possibly never was started
+                    break;
+                }
 
-                    bool shouldResurrect;
-                    try
-                    {
-                        var process = Process.GetProcessById(
-                            ServerProcessId.Value
-                        );
-                        shouldResurrect = process.HasExited;
-                    }
-                    catch
-                    {
-                        // unable to query the process
-                        shouldResurrect = true;
-                    }
+                bool shouldResurrect;
+                try
+                {
+                    var process = Process.GetProcessById(
+                        ServerProcessId.Value
+                    );
+                    shouldResurrect = process.HasExited;
+                }
+                catch
+                {
+                    // unable to query the process
+                    shouldResurrect = true;
+                }
 
-                    if (shouldResurrect)
-                    {
-                        Log($"{MySqld} seems to have gone away; restarting on port {Port}");
-                        StartServer(MySqld);
-                    }
+                if (shouldResurrect)
+                {
+                    Log($"{MySqld} seems to have gone away; restarting on port {Port}");
+                    StartServer(MySqld);
                 }
 
                 Thread.Sleep(PROCESS_POLL_INTERVAL);
@@ -595,7 +564,7 @@ values ('__tempdb_id__', '{InstanceId}', 'root');";
                     }\nstdout: {stdout}\nstderr: {stderr}"
             );
         }
-        
+
         private bool LooksLikePortConflict()
         {
             var logFile = Path.Combine(DatabasePath, "mysql-err.log");
@@ -621,7 +590,7 @@ values ('__tempdb_id__', '{InstanceId}', 'root');";
             try
             {
                 OpenConnection()?.Dispose();
-                
+
                 return true;
             }
             catch
@@ -866,27 +835,6 @@ values ('__tempdb_id__', '{InstanceId}', 'root');";
             }
 
             return RandomNumber.Next(minPort, maxPort);
-        }
-
-        /// <summary>
-        /// Provides a convenience logging mechanism which outputs via
-        /// the established LogAction
-        /// </summary>
-        /// <param name="message"></param>
-        /// <param name="parameters"></param>
-        protected void Log(string message, params object[] parameters)
-        {
-            var logAction = Settings?.Options?.LogAction;
-            if (logAction == null)
-                return;
-            try
-            {
-                logAction(string.Format(message, parameters));
-            }
-            catch
-            {
-                /* intentionally left blank */
-            }
         }
     }
 

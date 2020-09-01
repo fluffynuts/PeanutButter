@@ -23,7 +23,12 @@ namespace PeanutButter.TempDb.Runner
         private static ITempDB Generate<T>(Options opts)
             where T : ITempDB, new()
         {
-            return new T();
+            var result = new T();
+            result.SetupAutoDispose(
+                TimeSpanFromSeconds(opts.AbsoluteTimeoutSeconds),
+                TimeSpanFromSeconds(opts.IdleTimeoutSeconds)
+            );
+            return result;
         }
 
         private static ITempDB GenerateTempDbMySql(Options opts)
@@ -33,16 +38,22 @@ namespace PeanutButter.TempDb.Runner
                 {
                     Options =
                     {
-                        LogAction = opts.Verbose 
+                        LogAction = opts.Verbose
                             ? s => Console.WriteLine($"debug: {s}")
                             : null as Action<string>,
-                        InactivityTimeout = opts.IdleTimeoutSeconds.HasValue
-                            ? TimeSpan.FromSeconds(opts.IdleTimeoutSeconds.Value)
-                            : null as TimeSpan?
+                        InactivityTimeout = TimeSpanFromSeconds(opts.IdleTimeoutSeconds),
+                        AbsoluteLifespan = TimeSpanFromSeconds(opts.AbsoluteTimeoutSeconds)
                     }
                 }
             );
             return result;
+        }
+
+        private static TimeSpan? TimeSpanFromSeconds(int? seconds)
+        {
+            return seconds.HasValue
+                ? TimeSpan.FromSeconds(seconds.Value)
+                : null as TimeSpan?;
         }
 
         public static ITempDB Create(Options opts)

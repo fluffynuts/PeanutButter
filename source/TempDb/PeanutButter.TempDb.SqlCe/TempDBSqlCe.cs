@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.SqlServerCe;
+
 // ReSharper disable InconsistentNaming
 
 namespace PeanutButter.TempDb.SqlCe
@@ -15,6 +16,13 @@ namespace PeanutButter.TempDb.SqlCe
         {
             throw new NotImplementedException(
                 "DumpSchema not yet implemented for LocalDb. Open a Pull Request!"
+            );
+        }
+
+        protected override int FetchCurrentConnectionCount()
+        {
+            throw new NotImplementedException(
+                "Inactivity monitoring for SQLCE not yet implemented"
             );
         }
 

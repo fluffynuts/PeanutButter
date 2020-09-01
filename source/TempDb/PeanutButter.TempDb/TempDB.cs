@@ -14,25 +14,90 @@ using PeanutButter.Utils;
 
 namespace PeanutButter.TempDb
 {
+    public class TempDbDisposedEventArgs
+    {
+        public string Reason { get; }
+        public bool WasAutomatic { get; }
+        public TimeSpan? InactivityTimeout { get; }
+        public TimeSpan? AbsoluteLifespan { get; }
+
+        public TempDbDisposedEventArgs(
+            string reason,
+            bool wasAutomatic,
+            TimeSpan? inactivityTimeout,
+            TimeSpan? absoluteLifespan)
+        {
+            Reason = reason;
+            WasAutomatic = wasAutomatic;
+            InactivityTimeout = inactivityTimeout;
+            AbsoluteLifespan = absoluteLifespan;
+        }
+    }
+
+    public delegate void TempDbDisposedEventHandler(object sender, TempDbDisposedEventArgs args);
+
     // ReSharper disable once InconsistentNaming
     public interface ITempDB : IDisposable
     {
-        EventHandler Disposed { get; set; }
+        /// <summary>
+        /// Fired when the instance is disposed. Useful if you've set up automatic
+        /// disposal and would like to act on that.
+        /// </summary>
+        TempDbDisposedEventHandler Disposed { get; set; }
+
+        /// <summary>
+        /// Path to the database. For single-file databases, this will be a file
+        /// path. For multi-file databases like MySql, this will be a folder containing
+        /// all the files for that database.
+        /// </summary>
         string DatabasePath { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         string ConnectionString { get; }
 
         [Obsolete("Please use OpenConnection. CreateConnection will be removed in a future release.")]
         DbConnection CreateConnection();
 
+        /// <summary>
+        /// Opens a new connection to the TempDb instance with the connection string
+        /// automatically set based on the current running parameters
+        /// </summary>
+        /// <returns></returns>
         DbConnection OpenConnection();
 
+        /// <summary>
+        /// (Where supported) dumps the current schema of the running database
+        /// Currently only supported on mysql, when mysqldump is available
+        /// </summary>
+        /// <returns></returns>
         string DumpSchema();
+
+        /// <summary>
+        /// Set up automatic disposal of this TempDb instance (may only be done once per instance)
+        /// </summary>
+        /// <param name="absoluteTimeout">Absolute timeout after which this instance is automatically disposed irrespective of ongoing connections</param>
+        /// <exception cref="InvalidOperationException">Will be thrown if this method is invoked more than once per instance</exception>
+        void SetupAutoDispose(
+            TimeSpan absoluteTimeout
+        );
+
+        /// <summary>
+        /// Set up automatic disposal of this TempDb instance (may only be done once per instance)
+        /// </summary>
+        /// <param name="inactivityTimeout">Inactivity timeout (only supported on mysql so far)</param>
+        /// <param name="absoluteTimeout">Absolute timeout after which this instance is automatically disposed irrespective of ongoing connections</param>
+        /// <exception cref="InvalidOperationException">Will be thrown if this method is invoked more than once per instance</exception>
+        void SetupAutoDispose(
+            TimeSpan? absoluteTimeout,
+            TimeSpan? inactivityTimeout);
     }
 
     public abstract class TempDB<TDatabaseConnection> : ITempDB where TDatabaseConnection : DbConnection
     {
         public uint DefaultTimeout { get; set; } = 30;
-        public EventHandler Disposed { get; set; }
+        public TempDbDisposedEventHandler Disposed { get; set; }
         public bool KeepTemporaryDatabaseArtifactsForDiagnostics { get; set; }
 
         /// <summary>
@@ -46,6 +111,8 @@ namespace PeanutButter.TempDb
         // ReSharper disable once StaticMemberInGenericType
         private static readonly Semaphore _lock = new Semaphore(1, 1);
         private readonly List<DbConnection> _managedConnections = new List<DbConnection>();
+
+        public Action<string> LogAction { get; set; }
 
         public TempDB(params string[] creationScripts)
         {
@@ -93,6 +160,147 @@ namespace PeanutButter.TempDb
             }
 
             RunScripts(creationScripts);
+        }
+
+        protected abstract int FetchCurrentConnectionCount();
+
+        public void SetupAutoDispose(
+            TimeSpan absoluteTimeout
+        )
+        {
+            SetupAutoDispose(absoluteTimeout, null);
+        }
+
+        public void SetupAutoDispose(
+            TimeSpan? absoluteTimeout,
+            TimeSpan? inactivityTimeout)
+        {
+            if (!(_inactivityWatcherThread is null))
+            {
+                throw new InvalidOperationException(
+                    $"Automatic disposal has already been set up for this TempDb instance"
+                );
+            }
+
+            switch (inactivityTimeout)
+            {
+                case null when absoluteTimeout is null:
+                    return;
+                case null:
+                    inactivityTimeout = absoluteTimeout.Value;
+                    break;
+            }
+
+            _timeout = inactivityTimeout.Value;
+            _eol = DateTime.Now.Add(_timeout);
+            if (absoluteTimeout.HasValue)
+            {
+                _absoluteEol = DateTime.Now.Add(absoluteTimeout.Value);
+                _absoluteLifespan = absoluteTimeout.Value;
+            }
+            else
+            {
+                _absoluteEol = DateTime.MaxValue;
+            }
+
+            _inactivityWatcherThread = new Thread(CheckForInactivity);
+            _inactivityWatcherThread.Start();
+            _autoDisposeThread = null;
+        }
+
+        protected void CheckForInactivity(object obj)
+        {
+            while (!_disposed)
+            {
+                try
+                {
+                    var connectionCount = TryFetchCurrentConnectionCount();
+                    var now = DateTime.Now;
+                    if (connectionCount != 0)
+                    {
+                        _eol = now.Add(_timeout);
+                    }
+
+                    var eolExceeded = now > _eol;
+                    var absoluteLifespanExceeded = now > _absoluteEol;
+
+                    if (eolExceeded || absoluteLifespanExceeded)
+                    {
+                        var message = absoluteLifespanExceeded
+                            ? $"absolute lifespan of {_absoluteLifespan} exceeded; shutting down"
+                            : $"inactivity timeout of {_timeout} exceeded; shutting down";
+                        Log(message);
+
+                        _autoDisposeInformation = new TempDbDisposedEventArgs(
+                            message,
+                            true,
+                            _timeout,
+                            _absoluteLifespan
+                        );
+                        _autoDisposeThread = new Thread(Dispose);
+                        _autoDisposeThread.Start();
+                        return;
+                    }
+                }
+                catch
+                {
+                    // Suppress; this is a background thread; nothing we can really do about it anyway
+                }
+
+                Thread.Sleep(100);
+            }
+        }
+
+        /// <summary>
+        /// Provides a convenience logging mechanism which outputs via
+        /// the established LogAction
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="parameters"></param>
+        protected void Log(string message, params object[] parameters)
+        {
+            var logAction = LogAction;
+            if (logAction == null)
+                return;
+            try
+            {
+                logAction(string.Format(message, parameters));
+            }
+            catch
+            {
+                /* intentionally left blank */
+            }
+        }
+
+        private Thread _inactivityWatcherThread;
+        private DateTime _eol;
+        private TimeSpan _timeout;
+        private Thread _autoDisposeThread;
+        private DateTime _absoluteEol;
+        private TimeSpan _absoluteLifespan;
+        private bool _haveReportedIdleTimeoutNotSupported;
+
+        private int TryFetchCurrentConnectionCount()
+        {
+            try
+            {
+                return FetchCurrentConnectionCount();
+            }
+            catch (Exception ex)
+            {
+                if (ex is NotImplementedException && 
+                    !_haveReportedIdleTimeoutNotSupported)
+                {
+                    _haveReportedIdleTimeoutNotSupported = true;
+                    Log(ex.Message);
+                }
+                else
+                {
+                    Log($"Error whilst trying to retrieve active database connection count: {ex.Message}\n{ex.StackTrace}");
+                }
+
+                return -1;
+            }
         }
 
         private void AttemptToCreateDatabaseWith(string basePath)
@@ -169,23 +377,44 @@ namespace PeanutButter.TempDb
             }
         }
 
+        private readonly object _disposeLock = new object();
+
         public virtual void Dispose()
         {
-            lock (this)
+            lock (_disposeLock)
             {
-                DisposeOfManagedConnections();
-                DeleteTemporaryDataArtifacts();
-                var handlers = Disposed;
-                try
+                if (_disposed)
                 {
-                    handlers.Invoke(this, new EventArgs());
+                    return;
                 }
-                catch
-                {
-                    // suppress
-                }
+
+                _disposed = true;
+            }
+
+            _inactivityWatcherThread?.Join();
+            _inactivityWatcherThread = null;
+
+            DisposeOfManagedConnections();
+            DeleteTemporaryDataArtifacts();
+            var handlers = Disposed;
+            try
+            {
+                handlers.Invoke(this, _autoDisposeInformation ??
+                    new TempDbDisposedEventArgs(
+                        "TempDb instance was disposed",
+                        false,
+                        _timeout,
+                        _absoluteLifespan
+                    ));
+            }
+            catch
+            {
+                // suppress
             }
         }
+
+        private bool _disposed;
+        private TempDbDisposedEventArgs _autoDisposeInformation;
 
         protected virtual void DeleteTemporaryDataArtifacts()
         {

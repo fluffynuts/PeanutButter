@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.ServiceProcess;
@@ -299,7 +300,7 @@ namespace PeanutButter.TempDb.Tests
             // -> perhaps the creator is TempDb.Runner and the caller
             // of that dies before it can dispose!
             [Test]
-            public void ShouldAutomaticallyDisposeAfterMaxLifetimeHasExpired()
+            public void ShouldAutomaticallyDisposeAfterInactivityTimeoutHasExpired()
             {
                 // Arrange
                 using var db = Create(inactivityTimeout: TimeSpan.FromSeconds(2));
@@ -310,7 +311,15 @@ namespace PeanutButter.TempDb.Tests
                 {
                     using var conn = db.OpenConnection();
                 }).Not.To.Throw();
-                Thread.Sleep(3000);
+                if (Debugger.IsAttached)
+                {
+                    Thread.Sleep(300000);
+                }
+                else
+                {
+                    Thread.Sleep(3000);
+                }
+
                 Expect(() =>
                     {
                         using var conn = db.OpenConnection();
@@ -329,6 +338,81 @@ namespace PeanutButter.TempDb.Tests
                 Expect(disposed)
                     .To.Be.True();
             }
+
+            [Test]
+            public void ConnectionUseShouldExtendLifetime()
+            {
+                // Arrange
+                using var db = Create(inactivityTimeout: TimeSpan.FromSeconds(1));
+                var disposed = false;
+                db.Disposed += (o, e) => disposed = true;
+                // Act
+                for (var i = 0; i < 5; i++)
+                {
+                    Expect(() =>
+                    {
+                        using var conn = db.OpenConnection();
+                        Thread.Sleep(500);
+                    }).Not.To.Throw();
+                }
+
+                Thread.Sleep(2000);
+
+                Expect(() =>
+                    {
+                        using var conn = db.OpenConnection();
+                    }).To.Throw()
+                    .With.Property(e => new
+                    {
+                        Type = e.GetType().Name,
+                        IsConnectionError = e.Message.ToLowerInvariant().Contains("unable to connect")
+                    }).Deep.Equal.To(
+                        new
+                        {
+                            Type = "MySqlException",
+                            IsConnectionError = true
+                        });
+                // Assert
+                Expect(disposed)
+                    .To.Be.True();
+            }
+
+            [Test]
+            [Timeout(30000)]
+            public void AbsoluteLifespanShouldOverrideConnectionActivity()
+            {
+                // Arrange
+                using var db = Create(
+                    inactivityTimeout: TimeSpan.FromSeconds(1),
+                    absoluteLifespan: TimeSpan.FromSeconds(3)
+                );
+                var connections = 0;
+                // Act
+                Expect(() =>
+                    {
+                        while (true)
+                        {
+                            using var conn = db.OpenConnection();
+                            connections++;
+                            Thread.Sleep(300);
+                        }
+
+                        // ReSharper disable once FunctionNeverReturns
+                    }).To.Throw()
+                    .With.Property(e => new
+                    {
+                        Type = e.GetType().Name,
+                        IsConnectionError = e.Message.ToLowerInvariant().Contains("unable to connect")
+                    }).Deep.Equal.To(
+                        new
+                        {
+                            Type = "MySqlException",
+                            IsConnectionError = true
+                        });
+                // Assert
+                Expect(connections)
+                    .To.Be.Greater.Than(3);
+            }
         }
 
         [Test]
@@ -342,7 +426,6 @@ namespace PeanutButter.TempDb.Tests
                 .To.Equal(0);
             using (var outer = db.OpenConnection())
             {
-                count = MySqlPoolStatsFetcher.FetchSessionCountFor(db.ConnectionString);
                 using (var inner = db.OpenConnection())
                 {
                     count = MySqlPoolStatsFetcher.FetchSessionCountFor(db.ConnectionString);
@@ -392,7 +475,8 @@ namespace PeanutButter.TempDb.Tests
         private static TempDBMySql Create(
             string pathToMySql = null,
             bool forcePathSearch = false,
-            TimeSpan? inactivityTimeout = null)
+            TimeSpan? inactivityTimeout = null,
+            TimeSpan? absoluteLifespan = null)
         {
             return new TempDBMySql(
                 new TempDbMySqlServerSettings()
@@ -401,7 +485,8 @@ namespace PeanutButter.TempDb.Tests
                     {
                         PathToMySqlD = pathToMySql,
                         ForceFindMySqlInPath = true,
-                        InactivityTimeout = inactivityTimeout
+                        InactivityTimeout = inactivityTimeout,
+                        AbsoluteLifespan = absoluteLifespan
                     }
                 });
         }

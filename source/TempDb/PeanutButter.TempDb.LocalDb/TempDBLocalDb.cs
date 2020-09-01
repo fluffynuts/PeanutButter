@@ -113,6 +113,13 @@ namespace PeanutButter.TempDb.LocalDb
             );
         }
 
+        protected override int FetchCurrentConnectionCount()
+        {
+            throw new NotImplementedException(
+                "Inactivity monitoring for LocalDb not yet implemented"
+            );
+        }
+
         protected override string GenerateConnectionString()
         {
             var builder = new SqlConnectionStringBuilder()

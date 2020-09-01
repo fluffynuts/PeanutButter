@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.SQLite;
+
 // ReSharper disable InconsistentNaming
 
 namespace PeanutButter.TempDb.Sqlite
@@ -26,6 +27,13 @@ namespace PeanutButter.TempDb.Sqlite
         {
             throw new NotImplementedException(
                 "DumpSchema not yet implemented for LocalDb. Open a Pull Request!"
+            );
+        }
+
+        protected override int FetchCurrentConnectionCount()
+        {
+            throw new NotImplementedException(
+                "Inactivity monitoring for Sqlite not yet implemented"
             );
         }
 

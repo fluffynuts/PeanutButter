@@ -106,9 +106,14 @@ namespace PeanutButter.TempDb.MySql.Base
             /// <summary>
             /// When set, will automatically shut down the service process if
             /// still alive this long from after first properly started up and
-            /// no new connections have been made in that time via OpenConnection
+            /// no new connections have been made in that time.
             /// </summary>
             public TimeSpan? InactivityTimeout { get; set; }
+
+            /// <summary>
+            /// When set, sets an absolute lifespan for this temp db process
+            /// </summary>
+            public TimeSpan? AbsoluteLifespan { get; set; }
         }
 
         /// <summary>

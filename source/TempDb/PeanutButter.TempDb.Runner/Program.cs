@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Threading;
 using CommandLine;
 using PeanutButter.Utils;
@@ -43,9 +42,15 @@ namespace PeanutButter.TempDb.Runner
             return 0;
         }
 
-        private static void HandleAutoDisposal(object sender, EventArgs e)
+        private static void HandleAutoDisposal(
+            object sender,
+            TempDbDisposedEventArgs args)
         {
-            Console.Write("Server process terminated due to inactivity");
+            if (args.WasAutomatic)
+            {
+                Console.Write(args.Reason);
+            }
+
             Environment.Exit(1);
         }
 
@@ -74,8 +79,9 @@ namespace PeanutButter.TempDb.Runner
             Console.Write("done.");
         }
 
-        
+
         private static readonly object DestroyLock = new object();
+
         public static void DestroyInstance()
         {
             lock (DestroyLock)

@@ -65,34 +65,32 @@ namespace PeanutButter.TempDb.Tests
                 var expectedName = GetRandomAlphaNumericString(5);
                 // Pre-Assert
                 // Act
-                using (var db = Create(mysqld))
+                using var db = Create(mysqld);
+                var util = new MySqlConnectionStringUtil(db.ConnectionString);
+                Expect(util.Database).Not.To.Be.Null.Or.Empty();
+                using (var connection = db.OpenConnection())
+                using (var command = connection.CreateCommand())
                 {
-                    var util = new MySqlConnectionStringUtil(db.ConnectionString);
-                    Expect(util.Database).Not.To.Be.Null.Or.Empty();
-                    using (var connection = db.OpenConnection())
-                    using (var command = connection.CreateCommand())
+                    command.CommandText = new[]
                     {
-                        command.CommandText = new[]
-                        {
-                            "create table cows (id int, name varchar(128));",
-                            $"insert into cows (id, name) values ({expectedId}, '{expectedName}');"
-                        }.JoinWith("\n");
-                        command.ExecuteNonQuery();
-                    }
+                        "create table cows (id int, name varchar(128));",
+                        $"insert into cows (id, name) values ({expectedId}, '{expectedName}');"
+                    }.JoinWith("\n");
+                    command.ExecuteNonQuery();
+                }
 
-                    using (var connection = db.OpenConnection())
-                    using (var command = connection.CreateCommand())
+                using (var connection = db.OpenConnection())
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "select id, name from cows;";
+                    using (var reader = command.ExecuteReader())
                     {
-                        command.CommandText = "select id, name from cows;";
-                        using (var reader = command.ExecuteReader())
-                        {
-                            Expect(reader.HasRows).To.Be.True();
-                            Expect(reader.Read()).To.Be.True();
-                            Expect(reader["id"]).To.Equal(expectedId);
-                            Expect(reader["name"]).To.Equal(expectedName);
-                            Expect(reader.Read()).To.Be.False();
-                            // Assert
-                        }
+                        Expect(reader.HasRows).To.Be.True();
+                        Expect(reader.Read()).To.Be.True();
+                        Expect(reader["id"]).To.Equal(expectedId);
+                        Expect(reader["name"]).To.Equal(expectedName);
+                        Expect(reader.Read()).To.Be.False();
+                        // Assert
                     }
                 }
             }
@@ -102,19 +100,17 @@ namespace PeanutButter.TempDb.Tests
             public void ShouldBeAbleToSwitch(
                 string mysqld)
             {
-                using (var sut = Create(mysqld))
-                {
-                    // Arrange
-                    var expected = GetRandomAlphaString(5, 10);
-                    // Pre-assert
-                    var builder = new MySqlConnectionStringUtil(sut.ConnectionString);
-                    Expect(builder.Database).To.Equal("tempdb");
-                    // Act
-                    sut.SwitchToSchema(expected);
-                    // Assert
-                    builder = new MySqlConnectionStringUtil(sut.ConnectionString);
-                    Expect(builder.Database).To.Equal(expected);
-                }
+                using var sut = Create(mysqld);
+                // Arrange
+                var expected = GetRandomAlphaString(5, 10);
+                // Pre-assert
+                var builder = new MySqlConnectionStringUtil(sut.ConnectionString);
+                Expect(builder.Database).To.Equal("tempdb");
+                // Act
+                sut.SwitchToSchema(expected);
+                // Assert
+                builder = new MySqlConnectionStringUtil(sut.ConnectionString);
+                Expect(builder.Database).To.Equal(expected);
             }
 
             [Test]
@@ -229,7 +225,7 @@ namespace PeanutButter.TempDb.Tests
                 // Arrange
                 Expect(() =>
                 {
-                    using (var db = Create())
+                    using var db = Create();
                     using (db.OpenConnection())
                     {
                         // Act
@@ -292,7 +288,7 @@ namespace PeanutButter.TempDb.Tests
                 // Arrange
                 Expect(() =>
                 {
-                    using (var db = Create())
+                    using var db = Create();
                     using (db.OpenConnection())
                     {
                         // Act
@@ -372,18 +368,16 @@ namespace PeanutButter.TempDb.Tests
                 {
                     try
                     {
-                        using (var conn2 = db.OpenConnection())
-                        using (var cmd2 = conn2.CreateCommand())
+                        using var conn2 = db.OpenConnection();
+                        using var cmd2 = conn2.CreateCommand();
+                        cmd2.CommandText = "select * from moo_cakes.cows;";
+                        using (var reader = cmd2.ExecuteReader())
                         {
-                            cmd2.CommandText = "select * from moo_cakes.cows;";
-                            using (var reader = cmd2.ExecuteReader())
-                            {
-                                Expect(reader.Read())
-                                    .To.Be.True();
-                            }
-
-                            reconnected = true;
+                            Expect(reader.Read())
+                                .To.Be.True();
                         }
+
+                        reconnected = true;
                     }
                     catch
                     {
@@ -530,14 +524,12 @@ namespace PeanutButter.TempDb.Tests
                 {
                     try
                     {
-                        using (var client = new TcpClient())
-                        {
-                            client.Connect(new IPEndPoint(
-                                IPAddress.Loopback,
-                                port + 1
-                            ));
-                            return true;
-                        }
+                        using var client = new TcpClient();
+                        client.Connect(new IPEndPoint(
+                            IPAddress.Loopback,
+                            port + 1
+                        ));
+                        return true;
                     }
                     catch
                     {
@@ -700,6 +692,81 @@ namespace PeanutButter.TempDb.Tests
                         });
                 // Assert
             }
+            
+            [Test]
+            public void ConnectionUseShouldExtendLifetime()
+            {
+                // Arrange
+                using var db = Create(inactivityTimeout: TimeSpan.FromSeconds(1));
+                var disposed = false;
+                db.Disposed += (o, e) => disposed = true;
+                // Act
+                for (var i = 0; i < 5; i++)
+                {
+                    Expect(() =>
+                    {
+                        using var conn = db.OpenConnection();
+                        Thread.Sleep(500);
+                    }).Not.To.Throw();
+                }
+
+                Thread.Sleep(2000);
+
+                Expect(() =>
+                    {
+                        using var conn = db.OpenConnection();
+                    }).To.Throw()
+                    .With.Property(e => new
+                    {
+                        Type = e.GetType().Name,
+                        IsConnectionError = e.Message.ToLowerInvariant().Contains("unable to connect")
+                    }).Deep.Equal.To(
+                        new
+                        {
+                            Type = "MySqlException",
+                            IsConnectionError = true
+                        });
+                // Assert
+                Expect(disposed)
+                    .To.Be.True();
+            }
+
+            [Test]
+            [Timeout(30000)]
+            public void AbsoluteLifespanShouldOverrideConnectionActivity()
+            {
+                // Arrange
+                using var db = Create(
+                    inactivityTimeout: TimeSpan.FromSeconds(1),
+                    absoluteLifespan: TimeSpan.FromSeconds(3)
+                );
+                var connections = 0;
+                // Act
+                Expect(() =>
+                    {
+                        while (true)
+                        {
+                            using var conn = db.OpenConnection();
+                            connections++;
+                            Thread.Sleep(300);
+                        }
+
+                        // ReSharper disable once FunctionNeverReturns
+                    }).To.Throw()
+                    .With.Property(e => new
+                    {
+                        Type = e.GetType().Name,
+                        IsConnectionError = e.Message.ToLowerInvariant().Contains("unable to connect")
+                    }).Deep.Equal.To(
+                        new
+                        {
+                            Type = "MySqlException",
+                            IsConnectionError = true
+                        });
+                // Assert
+                Expect(connections)
+                    .To.Be.Greater.Than(3);
+            }
         }
 
         private static void Execute(
@@ -735,7 +802,8 @@ namespace PeanutButter.TempDb.Tests
 
         private static TempDBMySql Create(
             string pathToMySql = null,
-            TimeSpan? inactivityTimeout = null)
+            TimeSpan? inactivityTimeout = null,
+            TimeSpan? absoluteLifespan = null)
         {
             return new TempDBMySql(
                 new TempDbMySqlServerSettings()
@@ -745,7 +813,8 @@ namespace PeanutButter.TempDb.Tests
                         PathToMySqlD = pathToMySql,
                         ForceFindMySqlInPath = true,
                         LogAction = Console.WriteLine,
-                        InactivityTimeout = inactivityTimeout
+                        InactivityTimeout = inactivityTimeout,
+                        AbsoluteLifespan = absoluteLifespan
                     }
                 });
         }
