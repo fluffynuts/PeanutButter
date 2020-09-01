@@ -9,6 +9,9 @@ using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
+using static PeanutButter.RandomGenerators.RandomValueGen;
+using NExpect;
+using static NExpect.Expectations;
 
 namespace PeanutButter.ServiceShell.Tests
 {
@@ -17,16 +20,20 @@ namespace PeanutButter.ServiceShell.Tests
     {
         [TestCase("Install", typeof(bool), 'i', "install", "Install this service")]
         [TestCase("Uninstall", typeof(bool), 'u', "uninstall", "Uninstall this service")]
-        [TestCase("RunOnce", typeof(bool), 'r', "runonce", "Run one round of this service's code and exit")]
+        [TestCase("RunOnce", typeof(bool), 'r', "run-once", "Run one round of this service's code and exit")]
         [TestCase("Wait", typeof(int), 'w', "wait", "Wait this many seconds before actually doing the round of work")]
         [TestCase("ShowHelp", typeof(bool), 'h', "help", "Show this help")]
         [TestCase("ShowVersion", typeof(bool), 'v', "version", "Show the version of this service")]
         [TestCase("StartService", typeof(bool), 's', "start", "Start service")]
         [TestCase("StopService", typeof(bool), 'x', "stop", "Stop service")]
-        public void Type_ShouldHaveOptionPropertyWith_(string propertyName, Type propertyType, char shortName, string longName, string helpText)
+        public void Type_ShouldHaveOptionPropertyWith_(string propertyName,
+            Type propertyType,
+            char shortName,
+            string longName,
+            string helpText)
         {
             //---------------Set up test pack-------------------
-            var sut = typeof (CommandlineOptions);
+            var sut = typeof(CommandlineOptions);
 
             //---------------Assert Precondition----------------
 
@@ -34,22 +41,30 @@ namespace PeanutButter.ServiceShell.Tests
             var propInfo = sut.FindPropertyInfoForPath(propertyName, s => Assert.Fail(s));
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(propertyType, propInfo.PropertyType);
+            Expect(propInfo.PropertyType)
+                .To.Be(propertyType, () => $"unexpected property type for '{propertyName}'");
             var optionAttribute = propInfo.GetCustomAttributes<OptionAttribute>().Single();
-            Assert.AreEqual(shortName, optionAttribute.ShortName);
-            Assert.AreEqual(longName, optionAttribute.LongName);
-            Assert.AreEqual(helpText, optionAttribute.HelpText);
+            Expect(optionAttribute.ShortName)
+                .To.Equal(shortName);
+            Expect(optionAttribute.LongName)
+                .To.Equal(longName);
+            Expect(optionAttribute.HelpText)
+                .To.Equal(helpText);
         }
 
         [TestCase('i', "install", "Install this service")]
         [TestCase('u', "uninstall", "Uninstall this service")]
-        [TestCase('r', "runonce", "Run one round of this service's code and exit")]
-        [TestCase('w', "wait", "Wait this many seconds before actually doing.*")]   // this text is wrapped for console purposes
+        [TestCase('r', "run-once", "Run one round of this service's code and exit")]
+        [TestCase('w', "wait",
+            "Wait this many seconds before actually doing.*")] // this text is wrapped for console purposes
         [TestCase('h', "help", "Show this help")]
         [TestCase('v', "version", "Show the version of this service")]
         [TestCase('s', "start", "Start service")]
         [TestCase('x', "stop", "Stop service")]
-        public void Given_HelpArgument_ShouldPrintHelp(char shortName, string longName, string helpText)
+        public void Given_HelpArgument_ShouldPrintHelp(
+            char shortName,
+            string longName,
+            string helpText)
         {
             //---------------Set up test pack-------------------
             var heading = RandomValueGen.GetRandomString();
@@ -64,20 +79,36 @@ namespace PeanutButter.ServiceShell.Tests
 
             //---------------Test Result -----------------------
             var finalResult = string.Join("\n", result);
-            var lines = finalResult.Split(new[] {"\n", "\r"}, StringSplitOptions.RemoveEmptyEntries);
+            var lines = finalResult.Split(new[] { "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
             var re = new Regex("-" + shortName + ",\\s.*--" + longName + "\\s.*" + helpText);
-            Assert.IsTrue(lines.Any(l => re.IsMatch(l)));
+            Expect(lines)
+                .To.Contain.Exactly(1)
+                .Matched.By(s => re.IsMatch(s),
+                    () => $@"no match for help line containing ""-{
+                            shortName
+                        }"", ""--{
+                            longName
+                        }"" and ""{
+                            helpText
+                        }""\n\nFull text was:{
+                            finalResult
+                        }"
+                );
         }
 
         [TestCase('i', "install", "Install this service")]
         [TestCase('u', "uninstall", "Uninstall this service")]
-        [TestCase('r', "runonce", "Run one round of this service's code and exit")]
-        [TestCase('w', "wait", "Wait this many seconds before actually doing.*")]   // this text is wrapped for console purposes
+        [TestCase('r', "run-once", "Run one round of this service's code and exit")]
+        [TestCase('w', "wait",
+            "Wait this many seconds before actually doing.*")] // this text is wrapped for console purposes
         [TestCase('h', "help", "Show this help")]
         [TestCase('v', "version", "Show the version of this service")]
         [TestCase('s', "start", "Start service")]
         [TestCase('x', "stop", "Stop service")]
-        public void Given_InvalidArgument_ShouldPrintHelp(char shortName, string longName, string helpText)
+        public void Given_InvalidArgument_ShouldPrintHelp(
+            char shortName,
+            string longName,
+            string helpText)
         {
             //---------------Set up test pack-------------------
             var heading = RandomValueGen.GetRandomString();
@@ -93,9 +124,21 @@ namespace PeanutButter.ServiceShell.Tests
             //---------------Test Result -----------------------
             Assert.AreEqual(CommandlineOptions.ExitCodes.ShowedHelp, sut.ExitCode);
             var finalResult = string.Join("\n", result);
-            var lines = finalResult.Split(new[] {"\n", "\r"}, StringSplitOptions.RemoveEmptyEntries);
+            var lines = finalResult.Split(new[] { "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
             var re = new Regex("-" + shortName + ",\\s.*--" + longName + "\\s.*" + helpText);
-            Assert.IsTrue(lines.Any(l => re.IsMatch(l)));
+            Expect(lines)
+                .To.Contain.Exactly(1)
+                .Matched.By(s => re.IsMatch(s),
+                    () => $@"no match for help line containing ""-{
+                            shortName
+                        }"", ""--{
+                            longName
+                        }"" and ""{
+                            helpText
+                        }""\n\nFull text was:{
+                            finalResult
+                        }"
+                );
         }
 
         [Test]
@@ -111,7 +154,9 @@ namespace PeanutButter.ServiceShell.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var sut = Create(args, heading, copyRight, s => { }, parser);
+            var sut = Create(args, heading, copyRight, s =>
+            {
+            }, parser);
 
             //---------------Test Result -----------------------
             parser.Received().ParseArguments(args, sut);
@@ -125,20 +170,23 @@ namespace PeanutButter.ServiceShell.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var sut = new CommandlineOptions(new[] {"-h"}, RandomValueGen.GetRandomString(), RandomValueGen.GetRandomString());
+            var sut = new CommandlineOptions(new[] { "-h" }, RandomValueGen.GetRandomString(),
+                RandomValueGen.GetRandomString());
 
             //---------------Test Result -----------------------
             var actual = sut.OptionsParser.GetPropertyValue("Actual");
             Assert.AreEqual(actual, Parser.Default);
         }
 
-        private CommandlineOptions Create(string[] args, string helpHeading, string copyRightInformation,
-                                            Action<string> helpWriter = null,
-                                            IParser parser = null)
+        private CommandlineOptions Create(string[] args,
+            string helpHeading,
+            string copyRightInformation,
+            Action<string> helpWriter = null,
+            IParser parser = null)
         {
             return new CommandlineOptions(args, helpHeading, copyRightInformation,
-                                            helpWriter ?? Console.WriteLine,
-                                            parser ?? new ParserFacade(Parser.Default));
+                helpWriter ?? Console.WriteLine,
+                parser ?? new ParserFacade(Parser.Default));
         }
     }
 }

@@ -46,11 +46,12 @@ namespace PeanutButter.TempDb.Runner
             object sender,
             TempDbDisposedEventArgs args)
         {
-            if (args.WasAutomatic)
+            if (!args.WasAutomatic)
             {
-                Console.Write(args.Reason);
+                return;
             }
 
+            Console.Write(args.Reason);
             Environment.Exit(1);
         }
 

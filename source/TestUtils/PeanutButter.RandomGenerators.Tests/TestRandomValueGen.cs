@@ -29,6 +29,7 @@ namespace PeanutButter.RandomGenerators.Tests
     {
         [TestCase(1, 100)]
         [TestCase(101, 250)]
+        [TestCase(4, 10)]
         public void GetRandomInt_GivenRangeOfIntegers_ReturnsRandomIntWithinRange(int min, int max)
         {
             //---------------Set up test pack-------------------
@@ -2150,7 +2151,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 var result = GetRandomHostname(min);
                 var parts = result.Split('.');
                 Expect(parts.Length)
-                    .To.Be.Greater.Than(min);
+                    .To.Be.Greater.Than.Or.Equal.To(min);
             });
             // Assert
         }
@@ -2164,7 +2165,7 @@ namespace PeanutButter.RandomGenerators.Tests
             {
                 var min = GetRandomInt(4, 6);
                 var max = GetRandomInt(8, 12);
-                var result = GetRandomHostname();
+                var result = GetRandomHostname(min, max);
                 var parts = result.Split('.');
                 Expect(parts.Length)
                     .To.Be.Greater.Than.Or.Equal.To(min)

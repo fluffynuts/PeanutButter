@@ -39,12 +39,10 @@ namespace PeanutButter.TempDb.Runner.Tests
                 .Skip(1)
                 .JoinWith(":")
                 .Trim();
-            using (var connection = new MySqlConnection(connectionString))
-            {
-                // Assert
-                Expect(() => connection.Open())
-                    .Not.To.Throw();
-            }
+            using var connection = new MySqlConnection(connectionString);
+            // Assert
+            Expect(() => connection.Open())
+                .Not.To.Throw();
         }
 
         [TestFixture]

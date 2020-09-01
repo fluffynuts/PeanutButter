@@ -1380,7 +1380,11 @@ namespace PeanutButter.RandomGenerators
         /// <returns>new string within the required parts range</returns>
         public static string GetRandomHostname(int minParts, int maxParts)
         {
-            return string.Join(".", GetRandomCollection<string>(minParts, maxParts));
+            return string.Join(".", GetRandomCollection(
+                () => GetRandomString(1),
+                minParts,
+                maxParts
+            ));
         }
 
         /// <summary>
