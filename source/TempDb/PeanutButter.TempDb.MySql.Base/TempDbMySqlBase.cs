@@ -27,7 +27,20 @@ namespace PeanutButter.TempDb.MySql.Base
     public abstract class TempDBMySqlBase<T> : TempDB<T> where T : DbConnection
     {
         // ReSharper disable once StaticMemberInGenericType
-        public static int MaxSecondsToWaitForMySqlToStart = 15;
+        public const int DEFAULT_STARTUP_MAX_WAIT_SECONDS = 30;
+        public static int MaxSecondsToWaitForMySqlToStart => 
+            DetermineMaxSecondsToWaitForMySqlToStart();
+
+        private static int DetermineMaxSecondsToWaitForMySqlToStart()
+        {
+            var env = Environment.GetEnvironmentVariable("MYSQL_MAX_STARTUP_TIME_IN_SECONDS");
+            if (env is null || !int.TryParse(env, out var value))
+            {
+                return DEFAULT_STARTUP_MAX_WAIT_SECONDS;
+            }
+            return value;
+        }
+
         public const int PROCESS_POLL_INTERVAL = 100;
 
         /// <summary>
