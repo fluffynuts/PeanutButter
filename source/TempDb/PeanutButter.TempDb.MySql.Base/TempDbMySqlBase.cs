@@ -392,19 +392,17 @@ namespace PeanutButter.TempDb.MySql.Base
                 try
                 {
                     SwitchToSchema("mysql");
-                    using (var connection = OpenConnection())
-                    using (var command = connection.CreateCommand())
+                    using var connection = OpenConnection();
+                    using var command = connection.CreateCommand();
+                    // this is only available from mysql 5.7.9 onward (https://dev.mysql.com/doc/refman/5.7/en/shutdown.html)
+                    command.CommandText = "SHUTDOWN";
+                    try
                     {
-                        // this is only available from mysql 5.7.9 onward (https://dev.mysql.com/doc/refman/5.7/en/shutdown.html)
-                        command.CommandText = "SHUTDOWN";
-                        try
-                        {
-                            command.ExecuteNonQuery();
-                        }
-                        catch
-                        {
-                            /* ignore */
-                        }
+                        command.ExecuteNonQuery();
+                    }
+                    catch
+                    {
+                        /* ignore */
                     }
                 }
                 catch (Exception ex)
