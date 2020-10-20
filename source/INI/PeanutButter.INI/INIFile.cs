@@ -540,6 +540,7 @@ namespace PeanutButter.INIFile
                     dictionary
                         .Keys
                         .Select(key => LineFor(section, key)));
+                lines.Add("-----");
             }
 
             return lines;

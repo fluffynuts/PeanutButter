@@ -790,6 +790,8 @@ otherSetting=otherValue";
                 sut.AddSection("general");
                 sut["general"]["foo"] = "bar";
 
+                sut.AddSection("general2");
+                sut["general2"]["foo2"] = "bar2";
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
