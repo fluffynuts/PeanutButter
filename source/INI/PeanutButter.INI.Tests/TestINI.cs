@@ -1244,6 +1244,35 @@ foo=bar
         }
 
         [TestFixture]
+        public class Renaming
+        {
+            [Test]
+            public void ShouldReturnOnNonExistentSection()
+            {
+                var sut = Create();
+                var section = GetRandomString(4);
+
+                // Assert
+                Expect(sut).Not.To.Have.Section(section);
+            }
+
+            [Test]
+            public void ShouldRenameSection()
+            {
+                var sut = Create();
+                var section = GetRandomString(4);
+                var newSection = GetRandomString(5);
+                sut.AddSection(section);
+                sut.SetValue(section, GetRandomString(2), GetRandomString(2));
+                sut.RenameSection(section, newSection);
+
+                // Assert
+                Expect(sut).Not.To.Have.Section(section);
+                Expect(sut).To.Have.Section(newSection);
+            }
+        }
+
+        [TestFixture]
         public class Reloading
         {
             [Test]
