@@ -975,6 +975,46 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
+        /// Truncates a decimal value to a required number of places
+        /// </summary>
+        /// <param name="value">Source decimal value</param>
+        /// <param name="places">Number of decimal places required</param>
+        /// <returns>A new decimal value which is the original value truncated to the required places</returns>
+        public static double TruncateTo(this double value, int places)
+        {
+            var mul = Math.Pow(10, places);
+            return Math.Truncate(value * mul) / mul;
+        }
+
+        /// <summary>
+        /// Provides a similar api to Javascript's
+        /// .toFixed(), except returning a useful decimal!
+        /// Note: this is different from .TruncateTo since that will
+        /// truncate the value, whereas this will round
+        /// </summary>
+        /// <param name="value">Source decimal value</param>
+        /// <param name="places">Number of decimal places required</param>
+        /// <returns></returns>
+        public static decimal ToFixed(this decimal value, int places)
+        {
+            return Math.Round(value, places, MidpointRounding.AwayFromZero);
+        }
+
+        /// <summary>
+        /// Provides a similar api to Javascript's
+        /// .toFixed(), except returning a useful double!
+        /// Note: this is different from .TruncateTo since that will
+        /// truncate the value, whereas this will round
+        /// </summary>
+        /// <param name="value">Source double value</param>
+        /// <param name="places">Number of double places required</param>
+        /// <returns></returns>
+        public static double ToFixed(this double value, int places)
+        {
+            return Math.Round(value, places, MidpointRounding.AwayFromZero);
+        }
+
+        /// <summary>
         /// Attempts to convert any object to an IEnumerable&lt;T&gt;
         /// - existing IEnumerables will "just work"
         /// - where possible, types are cast or converted

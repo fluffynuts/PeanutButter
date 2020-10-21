@@ -2193,6 +2193,138 @@ namespace PeanutButter.Utils.Tests
             }
         }
 
+        [TestFixture]
+        public class TruncateTo
+        {
+            [TestFixture]
+            public class OperatingOnDecimal
+            {
+                [Test]
+                public void ShouldTruncateToRequestedPlaces()
+                {
+                    // Arrange
+                    var value = 1.234M;
+                    var expected = 1.23M;
+                    // Act
+                    var result = value.TruncateTo(2);
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+
+                [Test]
+                public void ShouldNotRound()
+                {
+                    // Arrange
+                    var value = 1.555M;
+                    var expected = 1.55M;
+                    
+                    // Act
+                    var result = value.TruncateTo(2);
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
+            
+            [TestFixture]
+            public class OperatingOnDouble
+            {
+                [Test]
+                public void ShouldTruncateToRequestedPlaces()
+                {
+                    // Arrange
+                    var value = 1.234D;
+                    var expected = 1.23D;
+                    // Act
+                    var result = value.TruncateTo(2);
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+
+                [Test]
+                public void ShouldNotRound()
+                {
+                    // Arrange
+                    var value = 1.555D;
+                    var expected = 1.55D;
+                    
+                    // Act
+                    var result = value.TruncateTo(2);
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
+        }
+
+        [TestFixture]
+        public class ToFixed
+        {
+            [TestFixture]
+            public class OperatingOnDecimal
+            {
+                [Test]
+                public void ShouldRoundDownAsRequired()
+                {
+                    // Arrange
+                    var value = 1.234M;
+                    var expected = 1.23M;
+                    // Act
+                    var result = value.ToFixed(2);
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+
+                [Test]
+                public void ShouldRoundUpAsRequired()
+                {
+                    // Arrange
+                    var value = 1.555M;
+                    var expected = 1.56M;
+                    
+                    // Act
+                    var result = value.ToFixed(2);
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
+            
+            [TestFixture]
+            public class OperatingOnDouble
+            {
+                [Test]
+                public void ShouldRoundDownAsRequired()
+                {
+                    // Arrange
+                    var value = 1.234D;
+                    var expected = 1.23D;
+                    // Act
+                    var result = value.ToFixed(2);
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+
+                [Test]
+                public void ShouldRoundUpAsRequired()
+                {
+                    // Arrange
+                    var value = 1.555D;
+                    var expected = 1.56D;
+                    
+                    // Act
+                    var result = value.ToFixed(2);
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
+        }
+
         public class Complex<T>
         {
             public Simple<T> prop { get; set; }
