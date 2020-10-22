@@ -862,7 +862,6 @@ otherSetting=otherValue";
             [Test]
             public void GivenKnownSectionAndKey_ReturnsValue()
             {
-                //---------------Set up test pack-------------------
                 var section = RandString();
                 var key = RandString();
                 var value = RandString();
@@ -1263,12 +1262,15 @@ foo=bar
                 var section = GetRandomString(4);
                 var newSection = GetRandomString(5);
                 sut.AddSection(section);
-                sut.SetValue(section, GetRandomString(2), GetRandomString(2));
+                var key = GetRandomString(2);
+                var value = GetRandomString(2);
+                sut.SetValue(section, key, value);
                 sut.RenameSection(section, newSection);
 
                 // Assert
                 Expect(sut).Not.To.Have.Section(section);
                 Expect(sut).To.Have.Section(newSection);
+                Expect(sut[newSection][key]).To.Equal(value);
             }
         }
 
