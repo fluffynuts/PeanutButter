@@ -84,6 +84,15 @@ namespace PeanutButter.INIFile
         void RemoveSection(string section);
 
         /// <summary>
+        /// Rename a section
+        /// </summary>
+        /// <param name="existingName">Name of the existing section</param>
+        /// <param name="newName">New name of the section that is to be renamed</param>
+
+        void RenameSection(string existingName, string newName);
+
+
+        /// <summary>
         /// Merges in the ini config from the provided file path
         /// - ignores paths which don't exist
         /// </summary>
@@ -435,6 +444,25 @@ namespace PeanutButter.INIFile
             if (section == null)
                 return;
             Data.Remove(section);
+        }
+
+        public void RenameSection(string existingName, string newName)
+        {
+            if (existingName == null || newName == null)
+                return;
+
+            if (existingName == newName)
+                return;
+
+            Data[newName] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+            var oldSection = Data[existingName];
+            foreach (var keyValuePair in oldSection)
+            {
+                Data[newName].Add(keyValuePair.Key, keyValuePair.Value);
+            }
+
+            Data.Remove(existingName);
         }
 
         public void Merge(string iniPath, MergeStrategies mergeStrategy)
