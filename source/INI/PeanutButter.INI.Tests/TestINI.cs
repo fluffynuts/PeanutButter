@@ -44,26 +44,24 @@ namespace PeanutButter.INI.Tests
             public void GivenFileName_ShouldLoadFile()
             {
                 //---------------Set up test pack-------------------
-                using (var tempFile = new AutoDeletingIniFile())
-                {
-                    var section = RandString();
-                    var key = RandString();
-                    var value = RandString();
-                    var iniDataLines = new[] { "[" + section + "]", key + "=" + value };
-                    tempFile.Write(iniDataLines);
+                using var tempFile = new AutoDeletingIniFile();
+                var section = RandString();
+                var key = RandString();
+                var value = RandString();
+                var iniDataLines = new[] { "[" + section + "]", key + "=" + value };
+                tempFile.Write(iniDataLines);
 
-                    //---------------Assert Precondition----------------
-                    Expect(tempFile.Path).To.Be.A.File();
+                //---------------Assert Precondition----------------
+                FileSystemMatchers.File(Expect(tempFile.Path).To.Be.A);
 
-                    //---------------Execute Test ----------------------
-                    var sut = Create(tempFile.Path) as INIFile_EXPOSES_Sections;
+                //---------------Execute Test ----------------------
+                var sut = Create(tempFile.Path) as INIFile_EXPOSES_Sections;
 
-                    //---------------Test Result -----------------------
-                    Expect(sut.Data).Not.To.Be.Null();
-                    Expect(sut.Data).To.Contain.Key(section);
-                    Expect(sut.Data[section]).To.Contain.Key(key)
-                        .With.Value(value);
-                }
+                //---------------Test Result -----------------------
+                Expect(sut.Data).Not.To.Be.Null();
+                Expect(sut.Data).To.Contain.Key(section);
+                Expect(sut.Data[section]).To.Contain.Key(key)
+                    .With.Value(value);
             }
 
             [TestFixture]
@@ -73,15 +71,13 @@ namespace PeanutButter.INI.Tests
                 public void AfterLoadingFile_ShouldBePathToFile()
                 {
                     // Arrange
-                    using (var tempFile = new AutoDeletingIniFile())
-                    {
-                        // Pre-assert
-                        var sut = Create(tempFile.Path);
-                        // Act
-                        var result = sut.Path;
-                        // Assert
-                        Expect(result).To.Equal(tempFile.Path);
-                    }
+                    using var tempFile = new AutoDeletingIniFile();
+                    // Pre-assert
+                    var sut = Create(tempFile.Path);
+                    // Act
+                    var result = sut.Path;
+                    // Assert
+                    Expect(result).To.Equal(tempFile.Path);
                 }
 
                 [Test]
@@ -100,16 +96,14 @@ namespace PeanutButter.INI.Tests
                 public void AfterLoad_ShouldBeLoadedPath()
                 {
                     // Arrange
-                    using (var tempFile = new AutoDeletingIniFile())
-                    {
-                        var sut = new INIFile.INIFile();
-                        // Pre-assert
-                        Expect(sut.Path).To.Be.Null();
-                        // Act
-                        sut.Load(tempFile.Path);
-                        // Assert
-                        Expect(sut.Path).To.Equal(tempFile.Path);
-                    }
+                    using var tempFile = new AutoDeletingIniFile();
+                    var sut = new INIFile.INIFile();
+                    // Pre-assert
+                    Expect(sut.Path).To.Be.Null();
+                    // Act
+                    sut.Load(tempFile.Path);
+                    // Assert
+                    Expect(sut.Path).To.Equal(tempFile.Path);
                 }
             }
 
@@ -120,21 +114,19 @@ namespace PeanutButter.INI.Tests
                 public void GivenInvalidPath_ShouldDoNothing()
                 {
                     // Arrange
-                    using (var original = new AutoDeletingIniFile())
-                    using (var mergeFile = new AutoDeletingIniFile())
-                    {
-                        var section = GetRandomString(2);
-                        var setting = GetRandomString(2);
-                        var value = GetRandomString(2);
-                        var sut = Create(original.Path);
-                        sut.SetValue(section, setting, value);
-                        File.Delete(mergeFile.Path);
-                        // Pre-assert
-                        Expect(mergeFile.Path).Not.To.Be.A.File();
-                        // Act
-                        sut.Merge(mergeFile.Path, MergeStrategies.AddIfMissing);
-                        // Assert
-                    }
+                    using var original = new AutoDeletingIniFile();
+                    using var mergeFile = new AutoDeletingIniFile();
+                    var section = GetRandomString(2);
+                    var setting = GetRandomString(2);
+                    var value = GetRandomString(2);
+                    var sut = Create(original.Path);
+                    sut.SetValue(section, setting, value);
+                    File.Delete(mergeFile.Path);
+                    // Pre-assert
+                    FileSystemMatchers.File(Expect(mergeFile.Path).Not.To.Be.A);
+                    // Act
+                    sut.Merge(mergeFile.Path, MergeStrategies.AddIfMissing);
+                    // Assert
                 }
 
                 [TestFixture]
@@ -155,29 +147,27 @@ namespace PeanutButter.INI.Tests
                         var originalSharedValue = $"original-shared-value-{GetRandomString(4)}";
                         var mergedSharedValue = $"merged-shared-value-{GetRandomString(4)}";
 
-                        using (var original = new AutoDeletingIniFile())
-                        using (var merge = new AutoDeletingIniFile())
-                        {
-                            var sut = Create(original.Path);
-                            var other = Create(merge.Path);
-                            sut.SetValue(section1, setting1, value1);
-                            sut.SetValue(sharedSection, sharedSetting, originalSharedValue);
-                            other.SetValue(section2, setting2, value2);
-                            other.SetValue(sharedSection, sharedSetting, mergedSharedValue);
-                            other.Persist();
-                            // Pre-assert
+                        using var original = new AutoDeletingIniFile();
+                        using var merge = new AutoDeletingIniFile();
+                        var sut = Create(original.Path);
+                        var other = Create(merge.Path);
+                        sut.SetValue(section1, setting1, value1);
+                        sut.SetValue(sharedSection, sharedSetting, originalSharedValue);
+                        other.SetValue(section2, setting2, value2);
+                        other.SetValue(sharedSection, sharedSetting, mergedSharedValue);
+                        other.Persist();
+                        // Pre-assert
 
-                            // Act
-                            sut.Merge(merge.Path, MergeStrategies.AddIfMissing);
+                        // Act
+                        sut.Merge(merge.Path, MergeStrategies.AddIfMissing);
 
-                            // Assert
-                            Expect(sut.GetValue(section1, setting1))
-                                .To.Equal(value1, "Missing original setting");
-                            Expect(sut.GetValue(section2, setting2))
-                                .To.Equal(value2, "Missing distinct merged-in setting");
-                            Expect(sut.GetValue(sharedSection, sharedSetting))
-                                .To.Equal(originalSharedValue, "Should have original shared setting");
-                        }
+                        // Assert
+                        Expect(sut.GetValue(section1, setting1))
+                            .To.Equal(value1, "Missing original setting");
+                        Expect(sut.GetValue(section2, setting2))
+                            .To.Equal(value2, "Missing distinct merged-in setting");
+                        Expect(sut.GetValue(sharedSection, sharedSetting))
+                            .To.Equal(originalSharedValue, "Should have original shared setting");
                     }
 
                     [Test]
@@ -195,29 +185,27 @@ namespace PeanutButter.INI.Tests
                         var originalSharedValue = $"original-shared-value-{GetRandomString(4)}";
                         var mergedSharedValue = $"merged-shared-value-{GetRandomString(4)}";
 
-                        using (var original = new AutoDeletingIniFile())
-                        using (var merge = new AutoDeletingIniFile())
-                        {
-                            var sut = Create(original.Path);
-                            var other = Create(merge.Path);
-                            sut.SetValue(section1, setting1, value1);
-                            sut.SetValue(sharedSection, sharedSetting, originalSharedValue);
-                            other.SetValue(section2, setting2, value2);
-                            other.SetValue(sharedSection, sharedSetting, mergedSharedValue);
-                            other.Persist();
-                            // Pre-assert
+                        using var original = new AutoDeletingIniFile();
+                        using var merge = new AutoDeletingIniFile();
+                        var sut = Create(original.Path);
+                        var other = Create(merge.Path);
+                        sut.SetValue(section1, setting1, value1);
+                        sut.SetValue(sharedSection, sharedSetting, originalSharedValue);
+                        other.SetValue(section2, setting2, value2);
+                        other.SetValue(sharedSection, sharedSetting, mergedSharedValue);
+                        other.Persist();
+                        // Pre-assert
 
-                            // Act
-                            sut.Merge(merge.Path, MergeStrategies.Override);
+                        // Act
+                        sut.Merge(merge.Path, MergeStrategies.Override);
 
-                            // Assert
-                            Expect(sut.GetValue(section1, setting1))
-                                .To.Equal(value1, "Missing original setting");
-                            Expect(sut.GetValue(section2, setting2))
-                                .To.Equal(value2, "Missing distinct merged-in setting");
-                            Expect(sut.GetValue(sharedSection, sharedSetting))
-                                .To.Equal(mergedSharedValue, "Should have original shared setting");
-                        }
+                        // Assert
+                        Expect(sut.GetValue(section1, setting1))
+                            .To.Equal(value1, "Missing original setting");
+                        Expect(sut.GetValue(section2, setting2))
+                            .To.Equal(value2, "Missing distinct merged-in setting");
+                        Expect(sut.GetValue(sharedSection, sharedSetting))
+                            .To.Equal(mergedSharedValue, "Should have original shared setting");
                     }
                 }
 
@@ -239,29 +227,27 @@ namespace PeanutButter.INI.Tests
                         var originalSharedValue = $"original-shared-value-{GetRandomString(4)}";
                         var mergedSharedValue = $"merged-shared-value-{GetRandomString(4)}";
 
-                        using (var original = new AutoDeletingIniFile())
-                        using (var merge = new AutoDeletingIniFile())
-                        {
-                            var sut = Create(original.Path);
-                            var other = Create(merge.Path);
-                            sut[section1][setting1] = value1;
-                            sut[sharedSection][sharedSetting] = originalSharedValue;
-                            other[section2][setting2] = value2;
-                            other[sharedSection][sharedSetting] = mergedSharedValue;
-                            other.Persist();
-                            // Pre-assert
+                        using var original = new AutoDeletingIniFile();
+                        using var merge = new AutoDeletingIniFile();
+                        var sut = Create(original.Path);
+                        var other = Create(merge.Path);
+                        sut[section1][setting1] = value1;
+                        sut[sharedSection][sharedSetting] = originalSharedValue;
+                        other[section2][setting2] = value2;
+                        other[sharedSection][sharedSetting] = mergedSharedValue;
+                        other.Persist();
+                        // Pre-assert
 
-                            // Act
-                            sut.Merge(merge.Path, MergeStrategies.AddIfMissing);
+                        // Act
+                        sut.Merge(merge.Path, MergeStrategies.AddIfMissing);
 
-                            // Assert
-                            Expect(sut[section1][setting1])
-                                .To.Equal(value1, "Missing original setting");
-                            Expect(sut[section2][setting2])
-                                .To.Equal(value2, "Missing distinct merged-in setting");
-                            Expect(sut[sharedSection][sharedSetting])
-                                .To.Equal(originalSharedValue, "Should have original shared setting");
-                        }
+                        // Assert
+                        Expect(sut[section1][setting1])
+                            .To.Equal(value1, "Missing original setting");
+                        Expect(sut[section2][setting2])
+                            .To.Equal(value2, "Missing distinct merged-in setting");
+                        Expect(sut[sharedSection][sharedSetting])
+                            .To.Equal(originalSharedValue, "Should have original shared setting");
                     }
 
                     [Test]
@@ -279,29 +265,27 @@ namespace PeanutButter.INI.Tests
                         var originalSharedValue = $"original-shared-value-{GetRandomString(4)}";
                         var mergedSharedValue = $"merged-shared-value-{GetRandomString(4)}";
 
-                        using (var original = new AutoDeletingIniFile())
-                        using (var merge = new AutoDeletingIniFile())
-                        {
-                            var sut = Create(original.Path);
-                            var other = Create(merge.Path);
-                            sut[section1][setting1] = value1;
-                            sut[sharedSection][sharedSetting] = originalSharedValue;
-                            other[section2][setting2] = value2;
-                            other[sharedSection][sharedSetting] = mergedSharedValue;
-                            other.Persist();
-                            // Pre-assert
+                        using var original = new AutoDeletingIniFile();
+                        using var merge = new AutoDeletingIniFile();
+                        var sut = Create(original.Path);
+                        var other = Create(merge.Path);
+                        sut[section1][setting1] = value1;
+                        sut[sharedSection][sharedSetting] = originalSharedValue;
+                        other[section2][setting2] = value2;
+                        other[sharedSection][sharedSetting] = mergedSharedValue;
+                        other.Persist();
+                        // Pre-assert
 
-                            // Act
-                            sut.Merge(merge.Path, MergeStrategies.Override);
+                        // Act
+                        sut.Merge(merge.Path, MergeStrategies.Override);
 
-                            // Assert
-                            Expect(sut[section1][setting1])
-                                .To.Equal(value1, "Missing original setting");
-                            Expect(sut[section2][setting2])
-                                .To.Equal(value2, "Missing distinct merged-in setting");
-                            Expect(sut[sharedSection][sharedSetting])
-                                .To.Equal(mergedSharedValue, "Should have original shared setting");
-                        }
+                        // Assert
+                        Expect(sut[section1][setting1])
+                            .To.Equal(value1, "Missing original setting");
+                        Expect(sut[section2][setting2])
+                            .To.Equal(value2, "Missing distinct merged-in setting");
+                        Expect(sut[sharedSection][sharedSetting])
+                            .To.Equal(mergedSharedValue, "Should have original shared setting");
                     }
                 }
 
@@ -312,45 +296,41 @@ namespace PeanutButter.INI.Tests
                     public void GivenExcludeMergedConfigurations_ShouldNotPersistMergedConfig()
                     {
                         // Arrange
-                        using (var original = new AutoDeletingIniFile())
-                        using (var merge = new AutoDeletingIniFile())
-                        {
-                            original.Write("[section]\nkey=value");
-                            merge.Write("[merge]\nmerge_key=merge_value");
-                            var sut = Create(original);
-                            sut.Merge(merge.Path, MergeStrategies.AddIfMissing);
-                            // Pre-assert
-                            // Act
-                            sut["section"]["key"] = "new_value";
-                            sut.Persist();
-                            // Assert
-                            var other = Create(original);
-                            Expect(other.Sections).Not.To.Contain("merge");
-                            Expect(other["section"]["key"]).To.Equal("new_value");
-                        }
+                        using var original = new AutoDeletingIniFile();
+                        using var merge = new AutoDeletingIniFile();
+                        original.Write("[section]\nkey=value");
+                        merge.Write("[merge]\nmerge_key=merge_value");
+                        var sut = Create(original);
+                        sut.Merge(merge.Path, MergeStrategies.AddIfMissing);
+                        // Pre-assert
+                        // Act
+                        sut["section"]["key"] = "new_value";
+                        sut.Persist();
+                        // Assert
+                        var other = Create(original);
+                        Expect(other.Sections).Not.To.Contain("merge");
+                        Expect(other["section"]["key"]).To.Equal("new_value");
                     }
 
                     [Test]
                     public void GivenIncludeMergedConfigurations_WhenOnlyAddMerge_ShouldPersistEntireConfig()
                     {
                         // Arrange
-                        using (var original = new AutoDeletingIniFile())
-                        using (var merge = new AutoDeletingIniFile())
-                        {
-                            original.Write("[section]\nkey=value");
-                            merge.Write("[section]\nkey=other_value\n[merge]\nmerge_key=merge_value");
-                            var sut = Create(original);
-                            sut.Merge(merge.Path, MergeStrategies.AddIfMissing);
-                            // Pre-assert
-                            // Act
-                            sut.Persist(PersistStrategies.IncludeMergedConfigurations);
-                            // Assert
-                            var other = Create(original);
-                            Expect(other["section"]["key"]).To.Equal("value");
-                            Expect(other.Sections).To.Contain("merge");
-                            Expect(other["merge"]).To.Contain.Key("merge_key")
-                                .With.Value("merge_value");
-                        }
+                        using var original = new AutoDeletingIniFile();
+                        using var merge = new AutoDeletingIniFile();
+                        original.Write("[section]\nkey=value");
+                        merge.Write("[section]\nkey=other_value\n[merge]\nmerge_key=merge_value");
+                        var sut = Create(original);
+                        sut.Merge(merge.Path, MergeStrategies.AddIfMissing);
+                        // Pre-assert
+                        // Act
+                        sut.Persist(PersistStrategies.IncludeMergedConfigurations);
+                        // Assert
+                        var other = Create(original);
+                        Expect(other["section"]["key"]).To.Equal("value");
+                        Expect(other.Sections).To.Contain("merge");
+                        Expect(other["merge"]).To.Contain.Key("merge_key")
+                            .With.Value("merge_value");
                     }
                 }
             }
@@ -370,19 +350,17 @@ setting=value";
 moo=cow1
 [merged]
 otherSetting=otherValue";
-                    using (var original = new AutoDeletingIniFile(originalContents))
-                    using (var merge = new AutoDeletingIniFile(mergeContents))
-                    {
-                        // Pre-assert
-                        var sut = Create(original.Path);
-                        sut.Merge(merge.Path, MergeStrategies.Override);
-                        // Act
-                        sut.Persist();
-                        // Assert
-                        var result = Create(original.Path);
-                        Expect(result).Not.To.Have.Section("merged");
-                        Expect(result).To.Have.Setting("original", "setting", "value");
-                    }
+                    using var original = new AutoDeletingIniFile(originalContents);
+                    using var merge = new AutoDeletingIniFile(mergeContents);
+                    // Pre-assert
+                    var sut = Create(original.Path);
+                    sut.Merge(merge.Path, MergeStrategies.Override);
+                    // Act
+                    sut.Persist();
+                    // Assert
+                    var result = Create(original.Path);
+                    Expect(result).Not.To.Have.Section("merged");
+                    Expect(result).To.Have.Setting("original", "setting", "value");
                 }
             }
 
@@ -390,69 +368,63 @@ otherSetting=otherValue";
             public void GivenFileNameWhichDoesntExist_ShouldNotThrow()
             {
                 //---------------Set up test pack-------------------
-                using (var tempFile = new AutoDeletingIniFile())
-                {
-                    File.Delete(tempFile.Path);
-                    //---------------Assert Precondition----------------
-                    Expect(tempFile.Path).Not.To.Be.A.File();
-                    //---------------Execute Test ----------------------
-                    var sut = Create(tempFile.Path) as INIFile_EXPOSES_Sections;
+                using var tempFile = new AutoDeletingIniFile();
+                File.Delete(tempFile.Path);
+                //---------------Assert Precondition----------------
+                FileSystemMatchers.File(Expect(tempFile.Path).Not.To.Be.A);
+                //---------------Execute Test ----------------------
+                var sut = Create(tempFile.Path) as INIFile_EXPOSES_Sections;
 
-                    //---------------Test Result -----------------------
-                    Expect(sut.Data).Not.To.Be.Null();
-                    Expect(sut.Data.Keys.Any(k => k != ""))
-                        .To.Be.False();
-                }
+                //---------------Test Result -----------------------
+                Expect(sut.Data).Not.To.Be.Null();
+                Expect(sut.Data.Keys.Any(k => k != ""))
+                    .To.Be.False();
             }
 
             [Test]
             public void WhenGivenPathButFileDoesntExist_ShouldCreateFile()
             {
                 //---------------Set up test pack-------------------
-                using (var tempFile = new AutoDeletingIniFile())
-                {
-                    File.Delete(tempFile.Path);
-                    //---------------Assert Precondition----------------
-                    Expect(tempFile.Path).Not.To.Be.A.File();
+                using var tempFile = new AutoDeletingIniFile();
+                File.Delete(tempFile.Path);
+                //---------------Assert Precondition----------------
+                FileSystemMatchers.File(Expect(tempFile.Path).Not.To.Be.A);
 
-                    //---------------Execute Test ----------------------
-                    Create(tempFile.Path);
+                //---------------Execute Test ----------------------
+                Create(tempFile.Path);
 
-                    //---------------Test Result -----------------------
-                    Expect(tempFile.Path).To.Be.A.File();
-                }
+                //---------------Test Result -----------------------
+                FileSystemMatchers.File(Expect(tempFile.Path).To.Be.A);
             }
 
             [Test]
             public void WhenSourceContainsComments_ShouldIgnoreCommentedParts()
             {
-                using (var tempFile = new AutoDeletingIniFile())
+                using var tempFile = new AutoDeletingIniFile();
+                //---------------Set up test pack-------------------
+                var src = new[]
                 {
-                    //---------------Set up test pack-------------------
-                    var src = new[]
-                    {
-                        "; created by some generator",
-                        "[general] ; general settings go here",
-                        ";this line should be ignored",
-                        "key=value ; this part of the line should be ignored"
-                    };
-                    File.WriteAllBytes(
-                        tempFile.Path,
-                        Encoding.UTF8.GetBytes(
-                            string.Join(Environment.NewLine, src)
-                        ));
+                    "; created by some generator",
+                    "[general] ; general settings go here",
+                    ";this line should be ignored",
+                    "key=value ; this part of the line should be ignored"
+                };
+                File.WriteAllBytes(
+                    tempFile.Path,
+                    Encoding.UTF8.GetBytes(
+                        string.Join(Environment.NewLine, src)
+                    ));
 
-                    //---------------Assert Precondition----------------
+                //---------------Assert Precondition----------------
 
-                    //---------------Execute Test ----------------------
-                    var ini = Create(tempFile.Path) as INIFile_EXPOSES_Sections;
+                //---------------Execute Test ----------------------
+                var ini = Create(tempFile.Path) as INIFile_EXPOSES_Sections;
 
-                    //---------------Test Result -----------------------
-                    Expect(ini.Data).To.Contain.Only(1).Item();
-                    Expect(ini["general"]).To.Contain.Only(1).Item();
-                    Expect(ini["GeNeRal"]).To.Contain.Only(1).Item();
-                    Expect(ini["general"]).To.Contain.Key("key").With.Value("value");
-                }
+                //---------------Test Result -----------------------
+                Expect(ini.Data).To.Contain.Only(1).Item();
+                Expect(ini["general"]).To.Contain.Only(1).Item();
+                Expect(ini["GeNeRal"]).To.Contain.Only(1).Item();
+                Expect(ini["general"]).To.Contain.Key("key").With.Value("value");
             }
         }
 
@@ -462,25 +434,23 @@ otherSetting=otherValue";
             [Test]
             public void ShouldAddCommentToOutput()
             {
-                using (var tempFile = new AutoDeletingIniFile())
-                {
-                    // Arrange
-                    var sut = Create(tempFile.Path);
-                    // Act
-                    sut.AddSection("whitelist", "some comment");
-                    sut.Persist();
-                    // Assert
-                    var contents = File.ReadAllText(tempFile.Path);
-                    Console.WriteLine(contents);
-                    var lines = contents.Split(
-                            new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries)
-                        .Select(l => l.Trim())
-                        .ToArray();
-                    Expect(lines).To.Contain.Exactly(1)
-                        .Equal.To("[whitelist]");
-                    Expect(lines).To.Contain.Exactly(1)
-                        .Equal.To(";some comment");
-                }
+                using var tempFile = new AutoDeletingIniFile();
+                // Arrange
+                var sut = Create(tempFile.Path);
+                // Act
+                sut.AddSection("whitelist", "some comment");
+                sut.Persist();
+                // Assert
+                var contents = File.ReadAllText(tempFile.Path);
+                Console.WriteLine(contents);
+                var lines = contents.Split(
+                        new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(l => l.Trim())
+                    .ToArray();
+                Expect(lines).To.Contain.Exactly(1)
+                    .Equal.To("[whitelist]");
+                Expect(lines).To.Contain.Exactly(1)
+                    .Equal.To(";some comment");
             }
         }
 
@@ -491,26 +461,24 @@ otherSetting=otherValue";
             public void WhenValueIsQuoted_ShouldSetDataValueUnQuoted()
             {
                 //---------------Set up test pack-------------------
-                using (var tempFile = new AutoDeletingIniFile())
-                {
-                    var section = RandString();
-                    var key = RandString();
-                    var value = RandString();
-                    var iniDataLines = new[] { "[" + section + "]", key + "=\"" + value + "\"" };
-                    tempFile.Write(iniDataLines);
+                using var tempFile = new AutoDeletingIniFile();
+                var section = RandString();
+                var key = RandString();
+                var value = RandString();
+                var iniDataLines = new[] { "[" + section + "]", key + "=\"" + value + "\"" };
+                tempFile.Write(iniDataLines);
 
-                    //---------------Assert Precondition----------------
-                    Expect(tempFile.Path).To.Be.A.File();
+                //---------------Assert Precondition----------------
+                FileSystemMatchers.File(Expect(tempFile.Path).To.Be.A);
 
-                    //---------------Execute Test ----------------------
-                    var sut = Create(tempFile.Path) as INIFile_EXPOSES_Sections;
+                //---------------Execute Test ----------------------
+                var sut = Create(tempFile.Path) as INIFile_EXPOSES_Sections;
 
-                    //---------------Test Result -----------------------
-                    Expect(sut.Data).Not.To.Be.Null();
-                    Expect(sut.Data).To.Contain.Key(section);
-                    Expect(sut.Data[section]).To.Contain.Key(key)
-                        .With.Value(value);
-                }
+                //---------------Test Result -----------------------
+                Expect(sut.Data).Not.To.Be.Null();
+                Expect(sut.Data).To.Contain.Key(section);
+                Expect(sut.Data[section]).To.Contain.Key(key)
+                    .With.Value(value);
             }
 
             [Test]
@@ -548,44 +516,42 @@ otherSetting=otherValue";
             [Test]
             public void ShouldLoadMultipleSectionsAndKeys_WithCaseInsensitivityForSectionNamesAndSettingNames()
             {
-                using (var tempFile = new AutoDeletingIniFile())
+                using var tempFile = new AutoDeletingIniFile();
+                //---------------Set up test pack-------------------
+                var lines = new[]
                 {
-                    //---------------Set up test pack-------------------
-                    var lines = new[]
-                    {
-                        "[Section1]",
-                        "path=\"C:\\tmp\\something.txt\"",
-                        "color=Red",
-                        "",
-                        "[Section2]",
-                        "number=12",
-                        "Season = Green"
-                    };
-                    tempFile.Write(lines);
-                    //---------------Assert Precondition----------------
+                    "[Section1]",
+                    "path=\"C:\\tmp\\something.txt\"",
+                    "color=Red",
+                    "",
+                    "[Section2]",
+                    "number=12",
+                    "Season = Green"
+                };
+                tempFile.Write(lines);
+                //---------------Assert Precondition----------------
 
-                    //---------------Execute Test ----------------------
-                    var sut = Create(tempFile.Path) as INIFile_EXPOSES_Sections;
+                //---------------Execute Test ----------------------
+                var sut = Create(tempFile.Path) as INIFile_EXPOSES_Sections;
 
-                    //---------------Test Result -----------------------
+                //---------------Test Result -----------------------
 
-                    Expect(sut.Data["Section1"])
-                        .To.Contain.Key("path")
-                        .With.Value("C:\\tmp\\something.txt");
-                    Expect(sut.Data["Section1"])
-                        .To.Contain.Key("color")
-                        .With.Value("Red");
+                Expect(sut.Data["Section1"])
+                    .To.Contain.Key("path")
+                    .With.Value("C:\\tmp\\something.txt");
+                Expect(sut.Data["Section1"])
+                    .To.Contain.Key("color")
+                    .With.Value("Red");
 
-                    Expect(sut.Data["section2"])
-                        .To.Contain.Key("number")
-                        .With.Value("12");
-                    // NExpect doesn't know (yet) how to tell that the 
-                    Expect(sut.Data["sectioN2"]["NUMber"])
-                        .To.Equal("12");
-                    Expect(sut.Data["Section2"])
-                        .To.Contain.Key("Season")
-                        .With.Value("Green");
-                }
+                Expect(sut.Data["section2"])
+                    .To.Contain.Key("number")
+                    .With.Value("12");
+                // NExpect doesn't know (yet) how to tell that the 
+                Expect(sut.Data["sectioN2"]["NUMber"])
+                    .To.Equal("12");
+                Expect(sut.Data["Section2"])
+                    .To.Contain.Key("Season")
+                    .With.Value("Green");
             }
 
             [Test]
@@ -634,21 +600,19 @@ otherSetting=otherValue";
                 //---------------Execute Test ----------------------
                 var sut = Create();
                 sut.Parse(src.AsText());
-                using (var tempFile = new AutoTempFile())
-                {
-                    sut.Persist(tempFile.Path);
+                using var tempFile = new AutoTempFile();
+                sut.Persist(tempFile.Path);
 
-                    //---------------Test Result -----------------------
-                    var outputData = File.ReadAllLines(tempFile.Path);
+                //---------------Test Result -----------------------
+                var outputData = File.ReadAllLines(tempFile.Path);
 
-                    Expect(outputData).To.Equal(
-                        new[]
-                        {
-                            "[section]",
-                            key1,
-                            key2
-                        });
-                }
+                Expect(outputData).To.Equal(
+                    new[]
+                    {
+                        "[section]",
+                        key1,
+                        key2
+                    });
             }
         }
 
@@ -690,74 +654,68 @@ otherSetting=otherValue";
             public void GivenFileName_ShouldWriteINIDataToFile()
             {
                 //---------------Set up test pack-------------------
-                using (var tempFile = new AutoDeletingIniFile())
-                {
-                    //---------------Assert Precondition----------------
-                    var writer = Create(tempFile.Path);
-                    var section = RandString();
-                    var key = RandString();
-                    var value = RandString();
-                    writer.SetValue(section, key, value);
+                using var tempFile = new AutoDeletingIniFile();
+                //---------------Assert Precondition----------------
+                var writer = Create(tempFile.Path);
+                var section = RandString();
+                var key = RandString();
+                var value = RandString();
+                writer.SetValue(section, key, value);
 
-                    //---------------Execute Test ----------------------
-                    writer.Persist(tempFile.Path);
-                    var reader = Create(tempFile.Path);
+                //---------------Execute Test ----------------------
+                writer.Persist(tempFile.Path);
+                var reader = Create(tempFile.Path);
 
-                    //---------------Test Result -----------------------
-                    Expect(reader[section])
-                        .To.Contain.Key(key)
-                        .With.Value(value);
-                }
+                //---------------Test Result -----------------------
+                Expect(reader[section])
+                    .To.Contain.Key(key)
+                    .With.Value(value);
             }
 
             [Test]
             public void GivenNoFileName_ShouldWriteINIDataToOriginalFile()
             {
                 //---------------Set up test pack-------------------
-                using (var tempFile = new AutoDeletingIniFile())
-                {
-                    //---------------Assert Precondition----------------
-                    var writer = Create(tempFile.Path);
-                    var section = RandString();
-                    var key = RandString();
-                    var value = RandString();
-                    writer.AddSection(section);
-                    writer[section][key] = value;
+                using var tempFile = new AutoDeletingIniFile();
+                //---------------Assert Precondition----------------
+                var writer = Create(tempFile.Path);
+                var section = RandString();
+                var key = RandString();
+                var value = RandString();
+                writer.AddSection(section);
+                writer[section][key] = value;
 
-                    //---------------Execute Test ----------------------
-                    writer.Persist();
-                    var reader = Create(tempFile.Path);
+                //---------------Execute Test ----------------------
+                writer.Persist();
+                var reader = Create(tempFile.Path);
 
-                    //---------------Test Result -----------------------
-                    Expect(reader[section])
-                        .To.Contain.Key(key)
-                        .With.Value(value);
-                }
+                //---------------Test Result -----------------------
+                Expect(reader[section])
+                    .To.Contain.Key(key)
+                    .With.Value(value);
             }
 
             [Test]
             public void GivenFileName_ShouldPersistTheGlobalEmptySection()
             {
                 //---------------Set up test pack-------------------
-                using (var tempFile = new AutoDeletingIniFile())
-                {
-                    //---------------Assert Precondition----------------
-                    var writer = Create(tempFile.Path);
-                    var section = "";
-                    var key = RandString();
-                    var value = RandString();
-                    writer.AddSection(section);
-                    writer[section][key] = value;
+                using var tempFile = new AutoDeletingIniFile();
+                //---------------Assert Precondition----------------
+                var writer = Create(tempFile.Path);
+                var section = "";
+                var key = RandString();
+                var value = RandString();
+                writer.AddSection(section);
+                writer[section][key] = value;
 
-                    //---------------Execute Test ----------------------
-                    writer.Persist();
-                    var reader = Create(tempFile.Path);
+                //---------------Execute Test ----------------------
+                writer.Persist();
+                var reader = Create(tempFile.Path);
 
-                    //---------------Test Result -----------------------
-                    Expect(reader[section])
-                        .To.Contain.Key(key)
-                        .With.Value(value);
-                }
+                //---------------Test Result -----------------------
+                Expect(reader[section])
+                    .To.Contain.Key(key)
+                    .With.Value(value);
             }
 
             [Test]
@@ -793,20 +751,18 @@ otherSetting=otherValue";
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                using (var memStream = new MemoryStream(new byte[1024], true))
-                {
-                    sut.Persist(memStream);
-                    //---------------Test Result -----------------------
-                    var resultBytes = memStream.ReadAllBytes();
-                    var result = Encoding.UTF8.GetString(resultBytes);
-                    var firstNull = result.IndexOf('\0');
-                    result = result.Substring(0, firstNull);
-                    var newIni = Create();
-                    newIni.Parse(result);
-                    Expect(newIni["general"])
-                        .To.Contain.Key("foo")
-                        .With.Value("bar");
-                }
+                using var memStream = new MemoryStream(new byte[1024], true);
+                sut.Persist(memStream);
+                //---------------Test Result -----------------------
+                var resultBytes = memStream.ReadAllBytes();
+                var result = Encoding.UTF8.GetString(resultBytes);
+                var firstNull = result.IndexOf('\0');
+                result = result.Substring(0, firstNull);
+                var newIni = Create();
+                newIni.Parse(result);
+                Expect(newIni["general"])
+                    .To.Contain.Key("foo")
+                    .With.Value("bar");
             }
         }
 
@@ -1024,19 +980,17 @@ otherSetting=otherValue";
                 var value = GetRandomString();
 
                 //---------------Assert Precondition----------------
-                using (var tempFile = new AutoDeletingIniFile())
-                {
-                    var ini = new INIFile.INIFile(tempFile.Path);
-                    ini[section][key] = value;
-                    ini.Persist();
+                using var tempFile = new AutoDeletingIniFile();
+                var ini = new INIFile.INIFile(tempFile.Path);
+                ini[section][key] = value;
+                ini.Persist();
 
-                    //---------------Execute Test ----------------------
-                    var ini2 = new INIFile.INIFile(tempFile.Path);
-                    var result = ini2[section][key];
+                //---------------Execute Test ----------------------
+                var ini2 = new INIFile.INIFile(tempFile.Path);
+                var result = ini2[section][key];
 
-                    //---------------Test Result -----------------------
-                    Expect(result).To.Equal(value);
-                }
+                //---------------Test Result -----------------------
+                Expect(result).To.Equal(value);
             }
         }
 
@@ -1088,14 +1042,12 @@ foo=bar
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                using (var memStream = new MemoryStream(new byte[1024], true))
-                {
-                    //---------------Test Result -----------------------
-                    sut.Persist(memStream);
-                    var lines = memStream.AsString().Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
-                    Expect(lines).To.Contain.Exactly(1)
-                        .Equal.To("; this is the general section");
-                }
+                using var memStream = new MemoryStream(new byte[1024], true);
+                //---------------Test Result -----------------------
+                sut.Persist(memStream);
+                var lines = memStream.AsString().Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                Expect(lines).To.Contain.Exactly(1)
+                    .Equal.To("; this is the general section");
             }
 
             [Test]
@@ -1114,16 +1066,14 @@ foo=bar
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                using (var memStream = new MemoryStream(new byte[1024], true))
-                {
-                    //---------------Test Result -----------------------
-                    sut.Persist(memStream);
-                    var lines = memStream.AsString().Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
-                    Expect(lines).To.Contain.Exactly(1)
-                        .Equal.To("; this is the general section");
-                    Expect(lines).To.Contain.Exactly(1)
-                        .Equal.To("; this is the general section again!");
-                }
+                using var memStream = new MemoryStream(new byte[1024], true);
+                //---------------Test Result -----------------------
+                sut.Persist(memStream);
+                var lines = memStream.AsString().Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                Expect(lines).To.Contain.Exactly(1)
+                    .Equal.To("; this is the general section");
+                Expect(lines).To.Contain.Exactly(1)
+                    .Equal.To("; this is the general section again!");
             }
 
             [Test]
@@ -1141,14 +1091,12 @@ foo=bar
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                using (var memStream = new MemoryStream(new byte[1024], true))
-                {
-                    //---------------Test Result -----------------------
-                    sut.Persist(memStream);
-                    var lines = memStream.AsString().Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
-                    Expect(lines).To.Contain.Exactly(1)
-                        .Equal.To("; this is the general section");
-                }
+                using var memStream = new MemoryStream(new byte[1024], true);
+                //---------------Test Result -----------------------
+                sut.Persist(memStream);
+                var lines = memStream.AsString().Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                Expect(lines).To.Contain.Exactly(1)
+                    .Equal.To("; this is the general section");
             }
 
 
@@ -1168,14 +1116,12 @@ foo=bar
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                using (var memStream = new MemoryStream(new byte[1024], true))
-                {
-                    //---------------Test Result -----------------------
-                    sut.Persist(memStream);
-                    var lines = memStream.AsString().Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
-                    Assert.IsTrue(lines.Any(l => l == "; this is the general section"));
-                    Assert.IsTrue(lines.Any(l => l == "; this is the general section again!"));
-                }
+                using var memStream = new MemoryStream(new byte[1024], true);
+                //---------------Test Result -----------------------
+                sut.Persist(memStream);
+                var lines = memStream.AsString().Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                Assert.IsTrue(lines.Any(l => l == "; this is the general section"));
+                Assert.IsTrue(lines.Any(l => l == "; this is the general section again!"));
             }
         }
 
@@ -1272,6 +1218,115 @@ foo=bar
                 Expect(sut).To.Have.Section(newSection);
                 Expect(sut[newSection][key]).To.Equal(value);
             }
+
+            [Test]
+            [Ignore("Requires an ordered, generic dictionary")]
+            public void ShouldNotReOrderSections()
+            {
+                // Arrange
+                var originalIni = @"[section1]
+key1=""value1""
+
+[section2]
+key2=""value2""";
+                var expected = originalIni.RegexReplace("section1", "section_the_first");
+                var sut = Create();
+                sut.Parse(originalIni);
+                // Act
+                sut.RenameSection("section1", "section_the_first");
+                using var memStream = new MemoryStream();
+                sut.Persist(memStream);
+                var result = Encoding.UTF8.GetString(memStream.ToArray());
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+        }
+
+        [TestFixture]
+        public class SectionSeparator
+        {
+            [Test]
+            public void ShouldAddNoSeparatorWhenNull()
+            {
+                // Arrange
+                var ini = Create();
+                // Act
+                ini.SectionSeparator = null;
+                ini["section1"]["key1"] = "value1";
+                ini["section2"]["key2"] = "value2";
+                using var memStream = new MemoryStream();
+                ini.Persist(memStream);
+                var result = memStream.AsString();
+                // Assert
+                Expect(result)
+                    .To.Equal(@"[section1]
+key1=""value1""
+[section2]
+key2=""value2""");
+            }
+
+            [Test]
+            public void ShouldDefaultToWritingOutEmptyLine()
+            {
+                // Arrange
+                var ini = Create();
+                // Act
+                ini["section1"]["key1"] = "value1";
+                ini["section2"]["key2"] = "value2";
+                using var memStream = new MemoryStream();
+                ini.Persist(memStream);
+                var result = memStream.AsString();
+                // Assert
+                Expect(result)
+                    .To.Equal(@"[section1]
+key1=""value1""
+
+[section2]
+key2=""value2""");
+            }
+
+            [Test]
+            public void ShouldCommentOutCustomSeparatorIfNecessary()
+            {
+                // Arrange
+                var ini = Create();
+                // Act
+                ini.SectionSeparator = "----";
+                ini["section1"]["key1"] = "value1";
+                ini["section2"]["key2"] = "value2";
+                using var memStream = new MemoryStream();
+                ini.Persist(memStream);
+                var result = memStream.AsString();
+                // Assert
+                Expect(result)
+                    .To.Equal(@"[section1]
+key1=""value1""
+;----
+[section2]
+key2=""value2""");
+            }
+
+            [Test]
+            public void ShouldNotCommentOutCommentedSeparator()
+            {
+                // Arrange
+                var ini = Create();
+                // Act
+                ini.SectionSeparator = ";----";
+                ini["section1"]["key1"] = "value1";
+                ini["section2"]["key2"] = "value2";
+                using var memStream = new MemoryStream();
+                ini.Persist(memStream);
+                var result = memStream.AsString();
+                // Assert
+                Expect(result)
+                    .To.Equal(@"[section1]
+key1=""value1""
+;----
+[section2]
+key2=""value2""");
+            }
         }
 
         [TestFixture]
@@ -1281,42 +1336,38 @@ foo=bar
             public void WhenFileOnDiskHasChanged_ShouldReflectChanges()
             {
                 // Arrange
-                using (var tempFile = new AutoDeletingIniFile())
-                {
-                    var initialContents = @"[section]
+                using var tempFile = new AutoDeletingIniFile();
+                var initialContents = @"[section]
 key=value";
-                    var updatedContents = @"[section]
+                var updatedContents = @"[section]
 key=value2";
-                    tempFile.Write(initialContents);
-                    var sut = Create(tempFile.Path);
-                    // Pre-assert
-                    // Act
-                    tempFile.Write(updatedContents);
-                    sut.Reload();
-                    // Assert
-                    Expect(sut["section"]["key"]).To.Equal("value2");
-                }
+                tempFile.Write(initialContents);
+                var sut = Create(tempFile.Path);
+                // Pre-assert
+                // Act
+                tempFile.Write(updatedContents);
+                sut.Reload();
+                // Assert
+                Expect(sut["section"]["key"]).To.Equal("value2");
             }
 
             [Test]
             public void WhenMergedFileOnDiskChanged_ShouldReflectChanges()
             {
                 // Arrange
-                using (var mainFile = new AutoDeletingIniFile())
-                using (var mergeFile = new AutoDeletingIniFile())
-                {
-                    mainFile.Write("[section1]\nkey1=value1");
-                    mergeFile.Write("[section2]\nkey2=value2");
-                    var sut = Create(mainFile.Path);
-                    sut.Merge(mergeFile.Path, MergeStrategies.AddIfMissing);
-                    // Pre-assert
-                    Expect(sut["section2"]["key2"]).To.Equal("value2");
-                    // Act
-                    mergeFile.Write("[section2]\nkey2=value3");
-                    sut.Reload();
-                    // Assert
-                    Expect(sut["section2"]["key2"]).To.Equal("value3");
-                }
+                using var mainFile = new AutoDeletingIniFile();
+                using var mergeFile = new AutoDeletingIniFile();
+                mainFile.Write("[section1]\nkey1=value1");
+                mergeFile.Write("[section2]\nkey2=value2");
+                var sut = Create(mainFile.Path);
+                sut.Merge(mergeFile.Path, MergeStrategies.AddIfMissing);
+                // Pre-assert
+                Expect(sut["section2"]["key2"]).To.Equal("value2");
+                // Act
+                mergeFile.Write("[section2]\nkey2=value3");
+                sut.Reload();
+                // Assert
+                Expect(sut["section2"]["key2"]).To.Equal("value3");
             }
         }
 
@@ -1327,26 +1378,30 @@ key=value2";
             public void ShouldPreserveUTF8Characters()
             {
                 // Arrange
-                using (var tempFile = new AutoTempFile())
+                using var tempFile = new AutoTempFile();
+                var ini1 = new INIFile.INIFile()
                 {
-                    var ini1 = new INIFile.INIFile();
-                    var section = "Section≄";
-                    var setting = "Setting⑹";
-                    var value = "Valueäčɛ";
-                    ini1.SetValue(section, setting, value);
-                    ini1.Persist(tempFile.Path);
-                    // Act
+                    SectionSeparator = null
+                };
+                var section = "Section≄";
+                var setting = "Setting⑹";
+                var value = "Valueäčɛ";
+                ini1.SetValue(section, setting, value);
+                ini1.Persist(tempFile.Path);
+                // Act
 
-                    var ini2 = new INIFile.INIFile(tempFile.Path);
+                var ini2 = new INIFile.INIFile(tempFile.Path)
+                {
+                    SectionSeparator = null
+                };
 
-                    // Assert
-                    Expect(ini2.HasSection(section))
-                        .To.Be.True();
-                    Expect(ini2.HasSetting(section, setting))
-                        .To.Be.True();
-                    Expect(ini2[section][setting])
-                        .To.Equal(value);
-                }
+                // Assert
+                Expect(ini2.HasSection(section))
+                    .To.Be.True();
+                Expect(ini2.HasSetting(section, setting))
+                    .To.Be.True();
+                Expect(ini2[section][setting])
+                    .To.Equal(value);
             }
 
             [Test]
@@ -1367,6 +1422,7 @@ key=value2";
                 var current = ini1["DrawingViewer"]["EnableLogging"];
                 var enabled = Convert.ToBoolean(current);
                 ini1["DrawingViewer"]["EnableLogging"] = (!enabled).ToString();
+                ini1.SectionSeparator = null;
                 ini1.Persist();
 
                 var ini2 = new INIFile.INIFile(iniFilePath);
@@ -1381,6 +1437,7 @@ key=value2";
                 // reset file
 
                 ini2["DrawingViewer"]["EnableLogging"] = "False";
+                ini2.SectionSeparator = null;
                 ini2.Persist();
                 // suddenly, Notepad (and no other editor) renders the file in Chinese
                 var bytesAfter = File.ReadAllBytes(iniFilePath);
