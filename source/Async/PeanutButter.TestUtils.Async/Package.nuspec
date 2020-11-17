@@ -1,7 +1,7 @@
 <package>
   <metadata>
     <id>PeanutButter.TestUtils.Async</id>
-    <version>1.2.379</version>
+    <version>1.2.380</version>
     <title>PeanutButter.TestUtils.Async</title>
     <authors>Davyd McColl</authors>
     <owners></owners>
@@ -27,21 +27,21 @@
     <dependencies>
       <group targetFramework="net452">
         <dependency id="NSubstitute" version="1.10.0.0" />
-        <dependency id="PeanutButter.Async" version="1.2.379" />
-        <dependency id="PeanutButter.RandomGenerators" version="1.2.379" />
-        <dependency id="PeanutButter.Utils" version="1.2.379" />
+        <dependency id="PeanutButter.Async" version="1.2.380" />
+        <dependency id="PeanutButter.RandomGenerators" version="1.2.380" />
+        <dependency id="PeanutButter.Utils" version="1.2.380" />
       </group>
       <group targetFramework="net462">
         <dependency id="NSubstitute" version="1.10.0.0" />
-        <dependency id="PeanutButter.Async" version="1.2.379" />
-        <dependency id="PeanutButter.RandomGenerators" version="1.2.379" />
-        <dependency id="PeanutButter.Utils" version="1.2.379" />
+        <dependency id="PeanutButter.Async" version="1.2.380" />
+        <dependency id="PeanutButter.RandomGenerators" version="1.2.380" />
+        <dependency id="PeanutButter.Utils" version="1.2.380" />
       </group>
       <group targetFramework="netstandard2.0">
         <dependency id="NSubstitute" version="1.10.0.0" />
-        <dependency id="PeanutButter.Async" version="1.2.379" />
-        <dependency id="PeanutButter.RandomGenerators" version="1.2.379" />
-        <dependency id="PeanutButter.Utils" version="1.2.379" />
+        <dependency id="PeanutButter.Async" version="1.2.380" />
+        <dependency id="PeanutButter.RandomGenerators" version="1.2.380" />
+        <dependency id="PeanutButter.Utils" version="1.2.380" />
       </group>
     </dependencies>
     <references></references>
