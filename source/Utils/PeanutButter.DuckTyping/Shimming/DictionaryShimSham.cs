@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Imported.PeanutButter.Utils.Dictionaries;
 using PeanutButter.DuckTyping.AutoConversion;
 using PeanutButter.DuckTyping.AutoConversion.Converters;
 using PeanutButter.DuckTyping.Comparers;
@@ -16,7 +17,7 @@ namespace PeanutButter.DuckTyping.Shimming
     public class DictionaryShimSham : ShimShamBase, IShimSham
     {
         private readonly Type _interfaceToMimic;
-        private readonly IDictionary<string, object>[] _data;
+        private readonly IDictionary<string, object> _data;
         private readonly Dictionary<string, PropertyInfo> _mimickedProperties;
         private readonly bool _isFuzzy;
 
@@ -49,8 +50,10 @@ namespace PeanutButter.DuckTyping.Shimming
                 .ToArray();
 
             _data = incoming.Length == 0
-                ? new IDictionary<string, object>[] { new Dictionary<string, object>() }
-                : incoming;
+                ? new Dictionary<string, object>()
+                : incoming.Length == 1 
+                    ? incoming[0] 
+                    : new MergeDictionary<string, object>(incoming);
             _isFuzzy = IsFuzzy(_data);
             _mimickedProperties = interfaceToMimic
                 .GetAllImplementedInterfaces()
@@ -67,8 +70,6 @@ namespace PeanutButter.DuckTyping.Shimming
 
         private void ShimShimmableProperties()
         {
-            // TODO: examine all dictionaries
-            var data = _data[0];
             foreach (var kvp in _mimickedProperties)
             {
                 if (kvp.Value.PropertyType.ShouldTreatAsPrimitive())
@@ -76,13 +77,13 @@ namespace PeanutButter.DuckTyping.Shimming
                     continue;
                 }
 
-                if (!data.ContainsKey(kvp.Key))
+                if (!_data.ContainsKey(kvp.Key))
                 {
-                    data[kvp.Key] = new Dictionary<string, object>();
+                    _data[kvp.Key] = new Dictionary<string, object>();
                 }
 
                 var type = MakeTypeToImplement(kvp.Value.PropertyType, _isFuzzy);
-                var toWrap = data[kvp.Key];
+                var toWrap = _data[kvp.Key];
                 var asDict = toWrap as IDictionary<string, object>;
                 // ReSharper disable RedundantExplicitArrayCreation
                 var firstArg = asDict == null
@@ -103,8 +104,6 @@ namespace PeanutButter.DuckTyping.Shimming
         /// match the underlying type</returns>
         public object GetPropertyValue(string propertyName)
         {
-            // TODO: examine all dictionaries, or at least, the correct one
-            var data = _data[0];
             CheckPropertyExists(propertyName);
             if (_shimmedProperties.TryGetValue(propertyName, out var propValue))
             {
@@ -116,7 +115,7 @@ namespace PeanutButter.DuckTyping.Shimming
                 ? FuzzyFindKeyFor(propertyName) ?? propertyName
                 : propertyName;
 
-            if (!data.TryGetValue(key, out propValue))
+            if (!_data.TryGetValue(key, out propValue))
             {
                 return GetDefaultValueFor(mimickedProperty.PropertyType);
             }
@@ -169,14 +168,12 @@ namespace PeanutButter.DuckTyping.Shimming
         {
             lock (_keyResolutionCache)
             {
-                // TODO: find the correct dictionary to examine for this key
-                var data = _data[0];
                 if (_keyResolutionCache.TryGetValue(propertyName, out var resolvedKey))
                 {
                     return resolvedKey;
                 }
 
-                resolvedKey = _fuzzyKeyFinder.FuzzyFindKeyFor(data, propertyName);
+                resolvedKey = _fuzzyKeyFinder.FuzzyFindKeyFor(_data, propertyName);
                 if (resolvedKey != null)
                 {
                     _keyResolutionCache[propertyName] = resolvedKey;
@@ -193,18 +190,16 @@ namespace PeanutButter.DuckTyping.Shimming
         /// <param name="newValue">Value to set. The value may be converted to match the underlying type when required.</param>
         public void SetPropertyValue(string propertyName, object newValue)
         {
-            // TODO: find the correct dictionary to work with for this propertyName
-            var data = _data[0];
             CheckPropertyExists(propertyName);
             var mimickedProperty = GetMimickedProperty(propertyName);
             var newValueType = newValue?.GetType();
             if (newValueType == null)
             {
-                SetDefaultValueForType(data, propertyName, mimickedProperty);
+                SetDefaultValueForType(_data, propertyName, mimickedProperty);
             }
             else if (mimickedProperty.PropertyType.IsAssignableFrom(newValueType))
             {
-                data[propertyName] = newValue;
+                _data[propertyName] = newValue;
             }
             else
             {
@@ -215,14 +210,14 @@ namespace PeanutButter.DuckTyping.Shimming
                 if (converter is null)
                 {
                     SetDefaultValueForType(
-                        data,
+                        _data,
                         propertyName,
                         mimickedProperty
                     );
                     return;
                 }
 
-                data[propertyName] = ConvertWith(
+                _data[propertyName] = ConvertWith(
                     converter,
                     newValue,
                     mimickedProperty.PropertyType
@@ -239,10 +234,9 @@ namespace PeanutButter.DuckTyping.Shimming
             data[propertyName] = GetDefaultValueFor(mimickedProperty.PropertyType);
         }
 
-        private bool IsFuzzy(IDictionary<string, object>[] data)
+        private bool IsFuzzy(IDictionary<string, object> data)
         {
-            // TODO: examine all dictionaries
-            var current = data[0];
+            var current = data;
             var keys = current.Keys;
             var first = keys.FirstOrDefault(k => k.ToLower() != k.ToUpper());
             if (first == null)
@@ -253,7 +247,7 @@ namespace PeanutButter.DuckTyping.Shimming
             var lower = first.ToLower();
             var upper = first.ToUpper();
             return current.TryGetValue(lower, out _) &&
-                data[0].TryGetValue(upper, out _);
+                data.TryGetValue(upper, out _);
         }
 
         private PropertyInfo GetMimickedProperty(string propertyName)

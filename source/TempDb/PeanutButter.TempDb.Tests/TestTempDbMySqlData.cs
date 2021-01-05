@@ -327,6 +327,40 @@ namespace PeanutButter.TempDb.Tests
         }
 
         [TestFixture]
+        public class LoggingProcessStartup
+        {
+            [Test]
+            public void ShouldLogProcessStartupInfoToFileInDataDir()
+            {
+                // Arrange
+                var expected = GetRandomString(5);
+                Environment.SetEnvironmentVariable("LOG_PROCESS_STARTUP_TEST", expected);
+                // Act
+                using var db = new TempDBMySql();
+                var logFile = Path.Combine(db.DataDir, "startup-info.log");
+                // Assert
+                Expect(logFile)
+                    .To.Exist();
+                var contents = File.ReadAllLines(logFile);
+                Expect(contents)
+                    .To.Contain.Exactly(1)
+                    .Matched.By(s => s.StartsWith("CLI:") &&
+                        s.Contains("mysqld.exe"));
+                Expect(contents)
+                    .To.Contain.Exactly(1)
+                    .Matched.By(s => s.StartsWith("Environment"));
+                Expect(contents)
+                    .To.Contain.Exactly(1)
+                    .Matched.By(s =>
+                    {
+                        var trimmed = s.Trim();
+                        return trimmed.StartsWith("LOG_PROCESS_STARTUP_TEST") &&
+                            trimmed.EndsWith(expected);
+                    });
+            }
+        }
+
+        [TestFixture]
         public class StayingAlive
         {
             [Test]

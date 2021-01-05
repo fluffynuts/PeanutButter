@@ -28,7 +28,8 @@ namespace PeanutButter.TempDb.MySql.Base
     {
         // ReSharper disable once StaticMemberInGenericType
         public const int DEFAULT_STARTUP_MAX_WAIT_SECONDS = 30;
-        public static int MaxSecondsToWaitForMySqlToStart => 
+
+        public static int MaxSecondsToWaitForMySqlToStart =>
             DetermineMaxSecondsToWaitForMySqlToStart();
 
         private static int DetermineMaxSecondsToWaitForMySqlToStart()
@@ -38,6 +39,7 @@ namespace PeanutButter.TempDb.MySql.Base
             {
                 return DEFAULT_STARTUP_MAX_WAIT_SECONDS;
             }
+
             return value;
         }
 
@@ -181,10 +183,9 @@ namespace PeanutButter.TempDb.MySql.Base
 
             // mysql 5.7 wants an empty data base dir, so we have to use
             // a temp defaults file for init only, which 8 seems to be ok with
-            using var tempDefaults = CreateTemporaryDefaultsFile();
-            InitializeWith(MySqld, tempDefaults.Path);
-            // var tempDefaultsPath = CreateTemporaryDefaultsFile();
-            // InitializeWith(MySqld, tempDefaultsPath);
+            using var tempFolder = new AutoTempFolder();
+            DumpDefaultsFileAt(tempFolder.Path);
+            InitializeWith(MySqld, Path.Combine(tempFolder.Path, "my.cnf"));
 
             // now we need the real config file, sitting in the db dir
             DumpDefaultsFileAt(DatabasePath);
@@ -248,13 +249,6 @@ namespace PeanutButter.TempDb.MySql.Base
                 "-P", Port.ToString(),
                 SchemaName);
             return string.Join("\n", io.StandardOutput);
-        }
-
-        private AutoTempFile CreateTemporaryDefaultsFile()
-        {
-            var result = new AutoTempFile();
-            DumpDefaultsFileAt($"{result.Path}.cnf");
-            return result;
         }
 
         private void CreateInitialSchema()
@@ -417,6 +411,7 @@ namespace PeanutButter.TempDb.MySql.Base
         private void StartServer(string mysqld)
         {
             _serverProcess = RunCommand(
+                true,
                 mysqld,
                 $"\"--defaults-file={Path.Combine(DatabasePath, "my.cnf")}\"",
                 $"\"--basedir={BaseDirOf(mysqld)}\"",
@@ -572,7 +567,9 @@ values ('__tempdb_id__', '{InstanceId}', 'root');";
             throw new FatalTempDbInitializationException(
                 $@"MySql doesn't want to start up. Please check logging in {
                         DatabasePath
-                    }\nstdout: {stdout}\nstderr: {stderr}"
+                    }
+stdout: {stdout}
+stderr: {stderr}"
             );
         }
 
@@ -621,16 +618,22 @@ values ('__tempdb_id__', '{InstanceId}', 'root');";
             }
 
             Log($"Initializing MySql in {DatabasePath}");
-            using (var process = RunCommand(
+            using var process = RunCommand(
                 mysqld,
                 $"\"--defaults-file={tempDefaultsFile}\"",
                 "--initialize-insecure",
                 $"\"--basedir={BaseDirOf(mysqld)}\"",
                 $"\"--datadir={DataDir}\""
-            ))
+            );
+            process.WaitForExit();
+            if (process.ExitCode == 0)
             {
-                process.WaitForExit();
+                return;
             }
+
+            throw new UnableToInitializeMySqlException(
+                process.StandardError.ReadToEnd()
+            );
         }
 
         private bool IsMySql8(MySqlVersionInfo mySqlVersion)
@@ -713,49 +716,108 @@ values ('__tempdb_id__', '{InstanceId}', 'root');";
 
         private MySqlVersionInfo QueryVersionOf(string mysqld)
         {
-            using (var process = RunCommand(mysqld, "--version"))
-            {
-                process.WaitForExit();
-                var result = process.StandardOutput.ReadToEnd();
-                var parts = result.ToLower().Split(' ');
-                var versionInfo = new MySqlVersionInfo();
-                var last = "";
-                parts.ForEach(
-                    p =>
-                    {
-                        if (last == "ver")
-                        {
-                            versionInfo.Version = new Version(p.Split('-').First());
-                        }
-                        else if (last == "for" && versionInfo.Platform == null)
-                        {
-                            versionInfo.Platform = p;
-                        }
+            using var process = RunCommand(mysqld, "--version");
+            process.WaitForExit();
 
-                        last = p;
-                    });
-                return versionInfo;
-            }
+            var result = process.StandardOutput.ReadToEnd();
+            var parts = result.ToLower().Split(' ');
+            var versionInfo = new MySqlVersionInfo();
+            var last = "";
+            parts.ForEach(
+                p =>
+                {
+                    if (last == "ver")
+                    {
+                        versionInfo.Version = new Version(p.Split('-').First());
+                    }
+                    else if (last == "for" && versionInfo.Platform == null)
+                    {
+                        versionInfo.Platform = p;
+                    }
+
+                    last = p;
+                });
+            return versionInfo;
         }
 
-        private Process RunCommand(string filename, params string[] args)
+        private Process RunCommand(
+            bool logStartupInfo,
+            string filename,
+            params string[] args
+        )
         {
+            var startInfo = new ProcessStartInfo()
+            {
+                FileName = filename,
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
+                Arguments = args.JoinWith(" ")
+            };
+            if (logStartupInfo)
+            {
+                LogProcessStartInfo(
+                    startInfo,
+                    Path.Combine(DataDir, "startup-info.log")
+                );
+            }
+
             var process = new Process()
             {
-                StartInfo = new ProcessStartInfo()
-                {
-                    FileName = filename,
-                    CreateNoWindow = true,
-                    UseShellExecute = false,
-                    RedirectStandardError = true,
-                    RedirectStandardOutput = true,
-                    Arguments = args.JoinWith(" ")
-                }
+                StartInfo = startInfo
             };
             Log($"Running command:\n\"{filename}\" {args.JoinWith(" ")}");
             if (!process.Start())
             {
-                throw new Exception($"Unable to start process:\n\"{filename}\" {args.JoinWith(" ")}");
+                throw new ProcessStartFailureException(startInfo);
+            }
+
+            return process;
+        }
+
+        private void LogProcessStartInfo(
+            ProcessStartInfo startInfo,
+            string logFile
+        )
+        {
+            using var f = new FileStream(logFile, FileMode.OpenOrCreate);
+            f.SetLength(0);
+            using var writer = new StreamWriter(f);
+            writer.WriteLine("MySql started with the following startup info:");
+            writer.WriteLine($"CLI: \"{startInfo.FileName}\" {startInfo.Arguments}");
+            writer.WriteLine($"Working directory: {Directory.GetCurrentDirectory()}");
+            writer.WriteLine($"Current user: {Environment.UserName}");
+            writer.WriteLine("Environment:");
+            var envVars = Environment.GetEnvironmentVariables();
+            foreach (var key in envVars.Keys)
+            {
+                writer.WriteLine($"  {key} = {envVars[key]}");
+            }
+        }
+
+        private Process RunCommand(
+            string filename,
+            params string[] args
+        )
+        {
+            var startInfo = new ProcessStartInfo()
+            {
+                FileName = filename,
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
+                Arguments = args.JoinWith(" ")
+            };
+            var process = new Process()
+            {
+                StartInfo = startInfo
+            };
+            Log($"Running command:\n\"{filename}\" {args.JoinWith(" ")}");
+            if (!process.Start())
+            {
+                throw new ProcessStartFailureException(startInfo);
             }
 
             return process;
@@ -846,13 +908,6 @@ values ('__tempdb_id__', '{InstanceId}', 'root');";
             }
 
             return RandomNumber.Next(minPort, maxPort);
-        }
-    }
-
-    public class TryAnotherPortException : Exception
-    {
-        public TryAnotherPortException(string message) : base(message)
-        {
         }
     }
 }
