@@ -27,7 +27,21 @@ namespace PeanutButter.TempDb.MySql.Base
     public abstract class TempDBMySqlBase<T> : TempDB<T> where T : DbConnection
     {
         // ReSharper disable once StaticMemberInGenericType
-        public const int DEFAULT_STARTUP_MAX_WAIT_SECONDS = 30;
+        /// <summary>
+        /// The maximum amount of time to wait for a mysqld process to be
+        /// listening for connections after starting up. Defaults to 30 seconds,
+        /// but left static so consumers can tweak the value as required.
+        /// </summary>
+        public static int DefaultStartupMaxWaitSeconds = 30;
+        // ReSharper disable once StaticMemberInGenericType
+        /// <summary>
+        /// Maximum number of times that TempDBMySql will automatically
+        /// re-attempt initial start. This may be useful in the case where
+        /// MySql isn't starting up but also isn't logging anything particularly
+        /// useful about _why_ it isn't starting up. Defaults to 5, but left
+        /// as a static so consumers can tweak the value as required.
+        /// </summary>
+        public static int MaxStartupAttempts = 5;
 
         public static int MaxSecondsToWaitForMySqlToStart =>
             DetermineMaxSecondsToWaitForMySqlToStart();
@@ -37,7 +51,7 @@ namespace PeanutButter.TempDb.MySql.Base
             var env = Environment.GetEnvironmentVariable("MYSQL_MAX_STARTUP_TIME_IN_SECONDS");
             if (env is null || !int.TryParse(env, out var value))
             {
-                return DEFAULT_STARTUP_MAX_WAIT_SECONDS;
+                return DefaultStartupMaxWaitSeconds;
             }
 
             return value;
@@ -174,6 +188,7 @@ namespace PeanutButter.TempDb.MySql.Base
         /// <inheritdoc />
         protected override void CreateDatabase()
         {
+            _startAttempts = 0;
             MySqlVersion = QueryVersionOf(MySqld);
             EnsureIsRemoved(DatabasePath);
             if (IsMySql8(MySqlVersion))
@@ -408,6 +423,7 @@ namespace PeanutButter.TempDb.MySql.Base
             task.Wait(TimeSpan.FromSeconds(2));
         }
 
+        private int _startAttempts;
         private void StartServer(string mysqld)
         {
             _serverProcess = RunCommand(
@@ -419,9 +435,35 @@ namespace PeanutButter.TempDb.MySql.Base
                 $"--port={Port}");
             try
             {
-                TestIsRunning();
+                try
+                {
+                    TestIsRunning();
+                }
+                catch (FatalTempDbInitializationException)
+                {
+                    // I've seen the mysqld process simply exit early
+                    // (5.7, win32) without anything interesting in the
+                    // error log; so let's just give this a few attempts
+                    // before giving up completely
+                    if (++_startAttempts >= MaxStartupAttempts)
+                    {
+                        throw;
+                    }
+
+                    Log("MySql appears to not start up properly; retrying...");
+                    Retry();
+                    return;
+                }
             }
             catch (TryAnotherPortException)
+            {
+                Retry();
+                return;
+            }
+
+            StartProcessWatcher();
+
+            void Retry()
             {
                 if (Settings?.Options?.PortHint.HasValue ?? false)
                 {
@@ -430,10 +472,7 @@ namespace PeanutButter.TempDb.MySql.Base
 
                 Port = DeterminePortToUse();
                 StartServer(mysqld);
-                return;
             }
-
-            StartProcessWatcher();
         }
 
         public string DataDir =>
