@@ -483,20 +483,20 @@ namespace PeanutButter.Utils
 
         private void AddErrorForMismatch(
             PropertyOrField srcPropInfo,
-            PropertyOrField compareType,
+            PropertyOrField compareInfo,
             bool eitherAreEnumerable
         )
         {
             if (eitherAreEnumerable)
             {
                 AddError(
-                    $"Source property '{srcPropInfo.Name}' has type '{srcPropInfo.Type.Name}' but comparison property has type '{compareType.Name}' and can't find common enumerability"
+                    $@"Source property '{srcPropInfo.Name}' has type '{srcPropInfo.Type.Name}' but comparison property has type '{compareInfo.Type.Name}' and can't find common enumerability"
                 );
             }
             else
             {
                 AddError(
-                    $"Source property '{srcPropInfo.Name}' has type '{srcPropInfo.Type.Name}' but comparison property has type '{compareType.Name}' and can't find any common properties"
+                    $@"Source property '{srcPropInfo.Name}' has type '{srcPropInfo.Type.Name}' but comparison property has type '{compareInfo.Type.Name}'"
                 );
             }
         }

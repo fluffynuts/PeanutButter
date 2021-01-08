@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using NUnit.Framework;
 using NExpect;
 using static NExpect.Expectations;
@@ -24,6 +26,26 @@ namespace PeanutButter.Utils.NetCore.Tests
             // Assert
             Expect(result)
                 .To.Be.True();
+        }
+
+        [Test]
+        public void ShouldProduceCorrectMessageWhenEnabledForPropertiesOfDifferentTypes()
+        {
+            // Arrange
+            int intVal = 1;
+            uint uintVal = 1;
+            var left = new { foo = intVal };
+            var right = new { foo = uintVal };
+            var sut = Create(left, right);
+            var expected = "Source property 'foo' has type 'Int32' but comparison property has type 'UInt32'";
+            sut.RecordErrors = true;
+            
+            // Act
+            Expect(sut.AreDeepEqual())
+                .To.Be.False();
+            // Assert
+            Expect(sut.Errors.Single())
+                .To.Equal(expected);
         }
 
         public enum LogLevel
