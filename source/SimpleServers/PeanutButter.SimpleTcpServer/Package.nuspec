@@ -6,8 +6,8 @@
     <authors>Davyd McColl</authors>
     <owners></owners>
     <description>
-      A (very simple) TCP server which you can use from within a testing environment or, if you're really ambitious, 
-      for some other reason.
+      A (very simple) TCP server which you can use from within a testing environment or, 
+      if you're really ambitious, for some other reason.
     </description>
     <releaseNotes></releaseNotes>
     <summary>
