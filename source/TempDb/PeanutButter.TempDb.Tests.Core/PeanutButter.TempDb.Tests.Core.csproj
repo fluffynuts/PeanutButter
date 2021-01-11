@@ -16,7 +16,7 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="3.4.0" />
         <PackageReference Include="MySql.Data" Version="8.0.17" />
-        <PackageReference Include="nexpect" Version="1.0.174" />
+        <PackageReference Include="nexpect" Version="1.0.186" />
         <PackageReference Include="nunit" Version="3.12.0" />
         <PackageReference Include="NUnit3TestAdapter" Version="3.15.1" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />
