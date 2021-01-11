@@ -66,7 +66,7 @@ namespace PeanutButter.Utils
                         break;
                     }
 
-                    if (stopAtIsGenericDefinition && 
+                    if (stopAtIsGenericDefinition &&
                         type.IsGenericType &&
                         type.GetGenericTypeDefinition() == from)
                     {
@@ -731,6 +731,127 @@ namespace PeanutButter.Utils
         private static T DefaultValue<T>()
         {
             return default(T);
+        }
+
+        /// <summary>
+        /// Returns true if all public properties and methods are either virtual or abstract\
+        /// (ie can be properly overridden)
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static bool AllPublicInstancePropertiesAndMethodsAreVirtualOrAbstract(this Type type)
+        {
+            return type.AllPublicInstancePropertiesAreVirtualOrAbstract() &&
+                type.AllPublicInstanceMethodsAreVirtualOrAbstract();
+        }
+
+        public static bool AllPublicInstancePropertiesAreVirtualOrAbstract(
+            this Type type
+        )
+        {
+            return type.GetProperties(PUBLIC_INSTANCE)
+                .All(pi => pi.IsVirtualOrAbstract());
+        }
+
+        public static bool AllPublicInstanceMethodsAreVirtualOrAbstract(
+            this Type type
+        )
+        {
+            var methods = type.GetMethods(PUBLIC_INSTANCE)
+                .Where(mi => !NonVirtualObjectMethods.Contains(mi.Name))
+                .ToArray();
+            return methods.All(mi => mi.IsVirtualOrAbstract());
+        }
+
+        private static HashSet<string> NonVirtualObjectMethods
+            => _objectMethods ??= new HashSet<string>(
+                typeof(object).GetMethods(PUBLIC_INSTANCE)
+                    .Where(mi => !mi.IsVirtual)
+                    .Select(mi => mi.Name)
+                );
+
+        private static HashSet<string> _objectMethods;
+
+        private const BindingFlags PUBLIC_INSTANCE = BindingFlags.Public | BindingFlags.Instance;
+        
+        /// <summary>
+        /// Retrieves the value of the "top-most" property in an inheritance hierarchy
+        /// which matches the given name and type
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="propertyName"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        public static T GetTopMostProperty<T>(
+            this object data,
+            string propertyName
+        )
+        {
+            var propInfo = data.FindTopmostProperty<T>(propertyName);
+            return (T) propInfo.GetValue(data);
+        }
+
+        public static void SetTopMostProperty<T>(
+            this object data,
+            string propertyName,
+            T value
+        )
+        {
+            var propInfo = data.FindTopmostProperty<T>(propertyName);
+            propInfo.SetValue(data, value);
+        }
+
+        internal static PropertyInfo FindTopmostProperty<T>(
+            this object data,
+            string propertyName
+        )
+        {
+            var type = data.GetType();
+            var propertyType = typeof(T);
+            var props = type
+                .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(pi => pi.Name == propertyName && pi.PropertyType == propertyType)
+                .ToArray();
+            if (!props.Any())
+            {
+                throw new InvalidOperationException(
+                    $"{type} has no property named {propertyName} with type {propertyType}"
+                );
+            }
+
+            var lookup = props.ToDictionary(prop => prop.DeclaringType, prop => prop);
+            var ancestry = type.Ancestry().Reverse();
+            var firstMatch = ancestry.FirstOrDefault(t => lookup.ContainsKey(t));
+            if (firstMatch is null)
+            {
+                // shouldn't get here, but if we do, throw a better exception than null-deref
+                throw new InvalidOperationException(
+                    $"Unable to determine top-most '{propertyName}' property for {type}"
+                );
+            }
+            return lookup[firstMatch];
+        }
+        
+        /// <summary>
+        /// returns true if the given method is virtual or abstract
+        /// </summary>
+        /// <param name="methodInfo"></param>
+        /// <returns></returns>
+        public static bool IsVirtualOrAbstract(this MethodInfo methodInfo)
+        {
+            return methodInfo.IsVirtual || methodInfo.IsAbstract;
+        }
+
+        /// <summary>
+        /// returns true if the given property is virtual or abstract
+        /// </summary>
+        /// <param name="propertyInfo"></param>
+        /// <returns></returns>
+        public static bool IsVirtualOrAbstract(this PropertyInfo propertyInfo)
+        {
+            return (propertyInfo.GetMethod?.IsVirtualOrAbstract() ?? true) &&
+                (propertyInfo.SetMethod?.IsVirtualOrAbstract() ?? true);
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Specialized;
 using PeanutButter.DuckTyping.Shimming;
 using TransformFunc = System.Func<string, string>;
+
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.DuckTyping.Extensions
@@ -11,7 +12,8 @@ namespace PeanutButter.DuckTyping.Extensions
     /// </summary>
     public static class DuckTypingNameValueCollectionExtensions
     {
-        internal static IDictionary<string, object> ToDictionary(this NameValueCollection src, bool caseInsensitive = false)
+        internal static IDictionary<string, object> ToDictionary(this NameValueCollection src,
+            bool caseInsensitive = false)
         {
             return new DictionaryWrappingNameValueCollection(src, caseInsensitive);
         }
@@ -104,10 +106,11 @@ namespace PeanutButter.DuckTyping.Extensions
             this NameValueCollection src,
             TransformFunc toNativeTransform,
             TransformFunc fromNativeTransform
-        ) where T: class
+        ) where T : class
         {
             return src.DuckAs<T>(toNativeTransform, fromNativeTransform, false);
         }
+
         /// <summary>
         /// Performs ducking with property name redirection
         /// </summary>
@@ -144,9 +147,13 @@ namespace PeanutButter.DuckTyping.Extensions
             this NameValueCollection src,
             TransformFunc toNativeTransform,
             TransformFunc fromNativeTransform
-        ) where T: class
+        ) where T : class
         {
-            return src.FuzzyDuckAs<T>(toNativeTransform, fromNativeTransform, false);
+            return src.FuzzyDuckAs<T>(
+                toNativeTransform,
+                fromNativeTransform,
+                false
+            );
         }
 
         /// <summary>

@@ -21,7 +21,24 @@ namespace PeanutButter.DuckTyping.Extensions
         /// <returns></returns>
         public static T ForceFuzzyDuckAs<T>(this IDictionary<string, object> src)
         {
-            return Shared.ForceDuckAs<T>(src, true, true);
+            return src.ForceFuzzyDuckAs<T>(false);
+        }
+
+        /// <summary>
+        /// Forces approximate ducking around a dictionary. Will "create" underlying
+        /// "properties" as required. Will attempt to convert to and from the underlying
+        /// types as required. Will match properties case-insensitive.
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="forceConcreteType">force ducking when T is concrete without virtual/abstract members</param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T ForceFuzzyDuckAs<T>(
+            this IDictionary<string, object> src,
+            bool forceConcreteType
+        )
+        {
+            return Shared.ForceDuckAs<T>(src, true, true, forceConcreteType);
         }
 
         /// <summary>
@@ -37,7 +54,9 @@ namespace PeanutButter.DuckTyping.Extensions
             return Shared.ForceDuckAs<T>(
                 src,
                 true,
-                true);
+                true,
+                true
+            );
         }
 
         /// <summary>
@@ -50,7 +69,7 @@ namespace PeanutButter.DuckTyping.Extensions
         /// <returns></returns>
         public static T ForceDuckAs<T>(this IDictionary<string, object> src)
         {
-            return Shared.ForceDuckAs<T>(src, false, true);
+            return Shared.ForceDuckAs<T>(src, false, true, true);
         }
 
 

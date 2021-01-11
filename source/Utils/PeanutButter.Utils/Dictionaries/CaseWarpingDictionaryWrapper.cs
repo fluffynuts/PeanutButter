@@ -167,28 +167,50 @@ namespace PeanutButter.Utils.Dictionaries
         private bool TryGetKey(string search, out string actual)
         {
             CacheKeys();
-            return _keyLookup.TryGetValue(search, out actual);
+            if (_keyLookup.TryGetValue(search, out actual))
+            {
+                return true;
+            }
+
+            if (_actual.ContainsKey(search))
+            {
+                // special case dictionaries, eg the default value dict,
+                // will be ok with this
+                actual = search;
+                return true;
+            }
+            return false;
         }
 
         private void SetValueAt(string key, TValue value)
         {
             if (TryGetKey(key, out var match))
+            {
                 _actual[match] = value;
+            }
             else
+            {
                 _actual[key] = value;
+            }
         }
 
         private TValue GetValueAt(string key)
         {
             if (!TryGetKey(key, out var match))
+            {
                 throw new KeyNotFoundException(key);
+            }
+
             return _actual[match];
         }
 
         private void CacheKeys()
         {
             if (_keyLookup != null)
+            {
                 return;
+            }
+
             _keyLookup = new Dictionary<string, string>(Comparer);
             _actual.ForEach(kvp => _keyLookup.Add(kvp.Key, kvp.Key));
         }

@@ -6,6 +6,7 @@ using System.Configuration;
 #endif
 using System.Linq;
 using System.Reflection;
+using Imported.PeanutButter.Utils;
 using PeanutButter.DuckTyping.AutoConversion;
 using PeanutButter.DuckTyping.AutoConversion.Converters;
 using PeanutButter.DuckTyping.Comparers;
@@ -55,7 +56,9 @@ namespace PeanutButter.DuckTyping.Extensions
         {
             lock (Lock)
             {
-                return HaveMatch(fuzzy ? FuzzyDuckables : Duckables, toDuckFrom, typeof(T));
+                return HaveMatch(fuzzy
+                    ? FuzzyDuckables
+                    : Duckables, toDuckFrom, typeof(T));
             }
         }
 
@@ -63,7 +66,9 @@ namespace PeanutButter.DuckTyping.Extensions
         {
             lock (Lock)
             {
-                return HaveMatch(fuzzy ? FuzzyDuckables : Duckables, toDuckFrom, toDuckTo);
+                return HaveMatch(fuzzy
+                    ? FuzzyDuckables
+                    : Duckables, toDuckFrom, toDuckTo);
             }
         }
 
@@ -77,7 +82,7 @@ namespace PeanutButter.DuckTyping.Extensions
             {
                 var match = cache.FirstOrDefault(
                     o => o.FromType == toDuckFrom &&
-                         o.ToType == toDuckTo);
+                        o.ToType == toDuckTo);
                 return match?.Duckable ?? false;
             }
         }
@@ -97,18 +102,18 @@ namespace PeanutButter.DuckTyping.Extensions
         private static MethodInfo FindGenericDuckMethodFromObjectExtensions(string name)
         {
             return typeof(DuckTypingObjectExtensions)
-                   .GetMethods(BindingFlags.Public | BindingFlags.Static)
-                   .FirstOrDefault(mi => mi.Name == name &&
-                                         mi.IsGenericMethod &&
-                                         IsCorrectSignature(mi));
+                .GetMethods(BindingFlags.Public | BindingFlags.Static)
+                .FirstOrDefault(mi => mi.Name == name &&
+                    mi.IsGenericMethod &&
+                    IsCorrectSignature(mi));
         }
 
         private static bool IsCorrectSignature(MethodInfo mi)
         {
             var parameters = mi.GetParameters();
             return parameters.Length == 2 &&
-                   parameters[0].ParameterType == typeof(object) &&
-                   parameters[1].ParameterType == typeof(bool);
+                parameters[0].ParameterType == typeof(object) &&
+                parameters[1].ParameterType == typeof(bool);
         }
 
         internal static object UnwrapTargetInvokationFor(Func<object> toRun)
@@ -137,14 +142,19 @@ namespace PeanutButter.DuckTyping.Extensions
         internal static T ForceDuckAs<T>(
             IDictionary<string, object> src,
             bool allowFuzzy,
-            bool allowDefaultValueForMissingProperties)
+            bool allowDefaultValueForMissingProperties,
+            bool forceConcrete)
         {
             if (allowFuzzy && src.IsCaseSensitive())
             {
                 src = src.ToCaseInsensitiveDictionary();
             }
 
-            var type = CreateDuckTypeFor<T>(allowFuzzy, allowDefaultValueForMissingProperties);
+            var type = CreateDuckTypeFor<T>(
+                allowFuzzy,
+                allowDefaultValueForMissingProperties,
+                forceConcrete
+            );
 
             return (T) Activator.CreateInstance(type, new object[] { new[] { src } });
         }
@@ -152,9 +162,14 @@ namespace PeanutButter.DuckTyping.Extensions
         internal static T ForceDuckAs<T>(
             object src,
             bool allowFuzzy,
-            bool allowDefaultValueForMissingProperties)
+            bool allowDefaultValueForMissingProperties,
+            bool forceConcrete)
         {
-            var type = CreateDuckTypeFor<T>(allowFuzzy, allowDefaultValueForMissingProperties);
+            var type = CreateDuckTypeFor<T>(
+                allowFuzzy,
+                allowDefaultValueForMissingProperties,
+                forceConcrete
+            );
             return (T) Activator.CreateInstance(type, new object[] { new[] { src } });
         }
 
@@ -216,9 +231,7 @@ namespace PeanutButter.DuckTyping.Extensions
         )
         {
             var properties = type
-                             .GetAllImplementedInterfaces()
-                             .SelectMany(itype => itype.GetProperties())
-                             .Distinct(new PropertyInfoComparer());
+                .GetProperties();
             src = allowFuzzy && src.IsCaseSensitive()
                 ? src.ToCaseInsensitiveDictionary()
                 : src;
@@ -243,9 +256,9 @@ namespace PeanutButter.DuckTyping.Extensions
             if (result != null)
                 return result;
             var dictionaryTypes = src.GetType()
-                                     .GetInterfaces()
-                                     .Select(GetDictionaryTypes)
-                                     .FirstOrDefault();
+                .GetInterfaces()
+                .Select(GetDictionaryTypes)
+                .FirstOrDefault();
 
             if (dictionaryTypes == null || dictionaryTypes.KeyType != typeof(string))
                 return null;
@@ -256,7 +269,7 @@ namespace PeanutButter.DuckTyping.Extensions
 
         private static readonly MethodInfo GenericConvertDictionaryMethod =
             typeof(DuckTypingExtensionSharedMethods).GetMethod(nameof(ConvertDictionary),
-                                                               BindingFlags.Static | BindingFlags.NonPublic);
+                BindingFlags.Static | BindingFlags.NonPublic);
 
         private static IDictionary<string, object> ConvertDictionary<T>(IDictionary<string, T> src)
         {
@@ -284,9 +297,9 @@ namespace PeanutButter.DuckTyping.Extensions
             if (generic != typeof(IDictionary<,>))
                 return null;
             var addParameters = t.GetMethods()
-                                 .Where(mi => mi.Name == "Add")
-                                 .Select(mi => mi.GetParameters())
-                                 .FirstOrDefault(p => p.Length == 2);
+                .Where(mi => mi.Name == "Add")
+                .Select(mi => mi.GetParameters())
+                .FirstOrDefault(p => p.Length == 2);
             if (addParameters == null)
                 return null;
             return new KeyValueTypes(addParameters[0].ParameterType, addParameters[1].ParameterType);
@@ -386,12 +399,12 @@ namespace PeanutButter.DuckTyping.Extensions
                 return asDictionary.CanDuckDictionaryAs(toType, allowFuzzy, throwOnError);
             var srcType = src.GetType();
             return DuckableTypesCache.CanDuckAs(srcType, toType, allowFuzzy) ||
-                   CacheDuckResult(
-                       InternalCanDuckAs(toType, srcType, allowFuzzy, throwOnError),
-                       allowFuzzy,
-                       srcType,
-                       toType
-                   );
+                CacheDuckResult(
+                    InternalCanDuckAs(toType, srcType, allowFuzzy, throwOnError),
+                    allowFuzzy,
+                    srcType,
+                    toType
+                );
         }
 
         internal static bool InternalCanDuckAs<T>(this object src, bool allowFuzzy, bool throwOnError)
@@ -402,12 +415,12 @@ namespace PeanutButter.DuckTyping.Extensions
             var type = typeof(T);
             var srcType = src.GetType();
             return DuckableTypesCache.CanDuckAs<T>(srcType, allowFuzzy) ||
-                   CacheDuckResult(
-                       InternalCanDuckAs(type, srcType, allowFuzzy, throwOnError),
-                       allowFuzzy,
-                       srcType,
-                       type
-                   );
+                CacheDuckResult(
+                    InternalCanDuckAs(type, srcType, allowFuzzy, throwOnError),
+                    allowFuzzy,
+                    srcType,
+                    type
+                );
         }
 
 
@@ -421,7 +434,9 @@ namespace PeanutButter.DuckTyping.Extensions
                 ? type.FindFuzzyProperties()
                 : type.FindProperties();
             var expectedPrimitives = expectedProperties.GetPrimitiveProperties(allowFuzzy);
-            var srcProperties = allowFuzzy ? toType.FindFuzzyProperties() : toType.FindProperties();
+            var srcProperties = allowFuzzy
+                ? toType.FindFuzzyProperties()
+                : toType.FindProperties();
             var srcPrimitives = srcProperties.GetPrimitiveProperties(allowFuzzy);
 
             var primitiveMismatches = srcPrimitives.FindPrimitivePropertyMismatches(expectedPrimitives, allowFuzzy);
@@ -429,20 +444,24 @@ namespace PeanutButter.DuckTyping.Extensions
             if (primitiveMismatches.Any())
             {
                 AddPrimitivePropertyMismatchErrorsFor(primitiveMismatches, srcPrimitives, expectedPrimitives,
-                                                      allowFuzzy, errors);
+                    allowFuzzy, errors);
             }
 
             var accessMismatches = expectedProperties.Except(expectedPrimitives)
-                                                     .ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
-                                                     .FindAccessMismatches(srcProperties)
-                                                     .ToArray();
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
+                .FindAccessMismatches(srcProperties)
+                .ToArray();
             if (accessMismatches.Any())
                 AddAccessMismatchErrorsFor(srcProperties, accessMismatches, errors);
 
-            var expectedMethods = allowFuzzy ? type.FindFuzzyMethods() : type.FindMethods();
+            var expectedMethods = allowFuzzy
+                ? type.FindFuzzyMethods()
+                : type.FindMethods();
             if (toType.IsInterface)
                 expectedMethods = expectedMethods.Except(ObjectMethodNames);
-            var srcMethods = allowFuzzy ? toType.FindFuzzyMethods() : toType.FindMethods();
+            var srcMethods = allowFuzzy
+                ? toType.FindFuzzyMethods()
+                : toType.FindMethods();
             if (!srcMethods.IsSuperSetOf(expectedMethods))
                 errors.Add("One or more methods could not be ducked");
             return errors;
@@ -457,8 +476,8 @@ namespace PeanutButter.DuckTyping.Extensions
         )
         {
             var missing = mismatches
-                          .Where(kvp => !srcPrimitives.ContainsKey(kvp.Key))
-                          .ToArray();
+                .Where(kvp => !srcPrimitives.ContainsKey(kvp.Key))
+                .ToArray();
             if (missing.Any())
             {
                 errors.Add($"Missing target {Prop(missing.Length)} {NamesOf(missing)}");
@@ -467,9 +486,9 @@ namespace PeanutButter.DuckTyping.Extensions
 
             var accessMismatches = mismatches.Where(kvp =>
 //                    srcPrimitives.Keys.Contains(kvp.Key) && 
-                                                        !srcPrimitives[kvp.Key]
-                                                            .IsNoMoreRestrictiveThan(expectedPrimitives[kvp.Key]))
-                                             .ToArray();
+                    !srcPrimitives[kvp.Key]
+                        .IsNoMoreRestrictiveThan(expectedPrimitives[kvp.Key]))
+                .ToArray();
             if (accessMismatches.Any())
             {
                 AddAccessMismatchErrorsFor(srcPrimitives, accessMismatches, errors);
@@ -537,7 +556,9 @@ namespace PeanutButter.DuckTyping.Extensions
 
         private static string Prop(int count)
         {
-            return count == 1 ? "property" : "properties";
+            return count == 1
+                ? "property"
+                : "properties";
         }
 
         private static bool HaveConvertersFor(
@@ -566,7 +587,7 @@ namespace PeanutButter.DuckTyping.Extensions
         )
         {
             return src.Where(kvp => !others.Contains(kvp.Key))
-                      .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
 
         internal static T InternalDuckAs<T>(
@@ -579,11 +600,11 @@ namespace PeanutButter.DuckTyping.Extensions
             {
                 return null;
             }
-            
+
             var converter = ConverterLocator.GetConverter(src.GetType(), typeof(T));
             if (converter != null)
             {
-                return (T)converter.Convert(src);
+                return (T) converter.Convert(src);
             }
 
 
@@ -591,7 +612,7 @@ namespace PeanutButter.DuckTyping.Extensions
             {
                 return null;
             }
-            
+
             var srcAsDict = TryConvertToDictionary(src);
             if (allowFuzzy)
                 srcAsDict = srcAsDict?.ToCaseInsensitiveDictionary();
@@ -641,7 +662,11 @@ namespace PeanutButter.DuckTyping.Extensions
         }
 
 
-        private static Type CreateDuckTypeFor<T>(bool isFuzzy, bool allowDefaultsForMissingProperties)
+        private static Type CreateDuckTypeFor<T>(
+            bool isFuzzy,
+            bool allowDefaultsForMissingProperties,
+            bool forceConcreteType = false
+        )
         {
             var typeMaker = new TypeMaker();
             if (!isFuzzy)
@@ -650,8 +675,8 @@ namespace PeanutButter.DuckTyping.Extensions
             }
 
             return allowDefaultsForMissingProperties
-                ? typeMaker.MakeFuzzyDefaultingTypeImplementing<T>()
-                : typeMaker.MakeFuzzyTypeImplementing<T>();
+                ? typeMaker.MakeFuzzyDefaultingTypeImplementing<T>(forceConcreteType)
+                : typeMaker.MakeFuzzyTypeImplementing<T>(forceConcreteType);
         }
     }
 }

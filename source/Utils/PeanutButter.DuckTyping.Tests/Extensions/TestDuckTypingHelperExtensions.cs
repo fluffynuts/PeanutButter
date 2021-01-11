@@ -149,7 +149,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = dict.ToCaseInsensitiveDictionary();
 
             //--------------- Assert -----------------------
-            Expect((result["Inner"] as Dictionary<string, object>)["id"])
+            Expect((result["Inner"] as IDictionary<string, object>)["id"])
                 .To.Equal(expected);
         }
 

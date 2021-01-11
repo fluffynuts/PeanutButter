@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using Imported.PeanutButter.Utils;
 using PeanutButter.DuckTyping.AutoConversion.Converters;
 using PeanutButter.DuckTyping.Extensions;
 
@@ -11,7 +12,7 @@ namespace PeanutButter.DuckTyping.AutoConversion
     internal static class ConverterLocator
     {
         internal static IConverter[] Converters =>
-            _converters ?? (_converters = FindConverters());
+            _converters ??= FindConverters();
 
         private static IConverter[] _converters;
 

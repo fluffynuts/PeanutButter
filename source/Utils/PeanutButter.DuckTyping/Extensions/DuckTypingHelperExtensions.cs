@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using Imported.PeanutButter.Utils;
+using Imported.PeanutButter.Utils.Dictionaries;
 using PeanutButter.DuckTyping.AutoConversion.Converters;
 using PeanutButter.DuckTyping.Comparers;
 using PeanutButter.DuckTyping.Shimming;
@@ -61,9 +63,9 @@ namespace PeanutButter.DuckTyping.Extensions
             }
         }
 
-        private const BindingFlags SEEK_FLAGS = 
-            BindingFlags.Instance | 
-            BindingFlags.Public | 
+        private const BindingFlags SEEK_FLAGS =
+            BindingFlags.Instance |
+            BindingFlags.Public |
             BindingFlags.FlattenHierarchy;
 
         private static PropertyInfoContainer GetPropertiesFor(Type type, IPropertyInfoFetcher fetcher)
@@ -95,17 +97,6 @@ namespace PeanutButter.DuckTyping.Extensions
                 return MethodCache[type].FuzzyMethodInfos;
             }
         }
-
-        internal static Type[] GetAllImplementedInterfaces(this Type interfaceType)
-        {
-            var result = new List<Type> {interfaceType};
-            foreach (var type in interfaceType.GetInterfaces())
-            {
-                result.AddRange(type.GetAllImplementedInterfaces());
-            }
-            return result.ToArray();
-        }
-
 
         private static void CacheMethodInfosIfRequired(Type type)
         {
@@ -184,9 +175,9 @@ namespace PeanutButter.DuckTyping.Extensions
         internal static bool ShouldTreatAsPrimitive(this Type type)
         {
             return type.IsPrimitive || // types .net thinks are primitive
-                   type.IsValueType || // includes enums, structs, https://msdn.microsoft.com/en-us/library/s1ax56ch.aspx
-                   type.IsArray ||
-                   TreatAsPrimitives.Contains(type); // catch cases like strings and Date(/Time) containers
+                type.IsValueType || // includes enums, structs, https://msdn.microsoft.com/en-us/library/s1ax56ch.aspx
+                type.IsArray ||
+                TreatAsPrimitives.Contains(type); // catch cases like strings and Date(/Time) containers
         }
 
         internal static bool HasNonComplexPropertyMatching(
@@ -195,21 +186,27 @@ namespace PeanutButter.DuckTyping.Extensions
         )
         {
             if (!haystack.TryGetValue(needle.Name, out var matchByName))
+            {
                 return false;
+            }
             if (!matchByName.PropertyType.ShouldTreatAsPrimitive())
+            {
                 return false;
+            }
             if (needle.IsReadOnly() &&
                 matchByName.CanRead &&
                 needle.PropertyType.IsAssignableFrom(matchByName.PropertyType))
+            {
                 return true;
+            }
             return MatchesTypeOrCanEnumConvert(needle, matchByName) &&
-                   matchByName.IsNoMoreRestrictiveThan(needle);
+                matchByName.IsNoMoreRestrictiveThan(needle);
         }
 
         private static bool MatchesTypeOrCanEnumConvert(PropertyInfo needle, PropertyInfo matchByName)
         {
             return matchByName.PropertyType == needle.PropertyType ||
-                   EnumConverter.CanPerhapsConvertBetween(matchByName.PropertyType, needle.PropertyType);
+                EnumConverter.CanPerhapsConvertBetween(matchByName.PropertyType, needle.PropertyType);
         }
 
         internal static bool IsReadOnly(this PropertyInfo propInfo)
@@ -243,12 +240,16 @@ namespace PeanutButter.DuckTyping.Extensions
         )
         {
             if (mi.Name != "TryParse")
+            {
                 return false;
+            }
             var parameters = mi.GetParameters();
             if (parameters.Length != 2)
+            {
                 return false;
+            }
             return parameters[0].ParameterType == typeof(string) &&
-                   parameters[1].IsOut;
+                parameters[1].IsOut;
         }
 
         internal static bool HasMethodMatching(
@@ -257,9 +258,11 @@ namespace PeanutButter.DuckTyping.Extensions
         )
         {
             if (!haystack.TryGetValue(needle.Name, out var matchByName))
+            {
                 return false;
+            }
             return matchByName.ReturnType == needle.ReturnType &&
-                   matchByName.ExactlyMatchesParametersOf(needle);
+                matchByName.ExactlyMatchesParametersOf(needle);
         }
 
         internal static bool ExactlyMatchesParametersOf(
@@ -270,15 +273,20 @@ namespace PeanutButter.DuckTyping.Extensions
             var srcParameters = src.GetParameters();
             var otherParameters = other.GetParameters();
             if (srcParameters.Length != otherParameters.Length)
+            {
                 return false;
+            }
             for (var i = 0; i < srcParameters.Length; i++)
             {
                 var p1 = srcParameters[i];
                 var p2 = otherParameters[i];
                 // only care about positioning and type
                 if (p1.ParameterType != p2.ParameterType)
+                {
                     return false;
+                }
             }
+
             return true;
         }
 
@@ -306,17 +314,25 @@ namespace PeanutButter.DuckTyping.Extensions
             {
                 var asDict = kvp.Value as IDictionary<string, object>; // WRONG! what about different-typed sub-dicts?
                 if (asDict == null)
+                {
                     continue;
+                }
+
                 if (asDict.IsCaseSensitive())
+                {
                     return true;
+                }
             }
+
             return false;
         }
 
         private static bool BruteForceIsCaseSensitive(IDictionary<string, object> data)
         {
             if (data == null)
+            {
                 return false;
+            }
             string upper = null;
             string lower = null;
             foreach (var key in GetKeysOf(data))
@@ -324,11 +340,17 @@ namespace PeanutButter.DuckTyping.Extensions
                 upper = key.ToUpper(CultureInfo.InvariantCulture);
                 lower = key.ToLower(CultureInfo.InvariantCulture);
                 if (upper != lower)
+                {
                     break;
+                }
                 upper = null;
             }
+
             if (upper == null)
+            {
                 return false;
+            }
+
             return !(data.ContainsKey(lower) && data.ContainsKey(upper));
         }
 
@@ -342,54 +364,64 @@ namespace PeanutButter.DuckTyping.Extensions
             catch (Exception ex)
             {
                 throw new InvalidOperationException(
-                    "Unable to get keys from provided dictionary; examing inner exception", ex);
+                    "Unable to get keys from provided dictionary; examine inner exception",
+                    ex
+                );
             }
+
             if (result == null)
+            {
                 throw new InvalidOperationException("Provided dictionary gives null for keys");
+            }
+
             return result;
         }
 
         internal static bool IsSpecial(this MethodInfo methodInfo)
         {
             return ((int) methodInfo.Attributes & (int) MethodAttributes.SpecialName) ==
-                   (int) MethodAttributes.SpecialName;
+                (int) MethodAttributes.SpecialName;
         }
 
         internal static IDictionary<string, object> ToCaseInsensitiveDictionary(
             this IDictionary<string, object> data
         )
         {
-            return data.ToCaseInsensitiveDictionary(new List<object>());
+            return data.ToCaseInsensitiveDictionary(
+                new Dictionary<object, IDictionary<string, object>>()
+            );
         }
 
         internal static IDictionary<string, object> ToCaseInsensitiveDictionary(
             this IDictionary<string, object> data,
-            List<object> seenObjects
+            IDictionary<object, IDictionary<string, object>> alreadyWarped
         )
         {
-            // TODO: replace this logic with a case-insensitive passthrough / wrapper
-            //   to enable proper write-back to the underlying data source
-            if (!data.IsCaseSensitive() &&
-                !data.ContainsCaseSensitiveDictionary())
-                return data;
-            var outer = new Dictionary<string, object>(data, StringComparer.OrdinalIgnoreCase);
-            var toReplace = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-            foreach (var kvp in outer)
+            if (alreadyWarped.TryGetValue(data, out var existing))
             {
-                if (seenObjects.Contains(kvp.Value))
-                    continue;
-                seenObjects.Add(kvp.Value);
-                var inner = kvp.Value as IDictionary<string, object>; // sub-dicts are being coerced )':
-                if (inner.IsCaseSensitive())
-                {
-                    toReplace[kvp.Key] = inner.ToCaseInsensitiveDictionary(seenObjects);
-                }
+                return existing;
             }
+
+            var result = new CaseWarpingDictionaryWrapper<object>(data, true);
+            alreadyWarped[data] = result;
+            var toReplace = new Dictionary<string, IDictionary<string, object>>();
+            foreach (var item in data)
+            {
+                var asDict = item.Value as IDictionary<string, object>;
+                if (asDict is null)
+                {
+                    continue;
+                }
+
+                toReplace[item.Key] = asDict.ToCaseInsensitiveDictionary(alreadyWarped);
+            }
+
             foreach (var kvp in toReplace)
             {
-                outer[kvp.Key] = kvp.Value;
+                result[kvp.Key] = kvp.Value;
             }
-            return outer;
+
+            return result;
         }
 
         private static readonly ConcurrentDictionary<Type, bool> NullableTypes = new ConcurrentDictionary<Type, bool>();
@@ -406,7 +438,7 @@ namespace PeanutButter.DuckTyping.Extensions
             var result = defaultValueForType == null;
             return NullableTypes[arg] = result;
         }
-        
+
         private static readonly MethodInfo GenericGetDefaultValueMethod =
             typeof(DuckTypingHelperExtensions).GetMethod(
                 nameof(GetDefaultValueFor),
@@ -416,6 +448,6 @@ namespace PeanutButter.DuckTyping.Extensions
         private static T GetDefaultValueFor<T>()
         {
             return default(T);
-        } 
+        }
     }
 }

@@ -488,6 +488,25 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                 });
         }
 
+        [Test]
+        public void MergeDictionaryWithFallback()
+        {
+            // Arrange
+            var expected = GetRandomString();
+            var src = new MergeDictionary<string, object>(
+                new DefaultDictionary<string, object>(() => expected)
+            );
+            
+            Expect(src["BaseUrl"])
+                .To.Equal(expected);
+            
+            // Act
+            var result = new CaseWarpingDictionaryWrapper<object>(src, true);
+            // Assert
+            Expect(result["BaseUrl"])
+                .To.Equal(expected);
+        }
+
         private static IDictionary<string, TValue> Create<TValue>(
             IDictionary<string, TValue> src,
             bool caseInsensitive

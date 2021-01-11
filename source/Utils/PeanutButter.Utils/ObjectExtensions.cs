@@ -778,7 +778,8 @@ namespace PeanutButter.Utils
                 src,
                 propertyPath,
                 AnyInstanceProperty,
-                AnyInstanceField);
+                AnyInstanceField
+            );
             if (!trailingMember.Found)
             {
                 throw new MemberNotFoundException(src?.GetType(), propertyPath);
@@ -790,9 +791,19 @@ namespace PeanutButter.Utils
         private static PropertyOrField[] AnyInstanceProperty(
             Type type)
         {
-            return type.GetProperties(AllOnInstance)
+            var ancestry = type.Ancestry()
+                .Reverse()
+                .Select((t, idx) => new { type = t, idx })
+                .ToDictionary(o => o.type, o => o.idx);
+            var result = type.GetProperties(AllOnInstance)
+                .Where(pi => !(pi.DeclaringType is null))
+                .Select(pi => new { pi, idx = ancestry[pi.DeclaringType] })
+                .OrderBy(o => o.pi.Name)
+                .ThenBy(o => o.idx)
+                .Select(o => o.pi)
                 .ImplicitCast<PropertyOrField>()
                 .ToArray();
+            return result;
         }
 
         private static PropertyOrField[] AnyInstanceField(
@@ -801,18 +812,6 @@ namespace PeanutButter.Utils
             return type.GetFields(AllOnInstance)
                 .ImplicitCast<PropertyOrField>()
                 .ToArray();
-        }
-
-        private static object GetImmediatePropertyValue(
-            this object src,
-            string propertyName)
-        {
-            var type = src.GetType();
-            var propInfo = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                .FirstOrDefault(pi => pi.Name == propertyName);
-            if (propInfo == null)
-                throw new MemberNotFoundException(type, propertyName);
-            return propInfo.GetValue(src, null);
         }
 
         /// <summary>
@@ -856,8 +855,8 @@ namespace PeanutButter.Utils
             object newValue)
         {
             var trailingMember = FindPropertyOrField(
-                src, 
-                propertyPath, 
+                src,
+                propertyPath,
                 AnyInstanceProperty,
                 AnyInstanceField);
 

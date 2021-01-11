@@ -7,6 +7,8 @@ using PeanutButter.RandomGenerators;
 using PeanutButter.Utils;
 using NExpect;
 using static NExpect.Expectations;
+using static PeanutButter.RandomGenerators.RandomValueGen;
+
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable MemberCanBePrivate.Global
@@ -29,7 +31,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
         }
 
         [Test]
-        public void MakeTypeImplementing_InvokedWithNonInterfaceTypeParameter_ShouldThrow()
+        public void MakeTypeImplementing_InvokedWithNonInterfaceTypeParameter_ShouldWork()
         {
             //--------------- Arrange -------------------
             var sut = Create();
@@ -37,26 +39,47 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            Expect(() => sut.MakeTypeImplementing<NotAnInterface>())
-                .To.Throw<InvalidOperationException>();
+            var result = sut.MakeTypeImplementing<NotAnInterface>();
 
             //--------------- Assert -----------------------
+            Expect(result)
+                .Not.To.Be.Null();
+            Expect(result)
+                .Not.To.Be(typeof(NotAnInterface));
+            var instance = Activator.CreateInstance(result);
+            Expect(instance)
+                .To.Be.An.Instance.Of<NotAnInterface>();
+        }
+
+        public class SimplePoco
+        {
+            public virtual int Id { get; set; }
+            public virtual string Name { get; set; }
         }
 
         [Test]
-        public void MakeFuzzyTypeImplementing_InvokedWithNonInterfaceTypeParameter_ShouldThrow()
+        public void ShouldBeAbleToMakeReadWritablePoco()
         {
-            //--------------- Arrange -------------------
+            // Arrange
             var sut = Create();
+            var id = GetRandomInt();
+            var name = GetRandomWords();
+            // Act
+            var result = Activator.CreateInstance(
+                sut.MakeTypeImplementing<SimplePoco>()
+            ) as SimplePoco;
 
-            //--------------- Assume ----------------
-
-            //--------------- Act ----------------------
-            Expect(() => sut.MakeFuzzyTypeImplementing<NotAnInterface>())
-                .To.Throw<InvalidOperationException>();
-
-            //--------------- Assert -----------------------
+            // Assert
+            Expect(result)
+                .Not.To.Be.Null();
+            result.Id = id;
+            result.Name = name;
+            Expect(result.Id)
+                .To.Equal(id);
+            Expect(result.Name)
+                .To.Equal(name);
         }
+
 
         [Test]
         public void MakeTypeImplementing_GivenInterfaceWithOneProperty_ShouldReturnTypeImplementingThatInterface()
@@ -82,12 +105,13 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
         }
 
         [Test]
-        public void MakeTypeImplementing_GivenInterfaceWithTwoReadOnlyProperties_ShouldProduceTypeWithWritableProperties()
+        public void
+            MakeTypeImplementing_GivenInterfaceWithTwoReadOnlyProperties_ShouldProduceTypeWithWritableProperties()
         {
             //--------------- Arrange -------------------
             var sut = Create();
             var type = sut.MakeTypeImplementing<ISample2>();
-            var instance = (ISample2)CreateInstanceOf(type);
+            var instance = (ISample2) CreateInstanceOf(type);
             var expectedId = RandomValueGen.GetRandomInt();
             var expectedName = RandomValueGen.GetRandomString();
 
@@ -107,7 +131,8 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             public string Name { get; set; }
         }
 
-        public interface ISample3    // because there are no guards against creating the same-named dynamic type again (yet)
+        public interface
+            ISample3 // because there are no guards against creating the same-named dynamic type again (yet)
         {
             string Name { get; }
         }
@@ -141,7 +166,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
 
             //--------------- Act ----------------------
             var result = sut.MakeTypeImplementing<ISample1>();
-            var instance = (ISample1)CreateInstanceOf(result, new object[] { new[] { toWrap } });
+            var instance = (ISample1) CreateInstanceOf(result, new object[] { new[] { toWrap } });
             instance.SetPropertyValue("Name", expected);
 
             //--------------- Assert -----------------------
@@ -206,7 +231,8 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
         }
 
         [Test]
-        public void MakeTypeImplementing_WhenAttemptingToSetReadOnlyPropertyOnWrappedObject_ShouldThrow_ReadOnlyPropertyException()
+        public void
+            MakeTypeImplementing_WhenAttemptingToSetReadOnlyPropertyOnWrappedObject_ShouldThrow_ReadOnlyPropertyException()
         {
             //--------------- Arrange -------------------
             var sut = Create();
@@ -217,7 +243,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var instance = (ISample4)CreateInstanceOf(type, new object[] { new[] { toWrap } });
+            var instance = (ISample4) CreateInstanceOf(type, new object[] { new[] { toWrap } });
 
             //--------------- Assert -----------------------
             Expect(() => instance.Sample = expected)
@@ -248,6 +274,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
         public class VoidVoidImpl
         {
             public bool Called { get; private set; }
+
             public void Moo()
             {
                 Called = true;
@@ -266,7 +293,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
 
             //--------------- Act ----------------------
             var type = sut.MakeTypeImplementing<IVoidVoid>();
-            var instance = (IVoidVoid)CreateInstanceOf(type, new object[] { new[] { toWrap } });
+            var instance = (IVoidVoid) CreateInstanceOf(type, new object[] { new[] { toWrap } });
             instance.Moo();
 
             //--------------- Assert -----------------------
@@ -298,6 +325,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
         {
             public string Pitch { get; private set; }
             public int HowMany { get; private set; }
+
             public void Moo(string pitch, int howMany)
             {
                 Pitch = pitch;
@@ -320,7 +348,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
 
             //--------------- Act ----------------------
             var type = sut.MakeTypeImplementing<IVoidArgs>();
-            var instance = (IVoidArgs)CreateInstanceOf(type, new object[] { new[] { toWrap } });
+            var instance = (IVoidArgs) CreateInstanceOf(type, new object[] { new[] { toWrap } });
             instance.Moo(expectedPitch, expectedCount);
 
             //--------------- Assert -----------------------
@@ -371,7 +399,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var instance = (IArgsNonVoid)CreateInstanceOf(type, new object[] { new[] { toWrap } });
+            var instance = (IArgsNonVoid) CreateInstanceOf(type, new object[] { new[] { toWrap } });
             var result = instance.Add(first, second);
 
             //--------------- Assert -----------------------
@@ -441,7 +469,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var instance = (ISample4)CreateInstanceOf(type, new object[] { new[] { toWrap } });
+            var instance = (ISample4) CreateInstanceOf(type, new object[] { new[] { toWrap } });
             instance.Sample = expected;
 
             //--------------- Assert -----------------------
@@ -449,7 +477,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             Expect(result).To.Equal((expected));
         }
 
-        public class LabelAttribute: Attribute
+        public class LabelAttribute : Attribute
         {
             public string Label { get; }
 
@@ -465,6 +493,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             [Label("moo")]
             string Name { get; set; }
         }
+
         [Test]
         public void MakeTypeImplementing_ShouldCopyPropertyAttributes()
         {
@@ -478,11 +507,11 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
 
             //--------------- Assert -----------------------
             var attr = result.GetProperties().FirstOrDefault(p => p.Name == "Name")
-                                ?.GetCustomAttributes(true)
-                                .FirstOrDefault();
+                ?.GetCustomAttributes(true)
+                .FirstOrDefault();
             Expect(attr).Not.To.Be.Null();
             Expect(attr).To.Be.An.Instance.Of<LabelAttribute>();
-            Expect(((LabelAttribute)attr)?.Label).To.Equal("moo");
+            Expect(((LabelAttribute) attr)?.Label).To.Equal("moo");
         }
 
         [Test]
@@ -498,8 +527,8 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
 
             //--------------- Assert -----------------------
             var attr = result.GetCustomAttributes(true)
-                                .OfType<LabelAttribute>()
-                                .FirstOrDefault();
+                .OfType<LabelAttribute>()
+                .FirstOrDefault();
             Expect(attr).Not.To.Be.Null();
             Expect(attr?.Label).To.Equal("cow!");
         }
@@ -535,6 +564,5 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
         {
             return new TypeMaker();
         }
-
     }
 }

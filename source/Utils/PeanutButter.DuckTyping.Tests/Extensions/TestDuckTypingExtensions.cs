@@ -13,6 +13,7 @@ using NUnit.Framework;
 using PeanutButter.DuckTyping.AutoConversion;
 using PeanutButter.DuckTyping.Exceptions;
 using PeanutButter.DuckTyping.Extensions;
+using PeanutButter.DuckTyping.Shimming;
 using PeanutButter.Utils;
 using PeanutButter.Utils.Dictionaries;
 using static PeanutButter.RandomGenerators.RandomValueGen;
@@ -720,7 +721,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var parameters = new Dictionary<string, object>()
             {
                 { "travellerId", new Guid() },
-                { "taskId", new Guid() }
+                { "taskIdMoo", new Guid() }
             };
 
             //--------------- Assume ----------------
@@ -730,6 +731,40 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 .To.Throw<UnDuckableException>();
 
             //--------------- Assert -----------------------
+        }
+
+        [Test]
+        public void ForcedConcreteDuckShouldWorkNeatly()
+        {
+            // Arrange
+            var data = new Dictionary<string, object>()
+            {
+                ["id"] = 1,
+                ["name"] = "moo-cow"
+            };
+            // Act
+            var result = data.ForceFuzzyDuckAs<ForceMe>(forceConcreteType: true);
+            // Assert
+            // virtual member will work
+            Expect(result.Name)
+                .To.Equal("moo-cow");
+            Expect(result.Id)
+                .To.Equal(0);
+            Expect(result.Get<int>(nameof(ForceMe.Id)))
+                .To.Equal(1);
+            result.Set(nameof(ForceMe.Id), 3);
+            // fixme: fuzzy ducks don't write back to their
+            // underlying dictionaries!
+            Expect(result.Get<int>(nameof(ForceMe.Id)))
+                .To.Equal(3);
+            Expect(data["id"])
+                .To.Equal(3);
+        }
+
+        public class ForceMe
+        {
+            public int Id { get; set; }
+            public virtual string Name { get; set; }
         }
 
 
@@ -1908,6 +1943,9 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 new DefaultDictionary<string, object>(() => expected)
             );
 
+            Expect(src["BaseUrl"])
+                .To.Equal(expected);
+
             // Pre-Assert
             Expect(src.CanFuzzyDuckAs<IConfig>()).To.Be.True();
 
@@ -2027,6 +2065,28 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             result.BaseUrl = expected;
             Expect(result.BaseUrl).To.Equal(expected);
             Expect(src["BaseUrl"]).To.Equal(expected);
+        }
+
+        [Test]
+        public void DuckingToConcreteType()
+        {
+            // Arrange
+            var data = new
+            {
+                Id = 1,
+                Name = "Bob"
+            };
+            // Act
+            var result = data.DuckAs<SimpleReadOnlyPoco>();
+            // Assert
+            Expect(result)
+                .To.Deep.Equal(data);
+        }
+
+        public class SimpleReadOnlyPoco
+        {
+            public virtual int Id { get; }
+            public virtual string Name { get; }
         }
 
         [TestFixture]
@@ -2151,8 +2211,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                             s => s.RegexReplace("Config.", GetRandomString(7)));
 
                         // Assert
-
-                        Expect(result).To.Be.Null();
+                        Expect(result.Port)
+                            .To.Equal(expected);
                     }
                 }
             }
@@ -2276,12 +2336,15 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
                 // Act
                 var result =
-                    data.FuzzyDuckAs<IConfig2>(s => "Config." + s,
-                        s => s.RegexReplace("Config.", "moo"));
+                    data.FuzzyDuckAs<IConfig2>(
+                        toNativeTransform: s => s.RegexReplace("Config.", "moo"),
+                        fromNativeTransform: s => "Config." + s
+                    );
 
                 // Assert
 
-                Expect(result).To.Be.Null();
+                Expect(result)
+                    .To.Be.Null();
             }
 
             [Test]
@@ -3053,6 +3116,21 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 [TestFixture]
                 public class WhenForcedFuzzy
                 {
+                    [Test]
+                    public void CaseInsensitiveDictGen()
+                    {
+                        // Arrange
+                        var dict = new Dictionary<string, object>()
+                        {
+                            ["IntProp"] = null
+                        };
+                        // Act
+                        var result = dict.ToCaseInsensitiveDictionary();
+                        // Assert
+                        Expect(result["intprop"])
+                            .To.Be.Null();
+                    }
+
                     [Test]
                     public void ShouldReturnDefaultValueForType()
                     {

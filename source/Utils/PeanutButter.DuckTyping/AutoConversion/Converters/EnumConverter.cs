@@ -23,8 +23,9 @@ namespace PeanutButter.DuckTyping.AutoConversion.Converters
                 result = sourceValue?.ToString();
                 return true;
             }
+
             var method = GenericTryParse.MakeGenericMethod(enumType);
-            var args = new[] {sourceValue, true, null};
+            var args = new[] { sourceValue, true, null };
             var parsed = (bool) method.Invoke(null, args);
             if (parsed)
                 result = args[2];
@@ -49,19 +50,25 @@ namespace PeanutButter.DuckTyping.AutoConversion.Converters
 
         private static T Choose<T>(T left, T right, Func<T, bool> test)
         {
-            return test(left) ? left : (test(right) ? right : default(T));
+            return test(left)
+                ? left
+                : (test(right)
+                    ? right
+                    : default(T));
         }
     }
 
     internal static class MethodInfoExtensions
     {
-        public static bool HasExpectedParametersForCaseInsensitiveTryParse(this MethodInfo methodInfo)
+        public static bool HasExpectedParametersForCaseInsensitiveTryParse(
+            this MethodInfo methodInfo
+        )
         {
             var args = methodInfo.GetParameters();
             return args.Length == 3 &&
-                   args[0].ParameterType == typeof(string) &&
-                   args[1].ParameterType == typeof(bool) &&
-                   args[2].IsOut;
+                args[0].ParameterType == typeof(string) &&
+                args[1].ParameterType == typeof(bool) &&
+                args[2].IsOut;
         }
     }
 }

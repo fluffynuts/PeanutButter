@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using PeanutButter.DuckTyping.Comparers;
 using PeanutButter.DuckTyping.Extensions;
+using Imported.PeanutButter.Utils;
 
 namespace PeanutButter.DuckTyping.Shimming
 {
@@ -66,13 +67,25 @@ namespace PeanutButter.DuckTyping.Shimming
         /// <inheritdoc />
         public Type MakeTypeImplementing<T>()
         {
-            return MakeTypeImplementing(typeof(T));
+            return MakeTypeImplementing(typeof(T), false);
         }
 
         /// <inheritdoc />
-        public Type MakeTypeImplementing(Type interfaceType)
+        public Type MakeTypeImplementing<T>(bool forceConcrete)
         {
-            return MakeTypeImplementing(interfaceType, false, false);
+            return MakeTypeImplementing(typeof(T), forceConcrete);
+        }
+
+        /// <inheritdoc />
+        public Type MakeTypeImplementing(Type type, bool forceConcrete)
+        {
+            return MakeTypeImplementing(type, false, false, forceConcrete);
+        }
+
+        /// <inheritdoc />
+        public Type MakeTypeImplementing(Type type)
+        {
+            return MakeTypeImplementing(type, false, false);
         }
 
         /// <inheritdoc />
@@ -82,24 +95,57 @@ namespace PeanutButter.DuckTyping.Shimming
         }
 
         /// <inheritdoc />
-        public Type MakeFuzzyTypeImplementing(Type interfaceType)
+        public Type MakeFuzzyTypeImplementing<T>(bool forceConcrete)
         {
-            return MakeTypeImplementing(interfaceType, true, false);
+            return MakeFuzzyTypeImplementing(typeof(T), forceConcrete);
+        }
+
+        /// <inheritdoc />
+        public Type MakeFuzzyTypeImplementing(Type type)
+        {
+            return MakeFuzzyTypeImplementing(type, false);
+        }
+
+        /// <inheritdoc />
+        public Type MakeFuzzyTypeImplementing(
+            Type type,
+            bool forceConcrete
+        )
+        {
+            return MakeTypeImplementing(type, true, false, forceConcrete);
         }
 
         /// <inheritdoc />
         public Type MakeFuzzyDefaultingTypeImplementing<T>()
         {
-            return MakeFuzzyDefaultingTypeImplementing(typeof(T));
+            return MakeFuzzyDefaultingTypeImplementing(typeof(T), false);
         }
 
         /// <inheritdoc />
-        public Type MakeFuzzyDefaultingTypeImplementing(Type interfaceType)
+        public Type MakeFuzzyDefaultingTypeImplementing<T>(
+            bool forceConcrete
+        )
         {
-            return MakeTypeImplementing(interfaceType, true, true);
+            return MakeFuzzyDefaultingTypeImplementing(typeof(T), forceConcrete);
         }
 
-        private static ModuleBuilder ModuleBuilder => _moduleBuilder ?? (_moduleBuilder = CreateModuleBuilder());
+        /// <inheritdoc />
+        public Type MakeFuzzyDefaultingTypeImplementing(Type type)
+        {
+            return MakeFuzzyDefaultingTypeImplementing(type, false);
+        }
+
+        /// <inheritdoc />
+        public Type MakeFuzzyDefaultingTypeImplementing(
+            Type type,
+            bool forceConcreteType
+        )
+        {
+            return MakeTypeImplementing(type, true, true, forceConcreteType);
+        }
+
+        private static ModuleBuilder ModuleBuilder =>
+            _moduleBuilder ??= CreateModuleBuilder();
 
         private static ModuleBuilder CreateModuleBuilder()
         {
@@ -108,40 +154,64 @@ namespace PeanutButter.DuckTyping.Shimming
         }
 
         private Type MakeTypeImplementing(
-            Type interfaceType,
+            Type type,
             bool isFuzzy,
-            bool allowDefaultsForReadonlyMembers)
+            bool allowDefaultsForReadonlyMembers,
+            bool forceConcreteClass = false)
         {
-            if (!interfaceType.IsInterface)
+            if (!type.IsInterface && !forceConcreteClass)
             {
-                throw new InvalidOperationException(
-                    "MakeTypeImplementing<T> requires an interface for the type parameter"
-                );
+                if (!type.AllPublicInstancePropertiesAndMethodsAreVirtualOrAbstract())
+                {
+                    throw new InvalidOperationException(
+                        @$"
+MakeTypeImplementing<T> requires an interface, or class with all-virtual members 
+for the type parameter.
+
+Concrete classes with non-virtual members will produce unexpected results as 
+casting down to the given type ({type}) will result in accessing the members
+on that type instead of the type generated for duck-typing.
+
+You may force duck-typing to happen, but be aware that only virtual and abstract
+members will behave as expected. Other members can be reached via reflection, eg
+by using the helper extension methods GetTopmostProperty and SetTopmostProperty:
+
+duckedResult.GetTopmostProperty<T>(""PropertyName"");
+
+but this really isn't pretty ):
+".Trim()
+                    );
+                }
             }
 
             var identifier = Guid.NewGuid().ToString("N");
 
-            var generatedTypeName = interfaceType.Name + "_Duck_" + identifier;
-            var typeBuilder = ModuleBuilder.DefineType(generatedTypeName, TypeAttributes.Public);
+            var generatedTypeName = type.Name + "_Duck_" + identifier;
+            var typeBuilder = type.IsInterface
+                ? ModuleBuilder.DefineType(generatedTypeName, TypeAttributes.Public)
+                : ModuleBuilder.DefineType(generatedTypeName, TypeAttributes.Public, type);
 
             var attribConstructor = typeof(IsADuckAttribute).GetConstructor(new Type[0]);
             // we have full control over the constructor; testing for null is a waste of time.
             // ReSharper disable once AssignNullToNotNullAttribute
             var attribBuilder = new CustomAttributeBuilder(attribConstructor, new object[0]);
             typeBuilder.SetCustomAttribute(attribBuilder);
-            CopyCustomAttributes(interfaceType, typeBuilder);
+            CopyCustomAttributes(type, typeBuilder);
 
-            typeBuilder.AddInterfaceImplementation(interfaceType);
+            if (type.IsInterface)
+            {
+                typeBuilder.AddInterfaceImplementation(type);
+            }
 
             var shimField = AddShimField(typeBuilder);
-            var allInterfaceTypes = interfaceType.GetAllImplementedInterfaces();
-            AddAllPropertiesAsShimmable(typeBuilder, allInterfaceTypes, shimField);
-            AddAllMethodsAsShimmable(typeBuilder, allInterfaceTypes, shimField);
+            var allInterfaceTypes = type.GetAllImplementedInterfaces();
+            AddAllPropertiesAsShimmable(typeBuilder, allInterfaceTypes, shimField, forceConcreteClass);
+            AddAllMethodsAsShimmable(typeBuilder, allInterfaceTypes, shimField, forceConcreteClass);
 
-            AddDefaultConstructor(typeBuilder, shimField, interfaceType, isFuzzy, allowDefaultsForReadonlyMembers);
-            AddObjectWrappingConstructors(typeBuilder, shimField, interfaceType, isFuzzy,
+            AddDefaultConstructor(typeBuilder, shimField, type, isFuzzy, allowDefaultsForReadonlyMembers);
+            AddObjectWrappingConstructors(typeBuilder, shimField, type, isFuzzy,
                 allowDefaultsForReadonlyMembers);
-            AddDictionaryWrappingConstructors(typeBuilder, shimField, interfaceType);
+            AddDictionaryWrappingConstructors(typeBuilder, shimField, type);
 
 #if NETSTANDARD
             return typeBuilder.CreateTypeInfo();
@@ -149,6 +219,8 @@ namespace PeanutButter.DuckTyping.Shimming
             return typeBuilder.CreateType();
 #endif
         }
+
+        private const BindingFlags PUBLIC_INSTANCE = BindingFlags.Public | BindingFlags.Instance;
 
         private FieldBuilder AddShimField(TypeBuilder typeBuilder)
         {
@@ -315,9 +387,9 @@ namespace PeanutButter.DuckTyping.Shimming
             il.Emit(OpCodes.Stloc, result);
             return result;
         }
-        
+
         private static readonly MethodInfo GetTypeFromHandleMethod =
-            typeof(Type).GetMethod(nameof(Type.GetTypeFromHandle)) 
+            typeof(Type).GetMethod(nameof(Type.GetTypeFromHandle))
             ?? throw new InvalidOperationException($"Can't find method System.Type.GetTypeFromHandle");
 
         private static void CallBaseObjectConstructor(ILGenerator generator)
@@ -329,9 +401,11 @@ namespace PeanutButter.DuckTyping.Shimming
         private void AddAllMethodsAsShimmable(
             TypeBuilder typeBuilder,
             Type[] interfaceTypes,
-            FieldBuilder shimField)
+            FieldBuilder shimField,
+            bool forceNonVirtual
+        )
         {
-            var methodInfos = GetAllMethodsFor(interfaceTypes);
+            var methodInfos = GetAllMethodsFor(interfaceTypes, forceNonVirtual);
             foreach (var methodInfo in methodInfos)
             {
                 AddMethod(interfaceTypes[0], typeBuilder, methodInfo, shimField);
@@ -457,29 +531,43 @@ namespace PeanutButter.DuckTyping.Shimming
 
         private void AddAllPropertiesAsShimmable(
             TypeBuilder typeBuilder,
-            Type[] interfaceTypes,
-            FieldBuilder shimField)
+            Type[] types,
+            FieldBuilder shimField,
+            bool forceNonVirtual
+        )
         {
-            var allProperties = GetAllPropertiesFor(interfaceTypes);
+            var allProperties = GetAllPropertiesFor(types, forceNonVirtual);
             foreach (var prop in allProperties)
             {
-                AddShimmableProperty(interfaceTypes[0], typeBuilder, prop, shimField);
+                AddShimmableProperty(types[0], typeBuilder, prop, shimField);
             }
         }
 
-        private PropertyInfo[] GetAllPropertiesFor(Type[] allImplementedInterfaces)
+        private PropertyInfo[] GetAllPropertiesFor(
+            Type[] types,
+            bool forceNonVirtual
+        )
         {
             return GetAllFor(
-                    allImplementedInterfaces,
-                    t => t.GetProperties())
+                    types,
+                    t => t.GetProperties()
+                )
+                .Where(pi => forceNonVirtual || pi.IsVirtualOrAbstract())
                 .Distinct(new PropertyInfoComparer())
                 .ToArray();
         }
 
-        private MethodInfo[] GetAllMethodsFor(Type[] allImplementedInterfaces)
+        private MethodInfo[] GetAllMethodsFor(
+            Type[] types,
+            bool forceNonVirtual
+        )
         {
-            return GetAllFor(allImplementedInterfaces,
-                t => t.GetMethods().Where(MethodIsNotSpecial));
+            return GetAllFor(
+                types,
+                t => t.GetMethods()
+                    .Where(mi => forceNonVirtual || mi.IsVirtualOrAbstract())
+                    .Where(MethodIsNotSpecial)
+            );
         }
 
         private T[] GetAllFor<T>(Type[] interfaces, Func<Type, IEnumerable<T>> fetcher)
@@ -716,8 +804,8 @@ namespace PeanutButter.DuckTyping.Shimming
             {
                 lock (DynamicAssemblyLock)
                 {
-                    return _dynamicAssemblyBuilderField ??
-                        (_dynamicAssemblyBuilderField = DefineDynamicAssembly(ASSEMBLY_NAME));
+                    return _dynamicAssemblyBuilderField ??=
+                        DefineDynamicAssembly(ASSEMBLY_NAME);
                 }
             }
         }
