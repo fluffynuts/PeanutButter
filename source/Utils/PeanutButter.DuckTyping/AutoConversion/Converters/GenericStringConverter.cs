@@ -5,8 +5,8 @@ using PeanutButter.DuckTyping.Extensions;
 
 namespace PeanutButter.DuckTyping.AutoConversion.Converters
 {
-    internal class GenericStringConverter<T> 
-        : GenericConverterBase<T>, 
+    internal class GenericStringConverter<T>
+        : GenericConverterBase<T>,
           IConverter<string, T>
     {
         public Type T1 => typeof(string);
@@ -14,14 +14,11 @@ namespace PeanutButter.DuckTyping.AutoConversion.Converters
 
         public T Convert(string value)
         {
-            var parameters = new object[] {value, null};
+            var parameters = new object[] { value, null };
             var parsed = (bool) _tryParse.Invoke(null, parameters);
-            if (parsed)
-            {
-                return (T) parameters[1];
-            }
-
-            return default(T);
+            return parsed
+                ? (T) parameters[1]
+                : default;
         }
 
         public string Convert(T value)
@@ -35,11 +32,65 @@ namespace PeanutButter.DuckTyping.AutoConversion.Converters
                 return null;
             }
         }
+
+        public bool CanConvert(Type t1, Type t2)
+        {
+            return CanConvert(t1, t2, T1, T2);
+        }
     }
 
-    internal abstract class GenericConverterBase<T>
+    internal class GenericStringArrayConverter<T>
+        : GenericConverterBase<T>,
+          IConverter<string[], T[]>
+    {
+        public Type T1 => typeof(string[]);
+        public Type T2 => typeof(T[]);
+
+        public T[] Convert(string[] input)
+        {
+            return input.Select(
+                s =>
+                {
+                    var parameters = new object[] { s, null };
+                    var parsed = (bool) _tryParse.Invoke(null, parameters);
+                    return parsed
+                        ? (T) parameters[1]
+                        : default;
+                }).ToArray();
+        }
+
+        public string[] Convert(T[] input)
+        {
+            return input
+                .Select(o => o.ToString())
+                .ToArray();
+        }
+
+        public bool CanConvert(Type t1, Type t2)
+        {
+            return CanConvert(t1, t2, T1, T2);
+        }
+    }
+
+    internal abstract class ConverterBase
+    {
+        protected bool CanConvert(
+            Type from,
+            Type to,
+            Type t1,
+            Type t2
+        )
+        {
+            return (from == t1 || from == t2) &&
+                (to == t1 || to == t2) &&
+                (from != to);
+        }
+    }
+
+    internal abstract class GenericConverterBase<T>: ConverterBase
     {
         protected readonly MethodInfo _tryParse = GetTryParseMethod();
+
         private static MethodInfo GetTryParseMethod()
         {
             return typeof(T)
@@ -54,6 +105,7 @@ namespace PeanutButter.DuckTyping.AutoConversion.Converters
     {
         public Type T1 => typeof(string);
         public Type T2 => typeof(T?);
+
         public string Convert(T? input)
         {
             return input?.ToString();
@@ -62,10 +114,15 @@ namespace PeanutButter.DuckTyping.AutoConversion.Converters
         public T? Convert(string value)
         {
             var parameters = new object[] { value, null };
-            var parsed = (bool)_tryParse.Invoke(null, parameters);
+            var parsed = (bool) _tryParse.Invoke(null, parameters);
             return parsed
                 ? (T) parameters[1]
                 : null as T?;
+        }
+
+        public bool CanConvert(Type t1, Type t2)
+        {
+            return CanConvert(t1, t2, T1, T2);
         }
     }
 }

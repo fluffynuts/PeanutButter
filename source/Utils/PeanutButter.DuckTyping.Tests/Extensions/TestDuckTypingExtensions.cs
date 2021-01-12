@@ -1588,6 +1588,13 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
                 return null;
             }
+
+            public bool CanConvert(Type t1, Type t2)
+            {
+                return (t1 == T1 || t1 == T2) &&
+                    (t2 == T1 || t2 == T2) &&
+                    t1 != t2;
+            }
         }
 
         [Test]
@@ -1982,6 +1989,9 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         [TestCase(" ")]
         [TestCase("  ")]
         [TestCase(".")]
+        [TestCase(":")]
+        [TestCase("_")]
+        [TestCase("-")]
         public void
             FuzzyDuckAs_OperatingOnNameValueCollection_ShouldDuck_WhenSourcePropertyIncludes(
                 string chars)
@@ -1997,8 +2007,26 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = src.FuzzyDuckAs<IConfig>();
 
             // Assert
-            Expect(result).Not.To.Be.Null();
-            Expect(result.BaseUrl).To.Equal(expected);
+            Expect(result)
+                .Not.To.Be.Null();
+            Expect(result.BaseUrl)
+                .To.Equal(expected);
+        }
+
+        [Test]
+        public void ShouldFuzzyDuckVeryLooselyOnAlphaNumericMatch()
+        {
+            // Arrange
+            var src = new NameValueCollection();
+            var expected = GetRandomHttpUrl();
+            src.Add("%^_base-url!#$", expected);
+            // Act
+            var result = src.FuzzyDuckAs<IConfig>();
+            // Assert
+            Expect(result)
+                .Not.To.Be.Null();
+            Expect(result.BaseUrl)
+                .To.Equal(expected);
         }
 
         [Test]
@@ -2019,6 +2047,32 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
 
             Expect(result.BaseUrl).To.Equal(expected);
             Expect(src["BaseUrl"]).To.Equal(expected);
+        }
+
+        [Test]
+        public void ShouldBeAbleToFuzzyDuckStringArrayToIntArray()
+        {
+            // Arrange
+            var data = new Dictionary<string, object>()
+            {
+                ["numbers"] = new[] { "1", "2", "3" }
+            };
+            // Act
+            var result = data.FuzzyDuckAs<IHasInts>();
+            // Assert
+            Expect(result)
+                .Not.To.Be.Null();
+            Expect(result.Numbers)
+                .To.Equal(new[] { 1, 2, 3 });
+            result.Numbers = new[] { 4, 5, 6 };
+            Expect(data)
+                .To.Contain.Key("numbers")
+                .With.Value(new[] { 4, 5, 6 });
+        }
+
+        public interface IHasInts
+        {
+            int[] Numbers { get; set; }
         }
 
         public interface IConfigWithUnconfiguredFeature : IConfig

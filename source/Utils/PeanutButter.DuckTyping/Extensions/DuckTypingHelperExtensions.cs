@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using Imported.PeanutButter.Utils;
 using Imported.PeanutButter.Utils.Dictionaries;
+using PeanutButter.DuckTyping.AutoConversion;
 using PeanutButter.DuckTyping.AutoConversion.Converters;
 using PeanutButter.DuckTyping.Comparers;
 using PeanutButter.DuckTyping.Shimming;
@@ -199,13 +200,14 @@ namespace PeanutButter.DuckTyping.Extensions
             {
                 return true;
             }
-            return MatchesTypeOrCanEnumConvert(needle, matchByName) &&
+            return MatchesTypeOrCanConvert(needle, matchByName) &&
                 matchByName.IsNoMoreRestrictiveThan(needle);
         }
 
-        private static bool MatchesTypeOrCanEnumConvert(PropertyInfo needle, PropertyInfo matchByName)
+        private static bool MatchesTypeOrCanConvert(PropertyInfo needle, PropertyInfo matchByName)
         {
             return matchByName.PropertyType == needle.PropertyType ||
+                ConverterLocator.HaveConverterFor(matchByName.PropertyType, needle.PropertyType) ||
                 EnumConverter.CanPerhapsConvertBetween(matchByName.PropertyType, needle.PropertyType);
         }
 

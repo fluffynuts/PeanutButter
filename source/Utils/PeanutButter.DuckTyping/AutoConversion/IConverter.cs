@@ -32,16 +32,12 @@ namespace PeanutButter.DuckTyping.AutoConversion
     public interface IConverter
     {
         /// <summary>
-        /// One of the types converted from / to
-        /// This property provides a quick lookup when seeking converters
+        /// Should return true when this converter can convert between t1 and t2
         /// </summary>
-        Type T1 { get; }
-
-        /// <summary>
-        /// The other type converted from / to
-        /// This property provides a quick lookup when seeking converters
-        /// </summary>
-        Type T2 { get; }
+        /// <param name="t1"></param>
+        /// <param name="t2"></param>
+        /// <returns></returns>
+        bool CanConvert(Type t1, Type t2);
     }
 }
 

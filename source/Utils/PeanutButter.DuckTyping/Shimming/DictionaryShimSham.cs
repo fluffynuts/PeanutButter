@@ -163,7 +163,6 @@ namespace PeanutButter.DuckTyping.Shimming
         }
 
         private readonly Dictionary<string, string> _keyResolutionCache = new Dictionary<string, string>();
-        private readonly FuzzyKeyFinder _fuzzyKeyFinder = new FuzzyKeyFinder();
 
         private string FuzzyFindKeyFor(string propertyName)
         {
@@ -174,7 +173,7 @@ namespace PeanutButter.DuckTyping.Shimming
                     return resolvedKey;
                 }
 
-                resolvedKey = _fuzzyKeyFinder.FuzzyFindKeyFor(_data, propertyName);
+                resolvedKey = _data.FuzzyFindKeyFor(propertyName);
                 if (resolvedKey != null)
                 {
                     _keyResolutionCache[propertyName] = resolvedKey;

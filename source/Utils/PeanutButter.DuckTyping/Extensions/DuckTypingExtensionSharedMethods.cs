@@ -220,7 +220,10 @@ namespace PeanutButter.DuckTyping.Extensions
         {
             var errors = DictionaryDuckErrorsFor(src, type, allowFuzzy);
             if (throwOnError && errors.Any())
+            {
                 throw new UnDuckableException(errors);
+            }
+
             return !errors.Any();
         }
 
@@ -313,9 +316,8 @@ namespace PeanutButter.DuckTyping.Extensions
         )
         {
             var targetType = prop.PropertyType;
-            var finder = new FuzzyKeyFinder();
             var key = allowFuzzy
-                ? finder.FuzzyFindKeyFor(src, prop.Name) ?? prop.Name
+                ? src.FuzzyFindKeyFor(prop.Name) ?? prop.Name
                 : src.Keys.FirstOrDefault(k => k == prop.Name);
 
             if (key == null || !src.TryGetValue(key, out var stored))
@@ -411,7 +413,10 @@ namespace PeanutButter.DuckTyping.Extensions
         {
             var asDictionary = TryConvertToDictionary(src);
             if (asDictionary != null)
+            {
                 return asDictionary.CanDuckDictionaryAs<T>(allowFuzzy, throwOnError);
+            }
+
             var type = typeof(T);
             var srcType = src.GetType();
             return DuckableTypesCache.CanDuckAs<T>(srcType, allowFuzzy) ||
@@ -615,7 +620,9 @@ namespace PeanutButter.DuckTyping.Extensions
 
             var srcAsDict = TryConvertToDictionary(src);
             if (allowFuzzy)
+            {
                 srcAsDict = srcAsDict?.ToCaseInsensitiveDictionary();
+            }
 
             var duckType = FindOrCreateDuckTypeFor<T>(allowFuzzy);
             // ReSharper disable RedundantExplicitArrayCreation

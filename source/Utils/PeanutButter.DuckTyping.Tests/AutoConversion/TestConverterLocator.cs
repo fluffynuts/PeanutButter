@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.AutoConversion;
@@ -60,38 +61,6 @@ namespace PeanutButter.DuckTyping.Tests.AutoConversion
         {
         }
 
-        public class LyingConverter : IConverter<Type1, Type2>
-        {
-            public Type T1 => typeof(Type1);
-            public Type T2 => typeof(Type3);
-
-            public Type1 Convert(Type2 input)
-            {
-                throw new NotImplementedException();
-            }
-
-            public Type2 Convert(Type1 input)
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        [Test]
-        public void Converters_ShouldNotContainLyingConverters()
-        {
-            // the T1 and T2 properties are just there to make lookups faster
-            //  and should reflect the same types as the generic interface
-            //--------------- Arrange -------------------
-
-            //--------------- Assume ----------------
-
-            //--------------- Act ----------------------
-            var result = ConverterLocator.Converters.Where(t => t.GetType() == typeof(LyingConverter));
-
-            //--------------- Assert -----------------------
-            Expect(result).To.Be.Empty();
-        }
-
         public class HonestConverter : IConverter<Type1, Type3>
         {
             public Type T1 => typeof(Type1);
@@ -105,6 +74,13 @@ namespace PeanutButter.DuckTyping.Tests.AutoConversion
             public Type3 Convert(Type1 input)
             {
                 throw new NotImplementedException();
+            }
+
+            public bool CanConvert(Type t1, Type t2)
+            {
+                var types = new HashSet<Type>(new[] {T1, T2});
+                return types
+                    .Contains(t1) && types.Contains(t2);
             }
         }
 
@@ -131,7 +107,8 @@ namespace PeanutButter.DuckTyping.Tests.AutoConversion
         {
         }
 
-        public class ConverterWithConstructorParameters : IConverter<IConvertMe1, IConvertMe2>
+        public class ConverterWithConstructorParameters 
+            : IConverter<IConvertMe1, IConvertMe2>
         {
             public Type T1 => typeof(IConvertMe1);
             public Type T2 => typeof(IConvertMe2);
@@ -150,6 +127,13 @@ namespace PeanutButter.DuckTyping.Tests.AutoConversion
             public IConvertMe2 Convert(IConvertMe1 input)
             {
                 throw new NotImplementedException();
+            }
+
+            public bool CanConvert(Type t1, Type t2)
+            {
+                return (t1 == T1 || t1 == T2) &&
+                    (t2 == T1 || t2 == T2) &&
+                    t1 != t2;
             }
         }
 

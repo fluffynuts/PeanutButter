@@ -22,8 +22,8 @@ namespace PeanutButter.DuckTyping.AutoConversion
             return converterTypes
                 .Select(TryConstruct)
                 .Where(c => c != null)
-                .Where(IsValidConverterType)
                 .Union(MakeStringConverters())
+                .Union(MakeStringArrayConverters())
                 .Union(MakeNullableStringConverters())
                 .ToArray();
         }
@@ -52,23 +52,23 @@ namespace PeanutButter.DuckTyping.AutoConversion
             }).ToArray();
         }
 
-        private static bool IsValidConverterType(IConverter converter)
-        {
-            var genericInterface = converter
-                .GetType()
-                .GetAllImplementedInterfaces()
-                .FirstOrDefault(t => t.IsGenericType &&
-                    t.GetGenericTypeDefinition() == typeof(IConverter<,>));
-            if (genericInterface == null)
-                return false;
-            var types = genericInterface.GetGenericArguments();
-            return types.Contains(converter.T1) && types.Contains(converter.T2);
-        }
-
         private static IConverter[] MakeStringConverters()
         {
             var types = FindTypesWhichCanTryParseStrings();
             var genericType = typeof(GenericStringConverter<>);
+            var converters = new List<IConverter>();
+            foreach (var type in types)
+            {
+                TryAddConverterWith(genericType, type, converters);
+            }
+
+            return converters.ToArray();
+        }
+
+        private static IConverter[] MakeStringArrayConverters()
+        {
+            var types = FindTypesWhichCanTryParseStrings();
+            var genericType = typeof(GenericStringArrayConverter<>);
             var converters = new List<IConverter>();
             foreach (var type in types)
             {
@@ -98,8 +98,10 @@ namespace PeanutButter.DuckTyping.AutoConversion
 
         private static Type[] FindTypesWhichCanTryParseStrings()
         {
-            return AllLoadedTypes.Where(HasValidTryParseMethod).ToArray();
+            return _typesWhichCanTryParseStrings ??= AllLoadedTypes.Where(HasValidTryParseMethod).ToArray();
         }
+
+        private static Type[] _typesWhichCanTryParseStrings;
 
         private static bool HasValidTryParseMethod(Type arg)
         {
@@ -110,13 +112,7 @@ namespace PeanutButter.DuckTyping.AutoConversion
 
         public static IConverter GetConverter(Type t1, Type t2)
         {
-            return Converters.FirstOrDefault(c => CanConvert(c, t1, t2));
-        }
-
-        private static bool CanConvert(IConverter converter, Type t1, Type t2)
-        {
-            var conversionTypes = new[] { converter.T1, converter.T2 };
-            return conversionTypes.Contains(t1) && conversionTypes.Contains(t2);
+            return Converters.FirstOrDefault(c => c.CanConvert(t1, t2));
         }
 
         private static IConverter TryConstruct(Type arg)
@@ -142,7 +138,7 @@ namespace PeanutButter.DuckTyping.AutoConversion
             {
                 lock (AllTypesLock)
                 {
-                    return _allLoadedTypes ?? (_allLoadedTypes = FindAllLoadedTypes());
+                    return _allLoadedTypes ??= FindAllLoadedTypes();
                 }
             }
         }
@@ -177,10 +173,7 @@ namespace PeanutButter.DuckTyping.AutoConversion
 
         public static bool HaveConverterFor(Type type, Type toType)
         {
-            return Converters.Any(c =>
-                (c.T1 == type && c.T2 == toType) ||
-                (c.T2 == type && c.T1 == toType)
-            );
+            return Converters.Any(c => c.CanConvert(type, toType));
         }
     }
 }

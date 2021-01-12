@@ -43,6 +43,9 @@
       <Compile Include="..\PeanutButter.Utils\PropertyOrField.cs" Link="Imported\PropertyOrField.cs" />
       <Compile Include="..\PeanutButter.Utils\PropertyOrFieldExtensions.cs" Link="Imported\PropertyOrFieldExtensions.cs" />
       <Compile Include="..\PeanutButter.Utils\StrictComparer.cs" Link="Imported\StrictComparer.cs" />
+      <Compile Include="..\PeanutButter.Utils\StringExtensions.cs" Link="Imported\StringExtensions.cs" />
+      <Compile Include="..\PeanutButter.Utils\ByteArrayExtensions.cs" Link="Imported\ByteArrayExtensions.cs" />
+      <Compile Include="..\PeanutButter.Utils\RandomNumber.cs" Link="Imported\RandomNumber.cs" />
       <Compile Include="..\PeanutButter.Utils\TypeExtensions.cs" Link="Imported\TypeExtensions.cs" />
     </ItemGroup>
     <ItemGroup>
