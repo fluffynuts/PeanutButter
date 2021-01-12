@@ -745,6 +745,12 @@ namespace PeanutButter.Utils
                 type.AllPublicInstanceMethodsAreVirtualOrAbstract();
         }
 
+        /// <summary>
+        /// Returns true if all instance properties on the provided type are
+        /// either virtual or abstract (ie, overridable)
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static bool AllPublicInstancePropertiesAreVirtualOrAbstract(
             this Type type
         )
@@ -753,6 +759,12 @@ namespace PeanutButter.Utils
                 .All(pi => pi.IsVirtualOrAbstract());
         }
 
+        /// <summary>
+        /// Returns true if all instance methods on the provided type are
+        /// either virtual or abstract (ie, overridable)
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static bool AllPublicInstanceMethodsAreVirtualOrAbstract(
             this Type type
         )
@@ -792,6 +804,15 @@ namespace PeanutButter.Utils
             return (T) propInfo.GetValue(data);
         }
 
+        /// <summary>
+        /// Sets the "top-most" property in an ancestry, useful for setting
+        /// properties marked as "new" when you have access to the object
+        /// cast to an ancestor type
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="propertyName"></param>
+        /// <param name="value"></param>
+        /// <typeparam name="T"></typeparam>
         public static void SetTopMostProperty<T>(
             this object data,
             string propertyName,

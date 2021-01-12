@@ -38,8 +38,45 @@ namespace PeanutButter.Utils
             string pattern,
             string replaceWith)
         {
-            var regex = new Regex(pattern);
-            return regex.Replace(input, replaceWith);
+            return input.RegexReplaceAll(replaceWith, pattern);
+        }
+
+        /// <summary>
+        /// Replace all matching regular expression strings in input with the given string
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="replaceWith"></param>
+        /// <param name="patterns"></param>
+        /// <returns></returns>
+        public static string RegexReplaceAll(
+            this string input,
+            string replaceWith,
+            params string[] patterns
+        )
+        {
+            return input.RegexReplaceAll(
+                replaceWith,
+                patterns.Select(p => new Regex(p)).ToArray()
+            );
+        }
+
+        /// <summary>
+        /// Replace all matching Regex patterns in input with the given string
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="replaceWith"></param>
+        /// <param name="patterns"></param>
+        /// <returns></returns>
+        public static string RegexReplaceAll(
+            this string input,
+            string replaceWith,
+            params Regex[] patterns
+        )
+        {
+            return patterns.Aggregate(
+                input,
+                (acc, cur) => cur.Replace(acc, replaceWith)
+            );
         }
 
         /// <summary>
@@ -571,11 +608,14 @@ namespace PeanutButter.Utils
             {
                 var isDefinitelyBoundary = others.Contains(c);
                 if (collector.Count == 0)
-                {   // nothing gathered yet -> definitely do not yield
+                {
+                    // nothing gathered yet -> definitely do not yield
                     if (!isDefinitelyBoundary)
-                    {   // possibly this char is nice for later 
+                    {
+                        // possibly this char is nice for later 
                         collector.Add(c);
                     }
+
                     continue;
                 }
 

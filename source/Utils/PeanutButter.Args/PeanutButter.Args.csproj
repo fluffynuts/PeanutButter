@@ -2,6 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <DefineConstants>$(DefineConstants);BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL;BUILD_PEANUTBUTTER_INTERNAL</DefineConstants>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PeanutButter.DuckTyping\PeanutButter.DuckTyping.csproj" />
+    <ProjectReference Include="..\PeanutButter.Utils\PeanutButter.Utils.csproj" />
+  </ItemGroup>
 
 </Project>

@@ -624,7 +624,12 @@ namespace PeanutButter.Utils
     /// <summary>
     /// Thrown when an attempt is made to strict-zip null and anything else
     /// </summary>
-    public class CannotZipNullException : Exception
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+        public
+#endif
+        class CannotZipNullException : Exception
     {
         /// <inheritdoc />
         public CannotZipNullException() : base("Cannot zip null value")
@@ -636,7 +641,12 @@ namespace PeanutButter.Utils
     /// Thrown when an attempt is made to zip two collections of
     /// uneven size
     /// </summary>
-    public class UnevenZipException : Exception
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        class UnevenZipException : Exception
     {
         /// <inheritdoc />
         public UnevenZipException() : base("Could not zip uneven collections")
@@ -648,7 +658,12 @@ namespace PeanutButter.Utils
     /// Thrown when an attempt is made to zip two collections of
     /// uneven size. Also includes references to the two collections.
     /// </summary>
-    public class UnevenZipException<T1, T2> : UnevenZipException
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        class UnevenZipException<T1, T2> : UnevenZipException
     {
         /// <summary>
         /// The left collection

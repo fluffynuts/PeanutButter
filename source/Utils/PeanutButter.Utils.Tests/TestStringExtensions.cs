@@ -37,6 +37,42 @@ namespace PeanutButter.Utils.Tests
             Expect(result).To.Equal(expected);
         }
 
+        [TestFixture]
+        public class RegexReplaceAll
+        {
+            [Test]
+            public void ShouldReplaceSinglePatternAllMatches()
+            {
+                // Arrange
+                var input = "-aBc123-%";
+                // Act
+                var result = input.RegexReplaceAll(
+                    "",
+                    "[^a-zA-Z0-9]"
+                );
+                // Assert
+                Expect(result)
+                    .To.Equal("aBc123");
+            }
+
+            [Test]
+            public void ShouldReplaceMultiplePatterns()
+            {
+                // Arrange
+                var input = "_-123abc";
+
+                // Act
+                var result = input.RegexReplaceAll(
+                    "",
+                    "[_-]",
+                    "[a-z]"
+                );
+                // Assert
+                Expect(result)
+                    .To.Equal("123");
+            }
+        }
+
         [TestCase(null)]
         [TestCase("")]
         public void Or_ActingOnString_ShouldReturnOtherStringWhenPrimaryIs_(
