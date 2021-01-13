@@ -1,0 +1,54 @@
+<package>
+  <metadata>
+    <id>PeanutButter.EasyArgs</id>
+    <version>1.2.384</version>
+    <title>PeanutButter.Utils</title>
+    <authors>Davyd McColl</authors>
+    <owners>Davyd McColl</owners>
+    <description>
+      Provides dead-easy commandline argument parsing. Can be as simple as:
+      1. define an interface of options you'd like to parse
+      2. var opts = args.ParseTo&lt;IArgs&gt;()
+      
+      See the readme for more info
+    </description>
+    <releaseNotes></releaseNotes>
+    <summary></summary>
+    <language>en-US</language>
+    <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
+    <repository type="git" url="https://github.com/fluffynuts/PeanutButter" />
+    <icon>icon.png</icon>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">BSD-3-Clause</license>
+    <copyright>Copyright  2014</copyright>
+    <dependencies>
+      <group targetFramework="net452">
+        <dependency id="PeanutButter.Utils" version="1.2.384" />
+        <dependency id="PeanutButter.DuckTyping" version="1.2.384" />
+      </group>
+      <group targetFramework="net462">
+        <dependency id="PeanutButter.Utils" version="1.2.384" />
+        <dependency id="PeanutButter.DuckTyping" version="1.2.384" />
+      </group>
+      <group targetFramework="netstandard2.0">
+        <dependency id="PeanutButter.Utils" version="1.2.384" />
+        <dependency id="PeanutButter.DuckTyping" version="1.2.384" />
+      </group>
+    </dependencies>
+    <references></references>
+    <tags></tags>
+  </metadata>
+  <files>
+    <file src="icon.png" target="" />
+    <file src="bin/Release/net452/PeanutButter.EasyArgs.dll" target="lib/net452" />
+    <file src="bin/Release/net452/PeanutButter.EasyArgs.pdb" target="lib/net452" />
+    <file src="bin/Release/net452/PeanutButter.EasyArgs.xml" target="lib/net452" />
+    <file src="bin/Release/net462/PeanutButter.EasyArgs.dll" target="lib/net462" />
+    <file src="bin/Release/net462/PeanutButter.EasyArgs.pdb" target="lib/net462" />
+    <file src="bin/Release/net462/PeanutButter.EasyArgs.xml" target="lib/net462" />
+    <file src="bin/Release/netstandard2.0/PeanutButter.EasyArgs.xml" target="lib/netstandard2.0" />
+    <file src="bin/Release/netstandard2.0/PeanutButter.EasyArgs.dll" target="lib/netstandard2.0" />
+    <file src="bin/Release/netstandard2.0/PeanutButter.EasyArgs.deps.json" target="lib/netstandard2.0" />
+    <file src="tools\*" target="tools" />
+  </files>
+</package>

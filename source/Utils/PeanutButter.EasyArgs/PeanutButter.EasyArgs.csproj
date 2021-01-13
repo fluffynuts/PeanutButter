@@ -4,6 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <DefineConstants>$(DefineConstants);BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL;BUILD_PEANUTBUTTER_INTERNAL</DefineConstants>
+    <RootNamespace>PeanutButter.Args</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

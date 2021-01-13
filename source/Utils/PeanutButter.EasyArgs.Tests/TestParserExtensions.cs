@@ -260,6 +260,36 @@ namespace PeanutButter.Args.Tests
                 );
         }
 
+        [Test]
+        public void ShouldErrorAndExitIfRequiredArgIsMissing()
+        {
+            // Arrange
+            var args = new string[0];
+            int? exitCode = null;
+            var lines = new List<string>();
+            var opts = new ParserOptions()
+            {
+                ExitAction = c => exitCode = c,
+                LineWriter = str => lines.Add(str)
+            };
+            // Act
+            args.ParseTo<IHasRequiredArg>(out var uncollected, opts);
+            // Assert
+            Expect(exitCode)
+                .To.Equal(1);
+            Expect(lines)
+                .To.Contain.Only(1).Item();
+            Expect(lines)
+                .To.Contain.Only(1)
+                .Matched.By(l => l.Contains("--port is required"));
+        }
+
+        public interface IHasRequiredArg
+        {
+            [Required]
+            int Port { get; }
+        }
+
         public interface IHasConflictingFlags
         {
             bool Flag1 { get; set; }

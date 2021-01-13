@@ -194,9 +194,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpacedService", "Win32Servi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StubbornService", "Win32Service\StubbornService\StubbornService.csproj", "{5E306BA6-A1DF-4F6D-ABE7-12B428CD4384}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.Args", "Utils\PeanutButter.Args\PeanutButter.Args.csproj", "{FF40C38A-E395-473B-A101-E2AEBA7B145F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.EasyArgs", "Utils\PeanutButter.EasyArgs\PeanutButter.EasyArgs.csproj", "{FF40C38A-E395-473B-A101-E2AEBA7B145F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.Args.Tests", "Utils\PeanutButter.Args.Tests\PeanutButter.Args.Tests.csproj", "{25DB04D3-5DF8-4645-9676-19974FC1B7B0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.EasyArgs.Tests", "Utils\PeanutButter.EasyArgs.Tests\PeanutButter.EasyArgs.Tests.csproj", "{25DB04D3-5DF8-4645-9676-19974FC1B7B0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

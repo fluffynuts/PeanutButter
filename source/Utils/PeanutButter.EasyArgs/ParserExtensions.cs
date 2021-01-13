@@ -175,19 +175,13 @@ namespace PeanutButter.Args
                     }
                     else
                     {
-                        StoreSingleValue(
-                            opt,
-                            input,
-                            options,
-                            uncollectedArgs,
-                            acc,
-                            errored
-                        );
+                        StoreSingleValue(opt, input, options, uncollectedArgs, acc, errored);
                     }
 
                     return acc;
                 });
 
+            VerifyRequiredOptions(result, lookup, options, errored);
             if (errored.Any())
             {
                 options.ExitIfRequired(ExitCodes.ARGUMENT_ERROR);
@@ -206,6 +200,24 @@ namespace PeanutButter.Args
 
             uncollected = uncollectedArgs.ToArray();
             return result;
+        }
+
+        private static void VerifyRequiredOptions(
+            Dictionary<string, object> result,
+            Dictionary<string, CommandlineArgument> commandlineArguments,
+            ParserOptions options,
+            HashSet<string> errored)
+        {
+            var specified = new HashSet<string>(result.Keys);
+            var missing = commandlineArguments.Values
+                .Distinct()
+                .Where(o => o.IsRequired && !specified.Contains(o.Key))
+                .ToArray();
+            missing.ForEach(opt =>
+            {
+                options.ReportMissingRequiredOption($"--{opt.LongName}");
+                errored.Add(opt.Key);
+            });
         }
 
         private static void StoreSingleValue(
@@ -437,7 +449,8 @@ namespace PeanutButter.Args
                             ConflictsWith = attribs.OfType<ConflictsWithAttribute>()
                                 .Select(a => a.Value)
                                 .ToArray(),
-                            IsImplicit = false
+                            IsImplicit = false,
+                            IsRequired = attribs.OfType<RequiredAttribute>().Any()
                         };
 
                         acc.Add(option);

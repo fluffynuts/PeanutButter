@@ -58,6 +58,7 @@ namespace PeanutButter.Args
 
         public const string HELP_FLAG_KEY = "$help$";
         public bool IsHelpFlag => Key == HELP_FLAG_KEY;
+        public bool IsRequired { get; set; }
 
         private bool? _explicitFlag;
 
@@ -69,6 +70,7 @@ namespace PeanutButter.Args
             this.CopyPropertiesTo(result, deep: false);
             result.LongName = $"no-{result.LongName}";
             result.ConflictsWith = new[] { Key };
+            result.IsRequired = false;
             try
             {
                 result.Default = !(bool) Default;

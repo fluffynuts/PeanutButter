@@ -277,5 +277,12 @@ namespace PeanutButter.Args
                 .Where(v => !string.IsNullOrWhiteSpace(v))
                 .ToArray();
         }
+
+        public virtual void ReportMissingRequiredOption(string arg)
+        {
+            LineWriter(
+                $"{arg} is required"
+            );
+        }
     }
 }
