@@ -1,9 +1,8 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using NUnit.Framework;
 using NExpect;
+using PeanutButter.Args.Attributes;
 using PeanutButter.RandomGenerators;
 using PeanutButter.Utils;
 using static NExpect.Expectations;
@@ -21,7 +20,7 @@ namespace PeanutButter.Args.Tests
             var expected = GetRandomInt(1, 32768);
             var args = new[] { "-p", expected.ToString() };
             // Act
-            var result = args.Parse<IArgs>();
+            var result = args.ParseTo<IArgs>();
             // Assert
             Expect(result.Port)
                 .To.Equal(expected);
@@ -35,7 +34,7 @@ namespace PeanutButter.Args.Tests
             var args = new[] { "--listen-port", expected.ToString() };
 
             // Act
-            var result = args.Parse<IArgs>();
+            var result = args.ParseTo<IArgs>();
             // Assert
             Expect(result.Port)
                 .To.Equal(expected);
@@ -51,7 +50,7 @@ namespace PeanutButter.Args.Tests
             var expected = GetRandomInt(1, 32768);
             var args = new[] { arg, expected.ToString() };
             // Act
-            var result = args.Parse<IArgs>();
+            var result = args.ParseTo<IArgs>();
             // Assert
             Expect(result.OtherProperty)
                 .To.Equal(expected);
@@ -66,7 +65,7 @@ namespace PeanutButter.Args.Tests
             var args = new[] { "-p", e1.ToString(), "-P", e2.ToString() };
 
             // Act
-            var result = args.Parse<IArgs>();
+            var result = args.ParseTo<IArgs>();
             // Assert
             Expect(result.Port)
                 .To.Equal(e1);
@@ -82,7 +81,7 @@ namespace PeanutButter.Args.Tests
             var unexpected = GetAnother(expected);
             var args = new[] { "-p", expected.ToString(), unexpected.ToString() };
             // Act
-            var result = args.Parse<IArgs>(out var uncollected);
+            var result = args.ParseTo<IArgs>(out var uncollected);
             // Assert
             Expect(result.Port)
                 .To.Equal(expected);
@@ -96,7 +95,7 @@ namespace PeanutButter.Args.Tests
             // Arrange
             var args = new[] { "-v", "1", "2", "3" };
             // Act
-            var result = args.Parse<ISum>();
+            var result = args.ParseTo<ISum>();
             // Assert
             Expect(result.Values)
                 .To.Equal(new[] { 1, 2, 3 });
@@ -108,7 +107,7 @@ namespace PeanutButter.Args.Tests
             // Arrange
             var args = new string[0];
             // Act
-            var result = args.Parse<IHasFlags>();
+            var result = args.ParseTo<IHasFlags>();
             // Assert
             Expect(result.Frob)
                 .To.Be.False();
@@ -120,7 +119,7 @@ namespace PeanutButter.Args.Tests
             // Arrange
             var args = new[] { "--frob" };
             // Act
-            var result = args.Parse<IHasFlags>();
+            var result = args.ParseTo<IHasFlags>();
             // Assert
             Expect(result.Frob)
                 .To.Be.True();
@@ -132,7 +131,7 @@ namespace PeanutButter.Args.Tests
             // Arrange
             var args = new string[0];
             // Act
-            var result = args.Parse<IHasDefaultTrueFrob>();
+            var result = args.ParseTo<IHasDefaultTrueFrob>();
             // Assert
             Expect(result.Frob)
                 .To.Be.True();
@@ -144,7 +143,7 @@ namespace PeanutButter.Args.Tests
             // Arrange
             var args = new[] { "--no-frob" };
             // Act
-            var result = args.Parse<IHasDefaultTrueFrob>();
+            var result = args.ParseTo<IHasDefaultTrueFrob>();
             // Assert
             Expect(result.Frob)
                 .To.Be.False();
@@ -157,14 +156,14 @@ namespace PeanutButter.Args.Tests
             var args = new[] { "--flag1", "--flag2" };
             int? exitCode = null;
             var lines = new List<string>();
-            var opts = new ArgParserOptions()
+            var opts = new ParserOptions()
             {
                 ExitAction = c => exitCode = c,
                 LineWriter = str => lines.Add(str)
             };
 
             // Act
-            args.Parse<IHasConflictingFlags>(
+            args.ParseTo<IHasConflictingFlags>(
                 out var uncollected,
                 opts
             );
@@ -185,14 +184,14 @@ namespace PeanutButter.Args.Tests
             var args = new[] { "--flag1", "--no-flag1" }.Randomize().ToArray();
             int? exitCode = null;
             var lines = new List<string>();
-            var opts = new ArgParserOptions()
+            var opts = new ParserOptions()
             {
                 ExitAction = c => exitCode = c,
                 LineWriter = str => lines.Add(str)
             };
 
             // Act
-            args.Parse<IHasConflictingFlags>(
+            args.ParseTo<IHasConflictingFlags>(
                 out var uncollected,
                 opts
             );
@@ -215,13 +214,13 @@ namespace PeanutButter.Args.Tests
             var args = new[] { "--listen-port", 1.ToString(), "-p", 2.ToString() };
             int? exitCode = null;
             var lines = new List<string>();
-            var opts = new ArgParserOptions()
+            var opts = new ParserOptions()
             {
                 ExitAction = c => exitCode = c,
                 LineWriter = str => lines.Add(str)
             };
             // Act
-            args.Parse<IArgs>(out var uncollected, opts);
+            args.ParseTo<IArgs>(out var uncollected, opts);
 
             // Assert
             Expect(exitCode)
@@ -241,14 +240,14 @@ namespace PeanutButter.Args.Tests
             var args = new[] { "--flag1", "--port" };
             int? exitCode = null;
             var lines = new List<string>();
-            var opts = new ArgParserOptions()
+            var opts = new ParserOptions()
             {
                 ExitAction = c => exitCode = c,
                 LineWriter = str => lines.Add(str)
             };
 
             // Act
-            args.Parse<IHasConflictingFlags>(out var collected, opts);
+            args.ParseTo<IHasConflictingFlags>(out var collected, opts);
             // Assert
             Expect(exitCode)
                 .To.Equal(1);
@@ -285,6 +284,25 @@ namespace PeanutButter.Args.Tests
             int[] Values { get; set; }
         }
 
+        [Test]
+        public void ParsingToPOCO()
+        {
+            // Arrange
+            var args = new[] { "--port", "123" };
+            // Act
+            var result = args.ParseTo<PocoArgs>();
+            // Assert
+            Expect(result)
+                .Not.To.Be.Null();
+            Expect(result.Port)
+                .To.Equal(123);
+        }
+
+        public class PocoArgs
+        {
+            public int Port { get; set; }
+        }
+
         [TestFixture]
         public class GenerateHelpText
         {
@@ -315,13 +333,13 @@ Report bugs to <no-one-cares@whatevs.org>
                 var args = new[] { "--help" };
                 int? exitCode = null;
                 var lines = new List<string>();
-                var opts = new ArgParserOptions()
+                var opts = new ParserOptions()
                 {
                     ExitAction = c => exitCode = c,
                     LineWriter = str => lines.Add(str)
                 };
                 // Act
-                args.Parse<IHelpArgs>(out var uncollected, opts);
+                args.ParseTo<IHelpArgs>(out var uncollected, opts);
                 // Assert
                 Expect(exitCode)
                     .To.Equal(2);
@@ -351,7 +369,7 @@ received:
                     });
             }
 
-            [Description(@"
+            [Attributes.Description(@"
 Some Program Name
 This program is designed to make your life so much easier
 
@@ -364,10 +382,10 @@ Report bugs to <no-one-cares@whatevs.org>
 ")]
             public interface IHelpArgs
             {
-                [Description("user name to use")]
+                [Attributes.Description("user name to use")]
                 public string User { get; set; }
 
-                [Description("host to connect to")]
+                [Attributes.Description("host to connect to")]
                 [Default("localhost")]
                 public string Host { get; set; }
 
@@ -380,7 +398,7 @@ Report bugs to <no-one-cares@whatevs.org>
                 // should get kebab-cased long name
                 public string LongOption { get; set; }
 
-                [Description("the flag")]
+                [Attributes.Description("the flag")]
                 public bool Flag { get; set; }
             }
         }

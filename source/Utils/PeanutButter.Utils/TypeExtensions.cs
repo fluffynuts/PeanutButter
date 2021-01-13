@@ -780,12 +780,12 @@ namespace PeanutButter.Utils
                 typeof(object).GetMethods(PUBLIC_INSTANCE)
                     .Where(mi => !mi.IsVirtual)
                     .Select(mi => mi.Name)
-                );
+            );
 
         private static HashSet<string> _objectMethods;
 
         private const BindingFlags PUBLIC_INSTANCE = BindingFlags.Public | BindingFlags.Instance;
-        
+
         /// <summary>
         /// Retrieves the value of the "top-most" property in an inheritance hierarchy
         /// which matches the given name and type
@@ -795,12 +795,12 @@ namespace PeanutButter.Utils
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
-        public static T GetTopMostProperty<T>(
+        public static T GetTopMostPropertyValue<T>(
             this object data,
             string propertyName
         )
         {
-            var propInfo = data.FindTopmostProperty<T>(propertyName);
+            var propInfo = data.FindTopMostProperty<T>(propertyName);
             return (T) propInfo.GetValue(data);
         }
 
@@ -819,11 +819,11 @@ namespace PeanutButter.Utils
             T value
         )
         {
-            var propInfo = data.FindTopmostProperty<T>(propertyName);
+            var propInfo = data.FindTopMostProperty<T>(propertyName);
             propInfo.SetValue(data, value);
         }
 
-        internal static PropertyInfo FindTopmostProperty<T>(
+        internal static PropertyInfo FindTopMostProperty<T>(
             this object data,
             string propertyName
         )
@@ -832,7 +832,9 @@ namespace PeanutButter.Utils
             var propertyType = typeof(T);
             var props = type
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(pi => pi.Name == propertyName && pi.PropertyType == propertyType)
+                .Where(pi => pi.Name == propertyName && (
+                    propertyType == typeof(object) || pi.PropertyType == propertyType)
+                )
                 .ToArray();
             if (!props.Any())
             {
@@ -851,9 +853,10 @@ namespace PeanutButter.Utils
                     $"Unable to determine top-most '{propertyName}' property for {type}"
                 );
             }
+
             return lookup[firstMatch];
         }
-        
+
         /// <summary>
         /// returns true if the given method is virtual or abstract
         /// </summary>
@@ -862,6 +865,16 @@ namespace PeanutButter.Utils
         public static bool IsVirtualOrAbstract(this MethodInfo methodInfo)
         {
             return methodInfo.IsVirtual || methodInfo.IsAbstract;
+        }
+
+        /// <summary>
+        /// returns true if the type is not an interface or an abstract type
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
+        public static bool IsConcrete(this Type t)
+        {
+            return !(t.IsInterface || t.IsAbstract);
         }
 
         /// <summary>

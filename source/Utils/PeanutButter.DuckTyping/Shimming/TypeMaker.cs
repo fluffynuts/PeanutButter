@@ -54,10 +54,15 @@ namespace PeanutButter.DuckTyping.Shimming
         private static readonly MethodInfo ShimCallThroughVoidMethod =
             ShimInterfaceType.GetMethod(nameof(IShimSham.CallThroughVoid));
 
-        private static readonly MethodAttributes PropertyGetterSetterMethodAttributes =
+        private static readonly MethodAttributes PropertyGetterSetterMethodVirtualAttributes =
             MethodAttributes.Public |
             MethodAttributes.SpecialName |
             MethodAttributes.Virtual |
+            MethodAttributes.HideBySig;
+
+        private static readonly MethodAttributes PropertyGetterSetterMethodNonVirtualAttributes =
+            MethodAttributes.Public |
+            MethodAttributes.SpecialName |
             MethodAttributes.HideBySig;
 
         private static readonly object DynamicAssemblyLock = new object();
@@ -408,7 +413,12 @@ but this really isn't pretty ):
             var methodInfos = GetAllMethodsFor(interfaceTypes, forceNonVirtual);
             foreach (var methodInfo in methodInfos)
             {
-                AddMethod(interfaceTypes[0], typeBuilder, methodInfo, shimField);
+                AddMethod(
+                    interfaceTypes[0],
+                    typeBuilder,
+                    methodInfo,
+                    shimField
+                );
             }
         }
 
@@ -423,15 +433,22 @@ but this really isn't pretty ):
             MethodInfo methodInfo,
             FieldBuilder shimField)
         {
+            if (!methodInfo.IsVirtualOrAbstract())
+            {
+                return;
+            }
+
             var returnType = methodInfo.ReturnType;
             var parameterTypes = methodInfo.GetParameters()
                 .Select(p => p.ParameterType)
                 .ToArray();
+            
             var methodBuilder = typeBuilder.DefineMethod(
                 methodInfo.Name,
-                PropertyGetterSetterMethodAttributes,
+                PropertyGetterSetterMethodVirtualAttributes,
                 returnType,
-                parameterTypes);
+                parameterTypes
+            );
             var il = methodBuilder.GetILGenerator();
             if (methodInfo.ReturnType == typeof(void))
             {
@@ -645,7 +662,7 @@ but this really isn't pretty ):
         {
             var methodName = "get_" + prop.Name;
             var getMethod = typeBuilder.DefineMethod(methodName,
-                PropertyGetterSetterMethodAttributes, prop.PropertyType,
+                PropertyGetterSetterMethodVirtualAttributes, prop.PropertyType,
                 Type.EmptyTypes);
             var il = getMethod.GetILGenerator();
 
@@ -697,7 +714,7 @@ but this really isn't pretty ):
             var methodName = "set_" + prop.Name;
             var setMethod = typeBuilder.DefineMethod(
                 methodName,
-                PropertyGetterSetterMethodAttributes,
+                PropertyGetterSetterMethodVirtualAttributes,
                 null, // void return
                 new[] { prop.PropertyType } // one parameter of type of the property
             );

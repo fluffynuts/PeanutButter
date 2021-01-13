@@ -376,7 +376,10 @@ namespace PeanutButter.Utils
         public static void CopyPropertiesTo(this object src, object dst, bool deep, params string[] ignoreProperties)
         {
             if (src == null || dst == null)
+            {
                 return;
+            }
+
             var srcPropInfos = src.GetType()
                 .GetProperties()
                 .Where(pi => !ignoreProperties.Contains(pi.Name));
