@@ -1,7 +1,11 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
 using NExpect;
+using PeanutButter.RandomGenerators;
+using PeanutButter.Utils;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
@@ -160,7 +164,7 @@ namespace PeanutButter.Args.Tests
             };
 
             // Act
-            var result = args.Parse<IHasConflictingFlags>(
+            args.Parse<IHasConflictingFlags>(
                 out var uncollected,
                 opts
             );
@@ -170,8 +174,91 @@ namespace PeanutButter.Args.Tests
             Expect(lines)
                 .To.Contain.Only(1)
                 .Matched.By(line => line.Contains("--flag1 conflicts with --flag2"));
-            
-            // FIXME: this actually produces the inverse message and the message that flag1 conflicts with itself, which comes from the auto-inversion
+            Expect(lines)
+                .To.Contain.Only(1).Item(() => lines.JoinWith("\n"));
+        }
+
+        [Test]
+        public void ShouldErrorAndExitIfFlagAndNoFlagSpecified()
+        {
+            // Arrange
+            var args = new[] { "--flag1", "--no-flag1" }.Randomize().ToArray();
+            int? exitCode = null;
+            var lines = new List<string>();
+            var opts = new ArgParserOptions()
+            {
+                ExitAction = c => exitCode = c,
+                LineWriter = str => lines.Add(str)
+            };
+
+            // Act
+            args.Parse<IHasConflictingFlags>(
+                out var uncollected,
+                opts
+            );
+            // Assert
+            Expect(exitCode)
+                .To.Equal(1);
+            Expect(lines)
+                .To.Contain.Only(1).Item(() => lines.JoinWith("\n"));
+            Expect(lines)
+                .To.Contain.Only(1)
+                .Matched.By(
+                    line => line.Contains("--flag1 conflicts with --no-flag1"),
+                    () => lines.JoinWith("\n"));
+        }
+
+        [Test]
+        public void ShouldErrorAndExitIfSingleValueArgAlreadySpecified()
+        {
+            // Arrange
+            var args = new[] { "--listen-port", 1.ToString(), "-p", 2.ToString() };
+            int? exitCode = null;
+            var lines = new List<string>();
+            var opts = new ArgParserOptions()
+            {
+                ExitAction = c => exitCode = c,
+                LineWriter = str => lines.Add(str)
+            };
+            // Act
+            args.Parse<IArgs>(out var uncollected, opts);
+
+            // Assert
+            Expect(exitCode)
+                .To.Equal(1);
+            Expect(lines)
+                .To.Contain.Only(1).Item(() => lines.JoinWith("\n"));
+            Expect(lines)
+                .To.Contain.Only(1)
+                .Matched.By(
+                    line => line.Contains("--listen-port specified more than once but only accepts one value"));
+        }
+
+        [Test]
+        public void ShouldErrorAndExitByDefaultWhenEncounteringUnknownSwitch()
+        {
+            // Arrange
+            var args = new[] { "--flag1", "--port" };
+            int? exitCode = null;
+            var lines = new List<string>();
+            var opts = new ArgParserOptions()
+            {
+                ExitAction = c => exitCode = c,
+                LineWriter = str => lines.Add(str)
+            };
+
+            // Act
+            args.Parse<IHasConflictingFlags>(out var collected, opts);
+            // Assert
+            Expect(exitCode)
+                .To.Equal(1);
+            Expect(lines)
+                .To.Contain.Only(1).Item(() => lines.JoinWith("\n"));
+            Expect(lines)
+                .To.Contain.Only(1)
+                .Matched.By(
+                    line => line.Contains("unknown option: --port")
+                );
         }
 
         public interface IHasConflictingFlags
@@ -202,7 +289,6 @@ namespace PeanutButter.Args.Tests
         public class GenerateHelpText
         {
             [Test]
-            [Ignore("WIP")]
             public void ShouldGenerateHelp()
             {
                 // Arrange
@@ -212,20 +298,57 @@ This program is designed to make your life so much easier
 
 Usage: someprogram {args} ...files
 
--f, --flag                  the flag
-    --no-flag               (negated)
--h, --host [text]           host to connect to (localhost)
--l, --long-option [text]    Long option
--P, --password [text]       Password
--p, --port [number]         Port
--u, --user [text]           user name to use
+-f, --flag                the flag
+    --help                shows this help
+-h, --host [text]         host to connect to (localhost)
+-l, --long-option [text]
+-P, --password [text]
+-p, --port [number]
+-u, --user [text]         user name to use
+
+Negate any flag argument with --no-{option}
 
 This program was made with love and biscuits.
 Exit status codes are 0 for happy and non-zero for unhappy.
 Report bugs to <no-one-cares@whatevs.org>
 ".Trim();
+                var args = new[] { "--help" };
+                int? exitCode = null;
+                var lines = new List<string>();
+                var opts = new ArgParserOptions()
+                {
+                    ExitAction = c => exitCode = c,
+                    LineWriter = str => lines.Add(str)
+                };
                 // Act
+                args.Parse<IHelpArgs>(out var uncollected, opts);
                 // Assert
+                Expect(exitCode)
+                    .To.Equal(2);
+                var output = lines.JoinWith("\r\n");
+                Expect(output)
+                    .To.Equal(expected, () =>
+                    {
+                        var i = 0;
+                        foreach (var c in output) 
+                        {
+                            if (i > expected.Length)
+                            {
+                                return $"mismatch starts at {output.Substring(i)}";
+                            }
+
+                            if (c != expected[i])
+                            {
+                                return $@"difference at {i}: expected
+'{expected.Substring(i)}'
+received:
+'{output.Substring(i)}'";
+                            }
+
+                            i++;
+                        };
+                        return "dunno";
+                    });
             }
 
             [Description(@"
