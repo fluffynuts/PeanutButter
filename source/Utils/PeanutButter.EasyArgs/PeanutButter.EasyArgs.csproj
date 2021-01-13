@@ -1,10 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>net452;net462;netstandard2.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <DefineConstants>$(DefineConstants);BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL;BUILD_PEANUTBUTTER_INTERNAL</DefineConstants>
     <RootNamespace>PeanutButter.Args</RootNamespace>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\PeanutButter.EasyArgs.xml</DocumentationFile>
+    <Configurations>Debug;Release;Debug-X</Configurations>
+    <Platforms>AnyCPU</Platforms>
+    <LangVersion>latest</LangVersion>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <ItemGroup>
