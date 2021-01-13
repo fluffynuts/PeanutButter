@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using PeanutButter.Args.Attributes;
@@ -83,7 +84,28 @@ namespace PeanutButter.Args
 
         protected virtual string[] GenerateHelpHead<T>()
         {
-            return ReadTextAttributes<T, DescriptionAttribute>();
+            var configured = ReadTextAttributes<T, DescriptionAttribute>();
+            if (configured.Any())
+            {
+                return configured;
+            }
+
+            var currentApp = Assembly.GetExecutingAssembly();
+            var currentAppPath = new Uri(currentApp.Location).LocalPath;
+            var currentAppFile = Path.GetFileName(currentAppPath);
+            var currentAppExtension = Path.GetExtension(currentAppFile).ToLowerInvariant();
+            if (currentAppExtension == ".exe")
+            {
+                return new[]
+                {
+                    $"Usage: {currentAppFile} {{args}}"
+                };
+            }
+
+            return new[]
+            {
+                $"Usage: dotnet run {currentAppFile} -- {{args}}"
+            };
         }
 
         private const int SHORT_NAME_LENGTH = 1;
