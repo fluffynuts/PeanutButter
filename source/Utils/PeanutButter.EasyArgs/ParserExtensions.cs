@@ -8,8 +8,18 @@ using PeanutButter.Utils;
 
 namespace PeanutButter.Args
 {
+    /// <summary>
+    /// Provides the extension methods to parse commandline arguments
+    /// </summary>
     public static class ParserExtensions
     {
+        /// <summary>
+        /// Simplest use-case: parse to provided type, ignoring extraneous
+        /// command-line argument values; will, however, error on unknown switches
+        /// </summary>
+        /// <param name="arguments"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static T ParseTo<T>(
             this string[] arguments
         )
@@ -19,6 +29,15 @@ namespace PeanutButter.Args
             );
         }
 
+        /// <summary>
+        /// Parse to provided type and output all uncollected arguments. Useful
+        /// if your app, for example, has some switched arguments and then accepts,
+        /// eg, a collection of file paths
+        /// </summary>
+        /// <param name="arguments"></param>
+        /// <param name="uncollected"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static T ParseTo<T>(
             this string[] arguments,
             out string[] uncollected
@@ -30,6 +49,34 @@ namespace PeanutButter.Args
             );
         }
 
+        /// <summary>
+        /// Full-control parsing:
+        /// - collect stray arguments
+        /// - override behavior
+        ///   - LineWriter (default is Console.WriteLine)
+        ///   - ExitOnError (default is true)
+        ///   - ExitAction (default is Environment.Exit)
+        ///   - ExitWhenShowingHelp (default is true)
+        ///   - Message formatting (make your own messages for the following)
+        ///     - ReportMultipleValuesForSingleValueArgument
+        ///     - ReportConflict
+        ///     - ReportUnknownArg
+        ///     - ReportMissingRequiredOption
+        ///     - NegateMessage
+        ///     - DisplayHelp
+        ///       - GenerateHelpHead
+        ///       - GenerateArgumentHelp
+        ///         - FormatOptionHelp
+        ///           - FormatArg
+        ///           - TypeAnnotationFor
+        ///         - ConsoleWidth
+        ///       - GenerateFooter
+        /// </summary>
+        /// <param name="arguments"></param>
+        /// <param name="uncollected"></param>
+        /// <param name="options"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static T ParseTo<T>(
             this string[] arguments,
             out string[] uncollected,
@@ -38,13 +85,14 @@ namespace PeanutButter.Args
         {
             var lookup = GenerateSwitchLookupFor<T>();
             AddImpliedOptionsTo(lookup);
-            var collected = Collect(arguments);
+            var collected = Collect(arguments, out var ignored);
             var matched = TryMatch<T>(
                 lookup,
                 collected,
-                out uncollected,
+                out var unmatched,
                 options
             );
+            uncollected = unmatched.And(ignored);
             var ducked = matched.ForceFuzzyDuckAs<T>(true);
             return typeof(T).IsConcrete()
                 ? CreateTopMostCopyOf(ducked)
@@ -142,7 +190,7 @@ namespace PeanutButter.Args
                     {
                         if (!errored.Contains(cur.Key))
                         {
-                            options.ReportUnknownArg(
+                            options.ReportUnknownSwitch(
                                 cur.Key
                             );
                             errored.Add(cur.Key);
@@ -275,8 +323,8 @@ namespace PeanutButter.Args
             ParserOptions parserOptions)
         {
             var canConflict = options
-                .Where(o => !o.IsImplicit && o.ConflictsWith.Any())
-                .Select(o => new { o.Key, o.ConflictsWith })
+                .Where(o => !o.IsImplicit && o.ConflictsWithKeys.Any())
+                .Select(o => new { o.Key, ConflictsWith = o.ConflictsWithKeys })
                 .ToArray();
             if (!canConflict.Any())
             {
@@ -446,7 +494,7 @@ namespace PeanutButter.Args
                                 .FirstOrDefault()
                                 ?.Value,
                             Property = cur,
-                            ConflictsWith = attribs.OfType<ConflictsWithAttribute>()
+                            ConflictsWithKeys = attribs.OfType<ConflictsWithAttribute>()
                                 .Select(a => a.Value)
                                 .ToArray(),
                             IsImplicit = false,
@@ -458,13 +506,30 @@ namespace PeanutButter.Args
                     });
         }
 
-        private static IDictionary<string, IHasValue> Collect(string[] args)
+        private static IDictionary<string, IHasValue> Collect(
+            string[] args,
+            out string[] ignored
+        )
         {
             var lastSwitch = "";
-            return args.Aggregate(
+            var afterDoubleDash = false;
+            var ignoredCollection = new List<string>();
+            var result = args.Aggregate(
                 new Dictionary<string, IHasValue>(),
                 (acc, cur) =>
                 {
+                    if (afterDoubleDash)
+                    {
+                        ignoredCollection.Add(cur);
+                        return acc;
+                    }
+
+                    if (cur == "--")
+                    {
+                        afterDoubleDash = true;
+                        return acc;
+                    }
+
                     if (!cur.StartsWith("-"))
                     {
                         return acc.Add(lastSwitch, cur);
@@ -473,6 +538,8 @@ namespace PeanutButter.Args
                     lastSwitch = cur;
                     return acc.Add(lastSwitch);
                 });
+            ignored = ignoredCollection.ToArray();
+            return result;
         }
     }
 }

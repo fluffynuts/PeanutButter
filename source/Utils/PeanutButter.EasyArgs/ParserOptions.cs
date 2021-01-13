@@ -8,14 +8,41 @@ using PeanutButter.Utils;
 
 namespace PeanutButter.Args
 {
+    /// <summary>
+    /// Provides options for the parser
+    /// </summary>
     public class ParserOptions
     {
+        /// <summary>
+        /// Writes a line to the output (default is Console.WriteLine)
+        /// </summary>
         public Action<string> LineWriter { get; set; } = Console.WriteLine;
+
+        /// <summary>
+        /// Used to exit the app when necessary (default Environment.Exit)
+        /// </summary>
         public Action<int> ExitAction { get; set; } = Environment.Exit;
+
+        /// <summary>
+        /// (flag) exit when showing help? default true
+        /// </summary>
         public bool ExitWhenShowingHelp { get; set; } = true;
+
+        /// <summary>
+        /// (flag) did we show help? useful if you choose not to exit when showing
+        /// help
+        /// </summary>
         public bool ShowedHelp { get; set; } = false;
+
+        /// <summary>
+        /// (flag) should we exit when args have an error? default true
+        /// </summary>
         public bool ExitOnError { get; set; } = true;
 
+        /// <summary>
+        /// Reports that multiple values were found for a single-value argument
+        /// </summary>
+        /// <param name="arg"></param>
         public virtual void ReportMultipleValuesForSingleValueArgument(string arg)
         {
             LineWriter(
@@ -23,6 +50,11 @@ namespace PeanutButter.Args
             );
         }
 
+        /// <summary>
+        /// Reports that two conflicting arguments were specified
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
         public virtual void ReportConflict(string left, string right)
         {
             LineWriter(
@@ -30,16 +62,28 @@ namespace PeanutButter.Args
             );
         }
 
-        public virtual void ReportUnknownArg(string arg)
+        /// <summary>
+        /// Reports that an unknown switch was encountered
+        /// </summary>
+        /// <param name="arg"></param>
+        public virtual void ReportUnknownSwitch(string arg)
         {
             LineWriter(
                 $"unknown option: {arg}"
             );
         }
 
+        /// <summary>
+        /// Message to display about the auto --no-{arg} functionality for flags
+        /// </summary>
         protected virtual string NegateMessage =>
             "Negate any flag argument with --no-{option}";
 
+        /// <summary>
+        /// Displays help via the LineWriter action
+        /// </summary>
+        /// <param name="options"></param>
+        /// <typeparam name="T"></typeparam>
         public virtual void DisplayHelp<T>(CommandlineArgument[] options)
         {
             if (ShowedHelp)
@@ -60,15 +104,16 @@ namespace PeanutButter.Args
             var footerSpacer = footer.Any()
                 ? OneLine
                 : NoLines;
-            var negateMessage = options.Any(o => o.IsFlag)
+            var negateMessage = options.Any(o => o.IsFlag && !o.IsImplicit)
                 ? new[] { "", NegateMessage }
                 : NoLines;
-            head
+            headSpacer.And(head)
                 .And(headSpacer)
                 .And(body)
                 .And(negateMessage)
                 .And(footerSpacer)
                 .And(footer)
+                .And("")
                 .ForEach(s => LineWriter(s.TrimEnd()));
 
             if (ExitOnError)
@@ -82,6 +127,12 @@ namespace PeanutButter.Args
         private static readonly string[] OneLine = { "" };
         private static readonly string[] NoLines = new string[0];
 
+        /// <summary>
+        /// Generates the help header from attributes or defaults to something
+        /// legible including the current app file
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         protected virtual string[] GenerateHelpHead<T>()
         {
             var configured = ReadTextAttributes<T, DescriptionAttribute>();
@@ -90,11 +141,27 @@ namespace PeanutButter.Args
                 return configured;
             }
 
-            var currentApp = Assembly.GetExecutingAssembly();
+            var currentApp = Assembly.GetEntryAssembly();
+            if (currentApp is null)
+            {
+                return configured;
+            }
+
             var currentAppPath = new Uri(currentApp.Location).LocalPath;
             var currentAppFile = Path.GetFileName(currentAppPath);
             var currentAppExtension = Path.GetExtension(currentAppFile).ToLowerInvariant();
-            if (currentAppExtension == ".exe")
+            var isExe = currentAppExtension == ".exe";
+            if (currentAppExtension == ".dll")
+            {
+                var searchExe = currentAppFile.RegexReplace("dll$", "exe");
+                if (File.Exists(searchExe))
+                {
+                    currentAppFile = searchExe;
+                    isExe = true;
+                }
+            }
+
+            if (isExe)
             {
                 return new[]
                 {
@@ -104,33 +171,39 @@ namespace PeanutButter.Args
 
             return new[]
             {
-                $"Usage: dotnet run {currentAppFile} -- {{args}}"
+                $"Usage: dotnet {currentAppFile} {{args}}"
             };
         }
 
         private const int SHORT_NAME_LENGTH = 1;
-        private static readonly int DASH_LENGTH = "-".Length;
+        private static readonly int DashLength = "-".Length;
         private const string LEFT_BRACKET = "[";
         private const string RIGHT_BRACKET = "]";
-        private static readonly int LEFT_BRACKET_LENGTH = LEFT_BRACKET.Length;
-        private static readonly int RIGHT_BRACKET_LENGTH = RIGHT_BRACKET.Length;
-        private static readonly int COMMA_AND_SPACE_LENGTH = ", ".Length;
-        private static readonly int SINGLE_SPACE_LENGTH = " ".Length;
+        private static readonly int LeftBracketLength = LEFT_BRACKET.Length;
+        private static readonly int RightBracketLength = RIGHT_BRACKET.Length;
+        private static readonly int CommaAndSpaceLength = ", ".Length;
+        private static readonly int SingleSpaceLength = " ".Length;
         private static readonly int COLUMN_PADDING_LENGTH = 1;
 
+        /// <summary>
+        /// Generates the help for the arguments section
+        /// </summary>
+        /// <param name="options"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         protected virtual string[] GenerateArgumentHelp<T>(CommandlineArgument[] options)
         {
             var result = new List<string>();
             var longestLeftCol = options.Select(o =>
-                DASH_LENGTH +
+                DashLength +
                 SHORT_NAME_LENGTH +
-                COMMA_AND_SPACE_LENGTH +
-                DASH_LENGTH + DASH_LENGTH +
+                CommaAndSpaceLength +
+                DashLength + DashLength +
                 o.LongName.Length +
-                SINGLE_SPACE_LENGTH +
-                LEFT_BRACKET_LENGTH +
+                SingleSpaceLength +
+                LeftBracketLength +
                 o.Type.Length +
-                RIGHT_BRACKET_LENGTH +
+                RightBracketLength +
                 COLUMN_PADDING_LENGTH
             ).Max();
             options.ForEach(opt =>
@@ -150,6 +223,13 @@ namespace PeanutButter.Args
                 .ToArray();
         }
 
+        /// <summary>
+        /// Formats the description text for an argument to make it "fit on the right"
+        /// </summary>
+        /// <param name="description"></param>
+        /// <param name="isFlag"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
         protected virtual string FormatDescriptionText(
             string description,
             bool isFlag,
@@ -169,7 +249,16 @@ namespace PeanutButter.Args
                 : $"{description?.Trim()}{space}({defaultValue})";
         }
 
-        protected virtual string TypeAnnotationFor(string type, bool isFlag)
+        /// <summary>
+        /// Produces a formatted type annotation for an argument
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="isFlag"></param>
+        /// <returns></returns>
+        protected virtual string TypeAnnotationFor(
+            string type,
+            bool isFlag
+        )
         {
             if (string.IsNullOrWhiteSpace(type) || isFlag)
             {
@@ -179,6 +268,17 @@ namespace PeanutButter.Args
             return $" {LEFT_BRACKET}{type}{RIGHT_BRACKET}";
         }
 
+        /// <summary>
+        /// Formats the help entry for an option
+        /// </summary>
+        /// <param name="shortName"></param>
+        /// <param name="longName"></param>
+        /// <param name="type"></param>
+        /// <param name="isFlag"></param>
+        /// <param name="helpText"></param>
+        /// <param name="leftColWidth"></param>
+        /// <param name="maxLineWidth"></param>
+        /// <returns></returns>
         protected string FormatOptionHelp(
             string shortName,
             string longName,
@@ -216,7 +316,21 @@ namespace PeanutButter.Args
             return result.JoinWith("\n");
         }
 
-        protected string FormatArg(string name, int dashes, bool isFirst)
+        /// <summary>
+        /// Formats the argument part of argument help (eg '-h, --help')
+        /// Should be called twice per argument, with a flag as to whether
+        /// it's the first call (for the short part) or the second (for the
+        /// long part)
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="dashes"></param>
+        /// <param name="isFirst"></param>
+        /// <returns></returns>
+        protected string FormatArg(
+            string name,
+            int dashes,
+            bool isFirst
+        )
         {
             if (string.IsNullOrWhiteSpace(name))
             {
@@ -227,14 +341,6 @@ namespace PeanutButter.Args
             }
 
             return $"{new String('-', dashes)}{name}{(isFirst ? "," : "")}";
-        }
-
-        protected virtual string NegatedFlagLeft(
-            string flagName,
-            int columnWidth
-        )
-        {
-            return $"    --no-{flagName}".PadRight(columnWidth);
         }
 
         private string GrabWords(
@@ -270,6 +376,10 @@ namespace PeanutButter.Args
             return result.JoinWith(" ");
         }
 
+        /// <summary>
+        /// Provides the window width for the console (falling back on 80
+        /// when that fails)
+        /// </summary>
         public virtual int ConsoleWidth => TryReadConsoleWidth();
 
         private int TryReadConsoleWidth()
@@ -284,11 +394,23 @@ namespace PeanutButter.Args
             }
         }
 
+        /// <summary>
+        /// Generates the help footer from a [MoreInfo] attribute
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         protected virtual string[] GenerateHelpFooter<T>()
         {
             return ReadTextAttributes<T, MoreInfoAttribute>();
         }
 
+        /// <summary>
+        /// Reads all values from text-based attributes of type
+        /// TAttribute which decorate THost
+        /// </summary>
+        /// <typeparam name="THost"></typeparam>
+        /// <typeparam name="TAttribute"></typeparam>
+        /// <returns></returns>
         protected string[] ReadTextAttributes<THost, TAttribute>()
             where TAttribute : StringAttribute
         {
@@ -300,6 +422,10 @@ namespace PeanutButter.Args
                 .ToArray();
         }
 
+        /// <summary>
+        /// Reports a missing, required option
+        /// </summary>
+        /// <param name="arg"></param>
         public virtual void ReportMissingRequiredOption(string arg)
         {
             LineWriter(

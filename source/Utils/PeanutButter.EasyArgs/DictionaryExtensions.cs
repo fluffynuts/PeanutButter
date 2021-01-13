@@ -3,9 +3,9 @@ using PeanutButter.DuckTyping.Extensions;
 
 namespace PeanutButter.Args
 {
-    public static class DictionaryExtensions
+    internal static class DictionaryExtensions
     {
-        public static bool TryGetValueFuzzy<T>(
+        internal static bool TryGetValueFuzzy<T>(
             this IDictionary<string, T> dict,
             string key,
             out T value

@@ -359,7 +359,7 @@ Negate any flag argument with --no-{option}
 This program was made with love and biscuits.
 Exit status codes are 0 for happy and non-zero for unhappy.
 Report bugs to <no-one-cares@whatevs.org>
-".Trim();
+";
                 var args = new[] { "--help" };
                 int? exitCode = null;
                 var lines = new List<string>();

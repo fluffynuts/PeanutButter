@@ -60,11 +60,6 @@ namespace PeanutButter.DuckTyping.Shimming
             MethodAttributes.Virtual |
             MethodAttributes.HideBySig;
 
-        private static readonly MethodAttributes PropertyGetterSetterMethodNonVirtualAttributes =
-            MethodAttributes.Public |
-            MethodAttributes.SpecialName |
-            MethodAttributes.HideBySig;
-
         private static readonly object DynamicAssemblyLock = new object();
         private static AssemblyBuilder _dynamicAssemblyBuilderField;
         private static ModuleBuilder _moduleBuilder;
