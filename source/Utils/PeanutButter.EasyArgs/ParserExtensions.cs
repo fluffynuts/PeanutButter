@@ -284,7 +284,7 @@ namespace PeanutButter.Args
             }
 
             var errored = false;
-            var reported = new HashSet<(string left, string right)>();
+            var reported = new HashSet<StringPair>();
             canConflict.ForEach(o =>
             {
                 o.ConflictsWith.ForEach(conflict =>
@@ -301,14 +301,14 @@ namespace PeanutButter.Args
                             .ToArray();
                         var left = ordered[0].LongName;
                         var right = ordered[1].LongName;
-                        var alreadyReported = reported.Contains((left, right)) ||
-                            reported.Contains((right, left));
+                        var thisConflict = new StringPair(left, right);
+                        var alreadyReported = reported.Contains(thisConflict);
                         if (alreadyReported)
                         {
                             return;
                         }
 
-                        reported.Add((left, right));
+                        reported.Add(thisConflict);
                         parserOptions.ReportConflict($"--{left}", $"--{right}");
                     }
                 });

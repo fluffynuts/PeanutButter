@@ -18,5 +18,5 @@
     <ProjectReference Include="..\PeanutButter.DuckTyping\PeanutButter.DuckTyping.csproj" />
     <ProjectReference Include="..\PeanutButter.Utils\PeanutButter.Utils.csproj" />
   </ItemGroup>
-
+  
 </Project>
