@@ -1,4 +1,4 @@
-﻿namespace PeanutButter.Args.Attributes
+﻿namespace PeanutButter.EasyArgs.Attributes
 {
     /// <summary>
     /// Sets the description for a parsed argument or the header help

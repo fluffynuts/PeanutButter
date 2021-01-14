@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace PeanutButter.Args
+namespace PeanutButter.EasyArgs
 {
     internal class StringCollection : IHasValue
     {

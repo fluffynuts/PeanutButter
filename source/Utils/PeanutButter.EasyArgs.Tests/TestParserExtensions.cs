@@ -2,13 +2,13 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using NExpect;
-using PeanutButter.Args.Attributes;
+using PeanutButter.EasyArgs.Attributes;
 using PeanutButter.RandomGenerators;
 using PeanutButter.Utils;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
-namespace PeanutButter.Args.Tests
+namespace PeanutButter.EasyArgs.Tests
 {
     [TestFixture]
     public class TestArgsParser

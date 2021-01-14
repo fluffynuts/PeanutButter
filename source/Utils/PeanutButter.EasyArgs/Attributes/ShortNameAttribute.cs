@@ -1,4 +1,4 @@
-﻿namespace PeanutButter.Args.Attributes
+﻿namespace PeanutButter.EasyArgs.Attributes
 {
     /// <summary>
     /// Explicitly sets the short name for a parsed argument

@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using PeanutButter.Args.Attributes;
+using PeanutButter.EasyArgs.Attributes;
 using PeanutButter.Utils;
 
-namespace PeanutButter.Args
+namespace PeanutButter.EasyArgs
 {
     /// <summary>
     /// Provides options for the parser

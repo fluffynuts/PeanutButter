@@ -1,4 +1,4 @@
-﻿namespace PeanutButter.Args
+﻿namespace PeanutButter.EasyArgs
 {
     internal interface IHasValue
     {

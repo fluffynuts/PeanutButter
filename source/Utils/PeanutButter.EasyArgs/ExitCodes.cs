@@ -1,4 +1,4 @@
-﻿namespace PeanutButter.Args
+﻿namespace PeanutButter.EasyArgs
 {
     /// <summary>
     /// Exit codes used when exiting early

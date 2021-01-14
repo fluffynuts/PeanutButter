@@ -895,6 +895,14 @@ namespace PeanutButter.Utils
                 (propertyInfo.SetMethod?.IsVirtualOrAbstract() ?? true);
         }
 
+        /// <summary>
+        /// returns tru if the provided object implements the expected interface
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="expected"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
         public static bool Implements<T>(
             this T obj,
             Type expected

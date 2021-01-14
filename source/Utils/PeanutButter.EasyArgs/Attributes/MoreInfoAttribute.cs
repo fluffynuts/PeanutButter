@@ -1,4 +1,4 @@
-﻿namespace PeanutButter.Args.Attributes
+﻿namespace PeanutButter.EasyArgs.Attributes
 {
     /// <summary>
     /// Adds more information to the help screen, as a footer

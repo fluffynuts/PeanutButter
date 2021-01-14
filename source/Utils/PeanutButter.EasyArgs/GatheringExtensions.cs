@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace PeanutButter.Args
+namespace PeanutButter.EasyArgs
 {
     internal static class GatheringExtensions
     {

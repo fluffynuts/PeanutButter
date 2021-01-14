@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PeanutButter.Args.Attributes
+namespace PeanutButter.EasyArgs.Attributes
 {
     /// <summary>
     /// Stores an arbitrary object

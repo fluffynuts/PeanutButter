@@ -1,6 +1,6 @@
 ﻿using PeanutButter.Utils;
 
-namespace PeanutButter.Args.Attributes
+namespace PeanutButter.EasyArgs.Attributes
 {
     /// <summary>
     /// Explicitly sets the long name for a parsed argument

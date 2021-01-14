@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using PeanutButter.Args.Attributes;
+using PeanutButter.EasyArgs.Attributes;
 using PeanutButter.DuckTyping.Extensions;
 using PeanutButter.Utils;
 
-namespace PeanutButter.Args
+namespace PeanutButter.EasyArgs
 {
     /// <summary>
     /// Provides the extension methods to parse commandline arguments

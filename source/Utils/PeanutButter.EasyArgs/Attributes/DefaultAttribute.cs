@@ -1,4 +1,4 @@
-﻿namespace PeanutButter.Args.Attributes
+﻿namespace PeanutButter.EasyArgs.Attributes
 {
     /// <summary>
     /// Sets the default value for a parsed argument

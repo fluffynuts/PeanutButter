@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using PeanutButter.DuckTyping.Extensions;
 
-namespace PeanutButter.Args
+namespace PeanutButter.EasyArgs
 {
     internal static class DictionaryExtensions
     {

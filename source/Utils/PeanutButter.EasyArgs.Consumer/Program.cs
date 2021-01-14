@@ -1,5 +1,5 @@
 ﻿using System;
-using PeanutButter.Args;
+using PeanutButter.EasyArgs;
 
 namespace PeanutButter.EasyArgs.Consumer
 {

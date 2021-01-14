@@ -5,7 +5,7 @@
 
     <IsPackable>false</IsPackable>
 
-    <RootNamespace>PeanutButter.Args.Tests</RootNamespace>
+    <RootNamespace>PeanutButter.EasyArgs.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

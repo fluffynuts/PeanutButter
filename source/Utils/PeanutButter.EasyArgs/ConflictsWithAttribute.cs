@@ -1,6 +1,6 @@
-﻿using PeanutButter.Args.Attributes;
+﻿using PeanutButter.EasyArgs.Attributes;
 
-namespace PeanutButter.Args
+namespace PeanutButter.EasyArgs
 {
     /// <summary>
     /// Marks this argument as conflicting with another argument by property name (key)

@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 
-namespace PeanutButter.Args
+namespace PeanutButter.EasyArgs
 {
     internal class StringPair
     {

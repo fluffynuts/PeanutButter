@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using PeanutButter.Utils;
 
-namespace PeanutButter.Args
+namespace PeanutButter.EasyArgs
 {
     /// <summary>
     /// Describes a command line argument
