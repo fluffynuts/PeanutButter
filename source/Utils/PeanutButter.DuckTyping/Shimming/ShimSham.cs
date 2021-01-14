@@ -253,7 +253,7 @@ namespace PeanutButter.DuckTyping.Shimming
         }
 
         /// <inheritdoc />
-        public object CallThrough(string methodName, object[] parameters)
+        public object CallThrough(string methodName, object[] arguments)
         {
             if (_wrappingADuck)
             {
@@ -262,11 +262,17 @@ namespace PeanutButter.DuckTyping.Shimming
             // TODO: throw for correct wrapped type
             var wrappedType = _wrappedTypes[0];
             if (!_localMethodInfos.TryGetValue(methodName, out var methodInfo))
+            {
                 throw new MethodNotFoundException(wrappedType, methodName);
+            }
+
             if (_isFuzzy)
-                parameters = AttemptToOrderCorrectly(parameters, methodInfo);
+            {
+                arguments = AttemptToOrderCorrectly(arguments, methodInfo);
+            }
+
             // FIXME: find the correct wrapped object to invoke on
-            var result = methodInfo.Invoke(_wrapped[0], parameters);
+            var result = methodInfo.Invoke(_wrapped[0], arguments);
             return result;
         }
 

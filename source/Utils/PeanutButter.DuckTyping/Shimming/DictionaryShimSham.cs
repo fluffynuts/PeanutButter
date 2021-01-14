@@ -17,7 +17,7 @@ namespace PeanutButter.DuckTyping.Shimming
     /// </summary>
     public class DictionaryShimSham : ShimShamBase, IShimSham
     {
-        private readonly Type _interfaceToMimic;
+        private readonly Type _typeToMimic;
         private readonly IDictionary<string, object> _data;
         private readonly Dictionary<string, PropertyInfo> _mimickedProperties;
         private readonly bool _isFuzzy;
@@ -27,12 +27,12 @@ namespace PeanutButter.DuckTyping.Shimming
         /// Constructs an instance of the DictionaryShimSham
         /// </summary>
         /// <param name="toWrap">Dictionary to wrap</param>
-        /// <param name="interfaceToMimic">Interface that must be mimicked</param>
+        /// <param name="typeToMimic">Interface that must be mimicked</param>
         // ReSharper disable once UnusedMember.Global
         public DictionaryShimSham(
             IDictionary<string, object> toWrap,
-            Type interfaceToMimic)
-            : this(new[] { toWrap }, interfaceToMimic)
+            Type typeToMimic)
+            : this(new[] { toWrap }, typeToMimic)
         {
         }
 
@@ -40,23 +40,23 @@ namespace PeanutButter.DuckTyping.Shimming
         /// Constructs an instance of the DictionaryShimSham
         /// </summary>
         /// <param name="toWrap">Dictionaries to wrap (wip: only the first is considered)</param>
-        /// <param name="interfaceToMimic">Interface that must be mimicked</param>
+        /// <param name="typeToMimic">Interface that must be mimicked</param>
         public DictionaryShimSham(
             IDictionary<string, object>[] toWrap,
-            Type interfaceToMimic)
+            Type typeToMimic)
         {
-            _interfaceToMimic = interfaceToMimic;
+            _typeToMimic = typeToMimic;
             var incoming = (toWrap?.ToArray() ?? new Dictionary<string, object>[0])
                 .Where(d => d != null)
                 .ToArray();
 
             _data = incoming.Length == 0
                 ? new Dictionary<string, object>()
-                : incoming.Length == 1 
-                    ? incoming[0] 
+                : incoming.Length == 1
+                    ? incoming[0]
                     : new MergeDictionary<string, object>(incoming);
             _isFuzzy = IsFuzzy(_data);
-            _mimickedProperties = interfaceToMimic
+            _mimickedProperties = typeToMimic
                 .GetAllImplementedInterfaces()
                 .SelectMany(interfaceType => interfaceType.GetProperties())
                 .Distinct(new PropertyInfoComparer())
@@ -254,7 +254,7 @@ namespace PeanutButter.DuckTyping.Shimming
         {
             return _mimickedProperties.TryGetValue(propertyName, out var result)
                 ? result
-                : throw new PropertyNotFoundException(_interfaceToMimic, propertyName);
+                : throw new PropertyNotFoundException(_typeToMimic, propertyName);
         }
 
         private void CheckPropertyExists(string propertyName)
@@ -270,11 +270,25 @@ namespace PeanutButter.DuckTyping.Shimming
         /// dictionaries as the concept doesn't make sense
         /// </summary>
         /// <param name="methodName">Name of the method to not call through to</param>
-        /// <param name="parameters">Parameters to ignore</param>
+        /// <param name="arguments">Parameters to ignore</param>
         /// <exception cref="NotImplementedException">Exception which is always thrown</exception>
-        public void CallThroughVoid(string methodName, params object[] parameters)
+        public void CallThroughVoid(string methodName, params object[] arguments)
         {
-            throw new NotImplementedException();
+            if (!_data.TryGetValue(methodName, out var func) ||
+                func is null ||
+                !VoidFunctionAccepts(
+                    func,
+                    arguments,
+                    out var parameterTypes
+                )
+            )
+            {
+                // TODO: this should be caught at duck-time
+                throw new MethodNotFoundException(_typeToMimic, methodName);
+            }
+
+            var preparedArguments = PrepareArguments(arguments, parameterTypes);
+            InvokeNonVoidFunc(func, preparedArguments, null);
         }
 
         /// <summary>
@@ -282,12 +296,306 @@ namespace PeanutButter.DuckTyping.Shimming
         /// dictionaries as the concept doesn't make sense
         /// </summary>
         /// <param name="methodName">Name of the method to not call through to</param>
-        /// <param name="parameters">Parameters to ignore</param>
+        /// <param name="arguments">Parameters to ignore</param>
         /// <exception cref="NotImplementedException">Exception which is always thrown</exception>
-        public object CallThrough(string methodName, object[] parameters)
+        public object CallThrough(string methodName, object[] arguments)
         {
-            // TODO: think about possibly calling a stored action / func with the given name and parameters...
-            throw new NotImplementedException();
+            if (!_data.TryGetValue(methodName, out var func) ||
+                func is null ||
+                !NonVoidFunctionAccepts(
+                    func,
+                    arguments,
+                    out var parameterTypes,
+                    out _
+                )
+            )
+            {
+                // TODO: this should be caught at duck-time
+                throw new NotImplementedException(
+                    func is null
+                    ? $"{_typeToMimic.Name}.{methodName} not implemented in underlying dictionary"
+                    : $"{_typeToMimic.Name}.{methodName} not fully in underlying dictionary: arguments must be in order and args and return type must either have identical type or be easily convertable"
+                );
+            }
+
+            var preparedArguments = PrepareArguments(arguments, parameterTypes);
+            var argumentTypes = arguments.Select(a => a?.GetType()).ToArray();
+            var returnType = DetermineReturnTypeFor(methodName, argumentTypes);
+            return InvokeNonVoidFunc(func, preparedArguments, returnType);
         }
+
+        private Type DetermineReturnTypeFor(
+            string methodName,
+            Type[] argumentTypes
+        )
+        {
+            // FIXME: should be able to fuzzy-duck to method
+            // with unique types in different order
+            var method = _typeToMimic.GetMethods()
+                .Where(mi => mi.Name == methodName)
+                .FirstOrDefault(mi =>
+                {
+                    var parameterTypes = mi.GetParameters().Select(p => p.ParameterType).ToArray();
+                    if (parameterTypes.Length != argumentTypes.Length)
+                    {
+                        return false;
+                    }
+
+                    var idx = -1;
+                    foreach (var pt in parameterTypes)
+                    {
+                        idx++;
+                        var argType = argumentTypes[idx];
+                        if (pt == argType)
+                        {
+                            continue;
+                        }
+
+                        if (argType.IsAssignableOrUpCastableTo(pt))
+                        {
+                            continue;
+                        }
+
+                        if (argType is null && pt.IsNullableType())
+                        {
+                            continue;
+                        }
+
+                        return false;
+                    }
+
+                    return true;
+                });
+            return method?.ReturnType
+                ?? throw new InvalidOperationException(
+                    $"Can't determine return type for {methodName} with provided parameters"
+                );
+        }
+
+        private object[] PrepareArguments(
+            object[] arguments,
+            Type[] parameterTypes)
+        {
+            return arguments.Select((arg, idx) =>
+            {
+                var argType = arg?.GetType();
+                if (arg is null ||
+                    arg.GetType() == parameterTypes[idx])
+                {
+                    return arg;
+                }
+
+                if (parameterTypes[idx].IsAssignableFrom(argType))
+                {
+                    return arg;
+                }
+
+                var converter = ConverterLocator.GetConverter(argType, parameterTypes[idx]);
+                return converter.Convert(arg);
+            }).ToArray();
+        }
+
+        private object InvokeNonVoidFunc(
+            object func,
+            object[] arguments,
+            Type returnType
+        )
+        {
+            var invokeMethod = func.GetType().GetMethod(nameof(Func<int>.Invoke));
+            var result = invokeMethod?.Invoke(func, arguments);
+            if (returnType is null)
+            {
+                return null;
+            }
+
+            if (result is null)
+            {
+                return returnType.IsNullableType()
+                    ? null
+                    : returnType.DefaultValue();
+            }
+
+            var resultType = result.GetType();
+            if (resultType == returnType)
+            {
+                return result;
+            }
+
+            var converter = ConverterLocator.GetConverter(resultType, returnType);
+            return converter?.Convert(result)
+                ?? throw new InvalidOperationException(
+                    $"Can't convert result from {resultType} to {returnType}"
+                );
+        }
+
+        // TODO: should be moved out into a shared location & used at duck-type
+        // to prevent erroneous ducks
+        private bool NonVoidFunctionAccepts(
+            object value,
+            object[] arguments,
+            out Type[] parameterTypes,
+            out Type returnType
+        )
+        {
+            parameterTypes = null;
+            returnType = null;
+            var funcType = value.GetType();
+            if (!funcType.IsGenericType)
+            {
+                return false;
+            }
+
+            var parameterCount = Array.IndexOf(FuncGenerics, funcType.GetGenericTypeDefinition());
+            if (parameterCount != arguments.Length)
+            {
+                if (parameterCount > FuncGenerics.Length)
+                {
+                    throw new NotSupportedException(
+                        $"methods with more than {FuncGenerics.Length} parameters are not supported");
+                }
+
+                return false;
+            }
+
+            var genericParameters = funcType.GetGenericArguments();
+            parameterTypes = genericParameters.Take(genericParameters.Length - 1).ToArray();
+            returnType = genericParameters.Last();
+            var zipped = arguments.Zip(
+                parameterTypes,
+                (argument, parameterType) =>
+                    new
+                    {
+                        argumentType = argument?.GetType(),
+                        parameterType
+                    }
+            );
+            return zipped.Aggregate(
+                true,
+                (acc, cur) =>
+                {
+                    if (!acc)
+                    {
+                        return false;
+                    }
+
+                    if (cur.argumentType is null &&
+                        cur.parameterType.IsNullableType())
+                    {
+                        return true;
+                    }
+
+                    if (cur.argumentType.IsAssignableOrUpCastableTo(cur.parameterType))
+                    {
+                        return true;
+                    }
+
+                    return cur.argumentType == cur.parameterType ||
+                        ConverterLocator.HaveConverterFor(cur.argumentType, cur.parameterType);
+                });
+        }
+
+        private bool VoidFunctionAccepts(
+            object value,
+            object[] arguments,
+            out Type[] parameterTypes
+        )
+        {
+            parameterTypes = null;
+            var actionType = value.GetType();
+            if (!actionType.IsGenericType)
+            {
+                return false;
+            }
+
+            var parameterCount = Array.IndexOf(
+                ActionGenerics,
+                actionType.GetGenericTypeDefinition()
+            ) + 1;
+            if (parameterCount != arguments.Length)
+            {
+                if (parameterCount > ActionGenerics.Length)
+                {
+                    throw new NotSupportedException(
+                        $"methods with more than {ActionGenerics.Length} parameters are not supported");
+                }
+
+                return false;
+            }
+
+            parameterTypes = actionType.GetGenericArguments();
+            var zipped = arguments.Zip(
+                parameterTypes,
+                (argument, parameterType) =>
+                    new
+                    {
+                        argumentType = argument?.GetType(),
+                        parameterType
+                    }
+            );
+            return zipped.Aggregate(
+                true,
+                (acc, cur) =>
+                {
+                    if (!acc)
+                    {
+                        return false;
+                    }
+
+                    if (cur.argumentType is null &&
+                        cur.parameterType.IsNullableType())
+                    {
+                        return true;
+                    }
+
+                    if (cur.argumentType.IsAssignableOrUpCastableTo(cur.parameterType))
+                    {
+                        return true;
+                    }
+
+                    return cur.argumentType == cur.parameterType ||
+                        ConverterLocator.HaveConverterFor(cur.argumentType, cur.parameterType);
+                });
+        }
+
+
+        private static readonly Type[] FuncGenerics =
+        {
+            typeof(Func<>),
+            typeof(Func<,>),
+            typeof(Func<,,>),
+            typeof(Func<,,,>),
+            typeof(Func<,,,,>),
+            typeof(Func<,,,,,>),
+            typeof(Func<,,,,,,>),
+            typeof(Func<,,,,,,,>),
+            typeof(Func<,,,,,,,,>),
+            typeof(Func<,,,,,,,,,>),
+            typeof(Func<,,,,,,,,,,>),
+            typeof(Func<,,,,,,,,,,,>),
+            typeof(Func<,,,,,,,,,,,,>),
+            typeof(Func<,,,,,,,,,,,,,>),
+            typeof(Func<,,,,,,,,,,,,,,>),
+            typeof(Func<,,,,,,,,,,,,,,,>)
+        };
+
+        private static readonly Type[] ActionGenerics =
+        {
+            typeof(Action<>),
+            typeof(Action<,>),
+            typeof(Action<,,>),
+            typeof(Action<,,,>),
+            typeof(Action<,,,,>),
+            typeof(Action<,,,,,>),
+            typeof(Action<,,,,,,>),
+            typeof(Action<,,,,,,,>),
+            typeof(Action<,,,,,,,,>),
+            typeof(Action<,,,,,,,,,>),
+            typeof(Action<,,,,,,,,,,>),
+            typeof(Action<,,,,,,,,,,,>),
+            typeof(Action<,,,,,,,,,,,,>),
+            typeof(Action<,,,,,,,,,,,,,>),
+            typeof(Action<,,,,,,,,,,,,,,>),
+            typeof(Action<,,,,,,,,,,,,,,,>)
+        };
     }
 }

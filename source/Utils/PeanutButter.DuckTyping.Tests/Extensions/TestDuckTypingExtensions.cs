@@ -1738,7 +1738,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 AccomodationRequired = GetRandomBoolean(),
                 AccommodationNotes = GetRandomString()
             };
-            var expectedDuck = expected.DuckAs<ITravelRequestDetails>();
+            var expectedDuck = expected.DuckAs<ITravelRequestDetails>(true);
 
             //--------------- Assume ----------------
             Expect(expectedDuck).Not.To.Be.Null();
@@ -3136,6 +3136,82 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 Expect(() => settings.DuckAs<IConnectionStrings>(true))
                     .To.Throw<UnDuckableException>();
                 // Assert
+            }
+        }
+
+        [TestFixture]
+        public class DuckingDictionaryWithFuncPropToInterfaceWithMethod
+        {
+            [Test]
+            public void ShouldCallThroughForDirectMatch()
+            {
+                // Arrange
+                var dict = new Dictionary<string, object>()
+                {
+                    ["Add"] = new Func<int, int, int>((a, b) => a + b)
+                };
+
+                // Act
+                var result = dict.DuckAs<ICalculator>();
+                // Assert
+                Expect(result)
+                    .Not.To.Be.Null();
+                Expect(result.Add(1, 2))
+                    .To.Equal(3);
+            }
+
+            [Test]
+            public void ShouldCallThroughForUpcastingMatch()
+            {
+                // Arrange
+                var dict = new Dictionary<string, object>()
+                {
+                    ["Add"] = new Func<long, long, long>((a, b) => a + b)
+                };
+
+                Expect(typeof(int).IsAssignableOrUpCastableTo(typeof(long)))
+                    .To.Be.True();
+                Expect(typeof(long).IsAssignableOrUpCastableTo(typeof(int)))
+                    .To.Be.False();
+
+                // Act
+                var ducked = dict.DuckAs<ICalculator>(true);
+                Expect(ducked)
+                    .Not.To.Be.Null();
+                var result = ducked.Add(1, 2);
+                // Assert
+                Expect(result)
+                    .To.Equal(3);
+            }
+
+            [Test]
+            public void ShouldCallThroughToVoidMethod()
+            {
+                // Arrange
+                var store = new List<int>();
+                var dict = new Dictionary<string, object>()
+                {
+                    ["Store"] = new Action<int>(i => store.Add(i))
+                };
+
+                // Act
+                var ducked = dict.DuckAs<IStore>(true);
+                Expect(ducked)
+                    .Not.To.Be.Null();
+                ducked.Store(1);
+                // Assert
+                Expect(store)
+                    .To.Equal(new[] { 1 });
+            }
+
+            public interface ICalculator
+            {
+                int Add(int a, int b);
+            }
+
+            public interface IStore
+            {
+                void Store(int value);
             }
         }
 

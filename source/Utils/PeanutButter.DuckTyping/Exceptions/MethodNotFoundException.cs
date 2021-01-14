@@ -13,7 +13,10 @@ namespace PeanutButter.DuckTyping.Exceptions
         /// </summary>
         /// <param name="owningType">Type which was expected to implement the method</param>
         /// <param name="methodName">Name of the method which was expected, but not found</param>
-        public MethodNotFoundException(Type owningType, string methodName)
+        public MethodNotFoundException(
+            Type owningType,
+            string methodName
+        )
             : base($"Public method {methodName} not found on type {owningType.Name}")
         {
         }

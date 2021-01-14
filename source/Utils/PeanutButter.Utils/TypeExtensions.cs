@@ -570,10 +570,10 @@ namespace PeanutButter.Utils
         /// <param name="src"></param>
         /// <param name="target"></param>
         /// <returns></returns>
-        public static bool IsAssignableOrUpcastableTo(this Type src, Type target)
+        public static bool IsAssignableOrUpCastableTo(this Type src, Type target)
         {
             return target.IsAssignableFrom(src) ||
-                src.CanImplicitlyUpcastTo(target);
+                src.CanImplicitlyCastTo(target);
         }
 
         /// <summary>
@@ -583,12 +583,19 @@ namespace PeanutButter.Utils
         /// <param name="src"></param>
         /// <param name="target"></param>
         /// <returns></returns>
-        public static bool CanImplicitlyUpcastTo(
+        public static bool CanImplicitlyCastTo(
             this Type src,
             Type target
         )
         {
             var convertSpecific = TryConvertGeneric.MakeGenericMethod(target);
+            if (!src.IsValueType() || !target.IsValueType())
+            {
+                // fixme: what about implicit operators?
+                return false;
+            }
+
+
             var defaultSpecific = DefaultValueGeneric.MakeGenericMethod(src);
             var defaultValue = defaultSpecific.Invoke(null, null);
             bool canConvert;
@@ -886,6 +893,31 @@ namespace PeanutButter.Utils
         {
             return (propertyInfo.GetMethod?.IsVirtualOrAbstract() ?? true) &&
                 (propertyInfo.SetMethod?.IsVirtualOrAbstract() ?? true);
+        }
+
+        public static bool Implements<T>(
+            this T obj,
+            Type expected
+        )
+        {
+            // prefer object actual type, fall back on generic type
+            var type = obj?.GetType() ?? typeof(T);
+            if (!expected.IsInterface)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(Implements)} tests for implemented interfaces, not for ancestry");
+            }
+
+            var interfaces = type.GetInterfaces();
+            if (expected.IsGenericType)
+            {
+                return interfaces
+                    .Any(i =>
+                        i.IsGenericType &&
+                        i.GetGenericTypeDefinition() == expected
+                    );
+            }
+            return interfaces.Any(i => i == expected);
         }
     }
 }

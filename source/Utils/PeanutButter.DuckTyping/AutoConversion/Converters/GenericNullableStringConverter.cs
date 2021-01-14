@@ -1,35 +1,26 @@
-using System;
-using System.Collections.Generic;
-using Imported.PeanutButter.Utils;
+﻿using System;
 
 namespace PeanutButter.DuckTyping.AutoConversion.Converters
 {
-    internal class GenericStringConverter<T>
+    internal class GenericNullableStringConverter<T>
         : GenericStringConverterBase<T>,
-          IConverter<string, T>
+          IConverter<string, T?> where T : struct
     {
         public Type T1 => typeof(string);
-        public Type T2 => typeof(T);
+        public Type T2 => typeof(T?);
 
-        public T Convert(string value)
+        public string Convert(T? input)
+        {
+            return input?.ToString();
+        }
+
+        public T? Convert(string value)
         {
             var parameters = new object[] { value, null };
             var parsed = (bool) _tryParse.Invoke(null, parameters);
             return parsed
                 ? (T) parameters[1]
-                : default;
-        }
-
-        public string Convert(T value)
-        {
-            try
-            {
-                return value.ToString();
-            }
-            catch
-            {
-                return null;
-            }
+                : null as T?;
         }
 
         public bool CanConvert(Type t1, Type t2)

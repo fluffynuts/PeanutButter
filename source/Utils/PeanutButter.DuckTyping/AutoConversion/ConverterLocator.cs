@@ -11,21 +11,61 @@ namespace PeanutButter.DuckTyping.AutoConversion
 {
     internal static class ConverterLocator
     {
-        internal static IConverter[] Converters =>
+        internal static IDictionary<Tuple<Type, Type>, IConverter> Converters =>
             _converters ??= FindConverters();
 
-        private static IConverter[] _converters;
+        private static Dictionary<Tuple<Type, Type>, IConverter>
+            _converters;
 
-        private static IConverter[] FindConverters()
+        private static Dictionary<Tuple<Type, Type>, IConverter> FindConverters()
         {
             var converterTypes = FindConverterTypes();
-            return converterTypes
+            var temp = converterTypes
                 .Select(TryConstruct)
                 .Where(c => c != null)
                 .Union(MakeStringConverters())
                 .Union(MakeStringArrayConverters())
                 .Union(MakeNullableStringConverters())
-                .ToArray();
+                .Where(converter => converter.Implements(typeof(IConverter<,>)))
+                .Select(converter =>
+                {
+                    // what if a converter implements multiple IConverter<,> interfaces?
+                    var iface = converter.GetType().GetInterfaces()
+                        .Single(i => i.IsGenericType &&
+                            i.GetGenericTypeDefinition() == typeof(IConverter<,>)
+                        );
+                    var types = iface.GetGenericArguments();
+                    return new[]
+                    {
+                        new { key = Tuple.Create(types[0], types[1]), value = converter },
+                        new { key = Tuple.Create(types[1], types[0]), value = converter }
+                    };
+                })
+                .SelectMany(o => o);
+
+            var result = new Dictionary<Tuple<Type, Type>, IConverter>();
+            temp.ForEach(o =>
+            {
+                try
+                {
+                    result.Add(o.key, o.value);
+                }
+                catch
+                {
+                    Trace.WriteLine(
+                        $@"WARNING: Converter {
+                            result[o.key]
+                            } will be used for converting between {
+                                o.key.Item1
+                            } and {
+                                o.key.Item2
+                            } (discarding instance of {
+                                o.value.GetType()
+                            })"
+                    );
+                }
+            });
+            return result;
         }
 
         private static IEnumerable<IConverter> MakeNullableStringConverters()
@@ -33,24 +73,28 @@ namespace PeanutButter.DuckTyping.AutoConversion
             var genericType = typeof(GenericNullableStringConverter<>);
             return new[]
             {
-                typeof(byte),
-                typeof(uint),
-                typeof(ulong),
-                typeof(short),
-                typeof(int),
-                typeof(long),
-                typeof(float),
-                typeof(double),
-                typeof(decimal),
                 typeof(bool),
                 typeof(DateTime),
                 typeof(TimeSpan)
-            }.Select(type =>
+            }.Union(NumericTypes).Select(type =>
             {
                 var converterType = genericType.MakeGenericType(type);
                 return (IConverter) Activator.CreateInstance(converterType);
             }).ToArray();
         }
+
+        private static readonly Type[] NumericTypes =
+        {
+            typeof(byte),
+            typeof(uint),
+            typeof(ulong),
+            typeof(short),
+            typeof(int),
+            typeof(long),
+            typeof(float),
+            typeof(double),
+            typeof(decimal)
+        };
 
         private static IConverter[] MakeStringConverters()
         {
@@ -68,7 +112,7 @@ namespace PeanutButter.DuckTyping.AutoConversion
         private static IConverter[] MakeStringArrayConverters()
         {
             var types = FindTypesWhichCanTryParseStrings();
-            var genericType = typeof(GenericStringArrayConverter<>);
+            var genericType = typeof(GenericStringStringArrayConverter<>);
             var converters = new List<IConverter>();
             foreach (var type in types)
             {
@@ -109,11 +153,54 @@ namespace PeanutButter.DuckTyping.AutoConversion
                 .Any(mi => mi.IsTryParseMethod());
         }
 
+        private static readonly object ConverterLock = new object();
 
         public static IConverter GetConverter(Type t1, Type t2)
         {
-            return Converters.FirstOrDefault(c => c.CanConvert(t1, t2));
+            lock (ConverterLock)
+            {
+                if (Converters.TryGetValue(Tuple.Create(t1, t2), out var converter))
+                {
+                    return converter;
+                }
+
+                converter = TryMakeValueTypeCastingConverterFor(t1, t2);
+                if (converter is null)
+                {
+                    return null;
+                }
+
+                Converters[Tuple.Create(t1, t2)] = converter;
+                Converters[Tuple.Create(t2, t1)] = converter;
+                return converter;
+            }
         }
+
+        private static IConverter TryMakeValueTypeCastingConverterFor(Type t1, Type t2)
+        {
+            if (!t1.IsValueType || !t2.IsValueType)
+            {
+                // TODO: look for implicit cast operators?
+                return null;
+            }
+
+            var defaultOfT1 = t1.DefaultValue();
+            var defaultOfT2 = t2.DefaultValue();
+            try
+            {
+                Convert.ChangeType(defaultOfT1, t2);
+                Convert.ChangeType(defaultOfT2, t1);
+                var converterTypeGeneric = typeof(GenericCastingConverter<,>);
+                var converterType = converterTypeGeneric.MakeGenericType(t1, t2);
+                // TODO: cache
+                return (IConverter) Activator.CreateInstance(converterType);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
 
         private static IConverter TryConstruct(Type arg)
         {
@@ -145,7 +232,12 @@ namespace PeanutButter.DuckTyping.AutoConversion
 
         private static Type[] FindAllLoadedTypes()
         {
+            var myAsm = typeof(ConverterLocator)
+                .GetAssembly();
+            var myTypes = myAsm
+                .GetTypes();
             return AppDomain.CurrentDomain.GetAssemblies()
+                .Except(new[] { myAsm })
                 .Select(a =>
                 {
                     try
@@ -158,6 +250,9 @@ namespace PeanutButter.DuckTyping.AutoConversion
                     }
                 })
                 .SelectMany(a => a)
+                // allow satellite assemblies to override
+                // converters: first found wins
+                .Union(myTypes)
                 .ToArray();
         }
 
@@ -173,7 +268,11 @@ namespace PeanutButter.DuckTyping.AutoConversion
 
         public static bool HaveConverterFor(Type type, Type toType)
         {
-            return Converters.Any(c => c.CanConvert(type, toType));
+            lock (Converters)
+            {
+                return Converters.ContainsKey(Tuple.Create(type, toType)) ||
+                    Converters.ContainsKey(Tuple.Create(toType, type));
+            }
         }
     }
 }

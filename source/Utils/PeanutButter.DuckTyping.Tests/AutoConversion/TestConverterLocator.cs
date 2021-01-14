@@ -92,7 +92,7 @@ namespace PeanutButter.DuckTyping.Tests.AutoConversion
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var result = ConverterLocator.Converters.Where(t => t.GetType() == typeof(HonestConverter));
+            var result = ConverterLocator.Converters.Values.Where(t => t.GetType() == typeof(HonestConverter));
 
             //--------------- Assert -----------------------
             Expect(result).Not.To.Be.Empty();
@@ -145,7 +145,7 @@ namespace PeanutButter.DuckTyping.Tests.AutoConversion
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            Expect(() => converters = ConverterLocator.Converters)
+            Expect(() => converters = ConverterLocator.Converters.Values.Distinct().ToArray())
                 .Not.To.Throw();
 
             //--------------- Assert -----------------------

@@ -356,7 +356,7 @@ namespace PeanutButter.Utils.Tests
             // Arrange
             // Pre-Assert
             // Act
-            var result = src.CanImplicitlyUpcastTo(target);
+            var result = src.CanImplicitlyCastTo(target);
             // Assert
             Expect(result).To.Be.True();
         }

@@ -1170,11 +1170,17 @@ namespace PeanutButter.Utils.Tests
                     var numerics = new Regex("[0-9]");
                     var alpha = new Regex("[a-zA-Z]");
                     var input = GetRandomAlphaNumericString(10);
+                    var attempts = 0;
                     while (!numerics.IsMatch(input) || !alpha.IsMatch(input))
                     {
+                        if (++attempts > 50)
+                        {
+                            Assert.Fail("Can't find an alphanumeric string");
+                        }
+
                         // random alphanumeric string may contain only alphas / numerics
                         // -> it is random, after all...
-                        input = GetRandomNumericString(10);
+                        input += GetRandomAlphaString(5);
                     }
 
                     // Pre-assert

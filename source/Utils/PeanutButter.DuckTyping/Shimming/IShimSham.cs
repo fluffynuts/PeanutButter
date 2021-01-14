@@ -32,8 +32,8 @@
         /// Calls through to an underlying method and returns the result
         /// </summary>
         /// <param name="methodName">Name of the method to call through to</param>
-        /// <param name="parameters">Parameters to pass through to the method</param>
+        /// <param name="arguments">Parameters to pass through to the method</param>
         /// <returns>Value returned from the underlying method</returns>
-        object CallThrough(string methodName, object[] parameters);
+        object CallThrough(string methodName, object[] arguments);
     }
 }
