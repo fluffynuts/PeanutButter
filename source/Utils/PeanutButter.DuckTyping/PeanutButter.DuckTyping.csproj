@@ -47,6 +47,8 @@
       <Compile Include="..\PeanutButter.Utils\ByteArrayExtensions.cs" Link="Imported\ByteArrayExtensions.cs" />
       <Compile Include="..\PeanutButter.Utils\RandomNumber.cs" Link="Imported\RandomNumber.cs" />
       <Compile Include="..\PeanutButter.Utils\TypeExtensions.cs" Link="Imported\TypeExtensions.cs" />
+      <Compile Include="..\PeanutButter.Utils\CannotZipNullException.cs" Link="CannotZipNullException.cs" />
+      <Compile Include="..\PeanutButter.Utils\UnevenZipException.cs" Link="UnevenZipException.cs" />
     </ItemGroup>
     <ItemGroup>
       <Folder Include="Imported\" />

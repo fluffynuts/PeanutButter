@@ -27,24 +27,14 @@
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Utils\PeanutButter.Utils\ProcessIO.cs">
-      <Link>ProcessIO.cs</Link>
-    </Compile>
-    <Compile Include="..\..\Utils\PeanutButter.Utils\StringExtensions.cs">
-      <Link>StringExtensions.cs</Link>
-    </Compile>
-    <Compile Include="..\..\Utils\PeanutButter.Utils\RandomNumber.cs">
-      <Link>RandomNumber.cs</Link>
-    </Compile>
-    <Compile Include="..\..\Utils\PeanutButter.Utils\ByteArrayExtensions.cs">
-      <Link>ByteArrayExtensions.cs</Link>
-    </Compile>
-    <Compile Include="..\..\Utils\PeanutButter.Utils\ExtensionsForIEnumerables.cs">
-      <Link>ExtensionsForIEnumerables.cs</Link>
-    </Compile>
-    <Compile Include="..\..\Utils\PeanutButter.Utils\FlagExtensions.cs">
-      <Link>FlagExtensions.cs</Link>
-    </Compile>
+    <Compile Include="..\..\Utils\PeanutButter.Utils\ProcessIO.cs" Link="ProcessIO.cs" />
+    <Compile Include="..\..\Utils\PeanutButter.Utils\StringExtensions.cs" Link="StringExtensions.cs" />
+    <Compile Include="..\..\Utils\PeanutButter.Utils\RandomNumber.cs" Link="RandomNumber.cs" />
+    <Compile Include="..\..\Utils\PeanutButter.Utils\ByteArrayExtensions.cs" Link="ByteArrayExtensions.cs" />
+    <Compile Include="..\..\Utils\PeanutButter.Utils\ExtensionsForIEnumerables.cs" Link="ExtensionsForIEnumerables.cs" />
+    <Compile Include="..\..\Utils\PeanutButter.Utils\CannotZipNullException.cs" Link="CannotZipNullException.cs" />
+    <Compile Include="..\..\Utils\PeanutButter.Utils\UnevenZipException.cs" Link="UnevenZipException.cs" />
+    <Compile Include="..\..\Utils\PeanutButter.Utils\FlagExtensions.cs" Link="FlagExtensions.cs" />
   </ItemGroup>
   <Import Project="..\..\MonoForFramework.targets" />
 </Project>

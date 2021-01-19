@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using NExpect;
@@ -1105,6 +1104,131 @@ namespace PeanutButter.Utils.Tests
                     Expect(result)
                         .To.Be.False();
                 }
+            }
+        }
+
+        [TestFixture]
+        public class TrimmingStringCollections
+        {
+            [Test]
+            public void TrimAll()
+            {
+                // Arrange
+                var input = new[] { " one", "two ", " three " };
+                var expected = new[] { "one", "two", "three" };
+                // Act
+                var result = input.Trim();
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+
+            [Test]
+            public void TrimStartAll()
+            {
+                // Arrange
+                var input = new[] { " one", "two ", " three " };
+                var expected = new[] { "one", "two ", "three " };
+                // Act
+                var result = input.TrimStart();
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+
+            [Test]
+            public void TrimEndAll()
+            {
+                // Arrange
+                var input = new[] { " one", "two ", " three " };
+                var expected = new[] { " one", "two", " three" };
+                // Act
+                var result = input.TrimEnd();
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+        }
+
+        [TestFixture]
+        public class Padding
+        {
+            [Test]
+            public void PadLeftAll()
+            {
+                // Arrange
+                var input = new[] { "one", "two", "three" };
+                var expected = new[] { "   one", "   two", " three" };
+                // Act
+                var result = input.PadLeft(6);
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+            
+            [Test]
+            public void PadLeftAllDefaultsToPaddingToLongestString()
+            {
+                // Arrange
+                var input = new[] { "one", "two", "three" };
+                var expected = new[] { "  one", "  two", "three" };
+                // Act
+                var result = input.PadLeft();
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+
+            [Test]
+            public void ShouldPadLeftWithProvidedChar()
+            {
+                // Arrange
+                var input = new[] { "one", "two", "three" };
+                var expected = new[] { "%%one", "%%two", "three" };
+                // Act
+                var result = input.PadLeft('%');
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+            
+            [Test]
+            public void PadRightAll()
+            {
+                // Arrange
+                var input = new[] { "one", "two", "three" };
+                var expected = new[] { "one   ", "two   ", "three " };
+                // Act
+                var result = input.PadRight(6);
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+            
+            [Test]
+            public void PadRightAllDefaultsToPaddingToLongestString()
+            {
+                // Arrange
+                var input = new[] { "one", "two", "three" };
+                var expected = new[] { "one  ", "two  ", "three" };
+                // Act
+                var result = input.PadRight();
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+
+            [Test]
+            public void ShouldPadRightWithProvidedChar()
+            {
+                // Arrange
+                var input = new[] { "one", "two", "three" };
+                var expected = new[] { "one^^", "two^^", "three" };
+                // Act
+                var result = input.PadRight('^');
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
             }
         }
     }

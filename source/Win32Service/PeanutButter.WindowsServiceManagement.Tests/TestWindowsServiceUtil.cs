@@ -644,12 +644,12 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             // big hammer to enforce service non-existence at exit
 
             // attempt stop
-            using var stop = new ProcessIO("sc", "stop", name);
+            using var stop = ProcessIO.Start("sc", "stop", name);
             stop.StandardOutput.ForEach(Log);
             stop.StandardError.ForEach(Log);
 
             // delete service
-            using var delete = new ProcessIO("sc", "delete", name);
+            using var delete = ProcessIO.Start("sc", "delete", name);
             delete.StandardOutput.ForEach(Log);
             delete.StandardError.ForEach(Log);
 
@@ -875,17 +875,15 @@ namespace PeanutButter.WindowsServiceManagement.Tests
         {
             // attempts to stop and uninstall all found test service instances
             var serviceNames = new List<string>();
-            using (var io = new ProcessIO("sc", "query", "type=", "service", "state=", "all"))
-            {
-                serviceNames.AddRange(
-                    io.StandardOutput
-                        .Select(line => line.Trim())
-                        .Where(line => line.StartsWith("SERVICE_NAME"))
-                        .Select(line => string.Join(":", line.Split(':').Skip(1)).Trim())
-                        .Where(serviceName => serviceName.StartsWith("test-service-"))
-                        .ToArray()
-                );
-            }
+            using var io = ProcessIO.Start("sc", "query", "type=", "service", "state=", "all");
+            serviceNames.AddRange(
+                io.StandardOutput
+                    .Select(line => line.Trim())
+                    .Where(line => line.StartsWith("SERVICE_NAME"))
+                    .Select(line => string.Join(":", line.Split(':').Skip(1)).Trim())
+                    .Where(serviceName => serviceName.StartsWith("test-service-"))
+                    .ToArray()
+            );
 
             serviceNames.ForEach(serviceName =>
             {

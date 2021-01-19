@@ -24,40 +24,36 @@ namespace PeanutButter.TempDb.MySql.Base
 
         private static string FindPathForService(string mysqlServiceName)
         {
-            using (var io = new ProcessIO("sc", "qc", mysqlServiceName))
+            using var io = ProcessIO.Start("sc", "qc", mysqlServiceName);
+            var commandLine = io.StandardOutput
+                .FirstOrDefault(line => line.Trim().StartsWith("BINARY_PATH_NAME"))
+                ?.Split(':')
+                .Skip(1)
+                .JoinWith(":").Trim();
+            if (commandLine == null)
             {
-                var commandLine = io.StandardOutput
-                                    .FirstOrDefault(line => line.Trim().StartsWith("BINARY_PATH_NAME"))
-                                    ?.Split(':')
-                                    .Skip(1)
-                                    .JoinWith(":").Trim();
-                if (commandLine == null)
-                {
-                    return null;
-                }
-
-                if (commandLine.StartsWith("\""))
-                {
-                    var nextQuote = commandLine.IndexOf("\"", 2, StringComparison.InvariantCulture);
-                    return commandLine.Substring(1, nextQuote - 1);
-                }
-                return commandLine.Split(' ').First();
+                return null;
             }
+
+            if (commandLine.StartsWith("\""))
+            {
+                var nextQuote = commandLine.IndexOf("\"", 2, StringComparison.InvariantCulture);
+                return commandLine.Substring(1, nextQuote - 1);
+            }
+            return commandLine.Split(' ').First();
         }
 
         private static string FindFirstMySqlServiceName()
         {
-            using (var io = new ProcessIO("sc", "query", "state=", "all"))
-            {
-                return io.StandardOutput
-                         .FirstOrDefault(
-                             l =>
-                             {
-                                 var lower = l.ToLower();
-                                 return lower.StartsWith("service_name") &&
-                                        lower.Contains("mysql");
-                             })?.Split(':').Last().Trim();
-            }
+            using var io = ProcessIO.Start("sc", "query", "state=", "all");
+            return io.StandardOutput
+                .FirstOrDefault(
+                    l =>
+                    {
+                        var lower = l.ToLower();
+                        return lower.StartsWith("service_name") &&
+                            lower.Contains("mysql");
+                    })?.Split(':').Last().Trim();
         }
     }
 }

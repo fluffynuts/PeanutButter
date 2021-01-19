@@ -619,70 +619,197 @@ namespace PeanutButter.Utils
                 return false;
             }
         }
-    }
-
-    /// <summary>
-    /// Thrown when an attempt is made to strict-zip null and anything else
-    /// </summary>
-#if BUILD_PEANUTBUTTER_INTERNAL
-    internal
-#else
-        public
-#endif
-        class CannotZipNullException : Exception
-    {
-        /// <inheritdoc />
-        public CannotZipNullException() : base("Cannot zip null value")
-        {
-        }
-    }
-
-    /// <summary>
-    /// Thrown when an attempt is made to zip two collections of
-    /// uneven size
-    /// </summary>
-#if BUILD_PEANUTBUTTER_INTERNAL
-    internal
-#else
-    public
-#endif
-        class UnevenZipException : Exception
-    {
-        /// <inheritdoc />
-        public UnevenZipException() : base("Could not zip uneven collections")
-        {
-        }
-    }
-
-    /// <summary>
-    /// Thrown when an attempt is made to zip two collections of
-    /// uneven size. Also includes references to the two collections.
-    /// </summary>
-#if BUILD_PEANUTBUTTER_INTERNAL
-    internal
-#else
-    public
-#endif
-        class UnevenZipException<T1, T2> : UnevenZipException
-    {
-        /// <summary>
-        /// The left collection
-        /// </summary>
-        public IEnumerable<T1> Left { get; }
 
         /// <summary>
-        /// The right collection
+        /// Returns the original collection of strings trimmed
+        /// - will handle null input as if it were an empty collection
         /// </summary>
-        public IEnumerable<T2> Right { get; }
-
-        /// <inheritdoc />
-        public UnevenZipException(
-            IEnumerable<T1> left,
-            IEnumerable<T2> right
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> Trim(
+            this IEnumerable<string> source
         )
         {
-            Left = left;
-            Right = right;
+            foreach (var item in source ?? new string[0])
+            {
+                yield return item?.Trim();
+            }
+        }
+
+        /// <summary>
+        /// Returns the original collection of strings trimmed at the start
+        /// - will handle null input as if it were an empty collection
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> TrimStart(
+            this IEnumerable<string> source
+        )
+        {
+            foreach (var item in source ?? new string[0])
+            {
+                yield return item?.TrimStart();
+            }
+        }
+        
+        /// <summary>
+        /// Returns the original collection of strings trimmed at the start
+        /// - will handle null input as if it were an empty collection
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> TrimEnd(
+            this IEnumerable<string> source
+        )
+        {
+            foreach (var item in source ?? new string[0])
+            {
+                yield return item?.TrimEnd();
+            }
+        }
+
+
+        /// <summary>
+        /// Returns a copy of the input strings where
+        /// all are padded to the left with spaces to fit
+        /// to the longest item in the collection
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> PadLeft(
+            this IEnumerable<string> source
+        )
+        {
+            return source.PadLeft(' ');
+        }
+
+        /// <summary>
+        /// Returns a copy of the input strings where
+        /// all are padded to the left with the `padWith`
+        /// char to fit to the longest item in the collection
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="padWith"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> PadLeft(
+            this IEnumerable<string> source,
+            char padWith
+        )
+        {
+            var asArray = source is string[] arr
+                ? arr
+                : source?.ToArray() ?? new string[0];
+            var padChars = asArray.Select(s => s?.Length ?? 0)?.Max() ?? 0;
+            return asArray.PadLeft(padChars, padWith);
+        }
+
+        /// <summary>
+        /// Returns a copy of the input strings where
+        /// all are padded to the left to the provided
+        /// required length with spaces
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="requiredLength"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> PadLeft(
+            this IEnumerable<string> source,
+            int requiredLength
+        )
+        {
+            return source.PadLeft(requiredLength, ' ');
+        }
+
+        /// <summary>
+        /// Returns a copy of the input strings where
+        /// all are padded to the left to the provided
+        /// required length with the provided padWith
+        /// character
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="requiredLength"></param>
+        /// <param name="padWith"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> PadLeft(
+            this IEnumerable<string> source,
+            int requiredLength,
+            char padWith
+        )
+        {
+            foreach (var item in source ?? new string[0])
+            {
+                yield return item?.PadLeft(requiredLength, padWith);
+            }
+        }
+        
+        /// <summary>
+        /// Returns a copy of the input strings where
+        /// all are padded to the right with spaces to fit
+        /// to the longest item in the collection
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> PadRight(
+            this IEnumerable<string> source
+        )
+        {
+            return source.PadRight(' ');
+        }
+
+        /// <summary>
+        /// Returns a copy of the input strings where
+        /// all are padded to the right with the `padWith`
+        /// char to fit to the longest item in the collection
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="padWith"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> PadRight(
+            this IEnumerable<string> source,
+            char padWith
+        )
+        {
+            var asArray = source is string[] arr
+                ? arr
+                : source?.ToArray() ?? new string[0];
+            var padChars = asArray.Select(s => s?.Length ?? 0)?.Max() ?? 0;
+            return asArray.PadRight(padChars, padWith);
+        }
+
+        /// <summary>
+        /// Returns a copy of the input strings where
+        /// all are padded to the right with spaces
+        /// char to fit to the requiredLength
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="requiredLength"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> PadRight(
+            this IEnumerable<string> source,
+            int requiredLength
+        )
+        {
+            return source.PadRight(requiredLength, ' ');
+        }
+
+        /// <summary>
+        /// Returns a copy of the input strings where
+        /// all are padded to the right with the `padWith`
+        /// char to fit to the requiredLength
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="requiredLength"></param>
+        /// <param name="padWith"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> PadRight(
+            this IEnumerable<string> source,
+            int requiredLength,
+            char padWith
+        )
+        {
+            foreach (var item in source ?? new string[0])
+            {
+                yield return item?.PadRight(requiredLength, padWith);
+            }
         }
     }
 }

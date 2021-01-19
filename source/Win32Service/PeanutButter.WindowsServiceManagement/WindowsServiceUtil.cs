@@ -307,7 +307,7 @@ namespace PeanutButter.WindowsServiceManagement
             string prefix,
             string serviceName)
         {
-            using var io = new ProcessIO("sc", "qc", $"\"{serviceName}\"");
+            using var io = ProcessIO.Start("sc", "qc", $"\"{serviceName}\"");
             var interestingLine = io.StandardOutput
                 .Select(line => line.Trim())
                 .FirstOrDefault(line => line.StartsWith(prefix));

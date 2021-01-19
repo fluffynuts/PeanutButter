@@ -281,7 +281,7 @@ namespace PeanutButter.ServiceShell.Tests
                 string program,
                 params string[] args)
             {
-                using var io = new ProcessIO(
+                using var io = ProcessIO.Start(
                     program,
                     args.And("-n", TestServiceName));
                 io.StandardOutput.ForEach(line =>

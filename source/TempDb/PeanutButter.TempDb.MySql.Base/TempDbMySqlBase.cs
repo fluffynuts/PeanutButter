@@ -256,7 +256,7 @@ namespace PeanutButter.TempDb.MySql.Base
                 );
             }
 
-            using var io = new ProcessIO(
+            using var io = ProcessIO.Start(
                 mysqldump,
                 "-u", "root",
                 $"--password={Settings.Options.RootUserPassword}",
