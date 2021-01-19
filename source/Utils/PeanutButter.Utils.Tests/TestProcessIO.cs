@@ -67,15 +67,15 @@ namespace PeanutButter.Utils.Tests
         [Test]
         public void ShouldBeAbleToInjectEnvironmentVariables()
         {
-            // // Arrange
-            // var expected = GetRandomAlphaString(4);
-            // var envVar = GetRandomAlphaString(4);
-            // // Act
-            // using var io = ProcessIO
-            //     .WithEnvironmentVariable(envVar, expected)
-            //     .Start("pwsh", "-Command", $"Write-Host $env:{envVar}");
-            // // Assert
-            // var lines = io.StandardOutput.ToArray().Trimmed();
+            // Arrange
+            var expected = GetRandomAlphaString(4);
+            var envVar = GetRandomAlphaString(4);
+            // Act
+            using var io = ProcessIO
+                .WithEnvironmentVariable(envVar, expected)
+                .Start("pwsh", "-Command", $"Write-Host $env:{envVar}");
+            // Assert
+            var lines = io.StandardOutput.ToArray().Trimmed();
         }
     }
 }
