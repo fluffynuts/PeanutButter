@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -105,7 +106,7 @@ namespace PeanutButter.Utils
             params string[] arguments
         )
         {
-            StartInFolder(Environment.CurrentDirectory, filename, arguments);
+            StartInFolder(Environment.CurrentDirectory, filename, arguments, null);
         }
 
         private ProcessIO()
@@ -121,6 +122,8 @@ namespace PeanutButter.Utils
             /// Working directory for the process, once started
             /// </summary>
             public string WorkingDirectory { get; }
+
+            private readonly Dictionary<string, string> _environment = new Dictionary<string, string>();
 
             /// <inheritdoc />
             internal UnstartedProcessIO(string workingDirectory)
@@ -152,7 +155,28 @@ namespace PeanutButter.Utils
             // ReSharper disable once MemberHidesStaticFromOuterClass
             public new IProcessIO Start(string filename, params string[] arguments)
             {
-                return StartInFolder(WorkingDirectory, filename, arguments);
+                return StartInFolder(WorkingDirectory, filename, arguments, _environment);
+            }
+
+            /// <summary>
+            /// Sets up for the new process to use the provided environment variable
+            /// </summary>
+            /// <param name="name"></param>
+            /// <param name="value"></param>
+            /// <returns></returns>
+            // ReSharper disable once MemberHidesStaticFromOuterClass
+            public new IUnstartedProcessIO WithEnvironmentVariable(
+                string name,
+                string value
+            )
+            {
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    throw new InvalidOperationException($"environment variable name may not be null or blank");
+                }
+
+                _environment[name] = value;
+                return this;
             }
         }
 
@@ -184,13 +208,16 @@ namespace PeanutButter.Utils
         private ProcessIO StartInFolder(
             string workingDirectory,
             string filename,
-            string[] arguments
+            string[] arguments,
+            IDictionary<string, string> environment
         )
         {
             if (Started && !(_process?.HasExited ?? true))
             {
                 throw new InvalidOperationException($"Process already started: {_process.Id}");
             }
+
+            var processEnvironment = GenerateProcessEnvironmentFor(environment);
 
             try
             {
@@ -205,9 +232,22 @@ namespace PeanutButter.Utils
                         RedirectStandardOutput = true,
                         CreateNoWindow = true,
                         UseShellExecute = false,
-                        WorkingDirectory = workingDirectory
+                        WorkingDirectory = workingDirectory,
+#if NET452
+                        EnvironmentVariables = { }
+#else
+                        Environment = { }
+#endif
                     }
                 };
+                processEnvironment.ForEach(kvp =>
+                {
+#if NET452
+                    _process.StartInfo.EnvironmentVariables[kvp.Key] = kvp.Value;
+#else
+                    _process.StartInfo.Environment[kvp.Key] = kvp.Value;
+#endif
+                });
                 _process.Start();
                 Started = true;
             }
@@ -218,6 +258,28 @@ namespace PeanutButter.Utils
             }
 
             return this;
+        }
+
+        private static IDictionary<string, string> GenerateProcessEnvironmentFor(
+            IDictionary<string, string> environment)
+        {
+            var processEnvironment = Environment.GetEnvironmentVariables()
+                .ToDictionary<string, string>();
+            environment?.ForEach(kvp =>
+            {
+                if (kvp.Value is null)
+                {
+                    if (processEnvironment.ContainsKey(kvp.Key))
+                    {
+                        processEnvironment.Remove(kvp.Key);
+                    }
+                }
+                else
+                {
+                    processEnvironment[kvp.Key] = kvp.Value;
+                }
+            });
+            return processEnvironment;
         }
 
         /// <inheritdoc />
@@ -304,6 +366,22 @@ namespace PeanutButter.Utils
             }
 
             _process = null;
+        }
+
+        /// <summary>
+        /// Sets up for the new process to use the provided environment variable
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        // ReSharper disable once MemberHidesStaticFromOuterClass
+        public static IUnstartedProcessIO WithEnvironmentVariable(
+            string name,
+            string value
+        )
+        {
+            var result = new UnstartedProcessIO(Environment.CurrentDirectory);
+            return result.WithEnvironmentVariable(name, value);
         }
     }
 }

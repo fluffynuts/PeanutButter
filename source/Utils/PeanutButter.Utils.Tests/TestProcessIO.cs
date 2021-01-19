@@ -8,6 +8,7 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
+    // ReSharper disable once InconsistentNaming
     public class TestProcessIO
     {
         [Test]
@@ -75,7 +76,27 @@ namespace PeanutButter.Utils.Tests
                 .WithEnvironmentVariable(envVar, expected)
                 .Start("pwsh", "-Command", $"Write-Host $env:{envVar}");
             // Assert
-            var lines = io.StandardOutput.ToArray().Trimmed();
+            var lines = io.StandardOutput.ToArray().Trim();
+            Expect(lines)
+                .To.Equal(new[] { expected });
+        }
+        
+        [Test]
+        public void ShouldBeAbleToInjectEnvironmentVariablesAndCustomWorkingFolder()
+        {
+            // Arrange
+            using var folder = new AutoTempFolder();
+            var expected = GetRandomAlphaString(4);
+            var envVar = GetRandomAlphaString(4);
+            // Act
+            using var io = ProcessIO
+                .In(folder.Path)
+                .WithEnvironmentVariable(envVar, expected)
+                .Start("pwsh", "-Command", $"Write-Host $env:{envVar}");
+            // Assert
+            var lines = io.StandardOutput.ToArray().Trim();
+            Expect(lines)
+                .To.Equal(new[] { expected });
         }
     }
 }

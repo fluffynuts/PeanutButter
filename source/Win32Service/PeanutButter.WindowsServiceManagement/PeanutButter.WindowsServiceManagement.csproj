@@ -35,6 +35,7 @@
     <Compile Include="..\..\Utils\PeanutButter.Utils\CannotZipNullException.cs" Link="CannotZipNullException.cs" />
     <Compile Include="..\..\Utils\PeanutButter.Utils\UnevenZipException.cs" Link="UnevenZipException.cs" />
     <Compile Include="..\..\Utils\PeanutButter.Utils\FlagExtensions.cs" Link="FlagExtensions.cs" />
+    <Compile Include="..\..\Utils\PeanutButter.Utils\DictionaryExtensions.cs" Link="DictionaryExtensions.cs" />
   </ItemGroup>
   <Import Project="..\..\MonoForFramework.targets" />
 </Project>

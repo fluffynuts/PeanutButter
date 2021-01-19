@@ -18,6 +18,9 @@
   <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
     <DefineConstants>NETSTANDARD</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net452'">
+    <DefineConstants>NET452</DefineConstants>
+  </PropertyGroup>
   <PropertyGroup>
     <DebugType>Full</DebugType>
     <DebugSymbols>True</DebugSymbols>
