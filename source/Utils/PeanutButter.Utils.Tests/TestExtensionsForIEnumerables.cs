@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Imported.PeanutButter.Utils;
 using NExpect;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
@@ -1226,6 +1228,32 @@ namespace PeanutButter.Utils.Tests
                 var expected = new[] { "one^^", "two^^", "three" };
                 // Act
                 var result = input.PadRight('^');
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+
+            public static IEnumerable<(bool, int[], string[], int, char)> NonStringTestCases()
+            {
+                var start = new[] { 1, 11, 101 };
+                var isLeft = true;
+                var isRight = false;
+                yield return (isLeft, start, new[] { "  1", " 11", "101" }, 3, ' ');
+                yield return (isLeft, start, new[] { "%%%1", "%%11", "%101" }, 4, '%');
+                yield return (isRight, start, new[] { "1  ", "11 ", "101" }, 3, ' ');
+                yield return (isRight, start, new[] { "1&&&", "11&&", "101&" }, 4, '&');
+            }
+
+            [TestCaseSource(nameof(NonStringTestCases))]
+            public void PaddingNonStrings((bool isLeft, int[] start, string[] expected, int requiredLength, char padChar) testCase)
+            {
+                // Arrange
+                var (isLeft, start, expected, requiredLength, padChar) = testCase;
+                // Act
+                var result = isLeft
+                    ? start.PadLeft(requiredLength, padChar)
+                    : start.PadRight(requiredLength, padChar);
+                
                 // Assert
                 Expect(result)
                     .To.Equal(expected);

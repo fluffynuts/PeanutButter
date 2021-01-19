@@ -651,7 +651,7 @@ namespace PeanutButter.Utils
                 yield return item?.TrimStart();
             }
         }
-        
+
         /// <summary>
         /// Returns the original collection of strings trimmed at the start
         /// - will handle null input as if it were an empty collection
@@ -676,8 +676,8 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="source"></param>
         /// <returns></returns>
-        public static IEnumerable<string> PadLeft(
-            this IEnumerable<string> source
+        public static IEnumerable<string> PadLeft<T>(
+            this IEnumerable<T> source
         )
         {
             return source.PadLeft(' ');
@@ -691,15 +691,17 @@ namespace PeanutButter.Utils
         /// <param name="source"></param>
         /// <param name="padWith"></param>
         /// <returns></returns>
-        public static IEnumerable<string> PadLeft(
-            this IEnumerable<string> source,
+        public static IEnumerable<string> PadLeft<T>(
+            this IEnumerable<T> source,
             char padWith
         )
         {
-            var asArray = source is string[] arr
+            var asArray = source is T[] arr
                 ? arr
-                : source?.ToArray() ?? new string[0];
-            var padChars = asArray.Select(s => s?.Length ?? 0)?.Max() ?? 0;
+                : source?.ToArray() ?? new T[0];
+            var padChars = typeof(T) == typeof(string)
+                ? asArray.Cast<string>().Select(s => s?.Length ?? 0).Max()
+                : asArray.Select(s => $"{s}".Length).Max();
             return asArray.PadLeft(padChars, padWith);
         }
 
@@ -711,8 +713,8 @@ namespace PeanutButter.Utils
         /// <param name="source"></param>
         /// <param name="requiredLength"></param>
         /// <returns></returns>
-        public static IEnumerable<string> PadLeft(
-            this IEnumerable<string> source,
+        public static IEnumerable<string> PadLeft<T>(
+            this IEnumerable<T> source,
             int requiredLength
         )
         {
@@ -729,18 +731,30 @@ namespace PeanutButter.Utils
         /// <param name="requiredLength"></param>
         /// <param name="padWith"></param>
         /// <returns></returns>
-        public static IEnumerable<string> PadLeft(
-            this IEnumerable<string> source,
+        public static IEnumerable<string> PadLeft<T>(
+            this IEnumerable<T> source,
             int requiredLength,
             char padWith
         )
         {
-            foreach (var item in source ?? new string[0])
+            if (typeof(T) == typeof(string))
             {
-                yield return item?.PadLeft(requiredLength, padWith);
+                var asStringArray = source as string[] ?? new string[0];
+                foreach (var item in asStringArray)
+                {
+                    yield return item is null
+                        ? new String(padWith, requiredLength)
+                        : item?.PadLeft(requiredLength, padWith);
+                }
+                yield break;
+            }
+
+            foreach (var item in source ?? new T[0])
+            {
+                yield return $"{item}".PadLeft(requiredLength, padWith);
             }
         }
-        
+
         /// <summary>
         /// Returns a copy of the input strings where
         /// all are padded to the right with spaces to fit
@@ -748,8 +762,8 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="source"></param>
         /// <returns></returns>
-        public static IEnumerable<string> PadRight(
-            this IEnumerable<string> source
+        public static IEnumerable<string> PadRight<T>(
+            this IEnumerable<T> source
         )
         {
             return source.PadRight(' ');
@@ -763,15 +777,17 @@ namespace PeanutButter.Utils
         /// <param name="source"></param>
         /// <param name="padWith"></param>
         /// <returns></returns>
-        public static IEnumerable<string> PadRight(
-            this IEnumerable<string> source,
+        public static IEnumerable<string> PadRight<T>(
+            this IEnumerable<T> source,
             char padWith
         )
         {
-            var asArray = source is string[] arr
+            var asArray = source is T[] arr
                 ? arr
-                : source?.ToArray() ?? new string[0];
-            var padChars = asArray.Select(s => s?.Length ?? 0)?.Max() ?? 0;
+                : source?.ToArray() ?? new T[0];
+            var padChars = typeof(T) == typeof(string)
+                ? (asArray as string[])!.Select(s => s?.Length ?? 0).Max()
+                : asArray.Select(s => $"{s}".Length).Max();
             return asArray.PadRight(padChars, padWith);
         }
 
@@ -783,8 +799,8 @@ namespace PeanutButter.Utils
         /// <param name="source"></param>
         /// <param name="requiredLength"></param>
         /// <returns></returns>
-        public static IEnumerable<string> PadRight(
-            this IEnumerable<string> source,
+        public static IEnumerable<string> PadRight<T>(
+            this IEnumerable<T> source,
             int requiredLength
         )
         {
@@ -800,15 +816,27 @@ namespace PeanutButter.Utils
         /// <param name="requiredLength"></param>
         /// <param name="padWith"></param>
         /// <returns></returns>
-        public static IEnumerable<string> PadRight(
-            this IEnumerable<string> source,
+        public static IEnumerable<string> PadRight<T>(
+            this IEnumerable<T> source,
             int requiredLength,
             char padWith
         )
         {
-            foreach (var item in source ?? new string[0])
+            if (typeof(T) == typeof(string))
             {
-                yield return item?.PadRight(requiredLength, padWith);
+                var stringArray = source as string[] ?? new string[0];
+                foreach (var item in stringArray)
+                {
+                    yield return item is null
+                        ? new String(padWith, requiredLength)
+                        : item.PadRight(requiredLength, padWith);
+                }
+                
+                yield break;
+            }
+            foreach (var item in source ?? new T[0])
+            {
+                yield return $"{item}".PadRight(requiredLength, padWith);
             }
         }
     }
