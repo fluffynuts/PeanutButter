@@ -36,7 +36,7 @@ namespace PeanutButter.Utils
                 return filePath;
             }
 
-            using (var io = new ProcessIO("ls", "-l", filePath))
+            using (var io = ProcessIO.Start("ls", "-l", filePath))
             {
                 if (!io.Started)
                 {

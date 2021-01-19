@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 
 // ReSharper disable InconsistentNaming
@@ -53,6 +54,26 @@ namespace PeanutButter.Utils
         int ExitCode { get; }
     }
 
+    /// <summary>
+    /// Provides the contract for an unstarted ProcessIO, as would be
+    /// obtained from `ProcessIO.In(workingDir)`
+    /// </summary>
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        interface IUnstartedProcessIO : IProcessIO
+    {
+        /// <summary>
+        /// Starts the process in the previously provided working directory
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <param name="arguments"></param>
+        /// <returns></returns>
+        IProcessIO Start(string filename, params string[] arguments);
+    }
+
     /// <inheritdoc />
 #if BUILD_PEANUTBUTTER_INTERNAL
     internal
@@ -62,10 +83,10 @@ namespace PeanutButter.Utils
         class ProcessIO : IProcessIO
     {
         /// <inheritdoc />
-        public bool Started { get; }
+        public bool Started { get; private set; }
 
         /// <inheritdoc />
-        public Exception StartException { get; }
+        public Exception StartException { get; private set; }
 
         /// <inheritdoc />
         public Process Process => _process;
@@ -77,8 +98,100 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="filename">app to run</param>
         /// <param name="arguments">args for that app</param>
-        public ProcessIO(string filename, params string[] arguments)
+        [Obsolete(
+            "Please use the static Process.Start or Process.In helpers; this constructor will be made internal in the future")]
+        public ProcessIO(
+            string filename,
+            params string[] arguments
+        )
         {
+            StartInFolder(Environment.CurrentDirectory, filename, arguments);
+        }
+
+        private ProcessIO()
+        {
+        }
+
+        /// <summary>
+        /// Represents an unstarted process-io instance
+        /// </summary>
+        public class UnstartedProcessIO : ProcessIO, IUnstartedProcessIO
+        {
+            /// <summary>
+            /// Working directory for the process, once started
+            /// </summary>
+            public string WorkingDirectory { get; }
+
+            /// <inheritdoc />
+            internal UnstartedProcessIO(string workingDirectory)
+            {
+                if (string.IsNullOrWhiteSpace(workingDirectory))
+                {
+                    throw new ArgumentException($"{nameof(workingDirectory)} must be provided");
+                }
+
+                if (!Directory.Exists(workingDirectory))
+                {
+                    try
+                    {
+                        Directory.CreateDirectory(workingDirectory);
+                    }
+                    catch
+                    {
+                        throw new ArgumentException(
+                            $"Unable to find or create working directory '{workingDirectory}'"
+                        );
+                    }
+                }
+
+                WorkingDirectory = workingDirectory;
+            }
+
+
+            /// <inheritdoc />
+            // ReSharper disable once MemberHidesStaticFromOuterClass
+            public new IProcessIO Start(string filename, params string[] arguments)
+            {
+                return StartInFolder(WorkingDirectory, filename, arguments);
+            }
+        }
+
+        /// <summary>
+        /// Sets up ProcessIO to run within the provided folder. Usage:
+        /// using var io = ProcessIO.In("/path/to/folder").Start("cmd", "arg1", "arg2")
+        /// </summary>
+        /// <param name="workingDirectory"></param>
+        /// <returns></returns>
+        public static UnstartedProcessIO In(string workingDirectory)
+        {
+            return new UnstartedProcessIO(workingDirectory);
+        }
+
+        /// <summary>
+        /// Starts a ProcessIO instance for the given filename and args in the current
+        /// working directory
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public static IProcessIO Start(string filename, params string[] args)
+        {
+#pragma warning disable 618
+            return new ProcessIO(filename, args);
+#pragma warning restore 618
+        }
+
+        private ProcessIO StartInFolder(
+            string workingDirectory,
+            string filename,
+            string[] arguments
+        )
+        {
+            if (Started && !(_process?.HasExited ?? true))
+            {
+                throw new InvalidOperationException($"Process already started: {_process.Id}");
+            }
+
             try
             {
                 _process = new Process()
@@ -91,7 +204,8 @@ namespace PeanutButter.Utils
                         RedirectStandardInput = true,
                         RedirectStandardOutput = true,
                         CreateNoWindow = true,
-                        UseShellExecute = false
+                        UseShellExecute = false,
+                        WorkingDirectory = workingDirectory
                     }
                 };
                 _process.Start();
@@ -102,6 +216,8 @@ namespace PeanutButter.Utils
                 StartException = ex;
                 _process = null;
             }
+
+            return this;
         }
 
         /// <inheritdoc />
