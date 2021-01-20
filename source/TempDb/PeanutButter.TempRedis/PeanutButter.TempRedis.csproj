@@ -10,6 +10,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\PeanutButter.TempRedis.xml</DocumentationFile>
     <Configurations>Debug;Release;Debug-X</Configurations>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
   <ItemGroup>
