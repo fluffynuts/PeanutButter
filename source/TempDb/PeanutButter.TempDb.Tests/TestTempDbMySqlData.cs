@@ -1,4 +1,8 @@
-﻿using System;
+﻿extern alias mysql_data;
+using MySqlConnectionStringBuilder = mysql_data::MySql.Data.MySqlClient.MySqlConnectionStringBuilder;
+using MySqlConnection = mysql_data::MySql.Data.MySqlClient.MySqlConnection;
+using MySqlCommand = mysql_data::MySql.Data.MySqlClient.MySqlCommand;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
@@ -800,6 +804,35 @@ namespace PeanutButter.TempDb.Tests
                 // Assert
                 Expect(connections)
                     .To.Be.Greater.Than(3);
+            }
+        }
+
+        [TestFixture]
+        public class CreatingUsers
+        {
+            [Test]
+            public void ShouldBeAbleToCreateTheUserAndConnectWithThoseCredentials()
+            {
+                // Arrange
+                using var db = Create();
+                var user = "testuser";
+                var password = "testuser";
+                var schema = "guest_schema";
+                db.CreateSchemaIfNotExists(schema);
+                // Act
+                db.CreateUser(user, password, schema);
+                // Assert
+                var builder =
+                    new MySqlConnectionStringBuilder(db.ConnectionString)
+                    {
+                        UserID = user,
+                        Password = password,
+                        Database = schema
+                    };
+                var connectionString = builder.ToString();
+                using var connection = new MySqlConnection(connectionString);
+                Expect(() => connection.Open())
+                    .Not.To.Throw();
             }
         }
 

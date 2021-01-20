@@ -285,17 +285,65 @@ namespace PeanutButter.TempDb.MySql.Base
             {
                 return;
             }
-
+            
+            CreateSchemaIfNotExists(schema);
             Log($"Attempting to switch to schema {schema} with connection string: {ConnectionString}");
-            using var connection = OpenConnection();
-            using var command = connection.CreateCommand();
-            command.CommandText = $"create schema if not exists `{schema}`";
-            command.ExecuteNonQuery();
-
-            command.CommandText = $"use `{schema}`";
-            command.ExecuteNonQuery();
+            Execute($"use `{Escape(schema)}`");
 
             SchemaName = schema;
+        }
+
+        public void CreateSchemaIfNotExists(string schema)
+        {
+            Execute($"create schema if not exists `{Escape(schema)}`");
+        }
+
+        public void CreateUser(
+            string user, 
+            string password, 
+            params string[] forSchemas)
+        {
+            Execute($"create user {Quote(user)}@'localhost' identified with mysql_native_password by {Quote(password)}");
+            forSchemas.ForEach(schema =>
+            {
+                GrantAllPermissionsFor(user, schema);
+            });
+        }
+
+        public void GrantAllPermissionsFor(
+            string user,
+            string schema
+        )
+        {
+            Execute($"grant all privileges on {Escape(schema)}.* to {Quote(user)}@'localhost'");
+        }
+
+
+        /// <summary>
+        /// Escapes back-ticks in mysql sql strings
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public string Escape(string other)
+        {
+            return $"{other?.Replace("`", "``")}";
+        }
+
+        public string Quote(string other)
+        {
+            return $"'{Escape(other)}'";
+        }
+
+        /// <summary>
+        /// Executes arbitrary sql on the current schema
+        /// </summary>
+        /// <param name="sql"></param>
+        public void Execute(string sql)
+        {
+            using var connection = OpenConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = sql;
+            command.ExecuteNonQuery();
         }
 
         private void EnsureIsRemoved(string databasePath)
