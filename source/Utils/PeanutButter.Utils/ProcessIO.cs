@@ -53,6 +53,7 @@ namespace PeanutButter.Utils
         /// waiting for it to complete if necessary
         /// </summary>
         int ExitCode { get; }
+        
     }
 
     /// <summary>
@@ -73,6 +74,29 @@ namespace PeanutButter.Utils
         /// <param name="arguments"></param>
         /// <returns></returns>
         IProcessIO Start(string filename, params string[] arguments);
+
+        /// <summary>
+        /// Adds another environment variable to the process startup environment
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        IUnstartedProcessIO WithEnvironmentVariable(string name, string value);
+
+        /// <summary>
+        /// Set the working directory for the process; use if you started
+        /// the fluent chain with `WithEnvironmentVariable`
+        /// </summary>
+        /// <param name="workingDirectory"></param>
+        /// <returns></returns>
+        IUnstartedProcessIO In(string workingDirectory);
+        
+        /// <summary>
+        /// Establish a set of environment variables for the process
+        /// </summary>
+        /// <param name="env"></param>
+        /// <returns></returns>
+        IUnstartedProcessIO WithEnvironment(IDictionary<string, string> env);
     }
 
     /// <inheritdoc />
@@ -121,12 +145,17 @@ namespace PeanutButter.Utils
             /// <summary>
             /// Working directory for the process, once started
             /// </summary>
-            public string WorkingDirectory { get; }
+            public string WorkingDirectory { get; private set; }
 
             private readonly Dictionary<string, string> _environment = new Dictionary<string, string>();
 
             /// <inheritdoc />
             internal UnstartedProcessIO(string workingDirectory)
+            {
+                SetWorkingDirectory(workingDirectory);
+            }
+
+            private void SetWorkingDirectory(string workingDirectory)
             {
                 if (string.IsNullOrWhiteSpace(workingDirectory))
                 {
@@ -158,12 +187,7 @@ namespace PeanutButter.Utils
                 return StartInFolder(WorkingDirectory, filename, arguments, _environment);
             }
 
-            /// <summary>
-            /// Sets up for the new process to use the provided environment variable
-            /// </summary>
-            /// <param name="name"></param>
-            /// <param name="value"></param>
-            /// <returns></returns>
+            /// <inheritdoc />
             // ReSharper disable once MemberHidesStaticFromOuterClass
             public new IUnstartedProcessIO WithEnvironmentVariable(
                 string name,
@@ -177,6 +201,24 @@ namespace PeanutButter.Utils
 
                 _environment[name] = value;
                 return this;
+            }
+
+            /// <inheritdoc />
+            // ReSharper disable once MemberHidesStaticFromOuterClass
+            public new IUnstartedProcessIO In(string workingDirectory)
+            {
+                SetWorkingDirectory(workingDirectory);
+                return this;
+            }
+
+            /// <inheritdoc />
+            // ReSharper disable once MemberHidesStaticFromOuterClass
+            public new IUnstartedProcessIO WithEnvironment(IDictionary<string, string> env)
+            {
+                return env?.Aggregate(
+                    this as IUnstartedProcessIO,
+                    (acc, cur) => acc.WithEnvironmentVariable(cur.Key, cur.Value)
+                ) ?? this;
             }
         }
 
@@ -382,6 +424,14 @@ namespace PeanutButter.Utils
         {
             var result = new UnstartedProcessIO(Environment.CurrentDirectory);
             return result.WithEnvironmentVariable(name, value);
+        }
+
+        public static IUnstartedProcessIO WithEnvironment(
+            IDictionary<string, string> environment
+        )
+        {
+            var result = new UnstartedProcessIO(Environment.CurrentDirectory);
+            return result.WithEnvironment(environment);
         }
     }
 }

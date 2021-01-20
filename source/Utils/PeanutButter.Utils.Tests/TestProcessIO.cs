@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using NUnit.Framework;
@@ -60,7 +61,7 @@ namespace PeanutButter.Utils.Tests
             using var io = ProcessIO.In(tempFolder.Path).Start("cat", "data.txt");
             // Assert
             var lines = io.StandardOutput.ToArray().Select(l => l.Trim());
-            
+
             Expect(lines)
                 .To.Equal(new[] { expected });
         }
@@ -80,7 +81,7 @@ namespace PeanutButter.Utils.Tests
             Expect(lines)
                 .To.Equal(new[] { expected });
         }
-        
+
         [Test]
         public void ShouldBeAbleToInjectEnvironmentVariablesAndCustomWorkingFolder()
         {
@@ -91,6 +92,87 @@ namespace PeanutButter.Utils.Tests
             // Act
             using var io = ProcessIO
                 .In(folder.Path)
+                .WithEnvironmentVariable(envVar, expected)
+                .Start("pwsh", "-Command", $"Write-Host $env:{envVar}");
+            // Assert
+            var lines = io.StandardOutput.ToArray().Trim();
+            Expect(lines)
+                .To.Equal(new[] { expected });
+        }
+
+        [Test]
+        public void ShouldBeAbleToInjectEnvironmentVariablesAndCustomWorkingFolder2()
+        {
+            // Arrange
+            using var folder = new AutoTempFolder();
+            var expected = GetRandomAlphaString(4);
+            var envVar = GetRandomAlphaString(4);
+            // Act
+            using var io = ProcessIO
+                .WithEnvironmentVariable(envVar, expected)
+                .In(folder.Path)
+                .Start("pwsh", "-Command", $"Write-Host $env:{envVar}");
+            // Assert
+            var lines = io.StandardOutput.ToArray().Trim();
+            Expect(lines)
+                .To.Equal(new[] { expected });
+        }
+
+        [Test]
+        public void ShouldBeAbleToInjectEnvironmentVariablesAndCustomWorkingFolder3()
+        {
+            // Arrange
+            using var folder = new AutoTempFolder();
+            var expected = GetRandomAlphaString(4);
+            var envVar = GetRandomAlphaString(4);
+            var dict = new Dictionary<string, string>()
+            {
+                [envVar] = expected
+            };
+            // Act
+            using var io = ProcessIO
+                .WithEnvironment(dict)
+                .In(folder.Path)
+                .Start("pwsh", "-Command", $"Write-Host $env:{envVar}");
+            // Assert
+            var lines = io.StandardOutput.ToArray().Trim();
+            Expect(lines)
+                .To.Equal(new[] { expected });
+        }
+        
+        [Test]
+        public void ShouldBeAbleToInjectEnvironmentVariablesAndCustomWorkingFolder4()
+        {
+            // Arrange
+            using var folder = new AutoTempFolder();
+            var expected = GetRandomAlphaString(4);
+            var envVar = GetRandomAlphaString(4);
+            var dict = new Dictionary<string, string>()
+            {
+                [envVar] = expected
+            };
+            // Act
+            using var io = ProcessIO
+                .In(folder.Path)
+                .WithEnvironment(dict)
+                .Start("pwsh", "-Command", $"Write-Host $env:{envVar}");
+            // Assert
+            var lines = io.StandardOutput.ToArray().Trim();
+            Expect(lines)
+                .To.Equal(new[] { expected });
+        }
+        
+        [Test]
+        public void ShouldNotBreakGivenNullEnvironment()
+        {
+            // Arrange
+            using var folder = new AutoTempFolder();
+            var expected = GetRandomAlphaString(4);
+            var envVar = GetRandomAlphaString(4);
+            // Act
+            using var io = ProcessIO
+                .In(folder.Path)
+                .WithEnvironment(null)
                 .WithEnvironmentVariable(envVar, expected)
                 .Start("pwsh", "-Command", $"Write-Host $env:{envVar}");
             // Assert
