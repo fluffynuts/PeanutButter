@@ -27,7 +27,7 @@
       <group targetFramework="net40"></group>
     </dependencies>
     <references></references>
-    <tags></tags>
+    <tags>event-aggregator event aggregator tiny</tags>
   </metadata>
   <files>
     <file src="icon.png" target="" />

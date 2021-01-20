@@ -25,10 +25,9 @@
     <license type="expression">BSD-3-Clause</license>
     <copyright>Copyright  2016</copyright>
     <dependencies>
-      <group targetFramework="net45"></group>
     </dependencies>
     <references></references>
-    <tags></tags>
+    <tags>duck-typing cross-platform type-emission configuration</tags>
   </metadata>
   <files>
     <file src="icon.png" target="" />

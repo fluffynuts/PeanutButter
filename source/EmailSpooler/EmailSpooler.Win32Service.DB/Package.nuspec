@@ -38,7 +38,7 @@
       </group>
     </dependencies>
     <references></references>
-    <tags></tags>
+    <tags>email-spooler database</tags>
   </metadata>
   <files>
     <file src="bin/Release/net452/EmailSpooler.Win32Service.DB.dll" target="lib/net452" />

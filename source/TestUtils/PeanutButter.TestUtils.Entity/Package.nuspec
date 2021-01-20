@@ -51,7 +51,7 @@
       </group>
     </dependencies>
     <references></references>
-    <tags></tags>
+    <tags>test utilities EF</tags>
   </metadata>
   <files>
     <file src="icon.png" target="" />

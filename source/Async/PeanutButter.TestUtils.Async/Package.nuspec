@@ -45,7 +45,7 @@
       </group>
     </dependencies>
     <references></references>
-    <tags></tags>
+    <tags>async testing utils</tags>
   </metadata>
   <files>
     <file src="icon.png" target="" />

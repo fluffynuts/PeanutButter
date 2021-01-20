@@ -41,7 +41,7 @@
       </group>
     </dependencies>
     <references></references>
-    <tags></tags>
+    <tags>temporary database mysql oracle mysql.data</tags>
   </metadata>
   <files>
     <file src="icon.png" target="" />

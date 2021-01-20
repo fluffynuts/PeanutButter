@@ -36,7 +36,7 @@
       </group>
     </dependencies>
     <references></references>
-    <tags></tags>
+    <tags>commandline argument parser cross-platform</tags>
   </metadata>
   <files>
     <file src="icon.png" target="" />

@@ -55,7 +55,7 @@
       </group>
     </dependencies>
     <references></references>
-    <tags></tags>
+    <tags>entity-framework EF</tags>
   </metadata>
   <files>
     <file src="icon.png" target="" />

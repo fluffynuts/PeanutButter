@@ -47,7 +47,7 @@
       </group>
     </dependencies>
     <references></references>
-    <tags></tags>
+    <tags>testing utilities</tags>
   </metadata>
   <files>
     <file src="icon.png" target="" />

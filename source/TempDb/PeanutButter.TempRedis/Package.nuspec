@@ -32,7 +32,7 @@
       </group>
     </dependencies>
     <references></references>
-    <tags></tags>
+    <tags>temporary redis database cross-platfor</tags>
   </metadata>
   <files>
     <file src="icon.png" target="" />

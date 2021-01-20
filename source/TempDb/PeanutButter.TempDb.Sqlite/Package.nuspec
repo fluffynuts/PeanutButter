@@ -37,7 +37,7 @@
       </group>
     </dependencies>
     <references></references>
-    <tags></tags>
+    <tags>temporary database sqlite</tags>
   </metadata>
   <files>
     <file src="icon.png" target="" />

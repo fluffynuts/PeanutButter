@@ -37,7 +37,7 @@
       </group>
     </dependencies>
     <references></references>
-    <tags></tags>
+    <tags>castle.windsor utilities</tags>
   </metadata>
   <files>
     <file src="icon.png" target="" />

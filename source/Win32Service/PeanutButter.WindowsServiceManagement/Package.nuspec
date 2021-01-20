@@ -27,7 +27,7 @@
     <copyright>Copyright  2014</copyright>
     <dependencies></dependencies>
     <references></references>
-    <tags></tags>
+    <tags>windows service management start stop create delete win32 svc</tags>
   </metadata>
   <files>
     <file src="icon.png" target="" />

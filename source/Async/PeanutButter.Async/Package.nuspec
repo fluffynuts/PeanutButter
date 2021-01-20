@@ -29,7 +29,7 @@
       <group targetFramework="net40"></group>
     </dependencies>
     <references></references>
-    <tags></tags>
+    <tags>async utilities testability</tags>
   </metadata>
   <files>
     <file src="icon.png" target="" />

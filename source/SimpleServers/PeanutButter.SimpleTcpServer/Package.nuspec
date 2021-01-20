@@ -32,7 +32,7 @@
       <group targetFramework="net40"></group>
     </dependencies>
     <references></references>
-    <tags></tags>
+    <tags>tcp server base inherit cross-platform</tags>
   </metadata>
   <files>
     <file src="icon.png" target="" />

@@ -22,7 +22,7 @@
     <copyright>Copyright  2014</copyright>
     <dependencies></dependencies>
     <references></references>
-    <tags></tags>
+    <tags>ini file read write parse</tags>
   </metadata>
   <files>
     <file src="icon.png" target="" />

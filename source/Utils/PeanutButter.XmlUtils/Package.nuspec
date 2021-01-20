@@ -21,7 +21,7 @@
       <group targetFramework="net40"></group>
     </dependencies>
     <references></references>
-    <tags></tags>
+    <tags>xml utilities</tags>
   </metadata>
   <files>
     <file src="icon.png" target="" />

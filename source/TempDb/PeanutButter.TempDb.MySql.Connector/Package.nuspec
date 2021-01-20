@@ -40,7 +40,7 @@
       </group>
     </dependencies>
     <references></references>
-    <tags></tags>
+    <tags>temporary mysql database mysqlconnector cross-platform</tags>
   </metadata>
   <files>
     <file src="icon.png" target="" />

@@ -38,7 +38,7 @@
       </group>
     </dependencies>
     <references></references>
-    <tags></tags>
+    <tags>database fluent-migrator</tags>
   </metadata>
   <files>
     <file src="icon.png" target="" />
