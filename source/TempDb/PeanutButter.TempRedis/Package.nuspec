@@ -1,8 +1,8 @@
 <package>
   <metadata>
-    <id>PeanutButter.TempDb.MySql.Data</id>
+    <id>PeanutButter.TempRedis</id>
     <version>1.2.394</version>
-    <title>PeanutButter.TempDb.MySql.Data</title>
+    <title>PeanutButter.TempRedis</title>
     <authors>Davyd McColl</authors>
     <owners></owners>
     <description>
