@@ -426,30 +426,6 @@ namespace PeanutButter.DuckTyping.Extensions
             return result;
         }
 
-        private static readonly ConcurrentDictionary<Type, bool> NullableTypes = new ConcurrentDictionary<Type, bool>();
 
-        internal static bool IsNullableType(this Type arg)
-        {
-            if (NullableTypes.TryGetValue(arg, out var cachedResult))
-            {
-                return cachedResult;
-            }
-
-            var method = GenericGetDefaultValueMethod.MakeGenericMethod(arg);
-            var defaultValueForType = method.Invoke(null, new object[] { });
-            var result = defaultValueForType == null;
-            return NullableTypes[arg] = result;
-        }
-
-        private static readonly MethodInfo GenericGetDefaultValueMethod =
-            typeof(DuckTypingHelperExtensions).GetMethod(
-                nameof(GetDefaultValueFor),
-                BindingFlags.NonPublic | BindingFlags.Static
-            );
-
-        private static T GetDefaultValueFor<T>()
-        {
-            return default(T);
-        }
     }
 }

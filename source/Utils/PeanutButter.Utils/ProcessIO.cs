@@ -426,6 +426,11 @@ namespace PeanutButter.Utils
             return result.WithEnvironmentVariable(name, value);
         }
 
+        /// <summary>
+        /// Sets up a bunch of environment variables for the new process
+        /// </summary>
+        /// <param name="environment"></param>
+        /// <returns></returns>
         public static IUnstartedProcessIO WithEnvironment(
             IDictionary<string, string> environment
         )

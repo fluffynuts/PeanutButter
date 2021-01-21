@@ -750,6 +750,17 @@ namespace PeanutButter.Utils
             Type type)
         {
             var valueAsObject = GetPropertyValue(src, propertyPath);
+            if (valueAsObject is null)
+            {
+                if (type.IsNullableType())
+                {
+                    return default;
+                }
+                throw new InvalidOperationException(
+                    $"value for {propertyPath} is null but {typeof(T)} is not nullable"
+                );
+            }
+
             var valueType = valueAsObject.GetType();
             if (!valueType.IsAssignableTo<T>())
                 throw new ArgumentException(

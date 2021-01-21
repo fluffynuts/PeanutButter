@@ -2325,6 +2325,19 @@ namespace PeanutButter.Utils.Tests
             }
         }
 
+        [Test]
+        public void ShouldBeAbleToRetrieveNullValue()
+        {
+            // Arrange
+            var data = new { name = null as string };
+            
+            // Act
+            var result = data.Get<string>("name");
+            // Assert
+            Expect(result)
+                .To.Be.Null();
+        }
+
         public class Complex<T>
         {
             public Simple<T> prop { get; set; }
