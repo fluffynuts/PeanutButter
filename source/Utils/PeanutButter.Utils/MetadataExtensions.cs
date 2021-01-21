@@ -129,6 +129,24 @@ namespace PeanutButter.Utils
             string key
         )
         {
+            return parent.TryGetMetadata<T>(key, out var _);
+        }
+
+        /// <summary>
+        /// Try get the named metadata for the provided type
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <param name="key"></param>
+        /// <param name="result"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool TryGetMetadata<T>(
+            this object parent,
+            string key,
+            out T result
+        )
+        {
+            result = default;
             if (parent == null)
             {
                 return false;
@@ -138,9 +156,22 @@ namespace PeanutButter.Utils
             {
                 var data = GetMetadataFor(parent);
                 if (data == null)
+                {
                     return false;
-                return data.TryGetValue(key, out var stored) &&
-                       CanCast<T>(stored);
+                }
+
+                if (!data.TryGetValue(key, out var stored))
+                {
+                    return false;
+                }
+
+                if (!CanCast<T>(stored))
+                {
+                    return false;
+                }
+
+                result = (T)stored;
+                return true;
             }
         }
 
