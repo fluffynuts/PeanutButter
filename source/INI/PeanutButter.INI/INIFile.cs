@@ -386,6 +386,8 @@ namespace PeanutButter.INIFile
         private bool HaveUnmatchedQuotesIn(IEnumerable<string> parts)
         {
             var joined = string.Join(";", parts);
+                if (!joined.EndsWith('"'))
+                    return true;
             var quoted = joined.Count(c => c == '"');
             return quoted % 2 != 0;
         }
