@@ -13,6 +13,8 @@ var
   findTool = requireModule("testutil-finder").findTool,
   PQueue = require("p-queue").default,
   env = requireModule("env"),
+  gutil = requireModule("gulp-util"),
+  { envFlag } = requireModule("env-helpers"),
   usingDotnetCore = env.resolveFlag("DOTNET_CORE"),
   commonConfig = {
     toolsVersion: "auto",
@@ -216,6 +218,11 @@ gulp.task("build-nuget-packages", [
 });
 
 gulp.task("increment-package-versions", () => {
+  const name = "NO_VERSION_INCREMENT";
+  if (envFlag(name)) {
+    gutil.log(gutil.colors.red(`Skipping package version increment: env var ${name} is set to ${process.env[name]}`));
+    return Promise.resolve();
+  }
   var util = findTool("NugetPackageVersionIncrementer.exe", "source");
   return spawn(util, ["source"]);
 });
