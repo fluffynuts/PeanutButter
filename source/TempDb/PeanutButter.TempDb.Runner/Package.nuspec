@@ -4,203 +4,203 @@
     <version>2.0.0</version>
     <title>PeanutButter.TempDb</title>
     <authors>Davyd McColl</authors>
-    <owners />
-    <description>
-      CLI runner for PeanutButter TempDb instances: mysql, localdb and sqlite.
-      The aim is to provide a way for other environments which can easily
-      spawn processes, read from stdout, write to stdin to have tempdb
-      instances without caring about all the moving parts, like high port
-      selection and service executable location (where appropriate) as
-      well as cleaning up after completion.
+    <owners/>
+    <description>&#xD;
+      CLI runner for PeanutButter TempDb instances: mysql, localdb and sqlite.&#xD;
+      The aim is to provide a way for other environments which can easily&#xD;
+      spawn processes, read from stdout, write to stdin to have tempdb&#xD;
+      instances without caring about all the moving parts, like high port&#xD;
+      selection and service executable location (where appropriate) as&#xD;
+      well as cleaning up after completion.&#xD;
     </description>
-    <releaseNotes />
-    <summary>
-      * Run with --engine argument to spin up
-      * Process will emit the connection string to use
-      * Process will clean up and shut down when it receives "stop" on stdin
+    <releaseNotes/>
+    <summary>&#xD;
+      * Run with --engine argument to spin up&#xD;
+      * Process will emit the connection string to use&#xD;
+      * Process will clean up and shut down when it receives "stop" on stdin&#xD;
     </summary>
     <language>en-US</language>
     <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
-    <repository type="git" url="https://github.com/fluffynuts/PeanutButter" />
+    <repository type="git" url="https://github.com/fluffynuts/PeanutButter"/>
     <icon>icon.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">BSD-3-Clause</license>
     <copyright>Copyright 2015</copyright>
     <dependencies>
-      <group targetFramework="net462" />
-      <group targetFramework="netcoreapp3.1" />
+      <group targetFramework="net462"/>
+      <group targetFramework="netcoreapp3.1"/>
     </dependencies>
-    <references />
-    <tags />
+    <references/>
+    <tags/>
   </metadata>
   <files>
-    <file src="icon.png" target="" />
-    <file src="bin\Release\net462\CommandLine.dll" target="lib/net462" />
-    <file src="bin\Release\net462\Microsoft.Win32.Primitives.dll" target="lib/net462" />
-    <file src="bin\Release\net462\MySqlConnector.dll" target="lib/net462" />
-    <file src="bin\Release\net462\netstandard.dll" target="lib/net462" />
-    <file src="bin\Release\net462\Newtonsoft.Json.dll" target="lib/net462" />
-    <file src="bin\Release\net462\PeanutButter.INI.dll" target="lib/net462" />
-    <file src="bin\Release\net462\PeanutButter.INI.pdb" target="lib/net462" />
-    <file src="bin\Release\net462\PeanutButter.TempDb.dll" target="lib/net462" />
-    <file src="bin\Release\net462\PeanutButter.TempDb.LocalDb.dll" target="lib/net462" />
-    <file src="bin\Release\net462\PeanutButter.TempDb.LocalDb.pdb" target="lib/net462" />
-    <file src="bin\Release\net462\PeanutButter.TempDb.MySql.Base.dll" target="lib/net462" />
-    <file src="bin\Release\net462\PeanutButter.TempDb.MySql.Base.pdb" target="lib/net462" />
-    <file src="bin\Release\net462\PeanutButter.TempDb.MySql.Connector.dll" target="lib/net462" />
-    <file src="bin\Release\net462\PeanutButter.TempDb.MySql.Connector.pdb" target="lib/net462" />
-    <file src="bin\Release\net462\PeanutButter.TempDb.pdb" target="lib/net462" />
-    <file src="bin\Release\net462\PeanutButter.TempDb.Runner.exe" target="lib/net462" />
-    <file src="bin\Release\net462\PeanutButter.TempDb.Runner.exe.config" target="lib/net462" />
-    <file src="bin\Release\net462\PeanutButter.TempDb.Runner.pdb" target="lib/net462" />
-    <file src="bin\Release\net462\PeanutButter.TempDb.Sqlite.dll" target="lib/net462" />
-    <file src="bin\Release\net462\PeanutButter.TempDb.Sqlite.dll.config" target="lib/net462" />
-    <file src="bin\Release\net462\PeanutButter.TempDb.Sqlite.pdb" target="lib/net462" />
-    <file src="bin\Release\net462\PeanutButter.Utils.dll" target="lib/net462" />
-    <file src="bin\Release\net462\PeanutButter.Utils.pdb" target="lib/net462" />
-    <file src="bin\Release\net462\PeanutButter.Utils.xml" target="lib/net462" />
-    <file src="bin\Release\net462\SQLite.Interop.dll" target="lib/net462" />
-    <file src="bin\Release\net462\start-tempdb.bat" target="lib/net462" />
-    <file src="bin\Release\net462\start-tempdb.sh" target="lib/net462" />
-    <file src="bin\Release\net462\System.AppContext.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Buffers.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Collections.Concurrent.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Collections.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Collections.NonGeneric.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Collections.Specialized.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.ComponentModel.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.ComponentModel.EventBasedAsync.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.ComponentModel.Primitives.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.ComponentModel.TypeConverter.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Console.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Data.Common.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Data.SqlClient.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Data.SQLite.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Diagnostics.Contracts.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Diagnostics.Debug.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Diagnostics.FileVersionInfo.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Diagnostics.Process.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Diagnostics.StackTrace.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Diagnostics.TextWriterTraceListener.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Diagnostics.Tools.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Diagnostics.TraceSource.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Diagnostics.Tracing.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Drawing.Primitives.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Dynamic.Runtime.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Globalization.Calendars.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Globalization.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Globalization.Extensions.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.IO.Compression.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.IO.Compression.ZipFile.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.IO.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.IO.FileSystem.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.IO.FileSystem.DriveInfo.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.IO.FileSystem.Primitives.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.IO.FileSystem.Watcher.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.IO.IsolatedStorage.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.IO.MemoryMappedFiles.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.IO.Pipes.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.IO.UnmanagedMemoryStream.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Linq.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Linq.Expressions.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Linq.Parallel.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Linq.Queryable.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Memory.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Net.Http.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Net.NameResolution.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Net.NetworkInformation.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Net.Ping.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Net.Primitives.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Net.Requests.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Net.Security.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Net.Sockets.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Net.WebHeaderCollection.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Net.WebSockets.Client.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Net.WebSockets.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Numerics.Vectors.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.ObjectModel.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Reflection.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Reflection.Extensions.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Reflection.Primitives.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Resources.Reader.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Resources.ResourceManager.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Resources.Writer.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Runtime.CompilerServices.Unsafe.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Runtime.CompilerServices.VisualC.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Runtime.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Runtime.Extensions.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Runtime.Handles.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Runtime.InteropServices.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Runtime.InteropServices.RuntimeInformation.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Runtime.Numerics.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Runtime.Serialization.Formatters.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Runtime.Serialization.Json.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Runtime.Serialization.Primitives.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Runtime.Serialization.Xml.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Security.Claims.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Security.Cryptography.Algorithms.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Security.Cryptography.Csp.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Security.Cryptography.Encoding.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Security.Cryptography.Primitives.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Security.Cryptography.X509Certificates.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Security.Principal.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Security.SecureString.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Text.Encoding.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Text.Encoding.Extensions.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Text.RegularExpressions.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Threading.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Threading.Overlapped.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Threading.Tasks.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Threading.Tasks.Extensions.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Threading.Tasks.Parallel.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Threading.Thread.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Threading.ThreadPool.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Threading.Timer.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.ValueTuple.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Xml.ReaderWriter.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Xml.XDocument.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Xml.XmlDocument.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Xml.XmlSerializer.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Xml.XPath.dll" target="lib/net462" />
-    <file src="bin\Release\net462\System.Xml.XPath.XDocument.dll" target="lib/net462" />
-    <file src="bin\Release\net462\x64\SQLite.Interop.dll" target="lib/net462/x64" />
-    <file src="bin\Release\net462\x86\SQLite.Interop.dll" target="lib/net462/x86" />
-    <file src="bin\Release\netcoreapp3.1\CommandLine.dll" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\MySqlConnector.dll" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\Newtonsoft.Json.dll" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.INI.dll" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.INI.pdb" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.dll" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.LocalDb.dll" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.LocalDb.pdb" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.MySql.Base.dll" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.MySql.Base.pdb" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.MySql.Connector.dll" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.MySql.Connector.pdb" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.pdb" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.Runner.deps.json" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.Runner.dll" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.Runner.pdb" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.Runner.runtimeconfig.dev.json" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.Runner.runtimeconfig.json" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.Sqlite.dll" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.Sqlite.dll.config" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.Sqlite.pdb" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.Utils.dll" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.Utils.pdb" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.Utils.xml" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\runtimes\linux-x64\native\netstandard2.0\SQLite.Interop.dll" target="lib/netcoreapp3.1/runtimes/linux-x64/native/netstandard2.0" />
-    <file src="bin\Release\netcoreapp3.1\runtimes\osx-x64\native\netstandard2.0\SQLite.Interop.dll" target="lib/netcoreapp3.1/runtimes/osx-x64/native/netstandard2.0" />
-    <file src="bin\Release\netcoreapp3.1\runtimes\unix\lib\netcoreapp2.1\System.Data.SqlClient.dll" target="lib/netcoreapp3.1/runtimes/unix/lib/netcoreapp2.1" />
-    <file src="bin\Release\netcoreapp3.1\runtimes\win\lib\netcoreapp2.1\System.Data.SqlClient.dll" target="lib/netcoreapp3.1/runtimes/win/lib/netcoreapp2.1" />
-    <file src="bin\Release\netcoreapp3.1\runtimes\win-arm64\native\sni.dll" target="lib/netcoreapp3.1/runtimes/win-arm64/native" />
-    <file src="bin\Release\netcoreapp3.1\runtimes\win-x64\native\netstandard2.0\SQLite.Interop.dll" target="lib/netcoreapp3.1/runtimes/win-x64/native/netstandard2.0" />
-    <file src="bin\Release\netcoreapp3.1\runtimes\win-x64\native\sni.dll" target="lib/netcoreapp3.1/runtimes/win-x64/native" />
-    <file src="bin\Release\netcoreapp3.1\runtimes\win-x86\native\netstandard2.0\SQLite.Interop.dll" target="lib/netcoreapp3.1/runtimes/win-x86/native/netstandard2.0" />
-    <file src="bin\Release\netcoreapp3.1\runtimes\win-x86\native\sni.dll" target="lib/netcoreapp3.1/runtimes/win-x86/native" />
-    <file src="bin\Release\netcoreapp3.1\start-tempdb.bat" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\start-tempdb.sh" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\System.Data.SqlClient.dll" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\System.Data.SQLite.dll" target="lib/netcoreapp3.1" />
+    <file src="icon.png" target=""/>
+    <file src="bin\Release\net462\CommandLine.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\Microsoft.Win32.Primitives.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\MySqlConnector.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\netstandard.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\Newtonsoft.Json.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\PeanutButter.INI.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\PeanutButter.INI.pdb" target="lib/net462"/>
+    <file src="bin\Release\net462\PeanutButter.TempDb.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\PeanutButter.TempDb.LocalDb.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\PeanutButter.TempDb.LocalDb.pdb" target="lib/net462"/>
+    <file src="bin\Release\net462\PeanutButter.TempDb.MySql.Base.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\PeanutButter.TempDb.MySql.Base.pdb" target="lib/net462"/>
+    <file src="bin\Release\net462\PeanutButter.TempDb.MySql.Connector.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\PeanutButter.TempDb.MySql.Connector.pdb" target="lib/net462"/>
+    <file src="bin\Release\net462\PeanutButter.TempDb.pdb" target="lib/net462"/>
+    <file src="bin\Release\net462\PeanutButter.TempDb.Runner.exe" target="lib/net462"/>
+    <file src="bin\Release\net462\PeanutButter.TempDb.Runner.exe.config" target="lib/net462"/>
+    <file src="bin\Release\net462\PeanutButter.TempDb.Runner.pdb" target="lib/net462"/>
+    <file src="bin\Release\net462\PeanutButter.TempDb.Sqlite.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\PeanutButter.TempDb.Sqlite.dll.config" target="lib/net462"/>
+    <file src="bin\Release\net462\PeanutButter.TempDb.Sqlite.pdb" target="lib/net462"/>
+    <file src="bin\Release\net462\PeanutButter.Utils.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\PeanutButter.Utils.pdb" target="lib/net462"/>
+    <file src="bin\Release\net462\PeanutButter.Utils.xml" target="lib/net462"/>
+    <file src="bin\Release\net462\SQLite.Interop.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\start-tempdb.bat" target="lib/net462"/>
+    <file src="bin\Release\net462\start-tempdb.sh" target="lib/net462"/>
+    <file src="bin\Release\net462\System.AppContext.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Buffers.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Collections.Concurrent.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Collections.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Collections.NonGeneric.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Collections.Specialized.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.ComponentModel.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.ComponentModel.EventBasedAsync.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.ComponentModel.Primitives.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.ComponentModel.TypeConverter.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Console.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Data.Common.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Data.SqlClient.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Data.SQLite.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Diagnostics.Contracts.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Diagnostics.Debug.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Diagnostics.FileVersionInfo.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Diagnostics.Process.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Diagnostics.StackTrace.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Diagnostics.TextWriterTraceListener.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Diagnostics.Tools.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Diagnostics.TraceSource.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Diagnostics.Tracing.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Drawing.Primitives.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Dynamic.Runtime.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Globalization.Calendars.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Globalization.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Globalization.Extensions.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.IO.Compression.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.IO.Compression.ZipFile.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.IO.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.IO.FileSystem.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.IO.FileSystem.DriveInfo.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.IO.FileSystem.Primitives.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.IO.FileSystem.Watcher.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.IO.IsolatedStorage.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.IO.MemoryMappedFiles.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.IO.Pipes.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.IO.UnmanagedMemoryStream.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Linq.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Linq.Expressions.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Linq.Parallel.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Linq.Queryable.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Memory.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Net.Http.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Net.NameResolution.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Net.NetworkInformation.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Net.Ping.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Net.Primitives.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Net.Requests.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Net.Security.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Net.Sockets.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Net.WebHeaderCollection.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Net.WebSockets.Client.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Net.WebSockets.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Numerics.Vectors.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.ObjectModel.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Reflection.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Reflection.Extensions.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Reflection.Primitives.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Resources.Reader.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Resources.ResourceManager.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Resources.Writer.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Runtime.CompilerServices.Unsafe.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Runtime.CompilerServices.VisualC.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Runtime.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Runtime.Extensions.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Runtime.Handles.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Runtime.InteropServices.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Runtime.InteropServices.RuntimeInformation.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Runtime.Numerics.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Runtime.Serialization.Formatters.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Runtime.Serialization.Json.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Runtime.Serialization.Primitives.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Runtime.Serialization.Xml.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Security.Claims.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Security.Cryptography.Algorithms.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Security.Cryptography.Csp.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Security.Cryptography.Encoding.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Security.Cryptography.Primitives.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Security.Cryptography.X509Certificates.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Security.Principal.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Security.SecureString.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Text.Encoding.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Text.Encoding.Extensions.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Text.RegularExpressions.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Threading.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Threading.Overlapped.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Threading.Tasks.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Threading.Tasks.Extensions.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Threading.Tasks.Parallel.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Threading.Thread.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Threading.ThreadPool.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Threading.Timer.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.ValueTuple.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Xml.ReaderWriter.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Xml.XDocument.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Xml.XmlDocument.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Xml.XmlSerializer.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Xml.XPath.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\System.Xml.XPath.XDocument.dll" target="lib/net462"/>
+    <file src="bin\Release\net462\x64\SQLite.Interop.dll" target="lib/net462/x64"/>
+    <file src="bin\Release\net462\x86\SQLite.Interop.dll" target="lib/net462/x86"/>
+    <file src="bin\Release\netcoreapp3.1\CommandLine.dll" target="lib/netcoreapp3.1"/>
+    <file src="bin\Release\netcoreapp3.1\MySqlConnector.dll" target="lib/netcoreapp3.1"/>
+    <file src="bin\Release\netcoreapp3.1\Newtonsoft.Json.dll" target="lib/netcoreapp3.1"/>
+    <file src="bin\Release\netcoreapp3.1\PeanutButter.INI.dll" target="lib/netcoreapp3.1"/>
+    <file src="bin\Release\netcoreapp3.1\PeanutButter.INI.pdb" target="lib/netcoreapp3.1"/>
+    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.dll" target="lib/netcoreapp3.1"/>
+    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.LocalDb.dll" target="lib/netcoreapp3.1"/>
+    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.LocalDb.pdb" target="lib/netcoreapp3.1"/>
+    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.MySql.Base.dll" target="lib/netcoreapp3.1"/>
+    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.MySql.Base.pdb" target="lib/netcoreapp3.1"/>
+    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.MySql.Connector.dll" target="lib/netcoreapp3.1"/>
+    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.MySql.Connector.pdb" target="lib/netcoreapp3.1"/>
+    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.pdb" target="lib/netcoreapp3.1"/>
+    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.Runner.deps.json" target="lib/netcoreapp3.1"/>
+    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.Runner.dll" target="lib/netcoreapp3.1"/>
+    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.Runner.pdb" target="lib/netcoreapp3.1"/>
+    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.Runner.runtimeconfig.dev.json" target="lib/netcoreapp3.1"/>
+    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.Runner.runtimeconfig.json" target="lib/netcoreapp3.1"/>
+    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.Sqlite.dll" target="lib/netcoreapp3.1"/>
+    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.Sqlite.dll.config" target="lib/netcoreapp3.1"/>
+    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.Sqlite.pdb" target="lib/netcoreapp3.1"/>
+    <file src="bin\Release\netcoreapp3.1\PeanutButter.Utils.dll" target="lib/netcoreapp3.1"/>
+    <file src="bin\Release\netcoreapp3.1\PeanutButter.Utils.pdb" target="lib/netcoreapp3.1"/>
+    <file src="bin\Release\netcoreapp3.1\PeanutButter.Utils.xml" target="lib/netcoreapp3.1"/>
+    <file src="bin\Release\netcoreapp3.1\runtimes\linux-x64\native\netstandard2.0\SQLite.Interop.dll" target="lib/netcoreapp3.1/runtimes/linux-x64/native/netstandard2.0"/>
+    <file src="bin\Release\netcoreapp3.1\runtimes\osx-x64\native\netstandard2.0\SQLite.Interop.dll" target="lib/netcoreapp3.1/runtimes/osx-x64/native/netstandard2.0"/>
+    <file src="bin\Release\netcoreapp3.1\runtimes\unix\lib\netcoreapp2.1\System.Data.SqlClient.dll" target="lib/netcoreapp3.1/runtimes/unix/lib/netcoreapp2.1"/>
+    <file src="bin\Release\netcoreapp3.1\runtimes\win\lib\netcoreapp2.1\System.Data.SqlClient.dll" target="lib/netcoreapp3.1/runtimes/win/lib/netcoreapp2.1"/>
+    <file src="bin\Release\netcoreapp3.1\runtimes\win-arm64\native\sni.dll" target="lib/netcoreapp3.1/runtimes/win-arm64/native"/>
+    <file src="bin\Release\netcoreapp3.1\runtimes\win-x64\native\netstandard2.0\SQLite.Interop.dll" target="lib/netcoreapp3.1/runtimes/win-x64/native/netstandard2.0"/>
+    <file src="bin\Release\netcoreapp3.1\runtimes\win-x64\native\sni.dll" target="lib/netcoreapp3.1/runtimes/win-x64/native"/>
+    <file src="bin\Release\netcoreapp3.1\runtimes\win-x86\native\netstandard2.0\SQLite.Interop.dll" target="lib/netcoreapp3.1/runtimes/win-x86/native/netstandard2.0"/>
+    <file src="bin\Release\netcoreapp3.1\runtimes\win-x86\native\sni.dll" target="lib/netcoreapp3.1/runtimes/win-x86/native"/>
+    <file src="bin\Release\netcoreapp3.1\start-tempdb.bat" target="lib/netcoreapp3.1"/>
+    <file src="bin\Release\netcoreapp3.1\start-tempdb.sh" target="lib/netcoreapp3.1"/>
+    <file src="bin\Release\netcoreapp3.1\System.Data.SqlClient.dll" target="lib/netcoreapp3.1"/>
+    <file src="bin\Release\netcoreapp3.1\System.Data.SQLite.dll" target="lib/netcoreapp3.1"/>
   </files>
 </package>
