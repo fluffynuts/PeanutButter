@@ -1418,14 +1418,14 @@ key=value2";
                 var bytesBefore = File.ReadAllBytes(iniFilePath);
                 Expect(iniFilePath).To.Exist();
                 // Act
-                var ini1 = new INIFile.INIFile(iniFilePath);
+                var ini1 = new INIFile.INIFile(iniFilePath, enableEscapeCharacters: false);
                 var current = ini1["DrawingViewer"]["EnableLogging"];
                 var enabled = Convert.ToBoolean(current);
                 ini1["DrawingViewer"]["EnableLogging"] = (!enabled).ToString();
                 ini1.SectionSeparator = null;
                 ini1.Persist();
 
-                var ini2 = new INIFile.INIFile(iniFilePath);
+                var ini2 = new INIFile.INIFile(iniFilePath, enableEscapeCharacters: false);
                 var result = Convert.ToBoolean(
                     ini2["DrawingViewer"]["EnableLogging"]
                 );
@@ -1492,13 +1492,33 @@ key=value2";
 [notification]
 Email_Message=""[HTML] [HEAD] [style type=\""text/css\""] body{font-family: Verdana, Geneva, sans-serif; font-size:10pt;} td{font-family: Verdana, Geneva, sans-serif;font-size:10pt;} p{margin-top: 10px; margin-bottom: 10px;} ol,ul{margin-top: -10px; margin-bottom: -10px;} [/style] [/HEAD] [BODY]test [font style=\""background-color: rgb(255, 255, 192);\""]{MovedFileFullPath}[/font][/BODY][/HTML]""
 ";
-                var expected = @"[HTML] [HEAD] [style type=\""text/css\""] body{font-family: Verdana, Geneva, sans-serif; font-size:10pt;} td{font-family: Verdana, Geneva, sans-serif;font-size:10pt;} p{margin-top: 10px; margin-bottom: 10px;} ol,ul{margin-top: -10px; margin-bottom: -10px;} [/style] [/HEAD] [BODY]test [font style=\""background-color: rgb(255, 255, 192);\""]{MovedFileFullPath}[/font][/BODY][/HTML]";
+                var expected = @"[HTML] [HEAD] [style type=""text/css""] body{font-family: Verdana, Geneva, sans-serif; font-size:10pt;} td{font-family: Verdana, Geneva, sans-serif;font-size:10pt;} p{margin-top: 10px; margin-bottom: 10px;} ol,ul{margin-top: -10px; margin-bottom: -10px;} [/style] [/HEAD] [BODY]test [font style=""background-color: rgb(255, 255, 192);""]{MovedFileFullPath}[/font][/BODY][/HTML]";
                 using var file = new AutoTempFile(contents);
                 var sut = Create(file);
                 // Act
                 var result = sut["notification"]["Email_Message"];
                 // Assert
                 Expect(result)
+                    .To.Equal(expected);
+            }
+
+            [Test]
+            public void ShouldPersistQuotesInValuesWithEscapingBackslashes()
+            {
+                // Arrange
+                using var file = new AutoTempFile();
+                var expected = @"
+[test]
+value=""some value containing \""quotes\""""
+".Trim();
+                var sut = Create(file.Path);
+                // Act
+                sut.AddSection("test");
+                sut["test"]["value"] = @"some value containing ""quotes""";
+                sut.Persist();
+                // Assert
+                var contents = File.ReadAllText(file.Path).Trim();
+                Expect(contents)
                     .To.Equal(expected);
             }
         }

@@ -213,6 +213,7 @@ namespace PeanutButter.INIFile
         private readonly char[] _sectionTrimChars;
         private readonly List<MergedIniFile> _merged = new List<MergedIniFile>();
 
+        public bool EnableEscapeCharacters { get; set; }
 
         // ReSharper disable once MemberCanBePrivate.Global
 
@@ -225,18 +226,36 @@ namespace PeanutButter.INIFile
         private const string SECTION_COMMENT_KEY = "="; // bit of a hack: this can never be a key name in a section
 
 
-        public INIFile(string path = null)
+        public INIFile() : this(null, true)
+        {
+        }
+
+        public INIFile(string path) : this(path, true)
+        {
+        }
+
+        public INIFile(
+            string path, 
+            bool enableEscapeCharacters)
         {
             _sectionTrimChars = new[] { '[', ']' };
             if (path != null)
             {
-                Load(path);
+                Load(path, enableEscapeCharacters);
             }
         }
 
 
         public void Load(string path)
         {
+            Load(path, true);
+        }
+
+        public void Load(
+            string path, 
+            bool enableEscapeCharacters)
+        {
+            EnableEscapeCharacters = enableEscapeCharacters;
             _path = path;
             var lines = GetLinesFrom(path);
             Parse(lines);
@@ -310,13 +329,17 @@ namespace PeanutButter.INIFile
                     continue;
                 }
 
-                StoreSetting(currentSection, dataPart, recentComments);
+                StoreSetting(
+                    currentSection,
+                    UnescapeEntities(dataPart),
+                    recentComments
+                );
             }
         }
 
         private string StartSection(
             string dataPart,
-            List<string> recentComments
+            IList<string> recentComments
         )
         {
             var currentSection = GetSectionNameFrom(dataPart);
@@ -727,9 +750,33 @@ namespace PeanutButter.INIFile
             var dataValue = this[section][key];
             var writeValue = dataValue == null
                 ? ""
-                : "=\"" + dataValue + "\"";
+                : $"=\"{EscapeEntities(dataValue)}\"";
             lines.Add(string.Join(string.Empty, key.Trim(), writeValue));
             return string.Join(Environment.NewLine, lines);
+        }
+
+        private string EscapeEntities(string data)
+        {
+            if (!EnableEscapeCharacters)
+            {
+                return data;
+            }
+
+            return data
+                ?.Replace("\\", "\\\\")
+                ?.Replace("\"", "\\\"");
+        }
+
+        private string UnescapeEntities(string data)
+        {
+            if (!EnableEscapeCharacters)
+            {
+                return data;
+            }
+
+            return data
+                ?.Replace("\\\\", "\\")
+                ?.Replace("\\\"", "\"");
         }
 
         private string CheckPersistencePath(string path)
