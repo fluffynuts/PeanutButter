@@ -11,7 +11,6 @@ using NExpect;
 using NExpect.Implementations;
 using NExpect.Interfaces;
 using NExpect.MatcherLogic;
-using PeanutButter.INIFile;
 
 // ReSharper disable PossibleNullReferenceException
 // ReSharper disable MemberHidesStaticFromOuterClass
@@ -84,7 +83,7 @@ namespace PeanutButter.INI.Tests
                 public void WhenHaveNoLoadedFile_ShouldBeNull()
                 {
                     // Arrange
-                    var sut = new INIFile.INIFile();
+                    var sut = new INIFile();
                     // Pre-assert
                     // Act
                     var result = sut.Path;
@@ -97,7 +96,7 @@ namespace PeanutButter.INI.Tests
                 {
                     // Arrange
                     using var tempFile = new AutoDeletingIniFile();
-                    var sut = new INIFile.INIFile();
+                    var sut = new INIFile();
                     // Pre-assert
                     Expect(sut.Path).To.Be.Null();
                     // Act
@@ -125,7 +124,7 @@ namespace PeanutButter.INI.Tests
                     // Pre-assert
                     FileSystemMatchers.File(Expect(mergeFile.Path).Not.To.Be.A);
                     // Act
-                    sut.Merge(mergeFile.Path, MergeStrategies.AddIfMissing);
+                    sut.Merge(mergeFile.Path, MergeStrategies.OnlyAddIfMissing);
                     // Assert
                 }
 
@@ -159,7 +158,7 @@ namespace PeanutButter.INI.Tests
                         // Pre-assert
 
                         // Act
-                        sut.Merge(merge.Path, MergeStrategies.AddIfMissing);
+                        sut.Merge(merge.Path, MergeStrategies.OnlyAddIfMissing);
 
                         // Assert
                         Expect(sut.GetValue(section1, setting1))
@@ -239,7 +238,7 @@ namespace PeanutButter.INI.Tests
                         // Pre-assert
 
                         // Act
-                        sut.Merge(merge.Path, MergeStrategies.AddIfMissing);
+                        sut.Merge(merge.Path, MergeStrategies.OnlyAddIfMissing);
 
                         // Assert
                         Expect(sut[section1][setting1])
@@ -301,7 +300,7 @@ namespace PeanutButter.INI.Tests
                         original.Write("[section]\nkey=value");
                         merge.Write("[merge]\nmerge_key=merge_value");
                         var sut = Create(original);
-                        sut.Merge(merge.Path, MergeStrategies.AddIfMissing);
+                        sut.Merge(merge.Path, MergeStrategies.OnlyAddIfMissing);
                         // Pre-assert
                         // Act
                         sut["section"]["key"] = "new_value";
@@ -321,7 +320,7 @@ namespace PeanutButter.INI.Tests
                         original.Write("[section]\nkey=value");
                         merge.Write("[section]\nkey=other_value\n[merge]\nmerge_key=merge_value");
                         var sut = Create(original);
-                        sut.Merge(merge.Path, MergeStrategies.AddIfMissing);
+                        sut.Merge(merge.Path, MergeStrategies.OnlyAddIfMissing);
                         // Pre-assert
                         // Act
                         sut.Persist(PersistStrategies.IncludeMergedConfigurations);
@@ -981,12 +980,12 @@ otherSetting=otherValue";
 
                 //---------------Assert Precondition----------------
                 using var tempFile = new AutoDeletingIniFile();
-                var ini = new INIFile.INIFile(tempFile.Path);
+                var ini = new INIFile(tempFile.Path);
                 ini[section][key] = value;
                 ini.Persist();
 
                 //---------------Execute Test ----------------------
-                var ini2 = new INIFile.INIFile(tempFile.Path);
+                var ini2 = new INIFile(tempFile.Path);
                 var result = ini2[section][key];
 
                 //---------------Test Result -----------------------
@@ -1360,7 +1359,7 @@ key=value2";
                 mainFile.Write("[section1]\nkey1=value1");
                 mergeFile.Write("[section2]\nkey2=value2");
                 var sut = Create(mainFile.Path);
-                sut.Merge(mergeFile.Path, MergeStrategies.AddIfMissing);
+                sut.Merge(mergeFile.Path, MergeStrategies.OnlyAddIfMissing);
                 // Pre-assert
                 Expect(sut["section2"]["key2"]).To.Equal("value2");
                 // Act
@@ -1379,7 +1378,7 @@ key=value2";
             {
                 // Arrange
                 using var tempFile = new AutoTempFile();
-                var ini1 = new INIFile.INIFile()
+                var ini1 = new INIFile()
                 {
                     SectionSeparator = null
                 };
@@ -1390,7 +1389,7 @@ key=value2";
                 ini1.Persist(tempFile.Path);
                 // Act
 
-                var ini2 = new INIFile.INIFile(tempFile.Path)
+                var ini2 = new INIFile(tempFile.Path)
                 {
                     SectionSeparator = null
                 };
@@ -1418,14 +1417,14 @@ key=value2";
                 var bytesBefore = File.ReadAllBytes(iniFilePath);
                 Expect(iniFilePath).To.Exist();
                 // Act
-                var ini1 = new INIFile.INIFile(iniFilePath, enableEscapeCharacters: false);
+                var ini1 = new INIFile(iniFilePath, enableEscapeCharacters: false);
                 var current = ini1["DrawingViewer"]["EnableLogging"];
                 var enabled = Convert.ToBoolean(current);
                 ini1["DrawingViewer"]["EnableLogging"] = (!enabled).ToString();
                 ini1.SectionSeparator = null;
                 ini1.Persist();
 
-                var ini2 = new INIFile.INIFile(iniFilePath, enableEscapeCharacters: false);
+                var ini2 = new INIFile(iniFilePath, enableEscapeCharacters: false);
                 var result = Convert.ToBoolean(
                     ini2["DrawingViewer"]["EnableLogging"]
                 );
@@ -1543,7 +1542,7 @@ value=""some value containing \""quotes\""""
             return new INIFile_EXPOSES_Sections(path);
         }
 
-        private class INIFile_EXPOSES_Sections : INIFile.INIFile
+        private class INIFile_EXPOSES_Sections : INIFile
         {
             public INIFile_EXPOSES_Sections(string path) : base(path)
             {

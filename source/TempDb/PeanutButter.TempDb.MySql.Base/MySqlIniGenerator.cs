@@ -22,7 +22,7 @@ namespace PeanutButter.TempDb.MySql.Base
         public string GenerateFor(TempDbMySqlServerSettings tempDbMySqlSettings)
         {
             if (tempDbMySqlSettings == null) throw new ArgumentNullException(nameof(tempDbMySqlSettings));
-            var iniFile = new INIFile.INIFile();
+            var iniFile = new INI.INIFile();
             iniFile.AddSection(SECTION);
             tempDbMySqlSettings.GetType()
                 .GetProperties()
@@ -37,7 +37,7 @@ namespace PeanutButter.TempDb.MySql.Base
         }
 
         private void WriteSetting(
-            INIFile.INIFile iniFile,
+            INI.INIFile iniFile,
             KeyValuePair<string,string> setting)
         {
             iniFile[SECTION][setting.Key] = setting.Value;

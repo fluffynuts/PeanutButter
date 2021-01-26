@@ -8,6 +8,7 @@ using PeanutButter.TempDb.MySql.Base;
 using PeanutButter.Utils;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using PeanutButter.INI;
 
 namespace PeanutButter.TempDb.Tests
 {
@@ -18,13 +19,13 @@ namespace PeanutButter.TempDb.Tests
         public void WhenCreatingOnDefaultSettings_ShouldCreateDefaultConfig()
         {
             // Arrange
-            var defaultIni = new INIFile.INIFile();
+            var defaultIni = new INI.INIFile();
             defaultIni.Parse(DEFAULTS);
             var sut = Create();
             // Pre-Assert
             // Act
             var rawResult = sut.GenerateFor(new TempDbMySqlServerSettings());
-            var resultIni = new INIFile.INIFile();
+            var resultIni = new INI.INIFile();
             resultIni.Parse(rawResult);
             // Assert
             Expect(defaultIni.Sections)
@@ -97,14 +98,14 @@ namespace PeanutButter.TempDb.Tests
         public void WhenCustomSettingsSetToNull_ShouldStillGenerate()
         {
             // Arrange
-            var defaultIni = new INIFile.INIFile();
+            var defaultIni = new INI.INIFile();
             defaultIni.Parse(DEFAULTS);
             var sut = Create();
             var settings = new TempDbMySqlServerSettings {CustomConfiguration = null};
 
             // Act
             var rawResult = sut.GenerateFor(settings);
-            var resultIni = new INIFile.INIFile();
+            var resultIni = new INI.INIFile();
             resultIni.Parse(rawResult);
             
             // Assert
@@ -117,7 +118,7 @@ namespace PeanutButter.TempDb.Tests
         public void WhenHasCustomSettings_ShouldEmitCustomSettings()
         {
             // Arrange
-            var defaultIni = new INIFile.INIFile();
+            var defaultIni = new INI.INIFile();
             defaultIni.Parse(DEFAULTS);
             var sut = Create();
             var settings = new TempDbMySqlServerSettings();
@@ -127,7 +128,7 @@ namespace PeanutButter.TempDb.Tests
             
             // Act
             var rawResult = sut.GenerateFor(settings);
-            var resultIni = new INIFile.INIFile();
+            var resultIni = new INI.INIFile();
             resultIni.Parse(rawResult); 
             
             // Assert
@@ -139,7 +140,7 @@ namespace PeanutButter.TempDb.Tests
         public void WhenCustomSettingIsDuplicateOfFirstClassSetting_ShouldOverrideFirstClassSetting()
         {
             // Arrange
-            var defaultIni = new INIFile.INIFile();
+            var defaultIni = new INI.INIFile();
             defaultIni.Parse(DEFAULTS);
             var sut = Create();
             var settings = new TempDbMySqlServerSettings
@@ -150,7 +151,7 @@ namespace PeanutButter.TempDb.Tests
 
             // Act
             var rawResult = sut.GenerateFor(settings);
-            var resultIni = new INIFile.INIFile();
+            var resultIni = new INI.INIFile();
             resultIni.Parse(rawResult); 
             
             // Assert

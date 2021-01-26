@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Text;
 
 // ReSharper disable IntroduceOptionalParameters.Global
-
 // ReSharper disable UnusedMemberInSuper.Global
-
-namespace PeanutButter.INIFile
+namespace PeanutButter.INI
 {
     // ReSharper disable once InconsistentNaming
     public interface IINIFile
@@ -40,17 +37,59 @@ namespace PeanutButter.INIFile
         IEnumerable<string> Sections { get; }
 
         /// <summary>
+        /// Whether or not to handle escape characters in ini values
+        /// When enabled (default), then the following sequences in values
+        /// are supported:
+        /// \\ -> backslash
+        /// \" -> quote
+        /// </summary>
+        bool EnableEscapeCharacters { get; set; }
+
+        /// <summary>
+        /// Provides an enumeration over all section names: whether
+        /// from merging or the initial load
+        /// </summary>
+        IEnumerable<string> AllSections { get; }
+
+        /// <summary>
+        /// Provides an enumeration over all merged section names
+        /// </summary>
+        IEnumerable<string> MergedSections { get; }
+
+        /// <summary>
         /// Attempts to load the file at the given path, discarding any existing config
+        /// Will enable escape characters by default.
+        /// Versions of PeanutButter.INI &lt; 2
+        /// did not handle escape characters at all, so if you're upgrading from 1.x
+        /// and find that parsing isn't working as expected, try using the overload
+        /// constructor which allows you to turn off this feature
         /// </summary>
         /// <param name="path"></param>
         void Load(string path);
+        
+        /// <summary>
+        /// Attempts to load the file at the given path, discarding any existing config
+        /// Versions of PeanutButter.INI &lt; 2
+        /// did not handle escape characters at all, so if you're upgrading from 1.x
+        /// and find that parsing isn't working as expected, try using the overload
+        /// constructor which allows you to turn off this feature
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="enableEscapeCharacters"></param>
+        void Load(string path, bool enableEscapeCharacters);
 
         /// <summary>
         /// Add a section by name
         /// </summary>
-        /// <param name="section"></param>
+        /// <param name="section">Name of the section to add</param>
+        /// <param name="comments">(Optional) comments for the section</param>
         void AddSection(string section, params string[] comments);
 
+        /// <summary>
+        /// Retrieve the collection of settings for a section by section name
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         IDictionary<string, string> GetSection(string name);
 
         /// <summary>
@@ -155,11 +194,18 @@ namespace PeanutButter.INIFile
         /// Reload config (and all merged config) from disk
         /// </summary>
         void Reload();
+
+        /// <summary>
+        /// Merges another ini file into this one
+        /// </summary>
+        /// <param name="other">other ini file</param>
+        /// <param name="mergeStrategy">strategy to use when encountering conflicts</param>
+        void Merge(IINIFile other, MergeStrategies mergeStrategy);
     }
 
     public enum MergeStrategies
     {
-        AddIfMissing,
+        OnlyAddIfMissing,
         Override
     }
 
@@ -226,14 +272,43 @@ namespace PeanutButter.INIFile
         private const string SECTION_COMMENT_KEY = "="; // bit of a hack: this can never be a key name in a section
 
 
+        /// <summary>
+        /// Constructs an instance of INIFile without parsing any files,
+        /// defaulting to enable escaped characters
+        /// </summary>
         public INIFile() : this(null, true)
         {
         }
 
+        /// <summary>
+        /// Constructs an instance of INIFile, parsing the provided
+        /// path if found, with escaped characters enabled.
+        /// Versions of PeanutButter.INI &lt; 2
+        /// did not handle escape characters at all, so if you're upgrading from 1.x
+        /// and find that parsing isn't working as expected, try using the overload
+        /// constructor which allows you to turn off this feature
+        /// </summary>
+        /// <param name="path">Path to an existing ini file.
+        /// Will not error if not found, but will be used as the default path
+        /// to persist to.</param>
+        // ReSharper disable once MemberCanBePrivate.Global
         public INIFile(string path) : this(path, true)
         {
         }
 
+        /// <summary>
+        /// Constructs an instance of INIFile, parsing the provided
+        /// path if found, with escaped characters enabled if
+        /// enableEscapeCharacters is true
+        /// </summary>
+        /// <param name="path">Path to an existing ini file.
+        /// Will not error if not found, but will be used as the default path
+        /// to persist to.</param>
+        /// <param name="enableEscapeCharacters">Flag: whether or not to enable
+        /// escape characters in INI values. Versions of PeanutButter.INI &lt; 2
+        /// did not handle escape characters at all, so if you're upgrading from 1.x
+        /// and find that parsing isn't working as expected, try setting this to false</param>
+        // ReSharper disable once MemberCanBePrivate.Global
         public INIFile(
             string path, 
             bool enableEscapeCharacters)
@@ -375,6 +450,7 @@ namespace PeanutButter.INIFile
             string key,
             IEnumerable<string> recentComments)
         {
+            // ReSharper disable once PossibleMultipleEnumeration
             if (!recentComments.Any())
             {
                 return;
@@ -383,6 +459,7 @@ namespace PeanutButter.INIFile
             var sectionComments = Comments.ContainsKey(section)
                 ? Comments[section]
                 : CreateCommentsForSection(section);
+            // ReSharper disable once PossibleMultipleEnumeration
             sectionComments[key] = string.Join(Environment.NewLine + ";", recentComments);
             var commentsList = recentComments as List<string>;
             commentsList?.Clear();
@@ -764,7 +841,7 @@ namespace PeanutButter.INIFile
 
             return data
                 ?.Replace("\\", "\\\\")
-                ?.Replace("\"", "\\\"");
+                .Replace("\"", "\\\"");
         }
 
         private string UnescapeEntities(string data)
@@ -776,7 +853,7 @@ namespace PeanutButter.INIFile
 
             return data
                 ?.Replace("\\\\", "\\")
-                ?.Replace("\\\"", "\"");
+                .Replace("\\\"", "\"");
         }
 
         private string CheckPersistencePath(string path)

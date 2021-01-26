@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace PeanutButter.INIFile
+namespace PeanutButter.INI
 {
     internal class DictionaryWrappingIniFileSection : IDictionary<string, string>
     {
