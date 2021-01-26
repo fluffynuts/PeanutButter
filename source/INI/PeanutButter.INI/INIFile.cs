@@ -377,7 +377,10 @@ namespace PeanutButter.INIFile
             var parts = line.Split(';');
             var toTake = 1;
             while (toTake <= parts.Length && HaveUnmatchedQuotesIn(parts.Take(toTake)))
+            {
                 toTake++;
+            }
+
             var dataPart = string.Join(";", parts.Take(toTake)).Trim();
             var commentPart = string.Join(";", parts.Skip(toTake));
             return Tuple.Create(dataPart, commentPart);
@@ -385,7 +388,9 @@ namespace PeanutButter.INIFile
 
         private bool HaveUnmatchedQuotesIn(IEnumerable<string> parts)
         {
-            var joined = string.Join(";", parts);
+            var joined = string.Join(";", parts)
+                .Replace("\\\\", "")
+                .Replace("\\\"", "");
             var quoted = joined.Count(c => c == '"');
             return quoted % 2 != 0;
         }
@@ -397,7 +402,8 @@ namespace PeanutButter.INIFile
 
         private bool IsSectionHeading(string line)
         {
-            return line.StartsWith(_sectionTrimChars[0].ToString()) &&
+            return !(line is null) &&
+                line.StartsWith(_sectionTrimChars[0].ToString()) &&
                 line.EndsWith(_sectionTrimChars[1].ToString());
         }
 
@@ -409,7 +415,9 @@ namespace PeanutButter.INIFile
         private static IEnumerable<string> GetLinesFrom(string path)
         {
             EnsureFileExistsAt(path);
-            var fileContents = Encoding.UTF8.GetString(File.ReadAllBytes(path));
+            var fileContents = Encoding.UTF8.GetString(
+                File.ReadAllBytes(path)
+            );
             var lines = SplitIntoLines(fileContents);
             return lines;
         }
@@ -436,10 +444,12 @@ namespace PeanutButter.INIFile
         {
             var folder = System.IO.Path.GetDirectoryName(path);
             if (!Directory.Exists(folder))
+            {
                 Directory.CreateDirectory(
                     folder ?? throw new InvalidOperationException(
                         $"{nameof(EnsureFolderExistsFor)} must be called with a non-null folder name"
                     ));
+            }
         }
 
         public void AddSection(
@@ -462,8 +472,11 @@ namespace PeanutButter.INIFile
 
         public void RemoveSection(string section)
         {
-            if (section == null)
+            if (section is null)
+            {
                 return;
+            }
+
             Data.Remove(section);
         }
 
@@ -495,21 +508,36 @@ namespace PeanutButter.INIFile
         public void Merge(string iniPath, MergeStrategies mergeStrategy)
         {
             if (!File.Exists(iniPath))
+            {
                 return;
+            }
+
             var toMerge = new INIFile(iniPath);
             Merge(toMerge, mergeStrategy);
         }
 
         public void Merge(IINIFile other, MergeStrategies mergeStrategy)
         {
-            _merged.Add(new MergedIniFile(other, mergeStrategy));
+            _merged.Add(
+                new MergedIniFile(
+                    other,
+                    mergeStrategy
+                )
+            );
         }
 
         private string TrimOuterQuotesFrom(string value)
         {
-            if (value == null || value.Length < 2) return value;
+            if (value is null || value.Length < 2)
+            {
+                return value;
+            }
+
             if (value.StartsWith("\"") && value.EndsWith("\""))
+            {
                 return value.Substring(1, value.Length - 2);
+            }
+
             return value.Trim();
         }
 
@@ -523,8 +551,11 @@ namespace PeanutButter.INIFile
 
         public void Reload()
         {
-            if (_path == null)
+            if (_path is null)
+            {
                 return; // TODO: throw? or just ignore like as is?
+            }
+
             Load(_path);
             _merged.ForEach(ini => ini.IniFile.Reload());
         }
@@ -574,7 +605,7 @@ namespace PeanutButter.INIFile
             var shouldAddNewline = false;
             var newLine = Encoding.UTF8.GetBytes(Environment.NewLine);
             lines.ForEach(
-                l =>
+                line =>
                 {
                     if (shouldAddNewline)
                     {
@@ -585,7 +616,7 @@ namespace PeanutButter.INIFile
                         shouldAddNewline = true;
                     }
 
-                    var lineAsBytes = Encoding.UTF8.GetBytes(l);
+                    var lineAsBytes = Encoding.UTF8.GetBytes(line);
                     toStream.Write(lineAsBytes, 0, lineAsBytes.Length);
                 });
         }
@@ -619,7 +650,8 @@ namespace PeanutButter.INIFile
                 lines.AddRange(
                     dictionary
                         .Keys
-                        .Select(key => LineFor(section, key)));
+                        .Select(key => LineFor(section, key))
+                );
                 if (addSeparator)
                 {
                     lines.Add(sep);
@@ -642,7 +674,11 @@ namespace PeanutButter.INIFile
             }
 
             return string.Join("\n", sectionSeparator.Split('\n')
-                .Select(l => l.StartsWith(";") ? l : $";{l}")
+                .Select(line =>
+                    line.StartsWith(";")
+                        ? line
+                        : $";{line}"
+                )
             );
         }
 
@@ -669,7 +705,10 @@ namespace PeanutButter.INIFile
         }
 
 
-        private void AddCommentsTo(List<string> lines, string forSection, string forKey)
+        private void AddCommentsTo(
+            List<string> lines,
+            string forSection,
+            string forKey)
         {
             if (Comments.ContainsKey(forSection) &&
                 Comments[forSection].ContainsKey(forKey))
@@ -679,7 +718,9 @@ namespace PeanutButter.INIFile
         }
 
 
-        private string LineFor(string section, string key)
+        private string LineFor(
+            string section,
+            string key)
         {
             var lines = new List<string>();
             AddCommentsTo(lines, section, key);
@@ -722,7 +763,12 @@ namespace PeanutButter.INIFile
             var start = HasLocalKey(Data, section, key)
                 ? Data[section][key]
                 : null;
-            return GetMergedValue(section, key, defaultValue, start);
+            return GetMergedValue(
+                section,
+                key,
+                defaultValue,
+                start
+            );
         }
 
         private bool HasLocalKey(
@@ -745,9 +791,12 @@ namespace PeanutButter.INIFile
                 (acc, cur) =>
                 {
                     var mergeValue = cur.IniFile.GetValue(section, key);
-                    if (mergeValue != null &&
+                    if (!(mergeValue is null) &&
                         cur.MergeStrategy == MergeStrategies.Override)
+                    {
                         return mergeValue;
+                    }
+
                     return acc ?? mergeValue;
                 }
             ) ?? defaultValue;
@@ -774,7 +823,7 @@ namespace PeanutButter.INIFile
 
         public bool HasSetting(string section, string key)
         {
-            return key != null &&
+            return !(key is null) &&
                 (HasLocalSection(section) &&
                     HasKey(Data[section], key) ||
                     HasMergedSetting(section, key));
@@ -784,12 +833,16 @@ namespace PeanutButter.INIFile
         {
             return _merged.Aggregate(
                 false,
-                (acc, cur) => acc || cur.IniFile.HasSetting(section, key));
+                (acc, cur) => acc || cur.IniFile.HasSetting(section, key)
+            );
         }
 
         private bool HasKey<T>(IDictionary<string, T> dict, string key)
         {
-            return dict.Keys.Contains(key, StringComparer.OrdinalIgnoreCase);
+            return dict.Keys.Contains(
+                key,
+                StringComparer.OrdinalIgnoreCase
+            );
         }
     }
 

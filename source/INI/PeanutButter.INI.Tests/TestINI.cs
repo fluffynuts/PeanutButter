@@ -1481,9 +1481,36 @@ key=value2";
             }
         }
 
+        [TestFixture]
+        public class RealWorldIssues
+        {
+            [Test]
+            public void ShouldReturnFullQuotedValueIrrespectiveOfEmbeddedSemiColon()
+            {
+                // Arrange
+                var contents = @"
+[notification]
+Email_Message=""[HTML] [HEAD] [style type=\""text/css\""] body{font-family: Verdana, Geneva, sans-serif; font-size:10pt;} td{font-family: Verdana, Geneva, sans-serif;font-size:10pt;} p{margin-top: 10px; margin-bottom: 10px;} ol,ul{margin-top: -10px; margin-bottom: -10px;} [/style] [/HEAD] [BODY]test [font style=\""background-color: rgb(255, 255, 192);\""]{MovedFileFullPath}[/font][/BODY][/HTML]""
+";
+                var expected = @"[HTML] [HEAD] [style type=\""text/css\""] body{font-family: Verdana, Geneva, sans-serif; font-size:10pt;} td{font-family: Verdana, Geneva, sans-serif;font-size:10pt;} p{margin-top: 10px; margin-bottom: 10px;} ol,ul{margin-top: -10px; margin-bottom: -10px;} [/style] [/HEAD] [BODY]test [font style=\""background-color: rgb(255, 255, 192);\""]{MovedFileFullPath}[/font][/BODY][/HTML]";
+                using var file = new AutoTempFile(contents);
+                var sut = Create(file);
+                // Act
+                var result = sut["notification"]["Email_Message"];
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+        }
+
         private static string RandString()
         {
             return GetRandomAlphaString(1, 10);
+        }
+
+        private static IINIFile Create(AutoTempFile iniFile)
+        {
+            return Create(iniFile.Path);
         }
 
         private static IINIFile Create(AutoDeletingIniFile iniFile)
