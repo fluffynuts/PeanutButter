@@ -42,6 +42,7 @@
     <file src="bin\Release\net462\Newtonsoft.Json.dll" target="lib/net462"/>
     <file src="bin\Release\net462\PeanutButter.INI.dll" target="lib/net462"/>
     <file src="bin\Release\net462\PeanutButter.INI.pdb" target="lib/net462"/>
+    <file src="bin\Release\net462\PeanutButter.INI.xml" target="lib/net462"/>
     <file src="bin\Release\net462\PeanutButter.TempDb.dll" target="lib/net462"/>
     <file src="bin\Release\net462\PeanutButter.TempDb.LocalDb.dll" target="lib/net462"/>
     <file src="bin\Release\net462\PeanutButter.TempDb.LocalDb.pdb" target="lib/net462"/>
@@ -170,6 +171,7 @@
     <file src="bin\Release\netcoreapp3.1\Newtonsoft.Json.dll" target="lib/netcoreapp3.1"/>
     <file src="bin\Release\netcoreapp3.1\PeanutButter.INI.dll" target="lib/netcoreapp3.1"/>
     <file src="bin\Release\netcoreapp3.1\PeanutButter.INI.pdb" target="lib/netcoreapp3.1"/>
+    <file src="bin\Release\netcoreapp3.1\PeanutButter.INI.xml" target="lib/netcoreapp3.1"/>
     <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.dll" target="lib/netcoreapp3.1"/>
     <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.LocalDb.dll" target="lib/netcoreapp3.1"/>
     <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.LocalDb.pdb" target="lib/netcoreapp3.1"/>

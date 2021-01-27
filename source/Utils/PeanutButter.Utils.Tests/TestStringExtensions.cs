@@ -1511,5 +1511,84 @@ namespace PeanutButter.Utils.Tests
                     .To.Be.True();
             }
         }
+
+        [TestFixture]
+        public class Substr
+        {
+            [Test]
+            public void ShouldReturnEmptyStringForNullAndAnyRange()
+            {
+                // Arrange
+                var str = null as string;
+                // Act
+                var result1 = str.Substr(GetRandomInt());
+                var result2 = str.Substr(GetRandomInt(), GetRandomInt());
+                // Assert
+                Expect(result1)
+                    .To.Equal("");
+                Expect(result2)
+                    .To.Equal("");
+            }
+
+            [Test]
+            public void ShouldReturnPartialStringWhenGivenStartOnlyAndStartWithinString()
+            {
+                // Arrange
+                var str = "foobar";
+                // Act
+                var result = str.Substr(3);
+                // Assert
+                Expect(result)
+                    .To.Equal("bar");
+            }
+
+            [Test]
+            public void ShouldReturnPartialStringWhenGivenStartAndLengthWithinString()
+            {
+                // Arrange
+                var str = "quuxapple";
+                // Act
+                var result = str.Substr(2, 4);
+                // Assert
+                Expect(result)
+                    .To.Equal("uxap");
+            }
+
+            [Test]
+            public void ShouldReturnRemainderOfStringWhenLengthOutsideString()
+            {
+                // Arrange
+                var str = "abc123";
+                // Act
+                var result = str.Substr(2, 10);
+                // Assert
+                Expect(result)
+                    .To.Equal("c123");
+            }
+
+            [Test]
+            public void ShouldReturnEntireStringIfStartLessThanZero()
+            {
+                // Arrange
+                var str = "aaa444";
+                // Act
+                var result = str.Substr(-10);
+                // Assert
+                Expect(result)
+                    .To.Equal(str);
+            }
+
+            [Test]
+            public void ShouldTreatNegativeLengthAsOffsetFromEnd()
+            {
+                // Arrange
+                var str = "123456";
+                // Act
+                var result = str.Substr(1, -1);
+                // Assert
+                Expect(result)
+                    .To.Equal("2345");
+            }
+        }
     }
 }

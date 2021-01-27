@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="3.4.0" />
-    <PackageReference Include="NExpect" Version="1.0.186" />
+    <PackageReference Include="NExpect" Version="1.0.190" />
     <PackageReference Include="nunit" Version="3.12.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.15.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />

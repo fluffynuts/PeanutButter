@@ -888,5 +888,67 @@ namespace PeanutButter.Utils
 
         private static readonly Regex Whitespace =
             new Regex("\\s");
+        
+        /// <summary>
+        /// Returns the substring of the given string from the given start
+        /// Tolerates a start outside of the string - will return empty string
+        /// Tolerates a start &lt; 0 - will start from the beginning of the string
+        /// Tolerates null string - will return empty string
+        /// </summary>
+        /// <param name="str">string to operate on</param>
+        /// <param name="start">desired starting point</param>
+        /// <returns></returns>
+        public static string Substr(
+            this string str,
+            int start
+        )
+        {
+            return str.Substr(start, str?.Length ?? 0);
+        }
+
+        /// <summary>
+        /// Returns the substring of the given string from the given start
+        /// with the provided length
+        /// Tolerates a start after of the string - will return empty string
+        /// Tolerates a start &lt; 0 - will start from the beginning of the string
+        /// Tolerates null string - will return empty string
+        /// Tolerates a length out of bounds - will return all the string that it can
+        /// Interprets a negative length as an offset from the end of the string
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="start"></param>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        public static string Substr(
+            this string str,
+            int start,
+            int length
+        )
+        {
+            if (str is null ||
+                start > str.Length)
+            {
+                return "";
+            }
+
+            if (start < 0)
+            {
+                start = 0;
+            }
+
+            if (length < 0)
+            {
+                length = str.Length - start + length;
+            }
+
+            if (start + length > str.Length)
+            {
+                length = str.Length - start;
+            }
+            
+            return str.Substring(start, length);
+
+        }
+
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,6 +9,9 @@ using System.Text;
 namespace PeanutButter.INI
 {
     // ReSharper disable once InconsistentNaming
+    /// <summary>
+    /// Contract provided by the PeanutButter INI parser
+    /// </summary>
     public interface IINIFile
     {
         /// <summary>
@@ -43,7 +45,7 @@ namespace PeanutButter.INI
         /// \\ -> backslash
         /// \" -> quote
         /// </summary>
-        bool EnableEscapeCharacters { get; set; }
+        ParseStrategies ParseStrategy { get; set; }
 
         /// <summary>
         /// Provides an enumeration over all section names: whether
@@ -57,26 +59,23 @@ namespace PeanutButter.INI
         IEnumerable<string> MergedSections { get; }
 
         /// <summary>
+        /// Provide a custom line parser if you like
+        /// - make sure to set ParseStrategies.Custom
+        /// </summary>
+        ILineParser CustomLineParser { get; set; }
+
+        /// <summary>
         /// Attempts to load the file at the given path, discarding any existing config
-        /// Will enable escape characters by default.
-        /// Versions of PeanutButter.INI &lt; 2
-        /// did not handle escape characters at all, so if you're upgrading from 1.x
-        /// and find that parsing isn't working as expected, try using the overload
-        /// constructor which allows you to turn off this feature
         /// </summary>
         /// <param name="path"></param>
         void Load(string path);
-        
+
         /// <summary>
         /// Attempts to load the file at the given path, discarding any existing config
-        /// Versions of PeanutButter.INI &lt; 2
-        /// did not handle escape characters at all, so if you're upgrading from 1.x
-        /// and find that parsing isn't working as expected, try using the overload
-        /// constructor which allows you to turn off this feature
         /// </summary>
         /// <param name="path"></param>
-        /// <param name="enableEscapeCharacters"></param>
-        void Load(string path, bool enableEscapeCharacters);
+        /// <param name="parseStrategy"></param>
+        void Load(string path, ParseStrategies parseStrategy);
 
         /// <summary>
         /// Add a section by name
@@ -203,47 +202,82 @@ namespace PeanutButter.INI
         void Merge(IINIFile other, MergeStrategies mergeStrategy);
     }
 
+    /// <summary>
+    /// Strategies which may be employed when merging INI data
+    /// </summary>
     public enum MergeStrategies
     {
+        /// <summary>
+        /// Only add merged-in data when it's not already found
+        /// </summary>
         OnlyAddIfMissing,
+
+        /// <summary>
+        /// Override existing data with subsequent merges
+        /// </summary>
         Override
     }
 
+    /// <summary>
+    /// Strategies which may be employed when persisting INI files
+    /// </summary>
     public enum PersistStrategies
     {
+        /// <summary>
+        /// Exclude merged configurations when persisting
+        /// </summary>
         ExcludeMergedConfigurations,
+
+        /// <summary>
+        /// Include merged configurations when persisting
+        /// </summary>
         IncludeMergedConfigurations
     }
 
-    // ReSharper disable once InconsistentNaming
-
-    public class EmptyEnumerator<T>
-        : IEnumerator<T>
+    /// <summary>
+    /// Strategies which may be employed for parsing INI data
+    /// </summary>
+    public enum ParseStrategies
     {
-        public void Dispose()
-        {
-        }
+        /// <summary>
+        /// Use the Best Effort line parser which may give unpredicted
+        /// results, especially if you have inline comments with quotes in them
+        /// </summary>
+        BestEffort,
 
-        public bool MoveNext()
-        {
-            return false;
-        }
+        /// <summary>
+        /// Use the Strict line parser which expects that backslashes
+        /// and quotes within values are _always_ escaped by another backslash,
+        /// eg: key="value \"in quotes\" \\slash\\"
+        /// </summary>
+        Strict,
 
-        public void Reset()
-        {
-        }
-
-        public T Current => default(T);
-
-        object IEnumerator.Current => Current;
+        /// <summary>
+        /// You must provide your own implementation of ILineParser
+        /// </summary>
+        Custom
     }
 
     // ReSharper disable once InconsistentNaming
+    /// <inheritdoc />
     public class INIFile : IINIFile
     {
+        /// <inheritdoc />
+        public ParseStrategies ParseStrategy { get; set; } = ParseStrategies.BestEffort;
+
+        /// <inheritdoc />
+        public ILineParser CustomLineParser { get; set; }
+
+        /// <inheritdoc />
         public string SectionSeparator { get; set; } = "";
+
+        /// <inheritdoc />
         public IEnumerable<string> Sections => Data.Keys;
+
+        /// <inheritdoc />
         public IEnumerable<string> MergedSections => GetMergedSections();
+
+        /// <inheritdoc />
         public IEnumerable<string> AllSections => Data.Keys.Concat(GetMergedSections()).Distinct();
 
         private IEnumerable<string> GetMergedSections()
@@ -253,16 +287,18 @@ namespace PeanutButter.INI
                 .Distinct();
         }
 
+        /// <inheritdoc />
         public string Path => _path;
 
         private string _path;
-        private readonly char[] _sectionTrimChars;
+        private readonly char[] _sectionTrimChars = { '[', ']' };
         private readonly List<MergedIniFile> _merged = new List<MergedIniFile>();
-
-        public bool EnableEscapeCharacters { get; set; }
 
         // ReSharper disable once MemberCanBePrivate.Global
 
+        /// <summary>
+        /// Data storage for the current INI data
+        /// </summary>
         protected Dictionary<string, IDictionary<string, string>> Data { get; } =
             CreateCaseInsensitiveDictionary();
 
@@ -274,26 +310,44 @@ namespace PeanutButter.INI
 
         /// <summary>
         /// Constructs an instance of INIFile without parsing any files,
-        /// defaulting to enable escaped characters
+        /// defaulting to best effort parser
         /// </summary>
-        public INIFile() : this(null, true)
+        public INIFile() : this(null, ParseStrategies.BestEffort)
         {
         }
 
         /// <summary>
         /// Constructs an instance of INIFile, parsing the provided
-        /// path if found, with escaped characters enabled.
-        /// Versions of PeanutButter.INI &lt; 2
-        /// did not handle escape characters at all, so if you're upgrading from 1.x
-        /// and find that parsing isn't working as expected, try using the overload
-        /// constructor which allows you to turn off this feature
+        /// path if found, with the best-effort parser
         /// </summary>
         /// <param name="path">Path to an existing ini file.
         /// Will not error if not found, but will be used as the default path
         /// to persist to.</param>
         // ReSharper disable once MemberCanBePrivate.Global
-        public INIFile(string path) : this(path, true)
+        public INIFile(string path) : this(path, ParseStrategies.BestEffort)
         {
+        }
+
+        /// <summary>
+        /// Constructs an instance of INIFile with a custom line parser
+        /// </summary>
+        /// <param name="lineParser"></param>
+        public INIFile(ILineParser lineParser)
+            : this(null, lineParser)
+        {
+        }
+
+        /// <summary>
+        /// Constructs an instance of INIFile with a custom line parser
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="customLineParser"></param>
+        public INIFile(
+            string path,
+            ILineParser customLineParser)
+        {
+            CustomLineParser = customLineParser;
+            Init(path, ParseStrategies.Custom);
         }
 
         /// <summary>
@@ -304,43 +358,47 @@ namespace PeanutButter.INI
         /// <param name="path">Path to an existing ini file.
         /// Will not error if not found, but will be used as the default path
         /// to persist to.</param>
-        /// <param name="enableEscapeCharacters">Flag: whether or not to enable
-        /// escape characters in INI values. Versions of PeanutButter.INI &lt; 2
-        /// did not handle escape characters at all, so if you're upgrading from 1.x
-        /// and find that parsing isn't working as expected, try setting this to false</param>
+        /// <param name="parseStrategy"></param>
         // ReSharper disable once MemberCanBePrivate.Global
         public INIFile(
-            string path, 
-            bool enableEscapeCharacters)
+            string path,
+            ParseStrategies parseStrategy)
         {
-            _sectionTrimChars = new[] { '[', ']' };
-            if (path != null)
+            Init(path, parseStrategy);
+        }
+
+        private void Init(string path, ParseStrategies parseStrategy)
+        {
+            if (!string.IsNullOrWhiteSpace(path))
             {
-                Load(path, enableEscapeCharacters);
+                Load(path, parseStrategy);
             }
         }
 
-
+        /// <inheritdoc />
         public void Load(string path)
         {
-            Load(path, true);
+            Load(path, ParseStrategies.BestEffort);
         }
 
+        /// <inheritdoc />
         public void Load(
-            string path, 
-            bool enableEscapeCharacters)
+            string path,
+            ParseStrategies parseStrategy)
         {
-            EnableEscapeCharacters = enableEscapeCharacters;
+            ParseStrategy = parseStrategy;
             _path = path;
             var lines = GetLinesFrom(path);
             Parse(lines);
         }
 
+        /// <inheritdoc />
         public void Parse(string contents)
         {
             Parse(SplitIntoLines(contents));
         }
 
+        /// <inheritdoc />
         public IDictionary<string, string> this[string index]
         {
             get
@@ -363,6 +421,7 @@ namespace PeanutButter.INI
         private readonly Dictionary<string, IDictionary<string, string>> _sectionWrappers
             = new Dictionary<string, IDictionary<string, string>>();
 
+        /// <inheritdoc />
         public IDictionary<string, string> GetSection(string section)
         {
             var result = HasLocalSection(section)
@@ -379,37 +438,78 @@ namespace PeanutButter.INI
             );
         }
 
+        private static readonly Dictionary<ParseStrategies, ILineParser>
+            Parsers = new Dictionary<ParseStrategies, ILineParser>()
+            {
+                [ParseStrategies.BestEffort] = new BestEffortLineParser(),
+                [ParseStrategies.Strict] = new StrictLineParser()
+            };
+
         private void Parse(IEnumerable<string> lines)
         {
             ClearSections();
             var currentSection = string.Empty;
             var recentComments = new List<string>();
+            var lineParser = SelectLineParser();
+            _wasEscaped.Clear();
+
             foreach (var line in lines.Where(l => l != null))
             {
-                var dataAndComment = SplitCommentFrom(line);
-                var dataPart = dataAndComment.Item1;
-                if (!string.IsNullOrWhiteSpace(dataAndComment.Item2))
+                var parsedLine = lineParser.Parse(line);
+
+                if (!string.IsNullOrWhiteSpace(parsedLine.Comment))
                 {
-                    recentComments.Add(dataAndComment.Item2);
+                    recentComments.Add(parsedLine.Comment);
                 }
 
-                if (string.IsNullOrWhiteSpace(dataPart))
+                if (string.IsNullOrWhiteSpace(parsedLine.Key) &&
+                    string.IsNullOrWhiteSpace(parsedLine.Value))
                 {
                     continue;
                 }
 
-                if (IsSectionHeading(dataPart))
+                if (IsSectionHeading(parsedLine.Key))
                 {
-                    currentSection = StartSection(dataPart, recentComments);
+                    currentSection = StartSection(parsedLine.Key, recentComments);
                     continue;
                 }
 
-                StoreSetting(
-                    currentSection,
-                    UnescapeEntities(dataPart),
-                    recentComments
+                StoreWasEscaped(currentSection, parsedLine);
+                this[currentSection][parsedLine.Key] = parsedLine.Value;
+                StoreCommentsForItem(currentSection, parsedLine.Key, recentComments);
+            }
+        }
+
+        private ILineParser SelectLineParser()
+        {
+            if (ParseStrategy == ParseStrategies.Custom)
+            {
+                return CustomLineParser
+                    ?? throw new InvalidOperationException(
+                        $"A custom implementation of {nameof(ILineParser)} must be provided if the ParseStrategy is set to {nameof(ParseStrategies.Custom)}"
+                    );
+            }
+
+            if (!Parsers.TryGetValue(ParseStrategy, out var lineParser))
+            {
+                throw new NotSupportedException(
+                    $"Parse strategy {ParseStrategy} is not supported"
                 );
             }
+
+            return lineParser;
+        }
+
+        private readonly HashSet<string> _wasEscaped = new HashSet<string>();
+
+        private void StoreWasEscaped(string section, IParsedLine parsedLine)
+        {
+            if (!parsedLine.ContainedEscapedEntities)
+            {
+                return;
+            }
+
+            _wasEscaped.Add($"{section}.{parsedLine.Key}");
         }
 
         private string StartSection(
@@ -421,21 +521,6 @@ namespace PeanutButter.INI
             AddSection(currentSection);
             StoreCommentsForSection(currentSection, recentComments);
             return currentSection;
-        }
-
-        private void StoreSetting(
-            string currentSection,
-            string dataPart,
-            List<string> recentComments
-        )
-        {
-            var parts = dataPart.Split('=');
-            var key = parts[0].Trim();
-            var value = parts.Count() > 1
-                ? string.Join("=", parts.Skip(1))
-                : null;
-            this[currentSection][key] = TrimOuterQuotesFrom(value);
-            StoreCommentsForItem(currentSection, key, recentComments);
         }
 
         private void StoreCommentsForSection(
@@ -470,29 +555,6 @@ namespace PeanutButter.INI
             var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             Comments[section] = result;
             return result;
-        }
-
-        private Tuple<string, string> SplitCommentFrom(string line)
-        {
-            var parts = line.Split(';');
-            var toTake = 1;
-            while (toTake <= parts.Length && HaveUnmatchedQuotesIn(parts.Take(toTake)))
-            {
-                toTake++;
-            }
-
-            var dataPart = string.Join(";", parts.Take(toTake)).Trim();
-            var commentPart = string.Join(";", parts.Skip(toTake));
-            return Tuple.Create(dataPart, commentPart);
-        }
-
-        private bool HaveUnmatchedQuotesIn(IEnumerable<string> parts)
-        {
-            var joined = string.Join(";", parts)
-                .Replace("\\\\", "")
-                .Replace("\\\"", "");
-            var quoted = joined.Count(c => c == '"');
-            return quoted % 2 != 0;
         }
 
         private string GetSectionNameFrom(string line)
@@ -552,6 +614,7 @@ namespace PeanutButter.INI
             }
         }
 
+        /// <inheritdoc />
         public void AddSection(
             string section,
             params string[] comments)
@@ -570,6 +633,7 @@ namespace PeanutButter.INI
             }
         }
 
+        /// <inheritdoc />
         public void RemoveSection(string section)
         {
             if (section is null)
@@ -580,6 +644,7 @@ namespace PeanutButter.INI
             Data.Remove(section);
         }
 
+        /// <inheritdoc />
         public void RenameSection(string existingName, string newName)
         {
             if (existingName is null || newName is null)
@@ -605,6 +670,7 @@ namespace PeanutButter.INI
             Data.Remove(existingName);
         }
 
+        /// <inheritdoc />
         public void Merge(string iniPath, MergeStrategies mergeStrategy)
         {
             if (!File.Exists(iniPath))
@@ -616,6 +682,7 @@ namespace PeanutButter.INI
             Merge(toMerge, mergeStrategy);
         }
 
+        /// <inheritdoc />
         public void Merge(IINIFile other, MergeStrategies mergeStrategy)
         {
             _merged.Add(
@@ -626,21 +693,7 @@ namespace PeanutButter.INI
             );
         }
 
-        private string TrimOuterQuotesFrom(string value)
-        {
-            if (value is null || value.Length < 2)
-            {
-                return value;
-            }
-
-            if (value.StartsWith("\"") && value.EndsWith("\""))
-            {
-                return value.Substring(1, value.Length - 2);
-            }
-
-            return value.Trim();
-        }
-
+        /// <inheritdoc />
         public void Persist()
         {
             Persist(
@@ -649,6 +702,7 @@ namespace PeanutButter.INI
             );
         }
 
+        /// <inheritdoc />
         public void Reload()
         {
             if (_path is null)
@@ -660,6 +714,7 @@ namespace PeanutButter.INI
             _merged.ForEach(ini => ini.IniFile.Reload());
         }
 
+        /// <inheritdoc />
         public void Persist(PersistStrategies persistStrategy)
         {
             Persist(
@@ -668,6 +723,7 @@ namespace PeanutButter.INI
             );
         }
 
+        /// <inheritdoc />
         public void Persist(string saveToPath)
         {
             Persist(
@@ -676,6 +732,7 @@ namespace PeanutButter.INI
             );
         }
 
+        /// <inheritdoc />
         public void Persist(
             string saveToPath,
             PersistStrategies persistStrategy
@@ -691,6 +748,7 @@ namespace PeanutButter.INI
             );
         }
 
+        /// <inheritdoc />
         public void Persist(Stream toStream)
         {
             Persist(
@@ -699,6 +757,7 @@ namespace PeanutButter.INI
             );
         }
 
+        /// <inheritdoc />
         public void Persist(Stream toStream, PersistStrategies persistStrategy)
         {
             var lines = GetLinesForCurrentData(persistStrategy);
@@ -721,6 +780,7 @@ namespace PeanutButter.INI
                 });
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             return string.Join(
@@ -817,7 +877,6 @@ namespace PeanutButter.INI
             }
         }
 
-
         private string LineFor(
             string section,
             string key)
@@ -827,33 +886,20 @@ namespace PeanutButter.INI
             var dataValue = this[section][key];
             var writeValue = dataValue == null
                 ? ""
-                : $"=\"{EscapeEntities(dataValue)}\"";
+                : $"=\"{EscapeEntities(dataValue, section, key)}\"";
             lines.Add(string.Join(string.Empty, key.Trim(), writeValue));
             return string.Join(Environment.NewLine, lines);
         }
 
-        private string EscapeEntities(string data)
+        private string EscapeEntities(string data, string section, string key)
         {
-            if (!EnableEscapeCharacters)
-            {
-                return data;
-            }
-
-            return data
-                ?.Replace("\\", "\\\\")
-                .Replace("\"", "\\\"");
-        }
-
-        private string UnescapeEntities(string data)
-        {
-            if (!EnableEscapeCharacters)
-            {
-                return data;
-            }
-
-            return data
-                ?.Replace("\\\\", "\\")
-                .Replace("\\\"", "\"");
+            var shouldEscape = ParseStrategy == ParseStrategies.Strict ||
+                _wasEscaped.Contains($"{section}.{key}");
+            return shouldEscape
+                ? data
+                    ?.Replace("\\", "\\\\")
+                    .Replace("\"", "\\\"")
+                : data;
         }
 
         private string CheckPersistencePath(string path)
@@ -865,6 +911,7 @@ namespace PeanutButter.INI
             );
         }
 
+        /// <inheritdoc />
         public void SetValue(
             string section,
             string key,
@@ -874,6 +921,7 @@ namespace PeanutButter.INI
             Data[section][key] = value;
         }
 
+        /// <inheritdoc />
         public string GetValue(
             string section,
             string key,
@@ -926,6 +974,7 @@ namespace PeanutButter.INI
             ) ?? defaultValue;
         }
 
+        /// <inheritdoc />
         public bool HasSection(string section)
         {
             return HasLocalSection(section) ||
@@ -945,6 +994,7 @@ namespace PeanutButter.INI
                 (acc, cur) => acc || cur.IniFile.HasSection(section));
         }
 
+        /// <inheritdoc />
         public bool HasSetting(string section, string key)
         {
             return !(key is null) &&
@@ -967,20 +1017,6 @@ namespace PeanutButter.INI
                 key,
                 StringComparer.OrdinalIgnoreCase
             );
-        }
-    }
-
-    internal class MergedIniFile
-    {
-        public IINIFile IniFile { get; }
-        public MergeStrategies MergeStrategy { get; }
-
-        internal MergedIniFile(
-            IINIFile iniFile,
-            MergeStrategies mergeStrategy)
-        {
-            IniFile = iniFile;
-            MergeStrategy = mergeStrategy;
         }
     }
 }

@@ -1417,14 +1417,14 @@ key=value2";
                 var bytesBefore = File.ReadAllBytes(iniFilePath);
                 Expect(iniFilePath).To.Exist();
                 // Act
-                var ini1 = new INIFile(iniFilePath, enableEscapeCharacters: false);
+                var ini1 = new INIFile(iniFilePath);
                 var current = ini1["DrawingViewer"]["EnableLogging"];
                 var enabled = Convert.ToBoolean(current);
                 ini1["DrawingViewer"]["EnableLogging"] = (!enabled).ToString();
                 ini1.SectionSeparator = null;
                 ini1.Persist();
 
-                var ini2 = new INIFile(iniFilePath, enableEscapeCharacters: false);
+                var ini2 = new INIFile(iniFilePath);
                 var result = Convert.ToBoolean(
                     ini2["DrawingViewer"]["EnableLogging"]
                 );
@@ -1440,6 +1440,8 @@ key=value2";
                 ini2.Persist();
                 // suddenly, Notepad (and no other editor) renders the file in Chinese
                 var bytesAfter = File.ReadAllBytes(iniFilePath);
+                var strBefore = Encoding.UTF8.GetString(bytesBefore);
+                var strAfter = Encoding.UTF8.GetString(bytesAfter);
                 Expect(bytesBefore)
                     .To.Equal(bytesAfter,
                         () => FindDifference(bytesBefore, bytesAfter)
@@ -1502,7 +1504,7 @@ Email_Message=""[HTML] [HEAD] [style type=\""text/css\""] body{font-family: Verd
             }
 
             [Test]
-            public void ShouldPersistQuotesInValuesWithEscapingBackslashes()
+            public void ShouldPersistQuotesInValuesWithEscapingBackslashesWhenStrict()
             {
                 // Arrange
                 using var file = new AutoTempFile();
@@ -1511,9 +1513,30 @@ Email_Message=""[HTML] [HEAD] [style type=\""text/css\""] body{font-family: Verd
 value=""some value containing \""quotes\""""
 ".Trim();
                 var sut = Create(file.Path);
+                sut.ParseStrategy = ParseStrategies.Strict;
                 // Act
                 sut.AddSection("test");
                 sut["test"]["value"] = @"some value containing ""quotes""";
+                sut.Persist();
+                // Assert
+                var contents = File.ReadAllText(file.Path).Trim();
+                Expect(contents)
+                    .To.Equal(expected);
+            }
+
+            [Test]
+            public void ShouldPersistEscapedQuotesWhichCameInEscapedInBestEffortMode()
+            {
+                // Arrange
+                using var file = new AutoTempFile();
+                var expected = @"
+[test]
+value=""some value containing \""quotes\""""
+".Trim();
+                File.WriteAllText(file.Path, expected);
+                var sut = Create(file.Path);
+                sut.ParseStrategy = ParseStrategies.BestEffort;
+                // Act
                 sut.Persist();
                 // Assert
                 var contents = File.ReadAllText(file.Path).Trim();

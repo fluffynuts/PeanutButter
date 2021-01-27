@@ -51,7 +51,7 @@
     <PackageReference Include="MongoDB.Bson">
       <Version>2.3.0</Version>
     </PackageReference>
-    <PackageReference Include="NExpect" Version="1.0.186" />
+    <PackageReference Include="NExpect" Version="1.0.190" />
     <PackageReference Include="NSubstitute">
       <Version>4.2.1</Version>
     </PackageReference>

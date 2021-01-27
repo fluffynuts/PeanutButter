@@ -219,7 +219,7 @@ gulp.task("build-nuget-packages", [
 
 gulp.task("increment-package-versions", () => {
   const name = "NO_VERSION_INCREMENT";
-  if (envFlag(name)) {
+  if (envFlag(name, false)) {
     gutil.log(gutil.colors.red(`Skipping package version increment: env var ${name} is set to ${process.env[name]}`));
     return Promise.resolve();
   }

@@ -7,6 +7,7 @@
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\PeanutButter.INI.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

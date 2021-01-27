@@ -36,7 +36,7 @@
       <Version>12.0.3</Version>
     </PackageReference>
     <PackageReference Include="nexpect">
-      <Version>1.0.186</Version>
+      <Version>1.0.190</Version>
     </PackageReference>
     <PackageReference Include="NUnit">
       <Version>3.12.0</Version>
