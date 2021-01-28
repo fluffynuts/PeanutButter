@@ -7,7 +7,7 @@ using static NExpect.Expectations;
 namespace PeanutButter.TempRedis.Tests
 {
     [TestFixture]
-    public class TempRedisTests
+    public class TestTempRedis
     {
         [Test]
         public void ShouldStartUp()

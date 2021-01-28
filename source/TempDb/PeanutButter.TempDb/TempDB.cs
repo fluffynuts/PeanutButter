@@ -175,7 +175,7 @@ namespace PeanutButter.TempDb
             TimeSpan? absoluteTimeout,
             TimeSpan? inactivityTimeout)
         {
-            if (!(_inactivityWatcherThread is null))
+            if (_inactivityWatcherThread is not null)
             {
                 throw new InvalidOperationException(
                     $"Automatic disposal has already been set up for this TempDb instance"

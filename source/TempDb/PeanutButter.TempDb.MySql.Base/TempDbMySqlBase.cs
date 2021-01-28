@@ -173,7 +173,7 @@ namespace PeanutButter.TempDb.MySql.Base
                 var servicePath = MySqlWindowsServiceFinder.FindPathToMySql();
                 // prefer the pathed mysqld, but fall back on service path if available
                 var resolved = mysqld ?? servicePath;
-                if (!(resolved is null))
+                if (resolved is not null)
                 {
                     return resolved;
                 }

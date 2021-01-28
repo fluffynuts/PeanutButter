@@ -161,12 +161,12 @@ namespace PeanutButter.TempRedis
         {
             // prefer redis-server in the path
             var inPath = Find.InPath("redis-server");
-            if (!(inPath is null))
+            if (inPath is not null)
             {
                 return inPath;
             }
 
-            if (!Platform.IsUnixy)
+            if (Platform.IsUnixy)
             {
                 throw new NotSupportedException(
                     $"{nameof(TempRedis)} requires redis-server to be in your path. Is redis installed on this system?"
@@ -174,13 +174,29 @@ namespace PeanutButter.TempRedis
             }
 
             var serviceExePath = RedisWindowsServiceFinder.FindPathToRedis();
-            if (serviceExePath is null)
+            if (serviceExePath is not null)
             {
-                throw new NotSupportedException(
-                    $"{nameof(TempRedis)} requires either redis-server.exe in your path, or the Redis windows service to be installed."
-                );
+                return serviceExePath;
             }
-            return serviceExePath;
+
+            var downloadError = "unknown";
+            var downloadedPath = Async.RunSync(() =>
+            {
+                var downloader = new MicrosoftRedisDownloader();
+                try
+                {
+                    return downloader.Fetch();
+                }
+                catch (Exception ex)
+                {
+                    downloadError = ex.Message;
+                    return null;
+                }
+            });
+                
+            throw new NotSupportedException(
+                $"{nameof(TempRedis)} requires either redis-server.exe in your path, or the Redis windows service to be installed. Additionally, an attempt to download redis from github resulted in the following error: {downloadError}"
+            );
         }
     }
 }

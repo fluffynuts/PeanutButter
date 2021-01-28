@@ -564,7 +564,7 @@ namespace PeanutButter.INI
 
         private bool IsSectionHeading(string line)
         {
-            return !(line is null) &&
+            return (line is not null) &&
                 line.StartsWith(_sectionTrimChars[0].ToString()) &&
                 line.EndsWith(_sectionTrimChars[1].ToString());
         }
@@ -795,7 +795,7 @@ namespace PeanutButter.INI
             var sections = persistStrategy == PersistStrategies.ExcludeMergedConfigurations
                 ? Sections
                 : AllSections;
-            var addSeparator = !(SectionSeparator is null);
+            var addSeparator = SectionSeparator is not null;
             var sep = CommentIfNecessary(SectionSeparator);
             var lines = new List<string>();
             foreach (var section in sections)
@@ -963,7 +963,7 @@ namespace PeanutButter.INI
                 (acc, cur) =>
                 {
                     var mergeValue = cur.IniFile.GetValue(section, key);
-                    if (!(mergeValue is null) &&
+                    if (mergeValue is not null &&
                         cur.MergeStrategy == MergeStrategies.Override)
                     {
                         return mergeValue;
@@ -997,7 +997,7 @@ namespace PeanutButter.INI
         /// <inheritdoc />
         public bool HasSetting(string section, string key)
         {
-            return !(key is null) &&
+            return key is not null &&
                 (HasLocalSection(section) &&
                     HasKey(Data[section], key) ||
                     HasMergedSetting(section, key));

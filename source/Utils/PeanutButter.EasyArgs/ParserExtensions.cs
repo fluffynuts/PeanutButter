@@ -452,7 +452,7 @@ namespace PeanutButter.EasyArgs
         {
             return new(
                 options
-                    .Where(o => !(o.LongName is null))
+                    .Where(o => o.LongName is not null)
                     .Select(o => o.LongName)
             );
         }
@@ -461,7 +461,7 @@ namespace PeanutButter.EasyArgs
         {
             return new(
                 options
-                    .Where(o => !(o.ShortName is null))
+                    .Where(o => o.ShortName is not null)
                     .Select(o => o.ShortName)
             );
         }
