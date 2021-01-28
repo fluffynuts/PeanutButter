@@ -31,7 +31,9 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Net.Compilers.Toolset">
-      <Version>3.4.0</Version>
+      <Version>3.8.0</Version>
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
   <Import Project="..\..\MonoForFramework.targets" />
