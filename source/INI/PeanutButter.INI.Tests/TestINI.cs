@@ -1578,6 +1578,40 @@ key=value
                 .Parse(Arg.Any<string>());
         }
 
+        [Test]
+        public void ShouldUseInjectedCustomLineParserToParseString()
+        {
+            // Arrange
+            var parser = Substitute.For<ILineParser>();
+            parser.Parse(Arg.Any<string>())
+                .Returns(new ParsedLine("key", "value", "comment", false));
+            var contents = @"
+[section]
+key=value
+".Trim();
+            var sut = new INIFile(parser);
+            Expect(sut.ParseStrategy)
+                .To.Equal(ParseStrategies.Custom);
+            Expect(sut.CustomLineParser)
+                .To.Be(parser);
+            
+            // Act
+            sut.Parse(contents);
+            Expect(parser)
+                .To.Have.Received(2)
+                .Parse(Arg.Any<string>());
+            sut.ParseStrategy = ParseStrategies.BestEffort;
+            sut.ParseStrategy = ParseStrategies.Custom;
+            parser.ClearReceivedCalls();
+            sut.Parse(contents);
+            // Assert
+            Expect(sut.ParseStrategy)
+                .To.Equal(ParseStrategies.Custom);
+            Expect(parser)
+                .To.Have.Received(2)
+                .Parse(Arg.Any<string>());
+        }
+
         private static string RandString()
         {
             return GetRandomAlphaString(1, 10);
