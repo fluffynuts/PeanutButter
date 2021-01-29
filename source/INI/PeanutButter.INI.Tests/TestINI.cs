@@ -11,6 +11,7 @@ using NExpect;
 using NExpect.Implementations;
 using NExpect.Interfaces;
 using NExpect.MatcherLogic;
+using NSubstitute;
 
 // ReSharper disable PossibleNullReferenceException
 // ReSharper disable MemberHidesStaticFromOuterClass
@@ -1543,6 +1544,38 @@ value=""some value containing \""quotes\""""
                 Expect(contents)
                     .To.Equal(expected);
             }
+        }
+
+        [Test]
+        public void ShouldRetainCustomParser()
+        {
+            // Arrange
+            var parser = Substitute.For<ILineParser>();
+            parser.Parse(Arg.Any<string>())
+                .Returns(new ParsedLine("key", "value", "comment", false));
+            using var tmpFile = new AutoTempFile(@"
+[section]
+key=value
+".Trim());
+            var sut = new INIFile(parser);
+            Expect(sut.ParseStrategy)
+                .To.Equal(ParseStrategies.Custom);
+            Expect(sut.CustomLineParser)
+                .To.Be(parser);
+            
+            // Act
+            sut.Load(tmpFile.Path);
+            Expect(parser)
+                .To.Have.Received(2)
+                .Parse(Arg.Any<string>());
+            sut.ParseStrategy = ParseStrategies.BestEffort;
+            sut.ParseStrategy = ParseStrategies.Custom;
+            parser.ClearReceivedCalls();
+            sut.Load(tmpFile.Path);
+            // Assert
+            Expect(parser)
+                .To.Have.Received(2)
+                .Parse(Arg.Any<string>());
         }
 
         private static string RandString()

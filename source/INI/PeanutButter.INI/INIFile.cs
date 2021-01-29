@@ -369,6 +369,7 @@ namespace PeanutButter.INI
 
         private void Init(string path, ParseStrategies parseStrategy)
         {
+            ParseStrategy = parseStrategy;
             if (!string.IsNullOrWhiteSpace(path))
             {
                 Load(path, parseStrategy);
@@ -378,7 +379,7 @@ namespace PeanutButter.INI
         /// <inheritdoc />
         public void Load(string path)
         {
-            Load(path, ParseStrategies.BestEffort);
+            Load(path, ParseStrategy);
         }
 
         /// <inheritdoc />
