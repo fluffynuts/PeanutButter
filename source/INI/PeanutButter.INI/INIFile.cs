@@ -251,6 +251,13 @@ namespace PeanutButter.INI
         /// eg: key="value \"in quotes\" \\slash\\"
         /// </summary>
         Strict,
+        
+        /// <summary>
+        /// Use the Plain line parser which expects no escaped characters
+        /// and all comments to start on a new line 
+        /// (no comments on same line as entry or section header)
+        /// </summary>
+        Plain,
 
         /// <summary>
         /// You must provide your own implementation of ILineParser
@@ -442,7 +449,8 @@ namespace PeanutButter.INI
             Parsers = new Dictionary<ParseStrategies, ILineParser>()
             {
                 [ParseStrategies.BestEffort] = new BestEffortLineParser(),
-                [ParseStrategies.Strict] = new StrictLineParser()
+                [ParseStrategies.Strict] = new StrictLineParser(),
+                [ParseStrategies.Plain] = new PlainLineParser(),                
             };
 
         private void Parse(IEnumerable<string> lines)
