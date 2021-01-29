@@ -35,7 +35,9 @@ namespace PeanutButter.INI
             }
 
             var data = string.Join("=", parts.Skip(1));
-            var containsEscapedEntities = !ContainsBackslashesWhichAreNotRecognisedEscapeSequences_(data);
+            var containsEscapedEntities =
+                ContainsKnownEscapeSequences(data) &&
+                !ContainsBackslashesWhichAreNotRecognisedEscapeSequences_(data);
 
             var valueAndComment = SplitCommentAndData(data, containsEscapedEntities);
             var value = Unescape(
@@ -48,6 +50,14 @@ namespace PeanutButter.INI
                 value,
                 valueAndComment.Item2,
                 containsEscapedEntities
+            );
+        }
+
+        private bool ContainsKnownEscapeSequences(string data)
+        {
+            return EscapeMap.Aggregate(
+                false,
+                (acc, cur) => acc || data.Contains(cur.Item1)
             );
         }
 
