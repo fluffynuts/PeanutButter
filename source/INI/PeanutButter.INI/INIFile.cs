@@ -435,7 +435,7 @@ namespace PeanutButter.INI
         private static Dictionary<string, IDictionary<string, string>> CreateCaseInsensitiveDictionary()
         {
             return new Dictionary<string, IDictionary<string, string>>(
-                StringComparer.OrdinalIgnoreCase
+                DefaultStringComparer
             );
         }
 
@@ -553,10 +553,13 @@ namespace PeanutButter.INI
 
         private Dictionary<string, string> CreateCommentsForSection(string section)
         {
-            var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            var result = new Dictionary<string, string>(DefaultStringComparer);
             Comments[section] = result;
             return result;
         }
+        
+        private static readonly StringComparer DefaultStringComparer 
+            = StringComparer.InvariantCultureIgnoreCase;
 
         private string GetSectionNameFrom(string line)
         {
@@ -578,11 +581,22 @@ namespace PeanutButter.INI
         private static IEnumerable<string> GetLinesFrom(string path)
         {
             EnsureFileExistsAt(path);
+            var fileBytes = File.ReadAllBytes(path);
+            fileBytes = StripByteOrderMark(fileBytes);
+
             var fileContents = Encoding.UTF8.GetString(
-                File.ReadAllBytes(path)
+                fileBytes
             );
             var lines = SplitIntoLines(fileContents);
             return lines;
+        }
+
+        private static byte[] StripByteOrderMark(byte[] fileBytes)
+        {
+            var preamble = Encoding.UTF8.GetPreamble();
+            return fileBytes.Take(preamble.Length).SequenceEqual(preamble)
+                ? fileBytes.Skip(preamble.Length).ToArray()
+                : fileBytes;
         }
 
         private static void EnsureFileExistsAt(string path)
@@ -627,7 +641,7 @@ namespace PeanutButter.INI
                 return;
             }
 
-            Data[section] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            Data[section] = new Dictionary<string, string>(DefaultStringComparer);
             if (comments.Any())
             {
                 StoreCommentsForSection(section, comments);
@@ -659,7 +673,7 @@ namespace PeanutButter.INI
             }
 
             Data[newName] = new Dictionary<string, string>(
-                StringComparer.OrdinalIgnoreCase
+                DefaultStringComparer
             );
 
             var oldSection = Data[existingName];
@@ -985,7 +999,7 @@ namespace PeanutButter.INI
         private bool HasLocalSection(string section)
         {
             return section != null &&
-                Data.Keys.Contains(section, StringComparer.OrdinalIgnoreCase);
+                Data.Keys.Contains(section, DefaultStringComparer);
         }
 
         private bool HaveMergedSection(string section)
@@ -1016,7 +1030,7 @@ namespace PeanutButter.INI
         {
             return dict.Keys.Contains(
                 key,
-                StringComparer.OrdinalIgnoreCase
+                DefaultStringComparer
             );
         }
     }

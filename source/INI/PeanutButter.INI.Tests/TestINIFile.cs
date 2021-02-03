@@ -1408,13 +1408,7 @@ key=value2";
             public void ShouldReadAndWriteExampleINIFile()
             {
                 // Arrange
-                var assemblyPath = new Uri(
-                    GetType().Assembly.Location
-                ).LocalPath;
-                var iniFilePath = Path.Combine(
-                    Path.GetDirectoryName(assemblyPath),
-                    "ExampleSettings.ini"
-                );
+                var iniFilePath = PathTo("ExampleSettings.ini");
                 var bytesBefore = File.ReadAllBytes(iniFilePath);
                 Expect(iniFilePath).To.Exist();
                 // Act
@@ -1447,6 +1441,33 @@ key=value2";
                     .To.Equal(bytesAfter,
                         () => FindDifference(bytesBefore, bytesAfter)
                     );
+            }
+
+            [Test]
+            public void ShouldReadINIWithBOMCorrectly()
+            {
+                // Arrange
+                var iniFilePath = PathTo("bom-ini.ini");
+                
+                // Act
+                var ini = new INIFile(iniFilePath);
+
+                // Assert
+                Expect(ini.HasSection("Zielordner"))
+                    .To.Be.True();
+                Expect(ini["Zielordner"]["Ordner"])
+                    .To.Equal("C:\\capitan-Data\\CNC\\20210202\\");
+            }
+
+            private static string PathTo(string fileName)
+            {
+                var assemblyPath = new Uri(
+                    typeof(TestINIFile).Assembly.Location
+                ).LocalPath;
+                return Path.Combine(
+                    Path.GetDirectoryName(assemblyPath),
+                    fileName
+                );
             }
 
             private string FindDifference(byte[] bytesBefore, byte[] bytesAfter)
