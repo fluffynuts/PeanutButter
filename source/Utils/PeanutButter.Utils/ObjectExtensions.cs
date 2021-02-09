@@ -756,6 +756,7 @@ namespace PeanutButter.Utils
                 {
                     return default;
                 }
+
                 throw new InvalidOperationException(
                     $"value for {propertyPath} is null but {typeof(T)} is not nullable"
                 );
@@ -1138,6 +1139,65 @@ namespace PeanutButter.Utils
         private static T Default<T>()
         {
             return default(T);
+        }
+
+        /// <summary>
+        /// Tests if the given object is an instance of the type T
+        /// - returns false if obj is null
+        /// - returns true if T is the exact type of obj
+        /// - returns true if T is a base type of obj
+        /// - returns true if T is an interface implemented by obj
+        /// - returns false otherwise
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool IsInstanceOf<T>(this object obj)
+        {
+            var objType = obj?.GetType();
+            if (objType is null)
+            {
+                return false;
+            }
+
+            var searchType = typeof(T);
+
+            var search = searchType.IsInterface
+                ? objType.GetAllImplementedInterfaces()
+                : objType.Ancestry();
+            return search.Contains(searchType);
+        }
+
+        private static readonly BindingFlags _publicStatic =
+            BindingFlags.Public | BindingFlags.Static;
+
+        private static readonly MethodInfo GenericIsInstanceOf
+            = typeof(ObjectExtensions)
+                .GetMethods(_publicStatic)
+                .Single(mi => mi.IsGenericMethod &&
+                    mi.Name == nameof(ObjectExtensions.IsInstanceOf));
+
+        /// <summary>
+        /// Tests if the given object is an instance of the provided type
+        /// - returns false if obj is null
+        /// - returns true if the type is the exact type of obj
+        /// - returns true if the type is a base type of obj
+        /// - returns true if the type is an interface implemented by obj
+        /// - returns false otherwise
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="type"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool IsInstanceOf(
+            this object obj,
+            Type type
+        )
+        {
+            var method = GenericIsInstanceOf.MakeGenericMethod(
+                type
+            );
+            return (bool)method.Invoke(null, new[] { obj });
         }
     }
 }

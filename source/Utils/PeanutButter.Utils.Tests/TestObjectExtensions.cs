@@ -53,7 +53,7 @@ namespace PeanutButter.Utils.Tests
 
                 //---------------Execute Test ----------------------
                 var randomString = GetRandomString();
-                var result = (new {prop = randomString}).DeepEquals(new {prop = randomString});
+                var result = (new { prop = randomString }).DeepEquals(new { prop = randomString });
 
                 //---------------Test Result -----------------------
                 Assert.IsTrue(result);
@@ -67,8 +67,8 @@ namespace PeanutButter.Utils.Tests
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                var result = (new {prop = propVal})
-                    .DeepEquals(new {prop = propVal + GetRandomString(1, 10)});
+                var result = (new { prop = propVal })
+                    .DeepEquals(new { prop = propVal + GetRandomString(1, 10) });
 
                 //---------------Test Result -----------------------
                 Assert.IsFalse(result);
@@ -149,7 +149,7 @@ namespace PeanutButter.Utils.Tests
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                var result = (new {prop = propVal}).DeepEquals(new {prop = propVal});
+                var result = (new { prop = propVal }).DeepEquals(new { prop = propVal });
 
                 //---------------Test Result -----------------------
                 Assert.IsTrue(result);
@@ -294,8 +294,8 @@ namespace PeanutButter.Utils.Tests
             {
                 // Arrange
                 var val = GetRandomString();
-                var first = new HasAnArrayOfStrings() {Strings = new[] {val}};
-                var second = new HasAnArrayOfStrings() {Strings = new string[] { }};
+                var first = new HasAnArrayOfStrings() { Strings = new[] { val } };
+                var second = new HasAnArrayOfStrings() { Strings = new string[] { } };
                 // Pre-Assert
                 // Act
                 var result1 = first.DeepEquals(second);
@@ -310,8 +310,8 @@ namespace PeanutButter.Utils.Tests
             {
                 // Arrange
                 var val = GetRandomString();
-                var first = new HasAnArrayOfStrings() {Strings = new[] {val}};
-                var second = new HasAnArrayOfStrings() {Strings = new[] {val}};
+                var first = new HasAnArrayOfStrings() { Strings = new[] { val } };
+                var second = new HasAnArrayOfStrings() { Strings = new[] { val } };
                 // Pre-Assert
                 // Act
                 var result1 = first.DeepEquals(second);
@@ -333,11 +333,11 @@ namespace PeanutButter.Utils.Tests
                 var val = GetRandomString();
                 var first = new HasSomethingWithStrings()
                 {
-                    Something = new HasAnArrayOfStrings() {Strings = new[] {val}}
+                    Something = new HasAnArrayOfStrings() { Strings = new[] { val } }
                 };
                 var second = new HasSomethingWithStrings()
                 {
-                    Something = new HasAnArrayOfStrings() {Strings = new string[] { }}
+                    Something = new HasAnArrayOfStrings() { Strings = new string[] { } }
                 };
                 // Pre-Assert
                 // Act
@@ -355,11 +355,11 @@ namespace PeanutButter.Utils.Tests
                 var val = GetRandomString();
                 var first = new HasSomethingWithStrings()
                 {
-                    Something = new HasAnArrayOfStrings() {Strings = new[] {val}}
+                    Something = new HasAnArrayOfStrings() { Strings = new[] { val } }
                 };
                 var second = new HasSomethingWithStrings()
                 {
-                    Something = new HasAnArrayOfStrings() {Strings = new[] {val}}
+                    Something = new HasAnArrayOfStrings() { Strings = new[] { val } }
                 };
                 // Pre-Assert
                 // Act
@@ -376,7 +376,7 @@ namespace PeanutButter.Utils.Tests
                 //--------------- Arrange -------------------
                 var item = new ThingWithCollection<int>()
                 {
-                    Collection = new[] {1, 2}
+                    Collection = new[] { 1, 2 }
                 };
 
                 //--------------- Assume ----------------
@@ -394,11 +394,11 @@ namespace PeanutButter.Utils.Tests
                 //--------------- Arrange -------------------
                 var item1 = new ThingWithCollection<int>()
                 {
-                    Collection = new[] {1, 2}
+                    Collection = new[] { 1, 2 }
                 };
                 var item2 = new ThingWithCollection<int>()
                 {
-                    Collection = new[] {1, 2, 3}
+                    Collection = new[] { 1, 2, 3 }
                 };
 
                 //--------------- Assume ----------------
@@ -416,11 +416,11 @@ namespace PeanutButter.Utils.Tests
                 //--------------- Arrange -------------------
                 var item1 = new ThingWithCollection<int>()
                 {
-                    Collection = new[] {1, 2}
+                    Collection = new[] { 1, 2 }
                 };
                 var item2 = new ThingWithCollection<int>()
                 {
-                    Collection = new[] {1, 1}
+                    Collection = new[] { 1, 1 }
                 };
 
                 //--------------- Assume ----------------
@@ -513,8 +513,8 @@ namespace PeanutButter.Utils.Tests
             {
                 //--------------- Arrange -------------------
                 var parent = new SimpleParent();
-                var child = new Child() {Parent = parent};
-                parent.Children = new[] {child};
+                var child = new Child() { Parent = parent };
+                parent.Children = new[] { child };
 
                 //--------------- Assume ----------------
 
@@ -534,9 +534,9 @@ namespace PeanutButter.Utils.Tests
             {
                 //--------------- Arrange -------------------
                 var n2 = new NodeWithChildren();
-                var n1 = new NodeWithChildren() {Children = new[] {n2}};
-                var n3 = new NodeWithChildren() {Children = new[] {n1}};
-                n2.Children = new[] {n3};
+                var n1 = new NodeWithChildren() { Children = new[] { n2 } };
+                var n3 = new NodeWithChildren() { Children = new[] { n1 } };
+                n2.Children = new[] { n3 };
 
                 // n1 => n2 =>  n3 => n1 ....
 
@@ -553,9 +553,9 @@ namespace PeanutButter.Utils.Tests
             {
                 //--------------- Arrange -------------------
                 var n2 = new NodeWithChildren();
-                var n1 = new NodeWithChildren() {Children = new[] {n2}};
-                var n3 = new NodeWithChildren() {Children = new[] {n1}};
-                n2.Children = new[] {n3};
+                var n1 = new NodeWithChildren() { Children = new[] { n2 } };
+                var n3 = new NodeWithChildren() { Children = new[] { n1 } };
+                n2.Children = new[] { n3 };
 
                 // n1 => n2 =>  n3 => n1 ....
 
@@ -576,13 +576,13 @@ namespace PeanutButter.Utils.Tests
                     //--------------- Arrange -------------------
                     var collection1 = new[]
                     {
-                        new {id = 1}
+                        new { id = 1 }
                     };
 
                     //--------------- Assume ----------------
 
                     //--------------- Act ----------------------
-                    var result = collection1.ContainsAtLeastOneDeepEqualTo(new {id = 1});
+                    var result = collection1.ContainsAtLeastOneDeepEqualTo(new { id = 1 });
 
                     //--------------- Assert -----------------------
                     Expect(result).To.Be.True();
@@ -594,13 +594,13 @@ namespace PeanutButter.Utils.Tests
                     //--------------- Arrange -------------------
                     var collection1 = new[]
                     {
-                        new {id = 1}
+                        new { id = 1 }
                     };
 
                     //--------------- Assume ----------------
 
                     //--------------- Act ----------------------
-                    var result = collection1.ContainsAtLeastOneDeepEqualTo(new {id = 2});
+                    var result = collection1.ContainsAtLeastOneDeepEqualTo(new { id = 2 });
 
                     //--------------- Assert -----------------------
                     Expect(result).To.Be.False();
@@ -622,7 +622,7 @@ namespace PeanutButter.Utils.Tests
                     //--------------- Assume ----------------
 
                     //--------------- Act ----------------------
-                    var result = collection1.ContainsAtLeastOneDeepEqualTo(new {id = 1});
+                    var result = collection1.ContainsAtLeastOneDeepEqualTo(new { id = 1 });
 
                     //--------------- Assert -----------------------
                     Expect(result).To.Be.False();
@@ -644,7 +644,7 @@ namespace PeanutButter.Utils.Tests
                     //--------------- Assume ----------------
 
                     //--------------- Act ----------------------
-                    var result = collection1.ContainsAtLeastOneDeepEqualTo(new {id = 1}, "name");
+                    var result = collection1.ContainsAtLeastOneDeepEqualTo(new { id = 1 }, "name");
 
                     //--------------- Assert -----------------------
                     Expect(result).To.Be.True();
@@ -885,36 +885,24 @@ namespace PeanutButter.Utils.Tests
             }
         }
 
-        [Test]
-        public void CopyPropertiesTo_GivenSimpleObjectDest_DoesNotThrow()
+        [TestFixture]
+        public class CopyAllPropertiesTo
         {
-            //---------------Set up test pack-------------------
-            var src = new
+            [Test]
+            public void GivenSimpleObjectDest_DoesNotThrow()
             {
-                prop = GetRandomString()
-            };
+                //---------------Set up test pack-------------------
+                var src = new
+                {
+                    prop = GetRandomString()
+                };
 
-            //---------------Assert Precondition----------------
+                //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => src.CopyPropertiesTo(new object()));
+                //---------------Execute Test ----------------------
+                Assert.DoesNotThrow(() => src.CopyPropertiesTo(new object()));
 
-            //---------------Test Result -----------------------
-        }
-
-
-        public class Simple<T>
-        {
-            public T prop { get; set; }
-
-            public Simple()
-            {
-                Randomize();
-            }
-
-            public void Randomize()
-            {
-                prop = GetRandom<T>();
+                //---------------Test Result -----------------------
             }
         }
 
@@ -1011,7 +999,7 @@ namespace PeanutButter.Utils.Tests
             {
                 //---------------Set up test pack-------------------
                 var o1 = new Complex<string>();
-                var o2 = new Complex<string> {prop = null};
+                var o2 = new Complex<string> { prop = null };
 
                 //---------------Assert Precondition----------------
                 Assert.IsNull(o2.prop);
@@ -1063,7 +1051,7 @@ namespace PeanutButter.Utils.Tests
             public void ShouldCopyEmptyArrayProperty()
             {
                 //--------------- Arrange -------------------
-                var src = new HasAnArrayOfStrings() {Strings = new string[0]};
+                var src = new HasAnArrayOfStrings() { Strings = new string[0] };
                 var target = new HasAnArrayOfStrings();
 
                 //--------------- Assume ----------------
@@ -1080,7 +1068,7 @@ namespace PeanutButter.Utils.Tests
             public void ShouldCopyNonEmptyArrayProperty()
             {
                 //--------------- Arrange -------------------
-                var src = new HasAnArrayOfStrings() {Strings = new[] {"123", "456"}};
+                var src = new HasAnArrayOfStrings() { Strings = new[] { "123", "456" } };
                 var target = new HasAnArrayOfStrings();
 
                 //--------------- Assume ----------------
@@ -1098,7 +1086,7 @@ namespace PeanutButter.Utils.Tests
             public void ShouldCopyNonEmptyEnumerableProperty()
             {
                 //--------------- Arrange -------------------
-                var src = new HasAnEnumerable() {Stuff = new[] {"123", "456"}};
+                var src = new HasAnEnumerable() { Stuff = new[] { "123", "456" } };
                 var target = new HasAnEnumerable();
 
                 //--------------- Assume ----------------
@@ -1116,7 +1104,7 @@ namespace PeanutButter.Utils.Tests
             public void ShouldCopyAnEmptyList()
             {
                 // Arrange
-                var src = new HasAListOfStrings() {Strings = new List<string>()};
+                var src = new HasAListOfStrings() { Strings = new List<string>() };
                 var target = new HasAListOfStrings();
                 // Pre-Assert
                 Expect(target.Strings).To.Be.Null();
@@ -1216,7 +1204,7 @@ namespace PeanutButter.Utils.Tests
                 public void WhenGivenNameOfPropertyWhichDoesExist_ShouldReturnThatValue()
                 {
                     //---------------Set up test pack-------------------
-                    var o = new {prop = 2};
+                    var o = new { prop = 2 };
 
                     //---------------Assert Precondition----------------
 
@@ -1231,7 +1219,7 @@ namespace PeanutButter.Utils.Tests
                 public void WhenGivenNamefPropertyWhichDoesExistAndIncorrectType_ShouldThrow()
                 {
                     //---------------Set up test pack-------------------
-                    var o = new {prop = 2};
+                    var o = new { prop = 2 };
 
                     //---------------Assert Precondition----------------
 
@@ -1258,7 +1246,7 @@ namespace PeanutButter.Utils.Tests
                 {
                     // Arrange
                     var person = GetRandom<Person>();
-                    var o = new {Person = person};
+                    var o = new { Person = person };
 
                     Expect(typeof(Person).IsAssignableTo<IPerson>())
                         .To.Be.True();
@@ -1289,6 +1277,19 @@ namespace PeanutButter.Utils.Tests
                     //---------------Test Result -----------------------
                     Assert.AreEqual(2, result);
                 }
+
+                [Test]
+                public void ShouldBeAbleToRetrieveNullValue()
+                {
+                    // Arrange
+                    var data = new { name = null as string };
+
+                    // Act
+                    var result = data.Get<string>("name");
+                    // Assert
+                    Expect(result)
+                        .To.Be.Null();
+                }
             }
 
             [TestFixture]
@@ -1298,7 +1299,7 @@ namespace PeanutButter.Utils.Tests
                 public void ShouldReturnValueOfNamedProperty()
                 {
                     //---------------Set up test pack-------------------
-                    var obj = new {id = GetRandomInt()};
+                    var obj = new { id = GetRandomInt() };
                     var expected = obj.id;
 
                     //---------------Assert Precondition----------------
@@ -1338,7 +1339,7 @@ namespace PeanutButter.Utils.Tests
                 public void ShouldSetThePropertyValue()
                 {
                     //---------------Set up test pack-------------------
-                    var obj = new SomeSimpleType() {Id = GetRandomInt(2, 5)};
+                    var obj = new SomeSimpleType() { Id = GetRandomInt(2, 5) };
                     var expected = GetRandomInt(10, 20);
                     const string propertyName = "Id";
 
@@ -1356,7 +1357,7 @@ namespace PeanutButter.Utils.Tests
                 public void ShouldSetThePropertyValueGeneric()
                 {
                     //---------------Set up test pack-------------------
-                    var obj = new SomeSimpleType() {Id = GetRandomInt(2, 5)};
+                    var obj = new SomeSimpleType() { Id = GetRandomInt(2, 5) };
                     var expected = GetRandomInt(10, 20);
                     const string propertyName = "Id";
 
@@ -1374,7 +1375,7 @@ namespace PeanutButter.Utils.Tests
                 public void ShouldBeAbleToSetImmediateProperty()
                 {
                     //---------------Set up test pack-------------------
-                    var obj = new SimpleDto() {Name = GetRandomString()};
+                    var obj = new SimpleDto() { Name = GetRandomString() };
                     var expected = GetAnother(obj.Name);
 
                     //---------------Assert Precondition----------------
@@ -1453,7 +1454,7 @@ namespace PeanutButter.Utils.Tests
                 Expect(result)
                     .To.Equal(expected2);
             }
-            
+
             [Test]
             public void ShouldGetAndSetPrivateField()
             {
@@ -1555,7 +1556,7 @@ namespace PeanutButter.Utils.Tests
             public void ShouldCopyEnumProperties()
             {
                 // Arrange
-                var src = new Puppy() {Emotion = Emotions.Happy};
+                var src = new Puppy() { Emotion = Emotions.Happy };
 
                 // Pre-Assert
 
@@ -1713,7 +1714,7 @@ namespace PeanutButter.Utils.Tests
                 // Arrange
                 var src = new HasCustomDictionary
                 {
-                    Settings = new SerializableDictionary<string, object> {["moo"] = "cow"}
+                    Settings = new SerializableDictionary<string, object> { ["moo"] = "cow" }
                 };
                 // Pre-Assert
                 // Act
@@ -1731,7 +1732,7 @@ namespace PeanutButter.Utils.Tests
                 // Arrange
                 var src = new HasVanillaDictionary
                 {
-                    Settings = new SerializableDictionary<string, object> {["moo"] = "cow"}
+                    Settings = new SerializableDictionary<string, object> { ["moo"] = "cow" }
                 };
                 // Pre-Assert
                 // Act
@@ -2013,7 +2014,7 @@ namespace PeanutButter.Utils.Tests
                     //--------------- Assume ----------------
 
                     //--------------- Act ----------------------
-                    var result = collection1.ContainsOneIntersectionEqualTo(new {id = 1});
+                    var result = collection1.ContainsOneIntersectionEqualTo(new { id = 1 });
 
                     //--------------- Assert -----------------------
                     Expect(result).To.Be.True();
@@ -2035,7 +2036,7 @@ namespace PeanutButter.Utils.Tests
                     //--------------- Assume ----------------
 
                     //--------------- Act ----------------------
-                    var result = collection1.ContainsOneIntersectionEqualTo(new {id = 2});
+                    var result = collection1.ContainsOneIntersectionEqualTo(new { id = 2 });
 
                     //--------------- Assert -----------------------
                     Expect(result).To.Be.False();
@@ -2086,7 +2087,7 @@ namespace PeanutButter.Utils.Tests
                     //--------------- Assume ----------------
 
                     //--------------- Act ----------------------
-                    var result = collection1.ContainsOneIntersectionEqualTo(new {value = 1});
+                    var result = collection1.ContainsOneIntersectionEqualTo(new { value = 1 });
 
                     //--------------- Assert -----------------------
                     Expect(result).To.Be.False();
@@ -2106,7 +2107,7 @@ namespace PeanutButter.Utils.Tests
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                var result = (new {prop = rs}).DeepSubEquals(
+                var result = (new { prop = rs }).DeepSubEquals(
                     new
                     {
                         prop = rs,
@@ -2125,7 +2126,7 @@ namespace PeanutButter.Utils.Tests
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                var result = (new {prop = GetRandomString()})
+                var result = (new { prop = GetRandomString() })
                     .DeepSubEquals(new object());
 
                 //---------------Test Result -----------------------
@@ -2166,7 +2167,7 @@ namespace PeanutButter.Utils.Tests
                 // Act
                 var result = data.AsEnumerable<long>().ToArray();
                 // Assert
-                Expect(result).To.Equal(data.Select(o => (long)o));
+                Expect(result).To.Equal(data.Select(o => (long) o));
             }
 
             [Test]
@@ -2218,7 +2219,7 @@ namespace PeanutButter.Utils.Tests
                     // Arrange
                     var value = 1.555M;
                     var expected = 1.55M;
-                    
+
                     // Act
                     var result = value.TruncateTo(2);
                     // Assert
@@ -2226,7 +2227,7 @@ namespace PeanutButter.Utils.Tests
                         .To.Equal(expected);
                 }
             }
-            
+
             [TestFixture]
             public class OperatingOnDouble
             {
@@ -2249,7 +2250,7 @@ namespace PeanutButter.Utils.Tests
                     // Arrange
                     var value = 1.555D;
                     var expected = 1.55D;
-                    
+
                     // Act
                     var result = value.TruncateTo(2);
                     // Assert
@@ -2284,7 +2285,7 @@ namespace PeanutButter.Utils.Tests
                     // Arrange
                     var value = 1.555M;
                     var expected = 1.56M;
-                    
+
                     // Act
                     var result = value.ToFixed(2);
                     // Assert
@@ -2292,7 +2293,7 @@ namespace PeanutButter.Utils.Tests
                         .To.Equal(expected);
                 }
             }
-            
+
             [TestFixture]
             public class OperatingOnDouble
             {
@@ -2315,7 +2316,7 @@ namespace PeanutButter.Utils.Tests
                     // Arrange
                     var value = 1.555D;
                     var expected = 1.56D;
-                    
+
                     // Act
                     var result = value.ToFixed(2);
                     // Assert
@@ -2325,17 +2326,215 @@ namespace PeanutButter.Utils.Tests
             }
         }
 
-        [Test]
-        public void ShouldBeAbleToRetrieveNullValue()
+        [TestFixture]
+        public class IsInstanceOf
         {
-            // Arrange
-            var data = new { name = null as string };
+            [TestFixture]
+            public class GenericInvocation
+            {
+                [Test]
+                public void ShouldReturnFalseForNull()
+                {
+                    // Arrange
+                    var obj = null as IService;
+                    // Act
+                    var result = obj.IsInstanceOf<IService>();
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+
+                [Test]
+                public void ShouldReturnFalseForNonMatch()
+                {
+                    // Arrange
+                    var obj = new NotAService();
+                    // Act
+                    var result = obj.IsInstanceOf<IService>();
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+
+                [Test]
+                public void ShouldReturnTrueForImmediateMatch()
+                {
+                    // Arrange
+                    var obj = new ServiceA();
+                    // Act
+                    var result = obj.IsInstanceOf<IService>();
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
+
+                [Test]
+                public void ShouldReturnTrueForInheritedMatch()
+                {
+                    // Arrange
+                    var obj = new ServiceB();
+                    // Act
+                    var result = obj.IsInstanceOf<IService>();
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
+
+                [Test]
+                public void ShouldReturnTrueForImmediateConcreteMatch()
+                {
+                    // Arrange
+                    var obj = new ServiceA() as object;
+                    // Act
+                    var result = obj.IsInstanceOf<ServiceA>();
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
+
+                [Test]
+                public void ShouldReturnTrueForInheritedConcreteMatch()
+                {
+                    // Arrange
+                    var obj = new ServiceB() as object;
+                    // Act
+                    var result = obj.IsInstanceOf<ServiceA>();
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
+
+                [Test]
+                public void ShouldReturnFalseForBaseIsInstanceOfDerived()
+                {
+                    // Arrange
+                    var obj = new ServiceA() as object;
+                    // Act
+                    var result = obj.IsInstanceOf<ServiceB>();
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+            }
             
-            // Act
-            var result = data.Get<string>("name");
-            // Assert
-            Expect(result)
-                .To.Be.Null();
+            [TestFixture]
+            public class TypeArgInvocation
+            {
+                [Test]
+                public void ShouldReturnFalseForNull()
+                {
+                    // Arrange
+                    var obj = null as IService;
+                    // Act
+                    var result = obj.IsInstanceOf(typeof(IService));
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+
+                [Test]
+                public void ShouldReturnFalseForNonMatch()
+                {
+                    // Arrange
+                    var obj = new NotAService();
+                    // Act
+                    var result = obj.IsInstanceOf(typeof(IService));
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+
+                [Test]
+                public void ShouldReturnTrueForImmediateMatch()
+                {
+                    // Arrange
+                    var obj = new ServiceA();
+                    // Act
+                    var result = obj.IsInstanceOf(typeof(IService));
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
+
+                [Test]
+                public void ShouldReturnTrueForInheritedMatch()
+                {
+                    // Arrange
+                    var obj = new ServiceB();
+                    // Act
+                    var result = obj.IsInstanceOf(typeof(IService));
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
+
+                [Test]
+                public void ShouldReturnTrueForImmediateConcreteMatch()
+                {
+                    // Arrange
+                    var obj = new ServiceA() as object;
+                    // Act
+                    var result = obj.IsInstanceOf(typeof(ServiceA));
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
+
+                [Test]
+                public void ShouldReturnTrueForInheritedConcreteMatch()
+                {
+                    // Arrange
+                    var obj = new ServiceB() as object;
+                    // Act
+                    var result = obj.IsInstanceOf(typeof(ServiceA));
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
+
+                [Test]
+                public void ShouldReturnFalseForBaseIsInstanceOfDerived()
+                {
+                    // Arrange
+                    var obj = new ServiceA() as object;
+                    // Act
+                    var result = obj.IsInstanceOf(typeof(ServiceB));
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+            }
+
+            public interface IService
+            {
+            }
+
+            public class ServiceA : IService
+            {
+            }
+
+            public class ServiceB : ServiceA
+            {
+            }
+
+            public class NotAService
+            {
+            }
+        }
+
+        public class Simple<T>
+        {
+            public T prop { get; set; }
+
+            public Simple()
+            {
+                Randomize();
+            }
+
+            public void Randomize()
+            {
+                prop = GetRandom<T>();
+            }
         }
 
         public class Complex<T>
