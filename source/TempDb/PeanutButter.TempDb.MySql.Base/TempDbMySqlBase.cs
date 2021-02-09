@@ -33,6 +33,7 @@ namespace PeanutButter.TempDb.MySql.Base
         /// but left static so consumers can tweak the value as required.
         /// </summary>
         public static int DefaultStartupMaxWaitSeconds = 30;
+
         // ReSharper disable once StaticMemberInGenericType
         /// <summary>
         /// Maximum number of times that TempDBMySql will automatically
@@ -58,6 +59,24 @@ namespace PeanutButter.TempDb.MySql.Base
         }
 
         public const int PROCESS_POLL_INTERVAL = 100;
+
+        public bool VerboseLoggingEnabled =>
+            DetermineIfVerboseLoggingShouldBeEnabled();
+        private string[] VerboseLoggingCommandLineArgs =>
+            VerboseLoggingEnabled
+            ? new[] { "--log-error-verbosity=3" }
+            : new string[0];
+
+        private bool DetermineIfVerboseLoggingShouldBeEnabled()
+        {
+            var envValue = Environment.GetEnvironmentVariable("TEMPDB_VERBOSE");
+            if (envValue is null)
+            {
+                return Settings?.Options?.EnableVerboseLogging ?? false;
+            }
+
+            return envValue.AsBoolean();
+        }
 
         /// <summary>
         /// Set to true to see trace logging about discovery of a port to
@@ -285,7 +304,7 @@ namespace PeanutButter.TempDb.MySql.Base
             {
                 return;
             }
-            
+
             CreateSchemaIfNotExists(schema);
             Log($"Attempting to switch to schema {schema} with connection string: {ConnectionString}");
             Execute($"use `{Escape(schema)}`");
@@ -299,11 +318,12 @@ namespace PeanutButter.TempDb.MySql.Base
         }
 
         public void CreateUser(
-            string user, 
-            string password, 
+            string user,
+            string password,
             params string[] forSchemas)
         {
-            Execute($"create user {Quote(user)}@'localhost' identified with mysql_native_password by {Quote(password)}");
+            Execute(
+                $"create user {Quote(user)}@'localhost' identified with mysql_native_password by {Quote(password)}");
             forSchemas.ForEach(schema =>
             {
                 GrantAllPermissionsFor(user, schema);
@@ -472,15 +492,26 @@ namespace PeanutButter.TempDb.MySql.Base
         }
 
         private int _startAttempts;
+
         private void StartServer(string mysqld)
         {
-            _serverProcess = RunCommand(
-                true,
-                mysqld,
+            var args = new[]
+            {
                 $"\"--defaults-file={Path.Combine(DatabasePath, "my.cnf")}\"",
                 $"\"--basedir={BaseDirOf(mysqld)}\"",
                 $"\"--datadir={DataDir}\"",
-                $"--port={Port}");
+                $"--port={Port}"
+            };
+            if (VerboseLoggingEnabled)
+            {
+                args = args.And(VerboseLoggingCommandLineArgs);
+            }
+
+            _serverProcess = RunCommand(
+                true,
+                mysqld,
+                args
+            );
             try
             {
                 try
@@ -705,12 +736,22 @@ stderr: {stderr}"
             }
 
             Log($"Initializing MySql in {DatabasePath}");
-            using var process = RunCommand(
-                mysqld,
+            var args = new[]
+            {
                 $"\"--defaults-file={tempDefaultsFile}\"",
                 "--initialize-insecure",
                 $"\"--basedir={BaseDirOf(mysqld)}\"",
                 $"\"--datadir={DataDir}\""
+            };
+            if (VerboseLoggingEnabled)
+            {
+                args = args.And(VerboseLoggingCommandLineArgs);
+            }
+
+            using var process = RunCommand(
+                false,
+                mysqld,
+                args
             );
             process.WaitForExit();
             if (process.ExitCode == 0)
@@ -803,7 +844,7 @@ stderr: {stderr}"
 
         private MySqlVersionInfo QueryVersionOf(string mysqld)
         {
-            using var process = RunCommand(mysqld, "--version");
+            using var process = RunCommand(false, mysqld, "--version");
             process.WaitForExit();
 
             var result = process.StandardOutput.ReadToEnd();
@@ -881,33 +922,6 @@ stderr: {stderr}"
             {
                 writer.WriteLine($"  {key} = {envVars[key]}");
             }
-        }
-
-        private Process RunCommand(
-            string filename,
-            params string[] args
-        )
-        {
-            var startInfo = new ProcessStartInfo()
-            {
-                FileName = filename,
-                CreateNoWindow = true,
-                UseShellExecute = false,
-                RedirectStandardError = true,
-                RedirectStandardOutput = true,
-                Arguments = args.JoinWith(" ")
-            };
-            var process = new Process()
-            {
-                StartInfo = startInfo
-            };
-            Log($"Running command:\n\"{filename}\" {args.JoinWith(" ")}");
-            if (!process.Start())
-            {
-                throw new ProcessStartFailureException(startInfo);
-            }
-
-            return process;
         }
 
         private int DeterminePortToUse()

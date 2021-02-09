@@ -1,7 +1,6 @@
 ﻿extern alias mysql_data;
 using MySqlConnectionStringBuilder = mysql_data::MySql.Data.MySqlClient.MySqlConnectionStringBuilder;
 using MySqlConnection = mysql_data::MySql.Data.MySqlClient.MySqlConnection;
-using MySqlCommand = mysql_data::MySql.Data.MySqlClient.MySqlCommand;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -881,7 +880,8 @@ namespace PeanutButter.TempDb.Tests
                         ForceFindMySqlInPath = true,
                         LogAction = Console.WriteLine,
                         InactivityTimeout = inactivityTimeout,
-                        AbsoluteLifespan = absoluteLifespan
+                        AbsoluteLifespan = absoluteLifespan,
+                        EnableVerboseLogging = true
                     }
                 });
         }

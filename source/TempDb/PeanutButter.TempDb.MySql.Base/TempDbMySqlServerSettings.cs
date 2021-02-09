@@ -114,6 +114,17 @@ namespace PeanutButter.TempDb.MySql.Base
             /// When set, sets an absolute lifespan for this temp db process
             /// </summary>
             public TimeSpan? AbsoluteLifespan { get; set; }
+
+            /// <summary>
+            /// Enable verbose logging if you want to track down issues with more
+            /// information at hand. This may also be enabled at run-time with the
+            /// environment variable TEMPDB_VERBOSE, which overrides any setting
+            /// that was provided
+            /// - turn on with "1", "yes", "true"
+            /// - turn off with "0", "no", "false"
+            /// 
+            /// </summary>
+            public bool EnableVerboseLogging { get; set; }
         }
 
         /// <summary>
