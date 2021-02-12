@@ -1187,7 +1187,6 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="type"></param>
-        /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         public static bool IsInstanceOf(
             this object obj,
