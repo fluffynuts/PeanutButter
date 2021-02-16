@@ -72,6 +72,11 @@ namespace PeanutButter.TempRedis
         /// when disposed
         /// </summary>
         void Stop();
+
+        /// <summary>
+        /// Restarts the server process (shortcut for Stop/Start)
+        /// </summary>
+        void Restart();
     }
 
     /// <summary>
@@ -192,6 +197,13 @@ namespace PeanutButter.TempRedis
             {
                 Console.Error.WriteLine($"Error stopping temp redis: {ex.Message}");
             }
+        }
+
+        /// <inheritdoc />
+        public void Restart()
+        {
+            Stop();
+            Start();
         }
 
         /// <inheritdoc />
