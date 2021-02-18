@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace PeanutButter.Utils
@@ -10,7 +11,7 @@ namespace PeanutButter.Utils
     /// renders the instance unusable from then on.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IRollingWindow<T>: IDisposable
+    public interface IRollingWindow<T> : IEnumerable<T>, IDisposable
     {
         /// <summary>
         /// Get or set the maximum size for this window. If you set the MaxSize
@@ -18,23 +19,17 @@ namespace PeanutButter.Utils
         /// is already at capacity, extraneous items will be trimmed.
         /// </summary>
         long MaxSize { get; set; }
-        
+
         /// <summary>
         /// Add an item to the window, will discard any old items which exceed
         /// the configured window length
         /// </summary>
         /// <param name="item"></param>
         void Add(T item);
-        
-        /// <summary>
-        /// Produces a snapshot of what's currently in the RollingWindow
-        /// </summary>
-        /// <returns></returns>
-        T[] Snapshot();
     }
 
     /// <inheritdoc />
-    public class RollingWindow<T>: IRollingWindow<T>
+    public class RollingWindow<T> : IRollingWindow<T>
     {
         /// <inheritdoc />
         public long MaxSize
@@ -77,8 +72,7 @@ namespace PeanutButter.Utils
             });
         }
 
-        /// <inheritdoc />
-        public T[] Snapshot()
+        private T[] Snapshot()
         {
             return RunLocked(
                 () => Queue.ToArray()
@@ -118,6 +112,50 @@ namespace PeanutButter.Utils
             {
                 toRun();
             }
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            return new RollingWindowSnapshotEnumerator<T>(
+                Snapshot()
+            );
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+    }
+
+    internal class RollingWindowSnapshotEnumerator<T> : IEnumerator<T>
+    {
+        private T[] _snapshot;
+        private int _idx;
+
+        public RollingWindowSnapshotEnumerator(T[] snapshot)
+        {
+            Reset();
+            _snapshot = snapshot;
+        }
+
+        public bool MoveNext()
+        {
+            _idx++;
+            return _idx < _snapshot.Length;
+        }
+
+        public void Reset()
+        {
+            _idx = -1;
+        }
+
+        public T Current => _snapshot[_idx];
+
+        object IEnumerator.Current => Current;
+
+        public void Dispose()
+        {
+            // nothing to do
         }
     }
 }
