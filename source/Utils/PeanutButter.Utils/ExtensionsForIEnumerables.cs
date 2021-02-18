@@ -746,6 +746,7 @@ namespace PeanutButter.Utils
                         ? new String(padWith, requiredLength)
                         : item?.PadLeft(requiredLength, padWith);
                 }
+
                 yield break;
             }
 
@@ -831,9 +832,10 @@ namespace PeanutButter.Utils
                         ? new String(padWith, requiredLength)
                         : item.PadRight(requiredLength, padWith);
                 }
-                
+
                 yield break;
             }
+
             foreach (var item in source ?? new T[0])
             {
                 yield return $"{item}".PadRight(requiredLength, padWith);

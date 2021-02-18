@@ -1259,5 +1259,6 @@ namespace PeanutButter.Utils.Tests
                     .To.Equal(expected);
             }
         }
+
     }
 }
