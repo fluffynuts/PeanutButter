@@ -434,6 +434,23 @@ namespace PeanutButter.SimpleHTTPServer
             string message,
             string body)
         {
+            WriteFailure(code, message, body, "text/plain");
+        }
+
+        /// <summary>
+        /// Write out a failure with a message, body and custom mime-type
+        /// </summary>
+        /// <param name="code"></param>
+        /// <param name="message"></param>
+        /// <param name="body"></param>
+        /// <param name="mimeType"></param>
+        public void WriteFailure(
+            HttpStatusCode code,
+            string message,
+            string body,
+            string mimeType
+        )
+        {
             WriteStatusHeader(code, message);
             WriteConnectionClosesAfterCommsHeader();
             if (string.IsNullOrEmpty(body))
@@ -442,6 +459,7 @@ namespace PeanutButter.SimpleHTTPServer
                 return;
             }
 
+            WriteMIMETypeHeader(mimeType);
             WriteContentLengthHeader(body.Length);
             WriteConnectionClosesAfterCommsHeader();
             WriteEmptyLineToStream();
