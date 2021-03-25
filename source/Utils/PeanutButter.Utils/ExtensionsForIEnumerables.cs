@@ -841,5 +841,148 @@ namespace PeanutButter.Utils
                 yield return $"{item}".PadRight(requiredLength, padWith);
             }
         }
+
+        /// <summary>
+        /// Compares two collections and returns true if they have exactly the
+        /// same values in the same order
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool IsEqualTo<T>(
+            this IEnumerable<T> left,
+            IEnumerable<T> right
+        )
+        {
+            using var leftEnumerator = left.GetEnumerator();
+            using var rightEnumerator = right.GetEnumerator();
+            var leftHasValue = leftEnumerator.MoveNext();
+            var rightHasValue = rightEnumerator.MoveNext();
+            while (leftHasValue && rightHasValue)
+            {
+                var areEqual = Compare(leftEnumerator.Current, rightEnumerator.Current);
+                if (!areEqual)
+                {
+                    return false;
+                }
+
+                leftHasValue = leftEnumerator.MoveNext();
+                rightHasValue = rightEnumerator.MoveNext();
+            }
+
+            return leftHasValue == rightHasValue;
+        }
+
+        /// <summary>
+        /// Compares two collections and returns true if they have
+        /// exactly the same values in any order
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool IsEquivalentTo<T>(
+            this IEnumerable<T> left,
+            IEnumerable<T> right
+        )
+        {
+            using var leftEnumerator = left.GetEnumerator();
+            using var rightEnumerator = right.GetEnumerator();
+            var leftHasValue = leftEnumerator.MoveNext();
+            var rightHasValue = rightEnumerator.MoveNext();
+            // bail early if both are empty
+            if (!leftHasValue && !rightHasValue)
+            {
+                return true;
+            }
+
+            // bail early if only one is empty
+            if (!leftHasValue || !rightHasValue)
+            {
+                return false;
+            }
+
+            var leftCount = new Dictionary<T, int>();
+            var rightCount = new Dictionary<T, int>();
+            while (leftHasValue && rightHasValue)
+            {
+                IncrementCount(leftCount, leftEnumerator.Current);
+                IncrementCount(rightCount, rightEnumerator.Current);
+                leftHasValue = leftEnumerator.MoveNext();
+                rightHasValue = rightEnumerator.MoveNext();
+            }
+
+            if (leftHasValue != rightHasValue)
+            {
+                // one ran out of values before the other
+                return false;
+            }
+
+            if (leftCount.Count != rightCount.Count)
+            {
+                // same overall value count, but different unique value count
+                return false;
+            }
+
+            var leftKeys = new HashSet<T>(leftCount.Keys);
+            var rightKeys = new HashSet<T>(rightCount.Keys);
+
+            // if the hash sets have the same number of items and all of left
+            // are in right, then all of right are in left
+            var keysMatch = leftKeys.Aggregate(
+                true,
+                (acc, cur) => acc && rightKeys.Contains(cur)
+            );
+
+            return keysMatch &&
+                leftCount.Aggregate(
+                    true,
+                    (acc, cur) => acc && rightCount[cur.Key] == leftCount[cur.Key]
+                );
+        }
+
+        private static bool CountsMatch<T>(
+            Dictionary<T, int> leftCount,
+            Dictionary<T, int> rightCount
+        )
+        {
+            return leftCount.Aggregate(
+                true,
+                (acc, cur) => acc && rightCount[cur.Key] == leftCount[cur.Key]
+            );
+        }
+
+
+        private static void IncrementCount<T>(
+            Dictionary<T, int> counts,
+            T value
+        )
+        {
+            if (!counts.ContainsKey(value))
+            {
+                counts[value] = 0;
+            }
+
+            counts[value]++;
+        }
+
+        private static bool Compare<T1, T2>(
+            T1 leftValue,
+            T2 rightValue
+        )
+        {
+            if (leftValue is null && rightValue is null)
+            {
+                return true;
+            }
+
+            if (leftValue is null || rightValue is null)
+            {
+                return false;
+            }
+
+            return leftValue.Equals(rightValue);
+        }
     }
 }

@@ -120,8 +120,8 @@ namespace PeanutButter.Utils.Tests
         public void IsSameAs_OperatingOnCollection_WhenBothContainSameElements_ShouldReturnTrue()
         {
             //---------------Set up test pack-------------------
-            var first = new[] {1};
-            var second = new List<int>(new[] {1});
+            var first = new[] { 1 };
+            var second = new List<int>(new[] { 1 });
 
             //---------------Assert Precondition----------------
 
@@ -136,8 +136,8 @@ namespace PeanutButter.Utils.Tests
         public void IsSameAs_OperatingOnCollection_WhenBothContainSameElementsInDifferentOrder_ShouldReturnTrue()
         {
             //---------------Set up test pack-------------------
-            var first = new[] {1, 2};
-            var second = new List<int>(new[] {2, 1});
+            var first = new[] { 1, 2 };
+            var second = new List<int>(new[] { 2, 1 });
 
             //---------------Assert Precondition----------------
 
@@ -152,8 +152,8 @@ namespace PeanutButter.Utils.Tests
         public void IsSameAs_OperatingOnCollection_WhenBothContainDifferentElements_ShouldReturnFalse()
         {
             //---------------Set up test pack-------------------
-            var first = new[] {1};
-            var second = new List<int>(new[] {2, 1});
+            var first = new[] { 1 };
+            var second = new List<int>(new[] { 2, 1 });
 
             //---------------Assert Precondition----------------
 
@@ -184,7 +184,7 @@ namespace PeanutButter.Utils.Tests
             JoinWith_OperatingOnCollection_WhenCollectionIsNotEmpty_ShouldReturnCollectionJoinedWithGivenDelimiter()
         {
             //---------------Set up test pack-------------------
-            var src = new[] {1, 2, 3};
+            var src = new[] { 1, 2, 3 };
             var delimiter = GetRandomString(2, 3);
             var expected = "1" + delimiter + "2" + delimiter + "3";
 
@@ -216,7 +216,7 @@ namespace PeanutButter.Utils.Tests
         public void IsEmpty_WhenCollectionIsNotEmpty_ShouldReturnFalse()
         {
             //---------------Set up test pack-------------------
-            var src = new[] {1};
+            var src = new[] { 1 };
 
             //---------------Assert Precondition----------------
 
@@ -250,7 +250,7 @@ namespace PeanutButter.Utils.Tests
             public void ShouldReturnNewArrayWithAllAddedItems()
             {
                 //---------------Set up test pack-------------------
-                var src = new[] {1, 2, 3, 4, 5};
+                var src = new[] { 1, 2, 3, 4, 5 };
 
                 //---------------Assert Precondition----------------
 
@@ -258,14 +258,14 @@ namespace PeanutButter.Utils.Tests
                 var result = src.And(4, 5);
 
                 //---------------Test Result -----------------------
-                CollectionAssert.AreEqual(new[] {1, 2, 3, 4, 5, 4, 5}, result);
+                CollectionAssert.AreEqual(new[] { 1, 2, 3, 4, 5, 4, 5 }, result);
             }
 
             [Test]
             public void ShouldReturnNewArrayWithAddedItems()
             {
                 //---------------Set up test pack-------------------
-                var src = new[] {1, 2, 3};
+                var src = new[] { 1, 2, 3 };
 
                 //---------------Assert Precondition----------------
 
@@ -273,7 +273,7 @@ namespace PeanutButter.Utils.Tests
                 var result = src.And(4, 5);
 
                 //---------------Test Result -----------------------
-                CollectionAssert.AreEqual(new[] {1, 2, 3, 4, 5}, result);
+                CollectionAssert.AreEqual(new[] { 1, 2, 3, 4, 5 }, result);
             }
         }
 
@@ -281,7 +281,7 @@ namespace PeanutButter.Utils.Tests
         public void ButNot_OperatingOnArrayOfType_ShouldReturnNewArrayWithAddedItems()
         {
             //---------------Set up test pack-------------------
-            var src = new[] {1, 2, 3};
+            var src = new[] { 1, 2, 3 };
 
             //---------------Assert Precondition----------------
 
@@ -289,7 +289,7 @@ namespace PeanutButter.Utils.Tests
             var result = src.ButNot(2);
 
             //---------------Test Result -----------------------
-            CollectionAssert.AreEqual(new[] {1, 3}, result);
+            CollectionAssert.AreEqual(new[] { 1, 3 }, result);
         }
 
         [Test]
@@ -339,7 +339,7 @@ namespace PeanutButter.Utils.Tests
             expected.AddRange(part1);
             expected.AddRange(part2);
             expected.AddRange(part3);
-            input.AddRange(new[] {part1, part2, part3});
+            input.AddRange(new[] { part1, part2, part3 });
 
             //---------------Assert Precondition----------------
 
@@ -354,7 +354,7 @@ namespace PeanutButter.Utils.Tests
         public void Second_WhenOnlyHaveOneItemInCollection_ShouldThrow()
         {
             //---------------Set up test pack-------------------
-            var input = new[] {1};
+            var input = new[] { 1 };
             var expectedMessage = GetOutOfRangeMessage();
 
             //---------------Assert Precondition----------------
@@ -388,7 +388,7 @@ namespace PeanutButter.Utils.Tests
         public void Third_WhenOnlyHaveOneItemInCollection_ShouldThrow()
         {
             //---------------Set up test pack-------------------
-            var input = new[] {1};
+            var input = new[] { 1 };
             var expectedMessage = GetOutOfRangeMessage();
 
             //---------------Assert Precondition----------------
@@ -541,7 +541,7 @@ namespace PeanutButter.Utils.Tests
 
             public static ItemWithNullableId For(int? value)
             {
-                return new ItemWithNullableId() {Id = value};
+                return new ItemWithNullableId() { Id = value };
             }
         }
 
@@ -551,7 +551,7 @@ namespace PeanutButter.Utils.Tests
             //---------------Set up test pack-------------------
             var id1 = GetRandomInt();
             var id2 = GetRandomInt();
-            var expected = new[] {id1, id2};
+            var expected = new[] { id1, id2 };
             var input = new[]
             {
                 ItemWithNullableId.For(id1),
@@ -580,7 +580,7 @@ namespace PeanutButter.Utils.Tests
 
             public static ItemWithNullableThing For(Thing thing)
             {
-                return new ItemWithNullableThing() {Thing = thing};
+                return new ItemWithNullableThing() { Thing = thing };
             }
         }
 
@@ -590,7 +590,7 @@ namespace PeanutButter.Utils.Tests
             //---------------Set up test pack-------------------
             var id1 = GetRandom<Thing>();
             var id2 = GetRandom<Thing>();
-            var expected = new[] {id1, id2};
+            var expected = new[] { id1, id2 };
             var input = new[]
             {
                 ItemWithNullableThing.For(id1),
@@ -672,7 +672,7 @@ namespace PeanutButter.Utils.Tests
         public void HasUnique_WhenNoMatchesForLambda_ShouldReturnFalse()
         {
             //---------------Set up test pack-------------------
-            var input = new[] {1, 2, 3};
+            var input = new[] { 1, 2, 3 };
 
             //---------------Assert Precondition----------------
 
@@ -686,7 +686,7 @@ namespace PeanutButter.Utils.Tests
         public void HasUnique_WhenMultipleMatchesForLambda_ShouldReturnFalse()
         {
             //---------------Set up test pack-------------------
-            var input = new[] {"a", "a", "b", "c"};
+            var input = new[] { "a", "a", "b", "c" };
 
             //---------------Assert Precondition----------------
 
@@ -700,7 +700,7 @@ namespace PeanutButter.Utils.Tests
         public void HasUnique_WhenOneMatchesForLambda_ShouldReturnTrue()
         {
             //---------------Set up test pack-------------------
-            var input = new[] {"a", "a", "b", "c"};
+            var input = new[] { "a", "a", "b", "c" };
 
             //---------------Assert Precondition----------------
 
@@ -842,7 +842,7 @@ namespace PeanutButter.Utils.Tests
                 public void OperatingOnCollectionOfOne_ShouldReturnEmptCollection()
                 {
                     // Arrange
-                    var input = new[] {GetRandomInt()};
+                    var input = new[] { GetRandomInt() };
                     // Pre-Assert
                     // Act
                     var result = input.FindDuplicates();
@@ -875,7 +875,7 @@ namespace PeanutButter.Utils.Tests
                     var result = input.FindDuplicates();
                     // Assert
                     Expect(result).To.Contain.Exactly(2).Items();
-                    Expect(result).To.Be.Equivalent.To(new[] {2, 3});
+                    Expect(result).To.Be.Equivalent.To(new[] { 2, 3 });
                 }
             }
 
@@ -996,7 +996,7 @@ namespace PeanutButter.Utils.Tests
                 public void OperatingOnCollectionOfOne_ShouldReturnEmptCollection()
                 {
                     // Arrange
-                    var input = new[] {new {id = 1, name = "bob"}};
+                    var input = new[] { new { id = 1, name = "bob" } };
                     // Pre-Assert
                     // Act
                     var result = input.FindDuplicates(o => o.id);
@@ -1027,14 +1027,14 @@ namespace PeanutButter.Utils.Tests
                     // Arrange
                     var input = new[]
                     {
-                        new {id = 1, name = "bob"},
-                        new {id = 2, name = "andrew"},
-                        new {id = 3, name = "posh"},
-                        new {id = 3, name = "scary"},
-                        new {id = 3, name = "baby"},
-                        new {id = 3, name = "sporty"},
-                        new {id = 3, name = "ginger"},
-                        new {id = 2, name = "dave"}
+                        new { id = 1, name = "bob" },
+                        new { id = 2, name = "andrew" },
+                        new { id = 3, name = "posh" },
+                        new { id = 3, name = "scary" },
+                        new { id = 3, name = "baby" },
+                        new { id = 3, name = "sporty" },
+                        new { id = 3, name = "ginger" },
+                        new { id = 2, name = "dave" }
                     };
                     // Pre-Assert
                     // Act
@@ -1167,7 +1167,7 @@ namespace PeanutButter.Utils.Tests
                 Expect(result)
                     .To.Equal(expected);
             }
-            
+
             [Test]
             public void PadLeftAllDefaultsToPaddingToLongestString()
             {
@@ -1193,7 +1193,7 @@ namespace PeanutButter.Utils.Tests
                 Expect(result)
                     .To.Equal(expected);
             }
-            
+
             [Test]
             public void PadRightAll()
             {
@@ -1206,7 +1206,7 @@ namespace PeanutButter.Utils.Tests
                 Expect(result)
                     .To.Equal(expected);
             }
-            
+
             [Test]
             public void PadRightAllDefaultsToPaddingToLongestString()
             {
@@ -1233,6 +1233,157 @@ namespace PeanutButter.Utils.Tests
                     .To.Equal(expected);
             }
 
+            [TestFixture]
+            public class IsEqualTo
+            {
+                [Test]
+                public void ShouldReturnTrueForTwoEmptyCollections()
+                {
+                    // Arrange
+                    var a = new int[0];
+                    var b = new int[0];
+                    // Act
+                    var result = a.IsEqualTo(b);
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
+
+                [Test]
+                public void ShouldReturnTrueForTwoEqualCollectionsOfSameType()
+                {
+                    // Arrange
+                    var a = new[] { 1 };
+                    var b = new[] { 1 };
+                    // Act
+                    var result = a.IsEqualTo(b);
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
+
+                [Test]
+                public void ShouldReturnFalseForMismatchedSize()
+                {
+                    // Arrange
+                    var a = new[] { 1 };
+                    var b = new[] { 1, 2 };
+                    // Act
+                    var result = a.IsEqualTo(b);
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+
+                [Test]
+                public void ShouldReturnFalseForSameSizeDifferentValues()
+                {
+                    // Arrange
+                    var a = new[] { 1 };
+                    var b = new[] { 2 };
+                    // Act
+                    var result = a.IsEqualTo(b);
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+            }
+
+            [TestFixture]
+            public class IsEquivalentTo
+            {
+                [Test]
+                public void ShouldReturnTrueForTwoEmptyCollections()
+                {
+                    // Arrange
+                    var a = new int[0];
+                    var b = new int[0];
+                    // Act
+                    var result = a.IsEquivalentTo(b);
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
+
+                [Test]
+                public void ShouldReturnTrueForEqualCollections()
+                {
+                    // Arrange
+                    var a = new[] { 1 };
+                    var b = new[] { 1 };
+                    // Act
+                    var result = a.IsEquivalentTo(b);
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
+
+                [Test]
+                public void ShouldReturnTrueForOutOfOrderEquivalentCollections()
+                {
+                    // Arrange
+                    var a = new[] { 1, 2 };
+                    var b = new[] { 2, 1 };
+                    // Act
+                    var result = a.IsEquivalentTo(b);
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
+
+                [Test]
+                public void ShouldReturnTrueForOutOfOrderEquivalenceWithRepeatedValues()
+                {
+                    // Arrange
+                    var a = new[] { 1, 2, 1 };
+                    var b = new[] { 2, 1, 1 };
+                    // Act
+                    var result = a.IsEquivalentTo(b);
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
+
+                [Test]
+                public void ShouldReturnFalseForRepeatedValuesWithNoEquivalence()
+                {
+                    // Arrange
+                    var a = new[] { 1, 2, 1, 1, 1 };
+                    var b = new[] { 2, 1, 1, 2, 1 };
+                    // Act
+                    var result = a.IsEquivalentTo(b);
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+
+                [Test]
+                public void ShouldReturnFalseForMismatchedSize()
+                {
+                    // Arrange
+                    var a = new[] { 1, 2 };
+                    var b = new[] { 1, 2, 3 };
+                    // Act
+                    var result = a.IsEquivalentTo(b);
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+
+                [Test]
+                public void ShouldReturnFalseForSameSizeDifferentEntries()
+                {
+                    // Arrange
+                    var a = new[] { 1 };
+                    var b = new[] { 2 };
+                    // Act
+                    var result = a.IsEquivalentTo(b);
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+            }
+
             public static IEnumerable<(bool, int[], string[], int, char)> NonStringTestCases()
             {
                 var start = new[] { 1, 11, 101 };
@@ -1245,7 +1396,8 @@ namespace PeanutButter.Utils.Tests
             }
 
             [TestCaseSource(nameof(NonStringTestCases))]
-            public void PaddingNonStrings((bool isLeft, int[] start, string[] expected, int requiredLength, char padChar) testCase)
+            public void PaddingNonStrings(
+                (bool isLeft, int[] start, string[] expected, int requiredLength, char padChar) testCase)
             {
                 // Arrange
                 var (isLeft, start, expected, requiredLength, padChar) = testCase;
@@ -1253,12 +1405,11 @@ namespace PeanutButter.Utils.Tests
                 var result = isLeft
                     ? start.PadLeft(requiredLength, padChar)
                     : start.PadRight(requiredLength, padChar);
-                
+
                 // Assert
                 Expect(result)
                     .To.Equal(expected);
             }
         }
-
     }
 }

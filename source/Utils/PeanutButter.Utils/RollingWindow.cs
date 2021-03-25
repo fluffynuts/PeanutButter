@@ -114,6 +114,7 @@ namespace PeanutButter.Utils
             }
         }
 
+        /// <inheritdoc />
         public IEnumerator<T> GetEnumerator()
         {
             return new RollingWindowSnapshotEnumerator<T>(
