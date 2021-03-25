@@ -1198,5 +1198,19 @@ namespace PeanutButter.Utils
             );
             return (bool)method.Invoke(null, new[] { obj });
         }
+        
+        /// <summary>
+        /// Determines whether or not an arbitrary object is a RuntimeType
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static bool IsRuntimeType(this object obj)
+        {
+            var objType = obj?.GetType();
+            return objType is not null &&
+                objType.Name == "RuntimeType" &&
+                objType.Namespace == "System";
+        }
+
     }
 }

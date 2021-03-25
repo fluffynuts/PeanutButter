@@ -2521,6 +2521,46 @@ namespace PeanutButter.Utils.Tests
             {
             }
         }
+        
+        [TestFixture]
+        public class IsRuntimeType
+        {
+            [Test]
+            public void ShouldReturnTrueForAnObjectsGetTypeResult()
+            {
+                // Arrange
+                var obj = new { foo = 1 };
+                // Act
+                var result = obj.GetType().IsRuntimeType();
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+
+            [Test]
+            public void ShouldReturnFalseForAnObject()
+            {
+                // Arrange
+                var obj = new { foo = 1 };
+                // Act
+                var result = obj.IsRuntimeType();
+                // Assert
+                Expect(result)
+                    .To.Be.False();
+            }
+
+            [Test]
+            public void ShouldReturnTrueForTypeOfResult()
+            {
+                // Arrange
+                var type = typeof(SimpleDto);
+                // Act
+                var result = type.IsRuntimeType();
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+        }
 
         public class Simple<T>
         {
