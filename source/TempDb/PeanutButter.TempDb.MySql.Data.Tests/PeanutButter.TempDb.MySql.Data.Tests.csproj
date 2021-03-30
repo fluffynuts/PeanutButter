@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net462</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.0.78" />
+    <PackageReference Include="MySql.Data" Version="8.0.23" />
+    <PackageReference Include="NUnit" Version="3.12.0" />
+    <PackageReference Include="NExpect" Version="1.0.190" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
+    <PackageReference Include="System.ServiceProcess.ServiceController" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj" />
+    <ProjectReference Include="..\PeanutButter.TempDb.MySql.Data\PeanutButter.TempDb.MySql.Data.csproj" />
+    <ProjectReference Include="..\..\SimpleServers\PeanutButter.SimpleTcpServer\PeanutButter.SimpleTcpServer.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,6 +1,3 @@
-﻿extern alias mysql_data;
-using MySqlConnectionStringBuilder = mysql_data::MySql.Data.MySqlClient.MySqlConnectionStringBuilder;
-using MySqlConnection = mysql_data::MySql.Data.MySqlClient.MySqlConnection;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -12,20 +9,20 @@ using System.Net.Sockets;
 using System.ServiceProcess;
 using System.Threading;
 using Dapper;
-using NUnit.Framework;
-using static NExpect.Expectations;
+using MySql.Data.MySqlClient;
 using NExpect;
+using NUnit.Framework;
 using PeanutButter.SimpleTcpServer;
 using PeanutButter.TempDb.MySql.Base;
-using PeanutButter.TempDb.MySql.Data;
 using PeanutButter.Utils;
-using static PeanutButter.RandomGenerators.RandomValueGen;
+using static NExpect.Expectations;
 using static PeanutButter.Utils.PyLike;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable AccessToDisposedClosure
 
-namespace PeanutButter.TempDb.Tests
+namespace PeanutButter.TempDb.MySql.Data.Tests
 {
     [TestFixture]
     [Parallelizable(ParallelScope.None)]
@@ -891,6 +888,22 @@ namespace PeanutButter.TempDb.Tests
         {
             public int Id { get; set; }
             public string Name { get; set; }
+        }
+    }
+    
+    public class MySqlConnectionStringUtil
+    {
+        public string Database { get; }
+
+        public MySqlConnectionStringUtil(
+            string connectionString)
+        {
+            Database = connectionString
+                .Split(';')
+                .Select(p => p.Trim())
+                .FirstOrDefault(p => p.StartsWith("DATABASE", StringComparison.OrdinalIgnoreCase))
+                ?.Split('=')
+                ?.Last();
         }
     }
 }

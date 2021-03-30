@@ -17,7 +17,7 @@ namespace PeanutButter.TempRedis
     {
         /// <summary>
         /// Attempts to fetch the 3.2.100 release of redis from
-        /// microsoft archives on github & return the path to the
+        /// microsoft archives on github &amp; return the path to the
         /// downloaded, extracted redis-server.exe
         /// </summary>
         /// <returns></returns>

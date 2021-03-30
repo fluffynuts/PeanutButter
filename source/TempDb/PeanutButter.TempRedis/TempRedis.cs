@@ -119,6 +119,9 @@ namespace PeanutButter.TempRedis
 
         private string _executable;
 
+        /// <summary>
+        /// Possible strategies for locating a redis server executable
+        /// </summary>
         public RedisLocatorStrategies LocatorStrategies { get; set; }
 
         /// <inheritdoc />

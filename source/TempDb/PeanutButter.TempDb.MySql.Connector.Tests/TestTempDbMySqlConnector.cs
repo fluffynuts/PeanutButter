@@ -6,21 +6,17 @@ using System.Linq;
 using System.ServiceProcess;
 using System.Threading;
 using Dapper;
-using MySql.Data.MySqlClient;
-using NUnit.Framework;
-using static NExpect.Expectations;
 using NExpect;
+using NUnit.Framework;
 using PeanutButter.TempDb.MySql.Base;
-using PeanutButter.TempDb.MySql.Connector;
 using PeanutButter.Utils;
+using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using static PeanutButter.Utils.PyLike;
 
 // ReSharper disable MemberCanBePrivate.Global
-
 // ReSharper disable AccessToDisposedClosure
-
-namespace PeanutButter.TempDb.Tests
+namespace PeanutButter.TempDb.MySql.Connector.Tests
 {
     [TestFixture]
     [Parallelizable(ParallelScope.None)]
@@ -496,6 +492,22 @@ namespace PeanutButter.TempDb.Tests
         {
             public int Id { get; set; }
             public string Name { get; set; }
+        }
+    }
+
+    public class MySqlConnectionStringUtil
+    {
+        public string Database { get; }
+
+        public MySqlConnectionStringUtil(
+            string connectionString)
+        {
+            Database = connectionString
+                .Split(';')
+                .Select(p => p.Trim())
+                .FirstOrDefault(p => p.StartsWith("DATABASE", StringComparison.OrdinalIgnoreCase))
+                ?.Split('=')
+                ?.Last();
         }
     }
 }
