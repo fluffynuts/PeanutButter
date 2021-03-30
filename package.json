@@ -6,8 +6,8 @@
     },
     "license": "BSD-3-Clause",
     "scripts": {
-        "pretest-core": "run-s build",
-        "test": "cross-env DOTNET_TEST_PARALLEL=1 DOTNET_CORE=0 TEST_EXCLUDE=PeanutButter.RandomGenerators.Core.Tests.Domain run-s \"zarro-core quick-test-dotnet\"",
+        "pretest": "run-s build",
+        "test": "cross-env DOTNET_TEST_PARALLEL=1 DOTNET_CORE=0 TEST_EXCLUDE=PeanutButter.RandomGenerators.Core.Tests.Domain,NugetPackageVersionIncrementer.Tests,EmailSpooler.Win32Service.Entity.Tests run-s \"zarro-core quick-test-dotnet\"",
         "test-legacy": "cross-env TEST_EXCLUDE=PeanutButter.RandomGenerators.Core.Tests.Domain run-s \"zarro test-dotnet\"",
         "cover": "cross-env COVERAGE_INCLUDE=*,PeanutButter.* COVERAGE_EXCLUDE_ASSEMBLIES=PeanutButter.RandomGenerators.Core.Tests.Domain COVERAGE_ADDITIONAL_EXCLUDE=GenericBuilderTestLoadLoadedAssemblyObject,GenericBuilderTestNotLoadedAssembly run-s \"zarro cover-dotnet\"",
         "postcover": "run-s generate-reports",
@@ -24,6 +24,6 @@
         "gulp-edit-xml": "^3.1.1",
         "npm-run-all": "^4.1.5",
         "p-queue": "^6.3.0",
-        "zarro": "^1.88.1"
+        "zarro": "^1.89.0"
     }
 }
