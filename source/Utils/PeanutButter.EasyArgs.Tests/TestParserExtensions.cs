@@ -1,9 +1,7 @@
 using System.Collections.Generic;
-using System.Linq;
 using NUnit.Framework;
 using NExpect;
 using PeanutButter.EasyArgs.Attributes;
-using PeanutButter.RandomGenerators;
 using PeanutButter.Utils;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
@@ -181,7 +179,7 @@ namespace PeanutButter.EasyArgs.Tests
         public void ShouldErrorAndExitIfFlagAndNoFlagSpecified()
         {
             // Arrange
-            var args = new[] { "--flag1", "--no-flag1" }.Randomize().ToArray();
+            var args = new[] { "--flag1", "--no-flag1" };
             int? exitCode = null;
             var lines = new List<string>();
             var opts = new ParserOptions()
@@ -189,6 +187,7 @@ namespace PeanutButter.EasyArgs.Tests
                 ExitAction = c => exitCode = c,
                 LineWriter = str => lines.Add(str)
             };
+            var expected = $"{args[1]} conflicts with {args[0]}";
 
             // Act
             args.ParseTo<IHasConflictingFlags>(
@@ -203,8 +202,39 @@ namespace PeanutButter.EasyArgs.Tests
             Expect(lines)
                 .To.Contain.Only(1)
                 .Matched.By(
-                    line => line.Contains("--flag1 conflicts with --no-flag1"),
-                    () => lines.JoinWith("\n"));
+                    line => line.Contains(expected),
+                    () => $"expected: {expected}\nreceieved: {lines.JoinWith("\n")}");
+        }
+
+        [Test]
+        public void ShouldErrorAndExitIfFlagAndNoFlagSpecifiedReversed()
+        {
+            // Arrange
+            var args = new[] { "--no-flag1", "--flag1" };
+            int? exitCode = null;
+            var lines = new List<string>();
+            var opts = new ParserOptions()
+            {
+                ExitAction = c => exitCode = c,
+                LineWriter = str => lines.Add(str)
+            };
+            var expected = $"{args[1]} conflicts with {args[0]}";
+
+            // Act
+            args.ParseTo<IHasConflictingFlags>(
+                out var uncollected,
+                opts
+            );
+            // Assert
+            Expect(exitCode)
+                .To.Equal(1);
+            Expect(lines)
+                .To.Contain.Only(1).Item(() => lines.JoinWith("\n"));
+            Expect(lines)
+                .To.Contain.Only(1)
+                .Matched.By(
+                    line => line.Contains(expected),
+                    () => $"expected: {expected}\nreceieved: {lines.JoinWith("\n")}");
         }
 
         [Test]
@@ -326,6 +356,26 @@ namespace PeanutButter.EasyArgs.Tests
                 .Not.To.Be.Null();
             Expect(result.Port)
                 .To.Equal(123);
+        }
+
+        [Test]
+        public void ShouldBeAbleToConsumeWithNoSwitchesAndOnlyOutArgs()
+        {
+            // Arrange
+            var args = new[] { "something-something" };
+            // Act
+            var result = args.ParseTo<IFoo>(out var remaining);
+            // Assert
+            Expect(result)
+                .Not.To.Be.Null();
+            Expect(remaining)
+                .To.Equal(args);
+            
+        }
+
+        public interface IFoo
+        {
+            public bool Bar { get; set; }
         }
 
         public class PocoArgs

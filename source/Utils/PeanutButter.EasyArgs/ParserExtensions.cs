@@ -174,6 +174,29 @@ namespace PeanutButter.EasyArgs
             });
         }
 
+        private static bool TryFindOption(
+            string key,
+            Dictionary<string, CommandlineArgument> lookup,
+            HashSet<string> errored,
+            ParserOptions options,
+            out CommandlineArgument result
+        )
+        {
+            result = null;
+            if (lookup.TryGetValueFuzzy(key, out result))
+            {
+                return true;
+            }
+
+            if (!errored.Contains(key))
+            {
+                options.ReportUnknownSwitch(key);
+                errored.Add(key);
+            }
+
+            return false;
+        }
+
         private static IDictionary<string, object> TryMatch<T>(
             Dictionary<string, CommandlineArgument> lookup,
             IDictionary<string, IHasValue> collected,
@@ -186,16 +209,14 @@ namespace PeanutButter.EasyArgs
                 new Dictionary<string, object>(),
                 (acc, cur) =>
                 {
-                    if (!lookup.TryGetValueFuzzy(cur.Key, out var opt))
+                    if (cur.Key == "")
                     {
-                        if (!errored.Contains(cur.Key))
-                        {
-                            options.ReportUnknownSwitch(
-                                cur.Key
-                            );
-                            errored.Add(cur.Key);
-                        }
+                        uncollectedArgs.AddRange(cur.Value.AllValues);
+                        return acc;
+                    }
 
+                    if (!TryFindOption(cur.Key, lookup, errored, options, out var opt))
+                    {
                         return acc;
                     }
 
@@ -218,7 +239,7 @@ namespace PeanutButter.EasyArgs
                         }
                         else
                         {
-                            StoreFlag(options, opt, acc, prop, errored);
+                            StoreFlag(options, opt, acc, prop, errored, lookup, collected);
                         }
                     }
                     else
@@ -296,12 +317,13 @@ namespace PeanutButter.EasyArgs
             store[prop] = input.SingleValue;
         }
 
-        private static void StoreFlag(
-            ParserOptions options,
+        private static void StoreFlag(ParserOptions options,
             CommandlineArgument opt,
             Dictionary<string, object> acc,
             string prop,
-            HashSet<string> errored)
+            HashSet<string> errored,
+            Dictionary<string, CommandlineArgument> lookup,
+            IDictionary<string, IHasValue> collected)
         {
             var value = opt.Default ?? true;
             if (acc.TryGetValue(prop, out var existing) &&
@@ -309,7 +331,46 @@ namespace PeanutButter.EasyArgs
                 !errored.Contains(opt.Key))
             {
                 errored.Add(opt.Key);
-                options.ReportConflict($"--{opt.LongName}", $"--no-{opt.LongName}");
+                var specifiedSwitches = collected.Keys
+                    .Where(opt.HasSwitch)
+                    .Distinct()
+                    .ToArray();
+
+                var negation = lookup.Values.FirstOrDefault(
+                    arg => arg.Key == opt.Key && arg != opt
+                );
+
+                var negativeConflicts = negation is null
+                    ? new string[0]
+                    : collected.Keys
+                        .Where(negation.HasSwitch)
+                        .Distinct()
+                        .ToArray();
+
+                var allPossibleConflicts = lookup.Values.Where(
+                        arg => arg.ConflictsWithKeys.Contains(opt.Key)
+                    )
+                    .Except(new[] { opt })
+                    .Distinct()
+                    .ToArray();
+                
+                var allSpecifiedDirectConflicts = allPossibleConflicts
+                    .Select(a => new[] { a.LongSwitch, a.ShortSwitch })
+                    .Flatten()
+                    .Intersect(specifiedSwitches)
+                    .ToArray();
+                
+                var allConflicts = negativeConflicts.Union(allSpecifiedDirectConflicts)
+                    .Distinct()
+                    .ToArray();
+                
+                allConflicts.ForEach(conflict =>
+                {
+                    specifiedSwitches.ForEach(sw =>
+                    {
+                        options.ReportConflict(sw, conflict);
+                    });
+                });
             }
             else
             {

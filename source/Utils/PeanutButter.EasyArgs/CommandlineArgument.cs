@@ -22,12 +22,32 @@ namespace PeanutButter.EasyArgs
         /// help text
         /// </summary>
         public string Description { get; set; }
+        
+        /// <summary>
+        /// Provides a convenience reader for the --{LongName} switch
+        /// </summary>
+        public string LongSwitch => LongName is null ? null : $"--{LongName}";
+        /// <summary>
+        /// Provides a convenience reader for the -{ShortName} switch
+        /// </summary>
+        public string ShortSwitch => ShortName is null ? null : $"-{ShortName}";
 
         /// <summary>
         /// The type of argument for help display (typically "text" or "number")
         /// </summary>
         public string Type =>
             _type ??= GrokType();
+
+        /// <summary>
+        /// shortcut to determine if the switch is either the long or short
+        /// switch for this arg
+        /// </summary>
+        /// <param name="sw"></param>
+        /// <returns></returns>
+        public bool HasSwitch(string sw)
+        {
+            return LongSwitch == sw || ShortSwitch == sw;
+        }
 
         private string GrokType()
         {
@@ -76,7 +96,7 @@ namespace PeanutButter.EasyArgs
         /// <summary>
         /// Collection of arguments this conflicts with, by Key
         /// </summary>
-        public string[] ConflictsWithKeys { get; set; }
+        public string[] ConflictsWithKeys { get; set; } = new string[0];
 
         /// <summary>
         /// Whether this argument allows multiple values (and will consume all
@@ -114,6 +134,7 @@ namespace PeanutButter.EasyArgs
         private bool? _explicitFlag;
 
         private bool? _allowMultipleValues;
+        private CommandlineArgument _negates;
 
         /// <summary>
         /// Produces a copy of the current argument, negated
@@ -124,8 +145,10 @@ namespace PeanutButter.EasyArgs
         {
             var result = new CommandlineArgument();
             this.CopyPropertiesTo(result, deep: false);
+            result.ShortName = null;
             result.LongName = $"no-{result.LongName}";
             result.ConflictsWithKeys = new[] { Key };
+            
             result.IsRequired = false;
             try
             {
@@ -135,7 +158,7 @@ namespace PeanutButter.EasyArgs
             {
                 result.Default = false;
             }
-
+            
             return result;
         }
     }
