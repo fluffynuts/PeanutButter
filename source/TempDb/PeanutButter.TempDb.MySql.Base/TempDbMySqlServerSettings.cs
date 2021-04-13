@@ -36,6 +36,12 @@ namespace PeanutButter.TempDb.MySql.Base
             /// Default maximum port to use when selecting a random port
             /// </summary>
             public const int DEFAULT_RANDOM_PORT_MAX = 53306;
+            
+            /// <summary>
+            /// The default max time to wait for a successful connection at
+            /// startup, in seconds
+            /// </summary>
+            public const int DEFAULT_MAX_TIME_TO_CONNECT_AT_START_IN_SECONDS = 10;
 
             /// <summary>
             /// Flag: log attempts to locate a random, usable port to listen on
@@ -125,6 +131,13 @@ namespace PeanutButter.TempDb.MySql.Base
             /// 
             /// </summary>
             public bool EnableVerboseLogging { get; set; }
+
+            /// <summary>
+            /// When attempting to spin up MySql, how much grace period (in seconds)
+            /// to give before giving up on connecting
+            /// </summary>
+            public int MaxTimeToConnectAtStartInSeconds { get; set; } = 
+                DEFAULT_MAX_TIME_TO_CONNECT_AT_START_IN_SECONDS;
         }
 
         /// <summary>

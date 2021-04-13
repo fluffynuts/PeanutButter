@@ -62,10 +62,11 @@ namespace PeanutButter.TempDb.MySql.Base
 
         public bool VerboseLoggingEnabled =>
             DetermineIfVerboseLoggingShouldBeEnabled();
+
         private string[] VerboseLoggingCommandLineArgs =>
             VerboseLoggingEnabled
-            ? new[] { "--log-error-verbosity=3" }
-            : new string[0];
+                ? new[] { "--log-error-verbosity=3" }
+                : new string[0];
 
         private bool DetermineIfVerboseLoggingShouldBeEnabled()
         {
@@ -251,8 +252,8 @@ namespace PeanutButter.TempDb.MySql.Base
             using var cmd = conn.CreateCommand();
             cmd.CommandText =
                 $@"alter user 'root'@'localhost' identified with mysql_native_password by '{
-                        Settings.Options.RootUserPassword.Replace("'", "''")
-                    }';";
+                    Settings.Options.RootUserPassword.Replace("'", "''")
+                }';";
             cmd.ExecuteNonQuery();
             RootPasswordSet = true;
         }
@@ -684,8 +685,8 @@ values ('__tempdb_id__', '{InstanceId}', 'root');";
 
             throw new FatalTempDbInitializationException(
                 $@"MySql doesn't want to start up. Please check logging in {
-                        DatabasePath
-                    }
+                    DatabasePath
+                }
 stdout: {stdout}
 stderr: {stderr}"
             );
@@ -713,16 +714,25 @@ stderr: {stderr}"
 
         protected bool CanConnect()
         {
-            try
+            var started = DateTime.Now;
+            var cutoff = DateTime.Now.AddSeconds(
+                Settings?.Options?.MaxTimeToConnectAtStartInSeconds
+                ?? TempDbMySqlServerSettings.TempDbOptions.DEFAULT_MAX_TIME_TO_CONNECT_AT_START_IN_SECONDS
+            );
+            while (DateTime.Now < cutoff)
             {
-                OpenConnection()?.Dispose();
+                try
+                {
+                    OpenConnection()?.Dispose();
 
-                return true;
+                    return true;
+                }
+                catch
+                {
+                    Thread.Sleep(100);
+                }
             }
-            catch
-            {
-                return false;
-            }
+            return false;
         }
 
         private void InitializeWith(string mysqld, string tempDefaultsFile)
