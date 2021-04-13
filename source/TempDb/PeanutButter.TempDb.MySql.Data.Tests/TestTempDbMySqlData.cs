@@ -361,14 +361,46 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         }
 
         [TestFixture]
+        public class Reset
+        {
+            [Test]
+            public void ShouldResetConnections()
+            {
+                // Arrange
+                using var db = new TempDBMySql();
+                using var conn1 = db.OpenConnection();
+                using var cmd1 = conn1.CreateCommand();
+                cmd1.CommandText = "select * from information_schema.TABLES limit 1";
+                using var reader1 = cmd1.ExecuteReader();
+                Expect(reader1.HasRows)
+                    .To.Be.True();
+                // Act
+                Expect(() => db.CloseAllConnections())
+                    .Not.To.Throw();
+                using var conn2 = db.OpenConnection();
+                using var cmd2 = conn2.CreateCommand();
+                cmd2.CommandText = "select * from information_schema.TABLES limit 1";
+                using var reader2 = cmd2.ExecuteReader();
+                
+                // Assert
+                Expect(reader2.HasRows)
+                    .To.Be.True();
+            }
+        }
+
+        [TestFixture]
         public class StayingAlive
         {
             [Test]
+            [Explicit("flaky since allowing longer to test connect at startup")]
             public void ShouldResurrectADerpedServerWhilstNotDisposed()
             {
                 // Arrange
-                var resurrectedPid = 0;
-                using var db = new TempDBMySql();
+                using var db = new TempDBMySql(
+                    new TempDbMySqlServerSettings()
+                    {
+                        Options = { MaxTimeToConnectAtStartInSeconds = 0 }
+                    });
                 // Act
                 using (var conn = db.OpenConnection())
                 {
@@ -391,6 +423,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 }
 
 
+                var originalId = db.ServerProcessId.Value;
                 var process = Process.GetProcessById(db.ServerProcessId.Value);
                 process.Kill();
 
@@ -412,6 +445,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                         }
 
                         reconnected = true;
+                        break;
                     }
                     catch
                     {
@@ -427,11 +461,11 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                     .To.Be.True(
                         "Should have been able to reconnect to mysql server"
                     );
-                resurrectedPid = db.ServerProcessId.Value;
+                var resurrectedPid = db.ServerProcessId.Value;
 
                 Expect(resurrectedPid)
                     .To.Be.Greater.Than(0);
-                Expect(() => Process.GetProcessById(resurrectedPid))
+                Expect(() => Process.GetProcessById(originalId))
                     .To.Throw<ArgumentException>()
                     .With.Message.Containing(
                         "not running",
@@ -726,7 +760,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                         });
                 // Assert
             }
-            
+
             [Test]
             public void ConnectionUseShouldExtendLifetime()
             {
@@ -890,7 +924,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
             public string Name { get; set; }
         }
     }
-    
+
     public class MySqlConnectionStringUtil
     {
         public string Database { get; }

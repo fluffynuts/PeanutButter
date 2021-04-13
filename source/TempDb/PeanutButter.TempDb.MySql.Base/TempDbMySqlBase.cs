@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
@@ -256,6 +257,33 @@ namespace PeanutButter.TempDb.MySql.Base
                 }';";
             cmd.ExecuteNonQuery();
             RootPasswordSet = true;
+        }
+
+        public void CloseAllConnections()
+        {
+            using var conn = OpenConnection();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = "show processlist";
+            using var reader = cmd.ExecuteReader();
+            var pids = new List<string>();
+            while (reader.NextResult())
+            {
+                var pid = reader["Id"].ToString();
+                pids.Add(pid);
+            }
+
+            foreach (var pid in pids)
+            {
+                cmd.CommandText = $"kill {pid}";
+                try
+                {
+                    cmd.ExecuteNonQuery();
+                }
+                catch
+                {
+                    // suppress
+                }
+            }
         }
 
         public override string DumpSchema()
@@ -714,12 +742,12 @@ stderr: {stderr}"
 
         protected bool CanConnect()
         {
-            var started = DateTime.Now;
             var cutoff = DateTime.Now.AddSeconds(
                 Settings?.Options?.MaxTimeToConnectAtStartInSeconds
                 ?? TempDbMySqlServerSettings.TempDbOptions.DEFAULT_MAX_TIME_TO_CONNECT_AT_START_IN_SECONDS
             );
-            while (DateTime.Now < cutoff)
+            var testAttempts = 0;
+            while (DateTime.Now < cutoff || testAttempts++ < 1)
             {
                 try
                 {
