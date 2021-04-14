@@ -565,10 +565,12 @@ namespace PeanutButter.TempDb.MySql.Base
             }
             catch (TryAnotherPortException)
             {
+                Log($"Looks like a port conflict at {Port}. Will try another port.");
                 Retry();
                 return;
             }
 
+            Log("MySql appears to be up an running! Setting up an auto-restarter in case it falls over.");
             StartProcessWatcher();
 
             void Retry()
@@ -672,6 +674,7 @@ values ('__tempdb_id__', '{InstanceId}', 'root');";
             {
                 if (_serverProcess.HasExited)
                 {
+                    Log("Server process has exited");
                     break;
                 }
 
@@ -751,15 +754,18 @@ stderr: {stderr}"
             {
                 try
                 {
+                    Log($"Attempt to connect on {Port}...");
                     OpenConnection()?.Dispose();
-
+                    Log("Connection established!");
                     return true;
                 }
                 catch
                 {
-                    Thread.Sleep(100);
+                    Log($"Unable to connect. Will continue to try until {cutoff}");
+                    Thread.Sleep(500);
                 }
             }
+            Log($"Giving up on connecting to mysql on port {Port}");
             return false;
         }
 
