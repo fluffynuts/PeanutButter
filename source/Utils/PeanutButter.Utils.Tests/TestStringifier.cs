@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using NUnit.Framework;
@@ -32,11 +34,11 @@ namespace PeanutButter.Utils.Tests
 
         private static readonly Tuple<object, string>[] ComplexSource =
         {
-            Tuple.Create(new {foo = 1} as object, @"
+            Tuple.Create(new { foo = 1 } as object, @"
 {
   foo: 1
 }"),
-            Tuple.Create(new {foo = new {bar = 1}} as object, @"
+            Tuple.Create(new { foo = new { bar = 1 } } as object, @"
 {
   foo: {
     bar: 1
@@ -66,8 +68,8 @@ namespace PeanutButter.Utils.Tests
             // Act
             Console.WriteLine(new[]
             {
-                new[] {1, 2},
-                new[] {5, 6, 7}
+                new[] { 1, 2 },
+                new[] { 5, 6, 7 }
             }.Stringify());
             // Assert
         }
@@ -76,7 +78,7 @@ namespace PeanutButter.Utils.Tests
         public void Stringifying_PropertiesOfTypeShort()
         {
             // Arrange
-            var obj = new {x = short.MaxValue};
+            var obj = new { x = short.MaxValue };
             var expected = (@"{
   x: " + short.MaxValue + @"
 }").Replace("\r", "");
@@ -92,9 +94,11 @@ namespace PeanutButter.Utils.Tests
         {
             // Arrange
             var src = GetRandomDate();
-            var local = new DateTime(src.Year, src.Month, src.Day, src.Hour, src.Minute, src.Second, DateTimeKind.Local);
+            var local = new DateTime(src.Year, src.Month, src.Day, src.Hour, src.Minute, src.Second,
+                DateTimeKind.Local);
             var utc = new DateTime(src.Year, src.Month, src.Day, src.Hour, src.Minute, src.Second, DateTimeKind.Utc);
-            var unspecified = new DateTime(src.Year, src.Month, src.Day, src.Hour, src.Minute, src.Second, DateTimeKind.Unspecified);
+            var unspecified = new DateTime(src.Year, src.Month, src.Day, src.Hour, src.Minute, src.Second,
+                DateTimeKind.Unspecified);
             var expectedPre = src.ToString(CultureInfo.InvariantCulture);
             // Pre-Assert
             // Act
@@ -156,6 +160,26 @@ namespace PeanutButter.Utils.Tests
             var result = node1.Stringify();
             // Assert
             Expect(result).Not.To.Be.Null.Or.Empty();
+        }
+
+        [Test]
+        public void ShouldExpandArrayProperty()
+        {
+            // Arrange
+            var key = GetRandomString(4);
+            var value1 = GetRandomString(4);
+            var value2 = GetRandomString(4);
+            var dict = new Dictionary<string, IEnumerable<string>>()
+            {
+                [key] = new[] { value1, value2 }.AsEnumerable()
+            };
+            // Act
+            var result = dict.Stringify();
+            // Assert
+            Expect(result)
+                .To.Contain(key)
+                .Then(value1)
+                .Then(value2);
         }
     }
 }

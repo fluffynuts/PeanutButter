@@ -182,7 +182,7 @@ namespace PeanutButter.Utils
             string nullRep)
         {
             var itemType = obj.GetType().TryGetEnumerableItemType() ??
-                           throw new Exception($"{obj.GetType()} is not IEnumerable<T>");
+                throw new Exception($"{obj.GetType()} is not IEnumerable<T>");
             var method = typeof(Stringifier)
                 .GetMethod(nameof(StringifyCollectionInternal), BindingFlags.NonPublic | BindingFlags.Static);
             if (method == null)
@@ -190,7 +190,7 @@ namespace PeanutButter.Utils
                     $"No non-public, static '{nameof(StringifyCollectionInternal)}' method found on {typeof(Stringifier).PrettyName()}"
                 );
             var specific = method.MakeGenericMethod(itemType);
-            return (string) (specific.Invoke(null, new[] {obj, nullRep, level}));
+            return (string) (specific.Invoke(null, new[] { obj, nullRep, level }));
         }
 
         private static bool IsEnumerable(
@@ -269,7 +269,7 @@ namespace PeanutButter.Utils
             int level)
         {
             return level >= MAX_STRINGIFY_DEPTH ||
-                   Types.PrimitivesAndImmutables.Contains(obj.GetType());
+                Types.PrimitivesAndImmutables.Contains(obj.GetType());
         }
 
         private static bool Default(
@@ -294,13 +294,13 @@ namespace PeanutButter.Utils
                 (
                         acc,
                         cur) => acc ??
-                                ApplyStrategy(
-                                    cur.Item1,
-                                    cur.Item2,
-                                    obj,
-                                    level,
-                                    nullRepresentation
-                                )
+                    ApplyStrategy(
+                        cur.Item1,
+                        cur.Item2,
+                        obj,
+                        level,
+                        nullRepresentation
+                    )
             );
         }
 
@@ -313,7 +313,8 @@ namespace PeanutButter.Utils
         {
             try
             {
-                return matcher(obj, level)
+                var isMatched = matcher(obj, level);
+                return isMatched
                     ? strategy(obj, level, nullRepresentation)
                     : null;
             }
@@ -341,8 +342,8 @@ namespace PeanutButter.Utils
                         var propValue = cur.GetValue(obj);
                         if (_ignoreAssembliesByName.Contains(
 #if NETSTANDARD
-                            cur.DeclaringType?.AssemblyQualifiedName.Split(
-                                new[] {","},
+                            cur.DeclaringType?.AssemblyQualifiedName?.Split(
+                                new[] { "," },
                                 StringSplitOptions.RemoveEmptyEntries
                             ).Skip(1).FirstOrDefault()
 #else
@@ -350,7 +351,12 @@ namespace PeanutButter.Utils
 #endif
                         ))
                         {
-                            acc.Add(string.Join("", cur.Name, ": ", propValue?.ToString()));
+                            acc.Add(string.Join("",
+                                    cur.Name,
+                                    ": ",
+                                    SafeStringifier(propValue, level + 1, nullRepresentation)
+                                )
+                            );
                         }
                         else
                         {
@@ -366,11 +372,11 @@ namespace PeanutButter.Utils
                     })
                 .JoinWith($"\n{indent}");
             return ("{\n" +
-                    string.Join(
-                        "\n{indent}",
-                        $"{indent}{joinWith}"
-                    ) +
-                    $"\n{indentMinus1}}}").Compact();
+                string.Join(
+                    "\n{indent}",
+                    $"{indent}{joinWith}"
+                ) +
+                $"\n{indentMinus1}}}").Compact();
         }
 
         private static string StringifyPrimitive(
