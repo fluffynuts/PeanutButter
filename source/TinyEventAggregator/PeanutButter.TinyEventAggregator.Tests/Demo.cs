@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using NExpect;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
+using static NExpect.Expectations;
 
 namespace PeanutButter.TinyEventAggregator.Tests
 {
@@ -45,10 +46,10 @@ namespace PeanutButter.TinyEventAggregator.Tests
             // off
             var loginEvent = eventAggregator.GetEvent<LoginEvent>();
             loginEvent.Publish(karen);
-            Expectations.Expect(loggedInUsers)
+            Expect(loggedInUsers)
                 .To.Contain(karen);
             loginEvent.Publish(bob);
-            Expectations.Expect(loggedInUsers)
+            Expect(loggedInUsers)
                 .To.Contain(bob);
 
             // we can suspend messaging:
@@ -75,13 +76,13 @@ namespace PeanutButter.TinyEventAggregator.Tests
 
             beforeBarrier.SignalAndWait();
             Thread.Sleep(100); // wait a little to let the Publish call kick off
-            Expectations.Expect(loggedInUsers)
+            Expect(loggedInUsers)
                 .Not.To.Contain(sam);
 
             // we can unsuspend
             eventAggregator.Unsuspend();
             afterBarrier.SignalAndWait();
-            Expectations.Expect(loggedInUsers)
+            Expect(loggedInUsers)
                 .To.Contain(sam);
 
             // there's an async publish which won't block up the publisher:
@@ -89,13 +90,13 @@ namespace PeanutButter.TinyEventAggregator.Tests
             var task = eventAggregator.GetEvent<LogoutEvent>()
                 .PublishAsync(sam);
             var waited = task.Wait(100);
-            Expectations.Expect(waited)
+            Expect(waited)
                 .To.Be.False();
-            Expectations.Expect(loggedInUsers)
+            Expect(loggedInUsers)
                 .To.Contain(sam);
             eventAggregator.Unsuspend();
             await task;
-            Expectations.Expect(loggedInUsers)
+            Expect(loggedInUsers)
                 .Not.To.Contain(sam);
 
             // when to use Publish vs PublishAsync
@@ -128,16 +129,16 @@ namespace PeanutButter.TinyEventAggregator.Tests
             logoutEvent.Suspend();
             var logoutTask = logoutEvent.PublishAsync(bob);
             logoutTask.Wait(100);
-            Expectations.Expect(loggedInUsers)
+            Expect(loggedInUsers)
                 .To.Contain(bob); // logout messages were suspended!
             await loginEvent.PublishAsync(sam);
-            Expectations.Expect(loggedInUsers)
+            Expect(loggedInUsers)
                 .To.Contain(sam);
             logoutEvent.Unsuspend();
             waited = logoutTask.Wait(100);
-            Expectations.Expect(waited)
+            Expect(waited)
                 .To.Be.True();
-            Expectations.Expect(loggedInUsers)
+            Expect(loggedInUsers)
                 .Not.To.Contain(bob);
 
             // we can also have limited subscriptions
@@ -158,9 +159,9 @@ namespace PeanutButter.TinyEventAggregator.Tests
                     .Publish(RandomValueGen.GetRandom<User>());
             }
 
-            Expectations.Expect(onceOffUser)
+            Expect(onceOffUser)
                 .Not.To.Be.Null();
-            Expectations.Expect(limitedUsers)
+            Expect(limitedUsers)
                 .To.Contain.Only(limit).Items();
             
             onceOffUser = null;
@@ -169,11 +170,11 @@ namespace PeanutButter.TinyEventAggregator.Tests
                 .SubscribeOnce(OnceOffSubscription);
             eventAggregator.GetEvent<OnceOffEvent>()
                 .Publish(sam);
-            Expectations.Expect(onceOffUser)
+            Expect(onceOffUser)
                 .To.Be(sam);
             // since we should have resubscribed, this publish
             // will now throw
-            Expectations.Expect(() => eventAggregator.GetEvent<OnceOffEvent>()
+            Expect(() => eventAggregator.GetEvent<OnceOffEvent>()
                 .Publish(sam)
             ).To.Throw<InvalidOperationException>();
 
