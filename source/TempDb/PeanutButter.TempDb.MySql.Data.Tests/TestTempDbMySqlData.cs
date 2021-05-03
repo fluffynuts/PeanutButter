@@ -358,6 +358,19 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                             trimmed.EndsWith(expected);
                     });
             }
+            
+            [SetUp]
+            public void Setup()
+            {
+                var mysqlServices =
+                    ServiceController.GetServices().Where(s => s.DisplayName.ToLower().Contains("mysql"));
+                if (!mysqlServices.Any())
+                {
+                    Assert.Ignore(
+                        "Test only works when there is at least one mysql service installed and that service has 'mysql' in the name (case-insensitive)"
+                    );
+                }
+            }
         }
 
         [TestFixture]
