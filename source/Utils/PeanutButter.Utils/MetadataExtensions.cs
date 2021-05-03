@@ -13,12 +13,12 @@ namespace Imported.PeanutButter.Utils
 namespace PeanutButter.Utils
 #endif
 {
-/// <summary>
-/// Provides extension methods to set and retrieve metadata on any object.
-/// Under the hood, these methods use a ConditionalWeakTable to store your
-/// metadata, so the metadata is garbage-collected when your managed objects
-/// are garbage-collected.
-/// </summary>
+    /// <summary>
+    /// Provides extension methods to set and retrieve metadata on any object.
+    /// Under the hood, these methods use a ConditionalWeakTable to store your
+    /// metadata, so the metadata is garbage-collected when your managed objects
+    /// are garbage-collected.
+    /// </summary>
 #if BUILD_PEANUTBUTTER_INTERNAL
     internal
 #else
@@ -31,10 +31,12 @@ namespace PeanutButter.Utils
 
 #if BUILD_PEANUTBUTTER_INTERNAL
 #else // This is only used for testing and is not designed for consumers
-        internal static int TrackedObjectCount() {
+        internal static int TrackedObjectCount()
+        {
             var keys = Table.GetPropertyValue("Keys") as IEnumerable<object>;
             return keys?.Count()
-                ?? throw new InvalidOperationException("Reaching into ConditionalWeakTable for the Keys collection has failed");
+                ?? throw new InvalidOperationException(
+                    "Reaching into ConditionalWeakTable for the Keys collection has failed");
         }
 #endif
 
@@ -58,11 +60,9 @@ namespace PeanutButter.Utils
                 throw new NotSupportedException("Cannot set metadata for null");
             }
 
-            using (new AutoLocker(Lock))
-            {
-                var data = GetMetadataFor(parent) ?? AddMetadataFor(parent);
-                data[key] = value;
-            }
+            using var _ = new AutoLocker(MetadataLock);
+            var data = GetMetadataFor(parent) ?? AddMetadataFor(parent);
+            data[key] = value;
         }
 
         /// <summary>
@@ -103,18 +103,16 @@ namespace PeanutButter.Utils
             T defaultValue
         )
         {
-            using (new AutoLocker(Lock))
+            using var _ = new AutoLocker(MetadataLock);
+            var data = GetMetadataFor(parent);
+            if (data == null)
             {
-                var data = GetMetadataFor(parent);
-                if (data == null)
-                {
-                    return defaultValue;
-                }
-
-                return data.TryGetValue(key, out var result)
-                    ? (T) result // WILL fail hard if the caller doesn't match the stored type
-                    : defaultValue;
+                return defaultValue;
             }
+
+            return data.TryGetValue(key, out var result)
+                ? (T) result // WILL fail hard if the caller doesn't match the stored type
+                : defaultValue;
         }
 
         /// <summary>
@@ -152,27 +150,52 @@ namespace PeanutButter.Utils
                 return false;
             }
 
-            using (new AutoLocker(Lock))
+            using var _ = new AutoLocker(MetadataLock);
+            var data = GetMetadataFor(parent);
+            if (data == null)
             {
-                var data = GetMetadataFor(parent);
-                if (data == null)
-                {
-                    return false;
-                }
-
-                if (!data.TryGetValue(key, out var stored))
-                {
-                    return false;
-                }
-
-                if (!CanCast<T>(stored))
-                {
-                    return false;
-                }
-
-                result = (T)stored;
-                return true;
+                return false;
             }
+
+            if (!data.TryGetValue(key, out var stored))
+            {
+                return false;
+            }
+
+            if (!CanCast<T>(stored))
+            {
+                return false;
+            }
+
+            result = (T) stored;
+            return true;
+        }
+
+        /// <summary>
+        /// Clones all the metadata from parent to target
+        /// - will overwrite target data with the same key!
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <param name="target"></param>
+        public static void CopyAllMetadataTo(
+            this object parent,
+            object target
+        )
+        {
+            if (parent is null || target is null)
+            {
+                return;
+            }
+
+            using var _ = new AutoLocker(MetadataLock);
+            var data = GetMetadataFor(parent);
+            if (data is null)
+            {
+                return;
+            }
+
+            var targetData = GetMetadataFor(target) ?? AddMetadataFor(target);
+            data.ForEach(kvp => targetData[kvp.Key] = kvp.Value);
         }
 
         private static bool CanCast<T>(object stored)
@@ -196,7 +219,7 @@ namespace PeanutButter.Utils
             }
         }
 
-        private static readonly SemaphoreSlim Lock = new SemaphoreSlim(1, 1);
+        private static readonly SemaphoreSlim MetadataLock = new SemaphoreSlim(1, 1);
 
         private static Dictionary<string, object> GetMetadataFor(object parent)
         {

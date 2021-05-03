@@ -119,6 +119,26 @@ namespace PeanutButter.Utils.Tests
             Expect(MetadataExtensions.TrackedObjectCount()).To.Equal(0);
         }
 
+        [Test]
+        public void ShouldBeAbleToCopyAllMetadataToAnotherObject()
+        {
+            // Arrange
+            var obj1 = new object();
+            var obj2 = new object();
+            var id = GetRandomInt();
+            var name = GetRandomString();
+            obj1.SetMetadata("id", id);
+            obj1.SetMetadata("name", name);
+            
+            // Act
+            obj1.CopyAllMetadataTo(obj2);
+            // Assert
+            Expect(obj2.GetMetadata<int>("id"))
+                .To.Equal(id);
+            Expect(obj2.GetMetadata<string>("name"))
+                .To.Equal(name);
+        }
+
         private static void ArrangeAndPreAssert()
         {
             // this code needs to be in a different scope to force
