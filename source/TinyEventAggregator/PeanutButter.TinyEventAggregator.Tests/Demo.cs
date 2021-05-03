@@ -12,6 +12,7 @@ namespace PeanutButter.TinyEventAggregator.Tests
     [TestFixture]
     public class Demo
     {
+        const int WAIT_TO_PROVE_SUSPEND_WORKS = 1000;
         [Test]
         public async Task DemonstrateUsage()
         {
@@ -89,7 +90,7 @@ namespace PeanutButter.TinyEventAggregator.Tests
             eventAggregator.Suspend();
             var task = eventAggregator.GetEvent<LogoutEvent>()
                 .PublishAsync(sam);
-            var waited = task.Wait(100);
+            var waited = task.Wait(WAIT_TO_PROVE_SUSPEND_WORKS);
             Expect(waited)
                 .To.Be.False();
             Expect(loggedInUsers)
@@ -128,14 +129,16 @@ namespace PeanutButter.TinyEventAggregator.Tests
             var logoutEvent = eventAggregator.GetEvent<LogoutEvent>();
             logoutEvent.Suspend();
             var logoutTask = logoutEvent.PublishAsync(bob);
-            logoutTask.Wait(100);
+            waited = logoutTask.Wait(WAIT_TO_PROVE_SUSPEND_WORKS);
+            Expect(waited)
+                .To.Be.False();
             Expect(loggedInUsers)
                 .To.Contain(bob); // logout messages were suspended!
             await loginEvent.PublishAsync(sam);
             Expect(loggedInUsers)
                 .To.Contain(sam);
             logoutEvent.Unsuspend();
-            waited = logoutTask.Wait(100);
+            waited = logoutTask.Wait(WAIT_TO_PROVE_SUSPEND_WORKS);
             Expect(waited)
                 .To.Be.True();
             Expect(loggedInUsers)
