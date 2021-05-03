@@ -1,3 +1,5 @@
+using System.Linq;
+using System.ServiceProcess;
 using NExpect;
 using NUnit.Framework;
 using PeanutButter.TempDb.MySql.Base;
@@ -9,12 +11,25 @@ namespace PeanutButter.TempDb.Tests.Core
 {
     public class TestTempDbMySql
     {
+        [SetUp]
+        public void Setup()
+        {
+            var mysqlServices =
+                ServiceController.GetServices().Where(s => s.DisplayName.ToLower().Contains("mysql"));
+            if (!mysqlServices.Any())
+            {
+                Assert.Ignore(
+                    "Test only works when there is at least one mysql service installed and that service has 'mysql' in the name (case-insensitive)"
+                );
+            }
+        }
+
         [Test]
         public void ShouldBeAbleToInitializeOnWindows()
         {
             // Arrange
             // Act
-            if(Platform.IsWindows)
+            if (Platform.IsWindows)
             {
                 var mysqld = MySqlWindowsServiceFinder.FindPathToMySql();
                 Expect(mysqld).Not.To.Be.Null(
@@ -27,7 +42,7 @@ namespace PeanutButter.TempDb.Tests.Core
                         {
                         }
                     })
-                .Not.To.Throw<FatalTempDbInitializationException>();
+                    .Not.To.Throw<FatalTempDbInitializationException>();
             }
             else
             {
