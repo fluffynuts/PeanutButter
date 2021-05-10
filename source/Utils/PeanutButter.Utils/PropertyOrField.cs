@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 
 // ReSharper disable UnusedMember.Global
@@ -63,6 +65,78 @@ namespace PeanutButter.Utils
             return new PropertyOrField(fieldInfo);
         }
 
+        private static readonly BindingFlags SearchBindingFlags =
+            BindingFlags.Public | BindingFlags.NonPublic |
+            BindingFlags.Instance | BindingFlags.Static;
+
+        /// <summary>
+        /// Attempts to find a property or field with the given name on
+        /// a type - will scan public, private, static and instance properties
+        /// and fields. It's up to the caller to know what do to with that (:
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="name"></param>
+        /// <exception cref="ArgumentException">thrown when the property or field is not found</exception>
+        /// <returns></returns>
+        public static PropertyOrField Find(
+            Type type,
+            string name
+        )
+        {
+            return TryFind(type, name)
+                ?? throw new ArgumentException(
+                    $"No property or field named '{name}' found on type '{type}'",
+                    nameof(name)
+                );
+        }
+
+        private static ConcurrentDictionary<Tuple<Type, string>, PropertyOrField>
+            FindCache = new ConcurrentDictionary<Tuple<Type, string>, PropertyOrField>();
+
+        /// <summary>
+        /// Attempts to find a property or field with the given name on
+        /// a type - will scan public, private, static and instance properties
+        /// and fields. It's up to the caller to know what do to with that (:
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static PropertyOrField TryFind(
+            Type type,
+            string name
+        )
+        {
+            var cacheKey = Tuple.Create(type, name);
+            if (FindCache.TryGetValue(cacheKey, out var result))
+            {
+                return result;
+            }
+
+            var propInfo = type.GetProperties(
+                SearchBindingFlags
+            ).FirstOrDefault(pi => pi.Name == name);
+            if (propInfo is not null)
+            {
+                result = Create(propInfo);
+                FindCache.TryAdd(cacheKey, result);
+                return result;
+            }
+
+            var fieldInfo = type.GetFields(
+                SearchBindingFlags
+            ).FirstOrDefault(fi => fi.Name == name);
+
+            if (fieldInfo is null)
+            {
+                FindCache.TryAdd(cacheKey, null);
+                return null;
+            }
+
+            result = Create(fieldInfo);
+            FindCache.TryAdd(cacheKey, result);
+            return result;
+        }
+
         /// <summary>
         /// Name of the property or field
         /// </summary>
@@ -101,7 +175,7 @@ namespace PeanutButter.Utils
         {
             _getValue = prop.GetValue;
             _setValue = prop.SetValue;
-            
+
             Name = prop.Name;
             Type = prop.PropertyType;
             DeclaringType = prop.DeclaringType;
@@ -135,7 +209,7 @@ namespace PeanutButter.Utils
         {
             _getValue = field.GetValue;
             _setValue = field.SetValue;
-            
+
             Name = field.Name;
             Type = field.FieldType;
             DeclaringType = field.DeclaringType;
@@ -161,8 +235,28 @@ namespace PeanutButter.Utils
         /// <param name="value"></param>
         public void SetValue(object host, object value)
         {
-            _setValue(host, value);
+            if (value is null)
+            {
+                if (!Type.IsNullableType())
+                {
+                    throw new ArgumentException($"Cannot set type {Type} to null");
+                }
+
+                _setValue(host, null);
+                return;
+
+            }
+
+            if (!value.TryImplicitlyCastTo(Type, out var castValue))
+            {
+                throw new ArgumentException(
+                    $"Cannot set value '{value}' of type {value.GetType()} for target {Type}"
+                );
+            }
+
+            _setValue(host, castValue);
         }
+
 
         /// <summary>
         /// Sets the value for the field or property

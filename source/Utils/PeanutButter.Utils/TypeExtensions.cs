@@ -6,7 +6,6 @@ using System.Reflection;
 
 // ReSharper disable ConstantNullCoalescingCondition
 // ReSharper disable UnusedMember.Global
-
 // ReSharper disable MemberCanBePrivate.Global
 
 #if BUILD_PEANUTBUTTER_INTERNAL
@@ -580,28 +579,62 @@ namespace PeanutButter.Utils
         /// Returns true if the type being operated on can be
         /// implicitly upcast to the target type
         /// </summary>
-        /// <param name="src"></param>
+        /// <param name="source"></param>
         /// <param name="target"></param>
         /// <returns></returns>
         public static bool CanImplicitlyCastTo(
-            this Type src,
+            this Type source,
             Type target
         )
         {
-            var convertSpecific = TryConvertGeneric.MakeGenericMethod(target);
-            if (!src.IsValueType() || !target.IsValueType())
+            if (source is null)
+            {
+                throw new ArgumentException("source cannot be null", nameof(source));
+            }
+
+            if (target is null)
+            {
+                throw new ArgumentException("target cannot be null", nameof(target));
+            }
+
+            return source.DefaultValue().TryImplicitlyCastTo(target, out _);
+        }
+
+        /// <summary>
+        /// Returns true if the type being operated on can be
+        /// implicitly upcast to the target type (value types only, so far)
+        /// </summary>
+        /// <param name="targetType"></param>
+        /// <param name="srcValue"></param>
+        /// <param name="castValue"></param>
+        /// <returns></returns>
+        public static bool TryImplicitlyCastTo(
+            this object srcValue,
+            Type targetType,
+            out object castValue
+        )
+        {
+            var srcType = srcValue?.GetType();
+            
+            if (srcType == targetType)
+            {
+                castValue = srcValue;
+                return true;
+            }
+
+            castValue = targetType.DefaultValue();
+            var convertSpecific = TryConvertGeneric.MakeGenericMethod(targetType);
+            if (!srcType.IsValueType() || !targetType.IsValueType())
             {
                 // fixme: what about implicit operators?
                 return false;
             }
 
 
-            var defaultSpecific = DefaultValueGeneric.MakeGenericMethod(src);
-            var defaultValue = defaultSpecific.Invoke(null, null);
             bool canConvert;
             try
             {
-                convertSpecific.Invoke(null, new[] { defaultValue });
+                castValue = convertSpecific.Invoke(null, new[] { srcValue });
                 canConvert = true;
             }
             catch
@@ -612,7 +645,7 @@ namespace PeanutButter.Utils
             return canConvert;
         }
 
-        private static readonly ConcurrentDictionary<Type, object> _defaultTypeValues
+        private static readonly ConcurrentDictionary<Type, object> DefaultTypeValues
             = new ConcurrentDictionary<Type, object>();
 
         /// <summary>
@@ -622,14 +655,14 @@ namespace PeanutButter.Utils
         /// <returns></returns>
         public static object DefaultValue(this Type type)
         {
-            if (_defaultTypeValues.TryGetValue(type, out var cached))
+            if (DefaultTypeValues.TryGetValue(type, out var cached))
             {
                 return cached;
             }
 
             var method = DefaultValueGeneric.MakeGenericMethod(type);
             var result = method.Invoke(null, null);
-            _defaultTypeValues.TryAdd(type, result);
+            DefaultTypeValues.TryAdd(type, result);
             return result;
         }
 
@@ -925,9 +958,10 @@ namespace PeanutButter.Utils
                         i.GetGenericTypeDefinition() == expected
                     );
             }
+
             return interfaces.Any(i => i == expected);
         }
-        
+
         /// <summary>
         /// Tests if the provided type is nullable
         /// </summary>
@@ -945,7 +979,7 @@ namespace PeanutButter.Utils
             var result = defaultValueForType == null;
             return NullableTypes[arg] = result;
         }
-        
+
         private static readonly MethodInfo GenericGetDefaultValueMethod =
             typeof(TypeExtensions).GetMethod(
                 nameof(GetDefaultValueFor),
@@ -956,7 +990,45 @@ namespace PeanutButter.Utils
         {
             return default(T);
         }
+
         private static readonly ConcurrentDictionary<Type, bool> NullableTypes = new ConcurrentDictionary<Type, bool>();
 
+        /// <summary>
+        /// Attempts to set a static property or field value
+        /// </summary>
+        /// <param name="t"></param>
+        /// <param name="fieldOrPropertyName"></param>
+        /// <param name="value"></param>
+        /// <typeparam name="T"></typeparam>
+        public static void SetStatic<T>(
+            this Type t,
+            string fieldOrPropertyName,
+            T value
+        )
+        {
+            var member = PropertyOrField.Find(
+                t,
+                fieldOrPropertyName
+            );
+            member.SetValue(null, value);
+        }
+
+        /// <summary>
+        /// Attempts to get a static property or field value
+        /// </summary>
+        /// <param name="t"></param>
+        /// <param name="fieldOrPropertyName"></param>
+        /// <typeparam name="T"></typeparam>
+        public static T GetStatic<T>(
+            this Type t,
+            string fieldOrPropertyName
+        )
+        {
+            var member = PropertyOrField.Find(
+                t,
+                fieldOrPropertyName
+            );
+            return (T) member.GetValue(null);
+        }
     }
 }

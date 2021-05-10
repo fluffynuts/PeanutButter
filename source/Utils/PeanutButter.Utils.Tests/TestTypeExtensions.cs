@@ -2,6 +2,7 @@
 using NExpect;
 using NUnit.Framework;
 using static NExpect.Expectations;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMember.Global
@@ -438,6 +439,95 @@ namespace PeanutButter.Utils.Tests
             }
         }
 
+        [TestFixture]
+        public class SetStatic
+        {
+            [Test]
+            public void ShouldSetStaticProperty()
+            {
+                // Arrange
+                var t = typeof(HasStatics);
+                var expected = GetRandomInt();
+                // Act
+                t.SetStatic(nameof(HasStatics.Id), expected);
+                // Assert
+                Expect(HasStatics.Id)
+                    .To.Equal(expected);
+            }
 
+            [Test]
+            public void ShouldSetStaticField()
+            {
+                // Arrange
+                var t = typeof(HasStatics);
+                var expected = GetRandomString();
+                // Act
+                t.SetStatic("_name", expected);
+                // Assert
+                Expect(new HasStatics().Name)
+                    .To.Equal(expected);
+            }
+
+            [Test]
+            public void ShouldImplicitlyUpCastValue()
+            {
+                // Arrange
+                var t = typeof(HasStatics);
+                var expected = (byte)GetRandomInt(1, 10);
+                // Act
+                t.SetStatic("Id", expected);
+                // Assert
+                Expect(HasStatics.Id)
+                    .To.Equal(expected);
+            }
+
+            public class HasStatics
+            {
+                public string Name => _name;
+                private static string _name;
+
+                public static int Id { get; set; }
+            }
+        }
+
+        [TestFixture]
+        public class GetStatic
+        {
+            [Test]
+            public void ShouldRetrieveStaticProperty()
+            {
+                // Arrange
+                var t = typeof(HasStatics);
+                var expected = GetRandomInt();
+                // Act
+                t.SetStatic("Id", expected);
+                var result = t.GetStatic<int>("Id");
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+
+            [Test]
+            public void ShouldRetrieveStaticField()
+            {
+                // Arrange
+                var t = typeof(HasStatics);
+                var expected = GetRandomString();
+                // Act
+                t.SetStatic("_name", expected);
+                var result = t.GetStatic<string>("_name");
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+            
+            public class HasStatics
+            {
+                public string Name => _name;
+                private static string _name;
+
+                private static int Id { get; set; }
+            }
+        }
     }
 }

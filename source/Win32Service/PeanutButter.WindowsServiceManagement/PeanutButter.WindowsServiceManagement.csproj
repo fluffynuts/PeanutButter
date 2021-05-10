@@ -36,6 +36,7 @@
     <Compile Include="..\..\Utils\PeanutButter.Utils\ByteArrayExtensions.cs" Link="ByteArrayExtensions.cs" />
     <Compile Include="..\..\Utils\PeanutButter.Utils\ExtensionsForIEnumerables.cs" Link="ExtensionsForIEnumerables.cs" />
     <Compile Include="..\..\Utils\PeanutButter.Utils\TypeExtensions.cs" Link="ExtensionsForIEnumerables.cs" />
+    <Compile Include="..\..\Utils\PeanutButter.Utils\PropertyOrField.cs" Link="PropertyOrField.cs" />
     <Compile Include="..\..\Utils\PeanutButter.Utils\CannotZipNullException.cs" Link="CannotZipNullException.cs" />
     <Compile Include="..\..\Utils\PeanutButter.Utils\UnevenZipException.cs" Link="UnevenZipException.cs" />
     <Compile Include="..\..\Utils\PeanutButter.Utils\FlagExtensions.cs" Link="FlagExtensions.cs" />
