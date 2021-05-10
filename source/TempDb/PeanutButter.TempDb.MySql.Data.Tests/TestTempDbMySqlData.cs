@@ -775,10 +775,12 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
             }
 
             [Test]
+            [Retry(3)]
             public void ConnectionUseShouldExtendLifetime()
             {
                 // Arrange
-                using var db = Create(inactivityTimeout: TimeSpan.FromSeconds(1));
+                var inactivitySeconds = 1;
+                using var db = Create(inactivityTimeout: TimeSpan.FromSeconds(inactivitySeconds));
                 var disposed = false;
                 db.Disposed += (o, e) => disposed = true;
                 // Act
@@ -791,8 +793,31 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                     }).Not.To.Throw();
                 }
 
-                Thread.Sleep(2000);
+                var timeout = DateTime.Now.AddSeconds(10);
+                var stillConnected = true;
+                while (DateTime.Now < timeout && stillConnected)
+                {
+                    stillConnected = db.TryFetchCurrentConnectionCount() > 0;
+                    if (stillConnected)
+                    {
+                        Thread.Sleep(100);
+                    }
+                }
 
+                if (stillConnected)
+                {
+                    Assert.Fail("Still appear to have connections?!");
+                }
+
+                while (DateTime.Now < timeout && !disposed)
+                {
+                    Thread.Sleep(100);
+                }
+
+                // Assert
+                Expect(disposed)
+                    .To.Be.True();
+                
                 Expect(() =>
                     {
                         using var conn = db.OpenConnection();
@@ -807,9 +832,6 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                             Type = "MySqlException",
                             IsConnectionError = true
                         });
-                // Assert
-                Expect(disposed)
-                    .To.Be.True();
             }
 
             [Test]

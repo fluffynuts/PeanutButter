@@ -280,7 +280,7 @@ namespace PeanutButter.TempDb
         private TimeSpan _absoluteLifespan;
         private bool _haveReportedIdleTimeoutNotSupported;
 
-        private int TryFetchCurrentConnectionCount()
+        public int TryFetchCurrentConnectionCount()
         {
             try
             {
