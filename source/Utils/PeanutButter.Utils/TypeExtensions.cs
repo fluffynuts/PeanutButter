@@ -624,12 +624,6 @@ namespace PeanutButter.Utils
 
             castValue = targetType.DefaultValue();
             var convertSpecific = TryConvertGeneric.MakeGenericMethod(targetType);
-            if (!srcType.IsValueType() || !targetType.IsValueType())
-            {
-                // fixme: what about implicit operators?
-                return false;
-            }
-
 
             bool canConvert;
             try
