@@ -10,11 +10,16 @@ namespace PeanutButter.Utils
     /// provides a singleton wrapper around Random.Next
     ///    to reduce the chances of clashing
     /// </summary>
-    public static class RandomNumber
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        static class RandomNumber
     {
-        private static readonly Random RandomSource 
+        private static readonly Random RandomSource
             = new Random(Guid.NewGuid().GetHashCode());
-        
+
         /// <summary>
         /// Wraps Random.Next
         /// </summary>
@@ -33,7 +38,7 @@ namespace PeanutButter.Utils
         {
             return RandomSource.Next(maxValue);
         }
-        
+
         /// <summary>
         /// Wraps Random.Next
         /// </summary>
@@ -63,5 +68,4 @@ namespace PeanutButter.Utils
             RandomSource.NextBytes(buffer);
         }
     }
-
 }

@@ -14,7 +14,12 @@ namespace PeanutButter.Utils
     /// Used to describe a wrapper
     /// - IsValid should flag whether or not the wrapping was successful
     /// </summary>
-    public interface IWrapper
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        interface IWrapper
     {
         /// <summary>
         /// Flag: communicates if the wrapping was successful. Unsuccessful wraps
@@ -42,7 +47,8 @@ namespace PeanutButter.Utils
         private static readonly BindingFlags PublicInstance = BindingFlags.Public | BindingFlags.Instance;
         private static readonly Type EnumeratorType = typeof(IEnumerator);
         private static readonly PropertyInfo[] EnumeratorProps = EnumeratorType.GetProperties(PublicInstance);
-        private static readonly MethodInfo[] RequiredEnumeratorMethods = 
+
+        private static readonly MethodInfo[] RequiredEnumeratorMethods =
             EnumeratorType.GetMethods(PublicInstance)
                 // Reset is optional!
                 .Where(mi => mi.Name != nameof(IEnumerator.Reset))
@@ -174,7 +180,12 @@ namespace PeanutButter.Utils
     /// Wraps an object which would be an acceptable enumerator in a foreach
     /// (due to .NET compile-time duck-typing) into an actual IEnumerator
     /// </summary>
-    public class EnumeratorWrapper<T> : IEnumerator<T>, IWrapper
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        class EnumeratorWrapper<T> : IEnumerator<T>, IWrapper
     {
         /// <inheritdoc />
         public bool IsValid { get; private set; }
