@@ -461,7 +461,7 @@ namespace PeanutButter.Utils.Tests
             {
                 //---------------Set up test pack-------------------
                 Stream dst = null;
-                var expected = GetRandomBytes();
+                var expected = GetRandomBytes(128);
 
                 //---------------Assert Precondition----------------
 
@@ -479,7 +479,7 @@ namespace PeanutButter.Utils.Tests
             {
                 //---------------Set up test pack-------------------
                 using var memStream = new MemoryStream();
-                var expected = GetRandomBytes();
+                var expected = GetRandomBytes(128);
 
                 //---------------Assert Precondition----------------
 
@@ -520,7 +520,7 @@ namespace PeanutButter.Utils.Tests
                     FileMode.Open,
                     FileAccess.ReadWrite);
                 fileStream.Write(initial, 0, initial.Length);
-                var expected = GetRandomBytes();
+                var expected = GetRandomBytes(128);
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
