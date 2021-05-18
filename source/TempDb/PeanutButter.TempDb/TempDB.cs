@@ -203,6 +203,11 @@ namespace PeanutButter.TempDb
                 _absoluteEol = DateTime.MaxValue;
             }
 
+            Log($@"setting up inactivity watcher thread for absolute lifespan {
+                _absoluteLifespan
+            } and absolute EOL {
+                _absoluteEol
+            }");
             _inactivityWatcherThread = new Thread(CheckForInactivity);
             _inactivityWatcherThread.Start();
             _autoDisposeThread = null;
@@ -261,7 +266,10 @@ namespace PeanutButter.TempDb
         {
             var logAction = LogAction;
             if (logAction == null)
+            {
                 return;
+            }
+
             try
             {
                 logAction(string.Format(message, parameters));
@@ -288,7 +296,7 @@ namespace PeanutButter.TempDb
             }
             catch (Exception ex)
             {
-                if (ex is NotImplementedException && 
+                if (ex is NotImplementedException &&
                     !_haveReportedIdleTimeoutNotSupported)
                 {
                     _haveReportedIdleTimeoutNotSupported = true;
@@ -296,7 +304,8 @@ namespace PeanutButter.TempDb
                 }
                 else
                 {
-                    Log($"Error whilst trying to retrieve active database connection count: {ex.Message}\n{ex.StackTrace}");
+                    Log(
+                        $"Error whilst trying to retrieve active database connection count: {ex.Message}\n{ex.StackTrace}");
                 }
 
                 return -1;

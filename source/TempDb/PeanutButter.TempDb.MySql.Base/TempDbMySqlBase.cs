@@ -33,7 +33,7 @@ namespace PeanutButter.TempDb.MySql.Base
         /// listening for connections after starting up. Defaults to 30 seconds,
         /// but left static so consumers can tweak the value as required.
         /// </summary>
-        public static int DefaultStartupMaxWaitSeconds = 30;
+        public static int DefaultStartupMaxWaitSeconds = 45;
 
         // ReSharper disable once StaticMemberInGenericType
         /// <summary>
@@ -80,6 +80,24 @@ namespace PeanutButter.TempDb.MySql.Base
             return envValue.AsBoolean();
         }
 
+        private readonly object _debugLogLock = new object();
+
+        private void DebugLog(string toLog)
+        {
+            if (!VerboseLoggingEnabled)
+            {
+                return;
+            }
+
+            lock (_debugLogLock)
+            {
+                File.AppendAllLines(
+                    _debugLogFile,
+                    new[] { toLog }
+                );
+            }
+        }
+
         /// <summary>
         /// Set to true to see trace logging about discovery of a port to
         /// instruct mysqld to bind to
@@ -115,6 +133,8 @@ namespace PeanutButter.TempDb.MySql.Base
 
         protected string SchemaName;
         private AutoDeleter _autoDeleter;
+        
+        private string _debugLogFile = Path.GetTempFileName();
 
         /// <summary>
         /// Construct a TempDbMySql with zero or more creation scripts and default options
@@ -166,10 +186,26 @@ namespace PeanutButter.TempDb.MySql.Base
             Action<object> beforeInit,
             TempDbMySqlServerSettings settings)
         {
-            self.LogAction = settings?.Options?.LogAction;
+            self.LogAction = WrapWithDebugLogger(self, settings?.Options?.LogAction);
             self._autoDeleter = new AutoDeleter();
             self.Settings = settings;
             beforeInit?.Invoke(self);
+        }
+
+        private static Action<string> WrapWithDebugLogger(
+            TempDBMySqlBase<T> tempDb,
+            Action<string> optionsLogAction)
+        {
+            if (optionsLogAction is null)
+            {
+                return tempDb.DebugLog;
+            }
+
+            return logString =>
+            {
+                tempDb.DebugLog(logString);
+                optionsLogAction.Invoke(logString);
+            };
         }
 
         private string FindInstalledMySqlD()
@@ -182,25 +218,30 @@ namespace PeanutButter.TempDb.MySql.Base
 
         private string QueryForMySqld()
         {
+            Log("Looking for mysqld in the PATH...");
             var mysqld = Find.InPath("mysqld");
             var shouldFindInPath = Platform.IsUnixy || Settings.Options.ForceFindMySqlInPath;
-            if (shouldFindInPath && !(mysqld is null))
+            if (shouldFindInPath && mysqld is not null)
             {
+                Log($"Found mysqld in the PATH: {mysqld}");
                 return mysqld;
             }
 
-            if (Platform.IsWindows)
+            if (!Platform.IsWindows)
             {
-                var servicePath = MySqlWindowsServiceFinder.FindPathToMySql();
-                // prefer the pathed mysqld, but fall back on service path if available
-                var resolved = mysqld ?? servicePath;
-                if (resolved is not null)
-                {
-                    return resolved;
-                }
+                Log("mysqld discovery on non-windows platforms is limited to finding within the PATH");
+                throw _noMySqlFoundException;
             }
 
-            throw _noMySqlFoundException;
+            var servicePath = MySqlWindowsServiceFinder.FindPathToMySql();
+            // prefer the pathed mysqld, but fall back on service path if available
+            var resolved = mysqld ?? servicePath;
+            Log($@"mysqld from path: {
+                mysqld ?? "(not found)"
+            }; mysqld from service finder: {
+                servicePath ?? "(not found)"
+            }");
+            return resolved ?? throw _noMySqlFoundException;
         }
 
         private string MySqld =>
@@ -209,8 +250,10 @@ namespace PeanutButter.TempDb.MySql.Base
         /// <inheritdoc />
         protected override void CreateDatabase()
         {
+            Log("create initial database");
             _startAttempts = 0;
             MySqlVersion = QueryVersionOf(MySqld);
+            Log($"mysql is version: {MySqlVersion}");
             EnsureIsRemoved(DatabasePath);
             if (IsMySql8(MySqlVersion))
             {
@@ -220,16 +263,31 @@ namespace PeanutButter.TempDb.MySql.Base
             // mysql 5.7 wants an empty data base dir, so we have to use
             // a temp defaults file for init only, which 8 seems to be ok with
             using var tempFolder = new AutoTempFolder();
+            Log($"temp folder created at {tempFolder}");
+            Log($"dumping defaults in temp folder {tempFolder.Path} for initialization");
             DumpDefaultsFileAt(tempFolder.Path);
             InitializeWith(MySqld, Path.Combine(tempFolder.Path, "my.cnf"));
+            
+            RedirectDebugLogging();
 
             // now we need the real config file, sitting in the db dir
+            Log($"dumping run-time defaults file into {DatabasePath}");
             DumpDefaultsFileAt(DatabasePath);
             Port = DeterminePortToUse();
             StartServer(MySqld);
             SetRootPassword();
             CreateInitialSchema();
             SetUpAutoDisposeIfRequired();
+        }
+
+        private void RedirectDebugLogging()
+        {
+            lock (_debugLogLock)
+            {
+                var existingFile = _debugLogFile;
+                _debugLogFile = DataFilePath("tempdb-debug.log");
+                File.Move(existingFile, _debugLogFile);
+            }
         }
 
         private void SetUpAutoDisposeIfRequired()
@@ -242,6 +300,7 @@ namespace PeanutButter.TempDb.MySql.Base
 
         private void RemoveDeprecatedOptions()
         {
+            Log("Removing NO_AUTO_CREATE_USER option (deprecated in mysql 8+)");
             Settings.SqlMode = (Settings.SqlMode ?? "").Split(',')
                 .Where(p => p != "NO_AUTO_CREATE_USER")
                 .JoinWith(",");
@@ -249,6 +308,7 @@ namespace PeanutButter.TempDb.MySql.Base
 
         private void SetRootPassword()
         {
+            Log("setting root password (default is 'root', actual password not output in case it's sensitive)");
             using var conn = OpenConnection();
             using var cmd = conn.CreateCommand();
             cmd.CommandText =
@@ -317,6 +377,7 @@ namespace PeanutButter.TempDb.MySql.Base
         private void CreateInitialSchema()
         {
             var schema = Settings?.Options.DefaultSchema ?? "tempdb";
+            Log($"create initial schema: {schema}");
             SwitchToSchema(schema);
         }
 
@@ -331,6 +392,7 @@ namespace PeanutButter.TempDb.MySql.Base
             SchemaName = "";
             if (string.IsNullOrWhiteSpace(schema))
             {
+                Log("empty schema provided; not switching!");
                 return;
             }
 
@@ -389,6 +451,7 @@ namespace PeanutButter.TempDb.MySql.Base
         /// <param name="sql"></param>
         public void Execute(string sql)
         {
+            Log($"executing: {sql}");
             using var connection = OpenConnection();
             using var command = connection.CreateCommand();
             command.CommandText = sql;
@@ -397,6 +460,7 @@ namespace PeanutButter.TempDb.MySql.Base
 
         private void EnsureIsRemoved(string databasePath)
         {
+            Log($"Ensuring {databasePath} does not already exist");
             if (File.Exists(databasePath))
             {
                 File.Delete(databasePath);
@@ -428,6 +492,7 @@ namespace PeanutButter.TempDb.MySql.Base
                     generator.GenerateFor(Settings)
                 )
             );
+            Log($"Dumped defaults at {outputFile}");
             return outputFile;
         }
 
@@ -547,14 +612,16 @@ namespace PeanutButter.TempDb.MySql.Base
                 {
                     TestIsRunning();
                 }
-                catch (FatalTempDbInitializationException)
+                catch (FatalTempDbInitializationException ex)
                 {
+                    Log($"Fatal TempDb init exception: {ex.Message}");
                     // I've seen the mysqld process simply exit early
                     // (5.7, win32) without anything interesting in the
                     // error log; so let's just give this a few attempts
                     // before giving up completely
                     if (++_startAttempts >= MaxStartupAttempts)
                     {
+                        Log($"Giving up: have tried {_startAttempts} and limit is {MaxStartupAttempts}");
                         throw;
                     }
 
@@ -577,6 +644,7 @@ namespace PeanutButter.TempDb.MySql.Base
             {
                 if (Settings?.Options?.PortHint.HasValue ?? false)
                 {
+                    Log($"incrementing port hint to {Settings.Options.PortHint + 1}");
                     Settings.Options.PortHint++;
                 }
 
@@ -668,8 +736,8 @@ values ('__tempdb_id__', '{InstanceId}', 'root');";
 
         private void TestIsRunning()
         {
-            var start = DateTime.Now;
-            var max = TimeSpan.FromSeconds(MaxSecondsToWaitForMySqlToStart);
+            Log("testing to see if mysqld is running");
+            var maxTime = DateTime.Now.AddSeconds(MaxSecondsToWaitForMySqlToStart);
             do
             {
                 if (_serverProcess.HasExited)
@@ -677,6 +745,8 @@ values ('__tempdb_id__', '{InstanceId}', 'root');";
                     Log("Server process has exited");
                     break;
                 }
+
+                Log($"Server process is running as {_serverProcess.Id}");
 
                 if (CanConnect())
                 {
@@ -688,8 +758,8 @@ values ('__tempdb_id__', '{InstanceId}', 'root');";
                     return;
                 }
 
-                Thread.Sleep(10);
-            } while (DateTime.Now - start < max);
+                Thread.Sleep(250);
+            } while (DateTime.Now < maxTime);
 
             KeepTemporaryDatabaseArtifactsForDiagnostics = true;
 
@@ -698,6 +768,11 @@ values ('__tempdb_id__', '{InstanceId}', 'root');";
 
             try
             {
+                if (_serverProcess is not null)
+                {
+                    Log($"killing server process {_serverProcess?.Id} - seems to be unresponsive to connect?");
+                }
+
                 _serverProcess?.Kill();
                 _serverProcess?.Dispose();
                 _serverProcess = null;
@@ -728,6 +803,7 @@ stderr: {stderr}"
             var logFile = Path.Combine(DatabasePath, "mysql-err.log");
             if (!File.Exists(logFile))
             {
+                Log($"no logfile found at {logFile}");
                 return false;
             }
 
@@ -739,6 +815,7 @@ stderr: {stderr}"
             }
             catch
             {
+                Log($"Can't read from {logFile}");
                 return false; // can't read the file, so can't say it might just be a port conflict
             }
         }
@@ -765,6 +842,7 @@ stderr: {stderr}"
                     Thread.Sleep(500);
                 }
             }
+
             Log($"Giving up on connecting to mysql on port {Port}");
             return false;
         }
@@ -817,6 +895,7 @@ stderr: {stderr}"
 
         private void AttemptManualInitialization(string mysqld)
         {
+            Log("Attempting manual initialization for older mysql");
             var installFolder = Path.GetDirectoryName(
                 Path.GetDirectoryName(
                     mysqld
@@ -824,11 +903,16 @@ stderr: {stderr}"
             var dataDir = Path.Combine(
                 installFolder ??
                 throw new InvalidOperationException($"Unable to determine hosting folder for {mysqld}"),
-                "data");
+                "data"
+            );
             if (!Directory.Exists(dataDir))
+            {
                 throw new FatalTempDbInitializationException(
                     $"Unable to manually initialize: folder not found: {dataDir}"
                 );
+            }
+
+            Log($"copying files and folders from {dataDir} into {DatabasePath}");
             Directory.EnumerateDirectories(dataDir)
                 .ForEach(d => CopyFolder(d, CombinePaths(DatabasePath, Path.GetFileName(d))));
             Directory.EnumerateFiles(dataDir)
@@ -839,7 +923,10 @@ stderr: {stderr}"
         {
             var nonNull = parts.Where(p => p != null).ToArray();
             if (nonNull.IsEmpty())
+            {
                 throw new InvalidOperationException($"no paths provided for {nameof(CombinePaths)}");
+            }
+
             return Path.Combine(nonNull);
         }
 
@@ -864,7 +951,10 @@ stderr: {stderr}"
         {
             var baseName = Path.GetFileName(src);
             if (baseName == null)
+            {
                 return;
+            }
+
             copyAction(src, Path.Combine(targetFolder, baseName));
         }
 
@@ -884,6 +974,11 @@ stderr: {stderr}"
         {
             public string Platform { get; set; }
             public Version Version { get; set; }
+
+            public override string ToString()
+            {
+                return $"{Version} ({Platform})";
+            }
         }
 
         private MySqlVersionInfo QueryVersionOf(string mysqld)
@@ -912,6 +1007,11 @@ stderr: {stderr}"
             return versionInfo;
         }
 
+        private string DataFilePath(string relativePath)
+        {
+            return Path.Combine(DatabasePath, relativePath);
+        }
+
         private Process RunCommand(
             bool logStartupInfo,
             string filename,
@@ -931,7 +1031,7 @@ stderr: {stderr}"
             {
                 LogProcessStartInfo(
                     startInfo,
-                    Path.Combine(DataDir, "startup-info.log")
+                    DataFilePath("startup-info.log")
                 );
             }
 

@@ -358,7 +358,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                             trimmed.EndsWith(expected);
                     });
             }
-            
+
             [SetUp]
             public void Setup()
             {
@@ -394,7 +394,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 using var cmd2 = conn2.CreateCommand();
                 cmd2.CommandText = "select * from information_schema.TABLES limit 1";
                 using var reader2 = cmd2.ExecuteReader();
-                
+
                 // Assert
                 Expect(reader2.HasRows)
                     .To.Be.True();
@@ -538,7 +538,11 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                         () => SetPortHintEnvVar(port),
                         RestorePortHintEnvVar))
                     {
-                        using (var db = new TempDBMySql())
+                        var settings = new TempDbMySqlServerSettings()
+                        {
+                            Options = { EnableVerboseLogging = true }
+                        };
+                        using (var db = new TempDBMySql(settings))
                         {
                             // Act
                             var configuredPort = GrokPortFrom(db.ConnectionString);
@@ -587,7 +591,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 //  of a conflict between Connector and .Data
                 return connectionString
                     .Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries)
-                    .FirstOrDefault(part => part.StartsWith("port", StringComparison.OrdinalIgnoreCase))
+                    .First(part => part.StartsWith("port", StringComparison.OrdinalIgnoreCase))
                     .Split('=')
                     .Skip(1)
                     .Select(int.Parse)
@@ -817,7 +821,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 // Assert
                 Expect(disposed)
                     .To.Be.True();
-                
+
                 Expect(() =>
                     {
                         using var conn = db.OpenConnection();

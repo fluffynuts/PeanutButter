@@ -41,7 +41,7 @@ namespace PeanutButter.TempDb.MySql.Base
             /// The default max time to wait for a successful connection at
             /// startup, in seconds
             /// </summary>
-            public const int DEFAULT_MAX_TIME_TO_CONNECT_AT_START_IN_SECONDS = 10;
+            public const int DEFAULT_MAX_TIME_TO_CONNECT_AT_START_IN_SECONDS = 15;
 
             /// <summary>
             /// Flag: log attempts to locate a random, usable port to listen on
