@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Net.Sockets;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
@@ -13,11 +14,11 @@ namespace PeanutButter.SimpleTcpServer.Tests
     [TestFixture]
     public class TestSimpleTcpServer
     {
-        public class MyTcpServer: TcpServer
+        public class MyTcpServer : TcpServer
         {
-            public int LastRandomPort { get; private set;}
+            public int LastRandomPort { get; private set; }
 
-            public MyTcpServer(int port): base(port)
+            public MyTcpServer(int port) : base(port)
             {
             }
 
@@ -28,7 +29,14 @@ namespace PeanutButter.SimpleTcpServer.Tests
 
             public int _FindOpenRandomPort()
             {
-                return PortFinder.FindOpenPort();
+                return PortFinder.FindOpenPort(
+                    IPAddress.Loopback,
+                    1024,
+                    32768,
+                    (min, max, last) => last == 0
+                        ? LastRandomPort
+                        : NextRandomPort()
+                );
             }
 
             protected override int NextRandomPort()
