@@ -150,7 +150,7 @@ namespace PeanutButter.TempRedis
         {
             _executable = options.PathToRedisService;
             LocatorStrategies = options.LocatorStrategies;
-            Port = FindOpenRandomPort();
+            Port = PortFinder.FindOpenPort();
             if (options.AutoStart)
             {
                 Start();
@@ -213,12 +213,6 @@ namespace PeanutButter.TempRedis
         public void Dispose()
         {
             Stop();
-        }
-
-        private int FindOpenRandomPort()
-        {
-            using var finder = new PortFinder();
-            return finder.Port;
         }
 
         private string FindRedisExecutable()

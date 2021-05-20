@@ -29,5 +29,8 @@
   <ItemGroup>
     <Compile Include="..\..\Utils\PeanutButter.Utils\RandomNumber.cs" Link="RandomNumber.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj" />
+  </ItemGroup>
   <Import Project="..\..\MonoForFramework.targets" />
 </Project>

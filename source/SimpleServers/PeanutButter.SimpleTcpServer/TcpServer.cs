@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using Imported.PeanutButter.Utils;
+using PeanutButter.Utils;
 
 // ReSharper disable VirtualMemberCallInConstructor
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -76,7 +76,18 @@ namespace PeanutButter.SimpleTcpServer
         {
             _randomPortMin = minPort;
             _randomPortMax = maxPort;
-            Port = FindOpenRandomPort();
+            Port = PortFinder.FindOpenPort(
+                IPAddress.Loopback,
+                minPort,
+                maxPort, (min, max, last) => NextRandomPort(),
+                s =>
+                {
+                    if (LogRandomPortDiscovery)
+                    {
+                        LogAction?.Invoke(s);
+                    }
+                }
+            );
             Init();
         }
 
@@ -193,7 +204,7 @@ namespace PeanutButter.SimpleTcpServer
                     }
 
                     Thread.Sleep(10); // back off the bind attempts briefly
-                    Port = FindOpenRandomPort();
+                    Port = PortFinder.FindOpenPort();
                 }
             }
         }
@@ -317,44 +328,6 @@ namespace PeanutButter.SimpleTcpServer
         public virtual void Dispose()
         {
             Stop();
-        }
-        
-        /// <summary>
-        /// Attempts to find a random port to bind to
-        /// </summary>
-        /// <returns></returns>
-        protected int FindOpenRandomPort()
-        {
-            var tryThis = NextRandomPort();
-            var seekingPort = true;
-
-            while (seekingPort)
-            {
-                try
-                {
-                    Action($"Attempting to connect to random port {tryThis} on localhost");
-                    using (var client = new TcpClient())
-                    {
-                        client.Connect(new IPEndPoint(IPAddress.Loopback, tryThis));
-                    }
-
-                    Thread.Sleep(RandomNumber.Next(1, 50));
-                    tryThis = NextRandomPort();
-                }
-                catch
-                {
-                    Action($"HUZZAH! We have a port, squire! ({tryThis})");
-                    seekingPort = false;
-                }
-            }
-
-            return tryThis;
-
-            void Action(string s)
-            {
-                if (LogRandomPortDiscovery)
-                    Log(s);
-            }
         }
 
         /// <summary>

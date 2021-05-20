@@ -4,6 +4,8 @@ using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using static NExpect.Expectations;
 using NExpect;
+using PeanutButter.Utils;
+
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.SimpleTcpServer.Tests
@@ -26,7 +28,7 @@ namespace PeanutButter.SimpleTcpServer.Tests
 
             public int _FindOpenRandomPort()
             {
-                return FindOpenRandomPort();
+                return PortFinder.FindOpenPort();
             }
 
             protected override int NextRandomPort()

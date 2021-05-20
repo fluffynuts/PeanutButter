@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -133,7 +132,7 @@ namespace PeanutButter.TempDb.MySql.Base
 
         protected string SchemaName;
         private AutoDeleter _autoDeleter;
-        
+
         private string _debugLogFile = Path.GetTempFileName();
 
         /// <summary>
@@ -267,7 +266,7 @@ namespace PeanutButter.TempDb.MySql.Base
             Log($"dumping defaults in temp folder {tempFolder.Path} for initialization");
             DumpDefaultsFileAt(tempFolder.Path);
             InitializeWith(MySqld, Path.Combine(tempFolder.Path, "my.cnf"));
-            
+
             RedirectDebugLogging();
 
             // now we need the real config file, sitting in the db dir
@@ -1077,82 +1076,41 @@ stderr: {stderr}"
 
         private int FindFirstPortFrom(int portHint)
         {
-            return FindPort(last => last == 0
-                ? portHint
-                : last + 1);
-        }
-
-        private int FindPort(
-            Func<int, int> portGenerator
-        )
-        {
-            var tryThis = portGenerator(0);
-            var attempts = 0;
-            while (attempts++ < 1000)
-            {
-                LogPortDiscoveryInfo($"Testing if port can be bound {tryThis} on any available IP address");
-                if (!PortIsInUse(tryThis))
-                {
-                    LogPortDiscoveryInfo($"Port looks to be available: {tryThis}");
-                    break;
-                }
-
-                if (attempts == 1000)
-                {
-                    throw new FatalTempDbInitializationException(
-                        "Unable to find high random port to bind on."
-                    );
-                }
-
-                LogPortDiscoveryInfo($"Port {tryThis} looks to be unavailable. Seeking another...");
-                Thread.Sleep(RandomNumber.Next(1, 50));
-                tryThis = portGenerator(tryThis);
-            }
-
-            return tryThis;
+            var minPort = Settings?.Options?.RandomPortMin
+                ?? TempDbMySqlServerSettings.TempDbOptions.DEFAULT_RANDOM_PORT_MIN;
+            var maxPort = Settings?.Options?.RandomPortMax
+                ?? TempDbMySqlServerSettings.TempDbOptions.DEFAULT_RANDOM_PORT_MAX;
+            return PortFinder.FindOpenPort(
+                IPAddress.Loopback,
+                minPort,
+                maxPort,
+                (min, max, last) => last < 1
+                    ? portHint
+                    : last + 1,
+                LogPortDiscoveryInfo
+            );
         }
 
         protected virtual int FindRandomOpenPort()
-        {
-            return FindPort(last => NextRandomPort());
-        }
-
-        private void LogPortDiscoveryInfo(string message)
-        {
-            if (Settings?.Options?.LogRandomPortDiscovery ?? false)
-                Log(message);
-        }
-
-        private bool PortIsInUse(int port)
-        {
-            try
-            {
-                using (var client = new TcpClient())
-                {
-                    client.Connect(new IPEndPoint(IPAddress.Loopback, port));
-                    return true;
-                }
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        private int NextRandomPort()
         {
             var minPort = Settings?.Options?.RandomPortMin
                 ?? TempDbMySqlServerSettings.TempDbOptions.DEFAULT_RANDOM_PORT_MIN;
             var maxPort = Settings?.Options?.RandomPortMax
                 ?? TempDbMySqlServerSettings.TempDbOptions.DEFAULT_RANDOM_PORT_MAX;
-            if (minPort > maxPort)
-            {
-                var swap = minPort;
-                minPort = maxPort;
-                maxPort = swap;
-            }
+            return PortFinder.FindOpenPort(
+                IPAddress.Loopback,
+                minPort,
+                maxPort,
+                LogPortDiscoveryInfo
+            );
+        }
 
-            return RandomNumber.Next(minPort, maxPort);
+        private void LogPortDiscoveryInfo(string message)
+        {
+            if (Settings?.Options?.LogRandomPortDiscovery ?? false)
+            {
+                Log(message);
+            }
         }
     }
 }

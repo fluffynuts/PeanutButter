@@ -29,7 +29,15 @@
     <license type="expression">BSD-3-Clause</license>
     <copyright>Copyright  2014</copyright>
     <dependencies>
-      <group targetFramework="net40"></group>
+      <group targetFramework="net462">
+        <dependency id="PeanutButter.Utils" version="2.0.21" />
+      </group>
+      <group targetFramework="net452">
+        <dependency id="PeanutButter.Utils" version="2.0.21" />
+      </group>
+      <group targetFramework="netstandard2.0">
+        <dependency id="PeanutButter.Utils" version="2.0.21" />
+      </group>
     </dependencies>
     <references></references>
     <tags>tcp server base inherit cross-platform</tags>

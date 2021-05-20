@@ -496,7 +496,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 public void ShouldListenOnHintedPortWhenAvailable()
                 {
                     // Arrange
-                    var port = PortFinder.FindPort();
+                    var port = PortFinder.FindOpenPort();
                     using var db = new TempDBMySql(CreateForPort(port));
                     // Act
                     var configuredPort = GrokPortFrom(db.ConnectionString);
@@ -509,10 +509,15 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 public void ShouldIncrementPortWhenHintedPortIsNotAvailable()
                 {
                     // Arrange
-                    var port = PortFinder.FindPort();
-                    while (PortFinder.NextIsUnavailable(port))
+                    if (Environment.GetEnvironmentVariable("TEMPDB_PORT_HINT") is null)
                     {
-                        port = PortFinder.FindPort();
+                        Assert.Ignore("Requires TEMPDB_PORT_HINT env var to be set");
+                    }
+
+                    var port = PortFinder.FindOpenPort();
+                    while (PortFinder.PortIsInUse(port + 1))
+                    {
+                        port = PortFinder.FindOpenPort();
                     }
 
                     using var outer = new TempDBMySql(CreateForPort(port));
@@ -533,7 +538,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 public void ShouldListenOnHintedPortWhenAvailable()
                 {
                     // Arrange
-                    var port = PortFinder.FindPort();
+                    var port = PortFinder.FindOpenPort();
                     using (new AutoResetter<string>(
                         () => SetPortHintEnvVar(port),
                         RestorePortHintEnvVar))
@@ -598,39 +603,6 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                     .First();
             }
 
-            public class PortFinder : SimpleTcpServer.TcpServer
-            {
-                public static int FindPort()
-                {
-                    return new PortFinder().FindOpenRandomPort();
-                }
-
-                public static bool NextIsUnavailable(int port)
-                {
-                    try
-                    {
-                        using var client = new TcpClient();
-                        client.Connect(new IPEndPoint(
-                            IPAddress.Loopback,
-                            port + 1
-                        ));
-                        return true;
-                    }
-                    catch
-                    {
-                        return false;
-                    }
-                }
-
-                protected override void Init()
-                {
-                }
-
-                protected override IProcessor CreateProcessorFor(TcpClient client)
-                {
-                    throw new NotImplementedException();
-                }
-            }
         }
 
         [TestFixture]
