@@ -5,6 +5,7 @@ using PeanutButter.Utils.Dictionaries;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using NExpect;
+
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -30,7 +31,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         public void ShouldBeAbleToGetExistingPropertyValue_CaseSensitive()
         {
             // Arrange
-            var src = new {Prop = GetRandomString()};
+            var src = new { Prop = GetRandomString() };
             var sut = Create(src);
             // Pre-Assert
             // Act
@@ -56,7 +57,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         public void ShouldThrowWhenIndexingNonExistentProperty()
         {
             // Arrange
-            var src = new {Moo = "Cow"};
+            var src = new { Moo = "Cow" };
             var sut = Create(src);
             // Pre-Assert
             // Act
@@ -75,7 +76,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         public void ShouldBeAbleToGetExistingFieldValue()
         {
             // Arrange
-            var src = new HasAField() {Name = GetRandomString()};
+            var src = new HasAField() { Name = GetRandomString() };
             var sut = Create(src);
             // Pre-Assert
             // Act
@@ -122,8 +123,8 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         public void Keys_ShouldReturnAllKeys()
         {
             // Arrange
-            var src = new {One = 1, Two = "two"};
-            var expected = new[] {"One", "Two"};
+            var src = new { One = 1, Two = "two" };
+            var expected = new[] { "One", "Two" };
             var sut = Create(src);
             // Pre-Assert
             // Act
@@ -136,8 +137,8 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         public void Values_ShouldReturnAllValues()
         {
             // Arrange
-            var src = new {One = 1, Two = "two"};
-            var expected = new object[] {1, "two"};
+            var src = new { One = 1, Two = "two" };
+            var expected = new object[] { 1, "two" };
             var sut = Create(src);
             // Pre-Assert
             // Act
@@ -239,7 +240,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             public void WhenPropertyExistsWithProvidedValue_ShouldReturnTrue()
             {
                 // Arrange
-                var src = new {Wat = "BatMan!"};
+                var src = new { Wat = "BatMan!" };
                 var sut = Create(src);
 
                 // Pre-Assert
@@ -255,7 +256,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             public void WhenPropertyExistsWithDifferentValue_ShouldReturnFalse()
             {
                 // Arrange
-                var src = new {Wat = "BatMan!"};
+                var src = new { Wat = "BatMan!" };
                 var sut = Create(src);
 
                 // Pre-Assert
@@ -271,7 +272,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             public void WhenValueExistsOnDifferentProperty_ShouldReturnFalse()
             {
                 // Arrange
-                var src = new {Wat = "BatMan!"};
+                var src = new { Wat = "BatMan!" };
                 var sut = Create(src);
 
                 // Pre-Assert
@@ -291,7 +292,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             public void WhenDoesHaveKey_ShouldReturnTrue()
             {
                 // Arrange
-                var src = new {Cake = "Yummy"};
+                var src = new { Cake = "Yummy" };
                 var sut = Create(src);
 
                 // Pre-Assert
@@ -307,7 +308,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             public void WhenDoesNotHaveKey_ShouldReturnTrue()
             {
                 // Arrange
-                var src = new {Cake = "Yummy"};
+                var src = new { Cake = "Yummy" };
                 var sut = Create(src);
 
                 // Pre-Assert
@@ -431,12 +432,101 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             }
         }
 
+        [TestFixture]
+        public class WhenConstructedToProvideWrappedObjectsForComplexProperties
+        {
+            [Test]
+            public void ShouldNotWrapPrimitiveProperty()
+            {
+                // Arrange
+                var data = new { id = 1 };
+                var sut = Create(data, wrapRecursively: true);
+                // Act
+                var result = sut["id"];
+                // Assert
+                Expect(result)
+                    .To.Be.An.Instance.Of<int>();
+            }
+
+            [Test]
+            public void ShouldWrapAComplexObject()
+            {
+                // Arrange
+                var data = new { sub = new { id = 1 } };
+                var sut = Create(data, wrapRecursively: true);
+                // Act
+                var result = sut["sub"];
+                // Assert
+                Expect(result)
+                    .To.Be.An.Instance.Of<IDictionary<string, object>>();
+                Expect(result.AsDict<string, object>()["id"])
+                    .To.Equal(1);
+            }
+
+            [Test]
+            public void ShouldReturnTheSameWrapperEachTime()
+            {
+                // Arrange
+                var data = new { sub = new { id = 1 } };
+                var sut = Create(data, wrapRecursively: true);
+                // Act
+                var result1 = sut["sub"];
+                var result2 = sut["sub"];
+                // Assert
+                Expect(result1)
+                    .To.Be(result2);
+            }
+
+            [Test]
+            [Ignore("WIP")]
+            public void ShouldReturnTheSameWrapperForRecursiveMembers()
+            {
+                // Arrange
+                
+                // Act
+                // Assert
+            }
+
+            [Test]
+            [Ignore("WIP")]
+            public void ShouldReturnTheSameWrapperForRecursiveCollectionItemMembers()
+            {
+                // Arrange
+                
+                // Act
+                // Assert
+            }
+
+            public class Node
+            {
+                public int Id { get; set; }
+                public string Name { get; set; }
+                public Node Parent { get; set; }
+                public Node[] Children { get; set; }
+            }
+        }
+
         private static DictionaryWrappingObject Create(
             object wrapped = null,
-            StringComparer stringComparer = null
+            StringComparer stringComparer = null,
+            bool wrapRecursively = false
         )
         {
-            return new DictionaryWrappingObject(wrapped, stringComparer ?? StringComparer.Ordinal);
+            return new DictionaryWrappingObject(
+                wrapped,
+                stringComparer ?? StringComparer.Ordinal,
+                wrapRecursively
+            );
+        }
+    }
+
+    public static class DictionaryCastExtensions
+    {
+        public static IDictionary<TKey, TValue> AsDict<TKey, TValue>(
+            this object obj
+        )
+        {
+            return obj as IDictionary<TKey, TValue>;
         }
     }
 }

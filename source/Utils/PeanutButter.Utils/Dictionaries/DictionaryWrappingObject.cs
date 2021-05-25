@@ -25,6 +25,7 @@ namespace PeanutButter.Utils.Dictionaries
         private readonly object _wrapped;
         private PropertyOrField[] _props;
         private Dictionary<string, string> _keys;
+        private readonly Dictionary<string, object> _memberCache = new();
         /// <summary>
         /// The string comparer used to locate keys
         /// </summary>
@@ -36,14 +37,34 @@ namespace PeanutButter.Utils.Dictionaries
         {
         }
 
+        public DictionaryWrappingObject(
+            object wrapped,
+            bool wrapRecursively
+        ): this(wrapped, StringComparer.Ordinal, wrapRecursively)
+        {
+        }
+
         /// <inheritdoc />
         public DictionaryWrappingObject(
             object wrapped,
             StringComparer keyComparer
+        ): this(wrapped, keyComparer, false)
+        {
+        }
+
+        public DictionaryWrappingObject(
+            object wrapped,
+            StringComparer keyComparer,
+            bool wrapRecursively
         )
         {
             Comparer = keyComparer;
             _wrapped = wrapped;
+            _wrapRecursively = wrapRecursively;
+            
+            _propertyReader = wrapRecursively
+                ? ReadWrappedProperty
+                : ReadObjectProperty;
         }
 
         private void CachePropertyInfos()
@@ -173,12 +194,31 @@ namespace PeanutButter.Utils.Dictionaries
             var info = _props.First(o => HasName(o, key));
             info.SetValue(_wrapped, value);
         }
-
+        
         private object ReadProperty(string key)
         {
             VerifyHasKey(key);
+            return _propertyReader(key);
+        }
+
+        private object ReadObjectProperty(string key)
+        {
             var prop = _props.First(o => HasName(o, key));
             return prop.GetValue(_wrapped);
+        }
+
+        private object ReadWrappedProperty(string key)
+        {
+            if (_memberCache.TryGetValue(key, out var cached))
+            {
+                return cached;
+            }
+
+            var rawValue = ReadObjectProperty(key);
+            var result = rawValue?.GetType().IsPrimitiveOrImmutable() ?? false
+                ? rawValue
+                : new DictionaryWrappingObject(rawValue, Comparer, _wrapRecursively);
+            return _memberCache[key] = result;
         }
 
         private void VerifyHasKey(string key)
@@ -214,10 +254,12 @@ namespace PeanutButter.Utils.Dictionaries
         private ICollection<object> GetValues()
         {
             CachePropertyInfos();
-            return _values ?? (_values = GetPropertyAndFieldValues());
+            return _values ??= GetPropertyAndFieldValues();
         }
 
         private object[] _values;
+        private readonly bool _wrapRecursively;
+        private readonly Func<string, object> _propertyReader;
 
         private object[] GetPropertyAndFieldValues()
         {

@@ -615,7 +615,7 @@ namespace PeanutButter.Utils
         )
         {
             var srcType = srcValue?.GetType();
-            
+
             if (srcType == targetType)
             {
                 castValue = srcValue;
@@ -985,7 +985,8 @@ namespace PeanutButter.Utils
             return default(T);
         }
 
-        private static readonly ConcurrentDictionary<Type, bool> NullableTypes = new ConcurrentDictionary<Type, bool>();
+        private static readonly ConcurrentDictionary<Type, bool> NullableTypes
+            = new();
 
         /// <summary>
         /// Attempts to set a static property or field value
@@ -1024,5 +1025,35 @@ namespace PeanutButter.Utils
             );
             return (T) member.GetValue(null);
         }
+
+        public static bool IsPrimitiveOrImmutable(
+            this Type type
+        )
+        {
+            return Types.PrimitivesAndImmutables.Contains(type);
+        }
+    }
+
+    internal static class Types
+    {
+        public static readonly HashSet<Type> PrimitivesAndImmutables =
+            new HashSet<Type>(new[]
+                {
+                    typeof(int),
+                    typeof(short),
+                    typeof(char),
+                    typeof(byte),
+                    typeof(long),
+                    typeof(string),
+                    typeof(float),
+                    typeof(double),
+                    typeof(decimal),
+                    typeof(bool),
+                    typeof(DateTime),
+                    typeof(TimeSpan),
+                    typeof(DateTimeOffset),
+                    typeof(Guid)
+                }
+            );
     }
 }
