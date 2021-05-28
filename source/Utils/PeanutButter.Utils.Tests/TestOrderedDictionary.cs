@@ -15,7 +15,9 @@ namespace PeanutButter.Utils.Tests
         public void ShouldImplementIDictionaryWithTypedParameters()
         {
             // Arrange
+#pragma warning disable 618
             var sut = new OrderedDictionary<string, int>();
+#pragma warning restore 618
             // Act
             Expect(sut)
                 .To.Be.An.Instance.Of<IDictionary<string, int>>();
@@ -186,7 +188,9 @@ namespace PeanutButter.Utils.Tests
 
         private static IOrderedDictionary<TKey, TValue> Create<TKey, TValue>()
         {
+#pragma warning disable 618
             return new OrderedDictionary<TKey, TValue>();
+#pragma warning restore 618
         }
     }
 }

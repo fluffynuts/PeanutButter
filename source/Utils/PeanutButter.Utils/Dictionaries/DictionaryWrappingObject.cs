@@ -26,32 +26,88 @@ namespace PeanutButter.Utils.Dictionaries
         private PropertyOrField[] _props;
         private Dictionary<string, string> _keys;
         private readonly Dictionary<string, object> _memberCache = new();
+        private readonly Dictionary<object, DictionaryWrappingObject> _wrapperCache = new();
+
         /// <summary>
         /// The string comparer used to locate keys
         /// </summary>
         public StringComparer Comparer { get; }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Provides a mechanism to reflectively read members on an object
+        /// via an IDictionary&lt;string, object&gt; interface
+        /// </summary>
+        /// <param name="wrapped"></param>
         public DictionaryWrappingObject(object wrapped)
             : this(wrapped, StringComparer.Ordinal)
         {
         }
 
+        /// <summary>
+        /// Provides a mechanism to reflectively read members on an object
+        /// via an IDictionary&lt;string, object&gt; interface
+        /// </summary>
+        /// <param name="wrapped"></param>
+        /// <param name="wrapRecursively">
+        /// When wrapping recursively, all properties are returned
+        /// as DictionaryWrappingObject instances so they can be
+        /// interrogated as dictionaries
+        /// </param>
         public DictionaryWrappingObject(
             object wrapped,
             bool wrapRecursively
-        ): this(wrapped, StringComparer.Ordinal, wrapRecursively)
+        ) : this(
+            wrapped,
+            StringComparer.Ordinal,
+            wrapRecursively
+        )
         {
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Provides a mechanism to reflectively read members on an object
+        /// via an IDictionary&lt;string, object&gt; interface
+        /// </summary>
+        /// <param name="wrapped"></param>
+        /// <param name="keyComparer">
+        /// Specify the key-comparer to use when reaching into objects
+        /// - the default is case-sensitive, ordinal, but you can make
+        ///   your wrapper instance more "forgiving" with a case-insensitive
+        ///   key-comparer
+        /// </param>
         public DictionaryWrappingObject(
             object wrapped,
             StringComparer keyComparer
-        ): this(wrapped, keyComparer, false)
+        ) : this(wrapped, keyComparer, false)
         {
         }
 
+        private DictionaryWrappingObject(
+            object wrapped,
+            StringComparer keyComparer,
+            bool wrapRecursively,
+            Dictionary<object, DictionaryWrappingObject> wrapperCache
+        ) : this(wrapped, keyComparer, wrapRecursively)
+        {
+            _wrapperCache = wrapperCache;
+        }
+
+        /// <summary>
+        /// Provides a mechanism to reflectively read members on an object
+        /// via an IDictionary&lt;string, object&gt; interface
+        /// </summary>
+        /// <param name="wrapped"></param>
+        /// <param name="wrapRecursively">
+        /// When wrapping recursively, all properties are returned
+        /// as DictionaryWrappingObject instances so they can be
+        /// interrogated as dictionaries
+        /// </param>
+        /// <param name="keyComparer">
+        /// Specify the key-comparer to use when reaching into objects
+        /// - the default is case-sensitive, ordinal, but you can make
+        ///   your wrapper instance more "forgiving" with a case-insensitive
+        ///   key-comparer
+        /// </param>
         public DictionaryWrappingObject(
             object wrapped,
             StringComparer keyComparer,
@@ -61,10 +117,11 @@ namespace PeanutButter.Utils.Dictionaries
             Comparer = keyComparer;
             _wrapped = wrapped;
             _wrapRecursively = wrapRecursively;
-            
+
             _propertyReader = wrapRecursively
                 ? ReadWrappedProperty
                 : ReadObjectProperty;
+            _wrapperCache[wrapped] = this;
         }
 
         private void CachePropertyInfos()
@@ -78,6 +135,7 @@ namespace PeanutButter.Utils.Dictionaries
                 _keys = new Dictionary<string, string>(Comparer);
                 return;
             }
+
             var flags = BindingFlags.Instance | BindingFlags.Public;
             _props = type.GetProperties(flags)
                 .Select(pi => new PropertyOrField(pi))
@@ -117,7 +175,7 @@ namespace PeanutButter.Utils.Dictionaries
             CachePropertyInfos();
             var prop = _props.FirstOrDefault(o => HasName(o, item.Key));
             return prop != null &&
-                   prop.GetValue(_wrapped) == item.Value;
+                prop.GetValue(_wrapped) == item.Value;
         }
 
         /// <inheritdoc />
@@ -194,7 +252,7 @@ namespace PeanutButter.Utils.Dictionaries
             var info = _props.First(o => HasName(o, key));
             info.SetValue(_wrapped, value);
         }
-        
+
         private object ReadProperty(string key)
         {
             VerifyHasKey(key);
@@ -217,15 +275,55 @@ namespace PeanutButter.Utils.Dictionaries
             var rawValue = ReadObjectProperty(key);
             var result = rawValue?.GetType().IsPrimitiveOrImmutable() ?? false
                 ? rawValue
-                : new DictionaryWrappingObject(rawValue, Comparer, _wrapRecursively);
+                : FindOrCreateWrapperFor(rawValue);
             return _memberCache[key] = result;
+        }
+
+        private object FindOrCreateWrapperFor(object rawValue)
+        {
+            if (rawValue is null)
+            {
+                return null;
+            }
+
+            if (_wrapperCache.TryGetValue(rawValue, out var result))
+            {
+                return result;
+            }
+
+            var enumerableWrapper = new EnumerableWrapper<object>(rawValue);
+            if (enumerableWrapper.IsValid)
+            {
+                return LazilyEnumerate(enumerableWrapper);
+            }
+
+            return _wrapperCache[rawValue]
+                = new DictionaryWrappingObject(
+                    rawValue,
+                    Comparer,
+                    _wrapRecursively,
+                    _wrapperCache
+                );
+        }
+
+        private IEnumerable<IDictionary<string, object>> LazilyEnumerate(
+            IEnumerable<object> objects
+        )
+        {
+            foreach (var item in objects)
+            {
+                yield return FindOrCreateWrapperFor(item) as DictionaryWrappingObject;
+            }
         }
 
         private void VerifyHasKey(string key)
         {
             CachePropertyInfos();
             if (_keys.ContainsKey(key))
+            {
                 return;
+            }
+
             throw new KeyNotFoundException(key);
         }
 

@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace PeanutButter.Utils.Dictionaries
 {
-    public interface IOrderedDictionary<TKey, TValue> : IDictionary<TKey, TValue>
+    internal interface IOrderedDictionary<TKey, TValue> : IDictionary<TKey, TValue>
     {
     }
 
-    public class OrderedDictionary<TKey, TValue>: IOrderedDictionary<TKey, TValue>
+    [Obsolete("OrderedDictionary is incomplete: there is no guarantee of key order yet")]
+    internal class OrderedDictionary<TKey, TValue>: IOrderedDictionary<TKey, TValue>
     {
         private readonly Dictionary<TKey, TValue> _actual = new();
         

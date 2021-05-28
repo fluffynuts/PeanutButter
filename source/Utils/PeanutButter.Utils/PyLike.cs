@@ -3,7 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace PeanutButter.Utils
+namespace
+#if BUILD_PEANUTBUTTER_INTERNAL
+Imported.PeanutButter.Utils
+#else
+PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Provides a Python-like Range method

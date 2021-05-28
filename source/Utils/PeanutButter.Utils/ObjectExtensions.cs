@@ -1196,9 +1196,9 @@ namespace PeanutButter.Utils
             var method = GenericIsInstanceOf.MakeGenericMethod(
                 type
             );
-            return (bool)method.Invoke(null, new[] { obj });
+            return (bool) method.Invoke(null, new[] { obj });
         }
-        
+
         /// <summary>
         /// Determines whether or not an arbitrary object is a RuntimeType
         /// </summary>
@@ -1211,6 +1211,5 @@ namespace PeanutButter.Utils
                 objType.Name == "RuntimeType" &&
                 objType.Namespace == "System";
         }
-
     }
 }

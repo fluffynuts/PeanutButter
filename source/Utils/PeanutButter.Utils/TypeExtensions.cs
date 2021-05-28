@@ -1026,6 +1026,16 @@ namespace PeanutButter.Utils
             return (T) member.GetValue(null);
         }
 
+        /// <summary>
+        /// Tests if the provided type is a "proper" primitive or
+        /// some other built-in immutable type, eg DateTime, TimeSpan,
+        /// Guid, DateTimeOffset
+        /// - useful when performing recursive reflection - if you hit
+        ///   a type identified by this extension method, then you should
+        ///   probably stop recursing.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static bool IsPrimitiveOrImmutable(
             this Type type
         )

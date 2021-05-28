@@ -3,7 +3,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+#if BUILD_PEANUTBUTTER_INTERNAL
+using static Imported.PeanutButter.Utils.PyLike;
+#else
 using static PeanutButter.Utils.PyLike;
+#endif
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable UnusedMember.Global
@@ -12,10 +16,11 @@ using static PeanutButter.Utils.PyLike;
 
 // ReSharper disable MemberCanBePrivate.Global
 
+namespace
 #if BUILD_PEANUTBUTTER_INTERNAL
-namespace Imported.PeanutButter.Utils
+Imported.PeanutButter.Utils
 #else
-namespace PeanutButter.Utils
+PeanutButter.Utils
 #endif
 {
     /// <summary>

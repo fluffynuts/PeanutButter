@@ -134,7 +134,6 @@ namespace PeanutButter.EasyArgs
         private bool? _explicitFlag;
 
         private bool? _allowMultipleValues;
-        private CommandlineArgument _negates;
 
         /// <summary>
         /// Produces a copy of the current argument, negated

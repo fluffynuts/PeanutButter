@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using PeanutButter.Utils.Dictionaries;
 using static NExpect.Expectations;
@@ -478,31 +480,84 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             }
 
             [Test]
-            [Ignore("WIP")]
             public void ShouldReturnTheSameWrapperForRecursiveMembers()
             {
                 // Arrange
-                
+                var node = new LinkedListItem();
+                node.Previous = node;
+                var sut = Create(node, wrapRecursively: true);
                 // Act
+                var result1 = sut["Previous"] as IDictionary<string, object>;
+                var result2 = result1["Previous"] as IDictionary<string, object>;
                 // Assert
+                Expect(result1)
+                    .To.Be(result2);
             }
 
             [Test]
-            [Ignore("WIP")]
-            public void ShouldReturnTheSameWrapperForRecursiveCollectionItemMembers()
+            public void ShouldPresentACollectionAsACollectionOfWrappers()
             {
                 // Arrange
-                
+                var data = new
+                {
+                    nodes = new[]
+                    {
+                        new { id = 1, text = "one" },
+                        new { id = 2, text = "two" }
+                    }
+                };
+                var sut = Create(data, wrapRecursively: true);
                 // Act
+                var nodes = sut["nodes"] as IEnumerable<IDictionary<string, object>>;
                 // Assert
+                Expect(nodes)
+                    .Not.To.Be.Null();
+                var nodeArray = nodes.ToArray();
+                Expect(nodeArray[0]["id"])
+                    .To.Equal(1);
+                Expect(nodeArray[1]["id"])
+                    .To.Equal(2);
+            }
+
+            [Test]
+            public void ShouldReuseWrappersForRecursivelyReferencedCollections()
+            {
+                // Arrange
+                // root -> [ child ] -> [ root ] -> [ child ] ...
+                var root = new Node() { Name = "root" };
+                var child = new Node() { Name = "child" };
+                root.Children = new[] { child };
+                child.Children = new[] { root };
+                // Act
+                var sut = Create(root, wrapRecursively: true);
+                // Assert
+                var firstLevelChildren = (sut["Children"] as IEnumerable<IDictionary<string, object>>).ToArray();
+                var secondLevelChildren = (firstLevelChildren[0]["Children"] as IEnumerable<IDictionary<string, object>>).ToArray();
+                var thirdLevelChildren = (secondLevelChildren[0]["Children"] as IEnumerable<IDictionary<string, object>>).ToArray();
+                Expect(secondLevelChildren[0]["Name"])
+                    .To.Equal("root");
+                Expect(secondLevelChildren[0])
+                    .To.Be(sut);
+                Expect(firstLevelChildren[0]["Name"])
+                    .To.Equal("child");
+                Expect(firstLevelChildren[0])
+                    .To.Be(thirdLevelChildren[0]);
             }
 
             public class Node
             {
-                public int Id { get; set; }
-                public string Name { get; set; }
+                public Guid Id { get; set; } = Guid.NewGuid();
                 public Node Parent { get; set; }
                 public Node[] Children { get; set; }
+                public string Name { get; set; }
+            }
+
+            public class LinkedListItem
+            {
+                public int Id { get; set; }
+                public string Name { get; set; }
+                public LinkedListItem Previous { get; set; }
+                public LinkedListItem Next { get; set; }
             }
         }
 

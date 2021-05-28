@@ -484,7 +484,7 @@ namespace PeanutButter.Utils.Tests
             public class HasStatics
             {
                 public string Name => _name;
-                private static string _name;
+                private static string _name = Guid.NewGuid().ToString();
 
                 public static int Id { get; set; }
             }
@@ -524,7 +524,7 @@ namespace PeanutButter.Utils.Tests
             public class HasStatics
             {
                 public string Name => _name;
-                private static string _name;
+                private static string _name = Guid.NewGuid().ToString();
 
                 private static int Id { get; set; }
             }
