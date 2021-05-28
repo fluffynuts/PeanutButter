@@ -121,7 +121,10 @@ namespace PeanutButter.Utils.Dictionaries
             _propertyReader = wrapRecursively
                 ? ReadWrappedProperty
                 : ReadObjectProperty;
-            _wrapperCache[wrapped] = this;
+            if (wrapped is not null)
+            {
+                _wrapperCache[wrapped] = this;
+            }
         }
 
         private void CachePropertyInfos()

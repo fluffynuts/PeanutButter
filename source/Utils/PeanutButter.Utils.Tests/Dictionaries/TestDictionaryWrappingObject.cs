@@ -25,7 +25,8 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             var sut = Create();
             // Pre-Assert
             // Act
-            Expect(sut).To.Be.An.Instance.Of<IDictionary<string, object>>();
+            Expect(sut)
+                .To.Be.An.Instance.Of<IDictionary<string, object>>();
             // Assert
         }
 
@@ -542,6 +543,56 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                     .To.Equal("child");
                 Expect(firstLevelChildren[0])
                     .To.Be(thirdLevelChildren[0]);
+            }
+
+            [TestFixture]
+            public class Writeback
+            {
+                [Test]
+                public void ShouldBeAbleToWriteBackToRootObjectProperties()
+                {
+                    // Arrange
+                    var node = GetRandom<Node>();
+                    var sut = Create(node, wrapRecursively: true);
+                    var expected = Guid.NewGuid();
+                    // Act
+                    sut["Id"] = expected;
+                    // Assert
+                    Expect(node.Id)
+                        .To.Equal(expected);
+                }
+
+                [Test]
+                public void ShouldBeAbleToWriteBackToFirstLevelObjectProperties()
+                {
+                    // Arrange
+                    var item = new LinkedListItem() { Name = GetRandomString() };
+                    var next = new LinkedListItem() { Name = GetRandomString() };
+                    item.Next = next;
+                    var sut = Create(item, wrapRecursively: true);
+                    var expected = GetRandomString(20);
+                    // Act
+                    var wrappedNext = sut["Next"] as IDictionary<string, object>;
+                    wrappedNext["Name"] = expected;
+                    // Assert
+                    Expect(next.Name)
+                        .To.Equal(expected);
+                }
+
+                [Test]
+                [Explicit("WIP")]
+                public void ShouldBeAbleToWriteToPropertiesOfCollectionItem()
+                {
+                    // Arrange
+                    var root = GetRandom<Node>();
+                    var child = GetRandom<Node>();
+                    root.Children = new[] { child };
+                    var expected = GetRandomString(20);
+                    var sut = Create(root, wrapRecursively: true);
+                    // Act
+                    var wrappedChildren = sut["Children"] as IEnumerable<IDictionary<string, object>>;
+                    // Assert
+                }
             }
 
             public class Node
