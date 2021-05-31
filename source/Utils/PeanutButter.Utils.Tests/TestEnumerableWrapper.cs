@@ -47,7 +47,7 @@ namespace PeanutButter.Utils.Tests
                 var data = new[] { 1, 2, 3 };
                 var collector = new List<int>();
                 var firstLayer = new MyEnumerable<int>(data);
-                var sut = new EnumerableWrapper(firstLayer);
+                var sut = new EnumerableEnumerableWrapper(firstLayer);
                 // Act
                 Expect(sut.IsValid).To.Be.True();
                 foreach (var item in sut)
@@ -65,7 +65,7 @@ namespace PeanutButter.Utils.Tests
                 // Arrange
                 var data = new[] { 1, 2, 3 };
                 var firstLayer = new MyEnumerable<int>(data);
-                var sut = new EnumerableWrapper<int>(firstLayer);
+                var sut = new EnumerableEnumerableWrapper<int>(firstLayer);
                 // Act
                 Expect(sut.IsValid).To.Be.True();
                 var result = sut.ToList();

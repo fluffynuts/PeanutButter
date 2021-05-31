@@ -18,17 +18,29 @@ namespace PeanutButter.Utils.Tests.Dictionaries
     [TestFixture]
     public class TestDictionaryWrappingObject
     {
-        [Test]
-        public void ShouldImplementIDictionary_string_object()
+        [TestCase(typeof(IDictionary<string, object>))]
+        public void ShouldImplementIDictionary_string_object(Type expected)
         {
             // Arrange
-            var sut = Create();
+            var sut = typeof(DictionaryWrappingObject);
             // Pre-Assert
             // Act
             Expect(sut)
-                .To.Be.An.Instance.Of<IDictionary<string, object>>();
+                .To.Implement(expected);
             // Assert
         }
+        
+        [Test]
+        public void ShouldProvideNullPatternForNullValue()
+        {
+            // Arrange
+            var sut = Create(null);
+            // Act
+            Expect(sut.Keys)
+                .To.Be.Empty();
+            // Assert
+        }
+
 
         [Test]
         public void ShouldBeAbleToGetExistingPropertyValue_CaseSensitive()
@@ -533,8 +545,10 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                 var sut = Create(root, wrapRecursively: true);
                 // Assert
                 var firstLevelChildren = (sut["Children"] as IEnumerable<IDictionary<string, object>>).ToArray();
-                var secondLevelChildren = (firstLevelChildren[0]["Children"] as IEnumerable<IDictionary<string, object>>).ToArray();
-                var thirdLevelChildren = (secondLevelChildren[0]["Children"] as IEnumerable<IDictionary<string, object>>).ToArray();
+                var secondLevelChildren =
+                    (firstLevelChildren[0]["Children"] as IEnumerable<IDictionary<string, object>>).ToArray();
+                var thirdLevelChildren =
+                    (secondLevelChildren[0]["Children"] as IEnumerable<IDictionary<string, object>>).ToArray();
                 Expect(secondLevelChildren[0]["Name"])
                     .To.Equal("root");
                 Expect(secondLevelChildren[0])
@@ -580,7 +594,6 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                 }
 
                 [Test]
-                [Explicit("WIP")]
                 public void ShouldBeAbleToWriteToPropertiesOfCollectionItem()
                 {
                     // Arrange
@@ -590,25 +603,141 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                     var expected = GetRandomString(20);
                     var sut = Create(root, wrapRecursively: true);
                     // Act
-                    var wrappedChildren = sut["Children"] as IEnumerable<IDictionary<string, object>>;
+                    var wrappedChildren = sut["Children"].AsDictArray<string, object>();
+                    wrappedChildren[0]["Name"] = expected;
+                    // Assert
+                    Expect(child.Name)
+                        .To.Equal(expected);
+                }
+
+                [Test]
+                public void ShouldBeAbleToReplaceChildWithRawObject()
+                {
+                    // Arrange
+                    var root = GetRandom<LinkedListItem>();
+                    var original = GetRandom<LinkedListItem>();
+                    root.Next = original;
+                    var replacement = GetRandom<LinkedListItem>();
+                    var sut = Create(root, wrapRecursively: true);
+                    // Act
+                    sut["Next"] = replacement;
+                    var result = sut["Next"];
+                    // Assert
+                    Expect(result)
+                        .To.Be.An.Instance.Of<IDictionary<string, object>>();
+                    var dict = result.AsDict<string, object>();
+                    Expect(dict["Name"])
+                        .To.Equal(replacement.Name);
+                }
+
+                [Test]
+                public void ShouldAutomaticallyHandleWrappedWritebackWithCorrectWrappedType()
+                {
+                    // Arrange
+                    var root = GetRandom<LinkedListItem>();
+                    var original = GetRandom<LinkedListItem>();
+                    root.Next = original;
+                    var replacement = GetRandom<LinkedListItem>();
+                    var sut = Create(root, wrapRecursively: true);
+                    var wrappedReplacement = Create(replacement, wrapRecursively: true);
+
+                    // Act
+                    Expect(() =>
+                    {
+                        sut["Next"] = wrappedReplacement;
+                    }).Not.To.Throw();
+                    // Assert
+                    Expect(root.Next)
+                        .To.Be(replacement);
+                }
+
+                [Test]
+                public void ShouldThrowInformativeErrorWhenAttemptingToWriteInvalidType()
+                {
+                    // Arrange
+                    var root = GetRandom<LinkedListItem>();
+                    var next = GetRandom<Node>();
+                    var sut = Create(root, wrapRecursively: true);
+                    // Act
+                    Expect(() =>
+                        {
+                            sut["Next"] = next;
+                        }).To.Throw<ArgumentException>()
+                        .With.Message.Containing("Attempt to set property 'Next'")
+                        .Then("will fail")
+                        .Then("target type")
+                        .Then(nameof(Node));
                     // Assert
                 }
             }
+        }
 
-            public class Node
+        [TestFixture]
+        public class Unwrapping
+        {
+            [TestCase(typeof(IWrapper))]
+            public void ShouldImplement_(Type expected)
             {
-                public Guid Id { get; set; } = Guid.NewGuid();
-                public Node Parent { get; set; }
-                public Node[] Children { get; set; }
-                public string Name { get; set; }
+                // Arrange
+                var sut = typeof(DictionaryWrappingObject);
+                // Act
+                Expect(sut)
+                    .To.Implement(expected);
+                // Assert
+            }
+            
+            [Test]
+            public void ShouldBeAbleToObtainOriginalObject()
+            {
+                // Arrange
+                var root = GetRandom<Node>();
+                var sut = Create(root) as IWrapper;
+                // Act
+                var wrapped = sut.Unwrap();
+                // Assert
+                Expect(wrapped)
+                    .To.Be(root);
             }
 
-            public class LinkedListItem
+            [Test]
+            public void ShouldBeAbleToObtainOriginalObjectWithType()
             {
-                public int Id { get; set; }
-                public string Name { get; set; }
-                public LinkedListItem Previous { get; set; }
-                public LinkedListItem Next { get; set; }
+                // Arrange
+                var root = GetRandom<Node>();
+                var sut = Create(root) as IWrapper;
+                // Act
+                var wrapped = sut.Unwrap<Node>();
+                // Assert
+                Expect(wrapped)
+                    .To.Be(root);
+            }
+
+            [Test]
+            public void ShouldBeAbleToObtainOriginalObjectWithBaseType()
+            {
+                // Arrange
+                var root = GetRandom<DerivativeNode>();
+                var sut = Create(root) as IWrapper;
+                // Act
+                var wrapped = sut.Unwrap<Node>();
+                // Assert
+                Expect(wrapped)
+                    .To.Be(root);
+            }
+
+            [Test]
+            public void ShouldGracefullyFailUnwrapWithTryUnwrap()
+            {
+                // Arrange
+                var root = GetRandom<Node>();
+                var sut = Create(root) as IWrapper;
+                // Act
+                var result = sut.TryUnwrap<LinkedListItem>(out var wrapped);
+                // Assert
+                Expect(result)
+                    .To.Be.False();
+                Expect(wrapped)
+                    .To.Be.Null();
             }
         }
 
@@ -624,7 +753,28 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                 wrapRecursively
             );
         }
+
+        public class DerivativeNode : Node
+        {
+        }
+
+        public class Node
+        {
+            public Guid Id { get; set; } = Guid.NewGuid();
+            public Node Parent { get; set; }
+            public Node[] Children { get; set; }
+            public string Name { get; set; }
+        }
+
+        public class LinkedListItem
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public LinkedListItem Previous { get; set; }
+            public LinkedListItem Next { get; set; }
+        }
     }
+
 
     public static class DictionaryCastExtensions
     {
@@ -633,6 +783,13 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         )
         {
             return obj as IDictionary<TKey, TValue>;
+        }
+
+        public static IDictionary<TKey, TValue>[] AsDictArray<TKey, TValue>(
+            this object obj
+        )
+        {
+            return (obj as IEnumerable<IDictionary<TKey, TValue>>)?.ToArray();
         }
     }
 }

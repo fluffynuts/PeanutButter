@@ -19,7 +19,7 @@ namespace PeanutButter.Utils
 #else
     public
 #endif
-        interface IWrapper
+        interface IEnumerableWrapper
     {
         /// <summary>
         /// Flag: communicates if the wrapping was successful. Unsuccessful wraps
@@ -37,7 +37,7 @@ namespace PeanutButter.Utils
 #else
     public
 #endif
-        class EnumerableWrapper : IEnumerable, IWrapper
+        class EnumerableEnumerableWrapper : IEnumerable, IEnumerableWrapper
     {
         /// <inheritdoc />
         public bool IsValid { get; }
@@ -56,7 +56,7 @@ namespace PeanutButter.Utils
 
 
         /// <inheritdoc />
-        public EnumerableWrapper(object toWrap)
+        public EnumerableEnumerableWrapper(object toWrap)
         {
             if (toWrap == null)
             {
@@ -163,10 +163,10 @@ namespace PeanutButter.Utils
 #else
     public
 #endif
-        class EnumerableWrapper<T> : EnumerableWrapper, IEnumerable<T>
+        class EnumerableEnumerableWrapper<T> : EnumerableEnumerableWrapper, IEnumerable<T>
     {
         /// <inheritdoc />
-        public EnumerableWrapper(object toWrap) : base(toWrap)
+        public EnumerableEnumerableWrapper(object toWrap) : base(toWrap)
         {
         }
 
@@ -185,7 +185,7 @@ namespace PeanutButter.Utils
 #else
     public
 #endif
-        class EnumeratorWrapper<T> : IEnumerator<T>, IWrapper
+        class EnumeratorWrapper<T> : IEnumerator<T>, IEnumerableWrapper
     {
         /// <inheritdoc />
         public bool IsValid { get; private set; }

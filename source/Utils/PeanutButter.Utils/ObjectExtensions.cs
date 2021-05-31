@@ -1053,7 +1053,7 @@ namespace PeanutButter.Utils
                 return Enumerate<T>(asEnumerable.GetEnumerator());
             }
 
-            var wrapped = new EnumerableWrapper<T>(src);
+            var wrapped = new EnumerableEnumerableWrapper<T>(src);
             if (!wrapped.IsValid)
             {
                 return new T[0];

@@ -13,6 +13,38 @@ namespace PeanutButter.Utils.Dictionaries
 #endif
 {
     /// <summary>
+    /// Defines an object which is wrapping another object and can be unwrapped with the
+    /// provided methods
+    /// </summary>
+    #if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+public
+#endif
+        interface IWrapper
+    {
+        /// <summary>
+        /// Unwrap the wrapped object as a plain old object
+        /// </summary>
+        /// <returns></returns>
+        object Unwrap();
+        
+        /// <summary>
+        /// Unwrap the wrapped object with a hard cast to T (buyer beware!)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        T Unwrap<T>();
+        
+        /// <summary>
+        /// Attempts to unwrap a wrapped value
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        bool TryUnwrap<T>(out T result);
+    }
+
+    /// <summary>
     /// Wraps an object in a dictionary interface
     /// </summary>
 #if BUILD_PEANUTBUTTER_INTERNAL
@@ -20,8 +52,29 @@ namespace PeanutButter.Utils.Dictionaries
 #else
     public
 #endif
-        class DictionaryWrappingObject : IDictionary<string, object>
+        class DictionaryWrappingObject : IDictionary<string, object>, IWrapper
     {
+        /// <inheritdoc />
+        public object Unwrap() => _wrapped;
+
+        /// <inheritdoc />
+        public T Unwrap<T>() => (T)_wrapped;
+
+        /// <inheritdoc />
+        public bool TryUnwrap<T>(out T result)
+        {
+            try
+            {
+                result = Unwrap<T>();
+                return true;
+            }
+            catch
+            {
+                result = default;
+                return false;
+            }
+        }
+
         private readonly object _wrapped;
         private PropertyOrField[] _props;
         private Dictionary<string, string> _keys;
@@ -129,8 +182,11 @@ namespace PeanutButter.Utils.Dictionaries
 
         private void CachePropertyInfos()
         {
-            if (_props != null)
+            if (_props is not null)
+            {
                 return;
+            }
+
             var type = _wrapped?.GetType();
             if (type == null)
             {
@@ -253,7 +309,23 @@ namespace PeanutButter.Utils.Dictionaries
         {
             VerifyHasKey(key);
             var info = _props.First(o => HasName(o, key));
-            info.SetValue(_wrapped, value);
+            var targetType = info.Type;
+            var valueType = value?.GetType();
+            if (targetType == valueType)
+            {
+                info.SetValue(_wrapped, value);
+                return;
+            }
+
+            if (value is DictionaryWrappingObject wrapper)
+            {
+                WriteProperty(key, wrapper._wrapped);
+                return;
+            }
+
+            throw new ArgumentException(
+                $@"Attempt to set property '{key}' to value of type '{valueType}' will fail: target type is '{targetType}'"
+            );
         }
 
         private object ReadProperty(string key)
@@ -294,7 +366,7 @@ namespace PeanutButter.Utils.Dictionaries
                 return result;
             }
 
-            var enumerableWrapper = new EnumerableWrapper<object>(rawValue);
+            var enumerableWrapper = new EnumerableEnumerableWrapper<object>(rawValue);
             if (enumerableWrapper.IsValid)
             {
                 return LazilyEnumerate(enumerableWrapper);
