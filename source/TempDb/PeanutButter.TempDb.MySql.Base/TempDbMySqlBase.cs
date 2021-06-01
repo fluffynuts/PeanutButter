@@ -29,7 +29,7 @@ namespace PeanutButter.TempDb.MySql.Base
         // ReSharper disable once StaticMemberInGenericType
         /// <summary>
         /// The maximum amount of time to wait for a mysqld process to be
-        /// listening for connections after starting up. Defaults to 30 seconds,
+        /// listening for connections after starting up. Defaults to 45 seconds,
         /// but left static so consumers can tweak the value as required.
         /// </summary>
         public static int DefaultStartupMaxWaitSeconds = 45;

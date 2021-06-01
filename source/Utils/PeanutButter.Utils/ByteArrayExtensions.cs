@@ -27,8 +27,11 @@ namespace PeanutButter.Utils
         // ReSharper disable once UnusedMember.Global
         public static string ToMD5String(this byte[] data)
         {
-            if (data == null)
+            if (data is null)
+            {
                 return null;
+            }
+            
             var md5 = System.Security.Cryptography.MD5.Create();
             var hash = md5.ComputeHash(data);
 
@@ -44,7 +47,7 @@ namespace PeanutButter.Utils
         // ReSharper disable once InconsistentNaming
         public static string ToUTF8String(this byte[] data)
         {
-            return data == null
+            return data is null
                 ? null
                 : Encoding.UTF8.GetString(data);
         }
