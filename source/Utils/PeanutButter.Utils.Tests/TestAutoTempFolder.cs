@@ -263,6 +263,23 @@ namespace PeanutButter.Utils.Tests
                 Expect(result)
                     .To.Equal(data);
             }
+
+            [Test]
+            public void ShouldReadFileWithAbsolutePathWithinTempFolder()
+            {
+                // Arrange
+                var data = GetRandomString(32);
+                var filename = GetRandomString(32);
+                using var sut = Create();
+                
+                // Act
+                var fullPath = sut.ResolvePath(filename);
+                File.WriteAllText(fullPath, data);
+                var result = sut.ReadTextFile(fullPath);
+                // Assert
+                Expect(result)
+                    .To.Equal(data);
+            }
         }
 
         [TestFixture]

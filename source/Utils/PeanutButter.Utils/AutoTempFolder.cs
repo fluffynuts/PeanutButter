@@ -18,6 +18,8 @@ namespace PeanutButter.Utils
 
         /// <summary>
         /// Provides a full path into the temp folder for the provided path parts
+        /// - if the provided path resolves inside the temp folder already, it will
+        ///   be returned as-is
         /// </summary>
         /// <param name="p1"></param>
         /// <param name="more"></param>
@@ -155,6 +157,21 @@ namespace PeanutButter.Utils
             params string[] more
         )
         {
+            var relative = string.Join(
+                PathSeparator,
+                new[] { p1 }.Concat(more)
+            );
+            if (relative.StartsWith(
+                    Path + PathSeparator,
+                    Platform.IsUnixy
+                        ? StringComparison.Ordinal
+                        : StringComparison.OrdinalIgnoreCase
+                )
+            )
+            {
+                return relative;
+            }
+
             return string.Join(
                 PathSeparator,
                 new[] { Path, p1 }.Concat(more)
