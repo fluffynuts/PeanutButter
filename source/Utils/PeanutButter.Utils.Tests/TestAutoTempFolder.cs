@@ -39,29 +39,36 @@ namespace PeanutButter.Utils.Tests
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                using (var folder = new AutoTempFolder())
-                {
-                    var result = folder.Path;
-                    //---------------Test Result -----------------------
+                using var folder = new AutoTempFolder();
+                var result = folder.Path;
+                //---------------Test Result -----------------------
 
-                    Expect(result).Not.To.Be.Null();
-                    Expect(result).To.Be.A.Folder();
-                    var entries = Directory.EnumerateFileSystemEntries(result, "*", SearchOption.AllDirectories);
-                    Expect(entries).To.Be.Empty();
-                }
+                Expect(result)
+                    .Not.To.Be.Null();
+                Expect(result)
+                    .To.Be.A.Folder();
+                var entries = Directory.EnumerateFileSystemEntries(
+                    result,
+                    "*",
+                    SearchOption.AllDirectories
+                );
+                Expect(entries)
+                    .To.Be.Empty();
             }
 
-            [Test]
-            public void GivenCustomBasePath_ShouldUseThatPathAsBaseForTempFolder()
+            [TestFixture]
+            public class GivenBasePath
             {
-                //---------------Set up test pack-------------------
-                var baseFolder = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
-
-                //---------------Assert Precondition----------------
-
-                //---------------Execute Test ----------------------
-                using (var folder = new AutoTempFolder(baseFolder))
+                [Test]
+                public void ShouldUseProvidedCustomBasePath()
                 {
+                    //---------------Set up test pack-------------------
+                    var baseFolder = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
+
+                    //---------------Assert Precondition----------------
+
+                    //---------------Execute Test ----------------------
+                    using var folder = new AutoTempFolder(baseFolder);
                     //---------------Test Result -----------------------
                     Expect(Path.GetDirectoryName(
                             folder.Path
@@ -70,24 +77,191 @@ namespace PeanutButter.Utils.Tests
                             baseFolder
                         );
                 }
-            }
 
-            [Test]
-            public void GivenCustomBasePathWhichDoesNotExistYet_ShouldUseThatPathAsBaseForTempFolder()
-            {
-                //---------------Set up test pack-------------------
-                var baseFolder = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
-                baseFolder = Path.Combine(baseFolder, GetRandomString(10, 15));
-
-                //---------------Assert Precondition----------------
-
-                //---------------Execute Test ----------------------
-                using (var folder = new AutoTempFolder(baseFolder))
+                [Test]
+                public void ShouldCreateCustomBasePathIfNotFound()
                 {
+                    //---------------Set up test pack-------------------
+                    var baseFolder = Path.GetDirectoryName(
+                        new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath
+                    );
+                    baseFolder = Path.Combine(baseFolder, GetRandomString(10, 15));
+
+                    //---------------Assert Precondition----------------
+
+                    //---------------Execute Test ----------------------
+                    using var folder = new AutoTempFolder(baseFolder);
                     //---------------Test Result -----------------------
                     Expect(Path.GetDirectoryName(folder.Path))
                         .To.Equal(baseFolder);
                 }
+            }
+        }
+
+        [TestFixture]
+        public class FilePath
+        {
+            [Test]
+            public void ShouldReturnFilePathWithinTempFolder()
+            {
+                // Arrange
+                var fileName = GetRandomString(32);
+                using var sut = Create();
+                var expected = Path.Combine(sut.Path, fileName);
+                // Act
+                var result = sut.ResolvePath(fileName);
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+
+            [Test]
+            public void ShouldReturnCombinedPathAllTheWayDown()
+            {
+                // Arrange
+                var fileName = GetRandomString(32);
+                var sub1 = GetRandomString(32);
+                var sub2 = GetRandomString(32);
+                using var sut = Create();
+                var expected = Path.Combine(sut.Path, sub1, sub2, fileName);
+                // Act
+                var result = sut.ResolvePath(sub1, sub2, fileName);
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+        }
+
+        [TestFixture]
+        public class CreateDirectory
+        {
+            [Test]
+            public void ShouldCreateTheRelativeDirectory()
+            {
+                // Arrange
+                var dirname = GetRandomString(32);
+                using var sut = Create();
+                var expected = Path.Combine(sut.Path, dirname);
+                // Act
+                sut.CreateDirectory(dirname);
+                // Assert
+                Expect(expected)
+                    .To.Be.A.Folder();
+            }
+
+            [Test]
+            public void ShouldReturnTheAbsolutePathForTheNewDirectory()
+            {
+                // Arrange
+                var dirname = GetRandomString(32);
+                using var sut = Create();
+                var expected = Path.Combine(sut.Path, dirname);
+                // Act
+                var result = sut.CreateDirectory(dirname);
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+        }
+
+        [TestFixture]
+        public class WritingFiles
+        {
+            [Test]
+            public void StringOverloadShouldWriteTextToFile()
+            {
+                // Arrange
+                var data = GetRandomString(32);
+                var filename = GetRandomString(32);
+                using var sut = Create();
+
+                // Act
+                var fullPath = sut.WriteFile(filename, data);
+                // Assert
+                Expect(fullPath)
+                    .To.Be.A.File();
+                var written = File.ReadAllText(fullPath);
+                Expect(written)
+                    .To.Equal(data);
+            }
+
+            [Test]
+            public void BytesOverloadShouldWriteDataToFile()
+            {
+                // Arrange
+                var data = GetRandomBytes(32);
+                var filename = GetRandomString(32);
+                using var sut = Create();
+
+                // Act
+                var fullPath = sut.WriteFile(filename, data);
+                // Assert
+                Expect(fullPath)
+                    .To.Be.A.File();
+                var written = File.ReadAllBytes(fullPath);
+                Expect(written)
+                    .To.Equal(data);
+            }
+
+            [Test]
+            public void StreamOverloadShouldWriteDataToFile()
+            {
+                // Arrange
+                var data = GetRandomBytes(32);
+                var stream = new MemoryStream(data);
+                var filename = GetRandomString(32);
+                using var sut = Create();
+
+                // Act
+                var fullPath = sut.WriteFile(filename, stream);
+                // Assert
+                Expect(fullPath)
+                    .To.Be.A.File();
+                var written = File.ReadAllBytes(fullPath);
+                Expect(written)
+                    .To.Equal(data);
+            }
+
+            [Test]
+            public void ShouldCreateSupportingDirectoryStructures()
+            {
+                // Arrange
+                var data = GetRandomString(32);
+                var sub1 = GetRandomString(12);
+                var sub2 = GetRandomString(12);
+                var filename = GetRandomString(12);
+                using var sut = Create();
+                var relpath = Path.Combine(sub1, sub2, filename);
+
+                // Act
+                var fullPath = sut.WriteFile(relpath, data);
+                // Assert
+
+                Expect(fullPath)
+                    .To.Be.A.File();
+                var written = File.ReadAllText(fullPath);
+                Expect(written)
+                    .To.Equal(data);
+            }
+        }
+
+        [TestFixture]
+        public class ReadingFiles
+        {
+            [Test]
+            public void ShouldReadTextFile()
+            {
+                // Arrange
+                var data = GetRandomString(32);
+                var filename = GetRandomString(32);
+                using var sut = Create();
+                // Act
+                var fullPath = sut.ResolvePath(filename);
+                File.WriteAllText(fullPath, data);
+                var result = sut.ReadTextFile(filename);
+                // Assert
+                Expect(result)
+                    .To.Equal(data);
             }
         }
 
@@ -100,19 +274,23 @@ namespace PeanutButter.Utils.Tests
                 //---------------Set up test pack-------------------
 
                 string folderPath;
-                using (var folder = new AutoTempFolder())
+                using (var folder = Create())
                 {
                     folderPath = folder.Path;
                     //---------------Assert Precondition----------------
-                    Assert.IsNotNull(folderPath);
-                    Assert.IsTrue(Directory.Exists(folderPath));
+                    Expect(folderPath)
+                        .Not.To.Be.Null();
+                    Expect(folderPath)
+                        .To.Be.A.Folder();
                     var entries = Directory.EnumerateFileSystemEntries(folderPath, "*", SearchOption.AllDirectories);
-                    CollectionAssert.IsEmpty(entries);
+                    Expect(entries)
+                        .To.Be.Empty();
                     //---------------Execute Test ----------------------
                 }
 
                 //---------------Test Result -----------------------
-                Assert.IsFalse(Directory.Exists(folderPath));
+                Expect(folderPath)
+                    .Not.To.Exist();
             }
 
             [Test]
@@ -120,29 +298,76 @@ namespace PeanutButter.Utils.Tests
             {
                 //---------------Set up test pack-------------------
                 string folderPath;
-                using (var folder = new AutoTempFolder())
+                using (var folder = Create())
                 {
                     folderPath = folder.Path;
                     Assert.IsNotNull(folderPath);
 
 
                     //---------------Assert Precondition----------------
-                    Assert.IsTrue(Directory.Exists(folderPath));
+                    Expect(folderPath)
+                        .To.Be.A.Folder();
                     var entries = Directory.EnumerateFileSystemEntries(folderPath, "*", SearchOption.AllDirectories);
-                    CollectionAssert.IsEmpty(entries);
+                    Expect(entries)
+                        .To.Be.Empty();
 
                     //---------------Execute Test ----------------------
-                    File.WriteAllBytes(Path.Combine(folderPath, GetRandomString(2, 10)),
+                    File.WriteAllBytes(
+                        Path.Combine(folderPath, GetRandomString(2, 10)),
                         GetRandomBytes());
-                    File.WriteAllBytes(Path.Combine(folderPath, GetRandomString(11, 20)),
+                    File.WriteAllBytes(
+                        Path.Combine(folderPath, GetRandomString(11, 20)),
                         GetRandomBytes());
                     entries = Directory.EnumerateFileSystemEntries(folderPath, "*", SearchOption.AllDirectories);
-                    CollectionAssert.IsNotEmpty(entries);
+                    Expect(entries)
+                        .Not.To.Be.Empty();
                 }
 
                 //---------------Test Result -----------------------
-                Assert.IsFalse(Directory.Exists(folderPath));
+                Expect(folderPath)
+                    .Not.To.Be.A.Folder();
             }
+
+            [Test]
+            public void ShouldDisposeUndisposedFileStreams()
+            {
+                // Arrange
+                var filename = GetRandomString(32);
+                string folderPath;
+                using (var sut = Create())
+                {
+                    // Act
+                    folderPath = sut.Path;
+                    var fp = sut.OpenFile(filename, FileAccess.ReadWrite);
+                    fp.Write(GetRandomBytes(100), 0, 100);
+                }
+                // Assert
+                Expect(folderPath)
+                    .Not.To.Exist();
+            }
+
+            [Test]
+            public void ShouldNoBarfOnDisposedFileStreams()
+            {
+                // Arrange
+                var filename = GetRandomString(32);
+                string folderPath;
+                using (var sut = Create())
+                {
+                    // Act
+                    folderPath = sut.Path;
+                    using var fp = sut.OpenFile(filename, FileAccess.ReadWrite);
+                    fp.Write(GetRandomBytes(100), 0, 100);
+                }
+                // Assert
+                Expect(folderPath)
+                    .Not.To.Exist();
+            }
+        }
+
+        private static AutoTempFolder Create()
+        {
+            return new AutoTempFolder();
         }
     }
 }
