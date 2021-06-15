@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.Utils
@@ -34,7 +35,7 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="dirname"></param>
         /// <returns></returns>
-        string CreateDirectory(string dirname);
+        string CreateFolder(string dirname);
 
         /// <summary>
         /// Writes a file within the auto temp folder
@@ -152,6 +153,34 @@ namespace PeanutButter.Utils
             int bufferSize,
             FileOptions options
         );
+
+        /// <summary>
+        /// Returns true if the relative path is found to be a file
+        /// </summary>
+        /// <param name="relativePath"></param>
+        /// <returns></returns>
+        bool FileExists(string relativePath);
+
+        /// <summary>
+        /// Returns true if the relative path is found to be a folder
+        /// </summary>
+        /// <param name="relativePath"></param>
+        /// <returns></returns>
+        bool FolderExists(string relativePath);
+
+        /// <summary>
+        /// Returns true if the relative path is a file or folder
+        /// </summary>
+        /// <param name="relativePath"></param>
+        /// <returns></returns>
+        bool Exists(string relativePath);
+
+        /// <summary>
+        /// Returns true if the provided path is contained within the temp folder
+        /// </summary>
+        /// <param name="fullPath"></param>
+        /// <returns></returns>
+        bool Contains(string fullPath);
     }
 
     /// <summary>
@@ -240,13 +269,7 @@ namespace PeanutButter.Utils
                 PathSeparator,
                 new[] { p1 }.Concat(more)
             );
-            if (relative.StartsWith(
-                    Path + PathSeparator,
-                    Platform.IsUnixy
-                        ? StringComparison.Ordinal
-                        : StringComparison.OrdinalIgnoreCase
-                )
-            )
+            if (Contains(relative))
             {
                 return relative;
             }
@@ -261,7 +284,7 @@ namespace PeanutButter.Utils
             = System.IO.Path.DirectorySeparatorChar.ToString();
 
         /// <inheritdoc />
-        public string CreateDirectory(string dirname)
+        public string CreateFolder(string dirname)
         {
             var target = ResolvePath(dirname);
             if (!Directory.Exists(target))
@@ -409,6 +432,39 @@ namespace PeanutButter.Utils
             );
         }
 
+        /// <inheritdoc />
+        public bool FileExists(string relativePath)
+        {
+            return File.Exists(
+                ResolvePath(relativePath)
+            );
+        }
+
+        /// <inheritdoc />
+        public bool FolderExists(string relativePath)
+        {
+            return Directory.Exists(
+                ResolvePath(relativePath)
+            );
+        }
+
+        /// <inheritdoc />
+        public bool Exists(string relativePath)
+        {
+            return FileExists(relativePath) ||
+                FolderExists(relativePath);
+        }
+
+        /// <inheritdoc />
+        public bool Contains(string fullPath)
+        {
+            return fullPath.Equals(Path, PathComparison) ||
+                fullPath.StartsWith(
+                    Path + PathSeparator,
+                    PathComparison
+                );
+        }
+
         private readonly List<FileStream> _fileStreams = new List<FileStream>();
 
         private FileStream Store(FileStream stream)
@@ -420,5 +476,10 @@ namespace PeanutButter.Utils
 
             return stream;
         }
+
+        private static readonly StringComparison PathComparison =
+            Platform.IsUnixy
+                ? StringComparison.Ordinal
+                : StringComparison.OrdinalIgnoreCase;
     }
 }

@@ -2,8 +2,6 @@ using System;
 using System.IO;
 using System.Reflection;
 using NUnit.Framework;
-using PeanutButter.RandomGenerators;
-using PeanutButter.TestUtils.Generic;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using NExpect;
 using static NExpect.Expectations;
@@ -143,7 +141,7 @@ namespace PeanutButter.Utils.Tests
                 using var sut = Create();
                 var expected = Path.Combine(sut.Path, dirname);
                 // Act
-                sut.CreateDirectory(dirname);
+                sut.CreateFolder(dirname);
                 // Assert
                 Expect(expected)
                     .To.Be.A.Folder();
@@ -157,7 +155,7 @@ namespace PeanutButter.Utils.Tests
                 using var sut = Create();
                 var expected = Path.Combine(sut.Path, dirname);
                 // Act
-                var result = sut.CreateDirectory(dirname);
+                var result = sut.CreateFolder(dirname);
                 // Assert
                 Expect(result)
                     .To.Equal(expected);
@@ -271,7 +269,7 @@ namespace PeanutButter.Utils.Tests
                 var data = GetRandomString(32);
                 var filename = GetRandomString(32);
                 using var sut = Create();
-                
+
                 // Act
                 var fullPath = sut.ResolvePath(filename);
                 File.WriteAllText(fullPath, data);
@@ -279,6 +277,250 @@ namespace PeanutButter.Utils.Tests
                 // Assert
                 Expect(result)
                     .To.Equal(data);
+            }
+
+            [Test]
+            public void ShouldBeAbleToReadAnOpenFileWithTheCorrectAccess()
+            {
+                // Arrange
+                using var sut = Create();
+                var filename = sut.ResolvePath(GetRandomString(12));
+                using var src = new FileStream(
+                    filename,
+                    FileMode.Create,
+                    FileAccess.ReadWrite
+                );
+                var data = GetRandomBytes(100);
+                src.Write(data, 0, data.Length);
+                src.Flush();
+                // Act
+                using var other = sut.OpenFile(
+                    filename,
+                    FileAccess.Read,
+                    FileShare.ReadWrite
+                );
+                var read = other.ReadAllBytes();
+
+                // Assert
+                Expect(read)
+                    .To.Equal(data);
+            }
+        }
+
+        [TestFixture]
+        public class FileExists
+        {
+            [Test]
+            public void ShouldReturnFalseWhenFileDoesNotExist()
+            {
+                // Arrange
+                using var sut = Create();
+                var filename = GetRandomString(10);
+                var fullPath = sut.ResolvePath(filename);
+                Expect(fullPath)
+                    .Not.To.Exist();
+                // Act
+                var result = sut.FileExists(filename);
+                // Assert
+                Expect(result)
+                    .To.Be.False();
+            }
+
+            [Test]
+            public void ShouldReturnFalseWhenPathIsFolder()
+            {
+                // Arrange
+                using var sut = Create();
+                var path = GetRandomString(10);
+                var fullPath = sut.CreateFolder(path);
+                Expect(fullPath)
+                    .To.Be.A.Folder();
+                // Act
+                var result = sut.FileExists(path);
+                // Assert
+                Expect(result)
+                    .To.Be.False();
+            }
+
+            [Test]
+            public void ShouldReturnTrueWhenPathIsAFile()
+            {
+                // Arrange
+                using var sut = Create();
+                var path = GetRandomString(10);
+                var data = GetRandomBytes(100);
+                var fullPath = sut.WriteFile(path, data); 
+                Expect(fullPath)
+                    .To.Be.A.File();
+                // Act
+                var result = sut.FileExists(path);
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+        }
+
+        [TestFixture]
+        public class FolderExists
+        {
+            [Test]
+            public void ShouldReturnFalseWhenFolderDoesNotExist()
+            {
+                // Arrange
+                using var sut = Create();
+                var path = GetRandomString(10);
+                var fullPath = sut.ResolvePath(path);
+                Expect(fullPath)
+                    .Not.To.Exist();
+                // Act
+                var result = sut.FolderExists(path);
+                // Assert
+                Expect(result)
+                    .To.Be.False();
+            }
+
+            [Test]
+            public void ShouldReturnFalseWhenPathIsFile()
+            {
+                // Arrange
+                using var sut = Create();
+                var path = GetRandomString(10);
+                var fullPath = sut.WriteFile(path, GetRandomBytes(100));
+                Expect(fullPath)
+                    .To.Be.A.File();
+                // Act
+                var result = sut.FolderExists(path);
+                // Assert
+                Expect(result)
+                    .To.Be.False();
+            }
+
+            [Test]
+            public void ShouldReturnTrueWhenPathIsAFolder()
+            {
+                // Arrange
+                using var sut = Create();
+                var path = GetRandomString(10);
+                var fullPath = sut.CreateFolder(path); 
+                Expect(fullPath)
+                    .To.Be.A.Folder();
+                // Act
+                var result = sut.FolderExists(path);
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+        }
+
+        [TestFixture]
+        public class Exists
+        {
+            [Test]
+            public void ShouldReturnFalseWhenNoFileOrFolder()
+            {
+                // Arrange
+                using var sut = Create();
+                var path = GetRandomString(10);
+                var fullPath = sut.ResolvePath(path);
+                Expect(fullPath)
+                    .Not.To.Exist();
+                // Act
+                var result = sut.Exists(path);
+                // Assert
+                Expect(result)
+                    .To.Be.False();
+            }
+
+            [Test]
+            public void ShouldReturnTrueWhenFileExists()
+            {
+                // Arrange
+                using var sut = Create();
+                var path = GetRandomString(10);
+                var fullPath = sut.WriteFile(path, GetRandomBytes());
+                Expect(fullPath)
+                    .To.Be.A.File();
+                // Act
+                var result = sut.Exists(path);
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+
+            [Test]
+            public void ShouldReturnTrueWhenFolderExists()
+            {
+                // Arrange
+                using var sut = Create();
+                var path = GetRandomString(10);
+                var fullPath = sut.CreateFolder(path);
+                Expect(fullPath)
+                    .To.Be.A.Folder();
+                // Act
+                var result = sut.Exists(path);
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+        }
+
+        [TestFixture]
+        public class Contains
+        {
+            [Test]
+            public void ShouldReturnFalseWhenFileIsOutsideTempFolder()
+            {
+                // Arrange
+                using var sut = Create();
+                using var other = Create();
+                var fullPath = other.WriteFile(GetRandomString(), GetRandomBytes());
+                // Act
+                var result = sut.Contains(fullPath);
+                // Assert
+                Expect(result)
+                    .To.Be.False();
+            }
+            
+            [Test]
+            public void ShouldReturnFalseWhenFolderIsOutsideTempFolder()
+            {
+                // Arrange
+                using var sut = Create();
+                using var other = Create();
+                var fullPath = other.CreateFolder(GetRandomString());
+                // Act
+                var result = sut.Contains(fullPath);
+                // Assert
+                Expect(result)
+                    .To.Be.False();
+            }
+
+            [Test]
+            public void ShouldReturnTrueWhenFileIsInsideTempFolder()
+            {
+                // Arrange
+                using var sut = Create();
+                var fullPath = Path.Combine(sut.Path, GetRandomString());
+                File.WriteAllBytes(fullPath, GetRandomBytes());
+                // Act
+                var result = sut.Contains(fullPath);
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+
+            [Test]
+            public void ShouldReturnTrueWhenFolderIsInsideTempFolder()
+            {
+                // Arrange
+                using var sut = Create();
+                var fullPath = Path.Combine(sut.Path, GetRandomString());
+                Directory.CreateDirectory(fullPath);
+                // Act
+                var result = sut.Contains(fullPath);
+                // Assert
+                Expect(result)
+                    .To.Be.True();
             }
         }
 
@@ -358,6 +600,7 @@ namespace PeanutButter.Utils.Tests
                     var fp = sut.OpenFile(filename, FileAccess.ReadWrite);
                     fp.Write(GetRandomBytes(100), 0, 100);
                 }
+
                 // Assert
                 Expect(folderPath)
                     .Not.To.Exist();
@@ -376,13 +619,14 @@ namespace PeanutButter.Utils.Tests
                     using var fp = sut.OpenFile(filename, FileAccess.ReadWrite);
                     fp.Write(GetRandomBytes(100), 0, 100);
                 }
+
                 // Assert
                 Expect(folderPath)
                     .Not.To.Exist();
             }
         }
 
-        private static AutoTempFolder Create()
+        private static IAutoTempFolder Create()
         {
             return new AutoTempFolder();
         }
