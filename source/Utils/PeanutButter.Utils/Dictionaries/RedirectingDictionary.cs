@@ -1,17 +1,26 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TransformFunc = System.Func<string, string>;
 
-namespace PeanutButter.DuckTyping.Shimming
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils.Dictionaries
+#else
+namespace PeanutButter.Utils.Dictionaries
+#endif
 {
     /// <summary>
     /// Provides a wrapping read-write layer around another dictionary effectively
     ///     allowing transparent rename of the keys
     /// </summary>
     /// <typeparam name="TValue">Type of values stored</typeparam>
-    public class RedirectingDictionary<TValue>
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        class RedirectingDictionary<TValue>
         : IDictionary<string, TValue>
     {
         private readonly IDictionary<string, TValue> _data;
@@ -66,7 +75,7 @@ namespace PeanutButter.DuckTyping.Shimming
         {
             var nativeKey = _toNativeTransform(item.Key);
             return _data.ContainsKey(nativeKey) &&
-                   _data[nativeKey] as object == item.Value as object;
+                _data[nativeKey] as object == item.Value as object;
         }
 
         /// <inheritdoc />
@@ -149,5 +158,52 @@ namespace PeanutButter.DuckTyping.Shimming
 
         /// <inheritdoc />
         public ICollection<TValue> Values => _data.Values.ToArray();
+    }
+    
+    internal class RedirectingDictionaryEnumerator<T> : IEnumerator<KeyValuePair<string, T>>
+    {
+        private readonly IDictionary<string, T> _data;
+        private readonly Func<string, string> _keyTransform;
+        private string[] _nativeKeys;
+        private int _currentIndex;
+
+        internal RedirectingDictionaryEnumerator(
+            IDictionary<string, T> data,
+            Func<string, string> keyTransform
+        )
+        {
+            _data = data;
+            _keyTransform = keyTransform;
+            Reset();
+        }
+
+        public void Dispose()
+        {
+            /* does nothing */
+        }
+
+        public bool MoveNext()
+        {
+            _currentIndex++;
+            return _currentIndex < _nativeKeys.Length;
+        }
+
+        public void Reset()
+        {
+            _currentIndex = -1;
+            _nativeKeys = _data.Keys.ToArray();
+        }
+
+        public KeyValuePair<string, T> Current
+        {
+            get
+            {
+                var nativeKey = _nativeKeys[_currentIndex];
+                var key = _keyTransform(nativeKey);
+                return new KeyValuePair<string, T>(key, _data[nativeKey]);
+            }
+        }
+
+        object IEnumerator.Current => Current;
     }
 }

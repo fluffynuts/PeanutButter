@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Reflection;
 
@@ -16,10 +17,10 @@ namespace PeanutButter.Utils.Dictionaries
     /// Defines an object which is wrapping another object and can be unwrapped with the
     /// provided methods
     /// </summary>
-    #if BUILD_PEANUTBUTTER_INTERNAL
+#if BUILD_PEANUTBUTTER_INTERNAL
     internal
 #else
-public
+    public
 #endif
         interface IWrapper
     {
@@ -28,14 +29,14 @@ public
         /// </summary>
         /// <returns></returns>
         object Unwrap();
-        
+
         /// <summary>
         /// Unwrap the wrapped object with a hard cast to T (buyer beware!)
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         T Unwrap<T>();
-        
+
         /// <summary>
         /// Attempts to unwrap a wrapped value
         /// </summary>
@@ -76,7 +77,7 @@ public
         }
 
         private readonly object _wrapped;
-        private PropertyOrField[] _props;
+        private IPropertyOrField[] _props;
         private Dictionary<string, string> _keys;
         private readonly Dictionary<string, object> _memberCache = new();
         private readonly Dictionary<object, DictionaryWrappingObject> _wrapperCache = new();
@@ -139,8 +140,9 @@ public
             object wrapped,
             StringComparer keyComparer,
             bool wrapRecursively,
+            bool forceWrappingDictionariesWithoutStringKeys,
             Dictionary<object, DictionaryWrappingObject> wrapperCache
-        ) : this(wrapped, keyComparer, wrapRecursively)
+        ) : this(wrapped, keyComparer, wrapRecursively, forceWrappingDictionariesWithoutStringKeys)
         {
             _wrapperCache = wrapperCache;
         }
@@ -165,18 +167,68 @@ public
             object wrapped,
             StringComparer keyComparer,
             bool wrapRecursively
+        ) : this(wrapped, keyComparer, wrapRecursively, false)
+        {
+        }
+
+        /// <summary>
+        /// Provides a mechanism to reflectively read members on an object
+        /// via an IDictionary&lt;string, object&gt; interface
+        /// </summary>
+        /// <param name="wrapped"></param>
+        /// <param name="wrapRecursively">
+        /// When wrapping recursively, all properties are returned
+        /// as DictionaryWrappingObject instances so they can be
+        /// interrogated as dictionaries
+        /// </param>
+        /// <param name="keyComparer">
+        /// Specify the key-comparer to use when reaching into objects
+        /// - the default is case-sensitive, ordinal, but you can make
+        ///   your wrapper instance more "forgiving" with a case-insensitive
+        ///   key-comparer
+        /// </param>
+        /// <param name="forceWrappingDictionariesWithoutStringKeys">
+        /// Ordinarily, if this wrapper encounters something implementing IDictionary&lt;,&gt;,
+        /// then it will attempt to wrap into the key-value collection if, and only if
+        /// the keys for that collection are strings. This means that normally, if provided
+        /// a dictionary with non-string keys, wrapping will fail with an ArgumentException. If
+        /// you're sure you'd like to wrap the actual properties of a dictionary, not the values
+        /// in the dictionary, force wrapping by setting this to true.</param>
+        public DictionaryWrappingObject(
+            object wrapped,
+            StringComparer keyComparer,
+            bool wrapRecursively,
+            bool forceWrappingDictionariesWithoutStringKeys
         )
         {
             Comparer = keyComparer;
-            _wrapped = wrapped;
+            _wrapped = WrapIfRequired(wrapped);
             _wrapRecursively = wrapRecursively;
+            _forceWrappingDictionariesWithoutStringKeys = forceWrappingDictionariesWithoutStringKeys;
 
             _propertyReader = wrapRecursively
                 ? ReadWrappedProperty
                 : ReadObjectProperty;
-            if (wrapped is not null)
+            if (_wrapped is not null)
             {
+                _wrappedType = _wrapped.GetType();
                 _wrapperCache[wrapped] = this;
+            }
+        }
+
+        private object WrapIfRequired(object original)
+        {
+            if (original is null)
+            {
+                return null;
+            }
+
+            switch (original)
+            {
+                case NameValueCollection nvc:
+                    return new DictionaryWrappingNameValueCollection(nvc);
+                default:
+                    return original;
             }
         }
 
@@ -187,22 +239,111 @@ public
                 return;
             }
 
-            var type = _wrapped?.GetType();
-            if (type == null)
+            if (_wrappedType is null)
             {
-                _props = new PropertyOrField[0];
+                _props = new IPropertyOrField[] { };
                 _keys = new Dictionary<string, string>(Comparer);
                 return;
             }
 
+            if (IsDictionaryTypeWithStringKeys(_wrappedType))
+            {
+                CacheDictionaryPropertyInfos();
+                return;
+            }
+
             var flags = BindingFlags.Instance | BindingFlags.Public;
-            _props = type.GetProperties(flags)
+            _props = _wrappedType.GetProperties(flags)
                 .Select(pi => new PropertyOrField(pi))
-                .Union(type.GetFields(flags).Select(fi => new PropertyOrField(fi)))
+                .Union(_wrappedType.GetFields(flags).Select(fi => new PropertyOrField(fi)))
                 .ToArray();
             _keys = _props
                 .Select(p => new KeyValuePair<string, string>(p.Name, p.Name))
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value, Comparer);
+        }
+
+        private bool IsDictionaryTypeWithStringKeys(Type type)
+        {
+            var interfaces = type.GetAllImplementedInterfaces();
+            var genericInterface = interfaces.FirstOrDefault(
+                i => i.IsGenericType() &&
+                    i.GetGenericTypeDefinition() == typeof(IDictionary<,>)
+            );
+            if (genericInterface is null)
+            {
+                return false;
+            }
+
+            var genericParams = genericInterface.GetGenericArguments();
+            if (genericParams[0] == typeof(string))
+            {
+                return interfaces.Any(interfaceType =>
+                    interfaceType.IsGenericType() &&
+                    interfaceType.GetGenericTypeDefinition() == typeof(IDictionary<,>) &&
+                    interfaceType.GetGenericArguments().First() == typeof(string)
+                );
+            }
+
+            if (_forceWrappingDictionariesWithoutStringKeys)
+            {
+                return false;
+            }
+
+            throw new ArgumentException(
+                $"Attempted to wrap a dictionary with non-string keys. If this is intentional, then set the relevant flag at construction time."
+            );
+        }
+
+        private void CacheDictionaryPropertyInfos()
+        {
+            _keys = _wrapped.Get<IEnumerable<string>>(nameof(Keys))
+                .Select(p => new KeyValuePair<string, string>(p, p))
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value, Comparer);
+            var valuesType = _wrapped.Get<object>(nameof(Values))
+                .GetType();
+            Type valueType = null;
+            if (valuesType.IsGenericType())
+            {
+                // this needs to be cleverer: should look at the generic type too
+                valueType = valuesType.GetGenericArguments()[1];
+            }
+            else
+            {
+                // TODO: DictionaryWrappingNameValueCollection gives back string[]
+                // -> inspect for T from IEnumerable&lt;T&gt;
+            }
+
+            if (valueType is null)
+            {
+                throw new InvalidOperationException(
+                    $"Can't determine the value type for the dictionary"
+                );
+            }
+
+            var itemGetter = _wrappedType.GetMethod("get_Item") ?? throw new ArgumentException(
+                $"Expected to wrap a dictionary, but required method 'get_Item' is missing"
+            );
+            var itemSetter = _wrappedType.GetMethod("set_Item") ?? throw new ArgumentException(
+                $"Expected to wrap a dictionary, but required method 'set_Item' is missing"
+            );
+            _props = _keys.Keys.Select(k =>
+            {
+                return new FakeProperty(
+                    k,
+                    valueType,
+                    true, // FIXME: what about read-only dictionaries? `IsReadOnly` appears to be eluding {object}.Get<bool>()
+                    true,
+                    _wrapped.GetType(),
+                    (host) =>
+                    {
+                        return itemGetter.Invoke(host, new object[] { k });
+                    },
+                    (host, value) =>
+                    {
+                        itemSetter.Invoke(host, new object[] { k, value });
+                    }
+                ) as IPropertyOrField;
+            }).ToArray();
         }
 
         /// <inheritdoc />
@@ -293,7 +434,7 @@ public
             return prop != null;
         }
 
-        private PropertyOrField FindPropertyByName(string name)
+        private IPropertyOrField FindPropertyByName(string name)
         {
             return _props.FirstOrDefault(o => HasName(o, name));
         }
@@ -377,6 +518,7 @@ public
                     rawValue,
                     Comparer,
                     _wrapRecursively,
+                    _forceWrappingDictionariesWithoutStringKeys,
                     _wrapperCache
                 );
         }
@@ -402,7 +544,7 @@ public
             throw new KeyNotFoundException(key);
         }
 
-        private bool HasName(PropertyOrField prop, string key)
+        private bool HasName(IPropertyOrField prop, string key)
         {
             return KeysMatch(prop.Name, key);
         }
@@ -432,11 +574,79 @@ public
 
         private object[] _values;
         private readonly bool _wrapRecursively;
+        private readonly bool _forceWrappingDictionariesWithoutStringKeys;
         private readonly Func<string, object> _propertyReader;
+        private Type _wrappedType;
 
         private object[] GetPropertyAndFieldValues()
         {
             return _props.Select(p => p.GetValue(_wrapped)).ToArray();
+        }
+    }
+
+    internal class FakeProperty : IPropertyOrField
+    {
+        private readonly Func<object, object> _valueGetter;
+        private readonly Action<object, object> _valueSetter;
+        public string Name { get; }
+        public Type Type { get; }
+        public bool CanWrite { get; }
+        public bool CanRead { get; }
+        public Type DeclaringType { get; }
+
+        public object GetValue(object host)
+        {
+            if (!CanRead)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot read property {Name}"
+                );
+            }
+
+            return _valueGetter(host);
+        }
+
+        public void SetValue(object host, object value)
+        {
+            if (!CanWrite)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot write property {Name}"
+                );
+            }
+
+            _valueSetter(host, value);
+        }
+
+        public void SetValue<T>(ref T host, object value)
+        {
+            if (!Type.IsAssignableFrom(typeof(T)))
+            {
+                throw new InvalidOperationException(
+                    $"Cannot set property of type {Type} from value of type {typeof(T)}"
+                );
+            }
+
+            SetValue(host, value);
+        }
+
+        public FakeProperty(
+            string name,
+            Type type,
+            bool canWrite,
+            bool canRead,
+            Type declaringType,
+            Func<object, object> valueGetter,
+            Action<object, object> valueSetter
+        )
+        {
+            Name = name;
+            Type = type;
+            CanWrite = canWrite;
+            CanRead = canRead;
+            DeclaringType = declaringType;
+            _valueGetter = valueGetter;
+            _valueSetter = valueSetter;
         }
     }
 }

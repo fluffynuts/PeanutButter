@@ -2,18 +2,16 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
-using NUnit.Framework;
-using PeanutButter.DuckTyping.Shimming;
-using PeanutButter.Utils;
-using static PeanutButter.RandomGenerators.RandomValueGen;
 using NExpect;
+using NUnit.Framework;
+using PeanutButter.Utils.Dictionaries;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 using static NExpect.Expectations;
 // ReSharper disable MemberCanBePrivate.Local
-
 // ReSharper disable PossibleMultipleEnumeration
 // ReSharper disable TryCastAlwaysSucceeds
 
-namespace PeanutButter.DuckTyping.Tests.Extensions
+namespace PeanutButter.Utils.Tests.Dictionaries
 {
     [TestFixture]
     public class TestDictionaryWrappingNameValueCollection

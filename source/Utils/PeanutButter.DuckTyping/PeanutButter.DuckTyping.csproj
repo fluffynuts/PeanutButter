@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
@@ -39,43 +39,45 @@
     <Compile Include="..\PeanutButter.Utils\DeepEqualityTester.cs">
       <Link>Imported\DeepEqualityTester.cs</Link>
     </Compile>
-    <Compile Include="..\PeanutButter.Utils\Dictionaries\CaseWarpingDictionaryWrapper.cs" Link="Imported\CaseWarpingDictionaryWrapper.cs"/>
-    <Compile Include="..\PeanutButter.Utils\Dictionaries\DefaultDictionary.cs" Link="Imported\DefaultDictionary.cs"/>
-    <Compile Include="..\PeanutButter.Utils\Dictionaries\DictionaryWrappingObject.cs" Link="Imported\DictionaryWrappingObject.cs"/>
-    <Compile Include="..\PeanutButter.Utils\Dictionaries\DictionaryWrappingObjectEnumerator.cs" Link="Imported\DictionaryWrappingObjectEnumerator.cs"/>
-    <Compile Include="..\PeanutButter.Utils\Dictionaries\GenericDictionaryEnumerator.cs" Link="Imported\GenericDictionaryEnumerator.cs"/>
-    <Compile Include="..\PeanutButter.Utils\Dictionaries\MergeDictionary.cs" Link="Imported\MergeDictionary.cs"/>
-    <Compile Include="..\PeanutButter.Utils\EnumerableWrapper.cs" Link="Imported\EnumerableWrapper.cs"/>
-    <Compile Include="..\PeanutButter.Utils\ExtensionsForIEnumerables.cs" Link="Imported\ExtensionsForIEnumerables.cs"/>
+    <Compile Include="..\PeanutButter.Utils\Dictionaries\CaseWarpingDictionaryWrapper.cs" Link="Imported\CaseWarpingDictionaryWrapper.cs" />
+    <Compile Include="..\PeanutButter.Utils\Dictionaries\DefaultDictionary.cs" Link="Imported\DefaultDictionary.cs" />
+    <Compile Include="..\PeanutButter.Utils\Dictionaries\DictionaryWrappingObject.cs" Link="Imported\DictionaryWrappingObject.cs" />
+    <Compile Include="..\PeanutButter.Utils\Dictionaries\DictionaryWrappingObjectEnumerator.cs" Link="Imported\DictionaryWrappingObjectEnumerator.cs" />
+    <Compile Include="..\PeanutButter.Utils\Dictionaries\GenericDictionaryEnumerator.cs" Link="Imported\GenericDictionaryEnumerator.cs" />
+    <Compile Include="..\PeanutButter.Utils\Dictionaries\MergeDictionary.cs" Link="Imported\MergeDictionary.cs" />
+    <Compile Include="..\PeanutButter.Utils\EnumerableWrapper.cs" Link="Imported\EnumerableWrapper.cs" />
+    <Compile Include="..\PeanutButter.Utils\ExtensionsForIEnumerables.cs" Link="Imported\ExtensionsForIEnumerables.cs" />
     <Compile Include="..\PeanutButter.Utils\MemberNotFoundException.cs" Link="Imported\MemberNotFoundException.cs" />
     <Compile Include="..\PeanutButter.Utils\ObjectExtensions.cs" Link="Imported\ObjectExtensions.cs" />
-    <Compile Include="..\PeanutButter.Utils\PropertyOrField.cs" Link="Imported\PropertyOrField.cs"/>
-    <Compile Include="..\PeanutButter.Utils\PropertyOrFieldExtensions.cs" Link="Imported\PropertyOrFieldExtensions.cs"/>
+    <Compile Include="..\PeanutButter.Utils\PropertyOrField.cs" Link="Imported\PropertyOrField.cs" />
+    <Compile Include="..\PeanutButter.Utils\PropertyOrFieldExtensions.cs" Link="Imported\PropertyOrFieldExtensions.cs" />
     <Compile Include="..\PeanutButter.Utils\PyLike.cs" Link="Imported\PyLike.cs" />
-    <Compile Include="..\PeanutButter.Utils\StrictComparer.cs" Link="Imported\StrictComparer.cs"/>
-    <Compile Include="..\PeanutButter.Utils\StringExtensions.cs" Link="Imported\StringExtensions.cs"/>
-    <Compile Include="..\PeanutButter.Utils\ByteArrayExtensions.cs" Link="Imported\ByteArrayExtensions.cs"/>
-    <Compile Include="..\PeanutButter.Utils\RandomNumber.cs" Link="Imported\RandomNumber.cs"/>
+    <Compile Include="..\PeanutButter.Utils\StrictComparer.cs" Link="Imported\StrictComparer.cs" />
+    <Compile Include="..\PeanutButter.Utils\StringExtensions.cs" Link="Imported\StringExtensions.cs" />
+    <Compile Include="..\PeanutButter.Utils\ByteArrayExtensions.cs" Link="Imported\ByteArrayExtensions.cs" />
+    <Compile Include="..\PeanutButter.Utils\RandomNumber.cs" Link="Imported\RandomNumber.cs" />
     <Compile Include="..\PeanutButter.Utils\Stringifier.cs" Link="Imported\Stringifier.cs" />
-    <Compile Include="..\PeanutButter.Utils\TypeExtensions.cs" Link="Imported\TypeExtensions.cs"/>
-    <Compile Include="..\PeanutButter.Utils\CannotZipNullException.cs" Link="CannotZipNullException.cs"/>
-    <Compile Include="..\PeanutButter.Utils\UnevenZipException.cs" Link="UnevenZipException.cs"/>
+    <Compile Include="..\PeanutButter.Utils\TypeExtensions.cs" Link="Imported\TypeExtensions.cs" />
+    <Compile Include="..\PeanutButter.Utils\CannotZipNullException.cs" Link="CannotZipNullException.cs" />
+    <Compile Include="..\PeanutButter.Utils\UnevenZipException.cs" Link="UnevenZipException.cs" />
+    <Compile Include="..\PeanutButter.Utils\Dictionaries\DictionaryWrappingNameValueCollection.cs" Link="DictionaryWrappingNameValueCollection.cs" />
+    <Compile Include="..\PeanutButter.Utils\Dictionaries\RedirectingDictionary.cs" Link="RedirectingDictionary.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Imported\"/>
+    <Folder Include="Imported\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="3.8.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="system.reflection.emit" Version="4.3.0"/>
+    <PackageReference Include="system.reflection.emit" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)'=='net452'">
-    <Reference Include="System.Configuration"/>
+    <Reference Include="System.Configuration" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="System.Configuration" Condition="'$(TargetFramework)' == 'net452' OR '$(TargetFramework)' == 'net462'"/>
+    <Reference Include="System.Configuration" Condition="'$(TargetFramework)' == 'net452' OR '$(TargetFramework)' == 'net462'" />
   </ItemGroup>
-  <Import Project="..\..\MonoForFramework.targets"/>
+  <Import Project="..\..\MonoForFramework.targets" />
 </Project>

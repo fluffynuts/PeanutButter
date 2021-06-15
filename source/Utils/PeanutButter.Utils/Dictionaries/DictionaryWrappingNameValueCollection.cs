@@ -1,19 +1,32 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMember.Global
 
-namespace PeanutButter.DuckTyping.Shimming
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils.Dictionaries
+#else
+namespace PeanutButter.Utils.Dictionaries
+#endif
 {
     /// <summary>
     /// Wraps a NameValueCollection in an IDictionary interface
     /// </summary>
-    internal class DictionaryWrappingNameValueCollection : IDictionary<string, object>
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        class DictionaryWrappingNameValueCollection : IDictionary<string, object>
     {
         private readonly NameValueCollection _data;
+        /// <summary>
+        /// Comparer to use for the keys of this dictionary
+        /// </summary>
         public StringComparer Comparer { get; }
 
         /// <summary>
@@ -25,7 +38,9 @@ namespace PeanutButter.DuckTyping.Shimming
         public DictionaryWrappingNameValueCollection(
             NameValueCollection data,
             bool caseInsensitive
-        ): this (data, caseInsensitive ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal)
+        ) : this(data, caseInsensitive
+            ? StringComparer.OrdinalIgnoreCase
+            : StringComparer.Ordinal)
         {
         }
 
@@ -35,7 +50,7 @@ namespace PeanutButter.DuckTyping.Shimming
         /// <param name="data"></param>
         public DictionaryWrappingNameValueCollection(
             NameValueCollection data
-        ): this (data, StringComparer.Ordinal)
+        ) : this(data, StringComparer.Ordinal)
         {
         }
 
@@ -55,6 +70,7 @@ namespace PeanutButter.DuckTyping.Shimming
             Comparer = comparer;
         }
 
+        /// <inheritdoc />
         public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
         {
             return new DictionaryWrappingNameValueCollectionEnumerator(this);
@@ -99,7 +115,8 @@ namespace PeanutButter.DuckTyping.Shimming
         /// <inheritdoc />
         public void CopyTo(KeyValuePair<string, object>[] array, int arrayIndex)
         {
-            foreach (var kvp in this) {
+            foreach (var kvp in this)
+            {
                 array[arrayIndex++] = kvp;
             }
         }
@@ -150,6 +167,7 @@ namespace PeanutButter.DuckTyping.Shimming
                 value = null;
                 return false;
             }
+
             value = _data[key];
             return true;
         }
@@ -164,7 +182,7 @@ namespace PeanutButter.DuckTyping.Shimming
             }
             set
             {
-                key = GetKeyFor(key) ?? key;    // allow adding items
+                key = GetKeyFor(key) ?? key; // allow adding items
                 _data[key] = value?.ToString(); // TODO: could be better
             }
         }
@@ -175,4 +193,69 @@ namespace PeanutButter.DuckTyping.Shimming
         /// <inheritdoc />
         public ICollection<object> Values => _data.AllKeys.Select(k => _data[k]).ToArray();
     }
+    
+    // TODO: add explicit tests around this class, which is currently only tested by indirection
+    /// <summary>
+    /// Wraps a NameValueCollection in a Dictionary interface
+    /// </summary>
+    internal class DictionaryWrappingNameValueCollectionEnumerator : IEnumerator<KeyValuePair<string, object>>
+    {
+        internal DictionaryWrappingNameValueCollection Data => _data;
+        private readonly DictionaryWrappingNameValueCollection _data;
+        private string[] _keys;
+        private int _current;
+
+        /// <summary>
+        /// Provides an IEnumerator for a DictionaryWrappingNameValueCollection
+        /// </summary>
+        /// <param name="data"></param>
+        public DictionaryWrappingNameValueCollectionEnumerator(
+            DictionaryWrappingNameValueCollection data
+        )
+        {
+            _data = data;
+            Reset();
+        }
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            /* empty on purpose, just need to implement IEnumerator */
+        }
+
+        /// <inheritdoc />
+        public bool MoveNext()
+        {
+            RefreshKeys();
+            _current++;
+            return _current < _keys.Length;
+        }
+
+        /// <inheritdoc />
+        public void Reset()
+        {
+            _current = -1;
+            _keys = new string[] { };
+        }
+
+        public KeyValuePair<string, object> Current
+        {
+            get
+            {
+                RefreshKeys();
+                if (_current >= _keys.Length)
+                    throw new InvalidOperationException("Current index is out of bounds");
+                return new KeyValuePair<string, object>(_keys[_current], _data[_keys[_current]]);
+            }
+        }
+
+        private void RefreshKeys()
+        {
+            if (!_keys.Any())
+                _keys = _data.Keys.ToArray();
+        }
+
+        object IEnumerator.Current => Current;
+    }
+    
 }

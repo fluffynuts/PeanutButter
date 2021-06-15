@@ -2,15 +2,14 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using NUnit.Framework;
-using PeanutButter.DuckTyping.Shimming;
-using PeanutButter.TestUtils.Generic;
-using PeanutButter.Utils;
 using NExpect;
+using NUnit.Framework;
+using PeanutButter.TestUtils.Generic;
+using PeanutButter.Utils.Dictionaries;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
-namespace PeanutButter.DuckTyping.Tests.Shimming
+namespace PeanutButter.Utils.Tests.Dictionaries
 {
     [TestFixture]
     public class TestRedirectingDictionary
@@ -314,7 +313,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             // Arrange
             var prefix = GetRandomString(3);
             var data = MakeRandomData(prefix);
-            var expected = data.Keys.Select(k => k.RegexReplace($"^{prefix}", "")).ToArray();
+            var expected = data.Keys.Select(k => StringExtensions.RegexReplace(k, $"^{prefix}", "")).ToArray();
             var sut = Create(data, s => prefix + s, s => s.RegexReplace($"^{prefix}", ""));
 
             // Pre-Assert

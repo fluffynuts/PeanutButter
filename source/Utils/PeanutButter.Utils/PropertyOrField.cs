@@ -34,6 +34,60 @@ namespace PeanutButter.Utils
     }
 
     /// <summary>
+    /// Represents a property or a field on an object
+    /// </summary>
+    public interface IPropertyOrField
+    {
+        /// <summary>
+        /// Name of the property or field
+        /// </summary>
+        string Name { get; }
+
+        /// <summary>
+        /// Type of the property or field
+        /// </summary>
+        Type Type { get; }
+
+        /// <summary>
+        /// Write access to property or field
+        /// </summary>
+        bool CanWrite { get; }
+
+        /// <summary>
+        /// Read access to property or field
+        /// </summary>
+        bool CanRead { get; }
+
+        /// <summary>
+        /// The type on which this property or field is declared
+        /// </summary>
+        Type DeclaringType { get; }
+
+        /// <summary>
+        /// Gets the value of the property or field for the provided host
+        /// </summary>
+        /// <param name="host"></param>
+        /// <returns></returns>
+        object GetValue(object host);
+
+        /// <summary>
+        /// Sets the value of the property or field on the provided host
+        /// </summary>
+        /// <param name="host"></param>
+        /// <param name="value"></param>
+        void SetValue(object host, object value);
+
+        /// <summary>
+        /// Sets the value for the field or property
+        /// as found on the provided host
+        /// </summary>
+        /// <param name="host"></param>
+        /// <param name="value"></param>
+        /// <typeparam name="T"></typeparam>
+        void SetValue<T>(ref T host, object value);
+    }
+
+    /// <summary>
     /// Provides a single storage / representation
     /// for a Property or a Field
     /// </summary>
@@ -44,6 +98,7 @@ namespace PeanutButter.Utils
     public
 #endif
         class PropertyOrField
+        : IPropertyOrField
     {
         /// <summary>
         /// Creates a PropertyOrField container for a provided PropertyInfo
@@ -90,8 +145,8 @@ namespace PeanutButter.Utils
                 );
         }
 
-        private static ConcurrentDictionary<Tuple<Type, string>, PropertyOrField>
-            FindCache = new ConcurrentDictionary<Tuple<Type, string>, PropertyOrField>();
+        private static readonly ConcurrentDictionary<Tuple<Type, string>, PropertyOrField>
+            FindCache = new();
 
         /// <summary>
         /// Attempts to find a property or field with the given name on
@@ -137,40 +192,38 @@ namespace PeanutButter.Utils
             return result;
         }
 
-        /// <summary>
-        /// Name of the property or field
-        /// </summary>
+        /// <inheritdoc />
         public string Name { get; }
 
-        /// <summary>
-        /// Type of the property or field
-        /// </summary>
+        /// <inheritdoc />
         public Type Type { get; }
 
-        /// <summary>
-        /// Write access to property or field
-        /// </summary>
+        /// <inheritdoc />
         public bool CanWrite { get; }
 
-        /// <summary>
-        /// Read access to property or field
-        /// </summary>
+        /// <inheritdoc />
         public bool CanRead { get; }
 
         /// <summary>
         /// Is this a Property or a Field?
         /// </summary>
-        public PropertyOrFieldTypes MemberType { get; }
+#if BUILD_PEANUTBUTTER_INTERNAL
+        internal
+#else
+        public
+#endif
+            PropertyOrFieldTypes MemberType { get; }
 
-        /// <summary>
-        /// The type on which this property or field is declared
-        /// </summary>
+        /// <inheritdoc />
         public Type DeclaringType { get; }
 
         private readonly Func<object, object> _getValue;
         private readonly Action<object, object> _setValue;
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Constructs the PropertyOrField around a property
+        /// </summary>
+        /// <param name="prop"></param>
         public PropertyOrField(PropertyInfo prop)
         {
             _getValue = prop.GetValue;
@@ -204,7 +257,10 @@ namespace PeanutButter.Utils
             return new PropertyOrField(field);
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Constructs the PropertyOrField around a field
+        /// </summary>
+        /// <param name="field"></param>
         public PropertyOrField(FieldInfo field)
         {
             _getValue = field.GetValue;
@@ -218,21 +274,13 @@ namespace PeanutButter.Utils
             CanWrite = true;
         }
 
-        /// <summary>
-        /// Gets the value of the property or field for the provided host
-        /// </summary>
-        /// <param name="host"></param>
-        /// <returns></returns>
+        /// <inheritdoc />
         public object GetValue(object host)
         {
             return _getValue(host);
         }
 
-        /// <summary>
-        /// Sets the value of the property or field on the provided host
-        /// </summary>
-        /// <param name="host"></param>
-        /// <param name="value"></param>
+        /// <inheritdoc />
         public void SetValue(object host, object value)
         {
             if (value is null)
@@ -244,7 +292,6 @@ namespace PeanutButter.Utils
 
                 _setValue(host, null);
                 return;
-
             }
 
             if (!value.TryImplicitlyCastTo(Type, out var castValue))
@@ -258,19 +305,13 @@ namespace PeanutButter.Utils
         }
 
 
-        /// <summary>
-        /// Sets the value for the field or property
-        /// as found on the provided host
-        /// </summary>
-        /// <param name="host"></param>
-        /// <param name="value"></param>
-        /// <typeparam name="T"></typeparam>
+        /// <inheritdoc />
         public void SetValue<T>(ref T host, object value)
         {
-            var asObject = (object) host;
+            var asObject = (object)host;
             _setValue(asObject, value);
             // required for referenced by-val sets to work (ie struct values)
-            host = (T) asObject;
+            host = (T)asObject;
         }
     }
 }

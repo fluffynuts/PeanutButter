@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Specialized;
+using Imported.PeanutButter.Utils.Dictionaries;
 using PeanutButter.DuckTyping.Shimming;
 using Shared = PeanutButter.DuckTyping.Extensions.DuckTypingExtensionSharedMethods;
 using TransformFunc = System.Func<string, string>;

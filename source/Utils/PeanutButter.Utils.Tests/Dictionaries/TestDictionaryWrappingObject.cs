@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using NUnit.Framework;
 using PeanutButter.Utils.Dictionaries;
@@ -29,7 +30,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                 .To.Implement(expected);
             // Assert
         }
-        
+
         [Test]
         public void ShouldProvideNullPatternForNullValue()
         {
@@ -40,7 +41,6 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                 .To.Be.Empty();
             // Assert
         }
-
 
         [Test]
         public void ShouldBeAbleToGetExistingPropertyValue_CaseSensitive()
@@ -685,7 +685,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                     .To.Implement(expected);
                 // Assert
             }
-            
+
             [Test]
             public void ShouldBeAbleToObtainOriginalObject()
             {
@@ -738,6 +738,63 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                     .To.Be.False();
                 Expect(wrapped)
                     .To.Be.Null();
+            }
+        }
+
+        [TestFixture]
+        public class SpecialCases
+        {
+            [TestFixture]
+            public class WrappingGenericDictionaryWithStringKeys
+            {
+                [Test]
+                public void ShouldBeAbleToReadAndWriteValue()
+                {
+                    // Arrange
+                    var expected1 = GetRandomInt();
+                    var expected2 = GetAnother(expected1);
+                    var wrapped = new Dictionary<string, int>()
+                    {
+                        ["id"] = expected1
+                    };
+                    var sut = Create(wrapped);
+                    // Act
+                    var result1 = sut["id"];
+                    sut["id"] = expected2;
+                    var result2 = sut["id"];
+                    // Assert
+                    Expect(result1)
+                        .To.Equal(expected1);
+                    Expect(result2)
+                        .To.Equal(expected2);
+                }
+            }
+
+            [TestFixture]
+            public class WrappingNameValueCollection
+            {
+                [Test]
+                [Explicit("🚧")]
+                public void ShouldBeAbleToReadAndWriteValue()
+                {
+                    // Arrange
+                    var expected1 = GetRandomString();
+                    var expected2 = GetAnother(expected1);
+                    var wrapped = new NameValueCollection()
+                    {
+                        ["id"] = expected1
+                    };
+                    var sut = Create(wrapped);
+                    // Act
+                    var result1 = sut["id"];
+                    sut["id"] = expected2;
+                    var result2 = sut["id"];
+                    // Assert
+                    Expect(result1)
+                        .To.Equal(expected1);
+                    Expect(result2)
+                        .To.Equal(expected2);
+                }
             }
         }
 
