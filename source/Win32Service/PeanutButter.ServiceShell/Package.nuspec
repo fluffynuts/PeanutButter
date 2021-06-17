@@ -1,7 +1,7 @@
 <package>
   <metadata>
     <id>PeanutButter.ServiceShell</id>
-    <version>2.0.26</version>
+    <version>2.0.27</version>
     <title>PeanutButter.ServiceShell</title>
     <authors>Davyd McColl</authors>
     <owners>Davyd McColl</owners>
@@ -22,12 +22,12 @@
     <copyright>Copyright  2014</copyright>
     <dependencies>
       <group targetFramework="net452">
-        <dependency id="PeanutButter.WindowsServiceManagement" version="2.0.26" />
+        <dependency id="PeanutButter.WindowsServiceManagement" version="2.0.27" />
         <dependency id="CommandLineParser" version="1.9.71" />
         <dependency id="log4net" version="2.0.12" />
       </group>
       <group targetFramework="net462">
-        <dependency id="PeanutButter.WindowsServiceManagement" version="2.0.26" />
+        <dependency id="PeanutButter.WindowsServiceManagement" version="2.0.27" />
         <dependency id="CommandLineParser" version="1.9.71" />
         <dependency id="log4net" version="2.0.12" />
       </group>
