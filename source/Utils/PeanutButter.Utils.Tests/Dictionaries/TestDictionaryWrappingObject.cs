@@ -214,37 +214,118 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                 // Assert
             }
 
-            [Test]
-            public void Clear_ShouldThrowInvalidOperationException()
+            [TestFixture]
+            public class Clear
             {
-                // Arrange
-                var sut = Create();
+                [Test]
+                public void OperatingOnObject_ShouldThrowInvalidOperationException()
+                {
+                    // Arrange
+                    var data = new { id = 1 };
+                    var sut = Create();
 
-                // Pre-Assert
+                    // Pre-Assert
 
-                // Act
-                Expect(() => sut.Clear())
-                    .To.Throw<InvalidOperationException>();
+                    // Act
+                    Expect(() => sut.Clear())
+                        .To.Throw<InvalidOperationException>();
 
-                // Assert
+                    // Assert
+                }
+
+                [Test]
+                public void OperatingOnDict_ShouldClear()
+                {
+                    // Arrange
+                    var dict = new Dictionary<string, object>()
+                    {
+                        ["id"] = 2
+                    };
+                    var sut = Create(dict);
+
+                    // Act
+                    sut.Clear();
+                    // Assert
+                    Expect(dict)
+                        .To.Be.Empty();
+                }
+
+                [Test]
+                public void OperatingOnCowDict_ShouldClearCopy()
+                {
+                    // Arrange
+                    var dict = new Dictionary<string, object>()
+                    {
+                        ["id"] = 1
+                    };
+                    var sut = Create(
+                        options: WrapOptions.CopyOnWrite
+                    );
+                    // Act
+                    sut.Clear();
+                    // Assert
+                    Expect(sut as IDictionary<string, object>)
+                        .To.Be.Empty();
+                    Expect(dict)
+                        .Not.To.Be.Empty();
+                }
             }
 
-            [Test]
-            public void Remove_ShouldThrowInvalidOperationException()
+            [TestFixture]
+            public class Remove
             {
-                // Arrange
-                var sut = Create();
+                [Test]
+                public void OperatingOnObject_ShouldThrowInvalidOperationException()
+                {
+                    // Arrange
+                    var sut = Create(new { id = 1 });
 
-                // Pre-Assert
+                    // Pre-Assert
 
-                // Act
-                Expect(() => sut.Remove(GetRandomString()))
-                    .To.Throw<InvalidOperationException>();
+                    // Act
+                    Expect(() => sut.Remove("id"))
+                        .To.Throw<InvalidOperationException>();
 
-                Expect(() => sut.Remove(GetRandom<KeyValuePair<string, object>>()))
-                    .To.Throw<InvalidOperationException>();
+                    Expect(() => sut.Remove(GetRandom<KeyValuePair<string, object>>()))
+                        .To.Throw<InvalidOperationException>();
 
-                // Assert
+                    // Assert
+                }
+
+                [Test]
+                public void OperatingOnDict_ShouldRemoveItem()
+                {
+                    // Arrange
+                    var dict = new Dictionary<string, object>()
+                    {
+                        ["id"] = 1
+                    };
+                    var sut = Create(dict);
+
+                    // Act
+                    sut.Remove("id");
+                    // Assert
+                    Expect(dict)
+                        .Not.To.Contain.Key("id");
+                }
+
+                [Test]
+                public void OperatingOnCowObject_ShouldCowRemove()
+                {
+                    // Arrange
+                    var sut = Create(
+                        new { id = 1 },
+                        options: WrapOptions.CopyOnWrite
+                    );
+
+                    // Pre-Assert
+
+                    // Act
+                    sut.Remove("id");
+                    // Assert
+                    Expect(sut.Keys)
+                        .Not.To.Contain("id");
+                }
             }
         }
 

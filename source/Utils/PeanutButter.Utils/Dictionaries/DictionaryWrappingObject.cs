@@ -206,12 +206,12 @@ namespace PeanutButter.Utils.Dictionaries
             Comparer = keyComparer;
             _options = options;
             _wrapped = WrapIfIsSpecialCase(wrapped);
-            _wrapRecursively = options.HasFlag(WrapOptions.WrapRecursively);
+            var wrapRecursively = options.HasFlag(WrapOptions.WrapRecursively);
             _forceWrappingDictionariesWithoutStringKeys =
                 options.HasFlag(WrapOptions.ForceWrappingDictionariesWithoutStringKeys);
             _copyOnWrite = options.HasFlag(WrapOptions.CopyOnWrite);
 
-            _propertyReader = _wrapRecursively
+            _propertyReader = wrapRecursively
                 ? ReadWrappedProperty
                 : ReadObjectProperty;
             if (_wrapped is null)
@@ -272,6 +272,7 @@ namespace PeanutButter.Utils.Dictionaries
             _props = _wrappedType.GetProperties(flags)
                 .Select(pi => new PropertyOrField(pi))
                 .Union(_wrappedType.GetFields(flags).Select(fi => new PropertyOrField(fi)))
+                .Cast<IPropertyOrField>()
                 .ToArray();
             _keys = _props
                 .Select(p => new KeyValuePair<string, string>(p.Name, p.Name))
@@ -346,7 +347,7 @@ namespace PeanutButter.Utils.Dictionaries
                     },
                     (host, value) =>
                     {
-                        itemSetter.Invoke(host, new object[] { k, value });
+                        itemSetter.Invoke(host, new[] { k, value });
                     }
                 ) as IPropertyOrField;
             }).ToArray();
@@ -372,6 +373,22 @@ namespace PeanutButter.Utils.Dictionaries
         /// <inheritdoc />
         public void Clear()
         {
+            if (_copyOnWrite)
+            {
+                _deletedKeys.Clear();
+                foreach (var key in Keys)
+                {
+                    _deletedKeys.Add(key);
+                }
+                return;
+            }
+
+            if (_wrapped is IDictionary<string, object> dict)
+            {
+                dict.Clear();
+                return;
+            }
+
             throw new InvalidOperationException("Cannot clear properties on an object");
         }
 
@@ -397,6 +414,22 @@ namespace PeanutButter.Utils.Dictionaries
         /// <inheritdoc />
         public bool Remove(KeyValuePair<string, object> item)
         {
+            if (_copyOnWrite)
+            {
+                var prop = _props.FirstOrDefault(p => p.Name == item.Key);
+                if (prop is null || ReadProperty(item.Key) != item.Value)
+                {
+                    return false;
+                }
+                _deletedKeys.Add(item.Key);
+                return true;
+            }
+
+            if (_wrapped is IDictionary<string, object> dict)
+            {
+                return dict.Remove(item);
+            }
+
             throw new InvalidOperationException("Cannot remove properties from an object");
         }
 
@@ -428,6 +461,23 @@ namespace PeanutButter.Utils.Dictionaries
         /// <inheritdoc />
         public bool Remove(string key)
         {
+            if (_copyOnWrite)
+            {
+                CachePropertyInfos();
+                var prop = _props.FirstOrDefault(p => p.Name == key);
+                if (prop is null)
+                {
+                    return false;
+                }
+                _deletedKeys.Add(key);
+                return true;
+            }
+
+            if (_wrapped is IDictionary<string, object> dict)
+            {
+                return dict.Remove(key);
+            }
+
             throw new InvalidOperationException("Cannot remove properties from an object");
         }
 
@@ -452,16 +502,22 @@ namespace PeanutButter.Utils.Dictionaries
             set => WriteProperty(key, value);
         }
 
-        private readonly Dictionary<string, object> _valueOverrides = new Dictionary<string, object>();
+        private readonly Dictionary<string, object> _valueOverrides = new();
+        private readonly HashSet<string> _deletedKeys = new();
 
         private void WriteProperty(string key, object value)
         {
+            if (_deletedKeys.Contains(key))
+            {
+                _deletedKeys.Remove(key);
+            }
+
             VerifyHasKey(key);
             var info = _props.First(o => HasName(o, key));
             var targetType = info.Type;
             var valueType = value?.GetType();
-            
-            
+
+
             if (targetType == valueType)
             {
                 if (_copyOnWrite)
@@ -576,7 +632,8 @@ namespace PeanutButter.Utils.Dictionaries
 
         private bool HasKey(string key)
         {
-            return _keys.ContainsKey(key);
+            return _keys.ContainsKey(key) &&
+                !_deletedKeys.Contains(key);
         }
 
         private bool HasName(IPropertyOrField prop, string key)
@@ -595,7 +652,9 @@ namespace PeanutButter.Utils.Dictionaries
         private ICollection<string> GetKeys()
         {
             CachePropertyInfos();
-            return _keys.Select(kvp => kvp.Value).ToArray();
+            return _keys.Select(kvp => kvp.Value)
+                .Except(_deletedKeys)
+                .ToArray();
         }
 
         /// <inheritdoc />
@@ -608,10 +667,9 @@ namespace PeanutButter.Utils.Dictionaries
         }
 
         private object[] _values;
-        private readonly bool _wrapRecursively;
         private readonly bool _forceWrappingDictionariesWithoutStringKeys;
         private readonly Func<string, object> _propertyReader;
-        private Type _wrappedType;
+        private readonly Type _wrappedType;
         private readonly WrapOptions _options;
         private readonly bool _copyOnWrite;
 
