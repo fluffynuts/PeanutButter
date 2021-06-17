@@ -203,7 +203,7 @@ namespace PeanutButter.Utils.Dictionaries
         )
         {
             Comparer = keyComparer;
-            _wrapped = WrapIfRequired(wrapped);
+            _wrapped = WrapIfIsSpecialCase(wrapped);
             _wrapRecursively = wrapRecursively;
             _forceWrappingDictionariesWithoutStringKeys = forceWrappingDictionariesWithoutStringKeys;
 
@@ -217,26 +217,29 @@ namespace PeanutButter.Utils.Dictionaries
             }
         }
 
-        private object WrapIfRequired(object original)
+        private object WrapIfIsSpecialCase(object original)
         {
             if (original is null)
             {
                 return null;
             }
 
-            switch (original)
+            return SpecialCases.TryGetValue(original.GetType(), out var wrapper)
+                ? wrapper(original)
+                : original;
+        }
+
+        private static readonly Dictionary<Type, Func<object, IDictionary<string, object>>> SpecialCases
+            = new()
             {
-                case NameValueCollection nvc:
-                    return new DictionaryWrappingNameValueCollection(nvc);
+                [typeof(NameValueCollection)] = 
+                    o => new DictionaryWrappingNameValueCollection(o as NameValueCollection),
                 #if NETSTANDARD
                 #else
-                case ConnectionStringSettingsCollection connectionStringSettings:
-                    return new DictionaryWrappingConnectionStringSettingCollection(connectionStringSettings);
+                [typeof(ConnectionStringSettingsCollection)] = 
+                    o => new DictionaryWrappingConnectionStringSettingCollection(o as ConnectionStringSettingsCollection)
                 #endif
-                default:
-                    return original;
-            }
-        }
+            };
 
         private void CachePropertyInfos()
         {
@@ -299,7 +302,7 @@ namespace PeanutButter.Utils.Dictionaries
                 $"Attempted to wrap a dictionary with non-string keys. If this is intentional, then set the relevant flag at construction time."
             );
         }
-        
+
         private void CacheDictionaryPropertyInfos()
         {
             _keys = _wrapped.Get<IEnumerable<string>>(nameof(Keys))
@@ -425,14 +428,14 @@ namespace PeanutButter.Utils.Dictionaries
         public bool TryGetValue(string key, out object value)
         {
             CachePropertyInfos();
-            var prop = FindPropertyByName(key);
-            value = prop?.GetValue(_wrapped);
-            return prop != null;
-        }
+            if (!HasKey(key))
+            {
+                value = default;
+                return false;
+            }
 
-        private IPropertyOrField FindPropertyByName(string name)
-        {
-            return _props.FirstOrDefault(o => HasName(o, name));
+            value = ReadProperty(key);
+            return true;
         }
 
         /// <inheritdoc />
@@ -503,20 +506,30 @@ namespace PeanutButter.Utils.Dictionaries
                 return result;
             }
 
+            if (SpecialCases.ContainsKey(rawValue.GetType()))
+            {
+                return WrapAndCache();
+            }
+
             var enumerableWrapper = new EnumerableEnumerableWrapper<object>(rawValue);
             if (enumerableWrapper.IsValid)
             {
                 return LazilyEnumerate(enumerableWrapper);
             }
 
-            return _wrapperCache[rawValue]
-                = new DictionaryWrappingObject(
-                    rawValue,
-                    Comparer,
-                    _wrapRecursively,
-                    _forceWrappingDictionariesWithoutStringKeys,
-                    _wrapperCache
-                );
+            return WrapAndCache();
+
+            DictionaryWrappingObject WrapAndCache()
+            {
+                return _wrapperCache[rawValue]
+                    = new DictionaryWrappingObject(
+                        rawValue,
+                        Comparer,
+                        _wrapRecursively,
+                        _forceWrappingDictionariesWithoutStringKeys,
+                        _wrapperCache
+                    );
+            }
         }
 
         private IEnumerable<IDictionary<string, object>> LazilyEnumerate(
@@ -532,12 +545,17 @@ namespace PeanutButter.Utils.Dictionaries
         private void VerifyHasKey(string key)
         {
             CachePropertyInfos();
-            if (_keys.ContainsKey(key))
+            if (HasKey(key))
             {
                 return;
             }
 
             throw new KeyNotFoundException(key);
+        }
+
+        private bool HasKey(string key)
+        {
+            return _keys.ContainsKey(key);
         }
 
         private bool HasName(IPropertyOrField prop, string key)
@@ -645,7 +663,7 @@ namespace PeanutButter.Utils.Dictionaries
             _valueSetter = valueSetter;
         }
     }
-    
+
     internal class DictionaryWrappingObjectEnumerator : IEnumerator<KeyValuePair<string, object>>
     {
         private readonly DictionaryWrappingObject _dict;
@@ -679,5 +697,4 @@ namespace PeanutButter.Utils.Dictionaries
 
         object IEnumerator.Current => Current;
     }
-    
 }

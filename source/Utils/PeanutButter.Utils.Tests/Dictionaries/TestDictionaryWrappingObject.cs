@@ -448,7 +448,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         }
 
         [TestFixture]
-        public class WhenConstructedToProvideWrappedObjectsForComplexProperties
+        public class WhenWrappingRecursively
         {
             [Test]
             public void ShouldNotWrapPrimitiveProperty()
@@ -557,6 +557,25 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                     .To.Equal("child");
                 Expect(firstLevelChildren[0])
                     .To.Be(thirdLevelChildren[0]);
+            }
+
+            [Test]
+            public void TryGetValue_ShouldAlsoReturnWrappedValue()
+            {
+                // Arrange
+                var data = new
+                {
+                    Form = new NameValueCollection()
+                };
+                var sut = Create(data, wrapRecursively: true);
+
+                // Act
+                var fetched = sut.TryGetValue("Form", out var result);
+                // Assert
+                Expect(fetched)
+                    .To.Be.True();
+                Expect(result)
+                    .To.Be.An.Instance.Of<DictionaryWrappingObject>();
             }
 
             [TestFixture]
