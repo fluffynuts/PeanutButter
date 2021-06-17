@@ -159,7 +159,8 @@ namespace PeanutButter.Utils.Dictionaries
 
         /// <summary>
         /// Provides a mechanism to reflectively read members on an object
-        /// via an IDictionary&lt;string, object&gt; interface
+        /// via an IDictionary&lt;string, object&gt; interface where the
+        /// keyComparer used is StringComparer.Ordinal
         /// </summary>
         /// <param name="wrapped"></param>
         /// <param name="options"></param>
@@ -208,6 +209,7 @@ namespace PeanutButter.Utils.Dictionaries
             _wrapRecursively = options.HasFlag(WrapOptions.WrapRecursively);
             _forceWrappingDictionariesWithoutStringKeys =
                 options.HasFlag(WrapOptions.ForceWrappingDictionariesWithoutStringKeys);
+            _copyOnWrite = options.HasFlag(WrapOptions.CopyOnWrite);
 
             _propertyReader = _wrapRecursively
                 ? ReadWrappedProperty
@@ -450,14 +452,24 @@ namespace PeanutButter.Utils.Dictionaries
             set => WriteProperty(key, value);
         }
 
+        private readonly Dictionary<string, object> _valueOverrides = new Dictionary<string, object>();
+
         private void WriteProperty(string key, object value)
         {
             VerifyHasKey(key);
             var info = _props.First(o => HasName(o, key));
             var targetType = info.Type;
             var valueType = value?.GetType();
+            
+            
             if (targetType == valueType)
             {
+                if (_copyOnWrite)
+                {
+                    _valueOverrides[key] = value;
+                    return;
+                }
+
                 info.SetValue(_wrapped, value);
                 return;
             }
@@ -476,6 +488,11 @@ namespace PeanutButter.Utils.Dictionaries
         private object ReadProperty(string key)
         {
             VerifyHasKey(key);
+            if (_copyOnWrite && _valueOverrides.ContainsKey(key))
+            {
+                return _valueOverrides[key];
+            }
+
             return _propertyReader(key);
         }
 
@@ -596,6 +613,7 @@ namespace PeanutButter.Utils.Dictionaries
         private readonly Func<string, object> _propertyReader;
         private Type _wrappedType;
         private readonly WrapOptions _options;
+        private readonly bool _copyOnWrite;
 
         private object[] GetPropertyAndFieldValues()
         {

@@ -862,11 +862,40 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                 {
                     Id = 1
                 };
-                // var sut = Create(
-                //     data,
-                // );
+                var sut = Create(
+                    data,
+                    options: WrapOptions.CopyOnWrite
+                );
                 // Act
+                sut["Id"] = 2;
                 // Assert
+                Expect(data.Id)
+                    .To.Equal(1);
+                Expect(sut["Id"])
+                    .To.Equal(2);
+            }
+
+            [Test]
+            public void ShouldBeAbleToReadWriteReadOnlyValueSecondLevel()
+            {
+                // Arrange
+                var data = new
+                {
+                    sub = new
+                    {
+                        Id = 1
+                    }
+                };
+                var sut = Create(data,
+                    options: WrapOptions.WrapRecursively | WrapOptions.CopyOnWrite
+                );
+                // Act
+                sut["sub"].AsDict<string, object>()["Id"] = 2;
+                // Assert
+                Expect(data.sub.Id)
+                    .To.Equal(1);
+                Expect(sut["sub"].AsDict<string, object>()["Id"])
+                    .To.Equal(2);
             }
         }
 
