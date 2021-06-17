@@ -3,13 +3,12 @@ using System.Configuration;
 using System.Linq;
 using NExpect;
 using NUnit.Framework;
-using PeanutButter.DuckTyping.Shimming;
-using PeanutButter.Utils;
+using PeanutButter.Utils.Dictionaries;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using static PeanutButter.Utils.PyLike;
 
-namespace PeanutButter.DuckTyping.Tests.Extensions
+namespace PeanutButter.Utils.Tests.Dictionaries
 {
     [TestFixture]
     public class TestDictionaryWrappingConnectionStringCollection

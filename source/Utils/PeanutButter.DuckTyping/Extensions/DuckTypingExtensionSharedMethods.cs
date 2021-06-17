@@ -3,6 +3,7 @@ using System.Collections.Generic;
 #if NETSTANDARD
 #else
 using System.Configuration;
+using Imported.PeanutButter.Utils.Dictionaries;
 #endif
 using System.Linq;
 using System.Reflection;
@@ -253,7 +254,9 @@ namespace PeanutButter.DuckTyping.Extensions
 #else
             var asConnectionStringSettings = src as ConnectionStringSettingsCollection;
             if (asConnectionStringSettings != null)
+            {
                 return new DictionaryWrappingConnectionStringSettingCollection(asConnectionStringSettings);
+            }
 #endif
             var result = src as IDictionary<string, object>;
             if (result != null)

@@ -37,4 +37,10 @@
     </PackageReference>
   </ItemGroup>
   <Import Project="..\..\MonoForFramework.targets" />
+  <ItemGroup Condition="'$(TargetFramework)'=='net452'">
+    <Reference Include="System.Configuration" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)'=='net462'">
+    <Reference Include="System.Configuration" />
+  </ItemGroup>
 </Project>

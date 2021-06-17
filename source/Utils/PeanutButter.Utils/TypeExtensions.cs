@@ -430,20 +430,19 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
-        /// Attempts to get the item type of a colleciton
+        /// Attempts to get the item type of a collection
         /// </summary>
         /// <param name="collectionType">Type to inspect</param>
         /// <returns>Item type, if it can be found, or null</returns>
         public static Type GetCollectionItemType(this Type collectionType)
         {
             if (collectionType.IsArray)
+            {
                 return collectionType.GetElementType();
-            if (collectionType.IsGenericType())
-                return collectionType.GenericTypeArguments[0];
+            }
+
             var enumerableInterface = collectionType.TryGetEnumerableInterface();
-            if (enumerableInterface != null)
-                return enumerableInterface.GenericTypeArguments[0];
-            return null;
+            return enumerableInterface?.GenericTypeArguments[0];
         }
 
         /// <summary>

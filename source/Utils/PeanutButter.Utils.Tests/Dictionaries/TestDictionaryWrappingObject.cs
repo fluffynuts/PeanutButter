@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Configuration;
 using System.Linq;
 using NUnit.Framework;
 using PeanutButter.Utils.Dictionaries;
@@ -757,6 +757,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                     {
                         ["id"] = expected1
                     };
+                    var foo = wrapped.Values.FirstOrDefault();
                     var sut = Create(wrapped);
                     // Act
                     var result1 = sut["id"];
@@ -774,7 +775,6 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             public class WrappingNameValueCollection
             {
                 [Test]
-                [Explicit("🚧")]
                 public void ShouldBeAbleToReadAndWriteValue()
                 {
                     // Arrange
@@ -783,6 +783,32 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                     var wrapped = new NameValueCollection()
                     {
                         ["id"] = expected1
+                    };
+                    var sut = Create(wrapped);
+                    // Act
+                    var result1 = sut["id"];
+                    sut["id"] = expected2;
+                    var result2 = sut["id"];
+                    // Assert
+                    Expect(result1)
+                        .To.Equal(expected1);
+                    Expect(result2)
+                        .To.Equal(expected2);
+                }
+            }
+
+            [TestFixture]
+            public class WrappingConnectionStringSettingsCollection
+            {
+                [Test]
+                public void ShouldBeAbleToReadAndWriteValue()
+                {
+                    // Arrange
+                    var expected1 = GetRandomString();
+                    var expected2 = GetAnother(expected1);
+                    var wrapped = new ConnectionStringSettingsCollection
+                    {
+                        new ConnectionStringSettings("id", expected1)
                     };
                     var sut = Create(wrapped);
                     // Act

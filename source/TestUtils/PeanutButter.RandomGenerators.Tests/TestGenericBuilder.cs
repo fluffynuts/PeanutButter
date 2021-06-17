@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using EmailSpooler.Win32Service.Entity;
 using NExpect;
 using NUnit.Framework;
@@ -16,7 +14,6 @@ using static PeanutButter.Utils.PyLike;
 // ReSharper disable PossibleNullReferenceException
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMember.Global
-// ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable UnusedMember.Local
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable CollectionNeverQueried.Global
@@ -25,7 +22,6 @@ using static PeanutButter.Utils.PyLike;
 // ReSharper disable InconsistentNaming
 // ReSharper disable ClassNeverInstantiated.Local
 // ReSharper disable ClassNeverInstantiated.Global
-// ReSharper disable StringIndexOfIsCultureSpecific.1
 
 namespace PeanutButter.RandomGenerators.Tests
 {

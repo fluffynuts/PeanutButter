@@ -62,6 +62,7 @@
     <Compile Include="..\PeanutButter.Utils\UnevenZipException.cs" Link="UnevenZipException.cs" />
     <Compile Include="..\PeanutButter.Utils\Dictionaries\DictionaryWrappingNameValueCollection.cs" Link="DictionaryWrappingNameValueCollection.cs" />
     <Compile Include="..\PeanutButter.Utils\Dictionaries\RedirectingDictionary.cs" Link="RedirectingDictionary.cs" />
+    <Compile Include="..\PeanutButter.Utils\Dictionaries\DictionaryWrappingConnectionStringSettingCollection.cs" Link="DictionaryWrappingConnectionStringSettingCollection.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Imported\" />

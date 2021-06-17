@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Configuration;
 using System.Linq;
 using System.Reflection;
 
@@ -227,6 +228,11 @@ namespace PeanutButter.Utils.Dictionaries
             {
                 case NameValueCollection nvc:
                     return new DictionaryWrappingNameValueCollection(nvc);
+                #if NETSTANDARD
+                #else
+                case ConnectionStringSettingsCollection connectionStringSettings:
+                    return new DictionaryWrappingConnectionStringSettingCollection(connectionStringSettings);
+                #endif
                 default:
                     return original;
             }
@@ -293,7 +299,7 @@ namespace PeanutButter.Utils.Dictionaries
                 $"Attempted to wrap a dictionary with non-string keys. If this is intentional, then set the relevant flag at construction time."
             );
         }
-
+        
         private void CacheDictionaryPropertyInfos()
         {
             _keys = _wrapped.Get<IEnumerable<string>>(nameof(Keys))
@@ -301,17 +307,7 @@ namespace PeanutButter.Utils.Dictionaries
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value, Comparer);
             var valuesType = _wrapped.Get<object>(nameof(Values))
                 .GetType();
-            Type valueType = null;
-            if (valuesType.IsGenericType())
-            {
-                // this needs to be cleverer: should look at the generic type too
-                valueType = valuesType.GetGenericArguments()[1];
-            }
-            else
-            {
-                // TODO: DictionaryWrappingNameValueCollection gives back string[]
-                // -> inspect for T from IEnumerable&lt;T&gt;
-            }
+            var valueType = valuesType.GetCollectionItemType();
 
             if (valueType is null)
             {
