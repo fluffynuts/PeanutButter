@@ -210,11 +210,13 @@ namespace PeanutButter.Utils.Dictionaries
             _propertyReader = wrapRecursively
                 ? ReadWrappedProperty
                 : ReadObjectProperty;
-            if (_wrapped is not null)
+            if (_wrapped is null)
             {
-                _wrappedType = _wrapped.GetType();
-                _wrapperCache[wrapped] = this;
+                return;
             }
+
+            _wrappedType = _wrapped.GetType();
+            _wrapperCache[wrapped] = this;
         }
 
         private object WrapIfIsSpecialCase(object original)
