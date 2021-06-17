@@ -47,6 +47,53 @@ namespace PeanutButter.Utils.Dictionaries
     }
 
     /// <summary>
+    /// Options for wrapping objects - apply as bitfield
+    /// </summary>
+    [Flags]
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        enum WrapOptions
+    {
+        /// <summary>
+        /// No special options:
+        /// - wrap first layer only
+        /// - attempt write-back
+        /// - throw when encountering a dictionary with non-string keys (as
+        ///   the resultant behavior is _probably_ unexpected)
+        /// </summary>
+        None,
+
+        /// <summary>
+        /// Wrap the object recursively, ie complex-object properties are
+        /// also wrapped on access
+        /// </summary>
+        WrapRecursively,
+
+        /// <summary>
+        /// Ordinarily, if this wrapper encounters something implementing IDictionary&lt;,&gt;,
+        /// then it will attempt to wrap into the key-value collection if, and only if
+        /// the keys for that collection are strings. This means that normally, if provided
+        /// a dictionary with non-string keys, wrapping will fail with an ArgumentException. If
+        /// you're sure you'd like to wrap the actual properties of a dictionary, not the values
+        /// in the dictionary, force wrapping by setting this to true.
+        /// </summary>
+        ForceWrappingDictionariesWithoutStringKeys,
+
+        /// <summary>
+        /// Write operations don't actually write back to the original object - instead
+        /// a shadow is created (copy-on-write). Reading from the dictionary will
+        /// return the written value where reading from the underlying object will
+        /// still return the original value - useful when you'd like to wrap an
+        /// anonymous object and plan on making some writes and then reading back
+        /// from the dictionary
+        /// </summary>
+        CopyOnWrite
+    }
+
+    /// <summary>
     /// Wraps an object in a dictionary interface
     /// </summary>
 #if BUILD_PEANUTBUTTER_INTERNAL
@@ -89,12 +136,24 @@ namespace PeanutButter.Utils.Dictionaries
         public StringComparer Comparer { get; }
 
         /// <summary>
-        /// Provides a mechanism to reflectively read members on an object
+        /// Provides a mechanism to reflectively read and write members on an object
         /// via an IDictionary&lt;string, object&gt; interface
         /// </summary>
         /// <param name="wrapped"></param>
         public DictionaryWrappingObject(object wrapped)
-            : this(wrapped, StringComparer.Ordinal)
+            : this(wrapped, StringComparer.Ordinal, WrapOptions.None)
+        {
+        }
+
+        /// <summary>
+        /// Provides a mechanism to reflectively read and write members on an object
+        /// via an IDictionary&lt;string, object&gt; interface with keys matched by
+        /// the provided keyComparer
+        /// </summary>
+        /// <param name="wrapped"></param>
+        /// <param name="keyComparer"></param>
+        public DictionaryWrappingObject(object wrapped, StringComparer keyComparer)
+            : this(wrapped, keyComparer, WrapOptions.None)
         {
         }
 
@@ -103,47 +162,24 @@ namespace PeanutButter.Utils.Dictionaries
         /// via an IDictionary&lt;string, object&gt; interface
         /// </summary>
         /// <param name="wrapped"></param>
-        /// <param name="wrapRecursively">
-        /// When wrapping recursively, all properties are returned
-        /// as DictionaryWrappingObject instances so they can be
-        /// interrogated as dictionaries
-        /// </param>
+        /// <param name="options"></param>
         public DictionaryWrappingObject(
             object wrapped,
-            bool wrapRecursively
+            WrapOptions options
         ) : this(
             wrapped,
             StringComparer.Ordinal,
-            wrapRecursively
+            options
         )
-        {
-        }
-
-        /// <summary>
-        /// Provides a mechanism to reflectively read members on an object
-        /// via an IDictionary&lt;string, object&gt; interface
-        /// </summary>
-        /// <param name="wrapped"></param>
-        /// <param name="keyComparer">
-        /// Specify the key-comparer to use when reaching into objects
-        /// - the default is case-sensitive, ordinal, but you can make
-        ///   your wrapper instance more "forgiving" with a case-insensitive
-        ///   key-comparer
-        /// </param>
-        public DictionaryWrappingObject(
-            object wrapped,
-            StringComparer keyComparer
-        ) : this(wrapped, keyComparer, false)
         {
         }
 
         private DictionaryWrappingObject(
             object wrapped,
             StringComparer keyComparer,
-            bool wrapRecursively,
-            bool forceWrappingDictionariesWithoutStringKeys,
+            WrapOptions options,
             Dictionary<object, DictionaryWrappingObject> wrapperCache
-        ) : this(wrapped, keyComparer, wrapRecursively, forceWrappingDictionariesWithoutStringKeys)
+        ) : this(wrapped, keyComparer, options)
         {
             _wrapperCache = wrapperCache;
         }
@@ -153,61 +189,27 @@ namespace PeanutButter.Utils.Dictionaries
         /// via an IDictionary&lt;string, object&gt; interface
         /// </summary>
         /// <param name="wrapped"></param>
-        /// <param name="wrapRecursively">
-        /// When wrapping recursively, all properties are returned
-        /// as DictionaryWrappingObject instances so they can be
-        /// interrogated as dictionaries
-        /// </param>
         /// <param name="keyComparer">
         /// Specify the key-comparer to use when reaching into objects
         /// - the default is case-sensitive, ordinal, but you can make
         ///   your wrapper instance more "forgiving" with a case-insensitive
         ///   key-comparer
         /// </param>
+        /// <param name="options">Specific options for this wrapping</param>
         public DictionaryWrappingObject(
             object wrapped,
             StringComparer keyComparer,
-            bool wrapRecursively
-        ) : this(wrapped, keyComparer, wrapRecursively, false)
-        {
-        }
-
-        /// <summary>
-        /// Provides a mechanism to reflectively read members on an object
-        /// via an IDictionary&lt;string, object&gt; interface
-        /// </summary>
-        /// <param name="wrapped"></param>
-        /// <param name="wrapRecursively">
-        /// When wrapping recursively, all properties are returned
-        /// as DictionaryWrappingObject instances so they can be
-        /// interrogated as dictionaries
-        /// </param>
-        /// <param name="keyComparer">
-        /// Specify the key-comparer to use when reaching into objects
-        /// - the default is case-sensitive, ordinal, but you can make
-        ///   your wrapper instance more "forgiving" with a case-insensitive
-        ///   key-comparer
-        /// </param>
-        /// <param name="forceWrappingDictionariesWithoutStringKeys">
-        /// Ordinarily, if this wrapper encounters something implementing IDictionary&lt;,&gt;,
-        /// then it will attempt to wrap into the key-value collection if, and only if
-        /// the keys for that collection are strings. This means that normally, if provided
-        /// a dictionary with non-string keys, wrapping will fail with an ArgumentException. If
-        /// you're sure you'd like to wrap the actual properties of a dictionary, not the values
-        /// in the dictionary, force wrapping by setting this to true.</param>
-        public DictionaryWrappingObject(
-            object wrapped,
-            StringComparer keyComparer,
-            bool wrapRecursively,
-            bool forceWrappingDictionariesWithoutStringKeys
+            WrapOptions options
         )
         {
             Comparer = keyComparer;
+            _options = options;
             _wrapped = WrapIfIsSpecialCase(wrapped);
-            _wrapRecursively = wrapRecursively;
-            _forceWrappingDictionariesWithoutStringKeys = forceWrappingDictionariesWithoutStringKeys;
+            _wrapRecursively = options.HasFlag(WrapOptions.WrapRecursively);
+            _forceWrappingDictionariesWithoutStringKeys =
+                options.HasFlag(WrapOptions.ForceWrappingDictionariesWithoutStringKeys);
 
-            _propertyReader = wrapRecursively
+            _propertyReader = _wrapRecursively
                 ? ReadWrappedProperty
                 : ReadObjectProperty;
             if (_wrapped is null)
@@ -234,13 +236,14 @@ namespace PeanutButter.Utils.Dictionaries
         private static readonly Dictionary<Type, Func<object, IDictionary<string, object>>> SpecialCases
             = new()
             {
-                [typeof(NameValueCollection)] = 
+                [typeof(NameValueCollection)] =
                     o => new DictionaryWrappingNameValueCollection(o as NameValueCollection),
-                #if NETSTANDARD
-                #else
-                [typeof(ConnectionStringSettingsCollection)] = 
-                    o => new DictionaryWrappingConnectionStringSettingCollection(o as ConnectionStringSettingsCollection)
-                #endif
+#if NETSTANDARD
+#else
+                [typeof(ConnectionStringSettingsCollection)] =
+                    o => new DictionaryWrappingConnectionStringSettingCollection(
+                        o as ConnectionStringSettingsCollection)
+#endif
             };
 
         private void CachePropertyInfos()
@@ -527,8 +530,7 @@ namespace PeanutButter.Utils.Dictionaries
                     = new DictionaryWrappingObject(
                         rawValue,
                         Comparer,
-                        _wrapRecursively,
-                        _forceWrappingDictionariesWithoutStringKeys,
+                        _options,
                         _wrapperCache
                     );
             }
@@ -593,6 +595,7 @@ namespace PeanutButter.Utils.Dictionaries
         private readonly bool _forceWrappingDictionariesWithoutStringKeys;
         private readonly Func<string, object> _propertyReader;
         private Type _wrappedType;
+        private readonly WrapOptions _options;
 
         private object[] GetPropertyAndFieldValues()
         {

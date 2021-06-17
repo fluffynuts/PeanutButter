@@ -455,7 +455,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             {
                 // Arrange
                 var data = new { id = 1 };
-                var sut = Create(data, wrapRecursively: true);
+                var sut = Create(data, options: WrapOptions.WrapRecursively);
                 // Act
                 var result = sut["id"];
                 // Assert
@@ -468,7 +468,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             {
                 // Arrange
                 var data = new { sub = new { id = 1 } };
-                var sut = Create(data, wrapRecursively: true);
+                var sut = Create(data, options: WrapOptions.WrapRecursively);
                 // Act
                 var result = sut["sub"];
                 // Assert
@@ -483,7 +483,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             {
                 // Arrange
                 var data = new { sub = new { id = 1 } };
-                var sut = Create(data, wrapRecursively: true);
+                var sut = Create(data, options: WrapOptions.WrapRecursively);
                 // Act
                 var result1 = sut["sub"];
                 var result2 = sut["sub"];
@@ -498,7 +498,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                 // Arrange
                 var node = new LinkedListItem();
                 node.Previous = node;
-                var sut = Create(node, wrapRecursively: true);
+                var sut = Create(node, options: WrapOptions.WrapRecursively);
                 // Act
                 var result1 = sut["Previous"] as IDictionary<string, object>;
                 var result2 = result1["Previous"] as IDictionary<string, object>;
@@ -519,7 +519,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                         new { id = 2, text = "two" }
                     }
                 };
-                var sut = Create(data, wrapRecursively: true);
+                var sut = Create(data, options: WrapOptions.WrapRecursively);
                 // Act
                 var nodes = sut["nodes"] as IEnumerable<IDictionary<string, object>>;
                 // Assert
@@ -542,7 +542,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                 root.Children = new[] { child };
                 child.Children = new[] { root };
                 // Act
-                var sut = Create(root, wrapRecursively: true);
+                var sut = Create(root, options: WrapOptions.WrapRecursively);
                 // Assert
                 var firstLevelChildren = (sut["Children"] as IEnumerable<IDictionary<string, object>>).ToArray();
                 var secondLevelChildren =
@@ -567,7 +567,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                 {
                     Form = new NameValueCollection()
                 };
-                var sut = Create(data, wrapRecursively: true);
+                var sut = Create(data, options: WrapOptions.WrapRecursively);
 
                 // Act
                 var fetched = sut.TryGetValue("Form", out var result);
@@ -586,7 +586,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                 {
                     // Arrange
                     var node = GetRandom<Node>();
-                    var sut = Create(node, wrapRecursively: true);
+                    var sut = Create(node, options: WrapOptions.WrapRecursively);
                     var expected = Guid.NewGuid();
                     // Act
                     sut["Id"] = expected;
@@ -602,7 +602,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                     var item = new LinkedListItem() { Name = GetRandomString() };
                     var next = new LinkedListItem() { Name = GetRandomString() };
                     item.Next = next;
-                    var sut = Create(item, wrapRecursively: true);
+                    var sut = Create(item, options: WrapOptions.WrapRecursively);
                     var expected = GetRandomString(20);
                     // Act
                     var wrappedNext = sut["Next"] as IDictionary<string, object>;
@@ -620,7 +620,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                     var child = GetRandom<Node>();
                     root.Children = new[] { child };
                     var expected = GetRandomString(20);
-                    var sut = Create(root, wrapRecursively: true);
+                    var sut = Create(root, options: WrapOptions.WrapRecursively);
                     // Act
                     var wrappedChildren = sut["Children"].AsDictArray<string, object>();
                     wrappedChildren[0]["Name"] = expected;
@@ -637,7 +637,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                     var original = GetRandom<LinkedListItem>();
                     root.Next = original;
                     var replacement = GetRandom<LinkedListItem>();
-                    var sut = Create(root, wrapRecursively: true);
+                    var sut = Create(root, options: WrapOptions.WrapRecursively);
                     // Act
                     sut["Next"] = replacement;
                     var result = sut["Next"];
@@ -657,8 +657,14 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                     var original = GetRandom<LinkedListItem>();
                     root.Next = original;
                     var replacement = GetRandom<LinkedListItem>();
-                    var sut = Create(root, wrapRecursively: true);
-                    var wrappedReplacement = Create(replacement, wrapRecursively: true);
+                    var sut = Create(
+                        root,
+                        options: WrapOptions.WrapRecursively
+                    );
+                    var wrappedReplacement = Create(
+                        replacement,
+                        options: WrapOptions.WrapRecursively
+                    );
 
                     // Act
                     Expect(() =>
@@ -676,7 +682,9 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                     // Arrange
                     var root = GetRandom<LinkedListItem>();
                     var next = GetRandom<Node>();
-                    var sut = Create(root, wrapRecursively: true);
+                    var sut = Create(
+                        root, options: WrapOptions.WrapRecursively
+                    );
                     // Act
                     Expect(() =>
                         {
@@ -843,16 +851,35 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             }
         }
 
+        [TestFixture]
+        public class CopyOnWrite
+        {
+            [Test]
+            public void ShouldBeAbleToSetReadableValueWhenSourceIsReadOnly()
+            {
+                // Arrange
+                var data = new
+                {
+                    Id = 1
+                };
+                // var sut = Create(
+                //     data,
+                // );
+                // Act
+                // Assert
+            }
+        }
+
         private static DictionaryWrappingObject Create(
             object wrapped = null,
             StringComparer stringComparer = null,
-            bool wrapRecursively = false
+            WrapOptions options = WrapOptions.None
         )
         {
             return new DictionaryWrappingObject(
                 wrapped,
                 stringComparer ?? StringComparer.Ordinal,
-                wrapRecursively
+                options
             );
         }
 
