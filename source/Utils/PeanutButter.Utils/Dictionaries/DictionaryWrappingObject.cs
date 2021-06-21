@@ -268,15 +268,57 @@ namespace PeanutButter.Utils.Dictionaries
                 return;
             }
 
-            var flags = BindingFlags.Instance | BindingFlags.Public;
-            _props = _wrappedType.GetProperties(flags)
-                .Select(pi => new PropertyOrField(pi))
-                .Union(_wrappedType.GetFields(flags).Select(fi => new PropertyOrField(fi)))
-                .Cast<IPropertyOrField>()
-                .ToArray();
+            _props = EnumerateUniqueDataMembers();
             _keys = _props
                 .Select(p => new KeyValuePair<string, string>(p.Name, p.Name))
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value, Comparer);
+        }
+
+        private IPropertyOrField[] EnumerateUniqueDataMembers()
+        {
+            // 'new' props where the type changes will result
+            // in duplications of property keys, so here we should
+            // behave like one would expect in compiled land: use the
+            // prop/field from the closest type to the hosting type
+            var allProps = _wrappedType.GetProperties(ProxyFlags)
+                .Select(pi => new PropertyOrField(pi))
+                .Union(_wrappedType.GetFields(ProxyFlags).Select(fi => new PropertyOrField(fi)))
+                .Cast<IPropertyOrField>()
+                .ToList();
+            var countedProps = allProps.Aggregate(
+                new List<NameWithCount>(),
+                (acc, cur) =>
+                {
+                    var counter = acc.FindOrAdd(
+                        o => o.Name == cur.Name,
+                        () => new NameWithCount(cur.Name)
+                    );
+                    counter.Count++;
+                    return acc;
+                });
+            var duplicates = countedProps.Where(o => o.Count > 1).ToArray();
+            duplicates.ForEach(dup =>
+            {
+                var dupes = allProps.Where(p => p.Name == dup.Name)
+                    .OrderBy(d => d.AncestralDistance)
+                    .ToArray();
+                var toRemove = dupes.Skip(1).ToArray();
+                toRemove.ForEach(remove => allProps.Remove(remove));
+            });
+            return allProps.ToArray();
+        }
+
+        private static readonly BindingFlags ProxyFlags = BindingFlags.Instance | BindingFlags.Public;
+
+        private class NameWithCount
+        {
+            public int Count { get; set; }
+            public string Name { get; }
+
+            public NameWithCount(string name)
+            {
+                Name = name;
+            }
         }
 
         private bool IsDictionaryTypeWithStringKeys(Type type)
@@ -380,6 +422,7 @@ namespace PeanutButter.Utils.Dictionaries
                 {
                     _deletedKeys.Add(key);
                 }
+
                 return;
             }
 
@@ -421,6 +464,7 @@ namespace PeanutButter.Utils.Dictionaries
                 {
                     return false;
                 }
+
                 _deletedKeys.Add(item.Key);
                 return true;
             }
@@ -469,6 +513,7 @@ namespace PeanutButter.Utils.Dictionaries
                 {
                     return false;
                 }
+
                 _deletedKeys.Add(key);
                 return true;
             }
@@ -688,6 +733,8 @@ namespace PeanutButter.Utils.Dictionaries
         public bool CanWrite { get; }
         public bool CanRead { get; }
         public Type DeclaringType { get; }
+        public Type HostingType { get; }
+        public int AncestralDistance { get; }
 
         public object GetValue(object host)
         {
@@ -742,6 +789,8 @@ namespace PeanutButter.Utils.Dictionaries
             DeclaringType = declaringType;
             _valueGetter = valueGetter;
             _valueSetter = valueSetter;
+            HostingType = declaringType; // we're not using reflection for this, so types should match;
+            AncestralDistance = 0; // should be immediate
         }
     }
 

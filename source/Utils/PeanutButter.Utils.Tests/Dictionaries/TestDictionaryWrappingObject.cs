@@ -980,6 +980,58 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             }
         }
 
+        [TestFixture]
+        public class NewProps
+        {
+            [Test]
+            public void ShouldPreferThePropOnTheImmediateType()
+            {
+                // Arrange
+                var data = new Parent();
+                var expected = GetRandomInt();
+                // Act
+                var sut = Create(data);
+                // Assert
+                Expect(sut["Data"])
+                    .To.Equal(12);
+                sut["Data"] = expected;
+                Expect(data.Data)
+                    .To.Equal(expected);
+            }
+
+            [Test]
+            public void ShouldPreferThePropFromTheClosestAncestor()
+            {
+                // Arrange
+                var data = new Child();
+                var expected = GetRandomInt();
+
+                // Act
+                var sut = Create(data);
+                
+                // Assert
+                Expect(sut["Data"])
+                    .To.Equal(12);
+                sut["Data"] = expected;
+                Expect(sut["Data"])
+                    .To.Equal(expected);
+            }
+
+            public class GrandParent
+            {
+                public string Data { get; set; } = "GrandParent";
+            }
+
+            public class Parent : GrandParent
+            {
+                public new int Data { get; set; } = 12;
+            }
+
+            public class Child : Parent
+            {
+            }
+        }
+
         private static DictionaryWrappingObject Create(
             object wrapped = null,
             StringComparer stringComparer = null,

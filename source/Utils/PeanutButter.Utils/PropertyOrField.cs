@@ -64,6 +64,20 @@ namespace PeanutButter.Utils
         Type DeclaringType { get; }
 
         /// <summary>
+        /// The type from which this property or field is read
+        /// - this may not be the DeclaringType as the property
+        /// or field may be inherited
+        /// - this must be explicitly provided by callers
+        /// </summary>
+        Type HostingType { get; }
+
+        /// <summary>
+        /// Returns the ancestral distance between the DeclaringType
+        /// and the HostingType (0 if they are the same type)
+        /// </summary>
+        int AncestralDistance { get; }
+
+        /// <summary>
         /// Gets the value of the property or field for the provided host
         /// </summary>
         /// <param name="host"></param>
@@ -217,6 +231,12 @@ namespace PeanutButter.Utils
         /// <inheritdoc />
         public Type DeclaringType { get; }
 
+        /// <inheritdoc />
+        public Type HostingType { get; }
+
+        /// <inheritdoc />
+        public int AncestralDistance { get; }
+
         private readonly Func<object, object> _getValue;
         private readonly Action<object, object> _setValue;
 
@@ -224,8 +244,29 @@ namespace PeanutButter.Utils
         /// Constructs the PropertyOrField around a property
         /// </summary>
         /// <param name="prop"></param>
-        public PropertyOrField(PropertyInfo prop)
+        public PropertyOrField(
+            PropertyInfo prop
+        ) : this(prop, prop.DeclaringType)
         {
+        }
+
+        /// <summary>
+        /// Constructs the PropertyOrField around a property, relative
+        /// to an hosting type (ie, without assuming that the DeclaringType
+        /// is the hosting type for the property)
+        /// </summary>
+        /// <param name="prop"></param>
+        /// <param name="hostingType"></param>
+        public PropertyOrField(
+            PropertyInfo prop,
+            Type hostingType
+        )
+        {
+            if (prop is null)
+            {
+                throw new ArgumentNullException(nameof(prop));
+            }
+
             _getValue = prop.GetValue;
             _setValue = prop.SetValue;
 
@@ -235,6 +276,8 @@ namespace PeanutButter.Utils
             MemberType = PropertyOrFieldTypes.Property;
             CanRead = prop.CanRead;
             CanWrite = prop.CanWrite;
+            HostingType = hostingType ?? throw new ArgumentNullException(nameof(hostingType));
+            AncestralDistance = CalculateAncestralDistance();
         }
 
         /// <summary>
@@ -252,7 +295,9 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="field"></param>
         /// <returns></returns>
-        public static implicit operator PropertyOrField(FieldInfo field)
+        public static implicit operator PropertyOrField(
+            FieldInfo field
+        )
         {
             return new PropertyOrField(field);
         }
@@ -261,8 +306,27 @@ namespace PeanutButter.Utils
         /// Constructs the PropertyOrField around a field
         /// </summary>
         /// <param name="field"></param>
-        public PropertyOrField(FieldInfo field)
+        public PropertyOrField(
+            FieldInfo field
+        ) : this(field, field.DeclaringType)
         {
+        }
+
+        /// <summary>
+        /// Constructs the PropertyOrField around a field
+        /// </summary>
+        /// <param name="field"></param>
+        /// <param name="hostingType"></param>
+        public PropertyOrField(
+            FieldInfo field,
+            Type hostingType
+        )
+        {
+            if (field is null)
+            {
+                throw new ArgumentNullException(nameof(field));
+            }
+
             _getValue = field.GetValue;
             _setValue = field.SetValue;
 
@@ -272,6 +336,8 @@ namespace PeanutButter.Utils
             MemberType = PropertyOrFieldTypes.Field;
             CanRead = true;
             CanWrite = true;
+            HostingType = hostingType ?? throw new ArgumentNullException(nameof(hostingType));
+            AncestralDistance = CalculateAncestralDistance();
         }
 
         /// <inheritdoc />
@@ -312,6 +378,34 @@ namespace PeanutButter.Utils
             _setValue(asObject, value);
             // required for referenced by-val sets to work (ie struct values)
             host = (T)asObject;
+        }
+
+        private int CalculateAncestralDistance()
+        {
+            if (DeclaringType == HostingType)
+            {
+                return 0;
+            }
+
+            var result = 0;
+            var current = HostingType;
+            while (
+                current != typeof(object) &&
+                current != DeclaringType
+            )
+            {
+                result++;
+                current = current?.BaseType;
+            }
+
+            if (current is null && DeclaringType != typeof(object))
+            {
+                throw new ArgumentException(
+                    $"{DeclaringType} is not an ancestor of {HostingType}"
+                );
+            }
+
+            return result;
         }
     }
 }

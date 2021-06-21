@@ -50,6 +50,93 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
+        /// Find or add an item to a collection
+        /// - item equality is determined by T.Equals
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="seek"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T FindOrAdd<T>(
+            this ICollection<T> collection,
+            T seek
+        )
+        {
+            return collection.FindOrAdd(
+                o => o.Equals(seek),
+                () => seek
+            );
+        }
+
+        /// <summary>
+        /// Find or add an item to a collection
+        /// - item equality is determined by the provided matcher
+        /// - new items are generated with `new T()`
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="matcher"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T FindOrAdd<T>(
+            this ICollection<T> collection,
+            Func<T, bool> matcher
+        ) where T : new()
+        {
+            return collection.FindOrAdd(
+                matcher,
+                () => new T()
+            );
+        }
+
+        /// <summary>
+        /// Find or add an item to a collection
+        /// - item equality is determined by the provided matcher
+        /// - new items are generated with the provided matcher
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="matcher"></param>
+        /// <param name="generator"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if the collection, matcher or generator are null
+        /// </exception>
+        public static T FindOrAdd<T>(
+            this ICollection<T> collection,
+            Func<T, bool> matcher,
+            Func<T> generator
+        )
+        {
+            if (collection is null)
+            {
+                throw new ArgumentNullException(nameof(collection));
+            }
+
+            if (matcher is null)
+            {
+                throw new ArgumentNullException(nameof(matcher));
+            }
+
+            if (generator is null)
+            {
+                throw new ArgumentNullException(nameof(generator));
+            }
+
+            lock (collection)
+            {
+                var found = collection.Any(matcher);
+                if (found)
+                {
+                    return collection.First(matcher);
+                }
+
+                var result = generator();
+                collection.Add(result);
+                return result;
+            }
+        }
+
+        /// <summary>
         /// Calculates if two collections hold the same items, irrespective of order
         /// </summary>
         /// <param name="collection">Source collection</param>
@@ -432,7 +519,7 @@ namespace PeanutButter.Utils
             foreach (var item in collection)
             {
                 var op = ResolveImplicitOperator(item.GetType());
-                yield return (TOther) op.Invoke(null, new object[] { item });
+                yield return (TOther)op.Invoke(null, new object[] { item });
             }
 
             MethodInfo ResolveImplicitOperator(Type inputType)

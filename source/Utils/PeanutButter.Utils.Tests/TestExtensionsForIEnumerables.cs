@@ -1384,6 +1384,131 @@ namespace PeanutButter.Utils.Tests
                 }
             }
 
+            [TestFixture]
+            public class FindOrAdd
+            {
+                [Test]
+                public void SimpleTypesSimpleEquality()
+                {
+                    // Arrange
+                    var expected = GetRandomString();
+                    var collection = new List<string>();
+                    // Act
+                    var result1 = collection.FindOrAdd(expected);
+                    var result2 = collection.FindOrAdd(expected);
+                    // Assert
+                    Expect(result1)
+                        .To.Equal(expected);
+                    Expect(result1)
+                        .To.Equal(result2);
+                    Expect(collection)
+                        .To.Equal(new[] { expected });
+                }
+
+                [Test]
+                public void ComplexTypesWithParameterlessConstructors()
+                {
+                    // Arrange
+                    var collection = new List<Poco>();
+                    var item1 = new Poco()
+                    {
+                        Id = 1,
+                        Name = GetRandomString(12)
+                    };
+                    var item2 = new Poco()
+                    {
+                        Id = 1,
+                        Name = GetRandomString(12)
+                    };
+                    // Act
+                    var result1 = collection.FindOrAdd(
+                        o => o.Id == item1.Id
+                    );
+                    result1.Id = 1;
+                    var result2 = collection.FindOrAdd(
+                        o => o.Id == item1.Id
+                    );
+                    // Assert
+                    Expect(result1)
+                        .Not.To.Be.Null();
+                    Expect(result1)
+                        .To.Be(result2);
+                    // should have a new poco
+                    Expect(result1)
+                        .Not.To.Be(item1);
+                }
+
+                [Test]
+                public void ShouldReturnExistingComplexItemViaEqualsOverride()
+                {
+                    // Arrange
+                    var collection = new List<Poco>();
+                    var item = GetRandom<Poco>();
+                    collection.Add(item);
+                    // Act
+                    var result = collection.FindOrAdd(item);
+                    // Assert
+                    Expect(result)
+                        .To.Be(item);
+                }
+
+                [Test]
+                public void GivenMatcherAndGenerator()
+                {
+                    // Arrange
+                    var collection = new List<Poco>();
+                    var id = GetRandomInt();
+                    var name = GetRandomString();
+                    var expected = new
+                    {
+                        Id = id,
+                        Name = name
+                    };
+                    // Act
+                    var result1 = collection.FindOrAdd(
+                        o => o.Id == id,
+                        () => new Poco()
+                        {
+                            Id = id,
+                            Name = name
+                        }
+                    );
+                    var result2 = collection.FindOrAdd(
+                        o => o.Id == id,
+                        () => new Poco()
+                        {
+                            Id = id,
+                            Name = name
+                        }
+                    );
+                    // Assert
+                    Expect(result1)
+                        .To.Be(result2);
+                    Expect(result1)
+                        .To.Deep.Equal(expected);
+                    Expect(collection)
+                        .To.Contain.Only(1)
+                        .Matched.By(o => o.DeepEquals(expected));
+                }
+
+                public class Poco
+                {
+                    public int Id { get; set; }
+                    public string Name { get; set; }
+
+                    public override bool Equals(object obj)
+                    {
+                        var asPoco = obj as Poco;
+                        if (asPoco is null)
+                        {
+                            return false;
+                        }
+
+                        return asPoco.Id == Id && asPoco.Name == Name;
+                    }
+                }
+            }
+
             public static IEnumerable<(bool, int[], string[], int, char)> NonStringTestCases()
             {
                 var start = new[] { 1, 11, 101 };
