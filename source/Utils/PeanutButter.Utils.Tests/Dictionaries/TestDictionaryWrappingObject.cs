@@ -777,6 +777,23 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                         .Then(nameof(Node));
                     // Assert
                 }
+
+                [Test]
+                public void ShouldBeAbleToSetFromAssignableTypeInDictionary()
+                {
+                    // Arrange
+                    var data = new Dictionary<string, object>();
+                    data["item"] = new object();
+                    var expected = GetRandomString();
+                    var sut = Create(data);
+                    // Act
+                    Expect(
+                        () => sut["item"] = expected
+                    ).Not.To.Throw();
+                    // Assert
+                    Expect(sut["item"])
+                        .To.Equal(expected);
+                }
             }
         }
 
@@ -1008,7 +1025,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
 
                 // Act
                 var sut = Create(data);
-                
+
                 // Assert
                 Expect(sut["Data"])
                     .To.Equal(12);

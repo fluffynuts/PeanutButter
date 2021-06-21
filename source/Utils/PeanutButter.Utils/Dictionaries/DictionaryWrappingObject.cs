@@ -563,7 +563,7 @@ namespace PeanutButter.Utils.Dictionaries
             var valueType = value?.GetType();
 
 
-            if (targetType == valueType)
+            if (targetType.IsAssignableFrom(valueType))
             {
                 if (_copyOnWrite)
                 {
