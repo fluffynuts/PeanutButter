@@ -1170,7 +1170,7 @@ namespace PeanutButter.Utils.Tests
                     // Arrange
                     var numerics = new Regex("[0-9]");
                     var alpha = new Regex("[a-zA-Z]");
-                    var input = GetRandomAlphaNumericString(10);
+                    var input = GetRandomAlphaNumericString(50, 100);
                     var attempts = 0;
                     while (!numerics.IsMatch(input) || !alpha.IsMatch(input))
                     {
