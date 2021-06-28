@@ -145,14 +145,14 @@ namespace PeanutButter.Utils
         )
         {
             result = default;
-            if (parent == null)
+            if (parent is null)
             {
                 return false;
             }
 
             using var _ = new AutoLocker(MetadataLock);
             var data = GetMetadataFor(parent);
-            if (data == null)
+            if (data is null)
             {
                 return false;
             }
