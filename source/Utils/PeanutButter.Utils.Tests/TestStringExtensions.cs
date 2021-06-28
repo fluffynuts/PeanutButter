@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using static PeanutButter.RandomGenerators.RandomValueGen;
@@ -199,7 +200,7 @@ namespace PeanutButter.Utils.Tests
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                var result = ((string) null).AsBytes();
+                var result = ((string)null).AsBytes();
 
                 //---------------Test Result -----------------------
                 Expect(result as object).To.Be.Null();
@@ -1588,6 +1589,147 @@ namespace PeanutButter.Utils.Tests
                 // Assert
                 Expect(result)
                     .To.Equal("2345");
+            }
+        }
+
+        [TestFixture]
+        public class UnBase64
+        {
+            [Test]
+            public void ShouldBeAbleToUnBase64ByteData()
+            {
+                // Arrange
+                var str = GetRandomString(20);
+                var bytes = Encoding.UTF8.GetBytes(str);
+                var base64 = Convert.ToBase64String(bytes);
+                // Act
+                var result = base64.UnBase64();
+                // Assert
+                Expect(result)
+                    .To.Equal(bytes);
+            }
+            
+            [Test]
+            public void ShouldBeAbleToUnBase64UnpaddedByteData()
+            {
+                // Arrange
+                string str;
+                byte[] bytes;
+                string base64 ;
+                do
+                {
+                    str = GetRandomString(10, 32);
+                    bytes = Encoding.UTF8.GetBytes(str);
+                    base64 = Convert.ToBase64String(bytes);
+                } while (!base64.Contains("="));
+
+                // Act
+                var result = base64.UnBase64();
+                // Assert
+                Expect(result)
+                    .To.Equal(bytes);
+            }
+            
+            [Test]
+            public void ShouldBeAbleToUnBase64AString()
+            {
+                // Arrange
+                var str = GetRandomString(32);
+                var base64 = str.ToBase64();
+                // Act
+                var result = base64.UnBase64(Encoding.UTF8);
+                // Assert
+                Expect(result)
+                    .To.Equal(str);
+            }
+
+            [Test]
+            public void ShouldBeAbleToUnBase64AnUnPaddedString()
+            {
+                // Arrange
+                var attempts = 0;
+                var chars = 17;
+                var str = GetRandomString(chars);
+                var base64 = str.ToBase64();
+                while (!base64.Contains("=") && ++attempts < 10)
+                {
+                    chars++;
+                    str = GetRandomString(chars);
+                    base64 = str.ToBase64();
+                }
+
+                if (attempts >= 10)
+                {
+                    Assert.Fail("Can't find a base64 input with padding");
+                }
+
+                base64 = base64.Replace("=", "");
+
+                // Act
+                var result = base64.UnBase64(Encoding.UTF8);
+                // Assert
+                Expect(result)
+                    .To.Equal(str);
+            }
+
+            [Test]
+            public void ShouldBeAbleToUnBase64StringDataWithProvidedConverterToAnyType()
+            {
+                // Arrange
+                var data = GetRandom<Poco>();
+                var json = JsonConvert.SerializeObject(data);
+                var base64 = json.ToBase64();
+                // Act
+                var result = base64.UnBase64<Poco>(
+                    JsonConvert.DeserializeObject<Poco>
+                );
+                // Assert
+                Expect(result)
+                    .To.Deep.Equal(data);
+            }
+
+            [Test]
+            public void ShouldBeAbleToUnBase64StringUnPaddedBase64StringWithDeserializer()
+            {
+                // Arrange
+                string base64;
+                Poco data;
+                do
+                {
+                    data = GetRandom<Poco>();
+                    var json = JsonConvert.SerializeObject(data);
+                    base64 = json.ToBase64();
+                } while (!base64.Contains("="));
+
+                base64 = base64.Base64UnPadded();
+                Expect(base64)
+                    .Not.To.Contain("=");
+                // Act
+                var result = base64.UnBase64(
+                    JsonConvert.DeserializeObject<Poco>
+                );
+                // Assert
+                Expect(result)
+                    .To.Deep.Equal(data);
+            }
+
+            [Test]
+            public void ShouldDefaultStringDecodeToBeUTF8String()
+            {
+                // Arrange
+                var data = GetRandomString(20, 32);
+                var base64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(data));
+                // Act
+                var result = base64.UnBase64<string>();
+                // Assert
+                Expect(result)
+                    .To.Equal(data);
+            }
+
+            public class Poco
+            {
+                public int Id { get; set; }
+                public string Name { get; set; }
             }
         }
     }

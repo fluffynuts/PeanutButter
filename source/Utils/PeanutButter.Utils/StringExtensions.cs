@@ -888,7 +888,7 @@ namespace PeanutButter.Utils
 
         private static readonly Regex Whitespace =
             new Regex("\\s");
-        
+
         /// <summary>
         /// Returns the substring of the given string from the given start
         /// Tolerates a start outside of the string - will return empty string
@@ -945,10 +945,165 @@ namespace PeanutButter.Utils
             {
                 length = str.Length - start;
             }
-            
-            return str.Substring(start, length);
 
+            return str.Substring(start, length);
         }
 
+        /// <summary>
+        /// Converts a base64 string back to the original string
+        /// - assumes the original string is UTF8
+        /// </summary>
+        /// <param name="base64Data"></param>
+        /// <returns></returns>
+        public static byte[] UnBase64(this string base64Data)
+        {
+            return Convert.FromBase64String(base64Data.Base64Padded());
+        }
+
+        /// <summary>
+        /// Converts a base64 string back to the original string
+        /// using the provided encoding
+        /// </summary>
+        /// <param name="base64Data"></param>
+        /// <param name="encoding"></param>
+        /// <returns></returns>
+        public static string UnBase64(
+            this string base64Data,
+            Encoding encoding
+        )
+        {
+            var data = Convert.FromBase64String(base64Data.Base64Padded());
+            return encoding.GetString(data);
+        }
+
+        /// <summary>
+        /// Quick-decode for string base64 data
+        /// T _must_ be a string, ie var str = base64.UnBase64&lt;string&gt;()
+        /// - assumes UTF8 encoding
+        /// </summary>
+        /// <param name="base64Data"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static string UnBase64<T>(
+            this string base64Data
+        )
+        {
+            return base64Data.UnBase64<T>(Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// Quick-decode for string base64 data using the provided encoding
+        /// T _must_ be a string, ie var str = base64.UnBase64&lt;string&gt;()
+        /// </summary>
+        /// <param name="base64Data"></param>
+        /// <param name="encoding"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static string UnBase64<T>(
+            this string base64Data,
+            Encoding encoding
+        )
+        {
+            if (typeof(T) != typeof(string))
+            {
+                throw new NotImplementedException(
+                    $"UnBase64<T> without a deserializer Func only supports strings"
+                );
+            }
+
+            return base64Data.UnBase64(DecodeBytes);
+
+            string DecodeBytes(byte[] data)
+            {
+                return encoding.GetString(data);
+            }
+        }
+
+        /// <summary>
+        /// decode base64 string data & deserialize to type T
+        /// </summary>
+        /// <param name="base64Data"></param>
+        /// <param name="deserializer"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T UnBase64<T>(
+            this string base64Data,
+            Func<string, T> deserializer
+        )
+        {
+            return base64Data.UnBase64(deserializer, Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// decode base64 string data & deserialize to type T
+        /// </summary>
+        /// <param name="base64Data"></param>
+        /// <param name="deserializer"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T UnBase64<T>(
+            this string base64Data,
+            Func<byte[], T> deserializer
+        )
+        {
+            var byteData = Convert.FromBase64String(
+                base64Data.Base64Padded()
+            );
+            return deserializer(byteData);
+        }
+
+        /// <summary>
+        /// decode base64 string data & deserialize to type T,
+        /// assuming that the original data in the base64 string was
+        /// a string (eg json), using the provided encoding
+        /// </summary>
+        /// <param name="base64Data"></param>
+        /// <param name="deserializer"></param>
+        /// <param name="encoding"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T UnBase64<T>(
+            this string base64Data,
+            Func<string, T> deserializer,
+            Encoding encoding
+        )
+        {
+            var unencoded = base64Data.UnBase64(encoding);
+            return deserializer(unencoded);
+        }
+
+        /// <summary>
+        /// Pads out a base64 string which is missing the base64 padding
+        /// </summary>
+        /// <param name="unpadded"></param>
+        /// <returns></returns>
+        public static string Base64Padded(
+            this string unpadded
+        )
+        {
+            return $"{unpadded}{Base64PaddingSuffixes[unpadded.Length % 4]}";
+        }
+
+        /// <summary>
+        /// Removes base64 data padding (trailing '=' chars)
+        /// - symmetrical with Base64Padded()
+        /// </summary>
+        /// <param name="base64Data"></param>
+        /// <returns></returns>
+        public static string Base64UnPadded(
+            this string base64Data
+        )
+        {
+            return $"{base64Data?.Trim('=')}";
+        }
+
+        private static readonly Dictionary<int, string> Base64PaddingSuffixes
+            = new()
+            {
+                [0] = "",
+                [1] = "===",
+                [2] = "==",
+                [3] = "="
+            };
     }
 }

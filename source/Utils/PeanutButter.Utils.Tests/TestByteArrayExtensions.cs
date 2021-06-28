@@ -97,20 +97,24 @@ namespace PeanutButter.Utils.Tests
             Expect(result).To.Equal(expected);
         }
 
-        [Test]
-        public void ToBase64String_ShouldReturnBase64StringForBytes()
+        [TestFixture]
+        public class Base64Conversions
         {
-            //--------------- Arrange -------------------
-            var input = GetRandomCollection<byte>(5, 10).ToArray();
-            var expected = Convert.ToBase64String(input);
+            [Test]
+            public void ToBase64_ShouldReturnBase64StringForBytes()
+            {
+                //--------------- Arrange -------------------
+                var input = GetRandomCollection<byte>(5, 10).ToArray();
+                var expected = Convert.ToBase64String(input);
 
-            //--------------- Assume ----------------
+                //--------------- Assume ----------------
 
-            //--------------- Act ----------------------
-            var result = input.ToBase64();
+                //--------------- Act ----------------------
+                var result = input.ToBase64();
 
-            //--------------- Assert -----------------------
-            Expect(result).To.Equal(expected);
+                //--------------- Assert -----------------------
+                Expect(result).To.Equal(expected);
+            }
         }
 
         [TestFixture]

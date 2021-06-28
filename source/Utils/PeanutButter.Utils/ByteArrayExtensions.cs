@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -31,7 +33,7 @@ namespace PeanutButter.Utils
             {
                 return null;
             }
-            
+
             var md5 = System.Security.Cryptography.MD5.Create();
             var hash = md5.ComputeHash(data);
 
@@ -74,5 +76,7 @@ namespace PeanutButter.Utils
         {
             return new MemoryStream(bytes ?? new byte[0]);
         }
+
+
     }
 }
