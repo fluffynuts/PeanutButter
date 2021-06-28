@@ -761,11 +761,11 @@ PeanutButter.Utils
                 return false;
             }
             
-            var attempt = new EnumerableEnumerableWrapper<object>(value);
+            var attempt = new EnumerableWrapper<object>(value);
             if (attempt.IsValid)
             {
                 wrapped = attempt;
-                wrappedType = typeof(EnumerableEnumerableWrapper<object>);
+                wrappedType = typeof(EnumerableWrapper<object>);
             }
             return attempt.IsValid;
         }

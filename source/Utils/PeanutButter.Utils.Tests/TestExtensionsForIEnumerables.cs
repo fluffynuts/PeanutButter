@@ -1506,6 +1506,13 @@ namespace PeanutButter.Utils.Tests
 
                         return asPoco.Id == Id && asPoco.Name == Name;
                     }
+
+                    public override int GetHashCode()
+                    {
+                        // ReSharper disable NonReadonlyMemberInGetHashCode
+                        return (Id, Name).GetHashCode();
+                        // ReSharper enable NonReadonlyMemberInGetHashCode
+                    }
                 }
             }
 

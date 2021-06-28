@@ -37,7 +37,7 @@ namespace PeanutButter.Utils
 #else
     public
 #endif
-        class EnumerableEnumerableWrapper : IEnumerable, IEnumerableWrapper
+        class EnumerableWrapper : IEnumerable, IEnumerableWrapper
     {
         /// <inheritdoc />
         public bool IsValid { get; }
@@ -55,8 +55,11 @@ namespace PeanutButter.Utils
                 .ToArray();
 
 
-        /// <inheritdoc />
-        public EnumerableEnumerableWrapper(object toWrap)
+        /// <summary>
+        /// Construct an EnumerableWrapper around a (hopefully) enumerable object
+        /// </summary>
+        /// <param name="toWrap"></param>
+        public EnumerableWrapper(object toWrap)
         {
             if (toWrap == null)
             {
@@ -163,10 +166,10 @@ namespace PeanutButter.Utils
 #else
     public
 #endif
-        class EnumerableEnumerableWrapper<T> : EnumerableEnumerableWrapper, IEnumerable<T>
+        class EnumerableWrapper<T> : EnumerableWrapper, IEnumerable<T>
     {
         /// <inheritdoc />
-        public EnumerableEnumerableWrapper(object toWrap) : base(toWrap)
+        public EnumerableWrapper(object toWrap) : base(toWrap)
         {
         }
 

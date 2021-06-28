@@ -634,7 +634,7 @@ namespace PeanutButter.Utils.Dictionaries
                 return WrapAndCache();
             }
 
-            var enumerableWrapper = new EnumerableEnumerableWrapper<object>(rawValue);
+            var enumerableWrapper = new EnumerableWrapper<object>(rawValue);
             if (enumerableWrapper.IsValid)
             {
                 return LazilyEnumerate(enumerableWrapper);
