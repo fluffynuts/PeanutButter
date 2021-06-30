@@ -76,7 +76,5 @@ namespace PeanutButter.Utils
         {
             return new MemoryStream(bytes ?? new byte[0]);
         }
-
-
     }
 }

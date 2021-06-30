@@ -1020,6 +1020,86 @@ namespace PeanutButter.Utils.Tests
         public class CharacterClasses
         {
             [TestFixture]
+            public class IsNumeric
+            {
+                [Test]
+                public void OperatingOn_Null_ShouldReturnFalse()
+                {
+                    // Arrange
+                    var input = null as string;
+                    // Pre-assert
+                    // Act
+                    var result = input.IsNumeric();
+                    // Assert
+                    Expect(result).To.Be.False();
+                }
+
+                [Test]
+                public void OperatingOn_EmptyString_ShouldReturnFalse()
+                {
+                    // Arrange
+                    var input = "";
+                    // Pre-assert
+                    // Act
+                    var result = input.IsNumeric();
+                    // Assert
+                    Expect(result).To.Be.False();
+                }
+
+                [Test]
+                public void OperatingOn_Whitespace_ShouldReturnFalse()
+                {
+                    // Arrange
+                    var input = GetRandomFrom(new[] { " ", "\t", "\r" });
+                    // Pre-assert
+                    // Act
+                    var result = input.IsNumeric();
+                    // Assert
+                    Expect(result).To.Be.False();
+                }
+
+                [Test]
+                public void OperatingOn_NumericString_ShouldReturnTrue()
+                {
+                    // Arrange
+                    var input = GetRandomInt(1000, 200000).ToString();
+                    // Pre-assert
+                    // Act
+                    var result = input.IsNumeric();
+                    // Assert
+                    Expect(result).To.Be.True();
+                }
+
+                [Test]
+                public void OperatingOn_AlphaString_ShouldReturnFalse()
+                {
+                    // Arrange
+                    var input = GetRandomAlphaString(1);
+                    // Pre-assert
+                    // Act
+                    var result = input.IsNumeric();
+                    // Assert
+                    Expect(result).To.Be.False();
+                }
+
+                [Test]
+                public void OperatingOn_AlphaNumericString_ShouldReturnFalse()
+                {
+                    // Arrange
+                    var input = new[]
+                    {
+                        GetRandomAlphaString(1),
+                        GetRandomInt(1, 100).ToString()
+                    }.Randomize().JoinWith("");
+                    // Pre-assert
+                    // Act
+                    var result = input.IsNumeric();
+                    // Assert
+                    Expect(result).To.Be.False();
+                }
+            }
+
+            [TestFixture]
             public class IsAlpha
             {
                 [Test]
@@ -1192,86 +1272,6 @@ namespace PeanutButter.Utils.Tests
                     Expect(result).To.Be.True(
                         $"{input.Stringify()} should be alpha-numeric"
                     );
-                }
-            }
-
-            [TestFixture]
-            public class IsNumeric
-            {
-                [Test]
-                public void OperatingOn_Null_ShouldReturnFalse()
-                {
-                    // Arrange
-                    var input = null as string;
-                    // Pre-assert
-                    // Act
-                    var result = input.IsNumeric();
-                    // Assert
-                    Expect(result).To.Be.False();
-                }
-
-                [Test]
-                public void OperatingOn_EmptyString_ShouldReturnFalse()
-                {
-                    // Arrange
-                    var input = "";
-                    // Pre-assert
-                    // Act
-                    var result = input.IsNumeric();
-                    // Assert
-                    Expect(result).To.Be.False();
-                }
-
-                [Test]
-                public void OperatingOn_Whitespace_ShouldReturnFalse()
-                {
-                    // Arrange
-                    var input = GetRandomFrom(new[] { " ", "\t", "\r" });
-                    // Pre-assert
-                    // Act
-                    var result = input.IsNumeric();
-                    // Assert
-                    Expect(result).To.Be.False();
-                }
-
-                [Test]
-                public void OperatingOn_NumericString_ShouldReturnTrue()
-                {
-                    // Arrange
-                    var input = GetRandomInt(1000, 200000).ToString();
-                    // Pre-assert
-                    // Act
-                    var result = input.IsNumeric();
-                    // Assert
-                    Expect(result).To.Be.True();
-                }
-
-                [Test]
-                public void OperatingOn_AlphaString_ShouldReturnFalse()
-                {
-                    // Arrange
-                    var input = GetRandomAlphaString(1);
-                    // Pre-assert
-                    // Act
-                    var result = input.IsNumeric();
-                    // Assert
-                    Expect(result).To.Be.False();
-                }
-
-                [Test]
-                public void OperatingOn_AlphaNumericString_ShouldReturnFalse()
-                {
-                    // Arrange
-                    var input = new[]
-                    {
-                        GetRandomAlphaString(1),
-                        GetRandomInt(1, 100).ToString()
-                    }.Randomize().JoinWith("");
-                    // Pre-assert
-                    // Act
-                    var result = input.IsNumeric();
-                    // Assert
-                    Expect(result).To.Be.False();
                 }
             }
         }

@@ -436,14 +436,27 @@ namespace PeanutButter.Utils
         /// <returns>Item type, if it can be found, or null</returns>
         public static Type GetCollectionItemType(this Type collectionType)
         {
+            if (CollectionTypeCache.TryGetValue(collectionType, out var cached))
+            {
+                return cached;
+            }
+
             if (collectionType.IsArray)
             {
-                return collectionType.GetElementType();
+                return Cache(collectionType.GetElementType());
             }
 
             var enumerableInterface = collectionType.TryGetEnumerableInterface();
-            return enumerableInterface?.GenericTypeArguments[0];
+            return Cache(enumerableInterface?.GenericTypeArguments[0]);
+
+            Type Cache(Type itemType)
+            {
+                CollectionTypeCache.TryAdd(collectionType, itemType);
+                return itemType;
+            }
         }
+        
+        private static readonly ConcurrentDictionary<Type, Type> CollectionTypeCache = new();
 
         /// <summary>
         /// Attempts to find all implemented interfaces (and inherited ones) for a Type

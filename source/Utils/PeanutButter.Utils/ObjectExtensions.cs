@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -375,38 +376,55 @@ namespace PeanutButter.Utils
         /// <param name="ignoreProperties"></param>
         public static void CopyPropertiesTo(this object src, object dst, bool deep, params string[] ignoreProperties)
         {
-            if (src == null || dst == null)
+            if (src is null || dst is null)
             {
                 return;
             }
 
-            var srcPropInfos = src.GetType()
-                .GetProperties()
+            var srcType = src.GetType();
+            if (!PropertyCache.TryGetValue(srcType, out var props))
+            {
+                props = srcType.GetProperties();
+                PropertyCache.TryAdd(srcType, props);
+            }
+
+            var srcPropInfos = props
                 .Where(pi => !ignoreProperties.Contains(pi.Name));
-            var dstPropInfos = dst.GetType().GetProperties();
+            var dstPropInfos = dst.GetType().GetProperties()
+                .Where(p => p.CanWrite)
+                .ToArray();
+
+            var targetPropertyCache = dstPropInfos.ToDictionary(
+                pi => Tuple.Create(pi.Name, pi.PropertyType),
+                pi => pi
+            );
 
             foreach (var srcPropInfo in srcPropInfos.Where(
                 pi => pi.CanRead &&
                     pi.GetIndexParameters().Length == 0))
             {
-                var matchingTarget = dstPropInfos.FirstOrDefault(
-                    dp => dp.Name == srcPropInfo.Name &&
-                        dp.PropertyType == srcPropInfo.PropertyType &&
-                        dp.CanWrite);
-                if (matchingTarget == null)
+                if (!targetPropertyCache.TryGetValue(Tuple.Create(
+                    srcPropInfo.Name,
+                    srcPropInfo.PropertyType
+                ), out var matchingTarget))
+                {
                     continue;
+                }
 
                 var srcVal = srcPropInfo.GetValue(src);
 
-                _propertySetterStrategies.Aggregate(
+                PropertySetterStrategies.Aggregate(
                     false,
                     (acc, cur) =>
-                        acc || cur(deep, srcPropInfo, matchingTarget, dst, srcVal));
+                        acc || cur(deep, srcPropInfo, matchingTarget, dst, srcVal)
+                );
             }
         }
 
+        private static readonly ConcurrentDictionary<Type, PropertyInfo[]> PropertyCache = new();
+
         private static readonly Func<bool, PropertyInfo, PropertyInfo, object, object, bool>[]
-            _propertySetterStrategies =
+            PropertySetterStrategies =
             {
                 SetSimpleOrNullableOfSimpleTypeValue,
                 SetArrayOrGenericIEnumerableValue,
@@ -574,9 +592,9 @@ namespace PeanutButter.Utils
         /// <returns>a new copy of the original item</returns>
         public static T DeepClone<T>(this T item)
         {
-            return item == null || item.Equals(default(T))
+            return item is null || item.Equals(default(T))
                 ? default(T)
-                : (T) item.DeepCloneInternal(item.GetType());
+                : (T)item.DeepCloneInternal(item.GetType());
         }
 
         private static object DeepCloneInternal(
@@ -623,16 +641,26 @@ namespace PeanutButter.Utils
                 return null;
             }
 
-            var method = _genericMakeDictionaryCopy.MakeGenericMethod(keyType, valueType);
+            var key = Tuple.Create(keyType, valueType);
+            if (!DictionaryCopyMethodCache.TryGetValue(key, out var method))
+            {
+                method = _genericMakeDictionaryCopy.MakeGenericMethod(keyType, valueType);
+                DictionaryCopyMethodCache.TryAdd(key, method);
+            }
+
             return method.Invoke(null, new[] { src, cloneType });
         }
+
+        private static readonly ConcurrentDictionary<Tuple<Type, Type>, MethodInfo> DictionaryCopyMethodCache = new();
 
         private static object CloneEnumerable(object src, Type cloneType)
         {
             if (!cloneType.ImplementsEnumerableGenericType())
                 return null;
             var itemType = cloneType.GetCollectionItemType();
-            var method = _genericMakeArrayCopy.MakeGenericMethod(itemType);
+            var method = FindGenericMethodFor(
+                itemType, _genericMakeArrayCopy, ArrayCopyMethodCache
+            );
             return method.Invoke(null, new[] { src });
         }
 
@@ -641,7 +669,11 @@ namespace PeanutButter.Utils
             if (!cloneType.IsGenericOf(typeof(List<>)) && !cloneType.IsGenericOf(typeof(IList<>)))
                 return null;
             var itemType = cloneType.GetCollectionItemType();
-            var method = _genericMakeListCopy.MakeGenericMethod(itemType);
+            var method = FindGenericMethodFor(
+                itemType,
+                _genericMakeListCopy,
+                ListCopyMethodCache
+            );
             return method.Invoke(null, new[] { src });
         }
 
@@ -650,8 +682,30 @@ namespace PeanutButter.Utils
             if (!cloneType.IsArray)
                 return null;
             var itemType = cloneType.GetCollectionItemType();
-            var method = _genericMakeArrayCopy.MakeGenericMethod(itemType);
+            var method = FindGenericMethodFor(
+                itemType,
+                _genericMakeArrayCopy, ArrayCopyMethodCache
+            );
             return method.Invoke(null, new[] { src });
+        }
+
+        private static readonly ConcurrentDictionary<Type, MethodInfo> ListCopyMethodCache = new();
+        private static readonly ConcurrentDictionary<Type, MethodInfo> ArrayCopyMethodCache = new();
+
+        private static MethodInfo FindGenericMethodFor(
+            Type type,
+            MethodInfo genericMethod,
+            ConcurrentDictionary<Type, MethodInfo> cache
+        )
+        {
+            if (cache.TryGetValue(type, out var cached))
+            {
+                return cached;
+            }
+
+            var result = genericMethod.MakeGenericMethod(type);
+            cache.TryAdd(type, result);
+            return result;
         }
 
         private static object CloneObject(object src, Type cloneType)
@@ -774,7 +828,7 @@ namespace PeanutButter.Utils
                     "', but expected '" +
                     typeof(T).Name +
                     "' or derivative");
-            return (T) valueAsObject;
+            return (T)valueAsObject;
         }
 
 
@@ -961,7 +1015,7 @@ namespace PeanutButter.Utils
         public static T GetPropertyValue<T>(this object src, string propertyPath)
         {
             var objectResult = GetPropertyValue(src, propertyPath);
-            return (T) objectResult;
+            return (T)objectResult;
         }
 
         /// <summary>
@@ -1103,7 +1157,7 @@ namespace PeanutButter.Utils
             }
 
             var result = TryChangeType(input, typeof(T), out var outputObj);
-            output = (T) outputObj;
+            output = (T)outputObj;
             return result;
         }
 
@@ -1196,7 +1250,7 @@ namespace PeanutButter.Utils
             var method = GenericIsInstanceOf.MakeGenericMethod(
                 type
             );
-            return (bool) method.Invoke(null, new[] { obj });
+            return (bool)method.Invoke(null, new[] { obj });
         }
 
         /// <summary>
