@@ -14,26 +14,6 @@ using PeanutButter.Utils;
 
 namespace PeanutButter.TempDb
 {
-    public class TempDbDisposedEventArgs
-    {
-        public string Reason { get; }
-        public bool WasAutomatic { get; }
-        public TimeSpan? InactivityTimeout { get; }
-        public TimeSpan? AbsoluteLifespan { get; }
-
-        public TempDbDisposedEventArgs(
-            string reason,
-            bool wasAutomatic,
-            TimeSpan? inactivityTimeout,
-            TimeSpan? absoluteLifespan)
-        {
-            Reason = reason;
-            WasAutomatic = wasAutomatic;
-            InactivityTimeout = inactivityTimeout;
-            AbsoluteLifespan = absoluteLifespan;
-        }
-    }
-
     public delegate void TempDbDisposedEventHandler(object sender, TempDbDisposedEventArgs args);
 
     // ReSharper disable once InconsistentNaming
