@@ -2872,79 +2872,115 @@ namespace PeanutButter.RandomGenerators.Tests
                 .To.Equal(zero);
             // Assert
         }
-    }
 
-    [TestFixture]
-    public class WhenGivenLowerBoundOnly : TestBase
-    {
-        [Test]
-        [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
-        public void ShouldProduceIntWithinRange()
+        [TestFixture]
+        public class WhenGivenLowerBoundOnly : TestBase
         {
-            // Arrange
-            var lowerBound = GetRandomInt(1000, 10000);
-            // Act
-            var result = GetRandomInt(lowerBound);
-            // Assert
-            Expect(result)
-                .To.Be.Greater.Than
-                .Or.Equal.To(lowerBound);
+            [Test]
+            [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
+            public void ShouldProduceIntWithinRange()
+            {
+                // Arrange
+                var lowerBound = GetRandomInt(1000, 10000);
+                // Act
+                var result = GetRandomInt(lowerBound);
+                // Assert
+                Expect(result)
+                    .To.Be.Greater.Than
+                    .Or.Equal.To(lowerBound);
+            }
+
+            [Test]
+            [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
+            public void ShouldProduceLongWithinRange()
+            {
+                // Arrange
+                var lowerBound = GetRandomLong(1000, 10000);
+                // Act
+                var result = GetRandomLong(lowerBound);
+                // Assert
+                Expect(result)
+                    .To.Be.Greater.Than
+                    .Or.Equal.To(lowerBound);
+            }
+
+            [Test]
+            [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
+            public void ShouldProduceDoubleWithinRange()
+            {
+                // Arrange
+                var lowerBound = GetRandomDouble(1000, 10000);
+                // Act
+                var result = GetRandomDouble(lowerBound);
+                // Assert
+                Expect(result)
+                    .To.Be.Greater.Than
+                    .Or.Equal.To(lowerBound);
+            }
+
+            [Test]
+            [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
+            public void ShouldProduceDecimalWithinRange()
+            {
+                // Arrange
+                var lowerBound = GetRandomDecimal(1000, 10000);
+                // Act
+                var result = GetRandomDecimal(lowerBound);
+                // Assert
+                Expect(result)
+                    .To.Be.Greater.Than
+                    .Or.Equal.To(lowerBound);
+            }
+
+            [Test]
+            [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
+            public void ShouldProduceFloatWithinRange()
+            {
+                // Arrange
+                var lowerBound = GetRandomFloat(1000, 10000);
+                // Act
+                var result = GetRandomFloat(lowerBound);
+                // Assert
+                Expect(result)
+                    .To.Be.Greater.Than
+                    .Or.Equal.To(lowerBound);
+            }
         }
 
-        [Test]
-        [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
-        public void ShouldProduceLongWithinRange()
+        [TestFixture]
+        public class GetRandomType
         {
-            // Arrange
-            var lowerBound = GetRandomLong(1000, 10000);
-            // Act
-            var result = GetRandomLong(lowerBound);
-            // Assert
-            Expect(result)
-                .To.Be.Greater.Than
-                .Or.Equal.To(lowerBound);
-        }
+            [Test]
+            public void ShouldReturnARandomLoadedType()
+            {
+                // Arrange
+                var expected = AppDomain.CurrentDomain.GetAssemblies()
+                    .Select(asm =>
+                    {
+                        try
+                        {
+                            return asm.GetExportedTypes();
+                        }
+                        catch
+                        {
+                            return new Type[0];
+                        }
+                    }).SelectMany(o => o)
+                    .ToArray();
 
-        [Test]
-        [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
-        public void ShouldProduceDoubleWithinRange()
-        {
-            // Arrange
-            var lowerBound = GetRandomDouble(1000, 10000);
-            // Act
-            var result = GetRandomDouble(lowerBound);
-            // Assert
-            Expect(result)
-                .To.Be.Greater.Than
-                .Or.Equal.To(lowerBound);
-        }
-
-        [Test]
-        [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
-        public void ShouldProduceDecimalWithinRange()
-        {
-            // Arrange
-            var lowerBound = GetRandomDecimal(1000, 10000);
-            // Act
-            var result = GetRandomDecimal(lowerBound);
-            // Assert
-            Expect(result)
-                .To.Be.Greater.Than
-                .Or.Equal.To(lowerBound);
-        }
-
-        [Test]
-        [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
-        public void ShouldProduceFloatWithinRange()
-        {
-            // Arrange
-            var lowerBound = GetRandomFloat(1000, 10000);
-            // Act
-            var result = GetRandomFloat(lowerBound);
-            // Assert
-            Expect(result)
-                .To.Be.Greater.Than
-                .Or.Equal.To(lowerBound);
+                // Act
+                var result1 = GetRandomType();
+                var result2 = GetRandom<Type>();
+                // Assert
+                Expect(result1)
+                    .Not.To.Be.Null();
+                Expect(result2)
+                    .Not.To.Be.Null();
+                Expect(expected)
+                    .To.Contain(result1);
+                Expect(expected)
+                    .To.Contain(result2);
+            }
         }
     }
 

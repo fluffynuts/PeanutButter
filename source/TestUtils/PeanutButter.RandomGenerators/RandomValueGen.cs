@@ -37,16 +37,17 @@ namespace PeanutButter.RandomGenerators
         private static readonly Dictionary<Type, Func<object>> PrimitiveGenerators =
             new Dictionary<Type, Func<object>>()
             {
-                { typeof(int), () => GetRandomInt() },
-                { typeof(byte), () => Convert.ToByte(GetRandomInt(0, 255)) },
-                { typeof(char), () => Convert.ToChar(GetRandomInt(0, 255)) },
-                { typeof(long), () => GetRandomLong() },
-                { typeof(float), () => Convert.ToSingle(GetRandomDecimal(decimal.MinValue, decimal.MaxValue)) },
-                { typeof(double), () => Convert.ToDouble(GetRandomDecimal(decimal.MinValue, decimal.MaxValue)) },
-                { typeof(decimal), () => GetRandomDecimal(decimal.MinValue, decimal.MaxValue) },
-                { typeof(DateTime), () => GetRandomDate() },
-                { typeof(string), () => GetRandomString() },
-                { typeof(bool), () => GetRandomBoolean() }
+                [typeof(int)] = () => GetRandomInt(),
+                [typeof(byte)] = () => Convert.ToByte(GetRandomInt(0, 255)),
+                [typeof(char)] = () => Convert.ToChar(GetRandomInt(0, 255)),
+                [typeof(long)] = () => GetRandomLong(),
+                [typeof(float)] = () => Convert.ToSingle(GetRandomDecimal(decimal.MinValue, decimal.MaxValue)),
+                [typeof(double)] = () => Convert.ToDouble(GetRandomDecimal(decimal.MinValue, decimal.MaxValue)),
+                [typeof(decimal)] = () => GetRandomDecimal(decimal.MinValue, decimal.MaxValue),
+                [typeof(DateTime)] = () => GetRandomDate(),
+                [typeof(string)] = () => GetRandomString(),
+                [typeof(bool)] = () => GetRandomBoolean(),
+                [typeof(Type)] = GetRandomType
             };
 
         /// <summary>
@@ -61,9 +62,38 @@ namespace PeanutButter.RandomGenerators
         {
             var type = typeof(T);
             if (type.IsEnum())
-                return (T) GetRandomEnum(type);
+            {
+                return (T)GetRandomEnum(type);
+            }
+
             return (T) GetRandomValue(typeof(T));
         }
+
+        /// <summary>
+        /// Returns a random loaded type in the current app domain
+        /// </summary>
+        /// <returns></returns>
+        public static Type GetRandomType()
+        {
+            return GetRandomFrom(LoadedTypes);
+        }
+        
+        private static readonly Type[] EmptyTypes = new Type[0];
+        
+        private static Type[] LoadedTypes = AppDomain.CurrentDomain.GetAssemblies()
+            .Select(asm =>
+            {
+                try
+                {
+                    return asm.GetExportedTypes();
+                }
+                catch
+                {
+                    return EmptyTypes;
+                }
+            })
+            .SelectMany(o => o)
+            .ToArray();
 
         /// <summary>
         /// Gets a random value of the specified type by attempting to find the correct
@@ -76,10 +106,15 @@ namespace PeanutButter.RandomGenerators
         public static object GetRandomValue(
             Type type)
         {
-            if (type == null)
+            if (type is null)
+            {
                 throw new ArgumentException(nameof(type));
+            }
+
             if (type.IsGenericTypeDefinition)
+            {
                 throw new ArgumentException($"A generic type definition can't be generated: {type.Name}");
+            }
 
             return PrimitiveGenerators.TryGetValue(
                 type ?? throw new ArgumentNullException(nameof(type)),
@@ -1251,6 +1286,13 @@ namespace PeanutButter.RandomGenerators
             return GetANewRandomValueUsing(differentFromThisValue, usingThisGenerator, isANewValue);
         }
 
+        public static T GetRandom<T>(
+            Func<T, bool> validator
+        )
+        {
+            return GetRandom<T>(validator, null);
+        }
+
         /// <summary>
         /// Gets value of Type T, using a custom validator function to know when to stop trying
         /// and an optional generator function. Use like:
@@ -1263,7 +1305,7 @@ namespace PeanutButter.RandomGenerators
         /// <returns></returns>
         public static T GetRandom<T>(
             Func<T, bool> validator,
-            Func<T> usingThisGenerator = null
+            Func<T> usingThisGenerator
         )
         {
             return GetANewRandomValueUsing(default(T), usingThisGenerator ?? GetRandom<T>, validator);
