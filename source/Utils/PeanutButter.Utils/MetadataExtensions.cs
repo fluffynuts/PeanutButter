@@ -55,7 +55,7 @@ namespace PeanutButter.Utils
             object value
         )
         {
-            if (parent == null)
+            if (parent is null)
             {
                 throw new NotSupportedException("Cannot set metadata for null");
             }
@@ -103,6 +103,10 @@ namespace PeanutButter.Utils
             T defaultValue
         )
         {
+            if (parent is null)
+            {
+                return defaultValue;
+            }
             using var _ = new AutoLocker(MetadataLock);
             var data = GetMetadataFor(parent);
             if (data == null)
@@ -128,6 +132,84 @@ namespace PeanutButter.Utils
         )
         {
             return parent.TryGetMetadata<T>(key, out var _);
+        }
+
+        /// <summary>
+        /// Tests if an object has any metadata stored against it at all
+        /// - will always return false for a null object
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <returns></returns>
+        public static bool HasMetadata(
+            this object parent
+        )
+        {
+            if (parent is null)
+            {
+                return false;
+            }
+            using var _ = new AutoLocker(MetadataLock);
+            return GetMetadataFor(parent) is not null;
+        }
+
+        /// <summary>
+        /// Tests if an object has metadata with the provided key
+        /// - will always return false for a null object
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public static bool HasMetadata(
+            this object parent,
+            string key
+        )
+        {
+            if (parent is null)
+            {
+                return false;
+            }
+            using var _ = new AutoLocker(MetadataLock);
+            var data = GetMetadataFor(parent);
+            return data is not null && 
+                data.ContainsKey(key);
+        }
+
+        /// <summary>
+        /// Deletes all metadata associated with the object, if any
+        /// </summary>
+        /// <param name="parent"></param>
+        public static void DeleteMetadata(
+            this object parent
+        )
+        {
+            if (parent is null)
+            {
+                return;
+            }
+
+            using var _ = new AutoLocker(MetadataLock);
+            Table.Remove(parent);
+        }
+
+        /// <summary>
+        /// Deletes the metadata identified by the key for this
+        /// object, if found
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <param name="key"></param>
+        public static void DeleteMetadata(
+            this object parent,
+            string key
+        )
+        {
+            if (parent is null)
+            {
+                return;
+            }
+
+            using var _ = new AutoLocker(MetadataLock);
+            var data = GetMetadataFor(parent);
+            data?.Remove(key);
         }
 
         /// <summary>
@@ -182,7 +264,7 @@ namespace PeanutButter.Utils
             object target
         )
         {
-            if (parent is null || target is null)
+            if (target is null || parent is null)
             {
                 return;
             }

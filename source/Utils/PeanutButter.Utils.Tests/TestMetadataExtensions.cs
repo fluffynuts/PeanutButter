@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using NExpect;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
-// ReSharper disable PossibleNullReferenceException
-// ReSharper disable TryCastAlwaysSucceeds
+using static PeanutButter.Utils.PyLike;
 
 namespace PeanutButter.Utils.Tests
 {
@@ -52,19 +53,19 @@ namespace PeanutButter.Utils.Tests
         public void RetrievingMetadataForNonExistingKeys_WhenNoMetadataAtAll_ShouldReturnDefaultForT()
         {
             // Arrange
-            var target = new {};
+            var target = new { };
             // Pre-assert
             // Act
             var result = target.GetMetadata<int>(GetRandomString(2));
             // Assert
             Expect(result).To.Equal(default(int));
         }
-        
+
         [Test]
         public void RetrievingMetadataForNonExistingKeys_WhenHaveOtherMetadata_ShouldReturnDefaultForT()
         {
             // Arrange
-            var target = new {};
+            var target = new { };
             var have = GetRandomString(2);
             var test = GetAnother(have);
             var haveValue = GetRandomInt(1);
@@ -81,7 +82,7 @@ namespace PeanutButter.Utils.Tests
         public void RetrievingMetadataForNonExistingKeys_GivenDefaultValue_ShouldReturnThat()
         {
             // Arrange
-            var target = new {};
+            var target = new { };
             var expected = !default(bool);
             // Pre-assert
             // Act
@@ -108,6 +109,42 @@ namespace PeanutButter.Utils.Tests
         }
 
         [Test]
+        public void ShouldBeAbleToDeleteMetadata()
+        {
+            // Arrange
+            var target = new { };
+            var key = GetRandomString(2);
+            var value = GetRandomString(4);
+            target.SetMetadata(key, value);
+
+            // Act
+            Expect(target.GetMetadata<string>(key))
+                .To.Equal(value);
+            target.DeleteMetadata(key);
+            // Assert
+            Expect(target.HasMetadata(key))
+                .To.Be.False();
+        }
+
+        [Test]
+        public void ShouldBeAbleToDeleteAllMetadata()
+        {
+            // Arrange
+            var target = new { };
+            var key = GetRandomString(2);
+            var value = GetRandomString(4);
+            target.SetMetadata(key, value);
+
+            // Act
+            Expect(target.GetMetadata<string>(key))
+                .To.Equal(value);
+            target.DeleteMetadata();
+            // Assert
+            Expect(target.HasMetadata(key))
+                .To.Be.False();
+        }
+
+        [Test]
         public void ShouldGcMetaData()
         {
             ArrangeAndPreAssert();
@@ -129,7 +166,7 @@ namespace PeanutButter.Utils.Tests
             var name = GetRandomString();
             obj1.SetMetadata("id", id);
             obj1.SetMetadata("name", name);
-            
+
             // Act
             obj1.CopyAllMetadataTo(obj2);
             // Assert
@@ -139,13 +176,38 @@ namespace PeanutButter.Utils.Tests
                 .To.Equal(name);
         }
 
+        [Test]
+        public void ShouldBeThreadSafe()
+        {
+            // Arrange
+            var target = new { };
+            var keys = Range(0, 256).Select(
+                _ => GetRandomString(32)
+            ).ToArray();
+            // Act
+            Expect(() =>
+            {
+                Parallel.For(
+                    0, keys.Length, (i, state) => target.SetMetadata(
+                        keys[i],
+                        GetRandomString(10)
+                    )
+                );
+            }).Not.To.Throw();
+            // Assert
+            keys.ForEach(k =>
+                Expect(target.HasMetadata(k))
+                    .To.Be.True()
+            );
+        }
+
         private static void ArrangeAndPreAssert()
         {
             // this code needs to be in a different scope to force
             //  the loss of reference to target
             // Arrange
             GC.Collect();
-            var target = new {foo = "bar"};
+            var target = new { foo = "bar" };
             var key = GetRandomString(2);
             var value = GetRandomBoolean();
             target.SetMetadata(key, value);
