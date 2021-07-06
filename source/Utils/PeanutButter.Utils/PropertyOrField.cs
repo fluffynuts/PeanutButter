@@ -36,7 +36,12 @@ namespace PeanutButter.Utils
     /// <summary>
     /// Represents a property or a field on an object
     /// </summary>
-    public interface IPropertyOrField
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public 
+#endif
+interface IPropertyOrField
     {
         /// <summary>
         /// Name of the property or field

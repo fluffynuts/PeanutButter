@@ -1020,7 +1020,7 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
-        /// decode base64 string data & deserialize to type T
+        /// decode base64 string data &amp; deserialize to type T
         /// </summary>
         /// <param name="base64Data"></param>
         /// <param name="deserializer"></param>
@@ -1035,7 +1035,7 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
-        /// decode base64 string data & deserialize to type T
+        /// decode base64 string data &amp; deserialize to type T
         /// </summary>
         /// <param name="base64Data"></param>
         /// <param name="deserializer"></param>
@@ -1053,7 +1053,7 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
-        /// decode base64 string data & deserialize to type T,
+        /// decode base64 string data &amp; deserialize to type T,
         /// assuming that the original data in the base64 string was
         /// a string (eg json), using the provided encoding
         /// </summary>
