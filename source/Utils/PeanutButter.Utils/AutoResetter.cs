@@ -1,6 +1,11 @@
 ﻿using System;
 
-namespace PeanutButter.Utils
+namespace
+#if BUILD_PEANUTBUTTER_INTERNAL
+    Imported.PeanutButter.Utils
+#else
+PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Provides a mechanism to run code on construction and disposal,
@@ -10,7 +15,12 @@ namespace PeanutButter.Utils
     /// and the using() pattern guarantees that your disposalAction is called at
     /// disposal, even if your test fails.
     /// </summary>
-    public class AutoResetter: IDisposable
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+public
+#endif
+        class AutoResetter : IDisposable
     {
         private readonly object _lock = new object();
         private Action _disposalAction;
