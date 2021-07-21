@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using PeanutButter.Utils;
 using static PeanutButter.Utils.PyLike;
+
 // ReSharper disable MemberCanBePrivate.Global
 
 // ReSharper disable UnusedMember.Global
@@ -1219,11 +1220,10 @@ namespace PeanutButter.RandomGenerators
         public static string GetRandomHttpUrl()
         {
             return string.Join(
-                "/",
-                "http:",
-                string.Empty,
-                GetRandomAlphaNumericString(3, 12) + $".{GetRandomString(2, 3)}",
-                GetRandomAlphaNumericString(0, 20)).ToLowerInvariant();
+                "",
+                "http://",
+                GetRandomDomain()
+            );
         }
 
         /// <summary>
