@@ -811,7 +811,12 @@ namespace PeanutButter.RandomGenerators
                         return 1;
                     }
 
-                    return 2;
+                    if (MayBeCountryCode(o))
+                    {
+                        return 2;
+                    }
+
+                    return 100;
                 }).ToArray();
         }
 
@@ -896,56 +901,43 @@ namespace PeanutButter.RandomGenerators
         private static ActionRef<TEntity, int>
             CreateStringPropertyRandomSetterFor(PropertyOrField pi)
         {
-            if (MayBeEmail(pi))
-                return (ref TEntity e, int _)
-                    => pi.SetValue(ref e, GenerateEmailFor(e));
-
-            if (MayBeUrl(pi))
-                return (ref TEntity e, int _)
-                    => pi.SetValue(ref e, GetRandomHttpUrl());
-
-            if (MayBePhone(pi))
-                return (ref TEntity e, int _)
-                    => pi.SetValue(ref e, GetRandomNumericString());
-
-            if (MayBeFirstName(pi))
-                return (ref TEntity e, int _)
-                    => pi.SetValue(ref e, GetRandomFirstName());
-
-            if (MayBeLastName(pi))
-                return (ref TEntity e, int _)
-                    => pi.SetValue(ref e, GetRandomLastName());
-
-            if (MayBeUserNameOrLogin(pi))
-                return (ref TEntity e, int _)
-                    => pi.SetValue(ref e, GenerateRandomUserNameFor(e));
-
-            if (MayBeName(pi))
-                return (ref TEntity e, int _)
-                    => pi.SetValue(ref e, TryGenerateNameFor(e) ?? GetRandomName());
-
-            if (MayBeStreet(pi))
-                return (ref TEntity e, int _) =>
-                    pi.SetValue(ref e, GetRandomStreetName());
-
-            if (MayBePostalCode(pi))
-                return (ref TEntity e, int _) =>
-                    pi.SetValue(ref e, GetRandomPostalCode());
-
-            if (MayBeCity(pi))
-                return (ref TEntity e, int _) =>
-                    pi.SetValue(ref e, GetRandomCityName());
-
-            if (MayBeStreetAddress(pi))
-                return (ref TEntity e, int _) =>
-                    pi.SetValue(ref e, GetRandomStreetAddress());
-
-            if (MayBeFullAddress(pi))
-                return (ref TEntity e, int _) =>
-                    pi.SetValue(ref e, GenerateFullAddressFor(e));
+            if (MayBeEmail(pi)) return Targeted(GenerateEmailFor);
+            if (MayBeUrl(pi)) return Simple(GetRandomHttpUrl);
+            if (MayBePhone(pi)) return Simple(() => GetRandomNumericString(10, 10));
+            if (MayBeFirstName(pi)) return Simple(GetRandomFirstName);
+            if (MayBeLastName(pi)) return Simple(GetRandomLastName);
+            if (MayBeUserNameOrLogin(pi)) return Targeted(GenerateRandomUserNameFor);
+            if (MayBeName(pi)) return Targeted(e => TryGenerateNameFor(e) ?? GetRandomName());
+            if (MayBeCountryCode(pi)) return Simple(GetRandomCountryCode);
+            if (MayBeCountry(pi)) return Targeted(GenerateCountryFor);
+            if (MayBeStreet(pi)) return Simple(GetRandomStreetName);
+            if (MayBePostalCode(pi)) return Simple(GetRandomPostalCode);
+            if (MayBeCity(pi)) return Simple(GetRandomCityName);
+            if (MayBeStreetAddress(pi)) return Simple(GetRandomStreetAddress);
+            if (MayBeFullAddress(pi)) return Targeted(GenerateFullAddressFor);
 
             return (ref TEntity e, int _)
                 => pi.SetValue(ref e, GetRandomString());
+
+            ActionRef<TEntity, int> Targeted(Func<TEntity, string> generator)
+            {
+                return (ref TEntity e, int _) => pi.SetValue(ref e, generator(e));
+            }
+
+            ActionRef<TEntity, int> Simple(Func<string> generator)
+            {
+                return (ref TEntity e, int _) => pi.SetValue(ref e, generator());
+            }
+        }
+
+        private static bool MayBeCountryCode(PropertyOrField pi)
+        {
+            return pi?.Name?.ContainsOneOf("countrycode") ?? false;
+        }
+
+        private static bool MayBeCountry(PropertyOrField pi)
+        {
+            return pi?.Name?.ContainsOneOf("country") ?? false;
         }
 
         private static bool MayBePostalCode(PropertyOrField pi)
@@ -980,6 +972,19 @@ namespace PeanutButter.RandomGenerators
                 TryFindCityFor(e),
                 TryFindPostalCodeFor(e)
             );
+        }
+
+        private static string GenerateCountryFor(TEntity e)
+        {
+            var member = TryFindMember(
+                ref _lookedForCountryCode,
+                ref _countryCodeProp,
+                MayBeCountryCode
+            );
+            var countryCode = member?.GetValue(e) as string ?? GetRandomCountryCode();
+            return NaturalData.CountryLookup.TryGetValue(countryCode, out var result)
+                ? result
+                : GetRandomCountry();
         }
 
         private static string GenerateRandomUserNameFor(TEntity e)
@@ -1176,6 +1181,8 @@ namespace PeanutButter.RandomGenerators
         private static PropertyOrField _postalCodeProp;
         private static bool _lookedForCity;
         private static PropertyOrField _cityProp;
+        private static bool _lookedForCountryCode;
+        private static PropertyOrField _countryCodeProp;
 
         private static PropertyOrField[] MemberCache
             => _memberCache ??= FindAllMembers();

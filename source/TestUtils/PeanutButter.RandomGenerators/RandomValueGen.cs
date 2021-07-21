@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using PeanutButter.Utils;
 using static PeanutButter.Utils.PyLike;
+// ReSharper disable MemberCanBePrivate.Global
 
 // ReSharper disable UnusedMember.Global
 // ReSharper disable ClassNeverInstantiated.Global
@@ -962,6 +963,10 @@ namespace PeanutButter.RandomGenerators
             return string.Join("", result).ToLower();
         }
 
+        /// <summary>
+        /// Generates a city name
+        /// </summary>
+        /// <returns></returns>
         public static string GetRandomCityName()
         {
             var prefix = GetRandomBoolean()
@@ -971,11 +976,37 @@ namespace PeanutButter.RandomGenerators
             return $"{prefix} {GetRandomFirstName()}{suffix}".Trim();
         }
 
+        /// <summary>
+        /// Returns a random country
+        /// </summary>
+        /// <returns></returns>
+        public static string GetRandomCountry()
+        {
+            return GetRandomFrom(NaturalData.Countries);
+        }
+
+        /// <summary>
+        /// Returns a random country code
+        /// </summary>
+        /// <returns></returns>
+        public static string GetRandomCountryCode()
+        {
+            return GetRandomFrom(NaturalData.CountryCodes);
+        }
+
+        /// <summary>
+        /// Generates a street address
+        /// </summary>
+        /// <returns></returns>
         public static string GetRandomStreetAddress()
         {
             return GetRandomStreetAddress(null);
         }
 
+        /// <summary>
+        /// Generates a street name
+        /// </summary>
+        /// <returns></returns>
         public static string GetRandomStreetName()
         {
             return $@"{
@@ -985,6 +1016,10 @@ namespace PeanutButter.RandomGenerators
             }";
         }
 
+        /// <summary>
+        /// Generates a street number (eg 12 or 134a)
+        /// </summary>
+        /// <returns></returns>
         public static string GetRandomStreetNumber()
         {
             var append = GetRandomBoolean()
@@ -993,6 +1028,11 @@ namespace PeanutButter.RandomGenerators
             return $"{GetRandomInt(1, 1000)}{append}";
         }
 
+        /// <summary>
+        /// Generates a street address, given a street name
+        /// </summary>
+        /// <param name="streetName"></param>
+        /// <returns></returns>
         public static string GetRandomStreetAddress(
             string streetName
         )
@@ -1000,19 +1040,27 @@ namespace PeanutButter.RandomGenerators
             return GetRandomStreetAddress(null, streetName);
         }
 
+        /// <summary>
+        /// Generates a street address, given a street number and / or name
+        /// (null values are discarded & random values will be generated)
+        /// </summary>
+        /// <param name="streetNumber"></param>
+        /// <param name="streetName"></param>
+        /// <returns></returns>
         public static string GetRandomStreetAddress(
             string streetNumber,
             string streetName
         )
         {
-            var append = GetRandomBoolean()
-                ? GetRandomFrom(NumberSuffixes)
-                : "";
             return $@"{
-                GetRandomStreetNumber()
+                streetNumber ?? GetRandomStreetNumber()
             } {streetName ?? GetRandomStreetName()}";
         }
 
+        /// <summary>
+        /// Generates a random postal code
+        /// </summary>
+        /// <returns></returns>
         public static string GetRandomPostalCode()
         {
             var append = GetRandomBoolean()
@@ -1021,6 +1069,10 @@ namespace PeanutButter.RandomGenerators
             return $"{GetRandomInt(1000, 9999)}{append}";
         }
 
+        /// <summary>
+        /// Generates a random multi-line address
+        /// </summary>
+        /// <returns></returns>
         public static string GetRandomAddress()
         {
             return GetRandomAddress(null, null, null);
@@ -1041,7 +1093,6 @@ namespace PeanutButter.RandomGenerators
         }
 
         private static readonly string[] Joiners = { ".", "-", "_", "" };
-        private static readonly string[] RoadTypes = { "Street", "Road", "Close", "Lane" };
         private static readonly string[] NumberSuffixes = { "a", "b", "c" };
 
         /// <summary>
@@ -1182,7 +1233,7 @@ namespace PeanutButter.RandomGenerators
         public static string GetRandomHttpUrlWithParameters()
         {
             var parameters = Range(1, GetRandomInt(2, 5)).Select(
-                i => $"{GetRandomString(1)}={GetRandomString(1)}");
+                _ => $"{GetRandomString(1)}={GetRandomString(1)}");
             return $"{GetRandomHttpUrl()}?{parameters.JoinWith("&")}";
         }
 
@@ -1214,7 +1265,7 @@ namespace PeanutButter.RandomGenerators
             int maxChars = 10)
         {
             return Range(0, GetRandomInt(minChars, maxChars))
-                .Select(i =>
+                .Select(_ =>
                     GetRandom(c => c < 'A' || c > 'z',
                         () => (char) GetRandomInt(32, 255)))
                 .JoinWith("");
@@ -1294,14 +1345,25 @@ namespace PeanutButter.RandomGenerators
         internal static object GetEmptyDelegate(Type delegateType)
         {
             if (!typeof(Delegate).IsAssignableFrom(delegateType))
+            {
                 throw new ArgumentException(
                     $"{nameof(GetEmptyDelegate)} cannot be called on something other than a delegate ('{delegateType.Name}')");
+            }
 
             if (delegateType.IsGenericTypeDefinition)
+            {
                 throw new ArgumentException(
                     $"{nameof(GetEmptyDelegate)} must be called on a concrete delegate type ('{delegateType.Name}')");
+            }
 
             var method = delegateType.GetMethod("Invoke");
+            if (method is null)
+            {
+                throw new ArgumentException(
+                    "Provided delegate has no method 'Invoke'"
+                );
+            }
+
             return Expression.Lambda(
                 delegateType,
                 method.ReturnType == typeof(void)

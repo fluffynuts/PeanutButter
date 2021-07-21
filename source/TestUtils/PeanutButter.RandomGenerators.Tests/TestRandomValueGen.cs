@@ -3077,6 +3077,8 @@ namespace PeanutButter.RandomGenerators.Tests
         public string Address { get; set; }
         public string City { get; set; }
         public string PostalCode { get; set; }
+        public string Country { get; set; }
+        public string CountryCode { get; set; }
         public DateTime? Date { get; set; }
 
         public override string ToString()
@@ -3092,7 +3094,9 @@ namespace PeanutButter.RandomGenerators.Tests
                 $"Street: {StreetAddress}",
                 $"City: {City}",
                 $"PostalCode: {PostalCode}",
-                $"Address: {Address}"
+                $"Address: {Address}",
+                $"Country: {Country}",
+                $"Country Code: {CountryCode}"
             };
             return string.Join(Environment.NewLine, parts);
         }
