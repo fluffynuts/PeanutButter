@@ -114,7 +114,8 @@ namespace PeanutButter.Utils
         private static readonly string[] Truthy = { "yes", "y", "1", "true" };
 
         /// <summary>
-        /// Searches a master string for occurrences of any of the given strings
+        /// Searches a master string for occurrences of any of the given strings,
+        /// case-insensitive
         /// </summary>
         /// <param name="haystack">String to search</param>
         /// <param name="needles">Strings to search for</param>
@@ -123,7 +124,7 @@ namespace PeanutButter.Utils
             this string haystack,
             params string[] needles)
         {
-            return MultiContains(
+            return MultiMatch(
                 haystack,
                 needles,
                 h => needles.Any(
@@ -137,6 +138,27 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
+        /// Much like ContainsOneOf, but performs a case-insensitive exact match
+        /// for the needles against the haystack
+        /// </summary>
+        /// <param name="haystack"></param>
+        /// <param name="needles"></param>
+        /// <returns></returns>
+        public static bool EqualsOneOf(
+            this string haystack,
+            params string[] needles
+        )
+        {
+            return MultiMatch(
+                haystack,
+                needles,
+                h => needles.Any(
+                    n => h?.Equals(n, StringComparison.CurrentCultureIgnoreCase) ?? false
+                )
+            );
+        }
+
+        /// <summary>
         /// Searches a master string for occurrences of any of the given strings
         /// </summary>
         /// <param name="haystack">String to search</param>
@@ -146,13 +168,13 @@ namespace PeanutButter.Utils
             this string haystack,
             params string[] needles)
         {
-            return MultiContains(
+            return MultiMatch(
                 haystack,
                 needles,
                 h => needles.All(n => h.Contains(n.ToLower(CultureInfo.CurrentCulture))));
         }
 
-        private static bool MultiContains(
+        private static bool MultiMatch(
             string haystack,
             // ReSharper disable once UnusedParameter.Local
             string[] needles,

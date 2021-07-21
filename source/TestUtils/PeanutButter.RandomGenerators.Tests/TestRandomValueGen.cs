@@ -532,6 +532,7 @@ namespace PeanutButter.RandomGenerators.Tests
             var result = GetRandomArray<SomePOCO>(minItems, maxItems);
 
             //---------------Test Result -----------------------
+            result.ForEach(o => Console.WriteLine(o.ToString()));
             Assert.IsNotNull(result);
             CollectionAssert.IsNotEmpty(result);
             Assert.IsTrue(result.All(r => r != null));
@@ -539,6 +540,24 @@ namespace PeanutButter.RandomGenerators.Tests
             VarianceAssert.IsVariant<SomePOCO, int>(result, "Id");
             VarianceAssert.IsVariant<SomePOCO, string>(result, "Name");
             VarianceAssert.IsVariant<SomePOCO, DateTime>(result, "Date");
+        }
+
+        [Test]
+        public void FillingInNaturalValues()
+        {
+            // Arrange
+            // Act
+            var result = GetRandom<SomePOCO>();
+            // Assert
+            Console.WriteLine(result);
+            Expect(result.Name)
+                .To.Contain(result.FirstName);
+            Expect(result.Name)
+                .To.Contain(result.LastName);
+            Expect(result.Login)
+                .To.Contain(result.FirstName.ToLower());
+            Expect(result.Email)
+                .To.Contain(result.FirstName.ToLower());
         }
 
 
@@ -1841,13 +1860,6 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
 
-        public class SomePOCO
-        {
-            public int? Id { get; set; }
-            public string Name { get; set; }
-            public DateTime? Date { get; set; }
-        }
-
         [Test]
         public void GetRandom_GivenPOCOType_ShouldUseOnTheFlyGenericBuilderToGiveBackRandomItem()
         {
@@ -2840,7 +2852,8 @@ namespace PeanutButter.RandomGenerators.Tests
                 // Assert
                 var uri = new Uri(url);
                 var schemeHostPath = uri.ToString().Replace(uri.Query, "");
-                Expect(schemeHostPath).To.Equal(schemeHostPath.ToLowerInvariant());
+                Expect(schemeHostPath)
+                    .To.Equal(schemeHostPath.ToLowerInvariant());
             }
 
             [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
@@ -2982,6 +2995,25 @@ namespace PeanutButter.RandomGenerators.Tests
                     .To.Contain(result2);
             }
         }
+
+        [TestFixture]
+        public class RandomEmails
+        {
+            [Test]
+            public void ShouldProduceFairlyUniqueResults()
+            {
+                // Arrange
+                var emails = new List<string>();
+                // Act
+                RunCycles(() => emails.Add(GetRandomEmail()));
+                // Assert
+                Expect(emails.Distinct())
+                    .To.Contain.At.Least(emails.Count() / 2).Items();
+                Expect(emails.Select(e => e.ToLower()))
+                    .To.Equal(emails);
+                emails.ForEach(email => Console.WriteLine(email));
+            }
+        }
     }
 
 
@@ -3031,5 +3063,42 @@ namespace PeanutButter.RandomGenerators.Tests
                     Expect(Directory.Exists(path)).To.Be.True()
             );
         }
+    }
+
+    public class SomePOCO
+    {
+        public int? Id { get; set; }
+        public string Name { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Email { get; set; }
+        public string Login { get; set; }
+        public string StreetAddress { get; set; }
+        public string Address { get; set; }
+        public string City { get; set; }
+        public string PostalCode { get; set; }
+        public DateTime? Date { get; set; }
+
+        public override string ToString()
+        {
+            var parts = new[]
+            {
+                $"Id: {Id}",
+                $"Name: {Name}",
+                $"FirstName: {FirstName}",
+                $"LastName: {LastName}",
+                $"Login: {Login}",
+                $"Email: {Email}",
+                $"Street: {StreetAddress}",
+                $"City: {City}",
+                $"PostalCode: {PostalCode}",
+                $"Address: {Address}"
+            };
+            return string.Join(Environment.NewLine, parts);
+        }
+    }
+
+    public class SomePOCOBuilder : GenericBuilder<SomePOCOBuilder, SomePOCO>
+    {
     }
 }

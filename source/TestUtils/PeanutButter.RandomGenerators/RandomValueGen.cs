@@ -63,7 +63,7 @@ namespace PeanutButter.RandomGenerators
             var type = typeof(T);
             if (type.IsEnum())
             {
-                return (T)GetRandomEnum(type);
+                return (T) GetRandomEnum(type);
             }
 
             return (T) GetRandomValue(typeof(T));
@@ -77,9 +77,9 @@ namespace PeanutButter.RandomGenerators
         {
             return GetRandomFrom(LoadedTypes);
         }
-        
+
         private static readonly Type[] EmptyTypes = new Type[0];
-        
+
         private static Type[] LoadedTypes = AppDomain.CurrentDomain.GetAssemblies()
             .Select(asm =>
             {
@@ -850,13 +850,239 @@ namespace PeanutButter.RandomGenerators
         /// <returns>Random email-like string</returns>
         public static string GetRandomEmail()
         {
+            return GetRandomEmail(null);
+        }
+
+        /// <summary>
+        /// Gets a random email-like string. Note that this is only email-like in that it
+        /// conforms to the structure:
+        /// {random-string}@{random-string}.com
+        /// <param name="firstName">Use a first-name to guide the process</param>
+        /// </summary>
+        /// <returns>Random email-like string</returns>
+        public static string GetRandomEmail(string firstName)
+        {
+            return GetRandomEmail(firstName, null);
+        }
+
+        /// <summary>
+        /// Gets a random email-like string. Note that this is only email-like in that it
+        /// conforms to the structure:
+        /// {random-string}@{random-string}.com
+        /// <param name="firstName">Use a first-name to guide the process</param>
+        /// <param name="lastName">Use a last-name to guide the process</param>
+        /// </summary>
+        /// <returns>Random email-like string</returns>
+        public static string GetRandomEmail(string firstName, string lastName)
+        {
             return string.Join(
                 string.Empty,
-                GetRandomString(),
+                GetRandomUserName(firstName, lastName),
                 "@",
-                GetRandomString(),
-                GetRandomFrom(new[] { ".com", ".net", ".org" })
+                GetRandomDomain()
+            ).ToLower();
+        }
+
+        /// <summary>
+        /// Returns a random domain generated from a fairly common internet
+        /// company name and one of the known TLDs at time of generation
+        /// </summary>
+        /// <returns></returns>
+        public static string GetRandomDomain()
+        {
+            return $@"{
+                GetRandomFrom(NaturalData.CompaniesWithInternetDomains)
+            }{
+                GetRandomFrom(NaturalData.TopLevelDomains)
+            }";
+        }
+
+        /// <summary>
+        /// Produces a random username:
+        /// - will have a first name
+        /// - will optionally have a .surname suffix
+        /// - will optionally have a numeric suffix
+        /// </summary>
+        /// <returns></returns>
+        public static string GetRandomUserName()
+        {
+            return GetRandomUserName(null);
+        }
+
+        /// <summary>
+        /// Produces a random username:
+        /// - will have a first name
+        /// - will optionally have a .surname suffix
+        /// - will optionally have a numeric suffix
+        /// <param name="firstName">Use a first-name to guide the process</param>
+        /// </summary>
+        /// <returns></returns>
+        public static string GetRandomUserName(string firstName)
+        {
+            return GetRandomUserName(firstName, null);
+        }
+
+        /// <summary>
+        /// Produces a random username:
+        /// - will have a first name
+        /// - will optionally have a .surname suffix
+        /// - will optionally have a numeric suffix
+        /// <param name="firstName">Use a first-name to guide the process</param>
+        /// <param name="lastName">Use a last-name to guide the process</param>
+        /// </summary>
+        /// <returns></returns>
+        public static string GetRandomUserName(
+            string firstName,
+            string lastName
+        )
+        {
+            var result = new List<string>
+            {
+                firstName ?? GetRandomFirstName()
+            };
+
+            if (GetRandomBoolean())
+            {
+                // sometimes add a full last name with an optional joiner
+                result.Add(GetRandomFrom(Joiners));
+                result.Add($"{lastName ?? GetRandomLastName()}");
+            }
+            else if (GetRandomBoolean())
+            {
+                // sometimes add a last-name first-char
+                result.Add(GetRandomLastName()[0].ToString());
+            }
+
+            if (GetRandomBoolean())
+            {
+                // sometimes add a numeric suffix
+                result.Add($"{GetRandomInt(1, 99999):00}");
+            }
+
+            return string.Join("", result).ToLower();
+        }
+
+        public static string GetRandomCityName()
+        {
+            var prefix = GetRandomBoolean()
+                ? GetRandomFrom(NaturalData.CityPrefixes)
+                : "";
+            var suffix = GetRandomFrom(NaturalData.CitySuffixes);
+            return $"{prefix} {GetRandomFirstName()}{suffix}".Trim();
+        }
+
+        public static string GetRandomStreetAddress()
+        {
+            return GetRandomStreetAddress(null);
+        }
+
+        public static string GetRandomStreetName()
+        {
+            return $@"{
+                (GetRandomBoolean() ? GetRandomLastName() : GetRandomFirstName())
+            } {
+                GetRandomFrom(NaturalData.StreetSuffix)
+            }";
+        }
+
+        public static string GetRandomStreetNumber()
+        {
+            var append = GetRandomBoolean()
+                ? GetRandomFrom(NumberSuffixes)
+                : "";
+            return $"{GetRandomInt(1, 1000)}{append}";
+        }
+
+        public static string GetRandomStreetAddress(
+            string streetName
+        )
+        {
+            return GetRandomStreetAddress(null, streetName);
+        }
+
+        public static string GetRandomStreetAddress(
+            string streetNumber,
+            string streetName
+        )
+        {
+            var append = GetRandomBoolean()
+                ? GetRandomFrom(NumberSuffixes)
+                : "";
+            return $@"{
+                GetRandomStreetNumber()
+            } {streetName ?? GetRandomStreetName()}";
+        }
+
+        public static string GetRandomPostalCode()
+        {
+            var append = GetRandomBoolean()
+                ? GetRandomAlphaString(2, 4)
+                : "";
+            return $"{GetRandomInt(1000, 9999)}{append}";
+        }
+
+        public static string GetRandomAddress()
+        {
+            return GetRandomAddress(null, null, null);
+        }
+
+        internal static string GetRandomAddress(
+            string streetAddress,
+            string cityName,
+            string postalCode
+        )
+        {
+            return string.Join(
+                Environment.NewLine,
+                streetAddress ?? GetRandomStreetAddress(),
+                cityName ?? GetRandomCityName(),
+                postalCode ?? GetRandomPostalCode()
             );
+        }
+
+        private static readonly string[] Joiners = { ".", "-", "_", "" };
+        private static readonly string[] RoadTypes = { "Street", "Road", "Close", "Lane" };
+        private static readonly string[] NumberSuffixes = { "a", "b", "c" };
+
+        /// <summary>
+        /// Returns a random first name, sourced from unique top names:
+        /// - male, international (100)
+        /// - female, international (100)
+        /// - south african (100)
+        /// </summary>
+        /// <returns></returns>
+        public static string GetRandomFirstName()
+        {
+            return GetRandomFrom(NaturalData.FirstNames);
+        }
+
+        /// <summary>
+        /// Returns a random last name, source from unique top names:
+        /// - international (100)
+        /// - african (100)
+        /// </summary>
+        /// <returns></returns>
+        public static string GetRandomLastName()
+        {
+            return GetRandomFrom(NaturalData.LastNames);
+        }
+
+        /// <summary>
+        /// Returns a random 
+        /// </summary>
+        /// <returns></returns>
+        public static string GetRandomTopLevelDomainName()
+        {
+            return GetRandomFrom(NaturalData.TopLevelDomains);
+        }
+
+        /// <summary>
+        /// Returns a random name of the format {FirstName} {LastName}
+        /// </summary>
+        /// <returns></returns>
+        public static string GetRandomName()
+        {
+            return $"{GetRandomFirstName()} {GetRandomLastName()}";
         }
 
         /// <summary>

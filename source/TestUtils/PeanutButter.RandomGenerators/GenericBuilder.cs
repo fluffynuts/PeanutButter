@@ -771,9 +771,8 @@ namespace PeanutButter.RandomGenerators
             {
                 lock (LockObject)
                 {
-                    return _entityPropInfoField ??
-                        (_entityPropInfoField =
-                            GetAllPropertiesAndFieldsOfConstructingType());
+                    return _entityPropInfoField ??=
+                        GetAllPropertiesAndFieldsOfConstructingType();
                 }
             }
         }
@@ -785,7 +784,35 @@ namespace PeanutButter.RandomGenerators
                 .Select(pi => new PropertyOrField(pi))
                 .Union(ConstructingType.GetFields(BindingFlags.Public | BindingFlags.Instance)
                     .Select(fi => new PropertyOrField(fi)))
-                .ToArray();
+                .OrderBy(o =>
+                {
+                    // order first & last names at the top, if there
+                    // are any, so that logins, emails, full names
+                    // can kinda make sense
+                    if (MayBeFirstName(o) ||
+                        MayBeLastName(o) ||
+                        MayBeCity(o) ||
+                        MayBePostalCode(o) ||
+                        MayBeStreet(o)
+                    )
+                    {
+                        return -1;
+                    }
+
+                    // generate street addresses after street names
+                    if (MayBeStreetAddress(o))
+                    {
+                        return 0;
+                    }
+
+                    // use any available login in an email address
+                    if (MayBeUserNameOrLogin(o))
+                    {
+                        return 1;
+                    }
+
+                    return 2;
+                }).ToArray();
         }
 
         private static Dictionary<string, ActionRef<TEntity, int>>
@@ -873,16 +900,310 @@ namespace PeanutButter.RandomGenerators
         {
             if (MayBeEmail(pi))
                 return (ref TEntity e,
-                    int i) => pi.SetValue(ref e, GetRandomEmail());
+                    int i) => pi.SetValue(ref e, GenerateEmailFor(e));
             if (MayBeUrl(pi))
                 return (ref TEntity e,
                     int i) => pi.SetValue(ref e, GetRandomHttpUrl());
             if (MayBePhone(pi))
                 return (ref TEntity e,
                     int i) => pi.SetValue(ref e, GetRandomNumericString());
+            if (MayBeFirstName(pi))
+                return (ref TEntity e, int i)
+                    => pi.SetValue(ref e, GetRandomFirstName());
+            if (MayBeLastName(pi))
+                return (ref TEntity e, int i)
+                    => pi.SetValue(ref e, GetRandomLastName());
+            if (MayBeUserNameOrLogin(pi))
+                return (ref TEntity e, int i)
+                    => pi.SetValue(ref e, GenerateRandomUserNameFor(e));
+            if (MayBeName(pi))
+                return (ref TEntity e, int i)
+                    => pi.SetValue(ref e, TryGenerateNameFor(e) ?? GetRandomName());
+            if (MayBeStreet(pi))
+                return (ref TEntity e, int i) =>
+                    pi.SetValue(ref e, GetRandomStreetName());
+            if (MayBePostalCode(pi))
+                return (ref TEntity e, int i) =>
+                    pi.SetValue(ref e, GetRandomPostalCode());
+            if (MayBeCity(pi))
+                return (ref TEntity e, int i) =>
+                    pi.SetValue(ref e, GetRandomCityName());
+            if (MayBeStreetAddress(pi))
+                return (ref TEntity e, int i) =>
+                    pi.SetValue(ref e, GetRandomStreetAddress());
+            if (MayBeFullAddress(pi))
+                return (ref TEntity e, int i) =>
+                    pi.SetValue(ref e, GenerateFullAddressFor(e));
 
             return (ref TEntity e,
                 int i) => pi.SetValue(ref e, GetRandomString());
+        }
+
+        private static bool MayBePostalCode(PropertyOrField pi)
+        {
+            return pi?.Name?.ContainsOneOf("post", "code") ?? false;
+        }
+
+        private static bool MayBeCity(PropertyOrField pi)
+        {
+            return pi?.Name?.ContainsOneOf("city") ?? false;
+        }
+
+        private static bool MayBeStreet(PropertyOrField pi)
+        {
+            return pi?.Name?.EqualsOneOf("street", "address1") ?? false;
+        }
+
+        private static bool MayBeStreetAddress(PropertyOrField pi)
+        {
+            return pi?.Name?.ContainsOneOf("street") ?? false;
+        }
+
+        private static bool MayBeFullAddress(PropertyOrField pi)
+        {
+            return pi?.Name?.ContainsOneOf("address") ?? false;
+        }
+
+        private static string GenerateFullAddressFor(TEntity e)
+        {
+            return GetRandomAddress(
+                TryFindStreetAddressFor(e),
+                TryFindCityFor(e),
+                TryFindPostalCodeFor(e)
+            );
+        }
+
+        private static string GenerateRandomUserNameFor(TEntity e)
+        {
+            return GetRandomUserName(
+                FirstNameFor(e),
+                LastNameFor(e)
+            );
+        }
+
+        private static string GenerateEmailFor(TEntity e)
+        {
+            var firstName = FirstNameFor(e);
+            var lastName = LastNameFor(e);
+            var login = TryReadLoginFor(e);
+            if (login is not null)
+            {
+                return $"{login}@{GetRandomDomain()}";
+            }
+
+            return GetRandomEmail(
+                firstName,
+                lastName
+            );
+        }
+
+        private static string TryReadLoginFor(TEntity e)
+        {
+            var prop = MemberCache.FirstOrDefault(MayBeUserNameOrLogin);
+            return prop?.GetValue(e) as string;
+        }
+
+        private static string FirstNameFor(TEntity e)
+        {
+            return StringPropFor(
+                e,
+                ref _firstNameFound,
+                ref _firstName,
+                TryFindFirstNameMember
+            );
+        }
+
+        private static bool _firstNameFound;
+        private static string _firstName;
+
+        private static string LastNameFor(TEntity e)
+        {
+            return StringPropFor(
+                e,
+                ref _lastNameFound,
+                ref _lastName,
+                TryFindLastNameMember
+            );
+        }
+
+        private static bool _lastNameFound;
+        private static string _lastName;
+
+        private static string TryFindCityFor(TEntity e)
+        {
+            return StringPropFor(
+                e,
+                ref _cityFound,
+                ref _city,
+                TryFindCityMember
+            );
+        }
+
+        private static bool _cityFound;
+        private static string _city;
+
+        private static string TryFindStreetAddressFor(TEntity e)
+        {
+            return StringPropFor(
+                e,
+                ref _streetAddressFound,
+                ref _streetAddress,
+                TryFindStreetAddressMember
+            );
+        }
+
+        private static string TryFindPostalCodeFor(TEntity e)
+        {
+            return StringPropFor(
+                e,
+                ref _postalCodeFound,
+                ref _postalCode,
+                TryFindPostalCodeMember
+            );
+        }
+
+        private static bool _streetAddressFound;
+        private static string _streetAddress;
+
+        private static PropertyOrField TryFindStreetAddressMember()
+        {
+            return TryFindMember(
+                ref _lookedForStreetAddress,
+                ref _streetAddressProp,
+                MayBeStreetAddress
+            );
+        }
+
+        private static bool _postalCodeFound;
+        private static string _postalCode;
+
+        private static PropertyOrField TryFindPostalCodeMember()
+        {
+            return TryFindMember(
+                ref _lookedForPostalCode,
+                ref _postalCodeProp,
+                MayBePostalCode
+            );
+        }
+
+        private static PropertyOrField TryFindCityMember()
+        {
+            return TryFindMember(
+                ref _lookedForCity,
+                ref _cityProp,
+                MayBeCity
+            );
+        }
+
+        private static string StringPropFor(
+            TEntity e,
+            ref bool flag,
+            ref string storage,
+            Func<PropertyOrField> finder
+        )
+        {
+            if (flag)
+            {
+                return storage;
+            }
+
+            flag = true;
+            return storage = finder()?.GetValue(e) as string;
+        }
+
+
+        private static string TryGenerateNameFor(TEntity e)
+        {
+            var firstName = FirstNameFor(e);
+            if (firstName is null)
+            {
+                return GetRandomName();
+            }
+
+            var lastName = LastNameFor(e);
+            return $"{firstName} {lastName}".Trim();
+        }
+
+        private static PropertyOrField TryFindFirstNameMember()
+        {
+            return TryFindMember(
+                ref _lookedForFirstNameProp,
+                ref _firstNameProp,
+                MayBeFirstName
+            );
+        }
+
+        private static PropertyOrField TryFindLastNameMember()
+        {
+            return TryFindMember(
+                ref _lookedForLastNameProp,
+                ref _lastNameProp,
+                MayBeLastName
+            );
+        }
+
+        private static PropertyOrField TryFindMember(
+            ref bool flag,
+            ref PropertyOrField container,
+            Func<PropertyOrField, bool> matcher
+        )
+        {
+            if (flag)
+            {
+                return container;
+            }
+
+            flag = true;
+            return container = MemberCache.FirstOrDefault(matcher);
+        }
+
+        private static bool _lookedForFirstNameProp;
+        private static PropertyOrField _firstNameProp;
+        private static bool _lookedForLastNameProp;
+        private static PropertyOrField _lastNameProp;
+        private static bool _lookedForStreetAddress;
+        private static PropertyOrField _streetAddressProp;
+        private static bool _lookedForPostalCode;
+        private static PropertyOrField _postalCodeProp;
+        private static bool _lookedForCity;
+        private static PropertyOrField _cityProp;
+
+        private static PropertyOrField[] MemberCache
+            => _memberCache ??= FindAllMembers();
+
+        private static PropertyOrField[] _memberCache;
+
+        private static PropertyOrField[] FindAllMembers()
+        {
+            return (
+                    typeof(TEntity).GetFields()
+                        .Select(f => new PropertyOrField(f))
+                ).Union(
+                    typeof(TEntity).GetProperties()
+                        .Select(p => new PropertyOrField(p)
+                        )
+                )
+                .ToArray();
+        }
+
+        private static bool MayBeFirstName(PropertyOrField pi)
+        {
+            return pi?.Name?.ContainsOneOf("firstname") ?? false;
+        }
+
+        private static bool MayBeLastName(PropertyOrField pi)
+        {
+            return pi?.Name?.ContainsOneOf("lastname", "surname", "maidenname") ?? false;
+        }
+
+        private static bool MayBeUserNameOrLogin(PropertyOrField pi)
+        {
+            return pi?.Name?.ContainsOneOf("login", "user") ?? false;
+        }
+
+        private static bool MayBeName(PropertyOrField pi)
+        {
+            return pi?.Name?.ContainsOneOf("name") ?? false;
         }
 
         private static bool MayBePhone(PropertyOrField pi)
@@ -1011,8 +1332,11 @@ namespace PeanutButter.RandomGenerators
                 );
 
             var data = GetRandomCollection(() => GetRandomValue(innerType), 1);
-            data.ForEach(item
-                => method.Invoke(collectionInstance, new[] { item }));
+            data.ForEach(
+                item => method.Invoke(
+                    collectionInstance, new[] { item }
+                )
+            );
         }
 
         private static object CreateListContainerFor(
@@ -1254,6 +1578,8 @@ namespace PeanutButter.RandomGenerators
         private void SetRandomProps(ref TEntity entity)
         {
             PopulateSpecificSetters();
+            _firstNameFound = false;
+            _lastNameFound = false;
             foreach (var prop in EntityPropInfo)
             {
                 try
@@ -1276,14 +1602,14 @@ namespace PeanutButter.RandomGenerators
                     RandomPropSetters[prop.Name] = null;
                     Trace.WriteLine(
                         $@"Unable to set random prop: {
-                                prop.DeclaringType?.Name
-                            }.{
-                                prop.Name
-                            } ({
-                                prop.Type.Name
-                            }) {
-                                ex.Message
-                            }"
+                            prop.DeclaringType?.Name
+                        }.{
+                            prop.Name
+                        } ({
+                            prop.Type.Name
+                        }) {
+                            ex.Message
+                        }"
                     );
                 }
             }
@@ -1292,9 +1618,10 @@ namespace PeanutButter.RandomGenerators
         private Dictionary<string, RandomizerAttribute.RefAction[]>
             _specificSetters;
 
+
         private void PopulateSpecificSetters()
         {
-            _specificSetters = _specificSetters ?? GenerateSpecificSetters();
+            _specificSetters ??= GenerateSpecificSetters();
         }
 
         private Dictionary<string, RandomizerAttribute.RefAction[]> GenerateSpecificSetters()
@@ -1337,10 +1664,10 @@ namespace PeanutButter.RandomGenerators
 
             Trace.WriteLine(
                 $@"No random property setter available for {
-                        prop.DeclaringType
-                    }.{
-                        prop.Name
-                    } (perhaps make a dev request?)");
+                    prop.DeclaringType
+                }.{
+                    prop.Name
+                } (perhaps make a dev request?)");
             RandomPropSetters[prop.Name] = null;
             return null;
         }
