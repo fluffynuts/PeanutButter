@@ -415,7 +415,8 @@ namespace PeanutButter.Utils.Tests
                 // Act
                 var result = typeof(NotImplemented).Implements<IInterface>();
                 // Assert
-                Expect(result).To.Be.False();
+                Expect(result)
+                    .To.Be.False();
             }
 
             [Test]
@@ -425,7 +426,8 @@ namespace PeanutButter.Utils.Tests
                 // Act
                 var result = typeof(Implemented).Implements<IInterface>();
                 // Assert
-                Expect(result).To.Be.True();
+                Expect(result)
+                    .To.Be.True();
             }
 
             [Test]
@@ -435,7 +437,32 @@ namespace PeanutButter.Utils.Tests
                 // Act
                 var result = typeof(DerivedImplemented).Implements<IInterface>();
                 // Assert
-                Expect(result).To.Be.True();
+                Expect(result)
+                    .To.Be.True();
+            }
+
+            [Test]
+            public void ShouldReturnTrueForInheritedInterface()
+            {
+                // Arrange
+                var sut = typeof(Concrete<int>);
+                // Act
+                var result = sut.Implements(typeof(IContract));
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+
+            public class Concrete<T> : IContract<T>
+            {
+            }
+
+            public interface IContract<T> : IContract
+            {
+            }
+
+            public interface IContract
+            {
             }
         }
 
