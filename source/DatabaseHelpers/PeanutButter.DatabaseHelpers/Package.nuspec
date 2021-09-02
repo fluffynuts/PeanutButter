@@ -26,9 +26,6 @@
       <group targetFramework="net452">
         <dependency id="PeanutButter.Utils" version="2.0.33" />
       </group>
-      <group targetFramework="net453">
-        <dependency id="PeanutButter.Utils" version="2.0.33" />
-      </group>
       <group targetFramework="net462">
         <dependency id="PeanutButter.Utils" version="2.0.33" />
       </group>
@@ -40,9 +37,7 @@
     <file src="icon.png" target="" />
     <file src="bin/Release/net452/PeanutButter.DatabaseHelpers.dll" target="lib/net452" />
     <file src="bin/Release/net452/PeanutButter.DatabaseHelpers.xml" target="lib/net452" />
-    <file src="bin/Release/net452/PeanutButter.DatabaseHelpers.pdb" target="lib/net453" />
     <file src="bin/Release/net462/PeanutButter.DatabaseHelpers.dll" target="lib/net462" />
     <file src="bin/Release/net462/PeanutButter.DatabaseHelpers.xml" target="lib/net462" />
-    <file src="bin/Release/net462/PeanutButter.DatabaseHelpers.pdb" target="lib/net453" />
   </files>
 </package>
