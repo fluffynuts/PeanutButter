@@ -558,8 +558,8 @@ namespace PeanutButter.RandomGenerators
             TimeSpan min,
             TimeSpan? max = null)
         {
-            max = max ?? TimeSpan.MaxValue;
-            var ticksDelta = (max - min).Value.Ticks;
+            max ??= TimeSpan.MaxValue;
+            var ticksDelta = GetRandomLong(0,  (max - min).Value.Ticks);
             return TimeSpan.FromTicks(min.Ticks + ticksDelta);
         }
 

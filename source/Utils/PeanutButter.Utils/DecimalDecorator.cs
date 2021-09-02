@@ -14,7 +14,18 @@ namespace PeanutButter.Utils
     /// </summary>
     public class DecimalDecorator
     {
-        private static readonly object Lock = new object();
+        /// <summary>
+        /// Attempts to do a direct parse on a string value
+        /// - will break if the input value is clearly not a decimal, eg "aaa"
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static decimal Parse(string value)
+        {
+            return new DecimalDecorator(value).ToDecimal();
+        }
+
+        private static readonly object Lock = new();
         private static NumberFormatInfo _numberFormatInfoField;
 
         private static NumberFormatInfo NumberFormatInfo
@@ -23,7 +34,7 @@ namespace PeanutButter.Utils
             {
                 lock (Lock)
                 {
-                    return _numberFormatInfoField ?? (_numberFormatInfoField = CreateNumberFormatInfo());
+                    return _numberFormatInfoField ??= CreateNumberFormatInfo();
                 }
             }
         }

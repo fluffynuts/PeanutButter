@@ -111,6 +111,24 @@ namespace PeanutButter.Utils.Tests
             Expect(called).To.Be.True();
         }
 
+        [Test]
+        public void ShouldAllowSingleManualDisposal()
+        {
+            // Arrange
+            var sut = Create();
+            // Act
+            var disposable = sut.Add<IDisposable>(Substitute.For<IDisposable>());
+            sut.DisposeNow(disposable);
+            // Assert
+            Expect(disposable)
+                .To.Have.Received(1)
+                .Dispose();
+            sut.Dispose();
+            Expect(disposable)
+                .To.Have.Received(1)
+                .Dispose();
+        }
+
         private AutoDisposer Create()
         {
             return new AutoDisposer();
@@ -145,9 +163,8 @@ namespace PeanutButter.Utils.Tests
 
                 //---------------Test Result -----------------------
             }
-            Assert.AreEqual(2, calls.Count);
-            Assert.AreEqual(2, calls[0]);
-            Assert.AreEqual(1, calls[1]);
+            Expect(calls)
+                .To.Equal(new[] { 2, 1 });
         }
     }
 }

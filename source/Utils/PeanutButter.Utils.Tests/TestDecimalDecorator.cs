@@ -1,4 +1,6 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Diagnostics;
+using System.Globalization;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 
@@ -46,7 +48,8 @@ namespace PeanutButter.Utils.Tests
         [TestCase(" 12.4", 12.4)]
         [TestCase(" 12.56 ", 12.56)]
         [TestCase("123 123.123", 123123.123)]
-        public void Construct_GivenStringValueWIthPeriodFormattedDecimal_ToDecimalReturnsDecimalValue(string input, decimal expected)
+        public void Construct_GivenStringValueWIthPeriodFormattedDecimal_ToDecimalReturnsDecimalValue(string input,
+            decimal expected)
         {
             //---------------Set up test pack-------------------
 
@@ -114,6 +117,38 @@ namespace PeanutButter.Utils.Tests
 
             //---------------Test Result -----------------------
             Assert.AreEqual("1.2", result);
+        }
+
+        [Test]
+        public void PerformanceVsDecimalParse()
+        {
+            // Arrange
+            var expected = 1.2345M;
+            var input = expected.ToString(CultureInfo.CurrentCulture); // get the local representation
+            var stopwatch = new Stopwatch();
+            var runs = 100000;
+            var warmup = new DecimalDecorator(input).ToDecimal();
+            // Act
+            var parseTime = Time(runs, stopwatch, () => decimal.Parse(input));
+            var sutTime = Time(runs, stopwatch, () => DecimalDecorator.Parse(input));
+            // Assert
+            Console.WriteLine($"Run times:\ninternal: {parseTime}ms\ndecorator: {sutTime}ms");
+        }
+
+        private static long Time(
+            int runs,
+            Stopwatch stopwatch,
+            Action toRun
+        )
+        {
+            stopwatch.Reset();
+            stopwatch.Start();
+            for (var i = 0; i < runs; i++)
+            {
+                toRun();
+            }
+            stopwatch.Stop();
+            return stopwatch.ElapsedMilliseconds;
         }
     }
 }

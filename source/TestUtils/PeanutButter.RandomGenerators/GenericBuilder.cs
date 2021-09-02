@@ -1636,7 +1636,6 @@ namespace PeanutButter.RandomGenerators
         private Dictionary<string, RandomizerAttribute.RefAction[]> GenerateSpecificSetters()
         {
             var attribs = FindAllRandomizerAttributesForThisBuilder();
-//            var attribs = GetType().GetCustomAttributes(true).OfType<RandomizerAttribute>();
             return attribs
                 .Aggregate(new Dictionary<string, RandomizerAttribute.RefAction[]>(),
                     (acc,
@@ -1647,7 +1646,7 @@ namespace PeanutButter.RandomGenerators
                         {
                             if (!acc.ContainsKey(propName))
                             {
-//                                return; // ignore multiple handlers -- first found wins
+                                // ignore multiple handlers -- first found wins
                                 acc[propName] = new RandomizerAttribute.RefAction[0];
                             }
 

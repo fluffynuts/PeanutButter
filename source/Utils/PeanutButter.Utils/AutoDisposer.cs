@@ -54,17 +54,32 @@ namespace PeanutButter.Utils
                 _toDispose.Reverse();
                 foreach (var disposable in _toDispose)
                 {
-                    try
-                    {
-                        disposable.Dispose();
-                    }
-                    catch
-                    {
-                        // ignored
-                    }
+                    SafelyDispose(disposable);
                 }
                 _toDispose.Clear();
             }
+        }
+
+        private static void SafelyDispose(IDisposable disposable)
+        {
+            try
+            {
+                disposable.Dispose();
+            }
+            catch
+            {
+                // ignored
+            }
+        }
+        
+        /// <summary>
+        /// Dispose of the item right now, rather than later
+        /// </summary>
+        /// <param name="disposable"></param>
+        public void DisposeNow(IDisposable disposable)
+        {
+            _toDispose.Remove(disposable);
+            SafelyDispose(disposable);
         }
     }
 }

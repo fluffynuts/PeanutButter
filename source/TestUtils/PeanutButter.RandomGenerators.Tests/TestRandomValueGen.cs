@@ -331,7 +331,7 @@ namespace PeanutButter.RandomGenerators.Tests
 
             //---------------Execute Test ----------------------
 
-            RunCycles(() => results.Add((TestEnum) GetRandomEnum(type)));
+            RunCycles(() => results.Add((TestEnum)GetRandomEnum(type)));
             //---------------Test Result -----------------------
             var runs = results.Count;
             var onePercent = (100 * results.Count(i => i == TestEnum.One)) / runs;
@@ -1108,110 +1108,178 @@ namespace PeanutButter.RandomGenerators.Tests
         [TestFixture]
         public class GetRandomTimespan
         {
-            [Test]
-            public void WhenContextIsMilliseconds_ShouldReturnSecondRange()
+            [TestFixture]
+            public class WhenContextIsMilliseconds
             {
-                // Arrange
-                // Pre-assert
-                // Act
-                var result = GetRandomTimeSpan(1, 10, TimeSpanContexts.Milliseconds);
-                // Assert
-                Expect(result.Ticks).To.Be
-                    .Greater.Than(TimeSpan.FromMilliseconds(1).Ticks - 1)
-                    .And
-                    .Less.Than(TimeSpan.FromMilliseconds(10).Ticks + 1);
-            }
-
-            [Test]
-            public void WhenContextIsMinutes_ShouldReturnSecondRange()
-            {
-                // Arrange
-                // Pre-assert
-                // Act
-                var result = GetRandomTimeSpan(1, 10, TimeSpanContexts.Minutes);
-                // Assert
-                Expect(result.Ticks).To.Be
-                    .Greater.Than(TimeSpan.FromMinutes(1).Ticks - 1)
-                    .And
-                    .Less.Than(TimeSpan.FromMinutes(10).Ticks + 1);
-            }
-
-            [Test]
-            public void WhenContextIsHours_ShouldReturnSecondRange()
-            {
-                // Arrange
-                // Pre-assert
-                // Act
-                var result = GetRandomTimeSpan(1, 10, TimeSpanContexts.Hours);
-                // Assert
-                Expect(result.Ticks).To.Be
-                    .Greater.Than(TimeSpan.FromHours(1).Ticks - 1)
-                    .And
-                    .Less.Than(TimeSpan.FromHours(10).Ticks + 1);
-            }
-
-            [Test]
-            public void WhenContextIsDays_ShouldReturnSecondRange()
-            {
-                // Arrange
-                // Pre-assert
-                // Act
-                var result = GetRandomTimeSpan(1, 10, TimeSpanContexts.Days);
-                // Assert
-                Expect(result.Ticks).To.Be
-                    .Greater.Than(TimeSpan.FromDays(1).Ticks - 1)
-                    .And
-                    .Less.Than(TimeSpan.FromDays(10).Ticks + 1);
-            }
-
-            [Test]
-            public void WhenContextIsSeconds_ShouldReturnSecondRange()
-            {
-                // Arrange
-                // Pre-assert
-                // Act
-                var result = GetRandomTimeSpan(1, 10, TimeSpanContexts.Seconds);
-                // Assert
-                Expect(result.Ticks).To.Be
-                    .Greater.Than(TimeSpan.FromSeconds(1).Ticks - 1)
-                    .And
-                    .Less.Than(TimeSpan.FromSeconds(10).Ticks + 1);
-            }
-
-            [Test]
-            public void GivenTimeSpans_ShouldProduceTimeSpanInRange()
-            {
-                // Arrange
-                var min = TimeSpan.FromSeconds(GetRandomInt(1, 100));
-                var max = TimeSpan.FromSeconds(GetRandomInt(200, 300));
-                // Act
-                var collected =
-                    Range(0, NORMAL_RANDOM_TEST_CYCLES).Aggregate(
-                        new List<TimeSpan>(),
-                        (acc, cur) =>
+                [Test]
+                public void ShouldReturnValueInRange()
+                {
+                    // Arrange
+                    // Pre-assert
+                    // Act
+                    var collected = Range(0, NORMAL_RANDOM_TEST_CYCLES)
+                        .Select(_ =>
                         {
-                            acc.Add(GetRandomTimeSpan(min, max));
-                            return acc;
+                            var result = GetRandomTimeSpan(1, 10, TimeSpanContexts.Milliseconds);
+                            // Assert
+                            Expect(result.Ticks).To.Be
+                                .Greater.Than(TimeSpan.FromMilliseconds(1).Ticks - 1)
+                                .And
+                                .Less.Than(TimeSpan.FromMilliseconds(10).Ticks + 1);
+                            return result;
+                        }).ToArray();
+                    Expect(collected)
+                        .To.Vary();
+                }
+            }
+
+            [TestFixture]
+            public class WhenContextIsMinutes
+            {
+                [Test]
+                public void ShouldReturnValueInRange()
+                {
+                    // Arrange
+                    // Pre-assert
+                    // Act
+                    var collected = Range(0, NORMAL_RANDOM_TEST_CYCLES)
+                        .Select(_ =>
+                        {
+                            var result = GetRandomTimeSpan(1, 10, TimeSpanContexts.Minutes);
+                            // Assert
+                            Expect(result.Ticks).To.Be
+                                .Greater.Than(TimeSpan.FromMinutes(1).Ticks - 1)
+                                .And
+                                .Less.Than(TimeSpan.FromMinutes(10).Ticks + 1);
+                            return result;
+                        }).ToArray();
+                    Expect(collected)
+                        .To.Vary();
+                }
+            }
+
+            [TestFixture]
+            public class WhenContextIsHours
+            {
+                [Test]
+                public void ShouldReturnValueInRange()
+                {
+                    // Arrange
+                    // Pre-assert
+                    // Act
+                    var collected = Range(0, NORMAL_RANDOM_TEST_CYCLES)
+                        .Select(_ =>
+                        {
+                            var result = GetRandomTimeSpan(1, 10, TimeSpanContexts.Hours);
+                            // Assert
+                            Expect(result.Ticks).To.Be
+                                .Greater.Than(TimeSpan.FromHours(1).Ticks - 1)
+                                .And
+                                .Less.Than(TimeSpan.FromHours(10).Ticks + 1);
+                            return result;
                         });
-                // Assert
-                Expect(collected).To.Contain.All
-                    .Matched.By(t => t >= min && t <= max);
+
+                    Expect(collected)
+                        .To.Vary();
+                }
+            }
+
+            [TestFixture]
+            public class WhenContextIsDays
+            {
+                [Test]
+                public void ShouldReturnValueInRange()
+                {
+                    // Arrange
+                    // Pre-assert
+                    // Act
+                    var collected = Range(0, NORMAL_RANDOM_TEST_CYCLES)
+                        .Select(_ =>
+                        {
+                            var result = GetRandomTimeSpan(1, 10, TimeSpanContexts.Days);
+                            // Assert
+                            Expect(result.Ticks).To.Be
+                                .Greater.Than(TimeSpan.FromDays(1).Ticks - 1)
+                                .And
+                                .Less.Than(TimeSpan.FromDays(10).Ticks + 1);
+                            return result;
+                        });
+                    Expect(collected)
+                        .To.Vary();
+                }
+            }
+
+            [TestFixture]
+            public class WhenContextIsSeconds
+            {
+                [Test]
+                public void ShouldReturnValueInRange()
+                {
+                    // Arrange
+                    // Pre-assert
+                    // Act
+                    var collected = Range(0, NORMAL_RANDOM_TEST_CYCLES)
+                        .Select(_ =>
+                        {
+                            var result = GetRandomTimeSpan(1, 10, TimeSpanContexts.Seconds);
+                            // Assert
+                            Expect(result.Ticks).To.Be
+                                .Greater.Than(TimeSpan.FromSeconds(1).Ticks - 1)
+                                .And
+                                .Less.Than(TimeSpan.FromSeconds(10).Ticks + 1);
+                            return result;
+                        });
+                    Expect(collected)
+                        .To.Vary();
+                }
+            }
+
+            [TestFixture]
+            public class WhenGivenTimeSpans
+            {
+                [Test]
+                public void ShouldProduceTimeSpanInRange()
+                {
+                    // Arrange
+                    var min = TimeSpan.FromSeconds(GetRandomInt(1, 100));
+                    var max = TimeSpan.FromSeconds(GetRandomInt(200, 300));
+                    // Act
+                    var collected =
+                        Range(0, NORMAL_RANDOM_TEST_CYCLES).Aggregate(
+                            new List<TimeSpan>(),
+                            (acc, cur) =>
+                            {
+                                acc.Add(GetRandomTimeSpan(min, max));
+                                return acc;
+                            });
+                    // Assert
+                    Expect(collected).To.Contain.All
+                        .Matched.By(t => t >= min && t <= max);
+                    Expect(collected)
+                        .To.Vary();
+                }
             }
 
             [Test]
-            [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
             public void GivenNoArguments_ShouldProduceTimeSpanWithinAWeek()
             {
                 // Arrange
                 var expectedMin = TimeSpan.FromDays(-7);
                 var expectedMax = TimeSpan.FromDays(7);
                 // Act
-                var result = GetRandomTimeSpan();
-                // Assert
-                Expect(result)
-                    .To.Be.Greater.Than.Or.Equal.To(expectedMin);
-                Expect(result)
-                    .To.Be.Less.Than.Or.Equal.To(expectedMax);
+                var collected = Range(0, NORMAL_RANDOM_TEST_CYCLES)
+                    .Select(_ =>
+                    {
+                        var result = GetRandomTimeSpan();
+                        // Assert
+                        Expect(result)
+                            .To.Be.Greater.Than.Or.Equal.To(expectedMin);
+                        Expect(result)
+                            .To.Be.Less.Than.Or.Equal.To(expectedMax);
+                        return result;
+                    });
+                Expect(collected)
+                    .To.Vary();
             }
         }
 
@@ -1592,7 +1660,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 // collisions are possible, but should occur < 1%
                 var total = allResults.Count;
                 var unique = allResults.Select(o => o.Item1).Distinct().Count();
-                var delta = (total - unique) / (decimal) total;
+                var delta = (total - unique) / (decimal)total;
                 Assert.That(delta, Is.LessThan(1));
 
                 var tooShort = allResults.Where(r => r.Item1.Length < r.Item2);
@@ -1639,7 +1707,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 // collisions are possible, but should occur < 1%
                 var total = allResults.Count;
                 var unique = allResults.Select(o => o.Item1).Distinct().Count();
-                var delta = (total - unique) / (decimal) total;
+                var delta = (total - unique) / (decimal)total;
                 Assert.That(delta, Is.LessThan(1));
 
                 var tooShort = allResults.Where(r => r.Item1.Length < r.Item2);
@@ -1691,7 +1759,7 @@ namespace PeanutButter.RandomGenerators.Tests
             // collisions are possible, but should occur < 1%
             var total = allResults.Count;
             var unique = allResults.Select(o => o.Item1).Distinct().Count();
-            var delta = (total - unique) / (decimal) total;
+            var delta = (total - unique) / (decimal)total;
             Assert.That(delta, Is.LessThan(1));
 
             var tooShort = allResults.Where(r => r.Item1.Length < r.Item2);
@@ -1853,7 +1921,7 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = GetAnother((string) null, () => strings.Pop());
+            var result = GetAnother((string)null, () => strings.Pop());
 
             //---------------Test Result -----------------------
             Assert.AreEqual(expected, result);
@@ -2001,7 +2069,7 @@ namespace PeanutButter.RandomGenerators.Tests
         {
             //---------------Set up test pack-------------------
             var bytes = GetRandomCollection(() => GetRandomInt(0, 255))
-                .Select(i => (byte) i)
+                .Select(i => (byte)i)
                 .ToArray();
             //---------------Assert Precondition----------------
 
@@ -3019,6 +3087,38 @@ namespace PeanutButter.RandomGenerators.Tests
 
     internal static class Matchers
     {
+        internal static IMore<IEnumerable<T>> Vary<T>(
+            this ICollectionTo<T> continuation
+        )
+        {
+            return continuation.AddMatcher(actual =>
+            {
+                if (actual is null)
+                {
+                    return new EnforcedMatcherResult(
+                        false,
+                        "collection is null"
+                    );
+                }
+
+                if (actual.Count() < 2)
+                {
+                    return new EnforcedMatcherResult(
+                        false,
+                        "collection must contain at least 2 items to test variance"
+                    );
+                }
+
+                var distinctCount = actual.Distinct().Count();
+                var passed = distinctCount > 1;
+
+                return new MatcherResult(
+                    passed,
+                    () => $"Expected some variance in the collection:\n{actual.Stringify()}"
+                );
+            });
+        }
+
         internal static void FoldersUnder(
             this ICollectionBe<string> be,
             string basePath
