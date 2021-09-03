@@ -455,7 +455,9 @@ namespace PeanutButter.Utils
             this IEnumerable<T> collection
         )
         {
-            return !collection?.Any() ?? true;
+            return collection is T[] asArray
+                ? asArray.Length == 0
+                : !collection?.Any() ?? true;
         }
 
         /// <summary>

@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Imported.PeanutButter.Utils;
 using NExpect;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
@@ -40,9 +38,9 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<NullReferenceException>(() => src.ForEach(i =>
+            Expect(() => src.ForEach(i =>
             {
-            }));
+            })).To.Throw<NullReferenceException>();
 
             //---------------Test Result -----------------------
         }
@@ -65,7 +63,8 @@ namespace PeanutButter.Utils.Tests
             src.ForEach(item => result.Add(item));
 
             //---------------Test Result -----------------------
-            CollectionAssert.AreEqual(src, result);
+            Expect(result)
+                .To.Equal(src);
         }
 
         [Test]
@@ -81,7 +80,8 @@ namespace PeanutButter.Utils.Tests
             var result = first.IsSameAs(second);
 
             //---------------Test Result -----------------------
-            Assert.IsTrue(result);
+            Expect(result)
+                .To.Be.True();
         }
 
         [Test]
@@ -97,7 +97,8 @@ namespace PeanutButter.Utils.Tests
             var result = first.IsSameAs(second);
 
             //---------------Test Result -----------------------
-            Assert.IsFalse(result);
+            Expect(result)
+                .To.Be.False();
         }
 
         [Test]
@@ -113,7 +114,8 @@ namespace PeanutButter.Utils.Tests
             var result = first.IsSameAs(second);
 
             //---------------Test Result -----------------------
-            Assert.IsTrue(result);
+            Expect(result)
+                .To.Be.True();
         }
 
         [Test]
@@ -129,7 +131,8 @@ namespace PeanutButter.Utils.Tests
             var result = first.IsSameAs(second);
 
             //---------------Test Result -----------------------
-            Assert.IsTrue(result);
+            Expect(result)
+                .To.Be.True();
         }
 
         [Test]
@@ -145,7 +148,8 @@ namespace PeanutButter.Utils.Tests
             var result = first.IsSameAs(second);
 
             //---------------Test Result -----------------------
-            Assert.IsTrue(result);
+            Expect(result)
+                .To.Be.True();
         }
 
         [Test]
@@ -161,7 +165,8 @@ namespace PeanutButter.Utils.Tests
             var result = first.IsSameAs(second);
 
             //---------------Test Result -----------------------
-            Assert.IsFalse(result);
+            Expect(result)
+                .To.Be.False();
         }
 
         [Test]
@@ -176,7 +181,8 @@ namespace PeanutButter.Utils.Tests
             var result = src.JoinWith(",");
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(string.Empty, result);
+            Expect(result)
+                .To.Be.Empty();
         }
 
         [Test]
@@ -194,7 +200,8 @@ namespace PeanutButter.Utils.Tests
             var result = src.JoinWith(delimiter);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result)
+                .To.Equal(expected);
         }
 
         [Test]
@@ -209,7 +216,8 @@ namespace PeanutButter.Utils.Tests
             var result = src.IsEmpty();
 
             //---------------Test Result -----------------------
-            Assert.IsTrue(result);
+            Expect(result)
+                .To.Be.True();
         }
 
         [Test]
@@ -224,7 +232,8 @@ namespace PeanutButter.Utils.Tests
             var result = src.IsEmpty();
 
             //---------------Test Result -----------------------
-            Expect(result).To.Be.False();
+            Expect(result)
+                .To.Be.False();
         }
 
         [Test]
@@ -238,34 +247,23 @@ namespace PeanutButter.Utils.Tests
             var result = src.EmptyIfNull();
 
             //---------------Test Result -----------------------
-            Expect(result).Not.To.Be.Null();
-            Expect(result).To.Be.An.Instance.Of<int[]>();
-            Expect(result).To.Be.Empty();
+            Expect(result).
+                Not.To.Be.Null();
+            Expect(result)
+                .To.Be.An.Instance.Of<int[]>();
+            Expect(result)
+                .To.Be.Empty();
         }
 
         [TestFixture]
         public class And
         {
             [Test]
-            public void ShouldReturnNewArrayWithAllAddedItems()
-            {
-                //---------------Set up test pack-------------------
-                var src = new[] { 1, 2, 3, 4, 5 };
-
-                //---------------Assert Precondition----------------
-
-                //---------------Execute Test ----------------------
-                var result = src.And(4, 5);
-
-                //---------------Test Result -----------------------
-                CollectionAssert.AreEqual(new[] { 1, 2, 3, 4, 5, 4, 5 }, result);
-            }
-
-            [Test]
             public void ShouldReturnNewArrayWithAddedItems()
             {
                 //---------------Set up test pack-------------------
                 var src = new[] { 1, 2, 3 };
+                var expected = new[] { 1, 2, 3, 4, 5 };
 
                 //---------------Assert Precondition----------------
 
@@ -273,7 +271,25 @@ namespace PeanutButter.Utils.Tests
                 var result = src.And(4, 5);
 
                 //---------------Test Result -----------------------
-                CollectionAssert.AreEqual(new[] { 1, 2, 3, 4, 5 }, result);
+                Expect(result)
+                    .To.Equal(expected);
+            }
+
+            [Test]
+            public void ShouldReturnNewArrayWithAllAddedItems()
+            {
+                //---------------Set up test pack-------------------
+                var src = new[] { 1, 2, 3, 4, 5 };
+                var expected = new[] { 1, 2, 3, 4, 5, 4, 5 };
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = src.And(4, 5);
+
+                //---------------Test Result -----------------------
+                Expect(result)
+                    .To.Equal(expected);
             }
         }
 
@@ -289,7 +305,8 @@ namespace PeanutButter.Utils.Tests
             var result = src.ButNot(2);
 
             //---------------Test Result -----------------------
-            CollectionAssert.AreEqual(new[] { 1, 3 }, result);
+            Expect(result)
+                .To.Equal(new[] { 1, 3 });
         }
 
         [Test]
@@ -304,8 +321,8 @@ namespace PeanutButter.Utils.Tests
             var result = input.Flatten();
 
             //---------------Test Result -----------------------
-            Assert.IsNotNull(result);
-            CollectionAssert.IsEmpty(result);
+            Expect(result)
+                .To.Be.Empty();
         }
 
         [Test]
@@ -322,9 +339,8 @@ namespace PeanutButter.Utils.Tests
             var result = input.Flatten();
 
             //---------------Test Result -----------------------
-            Assert.IsNotNull(result);
-            CollectionAssert.IsNotEmpty(result);
-            CollectionAssert.AreEqual(expected, result);
+            Expect(result)
+                .To.Equal(expected);
         }
 
         [Test]
@@ -347,7 +363,8 @@ namespace PeanutButter.Utils.Tests
             var result = input.Flatten();
 
             //---------------Test Result -----------------------
-            CollectionAssert.AreEquivalent(expected, result);
+            Expect(result)
+                .To.Be.Equivalent.To(expected);
         }
 
         [Test]
@@ -360,10 +377,11 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<InvalidOperationException>(() => input.Second());
+            Expect(() => input.Second())
+                .To.Throw<InvalidOperationException>()
+                .With.Message.Equal.To(expectedMessage);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expectedMessage, ex.Message);
         }
 
         [Test]
@@ -380,7 +398,8 @@ namespace PeanutButter.Utils.Tests
             var item = collection.Second();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, item);
+            Expect(item)
+                .To.Equal(expected);
         }
 
 
@@ -394,10 +413,11 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<InvalidOperationException>(() => input.Second());
+            Expect(() => input.Second())
+                .To.Throw<InvalidOperationException>()
+                .With.Message.Equal.To(expectedMessage);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expectedMessage, ex.Message);
         }
 
         [Test]
@@ -408,13 +428,16 @@ namespace PeanutButter.Utils.Tests
             var expected = collection.ToArray()[2];
 
             //---------------Assert Precondition----------------
-            Assert.That(collection.Count(), Is.GreaterThanOrEqualTo(3));
+            Expect(collection)
+                .To.Contain.At.Least(3)
+                .Items();
 
             //---------------Execute Test ----------------------
             var item = collection.Third();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, item);
+            Expect(item)
+                .To.Equal(expected);
         }
 
         [Test]
@@ -428,10 +451,11 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<InvalidOperationException>(() => collection.FirstAfter(skip));
+            Expect(() => collection.FirstAfter(skip))
+                .To.Throw<InvalidOperationException>()
+                .With.Message.Equal.To(expectedMessage);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expectedMessage, ex.Message);
         }
 
 
@@ -448,7 +472,8 @@ namespace PeanutButter.Utils.Tests
             var result = collection.FirstAfter(0);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result)
+                .To.Equal(expected);
         }
 
         [Test]
@@ -465,7 +490,8 @@ namespace PeanutButter.Utils.Tests
             var result = collection.FirstAfter(skip);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result)
+                .To.Equal(expected);
         }
 
         [Test]
@@ -483,7 +509,8 @@ namespace PeanutButter.Utils.Tests
             var result = collection.FirstOrDefaultAfter(skip);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result)
+                .To.Equal(expected);
         }
 
         public class SomeType
@@ -505,7 +532,8 @@ namespace PeanutButter.Utils.Tests
             var result = collection.FirstOrDefaultAfter(skip);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result)
+                .To.Equal(expected);
         }
 
 
@@ -523,7 +551,8 @@ namespace PeanutButter.Utils.Tests
             var result = collection.FirstOrDefaultAfter(skip);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result)
+                .To.Equal(expected);
         }
 
         private string GetOutOfRangeMessage()
@@ -567,6 +596,8 @@ namespace PeanutButter.Utils.Tests
 
             //---------------Test Result -----------------------
             CollectionAssert.AreEqual(expected, result);
+            Expect(result)
+                .To.Equal(expected);
         }
 
 
@@ -605,7 +636,8 @@ namespace PeanutButter.Utils.Tests
             var result = input.SelectNonNull(o => o.Thing);
 
             //---------------Test Result -----------------------
-            CollectionAssert.AreEqual(expected, result);
+            Expect(result)
+                .To.Equal(expected);
         }
 
         [Test]
@@ -621,7 +653,8 @@ namespace PeanutButter.Utils.Tests
             var result = input.AsText();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result)
+                .To.Equal(expected);
         }
 
         public class SomethingWithNiceToString
@@ -648,7 +681,8 @@ namespace PeanutButter.Utils.Tests
             var result = input.AsText();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result)
+                .To.Equal(expected);
         }
 
         [Test]
@@ -665,7 +699,8 @@ namespace PeanutButter.Utils.Tests
             var result = input.AsText(delimiter);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result)
+                .To.Equal(expected);
         }
 
         [Test]
@@ -677,9 +712,11 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.IsFalse(input.HasUnique(i => i == 4));
+            var result = input.HasUnique(i => i == 4);
 
             //---------------Test Result -----------------------
+            Expect(result)
+                .To.Be.False();
         }
 
         [Test]
@@ -691,9 +728,11 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.IsFalse(input.HasUnique(i => i == "a"));
+            var result = input.HasUnique(i => i == "a");
 
             //---------------Test Result -----------------------
+            Expect(result)
+                .To.Be.False();
         }
 
         [Test]
@@ -705,9 +744,11 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.IsTrue(input.HasUnique(i => i == "b"));
+            var result = input.HasUnique(i => i == "b");
 
             //---------------Test Result -----------------------
+            Expect(result)
+                .To.Be.True();
         }
 
 
@@ -722,7 +763,8 @@ namespace PeanutButter.Utils.Tests
             0.TimesDo(() => calls++);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(0, calls);
+            Expect(calls)
+                .To.Equal(0);
         }
 
         [Test]
@@ -738,7 +780,8 @@ namespace PeanutButter.Utils.Tests
             howMany.TimesDo(() => calls++);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(howMany, calls);
+            Expect(calls)
+                .To.Equal(howMany);
         }
 
         [Test]
@@ -754,8 +797,10 @@ namespace PeanutButter.Utils.Tests
             }));
 
             //---------------Test Result -----------------------
-            StringAssert.Contains("positive integer", ex.Message);
-            Assert.AreEqual("howMany", ex.ParamName);
+            Expect(ex.Message)
+                .To.Contain("positive integer");
+            Expect(ex.ParamName)
+                .To.Equal("howMany");
         }
 
         [Test]
@@ -771,8 +816,10 @@ namespace PeanutButter.Utils.Tests
             }));
 
             //---------------Test Result -----------------------
-            StringAssert.Contains("positive integer", ex.Message);
-            Assert.AreEqual("howMany", ex.ParamName);
+            Expect(ex.Message)
+                .To.Contain("positive integer");
+            Expect(ex.ParamName)
+                .To.Equal("howMany");
         }
 
         [Test]
@@ -790,7 +837,8 @@ namespace PeanutButter.Utils.Tests
             howMany.TimesDo(i => result.Add(i));
 
             //---------------Test Result -----------------------
-            CollectionAssert.AreEquivalent(expected, result);
+            Expect(result)
+                .To.Equal(expected);
         }
 
 
@@ -801,9 +849,7 @@ namespace PeanutButter.Utils.Tests
             var input = GetRandomCollection<int>(5, 15);
             var collectedIndexes = new List<int>();
             var collectedItems = new List<int>();
-            var expected = new List<int>();
-            for (var i = 0; i < input.Count(); i++)
-                expected.Add(i);
+            var expectedIndexes = input.Select((o, i) => i).ToList();
 
             //---------------Assert Precondition----------------
 
@@ -815,8 +861,10 @@ namespace PeanutButter.Utils.Tests
             });
 
             //---------------Test Result -----------------------
-            CollectionAssert.AreEqual(input, collectedItems);
-            CollectionAssert.AreEqual(expected, collectedIndexes);
+            Expect(collectedItems)
+                .To.Equal(input);
+            Expect(collectedIndexes)
+                .To.Equal(expectedIndexes);
         }
 
 
@@ -835,7 +883,8 @@ namespace PeanutButter.Utils.Tests
                     // Act
                     var result = input.FindDuplicates();
                     // Assert
-                    Expect(result).To.Be.Empty();
+                    Expect(result)
+                        .To.Be.Empty();
                 }
 
                 [Test]
@@ -847,7 +896,8 @@ namespace PeanutButter.Utils.Tests
                     // Act
                     var result = input.FindDuplicates();
                     // Assert
-                    Expect(result).To.Be.Empty();
+                    Expect(result)
+                        .To.Be.Empty();
                 }
 
                 [Test]
@@ -859,7 +909,8 @@ namespace PeanutButter.Utils.Tests
                     // Act
                     var result = input.FindDuplicates();
                     // Assert
-                    Expect(result).To.Be.Empty();
+                    Expect(result)
+                        .To.Be.Empty();
                 }
 
                 [Test]
@@ -874,8 +925,10 @@ namespace PeanutButter.Utils.Tests
                     // Act
                     var result = input.FindDuplicates();
                     // Assert
-                    Expect(result).To.Contain.Exactly(2).Items();
-                    Expect(result).To.Be.Equivalent.To(new[] { 2, 3 });
+                    Expect(result)
+                        .To.Contain.Exactly(2).Items();
+                    Expect(result)
+                        .To.Be.Equivalent.To(new[] { 2, 3 });
                 }
             }
 
@@ -894,7 +947,8 @@ namespace PeanutButter.Utils.Tests
                         // Act
                         var result = input.None(i => i == 1);
                         // Assert
-                        Expect(result).To.Be.True();
+                        Expect(result)
+                            .To.Be.True();
                     }
 
                     [Test]
@@ -906,7 +960,8 @@ namespace PeanutButter.Utils.Tests
                         // Act
                         var result = input.None(i => i == GetRandomInt());
                         // Assert
-                        Expect(result).To.Be.True();
+                        Expect(result)
+                            .To.Be.True();
                     }
 
                     [Test]
@@ -918,7 +973,8 @@ namespace PeanutButter.Utils.Tests
                         // Act
                         var result = input.None(i => i > 4);
                         // Assert
-                        Expect(result).To.Be.True();
+                        Expect(result)
+                            .To.Be.True();
                     }
 
                     [Test]
@@ -930,7 +986,8 @@ namespace PeanutButter.Utils.Tests
                         // Act
                         var result = input.None(i => i % 2 == 1);
                         // Assert
-                        Expect(result).To.Be.False();
+                        Expect(result)
+                            .To.Be.False();
                     }
                 }
 
@@ -945,7 +1002,8 @@ namespace PeanutButter.Utils.Tests
                         // Act
                         var result = input.None();
                         // Assert
-                        Expect(result).To.Be.True();
+                        Expect(result)
+                            .To.Be.True();
                     }
 
                     [Test]
@@ -956,7 +1014,8 @@ namespace PeanutButter.Utils.Tests
                         // Act
                         var result = input.None();
                         // Assert
-                        Expect(result).To.Be.True();
+                        Expect(result)
+                            .To.Be.True();
                     }
 
                     [Test]
