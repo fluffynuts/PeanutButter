@@ -3015,6 +3015,34 @@ namespace PeanutButter.RandomGenerators.Tests
 
             [Test]
             [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
+            public void ShouldProduceDecimalWithinRangeForDoubleInput()
+            {
+                // Arrange
+                var lowerBound = GetRandomDecimal(1000.0, 10000.0);
+                // Act
+                var result = GetRandomDecimal(lowerBound);
+                // Assert
+                Expect(result)
+                    .To.Be.Greater.Than
+                    .Or.Equal.To(lowerBound);
+            }
+
+            [Test]
+            [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
+            public void ShouldProduceDecimalWithinRangeForDecimalInput()
+            {
+                // Arrange
+                var lowerBound = GetRandomDecimal(1000.0M, 10000.0M);
+                // Act
+                var result = GetRandomDecimal(lowerBound);
+                // Assert
+                Expect(result)
+                    .To.Be.Greater.Than
+                    .Or.Equal.To(lowerBound);
+            }
+
+            [Test]
+            [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
             public void ShouldProduceFloatWithinRange()
             {
                 // Arrange

@@ -65,10 +65,10 @@ namespace PeanutButter.RandomGenerators
             var type = typeof(T);
             if (type.IsEnum())
             {
-                return (T) GetRandomEnum(type);
+                return (T)GetRandomEnum(type);
             }
 
-            return (T) GetRandomValue(typeof(T));
+            return (T)GetRandomValue(typeof(T));
         }
 
         /// <summary>
@@ -274,7 +274,7 @@ namespace PeanutButter.RandomGenerators
             int minValue,
             int maxValue)
         {
-            return (int) GetRandomLong(minValue, maxValue);
+            return (int)GetRandomLong(minValue, maxValue);
         }
 
         /// <summary>
@@ -351,7 +351,7 @@ namespace PeanutButter.RandomGenerators
 
             var dec = RandomGenerator.NextDouble();
             var range = maxValue - minValue + 1;
-            return minValue + (long) (range * dec);
+            return minValue + (long)(range * dec);
         }
 
         /// <summary>
@@ -559,7 +559,7 @@ namespace PeanutButter.RandomGenerators
             TimeSpan? max = null)
         {
             max ??= TimeSpan.MaxValue;
-            var ticksDelta = GetRandomLong(0,  (max - min).Value.Ticks);
+            var ticksDelta = GetRandomLong(0, (max - min).Value.Ticks);
             return TimeSpan.FromTicks(min.Ticks + ticksDelta);
         }
 
@@ -578,7 +578,7 @@ namespace PeanutButter.RandomGenerators
         private static readonly Dictionary<TimeSpanContexts, Func<double, TimeSpan>>
             TimespanGenerators = new Dictionary<TimeSpanContexts, Func<double, TimeSpan>>()
             {
-                [TimeSpanContexts.Ticks] = i => TimeSpan.FromTicks((long) i),
+                [TimeSpanContexts.Ticks] = i => TimeSpan.FromTicks((long)i),
                 [TimeSpanContexts.Milliseconds] = TimeSpan.FromMilliseconds,
                 [TimeSpanContexts.Seconds] = TimeSpan.FromSeconds,
                 [TimeSpanContexts.Minutes] = TimeSpan.FromMinutes,
@@ -647,7 +647,8 @@ namespace PeanutButter.RandomGenerators
         /// <param name="minValue"></param>
         /// <returns></returns>
         public static double GetRandomDouble(
-            double minValue)
+            double minValue
+        )
         {
             return GetRandomDouble(
                 minValue,
@@ -676,11 +677,39 @@ namespace PeanutButter.RandomGenerators
         /// <param name="max">Maximum value to consider</param>
         /// <returns>Decimal value within the specified range</returns>
         public static decimal GetRandomDecimal(
-            decimal min = 0,
-            decimal max = DefaultRanges.MAX_INT_VALUE
+            double min,
+            double max
         )
         {
-            return (decimal) GetRandomDouble((double) min, (double) max);
+            return GetRandomDecimal((decimal)min, (decimal)max);
+        }
+
+        /// <summary>
+        /// Gets a random decimal value within the specified range
+        /// </summary>
+        /// <param name="min">Minimum value to consider</param>
+        /// <param name="max">Maximum value to consider</param>
+        /// <returns>Decimal value within the specified range</returns>
+        public static decimal GetRandomDecimal(
+            long min,
+            long max
+        )
+        {
+            return GetRandomDecimal((decimal)min, (decimal)max);
+        }
+
+        /// <summary>
+        /// Gets a random decimal value within the specified range
+        /// </summary>
+        /// <param name="min">Minimum value to consider</param>
+        /// <param name="max">Maximum value to consider</param>
+        /// <returns>Decimal value within the specified range</returns>
+        public static decimal GetRandomDecimal(
+            decimal min,
+            decimal max
+        )
+        {
+            return (decimal)GetRandomDouble((double)min, (double)max);
         }
 
         /// <summary>
@@ -711,6 +740,28 @@ namespace PeanutButter.RandomGenerators
         }
 
         /// <summary>
+        /// Produces a random decimal between the provided
+        /// minValue and that value + 10, inclusive
+        /// </summary>
+        /// <param name="minValue"></param>
+        /// <returns></returns>
+        public static decimal GetRandomDecimal(long minValue)
+        {
+            return GetRandomDecimal(minValue, DefaultRanges.MAX_INT_VALUE);
+        }
+
+        /// <summary>
+        /// Produces a random decimal between the provided
+        /// minValue and that value + 10, inclusive
+        /// </summary>
+        /// <param name="minValue"></param>
+        /// <returns></returns>
+        public static decimal GetRandomDecimal(double minValue)
+        {
+            return GetRandomDecimal(minValue, DefaultRanges.MAX_INT_VALUE);
+        }
+
+        /// <summary>
         /// Produces a random float between 0 and 10 inclusive
         /// </summary>
         /// <returns></returns>
@@ -728,7 +779,8 @@ namespace PeanutButter.RandomGenerators
         /// <param name="minValue"></param>
         /// <returns></returns>
         public static float GetRandomFloat(
-            float minValue)
+            float minValue
+        )
         {
             return GetRandomFloat(
                 minValue,
@@ -744,9 +796,10 @@ namespace PeanutButter.RandomGenerators
         /// <returns>Float value within the specified range</returns>
         public static float GetRandomFloat(
             float min,
-            float max)
+            float max
+        )
         {
-            return (float) GetRandomDouble(min, max);
+            return (float)GetRandomDouble(min, max);
         }
 
         /// <summary>
@@ -798,7 +851,7 @@ namespace PeanutButter.RandomGenerators
             }
 
             return TimeSpan.FromSeconds(
-                GetRandomInt((int) minSeconds, (int) maxSeconds)
+                GetRandomInt((int)minSeconds, (int)maxSeconds)
             );
         }
 
@@ -1267,7 +1320,7 @@ namespace PeanutButter.RandomGenerators
             return Range(0, GetRandomInt(minChars, maxChars))
                 .Select(_ =>
                     GetRandom(c => c < 'A' || c > 'z',
-                        () => (char) GetRandomInt(32, 255)))
+                        () => (char)GetRandomInt(32, 255)))
                 .JoinWith("");
         }
 
