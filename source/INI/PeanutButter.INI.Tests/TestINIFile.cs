@@ -1633,6 +1633,123 @@ key=value
                 .Parse(Arg.Any<string>());
         }
 
+        public class WrapValueInQuotes
+        {
+            [Test]
+            public void WrapValueInQuotes_GivenWrapValueInQuotesTrue_WhenValueHasValue_ShouldWriteValueWithQuotesToStream()
+            {
+                //---------------Set up test pack-------------------
+                var sut = Create();
+                sut.WrapValueInQuotes = true;
+                sut[""]["foo"] = "bar";
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                using var memStream = new MemoryStream(new byte[1024], true);
+                sut.Persist(memStream);
+
+                //---------------Test Result -----------------------
+                var result = Encoding.UTF8.GetString(memStream.ReadAllBytes()).Split('\0').First();
+                Expect(result).To.Equal("foo=\"bar\"");
+            }
+
+            [Test]
+            public void WrapValueInQuotes_GivenWrapValueInQuotesTrue_WhenValueIsNull_ShouldWriteOnlyKeyToStream()
+            {
+                //---------------Set up test pack-------------------
+                var sut = Create();
+                sut.WrapValueInQuotes = true;
+                sut[""]["foo"] = null;
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                using var memStream = new MemoryStream(new byte[1024], true);
+                sut.Persist(memStream);
+
+                //---------------Test Result -----------------------
+                var result = Encoding.UTF8.GetString(memStream.ReadAllBytes()).Split('\0').First();
+                Expect(result).To.Equal("foo");
+            }
+
+            [Test]
+            public void WrapValueInQuotes_GivenWrapValueInQuotesTrue_WhenValueIsEmptyString_ShouldWriteKeyWithEqualsAndQuotesToStream()
+            {
+                //---------------Set up test pack-------------------
+                var sut = Create();
+                sut.WrapValueInQuotes = true;
+                sut[""]["foo"] = string.Empty;
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                using var memStream = new MemoryStream(new byte[1024], true);
+                sut.Persist(memStream);
+
+                //---------------Test Result -----------------------
+                var result = Encoding.UTF8.GetString(memStream.ReadAllBytes()).Split('\0').First();
+                Expect(result).To.Equal("foo=\"\"");
+            }
+
+            [Test]
+            public void WrapValueInQuotes_GivenWrapValueInQuotesFalse_WhenValueHasValue_ShouldWriteValueWithoutQuotesToStream()
+            {
+                //---------------Set up test pack-------------------
+                var sut = Create();
+                sut.WrapValueInQuotes = false;
+                sut[""]["foo"] = "bar";
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                using var memStream = new MemoryStream(new byte[1024], true);
+                sut.Persist(memStream);
+
+                //---------------Test Result -----------------------
+                var result = Encoding.UTF8.GetString(memStream.ReadAllBytes()).Split('\0').First();
+                Expect(result).To.Equal("foo=bar");
+            }
+
+            [Test]
+            public void WrapValueInQuotes_GivenWrapValueInQuotesFalse_WhenValueIsNull_ShouldWriteOnlyKeyToStream()
+            {
+                //---------------Set up test pack-------------------
+                var sut = Create();
+                sut.WrapValueInQuotes = false;
+                sut[""]["foo"] = null;
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                using var memStream = new MemoryStream(new byte[1024], true);
+                sut.Persist(memStream);
+
+                //---------------Test Result -----------------------
+                var result = Encoding.UTF8.GetString(memStream.ReadAllBytes()).Split('\0').First();
+                Expect(result).To.Equal("foo");
+            }
+
+            [Test]
+            public void WrapValueInQuotes_GivenWrapValueInQuotesFalse_WhenValueIsEmptyString_ShouldWriteKeyWithEqualsToStream()
+            {
+                //---------------Set up test pack-------------------
+                var sut = Create();
+                sut.WrapValueInQuotes = false;
+                sut[""]["foo"] = string.Empty;
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                using var memStream = new MemoryStream(new byte[1024], true);
+                sut.Persist(memStream);
+
+                //---------------Test Result -----------------------
+                var result = Encoding.UTF8.GetString(memStream.ReadAllBytes()).Split('\0').First();
+                Expect(result).To.Equal("foo=");
+            }
+        }
+
         private static string RandString()
         {
             return GetRandomAlphaString(1, 10);

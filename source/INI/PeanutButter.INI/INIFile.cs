@@ -22,6 +22,11 @@ namespace PeanutButter.INI
         string SectionSeparator { get; set; }
 
         /// <summary>
+        /// Toggle whether key values are wrapped in quote marks when persisted
+        /// </summary>
+        bool WrapValueInQuotes { get; set; }
+
+        /// <summary>
         /// Exposes the path of the loaded INIFile
         /// </summary>
         string Path { get; }
@@ -270,6 +275,9 @@ namespace PeanutButter.INI
 
         /// <inheritdoc />
         public string SectionSeparator { get; set; } = "";
+
+        /// <inheritdoc />
+        public bool WrapValueInQuotes { get; set; } = true;
 
         /// <inheritdoc />
         public IEnumerable<string> Sections => Data.Keys;
@@ -899,9 +907,11 @@ namespace PeanutButter.INI
             var lines = new List<string>();
             AddCommentsTo(lines, section, key);
             var dataValue = this[section][key];
-            var writeValue = dataValue == null
-                ? ""
-                : $"=\"{EscapeEntities(dataValue, section, key)}\"";
+            var writeValue = string.Empty;
+            if (dataValue is not null)
+            {
+                writeValue = WrapValueInQuotes ? $"=\"{EscapeEntities(dataValue, section, key)}\"" : $"={EscapeEntities(dataValue, section, key)}";
+            }
             lines.Add(string.Join(string.Empty, key.Trim(), writeValue));
             return string.Join(Environment.NewLine, lines);
         }
