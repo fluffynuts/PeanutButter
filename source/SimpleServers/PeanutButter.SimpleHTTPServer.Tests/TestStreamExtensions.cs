@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using NExpect;
 using static NExpect.Expectations;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.SimpleHTTPServer.Tests
 {
@@ -27,6 +28,20 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             var result = memStream.As<SomePoco>();
             // Assert
             Expect(result).To.Deep.Equal(src);
+        }
+
+        [Test]
+        public void ShouldConvertPureString()
+        {
+            // Arrange
+            var str = GetRandomString(50);
+            var bytes = Encoding.UTF8.GetBytes(str);
+            using var memStream = new MemoryStream(bytes);
+            // Act
+            var result = memStream.As<string>();
+            // Assert
+            Expect(result)
+                .To.Equal(str);
         }
     }
 }

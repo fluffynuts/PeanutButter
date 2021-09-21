@@ -36,35 +36,31 @@ namespace PeanutButter.SimpleHTTPServer
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         public static T As<T>(
-            this Stream stream, Encoding encoding)
+            this Stream stream,
+            Encoding encoding
+        )
         {
-            if (stream != null)
-            {
-                stream.TryRewind();
-                if (typeof(T) == typeof(string))
-                {
-#if NETSTANDARD
-                    var bytes = stream.ReadAllBytes() ?? Array.Empty<byte>();
-#else
-                    var bytes = stream.ReadAllBytes() ?? new byte[0];
-#endif
-                    var str = encoding.GetString(bytes);
-                    return (T)(object)str;
-                }
-                else
-                {
-                    using (StreamReader sr = new StreamReader(stream, encoding))
-                    using (JsonReader reader = new JsonTextReader(sr))
-                    {
-                        JsonSerializer serializer = JsonSerializer.CreateDefault();
-                        return serializer.Deserialize<T>(reader);
-                    }
-                }
-            }
-            else
+            if (stream is null)
             {
                 return default;
             }
+
+            stream.TryRewind();
+            if (typeof(T) == typeof(string))
+            {
+#if NETSTANDARD
+                var bytes = stream.ReadAllBytes() ?? Array.Empty<byte>();
+#else
+                var bytes = stream.ReadAllBytes() ?? new byte[0];
+#endif
+                var str = encoding.GetString(bytes) as object;
+                return (T)str;
+            }
+
+            using var sr = new StreamReader(stream, encoding);
+            using var reader = new JsonTextReader(sr);
+            var serializer = JsonSerializer.CreateDefault();
+            return serializer.Deserialize<T>(reader);
         }
 
         private static byte[] ReadAllBytes(this Stream stream)
@@ -77,6 +73,7 @@ namespace PeanutButter.SimpleHTTPServer
                 read = stream.Read(buffer, 0, buffer.Length);
                 memStream.Write(buffer, 0, read);
             } while (read > 0);
+
             return memStream.ToArray();
         }
 
