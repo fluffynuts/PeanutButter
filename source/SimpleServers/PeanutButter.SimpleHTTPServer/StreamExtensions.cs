@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 using Newtonsoft.Json;
 
@@ -37,14 +38,33 @@ namespace PeanutButter.SimpleHTTPServer
         public static T As<T>(
             this Stream stream, Encoding encoding)
         {
-            stream?.TryRewind();
-            var bytes = stream?.ReadAllBytes() ?? new byte[0];
-            var str = encoding.GetString(bytes);
-            if (typeof(T) == typeof(string))
+            if (stream != null)
             {
-                return (T)(object)str;
+                stream.TryRewind();
+                if (typeof(T) == typeof(string))
+                {
+#if NETSTANDARD
+                    var bytes = stream.ReadAllBytes() ?? Array.Empty<byte>();
+#else
+                    var bytes = stream.ReadAllBytes() ?? new byte[0];
+#endif
+                    var str = encoding.GetString(bytes);
+                    return (T)(object)str;
+                }
+                else
+                {
+                    using (StreamReader sr = new StreamReader(stream, encoding))
+                    using (JsonReader reader = new JsonTextReader(sr))
+                    {
+                        JsonSerializer serializer = JsonSerializer.CreateDefault();
+                        return serializer.Deserialize<T>(reader);
+                    }
+                }
             }
-            return JsonConvert.DeserializeObject<T>(str);
+            else
+            {
+                return default;
+            }
         }
 
         private static byte[] ReadAllBytes(this Stream stream)
