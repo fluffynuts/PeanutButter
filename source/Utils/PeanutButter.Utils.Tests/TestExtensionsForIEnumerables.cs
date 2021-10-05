@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using NExpect;
@@ -247,8 +249,7 @@ namespace PeanutButter.Utils.Tests
             var result = src.EmptyIfNull();
 
             //---------------Test Result -----------------------
-            Expect(result).
-                Not.To.Be.Null();
+            Expect(result).Not.To.Be.Null();
             Expect(result)
                 .To.Be.An.Instance.Of<int[]>();
             Expect(result)
@@ -1600,6 +1601,109 @@ namespace PeanutButter.Utils.Tests
                 // Assert
                 Expect(result)
                     .To.Equal(expected);
+            }
+        }
+    }
+
+    [TestFixture]
+    public class TestDictionaryExtensions
+    {
+        [TestFixture]
+        public class FindOrAdd
+        {
+            [TestFixture]
+            public class GivenUnknownKey
+            {
+                [Test]
+                public void ShouldAddNewItem()
+                {
+                    // Arrange
+                    var key = GetRandomString(1);
+                    var value = GetRandomInt(0, 10);
+                    var collection = new ConcurrentDictionary<string, int>();
+
+                    // Act
+                    var result = collection.FindOrAdd(key, () => value);
+                    // Assert
+                    Expect(result)
+                        .To.Equal(value);
+                }
+            }
+
+            [TestFixture]
+            public class GivenKnownKey
+            {
+                [Test]
+                public void ShouldReturnExistingItemForKey()
+                {
+                    // Arrange
+                    var key = GetRandomString(1);
+                    var value1 = GetRandomInt();
+                    var value2 = GetAnother(value1);
+                    var collection = new ConcurrentDictionary<string, int>();
+
+                    // Act
+                    var result1 = collection.FindOrAdd(key, () => value1);
+                    var result2 = collection.FindOrAdd(key, () => value2);
+                    // Assert
+                    Expect(result1)
+                        .To.Equal(value1)
+                        .And.To.Equal(result2);
+                }
+            }
+        }
+
+        [TestFixture]
+        public class ToDictionary
+        {
+            [TestFixture]
+            public class DefaultInvocation
+            {
+                [Test]
+                public void ShouldProduceTypedDictionary()
+                {
+                    // Arrange
+                    var dict = new Dictionary<string, string>()
+                    {
+                        [GetRandomString(10)] = GetRandomString(),
+                        [GetRandomString(10)] = GetRandomString()
+                    };
+                    var cast = dict as IDictionary;
+                    // Act
+                    var result = cast.ToDictionary<string, string>();
+                    // Assert
+                    Expect(result)
+                        .To.Equal(dict);
+                }
+            }
+
+            [TestFixture]
+            public class InvokedWithTransforms
+            {
+                [Test]
+                public void ShouldProduceTypedDictionary()
+                {
+                    // Arrange
+                    var dict = new Dictionary<string, string>()
+                    {
+                        [GetRandomInt(1000, 2000).ToString()] = GetRandomInt().ToString(),
+                        [GetRandomInt(2001, 3000).ToString()] = GetRandomInt().ToString()
+                    };
+                    var cast = dict as IDictionary;
+                    // Act
+                    var result = cast.ToDictionary(
+                        kvp => int.Parse(kvp.Key as string),
+                        kvp => int.Parse(kvp.Value as string)
+                    );
+                    // Assert
+                    var keys = dict.Keys.Select(int.Parse)
+                        .ToArray();
+                    foreach (var key in keys)
+                    {
+                        Expect(result[key])
+                            .To.Equal(int.Parse(dict[key.ToString()]));
+                    }
+                }
             }
         }
     }
