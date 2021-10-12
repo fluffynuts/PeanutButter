@@ -35,6 +35,20 @@ namespace PeanutButter.DuckTyping.NetCore.Tests
         }
 
         [Test]
+        public void TryConvertStringToDecimal2()
+        {
+            // Arrange
+            var s = "1.23";
+            // Act
+            var converted = s.TryConvertTo(typeof(decimal), out var result);
+            // Assert
+            Expect(converted)
+                .To.Be.True();
+            Expect(result)
+                .To.Equal(1.23M);
+        }
+
+        [Test]
         public void TryConvertStringToString()
         {
             // Arrange

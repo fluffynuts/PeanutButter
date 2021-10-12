@@ -1,4 +1,5 @@
-﻿using Imported.PeanutButter.Utils;
+﻿using System;
+using Imported.PeanutButter.Utils;
 using PeanutButter.DuckTyping.AutoConversion;
 
 namespace PeanutButter.DuckTyping.Extensions
@@ -20,25 +21,50 @@ namespace PeanutButter.DuckTyping.Extensions
         /// - attempting to convert to the same type returns the original object
         /// </summary>
         /// <param name="input"></param>
-        /// <param name="output"></param>
+        /// <param name="converted"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         public static bool TryConvertTo<T>(
             this object input,
-            out T output
+            out T converted
         )
         {
             var desiredType = typeof(T);
-            output = default;
+            converted = default;
             if (input is null)
             {
                 return desiredType.IsNullableType();
             }
             
+            var success = input.TryConvertTo(desiredType, out var convertedObject);
+            if (success)
+            {
+                converted = (T)convertedObject;
+            }
+            return success;
+        }
+
+        /// <summary>
+        /// Attempts to convert the object being operated on
+        /// to the required type.
+        /// - null always returns false
+        /// - attempting to convert to the same type returns the original object
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="desiredType"></param>
+        /// <param name="converted"></param>
+        /// <returns></returns>
+        public static bool TryConvertTo(
+            this object input,
+            Type desiredType,
+            out object converted
+        )
+        {
+            converted = desiredType.DefaultValue();
             var inputType = input.GetType();
             if (inputType == desiredType)
             {
-                output = (T)input;
+                converted = input;
                 return true;
             }
 
@@ -54,7 +80,7 @@ namespace PeanutButter.DuckTyping.Extensions
 
             try
             {
-                output = (T)converter.Convert(input);
+                converted = converter.Convert(input);
                 return true;
             }
             catch
@@ -62,5 +88,7 @@ namespace PeanutButter.DuckTyping.Extensions
                 return false;
             }
         }
+        
+        
     }
 }
