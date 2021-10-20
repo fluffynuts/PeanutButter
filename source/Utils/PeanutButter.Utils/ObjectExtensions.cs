@@ -1001,6 +1001,32 @@ namespace PeanutButter.Utils
         {
             src.SetPropertyValue(propertyPath, newValue);
         }
+        
+        /// <summary>
+        /// attempts to set a property value on an object by path and value
+        /// - will not throw on error, but will return false instead
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="propertyPath"></param>
+        /// <param name="newValue"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool TrySet<T>(
+            this object src,
+            string propertyPath,
+            T newValue
+        )
+        {
+            try
+            {
+                src.Set(propertyPath, newValue);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
 
         private static readonly BindingFlags AllOnInstance =
             BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;

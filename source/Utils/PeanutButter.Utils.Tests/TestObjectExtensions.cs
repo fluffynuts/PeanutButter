@@ -1435,6 +1435,104 @@ namespace PeanutButter.Utils.Tests
                     Assert.AreEqual(expected, obj.Parent.Child.Name);
                 }
             }
+
+            [TestFixture]
+            public class Set
+            {
+                public class Poco
+                {
+                    public string Name { get; set; }
+                }
+
+                [Test]
+                public void ShouldSetExistingProperty()
+                {
+                    // Arrange
+                    var data = new Poco();
+                    var expected = GetRandomString();
+                    // Act
+                    data.Set("Name", expected);
+                    // Assert
+                    Expect(data.Name)
+                        .To.Equal(expected);
+                }
+
+                [Test]
+                public void ShouldThrowForInvalidPropertyType()
+                {
+                    // Arrange
+                    var data = new Poco();
+                    // Act
+                    Expect(() => data.Set("Name", 123))
+                        .To.Throw();
+                    // Assert
+                }
+                
+                [Test]
+                public void ShouldThrowWhenPropertyNotFound()
+                {
+                    // Arrange
+                    var data = new Poco();
+                    // Act
+                    Expect(() => data.Set("MooCows", 123))
+                        .To.Throw();
+                    // Assert
+                }
+            }
+
+            [TestFixture]
+            public class TrySet
+            {
+                public class Poco
+                {
+                    public int Id { get; set; }
+                }
+
+                [Test]
+                public void ShouldSetExistingProperty()
+                {
+                    // Arrange
+                    var data = new Poco();
+                    var expected = GetRandomInt(1);
+                    // Act
+                    var result = data.TrySet("Id", expected);
+                    // Assert
+                    Expect(data.Id)
+                        .To.Equal(expected);
+                    Expect(result)
+                        .To.Be.True();
+                }
+
+                [Test]
+                public void ShouldReturnFalseWhenWrongType()
+                {
+                    // Arrange
+                    var data = new Poco();
+                    var value = GetRandomString();
+                    // Act
+                    var result = data.TrySet("Id", value);
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                    Expect(data.Id)
+                        .To.Equal(0);
+                }
+
+                [Test]
+                public void ShouldReturnFalseWhenWrongName()
+                {
+                    // Arrange
+                    var data = new Poco();
+                    var value = GetRandomString();
+                    // Act
+                    var result = data.TrySet("Id_", value);
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                    Expect(data.Id)
+                        .To.Equal(0);
+                }
+            }
         }
 
         [TestFixture]
