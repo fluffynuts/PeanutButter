@@ -76,7 +76,7 @@ internal
 
         /// <summary>
         /// Find an item in or add an item to a dictionary
-        /// - operation is thread-safe: dictionary is locked during search & add
+        /// - operation is thread-safe: dictionary is locked during search &amp; add
         /// </summary>
         /// <param name="dict"></param>
         /// <param name="key"></param>
@@ -96,7 +96,7 @@ internal
 
         /// <summary>
         /// Find an item in or add an item to a dictionary
-        /// - operation is thread-safe: dictionary is locked during search & add
+        /// - operation is thread-safe: dictionary is locked during search &amp; add
         /// </summary>
         /// <param name="dict"></param>
         /// <param name="key"></param>
