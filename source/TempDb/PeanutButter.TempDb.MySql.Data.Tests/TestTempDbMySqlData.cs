@@ -811,7 +811,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
             }
 
             [Test]
-            [Timeout(30000)]
+            [Timeout(45000)]
             public void AbsoluteLifespanShouldOverrideConnectionActivity()
             {
                 // Arrange
