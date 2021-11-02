@@ -1627,11 +1627,35 @@ namespace PeanutButter.RandomGenerators
             return GetANewRandomValueUsing(differentFromThisValue, usingThisGenerator, isANewValue);
         }
 
+        /// <summary>
+        /// Gets value of Type T, using a custom validator function to know when to stop trying
+        /// and an optional generator function. Use like:
+        /// var first = GetRandom&lt;IHasAName&gt;();
+        /// var other = GetAnother&lt;IHasAName&gt;(o =&lt; o.Name != first.Name);
+        /// </summary>
+        /// <param name="validator">Validates that a generated value is acceptable (should return true when it is)</param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static T GetRandom<T>(
             Func<T, bool> validator
         )
         {
-            return GetRandom<T>(validator, null);
+            return GetRandom(validator, null);
+        }
+
+        /// <summary>
+        /// Gets a value of type T and applies the provided mutations to it before giving it back
+        /// </summary>
+        /// <param name="mutator"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T GetRandom<T>(
+            Action<T> mutator
+        )
+        {
+            var result = GetRandom<T>();
+            mutator(result);
+            return result;
         }
 
         /// <summary>

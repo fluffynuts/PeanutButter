@@ -15,7 +15,6 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 using static NExpect.Expectations;
 using static PeanutButter.Utils.PyLike;
 
-// ReSharper disable AccessToDisposedClosure
 // ReSharper disable PossibleMultipleEnumeration
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable InconsistentNaming
@@ -27,248 +26,261 @@ namespace PeanutButter.RandomGenerators.Tests
     [TestFixture]
     public class TestRandomValueGen : TestBase
     {
-        [TestCase(1, 100)]
-        [TestCase(101, 250)]
-        [TestCase(4, 10)]
-        public void GetRandomInt_GivenRangeOfIntegers_ReturnsRandomIntWithinRange(int min, int max)
+        [TestFixture]
+        public class GetRandomInt
         {
-            //---------------Set up test pack-------------------
-            var ints = new List<int>();
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            RunCycles(() => ints.Add(GetRandomInt(min, max)), HIGH_RANDOM_TEST_CYCLES);
-
-            //---------------Test Result -----------------------
-            Expect(ints.All(i => i >= min))
-                .To.Be.True(() => $"Numbers < min {min}: {ints.Where(i => i < min).JoinWith(",")}");
-            Expect(ints.All(i => i <= max))
-                .To.Be.True(() => $"Numbers > max {max}: {ints.Where(i => i > max).JoinWith(",")}");
-            Expect(ints.Distinct().Count() > 1)
-                .To.Be.True(() => $"Distinct count of numbers: {ints.Distinct().Count()}");
-        }
-
-        [Test]
-        public void GetRandomInt_GivenRange_ShouldFindMinNumber()
-        {
-            // Arrange
-            var min = GetRandomInt(1, 10);
-            var max = GetRandomInt(11, 20);
-            // Pre-assert
-            // Act
-            for (var i = 0; i < HIGH_RANDOM_TEST_CYCLES; i++)
+            [TestCase(1, 100)]
+            [TestCase(101, 250)]
+            [TestCase(4, 10)]
+            public void GivenRangeOfIntegers_ReturnsRandomIntWithinRange(int min, int max)
             {
-                var result = GetRandomInt(min, max);
-                if (result == min)
+                //---------------Set up test pack-------------------
+                var ints = new List<int>();
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                RunCycles(() => ints.Add(GetRandomInt(min, max)), HIGH_RANDOM_TEST_CYCLES);
+
+                //---------------Test Result -----------------------
+                Expect(ints.All(i => i >= min))
+                    .To.Be.True(() => $"Numbers < min {min}: {ints.Where(i => i < min).JoinWith(",")}");
+                Expect(ints.All(i => i <= max))
+                    .To.Be.True(() => $"Numbers > max {max}: {ints.Where(i => i > max).JoinWith(",")}");
+                Expect(ints.Distinct().Count() > 1)
+                    .To.Be.True(() => $"Distinct count of numbers: {ints.Distinct().Count()}");
+            }
+
+            [Test]
+            public void GivenRange_ShouldFindMinNumber()
+            {
+                // Arrange
+                var min = GetRandomInt(1, 10);
+                var max = GetRandomInt(11, 20);
+                // Pre-assert
+                // Act
+                for (var i = 0; i < HIGH_RANDOM_TEST_CYCLES; i++)
                 {
-                    Assert.Pass();
-                    return;
+                    var result = GetRandomInt(min, max);
+                    if (result == min)
+                    {
+                        Assert.Pass();
+                        return;
+                    }
                 }
+
+                // Assert
+                Assert.Fail($"Unable to find {min} in range {min} - {max} over {HIGH_RANDOM_TEST_CYCLES} attempts");
             }
 
-            // Assert
-            Assert.Fail($"Unable to find {min} in range {min} - {max} over {HIGH_RANDOM_TEST_CYCLES} attempts");
-        }
-
-        [Test]
-        public void GetRandomInt_GivenRange_ShouldFindMaxNumber()
-        {
-            // Arrange
-            var min = GetRandomInt(1, 10);
-            var max = GetRandomInt(11, 20);
-            // Pre-assert
-            // Act
-            for (var i = 0; i < HIGH_RANDOM_TEST_CYCLES; i++)
+            [Test]
+            public void GetRandomInt_GivenRange_ShouldFindMaxNumber()
             {
-                var result = GetRandomInt(min, max);
-                if (result == max)
+                // Arrange
+                var min = GetRandomInt(1, 10);
+                var max = GetRandomInt(11, 20);
+                // Pre-assert
+                // Act
+                for (var i = 0; i < HIGH_RANDOM_TEST_CYCLES; i++)
                 {
-                    Assert.Pass();
-                    return;
+                    var result = GetRandomInt(min, max);
+                    if (result == max)
+                    {
+                        Assert.Pass();
+                        return;
+                    }
                 }
-            }
 
-            // Assert
-            Assert.Fail($"Unable to find {max} in range {min} - {max} over {HIGH_RANDOM_TEST_CYCLES} attempts");
+                // Assert
+                Assert.Fail($"Unable to find {max} in range {min} - {max} over {HIGH_RANDOM_TEST_CYCLES} attempts");
+            }
         }
 
-        [Test]
-        public void GetRandomDouble_ShouldProvideSpreadWithinRange()
+        [TestFixture]
+        public class GetRandomDouble
         {
-            // Arrange
-            var min = GetRandomDouble(1, 10);
-            var max = GetRandomDouble(11, 20);
-            var collected = new List<Double>();
-            // Pre-assert
-            // Act
-            for (var i = 0; i < HIGH_RANDOM_TEST_CYCLES; i++)
+            [Test]
+            public void ShouldProvideSpreadWithinRange()
             {
-                collected.Add(GetRandomDouble(min, max));
-            }
+                // Arrange
+                var min = GetRandomDouble(1, 10);
+                var max = GetRandomDouble(11, 20);
+                var collected = new List<Double>();
+                // Pre-assert
+                // Act
+                for (var i = 0; i < HIGH_RANDOM_TEST_CYCLES; i++)
+                {
+                    collected.Add(GetRandomDouble(min, max));
+                }
 
-            // Assert
-            Expect(collected).To.Contain.All
-                .Matched.By(d => d >= min);
-            Expect(collected).To.Contain.All
-                .Matched.By(d => d <= max);
+                // Assert
+                Expect(collected).To.Contain.All
+                    .Matched.By(d => d >= min);
+                Expect(collected).To.Contain.All
+                    .Matched.By(d => d <= max);
+            }
         }
 
-        [Test]
-        public void GetRandomDecimal_ShouldProvideSpreadWithinRange()
+        [TestFixture]
+        public class GetRandomDecimal
         {
-            // Arrange
-            var min = GetRandomDecimal(1, 10);
-            var max = GetRandomDecimal(11, 20);
-            var collected = new List<Decimal>();
-            // Pre-assert
-            // Act
-            for (var i = 0; i < HIGH_RANDOM_TEST_CYCLES; i++)
+            [Test]
+            public void ShouldProvideSpreadWithinRange()
             {
-                collected.Add(GetRandomDecimal(min, max));
-            }
+                // Arrange
+                var min = GetRandomDecimal(1, 10);
+                var max = GetRandomDecimal(11, 20);
+                var collected = new List<Decimal>();
+                // Pre-assert
+                // Act
+                for (var i = 0; i < HIGH_RANDOM_TEST_CYCLES; i++)
+                {
+                    collected.Add(GetRandomDecimal(min, max));
+                }
 
-            // Assert
-            Expect(collected).To.Contain.All
-                .Matched.By(d => d >= min);
-            Expect(collected).To.Contain.All
-                .Matched.By(d => d <= max);
+                // Assert
+                Expect(collected).To.Contain.All
+                    .Matched.By(d => d >= min);
+                Expect(collected).To.Contain.All
+                    .Matched.By(d => d <= max);
+            }
         }
 
-        [Test]
-        public void GetRandomFloat_ShouldProvideSpreadWithinRange()
+        [TestFixture]
+        public class GetRandomFloat
         {
-            // Arrange
-            var min = GetRandomFloat(1, 10);
-            var max = GetRandomFloat(11, 20);
-            var collected = new List<float>();
-            // Pre-assert
-            // Act
-            for (var i = 0; i < HIGH_RANDOM_TEST_CYCLES; i++)
+            [Test]
+            public void ShouldProvideSpreadWithinRange()
             {
-                collected.Add(GetRandomFloat(min, max));
-            }
+                // Arrange
+                var min = GetRandomFloat(1, 10);
+                var max = GetRandomFloat(11, 20);
+                var collected = new List<float>();
+                // Pre-assert
+                // Act
+                for (var i = 0; i < HIGH_RANDOM_TEST_CYCLES; i++)
+                {
+                    collected.Add(GetRandomFloat(min, max));
+                }
 
-            // Assert
-            Expect(collected).To.Contain.All
-                .Matched.By(d => d >= min);
-            Expect(collected).To.Contain.All
-                .Matched.By(d => d <= max);
+                // Assert
+                Expect(collected).To.Contain.All
+                    .Matched.By(d => d >= min);
+                Expect(collected).To.Contain.All
+                    .Matched.By(d => d <= max);
+            }
         }
 
-        [Test]
-        public void GetRandomTimeOfDay_ShouldReturnTimespanWithin24HourRange()
+        [TestFixture]
+        public class GetRandomTimeOfDay
         {
-            // Arrange
-            var collected = new List<TimeSpan>();
-            // Act
-            for (var i = 0; i < HIGH_RANDOM_TEST_CYCLES; i++)
+            [Test]
+            public void ShouldReturnTimespanWithin24HourRange()
             {
-                collected.Add(GetRandomTimeOfDay());
+                // Arrange
+                var collected = new List<TimeSpan>();
+                // Act
+                for (var i = 0; i < HIGH_RANDOM_TEST_CYCLES; i++)
+                {
+                    collected.Add(GetRandomTimeOfDay());
+                }
+
+                // Assert
+                Expect(collected).To.Contain.All
+                    .Matched.By(t => t >= TimeSpan.Zero);
+                var oneDay = TimeSpan.FromSeconds(86400);
+                Expect(collected).To.Contain.All
+                    .Matched.By(t => t <= oneDay);
+            }
+        }
+
+        [TestFixture]
+        public class GetRandomLong
+        {
+            [TestCase(1, 100)]
+            [TestCase(101, 250)]
+            public void GivenRangeOfIntegers_ReturnsRandomIntWithinRange(int min, int max)
+            {
+                //---------------Set up test pack-------------------
+                var ints = new List<long>();
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                RunCycles(() => ints.Add(GetRandomLong(min, max)));
+
+                //---------------Test Result -----------------------
+                Assert.IsTrue(ints.All(i => i >= min));
+                Assert.IsTrue(ints.All(i => i <= max));
+                Assert.IsTrue(ints.Distinct().Count() > 1);
+            }
+        }
+
+        [TestFixture]
+        public class GetRandomString
+        {
+            [TestCase(50, 100)]
+            [TestCase(150, 400)]
+            public void GivenLengthLimits_ReturnsRandomStringsWithinLengthRange(
+                int minLength,
+                int maxLength
+            )
+            {
+                //---------------Set up test pack-------------------
+                var strings = new List<string>();
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                RunCycles(() => strings.Add(GetRandomString(minLength, maxLength)));
+
+                //---------------Test Result -----------------------
+                Assert.IsTrue(strings.All(s => s.Length >= minLength));
+                Assert.IsTrue(strings.All(s => s.Length <= maxLength));
+                Assert.IsTrue(strings.Distinct().Count() > 1);
             }
 
-            // Assert
-            Expect(collected).To.Contain.All
-                .Matched.By(t => t >= TimeSpan.Zero);
-            var oneDay = TimeSpan.FromSeconds(86400);
-            Expect(collected).To.Contain.All
-                .Matched.By(t => t <= oneDay);
-        }
+            [Test]
+            public void ShouldProduceStringInRequiredLengthRange()
+            {
+                //---------------Set up test pack-------------------
 
-        [Test]
-        public void GetRandomIntGeneric_GivenRangeOfIntegers_ReturnsRandomIntWithinRange()
-        {
-            //---------------Set up test pack-------------------
-            var ints = new List<int>();
+                //---------------Assert Precondition----------------
 
-            //---------------Assert Precondition----------------
+                //---------------Execute Test ----------------------
+                RunCycles(
+                    () =>
+                    {
+                        var minLength = GetRandomInt(10, 20);
+                        var maxLength = GetRandomInt(21, 30);
+                        var result = GetRandomString(minLength, maxLength);
+                        Assert.That(result.Length, Is.GreaterThanOrEqualTo(minLength));
+                        Assert.That(result.Length, Is.LessThanOrEqualTo(maxLength));
+                    });
 
-            //---------------Execute Test ----------------------
-            RunCycles(() => ints.Add(GetRandom<int>()));
+                //---------------Test Result -----------------------
+            }
 
-            //---------------Test Result -----------------------
-            VarianceAssert.IsVariant(ints);
-            Assert.IsTrue(ints.All(i => i >= DefaultRanges.MIN_INT_VALUE));
-            Assert.IsTrue(ints.All(i => i <= DefaultRanges.MAX_INT_VALUE));
-        }
+            [Test]
+            public void GivenMinAndMaxLengthsSwapped_ShouldProduceStringWithinRequiredLengthRange()
+            {
+                //---------------Set up test pack-------------------
 
-        [TestCase(1, 100)]
-        [TestCase(101, 250)]
-        public void GetRandomLong_GivenRangeOfIntegers_ReturnsRandomIntWithinRange(int min, int max)
-        {
-            //---------------Set up test pack-------------------
-            var ints = new List<long>();
+                //---------------Assert Precondition----------------
 
-            //---------------Assert Precondition----------------
+                //---------------Execute Test ----------------------
+                RunCycles(
+                    () =>
+                    {
+                        var minLength = GetRandomInt(10, 20);
+                        var maxLength = GetRandomInt(21, 30);
+                        var result = GetRandomString(maxLength, minLength);
+                        Assert.That(result.Length, Is.GreaterThanOrEqualTo(minLength));
+                        Assert.That(result.Length, Is.LessThanOrEqualTo(maxLength));
+                    });
 
-            //---------------Execute Test ----------------------
-            RunCycles(() => ints.Add(GetRandomLong(min, max)));
-
-            //---------------Test Result -----------------------
-            Assert.IsTrue(ints.All(i => i >= min));
-            Assert.IsTrue(ints.All(i => i <= max));
-            Assert.IsTrue(ints.Distinct().Count() > 1);
-        }
-
-        [Test]
-        public void GetRandomLongGeneric_GivenRangeOfIntegers_ReturnsRandomIntWithinRange()
-        {
-            //---------------Set up test pack-------------------
-            var ints = new List<long>();
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            RunCycles(() => ints.Add(GetRandom<long>()));
-
-            //---------------Test Result -----------------------
-            VarianceAssert.IsVariant(ints);
-            Assert.IsTrue(ints.All(i => i >= DefaultRanges.MIN_LONG_VALUE));
-            Assert.IsTrue(ints.All(i => i <= DefaultRanges.MAX_LONG_VALUE));
-        }
-
-        [TestCase(50, 100)]
-        [TestCase(150, 400)]
-        public void GetRandomString_GivenLengthLimits_ReturnsRandomStringsWithinLengthRange(
-            int minLength,
-            int maxLength)
-        {
-            //---------------Set up test pack-------------------
-            var strings = new List<string>();
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            RunCycles(() => strings.Add(GetRandomString(minLength, maxLength)));
-
-            //---------------Test Result -----------------------
-            Assert.IsTrue(strings.All(s => s.Length >= minLength));
-            Assert.IsTrue(strings.All(s => s.Length <= maxLength));
-            Assert.IsTrue(strings.Distinct().Count() > 1);
-        }
-
-        [TestCase(50, 100)]
-        [TestCase(150, 400)]
-        public void GetRandomStringGeneric_GivenLengthLimits_ReturnsRandomStringsWithinLengthRange(
-            int minLength,
-            int maxLength)
-        {
-            //---------------Set up test pack-------------------
-            var strings = new List<string>();
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            RunCycles(() => strings.Add(GetRandom<string>()));
-
-            //---------------Test Result -----------------------
-            Assert.IsTrue(strings.All(s => s.Length >= DefaultRanges.MINLENGTH_STRING));
-            Assert.IsTrue(
-                strings.All(
-                    s => s.Length <=
-                        DefaultRanges.MINLENGTH_STRING +
-                        DefaultRanges.MINLENGTH_STRING));
-            Assert.IsTrue(strings.Distinct().Count() > 1);
+                //---------------Test Result -----------------------
+            }
         }
 
 
@@ -279,220 +291,144 @@ namespace PeanutButter.RandomGenerators.Tests
             Three
         }
 
-        [Test]
-        // statistically, the ratios can be out
-        [Retry(5)]
-        public void GetRandomEnum_GENERIC_WhenGivenEnumTypeSpecifier_ShouldReturnRandomValueFromEnumSelection()
+        [TestFixture]
+        public class GetRandomEnum
         {
-            //---------------Set up test pack-------------------
-            var results = new List<TestEnum>();
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-
-            RunCycles(() => results.Add(GetRandomEnum<TestEnum>()));
-            //---------------Test Result -----------------------
-            var runs = results.Count;
-            var onePercent = (100 * results.Count(i => i == TestEnum.One)) / runs;
-            var twoPercent = (100 * results.Count(i => i == TestEnum.Two)) / runs;
-            var threePercent = (100 * results.Count(i => i == TestEnum.Three)) / runs;
-
-            var d1 = Math.Abs(twoPercent - onePercent);
-            var d2 = Math.Abs(threePercent - twoPercent);
-            var d3 = Math.Abs(threePercent - onePercent);
-
-            Assert.That(d1, Is.LessThan(20));
-            Assert.That(d2, Is.LessThan(20));
-            Assert.That(d3, Is.LessThan(20));
-        }
-
-        [Test]
-        public void GetRandom_GENERIC_WithEnumType_WhenGivenEnumTypeSpecifier_ShouldReturnRandomValueFromEnumSelection()
-        {
-            //---------------Set up test pack-------------------
-            var results = new List<TestEnum>();
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-
-            RunCycles(() => results.Add(GetRandom<TestEnum>()));
-            //---------------Test Result -----------------------
-            VarianceAssert.IsVariant(results);
-        }
-
-        [Test]
-        [Retry(5)] // can fail when the odds are really against us
-        public void GetRandomEnum_WhenGivenEnumTypeSpecifier_ShouldReturnRandomValueFromEnumSelection()
-        {
-            //---------------Set up test pack-------------------
-            var results = new List<TestEnum>();
-            var type = typeof(TestEnum);
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-
-            RunCycles(() => results.Add((TestEnum)GetRandomEnum(type)));
-            //---------------Test Result -----------------------
-            var runs = results.Count;
-            var onePercent = (100 * results.Count(i => i == TestEnum.One)) / runs;
-            var twoPercent = (100 * results.Count(i => i == TestEnum.Two)) / runs;
-            var threePercent = (100 * results.Count(i => i == TestEnum.Three)) / runs;
-
-            var d1 = Math.Abs(twoPercent - onePercent);
-            var d2 = Math.Abs(threePercent - twoPercent);
-            var d3 = Math.Abs(threePercent - onePercent);
-
-            Assert.That(d1, Is.LessThan(30));
-            Assert.That(d2, Is.LessThan(30));
-            Assert.That(d3, Is.LessThan(30));
-        }
-
-        [Test]
-        public void GetRandomFrom_WhenGivenIEnumerableOfItems_ShouldReturnARandomItemFromTheCollection()
-        {
-            //---------------Set up test pack-------------------
-            var o1 = new object();
-            var o2 = new object();
-            var o3 = new object();
-            var items = new[] { o1, o2, o3 };
-            var results = new List<object>();
-            const int runs = NORMAL_RANDOM_TEST_CYCLES;
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            for (var i = 0; i < runs; i++)
+            [Retry(5)] // can fail when the odds are really against us
+            public void ShouldReturnRandomValueFromEnumSelection()
             {
-                results.Add(GetRandomFrom(items));
-            }
+                //---------------Set up test pack-------------------
+                var results = new List<TestEnum>();
+                var type = typeof(TestEnum);
+                //---------------Assert Precondition----------------
 
-            //---------------Test Result -----------------------
-            Assert.IsTrue(results.All(r => items.Contains(r)));
-            Assert.IsTrue(items.All(i => results.Any(r => r == i)));
+                //---------------Execute Test ----------------------
+
+                RunCycles(() => results.Add((TestEnum)GetRandomEnum(type)));
+                //---------------Test Result -----------------------
+                var runs = results.Count;
+                var onePercent = (100 * results.Count(i => i == TestEnum.One)) / runs;
+                var twoPercent = (100 * results.Count(i => i == TestEnum.Two)) / runs;
+                var threePercent = (100 * results.Count(i => i == TestEnum.Three)) / runs;
+
+                var d1 = Math.Abs(twoPercent - onePercent);
+                var d2 = Math.Abs(threePercent - twoPercent);
+                var d3 = Math.Abs(threePercent - onePercent);
+
+                Assert.That(d1, Is.LessThan(30));
+                Assert.That(d2, Is.LessThan(30));
+                Assert.That(d3, Is.LessThan(30));
+            }
         }
 
-        [Test]
-        public void GetRandomSelectionFrom_WhenGivenIEnumerableOfItems_ShouldReturnARandomCollectionFromTheCollection()
+        [TestFixture]
+        public class GetRandomFrom
         {
-            //---------------Set up test pack-------------------
-            var o1 = new object();
-            var o2 = new object();
-            var o3 = new object();
-            var items = new[] { o1, o2, o3 };
-            var results = new List<IEnumerable<object>>();
-            const int runs = NORMAL_RANDOM_TEST_CYCLES;
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            for (var i = 0; i < runs; i++)
+            [Test]
+            public void ShouldReturnARandomItemFromTheCollection()
             {
-                results.Add(GetRandomSelectionFrom(items));
-            }
+                //---------------Set up test pack-------------------
+                var o1 = new object();
+                var o2 = new object();
+                var o3 = new object();
+                var items = new[] { o1, o2, o3 };
+                var results = new List<object>();
+                const int runs = NORMAL_RANDOM_TEST_CYCLES;
+                //---------------Assert Precondition----------------
 
-            //---------------Test Result -----------------------
-            var flattened = results.SelectMany(
-                r =>
+                //---------------Execute Test ----------------------
+                for (var i = 0; i < runs; i++)
                 {
-                    var collections = r as object[] ?? r.ToArray();
-                    return collections;
-                });
-            Assert.IsTrue(flattened.All(f => items.Contains(f)));
-            var averageCount = results.Select(r => r.Count()).Average();
-            Assert.That(averageCount, Is.GreaterThan(1));
-            Assert.That(averageCount, Is.LessThan(items.Length));
-        }
+                    results.Add(GetRandomFrom(items));
+                }
 
-        [Test]
-        public void GetRandomSelectionFrom_ShouldNotRepeatItems()
-        {
-            //---------------Set up test pack-------------------
-            var o1 = new object();
-            var o2 = new object();
-            var o3 = new object();
-            var items = new[] { o1, o2, o3 };
-            const int runs = NORMAL_RANDOM_TEST_CYCLES;
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            for (var i = 0; i < runs; i++)
-            {
-                var result = GetRandomSelectionFrom(items);
                 //---------------Test Result -----------------------
-                CollectionAssert.AreEqual(result, result.Distinct());
+                Assert.IsTrue(results.All(r => items.Contains(r)));
+                Assert.IsTrue(items.All(i => results.Any(r => r == i)));
             }
         }
 
-        [Test]
-        public void GetRandomSelectionFrom_ShouldProvideCollectionWithinRequiredRangeOfSize()
+        [TestFixture]
+        public class GetRandomSelectionFrom
         {
-            //---------------Set up test pack-------------------
-            var o1 = new object();
-            var o2 = new object();
-            var o3 = new object();
-            var o4 = new object();
-            var o5 = new object();
-            var o6 = new object();
-            var items = new[] { o1, o2, o3, o4, o5, o6 };
-            var min = GetRandomInt(1, 3);
-            var max = GetRandomInt(3, items.Length);
-            const int runs = NORMAL_RANDOM_TEST_CYCLES;
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            for (var i = 0; i < runs; i++)
+            [Test]
+            public void ShouldReturnARandomCollectionFromTheOriginalCollection()
             {
-                var result = GetRandomSelectionFrom(items, min, max);
+                //---------------Set up test pack-------------------
+                var o1 = new object();
+                var o2 = new object();
+                var o3 = new object();
+                var items = new[] { o1, o2, o3 };
+                var results = new List<IEnumerable<object>>();
+                const int runs = NORMAL_RANDOM_TEST_CYCLES;
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                for (var i = 0; i < runs; i++)
+                {
+                    results.Add(GetRandomSelectionFrom(items));
+                }
+
                 //---------------Test Result -----------------------
-                Assert.That(result.Count(), Is.GreaterThanOrEqualTo(min));
-                Assert.That(result.Count(), Is.LessThanOrEqualTo(max));
+                var flattened = results.SelectMany(
+                    r =>
+                    {
+                        var collections = r as object[] ?? r.ToArray();
+                        return collections;
+                    });
+                Assert.IsTrue(flattened.All(f => items.Contains(f)));
+                var averageCount = results.Select(r => r.Count()).Average();
+                Assert.That(averageCount, Is.GreaterThan(1));
+                Assert.That(averageCount, Is.LessThan(items.Length));
             }
-        }
 
-        [Test]
-        public void GetRandomCollection_GivenFactoryFunction_ShouldInvokeItToCreateItems()
-        {
-            //---------------Set up test pack-------------------
-            const int runs = NORMAL_RANDOM_TEST_CYCLES;
-            var generatedValues = new List<int>();
-            Func<int> factory = () =>
+            [Test]
+            public void ShouldNotRepeatItems()
             {
-                var thisValue = GetRandomInt();
-                generatedValues.Add(thisValue);
-                return thisValue;
-            };
-            //---------------Assert Precondition----------------
+                //---------------Set up test pack-------------------
+                var o1 = new object();
+                var o2 = new object();
+                var o3 = new object();
+                var items = new[] { o1, o2, o3 };
+                const int runs = NORMAL_RANDOM_TEST_CYCLES;
 
-            //---------------Execute Test ----------------------
-            for (var i = 0; i < runs; i++)
-            {
-                var result = GetRandomCollection(factory);
-                //---------------Test Result -----------------------
-                CollectionAssert.AreEqual(generatedValues, result);
-                generatedValues.Clear();
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                for (var i = 0; i < runs; i++)
+                {
+                    var result = GetRandomSelectionFrom(items);
+                    //---------------Test Result -----------------------
+                    CollectionAssert.AreEqual(result, result.Distinct());
+                }
             }
-        }
 
-        [Test]
-        public void GetRandomCollection_GenericInvoke_ShouldUseNinjaSuperPowersToCreateCollection()
-        {
-            //---------------Set up test pack-------------------
-            var minItems = GetRandomInt(5);
-            var maxItems = GetRandomInt(11, 20);
+            [Test]
+            public void GetRandomSelectionFrom_ShouldProvideCollectionWithinRequiredRangeOfSize()
+            {
+                //---------------Set up test pack-------------------
+                var o1 = new object();
+                var o2 = new object();
+                var o3 = new object();
+                var o4 = new object();
+                var o5 = new object();
+                var o6 = new object();
+                var items = new[] { o1, o2, o3, o4, o5, o6 };
+                var min = GetRandomInt(1, 3);
+                var max = GetRandomInt(3, items.Length);
+                const int runs = NORMAL_RANDOM_TEST_CYCLES;
 
-            //---------------Assert Precondition----------------
+                //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var result = GetRandomCollection<SomePOCO>(minItems, maxItems);
-
-            //---------------Test Result -----------------------
-            Assert.IsNotNull(result);
-            CollectionAssert.IsNotEmpty(result);
-            Assert.IsTrue(result.All(r => r != null));
-            Assert.IsTrue(result.All(r => r.GetType() == typeof(SomePOCO)));
-            VarianceAssert.IsVariant<SomePOCO, int>(result, "Id");
-            VarianceAssert.IsVariant<SomePOCO, string>(result, "Name");
-            VarianceAssert.IsVariant<SomePOCO, DateTime>(result, "Date");
+                //---------------Execute Test ----------------------
+                for (var i = 0; i < runs; i++)
+                {
+                    var result = GetRandomSelectionFrom(items, min, max);
+                    //---------------Test Result -----------------------
+                    Assert.That(result.Count(), Is.GreaterThanOrEqualTo(min));
+                    Assert.That(result.Count(), Is.LessThanOrEqualTo(max));
+                }
+            }
         }
 
         [Test]
@@ -542,24 +478,27 @@ namespace PeanutButter.RandomGenerators.Tests
             VarianceAssert.IsVariant<SomePOCO, DateTime>(result, "Date");
         }
 
-        [Test]
-        public void FillingInNaturalValues()
+        [TestFixture]
+        public class FillingInNaturalValues
         {
-            // Arrange
-            // Act
-            var result = GetRandom<SomePOCO>();
-            // Assert
-            Console.WriteLine(result);
-            Expect(result.Name)
-                .To.Contain(result.FirstName);
-            Expect(result.Name)
-                .To.Contain(result.LastName);
-            Expect(result.Login)
-                .To.Contain(result.FirstName.ToLower());
-            Expect(result.Email)
-                .To.Contain(result.FirstName.ToLower());
+            [Test]
+            public void ShouldFillComplementaryValues()
+            {
+                // Arrange
+                // Act
+                var result = GetRandom<SomePOCO>();
+                // Assert
+                Console.WriteLine(result);
+                Expect(result.Name)
+                    .To.Contain(result.FirstName);
+                Expect(result.Name)
+                    .To.Contain(result.LastName);
+                Expect(result.Login)
+                    .To.Contain(result.FirstName.ToLower());
+                Expect(result.Email)
+                    .To.Contain(result.FirstName.ToLower());
+            }
         }
-
 
         [TestFixture]
         public class GetRandomDate
@@ -835,6 +774,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 //---------------Test Result -----------------------
             }
         }
+
 
         [TestFixture]
         public class GetRandomUtcDate
@@ -1631,6 +1571,52 @@ namespace PeanutButter.RandomGenerators.Tests
                 //---------------Test Result -----------------------
                 Assert.AreEqual(min, result.Count());
             }
+
+            [Test]
+            public void ShouldInvokeProvidedFactoryFunction()
+            {
+                //---------------Set up test pack-------------------
+                const int runs = NORMAL_RANDOM_TEST_CYCLES;
+                var generatedValues = new List<int>();
+                Func<int> factory = () =>
+                {
+                    var thisValue = GetRandomInt();
+                    generatedValues.Add(thisValue);
+                    return thisValue;
+                };
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                for (var i = 0; i < runs; i++)
+                {
+                    var result = GetRandomCollection(factory);
+                    //---------------Test Result -----------------------
+                    CollectionAssert.AreEqual(generatedValues, result);
+                    generatedValues.Clear();
+                }
+            }
+
+            [Test]
+            public void GenericInvoke_ShouldGenerateCollectionOfRequestedType()
+            {
+                //---------------Set up test pack-------------------
+                var minItems = GetRandomInt(5);
+                var maxItems = GetRandomInt(11, 20);
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = GetRandomCollection<SomePOCO>(minItems, maxItems);
+
+                //---------------Test Result -----------------------
+                Assert.IsNotNull(result);
+                CollectionAssert.IsNotEmpty(result);
+                Assert.IsTrue(result.All(r => r != null));
+                Assert.IsTrue(result.All(r => r.GetType() == typeof(SomePOCO)));
+                VarianceAssert.IsVariant<SomePOCO, int>(result, "Id");
+                VarianceAssert.IsVariant<SomePOCO, string>(result, "Name");
+                VarianceAssert.IsVariant<SomePOCO, DateTime>(result, "Date");
+            }
         }
 
 
@@ -1736,46 +1722,136 @@ namespace PeanutButter.RandomGenerators.Tests
             }
         }
 
-        [Test]
-        public void GetRandomNumericString_ShouldProduceRandomStringWithOnlyNumericCharacters()
+        [TestFixture]
+        public class GetRandomNumericString
         {
-            var allResults = new List<Tuple<string, int, int>>();
-            RunCycles(
-                () =>
+            [Test]
+            public void ShouldProduceRandomStringWithOnlyNumericCharacters()
+            {
+                var allResults = new List<Tuple<string, int, int>>();
+                RunCycles(
+                    () =>
+                    {
+                        //---------------Set up test pack-------------------
+                        var minLength = GetRandomInt(1, 50);
+                        var maxLength = GetRandomInt(minLength, minLength + 50);
+
+                        //---------------Assert Precondition----------------
+
+                        //---------------Execute Test ----------------------
+                        var result = GetRandomNumericString(minLength, maxLength);
+
+                        allResults.Add(Tuple.Create(result, minLength, maxLength));
+                    });
+                //---------------Test Result -----------------------
+                CollectionAssert.IsNotEmpty(allResults);
+                // collisions are possible, but should occur < 1%
+                var total = allResults.Count;
+                var unique = allResults.Select(o => o.Item1).Distinct().Count();
+                var delta = (total - unique) / (decimal)total;
+                Assert.That(delta, Is.LessThan(1));
+
+                var tooShort = allResults.Where(r => r.Item1.Length < r.Item2);
+                var tooLong = allResults.Where(r => r.Item1.Length > r.Item3);
+                var alphaNumericChars = "1234567890";
+                var invalidCharacters = allResults.Where(r => r.Item1.Any(c => !alphaNumericChars.Contains(c)));
+                Assert.IsFalse(
+                    tooShort.Any() && tooLong.Any() && invalidCharacters.Any(),
+                    BuildErrorMessageFor(tooShort, tooLong, invalidCharacters));
+            }
+        }
+
+        [TestFixture]
+        public class GetAnother
+        {
+            [TestFixture]
+            public class WhenCanGenerateANewValue
+            {
+                [Test]
+                public void GivenOriginalValueCollectionAndNoGenerator_ShouldReturnThatValue()
+                {
+                    RunCycles(
+                        () =>
+                        {
+                            //---------------Set up test pack-------------------
+                            var notThis = "abcdefghijklmnopqrstuvwABCDEFGHIJKLMNOPQRSTUVW".ToCharArray()
+                                .Select(c => c.ToString());
+
+                            //---------------Assert Precondition----------------
+
+                            //---------------Execute Test ----------------------
+                            var result = GetAnother(notThis);
+
+                            //---------------Test Result -----------------------
+                            Assert.IsFalse(notThis.Any(i => i == result));
+                        });
+                }
+
+                [Test]
+                public void GivenOriginalValueAndGenerator_ShouldReturnANewValue()
+                {
+                    RunCycles(
+                        () =>
+                        {
+                            //---------------Set up test pack-------------------
+                            var notThis = GetRandomString(1, 1);
+
+                            //---------------Assert Precondition----------------
+
+                            //---------------Execute Test ----------------------
+                            var result = GetAnother(notThis, () => GetRandomString(1, 1));
+
+                            //---------------Test Result -----------------------
+                            Assert.AreNotEqual(notThis, result);
+                        });
+                }
+
+                [Test]
+                public void GivenOriginalValueAndNoGenerator_ShouldReturnANewValue()
+                {
+                    RunCycles(
+                        () =>
+                        {
+                            //---------------Set up test pack-------------------
+                            var notThis = GetRandomString(1, 1);
+
+                            //---------------Assert Precondition----------------
+
+                            //---------------Execute Test ----------------------
+                            var result = GetAnother(notThis);
+
+                            //---------------Test Result -----------------------
+                            Assert.AreNotEqual(notThis, result);
+                        });
+                }
+
+                [Test]
+                public void GivenNullValue_ShouldReturnValueFromGenerator()
                 {
                     //---------------Set up test pack-------------------
-                    var minLength = GetRandomInt(1, 50);
-                    var maxLength = GetRandomInt(minLength, minLength + 50);
+                    var strings = new Stack<string>();
+                    var expected = GetRandomString();
+                    var unexpected = GetAnother(expected, () => GetRandomString());
+                    strings.Push(unexpected);
+                    strings.Push(expected);
+                    strings.Push(null);
+
 
                     //---------------Assert Precondition----------------
 
                     //---------------Execute Test ----------------------
-                    var result = GetRandomNumericString(minLength, maxLength);
+                    var result = GetAnother((string)null, () => strings.Pop());
 
-                    allResults.Add(Tuple.Create(result, minLength, maxLength));
-                });
-            //---------------Test Result -----------------------
-            CollectionAssert.IsNotEmpty(allResults);
-            // collisions are possible, but should occur < 1%
-            var total = allResults.Count;
-            var unique = allResults.Select(o => o.Item1).Distinct().Count();
-            var delta = (total - unique) / (decimal)total;
-            Assert.That(delta, Is.LessThan(1));
+                    //---------------Test Result -----------------------
+                    Assert.AreEqual(expected, result);
+                }
+            }
 
-            var tooShort = allResults.Where(r => r.Item1.Length < r.Item2);
-            var tooLong = allResults.Where(r => r.Item1.Length > r.Item3);
-            var alphaNumericChars = "1234567890";
-            var invalidCharacters = allResults.Where(r => r.Item1.Any(c => !alphaNumericChars.Contains(c)));
-            Assert.IsFalse(
-                tooShort.Any() && tooLong.Any() && invalidCharacters.Any(),
-                BuildErrorMessageFor(tooShort, tooLong, invalidCharacters));
-        }
-
-        [Test]
-        public void GetAnother_GivenOriginalValueAndGenerator_WhenCanGenerateNewValue_ShouldReturnANewValue()
-        {
-            RunCycles(
-                () =>
+            [TestFixture]
+            public class WhenCannotGenerateOutputDueToFailingValidationFunc
+            {
+                [Test]
+                public void ShouldThrow_Variant1()
                 {
                     //---------------Set up test pack-------------------
                     var notThis = GetRandomString(1, 1);
@@ -1783,252 +1859,485 @@ namespace PeanutButter.RandomGenerators.Tests
                     //---------------Assert Precondition----------------
 
                     //---------------Execute Test ----------------------
-                    var result = GetAnother(notThis, () => GetRandomString(1, 1));
+                    Assert.Throws<CannotGetAnotherDifferentRandomValueException<string>>(
+                        () => GetAnother(
+                            notThis,
+                            () => notThis));
 
                     //---------------Test Result -----------------------
-                    Assert.AreNotEqual(notThis, result);
-                });
-        }
+                }
 
-        [Test]
-        public void GetAnother_GivenOriginalValueAndNoGenerator_WhenCanGenerateNewValue_ShouldReturnANewValue()
-        {
-            RunCycles(
-                () =>
+                [Test]
+                public void ShouldThrow_Variant2()
                 {
                     //---------------Set up test pack-------------------
-                    var notThis = GetRandomString(1, 1);
+                    var notAnyOfThese = GetRandomCollection(() => GetRandomString(), 2);
 
                     //---------------Assert Precondition----------------
 
                     //---------------Execute Test ----------------------
-                    var result = GetAnother(notThis);
+                    Assert.Throws<CannotGetAnotherDifferentRandomValueException<string[]>>(
+                        () => GetAnother(
+                            notAnyOfThese,
+                            () => GetRandomString(),
+                            (left, right) => true));
 
                     //---------------Test Result -----------------------
-                    Assert.AreNotEqual(notThis, result);
-                });
-        }
+                }
+            }
 
-        [Test]
-        public void GetAnother_GivenOriginalValueAndGenerator_WhenCannotGenerateNewValue_ShouldThrow()
-        {
-            //---------------Set up test pack-------------------
-            var notThis = GetRandomString(1, 1);
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            Assert.Throws<CannotGetAnotherDifferentRandomValueException<string>>(
-                () => GetAnother(
-                    notThis,
-                    () => notThis));
-
-            //---------------Test Result -----------------------
-        }
-
-        [Test]
-        public void
-            GetAnother_GivenOriginalValueAndGenerator_WhenCannotGenerateNewValueBecauseOfComparisonFunc_ShouldThrow()
-        {
-            //---------------Set up test pack-------------------
-            var notThis = GetRandomString(1, 1);
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            Assert.Throws<CannotGetAnotherDifferentRandomValueException<string>>(
-                () => GetAnother(
-                    notThis,
-                    () => GetRandomString(),
-                    (left, right) => true));
-
-            //---------------Test Result -----------------------
-        }
-
-        [Test]
-        public void GetAnother_GivenOriginalValueCollectionAndGenerator_WhenCanGenerateNewValue_ShouldReturnThatValue()
-        {
-            RunCycles(
-                () =>
+            [TestFixture]
+            public class WhenCanGenerateNewValues
+            {
+                [Test]
+                public void ShouldReturnThatValue()
                 {
-                    //---------------Set up test pack-------------------
-                    var notThis = "abcdefghijklmnopqrstuvwABCDEFGHIJKLMNOPQRSTUVW".ToCharArray()
-                        .Select(c => c.ToString());
+                    RunCycles(
+                        () =>
+                        {
+                            //---------------Set up test pack-------------------
+                            var notThis = "abcdefghijklmnopqrstuvwABCDEFGHIJKLMNOPQRSTUVW".ToCharArray()
+                                .Select(c => c.ToString());
 
-                    //---------------Assert Precondition----------------
+                            //---------------Assert Precondition----------------
 
-                    //---------------Execute Test ----------------------
-                    var result = GetAnother(notThis, () => GetRandomString(1, 1));
+                            //---------------Execute Test ----------------------
+                            var result = GetAnother(notThis, () => GetRandomString(1, 1));
 
-                    //---------------Test Result -----------------------
-                    Assert.IsFalse(notThis.Any(i => i == result));
-                });
+                            //---------------Test Result -----------------------
+                            Assert.IsFalse(notThis.Any(i => i == result));
+                        });
+                }
+            }
         }
 
-        [Test]
-        public void
-            GetAnother_GivenOriginalValueCollectionAndNoGenerator_WhenCanGenerateNewValue_ShouldReturnThatValue()
+        [TestFixture]
+        public class GenericGetRandom
         {
-            RunCycles(
-                () =>
+            [Test]
+            public void ForInt_ReturnsRandomIntWithinDefaultRange()
+            {
+                //---------------Set up test pack-------------------
+                var ints = new List<int>();
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                RunCycles(() => ints.Add(GetRandom<int>()));
+
+                //---------------Test Result -----------------------
+                VarianceAssert.IsVariant(ints);
+                Assert.IsTrue(ints.All(i => i >= DefaultRanges.MIN_INT_VALUE));
+                Assert.IsTrue(ints.All(i => i <= DefaultRanges.MAX_INT_VALUE));
+            }
+
+            [Test]
+            public void ForLong_ReturnsRandomIntWithinRange()
+            {
+                //---------------Set up test pack-------------------
+                var ints = new List<long>();
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                RunCycles(() => ints.Add(GetRandom<long>()));
+
+                //---------------Test Result -----------------------
+                VarianceAssert.IsVariant(ints);
+                Assert.IsTrue(ints.All(i => i >= DefaultRanges.MIN_LONG_VALUE));
+                Assert.IsTrue(ints.All(i => i <= DefaultRanges.MAX_LONG_VALUE));
+            }
+
+            [Test]
+            public void ForString_ReturnsRandomStringsWithinDefaultRanges()
+            {
+                //---------------Set up test pack-------------------
+                var strings = new List<string>();
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                RunCycles(() => strings.Add(GetRandom<string>()));
+
+                //---------------Test Result -----------------------
+                Assert.IsTrue(strings.All(s => s.Length >= DefaultRanges.MINLENGTH_STRING));
+                Assert.IsTrue(
+                    strings.All(
+                        s => s.Length <=
+                            DefaultRanges.MINLENGTH_STRING +
+                            DefaultRanges.MINLENGTH_STRING));
+                Assert.IsTrue(strings.Distinct().Count() > 1);
+            }
+
+            [Test]
+            public void ForEnum_ShouldReturnRandomValueFromEnumSelection()
+            {
+                //---------------Set up test pack-------------------
+                var results = new List<TestEnum>();
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+
+                RunCycles(() => results.Add(GetRandom<TestEnum>()));
+                //---------------Test Result -----------------------
+                VarianceAssert.IsVariant(results);
+            }
+
+            [Test]
+            // statistically, the ratios can be out
+            [Retry(5)]
+            public void ForEnum_ShouldReturnRandomValueFromEnumSelectionWithReasonableSpread()
+            {
+                //---------------Set up test pack-------------------
+                var results = new List<TestEnum>();
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+
+                RunCycles(() => results.Add(GetRandomEnum<TestEnum>()));
+                //---------------Test Result -----------------------
+                var runs = results.Count;
+                var onePercent = (100 * results.Count(i => i == TestEnum.One)) / runs;
+                var twoPercent = (100 * results.Count(i => i == TestEnum.Two)) / runs;
+                var threePercent = (100 * results.Count(i => i == TestEnum.Three)) / runs;
+
+                var d1 = Math.Abs(twoPercent - onePercent);
+                var d2 = Math.Abs(threePercent - twoPercent);
+                var d3 = Math.Abs(threePercent - onePercent);
+
+                Assert.That(d1, Is.LessThan(20));
+                Assert.That(d2, Is.LessThan(20));
+                Assert.That(d3, Is.LessThan(20));
+            }
+
+            [Test]
+            public void ShouldUseOnTheFlyGenericBuilderToGiveBackRandomItem()
+            {
+                //---------------Set up test pack-------------------
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var item = GetRandom<SomePOCO>();
+
+                //---------------Test Result -----------------------
+                Assert.IsNotNull(item);
+                Assert.IsInstanceOf<SomePOCO>(item);
+                // assert that *something* was set
+                Assert.IsNotNull(item.Id);
+                Assert.IsNotNull(item.Name);
+                Assert.IsNotNull(item.Date);
+            }
+
+            [Test]
+            public void WhenOperatingOnInternalTypeFromAnotherAssembly()
+            {
+                //---------------Set up test pack-------------------
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                Assert.DoesNotThrow(
+                    () => GetRandom<InternalClass>()
+                );
+
+                //---------------Test Result -----------------------
+            }
+
+            [Test]
+            public void WhenOperatingOnInternalTypeNotShared()
+            {
+                //---------------Set up test pack-------------------
+                if (Type.GetType("Mono.Runtime") != null)
                 {
-                    //---------------Set up test pack-------------------
-                    var notThis = "abcdefghijklmnopqrstuvwABCDEFGHIJKLMNOPQRSTUVW".ToCharArray()
-                        .Select(c => c.ToString());
+                    Assert.Ignore("Mono (erroneously) allows access to internal types, so this test is skipped");
+                    return;
+                }
 
-                    //---------------Assert Precondition----------------
+                //---------------Assert Precondition----------------
 
-                    //---------------Execute Test ----------------------
-                    var result = GetAnother(notThis);
+                //---------------Execute Test ----------------------
+                Assert.Throws<UnableToCreateDynamicBuilderException>(
+                    () => GetRandom<AnotherInternalClass>()
+                );
 
-                    //---------------Test Result -----------------------
-                    Assert.IsFalse(notThis.Any(i => i == result));
-                });
+                //---------------Test Result -----------------------
+            }
+
+            [Test]
+            public void
+                GetRandomOfType_GivenInterfaceType_WhenImplementationWithDefaultConstructorCanBefound_ShouldReturnInstance_AndPreferAccessModifiersFromInstance()
+            {
+                //---------------Set up test pack-------------------
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = GetRandom<IInterfaceToGetRandomOf>();
+
+                //---------------Test Result -----------------------
+                Assert.IsNotNull(result);
+                Assert.IsNotNull(result.Name);
+            }
+
+            [Test]
+            public void GetRandom_GivenAValidatorFunction_ShouldReturnADifferentValue()
+            {
+                RunCycles(
+                    () =>
+                    {
+                        //--------------- Arrange -------------------
+                        var first = GetRandom<IHasAnId>();
+
+                        //--------------- Assume ----------------
+
+                        //--------------- Act ----------------------
+                        var other = GetRandom<IHasAnId>(test =>
+                        {
+                            return test.Id != first.Id;
+                        });
+
+                        //--------------- Assert -----------------------
+                        Expect(other).Not.To.Be.Null();
+                        Expect(other).Not.To.Equal(first);
+                        Expect(other.Id).Not.To.Equal(first.Id);
+                    });
+            }
+
+            [Test]
+            public void GetRandom_GivenAValidatorAndGenerator_ShouldUseTheGeneratorToReturnADifferentValue()
+            {
+                //--------------- Arrange -------------------
+                var first = GetRandom<IHasAnId>();
+                var expected = GetRandom<IHasAnId>(o => o.Id != first.Id);
+
+                //--------------- Assume ----------------
+                // rather fail early if we're about to enter an infinite loop
+                Expect(first.Id).Not.To.Equal(expected.Id);
+
+                //--------------- Act ----------------------
+                var result = GetRandom(
+                    o => o.Id != first.Id,
+                    () => expected
+                );
+
+                //--------------- Assert -----------------------
+                Expect(result).To.Equal(expected);
+            }
+
+            [Test]
+            public void GetRandomOfType_WhenTypeHasSimpleParameteredConstructor_ShouldAttemptToConstruct()
+            {
+                // Arrange
+                // Pre-Assert
+                // Act
+                var result = GetRandom<HasConstructorWithParameter>();
+                // Assert
+                Expect(result.Parameter).Not.To.Be.Null();
+            }
+
+            [Test]
+            public void GetRandomOfTypeKeyValuePair_ShouldReturnKeyValuePairWithData()
+            {
+                // Arrange
+                // Pre-Assert
+                // Act
+                var result = GetRandom<KeyValuePair<string, string>>();
+                var attempts = 0;
+                while (result.Key == "" || result.Value == "")
+                {
+                    if (++attempts > 10)
+                        Assert.Fail("Unable to get non-empty key or value");
+                    result = GetRandom<KeyValuePair<string, string>>();
+                }
+
+                // Assert
+                Expect(result).Not.To.Be.Null();
+                Expect(result.Key).Not.To.Be.Null();
+                Expect(result.Value).Not.To.Be.Null();
+            }
+
+            [Test]
+            public void ShouldPreferTheParameterlessConstructor()
+            {
+                // Arrange
+                // Pre-Assert
+                // Act
+                var sut = GetRandom<HasTwoConstructors>();
+                // Assert
+                Expect(sut.ParameterlessConstructorUsed).To.Be.True();
+            }
+
+            [Test]
+            public void WhenPropModsInvokeWithProp_ShouldNotThrowCollectionModifiedException()
+            {
+                // Arrange
+
+                // Pre-assert
+
+                // Act
+                Expect(
+                        () =>
+                        {
+                            var parent = GetRandom<Parent>();
+                            Expect(parent.Children).Not.To.Be.Empty();
+                        })
+                    .Not.To.Throw();
+
+                // Assert
+            }
+
+            [Test]
+            public void WhenTypeHasTimeSpanProperty_ShouldNotExplode()
+            {
+                // Arrange
+                // Pre-assert
+                // Act
+                Expect(GetRandom<PocoWithTimeSpan>)
+                    .Not.To.Throw();
+                // Assert
+            }
+
+            [Test]
+            public void WhenPropModsInvokeWithProp_ShouldNotStoreLastBuildTimePropMods()
+            {
+                // Arrange
+                var builder = ParentBuilder.Create().WithRandomProps();
+
+                // Pre-assert
+
+                // Act
+                builder.Build();
+                Expect(builder.WithChildrenCallCount).To.Equal(1);
+                builder.Build();
+
+                // Assert
+                Expect(builder.WithChildrenCallCount).To.Equal(2);
+            }
+
+            [Test]
+            public void ShouldInvokeAProvidedMutator()
+            {
+                // Arrange
+                // Act
+                var result = GetRandom<SomePOCO>(
+                    o =>
+                    {
+                        o.Id = -42;
+                    });
+                // Assert
+                Expect(result.Id)
+                    .To.Equal(-42);
+            }
         }
 
-
-        [Test]
-        public void
-            GetAnother_GivenOriginalValueCollectionAndGenerator_WhenCannotGenerateNewValueBecauseOfComparisonFunc_ShouldThrow()
+        [TestFixture]
+        public class GetRandomValue
         {
-            //---------------Set up test pack-------------------
-            var notAnyOfThese = GetRandomCollection(() => GetRandomString(), 2);
+            [Test]
+            public void GivenPOCOType_ShouldUseOnTheFlyGenericBuilderToGiveBackRandomItem()
+            {
+                //---------------Set up test pack-------------------
 
-            //---------------Assert Precondition----------------
+                //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            Assert.Throws<CannotGetAnotherDifferentRandomValueException<string[]>>(
-                () => GetAnother(
-                    notAnyOfThese,
-                    () => GetRandomString(),
-                    (left, right) => true));
+                //---------------Execute Test ----------------------
+                var item = GetRandomValue(typeof(SomePOCO)) as SomePOCO;
 
-            //---------------Test Result -----------------------
+                //---------------Test Result -----------------------
+                Assert.IsNotNull(item);
+                Assert.IsInstanceOf<SomePOCO>(item);
+                // assert that *something* was set
+                Assert.IsNotNull(item.Id);
+                Assert.IsNotNull(item.Name);
+                Assert.IsNotNull(item.Date);
+            }
+
+            [TestCase(typeof(int))]
+            [TestCase(typeof(byte))]
+            [TestCase(typeof(char))]
+            [TestCase(typeof(long))]
+            [TestCase(typeof(float))]
+            [TestCase(typeof(double))]
+            [TestCase(typeof(decimal))]
+            [TestCase(typeof(DateTime))]
+            [TestCase(typeof(string))]
+            [TestCase(typeof(bool))]
+            public void GivenPrimitiveType_ShouldUseRegularRVGMethods(Type type)
+            {
+                //---------------Set up test pack-------------------
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var item = GetRandomValue(type);
+
+                //---------------Test Result -----------------------
+                Assert.IsNotNull(item);
+                Assert.IsInstanceOf(type, item);
+            }
+
+            [TestCase(typeof(int?))]
+            [TestCase(typeof(byte?))]
+            [TestCase(typeof(char?))]
+            [TestCase(typeof(long?))]
+            [TestCase(typeof(float?))]
+            [TestCase(typeof(double?))]
+            [TestCase(typeof(decimal?))]
+            [TestCase(typeof(DateTime?))]
+            [TestCase(typeof(bool?))]
+            public void GivenNullablePrimitiveType_ShouldUseRegularRVGMethods(Type type)
+            {
+                //---------------Set up test pack-------------------
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var item = GetRandomValue(type);
+
+                //---------------Test Result -----------------------
+                Assert.IsNotNull(item);
+                Assert.IsInstanceOf(type, item);
+            }
+
+            [Test]
+            public void GivenPOCOType_ShouldHaveVariance()
+            {
+                //---------------Set up test pack-------------------
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var items = GetRandomCollection(GetRandom<SomePOCO>, NORMAL_RANDOM_TEST_CYCLES,
+                    NORMAL_RANDOM_TEST_CYCLES);
+
+                //---------------Test Result -----------------------
+                VarianceAssert.IsVariant<SomePOCO, int>(items, "Id");
+                VarianceAssert.IsVariant<SomePOCO, string>(items, "Name");
+                VarianceAssert.IsVariant<SomePOCO, DateTime>(items, "Date");
+            }
+
+            [Test]
+            public void GivenPOCOWithBuilderType_ShouldUseExistingBuilder()
+            {
+                //---------------Set up test pack-------------------
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var item = GetRandom<SomePOCOWithBuilder>();
+
+                //---------------Test Result -----------------------
+                Assert.IsNotNull(item);
+                Assert.IsInstanceOf<SomePOCOWithBuilder>(item);
+                // assert that *something* was set
+                Assert.IsNotNull(item.Id);
+                Assert.That(item.Id.Value, Is.GreaterThanOrEqualTo(1000));
+                Assert.That(item.Id.Value, Is.LessThanOrEqualTo(2000));
+                Assert.IsNotNull(item.Name);
+                Assert.IsNotNull(item.Date);
+            }
         }
 
-        [Test]
-        public void GetAnother_GivenNullValue_ShouldReturnValueFromGenerator()
-        {
-            //---------------Set up test pack-------------------
-            var strings = new Stack<string>();
-            var expected = GetRandomString();
-            var unexpected = GetAnother(expected, () => GetRandomString());
-            strings.Push(unexpected);
-            strings.Push(expected);
-            strings.Push(null);
-
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = GetAnother((string)null, () => strings.Pop());
-
-            //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
-        }
-
-
-        [Test]
-        public void GetRandom_GivenPOCOType_ShouldUseOnTheFlyGenericBuilderToGiveBackRandomItem()
-        {
-            //---------------Set up test pack-------------------
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var item = GetRandom<SomePOCO>();
-
-            //---------------Test Result -----------------------
-            Assert.IsNotNull(item);
-            Assert.IsInstanceOf<SomePOCO>(item);
-            // assert that *something* was set
-            Assert.IsNotNull(item.Id);
-            Assert.IsNotNull(item.Name);
-            Assert.IsNotNull(item.Date);
-        }
-
-        [Test]
-        public void GetRandomValue_GivenPOCOTypeArgument_ShouldUseOnTheFlyGenericBuilderToGiveBackRandomItem()
-        {
-            //---------------Set up test pack-------------------
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var item = GetRandomValue(typeof(SomePOCO)) as SomePOCO;
-
-            //---------------Test Result -----------------------
-            Assert.IsNotNull(item);
-            Assert.IsInstanceOf<SomePOCO>(item);
-            // assert that *something* was set
-            Assert.IsNotNull(item.Id);
-            Assert.IsNotNull(item.Name);
-            Assert.IsNotNull(item.Date);
-        }
-
-        [TestCase(typeof(int))]
-        [TestCase(typeof(byte))]
-        [TestCase(typeof(char))]
-        [TestCase(typeof(long))]
-        [TestCase(typeof(float))]
-        [TestCase(typeof(double))]
-        [TestCase(typeof(decimal))]
-        [TestCase(typeof(DateTime))]
-        [TestCase(typeof(string))]
-        [TestCase(typeof(bool))]
-        public void GetRandomValue_GivenPrimitiveTypeArgument_ShouldUseRegularRVGMethods(Type type)
-        {
-            //---------------Set up test pack-------------------
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var item = GetRandomValue(type);
-
-            //---------------Test Result -----------------------
-            Assert.IsNotNull(item);
-            Assert.IsInstanceOf(type, item);
-        }
-
-        [TestCase(typeof(int?))]
-        [TestCase(typeof(byte?))]
-        [TestCase(typeof(char?))]
-        [TestCase(typeof(long?))]
-        [TestCase(typeof(float?))]
-        [TestCase(typeof(double?))]
-        [TestCase(typeof(decimal?))]
-        [TestCase(typeof(DateTime?))]
-        [TestCase(typeof(bool?))]
-        public void GetRandomValue_GivenNullablePrimitiveTypeArgument_ShouldUseRegularRVGMethods(Type type)
-        {
-            //---------------Set up test pack-------------------
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var item = GetRandomValue(type);
-
-            //---------------Test Result -----------------------
-            Assert.IsNotNull(item);
-            Assert.IsInstanceOf(type, item);
-        }
-
-
-        [Test]
-        public void GetRandomValue_GivenPOCOType_ShouldHaveVariance()
-        {
-            //---------------Set up test pack-------------------
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var items = GetRandomCollection(GetRandom<SomePOCO>, NORMAL_RANDOM_TEST_CYCLES, NORMAL_RANDOM_TEST_CYCLES);
-
-            //---------------Test Result -----------------------
-            VarianceAssert.IsVariant<SomePOCO, int>(items, "Id");
-            VarianceAssert.IsVariant<SomePOCO, string>(items, "Name");
-            VarianceAssert.IsVariant<SomePOCO, DateTime>(items, "Date");
-        }
 
         public class SomePOCOWithBuilder : SomePOCO
         {
@@ -2043,493 +2352,436 @@ namespace PeanutButter.RandomGenerators.Tests
             }
         }
 
-        [Test]
-        public void GetRandomValue_GivenPOCOWithBuilderType_ShouldUseExistingBuilder()
+        [TestFixture]
+        [Explicit("Discovery tests")]
+        public class Discovery
         {
-            //---------------Set up test pack-------------------
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var item = GetRandom<SomePOCOWithBuilder>();
-
-            //---------------Test Result -----------------------
-            Assert.IsNotNull(item);
-            Assert.IsInstanceOf<SomePOCOWithBuilder>(item);
-            // assert that *something* was set
-            Assert.IsNotNull(item.Id);
-            Assert.That(item.Id.Value, Is.GreaterThanOrEqualTo(1000));
-            Assert.That(item.Id.Value, Is.LessThanOrEqualTo(2000));
-            Assert.IsNotNull(item.Name);
-            Assert.IsNotNull(item.Date);
-        }
-
-        [Test]
-        public void Discovery_EncodingNonPrintableCharacters_ShouldNotThrow()
-        {
-            //---------------Set up test pack-------------------
-            var bytes = GetRandomCollection(() => GetRandomInt(0, 255))
-                .Select(i => (byte)i)
-                .ToArray();
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = Encoding.UTF8.GetString(bytes);
-
-            //---------------Test Result -----------------------
-            Console.WriteLine(result);
-        }
-
-
-        [Test]
-        public void GetRandomAlphaString_GivenMinLength_ShouldReturnValueOfAtLeastThatLength()
-        {
-            //---------------Set up test pack-------------------
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            RunCycles(
-                () =>
-                {
-                    var minLength = GetRandomInt(10, 20);
-                    var result = GetRandomAlphaNumericString(minLength);
-                    Assert.That(result.Length, Is.GreaterThanOrEqualTo(minLength));
-                });
-
-            //---------------Test Result -----------------------
-        }
-
-        [Test]
-        public void GetRandomBytes_ShouldReturnBytesAcrossFullRange()
-        {
-            //---------------Set up test pack-------------------
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            for (var i = 0; i < 20; i++)
+            [Test]
+            public void EncodingNonPrintableCharacters_ShouldNotThrow()
             {
-                // look for full-range variance across an 8k block
-                var result = GetRandomBytes(8192, 8192);
-                if (result.Distinct().Count() == 256)
-                    return;
-            }
-
-            //---------------Test Result -----------------------
-            Assert.Fail("Couldn't find full range of bytes");
-        }
-
-        [Test]
-        public void GetRandomString_ShouldProduceStringInRequiredLengthRange()
-        {
-            //---------------Set up test pack-------------------
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            RunCycles(
-                () =>
-                {
-                    var minLength = GetRandomInt(10, 20);
-                    var maxLength = GetRandomInt(21, 30);
-                    var result = GetRandomString(minLength, maxLength);
-                    Assert.That(result.Length, Is.GreaterThanOrEqualTo(minLength));
-                    Assert.That(result.Length, Is.LessThanOrEqualTo(maxLength));
-                });
-
-            //---------------Test Result -----------------------
-        }
-
-        [Test]
-        public void GetRandomString_GivenMinAndMaxLengthsSwapped_ShouldProduceStringWithinRequiredLengthRange()
-        {
-            //---------------Set up test pack-------------------
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            RunCycles(
-                () =>
-                {
-                    var minLength = GetRandomInt(10, 20);
-                    var maxLength = GetRandomInt(21, 30);
-                    var result = GetRandomString(maxLength, minLength);
-                    Assert.That(result.Length, Is.GreaterThanOrEqualTo(minLength));
-                    Assert.That(result.Length, Is.LessThanOrEqualTo(maxLength));
-                });
-
-            //---------------Test Result -----------------------
-        }
-
-        [Test]
-        public void GetRandomIPv4Address_ShouldReturnValidIPV4Addresses()
-        {
-            //---------------Set up test pack-------------------
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var allResults = new List<string>();
-            RunCycles(
-                () =>
-                {
-                    var result = GetRandomIPv4Address();
-                    allResults.Add(result);
-                    var parts = result.Split('.');
-                    Assert.AreEqual(4, parts.Length);
-                    var ints = parts.Select(int.Parse);
-                    Assert.IsTrue(ints.All(i => i >= 0 && i < 265));
-                });
-
-            //---------------Test Result -----------------------
-            VarianceAssert.IsVariant(allResults);
-        }
-
-        [Test]
-        public void GetRandomHostName_ShouldReturnRandomHostName()
-        {
-            //---------------Set up test pack-------------------
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var allResults = new List<string>();
-            var re = new Regex("^[A-Za-z0-9-]+$");
-            RunCycles(
-                () =>
-                {
-                    var result = GetRandomHostname();
-                    Expect(result)
-                        .Not.To.Be.Null
-                        .Or.Whitespace();
-                    Expect(result.Length)
-                        .To.Be.Less.Than(254);
-                    Assert.IsNotNull(result);
-                    var parts = result.Split('.');
-                    Expect(parts)
-                        .To.Contain.All
-                        .Matched.By(s =>
-                            re.IsMatch(s) &&
-                            s.Length < 64
-                        );
-                    allResults.Add(result);
-                }, 1024);
-
-            //---------------Test Result -----------------------
-            VarianceAssert.IsVariant(allResults);
-        }
-
-        [Test]
-        public void GetRandomHostName_ShouldReturnAtLeastMinRequiredParts()
-        {
-            // Arrange
-            // Act
-            RunCycles(() =>
-            {
-                var min = GetRandomInt(3, 5);
-                var result = GetRandomHostname(min);
-                var parts = result.Split('.');
-                Expect(parts.Length)
-                    .To.Be.Greater.Than.Or.Equal.To(min);
-            });
-            // Assert
-        }
-
-        [Test]
-        public void GetRandomHostName_ShouldReturnPartsWithinFullySpecifiedRange()
-        {
-            // Arrange
-            // Act
-            RunCycles(() =>
-            {
-                var min = GetRandomInt(4, 6);
-                var max = GetRandomInt(8, 12);
-                var result = GetRandomHostname(min, max);
-                var parts = result.Split('.');
-                Expect(parts.Length)
-                    .To.Be.Greater.Than.Or.Equal.To(min)
-                    .And
-                    .To.Be.Less.Than.Or.Equal.To(max);
-            });
-            // Assert
-        }
-
-        [Test]
-        public void GetRandomVersionString_GivenNoParameters_ShouldReturnVersionWithThreeIntegerParts()
-        {
-            //---------------Set up test pack-------------------
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var allResults = new List<string>();
-            RunCycles(
-                () =>
-                {
-                    var result = GetRandomVersionString();
-                    var parts = result.Split('.');
-                    Assert.AreEqual(3, parts.Length);
-                    Assert.IsTrue(parts.All(p => p.IsInteger()));
-                    allResults.Add(result);
-                });
-
-            //---------------Test Result -----------------------
-            VarianceAssert.IsVariant(allResults);
-        }
-
-        [Test]
-        public void GetRandomVersionString_GivenPartsCount_ShouldReturnVersionWithThatManyParts()
-        {
-            //---------------Set up test pack-------------------
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var allResults = new List<string>();
-            RunCycles(
-                () =>
-                {
-                    var partCount = GetRandomInt(2, 7);
-                    var result = GetRandomVersionString(partCount);
-                    var parts = result.Split('.');
-                    Assert.AreEqual(partCount, parts.Length);
-                    Assert.IsTrue(parts.All(p => p.IsInteger()));
-                    allResults.Add(result);
-                });
-
-            //---------------Test Result -----------------------
-            VarianceAssert.IsVariant(allResults);
-        }
-
-        [Test]
-        public void GetRandomVersion_ShouldReturnRandomDotNetVersionInfo()
-        {
-            //---------------Set up test pack-------------------
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var allResults = new List<Version>();
-            RunCycles(
-                () =>
-                {
-                    var result = GetRandomVersion();
-                    allResults.Add(result);
-                });
-
-            //---------------Test Result -----------------------
-            VarianceAssert.IsVariant(allResults);
-        }
-
-        [Test]
-        public void GetRandomFoldername_ShouldProduceVariantPath()
-        {
-            //---------------Set up test pack-------------------
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var allResults = new List<string>();
-            RunCycles(
-                () =>
-                {
-                    var thisResult = GetRandomWindowsPath();
-                    var parts = thisResult.Split('\\');
-                    Assert.That(parts.Length, Is.GreaterThan(1));
-                    Assert.That(parts.Length, Is.LessThan(6));
-                    Assert.That(thisResult.Length, Is.LessThan(248));
-                    Assert.That(parts[0].Length == 2);
-                    Assert.That(parts[0].EndsWith(":"));
-                    StringAssert.Contains(parts[0].First().ToString(), "ABCDEGHIJKLMNOPQRSTUVWXYZ");
-                    allResults.Add(thisResult);
-                });
-
-            //---------------Test Result -----------------------
-            VarianceAssert.IsVariant(allResults);
-        }
-
-        [Test]
-        public void GetRandom_OnInternalTypeFromAnotherAssembly()
-        {
-            //---------------Set up test pack-------------------
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(
-                () => GetRandom<InternalClass>()
-            );
-
-            //---------------Test Result -----------------------
-        }
-
-        [Test]
-        public void GetRandom_OnInternalTypeNotShared()
-        {
-            //---------------Set up test pack-------------------
-            if (Type.GetType("Mono.Runtime") != null)
-            {
-                Assert.Ignore("Mono allows access to internal types, so this test is skipped");
-                return;
-            }
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            Assert.Throws<UnableToCreateDynamicBuilderException>(
-                () => GetRandom<AnotherInternalClass>()
-            );
-
-            //---------------Test Result -----------------------
-        }
-
-        [Test]
-        public void CreateRandomFolderIn_GivenExistingPath_ShouldCreateFolderInThere()
-        {
-            //---------------Set up test pack-------------------
-            using (var folder = new AutoTempFolder())
-            {
-                //---------------Assert Precondition----------------
-
-                //---------------Execute Test ----------------------
-                var result = CreateRandomFolderIn(folder.Path);
-
-                //---------------Test Result -----------------------
-                Assert.IsNotNull(result);
-                Assert.IsTrue(Directory.Exists(Path.Combine(folder.Path, result)));
-            }
-        }
-
-
-        [Test]
-        public void CreateRandomFoldersIn_GivenPath_ShouldCreateSomeRandomFoldersThereAndReturnTheRelativePaths()
-        {
-            //---------------Set up test pack-------------------
-            using (var folder = new AutoTempFolder())
-            {
-                //---------------Assert Precondition----------------
-
-                //---------------Execute Test ----------------------
-                var result = CreateRandomFoldersIn(folder.Path);
-
-                //---------------Test Result -----------------------
-                Expect(result).Not.To.Be.Null();
-                Expect(result).Not.To.Be.Empty();
-                Expect(result).To.Have.Unique.Items();
-
-                Expect(result).To.Be.FoldersUnder(folder.Path);
-                Expect(result).To.Be.TheOnlyFoldersUnder(folder.Path);
-            }
-        }
-
-        [Test]
-        public void
-            CreateRandomFoldersIn_GivenPathAndDepth_ShouldCreateSomeRandomFoldersThereAndReturnTheRelativePaths()
-        {
-            //---------------Set up test pack-------------------
-            using (var folder = new AutoTempFolder())
-            {
-                //---------------Assert Precondition----------------
-                var depth = GetRandomInt(2, 3);
-
-                //---------------Execute Test ----------------------
-                var result = CreateRandomFoldersIn(folder.Path, depth);
-
-                //---------------Test Result -----------------------
-                Expect(result).Not.To.Be.Null();
-                Expect(result).Not.To.Be.Empty();
-                Expect(result).To.Be.FoldersUnder(folder.Path);
-                Expect(result).To.Have.Unique.Items();
-
-                var depths = result
-                    .Select(r => r.Split(Path.DirectorySeparatorChar).Length)
+                //---------------Set up test pack-------------------
+                var bytes = GetRandomCollection(() => GetRandomInt(0, 255))
+                    .Select(i => (byte)i)
                     .ToArray();
-                Expect(depths.All(d => d <= depth)).To.Be.True();
-            }
-        }
-
-        [Test]
-        public void CreateRandomFileIn_GivenPath_ShouldReturnNameOfFileCreatedThereWithRandomContents()
-        {
-            //---------------Set up test pack-------------------
-            using (var folder = new AutoTempFolder())
-            {
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                var result = CreateRandomFileIn(folder.Path);
+                var result = Encoding.UTF8.GetString(bytes);
 
                 //---------------Test Result -----------------------
-                Assert.IsNotNull(result);
-                Assert.IsTrue(File.Exists(Path.Combine(folder.Path, result)));
-                CollectionAssert.IsNotEmpty(File.ReadAllBytes(Path.Combine(folder.Path, result)));
+                Console.WriteLine(result);
             }
         }
 
-        [Test]
-        public void CreateRandomTextFileIn_GivenPath_ShouldReturnNameOfFileCreatedThereWithRandomContents()
+
+        [TestFixture]
+        public class GetRandomAlphaString
         {
-            //---------------Set up test pack-------------------
-            using (var folder = new AutoTempFolder())
+            [Test]
+            public void GivenMinLength_ShouldReturnValueOfAtLeastThatLength()
             {
+                //---------------Set up test pack-------------------
+
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                var result = CreateRandomTextFileIn(folder.Path);
+                RunCycles(
+                    () =>
+                    {
+                        var minLength = GetRandomInt(10, 20);
+                        var result = GetRandomAlphaNumericString(minLength);
+                        Assert.That(result.Length, Is.GreaterThanOrEqualTo(minLength));
+                    });
 
                 //---------------Test Result -----------------------
-                Assert.IsNotNull(result);
-                Assert.IsTrue(File.Exists(Path.Combine(folder.Path, result)));
-                var lines = File.ReadAllLines(Path.Combine(folder.Path, result));
-                CollectionAssert.IsNotEmpty(lines);
-                Assert.IsTrue(
-                    lines.All(
-                        l =>
-                        {
-                            return l.All(c => !Char.IsControl(c));
-                        }));
             }
         }
 
-        [Test]
-        public void CreateRandomFileTreeIn_GivenPath_ShouldCreateFilesAndFoldersAndReturnTheirRelativePaths()
+        [TestFixture]
+        public class GetRandomBytes
         {
-            //---------------Set up test pack-------------------
-            using (var folder = new AutoTempFolder())
+            [Test]
+            public void ShouldReturnBytesAcrossFullRange()
             {
+                //---------------Set up test pack-------------------
+
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                var result = CreateRandomFileTreeIn(folder.Path);
-
-                //---------------Test Result -----------------------
-                Assert.IsNotNull(result);
-                CollectionAssert.IsNotEmpty(result);
-                Assert.IsTrue(result.Any(r => PathExists(Path.Combine(folder.Path, r))));
-                Assert.IsTrue(result.Any(r => File.Exists(Path.Combine(folder.Path, r))), "No files found");
-                Assert.IsTrue(result.Any(r => Directory.Exists(Path.Combine(folder.Path, r))), "No folders found");
-            }
-        }
-
-        [Test]
-        public void RangeCheckTimeOnRandomDate_WhenGivenDateWithTimeExceedingMaxTime_ShouldReturnDateWithTimeAtMaxTime()
-        {
-            RunCycles(
-                () =>
+                for (var i = 0; i < 20; i++)
                 {
-                    //---------------Set up test pack-------------------
-                    var input = new DateTime(2011, 1, 1, 12, 30, 0);
-                    var maxTime = new DateTime(2011, 1, 1, 9, 30, 0);
+                    // look for full-range variance across an 8k block
+                    var result = GetRandomBytes(8192, 8192);
+                    if (result.Distinct().Count() == 256)
+                        return;
+                }
 
+                //---------------Test Result -----------------------
+                Assert.Fail("Couldn't find full range of bytes");
+            }
+        }
+
+        [TestFixture]
+        public class GetRandomIPV4Address
+        {
+            [Test]
+            public void ShouldReturnValidIPV4Addresses()
+            {
+                //---------------Set up test pack-------------------
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var allResults = new List<string>();
+                RunCycles(
+                    () =>
+                    {
+                        var result = GetRandomIPv4Address();
+                        allResults.Add(result);
+                        var parts = result.Split('.');
+                        Assert.AreEqual(4, parts.Length);
+                        var ints = parts.Select(int.Parse);
+                        Assert.IsTrue(ints.All(i => i >= 0 && i < 265));
+                    });
+
+                //---------------Test Result -----------------------
+                VarianceAssert.IsVariant(allResults);
+            }
+        }
+
+        [TestFixture]
+        public class GetRandomHostName
+        {
+            [Test]
+            public void ShouldReturnRandomHostName()
+            {
+                //---------------Set up test pack-------------------
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var allResults = new List<string>();
+                var re = new Regex("^[A-Za-z0-9-]+$");
+                RunCycles(
+                    () =>
+                    {
+                        var result = GetRandomHostname();
+                        Expect(result)
+                            .Not.To.Be.Null
+                            .Or.Whitespace();
+                        Expect(result.Length)
+                            .To.Be.Less.Than(254);
+                        Assert.IsNotNull(result);
+                        var parts = result.Split('.');
+                        Expect(parts)
+                            .To.Contain.All
+                            .Matched.By(s =>
+                                re.IsMatch(s) &&
+                                s.Length < 64
+                            );
+                        allResults.Add(result);
+                    }, 1024);
+
+                //---------------Test Result -----------------------
+                VarianceAssert.IsVariant(allResults);
+            }
+
+            [Test]
+            public void ShouldReturnAtLeastMinRequiredParts()
+            {
+                // Arrange
+                // Act
+                RunCycles(() =>
+                {
+                    var min = GetRandomInt(3, 5);
+                    var result = GetRandomHostname(min);
+                    var parts = result.Split('.');
+                    Expect(parts.Length)
+                        .To.Be.Greater.Than.Or.Equal.To(min);
+                });
+                // Assert
+            }
+
+            [Test]
+            public void ShouldReturnPartsWithinFullySpecifiedRange()
+            {
+                // Arrange
+                // Act
+                RunCycles(() =>
+                {
+                    var min = GetRandomInt(4, 6);
+                    var max = GetRandomInt(8, 12);
+                    var result = GetRandomHostname(min, max);
+                    var parts = result.Split('.');
+                    Expect(parts.Length)
+                        .To.Be.Greater.Than.Or.Equal.To(min)
+                        .And
+                        .To.Be.Less.Than.Or.Equal.To(max);
+                });
+                // Assert
+            }
+        }
+
+        [TestFixture]
+        public class GeneratingRandomVersions
+        {
+            [Test]
+            public void Default_ShouldReturnVersionWithThreeIntegerParts()
+            {
+                //---------------Set up test pack-------------------
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var allResults = new List<string>();
+                RunCycles(
+                    () =>
+                    {
+                        var result = GetRandomVersionString();
+                        var parts = result.Split('.');
+                        Assert.AreEqual(3, parts.Length);
+                        Assert.IsTrue(parts.All(p => p.IsInteger()));
+                        allResults.Add(result);
+                    });
+
+                //---------------Test Result -----------------------
+                VarianceAssert.IsVariant(allResults);
+            }
+
+            [Test]
+            public void GivenPartsCount_ShouldReturnVersionWithThatManyParts()
+            {
+                //---------------Set up test pack-------------------
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var allResults = new List<string>();
+                RunCycles(
+                    () =>
+                    {
+                        var partCount = GetRandomInt(2, 7);
+                        var result = GetRandomVersionString(partCount);
+                        var parts = result.Split('.');
+                        Assert.AreEqual(partCount, parts.Length);
+                        Assert.IsTrue(parts.All(p => p.IsInteger()));
+                        allResults.Add(result);
+                    });
+
+                //---------------Test Result -----------------------
+                VarianceAssert.IsVariant(allResults);
+            }
+
+            [Test]
+            public void ShouldReturnRandomDotNetVersionInfo()
+            {
+                //---------------Set up test pack-------------------
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var allResults = new List<Version>();
+                RunCycles(
+                    () =>
+                    {
+                        var result = GetRandomVersion();
+                        allResults.Add(result);
+                    });
+
+                //---------------Test Result -----------------------
+                VarianceAssert.IsVariant(allResults);
+            }
+        }
+
+        [TestFixture]
+        public class GetRandomFolderName
+        {
+            [Test]
+            public void ShouldProduceVariantPath()
+            {
+                //---------------Set up test pack-------------------
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var allResults = new List<string>();
+                RunCycles(
+                    () =>
+                    {
+                        var thisResult = GetRandomWindowsPath();
+                        var parts = thisResult.Split('\\');
+                        Assert.That(parts.Length, Is.GreaterThan(1));
+                        Assert.That(parts.Length, Is.LessThan(6));
+                        Assert.That(thisResult.Length, Is.LessThan(248));
+                        Assert.That(parts[0].Length == 2);
+                        Assert.That(parts[0].EndsWith(":"));
+                        StringAssert.Contains(parts[0].First().ToString(), "ABCDEGHIJKLMNOPQRSTUVWXYZ");
+                        allResults.Add(thisResult);
+                    });
+
+                //---------------Test Result -----------------------
+                VarianceAssert.IsVariant(allResults);
+            }
+        }
+
+        [TestFixture]
+        public class CreatingRandomFolders
+        {
+            [Test]
+            public void GivenExistingPath_ShouldCreateFolderInThere()
+            {
+                //---------------Set up test pack-------------------
+                using (var folder = new AutoTempFolder())
+                {
                     //---------------Assert Precondition----------------
 
                     //---------------Execute Test ----------------------
-                    var result = RangeCheckTimeOnRandomDate(null, maxTime, input);
+                    var result = CreateRandomFolderIn(folder.Path);
 
                     //---------------Test Result -----------------------
-                    Assert.That(result.TimeOfDay, Is.LessThanOrEqualTo(maxTime.TimeOfDay));
-                });
+                    Assert.IsNotNull(result);
+                    Assert.IsTrue(Directory.Exists(Path.Combine(folder.Path, result)));
+                }
+            }
+
+
+            [Test]
+            public void GivenPath_ShouldCreateSomeRandomFoldersThereAndReturnTheRelativePaths()
+            {
+                //---------------Set up test pack-------------------
+                using (var folder = new AutoTempFolder())
+                {
+                    //---------------Assert Precondition----------------
+
+                    //---------------Execute Test ----------------------
+                    var result = CreateRandomFoldersIn(folder.Path);
+
+                    //---------------Test Result -----------------------
+                    Expect(result).Not.To.Be.Null();
+                    Expect(result).Not.To.Be.Empty();
+                    Expect(result).To.Have.Unique.Items();
+
+                    Expect(result).To.Be.FoldersUnder(folder.Path);
+                    Expect(result).To.Be.TheOnlyFoldersUnder(folder.Path);
+                }
+            }
+
+            [Test]
+            public void
+                CreateRandomFoldersIn_GivenPathAndDepth_ShouldCreateSomeRandomFoldersThereAndReturnTheRelativePaths()
+            {
+                //---------------Set up test pack-------------------
+                using (var folder = new AutoTempFolder())
+                {
+                    //---------------Assert Precondition----------------
+                    var depth = GetRandomInt(2, 3);
+
+                    //---------------Execute Test ----------------------
+                    var result = CreateRandomFoldersIn(folder.Path, depth);
+
+                    //---------------Test Result -----------------------
+                    Expect(result).Not.To.Be.Null();
+                    Expect(result).Not.To.Be.Empty();
+                    Expect(result).To.Be.FoldersUnder(folder.Path);
+                    Expect(result).To.Have.Unique.Items();
+
+                    var depths = result
+                        .Select(r => r.Split(Path.DirectorySeparatorChar).Length)
+                        .ToArray();
+                    Expect(depths.All(d => d <= depth)).To.Be.True();
+                }
+            }
+        }
+
+        [TestFixture]
+        public class CreatingRandomFiles
+        {
+            [Test]
+            public void CreateRandomFileIn_GivenPath_ShouldReturnNameOfFileCreatedThereWithRandomContents()
+            {
+                //---------------Set up test pack-------------------
+                using (var folder = new AutoTempFolder())
+                {
+                    //---------------Assert Precondition----------------
+
+                    //---------------Execute Test ----------------------
+                    var result = CreateRandomFileIn(folder.Path);
+
+                    //---------------Test Result -----------------------
+                    Assert.IsNotNull(result);
+                    Assert.IsTrue(File.Exists(Path.Combine(folder.Path, result)));
+                    CollectionAssert.IsNotEmpty(File.ReadAllBytes(Path.Combine(folder.Path, result)));
+                }
+            }
+
+            [Test]
+            public void CreateRandomTextFileIn_GivenPath_ShouldReturnNameOfFileCreatedThereWithRandomContents()
+            {
+                //---------------Set up test pack-------------------
+                using (var folder = new AutoTempFolder())
+                {
+                    //---------------Assert Precondition----------------
+
+                    //---------------Execute Test ----------------------
+                    var result = CreateRandomTextFileIn(folder.Path);
+
+                    //---------------Test Result -----------------------
+                    Assert.IsNotNull(result);
+                    Assert.IsTrue(File.Exists(Path.Combine(folder.Path, result)));
+                    var lines = File.ReadAllLines(Path.Combine(folder.Path, result));
+                    CollectionAssert.IsNotEmpty(lines);
+                    Assert.IsTrue(
+                        lines.All(
+                            l =>
+                            {
+                                return l.All(c => !Char.IsControl(c));
+                            }));
+                }
+            }
+
+            [Test]
+            public void CreateRandomFileTreeIn_GivenPath_ShouldCreateFilesAndFoldersAndReturnTheirRelativePaths()
+            {
+                //---------------Set up test pack-------------------
+                using (var folder = new AutoTempFolder())
+                {
+                    //---------------Assert Precondition----------------
+
+                    //---------------Execute Test ----------------------
+                    var result = CreateRandomFileTreeIn(folder.Path);
+
+                    //---------------Test Result -----------------------
+                    Assert.IsNotNull(result);
+                    CollectionAssert.IsNotEmpty(result);
+                    Assert.IsTrue(result.Any(r => PathExists(Path.Combine(folder.Path, r))));
+                    Assert.IsTrue(result.Any(r => File.Exists(Path.Combine(folder.Path, r))), "No files found");
+                    Assert.IsTrue(result.Any(r => Directory.Exists(Path.Combine(folder.Path, r))), "No folders found");
+                }
+            }
+        }
+
+        [TestFixture]
+        public class RangeCheckTimeOnRandomDate
+        {
+            [Test]
+            public void WhenGivenDateWithTimeExceedingMaxTime_ShouldReturnDateWithTimeAtMaxTime()
+            {
+                RunCycles(
+                    () =>
+                    {
+                        //---------------Set up test pack-------------------
+                        var input = new DateTime(2011, 1, 1, 12, 30, 0);
+                        var maxTime = new DateTime(2011, 1, 1, 9, 30, 0);
+
+                        //---------------Assert Precondition----------------
+
+                        //---------------Execute Test ----------------------
+                        var result = RangeCheckTimeOnRandomDate(null, maxTime, input);
+
+                        //---------------Test Result -----------------------
+                        Assert.That(result.TimeOfDay, Is.LessThanOrEqualTo(maxTime.TimeOfDay));
+                    });
+            }
         }
 
         public interface IInterfaceToGetRandomOf
@@ -2542,69 +2794,9 @@ namespace PeanutButter.RandomGenerators.Tests
             public string Name { get; set; }
         }
 
-        [Test]
-        public void
-            GetRandomOfType_GivenInterfaceType_WhenImplementationWithDefaultConstructorCanBefound_ShouldReturnInstance_AndPreferAccessModifiersFromInstance()
-        {
-            //---------------Set up test pack-------------------
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = GetRandom<IInterfaceToGetRandomOf>();
-
-            //---------------Test Result -----------------------
-            Assert.IsNotNull(result);
-            Assert.IsNotNull(result.Name);
-        }
-
         public interface IHasAnId
         {
             int Id { get; set; }
-        }
-
-        [Test]
-        public void GetRandom_GivenAValidatorFunction_ShouldReturnADifferentValue()
-        {
-            RunCycles(
-                () =>
-                {
-                    //--------------- Arrange -------------------
-                    var first = GetRandom<IHasAnId>();
-
-                    //--------------- Assume ----------------
-
-                    //--------------- Act ----------------------
-                    var other = GetRandom<IHasAnId>(test =>
-                    {
-                        return test.Id != first.Id;
-                    });
-
-                    //--------------- Assert -----------------------
-                    Expect(other).Not.To.Be.Null();
-                    Expect(other).Not.To.Equal(first);
-                    Expect(other.Id).Not.To.Equal(first.Id);
-                });
-        }
-
-        [Test]
-        public void GetRandom_GivenAValidatorAndGenerator_ShouldUseTheGeneratorToReturnADifferentValue()
-        {
-            //--------------- Arrange -------------------
-            var first = GetRandom<IHasAnId>();
-            var expected = GetRandom<IHasAnId>(o => o.Id != first.Id);
-
-            //--------------- Assume ----------------
-            // rather fail early if we're about to enter an infinite loop
-            Expect(first.Id).Not.To.Equal(expected.Id);
-
-            //--------------- Act ----------------------
-            var result = GetRandom(
-                o => o.Id != first.Id,
-                () => expected
-            );
-
-            //--------------- Assert -----------------------
-            Expect(result).To.Equal(expected);
         }
 
         public class HasConstructorWithParameter
@@ -2615,38 +2807,6 @@ namespace PeanutButter.RandomGenerators.Tests
             {
                 Parameter = parameter;
             }
-        }
-
-        [Test]
-        public void GetRandomOfType_WhenTypeHasSimpleParameteredConstructor_ShouldAttemptToConstruct()
-        {
-            // Arrange
-            // Pre-Assert
-            // Act
-            var result = GetRandom<HasConstructorWithParameter>();
-            // Assert
-            Expect(result.Parameter).Not.To.Be.Null();
-        }
-
-        [Test]
-        public void GetRandomOfTypeKeyValuePair_ShouldReturnKeyValuePairWithData()
-        {
-            // Arrange
-            // Pre-Assert
-            // Act
-            var result = GetRandom<KeyValuePair<string, string>>();
-            var attempts = 0;
-            while (result.Key == "" || result.Value == "")
-            {
-                if (++attempts > 10)
-                    Assert.Fail("Unable to get non-empty key or value");
-                result = GetRandom<KeyValuePair<string, string>>();
-            }
-
-            // Assert
-            Expect(result).Not.To.Be.Null();
-            Expect(result.Key).Not.To.Be.Null();
-            Expect(result.Value).Not.To.Be.Null();
         }
 
         public class HasTwoConstructors
@@ -2666,68 +2826,11 @@ namespace PeanutButter.RandomGenerators.Tests
             }
         }
 
-        [Test]
-        public void GetRandomOfT_ShouldPreferTheParameterlessConstructor()
-        {
-            // Arrange
-            // Pre-Assert
-            // Act
-            var sut = GetRandom<HasTwoConstructors>();
-            // Assert
-            Expect(sut.ParameterlessConstructorUsed).To.Be.True();
-        }
-
-        [Test]
-        public void WhenPropModsInvokeWithProp_ShouldNotThrowCollectionModifiedException()
-        {
-            // Arrange
-
-            // Pre-assert
-
-            // Act
-            Expect(
-                    () =>
-                    {
-                        var parent = GetRandom<Parent>();
-                        Expect(parent.Children).Not.To.Be.Empty();
-                    })
-                .Not.To.Throw();
-
-            // Assert
-        }
-
         public class PocoWithTimeSpan
         {
             public TimeSpan Moo { get; set; }
         }
 
-        [Test]
-        public void GetRandomOfT_WhenTypeHasTimeSpanProperty_ShouldNotExplode()
-        {
-            // Arrange
-            // Pre-assert
-            // Act
-            Expect(GetRandom<PocoWithTimeSpan>)
-                .Not.To.Throw();
-            // Assert
-        }
-
-        [Test]
-        public void WhenPropModsInvokeWithProp_ShouldNotStoreLastBuildTimePropMods()
-        {
-            // Arrange
-            var builder = ParentBuilder.Create().WithRandomProps();
-
-            // Pre-assert
-
-            // Act
-            builder.Build();
-            Expect(builder.WithChildrenCallCount).To.Equal(1);
-            builder.Build();
-
-            // Assert
-            Expect(builder.WithChildrenCallCount).To.Equal(2);
-        }
 
         public class Parent
         {
@@ -2762,7 +2865,7 @@ namespace PeanutButter.RandomGenerators.Tests
             }
         }
 
-        private bool PathExists(string path)
+        private static bool PathExists(string path)
         {
             return File.Exists(path) || Directory.Exists(path);
         }
