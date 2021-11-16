@@ -193,7 +193,7 @@ namespace PeanutButter.TempDb
             _autoDisposeThread = null;
         }
 
-        protected void CheckForInactivity(object obj)
+        protected void CheckForInactivity(object _)
         {
             while (!_disposed)
             {
@@ -380,15 +380,19 @@ namespace PeanutButter.TempDb
                 _disposed = true;
             }
 
-            _inactivityWatcherThread?.Join();
-            _inactivityWatcherThread = null;
+            if (_inactivityWatcherThread is not null)
+            {
+                Log("Waiting on inactivity watcher thread to complete");
+                _inactivityWatcherThread?.Join();
+                _inactivityWatcherThread = null;
+            }
 
             DisposeOfManagedConnections();
             DeleteTemporaryDataArtifacts();
             var handlers = Disposed;
             try
             {
-                handlers.Invoke(this, _autoDisposeInformation ??
+                handlers?.Invoke(this, _autoDisposeInformation ??
                     new TempDbDisposedEventArgs(
                         "TempDb instance was disposed",
                         false,
@@ -412,6 +416,7 @@ namespace PeanutButter.TempDb
                 return;
             }
 
+            Log("Deleting temporary database artifacts");
             try
             {
                 if (Directory.Exists(DatabasePath))
@@ -440,6 +445,7 @@ namespace PeanutButter.TempDb
 
         private void DisposeOfManagedConnections()
         {
+            Log("Disposing of managed connections");
             foreach (var conn in _managedConnections)
             {
                 var localConnection = conn;

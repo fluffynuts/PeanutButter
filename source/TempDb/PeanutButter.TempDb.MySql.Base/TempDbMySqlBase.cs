@@ -79,6 +79,20 @@ namespace PeanutButter.TempDb.MySql.Base
             return envValue.AsBoolean();
         }
 
+        private bool ShouldAttemptGracefulShutdown
+        {
+            get
+            {
+                var envValue = Environment.GetEnvironmentVariable("TEMPDB_GRACEFUL_SHUTDOWN");
+                if (envValue is null)
+                {
+                    return Settings?.Options?.AttemptGracefulShutdown ?? true;
+                }
+
+                return envValue.AsBoolean();
+            }
+        }
+
         private readonly object _debugLogLock = new object();
 
         private void DebugLog(string toLog)
@@ -529,7 +543,7 @@ namespace PeanutButter.TempDb.MySql.Base
         {
             using (new AutoLocker(MysqldLock))
             {
-                if (_serverProcess == null)
+                if (_serverProcess is null)
                 {
                     return;
                 }
@@ -552,28 +566,21 @@ namespace PeanutButter.TempDb.MySql.Base
 
         private void AttemptGracefulShutdown()
         {
-            if (_serverProcess == null)
+            if (
+                _serverProcess is null
+                || !ShouldAttemptGracefulShutdown
+            )
             {
                 return;
             }
 
+            Log("Attempting graceful shutdown of mysql server");
             var task = Task.Run(() =>
             {
                 try
                 {
                     SwitchToSchema("mysql");
-                    using var connection = OpenConnection();
-                    using var command = connection.CreateCommand();
-                    // this is only available from mysql 5.7.9 onward (https://dev.mysql.com/doc/refman/5.7/en/shutdown.html)
-                    command.CommandText = "SHUTDOWN";
-                    try
-                    {
-                        command.ExecuteNonQuery();
-                    }
-                    catch
-                    {
-                        /* ignore */
-                    }
+                    Execute("SHUTDOWN");
                 }
                 catch (Exception ex)
                 {

@@ -138,6 +138,12 @@ namespace PeanutButter.TempDb.MySql.Base
             /// </summary>
             public int MaxTimeToConnectAtStartInSeconds { get; set; } = 
                 DEFAULT_MAX_TIME_TO_CONNECT_AT_START_IN_SECONDS;
+
+            /// <summary>
+            /// When shutting down the mysql server, attempt to do so gracefully
+            /// with the SHUTDOWN command, before terminating the process
+            /// </summary>
+            public bool AttemptGracefulShutdown { get; set; }
         }
 
         /// <summary>
