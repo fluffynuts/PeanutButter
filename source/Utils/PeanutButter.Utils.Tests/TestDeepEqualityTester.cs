@@ -874,6 +874,26 @@ namespace PeanutButter.Utils.Tests
                     .To.Be.True();
             }
 
+            [Test]
+            public void ShouldBeAbleToCompareTypeProperties()
+            {
+                // Arrange
+                var left = new
+                {
+                    T = typeof(Oddities)
+                };
+                var right = new
+                {
+                    T = typeof(Oddities)
+                };
+                var sut = Create(left, right);
+                // Act
+                var result = sut.AreDeepEqual();
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+
             public enum LogLevel
             {
                 Trace = 0,
@@ -884,6 +904,7 @@ namespace PeanutButter.Utils.Tests
                 Critical = 5,
                 None = 6,
             }
+
             public enum ExtLogLevel
             {
                 Trace = 1,
@@ -933,7 +954,7 @@ namespace PeanutButter.Utils.Tests
             public void GivenDisparateNumericTypesAndCustomDecimalComparer()
             {
                 // Arrange
-                var left = new { id = (long) 1 };
+                var left = new { id = (long)1 };
                 var right = new { id = 2 };
                 var sut = Create(left, right);
                 sut.AddCustomComparer(new DecimalComparerWhichAllowsUpTo2Delta());

@@ -185,14 +185,20 @@ PeanutButter.Utils
             object objCompare
         )
         {
-            if (objSource == null && objCompare == null)
+            if (objSource is null && objCompare is null)
             {
                 return true;
             }
 
-            if (objSource == null || objCompare == null)
+            if (objSource is null || objCompare is null)
             {
                 return false;
+            }
+
+            if (ReferenceEquals(objSource, objCompare))
+            {
+                // shortcut! also solves the problem of comparing Type values
+                return true;
             }
 
             var sourceType = objSource.GetType();
