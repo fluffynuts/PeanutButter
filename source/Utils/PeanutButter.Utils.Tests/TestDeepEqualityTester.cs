@@ -875,7 +875,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
-            public void ShouldBeAbleToCompareTypeProperties()
+            public void ShouldBeAbleToCompareTypePropertiesOfSameValue()
             {
                 // Arrange
                 var left = new
@@ -892,6 +892,27 @@ namespace PeanutButter.Utils.Tests
                 // Assert
                 Expect(result)
                     .To.Be.True();
+            }
+
+            [Test]
+            public void ShouldBeAbleToCompareTypePropertiesOfDifferentValue()
+            {
+                // Arrange
+                var left = new
+                {
+                    T = typeof(decimal)
+                };
+
+                var right = new
+                {
+                    T = typeof(int)
+                };
+                var sut = Create(left, right);
+                // Act
+                var result = sut.AreDeepEqual();
+                // Assert
+                Expect(result)
+                    .To.Be.False();
             }
 
             public enum LogLevel
