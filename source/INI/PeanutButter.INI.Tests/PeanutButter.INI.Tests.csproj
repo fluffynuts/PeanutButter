@@ -29,7 +29,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />
-    <PackageReference Include="NExpect" Version="1.0.226" />
+    <PackageReference Include="NExpect" Version="1.0.235" />
     <PackageReference Include="NExpect.Matchers.NSubstitute" Version="1.0.226" />
     <PackageReference Include="NSubstitute" Version="4.2.2">
       <Version>4.2.2</Version>

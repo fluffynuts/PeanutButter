@@ -41,7 +41,7 @@
       <Version>12.0.3</Version>
     </PackageReference>
     <PackageReference Include="NExpect">
-      <Version>1.0.226</Version>
+      <Version>1.0.235</Version>
     </PackageReference>
     <PackageReference Include="nunit">
       <Version>3.12.0</Version>
