@@ -181,10 +181,15 @@ namespace PeanutButter.Utils
             this IEnumerable<T> collection,
             string joinWith)
         {
-            var stringArray = collection as string[];
-            if (stringArray != null)
+            if (collection is null)
             {
-                return string.Join(joinWith, stringArray ?? new string[0]);
+                return "";
+            }
+
+            var stringArray = collection as string[];
+            if (stringArray is not null)
+            {
+                return string.Join(joinWith, stringArray);
             }
 
             if (typeof(T) == typeof(string))
@@ -193,7 +198,7 @@ namespace PeanutButter.Utils
             }
             else
             {
-                stringArray = collection.Select(i => i.ToString()).ToArray();
+                stringArray = collection.Select(i => $"{i}").ToArray();
             }
 
             return string.Join(joinWith, stringArray ?? new string[0]);

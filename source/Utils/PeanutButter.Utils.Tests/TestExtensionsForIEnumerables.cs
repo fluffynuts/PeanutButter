@@ -171,89 +171,217 @@ namespace PeanutButter.Utils.Tests
                 .To.Be.False();
         }
 
-        [Test]
-        public void JoinWith_OperatingOnCollection_WhenCollectionIsEmpty_ShouldReturnEmptyString()
+        [TestFixture]
+        public class JoinWith
         {
-            //---------------Set up test pack-------------------
-            var src = new List<string>();
+            [Test]
+            public void ShouldReturnEmptyStringForNullCollection()
+            {
+                // Arrange
+                var collection = null as int[];
+                // Act
+                var result = collection.JoinWith("");
+                // Assert
+                Expect(result)
+                    .To.Equal("");
+            }
 
-            //---------------Assert Precondition----------------
+            [TestFixture]
+            public class OperatingOnStringCollection
+            {
+                [TestFixture]
+                public class WhenCollectionIsEmpty
+                {
+                    [Test]
+                    public void ShouldReturnEmptyString()
+                    {
+                        //---------------Set up test pack-------------------
+                        var src = new List<string>();
 
-            //---------------Execute Test ----------------------
-            var result = src.JoinWith(",");
+                        //---------------Assert Precondition----------------
 
-            //---------------Test Result -----------------------
-            Expect(result)
-                .To.Be.Empty();
+                        //---------------Execute Test ----------------------
+                        var result = src.JoinWith(",");
+
+                        //---------------Test Result -----------------------
+                        Expect(result)
+                            .To.Be.Empty();
+                    }
+                }
+
+                [TestFixture]
+                public class WhenCollectionHasItems
+                {
+                    [Test]
+                    public void ShouldReturnJoinedString()
+                    {
+                        // Arrange
+                        var src = new[] { "a", "b", "c" };
+                        var delimiter = ";";
+                        var expected = "a;b;c";
+
+                        // Act
+                        var result = src.JoinWith(delimiter);
+                        // Assert
+                        Expect(result)
+                            .To.Equal(expected);
+                    }
+                }
+            }
+
+            [TestFixture]
+            public class OperatingOnNumericCollection
+            {
+                [TestFixture]
+                public class WhenCollectionIsEmpty
+                {
+                    [Test]
+                    public void ShouldReturnEmptyString()
+                    {
+                        //---------------Set up test pack-------------------
+                        var src = new List<int>();
+
+                        //---------------Assert Precondition----------------
+
+                        //---------------Execute Test ----------------------
+                        var result = src.JoinWith(",");
+
+                        //---------------Test Result -----------------------
+                        Expect(result)
+                            .To.Be.Empty();
+                    }
+                }
+
+                [TestFixture]
+                public class WhenCollectionIsNotEmpty
+                {
+                    [Test]
+                    public void ShouldReturnCollectionJoinedWithGivenDelimiter()
+                    {
+                        //---------------Set up test pack-------------------
+                        var src = new[] { 1, 2, 3 };
+                        var delimiter = GetRandomString(2, 3);
+                        var expected = "1" + delimiter + "2" + delimiter + "3";
+
+                        //---------------Assert Precondition----------------
+
+                        //---------------Execute Test ----------------------
+                        var result = src.JoinWith(delimiter);
+
+                        //---------------Test Result -----------------------
+                        Expect(result)
+                            .To.Equal(expected);
+                    }
+                }
+            }
+
+            [TestFixture]
+            public class OperatingOnObjects
+            {
+                [Test]
+                public void ShouldReturnValuesConvertedToStringsJoinedWithDelimiter()
+                {
+                    // Arrange
+                    var items = GetRandomArray<Person>(2, 3);
+                    var delimiter = ";;";
+                    var expected = "";
+                    foreach (var item in items)
+                    {
+                        if (expected.Length > 0)
+                        {
+                            expected += delimiter;
+                        }
+                        expected += item.ToString();
+                    }
+                    // Act
+                    var result = items.JoinWith(delimiter);
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+
+                [Test]
+                public void ShouldNotBreakOnNullValues()
+                {
+                    // Arrange
+                    var items = GetRandomArray<Person>(3, 4);
+                    items[1] = null;
+                    var delimiter = ";;";
+                    var expected = "";
+                    foreach (var item in items)
+                    {
+                        if (expected.Length > 0)
+                        {
+                            expected += delimiter;
+                        }
+                        expected += $"{item}";
+                    }
+                    // Act
+                    var result = items.JoinWith(delimiter);
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+
+                public class Person
+                {
+                    public int Id { get; set; }
+                    public string Name { get; set; }
+
+                    public override string ToString()
+                    {
+                        return $"{Id}::{Name}";
+                    }
+                }
+            }
         }
 
-        [Test]
-        public void
-            JoinWith_OperatingOnCollection_WhenCollectionIsNotEmpty_ShouldReturnCollectionJoinedWithGivenDelimiter()
+        [TestFixture]
+        public class EmptyIfNull
         {
-            //---------------Set up test pack-------------------
-            var src = new[] { 1, 2, 3 };
-            var delimiter = GetRandomString(2, 3);
-            var expected = "1" + delimiter + "2" + delimiter + "3";
+            [TestFixture]
+            public class WhenCollectionIsNull
+            {
+                [Test]
+                public void ShouldReturnNewEmptyCollection()
+                {
+                    //---------------Set up test pack-------------------
+                    List<int> src = null;
+                    //---------------Assert Precondition----------------
 
-            //---------------Assert Precondition----------------
+                    //---------------Execute Test ----------------------
+                    var result1 = src.EmptyIfNull();
+                    var result2 = src.EmptyIfNull();
 
-            //---------------Execute Test ----------------------
-            var result = src.JoinWith(delimiter);
+                    //---------------Test Result -----------------------
+                    Expect(result1)
+                        .Not.To.Be.Null();
+                    Expect(result1)
+                        .To.Be.An.Instance.Of<int[]>();
+                    Expect(result1)
+                        .To.Be.Empty();
+                    Expect(result2)
+                        .To.Be.Empty();
+                    Expect(result2)
+                        .Not.To.Be(result1);
+                }
+            }
 
-            //---------------Test Result -----------------------
-            Expect(result)
-                .To.Equal(expected);
-        }
-
-        [Test]
-        public void IsEmpty_WhenCollectionIsEmpty_ShouldReturnTrue()
-        {
-            //---------------Set up test pack-------------------
-            var src = new Stack<int>();
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = src.IsEmpty();
-
-            //---------------Test Result -----------------------
-            Expect(result)
-                .To.Be.True();
-        }
-
-        [Test]
-        public void IsEmpty_WhenCollectionIsNotEmpty_ShouldReturnFalse()
-        {
-            //---------------Set up test pack-------------------
-            var src = new[] { 1 };
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = src.IsEmpty();
-
-            //---------------Test Result -----------------------
-            Expect(result)
-                .To.Be.False();
-        }
-
-        [Test]
-        public void EmptyIfNull()
-        {
-            //---------------Set up test pack-------------------
-            List<int> src = null;
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = src.EmptyIfNull();
-
-            //---------------Test Result -----------------------
-            Expect(result).Not.To.Be.Null();
-            Expect(result)
-                .To.Be.An.Instance.Of<int[]>();
-            Expect(result)
-                .To.Be.Empty();
+            [TestFixture]
+            public class WhenCollectionIsNotNull
+            {
+                [Test]
+                public void ShouldReturnOriginalCollection()
+                {
+                    // Arrange
+                    var collection = GetRandomCollection<int>();
+                    // Act
+                    var result = collection.EmptyIfNull();
+                    // Assert
+                    Expect(result)
+                        .To.Be(collection);
+                }
+            }
         }
 
         [TestFixture]
