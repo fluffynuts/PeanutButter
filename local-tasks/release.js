@@ -111,6 +111,10 @@ function pushNugetPackagesWithNugetExe(skipDuplicates) {
     if (skipDuplicates) {
       result.push("-SkipDuplicate");
     }
+    if (process.env.NUGET_API_KEY) {
+        result.push("-ApiKey");
+        result.push(process.env.NUGET_API_KEY);
+    }
     return result;
   });
 }
