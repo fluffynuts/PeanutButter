@@ -1096,7 +1096,7 @@ namespace PeanutButter.RandomGenerators
 
         /// <summary>
         /// Generates a street address, given a street number and / or name
-        /// (null values are discarded & random values will be generated)
+        /// (null values are discarded &amp; random values will be generated)
         /// </summary>
         /// <param name="streetNumber"></param>
         /// <param name="streetName"></param>
