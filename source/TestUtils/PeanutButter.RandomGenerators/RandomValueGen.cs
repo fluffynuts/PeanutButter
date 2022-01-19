@@ -1893,6 +1893,19 @@ namespace PeanutButter.RandomGenerators
         }
 
         /// <summary>
+        /// Creates a full random file tree (folders and some files, to a depth of 2) under a given path. Useful
+        /// when you need to test utilities which trawl the filesystem.
+        /// </summary>
+        /// <param name="path">Folder in which to create the tree</param>
+        /// <returns>A collection of relative paths to the files within the created tree</returns>
+        public static IEnumerable<string> CreateRandomFileTreeIn(
+            string path
+        )
+        {
+            return CreateRandomFileTreeIn(path, 2);
+        }
+
+        /// <summary>
         /// Creates a full random file tree (folders and some files) under a given path. Useful
         /// when you need to test utilities which trawl the filesystem.
         /// </summary>
@@ -1901,7 +1914,8 @@ namespace PeanutButter.RandomGenerators
         /// <returns>A collection of relative paths to the files within the created tree</returns>
         public static IEnumerable<string> CreateRandomFileTreeIn(
             string path,
-            int depth = 2)
+            int depth
+        )
         {
             var folders = CreateRandomFoldersIn(path, depth).ToArray();
             var result = new List<string>(folders);
@@ -1917,6 +1931,24 @@ namespace PeanutButter.RandomGenerators
                         });
                 });
             return result;
+        }
+
+        /// <summary>
+        /// Provides a random language code
+        /// </summary>
+        /// <returns></returns>
+        public static string GetRandomLanguageCode()
+        {
+            return GetRandomFrom(NaturalData.LanguageCodes);
+        }
+
+        /// <summary>
+        /// Provides a random language name
+        /// </summary>
+        /// <returns></returns>
+        public static string GetRandomLanguageName()
+        {
+            return GetRandomFrom(NaturalData.LanguageNames);
         }
     }
 }
