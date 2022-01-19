@@ -72,7 +72,7 @@ namespace PeanutButter.INI
             // TODO: what about merged values?
             //    -> does the original inifile need a way to mask existing values with
             //        null values?
-            _iniFile.SetValue(_section, key, null);
+            _iniFile.RemoveValue(_section, key);
             return true;
         }
 

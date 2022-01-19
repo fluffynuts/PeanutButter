@@ -874,6 +874,40 @@ otherSetting=otherValue";
         }
 
         [TestFixture]
+        public class RemovingSettings
+        {
+            [Test]
+            public void ShouldRemoveSettingWhenKeyIsRemoved()
+            {
+                // Arrange
+                var ini = @"
+[main]
+key1=""value1""
+key2=""value2""
+";
+                var expected = @"
+[main]
+key2=""value2""
+";
+                var sut = new INIFile();
+                sut.Parse(ini);
+                Expect(sut["main"]["key1"])
+                    .To.Equal("value1");
+                Expect(sut["main"]["key2"])
+                    .To.Equal("value2");
+                // Act
+                var section = sut["main"];
+                section.Remove("key1");
+                var memStream = new MemoryStream();
+                sut.Persist(memStream);
+                // Assert
+                var updatedIni = Encoding.UTF8.GetString(memStream.ToArray());
+                Expect(updatedIni.Trim())
+                    .To.Equal(expected.Trim());
+            }
+        }
+        
+        [TestFixture]
         public class TestingForSection
         {
             [Test]
@@ -967,7 +1001,6 @@ otherSetting=otherValue";
             }
         }
 
-
         [TestFixture]
         public class GettingValuesViaIndexers
         {
@@ -993,7 +1026,6 @@ otherSetting=otherValue";
                 Expect(result).To.Equal(value);
             }
         }
-
 
         [Test]
         public void Sections_ShouldReturnSectionNames()
@@ -1633,6 +1665,7 @@ key=value
                 .Parse(Arg.Any<string>());
         }
 
+        [TestFixture]
         public class WrapValueInQuotes
         {
             [Test]
