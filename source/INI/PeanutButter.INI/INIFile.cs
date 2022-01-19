@@ -205,6 +205,33 @@ namespace PeanutButter.INI
         /// <param name="other">other ini file</param>
         /// <param name="mergeStrategy">strategy to use when encountering conflicts</param>
         void Merge(IINIFile other, MergeStrategies mergeStrategy);
+
+        /// <summary>
+        /// Removes a value from the section
+        /// - will not remove empty sections
+        /// - this is functionally equivalent to ini["section"].Remove("key")
+        /// </summary>
+        /// <param name="section">Section to remove the setting from</param>
+        /// <param name="key">Setting to remove</param>
+        /// <returns></returns>
+        bool RemoveValue(
+            string section,
+            string key
+        );
+
+        /// <summary>
+        /// Removes a value from the section
+        /// - optionally removes empty sections
+        /// </summary>
+        /// <param name="section">Section to remove the setting from</param>
+        /// <param name="key">Setting to remove</param>
+        /// <param name="removeEmptySection">Whether or not to clear out empty sections</param>
+        /// <returns></returns>
+        bool RemoveValue(
+            string section,
+            string key,
+            bool removeEmptySection
+        );
     }
 
     /// <summary>
@@ -565,8 +592,8 @@ namespace PeanutButter.INI
             Comments[section] = result;
             return result;
         }
-        
-        private static readonly StringComparer DefaultStringComparer 
+
+        private static readonly StringComparer DefaultStringComparer
             = StringComparer.InvariantCultureIgnoreCase;
 
         private string GetSectionNameFrom(string line)
@@ -910,8 +937,11 @@ namespace PeanutButter.INI
             var writeValue = string.Empty;
             if (dataValue is not null)
             {
-                writeValue = WrapValueInQuotes ? $"=\"{EscapeEntities(dataValue, section, key)}\"" : $"={EscapeEntities(dataValue, section, key)}";
+                writeValue = WrapValueInQuotes
+                    ? $"=\"{EscapeEntities(dataValue, section, key)}\""
+                    : $"={EscapeEntities(dataValue, section, key)}";
             }
+
             lines.Add(string.Join(string.Empty, key.Trim(), writeValue));
             return string.Join(Environment.NewLine, lines);
         }
@@ -944,6 +974,37 @@ namespace PeanutButter.INI
         {
             AddSection(section);
             Data[section][key] = value;
+        }
+
+        /// <inheritdoc />
+        public bool RemoveValue(
+            string section,
+            string key
+        )
+        {
+            return RemoveValue(section, key, false);
+        }
+
+        /// <inheritdoc />
+        public bool RemoveValue(
+            string section,
+            string key,
+            bool removeEmptySection
+        )
+        {
+            if (!HasSection(section))
+            {
+                return false;
+            }
+
+            var sectionData = Data[section];
+            var result = sectionData.Remove(key);
+            if (removeEmptySection && !sectionData.Any())
+            {
+                Data.Remove(section);
+            }
+
+            return result;
         }
 
         /// <inheritdoc />
