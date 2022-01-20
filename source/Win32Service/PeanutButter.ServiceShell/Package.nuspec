@@ -10,8 +10,7 @@
     </description>
     <releaseNotes></releaseNotes>
     <summary>
-      Provides a simple, easy-to-use shell base class for polling services which can install and uninstall itself. Please
-      reade the included README.txt for the (few) steps you need to do to use this project.
+      Provides a simple, easy-to-use shell base class for polling services which can install and uninstall itself.
     </summary>
     <language>en-US</language>
     <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
