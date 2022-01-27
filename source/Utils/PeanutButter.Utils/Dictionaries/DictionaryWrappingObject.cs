@@ -748,6 +748,23 @@ namespace PeanutButter.Utils.Dictionaries
             return _valueGetter(host);
         }
 
+        public bool TryGetValue(object host, out object value, out Exception exception)
+        {
+            try
+            {
+                exception = default;
+                value = GetValue(host);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                value = default;
+                exception = ex;
+                return false;
+            }
+            
+        }
+
         public void SetValue(object host, object value)
         {
             if (!CanWrite)

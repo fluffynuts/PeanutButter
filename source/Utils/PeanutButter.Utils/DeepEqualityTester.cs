@@ -738,8 +738,22 @@ Imported.PeanutButter.Utils
             PropertyOrField srcProp,
             PropertyOrField compareProp)
         {
-            var srcValue = srcProp.GetValue(objSource);
-            var compareValue = compareProp.GetValue(objCompare);
+            var canReadSource = srcProp.TryGetValue(objSource, out var srcValue, out var srcReadException);
+            var canReadTarget = compareProp.TryGetValue(objCompare, out var compareValue, out var compareReadException);
+            
+            var bothFailed = !canReadSource && !canReadTarget;
+            var oneFailed = !canReadSource || !canReadTarget;
+
+            if (bothFailed)
+            {
+                return AreDeepEqualInternal(srcReadException, compareReadException);
+            }
+
+            if (oneFailed)
+            {
+                return false;
+            }
+
             var result = CanPerformSimpleTypeMatchFor(srcProp.Type)
                 ? AreDeepEqualInternal(srcValue, compareValue)
                 : MatchPropertiesOrCollection(srcValue, compareValue, srcProp, compareProp);

@@ -915,6 +915,27 @@ namespace PeanutButter.Utils.Tests
                     .To.Be.False();
             }
 
+            [Test]
+            public void ShouldConsiderPropertiesWhichThrowTheExactSameExceptionToBeEqual()
+            {
+                // Arrange
+                var left = new HasThrowingProp();
+                var right = new HasThrowingProp();
+                left.Id = right.Id = GetRandomInt();
+                var sut = new DeepEqualityTester(left, right);
+                // Act
+                var result = sut.AreDeepEqual();
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+
+            public class HasThrowingProp
+            {
+                public int Id { get; set; }
+                public int Thrower => throw new ArgumentException(nameof(Id), "Invalid id");
+            }
+
             public enum LogLevel
             {
                 Trace = 0,

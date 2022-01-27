@@ -90,6 +90,17 @@ interface IPropertyOrField
         object GetValue(object host);
 
         /// <summary>
+        /// Attempts to get the value of the property
+        /// - if the getter throws, returns false and the output exception is set
+        /// - if the getter succeeds, returns true and the output value is set
+        /// </summary>
+        /// <param name="host"></param>
+        /// <param name="value"></param>
+        /// <param name="exception"></param>
+        /// <returns></returns>
+        bool TryGetValue(object host, out object value, out Exception exception);
+
+        /// <summary>
         /// Sets the value of the property or field on the provided host
         /// </summary>
         /// <param name="host"></param>
@@ -349,6 +360,23 @@ interface IPropertyOrField
         public object GetValue(object host)
         {
             return _getValue(host);
+        }
+
+        /// <inheritdoc />
+        public bool TryGetValue(object host, out object value, out Exception exception)
+        {
+            try
+            {
+                exception = default;
+                value = GetValue(host);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                value = default;
+                exception = ex;
+                return false;
+            }
         }
 
         /// <inheritdoc />
