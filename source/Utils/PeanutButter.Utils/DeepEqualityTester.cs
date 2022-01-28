@@ -479,8 +479,10 @@ Imported.PeanutButter.Utils
             PropertyOrField srcPropInfo,
             IEnumerable<PropertyOrField> compareProperties)
         {
-            var comparePropInfo = compareProperties.FirstOrDefault(pi => pi.Name == srcPropInfo.Name);
-            if (comparePropInfo == null)
+            var comparePropInfo = compareProperties.FirstOrDefault(
+                pi => pi.Name == srcPropInfo.Name
+            );
+            if (comparePropInfo is null)
             {
                 if (FailOnMissingProperties)
                     AddError("Unable to find comparison property with name: '" + srcPropInfo.Name + "'");
@@ -490,11 +492,16 @@ Imported.PeanutButter.Utils
             var compareType = comparePropInfo.Type;
             var srcType = srcPropInfo.Type;
             if (TypesAreComparable(srcType, compareType))
+            {
                 return comparePropInfo;
+            }
+
             var srcIsEnumerable = srcType.ImplementsEnumerableGenericType();
             var comparisonIsEnumerable = compareType.ImplementsEnumerableGenericType();
             if (srcIsEnumerable && comparisonIsEnumerable)
+            {
                 return comparePropInfo;
+            }
 
             AddErrorForMismatch(srcPropInfo, comparePropInfo, srcIsEnumerable || comparisonIsEnumerable);
             return null;
@@ -569,12 +576,32 @@ Imported.PeanutButter.Utils
         {
             Tuple.Create(typeof(int), typeof(long)),
             Tuple.Create(typeof(int), typeof(short)),
+            Tuple.Create(typeof(int), typeof(int)),
+            Tuple.Create(typeof(int), typeof(decimal)),
+            Tuple.Create(typeof(int), typeof(float)),
+            Tuple.Create(typeof(int), typeof(short)),
+            Tuple.Create(typeof(int), typeof(double)),
+
             Tuple.Create(typeof(long), typeof(short)),
             Tuple.Create(typeof(long), typeof(float)),
+
             Tuple.Create(typeof(float), typeof(double)),
             Tuple.Create(typeof(float), typeof(decimal)),
             Tuple.Create(typeof(double), typeof(decimal))
         };
+
+        private static readonly HashSet<Type> ComparableNumericTypes =
+            new(
+                new[]
+                {
+                    typeof(int),
+                    typeof(long),
+                    typeof(decimal),
+                    typeof(float),
+                    typeof(short),
+                    typeof(double)
+                }
+            );
 
         private static bool TypesAreCloseEnough(
             DeepEqualityTester tester,
@@ -582,11 +609,15 @@ Imported.PeanutButter.Utils
             Type compareType
         )
         {
-            return LooselyComparableTypes.Any(
-                pair =>
-                    (pair.Item1 == srcType && pair.Item2 == compareType) ||
-                    (pair.Item2 == srcType && pair.Item1 == compareType)
-            );
+            return IsComparableNumericType(srcType) &&
+                    IsComparableNumericType(compareType);
+
+            bool IsComparableNumericType(Type test)
+            {
+                return ComparableNumericTypes.Contains(
+                    test.ResolveNullableUnderlyingType()
+                );
+            }
         }
 
         private static bool TypesAreIdentical(
@@ -740,7 +771,7 @@ Imported.PeanutButter.Utils
         {
             var canReadSource = srcProp.TryGetValue(objSource, out var srcValue, out var srcReadException);
             var canReadTarget = compareProp.TryGetValue(objCompare, out var compareValue, out var compareReadException);
-            
+
             var bothFailed = !canReadSource && !canReadTarget;
             var oneFailed = !canReadSource || !canReadTarget;
 
@@ -782,7 +813,7 @@ Imported.PeanutButter.Utils
             object targetType
         )
         {
-            return srcType.IsRuntimeType() && 
+            return srcType.IsRuntimeType() &&
                 targetType.IsRuntimeType();
         }
 

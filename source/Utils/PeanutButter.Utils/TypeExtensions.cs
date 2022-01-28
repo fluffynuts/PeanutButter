@@ -1054,6 +1054,21 @@ namespace PeanutButter.Utils
         {
             return Types.PrimitivesAndImmutables.Contains(type);
         }
+        
+        
+        /// <summary>
+        /// Resolves to the actual type or the underlying type T if the provided
+        /// type is Nullable&lt;T&gt;
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static Type ResolveNullableUnderlyingType(this Type type)
+        {
+            return (!type.IsGenericType || type.GetGenericTypeDefinition() != typeof(Nullable<>))
+                ? type
+                : Nullable.GetUnderlyingType(type);
+        }
+
     }
 
     internal static class Types

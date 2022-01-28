@@ -930,6 +930,214 @@ namespace PeanutButter.Utils.Tests
                     .To.Be.True();
             }
 
+            [TestFixture]
+            public class ComparingNullableAndNonNullableValues
+            {
+                [TestFixture]
+                public class HappyPaths
+                {
+                    [Test]
+                    public void ShouldBeAbleToCompareNullableInt()
+                    {
+                        // Arrange
+                        var left = new { id = 1 };
+                        var right = new { id = (int?)1 };
+                        var sut = Create(left, right);
+                        // Act
+                        var result = sut.AreDeepEqual();
+                        // Assert
+                        Expect(result)
+                            .To.Be.True();
+                    }
+
+                    [Test]
+                    public void ShouldBeAbleToCompareNullableLong()
+                    {
+                        // Arrange
+                        var left = new { id = 1 };
+                        var right = new { id = (long?)1 };
+                        var sut = Create(left, right);
+                        // Act
+                        var result = sut.AreDeepEqual();
+                        // Assert
+                        Expect(result)
+                            .To.Be.True();
+                    }
+
+                    [Test]
+                    public void ShouldBeAbleToCompareNullableDecimal()
+                    {
+                        // Arrange
+                        var left = new { id = 1 };
+                        var right = new { id = (decimal?)1 };
+                        var sut = Create(left, right);
+                        // Act
+                        var result = sut.AreDeepEqual();
+                        // Assert
+                        Expect(result)
+                            .To.Be.True();
+                    }
+
+                    [Test]
+                    public void ShouldBeAbleToCompareNullableShort()
+                    {
+                        // Arrange
+                        var left = new { id = 1 };
+                        var right = new { id = (short?)1 };
+                        var sut = Create(left, right);
+                        // Act
+                        var result = sut.AreDeepEqual();
+                        // Assert
+                        Expect(result)
+                            .To.Be.True();
+                    }
+
+                    [Test]
+                    public void ShouldBeAbleToCompareNullableFloat()
+                    {
+                        // Arrange
+                        var left = new { id = 1 };
+                        var right = new { id = (float?)1 };
+                        var sut = Create(left, right);
+                        // Act
+                        var result = sut.AreDeepEqual();
+                        // Assert
+                        Expect(result)
+                            .To.Be.True();
+                    }
+
+                    [Test]
+                    public void ShouldBeAbleToCompareNullableDouble()
+                    {
+                        // Arrange
+                        var left = new { id = 1 };
+                        var right = new { id = (double?)1 };
+                        var sut = Create(left, right);
+                        // Act
+                        var result = sut.AreDeepEqual();
+                        // Assert
+                        Expect(result)
+                            .To.Be.True();
+                    }
+                }
+                
+                [TestFixture]
+                public class SadPaths
+                {
+                    [Test]
+                    public void ShouldBeAbleToCompareNullableInt()
+                    {
+                        // Arrange
+                        var left = new { id = 2 };
+                        var right = new { id = (int?)1 };
+                        var sut = Create(left, right);
+                        // Act
+                        var result = sut.AreDeepEqual();
+                        // Assert
+                        Expect(result)
+                            .To.Be.False();
+                    }
+
+                    [Test]
+                    public void ShouldBeAbleToCompareNullableIntThatIsNull()
+                    {
+                        // Arrange
+                        var left = new { id = 2 };
+                        var right = new { id = (int?)null };
+                        var sut = Create(left, right);
+                        // Act
+                        var result = sut.AreDeepEqual();
+                        // Assert
+                        Expect(result)
+                            .To.Be.False();
+                    }
+
+                    [Test]
+                    public void ShouldBeAbleToCompareNullableIntThatIsNullReversed()
+                    {
+                        // Arrange
+                        var left = new { id = 2 };
+                        var right = new { id = (int?)null };
+                        var sut = Create(right, left);
+                        // Act
+                        var result = sut.AreDeepEqual();
+                        // Assert
+                        Expect(result)
+                            .To.Be.False();
+                    }
+
+                    [Test]
+                    public void ShouldBeAbleToCompareNullableLong()
+                    {
+                        // Arrange
+                        var left = new { id = 2 };
+                        var right = new { id = (long?)1 };
+                        var sut = Create(left, right);
+                        // Act
+                        var result = sut.AreDeepEqual();
+                        // Assert
+                        Expect(result)
+                            .To.Be.False();
+                    }
+
+                    [Test]
+                    public void ShouldBeAbleToCompareNullableDecimal()
+                    {
+                        // Arrange
+                        var left = new { id = 1 };
+                        var right = new { id = (decimal?)1.0001M };
+                        var sut = Create(left, right);
+                        // Act
+                        var result = sut.AreDeepEqual();
+                        // Assert
+                        Expect(result)
+                            .To.Be.False();
+                    }
+
+                    [Test]
+                    public void ShouldBeAbleToCompareNullableShort()
+                    {
+                        // Arrange
+                        var left = new { id = 1 };
+                        var right = new { id = (short?)2 };
+                        var sut = Create(left, right);
+                        // Act
+                        var result = sut.AreDeepEqual();
+                        // Assert
+                        Expect(result)
+                            .To.Be.False();
+                    }
+
+                    [Test]
+                    public void ShouldBeAbleToCompareNullableFloat()
+                    {
+                        // Arrange
+                        var left = new { id = 1 };
+                        var right = new { id = (float?)1.2 };
+                        var sut = Create(left, right);
+                        // Act
+                        var result = sut.AreDeepEqual();
+                        // Assert
+                        Expect(result)
+                            .To.Be.False();
+                    }
+
+                    [Test]
+                    public void ShouldBeAbleToCompareNullableDouble()
+                    {
+                        // Arrange
+                        var left = new { id = 1 };
+                        var right = new { id = (double?)1.000001 };
+                        var sut = Create(left, right);
+                        // Act
+                        var result = sut.AreDeepEqual();
+                        // Assert
+                        Expect(result)
+                            .To.Be.False();
+                    }
+                }
+            }
+
             public class HasThrowingProp
             {
                 public int Id { get; set; }
