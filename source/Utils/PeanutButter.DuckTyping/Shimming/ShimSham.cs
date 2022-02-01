@@ -88,8 +88,11 @@ namespace PeanutButter.DuckTyping.Shimming
             bool allowReadonlyDefaultsForMissingMembers,
             IPropertyInfoFetcher propertyInfoFetcher)
         {
-            if (interfaceToMimic == null)
+            if (interfaceToMimic is null)
+            {
                 throw new ArgumentNullException(nameof(interfaceToMimic));
+            }
+
             _propertyInfoFetcher = propertyInfoFetcher ?? throw new ArgumentNullException(nameof(propertyInfoFetcher));
             _isFuzzy = isFuzzy;
             _wrapped = toWrap;
@@ -109,8 +112,11 @@ namespace PeanutButter.DuckTyping.Shimming
             var bindingFlags = BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.Public;
             _mimickedPropInfos = new PropertyInfoContainer(
                 interfaceToMimic.GetAllImplementedInterfaces()
+                    .And(interfaceToMimic)
+                    .Distinct()
                     .Select(i => _propertyInfoFetcher
-                        .GetProperties(i, bindingFlags))
+                        .GetProperties(i, bindingFlags)
+                    )
                     .SelectMany(c => c)
                     .ToArray()
             );

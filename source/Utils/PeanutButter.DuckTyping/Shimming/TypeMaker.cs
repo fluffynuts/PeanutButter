@@ -204,9 +204,13 @@ but this really isn't pretty ):
             }
 
             var shimField = AddShimField(typeBuilder);
-            var allInterfaceTypes = type.GetAllImplementedInterfaces();
-            AddAllPropertiesAsShimmable(typeBuilder, allInterfaceTypes, shimField, forceConcreteClass);
-            AddAllMethodsAsShimmable(typeBuilder, allInterfaceTypes, shimField, forceConcreteClass);
+            var allTypesToImplement = type.GetAllImplementedInterfaces();
+            if (!type.IsInterface)
+            {
+                allTypesToImplement = allTypesToImplement.And(type);
+            }
+            AddAllPropertiesAsShimmable(typeBuilder, allTypesToImplement, shimField, forceConcreteClass);
+            AddAllMethodsAsShimmable(typeBuilder, allTypesToImplement, shimField, forceConcreteClass);
 
             AddDefaultConstructor(typeBuilder, shimField, type, isFuzzy, allowDefaultsForReadonlyMembers);
             AddObjectWrappingConstructors(typeBuilder, shimField, type, isFuzzy,

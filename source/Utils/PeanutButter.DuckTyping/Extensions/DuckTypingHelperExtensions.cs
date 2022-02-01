@@ -73,6 +73,8 @@ namespace PeanutButter.DuckTyping.Extensions
         {
             var immediateProperties = fetcher.GetProperties(type, SEEK_FLAGS);
             var interfaceProperties = type.GetAllImplementedInterfaces()
+                .And(type)
+                .Distinct()
                 .Select(itype => fetcher.GetProperties(itype, SEEK_FLAGS))
                 .SelectMany(p => p);
             var all = immediateProperties.Union(interfaceProperties).ToArray();
