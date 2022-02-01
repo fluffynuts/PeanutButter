@@ -107,7 +107,7 @@ namespace PeanutButter.Utils
         {
             return type.GetAllConstants()
                 .Where(kvp => kvp.Value is T)
-                .ToDictionary(x => x.Key, y => (T) y.Value);
+                .ToDictionary(x => x.Key, y => (T)y.Value);
         }
 
         /// <summary>
@@ -158,7 +158,7 @@ namespace PeanutButter.Utils
             var collectionType = t.GetCollectionItemType();
             if (collectionType == null) return false;
             var specific = GenericIsAssignableFromArrayOf.MakeGenericMethod(collectionType);
-            return (bool) specific.Invoke(null, new object[] { t });
+            return (bool)specific.Invoke(null, new object[] { t });
         }
 
         /// <summary>
@@ -455,7 +455,7 @@ namespace PeanutButter.Utils
                 return itemType;
             }
         }
-        
+
         private static readonly ConcurrentDictionary<Type, Type> CollectionTypeCache = new();
 
         /// <summary>
@@ -465,7 +465,12 @@ namespace PeanutButter.Utils
         /// <returns>Array of all interfaces which are implemented</returns>
         public static Type[] GetAllImplementedInterfaces(this Type inspectType)
         {
-            var result = new List<Type> { inspectType };
+            var result = new List<Type>();
+            if (inspectType.IsInterface)
+            {
+                result.Add(inspectType);
+            }
+
             foreach (var type in inspectType.GetInterfaces())
             {
                 result.AddRange(type.GetAllImplementedInterfaces());
@@ -703,24 +708,65 @@ namespace PeanutButter.Utils
 
         /// <summary>
         /// Determines whether the type being operated on is an ancestor of the other type
+        /// ie typeof(object).IsAncestorOf(typeof(Foo)) => true
         /// </summary>
         /// <param name="type"></param>
-        /// <param name="other"></param>
+        /// <param name="test"></param>
         /// <returns></returns>
-        public static bool IsAncestorOf(this Type type, Type other)
+        public static bool IsAncestorOf(
+            this Type type,
+            Type test
+        )
         {
-            if (other == ObjectType)
+            if (type is null || test is null)
             {
-                return true;
+                return false;
+            }
+            
+            if (test == ObjectType)
+            {
+                return true; // everything derives from object
             }
 
             var baseType = type.BaseType();
-            if (baseType == null)
+            if (baseType is null)
+            {
+                return false; // can't go any further
+            }
+
+            return baseType == test || // type is a direct descendent
+                baseType.IsAncestorOf(test); // look further up the chain
+        }
+
+        /// <summary>
+        /// Returns true when the type being operated on inherits from the test type, ie
+        /// typeof(Foo).Inherits(typeof(object)) => true
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="test"></param>
+        /// <returns></returns>
+        public static bool Inherits(
+            this Type type,
+            Type test
+        )
+        {
+            if (type is null || test is null)
             {
                 return false;
             }
 
-            return baseType == other || baseType.IsAncestorOf(other);
+            if (test == ObjectType)
+            {
+                return true; // everything inherits object
+            }
+
+            var baseType = type.BaseType();
+            if (baseType is null)
+            {
+                return false;
+            }
+            return baseType == test ||
+                baseType.IsAncestorOf(test);
         }
 
 
@@ -847,7 +893,7 @@ namespace PeanutButter.Utils
         )
         {
             var propInfo = data.FindTopMostProperty<T>(propertyName);
-            return (T) propInfo.GetValue(data);
+            return (T)propInfo.GetValue(data);
         }
 
         /// <summary>
@@ -1035,7 +1081,7 @@ namespace PeanutButter.Utils
                 t,
                 fieldOrPropertyName
             );
-            return (T) member.GetValue(null);
+            return (T)member.GetValue(null);
         }
 
         /// <summary>
@@ -1054,8 +1100,8 @@ namespace PeanutButter.Utils
         {
             return Types.PrimitivesAndImmutables.Contains(type);
         }
-        
-        
+
+
         /// <summary>
         /// Resolves to the actual type or the underlying type T if the provided
         /// type is Nullable&lt;T&gt;
@@ -1068,7 +1114,6 @@ namespace PeanutButter.Utils
                 ? type
                 : Nullable.GetUnderlyingType(type);
         }
-
     }
 
     internal static class Types

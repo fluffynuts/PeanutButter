@@ -1,8 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using NExpect;
 using NUnit.Framework;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using NExpect;
+using static NExpect.Expectations;
+
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMember.Global
@@ -12,62 +16,213 @@ namespace PeanutButter.Utils.Tests
     [TestFixture]
     public class TestTypeExtensions
     {
-        [Test]
-        public void Ancestry_WorkingOnTypeOfObject_ShouldReturnOnlyObject()
+        [TestFixture]
+        public class Ancestry
         {
-            //---------------Set up test pack-------------------
-            var type = typeof(object);
-            //---------------Assert Precondition----------------
+            [Test]
+            public void WorkingOnTypeOfObject_ShouldReturnOnlyObject()
+            {
+                //---------------Set up test pack-------------------
+                var type = typeof(object);
+                //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var result = type.Ancestry();
+                //---------------Execute Test ----------------------
+                var result = type.Ancestry();
 
-            //---------------Test Result -----------------------
-            Assert.AreEqual(1, result.Length);
-            Assert.AreEqual(typeof(object), result[0]);
-        }
+                //---------------Test Result -----------------------
+                Expect(result)
+                    .To.Contain.Only(1)
+                    .Equal.To(typeof(object));
+            }
 
-        public class SimpleType
-        {
-        }
+            [Test]
+            public void WorkingOnSimpleType_ShouldReturnItAndObject()
+            {
+                //---------------Set up test pack-------------------
+                var type = typeof(SimpleType);
 
-        [Test]
-        public void Ancestry_WorkingOnSimpleType_ShouldReturnItAndObject()
-        {
-            //---------------Set up test pack-------------------
-            var type = typeof(SimpleType);
+                //---------------Assert Precondition----------------
 
-            //---------------Assert Precondition----------------
+                //---------------Execute Test ----------------------
+                var result = type.Ancestry();
 
-            //---------------Execute Test ----------------------
-            var result = type.Ancestry();
+                //---------------Test Result -----------------------
+                Expect(result)
+                    .To.Equal(
+                        new[]
+                        {
+                            typeof(object),
+                            typeof(SimpleType)
+                        });
+            }
 
-            //---------------Test Result -----------------------
-            Assert.AreEqual(2, result.Length);
-            Assert.AreEqual(typeof(object), result[0]);
-            Assert.AreEqual(typeof(SimpleType), result[1]);
-        }
+            [Test]
+            public void WorkingOnInheritedType_ShouldReturnItAndObject()
+            {
+                //---------------Set up test pack-------------------
+                var type = typeof(InheritedType);
 
-        public class InheritedType: SimpleType
-        {
-        }
+                //---------------Assert Precondition----------------
 
-        [Test]
-        public void Ancestry_WorkingOnInheritedType_ShouldReturnItAndObject()
-        {
-            //---------------Set up test pack-------------------
-            var type = typeof(InheritedType);
+                //---------------Execute Test ----------------------
+                var result = type.Ancestry();
 
-            //---------------Assert Precondition----------------
+                //---------------Test Result -----------------------
+                Expect(result)
+                    .To.Equal(
+                        new[]
+                        {
+                            typeof(object),
+                            typeof(SimpleType),
+                            typeof(InheritedType)
+                        });
+            }
 
-            //---------------Execute Test ----------------------
-            var result = type.Ancestry();
+            [TestFixture]
+            public class IsAncestorOf
+            {
+                [Test]
+                public void ShouldReturnTrueWhenOperatingTypeImmediatelyInheritsTestType()
+                {
+                    // Arrange
+                    var t = typeof(InheritedType);
+                    // Act
+                    var result = t.IsAncestorOf(typeof(SimpleType));
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
+                
+                [Test]
+                public void ShouldReturnTrueWhenOperatingTypeEventuallyInheritsFromProvidedType()
+                {
+                    // Arrange
+                    var t = typeof(InheritedType);
+                    // Act
+                    var result = t.IsAncestorOf(typeof(object));
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
 
-            //---------------Test Result -----------------------
-            Assert.AreEqual(3, result.Length);
-            Assert.AreEqual(typeof(object), result[0]);
-            Assert.AreEqual(typeof(SimpleType), result[1]);
-            Assert.AreEqual(typeof(InheritedType), result[2]);
+                [Test]
+                public void ShouldReturnFalseWhenTypesAreNotRelated()
+                {
+                    // Arrange
+                    var t = typeof(SimpleType);
+                    // Act
+                    var result = t.IsAncestorOf(typeof(AnotherType));
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+
+                [Test]
+                public void ShouldReturnFalseWhenTypesAreRelatedInverted()
+                {
+                    // Arrange
+                    var t = typeof(SimpleType);
+                    // Act
+                    var result = t.IsAncestorOf(typeof(InheritedType));
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+
+                [Test]
+                public void ShouldReturnFalseWhenOperatingTypeIsNull()
+                {
+                    // Arrange
+                    var t = null as Type;
+                    // Act
+                    var result = t.IsAncestorOf(typeof(object));
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+            }
+
+            [TestFixture]
+            public class Inherits
+            {
+                [Test]
+                public void ShouldReturnTrueWhenOperatingTypeImmediatelyInheritsOtherType()
+                {
+                    // Arrange
+                    var t = typeof(InheritedType);
+                    
+                    // Act
+                    var result = t.Inherits(typeof(SimpleType));
+                    
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
+
+                [Test]
+                public void ShouldReturnTrueWhenOperatingTypeEventuallyInheritsOtherType()
+                {
+                    // Arrange
+                    var t = typeof(GrandChildType);
+                    // Act
+                    var result = t.Inherits(typeof(SimpleType));
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
+
+                [Test]
+                public void ShouldReturnTrueWhenOperatingTypeIsNotNullAndTestTypeIsObject()
+                {
+                    // Arrange
+                    var t = typeof(GrandChildType);
+                    // Act
+                    var result = t.Inherits(typeof(object));
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
+
+                [Test]
+                public void ShouldReturnFalseWhenTypesAreNotRelated()
+                {
+                    // Arrange
+                    var t = typeof(AnotherType);
+                    // Act
+                    var result = t.Inherits(typeof(SimpleType));
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+                
+                [Test]
+                public void ShouldReturnFalseWhenOperatingTypeIsNull()
+                {
+                    // Arrange
+                    var t = null as Type;
+                    // Act
+                    var result = t.Inherits(typeof(object));
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+            }
+
+            public class SimpleType
+            {
+            }
+
+            public class InheritedType : SimpleType
+            {
+            }
+
+            public class GrandChildType : InheritedType
+            {
+            }
+
+            public class AnotherType
+            {
+            }
         }
 
         public class ClassWithConstants
@@ -78,315 +233,403 @@ namespace PeanutButter.Utils.Tests
             public const bool CONSTANT4 = false;
         }
 
-        [Test]
-        public void GetAllConstants_OperatingOnType_ShouldReturnDictionaryOfConstants()
+        [TestFixture]
+        public class GetAllConstants
         {
-            //---------------Set up test pack-------------------
-            var type = typeof(ClassWithConstants);
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = type.GetAllConstants();
-
-            //---------------Test Result -----------------------
-            Assert.AreEqual(result["CONSTANT1"], ClassWithConstants.CONSTANT1);
-            Assert.AreEqual(result["CONSTANT2"], ClassWithConstants.CONSTANT2);
-            Assert.AreEqual(result["CONSTANT3"], ClassWithConstants.CONSTANT3);
-            Assert.AreEqual(result["CONSTANT4"], ClassWithConstants.CONSTANT4);
-        }
-
-        [Test]
-        public void GetAllConstants_OperatingOnType_WithGenericParameter_ShouldReturnDictionaryOfConstantsOfThatType()
-        {
-            //---------------Set up test pack-------------------
-            var type = typeof(ClassWithConstants);
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = type.GetAllConstants<string>();
-
-            //---------------Test Result -----------------------
-            Assert.AreEqual(2, result.Count);
-            Assert.AreEqual(result["CONSTANT1"], ClassWithConstants.CONSTANT1);
-            Assert.AreEqual(result["CONSTANT2"], ClassWithConstants.CONSTANT2);
-        }
-
-        [Test]
-        public void GetAllConstantValues_ShouldListAllConstantsOfThatType()
-        {
-            //---------------Set up test pack-------------------
-            var type = typeof(ClassWithConstants);
-            var expected = new object[]
+            [Test]
+            public void OperatingOnType_ShouldReturnDictionaryOfConstants()
             {
-                "Constant1",
-                "Constant2",
-                1,
-                false
-            };
+                //---------------Set up test pack-------------------
+                var type = typeof(ClassWithConstants);
+                var expected = new Dictionary<string, object>()
+                {
+                    ["CONSTANT1"] = ClassWithConstants.CONSTANT1,
+                    ["CONSTANT2"] = ClassWithConstants.CONSTANT2,
+                    ["CONSTANT3"] = ClassWithConstants.CONSTANT3,
+                    ["CONSTANT4"] = ClassWithConstants.CONSTANT4,
+                };
 
-            //---------------Assert Precondition----------------
+                //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var result = type.GetAllConstantValues();
+                //---------------Execute Test ----------------------
+                var result = type.GetAllConstants();
 
-            //---------------Test Result -----------------------
-            CollectionAssert.AreEquivalent(expected, result);
-        }
+                //---------------Test Result -----------------------
+                Expect(result)
+                    .To.Equal(expected);
+            }
 
-        [Test]
-        public void GetAllConstantValues_OfGenericType_ShouldListAllConstantsOfThatType()
-        {
-            //---------------Set up test pack-------------------
-            var type = typeof(ClassWithConstants);
-            var expected = new[]
+            [Test]
+            public void OperatingOnType_WithGenericParameter_ShouldReturnDictionaryOfConstantsOfThatType()
             {
-                "Constant1",
-                "Constant2"
-            };
+                //---------------Set up test pack-------------------
+                var type = typeof(ClassWithConstants);
+                var expected = new Dictionary<string, string>()
+                {
+                    ["CONSTANT1"] = ClassWithConstants.CONSTANT1,
+                    ["CONSTANT2"] = ClassWithConstants.CONSTANT2,
+                };
+                //---------------Assert Precondition----------------
 
-            //---------------Assert Precondition----------------
+                //---------------Execute Test ----------------------
+                var result = type.GetAllConstants<string>();
 
-            //---------------Execute Test ----------------------
-            var result = type.GetAllConstantValues<string>();
-
-            //---------------Test Result -----------------------
-            CollectionAssert.AreEquivalent(expected, result);
+                //---------------Test Result -----------------------
+                Expect(result)
+                    .To.Equal(expected);
+            }
         }
 
-        public enum SomeEnums
+        [TestFixture]
+        public class GetAllConstantValues
         {
-        }
-        public struct SomeStruct
-        {
-        }
-        [TestCase(typeof(int))]
-        [TestCase(typeof(bool))]
-        [TestCase(typeof(SomeEnums))]
-        [TestCase(typeof(SomeStruct))]
-        public void CanBeAssignedNull_OperatingOnNonNullableType_ShouldReturnFalse(Type t)
-        {
-            //---------------Set up test pack-------------------
+            [Test]
+            public void ShouldListAllConstantsOfThatType()
+            {
+                //---------------Set up test pack-------------------
+                var type = typeof(ClassWithConstants);
+                var expected = new object[]
+                {
+                    "Constant1",
+                    "Constant2",
+                    1,
+                    false
+                };
 
-            //---------------Assert Precondition----------------
+                //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var result = t.CanBeAssignedNull();
+                //---------------Execute Test ----------------------
+                var result = type.GetAllConstantValues();
 
-            //---------------Test Result -----------------------
-            Assert.IsFalse(result);
-        }
+                //---------------Test Result -----------------------
+                Expect(result)
+                    .To.Be.Equivalent.To(expected);
+            }
 
-        [TestCase(typeof(ClassWithConstants))]
-        [TestCase(typeof(int[]))]
-        [TestCase(typeof(int?))]
-        [TestCase(typeof(string))]
-        public void CanBeAssignedNull_OperatingOnNullableType_ShouldReturnTrue(Type t)
-        {
-            //---------------Set up test pack-------------------
+            [Test]
+            public void OfGenericType_ShouldListAllConstantsOfThatType()
+            {
+                //---------------Set up test pack-------------------
+                var type = typeof(ClassWithConstants);
+                var expected = new[]
+                {
+                    "Constant1",
+                    "Constant2"
+                };
 
-            //---------------Assert Precondition----------------
+                //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var result = t.CanBeAssignedNull();
+                //---------------Execute Test ----------------------
+                var result = type.GetAllConstantValues<string>();
 
-            //---------------Test Result -----------------------
-            Assert.IsTrue(result);
-        }
-
-        public class TypeWithDefaultConstructor
-        {
-        }
-
-        [Test]
-        public void HasDefaultConstructor_OperatingOnTypeWithDefaultConstructorOnly_ShouldReturnTrue()
-        {
-            //---------------Set up test pack-------------------
-            var type = typeof(TypeWithDefaultConstructor);
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = type.HasDefaultConstructor();
-
-            //---------------Test Result -----------------------
-            Assert.IsTrue(result);
+                //---------------Test Result -----------------------
+                Expect(result)
+                    .To.Be.Equivalent.To(expected);
+            }
         }
 
-        public class TypeWithoutDefaultConstructor
+        [TestFixture]
+        public class CanBeAssignedNull
         {
-            public TypeWithoutDefaultConstructor(int id)
+            [TestCase(typeof(int))]
+            [TestCase(typeof(bool))]
+            [TestCase(typeof(SomeEnums))]
+            [TestCase(typeof(SomeStruct))]
+            public void OperatingOnNonNullableType_ShouldReturnFalse(Type t)
+            {
+                //---------------Set up test pack-------------------
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = t.CanBeAssignedNull();
+
+                //---------------Test Result -----------------------
+                Expect(result)
+                    .To.Be.False();
+            }
+
+            [TestCase(typeof(ClassWithConstants))]
+            [TestCase(typeof(int[]))]
+            [TestCase(typeof(int?))]
+            [TestCase(typeof(string))]
+            public void OperatingOnNullableType_ShouldReturnTrue(Type t)
+            {
+                //---------------Set up test pack-------------------
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = t.CanBeAssignedNull();
+
+                //---------------Test Result -----------------------
+                Expect(result)
+                    .To.Be.True();
+            }
+
+            public enum SomeEnums
+            {
+            }
+
+            public struct SomeStruct
             {
             }
         }
 
-        [Test]
-        public void HasDefaultConstructor_OperatingOnTypeWithoutDefaultConstructor_ShouldReturnFalse()
+        [TestFixture]
+        public class HasDefaultConstructor
         {
-            //---------------Set up test pack-------------------
-            var type = typeof(TypeWithoutDefaultConstructor);
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = type.HasDefaultConstructor();
-
-            //---------------Test Result -----------------------
-            Assert.IsFalse(result);
-        }
-
-        public class TypeWithDefaultAndParameteredConstructor
-        {
-            public TypeWithDefaultAndParameteredConstructor()
+            public class TypeWithDefaultConstructor
             {
             }
-            public TypeWithDefaultAndParameteredConstructor(int id)
+
+            [Test]
+            public void OperatingOnTypeWithDefaultConstructorOnly_ShouldReturnTrue()
             {
+                //---------------Set up test pack-------------------
+                var type = typeof(TypeWithDefaultConstructor);
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = type.HasDefaultConstructor();
+
+                //---------------Test Result -----------------------
+                Expect(result)
+                    .To.Be.True();
             }
-        }
 
-        [Test]
-        public void HasDefaultConstructor_OperatingOnTypeWithDefaultConstructorAndParameteredConstructor_ShouldReturnTrue()
-        {
-            //---------------Set up test pack-------------------
-            var type = typeof(TypeWithDefaultAndParameteredConstructor);
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = type.HasDefaultConstructor();
-
-            //---------------Test Result -----------------------
-            Assert.IsTrue(result);
-        }
-
-        public interface ILevel4Again
-        {
-        }
-        public interface ILevel4
-        {
-        }
-        public interface ILevel3: ILevel4, ILevel4Again
-        {
-        }
-        public interface ILevel2: ILevel3
-        {
-        }
-        public interface ILevel1: ILevel2
-        {
-        }
-
-        public class Level1: ILevel1
-        {
-        }
-
-        [Test]
-        public void GetAllImplementedInterfaces_ShouldReturnAllInterfacesAllTheWayDown()
-        {
-            //--------------- Arrange -------------------
-
-            //--------------- Assume ----------------
-
-            //--------------- Act ----------------------
-            var result = typeof(Level1).GetAllImplementedInterfaces();
-
-            //--------------- Assert -----------------------
-            Expect(result).To.Contain.Exactly(1).Equal.To(typeof(ILevel1));
-            Expect(result).To.Contain.Exactly(1).Equal.To(typeof(ILevel2));
-            Expect(result).To.Contain.Exactly(1).Equal.To(typeof(ILevel3));
-            Expect(result).To.Contain.Exactly(1).Equal.To(typeof(ILevel4));
-            Expect(result).To.Contain.Exactly(1).Equal.To(typeof(ILevel4Again));
-
-        }
-
-        public class NotDisposable
-        {
-            public void Dispose()
+            public class TypeWithoutDefaultConstructor
             {
-                /* just to prevent mickey-mousery */
+                public TypeWithoutDefaultConstructor(int id)
+                {
+                }
+            }
+
+            [Test]
+            public void OperatingOnTypeWithoutDefaultConstructor_ShouldReturnFalse()
+            {
+                //---------------Set up test pack-------------------
+                var type = typeof(TypeWithoutDefaultConstructor);
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = type.HasDefaultConstructor();
+
+                //---------------Test Result -----------------------
+                Expect(result)
+                    .To.Be.False();
+            }
+
+            public class TypeWithDefaultAndParameteredConstructor
+            {
+                public TypeWithDefaultAndParameteredConstructor()
+                {
+                }
+
+                public TypeWithDefaultAndParameteredConstructor(int id)
+                {
+                }
+            }
+
+            [Test]
+            public void OperatingOnTypeWithDefaultConstructorAndParameteredConstructor_ShouldReturnTrue()
+            {
+                //---------------Set up test pack-------------------
+                var type = typeof(TypeWithDefaultAndParameteredConstructor);
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = type.HasDefaultConstructor();
+
+                //---------------Test Result -----------------------
+                Expect(result)
+                    .To.Be.True();
             }
         }
 
-        public class DisposableTeen: IDisposable
+        [TestFixture]
+        public class GetAllImplementedInterfaces
         {
-            public void Dispose()
+            public interface ILevel4Again
             {
-                throw new NotImplementedException();
+            }
+
+            public interface ILevel4
+            {
+            }
+
+            public interface ILevel3 : ILevel4, ILevel4Again
+            {
+            }
+
+            public interface ILevel2 : ILevel3
+            {
+            }
+
+            public interface ILevel1 : ILevel2
+            {
+            }
+
+            public class Level1 : ILevel1
+            {
+            }
+
+            [Test]
+            public void ShouldReturnAllInterfacesAllTheWayDown()
+            {
+                //--------------- Arrange -------------------
+
+                //--------------- Assume ----------------
+
+                //--------------- Act ----------------------
+                var result = typeof(Level1).GetAllImplementedInterfaces();
+
+                //--------------- Assert -----------------------
+                Expect(result)
+                    .To.Be.Equivalent.To(
+                        new[]
+                        {
+                            typeof(ILevel1),
+                            typeof(ILevel2),
+                            typeof(ILevel3),
+                            typeof(ILevel4),
+                            typeof(ILevel4Again)
+                        });
             }
         }
 
-        [Test]
-        public void IsDisposable_OperatingOnNonDisposableType_ShouldReturnFalse()
+        [TestFixture]
+        public class IsDisposable
         {
-            //--------------- Arrange -------------------
-            var sut = typeof(NotDisposable);
+            public class NotDisposable
+            {
+                public void Dispose()
+                {
+                    /* just to prevent mickey-mousery */
+                }
+            }
 
-            //--------------- Assume ----------------
+            public class DisposableTeen : IDisposable
+            {
+                public void Dispose()
+                {
+                    throw new NotImplementedException();
+                }
+            }
 
-            //--------------- Act ----------------------
-            var result = sut.IsDisposable();
+            [Test]
+            public void IsDisposable_OperatingOnNonDisposableType_ShouldReturnFalse()
+            {
+                //--------------- Arrange -------------------
+                var sut = typeof(NotDisposable);
 
-            //--------------- Assert -----------------------
-            Expect(result).To.Be.False();
+                //--------------- Assume ----------------
+
+                //--------------- Act ----------------------
+                var result = sut.IsDisposable();
+
+                //--------------- Assert -----------------------
+                Expect(result)
+                    .To.Be.False();
+            }
+
+            [Test]
+            public void IsDisposable_OperatingOnDisposableType_ShouldReturnTrue()
+            {
+                //--------------- Arrange -------------------
+                var sut = typeof(DisposableTeen);
+
+                //--------------- Assume ----------------
+
+                //--------------- Act ----------------------
+                var result = sut.IsDisposable();
+
+                //--------------- Assert -----------------------
+                Expect(result)
+                    .To.Be.True();
+            }
         }
 
-        [Test]
-        public void IsDisposable_OperatingOnDisposableType_ShouldReturnTrue()
+        [TestFixture]
+        public class CanImplicitlyUpcastTo
         {
-            //--------------- Arrange -------------------
-            var sut = typeof(DisposableTeen);
+            [TestCase(typeof(byte), typeof(long))]
+            [TestCase(typeof(byte), typeof(ushort))]
+            [TestCase(typeof(byte), typeof(ulong))]
+            [TestCase(typeof(short), typeof(long))]
+            [TestCase(typeof(int), typeof(long))]
+            [TestCase(typeof(float), typeof(double))]
+            public void ShouldReturnTrueFor_(Type src, Type target)
+            {
+                // Arrange
+                // Pre-Assert
+                // Act
+                var result = src.CanImplicitlyCastTo(target);
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
 
-            //--------------- Assume ----------------
-
-            //--------------- Act ----------------------
-            var result = sut.IsDisposable();
-
-            //--------------- Assert -----------------------
-            Expect(result).To.Be.True();
+            [TestCase(typeof(int), typeof(string))]
+            public void ShouldReturnFalseFor_(Type src, Type target)
+            {
+                // Arrange
+                // Act
+                var result = src.CanImplicitlyCastTo(target);
+                // Assert
+                Expect(result)
+                    .To.Be.False();
+            }
         }
 
-        [TestCase(typeof(byte), typeof(long))]
-        [TestCase(typeof(byte), typeof(ushort))]
-        [TestCase(typeof(byte), typeof(ulong))]
-        [TestCase(typeof(short), typeof(long))]
-        [TestCase(typeof(int), typeof(long))]
-        [TestCase(typeof(float), typeof(double))]
-        public void CanImplicitlyUpcastTo_ShouldReturnTrueFor_(Type src, Type target)
+        [TestFixture]
+        public class DefaultValue
         {
-            // Arrange
-            // Pre-Assert
-            // Act
-            var result = src.CanImplicitlyCastTo(target);
-            // Assert
-            Expect(result).To.Be.True();
+            [TestCase(typeof(object), null)]
+            [TestCase(typeof(string), null)]
+            [TestCase(typeof(bool), false)]
+            [TestCase(typeof(int), 0)]
+            public void ShouldReturnDefaultValueForType(
+                Type t,
+                object expected)
+            {
+                // Arrange
+                // Pre-assert
+                // Act
+                var result = t.DefaultValue();
+                // Assert
+                Expect(result).To.Equal(expected);
+            }
         }
 
-        [TestCase(typeof(object), null)]
-        [TestCase(typeof(string), null)]
-        [TestCase(typeof(bool), false)]
-        [TestCase(typeof(int), 0)]
-        public void DefaultValue_ShouldReturnDefaultValueForType(
-            Type t, object expected)
+        [TestFixture]
+        public class TryGetEnumerableItemType
         {
-            // Arrange
-            // Pre-assert
-            // Act
-            var result = t.DefaultValue();
-            // Assert
-            Expect(result).To.Equal(expected);
-        }
+            [Test]
+            public void ShouldBeAbleToGetEnumerableTypeOfArray()
+            {
+                // Arrange
+                var arr = new int[0];
+                // Pre-assert
+                // Act
+                var result = arr.GetType().TryGetEnumerableItemType();
+                // Assert
+                Expect(result).To.Equal(typeof(int));
+            }
 
-        [Test]
-        public void ShouldBeAbleToGetEnumerableTypeOfArray()
-        {
-            // Arrange
-            var arr = new int[0];
-            // Pre-assert
-            // Act
-            var result = arr.GetType().TryGetEnumerableItemType();
-            // Assert
-            Expect(result).To.Equal(typeof(int));
+            [Test]
+            public void ShouldReturnNullForNonCollection()
+            {
+                // Arrange
+                // Act
+                var result = typeof(int).TryGetEnumerableItemType();
+                // Assert
+                Expect(result)
+                    .To.Be.Null();
+            }
         }
 
         [TestFixture]
@@ -547,7 +790,7 @@ namespace PeanutButter.Utils.Tests
                 Expect(result)
                     .To.Equal(expected);
             }
-            
+
             public class HasStatics
             {
                 public string Name => _name;
