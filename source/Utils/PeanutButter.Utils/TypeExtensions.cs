@@ -723,19 +723,19 @@ namespace PeanutButter.Utils
                 return false;
             }
             
-            if (test == ObjectType)
+            if (type == ObjectType)
             {
                 return true; // everything derives from object
             }
 
-            var baseType = type.BaseType();
+            var baseType = test.BaseType();
             if (baseType is null)
             {
                 return false; // can't go any further
             }
 
-            return baseType == test || // type is a direct descendent
-                baseType.IsAncestorOf(test); // look further up the chain
+            return baseType == type || // type is a direct descendent
+                type.IsAncestorOf(baseType); // look further up the chain
         }
 
         /// <summary>
@@ -766,7 +766,7 @@ namespace PeanutButter.Utils
                 return false;
             }
             return baseType == test ||
-                baseType.IsAncestorOf(test);
+                baseType.Inherits(test);
         }
 
 

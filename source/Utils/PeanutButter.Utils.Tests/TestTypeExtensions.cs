@@ -82,24 +82,24 @@ namespace PeanutButter.Utils.Tests
             public class IsAncestorOf
             {
                 [Test]
-                public void ShouldReturnTrueWhenOperatingTypeImmediatelyInheritsTestType()
+                public void ShouldReturnTrueWhenOperatingTypeIsImmediateAncestorOfOtherType()
                 {
                     // Arrange
-                    var t = typeof(InheritedType);
+                    var t = typeof(SimpleType);
                     // Act
-                    var result = t.IsAncestorOf(typeof(SimpleType));
+                    var result = t.IsAncestorOf(typeof(InheritedType));
                     // Assert
                     Expect(result)
                         .To.Be.True();
                 }
                 
                 [Test]
-                public void ShouldReturnTrueWhenOperatingTypeEventuallyInheritsFromProvidedType()
+                public void ShouldReturnTrueWhenOperatingTypeIsSomeAncestorOfOtherType()
                 {
                     // Arrange
-                    var t = typeof(InheritedType);
+                    var t = typeof(object);
                     // Act
-                    var result = t.IsAncestorOf(typeof(object));
+                    var result = t.IsAncestorOf(typeof(InheritedType));
                     // Assert
                     Expect(result)
                         .To.Be.True();
@@ -123,7 +123,7 @@ namespace PeanutButter.Utils.Tests
                     // Arrange
                     var t = typeof(SimpleType);
                     // Act
-                    var result = t.IsAncestorOf(typeof(InheritedType));
+                    var result = t.IsAncestorOf(typeof(object));
                     // Assert
                     Expect(result)
                         .To.Be.False();

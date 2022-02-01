@@ -1529,7 +1529,7 @@ namespace PeanutButter.RandomGenerators
                     var thisType = thisMethod.DeclaringType;
                     if (thisType != null &&
                         thisType.IsGenericType &&
-                        thisType.IsAncestorOf(GenericBuilderBaseType) &&
+                        GenericBuilderBaseType.IsAncestorOf(thisType) &&
                         thisMethod.Name == "SetRandomProps")
                     {
                         return acc + 1;
