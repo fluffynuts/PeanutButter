@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 #if BUILD_PEANUTBUTTER_INTERNAL
 namespace Imported.PeanutButter.Utils
@@ -71,7 +72,7 @@ internal
                 this IDictionary dict
             )
         {
-            return dict.ToDictionary(o => (TKey) o.Key, o => (TValue) o.Value);
+            return dict.ToDictionary(o => (TKey)o.Key, o => (TValue)o.Value);
         }
 
         /// <summary>
@@ -132,11 +133,25 @@ internal
                 {
                     return existing;
                 }
+
                 var generated = generator();
                 dict.Add(key, generated);
                 return generated;
             }
         }
-
+        
+        /// <summary>
+        /// Clones a given dictionary - new collection, same items
+        /// </summary>
+        /// <param name="dict"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <returns></returns>
+        public static IDictionary<TKey, TValue> Clone<TKey, TValue>(
+            this IDictionary<TKey, TValue> dict
+        )
+        {
+            return dict.ToDictionary(o => o.Key, o => o.Value);
+        }
     }
 }

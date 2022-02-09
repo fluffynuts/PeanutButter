@@ -233,12 +233,58 @@ namespace PeanutButter.Utils
         /// Convenience method to create a new array with the provided element(s) appended
         /// </summary>
         /// <param name="source">Source array to start with</param>
-        /// <param name="toAdd">Item(s) to add to the result array</param>
+        /// <param name="values"></param>
         /// <typeparam name="T">Item type of the array</typeparam>
         /// <returns>A new array which is the source with the new items appended</returns>
-        public static T[] And<T>(this IEnumerable<T> source, params T[] toAdd)
+        public static T[] And<T>(this IEnumerable<T> source, params T[] values)
         {
-            return source.Concat(toAdd).ToArray();
+            return source
+                .Concat(values)
+                .ToArray();
+        }
+
+        /// <summary>
+        /// Convenience method to create a new array with the provided element(s) appended
+        /// </summary>
+        /// <param name="source">Source array to start with</param>
+        /// <param name="values"></param>
+        /// <typeparam name="T">Item type of the array</typeparam>
+        /// <returns>A new array which is the source with the new items appended</returns>
+        public static T[] And<T>(this T[] source, params T[] values)
+        {
+            return And<T>(source as IEnumerable<T>, values);
+        }
+
+        /// <summary>
+        /// Convenience method to add one one or more values to a list
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="values"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static List<T> And<T>(
+            this List<T> source,
+            params T[] values
+        )
+        {
+            values.ForEach(source.Add);
+            return source;
+        }
+
+        /// <summary>
+        /// Convenience method to add more values to a list
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="values"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static IList<T> And<T>(
+            this IList<T> source,
+            params T[] values
+        )
+        {
+            values.ForEach(source.Add);
+            return source;
         }
 
         /// <summary>

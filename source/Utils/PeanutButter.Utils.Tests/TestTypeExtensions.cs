@@ -4,8 +4,6 @@ using NExpect;
 using NUnit.Framework;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
-using NExpect;
-using static NExpect.Expectations;
 
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable MemberCanBePrivate.Global

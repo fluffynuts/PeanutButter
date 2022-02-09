@@ -1467,7 +1467,7 @@ namespace PeanutButter.Utils.Tests
                         .To.Throw();
                     // Assert
                 }
-                
+
                 [Test]
                 public void ShouldThrowWhenPropertyNotFound()
                 {
@@ -1738,7 +1738,7 @@ namespace PeanutButter.Utils.Tests
             {
                 // Arrange
                 var src = GetRandom<HasANameAndLabel>();
-                var downCast = (HasAName) src;
+                var downCast = (HasAName)src;
                 // Pre-Assert
                 // Act
                 var result = downCast.DeepClone();
@@ -1878,11 +1878,11 @@ namespace PeanutButter.Utils.Tests
                         reader.ReadStartElement("item");
 
                         reader.ReadStartElement("key");
-                        TKey key = (TKey) keySerializer.Deserialize(reader);
+                        TKey key = (TKey)keySerializer.Deserialize(reader);
                         reader.ReadEndElement();
 
                         reader.ReadStartElement("value");
-                        TValue value = (TValue) valueSerializer.Deserialize(reader);
+                        TValue value = (TValue)valueSerializer.Deserialize(reader);
                         reader.ReadEndElement();
 
                         Add(key, value);
@@ -2265,7 +2265,7 @@ namespace PeanutButter.Utils.Tests
                 // Act
                 var result = data.AsEnumerable<long>().ToArray();
                 // Assert
-                Expect(result).To.Equal(data.Select(o => (long) o));
+                Expect(result).To.Equal(data.Select(o => (long)o));
             }
 
             [Test]
@@ -2514,7 +2514,7 @@ namespace PeanutButter.Utils.Tests
                         .To.Be.False();
                 }
             }
-            
+
             [TestFixture]
             public class TypeArgInvocation
             {
@@ -2619,7 +2619,7 @@ namespace PeanutButter.Utils.Tests
             {
             }
         }
-        
+
         [TestFixture]
         public class IsRuntimeType
         {
@@ -2659,6 +2659,7 @@ namespace PeanutButter.Utils.Tests
                     .To.Be.True();
             }
         }
+
 
         public class Simple<T>
         {

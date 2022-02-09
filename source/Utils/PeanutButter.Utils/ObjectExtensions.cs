@@ -10,6 +10,7 @@ using System.Reflection;
 #if BUILD_PEANUTBUTTER_INTERNAL
 namespace Imported.PeanutButter.Utils
 #else
+
 namespace PeanutButter.Utils
 #endif
 {
@@ -400,13 +401,13 @@ namespace PeanutButter.Utils
             );
 
             foreach (var srcPropInfo in srcPropInfos.Where(
-                pi => pi.CanRead &&
-                    pi.GetIndexParameters().Length == 0))
+                         pi => pi.CanRead &&
+                             pi.GetIndexParameters().Length == 0))
             {
                 if (!targetPropertyCache.TryGetValue(Tuple.Create(
-                    srcPropInfo.Name,
-                    srcPropInfo.PropertyType
-                ), out var matchingTarget))
+                        srcPropInfo.Name,
+                        srcPropInfo.PropertyType
+                    ), out var matchingTarget))
                 {
                     continue;
                 }
@@ -635,8 +636,8 @@ namespace PeanutButter.Utils
         private static object CloneDictionary(object src, Type cloneType)
         {
             if (!cloneType.TryGetDictionaryKeyAndValueTypes(
-                out var keyType,
-                out var valueType))
+                    out var keyType,
+                    out var valueType))
             {
                 return null;
             }
@@ -1001,7 +1002,7 @@ namespace PeanutButter.Utils
         {
             src.SetPropertyValue(propertyPath, newValue);
         }
-        
+
         /// <summary>
         /// attempts to set a property value on an object by path and value
         /// - will not throw on error, but will return false instead
@@ -1291,5 +1292,6 @@ namespace PeanutButter.Utils
                 objType.Name == "RuntimeType" &&
                 objType.Namespace == "System";
         }
+
     }
 }
