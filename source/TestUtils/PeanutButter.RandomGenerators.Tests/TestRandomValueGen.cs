@@ -2978,9 +2978,15 @@ namespace PeanutButter.RandomGenerators.Tests
                 // Act
                 var url = GetRandomHttpUrl();
                 // Assert
-                Expect(url).Not.To.Be.Null.Or.Empty();
-                Expect(() => new Uri(url))
-                    .Not.To.Throw();
+                Expect(url)
+                    .Not.To.Be.Null.Or.Empty();
+                var uri = new Uri(url);
+                Expect(uri.Scheme)
+                    .To.Equal("http");
+                Expect(uri.Query)
+                    .To.Be.Empty();
+                Expect(uri.AbsolutePath)
+                    .To.Equal("/");
             }
 
             [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
@@ -2992,7 +2998,119 @@ namespace PeanutButter.RandomGenerators.Tests
                 // Act
                 var url = GetRandomHttpUrl();
                 // Assert
-                Expect(url).To.Equal(url.ToLowerInvariant());
+                Expect(url)
+                    .To.Equal(url.ToLowerInvariant());
+                var uri = new Uri(url);
+                Expect(uri.Scheme)
+                    .To.Equal("http");
+            }
+
+            [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
+            [Test]
+            public void ShouldProvideUrlWithPathOnDemand()
+            {
+                // Arrange
+                // Act
+                var url = GetRandomHttpUrlWithPath();
+                // Assert
+                var uri = new Uri(url);
+                Expect(uri.AbsolutePath)
+                    .Not.To.Be.Empty();
+                Expect(uri.Query)
+                    .To.Be.Empty();
+                Expect(uri.Scheme)
+                    .To.Equal("http");
+            }
+
+            [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
+            [Test]
+            public void ShouldProvideUrlWithParametersAndNoPathOnDemand()
+            {
+                // Arrange
+                // Act
+                var url = GetRandomHttpUrlWithParameters();
+                // Assert
+                var uri = new Uri(url);
+                Expect(uri.AbsolutePath)
+                    .To.Equal("/");
+                Expect(uri.Query)
+                    .Not.To.Be.Empty();
+                Expect(uri.Scheme)
+                    .To.Equal("http");
+            }
+        }
+        
+        [TestFixture]
+        public class GettingRandomHttpsUrls
+        {
+            [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
+            [Test]
+            public void ShouldReturnAValidUrl()
+            {
+                // Arrange
+                // Pre-assert
+                // Act
+                var url = GetRandomHttpsUrl();
+                // Assert
+                Expect(url)
+                    .Not.To.Be.Null.Or.Empty();
+                var uri = new Uri(url);
+                Expect(uri.Scheme)
+                    .To.Equal("https");
+                Expect(uri.Query)
+                    .To.Be.Empty();
+                Expect(uri.AbsolutePath)
+                    .To.Equal("/");
+            }
+
+            [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
+            [Test]
+            public void ShouldReturnUrlInLowerCaseOnly()
+            {
+                // Arrange
+                // Pre-assert
+                // Act
+                var url = GetRandomHttpsUrl();
+                // Assert
+                Expect(url)
+                    .To.Equal(url.ToLowerInvariant());
+                var uri = new Uri(url);
+                Expect(uri.Scheme)
+                    .To.Equal("https");
+            }
+
+            [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
+            [Test]
+            public void ShouldProvideUrlWithPathOnDemand()
+            {
+                // Arrange
+                // Act
+                var url = GetRandomHttpsUrlWithPath();
+                // Assert
+                var uri = new Uri(url);
+                Expect(uri.AbsolutePath)
+                    .Not.To.Be.Empty();
+                Expect(uri.Query)
+                    .To.Be.Empty();
+                Expect(uri.Scheme)
+                    .To.Equal("https");
+            }
+
+            [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
+            [Test]
+            public void ShouldProvideUrlWithParametersAndNoPathOnDemand()
+            {
+                // Arrange
+                // Act
+                var url = GetRandomHttpsUrlWithParameters();
+                // Assert
+                var uri = new Uri(url);
+                Expect(uri.AbsolutePath)
+                    .To.Equal("/");
+                Expect(uri.Query)
+                    .Not.To.Be.Empty();
+                Expect(uri.Scheme)
+                    .To.Equal("https");
             }
         }
 

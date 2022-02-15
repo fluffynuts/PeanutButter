@@ -1267,7 +1267,8 @@ namespace PeanutButter.RandomGenerators
         }
 
         /// <summary>
-        /// Generates a random string which looks a lot like an http url
+        /// Generates a random string which looks a lot like an http url, to
+        /// the domain only (no path or parameters)
         /// </summary>
         /// <returns>Random http-url-like string</returns>
         public static string GetRandomHttpUrl()
@@ -1275,7 +1276,33 @@ namespace PeanutButter.RandomGenerators
             return string.Join(
                 "",
                 "http://",
-                GetRandomDomain()
+                GetRandomHostname()
+            );
+        }
+
+        /// <summary>
+        /// Produces a string which looks just like an http url with a path
+        /// </summary>
+        /// <returns></returns>
+        public static string GetRandomHttpUrlWithPath()
+        {
+            return string.Join(
+                "/",
+                GetRandomHttpUrl(),
+                GetRandomPath()
+            );
+        }
+
+        /// <summary>
+        /// Produces a string that looks like an http url with path and parameters
+        /// </summary>
+        /// <returns></returns>
+        public static string GetRandomHttpUrlWithPathAndParameters()
+        {
+            return string.Join(
+                "/",
+                GetRandomHttpUrl(),
+                $"{GetRandomPath()}{GetRandomUrlQuery()}"
             );
         }
 
@@ -1285,9 +1312,79 @@ namespace PeanutButter.RandomGenerators
         /// <returns></returns>
         public static string GetRandomHttpUrlWithParameters()
         {
-            var parameters = Range(1, GetRandomInt(2, 5)).Select(
-                _ => $"{GetRandomString(1)}={GetRandomString(1)}");
-            return $"{GetRandomHttpUrl()}?{parameters.JoinWith("&")}";
+            return $"{GetRandomHttpUrl()}{GetRandomUrlQuery()}";
+        }
+
+        /// <summary>
+        /// Generates a random string which looks a lot like an https url, to
+        /// the domain only (no path or parameters)
+        /// </summary>
+        /// <returns>Random Https-url-like string</returns>
+        public static string GetRandomHttpsUrl()
+        {
+            return string.Join(
+                "",
+                "https://",
+                GetRandomHostname()
+            );
+        }
+
+        /// <summary>
+        /// Produces a string which looks just like an https url with a path
+        /// </summary>
+        /// <returns></returns>
+        public static string GetRandomHttpsUrlWithPath()
+        {
+            return string.Join(
+                "/",
+                GetRandomHttpsUrl(),
+                GetRandomPath()
+            );
+        }
+
+        /// <summary>
+        /// Produces a string that looks like an https url with path and parameters
+        /// </summary>
+        /// <returns></returns>
+        public static string GetRandomHttpsUrlWithPathAndParameters()
+        {
+            return string.Join(
+                "/",
+                GetRandomHttpsUrl(),
+                $"{GetRandomPath()}{GetRandomUrlQuery()}"
+            );
+        }
+
+        /// <summary>
+        /// Generates a random https url with some query parameters
+        /// </summary>
+        /// <returns></returns>
+        public static string GetRandomHttpsUrlWithParameters()
+        {
+            return $"{GetRandomHttpsUrl()}{GetRandomUrlQuery()}";
+        }
+
+        /// <summary>
+        /// Generates a random string which looks like a relative
+        /// path on the internet or any reasonable filesystem
+        /// </summary>
+        /// <returns></returns>
+        public static string GetRandomPath()
+        {
+            var parts = GetRandomArray<string>(1, 3);
+            return parts.JoinWith("/");
+        }
+
+        public static string GetRandomUrlQuery()
+        {
+            return $"?{GetRandomUrlParameters()}";
+        }
+
+        public static string GetRandomUrlParameters()
+        {
+            return Range(1, GetRandomInt(2, 5)).Select(
+                _ => $"{GetRandomString(1)}={GetRandomString(1)}"
+            ).JoinWith("&");
         }
 
         /// <summary>
