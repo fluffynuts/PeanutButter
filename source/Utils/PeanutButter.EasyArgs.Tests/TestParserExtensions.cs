@@ -370,7 +370,6 @@ namespace PeanutButter.EasyArgs.Tests
                 .Not.To.Be.Null();
             Expect(remaining)
                 .To.Equal(args);
-            
         }
 
         public interface IFoo
@@ -428,7 +427,7 @@ Report bugs to <no-one-cares@whatevs.org>
                     .To.Equal(expected, () =>
                     {
                         var i = 0;
-                        foreach (var c in output) 
+                        foreach (var c in output)
                         {
                             if (i > expected.Length)
                             {
@@ -444,7 +443,9 @@ received:
                             }
 
                             i++;
-                        };
+                        }
+
+                        ;
                         return "dunno";
                     });
             }
@@ -480,6 +481,68 @@ Report bugs to <no-one-cares@whatevs.org>
 
                 [Attributes.Description("the flag")]
                 public bool Flag { get; set; }
+            }
+        }
+
+        [TestFixture]
+        public class GenerateArgs
+        {
+            [Test]
+            public void ShouldGenerateTheSingleOption()
+            {
+                // Arrange
+                var opts = new OneOption()
+                {
+                    TheOption = 12
+                };
+                var expected = new[] { "--the-option", "12" };
+                // Act
+                var result = opts.GenerateArgs();
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+
+            [Test]
+            public void ShouldGeneratePositiveFlagAppropriately()
+            {
+                // Arrange
+                var positive = new OneFlag()
+                {
+                    TheFlag = true
+                };
+                var expected = new[] { "--the-flag" };
+                // Act
+                var result = positive.GenerateArgs();
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+
+            [Test]
+            public void ShouldGenerateNegativeFlagAppropriately()
+            {
+                // Arrange
+                var positive = new OneFlag()
+                {
+                    TheFlag = false
+                };
+                var expected = new[] { "--no-the-flag" };
+                // Act
+                var result = positive.GenerateArgs();
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+
+            public class OneOption
+            {
+                public int TheOption { get; set; }
+            }
+
+            public class OneFlag
+            {
+                public bool TheFlag { get; set; }
             }
         }
 

@@ -353,17 +353,17 @@ namespace PeanutButter.EasyArgs
                     .Except(new[] { opt })
                     .Distinct()
                     .ToArray();
-                
+
                 var allSpecifiedDirectConflicts = allPossibleConflicts
                     .Select(a => new[] { a.LongSwitch, a.ShortSwitch })
                     .Flatten()
                     .Intersect(specifiedSwitches)
                     .ToArray();
-                
+
                 var allConflicts = negativeConflicts.Union(allSpecifiedDirectConflicts)
                     .Distinct()
                     .ToArray();
-                
+
                 allConflicts.ForEach(conflict =>
                 {
                     specifiedSwitches.ForEach(sw =>
@@ -601,6 +601,72 @@ namespace PeanutButter.EasyArgs
                 });
             ignored = ignoredCollection.ToArray();
             return result;
+        }
+
+        /// <summary>
+        /// Generates an args array from the properties
+        /// of the incoming object, preferring long names
+        /// for options over short names
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static string[] GenerateArgs(
+            this object obj
+        )
+        {
+            if (obj is null)
+            {
+                return new string[0];
+            }
+
+            return obj.GetType()
+                .GetProperties()
+                .Select(pi => GenerateArgsPairFor(pi, obj))
+                .SelectMany(o => o)
+                .ToArray();
+        }
+
+        private static string[] GenerateArgsPairFor(
+            PropertyInfo pi,
+            object o
+        )
+        {
+            if (pi.PropertyType == typeof(bool))
+            {
+                var propValue = (bool)pi.GetValue(o);
+                return new[]
+                {
+                    propValue
+                        ? FindNameFor(pi)
+                        : FindNameFor(pi).RegexReplace("^--", "--no-")
+                };
+            }
+
+            var name = FindNameFor(pi);
+            var value = pi.GetValue(o)?.ToString() ?? "";
+            return new[] { name, value };
+        }
+
+        private static string FindNameFor(PropertyInfo pi)
+        {
+            var attribs = pi.GetCustomAttributes()
+                .ToArray();
+            var longName = attribs.OfType<LongNameAttribute>()
+                .FirstOrDefault()?.Value.PrependString("--");
+            var shortName = attribs.OfType<ShortNameAttribute>()
+                .FirstOrDefault()?.Value.PrependString("-");
+            var fallback = pi.Name.ToKebabCase().PrependString("--");
+            return longName ?? shortName ?? fallback;
+        }
+
+        private static string PrependString(
+            this string str,
+            string toPrepend
+        )
+        {
+            return str is null
+                ? null
+                : $"{toPrepend}{str}";
         }
     }
 }
