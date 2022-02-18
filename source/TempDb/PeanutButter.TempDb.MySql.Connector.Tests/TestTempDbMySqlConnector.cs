@@ -187,7 +187,8 @@ namespace PeanutButter.TempDb.MySql.Connector.Tests
                         null, // will try to seek out the mysql installation
                         "C:\\apps\\mysql-5.7\\bin\\mysqld.exe",
                         "C:\\apps\\mysql-5.6\\bin\\mysqld.exe",
-                        "C:\\apps\\MySQL Server 5.7\\bin\\mysqld.exe"
+                        "C:\\apps\\MySQL Server 5.7\\bin\\mysqld.exe",
+                        "C:\\apps\\mysql-8.0.26-winx64\\bin\\mysqld.exe",
                     }.Where(p =>
                     {
                         if (p == null)

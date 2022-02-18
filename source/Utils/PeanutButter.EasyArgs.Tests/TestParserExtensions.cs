@@ -617,6 +617,36 @@ Report bugs to <no-one-cares@whatevs.org>
             }
         }
 
+        [TestFixture]
+        public class Bugs
+        {
+            [Test]
+            public void ShouldParseNegativeDecimal()
+            {
+                // Arrange
+                var args = new[] { "--value", "-1" };
+                var exitCode = 0;
+                // Act
+                var result = args.ParseTo<HasDecimal>(
+                    out var _,
+                    new ParserOptions()
+                    {
+                        ExitAction = c => exitCode = c
+                    }
+                );
+                // Assert
+                Expect(exitCode)
+                    .To.Equal(0);
+                Expect(result.Value)
+                    .To.Equal(-1);
+            }
+
+            public class HasDecimal
+            {
+                public decimal Value { get; set; }
+            }
+        }
+
         public interface IArgs
         {
             [ShortName('p')]

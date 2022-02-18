@@ -643,7 +643,7 @@ namespace PeanutButter.EasyArgs
                         return acc;
                     }
 
-                    if (!cur.StartsWith("-"))
+                    if (!cur.StartsWith("-") || IsNumeric(cur))
                     {
                         return acc.Add(lastSwitch, cur);
                     }
@@ -653,6 +653,12 @@ namespace PeanutButter.EasyArgs
                 });
             ignored = ignoredCollection.ToArray();
             return result;
+        }
+
+        private static bool IsNumeric(string value)
+        {
+            var dd = new DecimalDecorator(value);
+            return dd.IsValidDecimal;
         }
 
         /// <summary>
