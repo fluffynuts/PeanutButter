@@ -39,6 +39,16 @@ namespace PeanutButter.EasyArgs
             _type ??= GrokType();
 
         /// <summary>
+        /// Minimum value for a numeric argument
+        /// </summary>
+        public decimal? MinValue { get; set; }
+        
+        /// <summary>
+        /// Maximum value for a numeric argument
+        /// </summary>
+        public decimal? MaxValue { get; set; }
+
+        /// <summary>
         /// shortcut to determine if the switch is either the long or short
         /// switch for this arg
         /// </summary>

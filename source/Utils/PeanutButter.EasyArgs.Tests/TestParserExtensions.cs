@@ -546,6 +546,77 @@ Report bugs to <no-one-cares@whatevs.org>
             }
         }
 
+        [TestFixture]
+        public class Validation
+        {
+            [TestFixture]
+            public class Min
+            {
+                [Test]
+                public void ShouldFailWhenMinValueNotMet()
+                {
+                    // Arrange
+                    var args = new[] { "--some-number", "4" };
+                    var output = new List<string>();
+                    var exitCode = 0;
+                    var opts = new ParserOptions()
+                    {
+                        ExitAction = c => exitCode = c,
+                        LineWriter = s => output.Add(s)
+                    };
+                    // Act
+                    args.ParseTo<INumericOptions>(
+                        out var uncollected,
+                        opts
+                    );
+                    // Assert
+                    Expect(exitCode)
+                        .To.Equal(ExitCodes.ARGUMENT_ERROR);
+                    Expect(output)
+                        .To.Contain.Exactly(1)
+                        .Matched.By(l => l.Contains("--some-number") &&
+                            l.Contains("should be at least 5") &&
+                            l.Contains("received: 4")
+                        );
+                }
+
+                [Test]
+                public void ShouldFailWhenMaxValueExceeded()
+                {
+                    // Arrange
+                    var args = new[] { "--some-number", "14" };
+                    var output = new List<string>();
+                    var exitCode = 0;
+                    var opts = new ParserOptions()
+                    {
+                        ExitAction = c => exitCode = c,
+                        LineWriter = s => output.Add(s)
+                    };
+                    // Act
+                    args.ParseTo<INumericOptions>(
+                        out var uncollected,
+                        opts
+                    );
+                    // Assert
+                    Expect(exitCode)
+                        .To.Equal(ExitCodes.ARGUMENT_ERROR);
+                    Expect(output)
+                        .To.Contain.Exactly(1)
+                        .Matched.By(l => l.Contains("--some-number") &&
+                            l.Contains("should be at most 10") &&
+                            l.Contains("received: 14")
+                        );
+                }
+            }
+
+            public interface INumericOptions
+            {
+                [Min(5)]
+                [Max(10)]
+                public int SomeNumber { get; set; }
+            }
+        }
+
         public interface IArgs
         {
             [ShortName('p')]

@@ -290,12 +290,12 @@ namespace PeanutButter.EasyArgs
         )
         {
             var left = $@"{
-                    FormatArg(shortName, 1, true)
-                } {
-                    FormatArg(longName, 2, false)
-                }{
-                    TypeAnnotationFor(type, isFlag)
-                }".PadRight(leftColWidth);
+                FormatArg(shortName, 1, true)
+            } {
+                FormatArg(longName, 2, false)
+            }{
+                TypeAnnotationFor(type, isFlag)
+            }".PadRight(leftColWidth);
             var rightWords = (helpText ?? "").Trim().Split(' ').ToList();
             if (!rightWords.Any())
             {
@@ -430,6 +430,42 @@ namespace PeanutButter.EasyArgs
         {
             LineWriter(
                 $"{arg} is required"
+            );
+        }
+
+        /// <summary>
+        /// Reports a minimum value constraint violation
+        /// </summary>
+        /// <param name="arg"></param>
+        /// <param name="minValue"></param>
+        /// <param name="value"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        public void ReportMinimumViolation(
+            string arg,
+            decimal? minValue,
+            decimal value
+        )
+        {
+            LineWriter(
+                $"{arg} should be at least {minValue} (received: {value})"
+            );
+        }
+        
+        /// <summary>
+        /// Reports a minimum value constraint violation
+        /// </summary>
+        /// <param name="arg"></param>
+        /// <param name="maxValue"></param>
+        /// <param name="value"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        public void ReportMaximumViolation(
+            string arg,
+            decimal? maxValue,
+            decimal value
+        )
+        {
+            LineWriter(
+                $"{arg} should be at most {maxValue} (received: {value})"
             );
         }
     }

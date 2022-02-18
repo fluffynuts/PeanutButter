@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using PeanutButter.EasyArgs.Attributes;
@@ -256,6 +257,12 @@ namespace PeanutButter.EasyArgs
                 options.ExitIfRequired(ExitCodes.ARGUMENT_ERROR);
             }
 
+            VerifyNumericRanges(result, lookup, options, errored);
+            if (errored.Any())
+            {
+                options.ExitIfRequired(ExitCodes.ARGUMENT_ERROR);
+            }
+
             VerifyNoExplicitConflicts(
                 result,
                 lookup.Values.Distinct().ToArray(),
@@ -267,8 +274,49 @@ namespace PeanutButter.EasyArgs
                 lookup.Values.Distinct().ToArray()
             );
 
+
             uncollected = uncollectedArgs.ToArray();
             return result;
+        }
+
+        private static void VerifyNumericRanges(
+            Dictionary<string, object> result,
+            Dictionary<string, CommandlineArgument> commandlineArguments,
+            ParserOptions options,
+            HashSet<string> errored
+        )
+        {
+            var specified = new HashSet<string>(result.Keys);
+            var hasMin = commandlineArguments.Values.Distinct()
+                .Where(o => o.MinValue is not null && specified.Contains(o.Key))
+                .ToArray();
+            hasMin.ForEach(opt =>
+            {
+                var stringValue = result[opt.Key] as string;
+                var dd = new DecimalDecorator(stringValue);
+                if (!dd.IsValidDecimal)
+                {
+                    return;
+                }
+
+                var value = dd.ToDecimal();
+
+                if (value < opt.MinValue)
+                {
+                    options.ReportMinimumViolation(
+                        $"--{opt.LongName}", opt.MinValue, value
+                    );
+                    errored.Add(opt.Key);
+                }
+
+                if (value > opt.MaxValue)
+                {
+                    options.ReportMaximumViolation(
+                        $"--{opt.LongName}", opt.MaxValue, value
+                    );
+                    errored.Add(opt.Key);
+                }
+            });
         }
 
         private static void VerifyRequiredOptions(
@@ -559,7 +607,11 @@ namespace PeanutButter.EasyArgs
                                 .Select(a => a.Value)
                                 .ToArray(),
                             IsImplicit = false,
-                            IsRequired = attribs.OfType<RequiredAttribute>().Any()
+                            IsRequired = attribs.OfType<RequiredAttribute>().Any(),
+                            MinValue = attribs.OfType<MinAttribute>()
+                                .FirstOrDefault()?.Value,
+                            MaxValue = attribs.OfType<MaxAttribute>()
+                                .FirstOrDefault()?.Value
                         };
 
                         acc.Add(option);

@@ -15,6 +15,11 @@ namespace PeanutButter.Utils
     public class DecimalDecorator
     {
         /// <summary>
+        /// Flag: is the underlying value a valid decimal value
+        /// </summary>
+        public bool IsValidDecimal { get; }
+        
+        /// <summary>
         /// Attempts to do a direct parse on a string value
         /// - will break if the input value is clearly not a decimal, eg "aaa"
         /// </summary>
@@ -63,6 +68,7 @@ namespace PeanutButter.Utils
         /// <param name="format">Optional string format to use</param>
         public DecimalDecorator(decimal value, string format = null)
         {
+            IsValidDecimal = true;
             _decimalValue = value;
             _stringValue = format != null
                 ? value.ToString(format, NumberFormatInfo)
@@ -76,16 +82,33 @@ namespace PeanutButter.Utils
         /// <param name="value">String value to parse as Decimal</param>
         public DecimalDecorator(string value)
         {
-            _decimalValue = decimal.Parse(
-                value
-                    .SafeTrim()
-                    .ZeroIfEmptyOrNull()
-                    .Replace(" ", string.Empty)
-                    .Replace(",", (value ?? "").IndexOf(".", StringComparison.Ordinal) > -1 ? string.Empty : "."),
-                NumberFormatInfo
-            );
+            if (value is null)
+            {
+                IsValidDecimal = false;
+            }
+
+            try
+            {
+                _decimalValue = decimal.Parse(
+                    value
+                        .SafeTrim()
+                        .ZeroIfEmptyOrNull()
+                        .Replace(" ", string.Empty)
+                        .Replace(",", (value ?? "").IndexOf(".", StringComparison.Ordinal) > -1
+                            ? string.Empty
+                            : "."),
+                    NumberFormatInfo
+                );
+                IsValidDecimal = true;
+            }
+            catch
+            {
+                IsValidDecimal = false;
+            }
+
             _stringValue = value;
         }
+
 
         /// <inheritdoc />
         public override string ToString()
