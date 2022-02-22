@@ -426,6 +426,32 @@ otherSetting=otherValue";
                 Expect(ini["GeNeRal"]).To.Contain.Only(1).Item();
                 Expect(ini["general"]).To.Contain.Key("key").With.Value("value");
             }
+
+            [Test]
+            public void ShouldNotConsiderSemiColonsInQuotedValuesToBeCommentDelimiters()
+            {
+                // Arrange
+                using var tmp = new AutoDeletingTempFile();
+                var expected = "DRIVER={SQL Server};SERVER=192.168.1.2\\SQLEXPRESS02;DATABASE=MyDb;UID=sa;PWD=sneaky;TRUSTED_CONNECTION=NO;CONNECTION TIMEOUT=60;";
+                var src = new[]
+                {
+                    "[PATHS]",
+                    "; The line below contains the SQL connection string to customer DB",
+                    $"DBPATH=\"{expected}\""
+                };
+                File.WriteAllBytes(
+                    tmp.Path,
+                    Encoding.UTF8.GetBytes(
+                        string.Join(Environment.NewLine, src)
+                    )
+                );
+
+                // Act
+                var ini = Create(tmp.Path);
+                // Assert
+                Expect(ini["PATHS"]["DBPATH"])
+                    .To.Equal(expected);
+            }
         }
 
         [TestFixture]
@@ -906,7 +932,7 @@ key2=""value2""
                     .To.Equal(expected.Trim());
             }
         }
-        
+
         [TestFixture]
         public class TestingForSection
         {
@@ -1480,7 +1506,7 @@ key=value2";
             {
                 // Arrange
                 var iniFilePath = PathTo("bom-ini.ini");
-                
+
                 // Act
                 var ini = new INIFile(iniFilePath);
 
@@ -1547,7 +1573,8 @@ key=value2";
 [notification]
 Email_Message=""[HTML] [HEAD] [style type=\""text/css\""] body{font-family: Verdana, Geneva, sans-serif; font-size:10pt;} td{font-family: Verdana, Geneva, sans-serif;font-size:10pt;} p{margin-top: 10px; margin-bottom: 10px;} ol,ul{margin-top: -10px; margin-bottom: -10px;} [/style] [/HEAD] [BODY]test [font style=\""background-color: rgb(255, 255, 192);\""]{MovedFileFullPath}[/font][/BODY][/HTML]""
 ";
-                var expected = @"[HTML] [HEAD] [style type=""text/css""] body{font-family: Verdana, Geneva, sans-serif; font-size:10pt;} td{font-family: Verdana, Geneva, sans-serif;font-size:10pt;} p{margin-top: 10px; margin-bottom: 10px;} ol,ul{margin-top: -10px; margin-bottom: -10px;} [/style] [/HEAD] [BODY]test [font style=""background-color: rgb(255, 255, 192);""]{MovedFileFullPath}[/font][/BODY][/HTML]";
+                var expected =
+                    @"[HTML] [HEAD] [style type=""text/css""] body{font-family: Verdana, Geneva, sans-serif; font-size:10pt;} td{font-family: Verdana, Geneva, sans-serif;font-size:10pt;} p{margin-top: 10px; margin-bottom: 10px;} ol,ul{margin-top: -10px; margin-bottom: -10px;} [/style] [/HEAD] [BODY]test [font style=""background-color: rgb(255, 255, 192);""]{MovedFileFullPath}[/font][/BODY][/HTML]";
                 using var file = new AutoTempFile(contents);
                 var sut = Create(file);
                 // Act
@@ -1615,7 +1642,7 @@ key=value
                 .To.Equal(ParseStrategies.Custom);
             Expect(sut.CustomLineParser)
                 .To.Be(parser);
-            
+
             // Act
             sut.Load(tmpFile.Path);
             Expect(parser)
@@ -1647,7 +1674,7 @@ key=value
                 .To.Equal(ParseStrategies.Custom);
             Expect(sut.CustomLineParser)
                 .To.Be(parser);
-            
+
             // Act
             sut.Parse(contents);
             Expect(parser)
@@ -1669,7 +1696,8 @@ key=value
         public class WrapValueInQuotes
         {
             [Test]
-            public void WrapValueInQuotes_GivenWrapValueInQuotesTrue_WhenValueHasValue_ShouldWriteValueWithQuotesToStream()
+            public void
+                WrapValueInQuotes_GivenWrapValueInQuotesTrue_WhenValueHasValue_ShouldWriteValueWithQuotesToStream()
             {
                 //---------------Set up test pack-------------------
                 var sut = Create();
@@ -1707,7 +1735,8 @@ key=value
             }
 
             [Test]
-            public void WrapValueInQuotes_GivenWrapValueInQuotesTrue_WhenValueIsEmptyString_ShouldWriteKeyWithEqualsAndQuotesToStream()
+            public void
+                WrapValueInQuotes_GivenWrapValueInQuotesTrue_WhenValueIsEmptyString_ShouldWriteKeyWithEqualsAndQuotesToStream()
             {
                 //---------------Set up test pack-------------------
                 var sut = Create();
@@ -1726,7 +1755,8 @@ key=value
             }
 
             [Test]
-            public void WrapValueInQuotes_GivenWrapValueInQuotesFalse_WhenValueHasValue_ShouldWriteValueWithoutQuotesToStream()
+            public void
+                WrapValueInQuotes_GivenWrapValueInQuotesFalse_WhenValueHasValue_ShouldWriteValueWithoutQuotesToStream()
             {
                 //---------------Set up test pack-------------------
                 var sut = Create();
@@ -1764,7 +1794,8 @@ key=value
             }
 
             [Test]
-            public void WrapValueInQuotes_GivenWrapValueInQuotesFalse_WhenValueIsEmptyString_ShouldWriteKeyWithEqualsToStream()
+            public void
+                WrapValueInQuotes_GivenWrapValueInQuotesFalse_WhenValueIsEmptyString_ShouldWriteKeyWithEqualsToStream()
             {
                 //---------------Set up test pack-------------------
                 var sut = Create();
