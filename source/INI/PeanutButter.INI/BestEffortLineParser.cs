@@ -4,8 +4,17 @@ using System.Linq;
 
 namespace PeanutButter.INI
 {
-    internal class BestEffortLineParser : ILineParser
+    /// <summary>
+    /// Provides the best-effort line parsing strategy -
+    /// inherit from this to guide behavior, eg to set a custom comment
+    /// delimiter or custom escaping of values, bearing in mind that doing
+    /// so will probably make your ini file unreadable by other tooling
+    /// </summary>
+    public class BestEffortLineParser : ILineParser
     {
+        public const string DEFAULT_COMMENT_DELIMITER = ";";
+        protected string CommentDelimiter = DEFAULT_COMMENT_DELIMITER;
+
         public IParsedLine Parse(string line)
         {
             if (line is null)
@@ -13,7 +22,7 @@ namespace PeanutButter.INI
                 return new ParsedLine("", "", "", false);
             }
 
-            if (line.Trim().StartsWith(";"))
+            if (line.Trim().StartsWith(CommentDelimiter))
             {
                 return new ParsedLine("", null, TrimComment(line), false);
             }
@@ -183,9 +192,9 @@ namespace PeanutButter.INI
                 : str;
         }
 
-        private static Tuple<string, string> LegacySplitCommentAndData(string data)
+        private Tuple<string, string> LegacySplitCommentAndData(string data)
         {
-            var semiPos = data.IndexOf(';', 0);
+            var semiPos = data.IndexOf(CommentDelimiter, 0, StringComparison.Ordinal);
             if (semiPos == -1)
             {
                 return Tuple.Create(
@@ -197,7 +206,7 @@ namespace PeanutButter.INI
             var quoteAfterSemi = data.IndexOf('"', semiPos + 1);
             while (quoteAfterSemi > -1 && semiPos > -1)
             {
-                semiPos = data.IndexOf(';', semiPos + 1);
+                semiPos = data.IndexOf(CommentDelimiter, semiPos + 1, StringComparison.Ordinal);
                 quoteAfterSemi = data.IndexOf('"', semiPos + 1);
             }
 
