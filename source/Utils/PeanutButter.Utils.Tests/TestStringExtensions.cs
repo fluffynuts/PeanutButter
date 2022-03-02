@@ -307,434 +307,508 @@ namespace PeanutButter.Utils.Tests
             }
         }
 
-        [Test]
-        public void IsInteger_WhenStringIsInteger_ShouldReturnTrue()
+        [TestFixture]
+        public class IsInteger
         {
-            //---------------Set up test pack-------------------
-            var input = GetRandomInt().ToString();
+            [TestFixture]
+            public class WhenStringIsInteger
+            {
+                [Test]
+                public void ShouldReturnTrue()
+                {
+                    //---------------Set up test pack-------------------
+                    var input = GetRandomInt().ToString();
 
-            //---------------Assert Precondition----------------
+                    //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var result = input.IsInteger();
+                    //---------------Execute Test ----------------------
+                    var result = input.IsInteger();
 
-            //---------------Test Result -----------------------
-            Assert.IsTrue(result);
+                    //---------------Test Result -----------------------
+                    Expect(result)
+                        .To.Be.True();
+                }
+            }
+
+            [TestFixture]
+            public class WhenStringIsNotInteger
+            {
+                [Test]
+                public void ShouldReturnFalse()
+                {
+                    //---------------Set up test pack-------------------
+                    var input = GetRandomAlphaString();
+
+                    //---------------Assert Precondition----------------
+
+                    //---------------Execute Test ----------------------
+                    var result = input.IsInteger();
+
+                    //---------------Test Result -----------------------
+                    Expect(result)
+                        .To.Be.False();
+                }
+            }
         }
 
-        [Test]
-        public void IsInteger_WhenStringIsNotInteger_ShouldReturnFalse()
+        [TestFixture]
+        public class AsInteger
         {
-            //---------------Set up test pack-------------------
-            var input = GetRandomAlphaString();
+            [TestFixture]
+            public class WhenStringIsInteger
+            {
+                [Test]
+                public void ShouldReturnThatIntegerValue()
+                {
+                    //---------------Set up test pack-------------------
+                    var expected = GetRandomInt(10, 100);
+                    var input = expected.ToString();
 
-            //---------------Assert Precondition----------------
+                    //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var result = input.IsInteger();
+                    //---------------Execute Test ----------------------
+                    var result = input.AsInteger();
 
-            //---------------Test Result -----------------------
-            Assert.IsFalse(result);
+                    //---------------Test Result -----------------------
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
+
+            [TestFixture]
+            public class WhenStringIsFloatingPointWithPeriod
+            {
+                [Test]
+                public void ShouldReturnTruncatedIntPart()
+                {
+                    //---------------Set up test pack-------------------
+                    var input = "1.2";
+
+                    //---------------Assert Precondition----------------
+
+                    //---------------Execute Test ----------------------
+                    var result = input.AsInteger();
+
+                    //---------------Test Result -----------------------
+                    Expect(result)
+                        .To.Equal(1);
+                }
+            }
+
+            [TestFixture]
+            public class WhenStringIsFloatingPointWithComma
+            {
+                [Test]
+                public void ShouldReturnTruncatedIntPart()
+                {
+                    //---------------Set up test pack-------------------
+                    var input = "1,2";
+
+                    //---------------Assert Precondition----------------
+
+                    //---------------Execute Test ----------------------
+                    var result = input.AsInteger();
+
+                    //---------------Test Result -----------------------
+                    Expect(result)
+                        .To.Equal(1);
+                }
+            }
+
+            [TestFixture]
+            public class WhenStringContainsAlphaChars
+            {
+                [Test]
+                public void ShouldReturnIntPartOfBeginning()
+                {
+                    //---------------Set up test pack-------------------
+                    var input = "2ab4";
+                    var expected = 2;
+
+                    //---------------Assert Precondition----------------
+
+                    //---------------Execute Test ----------------------
+                    var result = input.AsInteger();
+
+                    //---------------Test Result -----------------------
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
+
+            [TestFixture]
+            public class WhenStringHasLeadingAlphaPart
+            {
+                [Test]
+                public void ShouldReturnIntPartOfBeginning()
+                {
+                    //---------------Set up test pack-------------------
+                    var input = "woof42meow4";
+                    var expected = 42;
+
+                    //---------------Assert Precondition----------------
+
+                    //---------------Execute Test ----------------------
+                    var result = input.AsInteger();
+
+                    //---------------Test Result -----------------------
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
+
+            [TestFixture]
+            public class WhenStringIsNotAnInteger
+            {
+                [TestCase("a")]
+                [TestCase("")]
+                [TestCase("\r\n")]
+                [TestCase(null)]
+                public void ShouldReturnZeroFor_(string input)
+                {
+                    //---------------Set up test pack-------------------
+
+                    //---------------Assert Precondition----------------
+
+                    //---------------Execute Test ----------------------
+                    var result = input.AsInteger();
+
+                    //---------------Test Result -----------------------
+                    Expect(result)
+                        .To.Equal(0);
+                }
+            }
         }
 
-        [Test]
-        public void AsInteger_WhenStringIsInteger_ShouldReturnThatIntegerValue()
+        [TestFixture]
+        public class IsNullOrWhitespace
         {
-            //---------------Set up test pack-------------------
-            var expected = GetRandomInt(10, 100);
-            var input = expected.ToString();
+            [TestFixture]
+            public class WhenOperatingOnNullOrWhitespace
+            {
+                [TestCaseSource(nameof(NullOrWhitespaceStrings))]
+                public void ShouldReturnTrueFor_(
+                    string src)
+                {
+                    //---------------Set up test pack-------------------
 
-            //---------------Assert Precondition----------------
+                    //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var result = input.AsInteger();
+                    //---------------Execute Test ----------------------
+                    var result = src.IsNullOrWhiteSpace();
 
-            //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+                    //---------------Test Result -----------------------
+                    Assert.IsTrue(result);
+                }
+            }
+
+            [TestFixture]
+            public class WhenOperatingOnNonWhitespaceString
+            {
+                [Test]
+                public void ShouldReturnFalse()
+                {
+                    //---------------Set up test pack-------------------
+                    var src = GetRandomString();
+
+                    //---------------Assert Precondition----------------
+
+                    //---------------Execute Test ----------------------
+                    var result = src.IsNullOrWhiteSpace();
+
+                    //---------------Test Result -----------------------
+                    Assert.IsFalse(result);
+                }
+            }
+
+            private static readonly string[] NullOrWhitespaceStrings =
+            {
+                null,
+                "\t",
+                "\r",
+                "\n"
+            };
         }
 
-        [Test]
-        public void AsInteger_WhenStringIsFloatingPointWithPeriod_ShouldReturnTruncatedIntPart()
+        [TestFixture]
+        public class IsNullOrEmpty
         {
-            //---------------Set up test pack-------------------
-            var input = "1.2";
+            [TestCase(null)]
+            [TestCase("")]
+            public void ShouldReturnTrue_For_(
+                string src)
+            {
+                //---------------Set up test pack-------------------
 
-            //---------------Assert Precondition----------------
+                //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var result = input.AsInteger();
+                //---------------Execute Test ----------------------
+                var result = src.IsNullOrEmpty();
 
-            //---------------Test Result -----------------------
-            Assert.AreEqual(1, result);
+                //---------------Test Result -----------------------
+                Expect(result)
+                    .To.Be.True();
+            }
+
+            [TestCase("\t")]
+            [TestCase("\n")]
+            [TestCase("\r")]
+            public void ShouldReturnFalse_For_(
+                string src)
+            {
+                //---------------Set up test pack-------------------
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = src.IsNullOrEmpty();
+
+                //---------------Test Result -----------------------
+                Expect(result)
+                    .To.Be.False();
+            }
+
+            [TestFixture]
+            public class WhenStringIsNotWhitespaceOrNull
+            {
+                [Test]
+                public void ShouldReturnFalse()
+                {
+                    //---------------Set up test pack-------------------
+                    var input = GetRandomString();
+
+                    //---------------Assert Precondition----------------
+
+                    //---------------Execute Test ----------------------
+                    var result = input.IsNullOrEmpty();
+
+                    //---------------Test Result -----------------------
+                    Assert.IsFalse(result);
+                }
+            }
         }
 
-        [Test]
-        public void AsInteger_WhenStringIsFloatingPointWithComma_ShouldReturnTruncatedIntPart()
+        [TestFixture]
+        public class ContainsOneOf
         {
-            //---------------Set up test pack-------------------
-            var input = "1,2";
+            [Test]
+            public void GivenNoNeedles_ShouldThrow()
+            {
+                //--------------- Arrange -------------------
 
-            //---------------Assert Precondition----------------
+                //--------------- Assume ----------------
 
-            //---------------Execute Test ----------------------
-            var result = input.AsInteger();
+                //--------------- Act ----------------------
+                Expect(() => "foo".ContainsOneOf())
+                    .To.Throw<ArgumentException>();
+                //--------------- Assert -----------------------
+            }
 
-            //---------------Test Result -----------------------
-            Assert.AreEqual(1, result);
+            [Test]
+            public void GivenNullNeedle_ShouldThrow()
+            {
+                //--------------- Arrange -------------------
+
+                //--------------- Assume ----------------
+
+                //--------------- Act ----------------------
+                Expect(() => "foo".ContainsOneOf(null, "foo"))
+                    .To.Throw<ArgumentException>();
+                //--------------- Assert -----------------------
+            }
+
+            [Test]
+            public void OperatingOnNull_ShouldReturnFalse()
+            {
+                //--------------- Arrange -------------------
+
+                //--------------- Assume ----------------
+
+                //--------------- Act ----------------------
+                var result = (null as string).ContainsOneOf("foo");
+                //--------------- Assert -----------------------
+                Expect(result)
+                    .To.Be.False();
+            }
+
+            [Test]
+            public void OperatingOnStringContainingNoneOfTheNeedles_ShouldReturnFalse()
+            {
+                //--------------- Arrange -------------------
+                var input = "foo";
+                var search = new[] { "bar", "quuz", "wibbles" };
+
+                //--------------- Assume ----------------
+
+                //--------------- Act ----------------------
+                var result = input.ContainsOneOf(search);
+
+                //--------------- Assert -----------------------
+                Expect(result).To.Be.False();
+            }
+
+            [Test]
+            public void OperatingOnStringContainingOnneOfTheNeedles_ShouldReturnTrue()
+            {
+                //--------------- Arrange -------------------
+                var input = "foo";
+                var search = new[] { "bar", "quuz", "oo", "wibbles" }.Randomize().ToArray();
+
+                //--------------- Assume ----------------
+
+                //--------------- Act ----------------------
+                var result = input.ContainsOneOf(search);
+
+                //--------------- Assert -----------------------
+                Expect(result).To.Be.True();
+            }
         }
 
-        [Test]
-        public void AsInteger_WhenStringHasAlphaPart_ShouldReturnIntPartOfBeginning()
+        [TestFixture]
+        public class ContainsAllOf
         {
-            //---------------Set up test pack-------------------
-            var input = "2ab4";
-            var expected = 2;
+            [Test]
+            public void GivenNoNeedles_ShouldThrow()
+            {
+                //--------------- Arrange -------------------
 
-            //---------------Assert Precondition----------------
+                //--------------- Assume ----------------
 
-            //---------------Execute Test ----------------------
-            var result = input.AsInteger();
+                //--------------- Act ----------------------
+                Expect(() => "foo".ContainsAllOf())
+                    .To.Throw<ArgumentException>();
+                //--------------- Assert -----------------------
+            }
 
-            //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            [Test]
+            public void GivenNullNeedle_ShouldThrow()
+            {
+                //--------------- Arrange -------------------
+
+                //--------------- Assume ----------------
+
+                //--------------- Act ----------------------
+                Expect(() => "foo".ContainsAllOf(null, "foo"))
+                    .To.Throw<ArgumentException>();
+                //--------------- Assert -----------------------
+            }
+
+            [Test]
+            public void OperatingOnNull_ShouldReturnFalse()
+            {
+                //--------------- Arrange -------------------
+
+                //--------------- Assume ----------------
+
+                //--------------- Act ----------------------
+                var result = (null as string).ContainsAllOf("foo");
+                //--------------- Assert -----------------------
+                Expect(result).To.Be.False();
+            }
+
+            [Test]
+            public void WhenHaystackContainsAllConstituents_ShouldReturnTrue()
+            {
+                //--------------- Arrange -------------------
+                var input = "hello, world";
+                var search = new[] { "hello", ", ", "world" }.Randomize().ToArray();
+
+                //--------------- Assume ----------------
+
+                //--------------- Act ----------------------
+                var result = input.ContainsAllOf(search);
+
+                //--------------- Assert -----------------------
+                Expect(result).To.Be.True();
+            }
+
+            [Test]
+            public void WhenHaystackMissingNeedle_ShouldReturnFalse()
+            {
+                //--------------- Arrange -------------------
+                var input = "hello, world";
+                var search = new[] { "hello", ", ", "there" }.Randomize().ToArray();
+
+                //--------------- Assume ----------------
+
+                //--------------- Act ----------------------
+                var result = input.ContainsAllOf(search);
+
+                //--------------- Assert -----------------------
+                Expect(result).To.Be.False();
+            }
         }
 
-
-        [Test]
-        public void AsInteger_WhenStringHasLeadingAlphaPart_ShouldReturnIntPartOfBeginning()
+        [TestFixture]
+        public class ToBase64
         {
-            //---------------Set up test pack-------------------
-            var input = "woof42meow4";
-            var expected = 42;
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = input.AsInteger();
-
-            //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
-        }
-
-        [TestCase("a")]
-        [TestCase("")]
-        [TestCase("\r\n")]
-        [TestCase(null)]
-        public void AsInteger_WhenStringIsNotInteger_ShouldReturnZero_(
-            string input)
-        {
-            //---------------Set up test pack-------------------
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = input.AsInteger();
-
-            //---------------Test Result -----------------------
-            Assert.AreEqual(0, result);
-        }
-
-
-        private static readonly string[] NullOrWhitespaceStrings =
-        {
-            null,
-            "\t",
-            "\r",
-            "\n"
-        };
-
-        [TestCaseSource(nameof(NullOrWhitespaceStrings))]
-        public void IsNullOrWhitespace_ShouldReturnTrueWhenActingOnNullOrWhitespaceString_(
-            string src)
-        {
-            //---------------Set up test pack-------------------
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = src.IsNullOrWhiteSpace();
-
-            //---------------Test Result -----------------------
-            Assert.IsTrue(result);
-        }
-
-        [Test]
-        public void IsNullOrWhitespace_ShouldReturnFalse_WhenOperatingOnNonWhitespaceString()
-        {
-            //---------------Set up test pack-------------------
-            var src = GetRandomString();
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = src.IsNullOrWhiteSpace();
-
-            //---------------Test Result -----------------------
-            Assert.IsFalse(result);
-        }
-
-        [TestCase(null)]
-        [TestCase("")]
-        public void IsNullOrEmpty_ShouldReturnTrue_WhenOperatingOnString_(
-            string src)
-        {
-            //---------------Set up test pack-------------------
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = src.IsNullOrEmpty();
-
-            //---------------Test Result -----------------------
-            Assert.IsTrue(result);
-        }
-
-
-        [TestCase("\t")]
-        [TestCase("\n")]
-        [TestCase("\r")]
-        public void IsNullOrEmpty_ShouldReturnFalse_WhenOperatingOnWhitespaceString_(
-            string src)
-        {
-            //---------------Set up test pack-------------------
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = src.IsNullOrEmpty();
-
-            //---------------Test Result -----------------------
-            Assert.IsFalse(result);
-        }
-
-
-        [Test]
-        public void IsNullOrEmpty_ShouldReturnFalse_WhenOperatingOnNonWhitespaceString()
-        {
-            //---------------Set up test pack-------------------
-            var input = GetRandomString();
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = input.IsNullOrEmpty();
-
-            //---------------Test Result -----------------------
-            Assert.IsFalse(result);
-        }
-
-        [Test]
-        public void ContainsOneOf_GivenNoNeedles_ShouldThrow()
-        {
-            //--------------- Arrange -------------------
-
-            //--------------- Assume ----------------
-
-            //--------------- Act ----------------------
-//            Expect(() => "foo".ContainsOneOf())
-//                .Throws<ArgumentException>();
-            Assert.That(() => "foo".ContainsOneOf(), Throws.Exception.InstanceOf<ArgumentException>());
-            //--------------- Assert -----------------------
-        }
-
-        [Test]
-        public void ContainsOneOf_GivenNullNeedle_ShouldThrow()
-        {
-            //--------------- Arrange -------------------
-
-            //--------------- Assume ----------------
-
-            //--------------- Act ----------------------
-//            Expect(() => "foo".ContainsOneOf(null, "foo"))
-//                .Throws<ArgumentException>();
-            Assert.That(() => "foo".ContainsOneOf(null, "foo"), Throws.Exception.InstanceOf<ArgumentException>());
-            //--------------- Assert -----------------------
-        }
-
-        [Test]
-        public void ContainsOneOf_OperatingOnNull_ShouldReturnFalse()
-        {
-            //--------------- Arrange -------------------
-
-            //--------------- Assume ----------------
-
-            //--------------- Act ----------------------
-            var result = (null as string).ContainsOneOf("foo");
-            //--------------- Assert -----------------------
-            Expect(result).To.Be.False();
-        }
-
-        [Test]
-        public void ContainsOneOf_OperatingOnStringContainingNoneOfTheNeedles_ShouldReturnFalse()
-        {
-            //--------------- Arrange -------------------
-            var input = "foo";
-            var search = new[] { "bar", "quuz", "wibbles" };
-
-            //--------------- Assume ----------------
-
-            //--------------- Act ----------------------
-            var result = input.ContainsOneOf(search);
-
-            //--------------- Assert -----------------------
-            Expect(result).To.Be.False();
-        }
-
-        [Test]
-        public void ContainsOneOf_OperatingOnStringContainingOnneOfTheNeedles_ShouldReturnTrue()
-        {
-            //--------------- Arrange -------------------
-            var input = "foo";
-            var search = new[] { "bar", "quuz", "oo", "wibbles" }.Randomize().ToArray();
-
-            //--------------- Assume ----------------
-
-            //--------------- Act ----------------------
-            var result = input.ContainsOneOf(search);
-
-            //--------------- Assert -----------------------
-            Expect(result).To.Be.True();
-        }
-
-
-        [Test]
-        public void ContainsAllOf_GivenNoNeedles_ShouldThrow()
-        {
-            //--------------- Arrange -------------------
-
-            //--------------- Assume ----------------
-
-            //--------------- Act ----------------------
-            Assert.That(() => "foo".ContainsAllOf(), Throws.Exception.InstanceOf<ArgumentException>());
-            //--------------- Assert -----------------------
-        }
-
-        [Test]
-        public void ContainsAllOf_GivenNullNeedle_ShouldThrow()
-        {
-            //--------------- Arrange -------------------
-
-            //--------------- Assume ----------------
-
-            //--------------- Act ----------------------
-            // NExpect FIXME: why does this fail with an esoteric NSubstitute error?
-//            Expect(() => "foo".ContainsAllOf(null, "foo"))
-//                .Throws<ArgumentException>();
-            Assert.That(() => "foo".ContainsAllOf(null, "foo"), Throws.Exception.InstanceOf<ArgumentException>());
-            //--------------- Assert -----------------------
-        }
-
-        [Test]
-        public void ContainsAllOf_OperatingOnNull_ShouldReturnFalse()
-        {
-            //--------------- Arrange -------------------
-
-            //--------------- Assume ----------------
-
-            //--------------- Act ----------------------
-            var result = (null as string).ContainsAllOf("foo");
-            //--------------- Assert -----------------------
-            Expect(result).To.Be.False();
-        }
-
-        [Test]
-        public void ContainsAllOf_WhenHaystackContainsAllConstituents_ShouldReturnTrue()
-        {
-            //--------------- Arrange -------------------
-            var input = "hello, world";
-            var search = new[] { "hello", ", ", "world" }.Randomize().ToArray();
-
-            //--------------- Assume ----------------
-
-            //--------------- Act ----------------------
-            var result = input.ContainsAllOf(search);
-
-            //--------------- Assert -----------------------
-            Expect(result).To.Be.True();
-        }
-
-        [Test]
-        public void ContainsAllOf_WhenHaystackMissingNeedle_ShouldReturnFalse()
-        {
-            //--------------- Arrange -------------------
-            var input = "hello, world";
-            var search = new[] { "hello", ", ", "there" }.Randomize().ToArray();
-
-            //--------------- Assume ----------------
-
-            //--------------- Act ----------------------
-            var result = input.ContainsAllOf(search);
-
-            //--------------- Assert -----------------------
-            Expect(result).To.Be.False();
-        }
-
-        [Test]
-        public void ToBase64_OperatingOnNullString_ShouldReturnNull()
-        {
-            //--------------- Arrange -------------------
-            string input = null;
-
-            //--------------- Assume ----------------
-
-            //--------------- Act ----------------------
-            // ReSharper disable once ExpressionIsAlwaysNull
-            var result = input.ToBase64();
-
-            //--------------- Assert -----------------------
-            Expect(result).To.Be.Null();
-        }
-
-        [Test]
-        public void ToBase64_OperatingOnEmptyString()
-        {
-            //--------------- Arrange -------------------
-            var expected = Convert.ToBase64String(Encoding.UTF8.GetBytes(""));
-
-            //--------------- Assume ----------------
-
-            //--------------- Act ----------------------
-            var result = "".ToBase64();
-
-            //--------------- Assert -----------------------
-            Expect(result).To.Equal(expected);
-        }
-
-        [Test]
-        public void ToBase64_OperatingOnNonEmptyString()
-        {
-            //--------------- Arrange -------------------
-            var input = GetRandomString(5, 10);
-            var expected = Convert.ToBase64String(Encoding.UTF8.GetBytes(input));
-
-            //--------------- Assume ----------------
-
-            //--------------- Act ----------------------
-            var result = input.ToBase64();
-
-            //--------------- Assert -----------------------
-            Expect(result).To.Equal(expected);
-        }
-
-        [Test]
-        public void ToKebabCase_OperatingOnNull_ShouldReturnNull()
-        {
-            // Arrange
-            var input = null as string;
-
-            // Pre-Assert
-
-            // Act
-            // ReSharper disable once ExpressionIsAlwaysNull
-            var result = input.ToKebabCase();
-
-            // Assert
-            Expect(result).To.Be.Null();
+            [Test]
+            public void OperatingOnNullString_ShouldReturnNull()
+            {
+                //--------------- Arrange -------------------
+                string input = null;
+
+                //--------------- Assume ----------------
+
+                //--------------- Act ----------------------
+                // ReSharper disable once ExpressionIsAlwaysNull
+                var result = input.ToBase64();
+
+                //--------------- Assert -----------------------
+                Expect(result).To.Be.Null();
+            }
+
+            [Test]
+            public void OperatingOnEmptyString()
+            {
+                //--------------- Arrange -------------------
+                var expected = Convert.ToBase64String(Encoding.UTF8.GetBytes(""));
+
+                //--------------- Assume ----------------
+
+                //--------------- Act ----------------------
+                var result = "".ToBase64();
+
+                //--------------- Assert -----------------------
+                Expect(result).To.Equal(expected);
+            }
+
+            [Test]
+            public void OperatingOnNonEmptyString()
+            {
+                //--------------- Arrange -------------------
+                var input = GetRandomString(5, 10);
+                var expected = Convert.ToBase64String(Encoding.UTF8.GetBytes(input));
+
+                //--------------- Assume ----------------
+
+                //--------------- Act ----------------------
+                var result = input.ToBase64();
+
+                //--------------- Assert -----------------------
+                Expect(result).To.Equal(expected);
+            }
         }
 
         [TestFixture]
         public class ToKebabCase
         {
+            [Test]
+            public void OperatingOnNull_ShouldReturnNull()
+            {
+                // Arrange
+                var input = null as string;
+
+                // Pre-Assert
+
+                // Act
+                // ReSharper disable once ExpressionIsAlwaysNull
+                var result = input.ToKebabCase();
+
+                // Assert
+                Expect(result).To.Be.Null();
+            }
+
             [TestCase("Moo", "moo")]
             [TestCase("MooCow", "moo-cow")]
             [TestCase("i_am_snake", "i-am-snake")]
@@ -776,161 +850,178 @@ namespace PeanutButter.Utils.Tests
             }
         }
 
-        [Test]
-        public void ToSnakeCase_OperatingOnNull_ShouldReturnNull()
+        [TestFixture]
+        public class ToSnakeCase
         {
-            // Arrange
-            var input = null as string;
+            [Test]
+            public void OperatingOnNull_ShouldReturnNull()
+            {
+                // Arrange
+                var input = null as string;
 
-            // Pre-Assert
+                // Pre-Assert
 
-            // Act
-            var result = input.ToSnakeCase();
+                // Act
+                var result = input.ToSnakeCase();
 
-            // Assert
-            Expect(result).To.Be.Null();
+                // Assert
+                Expect(result).To.Be.Null();
+            }
+
+            [TestCase("Moo", "moo")]
+            [TestCase("MooCow", "moo_cow")]
+            [TestCase("i_am_snake", "i_am_snake")]
+            [TestCase("is-already-kebabed", "is_already_kebabed")]
+            public void ShouldConvert_(
+                string from,
+                string expected)
+            {
+                // Arrange
+
+                // Pre-Assert
+
+                // Act
+                var result = from.ToSnakeCase();
+
+                // Assert
+                Expect(result).To.Equal(expected);
+            }
         }
 
-        [TestCase("Moo", "moo")]
-        [TestCase("MooCow", "moo_cow")]
-        [TestCase("i_am_snake", "i_am_snake")]
-        [TestCase("is-already-kebabed", "is_already_kebabed")]
-        public void ToSnakeCase_ShouldConvert_(
-            string from,
-            string expected)
+        [TestFixture]
+        public class ToPascalCase
         {
-            // Arrange
+            [Test]
+            public void OperatingOnNull_ShouldReturnNull()
+            {
+                // Arrange
+                var input = null as string;
 
-            // Pre-Assert
+                // Pre-Assert
 
-            // Act
-            var result = from.ToSnakeCase();
+                // Act
+                var result = input.ToPascalCase();
 
-            // Assert
-            Expect(result).To.Equal(expected);
+                // Assert
+                Expect(result).To.Be.Null();
+            }
+
+            public static IEnumerable<(string input, string expected)> PascalCaseTestCases()
+            {
+                yield return ("Moo", "Moo");
+                yield return ("MooCow", "MooCow");
+                yield return ("i_am_snake", "IAmSnake");
+                yield return ("i am words", "I Am Words");
+                yield return ("is-already-kebabed", "IsAlreadyKebabed");
+            }
+
+            [TestCaseSource(nameof(PascalCaseTestCases))]
+            public void ShouldConvert_((string input, string expected) testCase)
+            {
+                // Arrange
+                var (from, expected) = testCase;
+
+                // Pre-Assert
+
+                // Act
+                var result = from.ToPascalCase();
+
+                // Assert
+                Expect(result).To.Equal(expected);
+            }
+
+            [TestCaseSource(nameof(PascalCaseTestCases))]
+            public void ToTitleCaseAlias_ShouldConvert_((string input, string expected) testCase)
+            {
+                // Arrange
+                var (from, expected) = testCase;
+
+                // Pre-Assert
+
+                // Act
+                var result = from.ToTitleCase();
+
+                // Assert
+                Expect(result).To.Equal(expected);
+            }
         }
 
-        [Test]
-        public void ToPascalCase_OperatingOnNull_ShouldReturnNull()
+
+        [TestFixture]
+        public class ToCamelCase
         {
-            // Arrange
-            var input = null as string;
+            [Test]
+            public void OperatingOnNull_ShouldReturnNull()
+            {
+                // Arrange
+                var input = null as string;
 
-            // Pre-Assert
+                // Pre-Assert
 
-            // Act
-            var result = input.ToPascalCase();
+                // Act
+                var result = input.ToCamelCase();
 
-            // Assert
-            Expect(result).To.Be.Null();
+                // Assert
+                Expect(result).To.Be.Null();
+            }
+
+            [TestCase("Moo", "moo")]
+            [TestCase("MooCow", "mooCow")]
+            [TestCase("i_am_snake", "iAmSnake")]
+            [TestCase("is-already-kebabed", "isAlreadyKebabed")]
+            public void ShouldConvert_(
+                string from,
+                string expected)
+            {
+                // Arrange
+
+                // Pre-Assert
+
+                // Act
+                var result = from.ToCamelCase();
+
+                // Assert
+                Expect(result).To.Equal(expected);
+            }
         }
 
-        public static IEnumerable<(string input, string expected)> PascalCaseTestCases()
+        [TestFixture]
+        public class ToWords
         {
-            yield return ("Moo", "Moo");
-            yield return ("MooCow", "MooCow");
-            yield return ("i_am_snake", "IAmSnake");
-            yield return ("i am words", "I Am Words");
-            yield return ("is-already-kebabed", "IsAlreadyKebabed");
-        }
+            [Test]
+            public void OperatingOnNull_ShouldReturnNull()
+            {
+                // Arrange
+                var input = null as string;
 
-        [TestCaseSource(nameof(PascalCaseTestCases))]
-        public void ToPascalCase_ShouldConvert_((string input, string expected) testCase)
-        {
-            // Arrange
-            var (from, expected) = testCase;
+                // Pre-Assert
 
-            // Pre-Assert
+                // Act
+                var result = input.ToWords();
 
-            // Act
-            var result = from.ToPascalCase();
+                // Assert
+                Expect(result).To.Be.Null();
+            }
 
-            // Assert
-            Expect(result).To.Equal(expected);
-        }
+            [TestCase("Moo", "moo")]
+            [TestCase("MooCow", "moo cow")]
+            [TestCase("i_am_snake", "i am snake")]
+            [TestCase("i am already words", "i am already words")]
+            [TestCase("is-already-kebabed", "is already kebabed")]
+            public void ShouldConvert_(
+                string from,
+                string expected)
+            {
+                // Arrange
 
-        [TestCaseSource(nameof(PascalCaseTestCases))]
-        public void ToTitleCase_ShouldConvert_((string input, string expected) testCase)
-        {
-            // Arrange
-            var (from, expected) = testCase;
+                // Pre-Assert
 
-            // Pre-Assert
+                // Act
+                var result = from.ToWords();
 
-            // Act
-            var result = from.ToTitleCase();
-
-            // Assert
-            Expect(result).To.Equal(expected);
-        }
-
-        [Test]
-        public void ToCamelCase_OperatingOnNull_ShouldReturnNull()
-        {
-            // Arrange
-            var input = null as string;
-
-            // Pre-Assert
-
-            // Act
-            var result = input.ToCamelCase();
-
-            // Assert
-            Expect(result).To.Be.Null();
-        }
-
-        [TestCase("Moo", "moo")]
-        [TestCase("MooCow", "mooCow")]
-        [TestCase("i_am_snake", "iAmSnake")]
-        [TestCase("is-already-kebabed", "isAlreadyKebabed")]
-        public void ToCamelCase_ShouldConvert_(
-            string from,
-            string expected)
-        {
-            // Arrange
-
-            // Pre-Assert
-
-            // Act
-            var result = from.ToCamelCase();
-
-            // Assert
-            Expect(result).To.Equal(expected);
-        }
-
-        [Test]
-        public void ToWords_OperatingOnNull_ShouldReturnNull()
-        {
-            // Arrange
-            var input = null as string;
-
-            // Pre-Assert
-
-            // Act
-            var result = input.ToWords();
-
-            // Assert
-            Expect(result).To.Be.Null();
-        }
-
-        [TestCase("Moo", "moo")]
-        [TestCase("MooCow", "moo cow")]
-        [TestCase("i_am_snake", "i am snake")]
-        [TestCase("i am already words", "i am already words")]
-        [TestCase("is-already-kebabed", "is already kebabed")]
-        public void ToWords_ShouldConvert_(
-            string from,
-            string expected)
-        {
-            // Arrange
-
-            // Pre-Assert
-
-            // Act
-            var result = from.ToWords();
-
-            // Assert
-            Expect(result).To.Equal(expected);
+                // Assert
+                Expect(result).To.Equal(expected);
+            }
         }
 
         [TestFixture]
@@ -1608,14 +1699,14 @@ namespace PeanutButter.Utils.Tests
                 Expect(result)
                     .To.Equal(bytes);
             }
-            
+
             [Test]
             public void ShouldBeAbleToUnBase64UnpaddedByteData()
             {
                 // Arrange
                 string str;
                 byte[] bytes;
-                string base64 ;
+                string base64;
                 do
                 {
                     str = GetRandomString(10, 32);
@@ -1629,7 +1720,7 @@ namespace PeanutButter.Utils.Tests
                 Expect(result)
                     .To.Equal(bytes);
             }
-            
+
             [Test]
             public void ShouldBeAbleToUnBase64AString()
             {
@@ -1730,6 +1821,141 @@ namespace PeanutButter.Utils.Tests
             {
                 public int Id { get; set; }
                 public string Name { get; set; }
+            }
+        }
+
+        [TestFixture]
+        public class TrimBlock
+        {
+            [Test]
+            public void ShouldReturnEmptyStringForNull()
+            {
+                // Arrange
+                // Act
+                var result = (null as string).Outdent(GetRandomInt());
+                // Assert
+                Expect(result)
+                    .To.Equal("");
+            }
+
+            [TestFixture]
+            public class WhenIndentationIsBySpaces
+            {
+                [Test]
+                public void ShouldOutdentASingleLine()
+                {
+                    // Arrange
+                    var expected = "the line";
+                    var line = $"    {expected}";
+                    
+                    // Act
+                    var result = line.Outdent();
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+
+                [Test]
+                public void ShouldOutdentLinesAllAtSameIndent()
+                {
+                    // Arrange
+                    var lines = @"
+                        line 1
+                        line 2
+";
+                    var expected = @"
+line 1
+line 2
+";
+
+                    // Act
+                    var result = lines.Outdent();
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+
+                [Test]
+                public void ShouldOutdentLinesToShallowestIndent()
+                {
+                    // Arrange
+                    var lines = @"
+        function foo() {
+            if (true) {
+                console.log('whee');
+            }
+
+        }
+";
+                    var expected = @"
+function foo() {
+    if (true) {
+        console.log('whee');
+    }
+
+}
+";
+                    // Act
+                    var result = lines.Outdent();
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+                
+                [Test]
+                public void ShouldTrimEndByDefault()
+                {
+                    // Arrange
+                    var lines = @"
+        function foo() {
+            if (true) {    
+                console.log('whee');  
+            }
+
+        }
+";
+                    var expected = @"
+function foo() {
+    if (true) {
+        console.log('whee');
+    }
+
+}
+";
+                    // Act
+                    var result = lines.Outdent();
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+
+                [Test]
+                public void ShouldHandleTabsAutomatically()
+                {
+                    // Arrange
+                    var lines = "\t\tline 1\n\t\tline 2";
+                    var expected = "line 1\nline 2";
+                    
+                    // Act
+                    var result = lines.Outdent();
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+
+                [Test]
+                public void ShouldIndentToRequiredLevel()
+                {
+                    // Arrange
+                    var lines = "\t\tline 1\n\t\tline 2";
+                    var expected = "\tline 1\n\tline 2";
+                    
+                    // Act
+                    var result = lines.Outdent(1);
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
             }
         }
     }

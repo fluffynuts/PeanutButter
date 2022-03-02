@@ -1127,5 +1127,152 @@ namespace PeanutButter.Utils
                 [2] = "==",
                 [3] = "="
             };
+
+        /// <summary>
+        /// Outdents a block to the first indentation.
+        /// </summary>
+        /// <param name="str">string to outdent</param>
+        /// <returns></returns>
+        public static string Outdent(this string str)
+        {
+            return str.Outdent(int.MaxValue);
+        }
+
+        /// <summary>
+        /// Outdents a block of text at most to the given depth. Will
+        /// stop as soon as any line is outdented completely.
+        /// </summary>
+        /// <param name="str">string to outdent</param>
+        /// <param name="depth">depth to outdent to</param>
+        /// <returns></returns>
+        public static string Outdent(this string str, int depth)
+        {
+            var lineDelimiter = str.Contains(Environment.NewLine)
+                ? Environment.NewLine
+                : "\n";
+            var lines = str.Split(new[] { lineDelimiter }, StringSplitOptions.None);
+            var outdented = lines.Outdent(depth);
+            return outdented.JoinWith(lineDelimiter);
+        }
+
+        /// <summary>
+        /// Outdents a block of text at most to the given depth. Will
+        /// stop as soon as any line is outdented completely.
+        /// Attempts to determine the indent character from the first line with
+        /// indenting.
+        /// </summary>
+        /// <param name="lines"></param>
+        /// <param name="depth">depth to outdent to</param>
+        /// <returns></returns>
+        public static string[] Outdent(this string[] lines, int depth)
+        {
+            var indentedWith = FindFirstIndentationSequence(lines);
+            return lines.Outdent(indentedWith, depth, true);
+        }
+
+        private static string FindFirstIndentationSequence(string[] lines)
+        {
+            foreach (var line in lines)
+            {
+                if (string.IsNullOrEmpty(line))
+                {
+                    continue;
+                }
+
+                foreach (var search in IndentationSearch)
+                {
+                    if (line.StartsWith(search, StringComparison.InvariantCulture))
+                    {
+                        return search;
+                    }
+                }
+            }
+
+            return " ";
+        }
+        
+        private static readonly string[] IndentationSearch = new[] { " ", "\t" };
+
+        /// <summary>
+        /// Outdents a block of text at most to the given depth. Will
+        /// stop as soon as any line is outdented completely.
+        /// </summary>
+        /// <param name="lines"></param>
+        /// <param name="indentedWith"></param>
+        /// <param name="depth"></param>
+        /// <param name="alsoTrimEnd">also right-trim lines, much like an auto-formatter would</param>
+        /// <returns></returns>
+        public static string[] Outdent(
+            this string[] lines,
+            string indentedWith,
+            int depth,
+            bool alsoTrimEnd
+        )
+        {
+            if (string.IsNullOrEmpty(indentedWith))
+            {
+                return lines.ToArray(); // caller always gets a new copy
+            }
+
+            if (!string.IsNullOrWhiteSpace(indentedWith))
+            {
+                throw new ArgumentException(
+                    "non-whitespace indents are not supported",
+                    nameof(indentedWith)
+                );
+            }
+
+            var minIndent = FindMinimumIndent(lines, indentedWith);
+            var toOutdent = Math.Min(minIndent, depth);
+            var toOutdentChars = toOutdent * indentedWith.Length;
+            var result = new List<string>();
+            foreach (var line in lines)
+            {
+                var thisLine = alsoTrimEnd
+                    ? line.TrimEnd()
+                    : line;
+                if (thisLine.Length < toOutdentChars)
+                {
+                    result.Add(thisLine);
+                }
+                else
+                {
+                    result.Add(thisLine.Substring(toOutdentChars));
+                }
+            }
+
+            return result.ToArray();
+        }
+
+        private static int FindMinimumIndent(
+            string[] lines,
+            string indentedWith
+        )
+        {
+            var result = int.MaxValue;
+            foreach (var line in lines)
+            {
+                if (string.IsNullOrWhiteSpace(line))
+                {
+                    continue;
+                }
+
+                var offset = 0;
+                while (
+                    line.IndexOf(indentedWith, offset, StringComparison.InvariantCulture) == offset
+                )
+                {
+                    offset += indentedWith.Length;
+                }
+
+                var indent = offset / indentedWith.Length;
+                if (indent < result)
+                {
+                    result = indent;
+                }
+            }
+
+            return result;
+        }
     }
 }
