@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -701,8 +702,40 @@ namespace PeanutButter.EasyArgs
             }
 
             var name = FindNameFor(pi);
-            var value = pi.GetValue(o)?.ToString() ?? "";
-            return new[] { name, value };
+            var rawValue = pi.GetValue(o);
+            
+            var value = Stringify(rawValue);
+            return new[] { name }
+                .Concat(value)
+                .ToArray();
+        }
+
+        private static string[] Stringify(object o)
+        {
+            if (o is null)
+            {
+                return new[] { "" };
+            }
+
+            if (o is string str)
+            {
+                return new[] { str };
+            }
+            
+            var enumerable = new EnumerableWrapper(o);
+            if (!enumerable.IsValid)
+            {
+                return new[] { o.ToString() };
+            }
+            var result = new List<string>();
+            foreach (var item in enumerable)
+            {
+                result.Add(item?.ToString());
+            }
+            
+            return result
+                .Where(s => s is not null)
+                .ToArray();
         }
 
         private static string FindNameFor(PropertyInfo pi)

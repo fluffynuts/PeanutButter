@@ -540,6 +540,22 @@ Report bugs to <no-one-cares@whatevs.org>
                     .To.Equal(expected);
             }
 
+            [Test]
+            public void ShouldGenerateTheMultiStringOption()
+            {
+                // Arrange
+                var opts = new MultiStringOption()
+                {
+                    TheOption = new[] { "one", "two" }
+                };
+                var expected = new[] { "--the-option", "one", "two" };
+                // Act
+                var result = opts.GenerateArgs();
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+
             public class OneOption
             {
                 public int TheOption { get; set; }
@@ -548,6 +564,11 @@ Report bugs to <no-one-cares@whatevs.org>
             public class OneFlag
             {
                 public bool TheFlag { get; set; }
+            }
+
+            public class MultiStringOption
+            {
+                public string[] TheOption { get; set; }
             }
         }
 
