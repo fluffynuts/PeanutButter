@@ -222,7 +222,12 @@ namespace PeanutButter.EasyArgs
                         opt.LongName,
                         opt.Type,
                         opt.IsFlag,
-                        FormatDescriptionText(opt.Description, opt.IsFlag, opt.Default),
+                        FormatDescriptionText(
+                            opt.Description,
+                            opt.IsFlag,
+                            opt.Default,
+                            opt.LongName == "help"
+                        ),
                         longestLeftCol,
                         ConsoleWidth
                     )
@@ -242,12 +247,29 @@ namespace PeanutButter.EasyArgs
         protected virtual string FormatDescriptionText(
             string description,
             bool isFlag,
-            object defaultValue
+            object defaultValue,
+            bool isHelpFlag
         )
         {
             if (isFlag)
             {
-                return description;
+                if (isHelpFlag)
+                {
+                    return description;
+                }
+
+                var defaultFlag = false;
+                try
+                {
+                    defaultFlag = (bool)defaultValue;
+                }
+                catch
+                {
+                    // suppress
+                }
+                return defaultFlag
+                    ? $"{description} (default: on)"
+                    : description;
             }
 
             var space = string.IsNullOrWhiteSpace(description)

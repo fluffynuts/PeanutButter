@@ -395,10 +395,11 @@ This program is designed to make your life so much easier
 
 Usage: someprogram {args} ...files
 
--f, --flag                the flag
+-f, --flag                the off flag
     --help                shows this help
 -h, --host [text]         host to connect to (localhost)
 -l, --long-option [text]
+-o, --on-flag             the on flag (default: on)
 -P, --password [text]
 -p, --port [number]
 -u, --user [text]         user name to use
@@ -479,8 +480,12 @@ Report bugs to <no-one-cares@whatevs.org>
                 // should get kebab-cased long name
                 public string LongOption { get; set; }
 
-                [Attributes.Description("the flag")]
+                [Attributes.Description("the off flag")]
                 public bool Flag { get; set; }
+
+                [Default(true)]
+                [Attributes.Description("the on flag")]
+                public bool OnFlag { get; set; }
             }
         }
 
