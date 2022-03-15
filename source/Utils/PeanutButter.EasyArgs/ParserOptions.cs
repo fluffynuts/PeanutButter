@@ -147,6 +147,15 @@ namespace PeanutButter.EasyArgs
                 return configured;
             }
 
+            if (string.IsNullOrWhiteSpace(currentApp.Location))
+            {
+                // packed, published app - just take the assembly name
+                return new[]
+                {
+                    $"{currentApp.GetName().Name} {{args}}"
+                };
+            }
+
             var currentAppPath = new Uri(currentApp.Location).LocalPath;
             var currentAppFile = Path.GetFileName(currentAppPath);
             var currentAppExtension = Path.GetExtension(currentAppFile).ToLowerInvariant();
@@ -450,7 +459,7 @@ namespace PeanutButter.EasyArgs
                 $"{arg} should be at least {minValue} (received: {value})"
             );
         }
-        
+
         /// <summary>
         /// Reports a minimum value constraint violation
         /// </summary>
