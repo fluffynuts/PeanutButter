@@ -1,7 +1,9 @@
+using System;
 using NUnit.Framework;
 using NExpect;
 using PeanutButter.DuckTyping.Extensions;
 using static NExpect.Expectations;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.DuckTyping.NetCore.Tests
 {
@@ -60,6 +62,55 @@ namespace PeanutButter.DuckTyping.NetCore.Tests
                 .To.Be.True();
             Expect(result)
                 .To.Equal(s);
+        }
+
+        [TestFixture]
+        public class Issues
+        {
+            [Test]
+            public void ShouldNotBreakOnWrapping()
+            {
+                // Arrange
+                var data = GetRandom<ChangeRequest>();
+                // Act
+                var result = data.DuckAs<IWrapped>();
+                // Assert
+                Expect(result.Id)
+                    .To.Equal(data.Id);
+                Expect(result.ChangeRequestNumber)
+                    .To.Equal(data.ChangeRequestNumber);
+            }
+            
+            public interface IWrapped
+            {
+                int Id { get; set; }
+                int ChangeRequestNumber { get; set; }
+            }
+            
+            public class ChangeRequest
+            {
+                public int Id { get; set; }
+                public int ChangeRequestNumber { get; set; }
+                public Guid Uuid { get; set; }
+                public string Title { get; set; }
+                public string Detail { get; set; }
+                public string Motivation { get; set; }
+                public int CategoryId { get; set; }
+                public int CountryId { get; set; }
+                public int DistributionCenterId { get; set; }
+                public int StatusId { get; set; }
+                public int NumberOfStoresId { get; set; }
+                public string SubmittedBy { get; set; }
+                public int SubmittedByUserId { get; set; }
+                public DateTime SubmittedDate { get; set; }
+                public string AssignedTo { get; set; }
+                public int AssignedToUserId { get; set; }
+                public string ReleaseNumber { get; set; }
+                public int UpdatedDate { get; set; }
+                public int CompletedDate { get; set; }
+                public string AttachmentGuidsCsv { get; set; }
+            }
+
         }
     }
 
