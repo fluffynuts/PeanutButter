@@ -6,12 +6,21 @@ using System.Reflection;
 using PeanutButter.EasyArgs.Attributes;
 using PeanutButter.Utils;
 
+#if BUILD_PEANUTBUTTER_EASYARGS_INTERNAL
+namespace Imported.PeanutButter.EasyArgs
+#else
 namespace PeanutButter.EasyArgs
+#endif
 {
     /// <summary>
     /// Provides options for the parser
     /// </summary>
-    public class ParserOptions
+#if BUILD_PEANUTBUTTER_EASYARGS_INTERNAL
+    internal
+#else
+    public
+#endif
+        class ParserOptions
     {
         /// <summary>
         /// Writes a line to the output (default is Console.WriteLine)
@@ -267,6 +276,7 @@ namespace PeanutButter.EasyArgs
                 {
                     // suppress
                 }
+
                 return defaultFlag
                     ? $"{description} (default: on)"
                     : description;

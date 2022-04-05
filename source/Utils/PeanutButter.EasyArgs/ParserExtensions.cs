@@ -1,19 +1,26 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using PeanutButter.EasyArgs.Attributes;
 using PeanutButter.DuckTyping.Extensions;
 using PeanutButter.Utils;
 
+#if BUILD_PEANUTBUTTER_EASYARGS_INTERNAL
+namespace Imported.PeanutButter.EasyArgs
+#else
 namespace PeanutButter.EasyArgs
+#endif
 {
     /// <summary>
     /// Provides the extension methods to parse commandline arguments
     /// </summary>
-    public static class ParserExtensions
+#if BUILD_PEANUTBUTTER_EASYARGS_INTERNAL
+    internal
+#else
+    public
+#endif
+        static class ParserExtensions
     {
         /// <summary>
         /// Simplest use-case: parse to provided type, ignoring extraneous
@@ -703,7 +710,7 @@ namespace PeanutButter.EasyArgs
 
             var name = FindNameFor(pi);
             var rawValue = pi.GetValue(o);
-            
+
             var value = Stringify(rawValue);
             return new[] { name }
                 .Concat(value)
@@ -721,18 +728,19 @@ namespace PeanutButter.EasyArgs
             {
                 return new[] { str };
             }
-            
+
             var enumerable = new EnumerableWrapper(o);
             if (!enumerable.IsValid)
             {
                 return new[] { o.ToString() };
             }
+
             var result = new List<string>();
             foreach (var item in enumerable)
             {
                 result.Add(item?.ToString());
             }
-            
+
             return result
                 .Where(s => s is not null)
                 .ToArray();

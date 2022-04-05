@@ -1,11 +1,20 @@
 ﻿using System;
 
+#if BUILD_PEANUTBUTTER_EASYARGS_INTERNAL
+namespace Imported.PeanutButter.EasyArgs.Attributes
+#else
 namespace PeanutButter.EasyArgs.Attributes
+#endif
 {
     /// <summary>
     /// Attribute specifying a required numeric value
     /// </summary>
-    public abstract class NumericAttribute : Attribute
+#if BUILD_PEANUTBUTTER_EASYARGS_INTERNAL
+    internal
+#else
+    public
+#endif
+        abstract class NumericAttribute : Attribute
     {
         /// <summary>
         /// The required value

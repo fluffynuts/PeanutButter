@@ -1,36 +1,52 @@
 ﻿using System.Reflection;
 using PeanutButter.Utils;
 
+#if BUILD_PEANUTBUTTER_EASYARGS_INTERNAL
+namespace Imported.PeanutButter.EasyArgs
+#else
 namespace PeanutButter.EasyArgs
+#endif
 {
     /// <summary>
     /// Describes a command line argument
     /// </summary>
-    public class CommandlineArgument
+#if BUILD_PEANUTBUTTER_EASYARGS_INTERNAL
+    internal
+#else
+    public
+#endif
+        class CommandlineArgument
     {
         /// <summary>
         /// The long name of the argument (eg 'remote-server')
         /// </summary>
         public string LongName { get; set; }
+
         /// <summary>
         /// The short name of the argument (eg 'r'), constrained to
         /// one char by the [ShortName] attribute
         /// </summary>
         public string ShortName { get; set; }
+
         /// <summary>
         /// The description of the argument which is displayed in
         /// help text
         /// </summary>
         public string Description { get; set; }
-        
+
         /// <summary>
         /// Provides a convenience reader for the --{LongName} switch
         /// </summary>
-        public string LongSwitch => LongName is null ? null : $"--{LongName}";
+        public string LongSwitch => LongName is null
+            ? null
+            : $"--{LongName}";
+
         /// <summary>
         /// Provides a convenience reader for the -{ShortName} switch
         /// </summary>
-        public string ShortSwitch => ShortName is null ? null : $"-{ShortName}";
+        public string ShortSwitch => ShortName is null
+            ? null
+            : $"-{ShortName}";
 
         /// <summary>
         /// The type of argument for help display (typically "text" or "number")
@@ -42,7 +58,7 @@ namespace PeanutButter.EasyArgs
         /// Minimum value for a numeric argument
         /// </summary>
         public decimal? MinValue { get; set; }
-        
+
         /// <summary>
         /// Maximum value for a numeric argument
         /// </summary>
@@ -78,6 +94,7 @@ namespace PeanutButter.EasyArgs
         }
 
         private string _type;
+
         /// <summary>
         /// The corresponding PropertyInfo for this argument
         /// </summary>
@@ -95,14 +112,17 @@ namespace PeanutButter.EasyArgs
         }
 
         private string _explicitKey;
+
         /// <summary>
         /// Default value for this argument
         /// </summary>
         public object Default { get; set; }
+
         /// <summary>
         /// Whether this argument was generated (eg negations / help)
         /// </summary>
         public bool IsImplicit { get; set; }
+
         /// <summary>
         /// Collection of arguments this conflicts with, by Key
         /// </summary>
@@ -132,10 +152,12 @@ namespace PeanutButter.EasyArgs
         /// Explicit key for the help argument
         /// </summary>
         public const string HELP_FLAG_KEY = "$help$";
+
         /// <summary>
         /// Whether or not this specific argument is the help one
         /// </summary>
         public bool IsHelpFlag => Key == HELP_FLAG_KEY;
+
         /// <summary>
         /// Whether or not this argument is required
         /// </summary>
@@ -157,17 +179,17 @@ namespace PeanutButter.EasyArgs
             result.ShortName = null;
             result.LongName = $"no-{result.LongName}";
             result.ConflictsWithKeys = new[] { Key };
-            
+
             result.IsRequired = false;
             try
             {
-                result.Default = !(bool) Default;
+                result.Default = !(bool)Default;
             }
             catch
             {
                 result.Default = false;
             }
-            
+
             return result;
         }
     }
