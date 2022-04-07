@@ -203,6 +203,63 @@ namespace PeanutButter.RandomGenerators.Tests
                     .Matched.By(d => d <= max);
             }
         }
+        [TestFixture]
+        public class GetRandomTaxRate
+        {
+            [Test]
+            public void ShouldProvideSpreadWithinRange()
+            {
+                // Arrange
+                var min = GetRandomTaxRate(1, 10);
+                var max = GetRandomTaxRate(11, 20);
+                var collected = new List<Decimal>();
+                // Pre-assert
+                // Act
+                for (var i = 0; i < HIGH_RANDOM_TEST_CYCLES; i++)
+                {
+                    collected.Add(GetRandomTaxRate(min, max));
+                }
+
+                // Assert
+                Expect(collected).To.Contain.All
+                    .Matched.By(d => d >= min);
+                Expect(collected).To.Contain.All
+                    .Matched.By(d => d <= max);
+                Expect(collected)
+                    .To.Contain.All
+                    .Matched.By(HasMaxTwoDecimalPlaces);
+
+                bool HasMaxTwoDecimalPlaces(decimal value)
+                {
+                    var str = value.ToString();
+                    var parts = str.Split('.');
+                    if (parts.Length < 2)
+                    {
+                        return (int)value == value;
+                    }
+                    return parts[1].Length <= 2;
+                }
+            }
+
+            [TestCase(3, 20)]
+            public void ShouldDefaultToBeWithinRange_(int min, int max)
+            {
+                // Arrange
+                var collected = new List<Decimal>();
+                // Pre-assert
+                // Act
+                for (var i = 0; i < HIGH_RANDOM_TEST_CYCLES; i++)
+                {
+                    collected.Add(GetRandomTaxRate(min, max));
+                }
+
+                // Assert
+                Expect(collected).To.Contain.All
+                    .Matched.By(d => d >= min);
+                Expect(collected).To.Contain.All
+                    .Matched.By(d => d <= max);
+            }
+        }
 
         [TestFixture]
         public class GetRandomFloat

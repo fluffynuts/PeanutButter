@@ -219,6 +219,21 @@ namespace PeanutButter.RandomGenerators
             public const int DEFAULT_MONEY_RANGE = MAX_MONEY_VALUE - MIN_MONEY_VALUE;
 
             /// <summary>
+            /// Defines the default minimum TAX value returned
+            /// </summary>
+            public const int MIN_TAX_VALUE = 10;
+
+            /// <summary>
+            /// Defines the default maximum TAX value returned
+            /// </summary>
+            public const int MAX_TAX_VALUE = 100;
+
+            /// <summary>
+            /// Defines the range of the default TAX max / min
+            /// </summary>
+            public const int DEFAULT_TAX_RANGE = MAX_TAX_VALUE - MIN_TAX_VALUE;
+
+            /// <summary>
             /// Default minimum long value returned
             /// </summary>
             public const int MIN_LONG_VALUE = 0;
@@ -795,6 +810,50 @@ namespace PeanutButter.RandomGenerators
             return GetRandomMoney(
                 minValue,
                 minValue + DefaultRanges.DEFAULT_MONEY_RANGE
+            );
+        }
+
+        /// <summary>
+        /// Gets a random Tax value (decimal with max 2 places)
+        /// within the specified range
+        /// </summary>
+        /// <param name="min">Minimum value to consider</param>
+        /// <param name="max">Maximum value to consider</param>
+        /// <returns>Decimal value within the specified range</returns>
+        public static decimal GetRandomTaxRate(
+            decimal min,
+            decimal max
+        )
+        {
+            return (decimal)GetRandomDouble((double)min, (double)max)
+                .ToFixed(2);
+        }
+
+        /// <summary>
+        /// Produces a Tax value (decimal with max 2 places)
+        /// between 3 and 20 inclusive
+        /// </summary>
+        /// <returns></returns>
+        public static decimal GetRandomTaxRate()
+        {
+            return GetRandomTaxRate(
+                DefaultRanges.MIN_TAX_VALUE
+            );
+        }
+
+        /// <summary>
+        /// Produces a random decimal between the provided
+        /// minValue and that value + 10, inclusive
+        /// </summary>
+        /// <param name="minValue"></param>
+        /// <returns></returns>
+        public static decimal GetRandomTaxRate(
+            decimal minValue
+        )
+        {
+            return GetRandomTaxRate(
+                minValue,
+                minValue + DefaultRanges.DEFAULT_TAX_RANGE
             );
         }
 
