@@ -252,6 +252,7 @@ namespace PeanutButter.EasyArgs
         /// <param name="description"></param>
         /// <param name="isFlag"></param>
         /// <param name="defaultValue"></param>
+        /// <param name="isHelpFlag"></param>
         /// <returns></returns>
         protected virtual string FormatDescriptionText(
             string description,

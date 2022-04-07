@@ -82,7 +82,7 @@
     <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="3.8.0">
+    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.1.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

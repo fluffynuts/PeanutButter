@@ -37,7 +37,7 @@
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="1.9.71" />
     <PackageReference Include="log4net" Version="2.0.12" />
-    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="3.8.0">
+    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.1.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

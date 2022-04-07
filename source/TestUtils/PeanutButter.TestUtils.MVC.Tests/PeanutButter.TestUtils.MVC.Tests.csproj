@@ -28,7 +28,7 @@
     <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.2.7" />
     <PackageReference Include="Microsoft.AspNet.Razor" Version="3.2.7" />
     <PackageReference Include="Microsoft.AspNet.WebPages" Version="3.2.7" />
-    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="3.8.0">
+    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.1.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
