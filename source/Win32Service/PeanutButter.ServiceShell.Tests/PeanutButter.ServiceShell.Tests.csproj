@@ -47,7 +47,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />
     <PackageReference Include="NExpect">
-      <Version>1.0.235</Version>
+      <Version>1.0.254</Version>
     </PackageReference>
     <PackageReference Include="NSubstitute">
       <Version>4.2.2</Version>
