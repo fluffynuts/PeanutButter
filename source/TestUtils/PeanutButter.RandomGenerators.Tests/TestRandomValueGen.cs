@@ -3399,32 +3399,75 @@ namespace PeanutButter.RandomGenerators.Tests
             public void ShouldReturnARandomLoadedType()
             {
                 // Arrange
-                var expected = AppDomain.CurrentDomain.GetAssemblies()
-                    .Select(asm =>
-                    {
-                        try
-                        {
-                            return asm.GetExportedTypes();
-                        }
-                        catch
-                        {
-                            return new Type[0];
-                        }
-                    }).SelectMany(o => o)
-                    .ToArray();
-
                 // Act
                 var result1 = GetRandomType();
                 var result2 = GetRandom<Type>();
                 // Assert
                 Expect(result1)
                     .Not.To.Be.Null();
+                Expect(result1)
+                    .To.Be.An.Instance.Of<Type>();
                 Expect(result2)
                     .Not.To.Be.Null();
-                Expect(expected)
-                    .To.Contain(result1);
-                Expect(expected)
-                    .To.Contain(result2);
+                Expect(result2)
+                    .To.Be.An.Instance.Of<Type>();
+            }
+
+            [TestCase(nameof(SomePOCO.Price))]
+            [TestCase(nameof(SomePOCO.Discount))]
+            [TestCase(nameof(SomePOCO.Cost))]
+            public void ShouldSetMonetaryValueFor_(string prop)
+            {
+                // Arrange
+                // Act
+                var result = GetRandom<SomePOCO>();
+                // Assert
+                var propValue = result.Get<decimal>(prop);
+                var stringValue = $"{propValue}";
+                var parts = stringValue.Split('.');
+                if (parts.Length == 1)
+                {
+                    Expect(propValue)
+                        .To.Equal((int)propValue);
+                }
+                else
+                {
+                    Expect(parts[1].Length)
+                        .To.Be.At.Most(2);
+                }
+                Expect(propValue)
+                    .To.Be.At.Least(DefaultRanges.MIN_MONEY_VALUE)
+                    .And
+                    .To.Be.At.Most(DefaultRanges.MAX_MONEY_VALUE);
+            }
+            
+            [TestCase(nameof(SomePOCO.DiscountPercent))]
+            [TestCase(nameof(SomePOCO.VATRate))]
+            [TestCase(nameof(SomePOCO.TaxPercent))]
+            [TestCase(nameof(SomePOCO.InterestPerc))]
+            public void ShouldSetInterestOrTaxRateFor_(string prop)
+            {
+                // Arrange
+                // Act
+                var result = GetRandom<SomePOCO>();
+                // Assert
+                var propValue = result.Get<decimal>(prop);
+                var stringValue = $"{propValue}";
+                var parts = stringValue.Split('.');
+                if (parts.Length == 1)
+                {
+                    Expect(propValue)
+                        .To.Equal((int)propValue);
+                }
+                else
+                {
+                    Expect(parts[1].Length)
+                        .To.Be.At.Most(2);
+                }
+                Expect(propValue)
+                    .To.Be.At.Least(DefaultRanges.MIN_TAX_VALUE)
+                    .And
+                    .To.Be.At.Most(DefaultRanges.MAX_TAX_VALUE);
             }
         }
 
@@ -3544,6 +3587,14 @@ namespace PeanutButter.RandomGenerators.Tests
         public string Country { get; set; }
         public string CountryCode { get; set; }
         public DateTime? Date { get; set; }
+        public decimal Price { get; set; }
+        public decimal Cost { get; set; }
+        public decimal Tax { get; set; }
+        public decimal VATRate { get; set; }
+        public decimal? InterestPerc { get; set; }
+        public decimal TaxPercent { get; set; }
+        public decimal? Discount { get; set; }
+        public decimal DiscountPercent { get; set; }
 
         public override string ToString()
         {

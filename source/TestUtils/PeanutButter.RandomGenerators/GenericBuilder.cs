@@ -381,7 +381,7 @@ namespace PeanutButter.RandomGenerators
             }
 
             var specificMethod = method.MakeGenericMethod(typeof(TEntity));
-            return (TEntity) specificMethod.Invoke(
+            return (TEntity)specificMethod.Invoke(
                 null,
                 new object[]
                 {
@@ -436,7 +436,7 @@ namespace PeanutButter.RandomGenerators
             }
 
             var specificMethod = genericMethod.MakeGenericMethod(typeof(T));
-            return (T) specificMethod.Invoke(
+            return (T)specificMethod.Invoke(
                 null,
                 new object[]
                 {
@@ -538,7 +538,7 @@ namespace PeanutButter.RandomGenerators
         private TInterface ConstructInCurrentDomain<TInterface>(Type type)
         {
 #if NETSTANDARD
-            return (TInterface) Activator.CreateInstance(
+            return (TInterface)Activator.CreateInstance(
                 type, TryToMakeConstructorParametersFor(type)
             );
 #else
@@ -625,7 +625,7 @@ namespace PeanutButter.RandomGenerators
 
             var builderType = FindOrCreateDynamicBuilderTypeFor(t);
             var builder =
-                (IGenericBuilder) Activator.CreateInstance(builderType);
+                (IGenericBuilder)Activator.CreateInstance(builderType);
             builder.WithBuildLevel(_buildLevel + 1);
             return builder.WithBuildLevel(_buildLevel + 1)
                 .GenericWithRandomProps()
@@ -686,7 +686,7 @@ namespace PeanutButter.RandomGenerators
             BuildTimePropMods.Clear();
             var dynamicCount = 0;
             using (new AutoResetter(() => _currentlyBuilding = true,
-                () => _currentlyBuilding = false))
+                       () => _currentlyBuilding = false))
             {
                 var entity = ConstructEntity();
                 var actions = new Queue<ActionRef<TEntity>>(DefaultPropMods
@@ -723,7 +723,7 @@ namespace PeanutButter.RandomGenerators
                             if (pi.Type != typeof(DateTime))
                                 return;
 
-                            var currentValue = (DateTime) (pi.GetValue(entity));
+                            var currentValue = (DateTime)(pi.GetValue(entity));
                             pi.SetValue(entity,
                                 currentValue.ToKind(_defaultDateTimeKind));
                         });
@@ -794,7 +794,7 @@ namespace PeanutButter.RandomGenerators
                         MayBeCity(o) ||
                         MayBePostalCode(o) ||
                         MayBeStreet(o)
-                    )
+                       )
                     {
                         return -1;
                     }
@@ -874,8 +874,7 @@ namespace PeanutButter.RandomGenerators
                             int _) => pi.SetValue(ref e, GetRandomDouble()))
                     },
                     {
-                        typeof(decimal), pi => ((ref TEntity e,
-                            int _) => pi.SetValue(ref e, GetRandomDecimal()))
+                        typeof(decimal), CreateDecimalPropertyRandomSetterFor
                     },
                     {
                         typeof(DateTime), pi => ((ref TEntity e,
@@ -897,37 +896,64 @@ namespace PeanutButter.RandomGenerators
                     }
                 };
 
+        private static ActionRef<TEntity, int>
+            CreateDecimalPropertyRandomSetterFor(PropertyOrField pi)
+        {
+            if (MayBeTaxOrInterestRate(pi)) return SimpleDecimal(GetRandomTaxRate);
+            if (MayBeMonetary(pi)) return SimpleDecimal(GetRandomMoney);
+            
+            return (ref TEntity e, int _) => pi.SetValue(ref e, GetRandomDecimal());
+            ActionRef<TEntity, int> SimpleDecimal(Func<decimal> generator)
+            {
+                return (ref TEntity e, int _) => pi.SetValue(ref e, generator());
+            }
+        }
 
         private static ActionRef<TEntity, int>
             CreateStringPropertyRandomSetterFor(PropertyOrField pi)
         {
-            if (MayBeEmail(pi)) return Targeted(GenerateEmailFor);
-            if (MayBeUrl(pi)) return Simple(GetRandomHttpUrl);
-            if (MayBePhone(pi)) return Simple(() => GetRandomNumericString(10, 10));
-            if (MayBeFirstName(pi)) return Simple(GetRandomFirstName);
-            if (MayBeLastName(pi)) return Simple(GetRandomLastName);
-            if (MayBeUserNameOrLogin(pi)) return Targeted(GenerateRandomUserNameFor);
-            if (MayBeName(pi)) return Targeted(e => TryGenerateNameFor(e) ?? GetRandomName());
-            if (MayBeCountryCode(pi)) return Simple(GetRandomCountryCode);
-            if (MayBeCountry(pi)) return Targeted(GenerateCountryFor);
-            if (MayBeStreet(pi)) return Simple(GetRandomStreetName);
-            if (MayBePostalCode(pi)) return Simple(GetRandomPostalCode);
-            if (MayBeCity(pi)) return Simple(GetRandomCityName);
-            if (MayBeStreetAddress(pi)) return Simple(GetRandomStreetAddress);
-            if (MayBeFullAddress(pi)) return Targeted(GenerateFullAddressFor);
+            if (MayBeEmail(pi)) return TargetedString(GenerateEmailFor);
+            if (MayBeUrl(pi)) return SimpleString(GetRandomHttpUrl);
+            if (MayBePhone(pi)) return SimpleString(() => GetRandomNumericString(10, 10));
+            if (MayBeFirstName(pi)) return SimpleString(GetRandomFirstName);
+            if (MayBeLastName(pi)) return SimpleString(GetRandomLastName);
+            if (MayBeUserNameOrLogin(pi)) return TargetedString(GenerateRandomUserNameFor);
+            if (MayBeName(pi)) return TargetedString(e => TryGenerateNameFor(e) ?? GetRandomName());
+            if (MayBeCountryCode(pi)) return SimpleString(GetRandomCountryCode);
+            if (MayBeCountry(pi)) return TargetedString(GenerateCountryFor);
+            if (MayBeStreet(pi)) return SimpleString(GetRandomStreetName);
+            if (MayBePostalCode(pi)) return SimpleString(GetRandomPostalCode);
+            if (MayBeCity(pi)) return SimpleString(GetRandomCityName);
+            if (MayBeStreetAddress(pi)) return SimpleString(GetRandomStreetAddress);
+            if (MayBeFullAddress(pi)) return TargetedString(GenerateFullAddressFor);
 
             return (ref TEntity e, int _)
                 => pi.SetValue(ref e, GetRandomString());
 
-            ActionRef<TEntity, int> Targeted(Func<TEntity, string> generator)
+            ActionRef<TEntity, int> TargetedString(Func<TEntity, string> generator)
             {
                 return (ref TEntity e, int _) => pi.SetValue(ref e, generator(e));
             }
 
-            ActionRef<TEntity, int> Simple(Func<string> generator)
+            ActionRef<TEntity, int> SimpleString(Func<string> generator)
             {
                 return (ref TEntity e, int _) => pi.SetValue(ref e, generator());
             }
+        }
+
+        private static bool MayBeTaxOrInterestRate(PropertyOrField pi)
+        {
+            return MayBeMonetary(pi) &&
+                (pi?.Name?.ContainsOneOf(
+                    "rate", "perc"
+                ) ?? false);
+        }
+
+        private static bool MayBeMonetary(PropertyOrField pi)
+        {
+            return pi?.Name?.ContainsOneOf(
+                "price", "cost", "discount", "tax", "vat", "interest"
+            ) ?? false;
         }
 
         private static bool MayBeCountryCode(PropertyOrField pi)
@@ -964,6 +990,7 @@ namespace PeanutButter.RandomGenerators
         {
             return pi?.Name?.ContainsOneOf("address") ?? false;
         }
+        
 
         private static string GenerateFullAddressFor(TEntity e)
         {
@@ -1433,7 +1460,7 @@ namespace PeanutButter.RandomGenerators
             Type propertyType)
         {
             if (!SimpleTypeSetters.TryGetValue(propertyType,
-                out var setterGenerator))
+                    out var setterGenerator))
                 return false;
 
             RandomPropSetters[prop.Name] = setterGenerator(prop);
@@ -1594,7 +1621,7 @@ namespace PeanutButter.RandomGenerators
                 try
                 {
                     if (_specificSetters.TryGetValue(prop.Name,
-                        out var specificSetters))
+                            out var specificSetters))
                     {
                         var asObject = entity as object;
                         specificSetters.ForEach(
