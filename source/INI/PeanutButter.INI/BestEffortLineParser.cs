@@ -12,9 +12,21 @@ namespace PeanutButter.INI
     /// </summary>
     public class BestEffortLineParser : ILineParser
     {
+        /// <summary>
+        /// The default marker for the start of a comment
+        /// </summary>
         public const string DEFAULT_COMMENT_DELIMITER = ";";
+        /// <summary>
+        /// The marker used by this parser for the start of a comment
+        /// </summary>
         protected string CommentDelimiter = DEFAULT_COMMENT_DELIMITER;
 
+        /// <summary>
+        /// Attempts to parse a string to a structure which
+        /// defines the parts of the line (key, value, comment, etc)
+        /// </summary>
+        /// <param name="line"></param>
+        /// <returns></returns>
         public IParsedLine Parse(string line)
         {
             if (line is null)
@@ -70,6 +82,12 @@ namespace PeanutButter.INI
             );
         }
 
+        /// <summary>
+        /// Un-escape a line
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="containsEscapedEntities"></param>
+        /// <returns></returns>
         protected virtual string Unescape(
             string data,
             bool containsEscapedEntities)
@@ -87,6 +105,12 @@ namespace PeanutButter.INI
             return ApplyEscapeSequences(data);
         }
 
+        /// <summary>
+        /// Applies the escape sequences to an incoming data string
+        /// and produces a new string
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
         protected string ApplyEscapeSequences(string data)
         {
             return EscapeMap.Aggregate(
