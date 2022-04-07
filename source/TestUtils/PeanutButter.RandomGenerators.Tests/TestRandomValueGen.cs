@@ -105,7 +105,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 // Arrange
                 var min = GetRandomDouble(1, 10);
                 var max = GetRandomDouble(11, 20);
-                var collected = new List<Double>();
+                var collected = new List<double>();
                 // Pre-assert
                 // Act
                 for (var i = 0; i < HIGH_RANDOM_TEST_CYCLES; i++)
@@ -130,7 +130,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 // Arrange
                 var min = GetRandomDecimal(1, 10);
                 var max = GetRandomDecimal(11, 20);
-                var collected = new List<Decimal>();
+                var collected = new List<decimal>();
                 // Pre-assert
                 // Act
                 for (var i = 0; i < HIGH_RANDOM_TEST_CYCLES; i++)
@@ -155,7 +155,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 // Arrange
                 var min = GetRandomMoney(1, 10);
                 var max = GetRandomMoney(11, 20);
-                var collected = new List<Decimal>();
+                var collected = new List<decimal>();
                 // Pre-assert
                 // Act
                 for (var i = 0; i < HIGH_RANDOM_TEST_CYCLES; i++)
@@ -188,7 +188,7 @@ namespace PeanutButter.RandomGenerators.Tests
             public void ShouldDefaultToBeWithinRange_(int min, int max)
             {
                 // Arrange
-                var collected = new List<Decimal>();
+                var collected = new List<decimal>();
                 // Pre-assert
                 // Act
                 for (var i = 0; i < HIGH_RANDOM_TEST_CYCLES; i++)
@@ -213,7 +213,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 // Arrange
                 var min = GetRandomTaxRate(1, 10);
                 var max = GetRandomTaxRate(11, 20);
-                var collected = new List<Decimal>();
+                var collected = new List<decimal>();
                 // Pre-assert
                 // Act
                 for (var i = 0; i < HIGH_RANDOM_TEST_CYCLES; i++)
@@ -246,7 +246,7 @@ namespace PeanutButter.RandomGenerators.Tests
             public void ShouldDefaultToBeWithinRange_(int min, int max)
             {
                 // Arrange
-                var collected = new List<Decimal>();
+                var collected = new List<decimal>();
                 // Pre-assert
                 // Act
                 for (var i = 0; i < HIGH_RANDOM_TEST_CYCLES; i++)
@@ -271,7 +271,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 // Arrange
                 var min = GetRandomInterestRate(1, 10);
                 var max = GetRandomInterestRate(11, 20);
-                var collected = new List<Decimal>();
+                var collected = new List<decimal>();
                 // Pre-assert
                 // Act
                 for (var i = 0; i < HIGH_RANDOM_TEST_CYCLES; i++)
@@ -304,7 +304,7 @@ namespace PeanutButter.RandomGenerators.Tests
             public void ShouldDefaultToBeWithinRange_(int min, int max)
             {
                 // Arrange
-                var collected = new List<Decimal>();
+                var collected = new List<decimal>();
                 // Pre-assert
                 // Act
                 for (var i = 0; i < HIGH_RANDOM_TEST_CYCLES; i++)
@@ -2908,7 +2908,7 @@ namespace PeanutButter.RandomGenerators.Tests
                         lines.All(
                             l =>
                             {
-                                return l.All(c => !Char.IsControl(c));
+                                return l.All(c => !char.IsControl(c));
                             }));
                 }
             }
