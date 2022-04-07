@@ -221,12 +221,12 @@ namespace PeanutButter.RandomGenerators
             /// <summary>
             /// Defines the default minimum TAX value returned
             /// </summary>
-            public const int MIN_TAX_VALUE = 10;
+            public const int MIN_TAX_VALUE = 3;
 
             /// <summary>
             /// Defines the default maximum TAX value returned
             /// </summary>
-            public const int MAX_TAX_VALUE = 100;
+            public const int MAX_TAX_VALUE = 20;
 
             /// <summary>
             /// Defines the range of the default TAX max / min
@@ -814,7 +814,7 @@ namespace PeanutButter.RandomGenerators
         }
 
         /// <summary>
-        /// Gets a random Tax value (decimal with max 2 places)
+        /// Gets a random tax rate value (decimal with max 2 places)
         /// within the specified range
         /// </summary>
         /// <param name="min">Minimum value to consider</param>
@@ -830,7 +830,7 @@ namespace PeanutButter.RandomGenerators
         }
 
         /// <summary>
-        /// Produces a Tax value (decimal with max 2 places)
+        /// Produces a tax rate value (decimal with max 2 places)
         /// between 3 and 20 inclusive
         /// </summary>
         /// <returns></returns>
@@ -842,8 +842,9 @@ namespace PeanutButter.RandomGenerators
         }
 
         /// <summary>
-        /// Produces a random decimal between the provided
-        /// minValue and that value + 10, inclusive
+        /// Produces a tax rate value (decimal with max 2 places)
+        /// between of the provided minimum value up to that value
+        /// + 17
         /// </summary>
         /// <param name="minValue"></param>
         /// <returns></returns>
@@ -852,6 +853,51 @@ namespace PeanutButter.RandomGenerators
         )
         {
             return GetRandomTaxRate(
+                minValue,
+                minValue + DefaultRanges.DEFAULT_TAX_RANGE
+            );
+        }
+
+        /// <summary>
+        /// Gets a random interest rate value (decimal with max 2 places)
+        /// within the specified range
+        /// </summary>
+        /// <param name="min">Minimum value to consider</param>
+        /// <param name="max">Maximum value to consider</param>
+        /// <returns>Decimal value within the specified range</returns>
+        public static decimal GetRandomInterestRate(
+            decimal min,
+            decimal max
+        )
+        {
+            return (decimal)GetRandomDouble((double)min, (double)max)
+                .ToFixed(2);
+        }
+
+        /// <summary>
+        /// Produces a interest rate value (decimal with max 2 places)
+        /// between 3 and 20 inclusive
+        /// </summary>
+        /// <returns></returns>
+        public static decimal GetRandomInterestRate()
+        {
+            return GetRandomInterestRate(
+                DefaultRanges.MIN_TAX_VALUE
+            );
+        }
+
+        /// <summary>
+        /// Produces a interest rate value (decimal with max 2 places)
+        /// between of the provided minimum value up to that value
+        /// + 17
+        /// </summary>
+        /// <param name="minValue"></param>
+        /// <returns></returns>
+        public static decimal GetRandomInterestRate(
+            decimal minValue
+        )
+        {
+            return GetRandomInterestRate(
                 minValue,
                 minValue + DefaultRanges.DEFAULT_TAX_RANGE
             );
