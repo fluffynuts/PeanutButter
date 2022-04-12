@@ -86,8 +86,23 @@ namespace PeanutButter.INI
         /// Attempts to load the file at the given path, discarding any existing config
         /// </summary>
         /// <param name="path"></param>
+        /// <param name="encoding"></param>
+        void Load(string path, Encoding encoding);
+
+        /// <summary>
+        /// Attempts to load the file at the given path, discarding any existing config
+        /// </summary>
+        /// <param name="path"></param>
         /// <param name="parseStrategy"></param>
         void Load(string path, ParseStrategies parseStrategy);
+        
+        /// <summary>
+        /// Attempts to load the file at the given path, discarding any existing config
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="parseStrategy"></param>
+        /// <param name="encoding"></param>
+        void Load(string path, ParseStrategies parseStrategy, Encoding encoding);
 
         /// <summary>
         /// Add a section by name
@@ -487,13 +502,25 @@ namespace PeanutButter.INI
         }
 
         /// <inheritdoc />
+        public void Load(string path, Encoding encoding)
+        {
+            Load(path, ParseStrategy, encoding);
+        }
+
+        /// <inheritdoc />
         public void Load(
             string path,
             ParseStrategies parseStrategy)
         {
+            Load(path, parseStrategy, DefaultEncoding);
+        }
+
+        /// <inheritdoc />
+        public void Load(string path, ParseStrategies parseStrategy, Encoding encoding)
+        {
             ParseStrategy = parseStrategy;
             _path = path;
-            var lines = GetLinesFrom(path);
+            var lines = GetLinesFrom(path, encoding);
             Parse(lines);
         }
 
@@ -682,22 +709,27 @@ namespace PeanutButter.INI
             Data.Clear();
         }
 
-        private static IEnumerable<string> GetLinesFrom(string path)
+        private IEnumerable<string> GetLinesFrom(string path, Encoding encoding)
         {
+            if (encoding is null)
+            {
+                throw new ArgumentNullException(nameof(encoding));
+            }
+
             EnsureFileExistsAt(path);
             var fileBytes = File.ReadAllBytes(path);
             fileBytes = StripByteOrderMark(fileBytes);
 
-            var fileContents = Encoding.UTF8.GetString(
+            var fileContents = encoding.GetString(
                 fileBytes
             );
             var lines = SplitIntoLines(fileContents);
             return lines;
         }
 
-        private static byte[] StripByteOrderMark(byte[] fileBytes)
+        private byte[] StripByteOrderMark(byte[] fileBytes)
         {
-            var preamble = Encoding.UTF8.GetPreamble();
+            var preamble = DefaultEncoding.GetPreamble();
             return fileBytes.Take(preamble.Length).SequenceEqual(preamble)
                 ? fileBytes.Skip(preamble.Length).ToArray()
                 : fileBytes;
@@ -888,6 +920,11 @@ namespace PeanutButter.INI
             Encoding encoding
         )
         {
+            if (encoding is null)
+            {
+                throw new ArgumentException(nameof(encoding));
+            }
+
             saveToPath = CheckPersistencePath(saveToPath);
             var lines = GetLinesForCurrentData(persistStrategy);
             File.WriteAllBytes(
@@ -930,6 +967,11 @@ namespace PeanutButter.INI
             Encoding encoding
         )
         {
+            if (encoding is null)
+            {
+                throw new ArgumentNullException(nameof(encoding));
+            }
+
             var lines = GetLinesForCurrentData(persistStrategy);
             var shouldAddNewline = false;
             var newLine = encoding.GetBytes(Environment.NewLine);
@@ -945,7 +987,7 @@ namespace PeanutButter.INI
                         shouldAddNewline = true;
                     }
 
-                    var lineAsBytes = Encoding.UTF8.GetBytes(line);
+                    var lineAsBytes = encoding.GetBytes(line);
                     toStream.Write(lineAsBytes, 0, lineAsBytes.Length);
                 });
         }
