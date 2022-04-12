@@ -172,6 +172,8 @@ namespace PeanutButter.WindowsServiceManagement.Tests
         }
 
         [Test]
+        // may fail when running in parallel
+        [Retry(3)]
         public void BigHairyIntegrationTest()
         {
             if (Platform.Is32Bit)
@@ -181,151 +183,154 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                 );
             }
 
-            // Arrange
-            var serviceExe = TestServicePath;
-            Expect(serviceExe).To.Exist($"Expected to find test service at {serviceExe}");
-            EnsureTestServiceIsNotInstalled();
-            // Act
-            Do("Install via cli", () => Run(serviceExe, "-i", "-n", TestServiceName));
-            var util = new WindowsServiceUtil(TestServiceName);
-            Do("Test is installed",
-                () => Expect(util.IsInstalled)
-                    .To.Be.True()
-            );
-            Do("Test service commandline",
-                () => Expect(util.Commandline)
-                    .To.Equal(serviceExe)
-            );
-            Do("Test default startup type",
-                () => Expect(util.StartupType)
-                    .To.Equal(ServiceStartupTypes.Automatic)
-            );
+            Assert.That(() =>
+            {
+                // Arrange
+                var serviceExe = TestServicePath;
+                Expect(serviceExe).To.Exist($"Expected to find test service at {serviceExe}");
+                EnsureTestServiceIsNotInstalled();
+                // Act
+                Do("Install via cli", () => Run(serviceExe, "-i", "-n", TestServiceName));
+                var util = new WindowsServiceUtil(TestServiceName);
+                Do("Test is installed",
+                    () => Expect(util.IsInstalled)
+                        .To.Be.True()
+                );
+                Do("Test service commandline",
+                    () => Expect(util.Commandline)
+                        .To.Equal(serviceExe)
+                );
+                Do("Test default startup type",
+                    () => Expect(util.StartupType)
+                        .To.Equal(ServiceStartupTypes.Automatic)
+                );
 
-            Do("Disabled service",
-                () =>
-                {
-                    util.Disable();
-                    Expect(util.StartupType)
-                        .To.Equal(ServiceStartupTypes.Disabled);
-                });
-            Do("Re-enable service",
-                () =>
-                {
-                    util.SetAutomaticStart();
-                    Expect(util.StartupType)
-                        .To.Equal(ServiceStartupTypes.Automatic);
-                });
-
-            Do("Start service",
-                () =>
-                {
-                    util.Start();
-                    Expect(util.State)
-                        .To.Equal(ServiceState.Running);
-                    var processes = Process.GetProcesses();
-                    var process = processes.FirstOrDefault(p =>
+                Do("Disabled service",
+                    () =>
                     {
-                        try
-                        {
-                            return p?.MainModule?.FileName.Equals(serviceExe, StringComparison.OrdinalIgnoreCase) ??
-                                false;
-                        }
-                        catch
-                        {
-                            return false;
-                        }
+                        util.Disable();
+                        Expect(util.StartupType)
+                            .To.Equal(ServiceStartupTypes.Disabled);
                     });
-                    Expect(process).Not.To.Be.Null(
-                        () =>
-                            $"@Service should be running: {serviceExe}\nrunning:\n{DumpProcesses()}"
-                    );
-                    Expect(process.Id)
-                        .To.Equal(util.ServicePID);
-
-                    string DumpProcesses()
+                Do("Re-enable service",
+                    () =>
                     {
-                        return processes.Select(p =>
+                        util.SetAutomaticStart();
+                        Expect(util.StartupType)
+                            .To.Equal(ServiceStartupTypes.Automatic);
+                    });
+
+                Do("Start service",
+                    () =>
+                    {
+                        util.Start();
+                        Expect(util.State)
+                            .To.Equal(ServiceState.Running);
+                        var processes = Process.GetProcesses();
+                        var process = processes.FirstOrDefault(p =>
                         {
                             try
                             {
-                                return $"{p.MainModule.FileName}";
+                                return p?.MainModule?.FileName.Equals(serviceExe, StringComparison.OrdinalIgnoreCase) ??
+                                    false;
                             }
-                            catch (Exception e)
+                            catch
                             {
-                                return $"(unknown) ({e.Message})";
+                                return false;
                             }
-                        }).OrderBy(s => s).JoinWith("\n");
-                        ;
-                    }
-                });
+                        });
+                        Expect(process).Not.To.Be.Null(
+                            () =>
+                                $"@Service should be running: {serviceExe}\nrunning:\n{DumpProcesses()}"
+                        );
+                        Expect(process.Id)
+                            .To.Equal(util.ServicePID);
+
+                        string DumpProcesses()
+                        {
+                            return processes.Select(p =>
+                            {
+                                try
+                                {
+                                    return $"{p.MainModule.FileName}";
+                                }
+                                catch (Exception e)
+                                {
+                                    return $"(unknown) ({e.Message})";
+                                }
+                            }).OrderBy(s => s).JoinWith("\n");
+                            ;
+                        }
+                    });
 
 
-            var byPath = WindowsServiceUtil.GetServiceByPath(serviceExe);
-            Expect(byPath)
-                .Not.To.Be.Null($"Should be able to query service by path {serviceExe}");
+                var byPath = WindowsServiceUtil.GetServiceByPath(serviceExe);
+                Expect(byPath)
+                    .Not.To.Be.Null($"Should be able to query service by path {serviceExe}");
 
-            Do("Pause service",
-                () =>
-                {
-                    byPath.Pause();
-                    Expect(byPath.State)
-                        .To.Equal(ServiceState.Paused);
-                });
+                Do("Pause service",
+                    () =>
+                    {
+                        byPath.Pause();
+                        Expect(byPath.State)
+                            .To.Equal(ServiceState.Paused);
+                    });
 
-            Do("Resume service",
-                () =>
-                {
-                    byPath.Continue();
-                    Expect(byPath.State)
-                        .To.Equal(ServiceState.Running);
-                });
+                Do("Resume service",
+                    () =>
+                    {
+                        byPath.Continue();
+                        Expect(byPath.State)
+                            .To.Equal(ServiceState.Running);
+                    });
 
-            Do("Stop service",
-                () =>
-                {
-                    util.Stop();
-                    Expect(util.State)
-                        .To.Equal(ServiceState.Stopped);
-                });
+                Do("Stop service",
+                    () =>
+                    {
+                        util.Stop();
+                        Expect(util.State)
+                            .To.Equal(ServiceState.Stopped);
+                    });
 
-            Do("Uninstall via cli",
-                () =>
-                {
-                    Run(serviceExe, "-u", "-n", TestServiceName);
+                Do("Uninstall via cli",
+                    () =>
+                    {
+                        Run(serviceExe, "-u", "-n", TestServiceName);
 
-                    Expect(util.IsInstalled)
-                        .To.Be.False();
-                });
+                        Expect(util.IsInstalled)
+                            .To.Be.False();
+                    });
 
-            Do("Install and start (api)",
-                () =>
-                {
-                    util = new WindowsServiceUtil(
-                        TestServiceName,
-                        TestServiceName,
-                        serviceExe);
-                    util.InstallAndStart();
-                    Expect(util.IsInstalled)
-                        .To.Be.True();
-                    Expect(util.State)
-                        .To.Equal(ServiceState.Running);
-                });
-            Do("Re-install and start (api)",
-                () =>
-                {
-                    util = new WindowsServiceUtil(
-                        TestServiceName,
-                        TestServiceName,
-                        serviceExe);
-                    util.Uninstall();
-                    util.InstallAndStart();
-                    Expect(util.IsInstalled)
-                        .To.Be.True();
-                    Expect(util.State)
-                        .To.Equal(ServiceState.Running);
-                });
-            Do("Uninstall (api)", () => util.Uninstall());
-            // Assert
+                Do("Install and start (api)",
+                    () =>
+                    {
+                        util = new WindowsServiceUtil(
+                            TestServiceName,
+                            TestServiceName,
+                            serviceExe);
+                        util.InstallAndStart();
+                        Expect(util.IsInstalled)
+                            .To.Be.True();
+                        Expect(util.State)
+                            .To.Equal(ServiceState.Running);
+                    });
+                Do("Re-install and start (api)",
+                    () =>
+                    {
+                        util = new WindowsServiceUtil(
+                            TestServiceName,
+                            TestServiceName,
+                            serviceExe);
+                        util.Uninstall();
+                        util.InstallAndStart();
+                        Expect(util.IsInstalled)
+                            .To.Be.True();
+                        Expect(util.State)
+                            .To.Equal(ServiceState.Running);
+                    });
+                Do("Uninstall (api)", () => util.Uninstall());
+                // Assert
+            }, Throws.Nothing);
         }
 
         [TestFixture]
@@ -804,7 +809,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                 }
             }
 
-            throw last ?? new InvalidOperationException($"No last exception captured");
+            throw last ?? new InvalidOperationException("No last exception captured");
         }
 
         [TearDown]

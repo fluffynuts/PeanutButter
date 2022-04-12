@@ -200,7 +200,7 @@ namespace PeanutButter.Utils.Tests
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                var result = ((string)null).AsBytes();
+                var result = ((string) null).AsBytes();
 
                 //---------------Test Result -----------------------
                 Expect(result as object).To.Be.Null();
@@ -486,6 +486,15 @@ namespace PeanutButter.Utils.Tests
             [TestFixture]
             public class WhenOperatingOnNullOrWhitespace
             {
+                // ReSharper disable once MemberHidesStaticFromOuterClass
+                public static readonly string[] NullOrWhitespaceStrings =
+                {
+                    null,
+                    "\t",
+                    "\r",
+                    "\n"
+                };
+
                 [TestCaseSource(nameof(NullOrWhitespaceStrings))]
                 public void ShouldReturnTrueFor_(
                     string src)
@@ -636,7 +645,7 @@ namespace PeanutButter.Utils.Tests
             {
                 //--------------- Arrange -------------------
                 var input = "foo";
-                var search = new[] { "bar", "quuz", "wibbles" };
+                var search = new[] {"bar", "quuz", "wibbles"};
 
                 //--------------- Assume ----------------
 
@@ -652,7 +661,7 @@ namespace PeanutButter.Utils.Tests
             {
                 //--------------- Arrange -------------------
                 var input = "foo";
-                var search = new[] { "bar", "quuz", "oo", "wibbles" }.Randomize().ToArray();
+                var search = new[] {"bar", "quuz", "oo", "wibbles"}.Randomize().ToArray();
 
                 //--------------- Assume ----------------
 
@@ -711,7 +720,7 @@ namespace PeanutButter.Utils.Tests
             {
                 //--------------- Arrange -------------------
                 var input = "hello, world";
-                var search = new[] { "hello", ", ", "world" }.Randomize().ToArray();
+                var search = new[] {"hello", ", ", "world"}.Randomize().ToArray();
 
                 //--------------- Assume ----------------
 
@@ -727,7 +736,7 @@ namespace PeanutButter.Utils.Tests
             {
                 //--------------- Arrange -------------------
                 var input = "hello, world";
-                var search = new[] { "hello", ", ", "there" }.Randomize().ToArray();
+                var search = new[] {"hello", ", ", "there"}.Randomize().ToArray();
 
                 //--------------- Assume ----------------
 
@@ -1141,7 +1150,7 @@ namespace PeanutButter.Utils.Tests
                 public void OperatingOn_Whitespace_ShouldReturnFalse()
                 {
                     // Arrange
-                    var input = GetRandomFrom(new[] { " ", "\t", "\r" });
+                    var input = GetRandomFrom(new[] {" ", "\t", "\r"});
                     // Pre-assert
                     // Act
                     var result = input.IsNumeric();
@@ -1221,7 +1230,7 @@ namespace PeanutButter.Utils.Tests
                 public void OperatingOn_Whitespace_ShouldReturnFalse()
                 {
                     // Arrange
-                    var input = GetRandomFrom(new[] { " ", "\r", "\t" });
+                    var input = GetRandomFrom(new[] {" ", "\r", "\t"});
                     // Pre-assert
                     // Act
                     var result = input.IsAlpha();
@@ -1303,7 +1312,7 @@ namespace PeanutButter.Utils.Tests
                 public void OperatingOn_Whitespace_ShouldReturnFalse()
                 {
                     // Arrange
-                    var input = GetRandomFrom(new[] { " ", "\r", "\t" });
+                    var input = GetRandomFrom(new[] {" ", "\r", "\t"});
                     // Pre-assert
                     // Act
                     var result = input.IsAlphanumeric();
@@ -1428,7 +1437,7 @@ namespace PeanutButter.Utils.Tests
                 var result = program.SplitCommandline();
                 // Assert
                 Expect(result)
-                    .To.Equal(new[] { program });
+                    .To.Equal(new[] {program});
             }
 
             [Test]
@@ -1441,7 +1450,7 @@ namespace PeanutButter.Utils.Tests
                 var result = cli.SplitCommandline();
                 // Assert
                 Expect(result)
-                    .To.Equal(new[] { program });
+                    .To.Equal(new[] {program});
             }
 
             [Test]
@@ -1454,7 +1463,7 @@ namespace PeanutButter.Utils.Tests
                 var result = cli.SplitCommandline();
                 // Assert
                 Expect(result)
-                    .To.Equal(new[] { program });
+                    .To.Equal(new[] {program});
             }
 
             [Test]
@@ -1467,7 +1476,7 @@ namespace PeanutButter.Utils.Tests
                 var result = cli.SplitCommandline();
                 // Assert
                 Expect(result)
-                    .To.Equal(new[] { program, "arg1", "arg2" });
+                    .To.Equal(new[] {program, "arg1", "arg2"});
             }
 
             [Test]
@@ -1480,7 +1489,7 @@ namespace PeanutButter.Utils.Tests
                 var result = cli.SplitCommandline();
                 // Assert
                 Expect(result)
-                    .To.Equal(new[] { program, "arg1 arg2" });
+                    .To.Equal(new[] {program, "arg1 arg2"});
             }
         }
 
@@ -1581,8 +1590,8 @@ namespace PeanutButter.Utils.Tests
             public void ShouldMatchIdenticalCollections()
             {
                 // Arrange
-                var left = new[] { "a", "b", "c" };
-                var right = new[] { "a", "b", "c" };
+                var left = new[] {"a", "b", "c"};
+                var right = new[] {"a", "b", "c"};
                 // Act
                 var result = left.Matches(right);
                 // Assert
@@ -1594,8 +1603,8 @@ namespace PeanutButter.Utils.Tests
             public void ShouldUseGivenStringComparison()
             {
                 // Arrange
-                var left = new[] { "a", "b", "c" };
-                var right = new[] { "A", "B", "C" };
+                var left = new[] {"a", "b", "c"};
+                var right = new[] {"A", "B", "C"};
                 // Act
                 var result = left.Matches(right, StringComparison.OrdinalIgnoreCase);
                 // Assert
@@ -1847,7 +1856,7 @@ namespace PeanutButter.Utils.Tests
                     // Arrange
                     var expected = "the line";
                     var line = $"    {expected}";
-                    
+
                     // Act
                     var result = line.Outdent();
                     // Assert
@@ -1901,7 +1910,7 @@ function foo() {
                     Expect(result)
                         .To.Equal(expected);
                 }
-                
+
                 [Test]
                 public void ShouldTrimEndByDefault()
                 {
@@ -1935,7 +1944,7 @@ function foo() {
                     // Arrange
                     var lines = "\t\tline 1\n\t\tline 2";
                     var expected = "line 1\nline 2";
-                    
+
                     // Act
                     var result = lines.Outdent();
                     // Assert
@@ -1949,7 +1958,7 @@ function foo() {
                     // Arrange
                     var lines = "\t\tline 1\n\t\tline 2";
                     var expected = "\tline 1\n\tline 2";
-                    
+
                     // Act
                     var result = lines.Outdent(1);
                     // Assert

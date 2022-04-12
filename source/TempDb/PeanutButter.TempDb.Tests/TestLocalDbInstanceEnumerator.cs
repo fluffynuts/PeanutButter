@@ -21,8 +21,9 @@ namespace PeanutButter.TempDb.Tests
             var result = sut.FindInstances();
 
             //---------------Test Result -----------------------
-            Console.WriteLine(string.Join("\n", result));
-            CollectionAssert.IsNotEmpty(result, "If this utility can't find a v-instance of localdb, other tests are going to cry");
+            Console.WriteLine($"LocalDbInstanceFinder finds:\n{string.Join("\n", result)}");
+            Expect(result)
+                .Not.To.Be.Empty(() =>"If this utility can't find a v-instance of localdb, other tests are going to cry");
         }
 
         [Test]

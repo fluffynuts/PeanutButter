@@ -1147,6 +1147,7 @@ namespace PeanutButter.Utils
         /// <returns></returns>
         public static string Outdent(this string str, int depth)
         {
+            str ??= "";
             var lineDelimiter = str.Contains(Environment.NewLine)
                 ? Environment.NewLine
                 : "\n";
