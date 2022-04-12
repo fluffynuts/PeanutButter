@@ -676,119 +676,236 @@ otherSetting=otherValue";
         [TestFixture]
         public class Persistence
         {
-            [Test]
-            public void GivenFileName_ShouldWriteINIDataToFile()
+            [TestFixture]
+            public class GivenNoFileName
             {
-                //---------------Set up test pack-------------------
-                using var tempFile = new AutoDeletingIniFile();
-                //---------------Assert Precondition----------------
-                var writer = Create(tempFile.Path);
-                var section = RandString();
-                var key = RandString();
-                var value = RandString();
-                writer.SetValue(section, key, value);
+                [TestFixture]
+                public class WhenNoFileNameSpecifiedInConstructor
+                {
+                    [Test]
+                    public void ShouldThrowException()
+                    {
+                        //---------------Set up test pack-------------------
+                        //---------------Assert Precondition----------------
+                        var writer = Create();
+                        var section = RandString();
+                        var key = RandString();
+                        var value = RandString();
+                        writer.AddSection(section);
+                        writer[section][key] = value;
 
-                //---------------Execute Test ----------------------
-                writer.Persist(tempFile.Path);
-                var reader = Create(tempFile.Path);
+                        //---------------Execute Test ----------------------
+                        Expect(() => writer.Persist())
+                            .To.Throw<ArgumentException>()
+                            .With.Message.Containing(
+                                "No path specified to persist to and INIFile instantiated without an auto-path"
+                            );
 
-                //---------------Test Result -----------------------
-                Expect(reader[section])
-                    .To.Contain.Key(key)
-                    .With.Value(value);
+                        //---------------Test Result -----------------------
+                    }
+                }
+
+                [Test]
+                public void ShouldWriteINIDataToOriginalFile()
+                {
+                    //---------------Set up test pack-------------------
+                    using var tempFile = new AutoDeletingIniFile();
+                    //---------------Assert Precondition----------------
+                    var writer = Create(tempFile.Path);
+                    var section = RandString();
+                    var key = RandString();
+                    var value = RandString();
+                    writer.AddSection(section);
+                    writer[section][key] = value;
+
+                    //---------------Execute Test ----------------------
+                    writer.Persist();
+                    var reader = Create(tempFile.Path);
+
+                    //---------------Test Result -----------------------
+                    Expect(reader[section])
+                        .To.Contain.Key(key)
+                        .With.Value(value);
+                }
             }
 
-            [Test]
-            public void GivenNoFileName_ShouldWriteINIDataToOriginalFile()
+            [TestFixture]
+            public class GivenFileName
             {
-                //---------------Set up test pack-------------------
-                using var tempFile = new AutoDeletingIniFile();
-                //---------------Assert Precondition----------------
-                var writer = Create(tempFile.Path);
-                var section = RandString();
-                var key = RandString();
-                var value = RandString();
-                writer.AddSection(section);
-                writer[section][key] = value;
+                [Test]
+                public void ShouldWriteINIDataToFile()
+                {
+                    //---------------Set up test pack-------------------
+                    using var tempFile = new AutoDeletingIniFile();
+                    //---------------Assert Precondition----------------
+                    var writer = Create(tempFile.Path);
+                    var section = RandString();
+                    var key = RandString();
+                    var value = RandString();
+                    writer.SetValue(section, key, value);
 
-                //---------------Execute Test ----------------------
-                writer.Persist();
-                var reader = Create(tempFile.Path);
+                    //---------------Execute Test ----------------------
+                    writer.Persist(tempFile.Path);
+                    var reader = Create(tempFile.Path);
 
-                //---------------Test Result -----------------------
-                Expect(reader[section])
-                    .To.Contain.Key(key)
-                    .With.Value(value);
+                    //---------------Test Result -----------------------
+                    Expect(reader[section])
+                        .To.Contain.Key(key)
+                        .With.Value(value);
+                }
+
+                [Test]
+                public void ShouldPersistTheGlobalEmptySection()
+                {
+                    //---------------Set up test pack-------------------
+                    using var tempFile = new AutoDeletingIniFile();
+                    //---------------Assert Precondition----------------
+                    var writer = Create(tempFile.Path);
+                    var section = "";
+                    var key = RandString();
+                    var value = RandString();
+                    writer.AddSection(section);
+                    writer[section][key] = value;
+
+                    //---------------Execute Test ----------------------
+                    writer.Persist();
+                    var reader = Create(tempFile.Path);
+
+                    //---------------Test Result -----------------------
+                    Expect(reader[section])
+                        .To.Contain.Key(key)
+                        .With.Value(value);
+                }
             }
 
-            [Test]
-            public void GivenFileName_ShouldPersistTheGlobalEmptySection()
+            [TestFixture]
+            public class GivenStream
             {
-                //---------------Set up test pack-------------------
-                using var tempFile = new AutoDeletingIniFile();
-                //---------------Assert Precondition----------------
-                var writer = Create(tempFile.Path);
-                var section = "";
-                var key = RandString();
-                var value = RandString();
-                writer.AddSection(section);
-                writer[section][key] = value;
+                [TestFixture]
+                public class PersistingComments
+                {
+                    [Test]
+                    public void ShouldRetainCommentsAboveSetting()
+                    {
+                        //---------------Set up test pack-------------------
+                        var input =
+                            @"
+[general]
+; this is the general section
+foo=bar
+";
+                        var sut = Create();
+                        sut.Parse(input);
+                        //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                writer.Persist();
-                var reader = Create(tempFile.Path);
+                        //---------------Execute Test ----------------------
+                        using var memStream = new MemoryStream(new byte[1024], true);
+                        //---------------Test Result -----------------------
+                        sut.Persist(memStream);
+                        var lines = memStream.AsString().Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                        Expect(lines).To.Contain.Exactly(1)
+                            .Equal.To("; this is the general section");
+                    }
 
-                //---------------Test Result -----------------------
-                Expect(reader[section])
-                    .To.Contain.Key(key)
-                    .With.Value(value);
-            }
+                    [Test]
+                    public void ShouldRetainMultilineCommentsAboveSetting()
+                    {
+                        //---------------Set up test pack-------------------
+                        var input =
+                            @"
+[general]
+; this is the general section
+; this is the general section again!
+foo=bar
+";
+                        var sut = Create();
+                        sut.Parse(input);
+                        //---------------Assert Precondition----------------
 
-            [Test]
-            public void GivenNoFileName_WhenNoFileNameSpecifiedInConstructor_ShouldThrowException()
-            {
-                //---------------Set up test pack-------------------
-                //---------------Assert Precondition----------------
-                var writer = Create();
-                var section = RandString();
-                var key = RandString();
-                var value = RandString();
-                writer.AddSection(section);
-                writer[section][key] = value;
+                        //---------------Execute Test ----------------------
+                        using var memStream = new MemoryStream(new byte[1024], true);
+                        //---------------Test Result -----------------------
+                        sut.Persist(memStream);
+                        var lines = memStream.AsString().Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                        Expect(lines).To.Contain.Exactly(1)
+                            .Equal.To("; this is the general section");
+                        Expect(lines).To.Contain.Exactly(1)
+                            .Equal.To("; this is the general section again!");
+                    }
 
-                //---------------Execute Test ----------------------
-                Expect(() => writer.Persist())
-                    .To.Throw<ArgumentException>()
-                    .With.Message.Containing(
-                        "No path specified to persist to and INIFile instantiated without an auto-path"
-                    );
+                    [Test]
+                    public void ShouldRetainCommentsAboveSection()
+                    {
+                        //---------------Set up test pack-------------------
+                        var input =
+                            @"
+; this is the general section
+[general]
+foo=bar
+";
+                        var sut = Create();
+                        sut.Parse(input);
+                        //---------------Assert Precondition----------------
 
-                //---------------Test Result -----------------------
-            }
+                        //---------------Execute Test ----------------------
+                        using var memStream = new MemoryStream(new byte[1024], true);
+                        //---------------Test Result -----------------------
+                        sut.Persist(memStream);
+                        var lines = memStream.AsString().Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                        Expect(lines).To.Contain.Exactly(1)
+                            .Equal.To("; this is the general section");
+                    }
 
-            [Test]
-            public void Persist_GivenStream_ShouldWriteOutToStream()
-            {
-                //---------------Set up test pack-------------------
-                var sut = Create();
-                sut.AddSection("general");
-                sut["general"]["foo"] = "bar";
 
-                //---------------Assert Precondition----------------
+                    [Test]
+                    public void ShouldRetainMultiLineCommentsAboveSection()
+                    {
+                        //---------------Set up test pack-------------------
+                        var input =
+                            @"
+; this is the general section
+; this is the general section again!
+[general]
+foo=bar
+";
+                        var sut = Create();
+                        sut.Parse(input);
+                        //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                using var memStream = new MemoryStream(new byte[1024], true);
-                sut.Persist(memStream);
-                //---------------Test Result -----------------------
-                var resultBytes = memStream.ReadAllBytes();
-                var result = Encoding.UTF8.GetString(resultBytes);
-                var firstNull = result.IndexOf('\0');
-                result = result.Substring(0, firstNull);
-                var newIni = Create();
-                newIni.Parse(result);
-                Expect(newIni["general"])
-                    .To.Contain.Key("foo")
-                    .With.Value("bar");
+                        //---------------Execute Test ----------------------
+                        using var memStream = new MemoryStream(new byte[1024], true);
+                        //---------------Test Result -----------------------
+                        sut.Persist(memStream);
+                        var lines = memStream.AsString().Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                        Assert.IsTrue(lines.Any(l => l == "; this is the general section"));
+                        Assert.IsTrue(lines.Any(l => l == "; this is the general section again!"));
+                    }
+                }
+
+                [Test]
+                public void ShouldWriteOutToStream()
+                {
+                    //---------------Set up test pack-------------------
+                    var sut = Create();
+                    sut.AddSection("general");
+                    sut["general"]["foo"] = "bar";
+
+                    //---------------Assert Precondition----------------
+
+                    //---------------Execute Test ----------------------
+                    using var memStream = new MemoryStream(new byte[1024], true);
+                    sut.Persist(memStream);
+                    //---------------Test Result -----------------------
+                    var resultBytes = memStream.ReadAllBytes();
+                    var result = Encoding.UTF8.GetString(resultBytes);
+                    var firstNull = result.IndexOf('\0');
+                    result = result.Substring(0, firstNull);
+                    var newIni = Create();
+                    newIni.Parse(result);
+                    Expect(newIni["general"])
+                        .To.Contain.Key("foo")
+                        .With.Value("bar");
+                }
             }
         }
 
@@ -1083,107 +1200,6 @@ key2=""value2""
         }
 
         [TestFixture]
-        public class ShouldRetainCommentsWhenPersisting
-        {
-            [Test]
-            public void ShouldRetainCommentsAboveSetting()
-            {
-                //---------------Set up test pack-------------------
-                var input =
-                    @"
-[general]
-; this is the general section
-foo=bar
-";
-                var sut = Create();
-                sut.Parse(input);
-                //---------------Assert Precondition----------------
-
-                //---------------Execute Test ----------------------
-                using var memStream = new MemoryStream(new byte[1024], true);
-                //---------------Test Result -----------------------
-                sut.Persist(memStream);
-                var lines = memStream.AsString().Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
-                Expect(lines).To.Contain.Exactly(1)
-                    .Equal.To("; this is the general section");
-            }
-
-            [Test]
-            public void ShouldRetainMultilineCommentsAboveSetting()
-            {
-                //---------------Set up test pack-------------------
-                var input =
-                    @"
-[general]
-; this is the general section
-; this is the general section again!
-foo=bar
-";
-                var sut = Create();
-                sut.Parse(input);
-                //---------------Assert Precondition----------------
-
-                //---------------Execute Test ----------------------
-                using var memStream = new MemoryStream(new byte[1024], true);
-                //---------------Test Result -----------------------
-                sut.Persist(memStream);
-                var lines = memStream.AsString().Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
-                Expect(lines).To.Contain.Exactly(1)
-                    .Equal.To("; this is the general section");
-                Expect(lines).To.Contain.Exactly(1)
-                    .Equal.To("; this is the general section again!");
-            }
-
-            [Test]
-            public void ShouldRetainCommentsAboveSection()
-            {
-                //---------------Set up test pack-------------------
-                var input =
-                    @"
-; this is the general section
-[general]
-foo=bar
-";
-                var sut = Create();
-                sut.Parse(input);
-                //---------------Assert Precondition----------------
-
-                //---------------Execute Test ----------------------
-                using var memStream = new MemoryStream(new byte[1024], true);
-                //---------------Test Result -----------------------
-                sut.Persist(memStream);
-                var lines = memStream.AsString().Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
-                Expect(lines).To.Contain.Exactly(1)
-                    .Equal.To("; this is the general section");
-            }
-
-
-            [Test]
-            public void ShouldRetainMultiLineCommentsAboveSection()
-            {
-                //---------------Set up test pack-------------------
-                var input =
-                    @"
-; this is the general section
-; this is the general section again!
-[general]
-foo=bar
-";
-                var sut = Create();
-                sut.Parse(input);
-                //---------------Assert Precondition----------------
-
-                //---------------Execute Test ----------------------
-                using var memStream = new MemoryStream(new byte[1024], true);
-                //---------------Test Result -----------------------
-                sut.Persist(memStream);
-                var lines = memStream.AsString().Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
-                Assert.IsTrue(lines.Any(l => l == "; this is the general section"));
-                Assert.IsTrue(lines.Any(l => l == "; this is the general section again!"));
-            }
-        }
-
-        [TestFixture]
         public class RemovingSections
         {
             [Test]
@@ -1430,135 +1446,170 @@ key=value2";
         }
 
         [TestFixture]
-        public class UTF8CharacterHanding
+        public class Encodings
         {
-            [Test]
-            public void ShouldPreserveUTF8Characters()
+            [TestFixture]
+            public class UTF8
             {
-                // Arrange
-                using var tempFile = new AutoTempFile();
-                var ini1 = new INIFile()
+                [Test]
+                public void ShouldPreserveUTF8Characters()
                 {
-                    SectionSeparator = null
-                };
-                var section = "Section≄";
-                var setting = "Setting⑹";
-                var value = "Valueäčɛ";
-                ini1.SetValue(section, setting, value);
-                ini1.Persist(tempFile.Path);
-                // Act
-
-                var ini2 = new INIFile(tempFile.Path)
-                {
-                    SectionSeparator = null
-                };
-
-                // Assert
-                Expect(ini2.HasSection(section))
-                    .To.Be.True();
-                Expect(ini2.HasSetting(section, setting))
-                    .To.Be.True();
-                Expect(ini2[section][setting])
-                    .To.Equal(value);
-            }
-
-            [Test]
-            public void ShouldReadAndWriteExampleINIFile()
-            {
-                // Arrange
-                var iniFilePath = PathTo("ExampleSettings.ini");
-                var bytesBefore = File.ReadAllBytes(iniFilePath);
-                Expect(iniFilePath).To.Exist();
-                // Act
-                var ini1 = new INIFile(iniFilePath);
-                var current = ini1["DrawingViewer"]["EnableLogging"];
-                var enabled = Convert.ToBoolean(current);
-                ini1["DrawingViewer"]["EnableLogging"] = (!enabled).ToString();
-                ini1.SectionSeparator = null;
-                ini1.Persist();
-
-                var ini2 = new INIFile(iniFilePath);
-                var result = Convert.ToBoolean(
-                    ini2["DrawingViewer"]["EnableLogging"]
-                );
-                // Assert
-                Expect(result).Not.To.Equal(enabled);
-                // if you breakpoint above here (before re-writing the file
-                //  with the setting "False", and open the file with Notepad,
-                //  it will render fine!
-                // reset file
-
-                ini2["DrawingViewer"]["EnableLogging"] = "False";
-                ini2.SectionSeparator = null;
-                ini2.Persist();
-                // suddenly, Notepad (and no other editor) renders the file in Chinese
-                var bytesAfter = File.ReadAllBytes(iniFilePath);
-                var strBefore = Encoding.UTF8.GetString(bytesBefore);
-                var strAfter = Encoding.UTF8.GetString(bytesAfter);
-                Expect(bytesBefore)
-                    .To.Equal(bytesAfter,
-                        () => FindDifference(bytesBefore, bytesAfter)
-                    );
-            }
-
-            [Test]
-            public void ShouldReadINIWithBOMCorrectly()
-            {
-                // Arrange
-                var iniFilePath = PathTo("bom-ini.ini");
-
-                // Act
-                var ini = new INIFile(iniFilePath);
-
-                // Assert
-                Expect(ini.HasSection("Zielordner"))
-                    .To.Be.True();
-                Expect(ini["Zielordner"]["Ordner"])
-                    .To.Equal("C:\\capitan-Data\\CNC\\20210202\\");
-            }
-
-            private static string PathTo(string fileName)
-            {
-                var assemblyPath = new Uri(
-                    typeof(TestINIFile).Assembly.Location
-                ).LocalPath;
-                return Path.Combine(
-                    Path.GetDirectoryName(assemblyPath),
-                    fileName
-                );
-            }
-
-            private string FindDifference(byte[] bytesBefore, byte[] bytesAfter)
-            {
-                var offset = 0;
-                var max = Math.Max(bytesBefore.Length, bytesAfter.Length);
-                while (offset < max)
-                {
-                    if (bytesBefore[offset] != bytesAfter[offset])
+                    // Arrange
+                    using var tempFile = new AutoTempFile();
+                    var ini1 = new INIFile()
                     {
-                        break;
+                        SectionSeparator = null
+                    };
+                    var section = "Section≄";
+                    var setting = "Setting⑹";
+                    var value = "Valueäčɛ";
+                    ini1.SetValue(section, setting, value);
+                    ini1.Persist(tempFile.Path);
+                    // Act
+
+                    var ini2 = new INIFile(tempFile.Path)
+                    {
+                        SectionSeparator = null
+                    };
+
+                    // Assert
+                    Expect(ini2.HasSection(section))
+                        .To.Be.True();
+                    Expect(ini2.HasSetting(section, setting))
+                        .To.Be.True();
+                    Expect(ini2[section][setting])
+                        .To.Equal(value);
+                }
+                
+                [Test]
+                public void ShouldPreserveUTF8CharactersWithOverrideEncoding()
+                {
+                    // Arrange
+                    using var tempFile = new AutoTempFile();
+                    var ini1 = new INIFile()
+                    {
+                        SectionSeparator = null,
+                        DefaultEncoding = Encoding.ASCII
+                    };
+                    var section = "Section≄";
+                    var setting = "Setting⑹";
+                    var value = "Valueäčɛ";
+                    ini1.SetValue(section, setting, value);
+                    ini1.Persist(tempFile.Path, Encoding.UTF8);
+                    // Act
+
+                    var ini2 = new INIFile(tempFile.Path)
+                    {
+                        SectionSeparator = null
+                    };
+
+                    // Assert
+                    Expect(ini2.HasSection(section))
+                        .To.Be.True();
+                    Expect(ini2.HasSetting(section, setting))
+                        .To.Be.True();
+                    Expect(ini2[section][setting])
+                        .To.Equal(value);
+                }
+
+                [Test]
+                public void ShouldReadAndWriteExampleINIFile()
+                {
+                    // Arrange
+                    var iniFilePath = PathTo("ExampleSettings.ini");
+                    var bytesBefore = File.ReadAllBytes(iniFilePath);
+                    Expect(iniFilePath).To.Exist();
+                    // Act
+                    var ini1 = new INIFile(iniFilePath);
+                    var current = ini1["DrawingViewer"]["EnableLogging"];
+                    var enabled = Convert.ToBoolean(current);
+                    ini1["DrawingViewer"]["EnableLogging"] = (!enabled).ToString();
+                    ini1.SectionSeparator = null;
+                    ini1.Persist();
+
+                    var ini2 = new INIFile(iniFilePath);
+                    var result = Convert.ToBoolean(
+                        ini2["DrawingViewer"]["EnableLogging"]
+                    );
+                    // Assert
+                    Expect(result).Not.To.Equal(enabled);
+                    // if you breakpoint above here (before re-writing the file
+                    //  with the setting "False", and open the file with Notepad,
+                    //  it will render fine!
+                    // reset file
+
+                    ini2["DrawingViewer"]["EnableLogging"] = "False";
+                    ini2.SectionSeparator = null;
+                    ini2.Persist();
+                    // suddenly, Notepad (and no other editor) renders the file in Chinese
+                    var bytesAfter = File.ReadAllBytes(iniFilePath);
+                    var strBefore = Encoding.UTF8.GetString(bytesBefore);
+                    var strAfter = Encoding.UTF8.GetString(bytesAfter);
+                    Expect(bytesBefore)
+                        .To.Equal(bytesAfter,
+                            () => FindDifference(bytesBefore, bytesAfter)
+                        );
+                }
+
+                [Test]
+                public void ShouldReadINIWithBOMCorrectly()
+                {
+                    // Arrange
+                    var iniFilePath = PathTo("bom-ini.ini");
+
+                    // Act
+                    var ini = new INIFile(iniFilePath);
+
+                    // Assert
+                    Expect(ini.HasSection("Zielordner"))
+                        .To.Be.True();
+                    Expect(ini["Zielordner"]["Ordner"])
+                        .To.Equal("C:\\capitan-Data\\CNC\\20210202\\");
+                }
+
+                private static string PathTo(string fileName)
+                {
+                    var assemblyPath = new Uri(
+                        typeof(TestINIFile).Assembly.Location
+                    ).LocalPath;
+                    return Path.Combine(
+                        Path.GetDirectoryName(assemblyPath),
+                        fileName
+                    );
+                }
+
+                private string FindDifference(byte[] bytesBefore, byte[] bytesAfter)
+                {
+                    var offset = 0;
+                    var max = Math.Max(bytesBefore.Length, bytesAfter.Length);
+                    while (offset < max)
+                    {
+                        if (bytesBefore[offset] != bytesAfter[offset])
+                        {
+                            break;
+                        }
+
+                        offset++;
                     }
 
-                    offset++;
+                    if (offset == max)
+                    {
+                        return "Not sure where the difference comes in";
+                    }
+
+                    var before = Encoding.UTF8.GetString(bytesBefore);
+                    var after = Encoding.UTF8.GetString(bytesAfter);
+
+                    return new[]
+                    {
+                        $"Difference is at {offset} bytes",
+                        $"before bytes: {before.Skip(offset - 4).Take(8).JoinWith("")}",
+                        $"after bytes: {after.Skip(offset - 4).Take(8).JoinWith("")}",
+                        before,
+                        "\n\n",
+                        after
+                    }.JoinWith("\n");
                 }
-
-                if (offset == max)
-                {
-                    return "Not sure where the difference comes in";
-                }
-
-                var before = Encoding.UTF8.GetString(bytesBefore);
-                var after = Encoding.UTF8.GetString(bytesAfter);
-
-                return new[]
-                {
-                    $"Difference is at {offset} bytes",
-                    $"before bytes: {before.Skip(offset - 4).Take(8).JoinWith("")}",
-                    $"after bytes: {after.Skip(offset - 4).Take(8).JoinWith("")}",
-                    before,
-                    "\n\n",
-                    after
-                }.JoinWith("\n");
             }
         }
 

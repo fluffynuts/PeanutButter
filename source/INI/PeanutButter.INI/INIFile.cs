@@ -15,6 +15,13 @@ namespace PeanutButter.INI
     public interface IINIFile
     {
         /// <summary>
+        /// The default encoding to use when persisting
+        /// files. You may specify an encoding at persistence
+        /// time too.
+        /// </summary>
+        Encoding DefaultEncoding { get; set; }
+
+        /// <summary>
         /// Separate sections with any string you like
         /// - defaults to empty, which inserts a new line
         /// - set to null for no separator at all
@@ -158,34 +165,78 @@ namespace PeanutButter.INI
         void Parse(string contents);
 
         /// <summary>
-        /// Persists to the last-loaded file, excluding merged configuration
+        /// Persists to the last-loaded file, excluding merged configuration,
+        /// with the default encoding
         /// </summary>
         void Persist();
 
         /// <summary>
-        /// Persists to the last-loaded file with the specified strategy
+        /// Persists to the last-loaded file with the provided encoding
+        /// </summary>
+        /// <param name="encoding"></param>
+        void Persist(Encoding encoding);
+
+        /// <summary>
+        /// Persists to the last-loaded file with the specified merge strategy
+        /// and default encoding
         /// </summary>
         /// <param name="persistStrategy">Strategy to employ for merged config</param>
         void Persist(PersistStrategies persistStrategy);
 
         /// <summary>
-        /// Persists to the specified path, excluding merged configuration
+        /// Persists to the last-loaded file with the specified merge strategy and
+        /// encoding
+        /// </summary>
+        /// <param name="persistStrategy">Strategy to employ for merged config</param>
+        /// <param name="encoding">The encoding to use for the written file</param>
+        void Persist(PersistStrategies persistStrategy, Encoding encoding);
+
+        /// <summary>
+        /// Persists to the specified path, excluding merged configuration,
+        /// with the default encoding
         /// </summary>
         /// <param name="saveToPath"></param>
         void Persist(string saveToPath);
 
         /// <summary>
-        /// Persists to the specified path with the specified strategy
+        /// Persists to the specified path, excluding merged configuration,
+        /// with the specified encoding
+        /// </summary>
+        /// <param name="saveToPath"></param>
+        /// <param name="encoding">Encoding to use</param>
+        void Persist(string saveToPath, Encoding encoding);
+
+        /// <summary>
+        /// Persists to the specified path with the specified strategy and default
+        /// encoding
         /// </summary>
         /// <param name="saveToPath">File to save to</param>
         /// <param name="persistStrategy">Strategy to employ for merged config</param>
         void Persist(string saveToPath, PersistStrategies persistStrategy);
 
         /// <summary>
-        /// Persists to the specified stream, excluding merged configuration
+        /// Persists to the specified path with the specified strategy and the specified
+        /// encoding
+        /// </summary>
+        /// <param name="saveToPath">File to save to</param>
+        /// <param name="persistStrategy">Strategy to employ for merged config</param>
+        /// <param name="encoding">Encoding to use when writing the file</param>
+        void Persist(string saveToPath, PersistStrategies persistStrategy, Encoding encoding);
+
+        /// <summary>
+        /// Persists to the specified stream, excluding merged configuration,
+        /// with the default encoding
         /// <param name="toStream">Stream to persist to</param>
         /// </summary>
         void Persist(Stream toStream);
+
+        /// <summary>
+        /// Persists to the specified stream, excluding merged configuration,
+        /// with the provided encoding
+        /// <param name="toStream">Stream to persist to</param>
+        /// <param name="encoding">Encoding to use</param>
+        /// </summary>
+        void Persist(Stream toStream, Encoding encoding);
 
         /// <summary>
         /// Persists to the specified stream, excluding merged configuration
@@ -193,6 +244,15 @@ namespace PeanutButter.INI
         /// <param name="persistStrategy">Strategy to employ for merged config</param>
         /// </summary>
         void Persist(Stream toStream, PersistStrategies persistStrategy);
+
+        /// <summary>
+        /// Persists to the specified stream, using the provided persistence strategy
+        /// and the provided encoding
+        /// <param name="toStream">Stream to persist to</param>
+        /// <param name="persistStrategy">Strategy to employ for merged config</param>
+        /// <param name="encoding">Encoding to use</param>
+        /// </summary>
+        void Persist(Stream toStream, PersistStrategies persistStrategy, Encoding encoding);
 
         /// <summary>
         /// Reload config (and all merged config) from disk
@@ -326,7 +386,7 @@ namespace PeanutButter.INI
         public string Path => _path;
 
         private string _path;
-        private readonly char[] _sectionTrimChars = { '[', ']' };
+        private readonly char[] _sectionTrimChars = {'[', ']'};
         private readonly List<MergedIniFile> _merged = new List<MergedIniFile>();
 
         // ReSharper disable once MemberCanBePrivate.Global
@@ -341,6 +401,15 @@ namespace PeanutButter.INI
             CreateCaseInsensitiveDictionary();
 
         private const string SECTION_COMMENT_KEY = "="; // bit of a hack: this can never be a key name in a section
+
+        /// <inheritdoc />
+        public Encoding DefaultEncoding
+        {
+            get => _encoding ?? Encoding.UTF8;
+            set => _encoding = value;
+        }
+
+        private Encoding _encoding;
 
 
         /// <summary>
@@ -648,7 +717,7 @@ namespace PeanutButter.INI
         private static IEnumerable<string> SplitIntoLines(string fileContents)
         {
             return fileContents
-                .Split(new[] { "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries)
+                .Split(new[] {"\n", "\r"}, StringSplitOptions.RemoveEmptyEntries)
                 .Select(line => line.Trim());
         }
 
@@ -744,15 +813,6 @@ namespace PeanutButter.INI
         }
 
         /// <inheritdoc />
-        public void Persist()
-        {
-            Persist(
-                null as string,
-                PersistStrategies.ExcludeMergedConfigurations
-            );
-        }
-
-        /// <inheritdoc />
         public void Reload()
         {
             if (_path is null)
@@ -765,20 +825,50 @@ namespace PeanutButter.INI
         }
 
         /// <inheritdoc />
-        public void Persist(PersistStrategies persistStrategy)
+        public void Persist()
+        {
+            Persist(DefaultEncoding);
+        }
+
+        /// <inheritdoc />
+        public void Persist(Encoding encoding)
         {
             Persist(
                 null as string,
-                persistStrategy
+                PersistStrategies.ExcludeMergedConfigurations,
+                encoding
+            );
+        }
+
+        /// <inheritdoc />
+        public void Persist(PersistStrategies persistStrategy)
+        {
+            Persist(persistStrategy, DefaultEncoding);
+        }
+
+        /// <inheritdoc />
+        public void Persist(PersistStrategies persistStrategy, Encoding encoding)
+        {
+            Persist(
+                null as string,
+                persistStrategy,
+                encoding
             );
         }
 
         /// <inheritdoc />
         public void Persist(string saveToPath)
         {
+            Persist(saveToPath, DefaultEncoding);
+        }
+
+        /// <inheritdoc />
+        public void Persist(string saveToPath, Encoding encoding)
+        {
             Persist(
                 saveToPath,
-                PersistStrategies.ExcludeMergedConfigurations
+                PersistStrategies.ExcludeMergedConfigurations,
+                encoding
             );
         }
 
@@ -788,11 +878,21 @@ namespace PeanutButter.INI
             PersistStrategies persistStrategy
         )
         {
+            Persist(saveToPath, persistStrategy, DefaultEncoding);
+        }
+
+        /// <inheritdoc />
+        public void Persist(
+            string saveToPath,
+            PersistStrategies persistStrategy,
+            Encoding encoding
+        )
+        {
             saveToPath = CheckPersistencePath(saveToPath);
             var lines = GetLinesForCurrentData(persistStrategy);
             File.WriteAllBytes(
                 saveToPath,
-                Encoding.UTF8.GetBytes(
+                encoding.GetBytes(
                     string.Join(Environment.NewLine, lines)
                 )
             );
@@ -801,18 +901,38 @@ namespace PeanutButter.INI
         /// <inheritdoc />
         public void Persist(Stream toStream)
         {
+            Persist(toStream, DefaultEncoding);
+        }
+
+        /// <inheritdoc />
+        public void Persist(Stream toStream, Encoding encoding)
+        {
             Persist(
                 toStream,
-                PersistStrategies.ExcludeMergedConfigurations
+                PersistStrategies.ExcludeMergedConfigurations,
+                encoding
             );
         }
 
         /// <inheritdoc />
-        public void Persist(Stream toStream, PersistStrategies persistStrategy)
+        public void Persist(
+            Stream toStream,
+            PersistStrategies persistStrategy
+        )
+        {
+            Persist(toStream, persistStrategy, Encoding.UTF8);
+        }
+
+        /// <inheritdoc />
+        public void Persist(
+            Stream toStream,
+            PersistStrategies persistStrategy,
+            Encoding encoding
+        )
         {
             var lines = GetLinesForCurrentData(persistStrategy);
             var shouldAddNewline = false;
-            var newLine = Encoding.UTF8.GetBytes(Environment.NewLine);
+            var newLine = encoding.GetBytes(Environment.NewLine);
             lines.ForEach(
                 line =>
                 {
