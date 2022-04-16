@@ -19,7 +19,7 @@ namespace PeanutButter.INI
         /// <summary>
         /// The marker used by this parser for the start of a comment
         /// </summary>
-        protected string CommentDelimiter = DEFAULT_COMMENT_DELIMITER;
+        protected virtual string CommentDelimiter => DEFAULT_COMMENT_DELIMITER;
 
         /// <summary>
         /// Attempts to parse a string to a structure which

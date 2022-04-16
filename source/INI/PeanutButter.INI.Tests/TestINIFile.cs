@@ -432,7 +432,8 @@ otherSetting=otherValue";
             {
                 // Arrange
                 using var tmp = new AutoDeletingTempFile();
-                var expected = "DRIVER={SQL Server};SERVER=192.168.1.2\\SQLEXPRESS02;DATABASE=MyDb;UID=sa;PWD=sneaky;TRUSTED_CONNECTION=NO;CONNECTION TIMEOUT=60;";
+                var expected =
+                    "DRIVER={SQL Server};SERVER=192.168.1.2\\SQLEXPRESS02;DATABASE=MyDb;UID=sa;PWD=sneaky;TRUSTED_CONNECTION=NO;CONNECTION TIMEOUT=60;";
                 var src = new[]
                 {
                     "[PATHS]",
@@ -802,7 +803,8 @@ foo=bar
                         using var memStream = new MemoryStream(new byte[1024], true);
                         //---------------Test Result -----------------------
                         sut.Persist(memStream);
-                        var lines = memStream.AsString().Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                        var lines = memStream.AsString()
+                            .Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
                         Expect(lines).To.Contain.Exactly(1)
                             .Equal.To("; this is the general section");
                     }
@@ -826,7 +828,8 @@ foo=bar
                         using var memStream = new MemoryStream(new byte[1024], true);
                         //---------------Test Result -----------------------
                         sut.Persist(memStream);
-                        var lines = memStream.AsString().Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                        var lines = memStream.AsString()
+                            .Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
                         Expect(lines).To.Contain.Exactly(1)
                             .Equal.To("; this is the general section");
                         Expect(lines).To.Contain.Exactly(1)
@@ -851,7 +854,8 @@ foo=bar
                         using var memStream = new MemoryStream(new byte[1024], true);
                         //---------------Test Result -----------------------
                         sut.Persist(memStream);
-                        var lines = memStream.AsString().Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                        var lines = memStream.AsString()
+                            .Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
                         Expect(lines).To.Contain.Exactly(1)
                             .Equal.To("; this is the general section");
                     }
@@ -876,7 +880,8 @@ foo=bar
                         using var memStream = new MemoryStream(new byte[1024], true);
                         //---------------Test Result -----------------------
                         sut.Persist(memStream);
-                        var lines = memStream.AsString().Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                        var lines = memStream.AsString()
+                            .Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
                         Assert.IsTrue(lines.Any(l => l == "; this is the general section"));
                         Assert.IsTrue(lines.Any(l => l == "; this is the general section again!"));
                     }
@@ -1170,33 +1175,37 @@ key2=""value2""
             }
         }
 
-        [Test]
-        public void Sections_ShouldReturnSectionNames()
+        [TestFixture]
+        public class Sections
         {
-            //---------------Set up test pack-------------------
-            var src = new[]
+            [Test]
+            public void ShouldReturnSectionNames()
             {
-                "[general] ; general settings go here",
-                "key=value ; this part of the line should be ignored",
-                "something=",
-                "[section1]",
-                "[section2]"
-            };
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var ini = Create();
-            ini.Parse(string.Join(Environment.NewLine, src));
-
-            //---------------Test Result -----------------------
-            Expect(ini.Sections).To.Equal(
-                new[]
+                //---------------Set up test pack-------------------
+                var src = new[]
                 {
-                    "general",
-                    "section1",
-                    "section2"
-                });
+                    "[general] ; general settings go here",
+                    "key=value ; this part of the line should be ignored",
+                    "something=",
+                    "[section1]",
+                    "[section2]"
+                };
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var ini = Create();
+                ini.Parse(string.Join(Environment.NewLine, src));
+
+                //---------------Test Result -----------------------
+                Expect(ini.Sections).To.Equal(
+                    new[]
+                    {
+                        "general",
+                        "section1",
+                        "section2"
+                    });
+            }
         }
 
         [TestFixture]
@@ -1480,7 +1489,7 @@ key=value2";
                     Expect(ini2[section][setting])
                         .To.Equal(value);
                 }
-                
+
                 [Test]
                 public void ShouldPreserveUTF8CharactersWithOverrideEncoding()
                 {
@@ -1677,70 +1686,100 @@ value=""some value containing \""quotes\""""
             }
         }
 
-        [Test]
-        public void ShouldRetainCustomParser()
+        [TestFixture]
+        public class CustomLineParsers
         {
-            // Arrange
-            var parser = Substitute.For<ILineParser>();
-            parser.Parse(Arg.Any<string>())
-                .Returns(new ParsedLine("key", "value", "comment", false));
-            using var tmpFile = new AutoTempFile(@"
+            [Test]
+            public void ShouldRetainCustomParser()
+            {
+                // Arrange
+                var parser = Substitute.For<ILineParser>();
+                parser.Parse(Arg.Any<string>())
+                    .Returns(new ParsedLine("key", "value", "comment", false));
+                using var tmpFile = new AutoTempFile(@"
 [section]
 key=value
 ".Trim());
-            var sut = new INIFile(parser);
-            Expect(sut.ParseStrategy)
-                .To.Equal(ParseStrategies.Custom);
-            Expect(sut.CustomLineParser)
-                .To.Be(parser);
+                var sut = new INIFile(parser);
+                Expect(sut.ParseStrategy)
+                    .To.Equal(ParseStrategies.Custom);
+                Expect(sut.CustomLineParser)
+                    .To.Be(parser);
 
-            // Act
-            sut.Load(tmpFile.Path);
-            Expect(parser)
-                .To.Have.Received(2)
-                .Parse(Arg.Any<string>());
-            sut.ParseStrategy = ParseStrategies.BestEffort;
-            sut.ParseStrategy = ParseStrategies.Custom;
-            parser.ClearReceivedCalls();
-            sut.Load(tmpFile.Path);
-            // Assert
-            Expect(parser)
-                .To.Have.Received(2)
-                .Parse(Arg.Any<string>());
-        }
+                // Act
+                sut.Load(tmpFile.Path);
+                Expect(parser)
+                    .To.Have.Received(2)
+                    .Parse(Arg.Any<string>());
+                sut.ParseStrategy = ParseStrategies.BestEffort;
+                sut.ParseStrategy = ParseStrategies.Custom;
+                parser.ClearReceivedCalls();
+                sut.Load(tmpFile.Path);
+                // Assert
+                Expect(parser)
+                    .To.Have.Received(2)
+                    .Parse(Arg.Any<string>());
+            }
 
-        [Test]
-        public void ShouldUseInjectedCustomLineParserToParseString()
-        {
-            // Arrange
-            var parser = Substitute.For<ILineParser>();
-            parser.Parse(Arg.Any<string>())
-                .Returns(new ParsedLine("key", "value", "comment", false));
-            var contents = @"
+            [Test]
+            public void ShouldUseInjectedCustomLineParserToParseString()
+            {
+                // Arrange
+                var parser = Substitute.For<ILineParser>();
+                parser.Parse(Arg.Any<string>())
+                    .Returns(new ParsedLine("key", "value", "comment", false));
+                var contents = @"
 [section]
 key=value
 ".Trim();
-            var sut = new INIFile(parser);
-            Expect(sut.ParseStrategy)
-                .To.Equal(ParseStrategies.Custom);
-            Expect(sut.CustomLineParser)
-                .To.Be(parser);
+                var sut = new INIFile(parser);
+                Expect(sut.ParseStrategy)
+                    .To.Equal(ParseStrategies.Custom);
+                Expect(sut.CustomLineParser)
+                    .To.Be(parser);
 
-            // Act
-            sut.Parse(contents);
-            Expect(parser)
-                .To.Have.Received(2)
-                .Parse(Arg.Any<string>());
-            sut.ParseStrategy = ParseStrategies.BestEffort;
-            sut.ParseStrategy = ParseStrategies.Custom;
-            parser.ClearReceivedCalls();
-            sut.Parse(contents);
-            // Assert
-            Expect(sut.ParseStrategy)
-                .To.Equal(ParseStrategies.Custom);
-            Expect(parser)
-                .To.Have.Received(2)
-                .Parse(Arg.Any<string>());
+                // Act
+                sut.Parse(contents);
+                Expect(parser)
+                    .To.Have.Received(2)
+                    .Parse(Arg.Any<string>());
+                sut.ParseStrategy = ParseStrategies.BestEffort;
+                sut.ParseStrategy = ParseStrategies.Custom;
+                parser.ClearReceivedCalls();
+                sut.Parse(contents);
+                // Assert
+                Expect(sut.ParseStrategy)
+                    .To.Equal(ParseStrategies.Custom);
+                Expect(parser)
+                    .To.Have.Received(2)
+                    .Parse(Arg.Any<string>());
+            }
+
+            [Test]
+            public void ShouldRespectCommentDelimiterOnLineParser()
+            {
+                // Arrange
+                var iniData = @"
+[SomeSection]
+'Commented=true
+Uncommented=false
+";
+                var parser = new AltLineParser();
+                var sut = Create(parser);
+                // Act
+                sut.Parse(iniData);
+                // Assert
+                Expect(sut["SomeSection"])
+                    .To.Contain.Key("Uncommented")
+                    .With.Value("false");
+                Expect(sut["SomeSection"])
+                    .Not.To.Contain.Key("Commented");
+            }
+
+            public class AltLineParser : BestEffortLineParser
+            {
+                protected override string CommentDelimiter => "'";
+            }
         }
 
         [TestFixture]
@@ -1880,6 +1919,11 @@ key=value
             return Create(iniFile.Path);
         }
 
+        private static IINIFile Create(ILineParser lineParser)
+        {
+            return new INIFile_EXPOSES_Sections(lineParser);
+        }
+
         private static IINIFile Create(string path = null)
         {
             return new INIFile_EXPOSES_Sections(path);
@@ -1888,6 +1932,10 @@ key=value
         private class INIFile_EXPOSES_Sections : INIFile
         {
             public INIFile_EXPOSES_Sections(string path) : base(path)
+            {
+            }
+
+            public INIFile_EXPOSES_Sections(ILineParser lineParser) : base(lineParser)
             {
             }
 
