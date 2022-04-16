@@ -13,6 +13,6 @@
 
 ## Specifications
 
-  - Version:
   - Platform:
-  - Component: 
+  - PeanutButter Component: 
+  - PeanutButter Version:
