@@ -9,6 +9,13 @@
     public interface ILineParser
     {
         /// <summary>
+        /// The delimiter to use for comments (should
+        /// be semi-colon in properly-formatted ini files,
+        /// but INIFile allows for custom comment delimiters)
+        /// </summary>
+        public string CommentDelimiter { get; }
+
+        /// <summary>
         /// Should parse a text line out into the parts of a parsed line
         /// </summary>
         /// <param name="line"></param>

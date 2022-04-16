@@ -48,7 +48,7 @@ namespace PeanutButter.INI.Tests
                 var section = RandString();
                 var key = RandString();
                 var value = RandString();
-                var iniDataLines = new[] { "[" + section + "]", key + "=" + value };
+                var iniDataLines = new[] {"[" + section + "]", key + "=" + value};
                 tempFile.Write(iniDataLines);
 
                 //---------------Assert Precondition----------------
@@ -142,7 +142,7 @@ namespace PeanutButter.INI.Tests
                         var value1 = $"original-value-{GetRandomString(4)}";
                         var setting2 = $"merged-setting-{GetRandomString(4)}";
                         var value2 = $"merged-value-{GetRandomString(4)}";
-                        var sharedSection = $"shared-section-{GetAnother<string>(new[] { section1, section2 })}";
+                        var sharedSection = $"shared-section-{GetAnother<string>(new[] {section1, section2})}";
                         var sharedSetting = $"shared-setting-{GetRandomString(4)}";
                         var originalSharedValue = $"original-shared-value-{GetRandomString(4)}";
                         var mergedSharedValue = $"merged-shared-value-{GetRandomString(4)}";
@@ -180,7 +180,7 @@ namespace PeanutButter.INI.Tests
                         var value1 = $"original-value-{GetRandomString(4)}";
                         var setting2 = $"merged-setting-{GetRandomString(4)}";
                         var value2 = $"merged-value-{GetRandomString(4)}";
-                        var sharedSection = $"shared-section-{GetAnother<string>(new[] { section1, section2 })}";
+                        var sharedSection = $"shared-section-{GetAnother<string>(new[] {section1, section2})}";
                         var sharedSetting = $"shared-setting-{GetRandomString(4)}";
                         var originalSharedValue = $"original-shared-value-{GetRandomString(4)}";
                         var mergedSharedValue = $"merged-shared-value-{GetRandomString(4)}";
@@ -222,7 +222,7 @@ namespace PeanutButter.INI.Tests
                         var value1 = $"original-value-{GetRandomString(4)}";
                         var setting2 = $"merged-setting-{GetRandomString(4)}";
                         var value2 = $"merged-value-{GetRandomString(4)}";
-                        var sharedSection = $"shared-section-{GetAnother<string>(new[] { section1, section2 })}";
+                        var sharedSection = $"shared-section-{GetAnother<string>(new[] {section1, section2})}";
                         var sharedSetting = $"shared-setting-{GetRandomString(4)}";
                         var originalSharedValue = $"original-shared-value-{GetRandomString(4)}";
                         var mergedSharedValue = $"merged-shared-value-{GetRandomString(4)}";
@@ -260,7 +260,7 @@ namespace PeanutButter.INI.Tests
                         var value1 = $"original-value-{GetRandomString(4)}";
                         var setting2 = $"merged-setting-{GetRandomString(4)}";
                         var value2 = $"merged-value-{GetRandomString(4)}";
-                        var sharedSection = $"shared-section-{GetAnother<string>(new[] { section1, section2 })}";
+                        var sharedSection = $"shared-section-{GetAnother<string>(new[] {section1, section2})}";
                         var sharedSetting = $"shared-setting-{GetRandomString(4)}";
                         var originalSharedValue = $"original-shared-value-{GetRandomString(4)}";
                         var mergedSharedValue = $"merged-shared-value-{GetRandomString(4)}";
@@ -471,7 +471,7 @@ otherSetting=otherValue";
                 var contents = File.ReadAllText(tempFile.Path);
                 Console.WriteLine(contents);
                 var lines = contents.Split(
-                        new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries)
+                        new[] {"\n"}, StringSplitOptions.RemoveEmptyEntries)
                     .Select(l => l.Trim())
                     .ToArray();
                 Expect(lines).To.Contain.Exactly(1)
@@ -492,7 +492,7 @@ otherSetting=otherValue";
                 var section = RandString();
                 var key = RandString();
                 var value = RandString();
-                var iniDataLines = new[] { "[" + section + "]", key + "=\"" + value + "\"" };
+                var iniDataLines = new[] {"[" + section + "]", key + "=\"" + value + "\""};
                 tempFile.Write(iniDataLines);
 
                 //---------------Assert Precondition----------------
@@ -804,7 +804,7 @@ foo=bar
                         //---------------Test Result -----------------------
                         sut.Persist(memStream);
                         var lines = memStream.AsString()
-                            .Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                            .Split(new[] {"\r", "\n"}, StringSplitOptions.RemoveEmptyEntries);
                         Expect(lines).To.Contain.Exactly(1)
                             .Equal.To("; this is the general section");
                     }
@@ -829,7 +829,7 @@ foo=bar
                         //---------------Test Result -----------------------
                         sut.Persist(memStream);
                         var lines = memStream.AsString()
-                            .Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                            .Split(new[] {"\r", "\n"}, StringSplitOptions.RemoveEmptyEntries);
                         Expect(lines).To.Contain.Exactly(1)
                             .Equal.To("; this is the general section");
                         Expect(lines).To.Contain.Exactly(1)
@@ -855,7 +855,7 @@ foo=bar
                         //---------------Test Result -----------------------
                         sut.Persist(memStream);
                         var lines = memStream.AsString()
-                            .Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                            .Split(new[] {"\r", "\n"}, StringSplitOptions.RemoveEmptyEntries);
                         Expect(lines).To.Contain.Exactly(1)
                             .Equal.To("; this is the general section");
                     }
@@ -881,7 +881,7 @@ foo=bar
                         //---------------Test Result -----------------------
                         sut.Persist(memStream);
                         var lines = memStream.AsString()
-                            .Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                            .Split(new[] {"\r", "\n"}, StringSplitOptions.RemoveEmptyEntries);
                         Assert.IsTrue(lines.Any(l => l == "; this is the general section"));
                         Assert.IsTrue(lines.Any(l => l == "; this is the general section again!"));
                     }
@@ -1764,7 +1764,10 @@ key=value
 'Commented=true
 Uncommented=false
 ";
-                var parser = new AltLineParser();
+                var parser = new BestEffortLineParser()
+                {
+                    CommentDelimiter = "'"
+                };
                 var sut = Create(parser);
                 // Act
                 sut.Parse(iniData);
@@ -1776,9 +1779,30 @@ Uncommented=false
                     .Not.To.Contain.Key("Commented");
             }
 
-            public class AltLineParser : BestEffortLineParser
+            [Test]
+            public void ShouldRetainCommentDelimiterOnLineParser()
             {
-                protected override string CommentDelimiter => "'";
+                // Arrange
+                var iniData = @"
+[SomeSection]
+'Commented=""true""
+Uncommented=""false""
+".Replace(Environment.NewLine, "\n").Trim();
+                var parser = new BestEffortLineParser()
+                {
+                    CommentDelimiter = "'"
+                };
+                var sut = Create(parser);
+                sut.Parse(iniData);
+                using var tempFile = new AutoTempFile();
+                sut.Persist(tempFile.Path);
+                // Act
+                var persisted = File.ReadAllText(tempFile.Path);
+                // Assert
+                var trimmed = persisted.Replace(Environment.NewLine, "\n")
+                    .Trim();
+                Expect(trimmed)
+                    .To.Equal(iniData);
             }
         }
 

@@ -95,7 +95,7 @@ namespace PeanutButter.INI
         /// <param name="path"></param>
         /// <param name="parseStrategy"></param>
         void Load(string path, ParseStrategies parseStrategy);
-        
+
         /// <summary>
         /// Attempts to load the file at the given path, discarding any existing config
         /// </summary>
@@ -402,7 +402,7 @@ namespace PeanutButter.INI
 
         private string _path;
         private readonly char[] _sectionTrimChars = {'[', ']'};
-        private readonly List<MergedIniFile> _merged = new List<MergedIniFile>();
+        private readonly List<MergedIniFile> _merged = new();
 
         // ReSharper disable once MemberCanBePrivate.Global
 
@@ -461,6 +461,7 @@ namespace PeanutButter.INI
         /// </summary>
         /// <param name="path"></param>
         /// <param name="customLineParser"></param>
+        // ReSharper disable once MemberCanBePrivate.Global
         public INIFile(
             string path,
             ILineParser customLineParser)
@@ -550,8 +551,7 @@ namespace PeanutButter.INI
             set => Data[index] = value;
         }
 
-        private readonly Dictionary<string, IDictionary<string, string>> _sectionWrappers
-            = new Dictionary<string, IDictionary<string, string>>();
+        private readonly Dictionary<string, IDictionary<string, string>> _sectionWrappers = new();
 
         /// <inheritdoc />
         public IDictionary<string, string> GetSection(string section)
@@ -571,7 +571,7 @@ namespace PeanutButter.INI
         }
 
         private static readonly Dictionary<ParseStrategies, ILineParser>
-            Parsers = new Dictionary<ParseStrategies, ILineParser>()
+            Parsers = new()
             {
                 [ParseStrategies.BestEffort] = new BestEffortLineParser(),
                 [ParseStrategies.Strict] = new StrictLineParser()
@@ -602,13 +602,22 @@ namespace PeanutButter.INI
 
                 if (IsSectionHeading(parsedLine.Key))
                 {
-                    currentSection = StartSection(parsedLine.Key, recentComments);
+                    currentSection = StartSection(
+                        parsedLine.Key,
+                        recentComments,
+                        lineParser.CommentDelimiter
+                    );
                     continue;
                 }
 
                 StoreWasEscaped(currentSection, parsedLine);
                 this[currentSection][parsedLine.Key] = parsedLine.Value;
-                StoreCommentsForItem(currentSection, parsedLine.Key, recentComments);
+                StoreCommentsForItem(
+                    currentSection,
+                    parsedLine.Key,
+                    recentComments,
+                    lineParser.CommentDelimiter
+                );
             }
         }
 
@@ -646,26 +655,40 @@ namespace PeanutButter.INI
 
         private string StartSection(
             string dataPart,
-            IList<string> recentComments
+            IList<string> recentComments,
+            string commentDelimiter
         )
         {
             var currentSection = GetSectionNameFrom(dataPart);
             AddSection(currentSection);
-            StoreCommentsForSection(currentSection, recentComments);
+            StoreCommentsForSection(
+                currentSection,
+                recentComments,
+                commentDelimiter
+            );
             return currentSection;
         }
 
         private void StoreCommentsForSection(
             string section,
-            IEnumerable<string> recentComments)
+            IEnumerable<string> recentComments,
+            string commentDelimiter
+        )
         {
-            StoreCommentsForItem(section, SECTION_COMMENT_KEY, recentComments);
+            StoreCommentsForItem(
+                section,
+                SECTION_COMMENT_KEY,
+                recentComments,
+                commentDelimiter
+            );
         }
 
         private void StoreCommentsForItem(
             string section,
             string key,
-            IEnumerable<string> recentComments)
+            IEnumerable<string> recentComments,
+            string commentDelimiter
+        )
         {
             // ReSharper disable once PossibleMultipleEnumeration
             if (!recentComments.Any())
@@ -677,7 +700,7 @@ namespace PeanutButter.INI
                 ? Comments[section]
                 : CreateCommentsForSection(section);
             // ReSharper disable once PossibleMultipleEnumeration
-            sectionComments[key] = string.Join(Environment.NewLine + ";", recentComments);
+            sectionComments[key] = string.Join(Environment.NewLine + commentDelimiter, recentComments);
             var commentsList = recentComments as List<string>;
             commentsList?.Clear();
         }
@@ -770,17 +793,18 @@ namespace PeanutButter.INI
             string section,
             params string[] comments)
         {
+            var lineParser = SelectLineParser();
             if (section == null ||
                 HasLocalSection(section))
             {
-                StoreCommentsForSection(section, comments);
+                StoreCommentsForSection(section, comments, lineParser.CommentDelimiter);
                 return;
             }
 
             Data[section] = new Dictionary<string, string>(DefaultStringComparer);
             if (comments.Any())
             {
-                StoreCommentsForSection(section, comments);
+                StoreCommentsForSection(section, comments, lineParser.CommentDelimiter);
             }
         }
 
@@ -849,7 +873,8 @@ namespace PeanutButter.INI
         {
             if (_path is null)
             {
-                return; // TODO: throw? or just ignore like as is?
+                // Reload is a no-op if there was no original file
+                return;
             }
 
             Load(_path);
@@ -997,32 +1022,38 @@ namespace PeanutButter.INI
         {
             return string.Join(
                 Environment.NewLine,
-                GetLinesForCurrentData(PersistStrategies.IncludeMergedConfigurations)
+                GetLinesForCurrentData(
+                    PersistStrategies.IncludeMergedConfigurations
+                )
             );
         }
 
-        private List<string> GetLinesForCurrentData(PersistStrategies persistStrategy)
+        private List<string> GetLinesForCurrentData(
+            PersistStrategies persistStrategy
+        )
         {
+            var lineParser = SelectLineParser();
             var sectionFetcher = PersistFetchStrategies[persistStrategy];
             var sections = persistStrategy == PersistStrategies.ExcludeMergedConfigurations
                 ? Sections
                 : AllSections;
             var addSeparator = SectionSeparator is not null;
-            var sep = CommentIfNecessary(SectionSeparator);
+            var commentDelimiter = lineParser.CommentDelimiter;
+            var sep = CommentIfNecessary(SectionSeparator, commentDelimiter);
             var lines = new List<string>();
             foreach (var section in sections)
             {
-                AddCommentsTo(lines, section, SECTION_COMMENT_KEY);
+                AddCommentsTo(lines, section, SECTION_COMMENT_KEY, lineParser.CommentDelimiter);
                 if (section.Length > 0)
                 {
-                    lines.Add(string.Join(string.Empty, "[", section, "]"));
+                    lines.Add($"[{section}]");
                 }
 
                 var dictionary = sectionFetcher(section, this);
                 lines.AddRange(
                     dictionary
                         .Keys
-                        .Select(key => LineFor(section, key))
+                        .Select(key => LineFor(section, key, commentDelimiter))
                 );
                 if (addSeparator)
                 {
@@ -1038,7 +1069,10 @@ namespace PeanutButter.INI
             return lines;
         }
 
-        private string CommentIfNecessary(string sectionSeparator)
+        private string CommentIfNecessary(
+            string sectionSeparator,
+            string commentDelimiter
+        )
         {
             if (string.IsNullOrWhiteSpace(sectionSeparator))
             {
@@ -1047,9 +1081,9 @@ namespace PeanutButter.INI
 
             return string.Join("\n", sectionSeparator.Split('\n')
                 .Select(line =>
-                    line.StartsWith(";")
+                    line.StartsWith(commentDelimiter)
                         ? line
-                        : $";{line}"
+                        : $"{commentDelimiter}{line}"
                 )
             );
         }
@@ -1080,21 +1114,25 @@ namespace PeanutButter.INI
         private void AddCommentsTo(
             List<string> lines,
             string forSection,
-            string forKey)
+            string forKey,
+            string commentDelimiter
+        )
         {
             if (Comments.ContainsKey(forSection) &&
                 Comments[forSection].ContainsKey(forKey))
             {
-                lines.Add(";" + Comments[forSection][forKey]);
+                lines.Add(commentDelimiter + Comments[forSection][forKey]);
             }
         }
 
         private string LineFor(
             string section,
-            string key)
+            string key,
+            string commentDelimiter
+        )
         {
             var lines = new List<string>();
-            AddCommentsTo(lines, section, key);
+            AddCommentsTo(lines, section, key, commentDelimiter);
             var dataValue = this[section][key];
             var writeValue = string.Empty;
             if (dataValue is not null)

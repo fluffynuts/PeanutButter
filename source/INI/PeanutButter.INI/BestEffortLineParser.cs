@@ -15,11 +15,14 @@ namespace PeanutButter.INI
         /// <summary>
         /// The default marker for the start of a comment
         /// </summary>
+        // ReSharper disable once MemberCanBePrivate.Global
         public const string DEFAULT_COMMENT_DELIMITER = ";";
+
         /// <summary>
         /// The marker used by this parser for the start of a comment
         /// </summary>
-        protected virtual string CommentDelimiter => DEFAULT_COMMENT_DELIMITER;
+        public virtual string CommentDelimiter { get; set; } =
+            DEFAULT_COMMENT_DELIMITER;
 
         /// <summary>
         /// Attempts to parse a string to a structure which
@@ -211,7 +214,7 @@ namespace PeanutButter.INI
         private string TrimComment(string str)
         {
             str = str.Trim();
-            return str.StartsWith(";")
+            return str.StartsWith(CommentDelimiter)
                 ? str.Substring(1)
                 : str;
         }
