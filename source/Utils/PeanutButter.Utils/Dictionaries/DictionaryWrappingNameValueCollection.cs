@@ -7,12 +7,45 @@ using System.Linq;
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMember.Global
 
+// TODO: magic with implicit operators between TValue and string
+// -> currently, these collections are only used to house [string,string] and
+//      [string,object] where, really, "object" means "string cast to object"
+
 #if BUILD_PEANUTBUTTER_INTERNAL
 namespace Imported.PeanutButter.Utils.Dictionaries
 #else
 namespace PeanutButter.Utils.Dictionaries
 #endif
 {
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        class DictionaryWrappingNameValueCollection
+        : DictionaryWrappingNameValueCollection<string>
+    {
+        public DictionaryWrappingNameValueCollection(
+            NameValueCollection data,
+            bool caseInsensitive
+        ) : base(data, caseInsensitive)
+        {
+        }
+
+        public DictionaryWrappingNameValueCollection(
+            NameValueCollection data
+        ) : base(data)
+        {
+        }
+
+        public DictionaryWrappingNameValueCollection(
+            NameValueCollection data,
+            StringComparer comparer
+        ) : base(data, comparer)
+        {
+        }
+    }
+
     /// <summary>
     /// Wraps a NameValueCollection in an IDictionary interface
     /// </summary>
@@ -21,9 +54,12 @@ namespace PeanutButter.Utils.Dictionaries
 #else
     public
 #endif
-        class DictionaryWrappingNameValueCollection : IDictionary<string, object>
+        class DictionaryWrappingNameValueCollection<TValue>
+        : IDictionary<string, TValue>
+        where TValue : class
     {
         private readonly NameValueCollection _data;
+
         /// <summary>
         /// Comparer to use for the keys of this dictionary
         /// </summary>
@@ -71,9 +107,9 @@ namespace PeanutButter.Utils.Dictionaries
         }
 
         /// <inheritdoc />
-        public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
+        public IEnumerator<KeyValuePair<string, TValue>> GetEnumerator()
         {
-            return new DictionaryWrappingNameValueCollectionEnumerator(this);
+            return new DictionaryWrappingNameValueCollectionEnumerator<TValue>(this);
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -82,9 +118,9 @@ namespace PeanutButter.Utils.Dictionaries
         }
 
         /// <inheritdoc />
-        public void Add(KeyValuePair<string, object> item)
+        public void Add(KeyValuePair<string, TValue> item)
         {
-            _data.Add(item.Key, item.Value as string ?? item.Value?.ToString());
+            _data.Add(item.Key, item.Value as string);
         }
 
         /// <inheritdoc />
@@ -94,12 +130,15 @@ namespace PeanutButter.Utils.Dictionaries
         }
 
         /// <inheritdoc />
-        public bool Contains(KeyValuePair<string, object> item)
+        public bool Contains(KeyValuePair<string, TValue> item)
         {
             var key = GetKeyFor(item.Key);
             if (key == null || !_data.AllKeys.Contains(key))
+            {
                 return false;
-            return _data[key] == item.Value?.ToString();
+            }
+
+            return _data[key] == item.Value as string;
         }
 
         private string GetKeyFor(string key)
@@ -113,7 +152,7 @@ namespace PeanutButter.Utils.Dictionaries
         }
 
         /// <inheritdoc />
-        public void CopyTo(KeyValuePair<string, object>[] array, int arrayIndex)
+        public void CopyTo(KeyValuePair<string, TValue>[] array, int arrayIndex)
         {
             foreach (var kvp in this)
             {
@@ -122,10 +161,13 @@ namespace PeanutButter.Utils.Dictionaries
         }
 
         /// <inheritdoc />
-        public bool Remove(KeyValuePair<string, object> item)
+        public bool Remove(KeyValuePair<string, TValue> item)
         {
             if (!Contains(item))
+            {
                 return false;
+            }
+
             var key = GetKeyFor(item.Key);
             _data.Remove(key);
             return true;
@@ -144,9 +186,9 @@ namespace PeanutButter.Utils.Dictionaries
         }
 
         /// <inheritdoc />
-        public void Add(string key, object value)
+        public void Add(string key, TValue value)
         {
-            _data.Add(key, value as string ?? value?.ToString());
+            _data.Add(key, value as string);
         }
 
         /// <inheritdoc />
@@ -159,26 +201,26 @@ namespace PeanutButter.Utils.Dictionaries
         }
 
         /// <inheritdoc />
-        public bool TryGetValue(string key, out object value)
+        public bool TryGetValue(string key, out TValue value)
         {
             key = GetKeyFor(key);
-            if (key == null)
+            if (key is null)
             {
                 value = null;
                 return false;
             }
 
-            value = _data[key];
+            value = _data[key] as TValue;
             return true;
         }
 
         /// <inheritdoc />
-        public object this[string key]
+        public TValue this[string key]
         {
             get
             {
                 key = GetKeyFor(key);
-                return _data[key];
+                return _data[key] as TValue;
             }
             set
             {
@@ -191,17 +233,19 @@ namespace PeanutButter.Utils.Dictionaries
         public ICollection<string> Keys => _data.AllKeys;
 
         /// <inheritdoc />
-        public ICollection<object> Values => _data.AllKeys.Select(k => _data[k]).ToArray();
+        public ICollection<TValue> Values => _data.AllKeys.Select(k => _data[k] as TValue).ToArray();
     }
-    
+
     // TODO: add explicit tests around this class, which is currently only tested by indirection
     /// <summary>
     /// Wraps a NameValueCollection in a Dictionary interface
     /// </summary>
-    internal class DictionaryWrappingNameValueCollectionEnumerator : IEnumerator<KeyValuePair<string, object>>
+    internal class DictionaryWrappingNameValueCollectionEnumerator<TValue>
+        : IEnumerator<KeyValuePair<string, TValue>>
+        where TValue : class
     {
-        internal DictionaryWrappingNameValueCollection Data => _data;
-        private readonly DictionaryWrappingNameValueCollection _data;
+        internal DictionaryWrappingNameValueCollection<TValue> Data => _data;
+        private readonly DictionaryWrappingNameValueCollection<TValue> _data;
         private string[] _keys;
         private int _current;
 
@@ -210,7 +254,7 @@ namespace PeanutButter.Utils.Dictionaries
         /// </summary>
         /// <param name="data"></param>
         public DictionaryWrappingNameValueCollectionEnumerator(
-            DictionaryWrappingNameValueCollection data
+            DictionaryWrappingNameValueCollection<TValue> data
         )
         {
             _data = data;
@@ -238,14 +282,17 @@ namespace PeanutButter.Utils.Dictionaries
             _keys = new string[] { };
         }
 
-        public KeyValuePair<string, object> Current
+        public KeyValuePair<string, TValue> Current
         {
             get
             {
                 RefreshKeys();
                 if (_current >= _keys.Length)
                     throw new InvalidOperationException("Current index is out of bounds");
-                return new KeyValuePair<string, object>(_keys[_current], _data[_keys[_current]]);
+                return new KeyValuePair<string, TValue>(
+                    _keys[_current],
+                    _data[_keys[_current]]
+                );
             }
         }
 
@@ -257,5 +304,4 @@ namespace PeanutButter.Utils.Dictionaries
 
         object IEnumerator.Current => Current;
     }
-    
 }

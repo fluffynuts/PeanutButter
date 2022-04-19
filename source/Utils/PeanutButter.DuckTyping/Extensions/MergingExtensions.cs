@@ -155,7 +155,7 @@ namespace PeanutButter.DuckTyping.Extensions
             var asCollection = obj as ConnectionStringSettingsCollection;
             if (asCollection == null)
                 return null;
-            return new DictionaryWrappingConnectionStringSettingCollection(
+            return new DictionaryWrappingConnectionStringSettingCollection<object>(
                 asCollection,
                 isFuzzy
             );
@@ -182,7 +182,7 @@ namespace PeanutButter.DuckTyping.Extensions
             var asNameValueCollection = arg as NameValueCollection;
             return asNameValueCollection == null
                 ? null
-                : new DictionaryWrappingNameValueCollection(asNameValueCollection, isFuzzy);
+                : new DictionaryWrappingNameValueCollection<object>(asNameValueCollection, isFuzzy);
         }
 
         private static IDictionary<string, object> BoxifyDictionary(object input, bool isFuzzy)

@@ -12,16 +12,46 @@ namespace Imported.PeanutButter.Utils.Dictionaries
 namespace PeanutButter.Utils.Dictionaries
 #endif
 {
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        class DictionaryWrappingConnectionStringSettingCollection
+        : DictionaryWrappingConnectionStringSettingCollection<string>
+    {
+        public DictionaryWrappingConnectionStringSettingCollection(
+            ConnectionStringSettingsCollection connectionStringSettings,
+            bool isCaseInsensitive) : base(connectionStringSettings, isCaseInsensitive)
+        {
+        }
+
+        public DictionaryWrappingConnectionStringSettingCollection(
+            ConnectionStringSettingsCollection connectionStringSettings
+        ) : base(connectionStringSettings)
+        {
+        }
+
+        public DictionaryWrappingConnectionStringSettingCollection(
+            ConnectionStringSettingsCollection connectionStrings,
+            StringComparer keyComparer
+        ) : base(connectionStrings, keyComparer)
+        {
+        }
+    }
+
     /// <summary>
     /// Provides a mechanism for wrapping read-write access to a ConnectionStringSettingsCollection
-    /// in the IDictionary&lt;string, object&gt; interface to simplify shimming other types
+    /// in the IDictionary&lt;string, string&gt; interface to simplify shimming other types
     /// </summary>
 #if BUILD_PEANUTBUTTER_INTERNAL
     internal
 #else
     public
 #endif
-        class DictionaryWrappingConnectionStringSettingCollection : IDictionary<string, object>
+        class DictionaryWrappingConnectionStringSettingCollection<TValue>
+        : IDictionary<string, TValue>
+        where TValue : class
     {
         private readonly ConnectionStringSettingsCollection _actual;
 
@@ -68,9 +98,9 @@ namespace PeanutButter.Utils.Dictionaries
 
 
         /// <inheritdoc />
-        public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
+        public IEnumerator<KeyValuePair<string, TValue>> GetEnumerator()
         {
-            return new DictionaryWrappingConnectionStringSettingCollectionEnumerator(_actual);
+            return new DictionaryWrappingConnectionStringSettingCollectionEnumerator<TValue>(_actual);
         }
 
         /// <inheritdoc />
@@ -86,14 +116,16 @@ namespace PeanutButter.Utils.Dictionaries
         }
 
         /// <inheritdoc />
-        public void CopyTo(KeyValuePair<string, object>[] array, int arrayIndex)
+        public void CopyTo(KeyValuePair<string, TValue>[] array, int arrayIndex)
         {
             foreach (var item in this)
+            {
                 array[arrayIndex++] = item;
+            }
         }
 
         /// <inheritdoc />
-        public bool Remove(KeyValuePair<string, object> item)
+        public bool Remove(KeyValuePair<string, TValue> item)
         {
             if (!TryGetValue(item.Key, out var match))
                 return false;
@@ -101,7 +133,7 @@ namespace PeanutButter.Utils.Dictionaries
         }
 
         /// <inheritdoc />
-        public bool Contains(KeyValuePair<string, object> item)
+        public bool Contains(KeyValuePair<string, TValue> item)
         {
             return TryGetValue(item.Key, out var match) &&
                 match == item.Value;
@@ -114,14 +146,14 @@ namespace PeanutButter.Utils.Dictionaries
         }
 
         /// <inheritdoc />
-        public void Add(KeyValuePair<string, object> item)
+        public void Add(KeyValuePair<string, TValue> item)
         {
             Add(item.Key, item.Value);
         }
 
 
         /// <inheritdoc />
-        public void Add(string key, object value)
+        public void Add(string key, TValue value)
         {
             _actual.Add(new ConnectionStringSettings(key, value as string));
         }
@@ -136,7 +168,7 @@ namespace PeanutButter.Utils.Dictionaries
         }
 
         /// <inheritdoc />
-        public bool TryGetValue(string key, out object value)
+        public bool TryGetValue(string key, out TValue value)
         {
             if (!Keys.Contains(key))
             {
@@ -144,14 +176,14 @@ namespace PeanutButter.Utils.Dictionaries
                 return false;
             }
 
-            value = _actual[key].ConnectionString;
+            value = _actual[key].ConnectionString as TValue;
             return true;
         }
 
         /// <inheritdoc />
-        public object this[string key]
+        public TValue this[string key]
         {
-            get => _actual[key].ConnectionString;
+            get => _actual[key].ConnectionString as TValue;
             set => _actual[key].ConnectionString = value as string;
         }
 
@@ -173,9 +205,9 @@ namespace PeanutButter.Utils.Dictionaries
         public int Count => _actual.Count;
 
         /// <inheritdoc />
-        public ICollection<object> Values =>
+        public ICollection<TValue> Values =>
             GetKeys()
-                .Select(k => _actual[k].ConnectionString)
+                .Select(k => _actual[k].ConnectionString as TValue)
                 .ToArray();
 
         /// <inheritdoc />
@@ -188,14 +220,17 @@ namespace PeanutButter.Utils.Dictionaries
         public StringComparer Comparer { get; }
     }
 
-    internal class DictionaryWrappingConnectionStringSettingCollectionEnumerator
-        : IEnumerator<KeyValuePair<string, object>>
+    internal class DictionaryWrappingConnectionStringSettingCollectionEnumerator<TValue>
+        : IEnumerator<KeyValuePair<string, TValue>>
+        where TValue : class
     {
         private readonly ConnectionStringSettingsCollection _actual;
         private readonly string[] _keys;
         private int _currentIndex;
 
-        public DictionaryWrappingConnectionStringSettingCollectionEnumerator(ConnectionStringSettingsCollection actual)
+        public DictionaryWrappingConnectionStringSettingCollectionEnumerator(
+            ConnectionStringSettingsCollection actual
+        )
         {
             _actual = actual;
             _keys = KeysOf(actual).ToArray();
@@ -225,9 +260,9 @@ namespace PeanutButter.Utils.Dictionaries
             _currentIndex = -1;
         }
 
-        public KeyValuePair<string, object> Current
-            => new KeyValuePair<string, object>(
-                _keys[_currentIndex], _actual[_keys[_currentIndex]].ConnectionString
+        public KeyValuePair<string, TValue> Current
+            => new(
+                _keys[_currentIndex], _actual[_keys[_currentIndex]].ConnectionString as TValue
             );
 
         object IEnumerator.Current => Current;

@@ -157,7 +157,8 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         }
 
         [Test]
-        [Explicit("This works in theory, but the underlying collection is now being locked by 'higher level configuration'")]
+        [Explicit(
+            "This works in theory, but the underlying collection is now being locked by 'higher level configuration'")]
         public void Remove_GivenKey_WhenExists_ShouldRemove()
         {
             // Arrange
@@ -186,13 +187,20 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         }
 
         [Test]
-        [Explicit("This works in theory, but the underlying collection is now being locked by 'higher level configuration'")]
+        [Explicit(
+            "This works in theory, but the underlying collection is now being locked by 'higher level configuration'")]
         public void Remove_GivenKeyValuePair_WhenExistsExactly_ShouldRemove()
         {
             // Arrange
             var setting = GetRandom<ConnectionStringSettings>();
-            var collection = new ConnectionStringSettingsCollection() {setting};
-            var item = new KeyValuePair<string, object>(setting.Name, setting.ConnectionString);
+            var collection = new ConnectionStringSettingsCollection()
+            {
+                setting
+            };
+            var item = new KeyValuePair<string, string>(
+                setting.Name,
+                setting.ConnectionString
+            );
             var sut = Create(collection);
             // Pre-Assert
             // Act
@@ -206,8 +214,14 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         {
             // Arrange
             var setting = GetRandom<ConnectionStringSettings>();
-            var item = new KeyValuePair<string, object>(setting.Name, GetAnother(setting.ConnectionString));
-            var collection = new ConnectionStringSettingsCollection() {setting};
+            var item = new KeyValuePair<string, string>(
+                setting.Name,
+                GetAnother(setting.ConnectionString)
+            );
+            var collection = new ConnectionStringSettingsCollection()
+            {
+                setting
+            };
             var sut = Create(collection);
             // Pre-Assert
             // Act
@@ -221,8 +235,14 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         {
             // Arrange
             var setting = GetRandom<ConnectionStringSettings>();
-            var item = new KeyValuePair<string, object>(GetAnother(setting.Name), setting.ConnectionString);
-            var collection = new ConnectionStringSettingsCollection() {setting};
+            var item = new KeyValuePair<string, string>(
+                GetAnother(setting.Name),
+                setting.ConnectionString
+            );
+            var collection = new ConnectionStringSettingsCollection()
+            {
+                setting
+            };
             var sut = Create(collection);
             // Pre-Assert
             // Act
@@ -294,8 +314,14 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         {
             // Arrange
             var setting = GetRandom<ConnectionStringSettings>();
-            var item = new KeyValuePair<string, object>(setting.Name, setting.ConnectionString);
-            var collection = new ConnectionStringSettingsCollection() {setting};
+            var item = new KeyValuePair<string, string>(
+                setting.Name,
+                setting.ConnectionString
+            );
+            var collection = new ConnectionStringSettingsCollection()
+            {
+                setting
+            };
             var sut = Create(collection);
             // Pre-Assert
             // Act
@@ -309,7 +335,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         {
             // Arrange
             var setting = GetRandom<ConnectionStringSettings>();
-            var item = new KeyValuePair<string, object>(
+            var item = new KeyValuePair<string, string>(
                 setting.Name, GetAnother(setting.ConnectionString)
             );
             var collection = new ConnectionStringSettingsCollection() {setting};
@@ -326,7 +352,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         {
             // Arrange
             var setting = GetRandom<ConnectionStringSettings>();
-            var item = new KeyValuePair<string, object>(
+            var item = new KeyValuePair<string, string>(
                 GetAnother(setting.Name), setting.ConnectionString
             );
             var collection = new ConnectionStringSettingsCollection() {setting};
@@ -344,13 +370,13 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             // Arrange
             var setting = GetRandom<ConnectionStringSettings>();
             var collection = new ConnectionStringSettingsCollection() {setting};
-            var target = new KeyValuePair<string, object>[10];
+            var target = new KeyValuePair<string, string>[10];
             var sut = Create(collection);
             // Pre-Assert
             // Act
             sut.CopyTo(target, 2);
             // Assert
-            var defaultValue = default(KeyValuePair<string, object>);
+            var defaultValue = default(KeyValuePair<string, string>);
             Range(2).ForEach(i => Expect(target[i]).To.Equal(defaultValue));
             Expect(target[2].Key).To.Equal(setting.Name);
             Expect(target[2].Value).To.Equal(setting.ConnectionString);
@@ -368,7 +394,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                 setting1,
                 setting2
             };
-            var collector = new List<KeyValuePair<string, object>>();
+            var collector = new List<KeyValuePair<string, string>>();
             var sut = Create(collection);
             // Pre-Assert
             // Act
@@ -378,18 +404,27 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             // Assert
             Expect(collector.Count).To.Equal(2);
             Expect(collector.ToArray()).To
-                .Contain.Exactly(1).Equal.To(new KeyValuePair<string, object>(setting1.Name, setting1.ConnectionString));
+                .Contain.Exactly(1).Equal
+                .To(new KeyValuePair<string, string>(
+                    setting1.Name,
+                    setting1.ConnectionString
+                ));
             Expect(collector.ToArray()).To
-                .Contain.Exactly(1).Equal.To(new KeyValuePair<string, object>(setting2.Name, setting2.ConnectionString));
+                .Contain.Exactly(1).Equal
+                .To(new KeyValuePair<string, string>(
+                    setting2.Name,
+                    setting2.ConnectionString
+                ));
         }
 
         [Test]
-        [Explicit("This works in theory, but the underlying collection is now being locked by 'higher level configuration'")]
+        [Explicit(
+            "This works in theory, but the underlying collection is now being locked by 'higher level configuration'")]
         public void Clear_ShouldClear()
         {
             // Arrange
             var setting = GetRandom<ConnectionStringSettings>();
-            var collection = new ConnectionStringSettingsCollection() { setting };
+            var collection = new ConnectionStringSettingsCollection() {setting};
             var sut = Create(collection);
             // Pre-Assert
             // Act
@@ -398,10 +433,9 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             Expect(sut.Keys.Count).To.Equal(0);
         }
 
-        private IDictionary<string, object> Create(ConnectionStringSettingsCollection wrap)
+        private IDictionary<string, string> Create(ConnectionStringSettingsCollection wrap)
         {
             return new DictionaryWrappingConnectionStringSettingCollection(wrap);
         }
     }
-
 }

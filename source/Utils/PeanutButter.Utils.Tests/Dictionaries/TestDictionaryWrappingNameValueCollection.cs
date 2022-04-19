@@ -7,6 +7,7 @@ using NUnit.Framework;
 using PeanutButter.Utils.Dictionaries;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using static NExpect.Expectations;
+
 // ReSharper disable MemberCanBePrivate.Local
 // ReSharper disable PossibleMultipleEnumeration
 // ReSharper disable TryCastAlwaysSucceeds
@@ -26,8 +27,10 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             var reference = sut.GetEnumerator();
             var result = (sut as IEnumerable).GetEnumerator();
             // Assert
-            Expect(reference).To.Be.An.Instance.Of<DictionaryWrappingNameValueCollectionEnumerator>();
-            Expect(result).To.Be.An.Instance.Of<DictionaryWrappingNameValueCollectionEnumerator>();
+            Expect(reference)
+                .To.Be.An.Instance.Of<DictionaryWrappingNameValueCollectionEnumerator<string>>();
+            Expect(result)
+                .To.Be.An.Instance.Of<DictionaryWrappingNameValueCollectionEnumerator<string>>();
             Expect(reference.Get<DictionaryWrappingNameValueCollection>("Data"))
                 .To.Equal(sut);
             Expect(result.Get<DictionaryWrappingNameValueCollection>("Data"))
@@ -40,7 +43,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             // Arrange
             var collection = new NameValueCollection();
             var sut = Create(collection);
-            var kvp = new KeyValuePair<string, object>(GetRandomString(), GetRandomString());
+            var kvp = new KeyValuePair<string, string>(GetRandomString(), GetRandomString());
             // Pre-Assert
             // Act
             sut.Add(kvp);
@@ -69,7 +72,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         {
             // Arrange
             var arena = CreateArena();
-            var kvp = GetRandom<KeyValuePair<string, object>>();
+            var kvp = GetRandom<KeyValuePair<string, string>>();
             // Pre-Assert
             Expect(arena.Collection).To.Be.Empty();
             // Act
@@ -84,7 +87,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             // Arrange
             var arena = CreateArena();
             var inCollection = GetRandom<KeyValuePair<string, string>>();
-            var notInCollection = GetRandom<KeyValuePair<string, object>>();
+            var notInCollection = GetRandom<KeyValuePair<string, string>>();
             arena.Collection.Add(inCollection.Key, inCollection.Value);
             // Pre-Assert
             // Act
@@ -99,7 +102,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             // Arrange
             var arena = CreateArena();
             var inCollection = GetRandom<KeyValuePair<string, string>>();
-            var notInCollection = new KeyValuePair<string, object>(inCollection.Key, GetRandomString());
+            var notInCollection = new KeyValuePair<string, string>(inCollection.Key, GetRandomString());
             arena.Collection.Add(inCollection.Key, inCollection.Value);
             // Pre-Assert
             // Act
@@ -114,7 +117,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             // Arrange
             var arena = CreateArena();
             var inCollection = GetRandom<KeyValuePair<string, string>>();
-            var notInCollection = new KeyValuePair<string, object>(inCollection.Key, inCollection.Value);
+            var notInCollection = new KeyValuePair<string, string>(inCollection.Key, inCollection.Value);
             arena.Collection.Add(inCollection.Key, inCollection.Value);
             // Pre-Assert
             // Act
@@ -128,9 +131,9 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         {
             // Arrange
             var sut = Create();
-            var kvp = new KeyValuePair<string, object>(GetRandomString(2), GetRandomString(2));
+            var kvp = new KeyValuePair<string, string>(GetRandomString(2), GetRandomString(2));
             sut.Add(kvp);
-            var target = new KeyValuePair<string, object>[2];
+            var target = new KeyValuePair<string, string>[2];
             // Pre-Assert
             // Act
             sut.CopyTo(target, 1);
@@ -147,9 +150,10 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             var notInCollection = GetRandom<KeyValuePair<string, string>>(kvp => kvp.Key != inCollection.Key);
             arena.Collection.Add(inCollection.Key, inCollection.Value);
             // Pre-Assert
-            Expect(arena.Sut).Not.To.Contain(notInCollection.AsKeyValuePairOfStringObject());
+            Expect(arena.Sut)
+                .Not.To.Contain(notInCollection);
             // Act
-            var result = arena.Sut.Remove(notInCollection.AsKeyValuePairOfStringObject());
+            var result = arena.Sut.Remove(notInCollection);
             // Assert
             Expect(result).To.Be.False();
             Expect(arena.Collection)
@@ -166,7 +170,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             arena.Collection.Add(inCollection.Key, inCollection.Value);
             // Pre-Assert
             // Act
-            var result = arena.Sut.Remove(inCollection.AsKeyValuePairOfStringObject());
+            var result = arena.Sut.Remove(inCollection);
             // Assert
             Expect(result).To.Be.True();
             Expect(arena.Collection).To.Be.Empty();
@@ -248,6 +252,22 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             Expect(result).To.Be.Equivalent.To(expected);
         }
 
+        [Test]
+        public void ShouldReturnNullForUnknownKey()
+        {
+            // Arrange
+            var nameValueCollection = new NameValueCollection();
+            var expected = nameValueCollection["foo"];
+            var sut = Create(nameValueCollection);
+            Expect(expected)
+                .To.Be.Null();
+            // Act
+            var result = sut["foo"];
+            // Assert
+            Expect(result)
+                .To.Equal(expected);
+        }
+
         private TestArena CreateArena()
         {
             return new TestArena();
@@ -256,7 +276,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         private class TestArena
         {
             public NameValueCollection Collection { get; }
-            public IDictionary<string, object> Sut { get; }
+            public IDictionary<string, string> Sut { get; }
 
             public TestArena() : this(false)
             {

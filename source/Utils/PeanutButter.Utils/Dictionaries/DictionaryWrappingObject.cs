@@ -235,7 +235,7 @@ namespace PeanutButter.Utils.Dictionaries
                 : original;
         }
 
-        private static readonly Dictionary<Type, Func<object, IDictionary<string, object>>> SpecialCases
+        private static readonly Dictionary<Type, Func<object, IDictionary<string, string>>> SpecialCases
             = new()
             {
                 [typeof(NameValueCollection)] =

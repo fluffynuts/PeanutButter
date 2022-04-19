@@ -15,7 +15,7 @@ namespace PeanutButter.DuckTyping.Extensions
         internal static IDictionary<string, object> ToDictionary(this NameValueCollection src,
             bool caseInsensitive = false)
         {
-            return new DictionaryWrappingNameValueCollection(src, caseInsensitive);
+            return new DictionaryWrappingNameValueCollection<object>(src, caseInsensitive);
         }
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace PeanutButter.DuckTyping.Extensions
         ) where T : class
         {
             var redirector = new RedirectingDictionary<object>(
-                new DictionaryWrappingNameValueCollection(src, false),
+                new DictionaryWrappingNameValueCollection<object>(src, false),
                 toNativeTransform,
                 fromNativeTransform
             );
@@ -173,7 +173,7 @@ namespace PeanutButter.DuckTyping.Extensions
         ) where T : class
         {
             var redirector = new RedirectingDictionary<object>(
-                new DictionaryWrappingNameValueCollection(src, false),
+                new DictionaryWrappingNameValueCollection<object>(src, false),
                 toNativeTransform,
                 fromNativeTransform
             );
