@@ -1027,6 +1027,16 @@ namespace PeanutButter.Utils
             IEnumerable<T> right
         )
         {
+            if (left is null && right is null)
+            {
+                return true;
+            }
+
+            if (left is null || right is null)
+            {
+                return false;
+            }
+
             using var leftEnumerator = left.GetEnumerator();
             using var rightEnumerator = right.GetEnumerator();
             var leftHasValue = leftEnumerator.MoveNext();

@@ -67,14 +67,10 @@ namespace PeanutButter.TestUtils.Generic
         /// <param name="other"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
+        [Obsolete("Rather use IsEquivalentTo from PeanutButter.Utils. This extension method now simply proxies to that method.")]
         public static bool IsEquivalentTo<T>(this IEnumerable<T> src, IEnumerable<T> other)
         {
-            if (src == null && other == null) return true;
-            if (src == null || other == null) return false;
-            var srcArray = src as T[] ?? src.ToArray();
-            var otherArray = other as T[] ?? other.ToArray();
-            return srcArray.Length == otherArray.Length &&
-                   !srcArray.Except(otherArray).Any();
+            return ExtensionsForIEnumerables.IsEquivalentTo(src, other);
         }
 
         /// <summary>

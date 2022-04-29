@@ -1542,6 +1542,45 @@ namespace PeanutButter.Utils.Tests
             public class IsEquivalentTo
             {
                 [Test]
+                public void ShouldReturnTrueWhenBothCollectionsAreNull()
+                {
+                    // Arrange
+                    var left = null as int[];
+                    var right = null as int[];
+                    // Act
+                    var result = left.IsEquivalentTo(right);
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
+
+                [Test]
+                public void ShouldReturnFalseWhenLeftIsNullAndRightIsNot()
+                {
+                    // Arrange
+                    var left = null as int[];
+                    var right = new[] { 1 };
+                    // Act
+                    var result = left.IsEquivalentTo(right);
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+
+                [Test]
+                public void ShouldReturnFalseWhenLeftIsNotNullAndRightIsNull()
+                {
+                    // Arrange
+                    var left = new[] { GetRandomInt() };
+                    var right = null as int[];
+                    // Act
+                    var result = left.IsEquivalentTo(right);
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+                
+                [Test]
                 public void ShouldReturnTrueForTwoEmptyCollections()
                 {
                     // Arrange
