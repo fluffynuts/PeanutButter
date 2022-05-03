@@ -95,6 +95,11 @@ namespace PeanutButter.INI
             string data,
             bool containsEscapedEntities)
         {
+            if (data is null)
+            {
+                return data;
+            }
+
             if (data.IndexOf('\\') == -1)
             {
                 return data;

@@ -1684,6 +1684,63 @@ value=""some value containing \""quotes\""""
                 Expect(contents)
                     .To.Equal(expected);
             }
+
+            [TestFixture]
+            public class NullDerefOnLoad_Issue60
+            {
+                [Test]
+                public void ShouldNotThrow()
+                {
+                    // Arrange
+                    var sut = new INIFile(new IniFileLineParser());
+                    // Act
+                    Expect(() => sut.Parse(iniData))
+                        .Not.To.Throw();
+                    // Assert
+                }
+                
+                class IniFileLineParser : BestEffortLineParser
+                {
+                    public IniFileLineParser()
+                    {
+                        base.CommentDelimiter = "'";
+                    }
+                }
+
+                
+                const string iniData = @"[GENERALE]
+FILENAME=
+AUTHOR=THE CONNELLS
+TITLE='74-'75
+LENGTH=266397
+START=0
+INTRO=0
+STOP=0
+OUTTRO=0
+MIXIN=0
+MIXOUT=2000
+STARTLAP=0
+ENDLAP=0
+BPM=75
+CUEPOINTS
+VOLPOINTS=M:\RADIORTL\AUDIO\MUSIC\MTP\DAA_AF67B4E83DD94F47AC90E53DDFAD69CD.MTP
+FASTOPEN=58526F7E44744161576F5175280729100B4A72516D7558775D74557B506A
+RADIO=M:\RadioRTL\CONFIG\
+RUNTIMEOPERATIONS=
+CUEPOINTS=
+
+[EXCHANGE-RECORDER]
+CALLER=CANFONTI
+
+[DJ-PLAYER]
+POSITION=-1
+TOP=11790
+LEFT=420
+NOAUTOPLAY=1
+START=1
+TIMERUN=0
+h";
+            }
         }
 
         [TestFixture]
