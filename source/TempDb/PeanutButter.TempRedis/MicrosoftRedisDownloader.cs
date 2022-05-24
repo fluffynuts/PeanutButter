@@ -2,7 +2,6 @@
 using System.IO;
 using System.IO.Compression;
 using System.Net;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using PeanutButter.Utils;
 

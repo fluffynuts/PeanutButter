@@ -25,9 +25,9 @@ namespace PeanutButter.Utils
             var testEnd = end.ToUniversalTime();
             if (testStart > testEnd)
             {
-                var swap = testStart;
-                testStart = testEnd;
-                testEnd = swap;
+                var swap = testEnd;
+                testEnd = testStart;
+                testStart = swap;
             }
 
             return test >= testStart.ToUniversalTime() &&
@@ -73,11 +73,11 @@ namespace PeanutButter.Utils
         public static DateTime StartOfDay(this DateTime value)
         {
             return new DateTime(
-                value.Year, 
-                value.Month, 
-                value.Day, 
-                0, 
-                0, 
+                value.Year,
+                value.Month,
+                value.Day,
+                0,
+                0,
                 0,
                 value.Kind);
         }
@@ -90,12 +90,12 @@ namespace PeanutButter.Utils
         public static DateTime EndOfDay(this DateTime value)
         {
             return new DateTime(
-                value.Year, 
-                value.Month, 
-                value.Day, 
-                23, 
-                59, 
-                59, 
+                value.Year,
+                value.Month,
+                value.Day,
+                23,
+                59,
+                59,
                 999,
                 value.Kind);
         }
@@ -175,7 +175,7 @@ namespace PeanutButter.Utils
                 time.Seconds,
                 time.Milliseconds);
         }
-        
+
         private static readonly TimeSpan TwentyFourHours = TimeSpan.FromHours(24);
         private static readonly TimeSpan OneMillisecond = TimeSpan.FromMilliseconds(1);
 
@@ -340,6 +340,78 @@ namespace PeanutButter.Utils
                 seconds,
                 milliseconds,
                 kind);
+        }
+
+        /// <summary>
+        /// Returns a new TimeSpan equal to the input with truncated milliseconds
+        /// </summary>
+        /// <param name="timeSpan"></param>
+        /// <returns></returns>
+        public static TimeSpan TruncateMilliseconds(
+            this TimeSpan timeSpan
+        )
+        {
+            return new TimeSpan(
+                timeSpan.Days,
+                timeSpan.Hours,
+                timeSpan.Minutes,
+                timeSpan.Seconds,
+                0
+            );
+        }
+
+        /// <summary>
+        /// Returns a new TimeSpan equal to the input with truncated milliseconds
+        /// </summary>
+        /// <param name="timeSpan"></param>
+        /// <returns></returns>
+        public static TimeSpan TruncateSeconds(
+            this TimeSpan timeSpan
+        )
+        {
+            return new TimeSpan(
+                timeSpan.Days,
+                timeSpan.Hours,
+                timeSpan.Minutes,
+                0,
+                0
+            );
+        }
+
+        /// <summary>
+        /// Returns a new TimeSpan equal to the input with truncated milliseconds
+        /// </summary>
+        /// <param name="timeSpan"></param>
+        /// <returns></returns>
+        public static TimeSpan TruncateMinutes(
+            this TimeSpan timeSpan
+        )
+        {
+            return new TimeSpan(
+                timeSpan.Days,
+                timeSpan.Hours,
+                0,
+                0,
+                0
+            );
+        }
+
+        /// <summary>
+        /// Returns a new TimeSpan equal to the input with truncated milliseconds
+        /// </summary>
+        /// <param name="timeSpan"></param>
+        /// <returns></returns>
+        public static TimeSpan TruncateHours(
+            this TimeSpan timeSpan
+        )
+        {
+            return new TimeSpan(
+                timeSpan.Days,
+                0,
+                0,
+                0,
+                0
+            );
         }
     }
 }

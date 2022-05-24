@@ -444,6 +444,90 @@ namespace PeanutButter.Utils.Tests
                     }
                 }
             }
+
+            [TestFixture]
+            public class OperatingOnTimezone
+            {
+                [Test]
+                public void TruncateMilliseconds()
+                {
+                    // Arrange
+                    var input = GetRandomTimeSpan();
+                    // Act
+                    var result = input.TruncateMilliseconds();
+                    // Assert
+                    Expect(result.Days)
+                        .To.Equal(input.Days);
+                    Expect(result.Hours)
+                        .To.Equal(input.Hours);
+                    Expect(result.Minutes)
+                        .To.Equal(input.Minutes);
+                    Expect(result.Seconds)
+                        .To.Equal(input.Seconds);
+                    Expect(result.Milliseconds)
+                        .To.Equal(0);
+                }
+
+                [Test]
+                public void TruncateSeconds()
+                {
+                    // Arrange
+                    var input = GetRandomTimeSpan();
+                    // Act
+                    var result = input.TruncateSeconds();
+                    // Assert
+                    Expect(result.Days)
+                        .To.Equal(input.Days);
+                    Expect(result.Hours)
+                        .To.Equal(input.Hours);
+                    Expect(result.Minutes)
+                        .To.Equal(input.Minutes);
+                    Expect(result.Seconds)
+                        .To.Equal(0);
+                    Expect(result.Milliseconds)
+                        .To.Equal(0);
+                }
+
+                [Test]
+                public void TruncateMinutes()
+                {
+                    // Arrange
+                    var input = GetRandomTimeSpan();
+                    // Act
+                    var result = input.TruncateMinutes();
+                    // Assert
+                    Expect(result.Days)
+                        .To.Equal(input.Days);
+                    Expect(result.Hours)
+                        .To.Equal(input.Hours);
+                    Expect(result.Minutes)
+                        .To.Equal(0);
+                    Expect(result.Seconds)
+                        .To.Equal(0);
+                    Expect(result.Milliseconds)
+                        .To.Equal(0);
+                }
+
+                [Test]
+                public void TruncateHours()
+                {
+                    // Arrange
+                    var input = GetRandomTimeSpan();
+                    // Act
+                    var result = input.TruncateHours();
+                    // Assert
+                    Expect(result.Days)
+                        .To.Equal(input.Days);
+                    Expect(result.Hours)
+                        .To.Equal(0);
+                    Expect(result.Minutes)
+                        .To.Equal(0);
+                    Expect(result.Seconds)
+                        .To.Equal(0);
+                    Expect(result.Milliseconds)
+                        .To.Equal(0);
+                }
+            }
         }
 
         [TestFixture]
