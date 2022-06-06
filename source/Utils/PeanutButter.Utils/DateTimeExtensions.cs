@@ -25,6 +25,7 @@ namespace PeanutButter.Utils
             var testEnd = end.ToUniversalTime();
             if (testStart > testEnd)
             {
+                // ReSharper disable once SwapViaDeconstruction
                 var swap = testEnd;
                 testEnd = testStart;
                 testStart = swap;
