@@ -67,10 +67,7 @@
     <Folder Include="Imported\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.1.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.1.0" PrivateAssets="All" IncludeAssets="runtime;build;native;contentfiles;analyzers;buildtransitive" />
     <PackageReference Include="system.reflection.emit" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)'=='net452'">

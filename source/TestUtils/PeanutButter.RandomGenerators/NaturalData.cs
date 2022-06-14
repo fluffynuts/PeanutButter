@@ -1482,7 +1482,7 @@ namespace PeanutButter.RandomGenerators
                     "shire"
                 }
             );
-        
+
         /// <summary>
         /// Provides a list of language names
         /// - scraped from https://www.w3schools.com/tags/ref_language_codes.asp
@@ -1491,8 +1491,9 @@ namespace PeanutButter.RandomGenerators
             => _languageNames ??= LanguageNameToLanguageCodeLookup.Keys
                 .Select(k => k)
                 .ToArray();
+
         private static string[] _languageNames;
-        
+
         /// <summary>
         /// Provides a list of language codes
         /// - scraped from https://www.w3schools.com/tags/ref_language_codes.asp
@@ -1501,8 +1502,9 @@ namespace PeanutButter.RandomGenerators
             => _languageCodes ??= LanguageNameToLanguageCodeLookup.Values
                 .Select(v => v)
                 .ToArray();
+
         private static string[] _languageCodes;
-        
+
         /// <summary>
         /// Provides a lookup of language names to their respective language codes
         /// - scraped from https://www.w3schools.com/tags/ref_language_codes.asp
@@ -1702,5 +1704,83 @@ namespace PeanutButter.RandomGenerators
                 ["Zhuang, Chuang"] = "za",
                 ["Zulu"] = "zu",
             };
+
+        public static readonly List<string> PlacePrefixes =
+            new List<string>(
+                new[]
+                {
+                    "Lin",
+                    "Pry",
+                    "New",
+                    "Deep",
+                    "Field",
+                    "Moor",
+                    "Fog",
+                    "West",
+                    "North",
+                    "South",
+                    "East",
+                    "Ice",
+                    "Way",
+                    "Grass",
+                    "Winter",
+                    "Cold",
+                    "Warm",
+                    "Ray",
+                    "Water",
+                    "Fire",
+                    "Light",
+                    "Dark",
+                    "Gloom",
+                    "Dor",
+                    "Crystal",
+                    "Ald",
+                    "Stone",
+                    "Starry",
+                    "Cloud"
+                }
+            );
+
+        public static readonly List<string> PlaceInfixes =
+            new(new[]
+            {
+                "in",
+                "er",
+                "on",
+                "un",
+                "an"
+            });
+
+        public static readonly List<string> PlaceSuffixes = 
+            new(new[]
+            {
+                "bourne",
+                "moor",
+                "bush",
+                "crest",
+                "way",
+                "mont",
+                "ley",
+                "beach",
+                "fall",
+                "marble",
+                "nesse",
+                "ley",
+                "shore",
+                "gate",
+                "loch",
+                "wyn",
+                "meadow",
+                "winter",
+                "summer",
+                "spring",
+                "wick",
+                "ston",
+                "wick",
+                "wall",
+                "ham",
+                "wheat",
+                "hollow"
+            });
     }
 }

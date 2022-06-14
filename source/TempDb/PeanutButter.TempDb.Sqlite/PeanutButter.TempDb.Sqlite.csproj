@@ -45,14 +45,8 @@
     <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Net.Compilers.Toolset">
-      <Version>4.1.0</Version>
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="System.Data.SQLite.Core">
-      <Version>1.0.112</Version>
-    </PackageReference>
+    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.1.0" PrivateAssets="All" IncludeAssets="runtime;build;native;contentfiles;analyzers;buildtransitive" />
+    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.112" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PeanutButter.TempDb\PeanutButter.TempDb.csproj" />

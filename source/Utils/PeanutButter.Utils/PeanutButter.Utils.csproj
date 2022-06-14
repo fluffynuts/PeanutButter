@@ -30,11 +30,7 @@
     <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Net.Compilers.Toolset">
-      <Version>4.1.0</Version>
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.1.0" PrivateAssets="All" IncludeAssets="runtime;build;native;contentfiles;analyzers;buildtransitive" />
   </ItemGroup>
   <Import Project="..\..\MonoForFramework.targets" />
   <ItemGroup Condition="'$(TargetFramework)'=='net452'">

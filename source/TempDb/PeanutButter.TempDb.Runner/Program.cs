@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
-using CommandLine;
-using PeanutButter.Utils;
+using PeanutButter.EasyArgs;
 
 namespace PeanutButter.TempDb.Runner
 {
@@ -10,32 +9,26 @@ namespace PeanutButter.TempDb.Runner
         public static int Main(string[] args)
         {
             var running = new SemaphoreSlim(1);
-            Parser.Default.ParseArguments<Options>(args)
-                .WithParsed(opts =>
-                {
-                    try
-                    {
-                        WriteLine($"Selected engine: {opts.Engine}");
-                        running.Wait();
-                        Instance = TempDbFactory.Create(opts);
-                        Instance.Disposed += HandleAutoDisposal;
-                        WriteLine($"Connection string: {Instance.ConnectionString}");
-                        _shell = WaitForStopCommand();
-                        Instance = null;
-                    }
-                    catch (ShowSupportedEngines ex)
-                    {
-                        WriteLine(ex.Message);
-                    }
-                    finally
-                    {
-                        running.Release();
-                    }
-                })
-                .WithNotParsed(errors =>
-                {
-                    errors.ForEach(e => WriteLine(e.ToString()));
-                });
+            var opts = args.ParseTo<Options>();
+            try
+            {
+                WriteLine($"Selected engine: {opts.Engine}");
+                running.Wait();
+                Instance = TempDbFactory.Create(opts);
+                Instance.Disposed += HandleAutoDisposal;
+                WriteLine($"Connection string: {Instance.ConnectionString}");
+                _shell = WaitForStopCommand();
+                Instance = null;
+            }
+            catch (ShowSupportedEngines ex)
+            {
+                WriteLine(ex.Message);
+            }
+            finally
+            {
+                running.Release();
+            }
+
             AppDomain.CurrentDomain.ProcessExit += OnAppExit;
             Console.CancelKeyPress += OnCancelKeyPress;
             running.Wait();

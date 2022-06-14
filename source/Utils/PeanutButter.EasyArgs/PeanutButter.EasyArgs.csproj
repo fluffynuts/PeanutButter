@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net452;net462;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net452;net462;netstandard2.0;net5.0;net6.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <DefineConstants>$(DefineConstants);BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL;BUILD_PEANUTBUTTER_INTERNAL</DefineConstants>
     <RootNamespace>PeanutButter.EasyArgs</RootNamespace>
@@ -20,10 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.1.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.1.0" PrivateAssets="All" IncludeAssets="runtime;build;native;contentfiles;analyzers;buildtransitive" />
   </ItemGroup>
   
 </Project>

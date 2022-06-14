@@ -1326,6 +1326,20 @@ namespace PeanutButter.RandomGenerators
         }
 
         /// <summary>
+        /// Generates a random fantasy place name
+        /// </summary>
+        /// <returns></returns>
+        public static string GetRandomPlaceName()
+        {
+            var hasInfix = GetRandomBoolean();
+            return $@"{
+                GetRandomFrom(NaturalData.PlacePrefixes)
+            }{
+                (hasInfix ? GetRandomFrom(NaturalData.PlaceInfixes) : "")
+            }{GetRandomFrom(NaturalData.PlaceSuffixes)}";
+        }
+
+        /// <summary>
         /// Returns a random last name, source from unique top names:
         /// - international (100)
         /// - african (100)

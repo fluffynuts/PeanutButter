@@ -178,8 +178,9 @@ namespace PeanutButter.RandomGenerators.Tests
                     var parts = str.Split('.');
                     if (parts.Length < 2)
                     {
-                        return (int)value == value;
+                        return (int) value == value;
                     }
+
                     return parts[1].Length <= 2;
                 }
             }
@@ -203,7 +204,7 @@ namespace PeanutButter.RandomGenerators.Tests
                     .Matched.By(d => d <= max);
             }
         }
-        
+
         [TestFixture]
         public class GetRandomTaxRate
         {
@@ -236,8 +237,9 @@ namespace PeanutButter.RandomGenerators.Tests
                     var parts = str.Split('.');
                     if (parts.Length < 2)
                     {
-                        return (int)value == value;
+                        return (int) value == value;
                     }
+
                     return parts[1].Length <= 2;
                 }
             }
@@ -294,8 +296,9 @@ namespace PeanutButter.RandomGenerators.Tests
                     var parts = str.Split('.');
                     if (parts.Length < 2)
                     {
-                        return (int)value == value;
+                        return (int) value == value;
                     }
+
                     return parts[1].Length <= 2;
                 }
             }
@@ -478,7 +481,7 @@ namespace PeanutButter.RandomGenerators.Tests
 
                 //---------------Execute Test ----------------------
 
-                RunCycles(() => results.Add((TestEnum)GetRandomEnum(type)));
+                RunCycles(() => results.Add((TestEnum) GetRandomEnum(type)));
                 //---------------Test Result -----------------------
                 var runs = results.Count;
                 var onePercent = (100 * results.Count(i => i == TestEnum.One)) / runs;
@@ -605,51 +608,55 @@ namespace PeanutButter.RandomGenerators.Tests
             }
         }
 
-        [Test]
-        public void GetRandomArray_GivenFactoryFunction_ShouldInvokeItToCreateItems()
+        [TestFixture]
+        public class GetRandomArray
         {
-            //---------------Set up test pack-------------------
-            const int runs = NORMAL_RANDOM_TEST_CYCLES;
-            var generatedValues = new List<int>();
-            Func<int> factory = () =>
+            [Test]
+            public void GivenFactoryFunction_ShouldInvokeItToCreateItems()
             {
-                var thisValue = GetRandomInt();
-                generatedValues.Add(thisValue);
-                return thisValue;
-            };
-            //---------------Assert Precondition----------------
+                //---------------Set up test pack-------------------
+                const int runs = NORMAL_RANDOM_TEST_CYCLES;
+                var generatedValues = new List<int>();
+                Func<int> factory = () =>
+                {
+                    var thisValue = GetRandomInt();
+                    generatedValues.Add(thisValue);
+                    return thisValue;
+                };
+                //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            for (var i = 0; i < runs; i++)
-            {
-                var result = GetRandomArray(factory);
-                //---------------Test Result -----------------------
-                CollectionAssert.AreEqual(generatedValues, result);
-                generatedValues.Clear();
+                //---------------Execute Test ----------------------
+                for (var i = 0; i < runs; i++)
+                {
+                    var result = GetRandomArray(factory);
+                    //---------------Test Result -----------------------
+                    CollectionAssert.AreEqual(generatedValues, result);
+                    generatedValues.Clear();
+                }
             }
-        }
 
-        [Test]
-        public void GetRandomArray_GenericInvoke_ShouldUseNinjaSuperPowersToCreateArray()
-        {
-            //---------------Set up test pack-------------------
-            var minItems = GetRandomInt(5);
-            var maxItems = GetRandomInt(11, 20);
+            [Test]
+            public void GenericInvoke_ShouldUseNinjaSuperPowersToCreateArray()
+            {
+                //---------------Set up test pack-------------------
+                var minItems = GetRandomInt(5);
+                var maxItems = GetRandomInt(11, 20);
 
-            //---------------Assert Precondition----------------
+                //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var result = GetRandomArray<SomePOCO>(minItems, maxItems);
+                //---------------Execute Test ----------------------
+                var result = GetRandomArray<SomePOCO>(minItems, maxItems);
 
-            //---------------Test Result -----------------------
-            result.ForEach(o => Console.WriteLine(o.ToString()));
-            Assert.IsNotNull(result);
-            CollectionAssert.IsNotEmpty(result);
-            Assert.IsTrue(result.All(r => r != null));
-            Assert.IsTrue(result.All(r => r.GetType() == typeof(SomePOCO)));
-            VarianceAssert.IsVariant<SomePOCO, int>(result, "Id");
-            VarianceAssert.IsVariant<SomePOCO, string>(result, "Name");
-            VarianceAssert.IsVariant<SomePOCO, DateTime>(result, "Date");
+                //---------------Test Result -----------------------
+                result.ForEach(o => Console.WriteLine(o.ToString()));
+                Assert.IsNotNull(result);
+                CollectionAssert.IsNotEmpty(result);
+                Assert.IsTrue(result.All(r => r != null));
+                Assert.IsTrue(result.All(r => r.GetType() == typeof(SomePOCO)));
+                VarianceAssert.IsVariant<SomePOCO, int>(result, "Id");
+                VarianceAssert.IsVariant<SomePOCO, string>(result, "Name");
+                VarianceAssert.IsVariant<SomePOCO, DateTime>(result, "Date");
+            }
         }
 
         [TestFixture]
@@ -1820,7 +1827,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 // collisions are possible, but should occur < 1%
                 var total = allResults.Count;
                 var unique = allResults.Select(o => o.Item1).Distinct().Count();
-                var delta = (total - unique) / (decimal)total;
+                var delta = (total - unique) / (decimal) total;
                 Assert.That(delta, Is.LessThan(1));
 
                 var tooShort = allResults.Where(r => r.Item1.Length < r.Item2);
@@ -1867,7 +1874,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 // collisions are possible, but should occur < 1%
                 var total = allResults.Count;
                 var unique = allResults.Select(o => o.Item1).Distinct().Count();
-                var delta = (total - unique) / (decimal)total;
+                var delta = (total - unique) / (decimal) total;
                 Assert.That(delta, Is.LessThan(1));
 
                 var tooShort = allResults.Where(r => r.Item1.Length < r.Item2);
@@ -1922,7 +1929,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 // collisions are possible, but should occur < 1%
                 var total = allResults.Count;
                 var unique = allResults.Select(o => o.Item1).Distinct().Count();
-                var delta = (total - unique) / (decimal)total;
+                var delta = (total - unique) / (decimal) total;
                 Assert.That(delta, Is.LessThan(1));
 
                 var tooShort = allResults.Where(r => r.Item1.Length < r.Item2);
@@ -2014,7 +2021,7 @@ namespace PeanutButter.RandomGenerators.Tests
                     //---------------Assert Precondition----------------
 
                     //---------------Execute Test ----------------------
-                    var result = GetAnother((string)null, () => strings.Pop());
+                    var result = GetAnother((string) null, () => strings.Pop());
 
                     //---------------Test Result -----------------------
                     Assert.AreEqual(expected, result);
@@ -2535,7 +2542,7 @@ namespace PeanutButter.RandomGenerators.Tests
             {
                 //---------------Set up test pack-------------------
                 var bytes = GetRandomCollection(() => GetRandomInt(0, 255))
-                    .Select(i => (byte)i)
+                    .Select(i => (byte) i)
                     .ToArray();
                 //---------------Assert Precondition----------------
 
@@ -3213,7 +3220,7 @@ namespace PeanutButter.RandomGenerators.Tests
                     .To.Equal("http");
             }
         }
-        
+
         [TestFixture]
         public class GettingRandomHttpsUrls
         {
@@ -3347,6 +3354,22 @@ namespace PeanutButter.RandomGenerators.Tests
             Expect(TimeSpan.Zero)
                 .To.Equal(zero);
             // Assert
+        }
+
+        [TestFixture]
+        public class GetRandomPlaceName
+        {
+            [Test]
+            public void ShouldReturnRandomisedData()
+            {
+                // Arrange
+                var collected = new List<string>();
+                // Act
+                RunCycles(() => collected.Add(GetRandomPlaceName()));
+                // Assert
+                Expect(collected)
+                    .To.Be.Mostly.Distinct();
+            }
         }
 
         [TestFixture]
@@ -3487,19 +3510,20 @@ namespace PeanutButter.RandomGenerators.Tests
                 if (parts.Length == 1)
                 {
                     Expect(propValue)
-                        .To.Equal((int)propValue);
+                        .To.Equal((int) propValue);
                 }
                 else
                 {
                     Expect(parts[1].Length)
                         .To.Be.At.Most(2);
                 }
+
                 Expect(propValue)
                     .To.Be.At.Least(DefaultRanges.MIN_MONEY_VALUE)
                     .And
                     .To.Be.At.Most(DefaultRanges.MAX_MONEY_VALUE);
             }
-            
+
             [TestCase(nameof(SomePOCO.DiscountPercent))]
             [TestCase(nameof(SomePOCO.VATRate))]
             [TestCase(nameof(SomePOCO.TaxPercent))]
@@ -3516,13 +3540,14 @@ namespace PeanutButter.RandomGenerators.Tests
                 if (parts.Length == 1)
                 {
                     Expect(propValue)
-                        .To.Equal((int)propValue);
+                        .To.Equal((int) propValue);
                 }
                 else
                 {
                     Expect(parts[1].Length)
                         .To.Be.At.Most(2);
                 }
+
                 Expect(propValue)
                     .To.Be.At.Least(DefaultRanges.MIN_TAX_VALUE)
                     .And
