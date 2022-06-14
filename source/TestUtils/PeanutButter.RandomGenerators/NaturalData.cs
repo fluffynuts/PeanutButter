@@ -1705,9 +1705,11 @@ namespace PeanutButter.RandomGenerators
                 ["Zulu"] = "zu",
             };
 
+        /// <summary>
+        /// Provides a lookup of prefixes to use when generating place names
+        /// </summary>
         public static readonly List<string> PlacePrefixes =
-            new List<string>(
-                new[]
+            new(new[]
                 {
                     "Lin",
                     "Pry",
@@ -1741,6 +1743,9 @@ namespace PeanutButter.RandomGenerators
                 }
             );
 
+        /// <summary>
+        /// Provides a lookup on infixes to use when generating place names
+        /// </summary>
         public static readonly List<string> PlaceInfixes =
             new(new[]
             {
@@ -1751,6 +1756,9 @@ namespace PeanutButter.RandomGenerators
                 "an"
             });
 
+        /// <summary>
+        /// Provides a lookup of suffixes to use when generating place names
+        /// </summary>
         public static readonly List<string> PlaceSuffixes = 
             new(new[]
             {

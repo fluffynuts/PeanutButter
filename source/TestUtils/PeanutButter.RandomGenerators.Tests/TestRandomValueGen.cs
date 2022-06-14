@@ -660,6 +660,57 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [TestFixture]
+        public class GetRandomList
+        {
+            [Test]
+            public void GivenFactoryFunction_ShouldInvokeItToCreateItems()
+            {
+                //---------------Set up test pack-------------------
+                const int runs = NORMAL_RANDOM_TEST_CYCLES;
+                var generatedValues = new List<int>();
+                Func<int> factory = () =>
+                {
+                    var thisValue = GetRandomInt();
+                    generatedValues.Add(thisValue);
+                    return thisValue;
+                };
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                for (var i = 0; i < runs; i++)
+                {
+                    var result = GetRandomList(factory);
+                    //---------------Test Result -----------------------
+                    CollectionAssert.AreEqual(generatedValues, result);
+                    generatedValues.Clear();
+                }
+            }
+
+            [Test]
+            public void GenericInvoke_ShouldUseNinjaSuperPowersToCreateList()
+            {
+                //---------------Set up test pack-------------------
+                var minItems = GetRandomInt(5);
+                var maxItems = GetRandomInt(11, 20);
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = GetRandomList<SomePOCO>(minItems, maxItems);
+
+                //---------------Test Result -----------------------
+                result.ForEach(o => Console.WriteLine(o.ToString()));
+                Assert.IsNotNull(result);
+                CollectionAssert.IsNotEmpty(result);
+                Assert.IsTrue(result.All(r => r != null));
+                Assert.IsTrue(result.All(r => r.GetType() == typeof(SomePOCO)));
+                VarianceAssert.IsVariant<SomePOCO, int>(result, "Id");
+                VarianceAssert.IsVariant<SomePOCO, string>(result, "Name");
+                VarianceAssert.IsVariant<SomePOCO, DateTime>(result, "Date");
+            }
+        }
+
+        [TestFixture]
         public class FillingInNaturalValues
         {
             [Test]
@@ -1772,7 +1823,8 @@ namespace PeanutButter.RandomGenerators.Tests
                 {
                     var result = GetRandomCollection(factory);
                     //---------------Test Result -----------------------
-                    CollectionAssert.AreEqual(generatedValues, result);
+                    Expect(result)
+                        .To.Equal(generatedValues);
                     generatedValues.Clear();
                 }
             }
