@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -65,10 +66,10 @@ namespace PeanutButter.RandomGenerators
             var type = typeof(T);
             if (type.IsEnum())
             {
-                return (T)GetRandomEnum(type);
+                return (T) GetRandomEnum(type);
             }
 
-            return (T)GetRandomValue(typeof(T));
+            return (T) GetRandomValue(typeof(T));
         }
 
         /// <summary>
@@ -304,7 +305,7 @@ namespace PeanutButter.RandomGenerators
             int minValue,
             int maxValue)
         {
-            return (int)GetRandomLong(minValue, maxValue);
+            return (int) GetRandomLong(minValue, maxValue);
         }
 
         /// <summary>
@@ -381,7 +382,7 @@ namespace PeanutButter.RandomGenerators
 
             var dec = RandomGenerator.NextDouble();
             var range = maxValue - minValue + 1;
-            return minValue + (long)(range * dec);
+            return minValue + (long) (range * dec);
         }
 
         /// <summary>
@@ -608,7 +609,7 @@ namespace PeanutButter.RandomGenerators
         private static readonly Dictionary<TimeSpanContexts, Func<double, TimeSpan>>
             TimespanGenerators = new Dictionary<TimeSpanContexts, Func<double, TimeSpan>>()
             {
-                [TimeSpanContexts.Ticks] = i => TimeSpan.FromTicks((long)i),
+                [TimeSpanContexts.Ticks] = i => TimeSpan.FromTicks((long) i),
                 [TimeSpanContexts.Milliseconds] = TimeSpan.FromMilliseconds,
                 [TimeSpanContexts.Seconds] = TimeSpan.FromSeconds,
                 [TimeSpanContexts.Minutes] = TimeSpan.FromMinutes,
@@ -711,7 +712,7 @@ namespace PeanutButter.RandomGenerators
             double max
         )
         {
-            return GetRandomDecimal((decimal)min, (decimal)max);
+            return GetRandomDecimal((decimal) min, (decimal) max);
         }
 
         /// <summary>
@@ -725,7 +726,7 @@ namespace PeanutButter.RandomGenerators
             long max
         )
         {
-            return GetRandomDecimal((decimal)min, (decimal)max);
+            return GetRandomDecimal((decimal) min, (decimal) max);
         }
 
         /// <summary>
@@ -739,7 +740,7 @@ namespace PeanutButter.RandomGenerators
             decimal max
         )
         {
-            return (decimal)GetRandomDouble((double)min, (double)max);
+            return (decimal) GetRandomDouble((double) min, (double) max);
         }
 
         /// <summary>
@@ -781,7 +782,7 @@ namespace PeanutButter.RandomGenerators
             decimal max
         )
         {
-            return (decimal)GetRandomDouble((double)min, (double)max)
+            return (decimal) GetRandomDouble((double) min, (double) max)
                 .ToFixed(2);
         }
 
@@ -825,7 +826,7 @@ namespace PeanutButter.RandomGenerators
             decimal max
         )
         {
-            return (decimal)GetRandomDouble((double)min, (double)max)
+            return (decimal) GetRandomDouble((double) min, (double) max)
                 .ToFixed(2);
         }
 
@@ -870,7 +871,7 @@ namespace PeanutButter.RandomGenerators
             decimal max
         )
         {
-            return (decimal)GetRandomDouble((double)min, (double)max)
+            return (decimal) GetRandomDouble((double) min, (double) max)
                 .ToFixed(2);
         }
 
@@ -963,7 +964,7 @@ namespace PeanutButter.RandomGenerators
             float max
         )
         {
-            return (float)GetRandomDouble(min, max);
+            return (float) GetRandomDouble(min, max);
         }
 
         /// <summary>
@@ -1015,7 +1016,7 @@ namespace PeanutButter.RandomGenerators
             }
 
             return TimeSpan.FromSeconds(
-                GetRandomInt((int)minSeconds, (int)maxSeconds)
+                GetRandomInt((int) minSeconds, (int) maxSeconds)
             );
         }
 
@@ -1603,7 +1604,7 @@ namespace PeanutButter.RandomGenerators
             return Range(0, GetRandomInt(minChars, maxChars))
                 .Select(_ =>
                     GetRandom(c => c < 'A' || c > 'z',
-                        () => (char)GetRandomInt(32, 255)))
+                        () => (char) GetRandomInt(32, 255)))
                 .JoinWith("");
         }
 
@@ -1810,6 +1811,29 @@ namespace PeanutButter.RandomGenerators
             int maxValues = DefaultRanges.MAX_ITEMS
         )
         {
+            return GetRandomCollectionGenerator(
+                generator,
+                minValues,
+                maxValues
+            ).ToArray();
+        }
+
+        /// <summary>
+        /// Generates a random collection _generator_, given a generator function and an acceptable size range
+        /// Note that since this is a _generator_, each iteration of the collection will yield
+        /// different results!
+        /// </summary>
+        /// <param name="generator">Function to generate individual items for the result collection</param>
+        /// <param name="minValues">Minimum number of items to return</param>
+        /// <param name="maxValues">Maximum number of items to return</param>
+        /// <typeparam name="T">Underlying type of the collection</typeparam>
+        /// <returns>A new collection of items generated by the generator function</returns>
+        public static IEnumerable<T> GetRandomCollectionGenerator<T>(
+            Func<T> generator,
+            int minValues = DefaultRanges.MIN_ITEMS,
+            int maxValues = DefaultRanges.MAX_ITEMS
+        )
+        {
             if (minValues > maxValues)
             {
                 if (maxValues == DefaultRanges.MAX_ITEMS)
@@ -1818,11 +1842,13 @@ namespace PeanutButter.RandomGenerators
                 }
                 else
                 {
+                    // ReSharper disable once SwapViaDeconstruction
                     var swap = minValues;
                     minValues = maxValues;
                     maxValues = swap;
                 }
             }
+
             generator ??= GetRandom<T>;
 
             var howMany = GetRandomInt(minValues, maxValues);
