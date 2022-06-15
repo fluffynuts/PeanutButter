@@ -15,8 +15,7 @@ namespace PeanutButter.RandomGenerators
         /// be set by inheriting class
         /// </summary>
         protected Type PropertyType { get; set; }
-        private static Dictionary<Tuple<Type, string>, UniqueRandomValueGenerator> _generators
-            = new Dictionary<Tuple<Type, string>, UniqueRandomValueGenerator>();
+        private static Dictionary<Tuple<Type, string>, UniqueRandomValueGenerator> _generators = new();
         private UniqueRandomValueGenerator _generator;
 
         /// <inheritdoc />

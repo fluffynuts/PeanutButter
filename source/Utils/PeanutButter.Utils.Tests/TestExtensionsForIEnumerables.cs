@@ -407,6 +407,24 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            public void ShouldBeAbleToAcceptIEnumerable()
+            {
+                // Arrange
+                var src = new[] { 1, 2, 3 };
+                // Act
+                var result = src.And(Generator());
+                // Assert
+                Expect(result)
+                    .To.Equal(new[] { 1, 2, 3, 4, 5 });
+
+                IEnumerable<int> Generator()
+                {
+                    yield return 4;
+                    yield return 5;
+                }
+            }
+
+            [Test]
             public void ShouldReturnNewArrayWithAllAddedItems()
             {
                 //---------------Set up test pack-------------------
@@ -435,9 +453,27 @@ namespace PeanutButter.Utils.Tests
                     var next = list.And("foo");
                     // Assert
                     Expect(next)
-                        .To.Be(list);
+                        .Not.To.Be(list);
                     Expect(next)
                         .To.Equal(new[] { "foo" });
+                }
+
+                [Test]
+                public void ShouldAcceptIEnumerable()
+                {
+                    // Arrange
+                    var src = new List<int>(new[] { 1, 2, 3 });
+                    // Act
+                    var result = src.And(Generator());
+                    // Assert
+                    Expect(result)
+                        .To.Equal(new[] { 1, 2, 3, 4, 5 });
+
+                    IEnumerable<int> Generator()
+                    {
+                        yield return 4;
+                        yield return 5;
+                    }
                 }
             }
 
@@ -520,7 +556,7 @@ namespace PeanutButter.Utils.Tests
         {
             //---------------Set up test pack-------------------
             var input = new List<IEnumerable<int>>();
-            var expected = GetRandomCollection<int>(1, 1);
+            var expected = GetRandomArray<int>(1, 1);
             input.Add(expected);
 
             //---------------Assert Precondition----------------
@@ -538,9 +574,9 @@ namespace PeanutButter.Utils.Tests
         {
             //---------------Set up test pack-------------------
             var input = new List<IEnumerable<int>>();
-            var part1 = GetRandomCollection<int>();
-            var part2 = GetRandomCollection<int>();
-            var part3 = GetRandomCollection<int>();
+            var part1 = GetRandomArray<int>();
+            var part2 = GetRandomArray<int>();
+            var part3 = GetRandomArray<int>();
             var expected = new List<int>();
             expected.AddRange(part1);
             expected.AddRange(part2);
@@ -578,7 +614,7 @@ namespace PeanutButter.Utils.Tests
         public void Second_WhenHave2OrMoreItemsInCollection_ShouldReturnSecond()
         {
             //---------------Set up test pack-------------------
-            var collection = GetRandomCollection<string>(2);
+            var collection = GetRandomArray<string>(2);
             var expected = collection.ToArray()[1];
 
             //---------------Assert Precondition----------------
@@ -614,7 +650,7 @@ namespace PeanutButter.Utils.Tests
         public void Third_WhenHave2OrMoreItemsInCollection_ShouldReturnThird()
         {
             //---------------Set up test pack-------------------
-            var collection = GetRandomCollection<string>(3);
+            var collection = GetRandomArray<string>(3);
             var expected = collection.ToArray()[2];
 
             //---------------Assert Precondition----------------
@@ -634,7 +670,7 @@ namespace PeanutButter.Utils.Tests
         public void FirstAfter_OperatingOnInsufficientCollection_ShouldThrow()
         {
             //---------------Set up test pack-------------------
-            var collection = GetRandomCollection<int>(2, 5);
+            var collection = GetRandomArray<int>(2, 5);
             var skip = GetRandomInt(6, 100);
             var expectedMessage = GetOutOfRangeMessage();
 
@@ -647,7 +683,6 @@ namespace PeanutButter.Utils.Tests
 
             //---------------Test Result -----------------------
         }
-
 
         [Test]
         public void FirstAfter_GivenSkipZero_ShouldReturnFirstElement()
@@ -731,9 +766,9 @@ namespace PeanutButter.Utils.Tests
         public void FirstOrDefaultAfter_OperatingOnSufficientCollection_ShouldReturnRequestedElement()
         {
             //---------------Set up test pack-------------------
-            var collection = GetRandomCollection<int>(10, 20);
+            var collection = GetRandomArray<int>(10, 20);
             var skip = GetRandomInt(2, 8);
-            var expected = collection.ToArray()[skip];
+            var expected = collection[skip];
 
             //---------------Assert Precondition----------------
 
@@ -834,7 +869,7 @@ namespace PeanutButter.Utils.Tests
         public void AsText_OperatingOnStringArray_ShouldReturnTextBlockWithEnvironmentNewlines()
         {
             //---------------Set up test pack-------------------
-            var input = GetRandomCollection<string>(2, 4);
+            var input = GetRandomArray<string>(2, 4);
             var expected = string.Join(Environment.NewLine, input);
 
             //---------------Assert Precondition----------------
@@ -862,7 +897,7 @@ namespace PeanutButter.Utils.Tests
         public void AsText_OperatingOnArrayOfObjects_ShouldReturnTextBlockWithStringRepresentations()
         {
             //---------------Set up test pack-------------------
-            var input = GetRandomCollection<SomethingWithNiceToString>(2, 4);
+            var input = GetRandomList<SomethingWithNiceToString>(2, 4);
             var expected = string.Join(Environment.NewLine, input);
 
             //---------------Assert Precondition----------------
@@ -879,7 +914,7 @@ namespace PeanutButter.Utils.Tests
         public void AsText_GivenAlternativeDelimiter_ShouldUseIt()
         {
             //---------------Set up test pack-------------------
-            var input = GetRandomCollection<int>(3, 6);
+            var input = GetRandomArray<int>(3, 6);
             var delimiter = GetRandomString(1);
             var expected = string.Join(delimiter, input);
 
@@ -1036,7 +1071,7 @@ namespace PeanutButter.Utils.Tests
         public void ForEach_GivenCollectionAndActionWithTwoParameters_ShouldPopulateSecondParameterWithIndex()
         {
             //---------------Set up test pack-------------------
-            var input = GetRandomCollection<int>(5, 15);
+            var input = GetRandomArray<int>(5, 15);
             var collectedIndexes = new List<int>();
             var collectedItems = new List<int>();
             var expectedIndexes = input.Select((o, i) => i).ToList();
@@ -1212,12 +1247,7 @@ namespace PeanutButter.Utils.Tests
                     public void ShouldBeFalseForAnySizeCollection()
                     {
                         // Arrange
-                        var input = GetRandomCollection<int>();
-                        while (!input.Any())
-                        {
-                            input = GetRandomCollection<int>();
-                        }
-
+                        var input = GetRandomArray<int>(1);
                         // Act
                         var result = input.None();
                         // Assert
@@ -1579,7 +1609,7 @@ namespace PeanutButter.Utils.Tests
                     Expect(result)
                         .To.Be.False();
                 }
-                
+
                 [Test]
                 public void ShouldReturnTrueForTwoEmptyCollections()
                 {

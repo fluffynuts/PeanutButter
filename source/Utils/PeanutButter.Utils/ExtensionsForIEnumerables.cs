@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+// ReSharper disable MemberCanBePrivate.Global
 
 #if BUILD_PEANUTBUTTER_INTERNAL
 namespace Imported.PeanutButter.Utils
@@ -250,9 +251,35 @@ namespace PeanutButter.Utils
         /// <param name="values"></param>
         /// <typeparam name="T">Item type of the array</typeparam>
         /// <returns>A new array which is the source with the new items appended</returns>
+        public static T[] And<T>(this IEnumerable<T> source, IEnumerable<T> values)
+        {
+            return source
+                .Concat(values)
+                .ToArray();
+        }
+
+        /// <summary>
+        /// Convenience method to create a new array with the provided element(s) appended
+        /// </summary>
+        /// <param name="source">Source array to start with</param>
+        /// <param name="values"></param>
+        /// <typeparam name="T">Item type of the array</typeparam>
+        /// <returns>A new array which is the source with the new items appended</returns>
         public static T[] And<T>(this T[] source, params T[] values)
         {
-            return And<T>(source as IEnumerable<T>, values);
+            return And(source as IEnumerable<T>, values);
+        }
+
+        /// <summary>
+        /// Convenience method to create a new array with the provided element(s) appended
+        /// </summary>
+        /// <param name="source">Source array to start with</param>
+        /// <param name="values"></param>
+        /// <typeparam name="T">Item type of the array</typeparam>
+        /// <returns>A new array which is the source with the new items appended</returns>
+        public static T[] And<T>(this T[] source, IEnumerable<T> values)
+        {
+            return And(source as IEnumerable<T>, values);
         }
 
         /// <summary>
@@ -267,8 +294,9 @@ namespace PeanutButter.Utils
             params T[] values
         )
         {
-            values.ForEach(source.Add);
-            return source;
+            var result = new List<T>(source);
+            result.AddRange(values);
+            return result;
         }
 
         /// <summary>
@@ -395,7 +423,7 @@ namespace PeanutButter.Utils
         /// <param name="toRun">Action to run</param>
         public static void TimesDo(this int howMany, Action toRun)
         {
-            howMany.TimesDo(i => toRun());
+            howMany.TimesDo(_ => toRun());
         }
 
         /// <summary>
@@ -438,7 +466,7 @@ namespace PeanutButter.Utils
         /// <summary>
         /// Convenience method to get the first item after skipping N items from a collection
         /// -> equivalent to collection.Skip(N).First();
-        /// -> collection.FirtstAfter(2) returns the 3rd element
+        /// -> collection.FirstAfter(2) returns the 3rd element
         /// </summary>
         /// <param name="src">Source collection</param>
         /// <param name="toSkip">How many items to skip</param>
@@ -452,7 +480,7 @@ namespace PeanutButter.Utils
         /// <summary>
         /// Convenience method to get the first item after skipping N items from a collection
         /// -> equivalent to collection.Skip(N).First();
-        /// -> collection.FirtstAfter(2) returns the 3rd element
+        /// -> collection.FirstAfter(2) returns the 3rd element
         /// -> this variant returns the default value for T if the N is out of bounds
         /// </summary>
         /// <param name="src">Source collection</param>
@@ -465,7 +493,7 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
-        /// Find duplicates within a collectio according to a provided discriminator
+        /// Find duplicates within a collection according to a provided discriminator
         /// </summary>
         /// <param name="src">Collection to operate on</param>
         /// <typeparam name="TItem">Type of items in the collection</typeparam>
@@ -478,20 +506,20 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
-        /// Find duplicates within a collectio according to a provided discriminator
+        /// Find duplicates within a collection according to a provided discriminator
         /// </summary>
         /// <param name="src">Collection to operate on</param>
-        /// <param name="descriminator">Function to determine uniqueness of each item: should
+        /// <param name="discriminator">Function to determine uniqueness of each item: should
         /// return whatever identifies a particular item uniquely</param>
         /// <typeparam name="TItem">Type of items in the collection</typeparam>
         /// <typeparam name="TKey">Type of key used to discriminate items</typeparam>
         /// <returns>Collection of DuplicateResult items which contain duplicates, according to the provided discriminator</returns>
         public static IEnumerable<DuplicateResult<TKey, TItem>> FindDuplicates<TItem, TKey>(
             this IEnumerable<TItem> src,
-            Func<TItem, TKey> descriminator
+            Func<TItem, TKey> discriminator
         )
         {
-            return src.GroupBy(descriminator)
+            return src.GroupBy(discriminator)
                 .Where(g => g.Count() > 1)
                 .Select(g => new DuplicateResult<TKey, TItem>(g.Key, g.AsEnumerable()));
         }
@@ -542,6 +570,7 @@ namespace PeanutButter.Utils
             /// <summary>
             /// Duplicated items matching this key
             /// </summary>
+            // ReSharper disable once UnusedAutoPropertyAccessor.Global
             public IEnumerable<TItem> Items { get; }
 
             /// <summary>
@@ -572,7 +601,7 @@ namespace PeanutButter.Utils
             foreach (var item in collection)
             {
                 var op = ResolveImplicitOperator(item.GetType());
-                yield return (TOther)op.Invoke(null, new object[] { item });
+                yield return (TOther) op.Invoke(null, new[] { item });
             }
 
             MethodInfo ResolveImplicitOperator(Type inputType)
@@ -652,6 +681,7 @@ namespace PeanutButter.Utils
                 throw new CannotZipNullException();
             }
 
+            // ReSharper disable PossibleMultipleEnumeration
             using var leftEnumerator = left.GetEnumerator();
             using var rightEnumerator = right.GetEnumerator();
             while (leftEnumerator.MoveNext() && rightEnumerator.MoveNext())
@@ -663,6 +693,7 @@ namespace PeanutButter.Utils
             {
                 throw new UnevenZipException<TLeft, TRight>(left, right);
             }
+            // ReSharper enable PossibleMultipleEnumeration
         }
 
         /// <summary>
@@ -713,7 +744,7 @@ namespace PeanutButter.Utils
             IEnumerable<T> right,
             Func<T, T, bool> comparer)
         {
-            return left.CrossMatches<T, T>(right, comparer);
+            return left.CrossMatches(right, comparer);
         }
 
         /// <summary>
@@ -883,8 +914,8 @@ namespace PeanutButter.Utils
                 foreach (var item in asStringArray)
                 {
                     yield return item is null
-                        ? new String(padWith, requiredLength)
-                        : item?.PadLeft(requiredLength, padWith);
+                        ? new string(padWith, requiredLength)
+                        : item.PadLeft(requiredLength, padWith);
                 }
 
                 yield break;
@@ -1091,18 +1122,6 @@ namespace PeanutButter.Utils
                     (acc, cur) => acc && rightCount[cur.Key] == leftCount[cur.Key]
                 );
         }
-
-        private static bool CountsMatch<T>(
-            Dictionary<T, int> leftCount,
-            Dictionary<T, int> rightCount
-        )
-        {
-            return leftCount.Aggregate(
-                true,
-                (acc, cur) => acc && rightCount[cur.Key] == leftCount[cur.Key]
-            );
-        }
-
 
         private static void IncrementCount<T>(
             Dictionary<T, int> counts,
