@@ -208,6 +208,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TempDb.MySql.D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TempDb.MySql.Connector.Tests", "TempDb\PeanutButter.TempDb.MySql.Connector.Tests\PeanutButter.TempDb.MySql.Connector.Tests.csproj", "{6AF78076-622D-41F8-B72D-0CF3C9AA453F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.WindowsServiceManagement.Core.Tests", "Win32Service\PeanutButter.WindowsServiceManagement.Core.Tests\PeanutButter.WindowsServiceManagement.Core.Tests.csproj", "{74F7E10B-A533-45D2-BB71-FCB241D465DE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -1225,6 +1227,18 @@ Global
 		{6AF78076-622D-41F8-B72D-0CF3C9AA453F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6AF78076-622D-41F8-B72D-0CF3C9AA453F}.Release|x86.ActiveCfg = Release|Any CPU
 		{6AF78076-622D-41F8-B72D-0CF3C9AA453F}.Release|x86.Build.0 = Release|Any CPU
+		{74F7E10B-A533-45D2-BB71-FCB241D465DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74F7E10B-A533-45D2-BB71-FCB241D465DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74F7E10B-A533-45D2-BB71-FCB241D465DE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{74F7E10B-A533-45D2-BB71-FCB241D465DE}.Debug|x86.Build.0 = Debug|Any CPU
+		{74F7E10B-A533-45D2-BB71-FCB241D465DE}.Debug-X|Any CPU.ActiveCfg = Debug|Any CPU
+		{74F7E10B-A533-45D2-BB71-FCB241D465DE}.Debug-X|Any CPU.Build.0 = Debug|Any CPU
+		{74F7E10B-A533-45D2-BB71-FCB241D465DE}.Debug-X|x86.ActiveCfg = Debug|Any CPU
+		{74F7E10B-A533-45D2-BB71-FCB241D465DE}.Debug-X|x86.Build.0 = Debug|Any CPU
+		{74F7E10B-A533-45D2-BB71-FCB241D465DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74F7E10B-A533-45D2-BB71-FCB241D465DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74F7E10B-A533-45D2-BB71-FCB241D465DE}.Release|x86.ActiveCfg = Release|Any CPU
+		{74F7E10B-A533-45D2-BB71-FCB241D465DE}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1318,6 +1332,7 @@ Global
 		{D41243BD-D681-4455-9D65-23959E6B32F4} = {97A4C748-447E-4690-9E4C-6BC7CE5B3F70}
 		{D070E719-7036-4114-9FBD-A3AE11BD1293} = {97A4C748-447E-4690-9E4C-6BC7CE5B3F70}
 		{6AF78076-622D-41F8-B72D-0CF3C9AA453F} = {97A4C748-447E-4690-9E4C-6BC7CE5B3F70}
+		{74F7E10B-A533-45D2-BB71-FCB241D465DE} = {F16ADAF9-3992-4A86-93DB-53813CF5434A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3024A467-FC9C-430A-821A-448AF0866E32}

@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if !NETSTANDARD
+using System.Runtime.CompilerServices;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -7,9 +9,10 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Threading;
-using Microsoft.Win32;
 using PeanutButter.WindowsServiceManagement.Exceptions;
 using Imported.PeanutButter.Utils;
+using Microsoft.Win32;
+
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable MemberCanBePrivate.Global
@@ -216,7 +219,6 @@ namespace PeanutButter.WindowsServiceManagement
         Wait = 1,
         Force = 2
     }
-
 
     public class WindowsServiceUtil : IWindowsServiceUtil
     {
@@ -1357,3 +1359,4 @@ namespace PeanutButter.WindowsServiceManagement
         }
     }
 }
+#endif

@@ -12,6 +12,9 @@ namespace Imported.PeanutButter.Utils.Dictionaries
 namespace PeanutButter.Utils.Dictionaries
 #endif
 {
+    /// <summary>
+    /// Provides a convenient IDictionary wrapper for ConnectionStringCollections
+    /// </summary>
 #if BUILD_PEANUTBUTTER_INTERNAL
     internal
 #else
@@ -20,18 +23,21 @@ namespace PeanutButter.Utils.Dictionaries
         class DictionaryWrappingConnectionStringSettingCollection
         : DictionaryWrappingConnectionStringSettingCollection<string>
     {
+        /// <inheritdoc />
         public DictionaryWrappingConnectionStringSettingCollection(
             ConnectionStringSettingsCollection connectionStringSettings,
             bool isCaseInsensitive) : base(connectionStringSettings, isCaseInsensitive)
         {
         }
 
+        /// <inheritdoc />
         public DictionaryWrappingConnectionStringSettingCollection(
             ConnectionStringSettingsCollection connectionStringSettings
         ) : base(connectionStringSettings)
         {
         }
 
+        /// <inheritdoc />
         public DictionaryWrappingConnectionStringSettingCollection(
             ConnectionStringSettingsCollection connectionStrings,
             StringComparer keyComparer

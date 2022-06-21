@@ -17,6 +17,9 @@ namespace Imported.PeanutButter.Utils.Dictionaries
 namespace PeanutButter.Utils.Dictionaries
 #endif
 {
+    /// <summary>
+    /// Provides a convenient IDictionary wrapper for NameValueCollections
+    /// </summary>
 #if BUILD_PEANUTBUTTER_INTERNAL
     internal
 #else
@@ -25,6 +28,7 @@ namespace PeanutButter.Utils.Dictionaries
         class DictionaryWrappingNameValueCollection
         : DictionaryWrappingNameValueCollection<string>
     {
+        /// <inheritdoc />
         public DictionaryWrappingNameValueCollection(
             NameValueCollection data,
             bool caseInsensitive
@@ -32,12 +36,14 @@ namespace PeanutButter.Utils.Dictionaries
         {
         }
 
+        /// <inheritdoc />
         public DictionaryWrappingNameValueCollection(
             NameValueCollection data
         ) : base(data)
         {
         }
 
+        /// <inheritdoc />
         public DictionaryWrappingNameValueCollection(
             NameValueCollection data,
             StringComparer comparer

@@ -1,3 +1,4 @@
+#if !NETSTANDARD
 using System;
 using Microsoft.Win32;
 
@@ -43,3 +44,4 @@ namespace PeanutButter.WindowsServiceManagement
         }
     }
 }
+#endif
