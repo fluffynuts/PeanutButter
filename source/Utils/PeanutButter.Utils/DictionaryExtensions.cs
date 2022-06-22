@@ -64,7 +64,7 @@ namespace PeanutButter.Utils
         /// <typeparam name="TValue"></typeparam>
         /// <returns></returns>
 #if BUILD_PEANUTBUTTER_INTERNAL
-internal
+        internal
 #else
         public
 #endif
@@ -72,7 +72,7 @@ internal
                 this IDictionary dict
             )
         {
-            return dict.ToDictionary(o => (TKey)o.Key, o => (TValue)o.Value);
+            return dict.ToDictionary(o => (TKey) o.Key, o => (TValue) o.Value);
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ internal
                 return generated;
             }
         }
-        
+
         /// <summary>
         /// Clones a given dictionary - new collection, same items
         /// </summary>
@@ -153,5 +153,71 @@ internal
         {
             return dict.ToDictionary(o => o.Key, o => o.Value);
         }
+
+        /// <summary>
+        /// Merge second dictionary into the first, producing a new dictionary output,
+        /// with the second's values taking precedence over the first's
+        /// </summary>
+        /// <param name="first"></param>
+        /// <param name="second"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <returns></returns>
+        public static IDictionary<TKey, TValue> MergedWith<TKey, TValue>(
+            this IDictionary<TKey, TValue> first,
+            IDictionary<TKey, TValue> second
+        )
+        {
+            return first.MergedWith(
+                second,
+                MergePrecedence.Last
+            );
+        }
+
+        /// <summary>
+        /// Merge second dictionary into the first, producing a new dictionary output,
+        /// with the provided merge-precedence
+        /// </summary>
+        /// <param name="first"></param>
+        /// <param name="second"></param>
+        /// <param name="precedence"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <returns></returns>
+        public static IDictionary<TKey, TValue> MergedWith<TKey, TValue>(
+            this IDictionary<TKey, TValue> first,
+            IDictionary<TKey, TValue> second,
+            MergePrecedence precedence
+        )
+        {
+            var dictionaries = precedence == MergePrecedence.First
+                ? new[] { second, first }
+                : new[] { first, second };
+            var result = new Dictionary<TKey, TValue>();
+            foreach (var dict in dictionaries)
+            {
+                foreach (var kvp in dict)
+                {
+                    result[kvp.Key] = kvp.Value;
+                }
+            }
+
+            return result;
+        }
+    }
+
+    /// <summary>
+    /// Sets the precedence when merging data with the same keys
+    /// </summary>
+    public enum MergePrecedence
+    {
+        /// <summary>
+        /// Prefer the first value seen
+        /// </summary>
+        First,
+        /// <summary>
+        /// Prefer the last value seen
+        /// </summary>
+        Last
     }
 }

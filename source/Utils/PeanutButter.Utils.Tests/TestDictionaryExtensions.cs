@@ -134,5 +134,117 @@ namespace PeanutButter.Utils.Tests
                     .To.Deep.Equal(input);
             }
         }
+
+        [TestFixture]
+        public class MergeWith
+        {
+            [TestFixture]
+            public class WhenMergePrecedenceIsLast
+            {
+                [Test]
+                public void ShouldMergeSecondIntoFirstWithSecondOverriding()
+                {
+                    // Arrange
+                    var d1 = new Dictionary<string, string>()
+                    {
+                        ["one"] = "1",
+                        ["last"] = "---"
+                    };
+                    var d2 = new Dictionary<string, string>()
+                    {
+                        ["two"] = "2",
+                        ["last"] = "end"
+                    };
+                    var expected = new Dictionary<string, string>()
+                    {
+                        ["one"] = "1",
+                        ["two"] = "2",
+                        ["last"] = "end",
+                    };
+
+                    // Act
+                    var result = d1
+                        .MergedWith(d2, MergePrecedence.Last);
+                    // Assert
+                    // key order isn't guaranteed by Dictionary<TKey, TValue>
+                    // but it turns out that in a small collection, they will
+                    // be in first-seen order; however, this test is sufficient
+                    Expect(result)
+                        .To.Be.Equivalent.To(expected);
+                }
+            }
+
+            [TestFixture]
+            public class DefaultPrecedence
+            {
+                [Test]
+                public void ShouldMergeSecondIntoFirstWithSecondOverriding()
+                {
+                    // Arrange
+                    var d1 = new Dictionary<string, string>()
+                    {
+                        ["one"] = "1",
+                        ["last"] = "---"
+                    };
+                    var d2 = new Dictionary<string, string>()
+                    {
+                        ["two"] = "2",
+                        ["last"] = "end"
+                    };
+                    var expected = new Dictionary<string, string>()
+                    {
+                        ["one"] = "1",
+                        ["two"] = "2",
+                        ["last"] = "end",
+                    };
+
+                    // Act
+                    var result = d1
+                        .MergedWith(d2);
+                    // Assert
+                    // key order isn't guaranteed by Dictionary<TKey, TValue>
+                    // but it turns out that in a small collection, they will
+                    // be in first-seen order; however, this test is sufficient
+                    Expect(result)
+                        .To.Be.Equivalent.To(expected);
+                }
+            }
+
+            [TestFixture]
+            public class WhenMergePrecedenceIsFirst
+            {
+                [Test]
+                public void ShouldMergeSecondIntoFirstWithFirstOverriding()
+                {
+                    // Arrange
+                    var d1 = new Dictionary<string, string>()
+                    {
+                        ["one"] = "1",
+                        ["last"] = "---"
+                    };
+                    var d2 = new Dictionary<string, string>()
+                    {
+                        ["two"] = "2",
+                        ["last"] = "end"
+                    };
+                    var expected = new Dictionary<string, string>()
+                    {
+                        ["one"] = "1",
+                        ["two"] = "2",
+                        ["last"] = "---",
+                    };
+
+                    // Act
+                    var result = d1
+                        .MergedWith(d2, MergePrecedence.First);
+                    // Assert
+                    // key order isn't guaranteed by Dictionary<TKey, TValue>
+                    // but it turns out that in a small collection, they will
+                    // be in first-seen order; however, this test is sufficient
+                    Expect(result)
+                        .To.Be.Equivalent.To(expected);
+                }
+            }
+        }
     }
 }

@@ -38,6 +38,7 @@
     <None Include="log4net.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Utils\PeanutButter.EasyArgs\PeanutButter.EasyArgs.csproj" />
     <ProjectReference Include="..\PeanutButter.ServiceShell\PeanutButter.ServiceShell.csproj" />
   </ItemGroup>
   <ItemGroup>

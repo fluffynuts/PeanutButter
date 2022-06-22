@@ -19,20 +19,64 @@ namespace PeanutButter.WindowsServiceManagement
         public const string WAIT_HINT = "WAIT_HINT";
         public const string PROCESS_ID = "PID";
         public const string FLAGS = "FLAGS";
+        public const string START_TYPE = "START_TYPE";
+        public const string ERROR_CONTROL = "ERROR_CONTROL";
+        public const string BINARY_PATH_NAME = "BINARY_PATH_NAME";
+        public const string DISPLAY_NAME = "DISPLAY_NAME";
+        public const string LOAD_ORDER_GROUP = "LOAD_ORDER_GROUP";
+        public const string TAG = "TAG";
+        public const string DEPENDENCIES = "DEPENDENCIES";
+        public const string SERVICE_START_NAME = "SERVICE_START_NAME";
     }
 
     internal interface IServiceControlInterface
     {
+        IDictionary<string, string> QueryAll(string serviceName);
         IDictionary<string, string> QueryEx(string serviceName);
         IDictionary<string, string> QueryConfiguration(string serviceName);
     }
 
     internal class ServiceControlInterface : IServiceControlInterface
     {
+        public IDictionary<string, string> QueryAll(string serviceName)
+        {
+            return QueryEx(serviceName)
+                .MergedWith(QueryConfiguration(serviceName));
+        }
+
         public IDictionary<string, string> QueryEx(string serviceName)
         {
+            return GatherServiceControlOutput("queryex", serviceName);
+        }
+
+        public IDictionary<string, string> QueryConfiguration(string serviceName)
+        {
+            return GatherServiceControlOutput(
+                (key, value) => key == ServiceControlKeys.BINARY_PATH_NAME
+                    ? value.Trim('"')
+                    : value,
+                "qc",
+                serviceName
+            );
+        }
+
+        private IDictionary<string, string> GatherServiceControlOutput(
+            params string[] args
+        )
+        {
+            return GatherServiceControlOutput(
+                (_, value) => value,
+                args
+            );
+        }
+
+        private IDictionary<string, string> GatherServiceControlOutput(
+            Func<string, string, string> mutator,
+            params string[] args
+        )
+        {
             using var io = ProcessIO.Start(
-                "sc", "queryex", serviceName
+                "sc", args
             );
             var result = new Dictionary<string, string>();
             var lastKey = null as string;
@@ -40,7 +84,7 @@ namespace PeanutButter.WindowsServiceManagement
             {
                 if (TryParseKeyAndValueFrom(line, out var key, out var value))
                 {
-                    result[key] = value;
+                    result[key] = mutator(key, value);
                     lastKey = key;
                 }
                 else
@@ -69,19 +113,6 @@ namespace PeanutButter.WindowsServiceManagement
             value = parts.Skip(1).JoinWith(":").Trim();
             return true;
         }
-
-        public IDictionary<string, string> QueryConfiguration(string serviceName)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public interface IWindowsServiceUtil
-    {
-    }
-
-    public class WindowsServiceUtil : IWindowsServiceUtil
-    {
     }
 }
 #endif

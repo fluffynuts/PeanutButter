@@ -4,15 +4,22 @@ using PeanutButter.ServiceShell;
 
 namespace TestService
 {
-    public class TotallyNotInterestingService: Shell
+    public class TotallyNotInterestingService : Shell
     {
-        public static string CliServiceName;
+        public class CliOptions
+        {
+            public string Name { get; set; }
+            public string DisplayName { get; set; }
+        }
+
+        public static CliOptions Options { get; set; }
+
         public TotallyNotInterestingService()
         {
             var exePath = Assembly.GetEntryAssembly()?.CodeBase
                 ?? "(unknown location)";
-            DisplayName = "Totally Not Interesting Service at: " + exePath;
-            ServiceName = CliServiceName ?? "Test Service";
+            DisplayName = Options?.DisplayName ?? "Totally Not Interesting Service at: " + exePath;
+            ServiceName = Options?.Name ?? "Test Service";
             Interval = 1;
             Version.Major = 1;
         }

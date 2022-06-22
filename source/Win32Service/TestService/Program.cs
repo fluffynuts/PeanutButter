@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using PeanutButter.EasyArgs;
 using PeanutButter.ServiceShell;
 
 namespace TestService
@@ -9,15 +10,14 @@ namespace TestService
     {
         public static int Main(string[] args)
         {
-            var argsList = new List<string>(args);
-            var providedName = argsList.FindParameters("-n", "--name")
-                .FirstOrDefault();
-            TotallyNotInterestingService.CliServiceName = providedName;
+            TotallyNotInterestingService.Options = 
+                args.ParseTo<TotallyNotInterestingService.CliOptions>(out var uncollected);
             return Shell.RunMain<TotallyNotInterestingService>(
-                argsList.ToArray()
+                uncollected
             );
         }
     }
+
 
     public static class Args
     {

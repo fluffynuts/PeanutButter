@@ -640,6 +640,17 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             completed = true;
         }
 
+        [Test]
+        public void WhenServiceNotFound()
+        {
+            // Arrange
+            var sut = Create(Guid.NewGuid().ToString());
+            // Act
+            Expect(sut.State)
+                .To.Equal(ServiceState.NotFound);
+            // Assert
+        }
+
         private static void Noop()
         {
         }

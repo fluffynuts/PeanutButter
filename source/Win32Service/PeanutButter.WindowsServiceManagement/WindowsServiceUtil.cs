@@ -1,4 +1,34 @@
-﻿#if !NETSTANDARD
+﻿using PeanutButter.WindowsServiceManagement;
+
+#if NETSTANDARD
+public interface IWindowsServiceUtil
+{
+    string ServiceName { get; }
+    string DisplayName { get; }
+    
+    
+    void Refresh();
+}
+
+public class WindowsServiceUtil : IWindowsServiceUtil
+{
+    private readonly ServiceControlInterface _ctl;
+    public string ServiceName { get; }
+    public string DisplayName { get; private set; }
+
+    public WindowsServiceUtil(string serviceName)
+    {
+        _ctl = new ServiceControlInterface();
+        ServiceName = serviceName;
+        Refresh();
+    }
+
+    public void Refresh()
+    {
+        var info = _ctl.QueryAll(ServiceName);
+    }
+}
+#else
 using System.Runtime.CompilerServices;
 using System;
 using System.Collections.Generic;
