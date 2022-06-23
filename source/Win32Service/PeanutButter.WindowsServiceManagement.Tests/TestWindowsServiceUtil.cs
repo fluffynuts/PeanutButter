@@ -20,6 +20,25 @@ namespace PeanutButter.WindowsServiceManagement.Tests
     [TestFixture]
     public class TestWindowsServiceUtil
     {
+        [OneTimeSetUp]
+        public void OneTimeSetup()
+        {
+            var scm = Win32Api.OpenSCManager(null, null, ScmAccessRights.Connect);
+            if (scm == IntPtr.Zero)
+            {
+                if (Platform.IsWindows)
+                {
+                    Assert.Ignore("Cannot open SCM (these tests must be run elevated)");
+                }
+                else
+                {
+                    Assert.Ignore("These tests are windows-specific");
+                }
+                return;
+            }
+            Win32Api.CloseServiceHandle(scm);
+        }
+
         [Test]
         [Explicit("Relies on local installation of mysql 5.7")]
         public void ServiceExeShouldReturnServiceExe()

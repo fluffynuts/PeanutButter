@@ -28,21 +28,21 @@
         <dependency id="PeanutButter.SimpleTcpServer" version="2.0.80" />
         <dependency id="PeanutButter.SimpleHTTPServer" version="2.0.80" />
         <dependency id="PeanutButter.Utils" version="2.0.80" />
-        <dependency id="Newtonsoft.Json" version="10.0.3" />
+        <dependency id="Newtonsoft.Json" version="13.0.1" />
       </group>
       <group targetFramework="net462">
         <dependency id="NUnit" version="3.5.0" />
         <dependency id="PeanutButter.SimpleTcpServer" version="2.0.80" />
         <dependency id="PeanutButter.SimpleHTTPServer" version="2.0.80" />
         <dependency id="PeanutButter.Utils" version="2.0.80" />
-        <dependency id="Newtonsoft.Json" version="10.0.3" />
+        <dependency id="Newtonsoft.Json" version="13.0.1" />
       </group>
       <group targetFramework="netstandard2.0">
         <dependency id="NUnit" version="3.5.0" />
         <dependency id="PeanutButter.SimpleTcpServer" version="2.0.80" />
         <dependency id="PeanutButter.SimpleHTTPServer" version="2.0.80" />
         <dependency id="PeanutButter.Utils" version="2.0.80" />
-        <dependency id="Newtonsoft.Json" version="10.0.3" />
+        <dependency id="Newtonsoft.Json" version="13.0.1" />
       </group>
     </dependencies>
     <references></references>

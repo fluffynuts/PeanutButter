@@ -197,6 +197,11 @@ namespace PeanutButter.EasyArgs
                 return true;
             }
 
+            if (options.IgnoreUnknownSwitches)
+            {
+                return false;
+            }
+
             if (!errored.Contains(key))
             {
                 options.ReportUnknownSwitch(key);
@@ -209,7 +214,7 @@ namespace PeanutButter.EasyArgs
         private static IDictionary<string, object> TryMatch<T>(
             Dictionary<string, CommandlineArgument> lookup,
             IDictionary<string, IHasValue> collected,
-            out string[] uncollected,
+            out string[] unmatched,
             ParserOptions options)
         {
             var uncollectedArgs = new List<string>();
@@ -226,6 +231,8 @@ namespace PeanutButter.EasyArgs
 
                     if (!TryFindOption(cur.Key, lookup, errored, options, out var opt))
                     {
+                        uncollectedArgs.Add(cur.Key);
+                        uncollectedArgs.AddRange(cur.Value.AllValues);
                         return acc;
                     }
 
@@ -283,7 +290,7 @@ namespace PeanutButter.EasyArgs
             );
 
 
-            uncollected = uncollectedArgs.ToArray();
+            unmatched = uncollectedArgs.ToArray();
             return result;
         }
 

@@ -49,6 +49,11 @@ namespace PeanutButter.EasyArgs
         public bool ExitOnError { get; set; } = true;
 
         /// <summary>
+        /// (flag) ignore unknown switches
+        /// </summary>
+        public bool IgnoreUnknownSwitches { get; set; }
+        
+        /// <summary>
         /// Reports that multiple values were found for a single-value argument
         /// </summary>
         /// <param name="arg"></param>
@@ -77,10 +82,16 @@ namespace PeanutButter.EasyArgs
         /// <param name="arg"></param>
         public virtual void ReportUnknownSwitch(string arg)
         {
+            if (IgnoreUnknownSwitches)
+            {
+                return;
+            }
+
             LineWriter(
                 $"unknown option: {arg}"
             );
         }
+
 
         /// <summary>
         /// Message to display about the auto --no-{arg} functionality for flags

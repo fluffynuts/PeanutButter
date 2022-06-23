@@ -10,8 +10,13 @@ namespace TestService
     {
         public static int Main(string[] args)
         {
-            TotallyNotInterestingService.Options = 
-                args.ParseTo<TotallyNotInterestingService.CliOptions>(out var uncollected);
+            TotallyNotInterestingService.Options =
+                args.ParseTo<TotallyNotInterestingService.CliOptions>(
+                    out var uncollected,
+                    new ParserOptions()
+                    {
+                        IgnoreUnknownSwitches = true
+                    });
             return Shell.RunMain<TotallyNotInterestingService>(
                 uncollected
             );
