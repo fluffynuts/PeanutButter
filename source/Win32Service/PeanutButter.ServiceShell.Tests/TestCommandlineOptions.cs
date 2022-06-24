@@ -33,7 +33,7 @@ namespace PeanutButter.ServiceShell.Tests
             string helpText)
         {
             //---------------Set up test pack-------------------
-            var sut = typeof(CommandlineOptions);
+            var sut = typeof(ServiceCommandlineOptions);
 
             //---------------Assert Precondition----------------
 
@@ -122,7 +122,7 @@ namespace PeanutButter.ServiceShell.Tests
             var sut = Create(args, heading, copyRight, s => result.Add(s));
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(CommandlineOptions.ExitCodes.ShowedHelp, sut.ExitCode);
+            Assert.AreEqual(ServiceCommandlineOptions.ExitCodes.ShowedHelp, sut.ExitCode);
             var finalResult = string.Join("\n", result);
             var lines = finalResult.Split(new[] { "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
             var re = new Regex("-" + shortName + ",\\s.*--" + longName + "\\s.*" + helpText);
@@ -170,7 +170,7 @@ namespace PeanutButter.ServiceShell.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var sut = new CommandlineOptions(new[] { "-h" }, RandomValueGen.GetRandomString(),
+            var sut = new ServiceCommandlineOptions(new[] { "-h" }, RandomValueGen.GetRandomString(),
                 RandomValueGen.GetRandomString());
 
             //---------------Test Result -----------------------
@@ -178,13 +178,13 @@ namespace PeanutButter.ServiceShell.Tests
             Assert.AreEqual(actual, Parser.Default);
         }
 
-        private CommandlineOptions Create(string[] args,
+        private ServiceCommandlineOptions Create(string[] args,
             string helpHeading,
             string copyRightInformation,
             Action<string> helpWriter = null,
             IParser parser = null)
         {
-            return new CommandlineOptions(args, helpHeading, copyRightInformation,
+            return new ServiceCommandlineOptions(args, helpHeading, copyRightInformation,
                 helpWriter ?? Console.WriteLine,
                 parser ?? new ParserFacade(Parser.Default));
         }

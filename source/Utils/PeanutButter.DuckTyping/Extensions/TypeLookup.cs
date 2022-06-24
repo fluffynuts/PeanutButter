@@ -2,7 +2,7 @@
 
 namespace PeanutButter.DuckTyping.Extensions
 {
-    internal class TypePair
+    internal class TypeLookup
     {
         public Type Type { get; set; }
         public Type FuzzyType { get; set; }

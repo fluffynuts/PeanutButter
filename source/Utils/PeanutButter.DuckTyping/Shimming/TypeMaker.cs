@@ -79,13 +79,23 @@ namespace PeanutButter.DuckTyping.Shimming
         /// <inheritdoc />
         public Type MakeTypeImplementing(Type type, bool forceConcrete)
         {
-            return MakeTypeImplementing(type, false, false, forceConcrete);
+            return MakeTypeImplementing(
+                type,
+                isFuzzy: false,
+                allowDefaultsForReadonlyMembers: false,
+                forceConcrete
+            );
         }
 
         /// <inheritdoc />
         public Type MakeTypeImplementing(Type type)
         {
-            return MakeTypeImplementing(type, false, false);
+            return MakeTypeImplementing(
+                type,
+                isFuzzy: false,
+                allowDefaultsForReadonlyMembers: false,
+                forceConcreteClass: false
+            );
         }
 
         /// <inheritdoc />
@@ -161,26 +171,10 @@ namespace PeanutButter.DuckTyping.Shimming
         {
             if (!type.IsInterface && !forceConcreteClass)
             {
-                if (!type.AllPublicInstancePropertiesAndMethodsAreVirtualOrAbstract())
+                if (!type.AllPublicInstancePropertiesAndMethodsAreVirtualOrAbstractAndNonFinal())
                 {
-                    throw new InvalidOperationException(
-                        @$"
-MakeTypeImplementing<T> requires an interface, or class with all-virtual members 
-for the type parameter.
-
-Concrete classes with non-virtual members will produce unexpected results as 
-casting down to the given type ({type}) will result in accessing the members
-on that type instead of the type generated for duck-typing.
-
-You may force duck-typing to happen, but be aware that only virtual and abstract
-members will behave as expected. Other members can be reached via reflection, eg
-by using the helper extension methods GetTopmostProperty and SetTopmostProperty:
-
-duckedResult.GetTopmostProperty<T>(""PropertyName"");
-
-but this really isn't pretty ):
-".Trim()
-                    );
+                    // don't even try to duck something that's not all-virtual unless forced
+                    return ThrowCannotDuckType();
                 }
             }
 
@@ -209,6 +203,7 @@ but this really isn't pretty ):
             {
                 allTypesToImplement = allTypesToImplement.And(type);
             }
+
             AddAllPropertiesAsShimmable(typeBuilder, allTypesToImplement, shimField, forceConcreteClass);
             AddAllMethodsAsShimmable(typeBuilder, allTypesToImplement, shimField, forceConcreteClass);
 
@@ -217,11 +212,49 @@ but this really isn't pretty ):
                 allowDefaultsForReadonlyMembers);
             AddDictionaryWrappingConstructors(typeBuilder, shimField, type);
 
+            try
+            {
 #if NETSTANDARD
             return typeBuilder.CreateTypeInfo();
 #else
-            return typeBuilder.CreateType();
+                return typeBuilder.CreateType();
 #endif
+            }
+            catch (TypeLoadException ex)
+            {
+                if (forceConcreteClass && ex.Message.Contains("final method"))
+                {
+                    // sometimes the forced-duck can fail on a concrete class
+                    return ThrowCannotDuckType();
+                }
+
+                throw;
+            }
+
+            Type ThrowCannotDuckType()
+            {
+                throw new InvalidOperationException(
+                    @$"
+Cannot make a type implementing {type}:
+
+MakeTypeImplementing<T> requires an interface, or class with all-virtual members 
+for the type parameter.
+
+Concrete classes with non-virtual members will produce unexpected results as 
+casting down to the given type will result in accessing the members
+on that type instead of the type generated for duck-typing, or will result
+in run-time errors like:
+'Declaration referenced in a method implementation cannot be a final method'
+
+You may force duck-typing to happen, but be aware that only virtual and abstract
+members will behave as expected. Other members can be reached via reflection, eg
+by using the helper extension methods GetTopmostProperty and SetTopmostProperty:
+
+duckedResult.GetTopmostProperty<T>(""PropertyName"");
+
+but this really isn't pretty ):"
+                );
+            }
         }
 
         private const BindingFlags PUBLIC_INSTANCE = BindingFlags.Public | BindingFlags.Instance;
@@ -441,7 +474,7 @@ but this really isn't pretty ):
             var parameterTypes = methodInfo.GetParameters()
                 .Select(p => p.ParameterType)
                 .ToArray();
-            
+
             var methodBuilder = typeBuilder.DefineMethod(
                 methodInfo.Name,
                 PropertyGetterSetterMethodVirtualAttributes,

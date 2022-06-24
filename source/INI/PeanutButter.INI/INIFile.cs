@@ -779,6 +779,12 @@ namespace PeanutButter.INI
         private static void EnsureFolderExistsFor(string path)
         {
             var folder = System.IO.Path.GetDirectoryName(path);
+            if (folder == "")
+            {
+                // CWD
+                return;
+            }
+
             if (!Directory.Exists(folder))
             {
                 Directory.CreateDirectory(

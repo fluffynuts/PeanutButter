@@ -9,7 +9,23 @@ using CommandLine.Text;
 
 namespace PeanutButter.ServiceShell
 {
-    public class CommandlineOptions
+    public interface IServiceCommandlineOptions
+    {
+        bool Install { get; set; }
+        bool Uninstall { get; set; }
+        bool RunOnce { get; set; }
+        bool Debug { get; set; }
+        int Wait { get; set; }
+        bool ShowVersion { get; set; }
+        bool StartService { get; set; }
+        bool StopService { get; set; }
+        bool ManualStart { get; set; }
+        bool Disabled { get; set; }
+    }
+    
+    // TODO: port to EasyArgs & drop the extra package
+    public class ServiceCommandlineOptions
+        : IServiceCommandlineOptions
     {
         public enum ExitCodes
         {
@@ -59,7 +75,7 @@ namespace PeanutButter.ServiceShell
         private Action<string> HelpWriter { get; set; } = Console.WriteLine;
         internal IParser OptionsParser { get; set; } = new ParserFacade(Parser.Default);
 
-        public CommandlineOptions(string[] args, string helpHeading, string copyRightInformation = null)
+        public ServiceCommandlineOptions(string[] args, string helpHeading, string copyRightInformation = null)
         {
             Init(args, helpHeading, copyRightInformation);
         }
@@ -82,7 +98,7 @@ namespace PeanutButter.ServiceShell
             }
         }
 
-        internal CommandlineOptions(string[] args, string helpHeading, string copyRightInformation,
+        internal ServiceCommandlineOptions(string[] args, string helpHeading, string copyRightInformation,
             Action<string> helpWriter, IParser parser)
         {
             HelpWriter = helpWriter;

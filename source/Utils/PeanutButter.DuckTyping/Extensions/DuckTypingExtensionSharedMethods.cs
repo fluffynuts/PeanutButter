@@ -638,8 +638,8 @@ namespace PeanutButter.DuckTyping.Extensions
             return (T) Activator.CreateInstance(duckType, ctorArgs);
         }
 
-        private static readonly Dictionary<Type, TypePair> DuckTypes
-            = new Dictionary<Type, TypePair>();
+        private static readonly Dictionary<Type, TypeLookup> DuckTypes
+            = new Dictionary<Type, TypeLookup>();
 
         private static Type FindOrCreateDuckTypeFor<T>(bool isFuzzy)
         {
@@ -653,7 +653,7 @@ namespace PeanutButter.DuckTyping.Extensions
             {
                 if (!DuckTypes.ContainsKey(key))
                 {
-                    DuckTypes[key] = new TypePair();
+                    DuckTypes[key] = new TypeLookup();
                 }
 
                 var match = DuckTypes[key];
@@ -663,12 +663,12 @@ namespace PeanutButter.DuckTyping.Extensions
             }
         }
 
-        private static Type GetTypeFrom<T>(TypePair match)
+        private static Type GetTypeFrom<T>(TypeLookup match)
         {
             return match.Type ?? (match.Type = CreateDuckTypeFor<T>(false, false));
         }
 
-        private static Type GetFuzzyTypeFrom<T>(TypePair match)
+        private static Type GetFuzzyTypeFrom<T>(TypeLookup match)
         {
             return match.FuzzyType ?? (match.FuzzyType = CreateDuckTypeFor<T>(true, false));
         }
@@ -683,7 +683,7 @@ namespace PeanutButter.DuckTyping.Extensions
             var typeMaker = new TypeMaker();
             if (!isFuzzy)
             {
-                return typeMaker.MakeTypeImplementing<T>();
+                return typeMaker.MakeTypeImplementing<T>(forceConcrete: forceConcreteType);
             }
 
             return allowDefaultsForMissingProperties

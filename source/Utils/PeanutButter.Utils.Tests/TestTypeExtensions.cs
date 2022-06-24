@@ -90,7 +90,7 @@ namespace PeanutButter.Utils.Tests
                     Expect(result)
                         .To.Be.True();
                 }
-                
+
                 [Test]
                 public void ShouldReturnTrueWhenOperatingTypeIsSomeAncestorOfOtherType()
                 {
@@ -148,10 +148,10 @@ namespace PeanutButter.Utils.Tests
                 {
                     // Arrange
                     var t = typeof(InheritedType);
-                    
+
                     // Act
                     var result = t.Inherits(typeof(SimpleType));
-                    
+
                     // Assert
                     Expect(result)
                         .To.Be.True();
@@ -192,7 +192,7 @@ namespace PeanutButter.Utils.Tests
                     Expect(result)
                         .To.Be.False();
                 }
-                
+
                 [Test]
                 public void ShouldReturnFalseWhenOperatingTypeIsNull()
                 {
@@ -741,7 +741,7 @@ namespace PeanutButter.Utils.Tests
             {
                 // Arrange
                 var t = typeof(HasStatics);
-                var expected = (byte)GetRandomInt(1, 10);
+                var expected = (byte) GetRandomInt(1, 10);
                 // Act
                 t.SetStatic("Id", expected);
                 // Assert
@@ -795,6 +795,106 @@ namespace PeanutButter.Utils.Tests
                 private static string _name = Guid.NewGuid().ToString();
 
                 private static int Id { get; set; }
+            }
+        }
+
+        [TestFixture]
+        public class TestingVirtualAndAbstract
+        {
+            [Test]
+            public void ShouldFindVirtualProperty()
+            {
+                // Arrange
+                var prop = typeof(Poco)
+                    .GetProperty(nameof(Poco.Id));
+                // Act
+                var result = prop.IsVirtualOrAbstract();
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+
+            [Test]
+            public void ShouldFindAbstractProperty()
+            {
+                // Arrange
+                var prop = typeof(Poco)
+                    .GetProperty(nameof(Poco.Foo));
+                // Act
+                var result = prop.IsVirtualOrAbstract();
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+
+            [Test]
+            public void ShouldFindConcreteProperty()
+            {
+                // Arrange
+                var prop = typeof(Poco)
+                    .GetProperty(nameof(Poco.Name));
+                // Act
+                var result = prop.IsVirtualOrAbstract();
+                // Assert
+                Expect(result)
+                    .To.Be.False();
+            }
+
+            [Test]
+            public void ShouldFindAbstractMethod()
+            {
+                // Arrange
+                var method = typeof(Poco)
+                    .GetMethod(nameof(Poco.AbstractMethod));
+                // Act
+                var result = method.IsVirtualOrAbstract();
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+
+            [Test]
+            public void ShouldFindVirtualMethod()
+            {
+                // Arrange
+                var method = typeof(Poco)
+                    .GetMethod(nameof(Poco.VirtualMethod));
+                // Act
+                var result = method.IsVirtualOrAbstract();
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+
+            [Test]
+            public void ShouldFindConcreteMethod()
+            {
+                // Arrange
+                var method = typeof(Poco)
+                    .GetMethod(nameof(Poco.ConcreteMethod));
+                // Act
+                var result = method.IsVirtualOrAbstract();
+                // Assert
+                Expect(result)
+                    .To.Be.False();
+            }
+
+            public abstract class Poco
+            {
+                public virtual int Id { get; set; }
+                public string Name { get; set; }
+
+                public abstract string Foo { get; set; }
+
+                public abstract void AbstractMethod();
+
+                public virtual void VirtualMethod()
+                {
+                }
+
+                public void ConcreteMethod()
+                {
+                }
             }
         }
     }

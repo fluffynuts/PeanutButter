@@ -107,7 +107,7 @@ namespace PeanutButter.Utils
         {
             return type.GetAllConstants()
                 .Where(kvp => kvp.Value is T)
-                .ToDictionary(x => x.Key, y => (T)y.Value);
+                .ToDictionary(x => x.Key, y => (T) y.Value);
         }
 
         /// <summary>
@@ -158,7 +158,7 @@ namespace PeanutButter.Utils
             var collectionType = t.GetCollectionItemType();
             if (collectionType == null) return false;
             var specific = GenericIsAssignableFromArrayOf.MakeGenericMethod(collectionType);
-            return (bool)specific.Invoke(null, new object[] { t });
+            return (bool) specific.Invoke(null, new object[] { t });
         }
 
         /// <summary>
@@ -722,7 +722,7 @@ namespace PeanutButter.Utils
             {
                 return false;
             }
-            
+
             if (type == ObjectType)
             {
                 return true; // everything derives from object
@@ -765,6 +765,7 @@ namespace PeanutButter.Utils
             {
                 return false;
             }
+
             return baseType == test ||
                 baseType.Inherits(test);
         }
@@ -825,13 +826,47 @@ namespace PeanutButter.Utils
             return default(T);
         }
 
+        public static bool AllPublicInstancePropertiesAndMethodsAreVirtualOrAbstractAndNonFinal(
+            this Type type
+        )
+        {
+            return type.AllPublicInstancePropertiesAndMethodsAreVirtualOrAbstract() &&
+                type.AllPublicInstancePropertiesAndMethodsAreNonFinal();
+        }
+
+        public static bool AllPublicInstancePropertiesAndMethodsAreNonFinal(
+            this Type type
+        )
+        {
+            return type.AllPublicInstanceMethodsAreNonFinal() &&
+                type.AllPublicInstancePropertiesAreNonFinal();
+        }
+
+        public static bool AllPublicInstanceMethodsAreNonFinal(
+            this Type type
+        )
+        {
+            return type.GetMethods()
+                .All(mi => !mi.IsFinal);
+        }
+
+        public static bool AllPublicInstancePropertiesAreNonFinal(
+            this Type type
+        )
+        {
+            return type.GetProperties()
+                .All(pi => !pi.IsFinal());
+        }
+
         /// <summary>
         /// Returns true if all public properties and methods are either virtual or abstract\
         /// (ie can be properly overridden)
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        public static bool AllPublicInstancePropertiesAndMethodsAreVirtualOrAbstract(this Type type)
+        public static bool AllPublicInstancePropertiesAndMethodsAreVirtualOrAbstract(
+            this Type type
+        )
         {
             return type.AllPublicInstancePropertiesAreVirtualOrAbstract() &&
                 type.AllPublicInstanceMethodsAreVirtualOrAbstract();
@@ -893,7 +928,7 @@ namespace PeanutButter.Utils
         )
         {
             var propInfo = data.FindTopMostProperty<T>(propertyName);
-            return (T)propInfo.GetValue(data);
+            return (T) propInfo.GetValue(data);
         }
 
         /// <summary>
@@ -978,6 +1013,17 @@ namespace PeanutButter.Utils
         {
             return (propertyInfo.GetMethod?.IsVirtualOrAbstract() ?? true) &&
                 (propertyInfo.SetMethod?.IsVirtualOrAbstract() ?? true);
+        }
+
+        /// <summary>
+        /// returns true if the property is marked as IsFinal
+        /// </summary>
+        /// <param name="propertyInfo"></param>
+        /// <returns></returns>
+        public static bool IsFinal(this PropertyInfo propertyInfo)
+        {
+            return (propertyInfo.GetMethod?.IsFinal ?? false) ||
+                (propertyInfo.SetMethod?.IsFinal ?? false);
         }
 
         /// <summary>
@@ -1081,7 +1127,7 @@ namespace PeanutButter.Utils
                 t,
                 fieldOrPropertyName
             );
-            return (T)member.GetValue(null);
+            return (T) member.GetValue(null);
         }
 
         /// <summary>

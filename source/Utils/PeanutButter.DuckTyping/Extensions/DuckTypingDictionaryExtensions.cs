@@ -39,7 +39,12 @@ namespace PeanutButter.DuckTyping.Extensions
             bool forceConcreteType
         )
         {
-            return Shared.ForceDuckAs<T>(src, true, true, forceConcreteType);
+            return Shared.ForceDuckAs<T>(
+                src,
+                allowFuzzy: true,
+                allowDefaultValueForMissingProperties: true,
+                forceConcreteType
+            );
         }
 
         /// <summary>
@@ -54,9 +59,9 @@ namespace PeanutButter.DuckTyping.Extensions
         {
             return Shared.ForceDuckAs<T>(
                 src,
-                true,
-                true,
-                true
+                allowFuzzy: true,
+                allowDefaultValueForMissingProperties: true,
+                forceConcrete: true
             );
         }
 
@@ -70,7 +75,12 @@ namespace PeanutButter.DuckTyping.Extensions
         /// <returns></returns>
         public static T ForceDuckAs<T>(this IDictionary<string, object> src)
         {
-            return Shared.ForceDuckAs<T>(src, false, true, true);
+            return Shared.ForceDuckAs<T>(
+                src,
+                allowFuzzy: false,
+                allowDefaultValueForMissingProperties: true,
+                forceConcrete: true
+            );
         }
 
 

@@ -706,7 +706,7 @@ namespace PeanutButter.EasyArgs
         {
             if (pi.PropertyType == typeof(bool))
             {
-                var propValue = (bool)pi.GetValue(o);
+                var propValue = (bool) pi.GetValue(o);
                 return new[]
                 {
                     propValue

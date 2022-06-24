@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using PeanutButter.EasyArgs;
+﻿using PeanutButter.EasyArgs;
+using PeanutButter.INI;
 using PeanutButter.ServiceShell;
 
 namespace TestService
@@ -10,85 +9,37 @@ namespace TestService
     {
         public static int Main(string[] args)
         {
-            TotallyNotInterestingService.Options =
-                args.ParseTo<TotallyNotInterestingService.CliOptions>(
-                    out var uncollected,
-                    new ParserOptions()
-                    {
-                        IgnoreUnknownSwitches = true
-                    });
+            var opts = args.ParseTo<ICliOptions>(
+                out var uncollected,
+                new ParserOptions()
+                {
+                    IgnoreUnknownSwitches = true
+                });
+            // hack: since we're kinda taking over args here
+            // we want --help to be useful, so parse to _all_
+            // options and discard
+            var _ = args.ParseTo<IHackOptionsToShowAll>();
+
+
+            SaveIniValue(
+                TotallyNotInterestingService.SECTION_DELAY,
+                nameof(opts.StartDelay),
+                opts.StartDelay.ToString()
+            );
             return Shell.RunMain<TotallyNotInterestingService>(
                 uncollected
             );
         }
-    }
 
-
-    public static class Args
-    {
-        public static bool FindFlag(
-            this IList<string> args,
-            params string[] switches)
+        private static void SaveIniValue(
+            string section,
+            string setting,
+            string value
+        )
         {
-            return args.TryFindFlag(switches)
-                ?? false;
-        }
-
-        public static bool? TryFindFlag(
-            this IList<string> args,
-            params string[] switches)
-        {
-            return switches.Aggregate(
-                null as bool?,
-                (acc, cur) =>
-                {
-                    int idx;
-                    while ((idx = args.IndexOf(cur)) > -1)
-                    {
-                        args.RemoveAt(idx);
-                        acc = true;
-                    }
-
-                    return acc;
-                });
-        }
-
-        public static string[] FindParameters(
-            this IList<string> args,
-            params string[] switches)
-        {
-            var result = new List<string>();
-            var toRemove = new List<int>();
-            var inSwitch = false;
-            var idx = -1;
-            foreach (var arg in args)
-            {
-                idx++;
-                if (switches.Contains(arg))
-                {
-                    inSwitch = true;
-                    toRemove.Add(idx);
-                    continue;
-                }
-
-                if (!inSwitch)
-                {
-                    continue;
-                }
-
-                inSwitch = false;
-                result.Add(arg);
-                toRemove.Add(idx);
-            }
-
-            idx = -1;
-            foreach (var removeIndex in toRemove)
-            {
-                idx++;
-                args.RemoveAt(removeIndex - idx);
-            }
-
-            return result.ToArray();
+            var ini = new INIFile(TotallyNotInterestingService.INIFILE);
+            ini.SetValue(section, setting, value);
+            ini.Persist();
         }
     }
 }

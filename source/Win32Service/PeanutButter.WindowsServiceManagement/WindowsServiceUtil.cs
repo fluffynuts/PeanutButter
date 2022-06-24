@@ -1,12 +1,26 @@
-﻿using PeanutButter.WindowsServiceManagement;
+﻿using System.Linq;
+using PeanutButter.WindowsServiceManagement;
 
 #if NETSTANDARD
+using static PeanutButter.WindowsServiceManagement.ServiceControlKeys;
+
 public interface IWindowsServiceUtil
 {
+    /// <summary>
+    /// The name of the service, usable from, eg 'net stop {name}'
+    /// </summary>
     string ServiceName { get; }
+
+    /// <summary>
+    /// The name displayed in the service manager (service.msc)
+    /// </summary>
     string DisplayName { get; }
-    
-    
+
+    /// <summary>
+    /// The current state of this service
+    /// </summary>
+    ServiceState State { get; }
+
     void Refresh();
 }
 
@@ -15,6 +29,7 @@ public class WindowsServiceUtil : IWindowsServiceUtil
     private readonly ServiceControlInterface _ctl;
     public string ServiceName { get; }
     public string DisplayName { get; private set; }
+    public ServiceState State { get; private set; }
 
     public WindowsServiceUtil(string serviceName)
     {
@@ -26,6 +41,19 @@ public class WindowsServiceUtil : IWindowsServiceUtil
     public void Refresh()
     {
         var info = _ctl.QueryAll(ServiceName);
+        DisplayName = info[DISPLAY_NAME];
+        State = GrokState(info[STATE]);
+    }
+
+    private ServiceState GrokState(string s)
+    {
+        var intVal = s.Split(new[] { ' ' }).FirstOrDefault();
+        if (!int.TryParse(intVal, out var intState))
+        {
+            return ServiceState.Unknown;
+        }
+
+        return (ServiceState) intState;
     }
 }
 #else

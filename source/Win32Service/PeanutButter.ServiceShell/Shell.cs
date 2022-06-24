@@ -123,7 +123,7 @@ namespace PeanutButter.ServiceShell
 
         private static int? CLIRunResultFor<T>(string[] args, T instance) where T : Shell, new()
         {
-            var cli = new CommandlineOptions(args, instance.DisplayName, instance.CopyrightInformation);
+            var cli = new ServiceCommandlineOptions(args, instance.DisplayName, instance.CopyrightInformation);
             var runResult = PerformServiceShellTasksFor(instance, cli);
             if (runResult.HasValue)
             {
@@ -228,7 +228,7 @@ namespace PeanutButter.ServiceShell
             };
         }
 
-        private static int? RunOnceResultFor<T>(T instance, CommandlineOptions cli) where T : Shell, new()
+        private static int? RunOnceResultFor<T>(T instance, ServiceCommandlineOptions cli) where T : Shell, new()
         {
             if (cli.RunOnce || cli.Debug)
             {
@@ -241,22 +241,22 @@ namespace PeanutButter.ServiceShell
                 {
                     instance.RunningOnceFromCLI = true;
                     instance.RunOnce();
-                    return (int) CommandlineOptions.ExitCodes.Success;
+                    return (int) ServiceCommandlineOptions.ExitCodes.Success;
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine("Error running main routine:");
                     Console.WriteLine(ex.Message);
-                    return (int) CommandlineOptions.ExitCodes.Failure;
+                    return (int) ServiceCommandlineOptions.ExitCodes.Failure;
                 }
             }
 
             return null;
         }
 
-        private static int? PerformServiceShellTasksFor<T>(T instance, CommandlineOptions cli) where T : Shell, new()
+        private static int? PerformServiceShellTasksFor<T>(T instance, ServiceCommandlineOptions cli) where T : Shell, new()
         {
-            if (cli.ExitCode == CommandlineOptions.ExitCodes.ShowedHelp)
+            if (cli.ExitCode == ServiceCommandlineOptions.ExitCodes.ShowedHelp)
             {
                 return (int) cli.ExitCode;
             }
@@ -275,7 +275,7 @@ namespace PeanutButter.ServiceShell
         };
 
         private static int StopIfPossible(
-            CommandlineOptions cli,
+            ServiceCommandlineOptions cli,
             Shell instance)
         {
             if (!instance.ServiceUtil.IsStoppable)
@@ -309,7 +309,7 @@ namespace PeanutButter.ServiceShell
             _serviceUtil ??= new WindowsServiceUtil(ServiceName);
 
         private static int StartIfPossible(
-            CommandlineOptions arg1,
+            ServiceCommandlineOptions arg1,
             Shell arg2)
         {
             var svc = new WindowsServiceUtil(arg2.ServiceName);
@@ -367,7 +367,7 @@ namespace PeanutButter.ServiceShell
 
         private static int Success()
         {
-            return (int) CommandlineOptions.ExitCodes.Success;
+            return (int) ServiceCommandlineOptions.ExitCodes.Success;
         }
 
         private static int Fail(params string[] messages)
@@ -376,18 +376,18 @@ namespace PeanutButter.ServiceShell
             {
                 Console.WriteLine(line);
             }
-            return (int) CommandlineOptions.ExitCodes.Failure;
+            return (int) ServiceCommandlineOptions.ExitCodes.Failure;
         }
 
         private static int ShowVersionFor(
-            CommandlineOptions cli,
+            ServiceCommandlineOptions cli,
             Shell shell)
         {
             return shell.ShowVersion();
         }
 
         private static int InstallAndPerhapsStart(
-            CommandlineOptions cli,
+            ServiceCommandlineOptions cli,
             Shell instance)
         {
             var result = instance.InstallMe(cli);
@@ -397,7 +397,7 @@ namespace PeanutButter.ServiceShell
         }
 
         private static int StopAndUninstall(
-            CommandlineOptions options,
+            ServiceCommandlineOptions options,
             Shell shell)
         {
             shell.StopMe(true);
@@ -405,20 +405,20 @@ namespace PeanutButter.ServiceShell
         }
 
         private static ShellTaskStrategy ShellTask(
-            Func<CommandlineOptions, bool> selector,
-            Func<CommandlineOptions, Shell, int> logic)
+            Func<ServiceCommandlineOptions, bool> selector,
+            Func<ServiceCommandlineOptions, Shell, int> logic)
         {
             return new ShellTaskStrategy(selector, logic);
         }
 
         private class ShellTaskStrategy
         {
-            public Func<CommandlineOptions, bool> Selector { get; }
-            public Func<CommandlineOptions, Shell, int> Logic { get; }
+            public Func<ServiceCommandlineOptions, bool> Selector { get; }
+            public Func<ServiceCommandlineOptions, Shell, int> Logic { get; }
 
             public ShellTaskStrategy(
-                Func<CommandlineOptions, bool> selector,
-                Func<CommandlineOptions, Shell, int> logic)
+                Func<ServiceCommandlineOptions, bool> selector,
+                Func<ServiceCommandlineOptions, Shell, int> logic)
             {
                 Selector = selector;
                 Logic = logic;
@@ -456,9 +456,9 @@ namespace PeanutButter.ServiceShell
         private int FailWith(string message, bool silent)
         {
             if (silent)
-                return (int) CommandlineOptions.ExitCodes.Success;
+                return (int) ServiceCommandlineOptions.ExitCodes.Success;
             Console.WriteLine(message);
-            return (int) CommandlineOptions.ExitCodes.Failure;
+            return (int) ServiceCommandlineOptions.ExitCodes.Failure;
         }
 
 #pragma warning disable S3241 // Methods should not return values that are never used
@@ -479,7 +479,7 @@ namespace PeanutButter.ServiceShell
             try
             {
                 existingServiceUtil.Start();
-                return (int) CommandlineOptions.ExitCodes.Success;
+                return (int) ServiceCommandlineOptions.ExitCodes.Success;
             }
             catch (Exception ex)
             {
@@ -487,14 +487,14 @@ namespace PeanutButter.ServiceShell
             }
         }
 
-        private int InstallMe(CommandlineOptions cli)
+        private int InstallMe(ServiceCommandlineOptions cli)
         {
             var myExePath = new FileInfo(Environment.GetCommandLineArgs()[0]).FullName;
             var existingSvcUtil = new WindowsServiceUtil(ServiceName);
             if (existingSvcUtil.Commandline == myExePath)
             {
                 Console.WriteLine("Service already installed correctly");
-                return (int) CommandlineOptions.ExitCodes.Success;
+                return (int) ServiceCommandlineOptions.ExitCodes.Success;
             }
 
             try
@@ -506,7 +506,7 @@ namespace PeanutButter.ServiceShell
             {
                 Console.WriteLine("Service already installed at: " + existingSvcUtil.Commandline +
                     " and I can't uninstall it: " + ex.Message);
-                return (int) CommandlineOptions.ExitCodes.InstallFailed;
+                return (int) ServiceCommandlineOptions.ExitCodes.InstallFailed;
             }
 
             var svcUtil = new WindowsServiceUtil(ServiceName, DisplayName, myExePath);
@@ -515,16 +515,16 @@ namespace PeanutButter.ServiceShell
                 var bootFlag = ResolveBootFlagFor(cli);
                 svcUtil.Install(bootFlag);
                 Console.WriteLine("Installed!");
-                return (int) CommandlineOptions.ExitCodes.Success;
+                return (int) ServiceCommandlineOptions.ExitCodes.Success;
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Unable to install: " + ex.Message);
-                return (int) CommandlineOptions.ExitCodes.InstallFailed;
+                return (int) ServiceCommandlineOptions.ExitCodes.InstallFailed;
             }
         }
 
-        private ServiceBootFlag ResolveBootFlagFor(CommandlineOptions cli)
+        private ServiceBootFlag ResolveBootFlagFor(ServiceCommandlineOptions cli)
         {
             if (!cli.ManualStart && !cli.Disabled)
             {
@@ -547,19 +547,19 @@ namespace PeanutButter.ServiceShell
             if (!svcUtil.IsInstalled)
             {
                 Console.WriteLine("Not installed!");
-                return (int) CommandlineOptions.ExitCodes.UninstallFailed;
+                return (int) ServiceCommandlineOptions.ExitCodes.UninstallFailed;
             }
 
             try
             {
                 svcUtil.Uninstall();
                 Console.WriteLine("Uninstalled!");
-                return (int) CommandlineOptions.ExitCodes.Success;
+                return (int) ServiceCommandlineOptions.ExitCodes.Success;
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Unable to install: " + ex.Message);
-                return (int) CommandlineOptions.ExitCodes.UninstallFailed;
+                return (int) ServiceCommandlineOptions.ExitCodes.UninstallFailed;
             }
         }
 
@@ -574,7 +574,7 @@ namespace PeanutButter.ServiceShell
                     "version:", Version.ToString()
                 }));
 
-            return (int) CommandlineOptions.ExitCodes.Success;
+            return (int) ServiceCommandlineOptions.ExitCodes.Success;
         }
 
         private static void DisableConsoleLogging()

@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Threading;
 using PeanutButter.Utils;
 using NExpect;
+using PeanutButter.FileSystem;
 using static NExpect.Expectations;
 
 // ReSharper disable AssignNullToNotNullAttribute
@@ -15,27 +18,38 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
     [Explicit("Relies on a locally-installed RabbitMQ")]
     public class TestWindowsServiceUtil
     {
-        private static readonly string TestServiceName = $"test-service-{Guid.NewGuid()}";
+        private static readonly Guid TestServiceIdentifier = Guid.NewGuid();
+        private static readonly string TestServiceName = $"test-service-{TestServiceIdentifier}";
+        private static readonly string TestServiceDisplayName = $"test service {TestServiceIdentifier}";
+
+        private static string _testServicePath;
 
         private static string TestServicePath =>
-            Path.Combine(
-                Path.GetDirectoryName(
-                    new Uri(typeof(TestWindowsServiceUtil).Assembly.Location).LocalPath
-                ), "TestService.exe"
-            );
+            _testServicePath ??= FindTestService();
+
+        [Test]
+        public void CanFindTestServiceFind()
+        {
+            // Arrange
+            // Act
+            Expect(TestServicePath)
+                .To.Exist();
+            // Assert
+        }
+
 
         [TestFixture]
-        [Explicit("WIP")]
         public class Query
         {
-            [SetUp]
-            public void Setup()
+            [OneTimeSetUp]
+            public void OneTimeSetup()
             {
                 EnsureTestServiceIsNotInstalled();
+                InstallTestService();
             }
 
-            [TearDown]
-            public void Teardown()
+            [OneTimeTearDown]
+            public void OneTimeTeardown()
             {
                 EnsureTestServiceIsNotInstalled();
             }
@@ -44,13 +58,12 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
             public void ShouldReflectTheServiceName()
             {
                 // Arrange
-                InstallTestService();
                 var sut = Create();
                 // Act
                 var result = sut.ServiceName;
                 // Assert
                 Expect(result)
-                    .To.Equal("fix me: use test service");
+                    .To.Equal(TestServiceName);
             }
 
             [Test]
@@ -62,21 +75,52 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
                 var result = sut.DisplayName;
                 // Assert
                 Expect(result)
-                    .To.Equal("fix me: set and use test service display name");
+                    .To.Equal(TestServiceDisplayName);
             }
-        }
 
-        private static void InstallTestService(
-            string displayName = null
-        )
-        {
-            var args = new List<string>();
-            if (displayName is not null)
+            [Test]
+            public void ShouldReflectStoppedServiceState()
             {
-                args.AddRange(
-                    new[] { "--display-name", QuoteIfNecessary(displayName) }
-                );
-                
+                // Arrange
+                EnsureTestServiceIsNotRunning();
+                var sut = Create();
+                // Act
+                var result = sut.State;
+                // Assert
+                Expect(result)
+                    .To.Equal(ServiceState.Stopped);
+            }
+
+            [Test]
+            public void ShouldReflectStartedServiceState()
+            {
+                // Arrange
+                EnsureTestServiceIsNotRunning();
+                StartTestService();
+                WaitFor(() => ReadCurrentTestServiceState() == ServiceState.Running);
+                var sut = Create();
+                // Act
+                var result = sut.State;
+                // Assert
+                Expect(result)
+                    .To.Equal(ServiceState.Running);
+            }
+
+            [Test]
+            public void ShouldReflectPausedServiceState()
+            {
+                // Arrange
+                EnsureTestServiceIsNotRunning();
+                StartTestService();
+                WaitFor(() => ReadCurrentTestServiceState() == ServiceState.Running);
+                Run("sc", "pause", TestServiceName);
+                WaitFor(() => ReadCurrentTestServiceState() == ServiceState.Paused);
+                var sut = Create();
+                // Act
+                var result = sut.State;
+                // Assert
+                Expect(result)
+                    .To.Equal(ServiceState.Paused);
             }
         }
 
@@ -89,6 +133,40 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
             );
         }
 
+
+        private static string FindTestService()
+        {
+            var myDir = Path.GetDirectoryName(
+                new Uri(typeof(TestWindowsServiceUtil).Assembly.Location).LocalPath
+            );
+            var current = Path.GetDirectoryName(myDir);
+            while (true)
+            {
+                var dirs = Directory.GetDirectories(current)
+                    .Select(Path.GetFileName)
+                    .ToArray();
+                if (dirs.Contains("source"))
+                {
+                    throw new InvalidOperationException(
+                        $"Can't find TestService source folder, traversing up from {myDir}"
+                    );
+                }
+
+                if (dirs.Contains("TestService"))
+                {
+                    var fs = new LocalFileSystem(current);
+                    var relative = fs.ListFilesRecursive("TestService.exe")
+                        .FirstOrDefault() ?? throw new InvalidOperationException(
+                        $"Can't find TestService.exe under {current}"
+                    );
+                    return Path.Combine(current, relative);
+                }
+
+                current = Path.GetDirectoryName(current) ?? throw new InvalidOperationException(
+                    $"Unable to find 'source' or 'TestService' folder, travelling up from {myDir}"
+                );
+            }
+        }
 
         private void TryRun(
             Action toRun,
@@ -189,6 +267,68 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
                 TryDo(() => Run("sc", "stop", serviceName));
                 TryDo(() => Run("sc", "delete", serviceName));
             });
+        }
+
+        private static void EnsureTestServiceIsNotRunning()
+        {
+            TryDo(() => Run("sc", "stop", TestServiceName));
+        }
+
+        private static void StartTestService()
+        {
+            Run("sc", "start", TestServiceName);
+        }
+
+        private static void InstallTestService()
+        {
+            Run(TestServicePath,
+                "-i",
+                "--name", TestServiceName,
+                "--display-name", TestServiceDisplayName
+            );
+        }
+
+        private static ServiceState ReadCurrentTestServiceState()
+        {
+            using var io = ProcessIO.Start("sc", "query", TestServiceName);
+            foreach (var line in io.StandardOutput)
+            {
+                var parts = line.Trim().Split(':')
+                    .Select(p => p.Trim())
+                    .ToArray();
+                if (parts[0] == "STATE")
+                {
+                    var stateId = parts[1].Split(' ')
+                        .First()
+                        .AsInteger();
+                    return (ServiceState) stateId;
+                }
+            }
+
+            throw new InvalidOperationException(
+                $"Can't determine the state of the test service"
+            );
+        }
+
+        private static void WaitFor(
+            Expression<Func<bool>> expr,
+            int maxWaitSeconds = 10
+        )
+        {
+            var start = DateTime.Now;
+            var timeout = TimeSpan.FromSeconds(maxWaitSeconds);
+            var fn = expr.Compile();
+            while (DateTime.Now - start < timeout)
+            {
+                if (fn())
+                {
+                    return;
+                }
+
+                Thread.Sleep(100);
+            }
+
+            throw new TimeoutException($"Timed out waiting for condition: {expr}");
         }
 
         private void EnsureServiceNotRunning(string name, string exe)
