@@ -826,6 +826,12 @@ namespace PeanutButter.Utils
             return default(T);
         }
 
+        /// <summary>
+        /// Tests if all public instance properties and methods are virtual or abstract
+        /// _and_ non-final (ie, can be mimicked with a duck)
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static bool AllPublicInstancePropertiesAndMethodsAreVirtualOrAbstractAndNonFinal(
             this Type type
         )
@@ -834,6 +840,11 @@ namespace PeanutButter.Utils
                 type.AllPublicInstancePropertiesAndMethodsAreNonFinal();
         }
 
+        /// <summary>
+        /// Tests if all public instance properties and methods are non-final
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static bool AllPublicInstancePropertiesAndMethodsAreNonFinal(
             this Type type
         )
@@ -842,6 +853,11 @@ namespace PeanutButter.Utils
                 type.AllPublicInstancePropertiesAreNonFinal();
         }
 
+        /// <summary>
+        /// Tests if all public instance methods are non-final
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static bool AllPublicInstanceMethodsAreNonFinal(
             this Type type
         )
@@ -850,6 +866,11 @@ namespace PeanutButter.Utils
                 .All(mi => !mi.IsFinal);
         }
 
+        /// <summary>
+        /// Tests if all public instance properties are non-final
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static bool AllPublicInstancePropertiesAreNonFinal(
             this Type type
         )

@@ -24,8 +24,9 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
                 var sut = Create();
                 var serviceName = GetRandomString(20, 30);
                 // Act
-                // Expect(() => sut.QueryConfiguration(serviceName))
-                //     .To.Throw<ServiceNotFoundException>
+                Expect(() => sut.QueryConfiguration(serviceName))
+                    .To.Throw<ServiceNotFoundException>()
+                    .With.Message.Containing("specified service does not exist");
                 // Assert
             }
         }

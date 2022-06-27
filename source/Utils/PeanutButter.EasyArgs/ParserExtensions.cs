@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -36,6 +37,24 @@ namespace PeanutButter.EasyArgs
             return arguments.ParseTo<T>(
                 out _
             );
+        }
+
+        /// <summary>
+        /// Parse to the provided target type T with provided parser options
+        /// Unrecognised commandline arguments will be discarded, however,
+        /// depending on the provided options, the process may exit, printing
+        /// and error.
+        /// </summary>
+        /// <param name="arguments"></param>
+        /// <param name="options"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T ParseTo<T>(
+            this string[] arguments,
+            ParserOptions options
+        )
+        {
+            return arguments.ParseTo<T>(out _, options);
         }
 
         /// <summary>
@@ -125,8 +144,22 @@ namespace PeanutButter.EasyArgs
             return cleanObj;
         }
 
+        /// <summary>
+        /// Manually print the help for the provided parse target and options
+        /// </summary>
+        /// <param name="options"></param>
+        /// <typeparam name="T"></typeparam>
+        public static void PrintHelpFor<T>(ParserOptions options)
+        {
+            var lookup = GenerateSwitchLookupFor<T>();
+            AddHelp(lookup);
+            options.DisplayHelp<T>(
+                lookup.Values.Distinct().ToArray()
+            );
+        }
+
         private static void AddImpliedOptionsTo(
-            Dictionary<string, CommandlineArgument> lookup
+            IDictionary<string, CommandlineArgument> lookup
         )
         {
             AddFlagNegations(lookup);
@@ -134,7 +167,7 @@ namespace PeanutButter.EasyArgs
         }
 
         private static void AddHelp(
-            Dictionary<string, CommandlineArgument> lookup
+            IDictionary<string, CommandlineArgument> lookup
         )
         {
             var opt = new CommandlineArgument()
@@ -166,7 +199,7 @@ namespace PeanutButter.EasyArgs
             }
         }
 
-        private static void AddFlagNegations(Dictionary<string, CommandlineArgument> lookup)
+        private static void AddFlagNegations(IDictionary<string, CommandlineArgument> lookup)
         {
             var flags = lookup.Values
                 .Distinct()
@@ -185,7 +218,7 @@ namespace PeanutButter.EasyArgs
 
         private static bool TryFindOption(
             string key,
-            Dictionary<string, CommandlineArgument> lookup,
+            IDictionary<string, CommandlineArgument> lookup,
             HashSet<string> errored,
             ParserOptions options,
             out CommandlineArgument result
@@ -212,7 +245,7 @@ namespace PeanutButter.EasyArgs
         }
 
         private static IDictionary<string, object> TryMatch<T>(
-            Dictionary<string, CommandlineArgument> lookup,
+            IDictionary<string, CommandlineArgument> lookup,
             IDictionary<string, IHasValue> collected,
             out string[] unmatched,
             ParserOptions options)
@@ -269,6 +302,11 @@ namespace PeanutButter.EasyArgs
             VerifyRequiredOptions(result, lookup, options, errored);
             if (errored.Any())
             {
+                if (options.ShowHelpOnArgumentError)
+                {
+                    PrintHelpFor<T>(options);
+                }
+
                 options.ExitIfRequired(ExitCodes.ARGUMENT_ERROR);
             }
 
@@ -296,7 +334,7 @@ namespace PeanutButter.EasyArgs
 
         private static void VerifyNumericRanges(
             Dictionary<string, object> result,
-            Dictionary<string, CommandlineArgument> commandlineArguments,
+            IDictionary<string, CommandlineArgument> commandlineArguments,
             ParserOptions options,
             HashSet<string> errored
         )
@@ -336,7 +374,7 @@ namespace PeanutButter.EasyArgs
 
         private static void VerifyRequiredOptions(
             Dictionary<string, object> result,
-            Dictionary<string, CommandlineArgument> commandlineArguments,
+            IDictionary<string, CommandlineArgument> commandlineArguments,
             ParserOptions options,
             HashSet<string> errored)
         {
@@ -385,7 +423,7 @@ namespace PeanutButter.EasyArgs
             Dictionary<string, object> acc,
             string prop,
             HashSet<string> errored,
-            Dictionary<string, CommandlineArgument> lookup,
+            IDictionary<string, CommandlineArgument> lookup,
             IDictionary<string, IHasValue> collected)
         {
             var value = opt.Default ?? true;
@@ -468,8 +506,8 @@ namespace PeanutButter.EasyArgs
                             {
                                 o.Key,
                                 conflict
-                            }.Select(n => options.FirstOrDefault(o => o.Key == n))
-                            .OrderBy(o => o.LongName)
+                            }.Select(n => options.FirstOrDefault(opt => opt.Key == n))
+                            .OrderBy(opt => opt?.LongName)
                             .ToArray();
                         var left = ordered[0].LongName;
                         var right = ordered[1].LongName;
@@ -511,12 +549,20 @@ namespace PeanutButter.EasyArgs
             });
         }
 
-        private static Dictionary<string, CommandlineArgument> GenerateSwitchLookupFor<T>()
+        private static readonly ConcurrentDictionary<Type, IDictionary<string, CommandlineArgument>>
+            SwitchCache = new();
+
+        private static IDictionary<string, CommandlineArgument> GenerateSwitchLookupFor<T>()
         {
+            if (SwitchCache.TryGetValue(typeof(T), out var result))
+            {
+                return result.Clone();
+            }
+
             var options = GrokOptionsFor<T>();
-            var shortNames = CollectShortNamesFrom<T>(options);
-            var longNames = CollectLongNamesFrom<T>(options);
-            var result = new Dictionary<string, CommandlineArgument>();
+            var shortNames = CollectShortNamesFrom(options);
+            var longNames = CollectLongNamesFrom(options);
+            result = new Dictionary<string, CommandlineArgument>();
             options.OrderByDescending(o => o.IsImplicit).ForEach(opt =>
             {
                 SetShortNameIfMissing(opt, shortNames);
@@ -531,10 +577,14 @@ namespace PeanutButter.EasyArgs
                     result[opt.LongName] = opt;
                 }
             });
+            SwitchCache.TryAdd(typeof(T), result.Clone());
             return result;
         }
 
-        private static void SetShortNameIfMissing(CommandlineArgument opt, HashSet<string> existing)
+        private static void SetShortNameIfMissing(
+            CommandlineArgument opt,
+            HashSet<string> existing
+        )
         {
             if (!string.IsNullOrWhiteSpace(opt.ShortName))
             {
@@ -553,7 +603,10 @@ namespace PeanutButter.EasyArgs
             opt.ShortName = potential;
         }
 
-        private static void SetLongNameIfMissing(CommandlineArgument opt, HashSet<string> existing)
+        private static void SetLongNameIfMissing(
+            CommandlineArgument opt,
+            HashSet<string> existing
+        )
         {
             if (!string.IsNullOrWhiteSpace(opt.LongName))
             {
@@ -572,7 +625,9 @@ namespace PeanutButter.EasyArgs
             opt.LongName = potential;
         }
 
-        private static HashSet<string> CollectLongNamesFrom<T>(List<CommandlineArgument> options)
+        private static HashSet<string> CollectLongNamesFrom(
+            List<CommandlineArgument> options
+        )
         {
             return new(
                 options
@@ -581,7 +636,9 @@ namespace PeanutButter.EasyArgs
             );
         }
 
-        private static HashSet<string> CollectShortNamesFrom<T>(List<CommandlineArgument> options)
+        private static HashSet<string> CollectShortNamesFrom(
+            List<CommandlineArgument> options
+        )
         {
             return new(
                 options
@@ -592,8 +649,7 @@ namespace PeanutButter.EasyArgs
 
         private static List<CommandlineArgument> GrokOptionsFor<T>()
         {
-            return typeof(T)
-                .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+            return GetAllPropertiesOf<T>()
                 .Aggregate(
                     new List<CommandlineArgument>(),
                     (acc, cur) =>
@@ -632,6 +688,18 @@ namespace PeanutButter.EasyArgs
                         acc.Add(option);
                         return acc;
                     });
+        }
+
+        private static PropertyInfo[] GetAllPropertiesOf<T>()
+        {
+            var type = typeof(T);
+            if (!type.IsInterface)
+            {
+                return type.GetProperties(BindingFlags.Instance | BindingFlags.Default);
+            }
+            return type.GetAllImplementedInterfaces()
+                .SelectMany(o => o.GetProperties())
+                .ToArray();
         }
 
         private static IDictionary<string, IHasValue> Collect(

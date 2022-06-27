@@ -52,7 +52,7 @@ namespace PeanutButter.EasyArgs
         /// (flag) ignore unknown switches
         /// </summary>
         public bool IgnoreUnknownSwitches { get; set; }
-        
+
         /// <summary>
         /// Reports that multiple values were found for a single-value argument
         /// </summary>
@@ -104,7 +104,9 @@ namespace PeanutButter.EasyArgs
         /// </summary>
         /// <param name="options"></param>
         /// <typeparam name="T"></typeparam>
-        public virtual void DisplayHelp<T>(CommandlineArgument[] options)
+        public virtual void DisplayHelp<T>(
+            CommandlineArgument[] options
+        )
         {
             if (ShowedHelp)
             {
@@ -113,14 +115,14 @@ namespace PeanutButter.EasyArgs
 
             ShowedHelp = true;
 
-            var head = GenerateHelpHead<T>();
+            var head = GenerateHelpHead<T>(this);
             var headSpacer = head.Any()
                 ? OneLine
                 : NoLines;
             var body = GenerateArgumentHelp<T>(options.Where(
                 o => !o.IsImplicit || o.Key == CommandlineArgument.HELP_FLAG_KEY
             ).ToArray());
-            var footer = GenerateHelpFooter<T>();
+            var footer = GenerateHelpFooter<T>(this);
             var footerSpacer = footer.Any()
                 ? OneLine
                 : NoLines;
@@ -151,12 +153,16 @@ namespace PeanutButter.EasyArgs
         /// Generates the help header from attributes or defaults to something
         /// legible including the current app file
         /// </summary>
+        /// <param name="parserOptions"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        protected virtual string[] GenerateHelpHead<T>()
+        protected virtual string[] GenerateHelpHead<T>(ParserOptions parserOptions)
         {
-            var configured = ReadTextAttributes<T, DescriptionAttribute>();
-            if (configured.Any())
+            var configured = FirstSpecified(
+                parserOptions.Description,
+                ReadTextAttributes<T, DescriptionAttribute>()
+            );
+            if (configured.Any() && !parserOptions.IncludeDefaultDescription)
             {
                 return configured;
             }
@@ -190,18 +196,35 @@ namespace PeanutButter.EasyArgs
                 }
             }
 
-            if (isExe)
+            string[] DefaultDescription()
             {
+                if (isExe)
+                {
+                    return new[]
+                    {
+                        $"Usage: {currentAppFile} {{args}}"
+                    };
+                }
+
                 return new[]
                 {
-                    $"Usage: {currentAppFile} {{args}}"
+                    $"Usage: dotnet {currentAppFile} {{args}}"
                 };
             }
+            
+            return configured
+                .Concat(DefaultDescription())
+                .ToArray();
+        }
 
-            return new[]
-            {
-                $"Usage: dotnet {currentAppFile} {{args}}"
-            };
+        private static string[] FirstSpecified(
+            string[] left,
+            string[] right
+        )
+        {
+            return left?.Any() ?? false
+                ? left
+                : right;
         }
 
         private const int SHORT_NAME_LENGTH = 1;
@@ -282,7 +305,7 @@ namespace PeanutButter.EasyArgs
                 var defaultFlag = false;
                 try
                 {
-                    defaultFlag = (bool)defaultValue;
+                    defaultFlag = (bool) defaultValue;
                 }
                 catch
                 {
@@ -435,6 +458,28 @@ namespace PeanutButter.EasyArgs
         /// </summary>
         public virtual int ConsoleWidth => TryReadConsoleWidth();
 
+        /// <summary>
+        /// Override any overall help description
+        /// </summary>
+        public string[] Description { get; set; }
+
+        /// <summary>
+        /// Provide the help footer via parser argument rather than
+        /// from the decorated [MoreInfo]
+        /// </summary>
+        public string[] MoreInfo { get; set; }
+
+        /// <summary>
+        /// When specifying a description for your options, whether
+        /// or not the default {programname.exe} {args} should be included
+        /// </summary>
+        public bool IncludeDefaultDescription { get; set; }
+
+        /// <summary>
+        /// Automatically show help text on argument error
+        /// </summary>
+        public bool ShowHelpOnArgumentError { get; set; }
+
         private int TryReadConsoleWidth()
         {
             try
@@ -450,11 +495,15 @@ namespace PeanutButter.EasyArgs
         /// <summary>
         /// Generates the help footer from a [MoreInfo] attribute
         /// </summary>
+        /// <param name="parserOptions"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        protected virtual string[] GenerateHelpFooter<T>()
+        protected virtual string[] GenerateHelpFooter<T>(ParserOptions parserOptions)
         {
-            return ReadTextAttributes<T, MoreInfoAttribute>();
+            return FirstSpecified(
+                parserOptions.MoreInfo,
+                ReadTextAttributes<T, MoreInfoAttribute>()
+            );
         }
 
         /// <summary>

@@ -9,25 +9,27 @@ namespace TestService
     {
         public static int Main(string[] args)
         {
-            var opts = args.ParseTo<ICliOptions>(
-                out var uncollected,
+            // hack: since we're kinda taking over args here
+            // we want --help to be useful, so parse to _all_
+            // options and discard
+            var opts = args.ParseTo<IServiceOptions>(
+                out _,
                 new ParserOptions()
                 {
                     IgnoreUnknownSwitches = true
                 });
-            // hack: since we're kinda taking over args here
-            // we want --help to be useful, so parse to _all_
-            // options and discard
-            var _ = args.ParseTo<IHackOptionsToShowAll>();
+            if (opts.Install)
+            {
+                SaveIniValue(
+                    TotallyNotInterestingService.SECTION_DELAY,
+                    nameof(opts.StartDelay),
+                    opts.StartDelay.ToString()
+                );
+            }
+            TotallyNotInterestingService.Options = opts;
 
-
-            SaveIniValue(
-                TotallyNotInterestingService.SECTION_DELAY,
-                nameof(opts.StartDelay),
-                opts.StartDelay.ToString()
-            );
             return Shell.RunMain<TotallyNotInterestingService>(
-                uncollected
+                args
             );
         }
 

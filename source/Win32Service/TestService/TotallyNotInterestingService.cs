@@ -13,7 +13,17 @@ namespace TestService
         public const string INIFILE = "config.ini";
         public const string SECTION_DELAY = "delay";
 
-        public static ICliOptions Options { get; set; }
+        private string IniFilePath =>
+            Path.Combine(
+                Path.GetDirectoryName(
+                    new Uri(
+                        typeof(TotallyNotInterestingService).Assembly.Location
+                    ).LocalPath
+                ) ?? ".",
+                INIFILE
+            );
+
+        public static IServiceOptions Options { get; set; }
 
         public TotallyNotInterestingService()
         {
@@ -32,20 +42,29 @@ namespace TestService
 
         protected override void OnStart(string[] args)
         {
+            Log("on start - test if should delay");
             if (!TryReadIniSetting<int>(
                     SECTION_DELAY,
                     nameof(Options.StartDelay),
                     out var delay))
             {
+                Log(" -> no delay");
                 return;
             }
+
+            Log($" -> delay: {delay}ms");
 
             Thread.Sleep(delay);
         }
 
-        private bool TryReadIniSetting<T>(string sectionName, string settingName, out T result)
+        private bool TryReadIniSetting<T>(
+            string sectionName,
+            string settingName,
+            out T result
+        )
         {
-            var ini = new INIFile(INIFILE);
+            Log($"read ini at {IniFilePath}");
+            var ini = new INIFile(IniFilePath);
             result = default;
             if (!ini.HasSetting(sectionName, settingName))
             {
@@ -62,21 +81,6 @@ namespace TestService
                 return false;
             }
         }
-
-        private static string LogFilePath = Path.Combine(
-            Path.GetDirectoryName(
-                new Uri(
-                    typeof(TotallyNotInterestingService).Assembly.Location
-                ).LocalPath
-            ), "service.log");
-
-        // void Log(string str)
-        // {
-        //     File.AppendAllLines(LogFilePath, new[]
-        //     {
-        //         $"[{DateTime.Now}] {str}"
-        //     });
-        // }
 
         protected override void OnPause()
         {
@@ -100,66 +104,15 @@ namespace TestService
         }
     }
 
-    public interface IHackOptionsToShowAll
+    public interface IServiceOptions : IServiceCommandlineOptions
     {
-        bool Install { get; set; }
-        bool Uninstall { get; set; }
-        bool RunOnce { get; set; }
-        bool Debug { get; set; }
-        int Wait { get; set; }
-        bool ShowVersion { get; set; }
-        bool StartService { get; set; }
-        bool StopService { get; set; }
-        bool ManualStart { get; set; }
-        bool Disabled { get; set; }
+        [Description("Set the short name for this service")]
         string Name { get; set; }
+
+        [Description("Set the long name for this service")]
         string DisplayName { get; set; }
+
+        [Description("Delay, in ms, when starting up")]
         int StartDelay { get; set; }
-    }
-
-    public class HackOptionsToShowAll : CliOptions,  IServiceCommandlineOptions, IHackOptionsToShowAll
-    {
-        // implemented from IServiceCommandLineOptions
-        // just to get them in the help here
-        [Description("Install this service")]
-        public bool Install { get; set; }
-        [Description("Uninstall this service")]
-        public bool Uninstall { get; set; }
-        [Description("Run one round of this service's code and exit")]
-        public bool RunOnce { get; set; }
-        [Description("Run continually, with log4net logging set to ALL")]
-        public bool Debug { get; set; }
-        [Description("Wait this many seconds before actually doing the round of work for run-once")]
-        public int Wait { get; set; }
-        [Description("Show the version of this service")]
-        [ShortName('v')]
-        [LongName("version")]
-        public bool ShowVersion { get; set; }
-        [Description("Start service")]
-        [ShortName('s')]
-        [LongName("start")]
-        public bool StartService { get; set; }
-        [Description("Stop service")]
-        [ShortName('x')]
-        [LongName("stop")]
-        public bool StopService { get; set; }
-        [Description("Install with manual startup")]
-        public bool ManualStart { get; set; }
-        public bool Disabled { get; set; }
-    }
-
-    public interface ICliOptions
-    {
-        string Name { get; set; }
-        string DisplayName { get; set; }
-        int StartDelay { get; set; }
-    }
-
-    public class CliOptions
-        : ICliOptions
-    {
-        public string Name { get; set; }
-        public string DisplayName { get; set; }
-        public int StartDelay { get; set; }
     }
 }

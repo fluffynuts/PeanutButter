@@ -122,6 +122,86 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
                 Expect(result)
                     .To.Equal(ServiceState.Paused);
             }
+
+            [Test]
+            public void ShouldSetAllowedTransitionForStoppedStateOfEnabledService()
+            {
+                // Arrange
+                EnsureTestServiceIsNotRunning();
+                var sut = Create();
+                // Act
+                var result = sut.AllowedTransitions;
+                // Assert
+                Expect(result)
+                    .To.Equal(new[] { ServiceState.Running });
+            }
+        }
+
+        [TestFixture]
+        public class Control
+        {
+            [OneTimeSetUp]
+            public void OneTimeSetup()
+            {
+                EnsureTestServiceIsNotInstalled();
+                InstallTestService();
+            }
+
+            [OneTimeTearDown]
+            public void OneTimeTeardown()
+            {
+                EnsureTestServiceIsNotInstalled();
+            }
+
+            [Test]
+            public void ShouldStartTheStoppedService()
+            {
+                // Arrange
+                EnsureTestServiceIsNotRunning();
+                var sut = Create(TestServiceName);
+                // Act
+                sut.Start();
+                // Assert
+                Expect(sut.State)
+                    .To.Equal(ServiceState.Running);
+                Expect(ReadCurrentTestServiceState())
+                    .To.Equal(ServiceState.Running);
+            }
+
+            [Test]
+            public void ShouldNotThrowWhenAttemptingToStartServicePendingStart()
+            {
+                // Arrange
+                EnsureTestServiceIsNotRunning();
+                var sut = Create(TestServiceName);
+                // Act
+                sut.Start(wait: false);
+                Expect(() => sut.Start())
+                    .Not.To.Throw();
+                Expect(() => sut.Start())
+                    .Not.To.Throw();
+                // Assert
+                Expect(sut.State)
+                    .To.Equal(ServiceState.Running);
+            }
+
+            [Test]
+            public void ShouldStopTheStartedService()
+            {
+                // Arrange
+                EnsureTestServiceIsNotRunning();
+                var sut = Create(TestServiceName);
+                sut.Start();
+                
+                // Act
+                sut.Stop();
+                
+                // Assert
+                Expect(sut.State)
+                    .To.Equal(ServiceState.Stopped);
+                Expect(ReadCurrentTestServiceState())
+                    .To.Equal(ServiceState.Stopped);
+            }
         }
 
         private static IWindowsServiceUtil Create(
@@ -154,6 +234,7 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
 
                 if (dirs.Contains("TestService"))
                 {
+                    current = Path.Join(current, "TestService");
                     var fs = new LocalFileSystem(current);
                     var relative = fs.ListFilesRecursive("TestService.exe")
                         .FirstOrDefault() ?? throw new InvalidOperationException(
@@ -271,12 +352,17 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
 
         private static void EnsureTestServiceIsNotRunning()
         {
-            TryDo(() => Run("sc", "stop", TestServiceName));
+            TryDo(() =>
+            {
+                Run("sc", "stop", TestServiceName);
+                WaitFor(() => ReadCurrentTestServiceState() == ServiceState.Stopped);
+            });
         }
 
         private static void StartTestService()
         {
             Run("sc", "start", TestServiceName);
+            WaitFor(() => ReadCurrentTestServiceState() == ServiceState.Running);
         }
 
         private static void InstallTestService()
@@ -284,7 +370,8 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
             Run(TestServicePath,
                 "-i",
                 "--name", TestServiceName,
-                "--display-name", TestServiceDisplayName
+                "--display-name", TestServiceDisplayName,
+                "--start-delay", "1000"
             );
         }
 

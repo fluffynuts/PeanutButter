@@ -1,7 +1,10 @@
-﻿using System.Linq;
+﻿#if NETSTANDARD
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using Imported.PeanutButter.Utils;
 using PeanutButter.WindowsServiceManagement;
-
-#if NETSTANDARD
 using static PeanutButter.WindowsServiceManagement.ServiceControlKeys;
 
 public interface IWindowsServiceUtil
@@ -21,15 +24,52 @@ public interface IWindowsServiceUtil
     /// </summary>
     ServiceState State { get; }
 
+    /// <summary>
+    /// Reflects the allowed transition states for the service
+    /// </summary>
+    ServiceState[] AllowedTransitions { get; }
+
+    /// <summary>
+    /// Refresh the state of the service
+    /// </summary>
     void Refresh();
+
+    /// <summary>
+    /// Start the service and wait for it to be running
+    /// </summary>
+    void Start();
+
+    /// <summary>
+    /// Start the service
+    /// Explicitly wait or not for it to start
+    /// </summary>
+    /// <param name="wait"></param>
+    void Start(bool wait);
+
+    /// <summary>
+    /// Stop the service and wait for it to be running
+    /// </summary>
+    void Stop();
+
+    /// <summary>
+    /// Start the service
+    /// Explicitly wait or not for it to start
+    /// </summary>
+    /// <param name="wait"></param>
+    void Stop(bool wait);
 }
 
 public class WindowsServiceUtil : IWindowsServiceUtil
 {
+    public const int DEFAULT_SERVICE_CONTROL_TIMEOUT_SECONDS = 30;
+    public const int DEFAULT_POLL_INTERVAL_MILLISECONDS = 500;
     private readonly ServiceControlInterface _ctl;
     public string ServiceName { get; }
     public string DisplayName { get; private set; }
     public ServiceState State { get; private set; }
+    public ServiceState[] AllowedTransitions { get; private set; }
+    public int ServiceControlTimeoutSeconds { get; set; } = DEFAULT_SERVICE_CONTROL_TIMEOUT_SECONDS;
+    public int PollIntervalMilliseconds { get; set; } = DEFAULT_POLL_INTERVAL_MILLISECONDS;
 
     public WindowsServiceUtil(string serviceName)
     {
@@ -43,6 +83,134 @@ public class WindowsServiceUtil : IWindowsServiceUtil
         var info = _ctl.QueryAll(ServiceName);
         DisplayName = info[DISPLAY_NAME];
         State = GrokState(info[STATE]);
+        if (State == ServiceState.Stopped)
+        {
+            AllowedTransitions = new[] { ServiceState.Running };
+        }
+    }
+
+    public void Start()
+    {
+        Start(wait: true);
+    }
+
+    public void Start(bool wait)
+    {
+        ChangeServiceState(ServiceState.Running, wait);
+    }
+
+    public void Stop()
+    {
+        Stop(wait: true);
+    }
+
+    public void Stop(bool wait)
+    {
+        ChangeServiceState(ServiceState.Stopped, wait);
+    }
+
+    private void ChangeServiceState(
+        ServiceState toState,
+        bool wait
+    )
+    {
+        Refresh();
+        if (State == toState)
+        {
+            return;
+        }
+
+        if (PendingStateMap.TryGetValue(toState, out var pendingState))
+        {
+            if (State == pendingState)
+            {
+                if (wait)
+                {
+                    WaitForServiceState(toState);
+                }
+
+                return;
+            }
+        }
+        else
+        {
+            throw new InvalidOperationException(
+                $"Pending state for requested state {toState} is unknown"
+            );
+        }
+
+        if (!StateChangeVerbs.TryGetValue(toState, out var verb))
+        {
+            throw new InvalidOperationException(
+                $"Unable to change state to {toState}: no verb set for this state"
+            );
+        }
+
+        var scResult = _ctl.RunServiceControl(verb, ServiceName);
+        var resultState = GrokState(scResult[STATE]);
+        if (resultState != pendingState)
+        {
+            throw new ServiceControlException(
+                $"Unable to change state of '{ServiceName}' to {toState} (sc reports state: {scResult[STATE]})"
+            );
+        }
+
+        if (!wait)
+        {
+            return;
+        }
+        WaitForServiceState(toState);
+    }
+
+    private static readonly Dictionary<ServiceState, ServiceState>
+        PendingStateMap = new()
+        {
+            [ServiceState.Running] = ServiceState.StartPending,
+            [ServiceState.Stopped] = ServiceState.StopPending,
+            [ServiceState.Paused] = ServiceState.PausePending
+        };
+
+    private static readonly Dictionary<ServiceState, string>
+        StateChangeVerbs = new()
+        {
+            [ServiceState.Running] = "start",
+            [ServiceState.Stopped] = "stop",
+            [ServiceState.Paused] = "pause"
+        };
+
+    private void WaitForServiceState(
+        ServiceState desiredState
+    )
+    {
+        WaitFor(
+            $"'{ServiceName}' to enter state: {desiredState}",
+            () => RefreshState() == desiredState,
+            ServiceControlTimeoutSeconds
+        );
+    }
+
+
+    private ServiceState RefreshState()
+    {
+        Refresh();
+        return State;
+    }
+
+    private void WaitFor(
+        string label,
+        Func<bool> func,
+        int timeoutSeconds
+    )
+    {
+        var timeout = DateTime.Now.AddSeconds(timeoutSeconds);
+        while (!func())
+        {
+            Thread.Sleep(PollIntervalMilliseconds);
+            if (DateTime.Now > timeout)
+            {
+                throw new TimeoutException($"Timed out waiting for: {label} (waited {timeoutSeconds}s)");
+            }
+        }
     }
 
     private ServiceState GrokState(string s)

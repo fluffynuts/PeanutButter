@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj" />
+    <ProjectReference Include="..\..\Utils\PeanutButter.EasyArgs\PeanutButter.EasyArgs.csproj" />
     <ProjectReference Include="..\..\Utils\PeanutButter.FileSystem\PeanutButter.FileSystem.csproj" />
     <ProjectReference Include="..\PeanutButter.WindowsServiceManagement\PeanutButter.WindowsServiceManagement.csproj" />
   </ItemGroup>

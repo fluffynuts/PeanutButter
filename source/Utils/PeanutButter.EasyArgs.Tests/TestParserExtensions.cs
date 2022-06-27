@@ -487,6 +487,94 @@ Report bugs to <no-one-cares@whatevs.org>
                 [Attributes.Description("the on flag")]
                 public bool OnFlag { get; set; }
             }
+
+            [Test]
+            public void ShouldIncludeHelpHeaderAndCopyrightFromParserOptions()
+            {
+                // Arrange
+                var args = new[] { "--help" };
+                var collected = new List<string>();
+                var opts = new ParserOptions()
+                {
+                    LineWriter = collected.Add,
+                    Description = new[] { GetRandomWords() },
+                    IncludeDefaultDescription = true,
+                    MoreInfo = new[] { GetRandomWords() },
+                    ExitOnError = false
+                };
+                // Act
+                args.ParseTo<IOpts>(opts);
+                // Assert
+                Expect(collected.JoinWith("\n").Trim())
+                    .To.Start.With(opts.Description[0])
+                    .Then("Usage: dotnet")
+                    .And
+                    .To.End.With(opts.MoreInfo[0]);
+            }
+
+            public interface IOpts
+            {
+                int Count { get; set; }
+            }
+
+            [Test]
+            public void ShouldIncludeAllPropertiesInInterfaceAncestry()
+            {
+                // Arrange
+                var args = new[]
+                {
+                    "--name", "bob",
+                    "--address", "here",
+                    "--color", "red",
+                    "--flag",
+                    "--value", "123"
+                };
+                var collected = new List<string>();
+                // Act
+                var result = args.ParseTo<IChild>(new ParserOptions()
+                {
+                    ExitOnError = false,
+                    LineWriter = collected.Add
+                });
+                // Assert
+                Expect(collected)
+                    .To.Be.Empty();
+                Expect(result.Name)
+                    .To.Equal("bob");
+                Expect(result.Address)
+                    .To.Equal("here");
+                Expect(result.Color)
+                    .To.Equal("red");
+                Expect(result.Flag)
+                    .To.Be.True();
+                Expect(result.Value)
+                    .To.Equal(123);
+            }
+
+            public interface IGrandParent1
+            {
+                public string Name { get; set; }
+            }
+
+            public interface IGrandParent2
+            {
+                public string Address { get; set; }
+            }
+
+            public interface IParent1 : IGrandParent1, IGrandParent2
+            {
+                public string Color { get; set; }
+            }
+
+            public interface IParent2
+            {
+                public bool Flag { get; set; }
+            }
+
+            public interface IChild : IParent1, IParent2
+            {
+                public int Value { get; set; }
+            }
         }
 
         [TestFixture]

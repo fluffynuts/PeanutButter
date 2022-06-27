@@ -5,6 +5,7 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable ExpressionIsAlwaysNull
 // ReSharper disable PossibleMultipleEnumeration
+#pragma warning disable CS0618
 
 namespace PeanutButter.TestUtils.Generic.Tests
 {

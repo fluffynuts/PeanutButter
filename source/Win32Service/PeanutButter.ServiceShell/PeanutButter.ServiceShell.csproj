@@ -27,11 +27,7 @@
     <Reference Include="System.ServiceProcess" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="Shell.cs">
-      <SubType>Component</SubType>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
+    <ProjectReference Include="..\..\Utils\PeanutButter.EasyArgs\PeanutButter.EasyArgs.csproj" />
     <ProjectReference Include="..\PeanutButter.WindowsServiceManagement\PeanutButter.WindowsServiceManagement.csproj" />
   </ItemGroup>
   <ItemGroup>
@@ -44,6 +40,14 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\Utils\PeanutButter.EasyArgs\icon.png">
+      <Link>icon.png</Link>
+    </Content>
+    <Content Include="..\..\Utils\PeanutButter.EasyArgs\Package.nuspec">
+      <Link>Package.nuspec</Link>
+    </Content>
   </ItemGroup>
   <Import Project="..\..\MonoForFramework.targets" />
 </Project>

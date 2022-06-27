@@ -1123,6 +1123,18 @@ namespace PeanutButter.Utils
                 );
         }
 
+        /// <summary>
+        /// Produces an hashset from a collection
+        /// -> shorthand for new HashSet&lt;T&gt;(collection)
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static HashSet<T> ToHashSet<T>(this IEnumerable<T> collection)
+        {
+            return new HashSet<T>(collection);
+        }
+
         private static void IncrementCount<T>(
             Dictionary<T, int> counts,
             T value

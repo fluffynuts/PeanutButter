@@ -256,11 +256,6 @@ namespace PeanutButter.ServiceShell
 
         private static int? PerformServiceShellTasksFor<T>(T instance, ServiceCommandlineOptions cli) where T : Shell, new()
         {
-            if (cli.ExitCode == ServiceCommandlineOptions.ExitCodes.ShowedHelp)
-            {
-                return (int) cli.ExitCode;
-            }
-
             var task = ShellTasks.FirstOrDefault(t => t.Selector(cli));
             return task?.Logic.Invoke(cli, instance);
         }

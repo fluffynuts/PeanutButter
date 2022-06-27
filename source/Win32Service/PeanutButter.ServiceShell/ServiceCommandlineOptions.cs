@@ -1,6 +1,10 @@
 ﻿using System;
 using CommandLine;
 using CommandLine.Text;
+using PeanutButter.EasyArgs;
+using PeanutButter.EasyArgs.Attributes;
+using PeanutButter.Utils;
+
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Local
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
@@ -11,18 +15,42 @@ namespace PeanutButter.ServiceShell
 {
     public interface IServiceCommandlineOptions
     {
+        [Description("install this service")]
         bool Install { get; set; }
+
+        [Description("uninstall this service")]
         bool Uninstall { get; set; }
+
+        [Description("run one round of this service's code and exit")]
         bool RunOnce { get; set; }
+
+        [Description("run continually, with logging set to ALL")]
         bool Debug { get; set; }
+
+        [Description("wait this many seconds before actually doing the round of work, for run-once")]
         int Wait { get; set; }
+
+        [Description("show the version of this service")]
+        [ShortName('v')]
+        [LongName("--version")]
         bool ShowVersion { get; set; }
+
+        [Description("start service")]
+        [LongName("start")]
         bool StartService { get; set; }
+
+        [Description("stop service")]
+        [ShortName('x')]
+        [LongName("stop")]
         bool StopService { get; set; }
+
+        [Description("install with manual startup")]
         bool ManualStart { get; set; }
+
+        [Description("install as a disabled service")]
         bool Disabled { get; set; }
     }
-    
+
     // TODO: port to EasyArgs & drop the extra package
     public class ServiceCommandlineOptions
         : IServiceCommandlineOptions
@@ -37,105 +65,74 @@ namespace PeanutButter.ServiceShell
             UninstallFailed
         }
 
-        [Option('i', "install", HelpText = "Install this service")]
         public bool Install { get; set; }
-
-        [Option('u', "uninstall", HelpText = "Uninstall this service")]
         public bool Uninstall { get; set; }
-
-        [Option('r', "run-once", HelpText = "Run one round of this service's code and exit")]
         public bool RunOnce { get; set; }
-
-        [Option('d', "debug", HelpText = "Run continually, with logging set to ALL")]
         public bool Debug { get; set; }
-
-        [Option('w', "wait", HelpText = "Wait this many seconds before actually doing the round of work")]
         public int Wait { get; set; }
-
-        [Option('h', "help", HelpText = "Show this help")]
-        public bool ShowHelp { get; set; }
-
-        [Option('v', "version", HelpText = "Show the version of this service")]
         public bool ShowVersion { get; set; }
-
-        [Option('s', "start", HelpText = "Start service")]
         public bool StartService { get; set; }
-
-        [Option('x', "stop", HelpText = "Stop service")]
         public bool StopService { get; set; }
-
-        [Option('m', "manual-start", HelpText = "Install with Manual startup")]
         public bool ManualStart { get; set; }
-
-        [Option('z', "disabled", HelpText = "Install as a disabled service")]
         public bool Disabled { get; set; }
 
-        public ExitCodes ExitCode { get; protected set; }
-
         private Action<string> HelpWriter { get; set; } = Console.WriteLine;
-        internal IParser OptionsParser { get; set; } = new ParserFacade(Parser.Default);
 
-        public ServiceCommandlineOptions(string[] args, string helpHeading, string copyRightInformation = null)
+        public ServiceCommandlineOptions(
+            string[] args,
+            string helpHeading,
+            string copyRightInformation = null
+        )
         {
             Init(args, helpHeading, copyRightInformation);
         }
 
-        private void Init(string[] args, string helpHeading, string copyRightInformation)
+        private void Init(
+            string[] args,
+            string helpHeading,
+            string copyRightInformation,
+            bool preventParserExit = false
+        )
         {
-            ExitCode = ExitCodes.CommandlineArgumentError;
-            if (OptionsParser.ParseArguments(args, this))
+            var opts = new ParserOptions()
             {
-                if (ShowHelp)
-                {
-                    ShowUsage(helpHeading, copyRightInformation);
-                    return;
-                }
-                ExitCode = ExitCodes.Success;
+                Description = new[] { helpHeading },
+                MoreInfo = new[] { copyRightInformation },
+                LineWriter = HelpWriter,
+                IgnoreUnknownSwitches = true
+            };
+            if (preventParserExit)
+            {
+                opts.ExitOnError = false;
+                opts.ExitWhenShowingHelp = false;
+                opts.ShowHelpOnArgumentError = true;
             }
-            else
+
+            var parsed = args.ParseTo<IServiceCommandlineOptions>(
+                out _,
+                opts
+            );
+            foreach (var prop in typeof(IServiceCommandlineOptions).GetProperties())
             {
-                ShowUsage(helpHeading, copyRightInformation);
+                var val = prop.GetValue(parsed);
+                prop.SetValue(this, val);
             }
         }
 
-        internal ServiceCommandlineOptions(string[] args, string helpHeading, string copyRightInformation,
-            Action<string> helpWriter, IParser parser)
+        internal ServiceCommandlineOptions(
+            string[] args,
+            string helpHeading,
+            string copyRightInformation,
+            Action<string> helpWriter
+        )
         {
             HelpWriter = helpWriter;
-            OptionsParser = parser;
-            Init(args, helpHeading, copyRightInformation);
-        }
-
-        private void ShowUsage(string helpHeading, string copyRightInformation)
-        {
-            var ht = new HelpText(helpHeading) {AddDashesToOption = true};
-            if (!string.IsNullOrWhiteSpace(copyRightInformation))
-                ht.Copyright = copyRightInformation;
-            ht.AddOptions(this);
-
-            HelpWriter(ht.ToString());
-            ExitCode = ExitCodes.ShowedHelp;
-        }
-
-    }
-
-    internal interface IParser
-    {
-        bool ParseArguments(string[] arguments, object optionsObject);
-    }
-
-    internal class ParserFacade: IParser
-    {
-        public Parser Actual { get; }
-
-        internal ParserFacade(Parser actual)
-        {
-            Actual = actual;
-        }
-
-        public bool ParseArguments(string[] arguments, object optionsObject)
-        {
-            return Actual.ParseArguments(arguments, optionsObject);
+            Init(
+                args,
+                helpHeading,
+                copyRightInformation,
+                preventParserExit: true
+            );
         }
     }
 }

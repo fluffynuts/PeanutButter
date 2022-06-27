@@ -34,6 +34,8 @@ namespace PeanutButter.WindowsServiceManagement
         IDictionary<string, string> QueryAll(string serviceName);
         IDictionary<string, string> QueryEx(string serviceName);
         IDictionary<string, string> QueryConfiguration(string serviceName);
+
+        IDictionary<string, string> RunServiceControl(params string[] args);
     }
 
     internal class ServiceControlInterface : IServiceControlInterface
@@ -46,12 +48,12 @@ namespace PeanutButter.WindowsServiceManagement
 
         public IDictionary<string, string> QueryEx(string serviceName)
         {
-            return GatherServiceControlOutput("queryex", serviceName);
+            return RunServiceControl("queryex", serviceName);
         }
 
         public IDictionary<string, string> QueryConfiguration(string serviceName)
         {
-            return GatherServiceControlOutput(
+            return RunServiceControl(
                 (key, value) => key == ServiceControlKeys.BINARY_PATH_NAME
                     ? value.Trim('"')
                     : value,
@@ -60,17 +62,45 @@ namespace PeanutButter.WindowsServiceManagement
             );
         }
 
-        private IDictionary<string, string> GatherServiceControlOutput(
+        public IDictionary<string, string> RunServiceControl(
             params string[] args
         )
         {
-            return GatherServiceControlOutput(
+            return RunServiceControl(
                 (_, value) => value,
                 args
             );
         }
 
-        private IDictionary<string, string> GatherServiceControlOutput(
+        private static readonly Dictionary<int, Action<string[], string>>
+            ServiceControlErrorHandlers = new()
+            {
+                [1060] = HandleServiceNotFound,
+                [1639] = HandleBadServiceControlCommandline
+            };
+
+        private static void HandleBadServiceControlCommandline(
+            string[] args, 
+            string output)
+        {
+            throw new InvalidOperationException(
+                $@"The following arguments to sc.exe were invalid:\n{
+                    args.Stringify()
+                }\nThis is an error in PeanutButter. Please report it"
+            );
+        }
+
+        private static void HandleServiceNotFound(
+            string[] args,
+            string output)
+        {
+            throw new ServiceNotFoundException(
+                args.Last(),
+                output
+            );
+        }
+
+        private IDictionary<string, string> RunServiceControl(
             Func<string, string, string> mutator,
             params string[] args
         )
@@ -78,6 +108,21 @@ namespace PeanutButter.WindowsServiceManagement
             using var io = ProcessIO.Start(
                 "sc", args
             );
+            io.Process.WaitForExit();
+            if (io.ExitCode != 0)
+            {
+                var lines = io.StandardOutput
+                    .Where(s => !string.IsNullOrWhiteSpace(s))
+                    .ToArray()
+                    .JoinWith(Environment.NewLine);
+                if (!ServiceControlErrorHandlers.TryGetValue(io.ExitCode, out var handler))
+                {
+                    throw new ServiceControlException(lines);
+                }
+
+                handler(args, lines);
+            }
+
             var result = new Dictionary<string, string>();
             var lastKey = null as string;
             foreach (var line in io.StandardOutput)
@@ -112,6 +157,21 @@ namespace PeanutButter.WindowsServiceManagement
             key = parts.First().Trim();
             value = parts.Skip(1).JoinWith(":").Trim();
             return true;
+        }
+    }
+
+    public class ServiceNotFoundException : Exception
+    {
+        public ServiceNotFoundException(string serviceName, string moreInfo)
+            : base($"Unable to query service {serviceName}: {moreInfo}")
+        {
+        }
+    }
+
+    public class ServiceControlException : Exception
+    {
+        public ServiceControlException(string message) : base(message)
+        {
         }
     }
 }
