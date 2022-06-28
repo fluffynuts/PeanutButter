@@ -138,7 +138,7 @@ namespace PeanutButter.EasyArgs
                 .And("")
                 .ForEach(s => LineWriter(s.TrimEnd()));
 
-            if (ExitOnError)
+            if (ExitWhenShowingHelp)
             {
                 ExitAction?.Invoke(ExitCodes.SHOWED_HELP);
             }

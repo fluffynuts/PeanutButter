@@ -27,6 +27,9 @@
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\Utils\PeanutButter.Utils\Commandline.cs">
+      <Link>Imported\Commandline.cs</Link>
+    </Compile>
     <Compile Include="..\..\Utils\PeanutButter.Utils\ProcessIO.cs" Link="Imported\ProcessIO.cs" />
     <Compile Include="..\..\Utils\PeanutButter.Utils\PropertyOrField.cs" Link="Imported\PropertyOrField.cs" />
     <Compile Include="..\..\Utils\PeanutButter.Utils\StringExtensions.cs" Link="Imported\StringExtensions.cs" />

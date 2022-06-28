@@ -25,6 +25,16 @@ namespace TestService
                     nameof(opts.StartDelay),
                     opts.StartDelay.ToString()
                 );
+                SaveIniValue(
+                    TotallyNotInterestingService.SECTION_DELAY,
+                    nameof(opts.PauseDelay),
+                    opts.PauseDelay.ToString()
+                );
+                SaveIniValue(
+                    TotallyNotInterestingService.SECTION_DELAY,
+                    nameof(opts.StopDelay),
+                    opts.StopDelay.ToString()
+                );
             }
             TotallyNotInterestingService.Options = opts;
 

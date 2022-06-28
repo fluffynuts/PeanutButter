@@ -575,6 +575,31 @@ Report bugs to <no-one-cares@whatevs.org>
             {
                 public int Value { get; set; }
             }
+
+            [Test]
+            public void ShouldNotGenerateShortNameWhenDisabled()
+            {
+                // Arrange
+                var captured = new List<string>();
+                var opts = new ParserOptions()
+                {
+                    LineWriter = captured.Add,
+                    ExitWhenShowingHelp = false
+                };
+                var args = new[] { "--help" };
+                // Act
+                args.ParseTo<INoShortName>(opts);
+                // Assert
+                Expect(captured)
+                    .Not.To.Contain.Any
+                    .Matched.By(s => s.StartsWith("-t"));
+            }
+
+            public interface INoShortName
+            {
+                [DisableGeneratedShortName]
+                public bool TheFlag { get; set; }
+            }
         }
 
         [TestFixture]

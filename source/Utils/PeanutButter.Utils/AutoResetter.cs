@@ -36,6 +36,16 @@ internal
             _disposalAction = disposalAction;
         }
 
+        /// <summary>
+        /// Constructs a new AutoResetter with the disposal action set and no
+        /// construction action
+        /// </summary>
+        /// <param name="disposalAction"></param>
+        public AutoResetter(Action disposalAction)
+        {
+            _disposalAction = disposalAction;
+        }
+
         /// <inheritdoc />
         public void Dispose()
         {

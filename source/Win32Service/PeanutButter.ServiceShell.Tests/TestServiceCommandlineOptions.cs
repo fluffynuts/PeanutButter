@@ -27,8 +27,8 @@ namespace PeanutButter.ServiceShell.Tests
             string helpText)
         {
             //---------------Set up test pack-------------------
-            var heading = RandomValueGen.GetRandomString();
-            var copyRight = RandomValueGen.GetRandomString();
+            var heading = GetRandomString();
+            var copyRight = GetRandomString();
             var args = new[] { "-h" };
             var result = new List<string>();
 
@@ -124,7 +124,7 @@ namespace PeanutButter.ServiceShell.Tests
         }
         
         [TestCase("-w")]
-        [TestCase("--Wait")]
+        [TestCase("--wait")]
         public void ShouldSetWait(string flag)
         {
             // Arrange

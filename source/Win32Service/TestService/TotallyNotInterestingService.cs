@@ -107,12 +107,23 @@ namespace TestService
     public interface IServiceOptions : IServiceCommandlineOptions
     {
         [Description("Set the short name for this service")]
+        [DisableGeneratedShortName]
         string Name { get; set; }
 
         [Description("Set the long name for this service")]
+        [DisableGeneratedShortName]
         string DisplayName { get; set; }
 
         [Description("Delay, in ms, when starting up")]
+        [DisableGeneratedShortName]
         int StartDelay { get; set; }
+
+        [Description("Delay, in ms, when pausing")]
+        [DisableGeneratedShortName]
+        int PauseDelay { get; set; }
+
+        [Description("Delay, in ms, when stopping")]
+        [DisableGeneratedShortName]
+        int StopDelay { get; set; }
     }
 }

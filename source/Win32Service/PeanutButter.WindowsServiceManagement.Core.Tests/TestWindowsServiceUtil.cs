@@ -9,6 +9,7 @@ using PeanutButter.Utils;
 using NExpect;
 using PeanutButter.FileSystem;
 using static NExpect.Expectations;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 
 // ReSharper disable AssignNullToNotNullAttribute
 
@@ -37,7 +38,6 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
             // Assert
         }
 
-
         [TestFixture]
         public class Query
         {
@@ -52,6 +52,15 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
             public void OneTimeTeardown()
             {
                 EnsureTestServiceIsNotInstalled();
+            }
+
+            [SetUp]
+            public void Setup()
+            {
+                // in case something disables, and something else
+                // wants to work with the service
+                ConfigureTestServiceStartupType(ServiceStartupTypes.Manual);
+                EnsureTestServiceIsNotRunning();
             }
 
             [Test]
@@ -82,7 +91,6 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
             public void ShouldReflectStoppedServiceState()
             {
                 // Arrange
-                EnsureTestServiceIsNotRunning();
                 var sut = Create();
                 // Act
                 var result = sut.State;
@@ -95,7 +103,6 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
             public void ShouldReflectStartedServiceState()
             {
                 // Arrange
-                EnsureTestServiceIsNotRunning();
                 StartTestService();
                 WaitFor(() => ReadCurrentTestServiceState() == ServiceState.Running);
                 var sut = Create();
@@ -110,7 +117,6 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
             public void ShouldReflectPausedServiceState()
             {
                 // Arrange
-                EnsureTestServiceIsNotRunning();
                 StartTestService();
                 WaitFor(() => ReadCurrentTestServiceState() == ServiceState.Running);
                 Run("sc", "pause", TestServiceName);
@@ -123,17 +129,126 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
                     .To.Equal(ServiceState.Paused);
             }
 
+            [TestCase(ServiceStartupTypes.DelayedAutomatic)]
+            [TestCase(ServiceStartupTypes.Automatic)]
+            [TestCase(ServiceStartupTypes.Manual)]
+            [TestCase(ServiceStartupTypes.Disabled)]
+            public void ShouldReflectStartTypeOf_(
+                ServiceStartupTypes expected
+            )
+            {
+                // Arrange
+                ConfigureTestServiceStartupType(expected);
+                InstallTestService(expected);
+                var sut = Create();
+                // Act
+                var result = sut.StartType;
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+
+            [Test]
+            public void ShouldReflectServiceDisabledState()
+            {
+                // Arrange
+                ConfigureTestServiceStartupType(ServiceStartupTypes.Disabled);
+                var sut = Create();
+                // Act
+                var result = sut.IsDisabled;
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+
+            [Test]
+            public void ShouldReflectServiceEnabledState()
+            {
+                // Arrange
+                ConfigureTestServiceStartupType(ServiceStartupTypes.Manual);
+                var sut = Create();
+                // Act
+                var result = sut.IsDisabled;
+                // Assert
+                Expect(result)
+                    .To.Be.False();
+            }
+
+            [Test]
+            public void ShouldSetPossibleStatesForEnabledStoppedService()
+            {
+                // Arrange
+                var sut = Create();
+                Expect(sut.IsDisabled)
+                    .To.Be.False();
+                // Act
+                var result = sut.AllowedStates;
+                // Assert
+                Expect(result)
+                    .To.Equal(new[] { ServiceState.Running });
+            }
+
             [Test]
             public void ShouldSetAllowedTransitionForStoppedStateOfEnabledService()
             {
                 // Arrange
-                EnsureTestServiceIsNotRunning();
                 var sut = Create();
                 // Act
-                var result = sut.AllowedTransitions;
+                var result = sut.AllowedStates;
                 // Assert
                 Expect(result)
                     .To.Equal(new[] { ServiceState.Running });
+            }
+
+            [Test]
+            public void ShouldSetAllowedStatesForRunningService()
+            {
+                // Arrange
+                var sut = Create();
+                sut.Start();
+                // Act
+                var result = sut.AllowedStates;
+                // Assert
+                Expect(result)
+                    .To.Be.Equivalent.To(new[]
+                    {
+                        ServiceState.Paused,
+                        ServiceState.Stopped
+                    });
+            }
+
+            [Test]
+            public void ShouldSetAllowedStatesForPausedService()
+            {
+                // Arrange
+                var sut = Create();
+                sut.Start();
+                sut.Pause();
+                // Act
+                var result = sut.AllowedStates;
+                // Assert
+                Expect(result)
+                    .To.Be.Equivalent.To(new[]
+                    {
+                        ServiceState.Running,
+                        ServiceState.Paused, // it's no error to pause a paused service
+                        ServiceState.Stopped
+                    });
+            }
+
+            [Test]
+            public void ShouldExposeTheBinPathAndArgs()
+            {
+                // Arrange
+                var sut = Create();
+                // Act
+                var exe = sut.ServiceExe;
+                var args = sut.Arguments;
+                // Assert
+                Expect(exe)
+                    .To.Equal(TestServicePath);
+                Expect(args)
+                    .To.Be.Empty();
             }
         }
 
@@ -153,12 +268,18 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
                 EnsureTestServiceIsNotInstalled();
             }
 
+            [SetUp]
+            public void Setup()
+            {
+                ConfigureTestServiceStartupType(ServiceStartupTypes.Manual);
+            }
+
             [Test]
             public void ShouldStartTheStoppedService()
             {
                 // Arrange
                 EnsureTestServiceIsNotRunning();
-                var sut = Create(TestServiceName);
+                var sut = Create();
                 // Act
                 sut.Start();
                 // Assert
@@ -173,7 +294,7 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
             {
                 // Arrange
                 EnsureTestServiceIsNotRunning();
-                var sut = Create(TestServiceName);
+                var sut = Create();
                 // Act
                 sut.Start(wait: false);
                 Expect(() => sut.Start())
@@ -190,17 +311,130 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
             {
                 // Arrange
                 EnsureTestServiceIsNotRunning();
-                var sut = Create(TestServiceName);
-                sut.Start();
-                
+                var sut = Create();
+                sut.Start(wait: true);
+
                 // Act
                 sut.Stop();
-                
+
                 // Assert
                 Expect(sut.State)
                     .To.Equal(ServiceState.Stopped);
                 Expect(ReadCurrentTestServiceState())
                     .To.Equal(ServiceState.Stopped);
+            }
+
+            [Test]
+            public void ShouldPauseTheStartedService()
+            {
+                // Arrange
+                EnsureTestServiceIsNotRunning();
+                var sut = Create();
+                sut.Start();
+
+                // Act
+                sut.Pause();
+                // Assert
+                Expect(sut.State)
+                    .To.Equal(ServiceState.Paused);
+                Expect(ReadCurrentTestServiceState())
+                    .To.Equal(ServiceState.Paused);
+            }
+
+            [Test]
+            public void ShouldContinueThePausedService()
+            {
+                // Arrange
+                EnsureTestServiceIsNotRunning();
+                var sut = Create();
+                sut.Start();
+                sut.Pause();
+
+                // Act
+                sut.Continue();
+                // Assert
+                Expect(sut.State)
+                    .To.Equal(ServiceState.Running);
+                Expect(ReadCurrentTestServiceState())
+                    .To.Equal(ServiceState.Running);
+            }
+
+            [TestCase(ServiceStartupTypes.DelayedAutomatic)]
+            [TestCase(ServiceStartupTypes.Automatic)]
+            [TestCase(ServiceStartupTypes.Manual)]
+            [TestCase(ServiceStartupTypes.Disabled)]
+            public void ShouldBeAbleToSetStartupType(
+                ServiceStartupTypes expected
+            )
+            {
+                // Arrange
+                EnsureTestServiceIsNotRunning();
+                var sut = Create();
+                // Act
+                sut.ConfigureStartup(expected);
+                // Assert
+                Expect(sut.StartType)
+                    .To.Equal(expected);
+                Expect(ReadCurrentTestServiceStartup())
+                    .To.Equal(expected);
+            }
+
+            [TestFixture]
+            public class Installing
+            {
+                [SetUp]
+                public void Setup()
+                {
+                    EnsureTestServiceIsNotInstalled();
+                }
+
+                [Test]
+                [Explicit("WIP")]
+                public void ShouldInstallTheNewService()
+                {
+                    // Arrange
+                    var serviceName = GetRandomString(10);
+                    var displayName = GetRandomWords(2);
+                    var sut = Create(
+                        serviceName,
+                        displayName,
+                        new Commandline(
+                            TestServicePath,
+                            "foo",
+                            "bar"
+                        ).ToString()
+                    );
+                    // Act
+                    using var _ = new AutoResetter(
+                        () => EnsureServiceIsNotInstalled(serviceName)
+                    );
+                    sut.Install();
+                    // Assert
+                    var sut2 = Create(serviceName);
+                    Expect(sut2.StartType)
+                        .To.Equal(ServiceStartupTypes.Automatic);
+                    Expect(sut2.State)
+                        .To.Equal(ServiceState.Stopped);
+                    Expect(sut2.ServiceExe)
+                        .To.Equal(TestServicePath);
+                    Expect(sut2.Arguments)
+                        .To.Equal(new[] { "foo", "bar" });
+                }
+
+                private static IWindowsServiceUtil Create(
+                    string serviceName,
+                    string displayName = null,
+                    string commandline = null
+                )
+                {
+                    return displayName is null && commandline is null
+                        ? new WindowsServiceUtil(serviceName)
+                        : new WindowsServiceUtil(
+                            serviceName,
+                            displayName,
+                            commandline
+                        );
+                }
             }
         }
 
@@ -210,7 +444,10 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
         {
             return new WindowsServiceUtil(
                 serviceName ?? TestServiceName
-            );
+            )
+            {
+                ServiceControlTimeoutSeconds = 5
+            };
         }
 
 
@@ -343,11 +580,13 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
                     .ToArray()
             );
 
-            serviceNames.ForEach(serviceName =>
-            {
-                TryDo(() => Run("sc", "stop", serviceName));
-                TryDo(() => Run("sc", "delete", serviceName));
-            });
+            serviceNames.ForEach(EnsureServiceIsNotInstalled);
+        }
+
+        private static void EnsureServiceIsNotInstalled(string serviceName)
+        {
+            TryDo(() => Run("sc", "stop", serviceName));
+            TryDo(() => Run("sc", "delete", serviceName));
         }
 
         private static void EnsureTestServiceIsNotRunning()
@@ -365,14 +604,47 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
             WaitFor(() => ReadCurrentTestServiceState() == ServiceState.Running);
         }
 
-        private static void InstallTestService()
+        private static void InstallTestService(
+            ServiceStartupTypes startupType = ServiceStartupTypes.Automatic
+        )
         {
             Run(TestServicePath,
                 "-i",
                 "--name", TestServiceName,
                 "--display-name", TestServiceDisplayName,
-                "--start-delay", "1000"
+                "--start-delay", "500",
+                "--pause-delay", "500",
+                "--stop-delay", "500"
             );
+            ConfigureTestServiceStartupType(startupType);
+        }
+
+        private static void ConfigureTestServiceStartupType(
+            ServiceStartupTypes startupType
+        )
+        {
+            switch (startupType)
+            {
+                case ServiceStartupTypes.Automatic:
+                    ConfigureTestServiceStartupType("auto");
+                    return;
+                case ServiceStartupTypes.Disabled:
+                    ConfigureTestServiceStartupType("disabled");
+                    return;
+                case ServiceStartupTypes.Manual:
+                    ConfigureTestServiceStartupType("demand");
+                    return;
+                case ServiceStartupTypes.DelayedAutomatic:
+                    ConfigureTestServiceStartupType("delayed-auto");
+                    return;
+            }
+        }
+
+        private static void ConfigureTestServiceStartupType(
+            string type
+        )
+        {
+            Run("sc", "config", TestServiceName, "start=", type);
         }
 
         private static ServiceState ReadCurrentTestServiceState()
@@ -381,7 +653,7 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
             foreach (var line in io.StandardOutput)
             {
                 var parts = line.Trim().Split(':')
-                    .Select(p => p.Trim())
+                    .Trim()
                     .ToArray();
                 if (parts[0] == "STATE")
                 {
@@ -395,6 +667,36 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
             throw new InvalidOperationException(
                 $"Can't determine the state of the test service"
             );
+        }
+
+        private static ServiceStartupTypes ReadCurrentTestServiceStartup()
+        {
+            using var io = ProcessIO.Start("sc", "qc", TestServiceName);
+            var captured = new List<string>();
+            foreach (var line in io.StandardOutput)
+            {
+                captured.Add(line);
+                var parts = line.Trim()
+                    .Split(':')
+                    .Trim()
+                    .ToArray();
+                if (parts[0] == "START_TYPE")
+                {
+                    var configParts = parts[1].Split(' ');
+                    var intVal = configParts.Select(
+                        s => (int.TryParse(s, out var i), i)
+                    ).First(o => o.Item1).Item2;
+                    var result = (ServiceStartupTypes) intVal;
+                    if (result == ServiceStartupTypes.Automatic && configParts.Any(s => s.Contains("DELAYED")))
+                    {
+                        result = ServiceStartupTypes.DelayedAutomatic;
+                    }
+
+                    return result;
+                }
+            }
+
+            throw new Exception($"Unable to determine startup type from\n{captured.Stringify()}");
         }
 
         private static void WaitFor(

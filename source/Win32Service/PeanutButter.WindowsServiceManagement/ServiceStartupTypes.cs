@@ -5,6 +5,7 @@ namespace PeanutButter.WindowsServiceManagement
     // read-only view, ie what is read from the registry
     public enum ServiceStartupTypes
     {
+        DelayedAutomatic = -2,
         Unknown = -1,
         [Obsolete(Messages.MEANT_FOR_DRIVERS)]
         Boot = 0,

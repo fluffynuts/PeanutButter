@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Imported.PeanutButter.Utils;
+using PeanutButter.WindowsServiceManagement.Exceptions;
 
 [assembly: InternalsVisibleTo("PeanutButter.WindowsServiceManagement.Core.Tests")]
 
@@ -80,7 +81,7 @@ namespace PeanutButter.WindowsServiceManagement
             };
 
         private static void HandleBadServiceControlCommandline(
-            string[] args, 
+            string[] args,
             string output)
         {
             throw new InvalidOperationException(
@@ -94,7 +95,7 @@ namespace PeanutButter.WindowsServiceManagement
             string[] args,
             string output)
         {
-            throw new ServiceNotFoundException(
+            throw new ServiceNotInstalledException(
                 args.Last(),
                 output
             );
@@ -117,7 +118,11 @@ namespace PeanutButter.WindowsServiceManagement
                     .JoinWith(Environment.NewLine);
                 if (!ServiceControlErrorHandlers.TryGetValue(io.ExitCode, out var handler))
                 {
-                    throw new ServiceControlException(lines);
+                    var startInfo = io.Process.StartInfo;
+                    throw new ServiceControlException(
+                        lines,
+                        $"{startInfo.FileName.QuoteIfSpaced()} {startInfo.Arguments}"
+                    );
                 }
 
                 handler(args, lines);
@@ -160,17 +165,17 @@ namespace PeanutButter.WindowsServiceManagement
         }
     }
 
-    public class ServiceNotFoundException : Exception
-    {
-        public ServiceNotFoundException(string serviceName, string moreInfo)
-            : base($"Unable to query service {serviceName}: {moreInfo}")
-        {
-        }
-    }
-
     public class ServiceControlException : Exception
     {
-        public ServiceControlException(string message) : base(message)
+        public ServiceControlException(string message)
+            : base(message)
+        {
+        }
+
+        public ServiceControlException(
+            string message,
+            string fullServiceControlCommandline
+        ) : base($"{message}\ncli: {fullServiceControlCommandline}")
         {
         }
     }

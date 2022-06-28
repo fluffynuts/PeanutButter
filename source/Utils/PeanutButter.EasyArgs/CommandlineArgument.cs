@@ -163,6 +163,11 @@ namespace PeanutButter.EasyArgs
         /// </summary>
         public bool IsRequired { get; set; }
 
+        /// <summary>
+        /// Disables short-name generation for this argument
+        /// </summary>
+        public bool DisableShortNameGeneration { get; set; }
+
         private bool? _explicitFlag;
 
         private bool? _allowMultipleValues;

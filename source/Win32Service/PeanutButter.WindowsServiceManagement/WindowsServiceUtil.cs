@@ -4,224 +4,497 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Imported.PeanutButter.Utils;
-using PeanutButter.WindowsServiceManagement;
-using static PeanutButter.WindowsServiceManagement.ServiceControlKeys;
+using PeanutButter.WindowsServiceManagement.Exceptions;
 
-public interface IWindowsServiceUtil
+namespace PeanutButter.WindowsServiceManagement
 {
-    /// <summary>
-    /// The name of the service, usable from, eg 'net stop {name}'
-    /// </summary>
-    string ServiceName { get; }
-
-    /// <summary>
-    /// The name displayed in the service manager (service.msc)
-    /// </summary>
-    string DisplayName { get; }
-
-    /// <summary>
-    /// The current state of this service
-    /// </summary>
-    ServiceState State { get; }
-
-    /// <summary>
-    /// Reflects the allowed transition states for the service
-    /// </summary>
-    ServiceState[] AllowedTransitions { get; }
-
-    /// <summary>
-    /// Refresh the state of the service
-    /// </summary>
-    void Refresh();
-
-    /// <summary>
-    /// Start the service and wait for it to be running
-    /// </summary>
-    void Start();
-
-    /// <summary>
-    /// Start the service
-    /// Explicitly wait or not for it to start
-    /// </summary>
-    /// <param name="wait"></param>
-    void Start(bool wait);
-
-    /// <summary>
-    /// Stop the service and wait for it to be running
-    /// </summary>
-    void Stop();
-
-    /// <summary>
-    /// Start the service
-    /// Explicitly wait or not for it to start
-    /// </summary>
-    /// <param name="wait"></param>
-    void Stop(bool wait);
-}
-
-public class WindowsServiceUtil : IWindowsServiceUtil
-{
-    public const int DEFAULT_SERVICE_CONTROL_TIMEOUT_SECONDS = 30;
-    public const int DEFAULT_POLL_INTERVAL_MILLISECONDS = 500;
-    private readonly ServiceControlInterface _ctl;
-    public string ServiceName { get; }
-    public string DisplayName { get; private set; }
-    public ServiceState State { get; private set; }
-    public ServiceState[] AllowedTransitions { get; private set; }
-    public int ServiceControlTimeoutSeconds { get; set; } = DEFAULT_SERVICE_CONTROL_TIMEOUT_SECONDS;
-    public int PollIntervalMilliseconds { get; set; } = DEFAULT_POLL_INTERVAL_MILLISECONDS;
-
-    public WindowsServiceUtil(string serviceName)
+    public interface IWindowsServiceUtil
     {
-        _ctl = new ServiceControlInterface();
-        ServiceName = serviceName;
-        Refresh();
+        /// <summary>
+        /// The name of the service, usable from, eg 'net stop {name}'
+        /// </summary>
+        string ServiceName { get; }
+
+        /// <summary>
+        /// The name displayed in the service manager (service.msc)
+        /// </summary>
+        string DisplayName { get; }
+
+        /// <summary>
+        /// The path to the service executable
+        /// </summary>
+        string ServiceExe { get; }
+
+        /// <summary>
+        /// The arguments that the service is started with
+        /// </summary>
+        string[] Arguments { get; }
+
+        /// <summary>
+        /// The current state of this service
+        /// </summary>
+        ServiceState State { get; }
+
+        /// <summary>
+        /// The startup type of the service
+        /// </summary>
+        ServiceStartupTypes StartType { get; }
+
+        /// <summary>
+        /// Reflects the allowed transition states for the service
+        /// </summary>
+        ServiceState[] AllowedStates { get; }
+
+        /// <summary>
+        /// Whether or not the service is disabled
+        /// -> this is a shortcut to check the startup type vs the disabled startup type
+        /// </summary>
+        bool IsDisabled { get; }
+
+        /// <summary>
+        /// Refresh the state of the service
+        /// </summary>
+        void Refresh();
+
+        /// <summary>
+        /// Start the service and wait for it to be running
+        /// </summary>
+        void Start();
+
+        /// <summary>
+        /// Start the service
+        /// Explicitly wait or not for it to start
+        /// </summary>
+        /// <param name="wait"></param>
+        void Start(bool wait);
+
+        /// <summary>
+        /// Stop the service and wait for it to be running
+        /// </summary>
+        void Stop();
+
+        /// <summary>
+        /// Start the service
+        /// Explicitly wait or not for it to stop
+        /// </summary>
+        /// <param name="wait"></param>
+        void Stop(bool wait);
+
+        /// <summary>
+        /// Pause the service, waiting for it to enter the paused state
+        /// </summary>
+        void Pause();
+
+        /// <summary>
+        /// Pause the service
+        /// Explicitly wait or not for it to pause
+        /// </summary>
+        void Pause(bool wait);
+
+        /// <summary>
+        /// Continue the service, waiting for it to enter the continued state
+        /// </summary>
+        void Continue();
+
+        /// <summary>
+        /// Continue the service
+        /// Explicitly wait or not for it to continue
+        /// </summary>
+        void Continue(bool wait);
+
+        /// <summary>
+        /// Configure the service's startup type
+        /// </summary>
+        /// <param name="startupType"></param>
+        void ConfigureStartup(ServiceStartupTypes startupType);
+
+        /// <summary>
+        /// Installs the service. If the service is already found by name, re-installs.
+        /// </summary>
+        void Install();
     }
 
-    public void Refresh()
+    public class WindowsServiceUtil : IWindowsServiceUtil
     {
-        var info = _ctl.QueryAll(ServiceName);
-        DisplayName = info[DISPLAY_NAME];
-        State = GrokState(info[STATE]);
-        if (State == ServiceState.Stopped)
+        public const int DEFAULT_SERVICE_CONTROL_TIMEOUT_SECONDS = 30;
+        public const int DEFAULT_POLL_INTERVAL_MILLISECONDS = 500;
+
+        public string ServiceName { get; }
+        public string DisplayName { get; private set; }
+        public ServiceState State { get; private set; } = ServiceState.Unknown;
+        public ServiceStartupTypes StartType { get; private set; } = ServiceStartupTypes.Unknown;
+        public ServiceState[] AllowedStates { get; private set; }
+        public bool IsDisabled => StartType == ServiceStartupTypes.Disabled;
+
+        public string ServiceExe { get; private set; }
+        public string[] Arguments { get; private set; }
+
+        public int ServiceControlTimeoutSeconds { get; set; } = DEFAULT_SERVICE_CONTROL_TIMEOUT_SECONDS;
+        public int PollIntervalMilliseconds { get; set; } = DEFAULT_POLL_INTERVAL_MILLISECONDS;
+
+        private readonly ServiceControlInterface _ctl;
+
+        /// <summary>
+        /// Used to query existing services
+        /// </summary>
+        /// <param name="serviceName"></param>
+        public WindowsServiceUtil(string serviceName)
         {
-            AllowedTransitions = new[] { ServiceState.Running };
+            _ctl = new ServiceControlInterface();
+            ServiceName = serviceName;
+            Refresh();
         }
-    }
 
-    public void Start()
-    {
-        Start(wait: true);
-    }
-
-    public void Start(bool wait)
-    {
-        ChangeServiceState(ServiceState.Running, wait);
-    }
-
-    public void Stop()
-    {
-        Stop(wait: true);
-    }
-
-    public void Stop(bool wait)
-    {
-        ChangeServiceState(ServiceState.Stopped, wait);
-    }
-
-    private void ChangeServiceState(
-        ServiceState toState,
-        bool wait
-    )
-    {
-        Refresh();
-        if (State == toState)
+        /// <summary>
+        /// Used to install a service, but still
+        /// provides the same query interface
+        /// </summary>
+        /// <param name="serviceName"></param>
+        /// <param name="displayName"></param>
+        /// <param name="commandline"></param>
+        public WindowsServiceUtil(
+            string serviceName,
+            string displayName,
+            string commandline
+        )
         {
-            return;
-        }
-
-        if (PendingStateMap.TryGetValue(toState, out var pendingState))
-        {
-            if (State == pendingState)
+            _ctl = new ServiceControlInterface();
+            try
             {
-                if (wait)
-                {
-                    WaitForServiceState(toState);
-                }
+                ServiceName = serviceName;
+                // attempt to refresh: service may already be installed
 
+                Refresh();
+            }
+            catch (ServiceNotInstalledException)
+            {
+                // suppress
+            }
+
+            DisplayName = displayName;
+            SetServiceCommandAndArgsFrom(commandline);
+        }
+
+        public void Refresh()
+        {
+            Reset();
+            var info = _ctl.QueryAll(ServiceName);
+            DisplayName = info[ServiceControlKeys.DISPLAY_NAME];
+            SetExeAndArgsFrom(info);
+            TryParseStartup(info);
+            TrySetStateFrom(info);
+        }
+
+        private void Reset()
+        {
+            State = ServiceState.Unknown;
+            StartType = ServiceStartupTypes.Unknown;
+            ServiceExe = "";
+            Arguments = new string[0];
+            AllowedStates = new ServiceState[0];
+            DisplayName = "";
+        }
+
+        private void SetExeAndArgsFrom(IDictionary<string, string> info)
+        {
+            var binPath = info[ServiceControlKeys.BINARY_PATH_NAME];
+            SetServiceCommandAndArgsFrom(binPath);
+        }
+
+        private void SetServiceCommandAndArgsFrom(
+            string commandline
+        )
+        {
+            var cli = Commandline.Parse(commandline);
+            ServiceExe = cli.Command;
+            Arguments = cli.Args;
+        }
+
+        private void TryParseStartup(IDictionary<string, string> info)
+        {
+            var raw = info[ServiceControlKeys.START_TYPE];
+            StartType = ParseEnum<ServiceStartupTypes>(raw);
+            if (LooksLikeDelayedAutoStart(StartType, raw))
+            {
+                StartType = ServiceStartupTypes.DelayedAutomatic;
+            }
+        }
+
+        private static bool LooksLikeDelayedAutoStart(
+            ServiceStartupTypes startupType,
+            string raw
+        )
+        {
+            // I'm not sure if there are localisations for the output,
+            // -> the raw output for a delayed start is "2   AUTO_START  (DELAYED)"
+            //    so I'm assuming that the parens are less susceptible to localisation?
+            return startupType == ServiceStartupTypes.Automatic &&
+                raw.Contains("(");
+        }
+
+        private void TrySetStateFrom(IDictionary<string, string> info)
+        {
+            State = ServiceState.Unknown;
+            AllowedStates = new ServiceState[0];
+            try
+            {
+                State = ParseState(info[ServiceControlKeys.STATE]);
+                DeterminePossibleStates(State, IsDisabled, info[ServiceControlKeys.STATE]);
+            }
+            catch (ServiceNotInstalledException)
+            {
+                State = ServiceState.NotFound;
+            }
+            catch (Exception)
+            {
+                State = ServiceState.Unknown;
+                throw;
+            }
+        }
+
+        private void DeterminePossibleStates(
+            ServiceState currentState,
+            bool isDisabled,
+            string s)
+        {
+            var parensPart = s.Split('(').Last().Trim(')');
+            var states = parensPart.Split(',').Trim();
+            var result = new HashSet<ServiceState>();
+            foreach (var state in states)
+            {
+                switch (state)
+                {
+                    case "STOPPABLE":
+                        result.Add(ServiceState.Stopped);
+                        continue;
+                    case "PAUSABLE":
+                        result.Add(ServiceState.Paused);
+                        if (currentState == ServiceState.Paused && !isDisabled)
+                        {
+                            result.Add(ServiceState.Running);
+                        }
+
+                        continue;
+                }
+            }
+
+            if (currentState == ServiceState.Stopped && !isDisabled)
+            {
+                result.Add(ServiceState.Running);
+            }
+
+            AllowedStates = result.ToArray();
+        }
+
+        public void Start()
+        {
+            Start(wait: true);
+        }
+
+        public void Start(bool wait)
+        {
+            ChangeServiceState(ServiceState.Running, wait);
+        }
+
+        public void Stop()
+        {
+            Stop(wait: true);
+        }
+
+        public void Stop(bool wait)
+        {
+            ChangeServiceState(ServiceState.Stopped, wait);
+        }
+
+        public void Pause()
+        {
+            Pause(wait: true);
+        }
+
+        public void Pause(bool wait)
+        {
+            ChangeServiceState(ServiceState.Paused, wait);
+        }
+
+        public void Continue()
+        {
+            Continue(wait: true);
+        }
+
+        public void Continue(bool wait)
+        {
+            ChangeServiceState(ServiceState.Running, wait);
+        }
+
+        private static readonly Dictionary<ServiceStartupTypes, string>
+            ServiceStartupTypeVerbs = new()
+            {
+                [ServiceStartupTypes.Automatic] = "auto",
+                [ServiceStartupTypes.Disabled] = "disabled",
+                [ServiceStartupTypes.Manual] = "demand",
+                [ServiceStartupTypes.DelayedAutomatic] = "delayed-auto"
+            };
+
+        public void ConfigureStartup(
+            ServiceStartupTypes startupType
+        )
+        {
+            if (!ServiceStartupTypeVerbs.TryGetValue(startupType, out var verb))
+            {
+                throw new NotSupportedException(
+                    $"Service startup type {startupType} is not supported"
+                );
+            }
+
+            _ctl.RunServiceControl("config", ServiceName, "start=", verb);
+            Refresh();
+        }
+
+        private void ChangeServiceState(
+            ServiceState toState,
+            bool wait
+        )
+        {
+            Refresh();
+            if (State == toState)
+            {
                 return;
             }
-        }
-        else
-        {
-            throw new InvalidOperationException(
-                $"Pending state for requested state {toState} is unknown"
-            );
-        }
 
-        if (!StateChangeVerbs.TryGetValue(toState, out var verb))
-        {
-            throw new InvalidOperationException(
-                $"Unable to change state to {toState}: no verb set for this state"
-            );
-        }
+            var transitionKey = (State, toState);
 
-        var scResult = _ctl.RunServiceControl(verb, ServiceName);
-        var resultState = GrokState(scResult[STATE]);
-        if (resultState != pendingState)
-        {
-            throw new ServiceControlException(
-                $"Unable to change state of '{ServiceName}' to {toState} (sc reports state: {scResult[STATE]})"
-            );
-        }
-
-        if (!wait)
-        {
-            return;
-        }
-        WaitForServiceState(toState);
-    }
-
-    private static readonly Dictionary<ServiceState, ServiceState>
-        PendingStateMap = new()
-        {
-            [ServiceState.Running] = ServiceState.StartPending,
-            [ServiceState.Stopped] = ServiceState.StopPending,
-            [ServiceState.Paused] = ServiceState.PausePending
-        };
-
-    private static readonly Dictionary<ServiceState, string>
-        StateChangeVerbs = new()
-        {
-            [ServiceState.Running] = "start",
-            [ServiceState.Stopped] = "stop",
-            [ServiceState.Paused] = "pause"
-        };
-
-    private void WaitForServiceState(
-        ServiceState desiredState
-    )
-    {
-        WaitFor(
-            $"'{ServiceName}' to enter state: {desiredState}",
-            () => RefreshState() == desiredState,
-            ServiceControlTimeoutSeconds
-        );
-    }
-
-
-    private ServiceState RefreshState()
-    {
-        Refresh();
-        return State;
-    }
-
-    private void WaitFor(
-        string label,
-        Func<bool> func,
-        int timeoutSeconds
-    )
-    {
-        var timeout = DateTime.Now.AddSeconds(timeoutSeconds);
-        while (!func())
-        {
-            Thread.Sleep(PollIntervalMilliseconds);
-            if (DateTime.Now > timeout)
+            if (PendingStateMap.TryGetValue(transitionKey, out var pendingState))
             {
-                throw new TimeoutException($"Timed out waiting for: {label} (waited {timeoutSeconds}s)");
+                if (State == pendingState)
+                {
+                    WaitForStateIfRequired();
+                    return;
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException(
+                    $"Pending state for requested state {toState} is unknown"
+                );
+            }
+
+            if (!StateChangeVerbs.TryGetValue(transitionKey, out var verb))
+            {
+                throw new InvalidOperationException(
+                    $"Unable to change state to {toState}: no verb set for this state"
+                );
+            }
+
+            var scResult = _ctl.RunServiceControl(verb, ServiceName);
+            var resultState = ParseState(scResult[ServiceControlKeys.STATE]);
+            if (resultState != pendingState)
+            {
+                throw new ServiceControlException(
+                    $"Unable to change state of '{ServiceName}' to {toState} (sc reports state: {scResult[ServiceControlKeys.STATE]})"
+                );
+            }
+
+            WaitForStateIfRequired();
+
+            void WaitForStateIfRequired()
+            {
+                if (!wait)
+                {
+                    return;
+                }
+
+                WaitForServiceState(toState);
             }
         }
-    }
 
-    private ServiceState GrokState(string s)
-    {
-        var intVal = s.Split(new[] { ' ' }).FirstOrDefault();
-        if (!int.TryParse(intVal, out var intState))
+        private static readonly Dictionary<(ServiceState fromState, ServiceState toState), ServiceState>
+            PendingStateMap = new()
+            {
+                [(ServiceState.Stopped, ServiceState.Running)] = ServiceState.StartPending,
+                [(ServiceState.StartPending, ServiceState.Running)] = ServiceState.StartPending,
+                [(ServiceState.Running, ServiceState.Stopped)] = ServiceState.StopPending,
+                [(ServiceState.StopPending, ServiceState.Stopped)] = ServiceState.StopPending,
+                [(ServiceState.Running, ServiceState.Paused)] = ServiceState.PausePending,
+                [(ServiceState.PausePending, ServiceState.Paused)] = ServiceState.PausePending,
+                [(ServiceState.Paused, ServiceState.Running)] = ServiceState.ContinuePending,
+                [(ServiceState.ContinuePending, ServiceState.Running)] = ServiceState.ContinuePending
+            };
+
+        private static readonly Dictionary<(ServiceState fromState, ServiceState toState), string>
+            StateChangeVerbs = new()
+            {
+                [(ServiceState.Stopped, ServiceState.Running)] = "start",
+                [(ServiceState.Running, ServiceState.Stopped)] = "stop",
+                [(ServiceState.Running, ServiceState.Paused)] = "pause",
+                [(ServiceState.Paused, ServiceState.Running)] = "continue"
+            };
+
+        private void WaitForServiceState(
+            ServiceState desiredState
+        )
         {
-            return ServiceState.Unknown;
+            WaitFor(
+                $"'{ServiceName}' to enter state: {desiredState}",
+                () => RefreshState() == desiredState,
+                ServiceControlTimeoutSeconds
+            );
         }
 
-        return (ServiceState) intState;
+
+        private ServiceState RefreshState()
+        {
+            Refresh();
+            return State;
+        }
+
+        private void WaitFor(
+            string label,
+            Func<bool> func,
+            int timeoutSeconds
+        )
+        {
+            var timeout = DateTime.Now.AddSeconds(timeoutSeconds);
+            while (!func())
+            {
+                Thread.Sleep(PollIntervalMilliseconds);
+                if (DateTime.Now > timeout)
+                {
+                    throw new TimeoutException($"Timed out waiting for: {label} (waited {timeoutSeconds}s)");
+                }
+            }
+        }
+
+        private ServiceState ParseState(string s)
+        {
+            return ParseEnum<ServiceState>(s);
+        }
+
+        private T ParseEnum<T>(string s)
+            where T : struct, Enum
+        {
+            var intVal = s.Split(' ').FirstOrDefault();
+            return Enum.TryParse<T>(intVal, out var result)
+                ? result
+                : default;
+        }
+
+        public void Install()
+        {
+            _ctl.RunServiceControl(
+                "create",
+                ServiceName,
+                "type=",
+                "own",
+                "start=",
+                "auto",
+                "error=",
+                "normal",
+                "binpath=",
+                new Commandline(ServiceExe, Arguments).ToString().QuoteIfSpaced(),
+                "displayname=",
+                DisplayName.QuoteIfSpaced()
+            );
+        }
     }
 }
 #else

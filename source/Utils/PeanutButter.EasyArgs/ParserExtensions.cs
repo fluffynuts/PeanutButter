@@ -591,6 +591,11 @@ namespace PeanutButter.EasyArgs
                 return;
             }
 
+            if (opt.DisableShortNameGeneration)
+            {
+                return;
+            }
+
             var firstChar = opt.Key[0].ToString();
             var potentials = new[] { firstChar.ToLowerInvariant(), firstChar.ToUpperInvariant() };
             var potential = potentials.FirstOrDefault(p => !existing.Contains(p));
@@ -661,6 +666,9 @@ namespace PeanutButter.EasyArgs
                                 .OfType<ShortNameAttribute>()
                                 .FirstOrDefault()
                                 ?.Value,
+                            DisableShortNameGeneration = attribs
+                                .OfType<DisableGeneratedShortNameAttribute>()
+                                .Any(),
                             LongName = attribs
                                 .OfType<LongNameAttribute>()
                                 .FirstOrDefault()
