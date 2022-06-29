@@ -17,7 +17,14 @@ namespace PeanutButter.Utils
 #endif
         class Commandline
     {
+        /// <summary>
+        /// The base command (program, batch file, etc) for this commandline
+        /// </summary>
         public string Command { get; }
+        
+        /// <summary>
+        /// The arguments passed to this command
+        /// </summary>
         public string[] Args { get; }
 
         /// <summary>
@@ -72,20 +79,35 @@ namespace PeanutButter.Utils
             return str;
         }
 
-        public static Commandline Parse(string app)
+        /// <summary>
+        /// Parse a commandline into the command and args components
+        /// </summary>
+        /// <param name="commandline"></param>
+        /// <returns></returns>
+        public static Commandline Parse(string commandline)
         {
-            var parts = (app ?? "").SplitCommandline();
+            var parts = (commandline ?? "").SplitCommandline();
             return new Commandline(
                 parts[0],
                 parts.Skip(1).ToArray()
             );
         }
 
+        /// <summary>
+        /// Implicitly cast a Commandline instance to a string
+        /// </summary>
+        /// <param name="o"></param>
+        /// <returns></returns>
         public static implicit operator string(Commandline o)
         {
             return o.ToString();
         }
 
+        /// <summary>
+        /// Implicitly cast a commandline string to a Commandline instance
+        /// </summary>
+        /// <param name="s"></param>
+        /// <returns></returns>
         public static implicit operator Commandline(string s)
         {
             return Parse(s);
