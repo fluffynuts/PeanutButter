@@ -152,6 +152,41 @@ namespace PeanutButter.Utils.Tests
             }
         }
 
+        [TestFixture]
+        public class ImplicitConversions
+        {
+            [Test]
+            public void ShouldConvertToString()
+            {
+                // Arrange
+                var app = GetRandomWords(2);
+                var arg1 = GetRandomWords(2);
+                var arg2 = GetRandomString();
+                var expected = $"\"{app}\" \"{arg1}\" {arg2}";
+                var sut = Create(app, arg1, arg2);
+                // Act
+                var result = (string)sut;
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+
+            [Test]
+            public void ShouldConvertFromString()
+            {
+                // Arrange
+                var app = GetRandomWords(2);
+                var arg1 = GetRandomWords(2);
+                var arg2 = GetRandomString();
+                var cli = $"\"{app}\" \"{arg1}\" {arg2}";
+                // Act
+                var result = (Commandline)cli;
+                // Assert
+                Expect(result.ToString())
+                    .To.Equal(cli);
+            }
+        }
+
         private static Commandline Create(
             string command,
             params string[] args

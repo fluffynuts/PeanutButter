@@ -48,6 +48,7 @@ namespace PeanutButter.ServiceShell
         bool ManualStart { get; set; }
 
         [Description("install as a disabled service")]
+        [ShortName('z')]
         bool Disabled { get; set; }
     }
 

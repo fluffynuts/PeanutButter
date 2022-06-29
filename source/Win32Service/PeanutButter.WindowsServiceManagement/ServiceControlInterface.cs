@@ -1,5 +1,4 @@
-﻿#if NETSTANDARD
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -37,10 +36,31 @@ namespace PeanutButter.WindowsServiceManagement
         IDictionary<string, string> QueryConfiguration(string serviceName);
 
         IDictionary<string, string> RunServiceControl(params string[] args);
+        IEnumerable<string> ListAllServices();
     }
 
     internal class ServiceControlInterface : IServiceControlInterface
     {
+        public IEnumerable<string> ListAllServices()
+        {
+            using var io = ProcessIO.Start(
+                "sc", "query", "state=", "all"
+            );
+            foreach (var line in io.StandardOutput)
+            {
+                var trimmed = line.Trim();
+                if (!TryParseKeyAndValueFrom(line, out var key, out var value))
+                {
+                    continue;
+                }
+
+                if (key == ServiceControlKeys.SERVICE_NAME)
+                {
+                    yield return value;
+                }
+            }
+        }
+
         public IDictionary<string, string> QueryAll(string serviceName)
         {
             return QueryEx(serviceName)
@@ -85,9 +105,11 @@ namespace PeanutButter.WindowsServiceManagement
             string output)
         {
             throw new InvalidOperationException(
-                $@"The following arguments to sc.exe were invalid:\n{
-                    args.Stringify()
-                }\nThis is an error in PeanutButter. Please report it"
+                $@"The following sc.exe commandline was invalid:\n{
+                    new Commandline("sc.exe", args)
+                }\nThis is an error in PeanutButter. Please report it.\nSC output:\n{
+                    output
+                }"
             );
         }
 
@@ -180,4 +202,3 @@ namespace PeanutButter.WindowsServiceManagement
         }
     }
 }
-#endif

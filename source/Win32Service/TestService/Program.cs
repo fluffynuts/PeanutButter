@@ -36,6 +36,7 @@ namespace TestService
                     opts.StopDelay.ToString()
                 );
             }
+
             TotallyNotInterestingService.Options = opts;
 
             return Shell.RunMain<TotallyNotInterestingService>(

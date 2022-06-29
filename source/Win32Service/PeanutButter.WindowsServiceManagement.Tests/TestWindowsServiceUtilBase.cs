@@ -12,14 +12,37 @@ using PeanutButter.Utils;
 using PeanutButter.WindowsServiceManagement.Exceptions;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using TimeoutException = System.TimeoutException;
 
 // ReSharper disable AssignNullToNotNullAttribute
 
 namespace PeanutButter.WindowsServiceManagement.Tests
 {
     [TestFixture]
-    public class TestWindowsServiceUtil
+    public class TestNativeWindowsServiceUtil: TestWindowsServiceUtilBase
     {
+        public TestNativeWindowsServiceUtil() 
+            : base(typeof(NativeWindowsServiceUtil))
+        {
+        }
+    }
+
+    [TestFixture]
+    public class TestWindowsServiceUtil : TestWindowsServiceUtilBase
+    {
+        public TestWindowsServiceUtil() 
+            : base(typeof(WindowsServiceUtil))
+        {
+        }
+    }
+
+    public abstract class TestWindowsServiceUtilBase
+    {
+        public TestWindowsServiceUtilBase(Type implementationType)
+        {
+            _implementationType = implementationType;
+        }
+
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
@@ -34,8 +57,10 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                 {
                     Assert.Ignore("These tests are windows-specific");
                 }
+
                 return;
             }
+
             Win32Api.CloseServiceHandle(scm);
         }
 
@@ -142,7 +167,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             EnsureTestServiceIsNotInstalled();
             // Act
             Do("Install via cli: manual start",
-                () => Run(serviceExe, "-i", arg, "-n", TestServiceName)
+                () => Run(serviceExe, "--install", arg, "--name", TestServiceName)
             );
             var util = new WindowsServiceUtil(TestServiceName);
             // Assert
@@ -162,7 +187,8 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             EnsureTestServiceIsNotInstalled();
             var sut = Create(TestServiceName, TestServiceName, serviceExe);
             // Act
-            sut.Install(ServiceBootFlag.ManualStart);
+            // sut.Install(ServiceBootFlag.ManualStart);
+            sut.Install(ServiceStartupTypes.Manual);
             // Assert
             var util = Create(TestServiceName);
             Expect(util.StartupType)
@@ -182,7 +208,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             EnsureTestServiceIsNotInstalled();
             // Act
             Do("Install via cli: manual start",
-                () => Run(serviceExe, "-i", arg, "-n", TestServiceName)
+                () => Run(serviceExe, "--install", arg, "--name", TestServiceName)
             );
             var util = new WindowsServiceUtil(TestServiceName);
             // Assert
@@ -202,14 +228,14 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                 );
             }
 
-            Assert.That(() =>
+            // Assert.That(() =>
             {
                 // Arrange
                 var serviceExe = TestServicePath;
                 Expect(serviceExe).To.Exist($"Expected to find test service at {serviceExe}");
                 EnsureTestServiceIsNotInstalled();
                 // Act
-                Do("Install via cli", () => Run(serviceExe, "-i", "-n", TestServiceName));
+                Do("Install via cli", () => Run(serviceExe, "--install", "--name", TestServiceName));
                 var util = new WindowsServiceUtil(TestServiceName);
                 Do("Test is installed",
                     () => Expect(util.IsInstalled)
@@ -314,8 +340,12 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                 Do("Uninstall via cli",
                     () =>
                     {
-                        Run(serviceExe, "-u", "-n", TestServiceName);
+                        Run(serviceExe, "--uninstall", "--name", TestServiceName);
 
+                        if (util is WindowsServiceUtil u)
+                        {
+                            u.Refresh();
+                        }
                         Expect(util.IsInstalled)
                             .To.Be.False();
                     });
@@ -349,11 +379,12 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                     });
                 Do("Uninstall (api)", () => util.Uninstall());
                 // Assert
-            }, Throws.Nothing);
+            }
+            //, Throws.Nothing);
         }
 
         [TestFixture]
-        public class KillService : TestWindowsServiceUtil
+        public class KillService
         {
             [Test]
             [Explicit("Slow and flaky")]
@@ -494,24 +525,36 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                 // Arrange
                 var serviceExe = StubbornServiceExe;
                 var serviceName = $"stubborn-service{Guid.NewGuid()}";
-                var util = Create(
+                var sut = Create(
                     serviceName,
                     serviceName,
                     serviceExe
                 );
-                using var _ = new AutoResetter(Noop, () => util.Uninstall(
+                using var _ = new AutoResetter(Noop, () => sut.Uninstall(
                     ControlOptions.Force | ControlOptions.Wait
                 ));
-                util.InstallAndStart();
+                sut.InstallAndStart();
                 // Act
-                Expect(() => util.Uninstall())
-                    .To.Throw<ServiceOperationException>()
-                    .With.Message.Containing("Unable to perform Stop");
+                if (sut is NativeWindowsServiceUtil u)
+                {
+                    u.ServiceStateExtraWaitSeconds = 0;
+                    Expect(() => sut.Uninstall())
+                        .To.Throw<ServiceOperationException>()
+                        .With.Message.Containing("Unable to perform Stop");
+                }
+                else if (sut is WindowsServiceUtil u2)
+                {
+                    u2.ServiceControlTimeoutSeconds = 5;
+                    Expect(() => sut.Uninstall())
+                        .To.Throw<TimeoutException>()
+                        .With.Message.Containing("state: Stopped");
+                }
+
                 // Assert
-                Expect(util.IsInstalled)
+                Expect(sut.IsInstalled)
                     .To.Be.True();
                 Process process = null;
-                Expect(() => process = Process.GetProcessById(util.ServicePID))
+                Expect(() => process = Process.GetProcessById(sut.ServicePID))
                     .Not.To.Throw();
                 Expect(process.HasExited)
                     .To.Be.False();
@@ -587,7 +630,60 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                 .To.Equal(displayName);
         }
 
-        private string SpacedServiceExe =>
+        [Test]
+        public void ShouldFailToOverwriteExistingService()
+        {
+            // Arrange
+            var serviceName = GetRandomString(10);
+            using var _ = new AutoResetter(() =>
+            {
+                var util = new WindowsServiceUtil(serviceName);
+                util.Uninstall();
+            });
+            var displayName1 = "PB unit test service #1";
+            var cli1 = $"{TestServicePath} a b c";
+            var sut1 = new WindowsServiceUtil(
+                serviceName,
+                displayName1,
+                cli1
+            );
+            var displayName2 = "PB unit test service #2";
+            var cli2 = $"{TestServicePath} 1 2 3";
+            sut1.Install();
+            var check1 = new WindowsServiceUtil(serviceName);
+            Expect(check1.IsInstalled)
+                .To.Be.True();
+            Expect(check1.DisplayName)
+                .To.Equal(displayName1);
+            Expect(check1.ServiceExe)
+                .To.Equal(TestServicePath);
+            Expect(check1.Arguments)
+                .To.Equal(new[] { "a", "b", "c" });
+            
+            // Act
+            var sut2 = new WindowsServiceUtil(
+                serviceName,
+                displayName2,
+                cli2
+            );
+            Expect(() => sut2.Install())
+                .To.Throw();
+            
+            // Assert
+        }
+
+        [Test]
+        public void ShouldNotThrowForUnknownService()
+        {
+            // Arrange
+            // Act
+            var sut = Create(GetRandomString(20));
+            // Assert
+            Expect(sut.IsInstalled)
+                .To.Be.False();
+        }
+
+        private static string SpacedServiceExe =>
             _spacedServiceExe ??= FindPath(
                 "SpacedService",
                 "SpacedService.exe",
@@ -603,7 +699,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
 
         private static string _stubbornServiceExe;
 
-        private string _spacedServiceExe;
+        private static string _spacedServiceExe;
 
         private Guid SpacedServiceIdentifier =>
             _spacedServiceIdentifier ??= Guid.NewGuid();
@@ -629,7 +725,15 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                 SpacedServiceDisplayName,
                 $"\"{SpacedServiceExe}\" --arg --another-arg"
             );
-            sut.ServiceStateExtraWaitSeconds = 30;
+            if (sut is NativeWindowsServiceUtil native)
+            {
+                native.ServiceStateExtraWaitSeconds = 30;
+            }
+            else if (sut is WindowsServiceUtil xplat)
+            {
+                xplat.ServiceControlTimeoutSeconds = 60;
+            }
+
             // Act
             var completed = false;
             using var _ = new AutoResetter(Noop, () =>
@@ -720,21 +824,28 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             }
         }
 
-        private static WindowsServiceUtil Create(string serviceName)
-        {
-            return new WindowsServiceUtil(serviceName);
-        }
+        private static Type _implementationType;
 
+        private static IWindowsServiceUtil Create(string serviceName)
+        {
+            if (_implementationType is null)
+            {
+                throw new InvalidOperationException("No implementation set");
+            }
+
+            return (IWindowsServiceUtil)(Activator.CreateInstance(_implementationType, serviceName));
+        }
+        
         private static IWindowsServiceUtil Create(
             string serviceName,
             string displayName,
             string commandline)
         {
-            return new WindowsServiceUtil(
-                serviceName,
-                displayName,
-                commandline
-            );
+            if (_implementationType is null)
+            {
+                throw new InvalidOperationException("No implementation set");
+            }
+            return (IWindowsServiceUtil)(Activator.CreateInstance(_implementationType, serviceName, displayName, commandline));
         }
 
         private static string FindPath(
@@ -744,7 +855,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
         {
             var current = Path.GetDirectoryName(
                 new Uri(
-                    typeof(TestWindowsServiceUtil)
+                    typeof(TestWindowsServiceUtilBase)
                         .Assembly
                         .Location
                 ).LocalPath
@@ -883,7 +994,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
         private static string TestServicePath =>
             Path.Combine(
                 Path.GetDirectoryName(
-                    new Uri(typeof(TestWindowsServiceUtil).Assembly.Location).LocalPath
+                    new Uri(typeof(TestWindowsServiceUtilBase).Assembly.Location).LocalPath
                 ), "TestService.exe"
             );
 

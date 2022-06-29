@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using NExpect;
 using PeanutButter.Utils;
 using PeanutButter.WindowsServiceManagement.Exceptions;
@@ -197,6 +198,27 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
             }
         }
 
+        [TestFixture]
+        [Explicit("machine-dependent")]
+        public class ListServices
+        {
+            [Test]
+            public void ShouldReturnAllNamesOfServices()
+            {
+                // Arrange
+                var sut = Create();
+                // Act
+                var result = sut.ListAllServices()
+                    .ToArray();
+                // Assert
+                Expect(result)
+                    .To.Contain("RabbitMQ");
+                Expect(result)
+                    .To.Contain("MySQL57");
+                    
+            }
+        }
+        
         private static IServiceControlInterface Create()
         {
             return new ServiceControlInterface();

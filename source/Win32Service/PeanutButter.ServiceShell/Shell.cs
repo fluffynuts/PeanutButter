@@ -486,6 +486,7 @@ namespace PeanutButter.ServiceShell
         {
             var myExePath = new FileInfo(Environment.GetCommandLineArgs()[0]).FullName;
             var existingSvcUtil = new WindowsServiceUtil(ServiceName);
+            // bug: services with arguments will never match here & args can't be known (as-is)
             if (existingSvcUtil.Commandline == myExePath)
             {
                 Console.WriteLine("Service already installed correctly");
@@ -507,7 +508,7 @@ namespace PeanutButter.ServiceShell
             var svcUtil = new WindowsServiceUtil(ServiceName, DisplayName, myExePath);
             try
             {
-                var bootFlag = ResolveBootFlagFor(cli);
+                var bootFlag = ResolveStartupTypeFor(cli);
                 svcUtil.Install(bootFlag);
                 Console.WriteLine("Installed!");
                 return (int) ServiceCommandlineOptions.ExitCodes.Success;
@@ -519,11 +520,11 @@ namespace PeanutButter.ServiceShell
             }
         }
 
-        private ServiceBootFlag ResolveBootFlagFor(ServiceCommandlineOptions cli)
+        private ServiceStartupTypes ResolveStartupTypeFor(ServiceCommandlineOptions cli)
         {
             if (!cli.ManualStart && !cli.Disabled)
             {
-                return ServiceBootFlag.AutoStart;
+                return ServiceStartupTypes.Automatic;
             }
 
             if (cli.ManualStart && cli.Disabled)
@@ -532,8 +533,8 @@ namespace PeanutButter.ServiceShell
             }
             
             return cli.ManualStart
-                ? ServiceBootFlag.ManualStart
-                : ServiceBootFlag.Disabled;
+                ? ServiceStartupTypes.Manual
+                : ServiceStartupTypes.Disabled;
         }
 
         private int UninstallMe()

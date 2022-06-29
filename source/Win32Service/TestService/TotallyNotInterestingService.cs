@@ -42,19 +42,11 @@ namespace TestService
 
         protected override void OnStart(string[] args)
         {
-            Log("on start - test if should delay");
-            if (!TryReadIniSetting<int>(
-                    SECTION_DELAY,
-                    nameof(Options.StartDelay),
-                    out var delay))
-            {
-                Log(" -> no delay");
-                return;
-            }
-
-            Log($" -> delay: {delay}ms");
-
-            Thread.Sleep(delay);
+            SleepForIniConfiguredValue(
+                "start",
+                SECTION_DELAY,
+                nameof(Options.StartDelay)
+            );
         }
 
         private bool TryReadIniSetting<T>(
@@ -82,25 +74,46 @@ namespace TestService
             }
         }
 
-        protected override void OnPause()
+        private void SleepForIniConfiguredValue(
+            string operation,
+            string section,
+            string setting
+        )
         {
-            SleepForEnvMs("PAUSE_DELAY");
+            Log($"Test if should delay for operation: {operation}");
+            if (
+                !TryReadIniSetting<int>(
+                    section,
+                    setting,
+                    out var delay
+                )
+            )
+            {
+                Log(" -> no delay");
+                return;
+            }
+
+            Log($" -> delay: {delay}ms");
+
+            Thread.Sleep(delay);
         }
 
-        private void SleepForEnvMs(string name)
+        protected override void OnPause()
         {
-            var envVar = Environment.GetEnvironmentVariable(name);
-            if (string.IsNullOrEmpty(envVar))
-            {
-                return;
-            }
+            SleepForIniConfiguredValue(
+                "pause",
+                SECTION_DELAY,
+                nameof(Options.PauseDelay)
+            );
+        }
 
-            if (!int.TryParse(envVar, out var ms))
-            {
-                return;
-            }
-
-            Thread.Sleep(ms);
+        protected override void OnStop()
+        {
+            SleepForIniConfiguredValue(
+                "stop",
+                SECTION_DELAY,
+                nameof(Options.StopDelay)
+            );
         }
     }
 

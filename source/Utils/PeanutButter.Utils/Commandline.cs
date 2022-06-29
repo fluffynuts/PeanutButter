@@ -80,5 +80,15 @@ namespace PeanutButter.Utils
                 parts.Skip(1).ToArray()
             );
         }
+
+        public static implicit operator string(Commandline o)
+        {
+            return o.ToString();
+        }
+
+        public static implicit operator Commandline(string s)
+        {
+            return Parse(s);
+        }
     }
 }

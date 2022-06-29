@@ -2,7 +2,9 @@ using System;
 
 namespace PeanutButter.WindowsServiceManagement
 {
-    // write flags, ie what is provided when registering a service
+    /// <summary>
+    /// write flags, ie what is provided when registering a service
+    /// </summary>
     public enum ServiceBootFlag
     {
         [Obsolete(Messages.MEANT_FOR_DRIVERS)]

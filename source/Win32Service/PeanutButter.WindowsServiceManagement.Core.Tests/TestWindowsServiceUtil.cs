@@ -16,7 +16,6 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 namespace PeanutButter.WindowsServiceManagement.Core.Tests
 {
     [TestFixture]
-    [Explicit("Relies on a locally-installed RabbitMQ")]
     public class TestWindowsServiceUtil
     {
         private static readonly Guid TestServiceIdentifier = Guid.NewGuid();
@@ -53,14 +52,30 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
             {
                 EnsureTestServiceIsNotInstalled();
             }
+            
 
             [SetUp]
             public void Setup()
             {
                 // in case something disables, and something else
                 // wants to work with the service
+                InstallTestServiceIfNotInstalled();
                 ConfigureTestServiceStartupType(ServiceStartupTypes.Manual);
                 EnsureTestServiceIsNotRunning();
+            }
+
+            private static void InstallTestServiceIfNotInstalled()
+            {
+                var ctl = new ServiceControlInterface();
+                foreach (var svc in ctl.ListAllServices())
+                {
+                    if (svc == TestServiceName)
+                    {
+                        return;
+                    }
+                }
+
+                InstallTestService();
             }
 
             [Test]
@@ -142,7 +157,7 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
                 InstallTestService(expected);
                 var sut = Create();
                 // Act
-                var result = sut.StartType;
+                var result = sut.StartupType;
                 // Assert
                 Expect(result)
                     .To.Equal(expected);
@@ -249,6 +264,97 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
                     .To.Equal(TestServicePath);
                 Expect(args)
                     .To.Be.Empty();
+            }
+
+            [Test]
+            public void ShouldExposeIfServiceIsMarkedForDelete()
+            {
+                // Arrange
+                var sut = Create();
+                sut.Start();
+                Run("sc", "delete", TestServiceName);
+                // Act
+                sut.Refresh();
+                // Assert
+                Expect(sut.IsRunning)
+                    .To.Be.True();
+                Expect(sut.IsMarkedForDelete)
+                    .To.Be.True();
+                Expect(sut.ServicePID)
+                    .To.Be.Greater.Than(0);
+                var proc = Process.GetProcessById(sut.ServicePID);
+                var killResult = sut.KillService();
+                Expect(killResult)
+                    .To.Equal(KillServiceResult.Killed);
+                Expect(sut.ServicePID)
+                    .To.Equal(0);
+                Expect(proc.HasExited)
+                    .To.Be.True();
+                Expect(sut.IsInstalled)
+                    .To.Be.False();
+            }
+
+            [Test]
+            public void DisablingShouldMarkAsDisabled()
+            {
+                // Arrange
+                var sut = Create();
+                // Act
+                Expect(sut.IsDisabled)
+                    .To.Be.False();
+                sut.Disable();
+                Expect(sut.IsDisabled)
+                    .To.Be.True();
+                Expect(sut.IsStartable)
+                    .To.Be.False();
+                // Assert
+            }
+
+            [Test]
+            public void ShouldReportStartableAndStoppableStates()
+            {
+                // Arrange
+                var sut = Create();
+                // Act
+                Expect(sut.IsStoppable)
+                    .To.Be.False();
+                Expect(sut.IsStartable)
+                    .To.Be.True();
+                sut.Start();
+                Expect(sut.IsStoppable)
+                    .To.Be.True();
+                Expect(sut.IsStartable)
+                    .To.Be.False();
+                sut.Stop();
+                sut.Disable();
+                Expect(sut.IsStartable)
+                    .To.Be.False();
+                Expect(sut.IsStoppable)
+                    .To.Be.False();
+                // Assert
+            }
+
+            [Test]
+            public void ShouldBeAbleToSetAutomaticAndManualStart()
+            {
+                // Arrange
+                var sut = Create();
+                var check = Create();
+                // Act
+                sut.SetManualStart();
+                Expect(sut.StartupType)
+                    .To.Equal(ServiceStartupTypes.Manual);
+                check.Refresh();
+                Expect(check.StartupType)
+                    .To.Equal(ServiceStartupTypes.Manual);
+
+                sut.SetAutomaticStart();
+                Expect(sut.StartupType)
+                    .To.Equal(ServiceStartupTypes.Automatic);
+                check.Refresh();
+                Expect(check.StartupType)
+                    .To.Equal(ServiceStartupTypes.Automatic);
+                // Assert
             }
         }
 
@@ -373,14 +479,14 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
                 // Act
                 sut.ConfigureStartup(expected);
                 // Assert
-                Expect(sut.StartType)
+                Expect(sut.StartupType)
                     .To.Equal(expected);
                 Expect(ReadCurrentTestServiceStartup())
                     .To.Equal(expected);
             }
 
             [TestFixture]
-            public class Installing
+            public class Installation
             {
                 [SetUp]
                 public void Setup()
@@ -388,13 +494,19 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
                     EnsureTestServiceIsNotInstalled();
                 }
 
+                [TearDown]
+                public void TearDown()
+                {
+                    EnsureTestServiceIsNotInstalled();
+                }
+
                 [Test]
-                [Explicit("WIP")]
                 public void ShouldInstallTheNewService()
                 {
                     // Arrange
-                    var serviceName = GetRandomString(10);
-                    var displayName = GetRandomWords(2);
+                    using var arena = new TestArena();
+                    var serviceName = arena.ServiceName;
+                    var displayName = $"PB unit test service - {GetRandomWords(2, 4)}";
                     var sut = Create(
                         serviceName,
                         displayName,
@@ -402,16 +514,13 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
                             TestServicePath,
                             "foo",
                             "bar"
-                        ).ToString()
+                        )
                     );
                     // Act
-                    using var _ = new AutoResetter(
-                        () => EnsureServiceIsNotInstalled(serviceName)
-                    );
                     sut.Install();
                     // Assert
                     var sut2 = Create(serviceName);
-                    Expect(sut2.StartType)
+                    Expect(sut2.StartupType)
                         .To.Equal(ServiceStartupTypes.Automatic);
                     Expect(sut2.State)
                         .To.Equal(ServiceState.Stopped);
@@ -419,6 +528,143 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
                         .To.Equal(TestServicePath);
                     Expect(sut2.Arguments)
                         .To.Equal(new[] { "foo", "bar" });
+                    Expect(sut)
+                        .To.Deep.Equal(sut2);
+                }
+
+                [Test]
+                public void ShouldFailToOverwriteExistingInstallation()
+                {
+                    // Arrange
+                    using var arena = new TestArena();
+                    var serviceName = arena.ServiceName;
+                    var displayName = $"PB unit test service - {GetRandomWords(2, 4)}";
+                    var sut1 = Create(
+                        serviceName,
+                        displayName,
+                        new Commandline(
+                            TestServicePath,
+                            "foo",
+                            "bar"
+                        )
+                    );
+                    var displayName2 = $"PB unit test service - {GetRandomWords(2, 4)}";
+
+                    // Act
+                    sut1.Install();
+                    var sut2 = Create(
+                        serviceName,
+                        displayName2,
+                        new Commandline(
+                            TestServicePath,
+                            "arg1",
+                            "arg2"
+                        )
+                    );
+                    Expect(() => sut2.Install())
+                        .To.Throw();
+                    // Assert
+                }
+
+                [Test]
+                public void ShouldUninstallTheExistingService()
+                {
+                    // Arrange
+                    using var arena = new TestArena();
+                    var serviceName = arena.ServiceName;
+                    var displayName = $"PB unit test service - {GetRandomWords(2, 4)}";
+                    var sut1 = Create(
+                        serviceName,
+                        displayName,
+                        new Commandline(
+                            TestServicePath,
+                            "foo",
+                            "bar"
+                        )
+                    );
+                    Expect(sut1.IsInstalled)
+                        .To.Be.False();
+                    sut1.Install();
+                    Expect(sut1.IsInstalled)
+                        .To.Be.True();
+                    // Act
+                    sut1.Uninstall();
+                    // Assert
+                    Expect(sut1.IsInstalled)
+                        .To.Be.False();
+                    var check = Create(serviceName);
+                    Expect(check.IsInstalled)
+                        .To.Be.False();
+                }
+
+                [Test]
+                public void ShouldNotThrowWhenUninstallingUninstalledService()
+                {
+                    // Arrange
+                    var sut = Create(GetRandomString(20));
+                    Expect(sut.IsInstalled)
+                        .To.Be.False();
+                    // Act
+                    Expect(() => sut.Uninstall())
+                        .Not.To.Throw();
+                    // Assert
+                }
+
+                [Test]
+                public void ShouldInstallAndStartOnDemand()
+                {
+                    // Arrange
+                    var sut = Create(
+                        TestServiceName,
+                        TestServiceDisplayName,
+                        TestServicePath
+                    );
+                    // Act
+                    sut.InstallAndStart();
+                    // Assert
+                    Expect(sut.IsRunning)
+                        .To.Be.True();
+                    var check = Create(TestServiceName);
+                    Expect(check.IsRunning)
+                        .To.Be.True();
+                }
+
+                [Test]
+                public void UninstallWithForceShouldUninstallUnresponsiveService()
+                {
+                    // Arrange
+                    InstallTestService(stopDelay: 20000);
+                    var sut = Create(TestServiceName);
+                    sut.Start();
+                    (sut as WindowsServiceUtil).ServiceControlTimeoutSeconds = 1;
+                    // Act
+                    sut.Uninstall(ControlOptions.Force);
+                    // Assert
+                    Expect(sut.IsInstalled)
+                        .To.Be.False();
+                    var check = Create(TestServiceName);
+                    Expect(check.IsInstalled)
+                        .To.Be.False();
+                }
+
+                public class TestArena : IDisposable
+                {
+                    private AutoResetter _cleanup;
+                    public string ServiceName { get; }
+
+                    public TestArena()
+                    {
+                        ServiceName = GetRandomString(10);
+                        _cleanup = new AutoResetter(
+                            () => EnsureServiceIsNotInstalled(ServiceName)
+                        );
+                    }
+
+                    public void Dispose()
+                    {
+                        _cleanup?.Dispose();
+                        _cleanup = null;
+                    }
                 }
 
                 private static IWindowsServiceUtil Create(
@@ -484,28 +730,6 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
                     $"Unable to find 'source' or 'TestService' folder, travelling up from {myDir}"
                 );
             }
-        }
-
-        private void TryRun(
-            Action toRun,
-            TimeSpan maxWaitForSuccess)
-        {
-            var giveUp = DateTime.Now + maxWaitForSuccess;
-            Exception last = null;
-            while (DateTime.Now <= giveUp)
-            {
-                try
-                {
-                    toRun();
-                    return;
-                }
-                catch (Exception ex)
-                {
-                    last = ex;
-                }
-            }
-
-            throw last ?? new InvalidOperationException("No last exception captured");
         }
 
         [TearDown]
@@ -605,16 +829,19 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
         }
 
         private static void InstallTestService(
-            ServiceStartupTypes startupType = ServiceStartupTypes.Automatic
+            ServiceStartupTypes startupType = ServiceStartupTypes.Automatic,
+            int startDelay = 500,
+            int pauseDelay = 500,
+            int stopDelay = 500
         )
         {
             Run(TestServicePath,
                 "-i",
                 "--name", TestServiceName,
                 "--display-name", TestServiceDisplayName,
-                "--start-delay", "500",
-                "--pause-delay", "500",
-                "--stop-delay", "500"
+                "--start-delay", $"{startDelay}",
+                "--pause-delay", $"{pauseDelay}",
+                "--stop-delay", $"{stopDelay}"
             );
             ConfigureTestServiceStartupType(startupType);
         }
