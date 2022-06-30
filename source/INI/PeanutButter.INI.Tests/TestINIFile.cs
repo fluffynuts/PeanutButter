@@ -1863,128 +1863,6 @@ Uncommented=""false""
             }
         }
 
-        [TestFixture]
-        public class WrapValueInQuotes
-        {
-            [Test]
-            public void
-                WrapValueInQuotes_GivenWrapValueInQuotesTrue_WhenValueHasValue_ShouldWriteValueWithQuotesToStream()
-            {
-                //---------------Set up test pack-------------------
-                var sut = Create();
-                sut.WrapValueInQuotes = true;
-                sut[""]["foo"] = "bar";
-
-                //---------------Assert Precondition----------------
-
-                //---------------Execute Test ----------------------
-                using var memStream = new MemoryStream(new byte[1024], true);
-                sut.Persist(memStream);
-
-                //---------------Test Result -----------------------
-                var result = Encoding.UTF8.GetString(memStream.ReadAllBytes()).Split('\0').First();
-                Expect(result).To.Equal("foo=\"bar\"");
-            }
-
-            [Test]
-            public void WrapValueInQuotes_GivenWrapValueInQuotesTrue_WhenValueIsNull_ShouldWriteOnlyKeyToStream()
-            {
-                //---------------Set up test pack-------------------
-                var sut = Create();
-                sut.WrapValueInQuotes = true;
-                sut[""]["foo"] = null;
-
-                //---------------Assert Precondition----------------
-
-                //---------------Execute Test ----------------------
-                using var memStream = new MemoryStream(new byte[1024], true);
-                sut.Persist(memStream);
-
-                //---------------Test Result -----------------------
-                var result = Encoding.UTF8.GetString(memStream.ReadAllBytes()).Split('\0').First();
-                Expect(result).To.Equal("foo");
-            }
-
-            [Test]
-            public void
-                WrapValueInQuotes_GivenWrapValueInQuotesTrue_WhenValueIsEmptyString_ShouldWriteKeyWithEqualsAndQuotesToStream()
-            {
-                //---------------Set up test pack-------------------
-                var sut = Create();
-                sut.WrapValueInQuotes = true;
-                sut[""]["foo"] = string.Empty;
-
-                //---------------Assert Precondition----------------
-
-                //---------------Execute Test ----------------------
-                using var memStream = new MemoryStream(new byte[1024], true);
-                sut.Persist(memStream);
-
-                //---------------Test Result -----------------------
-                var result = Encoding.UTF8.GetString(memStream.ReadAllBytes()).Split('\0').First();
-                Expect(result).To.Equal("foo=\"\"");
-            }
-
-            [Test]
-            public void
-                WrapValueInQuotes_GivenWrapValueInQuotesFalse_WhenValueHasValue_ShouldWriteValueWithoutQuotesToStream()
-            {
-                //---------------Set up test pack-------------------
-                var sut = Create();
-                sut.WrapValueInQuotes = false;
-                sut[""]["foo"] = "bar";
-
-                //---------------Assert Precondition----------------
-
-                //---------------Execute Test ----------------------
-                using var memStream = new MemoryStream(new byte[1024], true);
-                sut.Persist(memStream);
-
-                //---------------Test Result -----------------------
-                var result = Encoding.UTF8.GetString(memStream.ReadAllBytes()).Split('\0').First();
-                Expect(result).To.Equal("foo=bar");
-            }
-
-            [Test]
-            public void WrapValueInQuotes_GivenWrapValueInQuotesFalse_WhenValueIsNull_ShouldWriteOnlyKeyToStream()
-            {
-                //---------------Set up test pack-------------------
-                var sut = Create();
-                sut.WrapValueInQuotes = false;
-                sut[""]["foo"] = null;
-
-                //---------------Assert Precondition----------------
-
-                //---------------Execute Test ----------------------
-                using var memStream = new MemoryStream(new byte[1024], true);
-                sut.Persist(memStream);
-
-                //---------------Test Result -----------------------
-                var result = Encoding.UTF8.GetString(memStream.ReadAllBytes()).Split('\0').First();
-                Expect(result).To.Equal("foo");
-            }
-
-            [Test]
-            public void
-                WrapValueInQuotes_GivenWrapValueInQuotesFalse_WhenValueIsEmptyString_ShouldWriteKeyWithEqualsToStream()
-            {
-                //---------------Set up test pack-------------------
-                var sut = Create();
-                sut.WrapValueInQuotes = false;
-                sut[""]["foo"] = string.Empty;
-
-                //---------------Assert Precondition----------------
-
-                //---------------Execute Test ----------------------
-                using var memStream = new MemoryStream(new byte[1024], true);
-                sut.Persist(memStream);
-
-                //---------------Test Result -----------------------
-                var result = Encoding.UTF8.GetString(memStream.ReadAllBytes()).Split('\0').First();
-                Expect(result).To.Equal("foo=");
-            }
-        }
-
         private static string RandString()
         {
             return GetRandomAlphaString(1, 10);
@@ -2008,6 +1886,196 @@ Uncommented=""false""
         private static IINIFile Create(string path = null)
         {
             return new INIFile_EXPOSES_Sections(path);
+        }
+
+        [TestFixture]
+        public class WrapValueInQuotes
+        {
+            [TestFixture]
+            public class WhenWrapValueInQuotesIsTrue
+            {
+                [TestFixture]
+                public class WhenValueIsNotNullOrEmpty
+                {
+                    [Test]
+                    public void ShouldWriteValueWithQuotesToStream()
+                    {
+                        //---------------Set up test pack-------------------
+                        var sut = Create();
+                        sut.WrapValueInQuotes = true;
+                        sut[""]["foo"] = "bar";
+
+                        //---------------Assert Precondition----------------
+
+                        //---------------Execute Test ----------------------
+                        using var memStream = new MemoryStream(new byte[1024], true);
+                        sut.Persist(memStream);
+
+                        //---------------Test Result -----------------------
+                        var result = Encoding.UTF8.GetString(memStream.ReadAllBytes()).Split('\0').First();
+                        Expect(result).To.Equal("foo=\"bar\"");
+                    }
+                }
+
+                [TestFixture]
+                public class WhenValueIsNull
+                {
+                    [Test]
+                    public void ShouldWriteOnlyKeyToStream()
+                    {
+                        //---------------Set up test pack-------------------
+                        var sut = Create();
+                        sut.WrapValueInQuotes = true;
+                        sut[""]["foo"] = null;
+
+                        //---------------Assert Precondition----------------
+
+                        //---------------Execute Test ----------------------
+                        using var memStream = new MemoryStream(new byte[1024], true);
+                        sut.Persist(memStream);
+
+                        //---------------Test Result -----------------------
+                        var result = Encoding.UTF8.GetString(memStream.ReadAllBytes()).Split('\0').First();
+                        Expect(result).To.Equal("foo");
+                    }
+                }
+
+                [TestFixture]
+                public class WhenValueIsEmptyString
+                {
+                    [Test]
+                    public void ShouldWriteKeyWithEqualsAndQuotesToStream()
+                    {
+                        //---------------Set up test pack-------------------
+                        var sut = Create();
+                        sut.WrapValueInQuotes = true;
+                        sut[""]["foo"] = string.Empty;
+
+                        //---------------Assert Precondition----------------
+
+                        //---------------Execute Test ----------------------
+                        using var memStream = new MemoryStream(new byte[1024], true);
+                        sut.Persist(memStream);
+
+                        //---------------Test Result -----------------------
+                        var result = Encoding.UTF8.GetString(memStream.ReadAllBytes()).Split('\0').First();
+                        Expect(result).To.Equal("foo=\"\"");
+                    }
+                }
+            }
+
+            [TestFixture]
+            public class WhenWrapValueInQuotesIsFalse
+            {
+                [TestFixture]
+                public class WhenValueIsNotNullOrEmpty
+                {
+                    [Test]
+                    public void ShouldWriteValueWithoutQuotesToStream()
+                    {
+                        //---------------Set up test pack-------------------
+                        var sut = Create();
+                        sut.WrapValueInQuotes = false;
+                        sut[""]["foo"] = "bar";
+
+                        //---------------Assert Precondition----------------
+
+                        //---------------Execute Test ----------------------
+                        using var memStream = new MemoryStream(new byte[1024], true);
+                        sut.Persist(memStream);
+
+                        //---------------Test Result -----------------------
+                        var result = Encoding.UTF8.GetString(memStream.ReadAllBytes()).Split('\0').First();
+                        Expect(result).To.Equal("foo=bar");
+                    }
+                }
+
+                [TestFixture]
+                public class WhenValueIsNull
+                {
+                    [Test]
+                    public void ShouldWriteOnlyKeyToStream()
+                    {
+                        //---------------Set up test pack-------------------
+                        var sut = Create();
+                        sut.WrapValueInQuotes = false;
+                        sut[""]["foo"] = null;
+
+                        //---------------Assert Precondition----------------
+
+                        //---------------Execute Test ----------------------
+                        using var memStream = new MemoryStream(new byte[1024], true);
+                        sut.Persist(memStream);
+
+                        //---------------Test Result -----------------------
+                        var result = Encoding.UTF8.GetString(memStream.ReadAllBytes()).Split('\0').First();
+                        Expect(result).To.Equal("foo");
+                    }
+                }
+
+                [TestFixture]
+                public class WhenValueIsEmptyString
+                {
+                    [Test]
+                    public void ShouldWriteKeyWithEqualsToStream()
+                    {
+                        //---------------Set up test pack-------------------
+                        var sut = Create();
+                        sut.WrapValueInQuotes = false;
+                        sut[""]["foo"] = string.Empty;
+
+                        //---------------Assert Precondition----------------
+
+                        //---------------Execute Test ----------------------
+                        using var memStream = new MemoryStream(new byte[1024], true);
+                        sut.Persist(memStream);
+
+                        //---------------Test Result -----------------------
+                        var result = Encoding.UTF8.GetString(memStream.ReadAllBytes()).Split('\0').First();
+                        Expect(result).To.Equal("foo=");
+                    }
+                }
+            }
+        }
+
+        [TestFixture]
+        public class KeysWithoutValues
+        {
+            [Test]
+            public void ShouldReadAsNull()
+            {
+                // Arrange
+                var ini = @"
+[general]
+some-key
+";
+                var sut = Create();
+                // Act
+                sut.Parse(ini);
+                // Assert
+                Expect(sut)
+                    .To.Have.Setting("general", "some-key");
+                Expect(sut["general"]["some-key"])
+                    .To.Be.Null();
+            }
+
+            [Test]
+            public void ShouldStoreNullAsKeyOnly()
+            {
+                // Arrange
+                using var tempFile = new AutoTempFile();
+                var sut = Create();
+                // Act
+                sut.AddSection("general");
+                sut["general"]["some-key"] = null;
+                sut.Persist(tempFile.Path);
+                // Assert
+                Expect(tempFile.StringData.Trim())
+                    .To.Equal(@"
+[general]
+some-key
+".Trim());
+            }
         }
 
         private class INIFile_EXPOSES_Sections : INIFile
@@ -2075,9 +2143,9 @@ Uncommented=""false""
 
     public static class Matchers
     {
-        public static void File(this IA<string> to)
+        public static IMore<string> File(this IA<string> to)
         {
-            to.AddMatcher(
+            return to.AddMatcher(
                 actual =>
                 {
                     var passed = System.IO.File.Exists(actual);
@@ -2088,14 +2156,14 @@ Uncommented=""false""
                 });
         }
 
-        public static void Setting(
+        public static IMore<IINIFile> Setting(
             this IHave<IINIFile> have,
             string section,
             string setting,
             string value
         )
         {
-            have.Compose(actual =>
+            return have.Compose(actual =>
             {
                 Expect(actual).To.Have.Setting(section, setting);
                 Expect(actual[section][setting])
@@ -2103,12 +2171,12 @@ Uncommented=""false""
             });
         }
 
-        public static void Setting(
+        public static IMore<IINIFile> Setting(
             this IHave<IINIFile> have,
             string section,
             string setting)
         {
-            have.AddMatcher(actual =>
+            return have.AddMatcher(actual =>
             {
                 var passed = actual.HasSetting(section, setting);
                 return new MatcherResult(
@@ -2118,9 +2186,9 @@ Uncommented=""false""
             });
         }
 
-        public static void Section(this IHave<IINIFile> have, string section)
+        public static IMore<IINIFile> Section(this IHave<IINIFile> have, string section)
         {
-            have.AddMatcher(actual =>
+            return have.AddMatcher(actual =>
             {
                 var passed = actual.HasSection(section);
                 return new MatcherResult(
@@ -2130,9 +2198,9 @@ Uncommented=""false""
             });
         }
 
-        public static void Exist(this ITo<string> to)
+        public static IMore<string> Exist(this ITo<string> to)
         {
-            to.AddMatcher(actual =>
+            return to.AddMatcher(actual =>
             {
                 var passed = System.IO.File.Exists(actual);
                 return new MatcherResult(

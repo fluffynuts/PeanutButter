@@ -46,6 +46,12 @@ namespace PeanutButter.TempDb.MySql.Base
 
         public static int MaxSecondsToWaitForMySqlToStart =>
             DetermineMaxSecondsToWaitForMySqlToStart();
+        
+        /// <summary>
+        /// After the server has been set up and started, this will reflect
+        /// the absolute path to the configuration file for the server
+        /// </summary>
+        public string ConfigFilePath { get; set; }
 
         private static int DetermineMaxSecondsToWaitForMySqlToStart()
         {
@@ -286,12 +292,14 @@ namespace PeanutButter.TempDb.MySql.Base
             // now we need the real config file, sitting in the db dir
             Log($"dumping run-time defaults file into {DatabasePath}");
             DumpDefaultsFileAt(DatabasePath);
+            ConfigFilePath = Path.Combine(DatabasePath, MYSQL_CONFIG_FILE);
             Port = DeterminePortToUse();
             StartServer(MySqld);
             SetRootPassword();
             CreateInitialSchema();
             SetUpAutoDisposeIfRequired();
         }
+
 
         private void RedirectDebugLogging()
         {
@@ -427,7 +435,8 @@ namespace PeanutButter.TempDb.MySql.Base
             params string[] forSchemas)
         {
             Execute(
-                $"create user {Quote(user)}@'localhost' identified with mysql_native_password by {Quote(password)}");
+                $"create user {Quote(user)}@'%' identified with mysql_native_password by {Quote(password)}"
+            );
             forSchemas.ForEach(schema =>
             {
                 GrantAllPermissionsFor(user, schema);
@@ -484,10 +493,12 @@ namespace PeanutButter.TempDb.MySql.Base
                 Directory.Delete(databasePath, true);
             }
         }
+        
+        private const string MYSQL_CONFIG_FILE = "my.cnf";
 
         private string DumpDefaultsFileAt(
             string databasePath,
-            string configFileName = "my.cnf"
+            string configFileName = MYSQL_CONFIG_FILE
         )
         {
             var generator = new MySqlConfigGenerator();

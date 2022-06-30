@@ -11,7 +11,7 @@ namespace PeanutButter.TempDb.MySql.Base
     /// </summary>
     public class MySqlConfigGenerator
     {
-        public const string SECTION = "mysqld";
+        public const string MAIN_CONFIG_SECTION = "mysqld";
 
         /// <summary>
         /// Generates MySql configuration from TempDbMySqlServerSettings
@@ -23,7 +23,7 @@ namespace PeanutButter.TempDb.MySql.Base
         {
             if (tempDbMySqlSettings == null) throw new ArgumentNullException(nameof(tempDbMySqlSettings));
             var iniFile = new INI.INIFile();
-            iniFile.AddSection(SECTION);
+            iniFile.AddSection(MAIN_CONFIG_SECTION);
             tempDbMySqlSettings.GetType()
                 .GetProperties()
                 .Select(prop => GetSetting(prop, tempDbMySqlSettings))
@@ -38,9 +38,9 @@ namespace PeanutButter.TempDb.MySql.Base
 
         private void WriteSetting(
             INI.INIFile iniFile,
-            KeyValuePair<string,string> setting)
+            KeyValuePair<string, string> setting)
         {
-            iniFile[SECTION][setting.Key] = setting.Value;
+            iniFile[MAIN_CONFIG_SECTION][setting.Key] = setting.Value;
         }
 
         private KeyValuePair<string, string> GetSetting(
@@ -50,11 +50,52 @@ namespace PeanutButter.TempDb.MySql.Base
             var settingAttrib = prop.GetCustomAttributes()
                 .OfType<SettingAttribute>()
                 .FirstOrDefault();
-            if (settingAttrib == null)
+            if (settingAttrib is null)
+            {
                 return new KeyValuePair<string, string>();
-            return new KeyValuePair<string, string>(
+            }
+
+            if (prop.PropertyType == typeof(bool))
+            {
+                var propValue = (bool)prop.GetValue(tempDbMySqlSettings);
+                if (settingAttrib.IsBare && !propValue)
+                {
+                    return empty();
+                }
+
+                return kvp(
+                    settingAttrib.Name,
+                    settingAttrib.IsBare
+                        ? null
+                        : OnOffFor((bool) prop.GetValue(tempDbMySqlSettings))
+                );
+            }
+
+            return kvp(
                 settingAttrib.Name,
-                $"{prop.GetValue(tempDbMySqlSettings)}");
+                $"{prop.GetValue(tempDbMySqlSettings)}"
+            );
+
+            // ReSharper disable once InconsistentNaming
+            KeyValuePair<string, string> kvp(
+                string key,
+                string value
+            )
+            {
+                return new KeyValuePair<string, string>(key, value);
+            }
+
+            KeyValuePair<string, string> empty()
+            {
+                return new KeyValuePair<string, string>();
+            }
+        }
+
+        private string OnOffFor(bool value)
+        {
+            return value
+                ? "ON"
+                : "OFF";
         }
     }
 }

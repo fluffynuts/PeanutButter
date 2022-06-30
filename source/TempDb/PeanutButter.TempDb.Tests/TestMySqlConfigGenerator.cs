@@ -132,7 +132,7 @@ namespace PeanutButter.TempDb.Tests
             resultIni.Parse(rawResult); 
             
             // Assert
-            var resultValue = resultIni.GetValue(MySqlConfigGenerator.SECTION, key);
+            var resultValue = resultIni.GetValue(MySqlConfigGenerator.MAIN_CONFIG_SECTION, key);
             Expect(resultValue).To.Equal(value);
         }
 
@@ -155,7 +155,7 @@ namespace PeanutButter.TempDb.Tests
             resultIni.Parse(rawResult); 
             
             // Assert
-            var resultValue = resultIni.GetValue(MySqlConfigGenerator.SECTION, "max_connections");
+            var resultValue = resultIni.GetValue(MySqlConfigGenerator.MAIN_CONFIG_SECTION, "max_connections");
             Expect(resultValue).To.Equal(settings.CustomConfiguration["max_connections"]); 
         }
 

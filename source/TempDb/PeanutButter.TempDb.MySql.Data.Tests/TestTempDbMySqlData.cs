@@ -224,6 +224,8 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 Expect(() =>
                 {
                     using var db = Create();
+                    var config = File.ReadAllText(db.ConfigFilePath);
+                    var foo = config;
                     using (db.OpenConnection())
                     {
                         // Act
@@ -255,14 +257,14 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 // Arrange
                 using var tempFolder = new AutoTempFolder();
                 using (new AutoResetter<string>(() =>
-                {
-                    var original = TempDbHints.PreferredBasePath;
-                    TempDbHints.PreferredBasePath = tempFolder.Path;
-                    return original;
-                }, original =>
-                {
-                    TempDbHints.PreferredBasePath = original;
-                }))
+                       {
+                           var original = TempDbHints.PreferredBasePath;
+                           TempDbHints.PreferredBasePath = tempFolder.Path;
+                           return original;
+                       }, original =>
+                       {
+                           TempDbHints.PreferredBasePath = original;
+                       }))
                 {
                     // Act
                     using (new TempDBMySql())
@@ -538,8 +540,8 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                     // Arrange
                     var port = PortFinder.FindOpenPort();
                     using (new AutoResetter<string>(
-                        () => SetPortHintEnvVar(port),
-                        RestorePortHintEnvVar))
+                               () => SetPortHintEnvVar(port),
+                               RestorePortHintEnvVar))
                     {
                         var settings = new TempDbMySqlServerSettings()
                         {
@@ -600,7 +602,6 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                     .Select(int.Parse)
                     .First();
             }
-
         }
 
         [TestFixture]
@@ -629,7 +630,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                     .WithName(name)
                     .Build();
                 using (new TempDBMySql(
-                    settings, SCHEMA))
+                           settings, SCHEMA))
                 {
                     using (var inner = new TempDBMySql(settings))
                     {
