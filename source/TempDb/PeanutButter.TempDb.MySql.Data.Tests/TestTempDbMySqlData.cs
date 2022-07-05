@@ -9,7 +9,10 @@ using System.Threading;
 using Dapper;
 using MySql.Data.MySqlClient;
 using NExpect;
+using NExpect.Interfaces;
+using NExpect.MatcherLogic;
 using NUnit.Framework;
+using PeanutButter.INI;
 using PeanutButter.TempDb.MySql.Base;
 using PeanutButter.Utils;
 using static NExpect.Expectations;
@@ -224,8 +227,12 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 Expect(() =>
                 {
                     using var db = Create();
+                    Expect(db.ConfigFilePath)
+                        .To.Exist();
                     var config = File.ReadAllText(db.ConfigFilePath);
-                    var foo = config;
+                    var ini = INIFile.FromString(config);
+                    Expect(ini)
+                        .To.Have.Section("mysqld");
                     using (db.OpenConnection())
                     {
                         // Act
@@ -948,6 +955,21 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 .FirstOrDefault(p => p.StartsWith("DATABASE", StringComparison.OrdinalIgnoreCase))
                 ?.Split('=')
                 ?.Last();
+        }
+    }
+
+    public static class IniMatchers
+    {
+        public static IMore<INIFile> Section(
+            this IHave<INIFile> have,
+            string expected
+        )
+        {
+            return have.Compose(actual =>
+            {
+                Expect(actual.HasSection(expected))
+                    .To.Be.True(() => $"Expected to find section '{expected}' in ini file");
+            });
         }
     }
 }

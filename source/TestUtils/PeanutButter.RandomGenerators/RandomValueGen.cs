@@ -1,14 +1,13 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net;
 using PeanutButter.Utils;
 using static PeanutButter.Utils.PyLike;
 
 // ReSharper disable MemberCanBePrivate.Global
-
 // ReSharper disable UnusedMember.Global
 // ReSharper disable ClassNeverInstantiated.Global
 
@@ -64,13 +63,57 @@ namespace PeanutButter.RandomGenerators
         public static T GetRandom<T>()
         {
             var type = typeof(T);
-            if (type.IsEnum())
+            foreach (var gen in RandomGenerators)
             {
-                return (T) GetRandomEnum(type);
+                if (gen.Matcher(type))
+                {
+                    return (T) gen.Generator(type);
+                }
             }
 
-            return (T) GetRandomValue(typeof(T));
+            throw new InvalidOperationException(
+                $"No generator found for type {type} (should _never_ get here)"
+            );
         }
+
+        /// <summary>
+        /// Add a special case for generating random values, eg for
+        /// types which have no parameterless constructor, but, eg,
+        /// may have a .Parse method
+        /// NB: this method is NOT thread-safe when used concurrently
+        /// with GetRandom&lt;T&gt;()
+        /// </summary>
+        /// <param name="matches"></param>
+        /// <param name="generator"></param>
+        public static void AddRandomGenerator(
+            Func<Type, bool> matches,
+            Func<Type, object> generator
+        )
+        {
+            RandomGenerators.Insert(0, new RandomValueSpecialCase(matches, generator));
+        }
+
+        private class RandomValueSpecialCase
+        {
+            public Func<Type, bool> Matcher { get; }
+            public Func<Type, object> Generator { get; }
+
+            public RandomValueSpecialCase(
+                Func<Type, bool> matcher,
+                Func<Type, object> generator
+            )
+            {
+                Matcher = matcher;
+                Generator = generator;
+            }
+        }
+
+        private static readonly List<RandomValueSpecialCase> RandomGenerators = new()
+        {
+            new(t => t.IsEnum(), GetRandomEnum),
+            new(t => t == typeof(IPAddress), t => IPAddress.Parse(GetRandomIPv4Address())),
+            new(t => true, GetRandomValue)
+        };
 
         /// <summary>
         /// Returns a random loaded type in the current app domain
@@ -1460,6 +1503,58 @@ namespace PeanutButter.RandomGenerators
         }
 
         /// <summary>
+        /// Returns a random http verb, ie one of
+        /// - DELETE
+        /// - GET
+        /// - HEAD
+        /// - OPTIONS
+        /// - POST
+        /// - PUT
+        /// - TRACE
+        /// </summary>
+        /// <returns></returns>
+        public static string GetRandomHttpMethod()
+        {
+            return GetRandomFrom(HttpMethods);
+        }
+
+        private static readonly string[] HttpMethods =
+        {
+            "DELETE",
+            "GET",
+            "HEAD",
+            "OPTIONS",
+            "POST",
+            "PUT",
+            "TRACE"
+        };
+
+        /// <summary>
+        /// Returns a "more common" http method:
+        /// - 60% GET
+        /// - 20% POST
+        /// - 10% PUT
+        /// - 10% DELETE
+        /// </summary>
+        /// <returns></returns>
+        public static string GetRandomCommonHttpMethod()
+        {
+            var rnd = GetRandomInt(1, 100);
+            return rnd switch
+            {
+                < 60 => "GET",
+                < 80 => "POST",
+                _ => GetRandomFrom(LessCommonHttpMethods)
+            };
+        }
+
+        private static readonly string[] LessCommonHttpMethods =
+        {
+            "PUT",
+            "DELETE"
+        };
+
+        /// <summary>
         /// Produces a string which looks just like an http url with a path
         /// </summary>
         /// <returns></returns>
@@ -1552,6 +1647,15 @@ namespace PeanutButter.RandomGenerators
         {
             var parts = GetRandomArray<string>(1, 3);
             return parts.JoinWith("/");
+        }
+
+        /// <summary>
+        /// Returns an absolute random path (ie, always starts with /)
+        /// </summary>
+        /// <returns></returns>
+        public static string GetRandomAbsolutePath()
+        {
+            return $"/{GetRandomPath()}";
         }
 
         /// <summary>

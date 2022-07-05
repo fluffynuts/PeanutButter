@@ -369,6 +369,18 @@ namespace PeanutButter.INI
     /// <inheritdoc />
     public class INIFile : IINIFile
     {
+        /// <summary>
+        /// Loads INI data from a string
+        /// </summary>
+        /// <param name="ini"></param>
+        /// <returns></returns>
+        public static INIFile FromString(string ini)
+        {
+            var result = new INIFile();
+            result.Parse(ini);
+            return result;
+        }
+
         /// <inheritdoc />
         public ParseStrategies ParseStrategy { get; set; } = ParseStrategies.BestEffort;
 

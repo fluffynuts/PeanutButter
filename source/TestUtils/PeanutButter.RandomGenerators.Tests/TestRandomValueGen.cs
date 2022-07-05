@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using GenericBuilderTestArtifactBuilders;
@@ -2683,6 +2685,76 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [TestFixture]
+        public class RandomHttpMethods
+        {
+            [Test]
+            public void ShouldReturnValidHttpMethod()
+            {
+                // Arrange
+                var allowed = new HashSet<string>(
+                    new[]
+                    {
+                        HttpMethod.Delete.ToString(),
+                        HttpMethod.Get.ToString(), 
+                        HttpMethod.Head.ToString(), 
+                        HttpMethod.Options.ToString(), 
+                        HttpMethod.Post.ToString(), 
+                        HttpMethod.Put.ToString(), 
+                        HttpMethod.Trace.ToString()
+                    }
+                );
+                var collected = new List<string>();
+
+                // Act
+                for (var i = 0; i < NORMAL_RANDOM_TEST_CYCLES; i++)
+                {
+                    collected.Add(GetRandomHttpMethod());
+                }
+                // Assert
+                Expect(collected)
+                    .To.Contain.All
+                    .Matched.By(s => allowed.Contains(s));
+            }
+
+            [Test]
+            public void ShouldBeAbleToReturnCommonHttpMethod()
+            {
+                // Arrange
+                var allowed = new HashSet<string>(
+                    new[]
+                    {
+                        HttpMethod.Get.ToString(),
+                        HttpMethod.Post.ToString(),
+                        HttpMethod.Delete.ToString(),
+                        HttpMethod.Put.ToString(),
+                    }
+                );
+                var collected = new List<string>();
+
+                // Act
+                for (var i = 0; i < NORMAL_RANDOM_TEST_CYCLES; i++)
+                {
+                    collected.Add(GetRandomCommonHttpMethod());
+                }
+
+                // Assert
+                Expect(collected)
+                    .To.Contain.All
+                    .Matched.By(s => allowed.Contains(s));
+                var counts = collected.GroupBy(s => s)
+                    .ToDictionary(o => o.Key, o => o.Count());
+                Expect(counts["GET"])
+                    .To.Be.Greater.Than(counts["PUT"])
+                    .And
+                    .To.Be.Greater.Than(counts["POST"])
+                    .And
+                    .To.Be.Greater.Than(counts["DELETE"]);
+                Expect(counts["POST"])
+                    .To.Be.Greater.Than(counts["PUT"]);
+            }
+        }
+
+        [TestFixture]
         public class GetRandomHostName
         {
             [Test]
@@ -3623,6 +3695,22 @@ namespace PeanutButter.RandomGenerators.Tests
                 Expect(emails.Select(e => e.ToLower()))
                     .To.Equal(emails);
                 emails.ForEach(email => Console.WriteLine(email));
+            }
+        }
+
+        [TestFixture]
+        public class RandomIPAddress
+        {
+            [Test]
+            public void ShouldProduceRandomIpAddressValues()
+            {
+                // Arrange
+                // Act
+                var result1 = GetRandom<IPAddress>();
+                var result2 = GetRandom<IPAddress>();
+                // Assert
+                Expect(result1.ToString())
+                    .Not.To.Equal(result2.ToString());
             }
         }
     }

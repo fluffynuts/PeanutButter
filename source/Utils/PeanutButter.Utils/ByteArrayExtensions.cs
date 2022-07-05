@@ -62,7 +62,7 @@ namespace PeanutButter.Utils
         /// <returns>base64 representation</returns>
         public static string ToBase64(this byte[] data)
         {
-            return System.Convert.ToBase64String(data);
+            return Convert.ToBase64String(data);
         }
 
         /// <summary>

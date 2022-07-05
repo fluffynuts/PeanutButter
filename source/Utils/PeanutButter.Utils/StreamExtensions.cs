@@ -306,6 +306,11 @@ namespace PeanutButter.Utils
 
         private static async Task<byte[]> ReadAllBytesAsyncFrom(Stream src)
         {
+            if (src is MemoryStream memStream)
+            {
+                return memStream.ToArray();
+            }
+
             if (src.CanSeek)
             {
                 src.Rewind();
