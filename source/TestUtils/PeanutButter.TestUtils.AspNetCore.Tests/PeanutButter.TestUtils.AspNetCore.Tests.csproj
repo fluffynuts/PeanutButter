@@ -19,7 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj" />
     <ProjectReference Include="..\PeanutButter.TestUtils.AspNetCore\PeanutButter.TestUtils.AspNetCore.csproj" />
   </ItemGroup>
 

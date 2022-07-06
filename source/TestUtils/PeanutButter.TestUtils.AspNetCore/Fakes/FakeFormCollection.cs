@@ -32,5 +32,12 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
         }
 
         private IFormFileCollection _files = new FakeFormFileCollection();
+
+        public void AddFile(IFormFile formFile)
+        {
+            var asFake = _files as FakeFormFileCollection
+                ?? throw new InvalidImplementationException(_files, "FormFileCollection cannot be modified");
+            asFake.Add(formFile);
+        }
     }
 }

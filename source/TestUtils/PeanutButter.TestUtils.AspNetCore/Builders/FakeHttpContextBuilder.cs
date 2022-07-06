@@ -114,19 +114,6 @@ public class FakeHttpContextBuilder : Builder<FakeHttpContextBuilder, FakeHttpCo
     }
 }
 
-public class FakeFormBuilder : Builder<FakeFormBuilder, FakeFormCollection>
-{
-    public static FakeFormBuilder Create()
-    {
-        return new FakeFormBuilder();
-    }
-
-    public static FakeFormCollection BuildDefault()
-    {
-        return Create().Build();
-    }
-}
-
 public class InvalidImplementationException : Exception
 {
     public InvalidImplementationException(

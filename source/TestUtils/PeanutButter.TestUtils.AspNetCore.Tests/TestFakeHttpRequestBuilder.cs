@@ -359,6 +359,65 @@ public class TestFakeHttpRequestBuilder
             );
     }
 
+    [TestFixture]
+    public class ContentLength
+    {
+        [Test]
+        public void ShouldReflectTheLengthOfTheBodyStream()
+        {
+            // Arrange
+            var stream = new MemoryStream(
+                GetRandomBytes()
+            );
+            var sut = FakeHttpRequestBuilder.Create()
+                .WithBody(stream)
+                .Build();
+            // Act
+            var result = sut.ContentLength;
+            // Assert
+            Expect(result)
+                .To.Equal(stream.Length);
+        }
+
+        [Test]
+        public void ShouldSetBodyLengthWhenSet()
+        {
+            // Arrange
+            var stream = new MemoryStream(
+                GetRandomBytes()
+            );
+            var originalLength = stream.Length;
+
+            var sut = Create()
+                .WithBody(stream)
+                .Build();
+            // Act
+            sut.ContentLength = stream.Length - 1;
+            // Assert
+            Expect(sut.Body.Length)
+                .To.Equal(stream.Length)
+                .And
+                .To.Equal(originalLength - 1);
+        }
+    }
+
+    [TestFixture]
+    public class Body
+    {
+        [Test]
+        public void SettingFormShouldSetBody()
+        {
+            // Arrange
+            // Act
+            // Assert
+        }
+    }
+
+    private static FakeHttpRequestBuilder Create()
+    {
+        return FakeHttpRequestBuilder.Create();
+    }
+
     private static HttpRequest BuildDefault()
     {
         return FakeHttpRequestBuilder.BuildDefault();

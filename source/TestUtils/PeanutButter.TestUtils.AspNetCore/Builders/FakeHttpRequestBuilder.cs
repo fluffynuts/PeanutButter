@@ -1,30 +1,61 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
+using System.Text;
 using Microsoft.AspNetCore.Http;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.TestUtils.AspNetCore.Builders
 {
+    internal static class Run
+    {
+        private static HashSet<Type> Seen = new();
+        private static object _lock = new();
+        
+        internal static void Once<T>(
+            Action toRun
+        )
+        {
+            lock (_lock)
+            {
+                if (Seen.Contains(typeof(T)))
+                {
+                    return;
+                }
+
+                Seen.Add(typeof(T));
+            }
+            toRun();
+        }
+    }
+
     public class FakeHttpRequestBuilder : Builder<FakeHttpRequestBuilder, FakeHttpRequest>
     {
         static FakeHttpRequestBuilder()
         {
-            AddRandomGenerator(
-                t => t == typeof(HostString),
-                _ => new HostString(
-                    GetRandomHostname(),
-                    GetRandomFrom(CommonPorts)
-                )
-            );
-            AddRandomGenerator(
-                t => t == typeof(PathString),
-                _ => new PathString(GetRandomPath())
-            );
-            AddRandomGenerator(
-                t => t == typeof(QueryString),
-                _ => new QueryString(GetRandomUrlQuery())
-            );
+            InstallRandomGenerators();
+        }
+
+        public static void InstallRandomGenerators()
+        {
+            Run.Once<FakeHttpRequestBuilder>(() =>
+            {
+                InstallRandomGenerator<HostString>(
+                    () => new HostString(
+                        GetRandomHostname(),
+                        GetRandomFrom(CommonPorts)
+                    )
+                );
+                InstallRandomGenerator<PathString>(
+                    () => new PathString(GetRandomPath())
+                );
+                InstallRandomGenerator<QueryString>(
+                    () => new QueryString(GetRandomUrlQuery())
+                );
+                // TODO: add random generator for FakeHttpRequest
+            });
         }
 
         private static readonly int[] CommonPorts =
@@ -62,6 +93,23 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
                         )
                         .Build()
                 );
+        }
+
+        public FakeHttpRequestBuilder WithBody(string body)
+        {
+            return WithBody(Encoding.UTF8.GetBytes(body));
+        }
+
+        public FakeHttpRequestBuilder WithBody(byte[] body)
+        {
+            return WithBody(new MemoryStream(body));
+        }
+
+        public FakeHttpRequestBuilder WithBody(Stream body)
+        {
+            return With(
+                o => o.Body = body
+            );
         }
 
         public FakeHttpRequestBuilder WithCookie(string name, string value)

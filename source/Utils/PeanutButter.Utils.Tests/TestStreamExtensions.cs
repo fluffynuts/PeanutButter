@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -784,7 +785,7 @@ namespace PeanutButter.Utils.Tests
                 Expect(copy).To.Equal(expected);
             }
         }
-        
+
         [TestFixture]
         public class WritingStringsAsync
         {
@@ -872,6 +873,131 @@ namespace PeanutButter.Utils.Tests
                 var copy = new byte[toWrite.Length];
                 Buffer.BlockCopy(buffer, 0, copy, 0, toWrite.Length);
                 Expect(copy).To.Equal(expected);
+            }
+        }
+
+        [TestFixture]
+        public class AppendString
+        {
+            [Test]
+            public void ShouldAppendTheString()
+            {
+                // Arrange
+                var str1 = GetRandomString();
+                var str2 = GetRandomString();
+                using var stream = new MemoryStream();
+                // Act
+                stream.AppendString(str1);
+                stream.AppendString(str2);
+                // Assert
+                var result = Encoding.UTF8.GetString(
+                    stream.ToArray()
+                );
+                Expect(result)
+                    .To.Equal($"{str1}{str2}");
+            }
+        }
+
+        [TestFixture]
+        public class ReadAllText
+        {
+            [Test]
+            public void ShouldReadTheStreamAsText()
+            {
+                // Arrange
+                var expected = GetRandomWords();
+                var memStream = new MemoryStream(
+                    Encoding.UTF8.GetBytes(
+                        expected
+                    )
+                );
+                // Act
+                var result = memStream.ReadAllText();
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+            
+            [Test]
+            public void ShouldReadTheStreamAsTextTwice()
+            {
+                // Arrange
+                var expected = GetRandomWords();
+                var memStream = new MemoryStream(
+                    Encoding.UTF8.GetBytes(
+                        expected
+                    )
+                );
+                // Act
+                memStream.ReadAllText();
+                var result = memStream.ReadAllText();
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+        }
+
+        [TestFixture]
+        public class ReadLines
+        {
+            [TestCase("\r\n")]
+            [TestCase("\n")]
+            public void ShouldReadLines(string newline)
+            {
+                // Arrange
+                var expected = new[]
+                {
+                    GetRandomWords(),
+                    GetRandomWords(),
+                    GetRandomWords()
+                };
+                var fullText = expected.JoinWith(newline);
+                var stream = new MemoryStream(
+                    Encoding.UTF8.GetBytes(
+                        fullText
+                    )
+                );
+                var collected = new List<string>();
+                // Act
+                foreach (var line in stream.ReadLines())
+                {
+                    collected.Add(line);
+                }
+
+                // Assert
+                Expect(collected)
+                    .To.Equal(expected);
+            }
+
+            [Test]
+            public void ShouldRetainUtf8()
+            {
+                // Arrange
+                var text = "hello 🙄 world";
+                var stream = new MemoryStream(
+                    Encoding.UTF8.GetBytes(text)
+                );
+                // Act
+                var result = stream.ReadLines().Single();
+                // Assert
+                Expect(result)
+                    .To.Equal(text);
+            }
+
+            [Test]
+            public void ShouldNotDiscardDanglingCarriageReturns()
+            {
+                // Arrange
+                var lines = "foo\rbar\r\nquuz\napples";
+                var expected = new[] { "foo\rbar", "quuz", "apples" };
+                var stream = new MemoryStream(
+                    Encoding.UTF8.GetBytes(lines)
+                );
+                // Act
+                var result = stream.ReadLines().ToArray();
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
             }
         }
     }

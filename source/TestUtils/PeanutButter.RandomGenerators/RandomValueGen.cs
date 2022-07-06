@@ -37,7 +37,7 @@ namespace PeanutButter.RandomGenerators
     public class RandomValueGen
     {
         private static readonly Dictionary<Type, Func<object>> PrimitiveGenerators =
-            new Dictionary<Type, Func<object>>()
+            new()
             {
                 [typeof(int)] = () => GetRandomInt(),
                 [typeof(byte)] = () => Convert.ToByte(GetRandomInt(0, 255)),
@@ -63,17 +63,17 @@ namespace PeanutButter.RandomGenerators
         public static T GetRandom<T>()
         {
             var type = typeof(T);
-            foreach (var gen in RandomGenerators)
+            if (RandomGenerators.TryGetValue(type, out var handler))
             {
-                if (gen.Matcher(type))
-                {
-                    return (T) gen.Generator(type);
-                }
+                return (T)handler();
             }
 
-            throw new InvalidOperationException(
-                $"No generator found for type {type} (should _never_ get here)"
-            );
+            if (type.IsEnum())
+            {
+                return (T)GetRandomEnum(type);
+            }
+            
+            return (T)GetRandomValue(type);
         }
 
         /// <summary>
@@ -85,12 +85,11 @@ namespace PeanutButter.RandomGenerators
         /// </summary>
         /// <param name="matches"></param>
         /// <param name="generator"></param>
-        public static void AddRandomGenerator(
-            Func<Type, bool> matches,
-            Func<Type, object> generator
+        public static void InstallRandomGenerator<T>(
+            Func<object> generator
         )
         {
-            RandomGenerators.Insert(0, new RandomValueSpecialCase(matches, generator));
+            RandomGenerators[typeof(T)] = generator;
         }
 
         private class RandomValueSpecialCase
@@ -108,11 +107,9 @@ namespace PeanutButter.RandomGenerators
             }
         }
 
-        private static readonly List<RandomValueSpecialCase> RandomGenerators = new()
+        private static readonly Dictionary<Type, Func<object>> RandomGenerators = new()
         {
-            new(t => t.IsEnum(), GetRandomEnum),
-            new(t => t == typeof(IPAddress), t => IPAddress.Parse(GetRandomIPv4Address())),
-            new(t => true, GetRandomValue)
+            [typeof(IPAddress)] = () => IPAddress.Parse(GetRandomIPv4Address())
         };
 
         /// <summary>
@@ -1422,8 +1419,17 @@ namespace PeanutButter.RandomGenerators
             return string.Join(
                 ".",
                 GetRandomString(10, 20),
-                GetRandomString(3, 3)
+                GetRandomFileExtension()
             );
+        }
+
+        /// <summary>
+        /// Returns a random valid file extension
+        /// </summary>
+        /// <returns></returns>
+        public static string GetRandomFileExtension()
+        {
+            return GetRandomFrom(MIMEType.KnownFileExtensions);
         }
 
         /// <summary>

@@ -15,6 +15,7 @@ namespace PeanutButter.RandomGenerators.Ducked.Tests
             string Name { get; set; }
             int Age { get; set; }
         }
+        
         [Test]
         public void WhenHaveDuckTyperAvailable_ShouldBeAbleToCreateRandomInstanceOfInterface()
         {

@@ -8,6 +8,7 @@ namespace PeanutButter.SimpleHTTPServer
     /// <summary>
     /// Provides some extensions for the stream object
     /// provided into a HttpServer handler function
+    /// 
     /// </summary>
     public static class StreamExtensions
     {

@@ -749,6 +749,72 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        public class IsWhiteSpace
+        {
+            [TestCase(" ")]
+            [TestCase("\t")]
+            [TestCase("\r")]
+            [TestCase("\n")]
+            public void ShouldReturnTrueFor_(string input)
+            {
+                // Arrange
+                // Act
+                var result = input.IsWhiteSpace();
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+
+            [TestCase("")]
+            [TestCase(null)]
+            [TestCase("a")]
+            [TestCase(" a")]
+            [TestCase("a ")]
+            public void ShouldReturnFalseFor_(string input)
+            {
+                // Arrange
+                // Act
+                var result = input.IsWhiteSpace();
+                // Assert
+                Expect(result)
+                    .To.Be.False();
+            }
+        }
+
+        [TestFixture]
+        public class IsEmptyOrWhiteSpace
+        {
+            [TestCase("")]
+            [TestCase(" ")]
+            [TestCase("\t")]
+            [TestCase("\r")]
+            [TestCase("\n")]
+            public void ShouldReturnTrueFor_(string input)
+            {
+                // Arrange
+                // Act
+                var result = input.IsEmptyOrWhiteSpace();
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+
+            [TestCase(null)]
+            [TestCase("a")]
+            [TestCase(" a")]
+            [TestCase("a ")]
+            public void ShouldReturnFalseFor_(string input)
+            {
+                // Arrange
+                // Act
+                var result = input.IsEmptyOrWhiteSpace();
+                // Assert
+                Expect(result)
+                    .To.Be.False();
+            }
+        }
+
+        [TestFixture]
         public class ToBase64
         {
             [Test]

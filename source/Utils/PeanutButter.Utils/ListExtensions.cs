@@ -71,6 +71,30 @@ namespace PeanutButter.Utils
             list.Add(value);
         }
 
+        /// <summary>
+        /// Adds the value to the list if the flag was set to true
+        /// shortcut for:
+        /// if (flag)
+        /// {
+        ///     list.Add(value);
+        /// }
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="shouldAdd"></param>
+        /// <param name="value"></param>
+        /// <typeparam name="T"></typeparam>
+        public static void AddIf<T>(
+            this IList<T> list,
+            bool shouldAdd,
+            T value
+        )
+        {
+            if (shouldAdd)
+            {
+                list.Add(value);
+            }
+        }
+
         private static void ValidateListContainsElements<T>(IList<T> list)
         {
             if (list.Count < 1)

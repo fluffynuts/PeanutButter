@@ -3,35 +3,68 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using PeanutButter.Utils;
 
 namespace PeanutButter.TestUtils.AspNetCore.Fakes
 {
     public class FakeFormFile : IFormFile
     {
-        private readonly MemoryStream _content;
+        private readonly Stream _content;
 
-        public FakeFormFile(string content, string name, string fileName)
-            : this(Encoding.UTF8.GetBytes(content), name, fileName)
+        public FakeFormFile(
+            string content,
+            string name,
+            string fileName
+        ) : this(content, name, fileName, null)
         {
         }
 
-        private FakeFormFile(byte[] bytes, string name, string fileName)
-            : this(new MemoryStream(bytes), name, fileName)
+        public FakeFormFile(
+            string content,
+            string name,
+            string fileName,
+            string mimeType
+        )
+            : this(Encoding.UTF8.GetBytes(content), name, fileName, mimeType)
         {
         }
 
-        private FakeFormFile(MemoryStream content, string name, string fileName)
+        public FakeFormFile(byte[] bytes, string name, string fileName)
+            : this(bytes, name, fileName, null)
+        {
+        }
+
+        public FakeFormFile(byte[] bytes, string name, string fileName, string mimeType)
+            : this(new MemoryStream(bytes), name, fileName, mimeType)
+        {
+        }
+
+        public FakeFormFile(Stream content, string name, string fileName)
+            : this(content, name, fileName, null)
+        {
+        }
+
+        public FakeFormFile(
+            Stream content,
+            string name,
+            string fileName,
+            string mimeType
+        )
         {
             _content = content;
             Name = name;
-            FileName = name ?? fileName;
+            FileName = fileName ?? name;
+            ContentType = mimeType ?? MIMEType.GuessForFileName(fileName);
         }
 
 
         public Stream OpenReadStream()
         {
-            _content.Position = 0;
-            return new MemoryStream(_content.ToArray());
+            // provide a new stream so that disposal
+            // doesn't trash _content
+            return new MemoryStream(
+                _content.ReadAllBytes()
+            );
         }
 
         public void CopyTo(Stream target)

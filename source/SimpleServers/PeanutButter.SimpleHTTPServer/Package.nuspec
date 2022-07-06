@@ -28,14 +28,17 @@
     <dependencies>
       <group targetFramework="net452">
         <dependency id="PeanutButter.SimpleTcpServer" version="2.0.83" />
+        <dependency id="PeanutButter.Utils" version="2.0.83" />
         <dependency id="Newtonsoft.Json" version="13.0.1" />
       </group>
       <group targetFramework="net462">
         <dependency id="PeanutButter.SimpleTcpServer" version="2.0.83" />
+        <dependency id="PeanutButter.Utils" version="2.0.83" />
         <dependency id="Newtonsoft.Json" version="13.0.1" />
       </group>
       <group targetFramework="netstandard2.0">
         <dependency id="PeanutButter.SimpleTcpServer" version="2.0.83" />
+        <dependency id="PeanutButter.Utils" version="2.0.83" />
         <dependency id="Newtonsoft.Json" version="13.0.1" />
       </group>
     </dependencies>

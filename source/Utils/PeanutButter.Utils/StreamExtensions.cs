@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -289,6 +290,7 @@ namespace PeanutButter.Utils
                 src.Rewind();
                 var buffer = new byte[src.Length];
                 src.Read(buffer, 0, buffer.Length);
+                src.Rewind();
                 return buffer;
             }
 
@@ -301,6 +303,7 @@ namespace PeanutButter.Utils
                 stream.Write(thisPart, 0, readCount);
             } while (readCount > 0);
 
+            src.Rewind();
             return stream.ToArray();
         }
 
@@ -332,5 +335,165 @@ namespace PeanutButter.Utils
         }
 
         private const int DEFAULT_CAPACITY = 1024 * 1024 * 1024; // 1mb default
+
+        /// <summary>
+        /// Appends a string to a stream
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="value"></param>
+        public static void AppendString(
+            this Stream stream,
+            string value
+        )
+        {
+            stream.Append(
+                Encoding.UTF8.GetBytes(value)
+            );
+        }
+
+        /// <summary>
+        /// Appends a text line to a stream
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="line"></param>
+        public static void AppendLine(
+            this Stream stream,
+            string line
+        )
+        {
+            stream.AppendString($"{line}\n");
+        }
+
+        private static void NoOp(LineEndings obj)
+        {
+        }
+
+        /// <summary>
+        /// Reads the stream, line-for-line, with the UTF8 encoding.
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> ReadLines(
+            this Stream stream
+        )
+        {
+            return stream.ReadLines(NoOp);
+        }
+
+        /// <summary>
+        /// Reads the stream, line-for-line, with the UTF8 encoding.
+        /// When a newline is encountered, the onNewLine func is called
+        /// with the kind of line ending last encountered.
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="onNewline"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> ReadLines(
+            this Stream stream,
+            Action<LineEndings> onNewline
+        )
+        {
+            return stream.ReadLines(Encoding.UTF8, onNewline);
+        }
+
+        /// <summary>
+        /// Reads the stream, line-for-line, with the provided encoding
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="encoding"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> ReadLines(
+            this Stream stream,
+            Encoding encoding
+        )
+        {
+            return stream.ReadLines(encoding, NoOp);
+        }
+
+        /// <summary>
+        /// Reads the stream, line-for-line, with the provided encoding.
+        /// When a newline is encountered, the onNewLine func is called
+        /// with the kind of line ending last encountered.
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="encoding"></param>
+        /// <param name="onNewLine"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> ReadLines(
+            this Stream stream,
+            Encoding encoding,
+            Action<LineEndings> onNewLine
+        )
+        {
+            var bytes = new List<byte>();
+            int c;
+            var collected = 0;
+            var danglingCarriageReturn = false;
+            while ((c = stream.ReadByte()) != -1)
+            {
+                if (c == '\r')
+                {
+                    danglingCarriageReturn = true;
+                    continue;
+                }
+
+                if (c == '\n')
+                {
+                    yield return encoding.GetString(
+                        bytes.ToArray()
+                    );
+                    collected = 0;
+                    bytes.Clear();
+                    onNewLine?.Invoke(
+                        danglingCarriageReturn
+                            ? LineEndings.CRLF
+                            : LineEndings.LF
+                    );
+                    danglingCarriageReturn = false;
+                    continue;
+                }
+
+                if (danglingCarriageReturn)
+                {
+                    bytes.Add((byte) '\r');
+                    danglingCarriageReturn = false;
+                }
+
+                collected++;
+                bytes.Add((byte) c);
+            }
+
+            if (collected > 0)
+            {
+                yield return encoding.GetString(
+                    bytes.ToArray()
+                );
+            }
+        }
+
+        private const int READLINE_BUFFER_SIZE = 16;
+
+        public static string ReadAllText(
+            this Stream stream
+        )
+        {
+            return stream.ReadAllText(Encoding.UTF8);
+        }
+
+        private static string ReadAllText(
+            this Stream stream,
+            Encoding encoding
+        )
+        {
+            return encoding.GetString(
+                stream.ReadAllBytes()
+            );
+        }
+    }
+
+    public enum LineEndings
+    {
+        LF,
+        CRLF
     }
 }

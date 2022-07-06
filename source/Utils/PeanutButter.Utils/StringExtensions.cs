@@ -402,6 +402,54 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
+        /// Tests if a string is empty or all whitespace
+        /// NB: will return false for null
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static bool IsEmptyOrWhiteSpace(
+            this string value
+        )
+        {
+            if (value is null)
+            {
+                return false;
+            }
+            return value == "" || 
+                value.IsWhiteSpace();
+        }
+
+        /// <summary>
+        /// Tests if a string is non-empty, but made entirely of whitespace
+        /// NB: will return false for null or empty string
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static bool IsWhiteSpace(
+            this string value
+        )
+        {
+            if (value is null)
+            {
+                return false;
+            }
+
+            if (value.Length == 0)
+            {
+                return false;
+            }
+
+            foreach (var c in value)
+            {
+                if (!char.IsWhiteSpace(c))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
         /// Returns the base64-encoded representation of a string value
         /// </summary>
         /// <param name="value">Input string value</param>
@@ -411,6 +459,23 @@ namespace PeanutButter.Utils
         {
             return value?.AsBytes()?.ToBase64();
         }
+
+        /// <summary>
+        /// Returns true if the string is non-empty and contains only base64-encoding
+        /// characters
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static bool LooksLikeBase64(
+            this string str
+        )
+        {
+            return !string.IsNullOrWhiteSpace(str) && 
+                str.All(c => Base64Characters.Contains(c));
+        }
+        
+        private const string BASE64_CHARACTER_SET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+        private static readonly HashSet<char> Base64Characters = new(BASE64_CHARACTER_SET);
 
         /// <summary>
         /// Returns "0" if the input string is empty or null
