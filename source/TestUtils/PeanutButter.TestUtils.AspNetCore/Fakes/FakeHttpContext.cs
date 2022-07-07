@@ -18,11 +18,14 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
         private IFeatureCollection _features;
 
         public override HttpRequest Request => 
-            _request ??= _requestAccessor();
+            _request ??= _requestAccessor?.Invoke();
         private HttpRequest _request;
         private Func<HttpRequest> _requestAccessor;
-        public override HttpResponse Response => _response;
+        
+        public override HttpResponse Response => 
+            _response ??= _responseAccessor?.Invoke();
         private HttpResponse _response;
+        private Func<HttpResponse> _responseAccessor;
 
         public override ConnectionInfo Connection => _connection;
         private ConnectionInfo _connection;
@@ -56,9 +59,9 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
             _requestAccessor = accessor;
         }
 
-        public void SetResponse(FakeHttpResponse response)
+        public void SetResponseAccessor(Func<HttpResponse> accessor)
         {
-            _response = response;
+            _responseAccessor = accessor;
         }
 
         public void SetConnection(ConnectionInfo connection)

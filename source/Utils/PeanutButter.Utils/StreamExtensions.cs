@@ -285,25 +285,24 @@ namespace PeanutButter.Utils
 
         private static byte[] ReadAllBytesFrom(Stream src)
         {
+            if (src is MemoryStream memStream)
+            {
+                return memStream.ToArray();
+            }
+
             if (src.CanSeek)
             {
                 src.Rewind();
-                var buffer = new byte[src.Length];
-                src.Read(buffer, 0, buffer.Length);
-                src.Rewind();
-                return buffer;
             }
 
             using var stream = new MemoryStream();
-            var readCount = 0;
-            do
+            src.CopyTo(stream);
+            
+            if (src.CanSeek)
             {
-                var thisPart = new byte[DEFAULT_CAPACITY];
-                readCount = src.Read(thisPart, 0, DEFAULT_CAPACITY);
-                stream.Write(thisPart, 0, readCount);
-            } while (readCount > 0);
+                src.Rewind();
+            }
 
-            src.Rewind();
             return stream.ToArray();
         }
 
@@ -317,24 +316,17 @@ namespace PeanutButter.Utils
             if (src.CanSeek)
             {
                 src.Rewind();
-                var buffer = new byte[src.Length];
-                await src.ReadAsync(buffer, 0, buffer.Length);
-                return buffer;
             }
 
             using var stream = new MemoryStream();
-            var readCount = 0;
-            do
-            {
-                var thisPart = new byte[DEFAULT_CAPACITY];
-                readCount = await src.ReadAsync(thisPart, 0, DEFAULT_CAPACITY);
-                stream.Write(thisPart, 0, readCount);
-            } while (readCount > 0);
+            await src.CopyToAsync(stream);
 
+            if (src.CanSeek)
+            {
+                src.Rewind();
+            }
             return stream.ToArray();
         }
-
-        private const int DEFAULT_CAPACITY = 1024 * 1024 * 1024; // 1mb default
 
         /// <summary>
         /// Appends a string to a stream
@@ -364,7 +356,7 @@ namespace PeanutButter.Utils
             stream.AppendString($"{line}\n");
         }
 
-        private static void NoOp(LineEndings obj)
+        private static void NoOp(Eol obj)
         {
         }
 
@@ -390,7 +382,7 @@ namespace PeanutButter.Utils
         /// <returns></returns>
         public static IEnumerable<string> ReadLines(
             this Stream stream,
-            Action<LineEndings> onNewline
+            Action<Eol> onNewline
         )
         {
             return stream.ReadLines(Encoding.UTF8, onNewline);
@@ -422,7 +414,7 @@ namespace PeanutButter.Utils
         public static IEnumerable<string> ReadLines(
             this Stream stream,
             Encoding encoding,
-            Action<LineEndings> onNewLine
+            Action<Eol> onNewLine
         )
         {
             var bytes = new List<byte>();
@@ -446,8 +438,8 @@ namespace PeanutButter.Utils
                     bytes.Clear();
                     onNewLine?.Invoke(
                         danglingCarriageReturn
-                            ? LineEndings.CRLF
-                            : LineEndings.LF
+                            ? Eol.CrLf
+                            : Eol.Lf
                     );
                     danglingCarriageReturn = false;
                     continue;
@@ -471,8 +463,11 @@ namespace PeanutButter.Utils
             }
         }
 
-        private const int READLINE_BUFFER_SIZE = 16;
-
+        /// <summary>
+        /// Read all content of a stream as text
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
         public static string ReadAllText(
             this Stream stream
         )
@@ -491,9 +486,19 @@ namespace PeanutButter.Utils
         }
     }
 
-    public enum LineEndings
+    /// <summary>
+    /// Specifies the expected eol character for a text blob
+    /// </summary>
+    public enum Eol
     {
-        LF,
-        CRLF
+        /// <summary>
+        /// Line-feed only (eg Linux)
+        /// </summary>
+        // ReSharper disable once InconsistentNaming
+        Lf,
+        /// <summary>
+        /// Carriage-return, Line-feed (eg Windows)
+        /// </summary>
+        CrLf
     }
 }

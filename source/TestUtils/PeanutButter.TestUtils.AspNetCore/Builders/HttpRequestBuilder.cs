@@ -1,26 +1,18 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Text;
 using Microsoft.AspNetCore.Http;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.TestUtils.AspNetCore.Builders
 {
     public class HttpRequestBuilder : Builder<HttpRequestBuilder, HttpRequest>
     {
-        protected override HttpRequest ConstructEntity()
-        {
-            return new FakeHttpRequest();
-        }
-
-        public override HttpRequestBuilder Randomize()
-        {
-            // TODO
-            throw new NotImplementedException();
-        }
-        
-        public HttpRequestBuilder(): base(Actualize)
+        public HttpRequestBuilder() : base(Actualize)
         {
             WithForm(FormBuilder.BuildDefault())
                 .WithMethod(HttpMethod.Get)
@@ -39,17 +31,77 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
                 );
         }
 
+        protected override HttpRequest ConstructEntity()
+        {
+            return new FakeHttpRequest();
+        }
+
+        public override HttpRequestBuilder Randomize()
+        {
+            return WithRandomMethod()
+                .WithRandomScheme()
+                .WithRandomPath()
+                .WithRandomHost()
+                .WithRandomPort()
+                .WithRandomHeaders()
+                .WithRandomCookies();
+        }
+
+        public HttpRequestBuilder WithRandomMethod()
+        {
+            return WithMethod(GetRandomHttpMethod());
+        }
+
+        public HttpRequestBuilder WithRandomScheme()
+        {
+            return WithScheme(GetRandomFrom(HTTP_SCHEMES));
+        }
+
+        public HttpRequestBuilder WithRandomPath()
+        {
+            return WithPath(GetRandomPath());
+        }
+
+        public HttpRequestBuilder WithRandomHost()
+        {
+            return WithHost(GetRandomHostname());
+        }
+
+        public HttpRequestBuilder WithRandomPort()
+        {
+            return WithPort(GetRandomInt(80, 10000));
+        }
+
+        public HttpRequestBuilder WithRandomHeaders()
+        {
+            return WithRandomTimes(
+                o => o.Headers[$"X-{GetRandomString(4, 8)}"] = GetRandomString()
+            );
+        }
+
+        public HttpRequestBuilder WithRandomCookies()
+        {
+            return WithRandomTimes(
+                o =>
+                {
+                    if (o.Cookies is FakeRequestCookieCollection fake)
+                    {
+                        fake[GetRandomString(4, 10)] = GetRandomString();
+                    }
+                }
+            );
+        }
+
+        private static readonly string[] HTTP_SCHEMES =
+        {
+            "http",
+            "https"
+        };
+
         private static void Actualize(HttpRequest built)
         {
             Warn(built.HttpContext is null, "no HttpContext set");
             Warn(built.HttpContext?.Request is null, "no HttpContext.Request set");
-        }
-
-        private static void Warn(
-            bool condition,
-            string message
-        )
-        {
         }
 
         public HttpRequestBuilder WithBody(string body)
@@ -81,10 +133,51 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
             );
         }
 
+        public HttpRequestBuilder WithCookies(
+            IDictionary<string, string> cookies
+        )
+        {
+            return With(
+                o =>
+                {
+                    if (cookies is null)
+                    {
+                        throw new ArgumentNullException(nameof(cookies));
+                    }
+
+                    var fake = o.Cookies as FakeRequestCookieCollection
+                        ?? throw new InvalidImplementationException(o.Cookies, nameof(o.Cookies));
+
+                    foreach (var kvp in cookies)
+                    {
+                        fake[kvp.Key] = kvp.Value;
+                    }
+                }
+            );
+        }
+
+        public HttpRequestBuilder WithNoCookies()
+        {
+            return With(
+                o =>
+                {
+                    var fake = o.Cookies as FakeRequestCookieCollection
+                        ?? throw new InvalidImplementationException(o.Cookies, nameof(o.Cookies));
+                    fake.Clear();
+                });
+        }
+
         public HttpRequestBuilder WithCookies(IRequestCookieCollection cookies)
         {
             return With(
                 o => o.Cookies = cookies
+            );
+        }
+
+        public HttpRequestBuilder WithNoHeaders()
+        {
+            return With(
+                o => o.Headers.Clear()
             );
         }
 
@@ -95,6 +188,26 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
         {
             return With(
                 o => o.Headers[header] = value
+            );
+        }
+
+        public HttpRequestBuilder WithHeaders(
+            IDictionary<string, string> headers
+        )
+        {
+            return With(
+                o =>
+                {
+                    if (headers is null)
+                    {
+                        throw new ArgumentNullException(nameof(headers));
+                    }
+
+                    foreach (var kvp in headers)
+                    {
+                        o.Headers[kvp.Key] = kvp.Value;
+                    }
+                }
             );
         }
 
@@ -194,7 +307,14 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
             HttpContext context
         )
         {
-            return WithHttpContext(() => context);
+            return WithHttpContext(() => context)
+                .With(o =>
+                {
+                    if (context is FakeHttpContext fake)
+                    {
+                        fake.SetRequest(o);
+                    }
+                });
         }
 
         public HttpRequestBuilder WithHttpContext(

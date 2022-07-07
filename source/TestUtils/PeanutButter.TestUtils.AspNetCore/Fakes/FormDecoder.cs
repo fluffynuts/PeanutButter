@@ -15,7 +15,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
             var result = new FakeFormCollection();
             var flag = new OneWayFlag();
             using var enumerator = body.ReadLines(
-                eol => flag.WasSet = eol == LineEndings.CRLF
+                eol => flag.WasSet = eol == Eol.CrLf
             ).GetEnumerator();
             while (enumerator.MoveNext())
             {

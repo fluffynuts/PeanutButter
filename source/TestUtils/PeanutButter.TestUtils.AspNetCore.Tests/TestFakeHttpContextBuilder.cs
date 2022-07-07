@@ -1,13 +1,14 @@
 using Microsoft.AspNetCore.Http;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using NExpect;
+using NUnit.Framework;
 using PeanutButter.TestUtils.AspNetCore.Builders;
 using static NExpect.Expectations;
 
 namespace PeanutButter.TestUtils.AspNetCore.Tests;
 
 [TestFixture]
-public class FakeHttpContextBuilder
+public class TestFakeHttpContextBuilder
 {
     [TestFixture]
     public class DefaultBuild

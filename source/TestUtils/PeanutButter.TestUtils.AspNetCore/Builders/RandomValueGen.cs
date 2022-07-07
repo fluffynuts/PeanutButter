@@ -43,7 +43,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
 
         private static void InstallHttpRequestGenerator()
         {
-            InstallRandomGenerator(
+            InstallRandomGenerator<HttpRequest>(
                 HttpRequestBuilder.BuildRandom
             );
             InstallRandomGenerator(

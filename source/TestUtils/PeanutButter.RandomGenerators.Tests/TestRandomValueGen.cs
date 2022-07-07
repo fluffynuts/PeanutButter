@@ -2360,6 +2360,24 @@ namespace PeanutButter.RandomGenerators.Tests
             }
 
             [Test]
+            public void SuccessfullySelectingASub()
+            {
+                // Arrange
+                // Act
+                var result = GetRandom<IPublicFoo>();
+                // Assert
+                Expect(result)
+                    .Not.To.Be.Null();
+                Expect(result.GetType().Name)
+                    .To.Start.With("ObjectProxy");
+            }
+
+            public interface IPublicFoo
+            {
+                void DoThing();
+            }
+
+            [Test]
             public void GetRandomOfType_WhenTypeHasSimpleParameteredConstructor_ShouldAttemptToConstruct()
             {
                 // Arrange

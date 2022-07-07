@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Reflection;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.TestUtils.AspNetCore.Builders
@@ -80,7 +82,16 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
 
         protected virtual TSubject ConstructEntity()
         {
-            return Activator.CreateInstance<TSubject>();
+            try
+            {
+                return Activator.CreateInstance<TSubject>();
+            }
+            catch
+            {
+                throw new CustomConstructEntityRequired(
+                    GetType()
+                );
+            }
         }
 
         private TSubject ConstructAndStoreEntity()
@@ -90,7 +101,6 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
 
         public virtual TSubject Build()
         {
-            
             var result = ApplyMutators(ConstructAndStoreEntity());
             foreach (var actualizer in _actualizers)
             {
@@ -102,5 +112,30 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
         }
 
         private readonly List<Action<TSubject>> _mutators = new();
+
+        protected static void Warn(
+            bool condition,
+            string message
+        )
+        {
+#if DEBUG
+            if (condition)
+            {
+                Trace.WriteLine(message);
+            }
+#endif
+        }
+    }
+
+    internal class CustomConstructEntityRequired
+        : Exception
+    {
+        public CustomConstructEntityRequired(
+            Type outerType
+        ) : base(
+            $@"Please implement {outerType.Name}.ConstructEntity"
+        )
+        {
+        }
     }
 }

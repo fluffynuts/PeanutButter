@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -56,7 +57,7 @@ namespace PeanutButter.RandomGenerators
             {
                 lock (_dynamicAssemblyLock)
                 {
-                    return _dynamicAssemblyBuilderField ??= 
+                    return _dynamicAssemblyBuilderField ??=
                         DefineDynamicAssembly("PeanutButter.RandomGenerators.GeneratedBuilders");
                 }
             }
@@ -70,17 +71,18 @@ namespace PeanutButter.RandomGenerators
                     .DefineDynamicAssembly(new AssemblyName(withName), AssemblyBuilderAccess.RunAndCollect);
 #else
                 AppDomain.CurrentDomain
-                .DefineDynamicAssembly(new AssemblyName(withName), AssemblyBuilderAccess.RunAndCollect);
+                    .DefineDynamicAssembly(new AssemblyName(withName), AssemblyBuilderAccess.RunAndCollect);
 #endif
         }
 
         private static ModuleBuilder _moduleBuilder;
         private static readonly object ModuleBuilderLock = new object();
+
         private static ModuleBuilder CreateOrReuseDynamicModule()
         {
             lock (ModuleBuilderLock)
             {
-                return _moduleBuilder ??= 
+                return _moduleBuilder ??=
                     DynamicAssemblyBuilder.DefineDynamicModule("GeneratedBuilders");
             }
         }
@@ -94,7 +96,7 @@ namespace PeanutButter.RandomGenerators
                 if (DynamicBuilders.TryGetValue(type, out var dynamicBuilderType))
                     return dynamicBuilderType;
                 var t = typeof(GenericBuilder<,>);
-                
+
                 var modBuilder = CreateOrReuseDynamicModule();
                 var typeName = string.Join("_", type.Name, "Builder", Guid.NewGuid().ToString("N"));
                 var typeBuilder = modBuilder.DefineType(typeName,
@@ -115,9 +117,170 @@ namespace PeanutButter.RandomGenerators
                 {
                     throw new UnableToCreateDynamicBuilderException(type, ex);
                 }
+
                 DynamicBuilders[type] = dynamicBuilderType;
                 return dynamicBuilderType;
             }
+        }
+
+        /// <summary>
+        /// Attempt to create a substitute for the given type
+        /// </summary>
+        /// <param name="callThrough">Create a partial sub where calls go through to the original implementation</param>
+        /// <param name="result"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool TryCreateSubstituteFor<T>(bool callThrough, out T result)
+        {
+            return TryCreateSubstituteFor(
+                throwOnError: false,
+                callThrough,
+                out result
+            );
+        }
+
+        /// <summary>
+        /// Attempts perform Substitute.For&lt;T&gt;
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static bool TryCreateSubstituteFor<T>(
+            bool throwOnError,
+            bool callThrough,
+            out T result
+        )
+        {
+            result = default;
+            var loadedNSubstitute = FindOrLoadNSubstitute<T>();
+            if (loadedNSubstitute is null)
+            {
+                if (throwOnError)
+                {
+                    throw new Exception("Can't find (or load) NSubstitute )':");
+                }
+
+                return false;
+            }
+
+            // FIXME: calling .Received() on the result doesn't work
+            // unless NSubstitute has been invoked in the calling assembly
+            // eg with a pre-existing Substitute.For or by reading SubstitutionContext.Current
+            var nsubstituteTypes = loadedNSubstitute.GetTypes();
+            var subType = nsubstituteTypes
+                .FirstOrDefault(t => t.Name == "Substitute");
+            if (subType is null)
+            {
+                if (throwOnError)
+                {
+                    throw new Exception(
+                        "NSubstitute assembly loaded -- but no Substitute class? )':"
+                    );
+                }
+
+                return false;
+            }
+
+            var seekMethod = callThrough
+                ? "ForPartsOf"
+                : "For";
+
+            var genericMethod = subType.GetMethods()
+                .FirstOrDefault(m => m.Name == seekMethod &&
+                    IsObjectParams(m.GetParameters())
+                );
+            if (genericMethod is null)
+            {
+                if (throwOnError)
+                {
+                    throw new Exception(
+                        $"Can't find NSubstitute.Substitute.{seekMethod} method )':"
+                    );
+                }
+
+                return false;
+            }
+
+            var specificMethod = genericMethod.MakeGenericMethod(typeof(T));
+            try
+            {
+                result = (T) specificMethod.Invoke(
+                    null,
+                    new object[]
+                    {
+                        new object[] { }
+                    });
+                return true;
+            }
+            catch
+            {
+                if (throwOnError)
+                {
+                    throw;
+                }
+
+                return false;
+            }
+        }
+
+        private static Assembly FindOrLoadNSubstitute<T>()
+        {
+            return FindOrLoadAssembly<T>("NSubstitute", false);
+        }
+
+        /// <summary>
+        /// Attempts to load the assembly alongside the Type T
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="retrying"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        protected static Assembly FindOrLoadAssembly<T>(
+            string name,
+            bool retrying
+        )
+        {
+            var loaded = AppDomain.CurrentDomain.GetAssemblies()
+                .FirstOrDefault(
+                    a => a.GetName().Name == name
+                );
+            if (loaded != null ||
+                retrying)
+            {
+                return loaded;
+            }
+
+            AttemptToLoadAssemblyAlongside<T>($"{name}.dll");
+            return FindOrLoadAssembly<T>(name, true);
+        }
+
+        private static void AttemptToLoadAssemblyAlongside<T>(string fileName)
+        {
+            var codeBase = new Uri(typeof(T).Assembly.CodeBase).LocalPath;
+            if (!File.Exists(codeBase))
+                return;
+
+            var folder = Path.GetDirectoryName(codeBase);
+            var search = Path.Combine(folder ?? "", fileName);
+            if (!File.Exists(search))
+                return;
+
+            try
+            {
+                Assembly.Load(File.ReadAllBytes(search));
+            }
+            catch
+            {
+                /* Nothing much to be done here anyway */
+            }
+        }
+
+        private static bool IsObjectParams(ParameterInfo[] parameterInfos)
+        {
+            return parameterInfos.Length == 1 &&
+                parameterInfos[0]
+                    .ParameterType ==
+                typeof(object[]);
         }
     }
 }

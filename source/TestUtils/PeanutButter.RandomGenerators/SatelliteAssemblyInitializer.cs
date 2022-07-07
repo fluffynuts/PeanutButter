@@ -10,24 +10,41 @@ namespace PeanutButter.RandomGenerators
     {
         static SatelliteAssemblyInitializer()
         {
-            var loadedPeanutButters = AppDomain.CurrentDomain.GetAssemblies()
-                .Where(asm => AutoLoadAssemblies.Contains(asm.GetName().Name))
-                .ToArray();
+            var loadedPeanutButters = FindAutoLoadAssemblies();
             foreach (var asm in loadedPeanutButters)
             {
                 InitRandomValueGenIn(asm);
             }
         }
-        
-        private static readonly AssemblyName MyName = typeof(SatelliteAssemblyInitializer)
-            .Assembly.GetName();
 
-        private static readonly HashSet<string> AutoLoadAssemblies = new(
-            new[]
+        private static IEnumerable<Assembly> FindAutoLoadAssemblies()
+        {
+            foreach (var name in AutoLoadAssemblies)
             {
-                "PeanutButter.TestUtils.AspNetCore"
+                var asm = TryLoad(name);
+                if (asm is not null)
+                {
+                    yield return asm;
+                }
             }
-        );
+
+            Assembly TryLoad(string name)
+            {
+                try
+                {
+                    return Assembly.Load(name);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+        }
+
+        private static readonly string[] AutoLoadAssemblies =
+        {
+            "PeanutButter.TestUtils.AspNetCore"
+        };
 
         private static readonly HashSet<Assembly> SeenAssemblies = new();
         private static readonly Assembly ThisAssembly = typeof(SatelliteAssemblyInitializer).Assembly;

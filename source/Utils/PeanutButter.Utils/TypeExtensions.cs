@@ -1182,6 +1182,12 @@ namespace PeanutButter.Utils
                 : Nullable.GetUnderlyingType(type);
         }
 
+        /// <summary>
+        /// Tests if a provided type is decorated with the expected attribute [TAttribute]
+        /// </summary>
+        /// <param name="type"></param>
+        /// <typeparam name="TAttribute"></typeparam>
+        /// <returns></returns>
         public static bool HasAttribute<TAttribute>(
             this Type type
         ) where TAttribute : Attribute

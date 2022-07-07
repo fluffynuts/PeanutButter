@@ -1,21 +1,15 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Primitives;
 using NExpect;
-using NExpect.Interfaces;
-using PeanutButter.RandomGenerators;
+using NUnit.Framework;
 using PeanutButter.TestUtils.AspNetCore.Builders;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
-using PeanutButter.Utils;
 using static NExpect.Expectations;
+using static NExpect.AspNetCoreExpectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
-using static PeanutButter.TestUtils.AspNetCore.Tests.Expectations;
 
 namespace PeanutButter.TestUtils.AspNetCore.Tests;
 
@@ -351,6 +345,53 @@ public class TestHttpRequestBuilder
     }
 
     [Test]
+    public void ShouldBeAbleToClearHeaders()
+    {
+        // Arrange
+        // Act
+        var result = HttpRequestBuilder.Create()
+            .WithHeader("X-HeaderA", "foo")
+            .WithHeader("X-HeaderB", "bar")
+            .WithNoHeaders()
+            .Build();
+        // Assert
+        Expect(result.Headers)
+            .To.Be.Empty();
+    }
+
+    [Test]
+    public void ShouldBeAbleToSpecifyADictionaryOfHeaders()
+    {
+        // Arrange
+        // Act
+        var result = HttpRequestBuilder.Create()
+            .WithHeaders(
+                new Dictionary<string, string>()
+                {
+                    ["X-HeaderA"] = "foo",
+                    ["X-HeaderB"] = "bar"
+                }
+            )
+            .Build();
+        // Assert
+        var headers = result.Headers;
+        Expect(headers)
+            .To.Contain.Only(2).Items();
+        Expect(headers)
+            .To.Contain.Exactly(1)
+            .Matched.By(o =>
+                o.Key == "X-HeaderA" &&
+                o.Value == "foo"
+            );
+        Expect(headers)
+            .To.Contain.Exactly(1)
+            .Matched.By(o =>
+                o.Key == "X-HeaderB" &&
+                o.Value == "bar"
+            );
+    }
+
+    [Test]
     public void ShouldBeAbleToSetIndividualCookies()
     {
         // Arrange
@@ -372,6 +413,43 @@ public class TestHttpRequestBuilder
                 o.Key == "one" &&
                 o.Value == "1"
             );
+    }
+
+    [Test]
+    public void ShouldBeAbleToSetCookiesFromDictionary()
+    {
+        // Arrange
+        // Act
+        var result = HttpRequestBuilder.Create()
+            .WithCookies(
+                new Dictionary<string, string>()
+                {
+                    ["foo"] = "bar"
+                }
+            ).Build();
+        // Assert
+        Expect(result.Cookies)
+            .To.Contain.Key("foo")
+            .With.Value("bar");
+    }
+
+    [Test]
+    public void ShouldBeAbleToClearCookies()
+    {
+        // Arrange
+        // Act
+        var result = HttpRequestBuilder.Create()
+            .WithCookies(
+                new Dictionary<string, string>()
+                {
+                    ["foo"] = "bar"
+                }
+            )
+            .WithNoCookies()
+            .Build();
+        // Assert
+        Expect(result.Cookies)
+            .To.Be.Empty();
     }
 
     [TestFixture]
@@ -424,7 +502,7 @@ public class TestHttpRequestBuilder
         {
             // Arrange
             var form = GetRandom<IFormCollection>();
-            Expect(form.Keys)
+            Expect(form)
                 .Not.To.Be.Empty();
             Expect(form.Files)
                 .To.Be.Empty();
@@ -450,7 +528,7 @@ public class TestHttpRequestBuilder
                 .WithFile(
                     FormFileBuilder.BuildRandom()
                 ).Build();
-            Expect(form.Keys)
+            Expect(form)
                 .Not.To.Be.Empty();
             Expect(form.Files)
                 .Not.To.Be.Empty();
@@ -474,7 +552,7 @@ public class TestHttpRequestBuilder
             var expected = FormBuilder.Create()
                 .Randomize()
                 .Build();
-            Expect(expected.Keys)
+            Expect(expected)
                 .Not.To.Be.Empty();
             Expect(expected.Files)
                 .To.Be.Empty();
@@ -498,7 +576,7 @@ public class TestHttpRequestBuilder
                 .Randomize()
                 .WithRandomFile()
                 .Build();
-            Expect(expected.Keys)
+            Expect(expected)
                 .Not.To.Be.Empty();
             Expect(expected.Files)
                 .Not.To.Be.Empty();
@@ -512,6 +590,42 @@ public class TestHttpRequestBuilder
             // Assert
             Expect(result.Form)
                 .To.Deep.Equal(expected);
+        }
+
+        [Test]
+        public void ShouldBeAbleToGenerateRandom()
+        {
+            // Arrange
+            // Act
+            var result1 = GetRandom<HttpRequest>();
+            var result2 = GetRandom<HttpRequest>();
+            // Assert
+            Expect(result1)
+                .Not.To.Deep.Equal(result2);
+            Expect(result1.Method)
+                .Not.To.Be.Null.Or.Empty();
+            Expect(result1.Scheme)
+                .Not.To.Be.Null.Or.Empty();
+            Expect(result1.Path.Value)
+                .Not.To.Be.Null.Or.Empty();
+            Expect(result1.Protocol)
+                .Not.To.Be.Null.Or.Empty();
+            Expect(result1.Host)
+                .Not.To.Be.Null();
+            Expect(result1.Host.Host)
+                .Not.To.Be.Empty()
+                .And
+                .Not.To.Equal("localhost");
+            Expect(result1.Host.Port)
+                .Not.To.Be.Null()
+                .And
+                .To.Be.Greater.Than(0);
+            Expect(result1.Form)
+                .Not.To.Be.Null();
+            Expect(result1.Cookies)
+                .Not.To.Be.Null();
+            Expect(result1.Headers)
+                .Not.To.Be.Null();
         }
     }
 
@@ -530,17 +644,5 @@ public class TestHttpRequestBuilder
     {
         // force static constructor to be called
         HttpRequestBuilder.Create();
-    }
-}
-
-public static class Expectations
-{
-    public static ICollectionExpectation<IFormFile> Expect(
-        IFormFileCollection files
-    )
-    {
-        return NExpect.Expectations.Expect(
-            files as IEnumerable<IFormFile>
-        );
     }
 }

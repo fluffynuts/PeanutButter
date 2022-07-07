@@ -2,7 +2,8 @@
 
 namespace PeanutButter.TestUtils.AspNetCore.Fakes
 {
-    public class FakeRequestCookieCollection : StringMap, IRequestCookieCollection
+    public class FakeRequestCookieCollection 
+        : StringMap, IRequestCookieCollection
     {
     }
 }

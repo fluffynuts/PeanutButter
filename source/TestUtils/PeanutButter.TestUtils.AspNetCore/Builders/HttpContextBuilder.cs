@@ -67,8 +67,15 @@ public class HttpContextBuilder : Builder<HttpContextBuilder, HttpContext>
         FakeHttpResponse response
     )
     {
+        return WithResponse(() => response);
+    }
+
+    public HttpContextBuilder WithResponse(
+        Func<HttpResponse> accessor
+    )
+    {
         return With<FakeHttpContext>(
-            o => o.SetResponse(response)
+            o => o.SetResponseAccessor(accessor)
         );
     }
 

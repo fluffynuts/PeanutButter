@@ -314,7 +314,7 @@ namespace PeanutButter.RandomGenerators
                         {
                             try
                             {
-                                return acc == null ||
+                                return acc is null ||
                                     acc.Equals(default(TEntity))
                                         ? cur()
                                         : acc;
@@ -334,7 +334,11 @@ namespace PeanutButter.RandomGenerators
 
         private static readonly Func<TEntity>[] FallbackConstructionStrategies =
         {
-            AttemptToCreateSubstituteFor<TEntity>,
+            () => TryCreateSubstituteFor<TEntity>(
+                throwOnError: true,
+                callThrough: false,
+                out var result
+            ) ? result : default,
             AttemptToCreateForcedFuzzyDuckFor
         };
 
@@ -403,99 +407,6 @@ namespace PeanutButter.RandomGenerators
                 DUCK_ASM,
                 false
             );
-        }
-
-        private static T AttemptToCreateSubstituteFor<T>()
-        {
-            var loadedNSubstitute = FindOrLoadNSubstitute<T>();
-            if (loadedNSubstitute == null)
-            {
-                throw new Exception("Can't find (or load) NSubstitute )':");
-            }
-
-            var subType = loadedNSubstitute.GetTypes()
-                .FirstOrDefault(t => t.Name == "Substitute");
-            if (subType == null)
-            {
-                throw new Exception(
-                    "NSubstitute assembly loaded -- but no Substitute class? )':"
-                );
-            }
-
-            var genericMethod = subType.GetMethods()
-                .FirstOrDefault(m => m.Name == "For" &&
-                    IsObjectParams(m.GetParameters())
-                );
-            if (genericMethod == null)
-            {
-                throw new Exception(
-                    "Can't find NSubstitute.Substitute.For method )':"
-                );
-            }
-
-            var specificMethod = genericMethod.MakeGenericMethod(typeof(T));
-            return (T) specificMethod.Invoke(
-                null,
-                new object[]
-                {
-                    new object[] { }
-                });
-        }
-
-        private static Assembly FindOrLoadNSubstitute<T>()
-        {
-            return FindOrLoadAssembly<T>("NSubstitute", false);
-        }
-
-        private static void AttemptToLoadNSubstitute<T>()
-        {
-            AttemptToLoadAssemblyAlongside<T>("NSubstitute.dll");
-        }
-
-        private static Assembly FindOrLoadAssembly<T>(string name,
-            bool retrying)
-        {
-            var loaded = AppDomain.CurrentDomain.GetAssemblies()
-                .FirstOrDefault(
-                    a => a.GetName().Name == name
-                );
-            if (loaded != null ||
-                retrying)
-            {
-                return loaded;
-            }
-
-            AttemptToLoadAssemblyAlongside<T>($"{name}.dll");
-            return FindOrLoadAssembly<T>(name, true);
-        }
-
-        private static void AttemptToLoadAssemblyAlongside<T>(string fileName)
-        {
-            var codeBase = new Uri(typeof(T).Assembly.CodeBase).LocalPath;
-            if (!File.Exists(codeBase))
-                return;
-
-            var folder = Path.GetDirectoryName(codeBase);
-            var search = Path.Combine(folder ?? "", fileName);
-            if (!File.Exists(search))
-                return;
-
-            try
-            {
-                Assembly.Load(File.ReadAllBytes(search));
-            }
-            catch
-            {
-                /* Nothing much to be done here anyway */
-            }
-        }
-
-        private static bool IsObjectParams(ParameterInfo[] parameterInfos)
-        {
-            return parameterInfos.Length == 1 &&
-                parameterInfos[0]
-                    .ParameterType ==
-                typeof(object[]);
         }
 
         private T AttemptToConstructWithImplementingType<T>()

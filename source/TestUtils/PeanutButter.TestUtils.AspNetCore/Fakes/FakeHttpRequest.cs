@@ -21,7 +21,7 @@ public class FakeHttpRequest : HttpRequest
     }
 
     public override HttpContext HttpContext =>
-        _httpContext ??= _httpContextAccessor();
+        _httpContext ??= _httpContextAccessor?.Invoke();
 
     private HttpContext _httpContext;
     private Func<HttpContext> _httpContextAccessor;

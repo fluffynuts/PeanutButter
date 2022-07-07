@@ -5,6 +5,11 @@ namespace PeanutButter.TestUtils.AspNetCore
 {
     public class StringMap : IEnumerable<KeyValuePair<string, string>>
     {
+        public void Clear()
+        {
+            _store.Clear();
+        }
+
         private readonly Dictionary<string, string> _store = new();
 
         public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
