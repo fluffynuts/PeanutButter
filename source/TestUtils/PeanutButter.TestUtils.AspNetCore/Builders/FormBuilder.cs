@@ -1,43 +1,20 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
+using Microsoft.AspNetCore.Http;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
 
-public class FakeFormBuilder : Builder<FakeFormBuilder, FakeFormCollection>
+public class FormBuilder : Builder<FormBuilder, IFormCollection>
 {
-    static FakeFormBuilder()
+    protected override IFormCollection ConstructEntity()
     {
-        InstallRandomGenerators();
+        return new FakeFormCollection();
     }
 
-    public static void InstallRandomGenerators()
-    {
-        Run.Once<FakeFormBuilder>(() =>
-        {
-            InstallRandomGenerator<FakeFormCollection>(
-                BuildRandom
-            );
-        });
-    }
-
-    public static FakeFormBuilder Create()
-    {
-        return new FakeFormBuilder();
-    }
-
-    public static FakeFormCollection BuildDefault()
-    {
-        return Create().Build();
-    }
-
-    public static FakeFormCollection BuildRandom()
-    {
-        return Create().Randomize().Build();
-    }
-
-    public FakeFormBuilder Randomize()
+    public override FormBuilder Randomize()
     {
         var fieldCount = GetRandomInt(1, 4);
         for (var i = 0; i < fieldCount; i++)
@@ -48,17 +25,17 @@ public class FakeFormBuilder : Builder<FakeFormBuilder, FakeFormCollection>
         return this;
     }
 
-    public FakeFormBuilder WithField(
+    public FormBuilder WithField(
         string name,
         string value
     )
     {
-        return With(
+        return With<FakeFormCollection>(
             o => o.FormValues[name] = value
         );
     }
 
-    public FakeFormBuilder WithFile(
+    public FormBuilder WithFile(
         string contents,
         string name
     )
@@ -66,7 +43,7 @@ public class FakeFormBuilder : Builder<FakeFormBuilder, FakeFormCollection>
         return WithFile(contents, name, name);
     }
 
-    public FakeFormBuilder WithFile(
+    public FormBuilder WithFile(
         string contents,
         string name,
         string fileName
@@ -79,7 +56,7 @@ public class FakeFormBuilder : Builder<FakeFormBuilder, FakeFormCollection>
         );
     }
 
-    public FakeFormBuilder WithFile(
+    public FormBuilder WithFile(
         byte[] contents,
         string name
     )
@@ -87,7 +64,7 @@ public class FakeFormBuilder : Builder<FakeFormBuilder, FakeFormCollection>
         return WithFile(contents, name, name);
     }
 
-    public FakeFormBuilder WithFile(
+    public FormBuilder WithFile(
         byte[] contents,
         string name,
         string fileName
@@ -100,7 +77,7 @@ public class FakeFormBuilder : Builder<FakeFormBuilder, FakeFormCollection>
         );
     }
 
-    public FakeFormBuilder WithFile(
+    public FormBuilder WithFile(
         Stream content,
         string name
     )
@@ -112,14 +89,33 @@ public class FakeFormBuilder : Builder<FakeFormBuilder, FakeFormCollection>
         );
     }
 
-    public FakeFormBuilder WithFile(
+    public FormBuilder WithFile(
         Stream content,
         string name,
         string fileName
     )
     {
-        return With(
-            o => o.AddFile(new FakeFormFile(content, name, fileName))
+        return WithFile(
+            new FakeFormFile(
+                content,
+                name,
+                fileName
+            )
+        );
+    }
+
+    public FormBuilder WithRandomFile()
+    {
+        return With<FakeFormCollection>(
+            o => o.AddFile(FormFileBuilder.BuildRandom()
+            )
+        );
+    }
+
+    public FormBuilder WithFile(IFormFile file)
+    {
+        return With<FakeFormCollection>(
+            o => o.AddFile(file)
         );
     }
 }

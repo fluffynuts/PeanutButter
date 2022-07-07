@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -19,8 +20,11 @@ public class FakeHttpRequest : HttpRequest
         );
     }
 
-    public override HttpContext HttpContext => _httpContext;
+    public override HttpContext HttpContext =>
+        _httpContext ??= _httpContextAccessor();
+
     private HttpContext _httpContext;
+    private Func<HttpContext> _httpContextAccessor;
     public override string Method { get; set; }
     public override string Scheme { get; set; }
 
@@ -83,7 +87,11 @@ public class FakeHttpRequest : HttpRequest
     public override Stream Body
     {
         get => _body ??= new MemoryStream();
-        set => _body = value ?? new MemoryStream();
+        set 
+        {
+            _body = value ?? new MemoryStream(); 
+            UpdateFormFromBody();
+        }
     }
 
     private Stream _body;
@@ -99,6 +107,12 @@ public class FakeHttpRequest : HttpRequest
             _form = value ?? new FakeFormCollection();
             UpdateBodyForForm();
         }
+    }
+
+    private void UpdateFormFromBody()
+    {
+        _form = new FormDecoder().Decode(_body);
+        ContentType = SelectContentTypeForFormOrBody();
     }
 
     private void UpdateBodyForForm()
@@ -141,7 +155,12 @@ public class FakeHttpRequest : HttpRequest
 
     public void SetContext(HttpContext context)
     {
-        _httpContext = context;
+        SetContextAccessor(() => context);
+    }
+
+    public void SetContextAccessor(Func<HttpContext> accessor)
+    {
+        _httpContextAccessor = accessor;
     }
 
     private QueryString GenerateQueryStringFrom(IQueryCollection query)

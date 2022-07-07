@@ -1181,28 +1181,37 @@ namespace PeanutButter.Utils
                 ? type
                 : Nullable.GetUnderlyingType(type);
         }
+
+        public static bool HasAttribute<TAttribute>(
+            this Type type
+        ) where TAttribute : Attribute
+        {
+            return type.GetCustomAttributes()
+                .OfType<TAttribute>()
+                .Any();
+        }
     }
 
     internal static class Types
     {
-        public static readonly HashSet<Type> PrimitivesAndImmutables =
-            new HashSet<Type>(new[]
-                {
-                    typeof(int),
-                    typeof(short),
-                    typeof(char),
-                    typeof(byte),
-                    typeof(long),
-                    typeof(string),
-                    typeof(float),
-                    typeof(double),
-                    typeof(decimal),
-                    typeof(bool),
-                    typeof(DateTime),
-                    typeof(TimeSpan),
-                    typeof(DateTimeOffset),
-                    typeof(Guid)
-                }
-            );
+        public static readonly HashSet<Type> PrimitivesAndImmutables = new(
+            new[]
+            {
+                typeof(int),
+                typeof(short),
+                typeof(char),
+                typeof(byte),
+                typeof(long),
+                typeof(string),
+                typeof(float),
+                typeof(double),
+                typeof(decimal),
+                typeof(bool),
+                typeof(DateTime),
+                typeof(TimeSpan),
+                typeof(DateTimeOffset),
+                typeof(Guid)
+            }
+        );
     }
 }

@@ -56,9 +56,8 @@ namespace PeanutButter.RandomGenerators
             {
                 lock (_dynamicAssemblyLock)
                 {
-                    return _dynamicAssemblyBuilderField ??
-                           (_dynamicAssemblyBuilderField =
-                               DefineDynamicAssembly("PeanutButter.RandomGenerators.GeneratedBuilders"));
+                    return _dynamicAssemblyBuilderField ??= 
+                        DefineDynamicAssembly("PeanutButter.RandomGenerators.GeneratedBuilders");
                 }
             }
         }
@@ -81,8 +80,8 @@ namespace PeanutButter.RandomGenerators
         {
             lock (ModuleBuilderLock)
             {
-                return _moduleBuilder ?? (_moduleBuilder =
-                    DynamicAssemblyBuilder.DefineDynamicModule("GeneratedBuilders"));
+                return _moduleBuilder ??= 
+                    DynamicAssemblyBuilder.DefineDynamicModule("GeneratedBuilders");
             }
         }
 
@@ -100,7 +99,7 @@ namespace PeanutButter.RandomGenerators
                 var typeName = string.Join("_", type.Name, "Builder", Guid.NewGuid().ToString("N"));
                 var typeBuilder = modBuilder.DefineType(typeName,
                     TypeAttributes.Public | TypeAttributes.Class);
-                // Typebuilder is a sub class of Type
+                // TypeBuilder is a sub class of Type
                 typeBuilder.DefineDefaultConstructor(MethodAttributes.Public);
                 typeBuilder.SetParent(t.MakeGenericType(typeBuilder, type));
                 try

@@ -5,7 +5,6 @@ using System.Threading;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Authentication;
 using Microsoft.AspNetCore.Http.Features;
-using PeanutButter.TestUtils.AspNetCore.Builders;
 
 namespace PeanutButter.TestUtils.AspNetCore.Fakes
 {
@@ -18,8 +17,10 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
         public override IFeatureCollection Features => _features;
         private IFeatureCollection _features;
 
-        public override HttpRequest Request => _request;
+        public override HttpRequest Request => 
+            _request ??= _requestAccessor();
         private HttpRequest _request;
+        private Func<HttpRequest> _requestAccessor;
         public override HttpResponse Response => _response;
         private HttpResponse _response;
 
@@ -47,7 +48,12 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
 
         public void SetRequest(HttpRequest request)
         {
-            _request = request;
+            SetRequestAccessor(() => request);
+        }
+
+        public void SetRequestAccessor(Func<HttpRequest> accessor)
+        {
+            _requestAccessor = accessor;
         }
 
         public void SetResponse(FakeHttpResponse response)

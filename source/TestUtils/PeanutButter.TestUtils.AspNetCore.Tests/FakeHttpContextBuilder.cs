@@ -1,17 +1,13 @@
-using System.Collections;
 using Microsoft.AspNetCore.Http;
-using PeanutButter.RandomGenerators;
-using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using NExpect;
 using PeanutButter.TestUtils.AspNetCore.Builders;
-using PeanutButter.Utils;
 using static NExpect.Expectations;
 
 namespace PeanutButter.TestUtils.AspNetCore.Tests;
 
 [TestFixture]
-public class TestFakeHttpContextBuilder
+public class FakeHttpContextBuilder
 {
     [TestFixture]
     public class DefaultBuild
@@ -21,7 +17,7 @@ public class TestFakeHttpContextBuilder
         {
             // Arrange
             // Act
-            var result = FakeHttpContextBuilder.BuildDefault();
+            var result = HttpContextBuilder.BuildDefault();
             // Assert
             Expect(result)
                 .Not.To.Be.Null();
@@ -34,7 +30,7 @@ public class TestFakeHttpContextBuilder
         {
             // Arrange
             // Act
-            var result = FakeHttpContextBuilder.BuildDefault();
+            var result = HttpContextBuilder.BuildDefault();
             // Assert
             Expect(result.Features)
                 .Not.To.Be.Null();
@@ -44,7 +40,7 @@ public class TestFakeHttpContextBuilder
         public void ShouldSetRequest()
         {
             // Arrange
-            var result = FakeHttpContextBuilder.BuildDefault();
+            var result = HttpContextBuilder.BuildDefault();
             // Act
             Expect(result.Request)
                 .Not.To.Be.Null();
@@ -56,7 +52,7 @@ public class TestFakeHttpContextBuilder
         {
             // Arrange
             // Act
-            var result = FakeHttpContextBuilder.BuildDefault();
+            var result = HttpContextBuilder.BuildDefault();
             // Assert
             Expect(result.Response)
                 .Not.To.Be.Null();
@@ -67,7 +63,7 @@ public class TestFakeHttpContextBuilder
         {
             // Arrange
             // Act
-            var result = FakeHttpContextBuilder.BuildDefault();
+            var result = HttpContextBuilder.BuildDefault();
             // Assert
             Expect(result.Connection)
                 .Not.To.Be.Null();
@@ -78,7 +74,7 @@ public class TestFakeHttpContextBuilder
         {
             // Arrange
             // Act
-            var result = FakeHttpContextBuilder.BuildDefault();
+            var result = HttpContextBuilder.BuildDefault();
             // Assert
 #pragma warning disable CS0618
             Expect(() => result.Authentication)
@@ -91,7 +87,7 @@ public class TestFakeHttpContextBuilder
         {
             // Arrange
             // Act
-            var result = FakeHttpContextBuilder.BuildDefault();
+            var result = HttpContextBuilder.BuildDefault();
             // Assert
             Expect(result.User)
                 .Not.To.Be.Null();
@@ -105,7 +101,7 @@ public class TestFakeHttpContextBuilder
         var data = GetRandomString();
         var name = GetRandomString();
         // Act
-        var result = FakeHttpContextBuilder.Create()
+        var result = HttpContextBuilder.Create()
             .WithFormFile(data, name)
             .Build();
 

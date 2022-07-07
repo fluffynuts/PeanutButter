@@ -9,7 +9,11 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
 {
     public class FakeFormFile : IFormFile
     {
-        private readonly Stream _content;
+        private Stream _content;
+
+        public FakeFormFile()
+        {
+        }
 
         public FakeFormFile(
             string content,
@@ -95,5 +99,10 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
         public long Length => _content.Length;
         public string Name { get; set; }
         public string FileName { get; set; }
+
+        public void SetContent(Stream stream)
+        {
+            _content = stream;
+        }
     }
 }

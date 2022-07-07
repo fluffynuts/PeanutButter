@@ -1,15 +1,26 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Primitives;
 using NExpect;
+using NExpect.Interfaces;
+using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.AspNetCore.Builders;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
+using PeanutButter.Utils;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using static PeanutButter.TestUtils.AspNetCore.Tests.Expectations;
 
 namespace PeanutButter.TestUtils.AspNetCore.Tests;
 
 [TestFixture]
-public class TestFakeHttpRequestBuilder
+public class TestHttpRequestBuilder
 {
     [TestFixture]
     public class DefaultBuild
@@ -151,6 +162,11 @@ public class TestFakeHttpRequestBuilder
             Expect(result.ContentLength)
                 .To.Equal(0);
         }
+
+        public class Poco
+        {
+            public int Id { get; set; }
+        }
     }
 
     [Test]
@@ -158,10 +174,10 @@ public class TestFakeHttpRequestBuilder
     {
         // Arrange
         // Act
-        var result1 = FakeHttpRequestBuilder.Create()
+        var result1 = HttpRequestBuilder.Create()
             .WithScheme("http")
             .Build();
-        var result2 = FakeHttpRequestBuilder.Create()
+        var result2 = HttpRequestBuilder.Create()
             .WithScheme("https")
             .Build();
         // Assert
@@ -176,7 +192,7 @@ public class TestFakeHttpRequestBuilder
     {
         // Arrange
         // Act
-        var result = FakeHttpRequestBuilder.BuildDefault();
+        var result = HttpRequestBuilder.BuildDefault();
         result.IsHttps = true;
         var captured1 = result.Scheme;
         result.IsHttps = false;
@@ -195,7 +211,7 @@ public class TestFakeHttpRequestBuilder
         // Arrange
         var expected = new FakeHttpContext();
         // Act
-        var result = FakeHttpRequestBuilder.Create()
+        var result = HttpRequestBuilder.Create()
             .WithHttpContext(expected)
             .Build();
         // Assert
@@ -209,7 +225,7 @@ public class TestFakeHttpRequestBuilder
         // Arrange
         var expected = GetRandomHttpMethod();
         // Act
-        var result = FakeHttpRequestBuilder.Create()
+        var result = HttpRequestBuilder.Create()
             .WithMethod(expected)
             .Build();
         // Assert
@@ -223,7 +239,7 @@ public class TestFakeHttpRequestBuilder
         // Arrange
         var expected = GetRandomAbsolutePath();
         // Act
-        var result = FakeHttpRequestBuilder.Create()
+        var result = HttpRequestBuilder.Create()
             .WithPath(expected)
             .Build();
         // Assert
@@ -237,11 +253,10 @@ public class TestFakeHttpRequestBuilder
         // Arrange
         var expected = GetRandomAbsolutePath();
         // Act
-        var result = FakeHttpRequestBuilder.Create()
+        var result = HttpRequestBuilder.Create()
             .WithBasePath(expected)
             .Build();
         // Assert
-        var pb = result.PathBase;
         Expect(result.PathBase)
             .To.Equal(expected);
     }
@@ -252,7 +267,7 @@ public class TestFakeHttpRequestBuilder
         // Arrange
         var expected = GetRandom<QueryString>();
         // Act
-        var result = FakeHttpRequestBuilder.Create()
+        var result = HttpRequestBuilder.Create()
             .WithQueryString(expected)
             .Build();
         // Assert
@@ -266,7 +281,7 @@ public class TestFakeHttpRequestBuilder
         // Arrange
         var expected = GetRandomUrlQuery();
         // Act
-        var result = FakeHttpRequestBuilder.Create()
+        var result = HttpRequestBuilder.Create()
             .WithQueryString(expected)
             .Build();
         // Assert
@@ -280,7 +295,7 @@ public class TestFakeHttpRequestBuilder
         // Arrange
         var queryString = "?foo=bar&quux=1";
         // Act
-        var result = FakeHttpRequestBuilder.Create()
+        var result = HttpRequestBuilder.Create()
             .WithQueryString(queryString)
             .Build();
         // Assert
@@ -302,7 +317,7 @@ public class TestFakeHttpRequestBuilder
             queryString
         );
         // Act
-        var result = FakeHttpRequestBuilder.Create()
+        var result = HttpRequestBuilder.Create()
             .WithQuery(collection)
             .Build();
         // Assert
@@ -315,7 +330,7 @@ public class TestFakeHttpRequestBuilder
     {
         // Arrange
         // Act
-        var result = FakeHttpRequestBuilder.Create()
+        var result = HttpRequestBuilder.Create()
             .WithHeader("X-HeaderA", "foo")
             .WithHeader("X-HeaderB", "bar")
             .Build();
@@ -340,7 +355,7 @@ public class TestFakeHttpRequestBuilder
     {
         // Arrange
         // Act
-        var result = FakeHttpRequestBuilder.Create()
+        var result = HttpRequestBuilder.Create()
             .WithCookie("foo", "bar")
             .WithCookie("one", "1")
             .Build();
@@ -369,7 +384,7 @@ public class TestFakeHttpRequestBuilder
             var stream = new MemoryStream(
                 GetRandomBytes()
             );
-            var sut = FakeHttpRequestBuilder.Create()
+            var sut = HttpRequestBuilder.Create()
                 .WithBody(stream)
                 .Build();
             // Act
@@ -408,25 +423,124 @@ public class TestFakeHttpRequestBuilder
         public void SettingFormShouldSetBody()
         {
             // Arrange
+            var form = GetRandom<IFormCollection>();
+            Expect(form.Keys)
+                .Not.To.Be.Empty();
+            Expect(form.Files)
+                .To.Be.Empty();
             // Act
+            var result = HttpRequestBuilder.Create()
+                .WithForm(form)
+                .Build();
             // Assert
+            Expect(result.Body)
+                .Not.To.Be.Null();
+            var decoder = new FormDecoder();
+            var resultForm = decoder.Decode(result.Body);
+            Expect(resultForm)
+                .To.Deep.Equal(form);
+        }
+
+        [Test]
+        public void SettingFormShouldSetBodyWithFiles()
+        {
+            // Arrange
+            var form = FormBuilder.Create()
+                .Randomize()
+                .WithFile(
+                    FormFileBuilder.BuildRandom()
+                ).Build();
+            Expect(form.Keys)
+                .Not.To.Be.Empty();
+            Expect(form.Files)
+                .Not.To.Be.Empty();
+            // Act
+            var result = HttpRequestBuilder.Create()
+                .WithForm(form)
+                .Build();
+            // Assert
+            Expect(result.Body)
+                .Not.To.Be.Null();
+            var decoder = new FormDecoder();
+            var resultForm = decoder.Decode(result.Body);
+            Expect(resultForm)
+                .To.Deep.Equal(form);
+        }
+
+        [Test]
+        public void SettingBodyShouldSetForm()
+        {
+            // Arrange
+            var expected = FormBuilder.Create()
+                .Randomize()
+                .Build();
+            Expect(expected.Keys)
+                .Not.To.Be.Empty();
+            Expect(expected.Files)
+                .To.Be.Empty();
+            var encoded = new UrlEncodedBodyEncoder()
+                .Encode(expected);
+            // Act
+            var result = HttpRequestBuilder.Create()
+                .WithBody(encoded)
+                .Build();
+
+            // Assert
+            Expect(result.Form)
+                .To.Deep.Equal(expected);
+        }
+
+        [Test]
+        public void SettingBodyShouldSetFormWithFiles()
+        {
+            // Arrange
+            var expected = FormBuilder.Create()
+                .Randomize()
+                .WithRandomFile()
+                .Build();
+            Expect(expected.Keys)
+                .Not.To.Be.Empty();
+            Expect(expected.Files)
+                .Not.To.Be.Empty();
+            var encoded = new UrlEncodedBodyEncoder()
+                .Encode(expected);
+            // Act
+            var result = HttpRequestBuilder.Create()
+                .WithBody(encoded)
+                .Build();
+
+            // Assert
+            Expect(result.Form)
+                .To.Deep.Equal(expected);
         }
     }
 
-    private static FakeHttpRequestBuilder Create()
+    private static HttpRequestBuilder Create()
     {
-        return FakeHttpRequestBuilder.Create();
+        return HttpRequestBuilder.Create();
     }
 
     private static HttpRequest BuildDefault()
     {
-        return FakeHttpRequestBuilder.BuildDefault();
+        return HttpRequestBuilder.BuildDefault();
     }
 
     [OneTimeSetUp]
     public void OneTimeSetup()
     {
         // force static constructor to be called
-        FakeHttpRequestBuilder.Create();
+        HttpRequestBuilder.Create();
+    }
+}
+
+public static class Expectations
+{
+    public static ICollectionExpectation<IFormFile> Expect(
+        IFormFileCollection files
+    )
+    {
+        return NExpect.Expectations.Expect(
+            files as IEnumerable<IFormFile>
+        );
     }
 }

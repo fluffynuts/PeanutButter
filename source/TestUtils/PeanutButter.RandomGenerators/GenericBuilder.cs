@@ -14,9 +14,7 @@ using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
 // ReSharper disable StaticMemberInGenericType
-
 // ReSharper disable MemberCanBePrivate.Global
-
 // ReSharper disable InheritdocConsiderUsage
 // ReSharper disable UsePatternMatching
 // ReSharper disable ClassWithVirtualMembersNeverInherited.Global
@@ -381,7 +379,7 @@ namespace PeanutButter.RandomGenerators
             }
 
             var specificMethod = method.MakeGenericMethod(typeof(TEntity));
-            return (TEntity)specificMethod.Invoke(
+            return (TEntity) specificMethod.Invoke(
                 null,
                 new object[]
                 {
@@ -436,7 +434,7 @@ namespace PeanutButter.RandomGenerators
             }
 
             var specificMethod = genericMethod.MakeGenericMethod(typeof(T));
-            return (T)specificMethod.Invoke(
+            return (T) specificMethod.Invoke(
                 null,
                 new object[]
                 {
@@ -538,7 +536,7 @@ namespace PeanutButter.RandomGenerators
         private TInterface ConstructInCurrentDomain<TInterface>(Type type)
         {
 #if NETSTANDARD
-            return (TInterface)Activator.CreateInstance(
+            return (TInterface) Activator.CreateInstance(
                 type, TryToMakeConstructorParametersFor(type)
             );
 #else
@@ -625,7 +623,7 @@ namespace PeanutButter.RandomGenerators
 
             var builderType = FindOrCreateDynamicBuilderTypeFor(t);
             var builder =
-                (IGenericBuilder)Activator.CreateInstance(builderType);
+                (IGenericBuilder) Activator.CreateInstance(builderType);
             builder.WithBuildLevel(_buildLevel + 1);
             return builder.WithBuildLevel(_buildLevel + 1)
                 .GenericWithRandomProps()
@@ -723,7 +721,7 @@ namespace PeanutButter.RandomGenerators
                             if (pi.Type != typeof(DateTime))
                                 return;
 
-                            var currentValue = (DateTime)(pi.GetValue(entity));
+                            var currentValue = (DateTime) (pi.GetValue(entity));
                             pi.SetValue(entity,
                                 currentValue.ToKind(_defaultDateTimeKind));
                         });
@@ -901,8 +899,9 @@ namespace PeanutButter.RandomGenerators
         {
             if (MayBeTaxOrInterestRate(pi)) return SimpleDecimal(GetRandomTaxRate);
             if (MayBeMonetary(pi)) return SimpleDecimal(GetRandomMoney);
-            
+
             return (ref TEntity e, int _) => pi.SetValue(ref e, GetRandomDecimal());
+
             ActionRef<TEntity, int> SimpleDecimal(Func<decimal> generator)
             {
                 return (ref TEntity e, int _) => pi.SetValue(ref e, generator());
@@ -990,7 +989,7 @@ namespace PeanutButter.RandomGenerators
         {
             return pi?.Name?.ContainsOneOf("address") ?? false;
         }
-        
+
 
         private static string GenerateFullAddressFor(TEntity e)
         {

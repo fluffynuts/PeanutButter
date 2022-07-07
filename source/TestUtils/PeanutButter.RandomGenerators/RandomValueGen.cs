@@ -62,6 +62,7 @@ namespace PeanutButter.RandomGenerators
         /// <returns>New instance of the specified type. Should be different every time, when possible.</returns>
         public static T GetRandom<T>()
         {
+            SatelliteAssemblyInitializer.InitializeSatelliteAssemblies<T>();
             var type = typeof(T);
             if (RandomGenerators.TryGetValue(type, out var handler))
             {
@@ -86,10 +87,10 @@ namespace PeanutButter.RandomGenerators
         /// <param name="matches"></param>
         /// <param name="generator"></param>
         public static void InstallRandomGenerator<T>(
-            Func<object> generator
+            Func<T> generator
         )
         {
-            RandomGenerators[typeof(T)] = generator;
+            RandomGenerators[typeof(T)] = () => (object)(generator());
         }
 
         private class RandomValueSpecialCase
