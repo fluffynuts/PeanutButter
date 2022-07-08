@@ -1,10 +1,10 @@
 <package>
   <metadata>
     <id>PeanutButter.TestUtils.AspNetCore</id>
-    <version>2.0.83</version>
+    <version>2.0.84</version>
     <title>PeanutButter.TestUtils.MVC.Sources</title>
     <authors>Davyd McColl</authors>
-    <owners/>
+    <owners />
     <description>
       Contains utilities for facilitating easier testing of AspNetCore projects:
       - Fakes:
@@ -19,29 +19,28 @@
         - WebSockets
       - Builders for the above
     </description>
-    <releaseNotes/>
-    <summary>
-    </summary>
+    <releaseNotes />
+    <summary></summary>
     <language>en-US</language>
     <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
-    <repository type="git" url="https://github.com/fluffynuts/PeanutButter"/>
+    <repository type="git" url="https://github.com/fluffynuts/PeanutButter" />
     <icon>icon.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">BSD-3-Clause</license>
     <copyright>Copyright 2016</copyright>
     <dependencies>
       <group targetFramework="netstandard2.0">
-        <dependency id="PeanutButter.Utils" version="2.0.83" />
-        <dependency id="PeanutButter.RandomGenerators" version="2.0.83"/>
-        <dependency id="Microsoft.AspNetCore.Http.Abstractions" version="2.2.0"/>
-        <dependency id="System.Text.Json" version="6.0.5"/>
+        <dependency id="PeanutButter.Utils" version="2.0.84" />
+        <dependency id="PeanutButter.RandomGenerators" version="2.0.84" />
+        <dependency id="Microsoft.AspNetCore.Http.Abstractions" version="2.2.0" />
+        <dependency id="System.Text.Json" version="6.0.5" />
       </group>
     </dependencies>
-    <references/>
-    <tags/>
+    <references />
+    <tags />
   </metadata>
   <files>
-    <file src="icon.png" target=""/>
+    <file src="icon.png" target="" />
     <file src="bin/Release/netstandard2.0/PeanutButter.TestUtils.AspNetCore.dll" target="lib/netstandard2.0" />
     <file src="bin/Release/netstandard2.0/PeanutButter.TestUtils.AspNetCore.deps.json" target="lib/netstandard2.0" />
     <file src="bin/Release/netstandard2.0/PeanutButter.TestUtils.AspNetCore.xml" target="lib/netstandard2.0" />
