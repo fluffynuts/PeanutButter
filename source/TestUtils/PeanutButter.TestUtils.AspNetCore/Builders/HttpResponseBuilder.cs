@@ -17,7 +17,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
                         )
                         .Build()
                 ).WithStatusCode(HttpStatusCode.OK)
-                .WithCookies(FakeResponseCookies.Create());
+                .WithCookies(FakeResponseCookies.CreateSubstitutedIfPossible());
         }
 
         public HttpResponseBuilder WithHasStarted(bool hasStarted)

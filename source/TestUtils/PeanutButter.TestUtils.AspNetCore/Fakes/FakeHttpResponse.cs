@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using PeanutButter.RandomGenerators;
 
 namespace PeanutButter.TestUtils.AspNetCore.Fakes
 {
@@ -49,7 +48,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
 
         public override string ContentType { get; set; } = DEFAULT_CONTENT_TYPE;
         public override IResponseCookies Cookies => _cookies;
-        private IResponseCookies _cookies = FakeResponseCookies.Create();
+        private IResponseCookies _cookies = FakeResponseCookies.CreateSubstitutedIfPossible();
 
         public override bool HasStarted => _hasStarted;
         private bool _hasStarted;
@@ -101,64 +100,6 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
         public void SetHasStarted(bool hasStarted)
         {
             _hasStarted = hasStarted;
-        }
-    }
-
-    public class Cookie
-    {
-        public string Key { get; }
-        public string Value { get; }
-        public CookieOptions Options { get; }
-
-        public Cookie(
-            string key,
-            string value,
-            CookieOptions options
-        )
-        {
-            Key = key;
-            Value = value;
-            Options = options;
-        }
-    }
-
-    public class FakeResponseCookies : IResponseCookies
-    {
-        public IDictionary<string, Cookie> Store
-            => _store;
-
-        private readonly Dictionary<string, Cookie> _store = new();
-
-        public static IResponseCookies Create()
-        {
-            // try to return a substitute if possible
-            // -> then assertions against setting cookies is easier
-            return GenericBuilderBase.TryCreateSubstituteFor<FakeResponseCookies>(
-                callThrough: true,
-                out var result
-            )
-                ? result
-                : new FakeResponseCookies();
-        }
-
-        public virtual void Append(string key, string value)
-        {
-            Store[key] = new Cookie(key, value, new CookieOptions());
-        }
-
-        public virtual void Append(string key, string value, CookieOptions options)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual void Delete(string key)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual void Delete(string key, CookieOptions options)
-        {
-            throw new NotImplementedException();
         }
     }
 }
