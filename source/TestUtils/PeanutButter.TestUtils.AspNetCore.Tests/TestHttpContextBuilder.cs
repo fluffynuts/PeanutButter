@@ -9,6 +9,7 @@ using NUnit.Framework;
 using PeanutButter.TestUtils.AspNetCore.Builders;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 using static NExpect.Expectations;
+using static NExpect.AspNetCoreExpectations;
 
 namespace PeanutButter.TestUtils.AspNetCore.Tests;
 
@@ -346,6 +347,39 @@ public class TestHttpContextBuilder
             .Not.To.Be.Null();
         Expect(file.ReadAllText())
             .To.Equal(data);
+    }
+
+    [Test]
+    public void ShouldBeAbleToSetAFormField()
+    {
+        // Arrange
+        var key = GetRandomString();
+        var value = GetRandomString();
+        
+        // Act
+        var result = HttpContextBuilder.Create()
+            .WithFormField(key, value)
+            .Build();
+        // Assert
+        Expect(result.Request.Form)
+            .To.Contain.Key(key)
+            .With.Value(value);
+    }
+
+    [Test]
+    public void ShouldBeAbleToBuildRandom()
+    {
+        // Arrange
+        // Act
+        var result1 = GetRandom<HttpContext>();
+        var result2 = GetRandom<HttpContext>();
+        // Assert
+        Expect(result1)
+            .Not.To.Deep.Equal(result2);
+        Expect(result1.Request.Host.Host)
+            .Not.To.Equal("localhost");
+        Expect(result1.Request.Cookies.Keys)
+            .Not.To.Be.Empty();
     }
 
     public class SomeService

@@ -1,13 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using PeanutButter.RandomGenerators;
 
 namespace PeanutButter.TestUtils.AspNetCore.Fakes
 {
     // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
-    public class FakeResponseCookies : IResponseCookies
+    /// <summary>
+    /// Provides a fake response cookies service
+    /// </summary>
+    public class FakeResponseCookies : IResponseCookies, IFake
     {
+        /// <summary>
+        /// Use to query what cookies have been set
+        /// </summary>
         public IDictionary<string, FakeCookie> Store
             => _store;
 
@@ -40,21 +45,25 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
                 : new FakeResponseCookies();
         }
 
+        /// <inheritdoc />
         public virtual void Append(string key, string value)
         {
             Append(key, value, new CookieOptions());
         }
 
+        /// <inheritdoc />
         public virtual void Append(string key, string value, CookieOptions options)
         {
             Store[key] = new FakeCookie(key, value, options);
         }
 
+        /// <inheritdoc />
         public virtual void Delete(string key)
         {
             Store.Remove(key);
         }
 
+        /// <inheritdoc />
         public virtual void Delete(string key, CookieOptions options)
         {
             if (!Store.TryGetValue(key, out var cookie))

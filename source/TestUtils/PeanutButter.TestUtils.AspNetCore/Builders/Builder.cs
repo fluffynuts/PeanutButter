@@ -6,18 +6,23 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.TestUtils.AspNetCore.Builders
 {
+    /// <summary>
+    /// Provides the base builder for AspNetCore fakes
+    /// </summary>
+    /// <typeparam name="TBuilder"></typeparam>
+    /// <typeparam name="TSubject"></typeparam>
     public abstract class Builder<TBuilder, TSubject>
         where TBuilder : Builder<TBuilder, TSubject>
     {
         private readonly Action<TSubject>[] _actualizers = new Action<TSubject>[0];
 
+        /// <summary>
+        /// Returns a new instance of the builder
+        /// </summary>
+        /// <returns></returns>
         public static TBuilder Create()
         {
             return Activator.CreateInstance<TBuilder>();
-        }
-
-        public Builder()
-        {
         }
 
         internal Builder(
@@ -27,29 +32,59 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
             _actualizers = actualizers;
         }
 
+        /// <summary>
+        /// Builds the default output artifact
+        /// </summary>
+        /// <returns></returns>
         public static TSubject BuildDefault()
         {
             return Create().Build();
         }
 
+        /// <summary>
+        /// Builds a random variant output artifact
+        /// </summary>
+        /// <returns></returns>
         public static TSubject BuildRandom()
         {
             return Create().Randomize().Build();
         }
 
+        /// <summary>
+        /// Derivatives must implement this so that BuildRandom can work
+        /// </summary>
+        /// <returns></returns>
         public abstract TBuilder Randomize();
 
         // ReSharper disable once NotAccessedField.Global
         // ReSharper disable once MemberCanBePrivate.Global
+        /// <summary>
+        /// During build, CurrentEntity will be set to the currently-building entity.
+        /// You may implement actualizer(s) in your derivative to pull this value in
+        /// lazily to consumers
+        /// </summary>
         protected TSubject CurrentEntity;
 
-        protected TBuilder With(
+        /// <summary>
+        /// Adds a mutator for the artifact
+        /// </summary>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        // ReSharper disable once MemberCanBeProtected.Global
+        public TBuilder With(
             Action<TSubject> action
         )
         {
             return With(action, Guid.NewGuid().ToString());
         }
 
+        /// <summary>
+        /// Adds an identified mutator for the artifact - if
+        /// a mutator with the same identity already exists, it will be removed
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="identifier"></param>
+        /// <returns></returns>
         protected TBuilder With(
             Action<TSubject> action,
             string identifier
@@ -68,10 +103,16 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
             {
                 _mutators.Remove(item);
             }
+
             _mutators.Add(mutator);
-            
         }
 
+        /// <summary>
+        /// Adds a mutator for the artifact, cast to TCast
+        /// </summary>
+        /// <param name="action"></param>
+        /// <typeparam name="TCast"></typeparam>
+        /// <returns></returns>
         protected TBuilder With<TCast>(
             Action<TCast> action
         ) where TCast : TSubject
@@ -79,16 +120,28 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
             return With(action, Guid.NewGuid().ToString());
         }
 
+        /// <summary>
+        /// Adds an identified mutator for the artifact, cast to TCast
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="identifier"></param>
+        /// <typeparam name="TCast"></typeparam>
+        /// <returns></returns>
         protected TBuilder With<TCast>(
             Action<TCast> action,
             string identifier
-        ) where TCast: TSubject
+        ) where TCast : TSubject
         {
             var mutator = new Mutator<TSubject>(o => action((TCast) o), identifier);
             StoreMutator(mutator);
             return this as TBuilder;
         }
 
+        /// <summary>
+        /// Applies the given mutator a random (1-4) number of times
+        /// </summary>
+        /// <param name="action"></param>
+        /// <returns></returns>
         protected TBuilder WithRandomTimes(Action<TSubject> action)
         {
             var howMany = GetRandomInt(1, 4);
@@ -100,7 +153,20 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
             return this as TBuilder;
         }
 
-        protected TSubject ApplyMutators(
+        /// <summary>
+        /// Applies the given mutator on a cast item a random (1-4) number of times
+        /// </summary>
+        /// <param name="action"></param>
+        /// <typeparam name="TCast"></typeparam>
+        /// <returns></returns>
+        protected TBuilder WithRandomTimes<TCast>(Action<TCast> action) where TCast : TSubject
+        {
+            return WithRandomTimes(
+                o => action((TCast) o)
+            );
+        }
+
+        private TSubject ApplyMutators(
             TSubject subject
         )
         {
@@ -112,6 +178,12 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
             return subject;
         }
 
+        /// <summary>
+        /// Override in a derivative builder to provide a custom implementation
+        /// for TSubject
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="CustomConstructEntityRequired"></exception>
         protected virtual TSubject ConstructEntity()
         {
             try
@@ -131,6 +203,10 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
             return CurrentEntity = ConstructEntity();
         }
 
+        /// <summary>
+        /// Builds the subject artifact
+        /// </summary>
+        /// <returns></returns>
         public virtual TSubject Build()
         {
             var result = ApplyMutators(ConstructAndStoreEntity());
@@ -160,6 +236,12 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
             }
         }
 
+        /// <summary>
+        /// Print a traced warning if the condition is found to be false
+        /// - useful to force actualization and print out if the actualization failed
+        /// </summary>
+        /// <param name="condition"></param>
+        /// <param name="message"></param>
         protected static void WarnIf(
             bool condition,
             string message

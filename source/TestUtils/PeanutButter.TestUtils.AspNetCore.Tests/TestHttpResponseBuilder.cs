@@ -270,5 +270,17 @@ namespace PeanutButter.TestUtils.AspNetCore.Tests
             Expect(result.HasStarted)
                 .To.Equal(expected);
         }
+
+        [Test]
+        public void ShouldBeAbleToBuildRandom()
+        {
+            // Arrange
+            // Act
+            var result1 = GetRandom<HttpResponse>();
+            var result2 = GetRandom<HttpResponse>();
+            // Assert
+            Expect(result1)
+                .Not.To.Deep.Equal(result2);
+        }
     }
 }

@@ -70,7 +70,7 @@ namespace PeanutButter.Utils
         /// - treats null like empty array
         /// </summary>
         /// <param name="bytes">input bytes</param>
-        /// <returns></returns>
+        /// <returns>MemoryStream wrapping input bytes</returns>
         public static MemoryStream ToMemoryStream(
             this byte[] bytes)
         {
@@ -78,6 +78,10 @@ namespace PeanutButter.Utils
         }
 
         #if NETSTANDARD
+        /// <summary>
+        /// </summary>
+        /// <param name="bytes">input bytes</param>
+        /// <returns>ArraySegment wrapping input bytes</returns>
         public static ArraySegment<byte> ToArraySegment(
             this byte[] bytes
         )

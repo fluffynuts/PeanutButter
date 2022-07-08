@@ -1,0 +1,1866 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>PeanutButter.TestUtils.AspNetCore</name>
+    </assembly>
+    <members>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.Builders.Builder`2">
+            <summary>
+            Provides the base builder for AspNetCore fakes
+            </summary>
+            <typeparam name="TBuilder"></typeparam>
+            <typeparam name="TSubject"></typeparam>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.Builder`2.Create">
+            <summary>
+            Returns a new instance of the builder
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.Builder`2.BuildDefault">
+            <summary>
+            Builds the default output artifact
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.Builder`2.BuildRandom">
+            <summary>
+            Builds a random variant output artifact
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.Builder`2.Randomize">
+            <summary>
+            Derivatives must implement this so that BuildRandom can work
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="F:PeanutButter.TestUtils.AspNetCore.Builders.Builder`2.CurrentEntity">
+            <summary>
+            During build, CurrentEntity will be set to the currently-building entity.
+            You may implement actualizer(s) in your derivative to pull this value in
+            lazily to consumers
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.Builder`2.With(System.Action{`1})">
+            <summary>
+            Adds a mutator for the artifact
+            </summary>
+            <param name="action"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.Builder`2.With(System.Action{`1},System.String)">
+            <summary>
+            Adds an identified mutator for the artifact - if
+            a mutator with the same identity already exists, it will be removed
+            </summary>
+            <param name="action"></param>
+            <param name="identifier"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.Builder`2.With``1(System.Action{``0})">
+            <summary>
+            Adds a mutator for the artifact, cast to TCast
+            </summary>
+            <param name="action"></param>
+            <typeparam name="TCast"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.Builder`2.With``1(System.Action{``0},System.String)">
+            <summary>
+            Adds an identified mutator for the artifact, cast to TCast
+            </summary>
+            <param name="action"></param>
+            <param name="identifier"></param>
+            <typeparam name="TCast"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.Builder`2.WithRandomTimes(System.Action{`1})">
+            <summary>
+            Applies the given mutator a random (1-4) number of times
+            </summary>
+            <param name="action"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.Builder`2.WithRandomTimes``1(System.Action{``0})">
+            <summary>
+            Applies the given mutator on a cast item a random (1-4) number of times
+            </summary>
+            <param name="action"></param>
+            <typeparam name="TCast"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.Builder`2.ConstructEntity">
+            <summary>
+            Override in a derivative builder to provide a custom implementation
+            for TSubject
+            </summary>
+            <returns></returns>
+            <exception cref="T:PeanutButter.TestUtils.AspNetCore.Builders.CustomConstructEntityRequired"></exception>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.Builder`2.Build">
+            <summary>
+            Builds the subject artifact
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.Builder`2.WarnIf(System.Boolean,System.String)">
+            <summary>
+            Print a traced warning if the condition is found to be false
+            - useful to force actualization and print out if the actualization failed
+            </summary>
+            <param name="condition"></param>
+            <param name="message"></param>
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.Builders.FormBuilder">
+            <summary>
+            Builds a form for an asp.net request
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.FormBuilder.ConstructEntity">
+            <summary>
+            Constructs the fake form
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.FormBuilder.Randomize">
+            <summary>
+            Randomizes the form
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.FormBuilder.WithField(System.String,System.String)">
+            <summary>
+            Sets a form field. If the field already exists by name, it is overwritten.
+            </summary>
+            <param name="name"></param>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.FormBuilder.WithFile(System.String,System.String)">
+            <summary>
+            Sets a form file
+            </summary>
+            <param name="contents"></param>
+            <param name="name"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.FormBuilder.WithFile(System.String,System.String,System.String)">
+            <summary>
+            Sets a form file
+            </summary>
+            <param name="contents"></param>
+            <param name="name"></param>
+            <param name="fileName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.FormBuilder.WithFile(System.Byte[],System.String)">
+            <summary>
+            Sets a form file
+            </summary>
+            <param name="contents"></param>
+            <param name="name"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.FormBuilder.WithFile(System.Byte[],System.String,System.String)">
+            <summary>
+            Sets a form file
+            </summary>
+            <param name="contents"></param>
+            <param name="name"></param>
+            <param name="fileName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.FormBuilder.WithFile(System.IO.Stream,System.String)">
+            <summary>
+            Sets a form file
+            </summary>
+            <param name="content"></param>
+            <param name="name"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.FormBuilder.WithFile(System.IO.Stream,System.String,System.String)">
+            <summary>
+            Adds a form file
+            </summary>
+            <param name="content"></param>
+            <param name="name"></param>
+            <param name="fileName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.FormBuilder.WithRandomFile">
+            <summary>
+            Adds a random file to the form
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.FormBuilder.WithFile(Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            Adds a form file
+            </summary>
+            <param name="file"></param>
+            <returns></returns>
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.Builders.FormFileBuilder">
+            <summary>
+            Builds a form file
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.FormFileBuilder.Randomize">
+            <summary>
+            Randomizes the file
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.FormFileBuilder.WithName(System.String)">
+            <summary>
+            Sets the field name of the file
+            </summary>
+            <param name="name"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.FormFileBuilder.WithFileName(System.String)">
+            <summary>
+            Sets the filename of the file
+            </summary>
+            <param name="fileName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.FormFileBuilder.WithContent(System.String)">
+            <summary>
+            Sets the content of the file
+            </summary>
+            <param name="content"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.FormFileBuilder.WithContent(System.Byte[])">
+            <summary>
+            Sets the content of the file
+            </summary>
+            <param name="content"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.FormFileBuilder.WithContent(System.IO.Stream)">
+            <summary>
+            Sets the content of the file
+            </summary>
+            <param name="stream"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.FormFileBuilder.ConstructEntity">
+            <summary>
+            Constructs the fake form file
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.Builders.HeaderDictionaryBuilder">
+            <summary>
+            Constructs a header dictionary
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HeaderDictionaryBuilder.Randomize">
+            <summary>
+            Randomizes the header collection
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HeaderDictionaryBuilder.WithHeader(System.String,System.String)">
+            <summary>
+            Sets a header in the collection (overwrites any existing header with the same name)
+            </summary>
+            <param name="name"></param>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.Builders.HttpContextBuilder">
+            <summary>
+            Builds an HttpContext
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpContextBuilder.ConstructEntity">
+            <summary>
+            Constructs the fake http context
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpContextBuilder.Randomize">
+            <summary>
+            Randomizes the context
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpContextBuilder.#ctor">
+            <summary>
+            Constructs the builder
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpContextBuilder.WithRequestServices(System.IServiceProvider)">
+            <summary>
+            Sets the RequestServices service provider for the context
+            </summary>
+            <param name="serviceProvider"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpContextBuilder.WithItem(System.Object,System.Object)">
+            <summary>
+            Sets an Item on the context
+            </summary>
+            <param name="key"></param>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpContextBuilder.WithWebSockets(Microsoft.AspNetCore.Http.WebSocketManager)">
+            <summary>
+            Sets the WebSockets manager on the request
+            </summary>
+            <param name="webSocketManager"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpContextBuilder.WithFeature``1(``0)">
+            <summary>
+            Adds a feature to the request
+            </summary>
+            <param name="feature"></param>
+            <typeparam name="TFeature"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpContextBuilder.WithUser(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Sets the user on the request
+            </summary>
+            <param name="principal"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpContextBuilder.WithConnection(Microsoft.AspNetCore.Http.ConnectionInfo)">
+            <summary>
+            Sets the connection info on the request
+            </summary>
+            <param name="connectionInfo"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpContextBuilder.WithResponse(Microsoft.AspNetCore.Http.HttpResponse)">
+            <summary>
+            Sets the response on the context
+            </summary>
+            <param name="response"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpContextBuilder.WithResponse(System.Func{Microsoft.AspNetCore.Http.HttpResponse})">
+            <summary>
+            Sets the response accessor on the context
+            </summary>
+            <param name="accessor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpContextBuilder.WithRequest(Microsoft.AspNetCore.Http.HttpRequest)">
+            <summary>
+            Sets the request on the context
+            </summary>
+            <param name="request"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpContextBuilder.WithRequest(System.Func{Microsoft.AspNetCore.Http.HttpRequest})">
+            <summary>
+            Sets the request accessor on the context
+            </summary>
+            <param name="requestAccessor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpContextBuilder.WithFeatures(Microsoft.AspNetCore.Http.Features.IFeatureCollection)">
+            <summary>
+            Sets the feature collection on the request
+            </summary>
+            <param name="features"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpContextBuilder.WithFormFile(System.String,System.String,System.String)">
+            <summary>
+            Adds a form file to the context
+            </summary>
+            <param name="content"></param>
+            <param name="name"></param>
+            <param name="fileName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpContextBuilder.WithFormField(System.String,System.String)">
+            <summary>
+            Adds a form field to the request
+            Use this when what you want to do can be accomplished
+            on the proper IFormCollection type
+            </summary>
+            <param name="key"></param>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpContextBuilder.WithFakeRequestFormModifier(System.Action{PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormCollection})">
+            <summary>
+            Modifies some aspect of the request form.
+            Use this when you want access to the functionality of
+            the underlying fake.
+            </summary>
+            <param name="modifier"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpContextBuilder.WithRequestModifier(System.Action{Microsoft.AspNetCore.Http.HttpRequest})">
+            <summary>
+            Modifies some aspect of the request.
+            Use this when what you want to do can be accomplished
+            on the proper HttpRequest type
+            </summary>
+            <param name="modifier"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpContextBuilder.WithFakeRequestModifier(System.Action{PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpRequest})">
+            <summary>
+            Modifies some aspect of the request.
+            Use this when you want access to the functionality of
+            the underlying fake.
+            </summary>
+            <param name="modifier"></param>
+            <returns></returns>
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder">
+            <summary>
+            Builds an http request
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.#ctor">
+            <summary>
+            Default constructor: creates the builder with basics set up
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.ConstructEntity">
+            <summary>
+            Constructs the fake http request
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.Randomize">
+            <summary>
+            Randomizes the output
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.WithRandomMethod">
+            <summary>
+            Selects a random http method for the request
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.WithRandomScheme">
+            <summary>
+            Selects a random scheme (http|https) for the request
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.WithRandomPath">
+            <summary>
+            Selects a random path for the request
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.WithRandomHost">
+            <summary>
+            Selects a random hostname for the request
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.WithRandomPort">
+            <summary>
+            Selects a random port (80-10000) for the request
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.WithRandomHeaders">
+            <summary>
+            Adds some random X- prefixed headers for the request
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.WithRandomCookies">
+            <summary>
+            Adds some random cookies to the request
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.WithBody(System.String)">
+            <summary>
+            Sets the body for the request. If possible, form elements
+            are derived from the body.
+            </summary>
+            <param name="body"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.WithBody(System.Byte[])">
+            <summary>
+            Sets the body for the request. If possible, form elements
+            are derived from the body.
+            </summary>
+            <param name="body"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.WithBody(System.IO.Stream)">
+            <summary>
+            Sets the body for the request. If possible, form elements
+            are derived from the body.
+            </summary>
+            <param name="body"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.WithCookie(System.String,System.String)">
+            <summary>
+            Sets a cookie on the request. Will overwrite an existing cookie
+            with the same name.
+            </summary>
+            <param name="name"></param>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.WithCookies(System.Collections.Generic.IDictionary{System.String,System.String})">
+            <summary>
+            Sets a bunch of cookies on the request. Will overwrite
+            existing cookies with the same name. Will _not_ remove
+            any other existing cookies.
+            </summary>
+            <param name="cookies"></param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentNullException"></exception>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.WithNoCookies">
+            <summary>
+            Clears cookies on the request
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.WithCookies(Microsoft.AspNetCore.Http.IRequestCookieCollection)">
+            <summary>
+            Sets the cookie collection on the request
+            </summary>
+            <param name="cookies"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.WithNoHeaders">
+            <summary>
+            Clears headers on the request
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.WithHeader(System.String,System.String)">
+            <summary>
+            Sets a header on the request. Any existing header with
+            the same name is overwritten.
+            </summary>
+            <param name="header"></param>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.WithHeaders(System.Collections.Generic.IDictionary{System.String,System.String})">
+            <summary>
+            Sets a bunch of headers on the request. Existing cookies
+            with the same names are overwritten. Other existing
+            cookies are left intact.
+            </summary>
+            <param name="headers"></param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentNullException"></exception>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.WithHeaders(Microsoft.AspNetCore.Http.IHeaderDictionary)">
+            <summary>
+            Sets the header dictionary on the request
+            </summary>
+            <param name="headers"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.WithQuery(Microsoft.AspNetCore.Http.IQueryCollection)">
+            <summary>
+            Sets the query collection on the request
+            </summary>
+            <param name="query"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.WithQueryParameter(System.String,System.String)">
+            <summary>
+            Sets a query parameter on the request
+            </summary>
+            <param name="key"></param>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.WithPath(System.String)">
+            <summary>
+            
+            </summary>
+            <param name="path"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.WithBasePath(System.String)">
+            <summary>
+            Sets the base path on the request
+            </summary>
+            <param name="basePath"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.WithHost(Microsoft.AspNetCore.Http.HostString)">
+            <summary>
+            Sets the host on the path
+            </summary>
+            <param name="host"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.WithPort(System.Int32)">
+            <summary>
+            Sets the port on the request
+            </summary>
+            <param name="port"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.WithHost(System.String)">
+            <summary>
+            Sets the host on the request
+            </summary>
+            <param name="host"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.WithQueryString(System.String)">
+            <summary>
+            Sets the query string on the request
+            </summary>
+            <param name="queryString"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.WithQueryString(Microsoft.AspNetCore.Http.QueryString)">
+            <summary>
+            Sets the query string on the request
+            </summary>
+            <param name="queryString"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.WithScheme(System.String)">
+            <summary>
+            Sets the scheme on the request
+            </summary>
+            <param name="scheme"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.WithMethod(System.Net.Http.HttpMethod)">
+            <summary>
+            Sets the method on the request
+            </summary>
+            <param name="method"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.WithMethod(System.String)">
+            <summary>
+            Sets the method on the request
+            </summary>
+            <param name="method"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.WithHttpContext(Microsoft.AspNetCore.Http.HttpContext)">
+            <summary>
+            Sets the http context on the request
+            </summary>
+            <param name="context"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.WithHttpContext(System.Func{Microsoft.AspNetCore.Http.HttpContext})">
+            <summary>
+            Sets the http context accessor on the request
+            </summary>
+            <param name="accessor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestBuilder.WithForm(Microsoft.AspNetCore.Http.IFormCollection)">
+            <summary>
+            Sets the form on the request
+            </summary>
+            <param name="formCollection"></param>
+            <returns></returns>
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.Builders.HttpResponseBuilder">
+            <summary>
+            Builds a fake http response
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpResponseBuilder.#ctor">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpResponseBuilder.WithHasStarted(System.Boolean)">
+            <summary>
+            Sets the HasStarted flag on the response
+            HttpResponses have "started" when the headers have already
+            been sent to the client
+            </summary>
+            <param name="hasStarted"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpResponseBuilder.WithOnStartingHandler(System.Action{System.Func{System.Object,System.Threading.Tasks.Task},System.Object})">
+            <summary>
+            Add a handler for when OnStarting is called
+            </summary>
+            <param name="handler"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpResponseBuilder.WithOnCompletedHandler(System.Action{System.Func{System.Object,System.Threading.Tasks.Task},System.Object})">
+            <summary>
+            Add a handler for when the response completes
+            </summary>
+            <param name="handler"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpResponseBuilder.WithRedirectHandler(System.Action{System.String,System.Boolean})">
+            <summary>
+            Add a handler for when the response redirect
+            </summary>
+            <param name="handler"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpResponseBuilder.WithCookies(Microsoft.AspNetCore.Http.IResponseCookies)">
+            <summary>
+            Set the response cookies (opaque service which can only _set_ cookies)
+            </summary>
+            <param name="cookies"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpResponseBuilder.WithStatusCode(System.Net.HttpStatusCode)">
+            <summary>
+            Set the status code for the response
+            </summary>
+            <param name="code"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpResponseBuilder.WithStatusCode(System.Int32)">
+            <summary>
+            Set the status code for the response
+            </summary>
+            <param name="code"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpResponseBuilder.ConstructEntity">
+            <summary>
+            Constructs the fake http response
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpResponseBuilder.Randomize">
+            <summary>
+            Randomizes the response
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpResponseBuilder.WithHttpContext(Microsoft.AspNetCore.Http.HttpContext)">
+            <summary>
+            Sets the http context on the response
+            </summary>
+            <param name="context"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.HttpResponseBuilder.WithHttpContext(System.Func{Microsoft.AspNetCore.Http.HttpContext})">
+            <summary>
+            Sets the http context accessor on the response
+            </summary>
+            <param name="accessor"></param>
+            <returns></returns>
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.Builders.RequestCookieCollectionBuilder">
+            <summary>
+            Builds a fake request cookie collection
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.RequestCookieCollectionBuilder.ConstructEntity">
+            <summary>
+            Constructs the fake cookie collection
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.RequestCookieCollectionBuilder.Randomize">
+            <summary>
+            Produces a random cookie collection when part of the build pipeline
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.Builders.WebSocketBuilder">
+            <summary>
+            Builds a fake web socket
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.WebSocketBuilder.Randomize">
+            <summary>
+            Does nothing - only here so that GetRandom works
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.WebSocketBuilder.ConstructEntity">
+            <summary>
+            Constructs the fake web socket
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.WebSocketBuilder.WithReceiveHandler(System.Func{System.ArraySegment{System.Byte},System.Threading.CancellationToken,System.Threading.Tasks.Task{System.Net.WebSockets.WebSocketReceiveResult}})">
+            <summary>
+            Sets the receive handler for the fake socket
+            </summary>
+            <param name="handler"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.WebSocketBuilder.WithSendHandler(System.Func{System.ArraySegment{System.Byte},System.Net.WebSockets.WebSocketMessageType,System.Boolean,System.Threading.CancellationToken,System.Threading.Tasks.Task})">
+            <summary>
+            Sets the send handler for the fake socket
+            </summary>
+            <param name="handler"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.WebSocketBuilder.WithSubProtocol(System.String)">
+            <summary>
+            Sets the sub-protocol for the fake socket
+            </summary>
+            <param name="subProtocol"></param>
+            <returns></returns>
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.Builders.WebSocketManagerBuilder">
+            <summary>
+            Builds a fake websocket manager
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.WebSocketManagerBuilder.Randomize">
+            <summary>
+            Does nothing - just here to ensure GetRandom works
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.WebSocketManagerBuilder.ConstructEntity">
+            <summary>
+            Constructs a fake websocket manager
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.WebSocketManagerBuilder.WithWebSocketAcceptHandler(System.Func{System.String,System.Threading.Tasks.Task{System.Net.WebSockets.WebSocket}})">
+            <summary>
+            Sets the websocket accept handler
+            </summary>
+            <param name="handler"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.WebSocketManagerBuilder.WithIsWebSocketRequest(System.Boolean)">
+            <summary>
+            Sets the IsWebSocketRequest property
+            </summary>
+            <param name="flag"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Builders.WebSocketManagerBuilder.WithWebSocketRequestedProtocols(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Sets the protocols "requested" for the request
+            </summary>
+            <param name="protocols"></param>
+            <returns></returns>
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.Fakes.FakeConnectionInfo">
+            <summary>
+            Provides a fake connection
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeConnectionInfo.GetClientCertificateAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeConnectionInfo.Id">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeConnectionInfo.RemoteIpAddress">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeConnectionInfo.RemotePort">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeConnectionInfo.LocalIpAddress">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeConnectionInfo.LocalPort">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeConnectionInfo.ClientCertificate">
+            <inheritdoc />
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.Fakes.FakeCookie">
+            <summary>
+            Implements a fake cookie holder
+            </summary>
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeCookie.Name">
+            <summary>
+            The name of the cookie
+            </summary>
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeCookie.Value">
+            <summary>
+            The value of the cookie
+            </summary>
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeCookie.Options">
+            <summary>
+            The options for the cookie
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeCookie.#ctor(System.String,System.String,Microsoft.AspNetCore.Http.CookieOptions)">
+            <summary>
+            Constructs the cookie container
+            </summary>
+            <param name="name"></param>
+            <param name="value"></param>
+            <param name="options"></param>
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFeatureCollection">
+            <summary>
+            Implements a fake feature collection
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFeatureCollection.GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFeatureCollection.Get``1">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFeatureCollection.Set``1(``0)">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFeatureCollection.IsReadOnly">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFeatureCollection.Revision">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFeatureCollection.Item(System.Type)">
+            <inheritdoc />
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormCollection">
+            <summary>
+            Implements a fake form collection
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormCollection.#ctor(System.Collections.Generic.IDictionary{System.String,Microsoft.Extensions.Primitives.StringValues})">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormCollection.#ctor">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormCollection.FormValues">
+            <summary>
+            Exposes the form field values
+            </summary>
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormCollection.Files">
+            <summary>
+            Exposes the file collection
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormCollection.AddFile(Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            Adds a file to the file collection
+            </summary>
+            <param name="formFile"></param>
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormFile">
+            <summary>
+            Implements a fake form file
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormFile.#ctor">
+            <summary>
+            Default constructor: create an empty form file
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormFile.#ctor(System.String,System.String,System.String)">
+            <summary>
+            Create a form file
+            </summary>
+            <param name="content"></param>
+            <param name="name"></param>
+            <param name="fileName"></param>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormFile.#ctor(System.String,System.String,System.String,System.String)">
+            <summary>
+            Create a form file
+            </summary>
+            <param name="content"></param>
+            <param name="name"></param>
+            <param name="fileName"></param>
+            <param name="mimeType"></param>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormFile.#ctor(System.Byte[],System.String,System.String)">
+            <summary>
+            Create a form file
+            </summary>
+            <param name="content"></param>
+            <param name="name"></param>
+            <param name="fileName"></param>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormFile.#ctor(System.Byte[],System.String,System.String,System.String)">
+            <summary>
+            Create a form file
+            </summary>
+            <param name="content"></param>
+            <param name="name"></param>
+            <param name="fileName"></param>
+            <param name="mimeType"></param>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormFile.#ctor(System.IO.Stream,System.String,System.String)">
+            <summary>
+            Create a form file
+            </summary>
+            <param name="content"></param>
+            <param name="name"></param>
+            <param name="fileName"></param>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormFile.#ctor(System.IO.Stream,System.String,System.String,System.String)">
+            <summary>
+            Create a form file
+            </summary>
+            <param name="content"></param>
+            <param name="name"></param>
+            <param name="fileName"></param>
+            <param name="mimeType"></param>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormFile.OpenReadStream">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormFile.CopyTo(System.IO.Stream)">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormFile.CopyToAsync(System.IO.Stream,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormFile.ContentType">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormFile.ContentDisposition">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormFile.Headers">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormFile.Length">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormFile.Name">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormFile.FileName">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormFile.SetContent(System.IO.Stream)">
+            <summary>
+            Sets the content for the file (overwrites)
+            </summary>
+            <param name="stream"></param>
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormFileCollection">
+            <summary>
+            Provides a fake form file collection
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormFileCollection.GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormFileCollection.Count">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormFileCollection.Item(System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormFileCollection.GetFile(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormFileCollection.GetFiles(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormFileCollection.Item(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormFileCollection.Add(Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            Adds a form file
+            </summary>
+            <param name="formFile"></param>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormFileCollection.Remove(Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            Removes the file
+            </summary>
+            <param name="formFile"></param>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormFileCollection.Remove(System.String)">
+            <summary>
+            Removes all files with this field name
+            </summary>
+            <param name="name"></param>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormFileCollection.Clear">
+            <summary>
+            Clears the file collection
+            </summary>
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHeaderDictionary">
+            <summary>
+            Provides a fake http header dictionary
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHeaderDictionary.#ctor(System.Collections.Generic.IDictionary{System.String,Microsoft.Extensions.Primitives.StringValues})">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHeaderDictionary.#ctor">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHeaderDictionary.ContentLength">
+            <inheritdoc />
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpContext">
+            <summary>
+            Provides a fake http context
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpContext.Abort">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpContext.Aborted">
+            <summary>
+            Indicates if the request has been aborted
+            </summary>
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpContext.Features">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpContext.Request">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpContext.Response">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpContext.Connection">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpContext.WebSockets">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpContext.SetWebSockets(Microsoft.AspNetCore.Http.WebSocketManager)">
+            <summary>
+            Sets the websockets manager
+            </summary>
+            <param name="webSocketManager"></param>
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpContext.Authentication">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpContext.User">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpContext.Items">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpContext.RequestServices">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpContext.RequestAborted">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpContext.TraceIdentifier">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpContext.Session">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpContext.SetFeatures(Microsoft.AspNetCore.Http.Features.IFeatureCollection)">
+            <summary>
+            Sets the features
+            </summary>
+            <param name="features"></param>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpContext.SetRequestAccessor(System.Func{Microsoft.AspNetCore.Http.HttpRequest})">
+            <summary>
+            Sets the request accessor
+            </summary>
+            <param name="accessor"></param>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpContext.SetResponseAccessor(System.Func{Microsoft.AspNetCore.Http.HttpResponse})">
+            <summary>
+            Sets the response accessor
+            </summary>
+            <param name="accessor"></param>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpContext.SetConnection(Microsoft.AspNetCore.Http.ConnectionInfo)">
+            <summary>
+            Sets the connection info
+            </summary>
+            <param name="connection"></param>
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpRequest">
+            <summary>
+            Implements a fake http request
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpRequest.ReadFormAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpRequest.#ctor">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpRequest.HttpContext">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpRequest.Method">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpRequest.Scheme">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpRequest.IsHttps">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpRequest.Host">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpRequest.PathBase">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpRequest.Path">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpRequest.QueryString">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpRequest.Query">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpRequest.Protocol">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpRequest.Headers">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpRequest.Cookies">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpRequest.ContentLength">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpRequest.ContentType">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpRequest.Body">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpRequest.HasFormContentType">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpRequest.Form">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpRequest.SetContext(Microsoft.AspNetCore.Http.HttpContext)">
+            <summary>
+            Sets the http context for the request
+            </summary>
+            <param name="context"></param>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpRequest.SetContextAccessor(System.Func{Microsoft.AspNetCore.Http.HttpContext})">
+            <summary>
+            Sets the http context accessor for the request
+            </summary>
+            <param name="accessor"></param>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpRequest.SetHeaders(Microsoft.AspNetCore.Http.IHeaderDictionary)">
+            <summary>
+            Sets the headers collection for the request
+            </summary>
+            <param name="headers"></param>
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpResponse">
+            <summary>
+            Provides a fake http response
+            </summary>
+        </member>
+        <member name="F:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpResponse.DEFAULT_CONTENT_TYPE">
+            <summary>
+            The default content type for a response
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpResponse.OnStarting(System.Func{System.Object,System.Threading.Tasks.Task},System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpResponse.OnCompleted(System.Func{System.Object,System.Threading.Tasks.Task},System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpResponse.Redirect(System.String,System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpResponse.HttpContext">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpResponse.StatusCode">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpResponse.Headers">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpResponse.Body">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpResponse.ContentLength">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpResponse.ContentType">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpResponse.Cookies">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpResponse.HasStarted">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpResponse.SetContextAccessor(System.Func{Microsoft.AspNetCore.Http.HttpContext})">
+            <summary>
+            Set the http context accessor
+            </summary>
+            <param name="accessor"></param>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpResponse.SetHeaders(Microsoft.AspNetCore.Http.IHeaderDictionary)">
+            <summary>
+            Set the response headers collection
+            </summary>
+            <param name="headers"></param>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpResponse.SetCookies(Microsoft.AspNetCore.Http.IResponseCookies)">
+            <summary>
+            Set the cookies collection
+            </summary>
+            <param name="cookies"></param>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpResponse.AddOnStartingHandler(System.Action{System.Func{System.Object,System.Threading.Tasks.Task},System.Object})">
+            <summary>
+            Add a handler for when the request is starting
+            </summary>
+            <param name="handler"></param>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpResponse.AddOnCompletedHandler(System.Action{System.Func{System.Object,System.Threading.Tasks.Task},System.Object})">
+            <summary>
+            Add a handler for when the request is completed
+            </summary>
+            <param name="handler"></param>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpResponse.AddRedirectHandler(System.Action{System.String,System.Boolean})">
+            <summary>
+            Add a handler for when the request is redirected
+            </summary>
+            <param name="handler"></param>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpResponse.SetHasStarted(System.Boolean)">
+            <summary>
+            Set the HasStarted property
+            </summary>
+            <param name="hasStarted"></param>
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.Fakes.FakeQueryCollection">
+            <summary>
+            Provides a fake query collection
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeQueryCollection.#ctor">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeQueryCollection.#ctor(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.Fakes.FakeRequestCookieCollection">
+            <summary>
+            Provides a fake cookie collection
+            </summary>
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.Fakes.FakeResponseCookies">
+            <summary>
+            Provides a fake response cookies service
+            </summary>
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeResponseCookies.Store">
+            <summary>
+            Use to query what cookies have been set
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeResponseCookies.CreateSubstitutedIfPossible">
+            <summary>
+            Attempts to create a substitute for FakeResponseCookies using
+            NSubstitute's Substitute.ForPartsOf&lt;T&gt; which means you should
+            both be able to inspect the cookie store and assert that methods
+            were called on the store within your code. However, there is a
+            caveat: NSubstitute assertions seem to fail unless you've previously
+            used NSubstitute in testing. This is most likely due to how NSubstitute
+            is sought out via reflection and possibly manual assembly loading -
+            so it may be an issue which is resolved in the future. For now, if you
+            wish to verify calls, ensure that there is some other kind of NSubstitute
+            invocation before performing assertions against this substitute.
+            On the other hand, if you don't have NSubstitute available, you'll
+            get a plain-old FakeResponseCookies object here.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeResponseCookies.Append(System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeResponseCookies.Append(System.String,System.String,Microsoft.AspNetCore.Http.CookieOptions)">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeResponseCookies.Delete(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeResponseCookies.Delete(System.String,Microsoft.AspNetCore.Http.CookieOptions)">
+            <inheritdoc />
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.Fakes.FakeSession">
+            <summary>
+            Provides a fake session
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeSession.LoadAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeSession.CommitAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeSession.TryGetValue(System.String,System.Byte[]@)">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeSession.Set(System.String,System.Byte[])">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeSession.Remove(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeSession.Clear">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeSession.IsAvailable">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeSession.Id">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeSession.Keys">
+            <inheritdoc />
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.Fakes.FakeWebSocket">
+            <summary>
+            Provides a fake websocket
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeWebSocket.Abort">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeWebSocket.CloseAsync(System.Net.WebSockets.WebSocketCloseStatus,System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeWebSocket.CloseOutputAsync(System.Net.WebSockets.WebSocketCloseStatus,System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeWebSocket.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeWebSocket.ReceiveAsync(System.ArraySegment{System.Byte},System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeWebSocket.SendAsync(System.ArraySegment{System.Byte},System.Net.WebSockets.WebSocketMessageType,System.Boolean,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeWebSocket.CloseStatus">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeWebSocket.CloseStatusDescription">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeWebSocket.State">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeWebSocket.SubProtocol">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeWebSocket.SetReceiveHandler(System.Func{System.ArraySegment{System.Byte},System.Threading.CancellationToken,System.Threading.Tasks.Task{System.Net.WebSockets.WebSocketReceiveResult}})">
+            <summary>
+            Set the receive handler
+            </summary>
+            <param name="handler"></param>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeWebSocket.SetSendHandler(System.Func{System.ArraySegment{System.Byte},System.Net.WebSockets.WebSocketMessageType,System.Boolean,System.Threading.CancellationToken,System.Threading.Tasks.Task})">
+            <summary>
+            Set the send handler
+            </summary>
+            <param name="handler"></param>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeWebSocket.SetSubProtocol(System.String)">
+            <summary>
+            Set the sub-protocol
+            </summary>
+            <param name="subProtocol"></param>
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.Fakes.FakeWebSocketManager">
+            <summary>
+            Provides a fake websocket manager
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeWebSocketManager.AcceptWebSocketAsync(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeWebSocketManager.IsWebSocketRequest">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.Fakes.FakeWebSocketManager.WebSocketRequestedProtocols">
+            <inheritdoc />
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeWebSocketManager.SetWebSocketAcceptHandler(System.Func{System.String,System.Threading.Tasks.Task{System.Net.WebSockets.WebSocket}})">
+            <summary>
+            Set the accept handler
+            </summary>
+            <param name="handler"></param>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeWebSocketManager.SetIsWebSocketRequest(System.Boolean)">
+            <summary>
+            Set the IsWebSocketRequest property
+            </summary>
+            <param name="b"></param>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.FakeWebSocketManager.SetProtocols(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Set the requested protocols
+            </summary>
+            <param name="protocols"></param>
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.Fakes.IFake">
+            <summary>
+            Used to identify fakes
+            </summary>
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.Fakes.ServiceProviderImplementationRequiredException">
+            <summary>
+            Thrown when unable to cast up to the required fake
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Fakes.ServiceProviderImplementationRequiredException.#ctor">
+            <inheritdoc />
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.FeatureIsObsoleteException">
+            <summary>
+            Thrown when attempting to use an obsolete feature
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.FeatureIsObsoleteException.#ctor(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.FormFileExtensions">
+            <summary>
+            Provides some convenience extensions for form files
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.FormFileExtensions.ReadAllBytes(Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            Read all bytes of the file
+            </summary>
+            <param name="file"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.FormFileExtensions.ReadAllText(Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            Read all text of the file
+            </summary>
+            <param name="file"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.FormFileExtensions.IsText(Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            Returns true if the form file appears to be text by the associated mime type
+            </summary>
+            <param name="file"></param>
+            <returns></returns>
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.InvalidImplementationException`1">
+            <summary>
+            Thrown when unable to cast an abstract type to the faked implementation
+            </summary>
+            <typeparam name="TExpected"></typeparam>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.InvalidImplementationException`1.#ctor(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.StringMap">
+            <summary>
+            Provides a collection of string maps
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.StringMap.Clear">
+            <summary>
+            Clears the store
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.StringMap.GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.StringMap.Count">
+            <summary>
+            Returns the count of the store
+            </summary>
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.StringMap.Keys">
+            <summary>
+            Returns all keys in the store
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.StringMap.ContainsKey(System.String)">
+            <summary>
+            Returns true if the key is stored
+            </summary>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.StringMap.TryGetValue(System.String,System.String@)">
+            <summary>
+            Attempts to get the value associated with the provided key
+            </summary>
+            <param name="key"></param>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.StringMap.Item(System.String)">
+            <summary>
+            Indexes into the store
+            </summary>
+            <param name="key"></param>
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.StringValueMapChangedEventArgs">
+            <summary>
+            Raised when a StringValueMap changes
+            </summary>
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.StringValueMapChangedEventArgs.NewValues">
+            <summary>
+            The new values in the map (copy of the map)
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.StringValueMapChangedEventArgs.#ctor(System.Collections.Generic.IDictionary{System.String,Microsoft.Extensions.Primitives.StringValues})">
+            <inheritdoc />
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.StringValueMap">
+            <summary>
+            Provides a string-to-stringvalue map
+            </summary>
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.StringValueMap.ChangedDelegate">
+            <summary>
+            delegate raised when this collection changes
+            </summary>
+        </member>
+        <member name="F:PeanutButter.TestUtils.AspNetCore.StringValueMap.OnChanged">
+            <summary>
+            Event raised when this collection changes
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.StringValueMap.#ctor(System.Collections.Generic.IDictionary{System.String,Microsoft.Extensions.Primitives.StringValues})">
+            <summary>
+            Create a string-value map around the provided store
+            </summary>
+            <param name="store"></param>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.StringValueMap.#ctor">
+            <summary>
+            Create a blank string-value map
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.StringValueMap.#ctor(System.Collections.Generic.IEqualityComparer{System.String})">
+            <summary>
+            Create a blank string-value map with the provided equality comparer for keys
+            </summary>
+            <param name="equalityComparer"></param>
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.StringValueMap.Store">
+            <summary>
+            The store for the values
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.StringValueMap.GetEnumerator">
+            <summary>
+            Get an enumerator for the items in the store
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.StringValueMap.ContainsKey(System.String)">
+            <summary>
+            Returns true if the key is contained in the store
+            </summary>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.StringValueMap.TryGetValue(System.String,Microsoft.Extensions.Primitives.StringValues@)">
+            <summary>
+            Attempts to get the value associated with the provided key
+            </summary>
+            <param name="key"></param>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.StringValueMap.Add(System.Collections.Generic.KeyValuePair{System.String,Microsoft.Extensions.Primitives.StringValues})">
+            <summary>
+            Adds a key-value-pair to the store
+            </summary>
+            <param name="item"></param>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.StringValueMap.Clear">
+            <summary>
+            Clears the store
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.StringValueMap.Contains(System.Collections.Generic.KeyValuePair{System.String,Microsoft.Extensions.Primitives.StringValues})">
+            <summary>
+            Tests if the key-value-pair is in the store
+            </summary>
+            <param name="item"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.StringValueMap.CopyTo(System.Collections.Generic.KeyValuePair{System.String,Microsoft.Extensions.Primitives.StringValues}[],System.Int32)">
+            <summary>
+            Copies the contents to the provided array
+            </summary>
+            <param name="array"></param>
+            <param name="arrayIndex"></param>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.StringValueMap.Remove(System.Collections.Generic.KeyValuePair{System.String,Microsoft.Extensions.Primitives.StringValues})">
+            <summary>
+            Removes an item from the store
+            </summary>
+            <param name="item"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.StringValueMap.Add(System.String,Microsoft.Extensions.Primitives.StringValues)">
+            <summary>
+            Adds an item to the store
+            </summary>
+            <param name="key"></param>
+            <param name="value"></param>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.StringValueMap.Remove(System.String)">
+            <summary>
+            Removes the item associated with the provided key
+            </summary>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.StringValueMap.Values">
+            <summary>
+            Returns all known values
+            </summary>
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.StringValueMap.IsReadOnly">
+            <summary>
+            Returns read-only status of the store
+            </summary>
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.StringValueMap.Count">
+            <summary>
+            Returns the count of the store
+            </summary>
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.StringValueMap.Keys">
+            <summary>
+            Returns all keys in the store
+            </summary>
+        </member>
+        <member name="P:PeanutButter.TestUtils.AspNetCore.StringValueMap.Item(System.String)">
+            <summary>
+            Indexes into the store
+            </summary>
+            <param name="key"></param>
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.Utils.FormDecoder">
+            <summary>
+            Attempts to decode a form from an http request body
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Utils.FormDecoder.Decode(System.IO.Stream)">
+            <summary>
+            Attempt to decode the form from the body
+            </summary>
+            <param name="body"></param>
+            <returns></returns>
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.Utils.IFormDecoder">
+            <summary>
+            Decodes a form
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Utils.IFormDecoder.Decode(System.IO.Stream)">
+            <summary>
+            Decodes a form
+            </summary>
+            <param name="body"></param>
+            <returns></returns>
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.Utils.IFormEncoder">
+            <summary>
+            Encodes a form
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Utils.IFormEncoder.Encode(Microsoft.AspNetCore.Http.IFormCollection)">
+            <summary>
+            Encodes a form
+            </summary>
+            <param name="form"></param>
+            <returns></returns>
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.Utils.MultiPartBodyEncoder">
+            <summary>
+            Encodes a multi-part form
+            </summary>
+        </member>
+        <member name="F:PeanutButter.TestUtils.AspNetCore.Utils.MultiPartBodyEncoder.BOUNDARY">
+            <summary>
+            The boundary marker
+            </summary>
+        </member>
+        <member name="F:PeanutButter.TestUtils.AspNetCore.Utils.MultiPartBodyEncoder.CONTENT_DISPOSITION">
+            <summary>
+            The Content-Disposition marker
+            </summary>
+        </member>
+        <member name="F:PeanutButter.TestUtils.AspNetCore.Utils.MultiPartBodyEncoder.CONTENT_TYPE">
+            <summary>
+            The Content-Type marker
+            </summary>
+        </member>
+        <member name="F:PeanutButter.TestUtils.AspNetCore.Utils.MultiPartBodyEncoder.CONTENT_LENGTH">
+            <summary>
+            The Content-Length marker
+            </summary>
+        </member>
+        <member name="F:PeanutButter.TestUtils.AspNetCore.Utils.MultiPartBodyEncoder.NAME">
+            <summary>
+            The name key
+            </summary>
+        </member>
+        <member name="F:PeanutButter.TestUtils.AspNetCore.Utils.MultiPartBodyEncoder.FILE_NAME">
+            <summary>
+            The filename key
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Utils.MultiPartBodyEncoder.Encode(Microsoft.AspNetCore.Http.IFormCollection)">
+            <inheritdoc />
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.Utils.NullBodyEncoder">
+            <summary>
+            Null-pattern: simply produces a new stream
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Utils.NullBodyEncoder.Encode(Microsoft.AspNetCore.Http.IFormCollection)">
+            <inheritdoc />
+        </member>
+        <member name="T:PeanutButter.TestUtils.AspNetCore.Utils.UrlEncodedBodyEncoder">
+            <summary>
+            Encodes a form with url-encoding
+            </summary>
+        </member>
+        <member name="M:PeanutButter.TestUtils.AspNetCore.Utils.UrlEncodedBodyEncoder.Encode(Microsoft.AspNetCore.Http.IFormCollection)">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

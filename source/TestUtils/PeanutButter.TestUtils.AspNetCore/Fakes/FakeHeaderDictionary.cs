@@ -5,14 +5,19 @@ using Microsoft.Extensions.Primitives;
 
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
 
-public class FakeHeaderDictionary : StringValueMap, IHeaderDictionary
+/// <summary>
+/// Provides a fake http header dictionary
+/// </summary>
+public class FakeHeaderDictionary : StringValueMap, IHeaderDictionary, IFake
 {
+    /// <inheritdoc />
     public FakeHeaderDictionary(
         IDictionary<string, StringValues> store
     ): base(store)
     {
     }
 
+    /// <inheritdoc />
     public FakeHeaderDictionary()
         : base(StringComparer.OrdinalIgnoreCase)
     {
@@ -20,6 +25,7 @@ public class FakeHeaderDictionary : StringValueMap, IHeaderDictionary
 
     private const string CONTENT_LENGTH_HEADER = "Content-Length";
 
+    /// <inheritdoc />
     public long? ContentLength
     {
         get => Store.TryGetValue(CONTENT_LENGTH_HEADER, out var header)

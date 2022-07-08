@@ -84,7 +84,6 @@ namespace PeanutButter.RandomGenerators
         /// NB: this method is NOT thread-safe when used concurrently
         /// with GetRandom&lt;T&gt;()
         /// </summary>
-        /// <param name="matches"></param>
         /// <param name="generator"></param>
         public static void InstallRandomGenerator<T>(
             Func<T> generator

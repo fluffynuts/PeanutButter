@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
@@ -6,8 +7,12 @@ using Microsoft.AspNetCore.Http;
 
 namespace PeanutButter.TestUtils.AspNetCore.Fakes
 {
-    public class FakeConnectionInfo : ConnectionInfo
+    /// <summary>
+    /// Provides a fake connection
+    /// </summary>
+    public class FakeConnectionInfo : ConnectionInfo, IFake
     {
+        /// <inheritdoc />
         public override Task<X509Certificate2> GetClientCertificateAsync(
             CancellationToken cancellationToken = new()
         )
@@ -15,11 +20,19 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
             return Task.FromResult(ClientCertificate);
         }
 
-        public override string Id { get; set; }
-        public override IPAddress RemoteIpAddress { get; set; }
-        public override int RemotePort { get; set; }
-        public override IPAddress LocalIpAddress { get; set; }
-        public override int LocalPort { get; set; }
+        /// <inheritdoc />
+        public override string Id { get; set; } = Guid.NewGuid().ToString();
+        /// <inheritdoc />
+        public override IPAddress RemoteIpAddress { get; set; } = IPAddress.Parse(LOCALHOST);
+        /// <inheritdoc />
+        public override int RemotePort { get; set; } = 8080;
+        /// <inheritdoc />
+        public override IPAddress LocalIpAddress { get; set; } = IPAddress.Parse(LOCALHOST);
+        /// <inheritdoc />
+        public override int LocalPort { get; set; } = 80;
+        /// <inheritdoc />
         public override X509Certificate2 ClientCertificate { get; set; }
+        
+        private const string LOCALHOST = "127.0.0.1";
     }
 }

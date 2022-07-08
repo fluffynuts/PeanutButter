@@ -4,6 +4,7 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 using NExpect;
 using PeanutButter.TestUtils.AspNetCore.Builders;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
+using PeanutButter.TestUtils.AspNetCore.Utils;
 using PeanutButter.Utils;
 using static NExpect.Expectations;
 

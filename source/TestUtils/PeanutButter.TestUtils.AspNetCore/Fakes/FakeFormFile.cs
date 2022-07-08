@@ -7,14 +7,26 @@ using PeanutButter.Utils;
 
 namespace PeanutButter.TestUtils.AspNetCore.Fakes
 {
-    public class FakeFormFile : IFormFile
+    /// <summary>
+    /// Implements a fake form file
+    /// </summary>
+    public class FakeFormFile : IFormFile, IFake
     {
         private Stream _content;
 
+        /// <summary>
+        /// Default constructor: create an empty form file
+        /// </summary>
         public FakeFormFile()
         {
         }
 
+        /// <summary>
+        /// Create a form file
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="name"></param>
+        /// <param name="fileName"></param>
         public FakeFormFile(
             string content,
             string name,
@@ -23,6 +35,13 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
         {
         }
 
+        /// <summary>
+        /// Create a form file
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="name"></param>
+        /// <param name="fileName"></param>
+        /// <param name="mimeType"></param>
         public FakeFormFile(
             string content,
             string name,
@@ -33,21 +52,47 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
         {
         }
 
-        public FakeFormFile(byte[] bytes, string name, string fileName)
-            : this(bytes, name, fileName, null)
+        /// <summary>
+        /// Create a form file
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="name"></param>
+        /// <param name="fileName"></param>
+        public FakeFormFile(byte[] content, string name, string fileName)
+            : this(content, name, fileName, null)
         {
         }
 
-        public FakeFormFile(byte[] bytes, string name, string fileName, string mimeType)
-            : this(new MemoryStream(bytes), name, fileName, mimeType)
+        /// <summary>
+        /// Create a form file
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="name"></param>
+        /// <param name="fileName"></param>
+        /// <param name="mimeType"></param>
+        public FakeFormFile(byte[] content, string name, string fileName, string mimeType)
+            : this(new MemoryStream(content), name, fileName, mimeType)
         {
         }
 
+        /// <summary>
+        /// Create a form file
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="name"></param>
+        /// <param name="fileName"></param>
         public FakeFormFile(Stream content, string name, string fileName)
             : this(content, name, fileName, null)
         {
         }
 
+        /// <summary>
+        /// Create a form file
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="name"></param>
+        /// <param name="fileName"></param>
+        /// <param name="mimeType"></param>
         public FakeFormFile(
             Stream content,
             string name,
@@ -62,6 +107,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
         }
 
 
+        /// <inheritdoc />
         public Stream OpenReadStream()
         {
             // provide a new stream so that disposal
@@ -71,12 +117,14 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
             );
         }
 
+        /// <inheritdoc />
         public void CopyTo(Stream target)
         {
             _content.Position = 0;
             _content.CopyTo(target);
         }
 
+        /// <inheritdoc />
         public Task CopyToAsync(
             Stream target,
             CancellationToken cancellationToken = new()
@@ -85,9 +133,13 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
             return _content.CopyToAsync(target);
         }
 
+        /// <inheritdoc />
         public string ContentType { get; set; }
+
+        /// <inheritdoc />
         public string ContentDisposition { get; set; }
 
+        /// <inheritdoc />
         public IHeaderDictionary Headers
         {
             get => _headers ??= new FakeHeaderDictionary();
@@ -96,10 +148,19 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
 
         private IHeaderDictionary _headers;
 
+        /// <inheritdoc />
         public long Length => _content.Length;
+
+        /// <inheritdoc />
         public string Name { get; set; }
+
+        /// <inheritdoc />
         public string FileName { get; set; }
 
+        /// <summary>
+        /// Sets the content for the file (overwrites)
+        /// </summary>
+        /// <param name="stream"></param>
         public void SetContent(Stream stream)
         {
             _content = stream;

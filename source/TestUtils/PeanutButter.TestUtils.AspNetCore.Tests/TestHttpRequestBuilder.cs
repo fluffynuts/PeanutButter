@@ -7,6 +7,7 @@ using NExpect;
 using NUnit.Framework;
 using PeanutButter.TestUtils.AspNetCore.Builders;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
+using PeanutButter.TestUtils.AspNetCore.Utils;
 using static NExpect.Expectations;
 using static NExpect.AspNetCoreExpectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
@@ -318,6 +319,24 @@ public class TestHttpRequestBuilder
         // Assert
         Expect(result.QueryString.ToString())
             .To.Equal(queryString);
+    }
+
+    [Test]
+    public void ShouldBeAbleToSetQueryParameter()
+    {
+        // Arrange
+        var key = GetRandomString();
+        var value = GetRandomString();
+        // Act
+        var result= HttpRequestBuilder.Create()
+            .WithQueryParameter(key, value)
+            .Build();
+        // Assert
+        Expect(result.Query[key])
+            .To.Equal(value);
+        Expect(result.QueryString.Value)
+            .To.Contain(key)
+            .Then(value);
     }
 
     [Test]

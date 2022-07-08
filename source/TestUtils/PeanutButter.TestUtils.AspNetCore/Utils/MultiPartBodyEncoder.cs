@@ -4,17 +4,39 @@ using System.Net;
 using Microsoft.AspNetCore.Http;
 using PeanutButter.Utils;
 
-namespace PeanutButter.TestUtils.AspNetCore.Fakes;
+namespace PeanutButter.TestUtils.AspNetCore.Utils;
 
+/// <summary>
+/// Encodes a multi-part form
+/// </summary>
 public class MultiPartBodyEncoder : IFormEncoder
 {
+    /// <summary>
+    /// The boundary marker
+    /// </summary>
     public const string BOUNDARY = "--boundary";
+    /// <summary>
+    /// The Content-Disposition marker
+    /// </summary>
     public const string CONTENT_DISPOSITION = "Content-Disposition";
+    /// <summary>
+    /// The Content-Type marker
+    /// </summary>
     public const string CONTENT_TYPE = "Content-Type";
+    /// <summary>
+    /// The Content-Length marker
+    /// </summary>
     public const string CONTENT_LENGTH = "Content-Length";
+    /// <summary>
+    /// The name key
+    /// </summary>
     public const string NAME = "name";
+    /// <summary>
+    /// The filename key
+    /// </summary>
     public const string FILE_NAME = "filename";
 
+    /// <inheritdoc />
     public Stream Encode(IFormCollection form)
     {
         var result = new MemoryStream();

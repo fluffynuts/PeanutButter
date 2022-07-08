@@ -16,9 +16,53 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
 
         private static void InstallGeneratorsForFakes()
         {
+            InstallFormCollectionGenerator();
+            InstallFormFileBuilder();
             InstallHttpContextGenerator();
             InstallHttpRequestGenerator();
-            InstallFormCollectionGenerator();
+            InstallHttpResponseGenerator();
+            InstallRequestCookieCollectionBuilder();
+            InstallWebSocketBuilder();
+        }
+
+        private static void InstallHttpResponseGenerator()
+        {
+            InstallRandomGenerator(
+                () => HttpResponseBuilder.BuildRandom() as FakeHttpResponse
+            );
+            InstallRandomGenerator(
+                HttpResponseBuilder.BuildRandom
+            );
+        }
+
+        private static void InstallWebSocketBuilder()
+        {
+            InstallRandomGenerator(
+                WebSocketManagerBuilder.BuildRandom
+            );
+            InstallRandomGenerator(
+                WebSocketBuilder.BuildRandom
+            );
+        }
+
+        private static void InstallRequestCookieCollectionBuilder()
+        {
+            InstallRandomGenerator(
+                RequestCookieCollectionBuilder.BuildDefault
+            );
+            InstallRandomGenerator(
+                () => RequestCookieCollectionBuilder.BuildDefault() as FakeRequestCookieCollection
+            );
+        }
+
+        private static void InstallFormFileBuilder()
+        {
+            InstallRandomGenerator(
+                FormFileBuilder.BuildRandom
+            );
+            InstallRandomGenerator(
+                () => FormFileBuilder.BuildRandom() as FakeFormFile
+            );
         }
 
         private static void InstallHttpContextGenerator()

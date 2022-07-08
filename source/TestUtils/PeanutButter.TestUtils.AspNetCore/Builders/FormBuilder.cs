@@ -9,13 +9,24 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
 
+/// <summary>
+/// Builds a form for an asp.net request
+/// </summary>
 public class FormBuilder : Builder<FormBuilder, IFormCollection>
 {
+    /// <summary>
+    /// Constructs the fake form
+    /// </summary>
+    /// <returns></returns>
     protected override IFormCollection ConstructEntity()
     {
         return new FakeFormCollection();
     }
 
+    /// <summary>
+    /// Randomizes the form
+    /// </summary>
+    /// <returns></returns>
     public override FormBuilder Randomize()
     {
         var fieldCount = GetRandomInt(1, 4);
@@ -27,6 +38,12 @@ public class FormBuilder : Builder<FormBuilder, IFormCollection>
         return this;
     }
 
+    /// <summary>
+    /// Sets a form field. If the field already exists by name, it is overwritten.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
     public FormBuilder WithField(
         string name,
         string value
@@ -37,6 +54,12 @@ public class FormBuilder : Builder<FormBuilder, IFormCollection>
         );
     }
 
+    /// <summary>
+    /// Sets a form file
+    /// </summary>
+    /// <param name="contents"></param>
+    /// <param name="name"></param>
+    /// <returns></returns>
     public FormBuilder WithFile(
         string contents,
         string name
@@ -45,6 +68,13 @@ public class FormBuilder : Builder<FormBuilder, IFormCollection>
         return WithFile(contents, name, name);
     }
 
+    /// <summary>
+    /// Sets a form file
+    /// </summary>
+    /// <param name="contents"></param>
+    /// <param name="name"></param>
+    /// <param name="fileName"></param>
+    /// <returns></returns>
     public FormBuilder WithFile(
         string contents,
         string name,
@@ -58,6 +88,12 @@ public class FormBuilder : Builder<FormBuilder, IFormCollection>
         );
     }
 
+    /// <summary>
+    /// Sets a form file
+    /// </summary>
+    /// <param name="contents"></param>
+    /// <param name="name"></param>
+    /// <returns></returns>
     public FormBuilder WithFile(
         byte[] contents,
         string name
@@ -66,6 +102,13 @@ public class FormBuilder : Builder<FormBuilder, IFormCollection>
         return WithFile(contents, name, name);
     }
 
+    /// <summary>
+    /// Sets a form file
+    /// </summary>
+    /// <param name="contents"></param>
+    /// <param name="name"></param>
+    /// <param name="fileName"></param>
+    /// <returns></returns>
     public FormBuilder WithFile(
         byte[] contents,
         string name,
@@ -79,6 +122,12 @@ public class FormBuilder : Builder<FormBuilder, IFormCollection>
         );
     }
 
+    /// <summary>
+    /// Sets a form file
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="name"></param>
+    /// <returns></returns>
     public FormBuilder WithFile(
         Stream content,
         string name
@@ -91,6 +140,13 @@ public class FormBuilder : Builder<FormBuilder, IFormCollection>
         );
     }
 
+    /// <summary>
+    /// Adds a form file
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="name"></param>
+    /// <param name="fileName"></param>
+    /// <returns></returns>
     public FormBuilder WithFile(
         Stream content,
         string name,
@@ -106,6 +162,10 @@ public class FormBuilder : Builder<FormBuilder, IFormCollection>
         );
     }
 
+    /// <summary>
+    /// Adds a random file to the form
+    /// </summary>
+    /// <returns></returns>
     public FormBuilder WithRandomFile()
     {
         return With<FakeFormCollection>(
@@ -114,6 +174,11 @@ public class FormBuilder : Builder<FormBuilder, IFormCollection>
         );
     }
 
+    /// <summary>
+    /// Adds a form file
+    /// </summary>
+    /// <param name="file"></param>
+    /// <returns></returns>
     public FormBuilder WithFile(IFormFile file)
     {
         return With<FakeFormCollection>(

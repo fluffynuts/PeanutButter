@@ -3,22 +3,34 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text.Json;
 using Microsoft.AspNetCore.Http;
+using PeanutButter.TestUtils.AspNetCore.Fakes;
 using PeanutButter.Utils;
 
-namespace PeanutButter.TestUtils.AspNetCore.Fakes
+namespace PeanutButter.TestUtils.AspNetCore.Utils
 {
+    /// <summary>
+    /// Attempts to decode a form from an http request body
+    /// </summary>
     public class FormDecoder : IFormDecoder
     {
+        /// <summary>
+        /// Attempt to decode the form from the body
+        /// </summary>
+        /// <param name="body"></param>
+        /// <returns></returns>
         public IFormCollection Decode(Stream body)
         {
             var result = new FakeFormCollection();
             var flag = new OneWayFlag();
+            var collected = new List<string>();
             using var enumerator = body.ReadLines(
                 eol => flag.WasSet = eol == Eol.CrLf
             ).GetEnumerator();
             while (enumerator.MoveNext())
             {
+                collected.Add(enumerator.Current);
                 if (enumerator.Current is null)
                 {
                     break;
@@ -42,8 +54,26 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
                     result.FormValues[key] = value;
                 }
             }
+            if (IsJson(collected))
+            {
+                return new FakeFormCollection();
+            }
 
             return result;
+        }
+
+        private bool IsJson(List<string> collected)
+        {
+            var joined = string.Join("\n", collected);
+            try
+            {
+                JsonSerializer.Deserialize<object>(joined);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private struct MultiPartBits

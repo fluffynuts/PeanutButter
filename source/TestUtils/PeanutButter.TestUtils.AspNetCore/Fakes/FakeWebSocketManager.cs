@@ -6,8 +6,12 @@ using Microsoft.AspNetCore.Http;
 
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
 
-public class FakeWebSocketManager : WebSocketManager
+/// <summary>
+/// Provides a fake websocket manager
+/// </summary>
+public class FakeWebSocketManager : WebSocketManager, IFake
 {
+    /// <inheritdoc />
     public override Task<WebSocket> AcceptWebSocketAsync(string subProtocol)
     {
         var handler = _webSocketAcceptHandler;
@@ -16,9 +20,11 @@ public class FakeWebSocketManager : WebSocketManager
             : handler(subProtocol);
     }
 
+    /// <inheritdoc />
     public override bool IsWebSocketRequest => _isWebSocketRequest;
     private bool _isWebSocketRequest;
 
+    /// <inheritdoc />
     public override IList<string> WebSocketRequestedProtocols => _protocols;
     private List<string> _protocols = new();
 
@@ -29,6 +35,10 @@ public class FakeWebSocketManager : WebSocketManager
         return Task.FromResult<WebSocket>(new FakeWebSocket());
     }
 
+    /// <summary>
+    /// Set the accept handler
+    /// </summary>
+    /// <param name="handler"></param>
     public void SetWebSocketAcceptHandler(
         Func<string, Task<WebSocket>> handler
     )
@@ -36,11 +46,19 @@ public class FakeWebSocketManager : WebSocketManager
         _webSocketAcceptHandler = handler;
     }
 
+    /// <summary>
+    /// Set the IsWebSocketRequest property
+    /// </summary>
+    /// <param name="b"></param>
     public void SetIsWebSocketRequest(bool b)
     {
         _isWebSocketRequest = b;
     }
 
+    /// <summary>
+    /// Set the requested protocols
+    /// </summary>
+    /// <param name="protocols"></param>
     public void SetProtocols(IEnumerable<string> protocols)
     {
         _protocols = new List<string>(protocols);

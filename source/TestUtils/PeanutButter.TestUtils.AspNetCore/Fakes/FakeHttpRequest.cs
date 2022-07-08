@@ -6,11 +6,16 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using PeanutButter.TestUtils.AspNetCore.Utils;
 
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
 
-public class FakeHttpRequest : HttpRequest
+/// <summary>
+/// Implements a fake http request
+/// </summary>
+public class FakeHttpRequest : HttpRequest, IFake
 {
+    /// <inheritdoc />
     public override Task<IFormCollection> ReadFormAsync(
         CancellationToken cancellationToken = new CancellationToken()
     )
@@ -20,14 +25,26 @@ public class FakeHttpRequest : HttpRequest
         );
     }
 
+    /// <inheritdoc />
+    public FakeHttpRequest()
+    {
+        _query = CreateFakeQueryCollection();
+    }
+
+    /// <inheritdoc />
     public override HttpContext HttpContext =>
         _httpContext ??= _httpContextAccessor?.Invoke();
 
     private HttpContext _httpContext;
     private Func<HttpContext> _httpContextAccessor;
+
+    /// <inheritdoc />
     public override string Method { get; set; }
+
+    /// <inheritdoc />
     public override string Scheme { get; set; }
 
+    /// <inheritdoc />
     public override bool IsHttps
     {
         get => Scheme?.ToLower() == "https";
@@ -36,10 +53,16 @@ public class FakeHttpRequest : HttpRequest
             : "http";
     }
 
-    public override HostString Host { get; set; }
-    public override PathString PathBase { get; set; }
-    public override PathString Path { get; set; }
+    /// <inheritdoc />
+    public override HostString Host { get; set; } = new("localhost");
 
+    /// <inheritdoc />
+    public override PathString PathBase { get; set; } = new("");
+
+    /// <inheritdoc />
+    public override PathString Path { get; set; } = new("/");
+
+    /// <inheritdoc />
     public override QueryString QueryString
     {
         get => _queryString;
@@ -50,55 +73,92 @@ public class FakeHttpRequest : HttpRequest
         }
     }
 
-    private QueryString _queryString;
+    private QueryString _queryString = new("");
 
+    /// <inheritdoc />
     public override IQueryCollection Query
     {
-        get => _query ??= new FakeQueryCollection();
+        get => _query ??= CreateFakeQueryCollection();
         set
         {
+            if (_query is FakeQueryCollection fake1)
+            {
+                fake1.OnChanged -= UpdateQueryStringFromQuery;
+            }
+
             _query = value ?? new FakeQueryCollection();
-            _queryString = GenerateQueryStringFrom(_query);
+            if (_query is FakeQueryCollection fake2)
+            {
+                fake2.OnChanged += UpdateQueryStringFromQuery;
+            }
+
+            UpdateQueryStringFromQuery();
         }
     }
 
-    private IQueryCollection _query;
-    private IHeaderDictionary _headers;
+    private FakeQueryCollection CreateFakeQueryCollection()
+    {
+        var result = new FakeQueryCollection();
+        result.OnChanged += UpdateQueryStringFromQuery;
+        return result;
+    }
 
+    private void UpdateQueryStringFromQuery(object sender, StringValueMapChangedEventArgs args)
+    {
+        UpdateQueryStringFromQuery();
+    }
+
+    private void UpdateQueryStringFromQuery()
+    {
+        _queryString = GenerateQueryStringFrom(_query);
+    }
+
+    private IQueryCollection _query;
+    private IHeaderDictionary _headers = new FakeHeaderDictionary();
+
+    /// <inheritdoc />
     public override string Protocol
     {
         get => Scheme;
         set => Scheme = value;
     }
 
+    /// <inheritdoc />
     public override IHeaderDictionary Headers
         => _headers ??= new FakeHeaderDictionary();
 
-    public override IRequestCookieCollection Cookies { get; set; } = new FakeRequestCookieCollection();
+    /// <inheritdoc />
+    public override IRequestCookieCollection Cookies { get; set; }
+        = new FakeRequestCookieCollection();
 
+    /// <inheritdoc />
     public override long? ContentLength
     {
         get => Body.Length;
         set => Body.SetLength(value ?? 0);
     }
 
-    public override string ContentType { get; set; }
+    /// <inheritdoc />
+    public override string ContentType { get; set; } = "";
 
+    /// <inheritdoc />
     public override Stream Body
     {
         get => _body ??= new MemoryStream();
-        set 
+        set
         {
-            _body = value ?? new MemoryStream(); 
+            _body = value ?? new MemoryStream();
             UpdateFormFromBody();
         }
     }
 
-    private Stream _body;
+    private Stream _body = new MemoryStream();
 
+    /// <inheritdoc />
     public override bool HasFormContentType =>
         (Form?.Keys.Count ?? 0) > 0;
 
+    /// <inheritdoc />
     public override IFormCollection Form
     {
         get => _form;
@@ -151,13 +211,21 @@ public class FakeHttpRequest : HttpRequest
         return ContentType ?? "application/json";
     }
 
-    private IFormCollection _form;
+    private IFormCollection _form = new FakeFormCollection();
 
+    /// <summary>
+    /// Sets the http context for the request
+    /// </summary>
+    /// <param name="context"></param>
     public void SetContext(HttpContext context)
     {
         SetContextAccessor(() => context);
     }
 
+    /// <summary>
+    /// Sets the http context accessor for the request
+    /// </summary>
+    /// <param name="accessor"></param>
     public void SetContextAccessor(Func<HttpContext> accessor)
     {
         _httpContextAccessor = accessor;
@@ -176,6 +244,10 @@ public class FakeHttpRequest : HttpRequest
             : new QueryString();
     }
 
+    /// <summary>
+    /// Sets the headers collection for the request
+    /// </summary>
+    /// <param name="headers"></param>
     public void SetHeaders(IHeaderDictionary headers)
     {
         _headers = headers;

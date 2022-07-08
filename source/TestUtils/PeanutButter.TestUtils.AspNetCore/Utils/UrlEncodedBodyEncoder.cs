@@ -3,10 +3,14 @@ using System.Net;
 using Microsoft.AspNetCore.Http;
 using PeanutButter.Utils;
 
-namespace PeanutButter.TestUtils.AspNetCore.Fakes;
+namespace PeanutButter.TestUtils.AspNetCore.Utils;
 
+/// <summary>
+/// Encodes a form with url-encoding
+/// </summary>
 public class UrlEncodedBodyEncoder : IFormEncoder
 {
+    /// <inheritdoc />
     public Stream Encode(IFormCollection form)
     {
         var result = new MemoryStream();

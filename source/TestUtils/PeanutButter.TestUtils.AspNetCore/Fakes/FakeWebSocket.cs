@@ -5,13 +5,18 @@ using System.Threading.Tasks;
 
 namespace PeanutButter.TestUtils.AspNetCore.Fakes
 {
-    public class FakeWebSocket : WebSocket
+    /// <summary>
+    /// Provides a fake websocket
+    /// </summary>
+    public class FakeWebSocket : WebSocket, IFake
     {
+        /// <inheritdoc />
         public override void Abort()
         {
             _state = WebSocketState.Aborted;
         }
 
+        /// <inheritdoc />
         public override Task CloseAsync(
             WebSocketCloseStatus closeStatus,
             string statusDescription,
@@ -24,6 +29,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
             return Task.CompletedTask;
         }
 
+        /// <inheritdoc />
         public override Task CloseOutputAsync(
             WebSocketCloseStatus closeStatus,
             string statusDescription,
@@ -32,6 +38,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
             return CloseAsync(closeStatus, statusDescription, cancellationToken);
         }
 
+        /// <inheritdoc />
         public override void Dispose()
         {
             if (State == WebSocketState.Closed)
@@ -42,6 +49,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
             CloseAsync(WebSocketCloseStatus.NormalClosure, "disposed", CancellationToken.None);
         }
 
+        /// <inheritdoc />
         public override Task<WebSocketReceiveResult> ReceiveAsync(
             ArraySegment<byte> buffer,
             CancellationToken cancellationToken
@@ -61,6 +69,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
             return Task.FromResult(new WebSocketReceiveResult(arg1.Count, WebSocketMessageType.Text, true));
         }
 
+        /// <inheritdoc />
         public override Task SendAsync(
             ArraySegment<byte> buffer,
             WebSocketMessageType messageType,
@@ -83,16 +92,26 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
             return Task.CompletedTask;
         }
 
+        /// <inheritdoc />
         public override WebSocketCloseStatus? CloseStatus => _closeStatus;
         private WebSocketCloseStatus? _closeStatus;
+
+        /// <inheritdoc />
         public override string CloseStatusDescription => _closeStatusDescription;
         private string _closeStatusDescription;
 
+        /// <inheritdoc />
         public override WebSocketState State => _state;
         private WebSocketState _state = WebSocketState.None;
+
+        /// <inheritdoc />
         public override string SubProtocol => _subProtocol;
         private string _subProtocol;
 
+        /// <summary>
+        /// Set the receive handler
+        /// </summary>
+        /// <param name="handler"></param>
         public void SetReceiveHandler(
             Func<ArraySegment<byte>, CancellationToken, Task<WebSocketReceiveResult>> handler
         )
@@ -100,6 +119,10 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
             _receiver = handler ?? DefaultReceiver;
         }
 
+        /// <summary>
+        /// Set the send handler
+        /// </summary>
+        /// <param name="handler"></param>
         public void SetSendHandler(
             Func<ArraySegment<byte>, WebSocketMessageType, bool, CancellationToken, Task> handler
         )
@@ -107,6 +130,10 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
             _sender = handler ?? DefaultSender;
         }
 
+        /// <summary>
+        /// Set the sub-protocol
+        /// </summary>
+        /// <param name="subProtocol"></param>
         public void SetSubProtocol(string subProtocol)
         {
             _subProtocol = subProtocol;

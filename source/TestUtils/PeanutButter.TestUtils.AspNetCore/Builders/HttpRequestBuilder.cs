@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
@@ -7,11 +6,18 @@ using System.Text;
 using Microsoft.AspNetCore.Http;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.TestUtils.AspNetCore.Builders
 {
+    /// <summary>
+    /// Builds an http request
+    /// </summary>
     public class HttpRequestBuilder : Builder<HttpRequestBuilder, HttpRequest>
     {
+        /// <summary>
+        /// Default constructor: creates the builder with basics set up
+        /// </summary>
         public HttpRequestBuilder() : base(Actualize)
         {
             WithForm(FormBuilder.BuildDefault())
@@ -24,11 +30,19 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
                 .WithCookies(RequestCookieCollectionBuilder.BuildDefault());
         }
 
+        /// <summary>
+        /// Constructs the fake http request
+        /// </summary>
+        /// <returns></returns>
         protected override HttpRequest ConstructEntity()
         {
             return new FakeHttpRequest();
         }
 
+        /// <summary>
+        /// Randomizes the output
+        /// </summary>
+        /// <returns></returns>
         public override HttpRequestBuilder Randomize()
         {
             return WithRandomMethod()
@@ -40,31 +54,55 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
                 .WithRandomCookies();
         }
 
+        /// <summary>
+        /// Selects a random http method for the request
+        /// </summary>
+        /// <returns></returns>
         public HttpRequestBuilder WithRandomMethod()
         {
             return WithMethod(GetRandomHttpMethod());
         }
 
+        /// <summary>
+        /// Selects a random scheme (http|https) for the request
+        /// </summary>
+        /// <returns></returns>
         public HttpRequestBuilder WithRandomScheme()
         {
-            return WithScheme(GetRandomFrom(HTTP_SCHEMES));
+            return WithScheme(GetRandomFrom(HttpSchemes));
         }
 
+        /// <summary>
+        /// Selects a random path for the request
+        /// </summary>
+        /// <returns></returns>
         public HttpRequestBuilder WithRandomPath()
         {
             return WithPath(GetRandomPath());
         }
 
+        /// <summary>
+        /// Selects a random hostname for the request
+        /// </summary>
+        /// <returns></returns>
         public HttpRequestBuilder WithRandomHost()
         {
             return WithHost(GetRandomHostname());
         }
 
+        /// <summary>
+        /// Selects a random port (80-10000) for the request
+        /// </summary>
+        /// <returns></returns>
         public HttpRequestBuilder WithRandomPort()
         {
             return WithPort(GetRandomInt(80, 10000));
         }
 
+        /// <summary>
+        /// Adds some random X- prefixed headers for the request
+        /// </summary>
+        /// <returns></returns>
         public HttpRequestBuilder WithRandomHeaders()
         {
             return WithRandomTimes(
@@ -72,6 +110,10 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
             );
         }
 
+        /// <summary>
+        /// Adds some random cookies to the request
+        /// </summary>
+        /// <returns></returns>
         public HttpRequestBuilder WithRandomCookies()
         {
             return WithRandomTimes(
@@ -85,7 +127,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
             );
         }
 
-        private static readonly string[] HTTP_SCHEMES =
+        private static readonly string[] HttpSchemes =
         {
             "http",
             "https"
@@ -97,16 +139,34 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
             WarnIf(built.HttpContext?.Request is null, "no HttpContext.Request set");
         }
 
+        /// <summary>
+        /// Sets the body for the request. If possible, form elements
+        /// are derived from the body.
+        /// </summary>
+        /// <param name="body"></param>
+        /// <returns></returns>
         public HttpRequestBuilder WithBody(string body)
         {
             return WithBody(Encoding.UTF8.GetBytes(body));
         }
 
+        /// <summary>
+        /// Sets the body for the request. If possible, form elements
+        /// are derived from the body.
+        /// </summary>
+        /// <param name="body"></param>
+        /// <returns></returns>
         public HttpRequestBuilder WithBody(byte[] body)
         {
             return WithBody(new MemoryStream(body));
         }
 
+        /// <summary>
+        /// Sets the body for the request. If possible, form elements
+        /// are derived from the body.
+        /// </summary>
+        /// <param name="body"></param>
+        /// <returns></returns>
         public HttpRequestBuilder WithBody(Stream body)
         {
             return With(
@@ -114,18 +174,32 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
             );
         }
 
+        /// <summary>
+        /// Sets a cookie on the request. Will overwrite an existing cookie
+        /// with the same name.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public HttpRequestBuilder WithCookie(string name, string value)
         {
             return With(
                 o =>
                 {
-                    var cookies = o.Cookies as FakeRequestCookieCollection
-                        ?? throw new InvalidImplementationException(o.Cookies, nameof(o.Cookies));
+                    var cookies = o.Cookies.As<FakeRequestCookieCollection>();
                     cookies[name] = value;
                 }
             );
         }
 
+        /// <summary>
+        /// Sets a bunch of cookies on the request. Will overwrite
+        /// existing cookies with the same name. Will _not_ remove
+        /// any other existing cookies.
+        /// </summary>
+        /// <param name="cookies"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public HttpRequestBuilder WithCookies(
             IDictionary<string, string> cookies
         )
@@ -138,8 +212,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
                         throw new ArgumentNullException(nameof(cookies));
                     }
 
-                    var fake = o.Cookies as FakeRequestCookieCollection
-                        ?? throw new InvalidImplementationException(o.Cookies, nameof(o.Cookies));
+                    var fake = o.Cookies.As<FakeRequestCookieCollection>();
 
                     foreach (var kvp in cookies)
                     {
@@ -149,17 +222,25 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
             );
         }
 
+        /// <summary>
+        /// Clears cookies on the request
+        /// </summary>
+        /// <returns></returns>
         public HttpRequestBuilder WithNoCookies()
         {
             return With(
                 o =>
                 {
-                    var fake = o.Cookies as FakeRequestCookieCollection
-                        ?? throw new InvalidImplementationException(o.Cookies, nameof(o.Cookies));
-                    fake.Clear();
+                    var cookies = o.Cookies.As<FakeRequestCookieCollection>();
+                    cookies.Clear();
                 });
         }
 
+        /// <summary>
+        /// Sets the cookie collection on the request
+        /// </summary>
+        /// <param name="cookies"></param>
+        /// <returns></returns>
         public HttpRequestBuilder WithCookies(IRequestCookieCollection cookies)
         {
             return With(
@@ -167,6 +248,10 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
             );
         }
 
+        /// <summary>
+        /// Clears headers on the request
+        /// </summary>
+        /// <returns></returns>
         public HttpRequestBuilder WithNoHeaders()
         {
             return With(
@@ -174,6 +259,13 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
             );
         }
 
+        /// <summary>
+        /// Sets a header on the request. Any existing header with
+        /// the same name is overwritten.
+        /// </summary>
+        /// <param name="header"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public HttpRequestBuilder WithHeader(
             string header,
             string value
@@ -184,6 +276,14 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
             );
         }
 
+        /// <summary>
+        /// Sets a bunch of headers on the request. Existing cookies
+        /// with the same names are overwritten. Other existing
+        /// cookies are left intact.
+        /// </summary>
+        /// <param name="headers"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public HttpRequestBuilder WithHeaders(
             IDictionary<string, string> headers
         )
@@ -204,6 +304,11 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
             );
         }
 
+        /// <summary>
+        /// Sets the header dictionary on the request
+        /// </summary>
+        /// <param name="headers"></param>
+        /// <returns></returns>
         public HttpRequestBuilder WithHeaders(IHeaderDictionary headers)
         {
             return With<FakeHttpRequest>(
@@ -211,6 +316,11 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
             );
         }
 
+        /// <summary>
+        /// Sets the query collection on the request
+        /// </summary>
+        /// <param name="query"></param>
+        /// <returns></returns>
         public HttpRequestBuilder WithQuery(IQueryCollection query)
         {
             return With(
@@ -218,6 +328,24 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
             );
         }
 
+        /// <summary>
+        /// Sets a query parameter on the request
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public HttpRequestBuilder WithQueryParameter(string key, string value)
+        {
+            return With(
+                o => o.Query.As<FakeQueryCollection>()[key] = value
+            );
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         public HttpRequestBuilder WithPath(string path)
         {
             return With(
@@ -233,6 +361,11 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
                 : path;
         }
 
+        /// <summary>
+        /// Sets the base path on the request
+        /// </summary>
+        /// <param name="basePath"></param>
+        /// <returns></returns>
         public HttpRequestBuilder WithBasePath(string basePath)
         {
             return With(
@@ -240,6 +373,11 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
             );
         }
 
+        /// <summary>
+        /// Sets the host on the path
+        /// </summary>
+        /// <param name="host"></param>
+        /// <returns></returns>
         public HttpRequestBuilder WithHost(HostString host)
         {
             return With(
@@ -247,6 +385,11 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
             );
         }
 
+        /// <summary>
+        /// Sets the port on the request
+        /// </summary>
+        /// <param name="port"></param>
+        /// <returns></returns>
         public HttpRequestBuilder WithPort(int port)
         {
             return With(
@@ -254,6 +397,11 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
             );
         }
 
+        /// <summary>
+        /// Sets the host on the request
+        /// </summary>
+        /// <param name="host"></param>
+        /// <returns></returns>
         public HttpRequestBuilder WithHost(string host)
         {
             return With(
@@ -263,6 +411,11 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
             );
         }
 
+        /// <summary>
+        /// Sets the query string on the request
+        /// </summary>
+        /// <param name="queryString"></param>
+        /// <returns></returns>
         public HttpRequestBuilder WithQueryString(
             string queryString
         )
@@ -270,6 +423,11 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
             return WithQueryString(new QueryString(queryString));
         }
 
+        /// <summary>
+        /// Sets the query string on the request
+        /// </summary>
+        /// <param name="queryString"></param>
+        /// <returns></returns>
         public HttpRequestBuilder WithQueryString(
             QueryString queryString
         )
@@ -279,6 +437,11 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
             );
         }
 
+        /// <summary>
+        /// Sets the scheme on the request
+        /// </summary>
+        /// <param name="scheme"></param>
+        /// <returns></returns>
         public HttpRequestBuilder WithScheme(string scheme)
         {
             return With(
@@ -286,40 +449,58 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
             );
         }
 
+        /// <summary>
+        /// Sets the method on the request
+        /// </summary>
+        /// <param name="method"></param>
+        /// <returns></returns>
         public HttpRequestBuilder WithMethod(HttpMethod method)
         {
             return WithMethod(method.ToString());
         }
 
+        /// <summary>
+        /// Sets the method on the request
+        /// </summary>
+        /// <param name="method"></param>
+        /// <returns></returns>
         public HttpRequestBuilder WithMethod(string method)
         {
             return With(o => o.Method = (method ?? "get").ToUpper());
         }
 
+        /// <summary>
+        /// Sets the http context on the request
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
         public HttpRequestBuilder WithHttpContext(
             HttpContext context
         )
         {
-            return WithHttpContext(() => context)
-                .With(o =>
-                {
-                    if (context is FakeHttpContext fake)
-                    {
-                        fake.SetRequest(o);
-                    }
-                });
+            return WithHttpContext(() => context);
         }
 
+        /// <summary>
+        /// Sets the http context accessor on the request
+        /// </summary>
+        /// <param name="accessor"></param>
+        /// <returns></returns>
         public HttpRequestBuilder WithHttpContext(
-            Func<HttpContext> factory
+            Func<HttpContext> accessor
         )
         {
             return With<FakeHttpRequest>(
-                o => o.SetContextAccessor(factory),
+                o => o.SetContextAccessor(accessor),
                 nameof(FakeHttpRequest.HttpContext)
             );
         }
 
+        /// <summary>
+        /// Sets the form on the request
+        /// </summary>
+        /// <param name="formCollection"></param>
+        /// <returns></returns>
         public HttpRequestBuilder WithForm(IFormCollection formCollection)
         {
             return With(

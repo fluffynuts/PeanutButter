@@ -7,40 +7,48 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
 
+/// <summary>
+/// Builds an HttpContext
+/// </summary>
 public class HttpContextBuilder : Builder<HttpContextBuilder, HttpContext>
 {
+    /// <summary>
+    /// Constructs the fake http context
+    /// </summary>
+    /// <returns></returns>
     protected override HttpContext ConstructEntity()
     {
         return new FakeHttpContext();
     }
 
+    /// <summary>
+    /// Randomizes the context
+    /// </summary>
+    /// <returns></returns>
     public override HttpContextBuilder Randomize()
     {
-        // FIXME
-        throw new NotImplementedException();
+        return WithRequest(
+            HttpRequestBuilder.BuildRandom()
+        ).WithResponse(
+            HttpResponseBuilder.BuildRandom()
+        );
     }
 
-    public HttpContextBuilder() : this(null, null)
-    {
-    }
-
-    public HttpContextBuilder(
-        Func<HttpRequest> requestAccessor,
-        Func<HttpResponse> responseAccessor
-    ) : base(Actualize)
+    /// <summary>
+    /// Constructs the builder
+    /// </summary>
+    public HttpContextBuilder() : base(Actualize)
     {
         WithFeatures(new FakeFeatureCollection())
             .WithResponse(
-                responseAccessor ??
-                (() => HttpResponseBuilder.Create()
-                    .Build())
+                () => HttpResponseBuilder.Create()
+                    .Build()
             )
             .WithConnection(GetRandom<FakeConnectionInfo>())
             .WithUser(GetRandom<ClaimsPrincipal>())
             .WithRequest(
-                requestAccessor ??
-                (() => HttpRequestBuilder.Create()
-                    .Build())
+                () => HttpRequestBuilder.Create()
+                    .Build()
             );
     }
 
@@ -52,6 +60,11 @@ public class HttpContextBuilder : Builder<HttpContextBuilder, HttpContext>
         WarnIf(context.Request?.HttpContext is null, "context.Request.HttpContext is null");
     }
 
+    /// <summary>
+    /// Sets the RequestServices service provider for the context
+    /// </summary>
+    /// <param name="serviceProvider"></param>
+    /// <returns></returns>
     public HttpContextBuilder WithRequestServices(IServiceProvider serviceProvider)
     {
         return With(
@@ -59,6 +72,12 @@ public class HttpContextBuilder : Builder<HttpContextBuilder, HttpContext>
         );
     }
 
+    /// <summary>
+    /// Sets an Item on the context
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
     public HttpContextBuilder WithItem(object key, object value)
     {
         return With(
@@ -66,6 +85,11 @@ public class HttpContextBuilder : Builder<HttpContextBuilder, HttpContext>
         );
     }
 
+    /// <summary>
+    /// Sets the WebSockets manager on the request
+    /// </summary>
+    /// <param name="webSocketManager"></param>
+    /// <returns></returns>
     public HttpContextBuilder WithWebSockets(WebSocketManager webSocketManager)
     {
         return With<FakeHttpContext>(
@@ -73,6 +97,12 @@ public class HttpContextBuilder : Builder<HttpContextBuilder, HttpContext>
         );
     }
 
+    /// <summary>
+    /// Adds a feature to the request
+    /// </summary>
+    /// <param name="feature"></param>
+    /// <typeparam name="TFeature"></typeparam>
+    /// <returns></returns>
     public HttpContextBuilder WithFeature<TFeature>(TFeature feature)
     {
         return With(
@@ -80,6 +110,11 @@ public class HttpContextBuilder : Builder<HttpContextBuilder, HttpContext>
         );
     }
 
+    /// <summary>
+    /// Sets the user on the request
+    /// </summary>
+    /// <param name="principal"></param>
+    /// <returns></returns>
     public HttpContextBuilder WithUser(ClaimsPrincipal principal)
     {
         return With(
@@ -87,6 +122,11 @@ public class HttpContextBuilder : Builder<HttpContextBuilder, HttpContext>
         );
     }
 
+    /// <summary>
+    /// Sets the connection info on the request
+    /// </summary>
+    /// <param name="connectionInfo"></param>
+    /// <returns></returns>
     public HttpContextBuilder WithConnection(
         ConnectionInfo connectionInfo
     )
@@ -96,6 +136,11 @@ public class HttpContextBuilder : Builder<HttpContextBuilder, HttpContext>
         );
     }
 
+    /// <summary>
+    /// Sets the response on the context
+    /// </summary>
+    /// <param name="response"></param>
+    /// <returns></returns>
     public HttpContextBuilder WithResponse(
         HttpResponse response
     )
@@ -103,6 +148,11 @@ public class HttpContextBuilder : Builder<HttpContextBuilder, HttpContext>
         return WithResponse(() => response);
     }
 
+    /// <summary>
+    /// Sets the response accessor on the context
+    /// </summary>
+    /// <param name="accessor"></param>
+    /// <returns></returns>
     public HttpContextBuilder WithResponse(
         Func<HttpResponse> accessor
     )
@@ -113,6 +163,11 @@ public class HttpContextBuilder : Builder<HttpContextBuilder, HttpContext>
         );
     }
 
+    /// <summary>
+    /// Sets the request on the context
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
     public HttpContextBuilder WithRequest(
         HttpRequest request
     )
@@ -120,6 +175,11 @@ public class HttpContextBuilder : Builder<HttpContextBuilder, HttpContext>
         return WithRequest(() => request);
     }
 
+    /// <summary>
+    /// Sets the request accessor on the context
+    /// </summary>
+    /// <param name="requestAccessor"></param>
+    /// <returns></returns>
     public HttpContextBuilder WithRequest(
         Func<HttpRequest> requestAccessor
     )
@@ -130,6 +190,11 @@ public class HttpContextBuilder : Builder<HttpContextBuilder, HttpContext>
         );
     }
 
+    /// <summary>
+    /// Sets the feature collection on the request
+    /// </summary>
+    /// <param name="features"></param>
+    /// <returns></returns>
     public HttpContextBuilder WithFeatures(
         IFeatureCollection features
     )
@@ -139,16 +204,93 @@ public class HttpContextBuilder : Builder<HttpContextBuilder, HttpContext>
         );
     }
 
-    public HttpContextBuilder WithFormFile(string expected, string name, string fileName = null)
+    /// <summary>
+    /// Adds a form file to the context
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="name"></param>
+    /// <param name="fileName"></param>
+    /// <returns></returns>
+    public HttpContextBuilder WithFormFile(
+        string content,
+        string name,
+        string fileName = null
+    )
     {
-        return With(
+        return WithRequestModifier(
             o =>
             {
-                var request = o.Request as FakeHttpRequest ??
-                    throw new InvalidImplementationException(o.Request, nameof(o.Request));
-                var files = request.Form?.Files as FakeFormFileCollection
-                    ?? throw new InvalidImplementationException(request?.Form?.Files, "Request.Form.Files");
-                files.Add(new FakeFormFile(expected, name, fileName));
+                var request = o.As<FakeHttpRequest>();
+                var form = request.Form.As<FakeFormCollection>();
+                var files = form.Files.As<FakeFormFileCollection>();
+                files.Add(new FakeFormFile(content, name, fileName));
             });
+    }
+
+
+    /// <summary>
+    /// Adds a form field to the request
+    /// Use this when what you want to do can be accomplished
+    /// on the proper IFormCollection type
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public HttpContextBuilder WithFormField(
+        string key,
+        string value
+    )
+    {
+        return WithFakeRequestFormModifier(
+            o => o[key] = value
+        );
+    }
+
+    /// <summary>
+    /// Modifies some aspect of the request form.
+    /// Use this when you want access to the functionality of
+    /// the underlying fake.
+    /// </summary>
+    /// <param name="modifier"></param>
+    /// <returns></returns>
+    public HttpContextBuilder WithFakeRequestFormModifier(
+        Action<FakeFormCollection> modifier
+    )
+    {
+        return WithRequestModifier(
+            req => modifier(req.Form.As<FakeFormCollection>())
+        );
+    }
+
+    /// <summary>
+    /// Modifies some aspect of the request.
+    /// Use this when what you want to do can be accomplished
+    /// on the proper HttpRequest type
+    /// </summary>
+    /// <param name="modifier"></param>
+    /// <returns></returns>
+    public HttpContextBuilder WithRequestModifier(
+        Action<HttpRequest> modifier
+    )
+    {
+        return With(
+            o => modifier(o.Request)
+        );
+    }
+
+    /// <summary>
+    /// Modifies some aspect of the request.
+    /// Use this when you want access to the functionality of
+    /// the underlying fake.
+    /// </summary>
+    /// <param name="modifier"></param>
+    /// <returns></returns>
+    public HttpContextBuilder WithFakeRequestModifier(
+        Action<FakeHttpRequest> modifier
+    )
+    {
+        return With(
+            o => modifier(o.Request.As<FakeHttpRequest>())
+        );
     }
 }

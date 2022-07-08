@@ -1,4 +1,4 @@
-namespace PeanutButter.TestUtils.AspNetCore.Fakes;
+namespace PeanutButter.TestUtils.AspNetCore.Utils;
 
 internal class OneWayFlag
 {
