@@ -1,7 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using PeanutButter.RandomGenerators;
-using PeanutButter.TestUtils.AspNetCore.Fakes;
+﻿using PeanutButter.TestUtils.AspNetCore.Fakes;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+// ReSharper disable ClassNeverInstantiated.Global
 
 namespace PeanutButter.TestUtils.AspNetCore.Builders
 {
@@ -13,14 +12,6 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
             return WithRandomTimes(
                 o => o.Add(GetRandomString(4), GetRandomString(4))
             );
-        }
-    }
-
-    public class RandomHeaderDictionaryBuilder : GenericBuilder<RandomHeaderDictionaryBuilder, IHeaderDictionary>
-    {
-        public override IHeaderDictionary Build()
-        {
-            return HeaderDictionaryBuilder.BuildRandom();
         }
     }
 }

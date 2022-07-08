@@ -14,17 +14,6 @@ public class HttpContextBuilder : Builder<HttpContextBuilder, HttpContext>
         return new FakeHttpContext();
     }
 
-    public static HttpContextBuilder CreateFor(
-        Func<HttpRequest> requestAccessor,
-        Func<HttpResponse> responseAccessor
-    )
-    {
-        return new HttpContextBuilder(
-            requestAccessor,
-            responseAccessor
-        );
-    }
-
     public override HttpContextBuilder Randomize()
     {
         // FIXME
@@ -63,6 +52,27 @@ public class HttpContextBuilder : Builder<HttpContextBuilder, HttpContext>
         WarnIf(context.Request?.HttpContext is null, "context.Request.HttpContext is null");
     }
 
+    public HttpContextBuilder WithRequestServices(IServiceProvider serviceProvider)
+    {
+        return With(
+            o => o.RequestServices = serviceProvider
+        );
+    }
+
+    public HttpContextBuilder WithItem(object key, object value)
+    {
+        return With(
+            o => o.Items[key] = value
+        );
+    }
+
+    public HttpContextBuilder WithWebSockets(WebSocketManager webSocketManager)
+    {
+        return With<FakeHttpContext>(
+            o => o.SetWebSockets(webSocketManager)
+        );
+    }
+
     public HttpContextBuilder WithFeature<TFeature>(TFeature feature)
     {
         return With(
@@ -90,14 +100,7 @@ public class HttpContextBuilder : Builder<HttpContextBuilder, HttpContext>
         HttpResponse response
     )
     {
-        return WithResponse(() => response)
-            .With(o =>
-            {
-                if (o.Response is FakeHttpResponse fake)
-                {
-                    fake.SetContextAccessor(() => CurrentEntity);
-                }
-            });
+        return WithResponse(() => response);
     }
 
     public HttpContextBuilder WithResponse(
@@ -114,14 +117,7 @@ public class HttpContextBuilder : Builder<HttpContextBuilder, HttpContext>
         HttpRequest request
     )
     {
-        return WithRequest(() => request)
-            .With(o =>
-            {
-                if (o.Request is FakeHttpRequest fake)
-                {
-                    fake.SetContextAccessor(() => CurrentEntity);
-                }
-            });
+        return WithRequest(() => request);
     }
 
     public HttpContextBuilder WithRequest(

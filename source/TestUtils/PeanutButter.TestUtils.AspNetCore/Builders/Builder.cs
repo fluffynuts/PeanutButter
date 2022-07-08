@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.TestUtils.AspNetCore.Builders
@@ -40,6 +39,8 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
 
         public abstract TBuilder Randomize();
 
+        // ReSharper disable once NotAccessedField.Global
+        // ReSharper disable once MemberCanBePrivate.Global
         protected TSubject CurrentEntity;
 
         protected TBuilder With(
@@ -75,7 +76,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
             Action<TCast> action
         ) where TCast : TSubject
         {
-            return With<TCast>(action, Guid.NewGuid().ToString());
+            return With(action, Guid.NewGuid().ToString());
         }
 
         protected TBuilder With<TCast>(

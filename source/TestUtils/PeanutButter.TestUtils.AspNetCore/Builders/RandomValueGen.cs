@@ -65,6 +65,9 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
             InstallRandomGenerator(
                 () => new QueryString(GetRandomUrlQuery())
             );
+            InstallRandomGenerator(
+                HeaderDictionaryBuilder.BuildRandom
+            );
         }
 
         private static readonly int[] CommonPorts =

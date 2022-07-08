@@ -13,7 +13,7 @@ namespace TestService
         public const string INIFILE = "config.ini";
         public const string SECTION_DELAY = "delay";
 
-        private string IniFilePath =>
+        public static string IniFilePath =>
             Path.Combine(
                 Path.GetDirectoryName(
                     new Uri(

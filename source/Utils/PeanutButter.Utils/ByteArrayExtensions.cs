@@ -76,5 +76,14 @@ namespace PeanutButter.Utils
         {
             return new MemoryStream(bytes ?? new byte[0]);
         }
+
+        #if NETSTANDARD
+        public static ArraySegment<byte> ToArraySegment(
+            this byte[] bytes
+        )
+        {
+            return new ArraySegment<byte>(bytes);
+        }
+        #endif
     }
 }

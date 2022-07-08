@@ -50,7 +50,7 @@ namespace TestService
             string value
         )
         {
-            var ini = new INIFile(TotallyNotInterestingService.INIFILE);
+            var ini = new INIFile(TotallyNotInterestingService.IniFilePath);
             ini.SetValue(section, setting, value);
             ini.Persist();
         }

@@ -11,13 +11,6 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes;
 
 public class FakeHttpRequest : HttpRequest
 {
-    private int _count;
-    public FakeHttpRequest()
-    {
-        _count++;
-        var foo = 1;
-    }
-
     public override Task<IFormCollection> ReadFormAsync(
         CancellationToken cancellationToken = new CancellationToken()
     )

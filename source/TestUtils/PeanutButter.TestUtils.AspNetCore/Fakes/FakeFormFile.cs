@@ -58,7 +58,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
             _content = content;
             Name = name;
             FileName = fileName ?? name;
-            ContentType = mimeType ?? MIMEType.GuessForFileName(fileName);
+            ContentType = mimeType ?? MIMEType.GuessForFileName(FileName);
         }
 
 

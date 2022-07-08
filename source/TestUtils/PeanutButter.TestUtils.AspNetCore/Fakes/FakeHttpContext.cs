@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Security.Claims;
 using System.Threading;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Authentication;
 using Microsoft.AspNetCore.Http.Features;
+using PeanutButter.TestUtils.AspNetCore.Builders;
+
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.TestUtils.AspNetCore.Fakes
 {
@@ -12,19 +17,70 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
     {
         public override void Abort()
         {
+            Aborted = true;
         }
+
+        public bool Aborted { get; private set; }
 
         public override IFeatureCollection Features => _features;
         private IFeatureCollection _features;
 
         public override HttpRequest Request =>
-            _request ??= _requestAccessor?.Invoke();
+            _request ??= TrySetContextOn(_requestAccessor?.Invoke());
+
+        private HttpRequest TrySetContextOn(HttpRequest req)
+        {
+            if (req is FakeHttpRequest fake)
+            {
+                fake.SetContextAccessor(() => this);
+            }
+            else
+            {
+                TrySetSingleContextField(req, this);
+            }
+
+            return req;
+        }
+
+        private static void TrySetSingleContextField(
+            object o,
+            FakeHttpContext context
+        )
+        {
+            if (o is null)
+            {
+                return;
+            }
+
+            var fields = o.GetType()
+                .GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
+                .Where(f => f.FieldType.IsAssignableFrom(typeof(HttpContext)))
+                .ToArray();
+            if (fields.Length == 1)
+            {
+                fields[0].SetValue(o, context);
+            }
+        }
 
         private HttpRequest _request;
         private Func<HttpRequest> _requestAccessor;
 
         public override HttpResponse Response =>
-            _response ??= _responseAccessor?.Invoke();
+            _response ??= TrySetContextOn(_responseAccessor?.Invoke());
+
+        private HttpResponse TrySetContextOn(HttpResponse res)
+        {
+            if (res is FakeHttpResponse fake)
+            {
+                fake.SetContextAccessor(() => this);
+            }
+            else
+            {
+                TrySetSingleContextField(res, this);
+            }
+
+            return res;
+        }
 
         private HttpResponse _response;
         private Func<HttpResponse> _responseAccessor;
@@ -32,7 +88,13 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
         public override ConnectionInfo Connection => _connection;
         private ConnectionInfo _connection;
 
-        public override WebSocketManager WebSockets { get; }
+        public override WebSocketManager WebSockets => _webSockets;
+        private WebSocketManager _webSockets = WebSocketManagerBuilder.BuildDefault();
+
+        public void SetWebSockets(WebSocketManager webSocketManager)
+        {
+            _webSockets = webSocketManager ?? WebSocketManagerBuilder.BuildDefault();
+        }
 
         [Obsolete(
             "This is obsolete and will be removed in a future version. See https://go.microsoft.com/fwlink/?linkid=845470")]
@@ -55,7 +117,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
 
         public void SetFeatures(IFeatureCollection features)
         {
-            _features = features;
+            _features = features ?? new FakeFeatureCollection();
         }
 
         public void SetRequest(HttpRequest request)

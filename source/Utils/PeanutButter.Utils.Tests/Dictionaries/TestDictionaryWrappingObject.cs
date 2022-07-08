@@ -882,7 +882,6 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                     {
                         ["id"] = expected1
                     };
-                    var foo = wrapped.Values.FirstOrDefault();
                     var sut = Create(wrapped);
                     // Act
                     var result1 = sut["id"];

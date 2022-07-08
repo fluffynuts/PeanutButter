@@ -1,4 +1,5 @@
 using System;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using static PeanutButter.RandomGenerators.RandomValueGen;
@@ -12,7 +13,7 @@ using static NExpect.Expectations;
 namespace PeanutButter.TestUtils.AspNetCore.Tests;
 
 [TestFixture]
-public class TestFakeHttpContextBuilder
+public class TestHttpContextBuilder
 {
     [TestFixture]
     public class DefaultBuild
@@ -45,15 +46,16 @@ public class TestFakeHttpContextBuilder
         public void ShouldSetRequest()
         {
             // Arrange
-            var result = BuildDefault();
             // Act
+            var result = BuildDefault();
+            // Assert
             Expect(result.Request)
                 .Not.To.Be.Null();
-            // Assert
+            Expect(result.Request.HttpContext)
+                .To.Be(result);
         }
 
         [Test]
-        [Ignore("WIP")]
         public void ShouldSetResponse()
         {
             // Arrange
@@ -64,6 +66,17 @@ public class TestFakeHttpContextBuilder
                 .Not.To.Be.Null();
             Expect(result.Response.HttpContext)
                 .To.Be(result);
+        }
+
+        [Test]
+        public void ShouldSetWebSocketManager()
+        {
+            // Arrange
+            // Act
+            var result = BuildDefault();
+            // Assert
+            Expect(result.WebSockets)
+                .Not.To.Be.Null();
         }
 
         [Test]
@@ -162,12 +175,6 @@ public class TestFakeHttpContextBuilder
                 .Not.To.Be.Null();
         }
 
-        public class SomeService
-        {
-            public void DoNothing()
-            {
-            }
-        }
 
         private static HttpContext BuildDefault()
         {
@@ -224,14 +231,102 @@ public class TestFakeHttpContextBuilder
     }
 
     [Test]
-    [Explicit("WIP")]
     public void ShouldBeAbleToSetResponse()
     {
         // Arrange
         var expected = HttpResponseBuilder.BuildDefault();
         // Act
-        
+        var result = HttpContextBuilder.Create()
+            .WithResponse(expected)
+            .Build();
+
         // Assert
+        Expect(result.Response)
+            .To.Be(expected);
+    }
+
+    [Test]
+    public void ShouldBeAbleToSetWebSocketManager()
+    {
+        // Arrange
+        var expected = Substitute.For<WebSocketManager>();
+        // Act
+        var result = HttpContextBuilder.Create()
+            .WithWebSockets(expected)
+            .Build();
+        // Assert
+        Expect(result.WebSockets)
+            .To.Be(expected);
+    }
+
+    [Test]
+    public void ShouldBeAbleToSetUserAsPrincipal()
+    {
+        // Arrange
+        var user = new ClaimsPrincipal();
+        // Act
+        var result = HttpContextBuilder.Create()
+            .WithUser(user)
+            .Build();
+        // Assert
+        Expect(result.User)
+            .To.Be(user);
+    }
+
+    [Test]
+    public void ShouldBeAbleToAddItem()
+    {
+        // Arrange
+        var key = new object();
+        var value = new object();
+        // Act
+        var result = HttpContextBuilder.Create()
+            .WithItem(key, value)
+            .Build();
+        // Assert
+        Expect(result.Items)
+            .To.Contain.Key(key)
+            .With.Value(value);
+    }
+
+    [Test]
+    public void ShouldBeAbleToSetServices()
+    {
+        // Arrange
+        var serviceProvider = Substitute.For<IServiceProvider>();
+        var expected = new SomeService();
+        serviceProvider.GetService(Arg.Any<Type>())
+            .Returns(ci =>
+            {
+                var t = ci.Arg<Type>();
+                if (t != typeof(SomeService))
+                {
+                    throw new ArgumentException("Unable to make type {t}");
+                }
+                return expected;
+            });
+        // Act
+        var result = HttpContextBuilder.Create()
+            .WithRequestServices(serviceProvider)
+            .Build();
+        // Assert
+        var resolved = result.RequestServices.GetService(typeof(SomeService));
+        Expect(resolved)
+            .To.Be(expected);
+    }
+
+    [Test]
+    public void ShouldRecordBeingAborted()
+    {
+        // Arrange
+        var sut = HttpContextBuilder.BuildDefault() as FakeHttpContext;
+        Expect(sut.Aborted)
+            .To.Be.False();
+        // Act
+        sut.Abort();
+        // Assert
+        Expect(sut.Aborted)
+            .To.Be.True();
     }
 
     [Test]
@@ -251,5 +346,12 @@ public class TestFakeHttpContextBuilder
             .Not.To.Be.Null();
         Expect(file.ReadAllText())
             .To.Equal(data);
+    }
+
+    public class SomeService
+    {
+        public void DoNothing()
+        {
+        }
     }
 }
