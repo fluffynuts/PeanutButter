@@ -8,6 +8,11 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
 {
     public class FakeHttpResponse : HttpResponse
     {
+        public FakeHttpResponse()
+        {
+            var foo = 1;
+        }
+
         public const string DEFAULT_CONTENT_TYPE = "text/html";
 
         public override void OnStarting(Func<object, Task> callback, object state)

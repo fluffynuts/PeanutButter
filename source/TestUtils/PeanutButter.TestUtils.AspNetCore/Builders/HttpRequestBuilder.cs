@@ -21,14 +21,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
                 .WithHost("localhost")
                 .WithPort(80)
                 .WithHeaders(HeaderDictionaryBuilder.BuildDefault())
-                .WithCookies(RequestCookieCollectionBuilder.BuildDefault())
-                .WithHttpContext(() =>
-                    HttpContextBuilder
-                        .CreateWithRequestFactory(
-                            () => CurrentEntity
-                        )
-                        .Build()
-                );
+                .WithCookies(RequestCookieCollectionBuilder.BuildDefault());
         }
 
         protected override HttpRequest ConstructEntity()
@@ -100,8 +93,8 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
 
         private static void Actualize(HttpRequest built)
         {
-            Warn(built.HttpContext is null, "no HttpContext set");
-            Warn(built.HttpContext?.Request is null, "no HttpContext.Request set");
+            WarnIf(built.HttpContext is null, "no HttpContext set");
+            WarnIf(built.HttpContext?.Request is null, "no HttpContext.Request set");
         }
 
         public HttpRequestBuilder WithBody(string body)
@@ -322,7 +315,8 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
         )
         {
             return With<FakeHttpRequest>(
-                o => o.SetContextAccessor(factory)
+                o => o.SetContextAccessor(factory),
+                nameof(FakeHttpRequest.HttpContext)
             );
         }
 

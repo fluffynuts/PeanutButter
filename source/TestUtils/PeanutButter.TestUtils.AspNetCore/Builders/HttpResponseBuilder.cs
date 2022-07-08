@@ -8,15 +8,10 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
 {
     public class HttpResponseBuilder : Builder<HttpResponseBuilder, HttpResponse>
     {
-        public HttpResponseBuilder() : base(Actualize)
+        public HttpResponseBuilder() 
+            : base(Actualize)
         {
-            WithHttpContext(() =>
-                    HttpContextBuilder.Create()
-                        .WithResponse(
-                            () => CurrentEntity
-                        )
-                        .Build()
-                ).WithStatusCode(HttpStatusCode.OK)
+            WithStatusCode(HttpStatusCode.OK)
                 .WithCookies(FakeResponseCookies.CreateSubstitutedIfPossible());
         }
 
@@ -74,8 +69,8 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
 
         private static void Actualize(HttpResponse o)
         {
-            Warn(o.HttpContext is null, "o.HttpContext is null");
-            Warn(o.HttpContext?.Response is null, "o.HttpContext.Response is null");
+            WarnIf(o.HttpContext is null, "o.HttpContext is null");
+            WarnIf(o.HttpContext?.Response is null, "o.HttpContext.Response is null");
         }
 
         protected override HttpResponse ConstructEntity()
@@ -98,7 +93,8 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
         )
         {
             return With<FakeHttpResponse>(
-                o => o.SetContextAccessor(accessor)
+                o => o.SetContextAccessor(accessor),
+                nameof(FakeHttpResponse.HttpContext)
             );
         }
     }

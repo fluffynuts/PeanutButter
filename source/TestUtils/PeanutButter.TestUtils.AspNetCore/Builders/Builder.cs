@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
@@ -42,18 +43,48 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
         protected TSubject CurrentEntity;
 
         protected TBuilder With(
-            Action<TSubject> mutator
+            Action<TSubject> action
         )
         {
-            _mutators.Add(mutator);
+            return With(action, Guid.NewGuid().ToString());
+        }
+
+        protected TBuilder With(
+            Action<TSubject> action,
+            string identifier
+        )
+        {
+            var mutator = new Mutator<TSubject>(action, identifier);
+            StoreMutator(mutator);
             return this as TBuilder;
         }
 
+        private void StoreMutator(Mutator<TSubject> mutator)
+        {
+            var existing = _mutators.Where(o => o.Identifier == mutator.Identifier)
+                .ToArray();
+            foreach (var item in existing)
+            {
+                _mutators.Remove(item);
+            }
+            _mutators.Add(mutator);
+            
+        }
+
         protected TBuilder With<TCast>(
-            Action<TCast> mutator
+            Action<TCast> action
         ) where TCast : TSubject
         {
-            _mutators.Add(o => mutator((TCast) o));
+            return With<TCast>(action, Guid.NewGuid().ToString());
+        }
+
+        protected TBuilder With<TCast>(
+            Action<TCast> action,
+            string identifier
+        ) where TCast: TSubject
+        {
+            var mutator = new Mutator<TSubject>(o => action((TCast) o), identifier);
+            StoreMutator(mutator);
             return this as TBuilder;
         }
 
@@ -74,7 +105,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
         {
             foreach (var mutator in _mutators)
             {
-                mutator(subject);
+                mutator.Action(subject);
             }
 
             return subject;
@@ -111,9 +142,24 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
             return result;
         }
 
-        private readonly List<Action<TSubject>> _mutators = new();
+        private readonly List<Mutator<TSubject>> _mutators = new();
 
-        protected static void Warn(
+        private class Mutator<T>
+        {
+            public Action<T> Action { get; }
+            public string Identifier { get; }
+
+            public Mutator(
+                Action<T> action,
+                string identifier
+            )
+            {
+                Action = action;
+                Identifier = identifier;
+            }
+        }
+
+        protected static void WarnIf(
             bool condition,
             string message
         )

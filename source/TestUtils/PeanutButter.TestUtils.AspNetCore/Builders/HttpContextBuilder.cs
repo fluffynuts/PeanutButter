@@ -14,11 +14,15 @@ public class HttpContextBuilder : Builder<HttpContextBuilder, HttpContext>
         return new FakeHttpContext();
     }
 
-    internal static HttpContextBuilder CreateWithRequestFactory(
-        Func<HttpRequest> requestFactory
+    public static HttpContextBuilder CreateFor(
+        Func<HttpRequest> requestAccessor,
+        Func<HttpResponse> responseAccessor
     )
     {
-        return new(requestFactory);
+        return new HttpContextBuilder(
+            requestAccessor,
+            responseAccessor
+        );
     }
 
     public override HttpContextBuilder Randomize()
@@ -27,24 +31,43 @@ public class HttpContextBuilder : Builder<HttpContextBuilder, HttpContext>
         throw new NotImplementedException();
     }
 
-    public HttpContextBuilder() : this(requestFactory: null)
+    public HttpContextBuilder() : this(null, null)
     {
     }
 
-    internal HttpContextBuilder(Func<HttpRequest> requestFactory)
+    public HttpContextBuilder(
+        Func<HttpRequest> requestAccessor,
+        Func<HttpResponse> responseAccessor
+    ) : base(Actualize)
     {
         WithFeatures(new FakeFeatureCollection())
-            .WithResponse(new FakeHttpResponse())
+            .WithResponse(
+                responseAccessor ??
+                (() => HttpResponseBuilder.Create()
+                    .Build())
+            )
             .WithConnection(GetRandom<FakeConnectionInfo>())
-            .WithUser(GetRandom<ClaimsPrincipal>());
-        if (requestFactory is null)
-        {
-            WithRequest(HttpRequestBuilder.BuildDefault);
-        }
-        else
-        {
-            WithRequest(requestFactory);
-        }
+            .WithUser(GetRandom<ClaimsPrincipal>())
+            .WithRequest(
+                requestAccessor ??
+                (() => HttpRequestBuilder.Create()
+                    .Build())
+            );
+    }
+
+    private static void Actualize(HttpContext context)
+    {
+        WarnIf(context.Response is null, "context.Response is null");
+        WarnIf(context.Response?.HttpContext is null, "context.Response.HttpContext is null");
+        WarnIf(context.Request is null, "context.Request is null");
+        WarnIf(context.Request?.HttpContext is null, "context.Request.HttpContext is null");
+    }
+
+    public HttpContextBuilder WithFeature<TFeature>(TFeature feature)
+    {
+        return With(
+            o => o.Features.Set(feature)
+        );
     }
 
     public HttpContextBuilder WithUser(ClaimsPrincipal principal)
@@ -64,10 +87,17 @@ public class HttpContextBuilder : Builder<HttpContextBuilder, HttpContext>
     }
 
     public HttpContextBuilder WithResponse(
-        FakeHttpResponse response
+        HttpResponse response
     )
     {
-        return WithResponse(() => response);
+        return WithResponse(() => response)
+            .With(o =>
+            {
+                if (o.Response is FakeHttpResponse fake)
+                {
+                    fake.SetContextAccessor(() => CurrentEntity);
+                }
+            });
     }
 
     public HttpContextBuilder WithResponse(
@@ -75,7 +105,8 @@ public class HttpContextBuilder : Builder<HttpContextBuilder, HttpContext>
     )
     {
         return With<FakeHttpContext>(
-            o => o.SetResponseAccessor(accessor)
+            o => o.SetResponseAccessor(accessor),
+            nameof(FakeHttpContext.Response)
         );
     }
 
@@ -83,7 +114,14 @@ public class HttpContextBuilder : Builder<HttpContextBuilder, HttpContext>
         HttpRequest request
     )
     {
-        return WithRequest(() => request);
+        return WithRequest(() => request)
+            .With(o =>
+            {
+                if (o.Request is FakeHttpRequest fake)
+                {
+                    fake.SetContextAccessor(() => CurrentEntity);
+                }
+            });
     }
 
     public HttpContextBuilder WithRequest(
@@ -91,7 +129,8 @@ public class HttpContextBuilder : Builder<HttpContextBuilder, HttpContext>
     )
     {
         return With<FakeHttpContext>(
-            o => o.SetRequestAccessor(requestAccessor)
+            o => o.SetRequestAccessor(requestAccessor),
+            nameof(FakeHttpContext.Request)
         );
     }
 

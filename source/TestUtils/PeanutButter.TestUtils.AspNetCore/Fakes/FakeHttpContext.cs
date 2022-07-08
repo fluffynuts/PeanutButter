@@ -17,13 +17,15 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
         public override IFeatureCollection Features => _features;
         private IFeatureCollection _features;
 
-        public override HttpRequest Request => 
+        public override HttpRequest Request =>
             _request ??= _requestAccessor?.Invoke();
+
         private HttpRequest _request;
         private Func<HttpRequest> _requestAccessor;
-        
-        public override HttpResponse Response => 
+
+        public override HttpResponse Response =>
             _response ??= _responseAccessor?.Invoke();
+
         private HttpResponse _response;
         private Func<HttpResponse> _responseAccessor;
 
@@ -38,11 +40,18 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
             => throw new FeatureIsObsoleteException(nameof(Authentication));
 
         public override ClaimsPrincipal User { get; set; }
-        public override IDictionary<object, object> Items { get; set; }
+        public override IDictionary<object, object> Items { get; set; } = new Dictionary<object, object>();
+
         public override IServiceProvider RequestServices { get; set; }
-        public override CancellationToken RequestAborted { get; set; }
+            = new NonFunctionalServiceProvider();
+
+        public override CancellationToken RequestAborted { get; set; } = new();
+
         public override string TraceIdentifier { get; set; }
+            = Guid.NewGuid().ToString();
+
         public override ISession Session { get; set; }
+            = new FakeSession();
 
         public void SetFeatures(IFeatureCollection features)
         {

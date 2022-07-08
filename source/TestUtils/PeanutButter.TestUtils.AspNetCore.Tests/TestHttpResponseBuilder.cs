@@ -20,6 +20,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Tests
         public class DefaultBuild
         {
             [Test]
+            [Ignore("WIP")]
             public void ShouldHaveHttpContext()
             {
                 // Arrange
