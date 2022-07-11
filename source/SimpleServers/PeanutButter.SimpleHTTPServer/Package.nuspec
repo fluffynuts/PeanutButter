@@ -1,7 +1,7 @@
 <package>
   <metadata>
     <id>PeanutButter.SimpleHTTPServer</id>
-    <version>2.0.86</version>
+    <version>2.0.87</version>
     <title>PeanutButter.SimpleHTTPServer</title>
     <authors>Davyd McColl</authors>
     <owners></owners>
@@ -27,18 +27,18 @@
     <copyright>Copyright  2014</copyright>
     <dependencies>
       <group targetFramework="net452">
-        <dependency id="PeanutButter.SimpleTcpServer" version="2.0.86" />
-        <dependency id="PeanutButter.Utils" version="2.0.86" />
+        <dependency id="PeanutButter.SimpleTcpServer" version="2.0.87" />
+        <dependency id="PeanutButter.Utils" version="2.0.87" />
         <dependency id="Newtonsoft.Json" version="13.0.1" />
       </group>
       <group targetFramework="net462">
-        <dependency id="PeanutButter.SimpleTcpServer" version="2.0.86" />
-        <dependency id="PeanutButter.Utils" version="2.0.86" />
+        <dependency id="PeanutButter.SimpleTcpServer" version="2.0.87" />
+        <dependency id="PeanutButter.Utils" version="2.0.87" />
         <dependency id="Newtonsoft.Json" version="13.0.1" />
       </group>
       <group targetFramework="netstandard2.0">
-        <dependency id="PeanutButter.SimpleTcpServer" version="2.0.86" />
-        <dependency id="PeanutButter.Utils" version="2.0.86" />
+        <dependency id="PeanutButter.SimpleTcpServer" version="2.0.87" />
+        <dependency id="PeanutButter.Utils" version="2.0.87" />
         <dependency id="Newtonsoft.Json" version="13.0.1" />
       </group>
     </dependencies>
