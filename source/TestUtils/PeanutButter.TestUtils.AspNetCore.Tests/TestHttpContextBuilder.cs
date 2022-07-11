@@ -382,6 +382,52 @@ public class TestHttpContextBuilder
             .Not.To.Be.Empty();
     }
 
+    [Test]
+    public void ShouldBeAbleToSetUrl()
+    {
+        // Arrange
+        var url = "http://some.host.com/path/to/resource?foo=bar&one=1";
+        // Act
+        var result = HttpContextBuilder.Create()
+            .WithUrl(url)
+            .Build();
+        // Assert
+        var req = result.Request;
+        Expect(req.Host.Value)
+            .To.Equal("some.host.com");
+        Expect(req.Host.Port)
+            .To.Be.Null();
+        Expect(req.Path)
+            .To.Equal("/path/to/resource");
+        Expect(req.Query["foo"])
+            .To.Equal("bar");
+        Expect(req.Query["one"])
+            .To.Equal("1");
+    }
+
+    [Test]
+    public void ShouldBeAbleToSetUrlWithCustomPort()
+    {
+        // Arrange
+        var url = "https://some.host.com:1234/path/to/resource?foo=bar&one=1";
+        // Act
+        var result = HttpContextBuilder.Create()
+            .WithUrl(url)
+            .Build();
+        // Assert
+        var req = result.Request;
+        Expect(req.Host.Host)
+            .To.Equal("some.host.com");
+        Expect(req.Host.Port)
+            .To.Equal(1234);
+        Expect(req.Path)
+            .To.Equal("/path/to/resource");
+        Expect(req.Query["foo"])
+            .To.Equal("bar");
+        Expect(req.Query["one"])
+            .To.Equal("1");
+    }
+
     public class SomeService
     {
         public void DoNothing()

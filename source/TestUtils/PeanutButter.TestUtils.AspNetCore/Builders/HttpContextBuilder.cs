@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
@@ -293,4 +294,53 @@ public class HttpContextBuilder : Builder<HttpContextBuilder, HttpContext>
             o => modifier(o.Request.As<FakeHttpRequest>())
         );
     }
+
+    /// <summary>
+    /// Set the full url for the request
+    /// </summary>
+    /// <param name="uri"></param>
+    /// <returns></returns>
+    public HttpContextBuilder WithUrl(
+        Uri uri
+    )
+    {
+        return With(
+            o =>
+            {
+                o.Request.Scheme = uri.Scheme;
+                o.Request.Host = IsDefaultPortForScheme(
+                    uri.Scheme,
+                    uri.Port
+                )
+                    ? new HostString(uri.Host)
+                    : new HostString(uri.Host, uri.Port);
+                o.Request.Path = uri.AbsolutePath;
+                o.Request.QueryString = new QueryString(uri.Query);
+            }
+        );
+    }
+
+    /// <summary>
+    /// Set the full url for the request
+    /// </summary>
+    /// <param name="url"></param>
+    /// <returns></returns>
+    public HttpContextBuilder WithUrl(
+        string url
+    )
+    {
+        return WithUrl(new Uri(url));
+    }
+
+    private bool IsDefaultPortForScheme(string uriScheme, int uriPort)
+    {
+        return DefaultPortsPerScheme.TryGetValue(uriScheme, out var defaultPort) 
+            && defaultPort == uriPort;
+    }
+
+    private static readonly Dictionary<string, int> DefaultPortsPerScheme = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["http"] = 80,
+        ["https"] = 443
+    };
 }
