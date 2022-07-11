@@ -1048,7 +1048,7 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
-        /// returns tru if the provided object implements the expected interface
+        /// returns true if the provided object implements the expected interface
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="expected"></param>
