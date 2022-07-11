@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
 

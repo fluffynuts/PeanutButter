@@ -6,6 +6,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using PeanutButter.TestUtils.AspNetCore.Utils;
 
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;

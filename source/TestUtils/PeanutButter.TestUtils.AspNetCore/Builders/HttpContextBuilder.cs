@@ -11,7 +11,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders;
 /// <summary>
 /// Builds an HttpContext
 /// </summary>
-public class HttpContextBuilder : Builder<HttpContextBuilder, HttpContext>
+public class HttpContextBuilder : RandomizableBuilder<HttpContextBuilder, HttpContext>
 {
     /// <summary>
     /// Constructs the fake http context

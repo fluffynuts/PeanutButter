@@ -1,12 +1,11 @@
 using System;
 
-namespace PeanutButter.TestUtils.AspNetCore.Fakes
+namespace PeanutButter.TestUtils.AspNetCore.Fakes;
+
+internal class NonFunctionalServiceProvider : IServiceProvider, IFake
 {
-    internal class NonFunctionalServiceProvider : IServiceProvider, IFake
+    public object GetService(Type serviceType)
     {
-        public object GetService(Type serviceType)
-        {
-            throw new ServiceProviderImplementationRequiredException();
-        }
+        throw new ServiceProviderImplementationRequiredException();
     }
 }

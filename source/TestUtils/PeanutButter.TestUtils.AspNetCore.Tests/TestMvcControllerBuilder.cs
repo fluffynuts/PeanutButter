@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using NExpect;
 using NUnit.Framework;
-using PeanutButter.TestUtils.AspNetCore;
-using PeanutButter.TestUtils.AspNetCore.Tests;
+
+namespace PeanutButter.TestUtils.AspNetCore.Tests;
 
 [TestFixture]
 public class TestMvcControllerBuilder

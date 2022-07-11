@@ -5,69 +5,68 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 
-namespace PeanutButter.TestUtils.AspNetCore.Builders
+namespace PeanutButter.TestUtils.AspNetCore.Builders;
+
+/// <summary>
+/// Builds a fake websocket manager
+/// </summary>
+public class WebSocketManagerBuilder : RandomizableBuilder<WebSocketManagerBuilder, WebSocketManager>
 {
     /// <summary>
-    /// Builds a fake websocket manager
+    /// Does nothing - just here to ensure GetRandom works
     /// </summary>
-    public class WebSocketManagerBuilder : Builder<WebSocketManagerBuilder, WebSocketManager>
+    /// <returns></returns>
+    public override WebSocketManagerBuilder Randomize()
     {
-        /// <summary>
-        /// Does nothing - just here to ensure GetRandom works
-        /// </summary>
-        /// <returns></returns>
-        public override WebSocketManagerBuilder Randomize()
-        {
-            return this; // nothing really to randomize on this
-        }
+        return this; // nothing really to randomize on this
+    }
 
-        /// <summary>
-        /// Constructs a fake websocket manager
-        /// </summary>
-        /// <returns></returns>
-        protected override WebSocketManager ConstructEntity()
-        {
-            return new FakeWebSocketManager();
-        }
+    /// <summary>
+    /// Constructs a fake websocket manager
+    /// </summary>
+    /// <returns></returns>
+    protected override WebSocketManager ConstructEntity()
+    {
+        return new FakeWebSocketManager();
+    }
 
-        /// <summary>
-        /// Sets the websocket accept handler
-        /// </summary>
-        /// <param name="handler"></param>
-        /// <returns></returns>
-        public WebSocketManagerBuilder WithWebSocketAcceptHandler(
-            Func<string, Task<WebSocket>> handler
-        )
-        {
-            return With<FakeWebSocketManager>(
-                o => o.SetWebSocketAcceptHandler(handler)
-            );
-        }
+    /// <summary>
+    /// Sets the websocket accept handler
+    /// </summary>
+    /// <param name="handler"></param>
+    /// <returns></returns>
+    public WebSocketManagerBuilder WithWebSocketAcceptHandler(
+        Func<string, Task<WebSocket>> handler
+    )
+    {
+        return With<FakeWebSocketManager>(
+            o => o.SetWebSocketAcceptHandler(handler)
+        );
+    }
 
-        /// <summary>
-        /// Sets the IsWebSocketRequest property
-        /// </summary>
-        /// <param name="flag"></param>
-        /// <returns></returns>
-        public WebSocketManagerBuilder WithIsWebSocketRequest(bool flag)
-        {
-            return With<FakeWebSocketManager>(
-                o => o.SetIsWebSocketRequest(true)
-            );
-        }
+    /// <summary>
+    /// Sets the IsWebSocketRequest property
+    /// </summary>
+    /// <param name="flag"></param>
+    /// <returns></returns>
+    public WebSocketManagerBuilder WithIsWebSocketRequest(bool flag)
+    {
+        return With<FakeWebSocketManager>(
+            o => o.SetIsWebSocketRequest(true)
+        );
+    }
 
-        /// <summary>
-        /// Sets the protocols "requested" for the request
-        /// </summary>
-        /// <param name="protocols"></param>
-        /// <returns></returns>
-        public WebSocketManagerBuilder WithWebSocketRequestedProtocols(
-            IEnumerable<string> protocols
-        )
-        {
-            return With<FakeWebSocketManager>(
-                o => o.SetProtocols(protocols)
-            );
-        }
+    /// <summary>
+    /// Sets the protocols "requested" for the request
+    /// </summary>
+    /// <param name="protocols"></param>
+    /// <returns></returns>
+    public WebSocketManagerBuilder WithWebSocketRequestedProtocols(
+        IEnumerable<string> protocols
+    )
+    {
+        return With<FakeWebSocketManager>(
+            o => o.SetProtocols(protocols)
+        );
     }
 }

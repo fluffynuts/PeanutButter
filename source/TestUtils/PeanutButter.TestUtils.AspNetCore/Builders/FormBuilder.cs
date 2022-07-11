@@ -12,7 +12,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders;
 /// <summary>
 /// Builds a form for an asp.net request
 /// </summary>
-public class FormBuilder : Builder<FormBuilder, IFormCollection>
+public class FormBuilder : RandomizableBuilder<FormBuilder, IFormCollection>
 {
     /// <summary>
     /// Constructs the fake form

@@ -1,10 +1,8 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Routing;
-using NUnit.Framework;
-using static PeanutButter.RandomGenerators.RandomValueGen;
 using NExpect;
-using PeanutButter.TestUtils.AspNetCore;
+using NUnit.Framework;
 using static NExpect.Expectations;
+
+namespace PeanutButter.TestUtils.AspNetCore.Tests;
 
 [TestFixture]
 public class TestMinimalServiceProvider
