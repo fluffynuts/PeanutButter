@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -127,6 +128,28 @@ namespace PeanutButter.Utils
                 throw new ArgumentNullException(nameof(generator));
             }
 
+            if (dict is ConcurrentDictionary<TKey, TValue> concurrentDictionary)
+            {
+                TValue generated = default;
+                var wasGenerated = false;
+                concurrentDictionary.GetOrAdd(key, _ =>
+                {
+                    wasGenerated = true;
+                    return generated = generator();
+                });
+                if (concurrentDictionary.TryGetValue(key, out var result))
+                {
+                    return result;
+                }
+                
+                // item has been removed, but technically, we can give it back
+                // if it was generated (or regen) - this is a threading scenario
+                // in the host app - not our immediate problem
+                return wasGenerated
+                    ? generated
+                    : generator();
+            }
+
             lock (dict)
             {
                 if (dict.TryGetValue(key, out var existing))
@@ -136,6 +159,7 @@ namespace PeanutButter.Utils
 
                 var generated = generator();
                 dict.Add(key, generated);
+
                 return generated;
             }
         }
@@ -215,6 +239,7 @@ namespace PeanutButter.Utils
         /// Prefer the first value seen
         /// </summary>
         First,
+
         /// <summary>
         /// Prefer the last value seen
         /// </summary>
