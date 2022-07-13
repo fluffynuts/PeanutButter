@@ -229,6 +229,7 @@ public class FakeHttpRequest : HttpRequest, IFake
     /// <param name="accessor"></param>
     public void SetContextAccessor(Func<HttpContext> accessor)
     {
+        _httpContext = null;
         _httpContextAccessor = accessor;
     }
 

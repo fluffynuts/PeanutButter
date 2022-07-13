@@ -6,6 +6,7 @@ using System.Text;
 using Microsoft.AspNetCore.Http;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -16,10 +17,20 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders;
 /// </summary>
 public class HttpRequestBuilder : RandomizableBuilder<HttpRequestBuilder, HttpRequest>
 {
+    internal static HttpRequestBuilder CreateWithNoHttpContext()
+    {
+        return new HttpRequestBuilder(noContext: true);
+    }
+
+    public HttpRequestBuilder()
+        : this(noContext: false)
+    {
+    }
+
     /// <summary>
     /// Default constructor: creates the builder with basics set up
     /// </summary>
-    public HttpRequestBuilder() : base(Actualize)
+    internal HttpRequestBuilder(bool noContext) : base(Actualize)
     {
         WithForm(FormBuilder.BuildDefault())
             .WithMethod(HttpMethod.Get)
@@ -29,6 +40,14 @@ public class HttpRequestBuilder : RandomizableBuilder<HttpRequestBuilder, HttpRe
             .WithPort(80)
             .WithHeaders(HeaderDictionaryBuilder.BuildDefault())
             .WithCookies(RequestCookieCollectionBuilder.BuildDefault());
+        if (!noContext)
+        {
+            WithHttpContext(
+                () => HttpContextBuilder.Create()
+                    .WithRequest(() => CurrentEntity)
+                    .Build()
+            );
+        }
     }
 
     /// <summary>
@@ -447,7 +466,17 @@ public class HttpRequestBuilder : RandomizableBuilder<HttpRequestBuilder, HttpRe
     {
         return With(
             o => o.Scheme = scheme
-        );
+        ).With(o => o.Protocol = GuessProtocolFor(o.Scheme));
+    }
+
+    private string GuessProtocolFor(string scheme)
+    {
+        return scheme?.ToLower() switch
+        {
+            "http" => "HTTP/1.1",
+            "https" => "HTTP/2",
+            _ => scheme
+        };
     }
 
     /// <summary>

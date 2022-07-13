@@ -247,7 +247,7 @@ Imported.PeanutButter.Utils
                 case EnumComparisonStrategies.ByObjectEquals:
                     return objSource.Equals(objCompare);
                 case EnumComparisonStrategies.ByIntegerValue:
-                    return (int)objSource == (int)objCompare;
+                    return (int) objSource == (int) objCompare;
                 case EnumComparisonStrategies.ByName:
                     return objSource.ToString() == objCompare.ToString();
                 default:
@@ -317,7 +317,7 @@ Imported.PeanutButter.Utils
             var method = TryCompareWithCustomComparerGenericMethod.MakeGenericMethod(left.GetType());
             try
             {
-                return (bool?)method.Invoke(this, new[] { left, right });
+                return (bool?) method.Invoke(this, new[] { left, right });
             }
             catch
             {
@@ -385,7 +385,7 @@ Imported.PeanutButter.Utils
                 sourceItemType,
                 compareItemType
             );
-            return (bool)method.Invoke(this, new[] { objSource, objCompare });
+            return (bool) method.Invoke(this, new[] { objSource, objCompare });
         }
 
         private static Type GetItemTypeFor(Type collectionType)
@@ -462,16 +462,17 @@ Imported.PeanutButter.Utils
 #if NETSTANDARD
                         (t.IsConstructedGenericType &&
 #else
-                                                           (t.IsGenericType &&
+                            (t.IsGenericType &&
 #endif
-                            t.GetGenericTypeDefinition() == typeof(Nullable<>) &&
-                            Nullable.GetUnderlyingType(t) == si));
+                                t.GetGenericTypeDefinition() == typeof(Nullable<>) &&
+                                Nullable.GetUnderlyingType(t) == si))
+                );
         }
 
 
         private static bool CanPerformSimpleTypeMatchFor(Type srcPropType)
         {
-            return Types.PrimitivesAndImmutables.Any(st => st == srcPropType);
+            return Types.PrimitivesAndImmutables.Any(st => st == srcPropType) || srcPropType.IsValueType;
         }
 
 
@@ -610,7 +611,7 @@ Imported.PeanutButter.Utils
         )
         {
             return IsComparableNumericType(srcType) &&
-                    IsComparableNumericType(compareType);
+                IsComparableNumericType(compareType);
 
             bool IsComparableNumericType(Type test)
             {
@@ -915,7 +916,7 @@ Imported.PeanutButter.Utils
                     $"No '{nameof(TestCollectionsMatch)}' method found on {GetType().PrettyName()}"
                 );
             var typedMethod = genericMethod.MakeGenericMethod(t1, t2);
-            return (bool)typedMethod.Invoke(this, new[] { srcValue, compareValue });
+            return (bool) typedMethod.Invoke(this, new[] { srcValue, compareValue });
         }
 
 

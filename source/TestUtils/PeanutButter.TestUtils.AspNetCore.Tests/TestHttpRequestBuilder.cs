@@ -34,7 +34,6 @@ public class TestHttpRequestBuilder
         }
 
         [Test]
-        [Ignore("WIP")]
         public void ShouldSetHttpContext()
         {
             // Arrange

@@ -46,7 +46,7 @@ public class TestMvcControllerBuilder
         private static MvcController BuildDefault()
         {
             return ControllerBuilder.For<MvcController>()
-                .BuildDefault();
+                .Build();
         }
     }
 

@@ -40,7 +40,7 @@
     <PackageReference Include="CommandLineParser" Version="1.9.71" />
     <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.1.0" PrivateAssets="All" IncludeAssets="runtime;build;native;contentfiles;analyzers;buildtransitive" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />
-    <PackageReference Include="NExpect" Version="1.0.270" />
+    <PackageReference Include="NExpect" Version="1.0.271" />
     <PackageReference Include="NSubstitute" Version="4.3.0" />
     <PackageReference Include="NUnit" Version="3.12.0" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />

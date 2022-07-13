@@ -80,6 +80,7 @@ public class FakeHttpResponse : HttpResponse, IFake
         Func<HttpContext> accessor
     )
     {
+        _httpContext = null;
         _httpContextAccessor = accessor;
     }
 

@@ -9,7 +9,9 @@ using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 using PeanutButter.TestUtils.AspNetCore.Builders;
+using PeanutButter.TestUtils.AspNetCore.Fakes;
 
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -33,6 +35,52 @@ public static class ControllerBuilder
     }
 }
 
+public class ControllerContextBuilder : Builder<ControllerContextBuilder, ControllerContext>
+{
+    public ControllerContextBuilder()
+    {
+        // ensure fake is installed for late overriding of request/response
+        WithHttpContext(HttpContextBuilder.BuildDefault());
+    }
+
+    public ControllerContextBuilder WithHttpContext(
+        HttpContext context
+    )
+    {
+        return With(o => o.HttpContext = context);
+    }
+
+    public ControllerContextBuilder WithRequest(
+        HttpRequest request
+    )
+    {
+        return With(o =>
+        {
+            var fake = o.HttpContext.As<FakeHttpContext>();
+            fake.SetRequestAccessor(() => request);
+        });
+    }
+
+    public ControllerContextBuilder WithResponse(
+        HttpResponse response
+    )
+    {
+        return With(o =>
+        {
+            var fake = o.HttpContext.As<FakeHttpContext>();
+            fake.SetResponseAccessor(() => response);
+        });
+    }
+}
+
+public class RouteDataBuilder : Builder<RouteDataBuilder, RouteData>
+{
+}
+
+public class ControllerActionDescriptorBuilder : Builder<ControllerActionDescriptorBuilder, ControllerActionDescriptor>
+{
+}
+
 /// <summary>
 /// Builds your
 /// </summary>
@@ -41,21 +89,15 @@ public class ControllerBuilder<TController>
     : Builder<ControllerBuilder<TController>, TController>
     where TController : ControllerBase
 {
-    /// <summary>
-    /// Builds the default instance
-    /// </summary>
-    /// <returns></returns>
-    public new TController BuildDefault()
-    {
-        return Build();
-    }
+    private Func<TController> _factory;
+    private ControllerContextBuilder _controllerContextBuilder;
 
     /// <inheritdoc />
     public ControllerBuilder()
     {
-        WithControllerContext(new ControllerContext())
-            .WithRouteData(new RouteData())
-            .WithActionDescriptor(new ControllerActionDescriptor())
+        WithControllerContext(ControllerContextBuilder.BuildDefault())
+            .WithRouteData(RouteDataBuilder.BuildDefault())
+            .WithActionDescriptor(ControllerActionDescriptorBuilder.BuildDefault())
             .WithHttpContext(HttpContextBuilder.Create()
                 .WithRequestServices(new MinimalServiceProvider())
                 .Build()
@@ -72,7 +114,154 @@ public class ControllerBuilder<TController>
                     new SessionStateTempDataProvider()
                 )
             )
-            .WithOptions(() => new DefaultOptions());
+            .WithOptions(() => new DefaultOptions())
+            .WithFactory(DefaultFactory);
+    }
+
+    /// <summary>
+    /// Constructs the controller, either using a provided factory
+    /// or with the assumption that the controller has a parameterless constructor
+    /// </summary>
+    /// <returns></returns>
+    protected override TController ConstructEntity()
+    {
+        return _factory();
+    }
+
+    private TController DefaultFactory()
+    {
+        return Activator.CreateInstance<TController>();
+    }
+
+    /// <summary>
+    /// Provide a factory to create the controller. If your controller
+    /// has constructor parameters, this is how you'd inject them.
+    /// </summary>
+    /// <param name="factory"></param>
+    /// <returns></returns>
+    public ControllerBuilder<TController> WithFactory(
+        Func<TController> factory
+    )
+    {
+        _factory = factory ?? DefaultFactory;
+        return this;
+    }
+
+    /// <summary>
+    /// Set a query parameter on the request object
+    /// NB: this will _not_ automatically map to method
+    /// parameters on your actions, so you only need to
+    /// set these if you're interrogating the raw query
+    /// or want to update the overall querystring
+    /// </summary>
+    /// <param name="parameter"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public ControllerBuilder<TController> WithRequestQueryParameter(
+        string parameter,
+        string value
+    )
+    {
+        return WithRequestQueryParameter(
+            parameter,
+            new StringValues(value)
+        );
+    }
+
+    /// <summary>
+    /// Sets the hostname for the request
+    /// </summary>
+    /// <param name="host"></param>
+    /// <returns></returns>
+    public ControllerBuilder<TController> WithRequestHost(
+        string host
+    )
+    {
+        return With(
+            o => o.Request.Host = o.Request.Host.Port.HasValue
+                ? new HostString(host, o.Request.Host.Port.Value)
+                : new HostString(host)
+        );
+    }
+
+    /// <summary>
+    /// Sets the port for the request
+    /// </summary>
+    /// <param name="port"></param>
+    /// <returns></returns>
+    public ControllerBuilder<TController> WithRequestPort(
+        int port
+    )
+    {
+        return With(
+            o => o.Request.Host = new HostString(o.Request.Host.Host, port)
+        );
+    }
+
+    /// <summary>
+    /// Sets the host for the request
+    /// </summary>
+    /// <param name="host"></param>
+    /// <returns></returns>
+    public ControllerBuilder<TController> WithRequestHost(HostString host)
+    {
+        return With(
+            o => o.Request.Host = host
+        );
+    }
+
+    /// <summary>
+    /// Sets the scheme for the request
+    /// </summary>
+    /// <param name="scheme"></param>
+    /// <returns></returns>
+    public ControllerBuilder<TController> WithRequestScheme(
+        string scheme
+    )
+    {
+        return With(
+            o => o.Request.Scheme = scheme
+        );
+    }
+
+    public ControllerBuilder<TController> WithRequestQueryParameter(
+        string parameter,
+        StringValues value
+    )
+    {
+        return With(
+            o => o.Request.Query.As<FakeQueryCollection>()[parameter] = value
+        );
+    }
+
+    public ControllerBuilder<TController> WithHttpContextItem(
+        string key,
+        object value
+    )
+    {
+        return With(
+            o => o.HttpContext.Items[key] = value
+        );
+    }
+
+    public ControllerBuilder<TController> WithRequestCookie(
+        string key,
+        string value
+    )
+    {
+        return With(
+            o => o.Request.Cookies.As<FakeRequestCookieCollection>()[key] = value
+        );
+    }
+
+    public ControllerBuilder<TController> WithRequestHeader(
+        string header,
+        string value
+    )
+    {
+        return With(
+            o => o.Request.Headers[header] = value
+        );
     }
 
     /// <summary>
@@ -84,6 +273,7 @@ public class ControllerBuilder<TController>
         ControllerContext ctx
     )
     {
+        _controllerContextBuilder = null;
         return With(
             o => o.ControllerContext = ctx
         );

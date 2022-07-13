@@ -29,9 +29,13 @@ public class HttpContextBuilder : RandomizableBuilder<HttpContextBuilder, HttpCo
     public override HttpContextBuilder Randomize()
     {
         return WithRequest(
-            HttpRequestBuilder.BuildRandom()
+            () => HttpRequestBuilder.CreateWithNoHttpContext()
+                .Randomize()
+                .Build()
         ).WithResponse(
-            HttpResponseBuilder.BuildRandom()
+            HttpResponseBuilder.CreateWithNoHttpContext()
+                .Randomize()
+                .Build()
         );
     }
 
@@ -42,13 +46,13 @@ public class HttpContextBuilder : RandomizableBuilder<HttpContextBuilder, HttpCo
     {
         WithFeatures(new FakeFeatureCollection())
             .WithResponse(
-                () => HttpResponseBuilder.Create()
+                () => HttpResponseBuilder.CreateWithNoHttpContext()
                     .Build()
             )
             .WithConnection(GetRandom<FakeConnectionInfo>())
             .WithUser(GetRandom<ClaimsPrincipal>())
             .WithRequest(
-                () => HttpRequestBuilder.Create()
+                () => HttpRequestBuilder.CreateWithNoHttpContext()
                     .Build()
             );
     }

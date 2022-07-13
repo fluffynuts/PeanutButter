@@ -14,12 +14,29 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders;
 /// </summary>
 public class HttpResponseBuilder : RandomizableBuilder<HttpResponseBuilder, HttpResponse>
 {
+    internal static HttpResponseBuilder CreateWithNoHttpContext()
+    {
+        return new HttpResponseBuilder(noContext: true);
+    }
+
     /// <inheritdoc />
     public HttpResponseBuilder()
-        : base(Actualize)
+        : this(noContext: false)
+    {
+    }
+
+    internal HttpResponseBuilder(bool noContext) : base(Actualize)
     {
         WithStatusCode(HttpStatusCode.OK)
             .WithCookies(FakeResponseCookies.CreateSubstitutedIfPossible());
+        if (!noContext)
+        {
+            WithHttpContext(
+                () => HttpContextBuilder.Create()
+                    .WithResponse(() => CurrentEntity)
+                    .Build()
+            );
+        }
     }
 
     /// <summary>
