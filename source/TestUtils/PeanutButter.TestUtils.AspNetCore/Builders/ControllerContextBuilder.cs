@@ -1,6 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System;
+using System.Reflection;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
+using PeanutButter.Utils;
 
 // ReSharper disable ClassNeverInstantiated.Global
 
@@ -15,7 +19,8 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
         public ControllerContextBuilder()
         {
             // ensure fake is installed for late overriding of request/response
-            WithHttpContext(HttpContextBuilder.BuildDefault());
+            WithHttpContext(HttpContextBuilder.BuildDefault())
+                .WithActionDescriptor(ControllerActionDescriptorBuilder.BuildDefault());
         }
 
         /// <summary>
@@ -60,6 +65,35 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
                 var fake = o.HttpContext.As<FakeHttpContext>();
                 fake.SetResponseAccessor(() => response);
             });
+        }
+
+        /// <summary>
+        /// Sets the ControllerActionDescriptor on the context
+        /// </summary>
+        /// <param name="descriptor"></param>
+        /// <returns></returns>
+        public ControllerContextBuilder WithActionDescriptor(
+            ControllerActionDescriptor descriptor
+        )
+        {
+            return With(
+                o => o.ActionDescriptor = descriptor
+            );
+        }
+
+        /// <summary>
+        /// Sets the controller type on the action descriptor (as well as taking a guess at the name)
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public ControllerContextBuilder WithControllerType(Type type)
+        {
+            return With(
+                o => o.ActionDescriptor.ControllerTypeInfo = type.GetTypeInfo()
+            ).With(
+                o => o.ActionDescriptor.ControllerName =
+                    type.Name.RegexReplace("Controller$", "")
+            );
         }
     }
 }

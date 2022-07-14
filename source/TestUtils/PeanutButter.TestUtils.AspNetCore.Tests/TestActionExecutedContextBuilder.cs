@@ -5,6 +5,8 @@ using NExpect;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.AspNetCore.Builders;
+using static NExpect.AspNetCoreExpectations;
+using static NExpect.Expectations;
 
 namespace PeanutButter.TestUtils.AspNetCore.Tests;
 
@@ -21,11 +23,11 @@ public class TestActionExecutedContextBuilder
             // Act
             var result = BuildDefault();
             // Assert
-            Expectations.Expect(result.HttpContext)
+            Expect(result.HttpContext)
                 .Not.To.Be.Null();
-            Expectations.Expect(result.HttpContext.Request)
+            Expect(result.HttpContext.Request)
                 .Not.To.Be.Null();
-            AspNetCoreExpectations.Expect(result.HttpContext.Request.Headers)
+            Expect(result.HttpContext.Request.Headers)
                 .To.Be.Empty();
         }
 
@@ -36,7 +38,7 @@ public class TestActionExecutedContextBuilder
             // Act
             var result = BuildDefault();
             // Assert
-            Expectations.Expect(result.Filters)
+            Expect(result.Filters)
                 .To.Be.Empty();
         }
 
@@ -47,7 +49,7 @@ public class TestActionExecutedContextBuilder
             // Act
             var result = BuildDefault();
             // Assert
-            Expectations.Expect(result.Controller)
+            Expect(result.Controller)
                 .To.Be.Null();
         }
 
@@ -72,12 +74,12 @@ public class TestActionExecutedContextBuilder
             .Build();
         // Assert
         var headers = result.HttpContext.Request.Headers;
-        AspNetCoreExpectations.Expect(headers)
+        Expect(headers)
             .To.Contain.Only(2).Items();
-        AspNetCoreExpectations.Expect(headers)
+        Expect(headers)
             .To.Contain.Key(header1)
             .With.Value(value1);
-        AspNetCoreExpectations.Expect(headers)
+        Expect(headers)
             .To.Contain.Key(header2)
             .With.Value(value2);
     }
@@ -92,10 +94,10 @@ public class TestActionExecutedContextBuilder
             .WithFilterMetadata(expected)
             .Build();
         // Assert
-        Expectations.Expect(result.Filters)
+        Expect(result.Filters)
             .To.Contain.Only(1)
             .Item();
-        Expectations.Expect(result.Filters.Single())
+        Expect(result.Filters.Single())
             .To.Be(expected);
     }
 
@@ -109,7 +111,7 @@ public class TestActionExecutedContextBuilder
             .WithController(expected)
             .Build();
         // Assert
-        Expectations.Expect(result.Controller)
+        Expect(result.Controller)
             .To.Be(expected);
     }
 

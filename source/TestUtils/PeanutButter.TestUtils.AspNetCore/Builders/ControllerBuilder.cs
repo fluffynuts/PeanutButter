@@ -48,9 +48,12 @@ public class ControllerBuilder<TController>
     /// <inheritdoc />
     public ControllerBuilder()
     {
-        WithControllerContext(ControllerContextBuilder.BuildDefault())
+        WithControllerContext(
+                ControllerContextBuilder.Create()
+                    .WithControllerType(typeof(TController))
+                    .Build()
+            )
             .WithRouteData(RouteDataBuilder.BuildDefault())
-            .WithActionDescriptor(ControllerActionDescriptorBuilder.BuildDefault())
             .WithHttpContext(HttpContextBuilder.Create()
                 .WithRequestServices(new MinimalServiceProvider())
                 .Build()
@@ -451,6 +454,23 @@ public class ControllerBuilder<TController>
 
                 registration(minimalServiceProvider, o);
             }
+        );
+    }
+
+    /// <summary>
+    /// Sets the action on the controller descriptor. If the
+    /// action can be found on the controller, the controller
+    /// descriptor's method info will also be set
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
+    public ControllerBuilder<TController> WithAction(string name)
+    {
+        return With(
+            o => o.ControllerContext.ActionDescriptor.ActionName = name
+        ).With(
+            o => o.ControllerContext.ActionDescriptor.MethodInfo =
+                typeof(TController).GetMethod(name)
         );
     }
 }

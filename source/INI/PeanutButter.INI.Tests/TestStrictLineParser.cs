@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using NExpect;
 using NUnit.Framework;
+using static NExpect.Expectations;
 
 namespace PeanutButter.INI.Tests
 {
@@ -85,11 +86,11 @@ namespace PeanutButter.INI.Tests
             // Act
             var result = sut.Parse(line);
             // Assert
-            Expectations.Expect(result.Key)
+            Expect(result.Key)
                 .To.Equal(key);
-            Expectations.Expect(result.Value)
+            Expect(result.Value)
                 .To.Equal(value);
-            Expectations.Expect(result.Comment)
+            Expect(result.Comment)
                 .To.Equal(comment);
         }
 

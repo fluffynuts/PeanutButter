@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using NExpect;
 using NUnit.Framework;
+using static NExpect.Expectations;
 
 namespace PeanutButter.Utils.Tests
 {
@@ -18,7 +19,7 @@ namespace PeanutButter.Utils.Tests
                 // Act
                 var result = o.AsQueryStringParameters();
                 // Assert
-                Expectations.Expect(result)
+                Expect(result)
                     .To.Equal("");
             }
 
@@ -31,7 +32,7 @@ namespace PeanutButter.Utils.Tests
                 // Act
                 var result = o.AsQueryStringParameters();
                 // Assert
-                Expectations.Expect(result)
+                Expect(result)
                     .To.Equal(expected);
             }
 
@@ -44,7 +45,7 @@ namespace PeanutButter.Utils.Tests
                 // Act
                 var result = o.AsQueryStringParameters();
                 // Assert
-                Expectations.Expect(result)
+                Expect(result)
                     .To.Equal(expected);
             }
 
@@ -60,7 +61,7 @@ namespace PeanutButter.Utils.Tests
                 // Act
                 var result = o.AsQueryStringParameters();
                 // Assert
-                Expectations.Expect(result)
+                Expect(result)
                     .To.Equal(expected);
             }
         }
@@ -75,7 +76,7 @@ namespace PeanutButter.Utils.Tests
                 // Act
                 var result = o.AsQueryString();
                 // Assert
-                Expectations.Expect(result)
+                Expect(result)
                     .To.Equal("");
             }
 
@@ -88,7 +89,7 @@ namespace PeanutButter.Utils.Tests
                 // Act
                 var result = o.AsQueryString();
                 // Assert
-                Expectations.Expect(result)
+                Expect(result)
                     .To.Equal(expected);
             }
 
@@ -101,7 +102,7 @@ namespace PeanutButter.Utils.Tests
                 // Act
                 var result = o.AsQueryString();
                 // Assert
-                Expectations.Expect(result)
+                Expect(result)
                     .To.Equal(expected);
             }
 
@@ -117,7 +118,7 @@ namespace PeanutButter.Utils.Tests
                 // Act
                 var result = o.AsQueryString();
                 // Assert
-                Expectations.Expect(result)
+                Expect(result)
                     .To.Equal(expected);
             }
         }

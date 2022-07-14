@@ -3,12 +3,36 @@ using NExpect;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.AspNetCore.Builders;
+using static NExpect.Expectations;
 
 namespace PeanutButter.TestUtils.AspNetCore.Tests;
 
 [TestFixture]
 public class TestControllerActionDescriptorBuilder
 {
+    [TestFixture]
+    public class BuildDefault
+    {
+        [Test]
+        public void ShouldProduceEmptyDescriptor()
+        {
+            // Arrange
+            // Act
+            var result = ControllerActionDescriptorBuilder.BuildDefault();
+            // Assert
+            Expect(result)
+                .Not.To.Be.Null();
+            Expect(result.ControllerTypeInfo)
+                .To.Be.Null();
+            Expect(result.ControllerName)
+                .To.Be.Null();
+            Expect(result.ActionName)
+                .To.Be.Null();
+            Expect(result.MethodInfo)
+                .To.Be.Null();
+        }
+    }
+
     [Test]
     public void ShouldBeAbleToSetControllerName()
     {
@@ -19,7 +43,7 @@ public class TestControllerActionDescriptorBuilder
             .WithControllerName(expected)
             .Build();
         // Assert
-        Expectations.Expect(result.ControllerName)
+        Expect(result.ControllerName)
             .To.Equal(expected);
     }
 
@@ -33,7 +57,7 @@ public class TestControllerActionDescriptorBuilder
             .WithActionName(expected)
             .Build();
         // Assert
-        Expectations.Expect(result.ActionName)
+        Expect(result.ActionName)
             .To.Equal(expected);
     }
 
@@ -48,7 +72,7 @@ public class TestControllerActionDescriptorBuilder
             .WithMethodInfo(expected)
             .Build();
         // Assert
-        Expectations.Expect(result.MethodInfo)
+        Expect(result.MethodInfo)
             .To.Be(expected);
     }
 
@@ -62,7 +86,7 @@ public class TestControllerActionDescriptorBuilder
             .WithControllerType(expected)
             .Build();
         // Assert
-        Expectations.Expect(result.ControllerTypeInfo)
+        Expect(result.ControllerTypeInfo)
             .To.Be(expected);
     }
 
@@ -77,7 +101,7 @@ public class TestControllerActionDescriptorBuilder
             .WithControllerType(expected)
             .Build();
         // Assert
-        Expectations.Expect(result.ControllerTypeInfo)
+        Expect(result.ControllerTypeInfo)
             .To.Be(expected);
     }
 }

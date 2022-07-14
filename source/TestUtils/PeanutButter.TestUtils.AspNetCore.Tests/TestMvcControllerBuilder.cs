@@ -2,6 +2,7 @@
 using NExpect;
 using NUnit.Framework;
 using PeanutButter.TestUtils.AspNetCore.Builders;
+using static NExpect.Expectations;
 
 namespace PeanutButter.TestUtils.AspNetCore.Tests;
 
@@ -18,7 +19,7 @@ public class TestMvcControllerBuilder
             // Act
             var result = BuildDefault();
             // Assert
-            Expectations.Expect(result.TempData)
+            Expect(result.TempData)
                 .Not.To.Be.Null();
         }
 
@@ -29,7 +30,7 @@ public class TestMvcControllerBuilder
             // Act
             var result = BuildDefault();
             // Assert
-            Expectations.Expect(result.ViewBag as object)
+            Expect(result.ViewBag as object)
                 .Not.To.Be.Null();
         }
 
@@ -40,7 +41,7 @@ public class TestMvcControllerBuilder
             // Act
             var result = BuildDefault();
             // Assert
-            Expectations.Expect(result.ViewData)
+            Expect(result.ViewData)
                 .Not.To.Be.Null();
         }
 

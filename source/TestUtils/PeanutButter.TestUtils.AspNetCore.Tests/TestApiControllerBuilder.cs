@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Reflection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using NUnit.Framework;
 using NExpect;
 using NSubstitute;
@@ -129,6 +131,21 @@ public class TestApiControllerBuilder
             Expect(result.ModelBinderFactory)
                 .Not.To.Be.Null();
             // Assert
+        }
+
+        [Test]
+        public void ShouldControllerActionDescriptor()
+        {
+            // Arrange
+            // Act
+            var result = BuildDefault();
+            // Assert
+            Expect(result.ControllerContext.ActionDescriptor)
+                .Not.To.Be.Null();
+            Expect(result.ControllerContext.ActionDescriptor.ControllerTypeInfo)
+                .To.Equal(typeof(ApiController).GetTypeInfo());
+            Expect(result.ControllerContext.ActionDescriptor.ControllerName)
+                .To.Equal("Api");
         }
 
         private static ApiController BuildDefault(
@@ -323,7 +340,7 @@ public class TestApiControllerBuilder
     }
 
     [Test]
-    public void ShouldBeAbleToSetRequestItem()
+    public void ShouldBeAbleToSetHttpContextItem()
     {
         // Arrange
         var key1 = GetRandomString(10);
@@ -344,6 +361,23 @@ public class TestApiControllerBuilder
         Expect(items)
             .To.Contain.Key(key2)
             .With.Value(value2);
+    }
+
+    [Test]
+    public void ShouldBeAbleToSetAction()
+    {
+        // Arrange
+        // Act
+        var result = ControllerBuilder.For<ApiController>()
+            .WithDefaultFactory()
+            .WithAction(nameof(ApiController.Add))
+            .Build();
+        // Assert
+        var actionDescriptor = result.ControllerContext.ActionDescriptor;
+        Expect(actionDescriptor.ActionName)
+            .To.Equal(nameof(ApiController.Add));
+        Expect(actionDescriptor.MethodInfo)
+            .To.Be(typeof(ApiController).GetMethod(nameof(ApiController.Add)));
     }
 }
 
