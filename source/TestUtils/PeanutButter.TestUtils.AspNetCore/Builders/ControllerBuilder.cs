@@ -35,52 +35,6 @@ public static class ControllerBuilder
     }
 }
 
-public class ControllerContextBuilder : Builder<ControllerContextBuilder, ControllerContext>
-{
-    public ControllerContextBuilder()
-    {
-        // ensure fake is installed for late overriding of request/response
-        WithHttpContext(HttpContextBuilder.BuildDefault());
-    }
-
-    public ControllerContextBuilder WithHttpContext(
-        HttpContext context
-    )
-    {
-        return With(o => o.HttpContext = context);
-    }
-
-    public ControllerContextBuilder WithRequest(
-        HttpRequest request
-    )
-    {
-        return With(o =>
-        {
-            var fake = o.HttpContext.As<FakeHttpContext>();
-            fake.SetRequestAccessor(() => request);
-        });
-    }
-
-    public ControllerContextBuilder WithResponse(
-        HttpResponse response
-    )
-    {
-        return With(o =>
-        {
-            var fake = o.HttpContext.As<FakeHttpContext>();
-            fake.SetResponseAccessor(() => response);
-        });
-    }
-}
-
-public class RouteDataBuilder : Builder<RouteDataBuilder, RouteData>
-{
-}
-
-public class ControllerActionDescriptorBuilder : Builder<ControllerActionDescriptorBuilder, ControllerActionDescriptor>
-{
-}
-
 /// <summary>
 /// Builds your
 /// </summary>
@@ -90,7 +44,6 @@ public class ControllerBuilder<TController>
     where TController : ControllerBase
 {
     private Func<TController> _factory;
-    private ControllerContextBuilder _controllerContextBuilder;
 
     /// <inheritdoc />
     public ControllerBuilder()
@@ -224,6 +177,12 @@ public class ControllerBuilder<TController>
         );
     }
 
+    /// <summary>
+    /// Sets a query parameter on the request for the controller
+    /// </summary>
+    /// <param name="parameter"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
     public ControllerBuilder<TController> WithRequestQueryParameter(
         string parameter,
         StringValues value
@@ -234,6 +193,12 @@ public class ControllerBuilder<TController>
         );
     }
 
+    /// <summary>
+    /// Sets an item on the http context for the controller
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
     public ControllerBuilder<TController> WithHttpContextItem(
         string key,
         object value
@@ -244,6 +209,12 @@ public class ControllerBuilder<TController>
         );
     }
 
+    /// <summary>
+    /// Sets a cookie value on the request for the controller
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
     public ControllerBuilder<TController> WithRequestCookie(
         string key,
         string value
@@ -254,6 +225,12 @@ public class ControllerBuilder<TController>
         );
     }
 
+    /// <summary>
+    /// Sets a header on the request for the controller
+    /// </summary>
+    /// <param name="header"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
     public ControllerBuilder<TController> WithRequestHeader(
         string header,
         string value
@@ -273,7 +250,6 @@ public class ControllerBuilder<TController>
         ControllerContext ctx
     )
     {
-        _controllerContextBuilder = null;
         return With(
             o => o.ControllerContext = ctx
         );

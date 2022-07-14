@@ -41,6 +41,7 @@
     </Compile>
     <Compile Include="..\PeanutButter.Utils\Dictionaries\CaseWarpingDictionaryWrapper.cs" Link="Imported\CaseWarpingDictionaryWrapper.cs" />
     <Compile Include="..\PeanutButter.Utils\Dictionaries\DefaultDictionary.cs" Link="Imported\DefaultDictionary.cs" />
+    <Compile Include="..\PeanutButter.Utils\DictionaryExtensions.cs" Link="Imported\DictionaryExtensions.cs" />
     <Compile Include="..\PeanutButter.Utils\Dictionaries\DictionaryWrappingObject.cs" Link="Imported\DictionaryWrappingObject.cs" />
     <Compile Include="..\PeanutButter.Utils\Dictionaries\GenericDictionaryEnumerator.cs" Link="Imported\GenericDictionaryEnumerator.cs" />
     <Compile Include="..\PeanutButter.Utils\Dictionaries\MergeDictionary.cs" Link="Imported\MergeDictionary.cs" />

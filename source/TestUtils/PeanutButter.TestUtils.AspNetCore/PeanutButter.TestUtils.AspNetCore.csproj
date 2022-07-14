@@ -6,6 +6,7 @@
     <Nullable>disable</Nullable>
     <LangVersion>latest</LangVersion>
     <RootNamespace>PeanutButter.TestUtils.AspNetCore</RootNamespace>
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\PeanutButter.TestUtils.AspNetCore.xml</DocumentationFile>
   </PropertyGroup>
 
