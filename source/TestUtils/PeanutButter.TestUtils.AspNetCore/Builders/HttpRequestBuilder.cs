@@ -4,6 +4,7 @@ using System.IO;
 using System.Net.Http;
 using System.Text;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Internal;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
@@ -526,6 +527,95 @@ public class HttpRequestBuilder : RandomizableBuilder<HttpRequestBuilder, HttpRe
     {
         return With(
             o => o.Form = formCollection
+        );
+    }
+
+    /// <summary>
+    /// Set a field on the form of the request
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public HttpRequestBuilder WithFormField(
+        string key,
+        string value
+    )
+    {
+        return With(
+            o => o.Form.As<FakeFormCollection>()[key] = value
+        );
+    }
+
+    /// <summary>
+    /// Adds a file to the form of the request
+    /// </summary>
+    /// <param name="file"></param>
+    /// <returns></returns>
+    public HttpRequestBuilder WithFormFile(IFormFile file)
+    {
+        return With(
+            o => o.Form.As<FakeFormCollection>()
+                .Files.As<FakeFormFileCollection>()
+                .Add(file)
+        );
+    }
+
+    /// <summary>
+    /// Adds a form file with string content and the provided name and filename
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="name"></param>
+    /// <param name="fileName"></param>
+    /// <returns></returns>
+    public HttpRequestBuilder WithFormFile(
+        string content,
+        string name,
+        string fileName
+    )
+    {
+        return WithFormFile(
+            Encoding.UTF8.GetBytes(content),
+            name,
+            fileName
+        );
+    }
+
+    /// <summary>
+    /// Adds a form file with binary content and the provided name and filename
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="name"></param>
+    /// <param name="fileName"></param>
+    /// <returns></returns>
+    public HttpRequestBuilder WithFormFile(
+        byte[] content,
+        string name,
+        string fileName
+    )
+    {
+        return WithFormFile(
+            new MemoryStream(content),
+            name,
+            fileName
+        );
+    }
+
+    /// <summary>
+    /// Adds a form file with text content and the provided name and filename
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="name"></param>
+    /// <param name="fileName"></param>
+    /// <returns></returns>
+    public HttpRequestBuilder WithFormFile(
+        Stream content,
+        string name,
+        string fileName
+    )
+    {
+        return With(
+            o => o.Form.Files.As<FakeFormFileCollection>()
+                .Add(new FakeFormFile(content, name, fileName))
         );
     }
 }

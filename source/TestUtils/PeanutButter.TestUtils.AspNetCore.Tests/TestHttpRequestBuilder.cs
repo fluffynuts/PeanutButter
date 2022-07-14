@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using NExpect;
@@ -8,6 +9,7 @@ using NUnit.Framework;
 using PeanutButter.TestUtils.AspNetCore.Builders;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 using PeanutButter.TestUtils.AspNetCore.Utils;
+using PeanutButter.Utils;
 using static NExpect.Expectations;
 using static NExpect.AspNetCoreExpectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
@@ -312,13 +314,47 @@ public class TestHttpRequestBuilder
             .WithQueryString(queryString)
             .Build();
         // Assert
-        var query = result.Query.ToDictionary(o => o.Key, o => o.Value);
+        var query = result.Query;
         Expect(query)
             .To.Contain.Key("foo")
             .With.Value("bar");
         Expect(query)
             .To.Contain.Key("quux")
             .With.Value("1");
+    }
+
+    [Test]
+    public void ShouldReturnEmptyStringValuesForUnknownQueryKey()
+    {
+        // Arrange
+        var sut = HttpRequestBuilder.BuildDefault();
+        var key = GetRandomString(10);
+        Expect(sut.Query.Keys)
+            .Not.To.Contain(key);
+        // Act
+        var result = sut.Query[key];
+        // Assert
+        Expect(result)
+            .To.Equal(new StringValues());
+    }
+
+    [Test]
+    public void ShouldBeCaseInsensitive()
+    {
+        // Arrange
+        var key = GetRandomString(10);
+        var value = GetRandomString(10);
+        var sut = HttpRequestBuilder.Create()
+            .WithQueryParameter(key, value)
+            .Build();
+        var search = key.ToRandomCase();
+        Expect(search)
+            .Not.To.Equal(key);
+        // Act
+        var result = sut.Query["OnE"];
+        // Assert
+        Expect(result)
+            .To.Equal(value);
     }
 
     [Test]
@@ -345,7 +381,7 @@ public class TestHttpRequestBuilder
         var key = GetRandomString();
         var value = GetRandomString();
         // Act
-        var result= HttpRequestBuilder.Create()
+        var result = HttpRequestBuilder.Create()
             .WithQueryParameter(key, value)
             .Build();
         // Assert
@@ -663,6 +699,63 @@ public class TestHttpRequestBuilder
                 .Not.To.Be.Null();
             Expect(result1.Headers)
                 .Not.To.Be.Null();
+        }
+
+        [Test]
+        public void ShouldBeAbleToSetFormField()
+        {
+            // Arrange
+            var key = GetRandomString(10);
+            var value = GetRandomString(10);
+            var randomized = key.ToRandomCase();
+            var sut = HttpRequestBuilder.Create()
+                .WithFormField(key, value)
+                .Build();
+            // Act
+            var result = sut.Form[randomized];
+            // Assert
+            Expect(result)
+                .To.Equal(value, "form field access should be case-insensitive");
+        }
+
+        [Test]
+        public void ShouldBeAbleToAddFormFile()
+        {
+            // Arrange
+            var file = GetRandom<FakeFormFile>();
+            var sut = HttpRequestBuilder.Create()
+                .WithFormFile(file)
+                .Build();
+            // Act
+            var result = sut.Form.Files[file.Name];
+            // Assert
+            Expect(result)
+                .To.Be(file);
+        }
+
+        [Test]
+        public void ShouldBeAbleToAddAFormFileByNameFileNameAndContent()
+        {
+            // Arrange
+            var name = GetRandomString(5);
+            var fileName = GetRandomFileName();
+            var content = GetRandomWords();
+            var expected = new FakeFormFile(
+                content.ToMemoryStream(),
+                name,
+                fileName
+            );
+            Expect(expected.Content)
+                .To.Equal(Encoding.UTF8.GetBytes(content));
+            
+            var sut = HttpRequestBuilder.Create()
+                .WithFormFile(content, name, fileName)
+                .Build();
+            // Act
+            var result = sut.Form.Files[name];
+            // Assert
+            Expect(result)
+                .To.Deep.Equal(expected);
         }
     }
 

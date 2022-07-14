@@ -8,16 +8,18 @@ using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils.Dictionaries;
 using static NExpect.Expectations;
-// ReSharper disable InconsistentNaming
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable CollectionNeverUpdated.Local
 
 namespace PeanutButter.Utils.Tests.Dictionaries
 {
     [TestFixture]
-    public class TestDefaultDictionary {
+    public class TestDefaultDictionary
+    {
         [Test]
-        public void Type_ShouldImplement_IDictionary() {
+        public void Type_ShouldImplement_IDictionary()
+        {
             // Arrange
             var sut = typeof(DefaultDictionary<string, bool>);
 
@@ -30,7 +32,8 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         }
 
         [Test]
-        public void IndexedValue_GivenNoDefaultResolverAtConstruction_WhenAskedForMissingValue_ShouldReturnDefaultOfT() {
+        public void IndexedValue_GivenNoDefaultResolverAtConstruction_WhenAskedForMissingValue_ShouldReturnDefaultOfT()
+        {
             // Arrange
             var sut = Create<string, bool>();
             var key = RandomValueGen.GetRandomString();
@@ -45,7 +48,8 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         }
 
         [Test]
-        public void IndexedValue_GivenDefaultResolverAtConstruction_ShouldReturnThatValue() {
+        public void IndexedValue_GivenDefaultResolverAtConstruction_ShouldReturnThatValue()
+        {
             // Arrange
             var expected = RandomValueGen.GetRandomString();
             var key = RandomValueGen.GetRandomString();
@@ -73,13 +77,15 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             {
                 result.Add(kvp);
             }
+
             // Assert
             Expect(result).To.Contain.Only(1)
                 .Deep.Equal.To(new KeyValuePair<string, string>("cow", "beef"));
         }
 
         [Test]
-        public void IndexedValue_WhenKeyExists_ShouldReturnThatValue() {
+        public void IndexedValue_WhenKeyExists_ShouldReturnThatValue()
+        {
             // Arrange
             var expected = RandomValueGen.GetRandomString();
             var key = RandomValueGen.GetRandomString();
@@ -97,7 +103,8 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         }
 
         [Test]
-        public void ContainsKey_ShouldReturnTrue() {
+        public void ContainsKey_ShouldReturnTrue()
+        {
             // Arrange
             var haveKey = RandomValueGen.GetRandomString();
             var missingKey = RandomValueGen.GetAnother(haveKey);
@@ -116,7 +123,8 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         }
 
         [Test]
-        public void Enumeration_ShouldPassThrough() {
+        public void Enumeration_ShouldPassThrough()
+        {
             // Arrange
             var k1 = RandomValueGen.GetRandomString();
             var k2 = RandomValueGen.GetAnother(k1);
@@ -130,7 +138,8 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             // Pre-assert
 
             // Act
-            foreach (var kvp in sut) {
+            foreach (var kvp in sut)
+            {
                 collector.Add(kvp);
             }
 
@@ -141,7 +150,8 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         }
 
         [Test]
-        public void Add_GivenKeyValuePair_ShouldPassThrough() {
+        public void Add_GivenKeyValuePair_ShouldPassThrough()
+        {
             // Arrange
             var sut = Create<string, string>();
             var kvp = RandomValueGen.GetRandom<KeyValuePair<string, string>>();
@@ -157,7 +167,8 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         }
 
         [Test]
-        public void Clear_ShouldPassThrough() {
+        public void Clear_ShouldPassThrough()
+        {
             // Arrange
             var sut = Create<string, string>();
             var item = RandomValueGen.GetRandom<KeyValuePair<string, string>>();
@@ -174,7 +185,8 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         }
 
         [Test]
-        public void Contains_ShouldReturnTrue() {
+        public void Contains_ShouldReturnTrue()
+        {
             // Arrange
             var have = RandomValueGen.GetRandom<KeyValuePair<string, string>>();
             var missing = RandomValueGen.GetAnother(have);
@@ -193,7 +205,8 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         }
 
         [Test]
-        public void Remove_GivenKeyValuePair_ShouldPassThrough_SortOf() {
+        public void Remove_GivenKeyValuePair_ShouldPassThrough_SortOf()
+        {
             // Arrange
             var have = RandomValueGen.GetRandom<KeyValuePair<string, string>>();
             var missing = RandomValueGen.GetAnother(have);
@@ -214,7 +227,8 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         }
 
         [Test]
-        public void Remove_GivenKey_ShouldPassThrough() {
+        public void Remove_GivenKey_ShouldPassThrough()
+        {
             // Arrange
             var have = RandomValueGen.GetRandom<KeyValuePair<string, string>>();
             var missing = RandomValueGen.GetAnother(have);
@@ -235,7 +249,8 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         }
 
         [Test]
-        public void Add_GivenKeyAndValue_ShouldPassThrough() {
+        public void Add_GivenKeyAndValue_ShouldPassThrough()
+        {
             // Arrange
             var sut = Create<string, string>();
             var kvp = RandomValueGen.GetRandom<KeyValuePair<string, string>>();
@@ -250,7 +265,8 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         }
 
         [Test]
-        public void TryGetValue_WhenKeyIsKnown_ShouldReturnThatValue() {
+        public void TryGetValue_WhenKeyIsKnown_ShouldReturnThatValue()
+        {
             // Arrange
             var have = RandomValueGen.GetRandom<KeyValuePair<string, string>>();
             var sut = Create<string, string>();
@@ -267,7 +283,8 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         }
 
         [Test]
-        public void TryGetValue_WhenKeyIsUnknown_ShouldReturnDefault() {
+        public void TryGetValue_WhenKeyIsUnknown_ShouldReturnDefault()
+        {
             // Arrange
             var expected = RandomValueGen.GetRandomString();
             var sut = Create<string, string>(() => expected);
@@ -283,7 +300,8 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         }
 
         [Test]
-        public void CopyTo_ShouldCopyKnownKeyValuePairs() {
+        public void CopyTo_ShouldCopyKnownKeyValuePairs()
+        {
             // Arrange
             var start = RandomValueGen.GetRandomInt(2, 4);
             var arraySize = RandomValueGen.GetRandomInt(10, 15);
@@ -301,12 +319,13 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             var defaultValue = default(KeyValuePair<string, string>);
             PyLike.Range(start).ForEach(i => Expect(target[i]).To.Equal(defaultValue));
             PyLike.Range(start + items.Length, arraySize).ForEach(
-                                i => Expect(target[i]).To.Equal(defaultValue));
+                i => Expect(target[i]).To.Equal(defaultValue));
             items.ForEach(i => Expect(target).To.Contain.Exactly(1).Equal.To(i));
         }
 
         [Test]
-        public void Count_ShouldReturnActualCount() {
+        public void Count_ShouldReturnActualCount()
+        {
             // Arrange
             var sut = Create<string, bool>();
             var items = RandomValueGen.GetRandomArray<KeyValuePair<string, bool>>();
@@ -322,7 +341,8 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         }
 
         [Test]
-        public void IsReadonly_ShouldReturnFalse() {
+        public void IsReadonly_ShouldReturnFalse()
+        {
             // Arrange
             var sut = Create<int, bool>();
 
@@ -336,7 +356,8 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         }
 
         [Test]
-        public void Keys_ShouldReturnKnownKeys() {
+        public void Keys_ShouldReturnKnownKeys()
+        {
             // Arrange
             var items = RandomValueGen.GetRandomArray<KeyValuePair<string, string>>();
             var sut = Create<string, string>();
@@ -353,7 +374,8 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         }
 
         [Test]
-        public void Values_ShouldReturnKnownValues() {
+        public void Values_ShouldReturnKnownValues()
+        {
             // Arrange
             var items = RandomValueGen.GetRandomArray<KeyValuePair<string, string>>();
             var sut = Create<string, string>();
@@ -384,7 +406,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         }
 
         [Test]
-        public void Instance_ShouldAppearToBeCaseInsensitive()
+        public void ShouldAppearToBeCaseInsensitiveByDefault()
         {
             // Arrange
             var dict = new DefaultDictionary<string, object>();
@@ -395,9 +417,26 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             Expect(result).To.Equal(StringComparer.OrdinalIgnoreCase);
         }
 
+        [Test]
+        public void ShouldBeAbleToSpecifyKeyComparer()
+        {
+            // Arrange
+            var dict = new DefaultDictionary<string, object>(
+                () => null,
+                StringComparer.Ordinal
+            );
+            // Act
+            dict["Foo"] = "foo";
+            dict["foo"] = "bar";
+            // Assert
+            Expect(dict as IDictionary<string, object>)
+                .To.Contain.Only(2).Items();
+        }
+
         private IDictionary<TKey, TValue> Create<TKey, TValue>(
             Func<TValue> defaultResolver = null
-        ) {
+        )
+        {
             return defaultResolver == null
                 ? new DefaultDictionary<TKey, TValue>()
                 : new DefaultDictionary<TKey, TValue>(

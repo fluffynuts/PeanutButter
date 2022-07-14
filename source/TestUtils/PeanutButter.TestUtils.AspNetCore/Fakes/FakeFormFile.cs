@@ -119,6 +119,20 @@ public class FakeFormFile : IFormFile, IFake
         );
     }
 
+    /// <summary>
+    /// convenience property to read the content of the file
+    /// </summary>
+    /// <returns></returns>
+    public byte[] Content
+    {
+        get 
+        {
+            using var memStream = new MemoryStream();
+            _content.CopyTo(memStream);
+            return memStream.ToArray();
+        }
+    }
+
     /// <inheritdoc />
     public void CopyTo(Stream target)
     {

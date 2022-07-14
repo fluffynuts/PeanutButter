@@ -17,11 +17,10 @@ namespace PeanutButter.Utils.Dictionaries
     /// <typeparam name="TValue"></typeparam>
 #if BUILD_PEANUTBUTTER_INTERNAL
     internal
-        #else
+#else
     public
 #endif
-        class DefaultDictionary<TKey, TValue> :
-            IDictionary<TKey, TValue>
+        class DefaultDictionary<TKey, TValue> : IDictionary<TKey, TValue>
     {
         private readonly Func<TValue> _defaultResolver;
         private readonly Func<TKey, TValue> _smartResolver;
@@ -31,10 +30,10 @@ namespace PeanutButter.Utils.Dictionaries
         /// Always report as case- and culture- insensitive
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public IEqualityComparer<TKey> Comparer =>
-            typeof(TKey) == typeof(string)
-                ? StringComparer.OrdinalIgnoreCase as IEqualityComparer<TKey>
-                : new StrictComparer<TKey>();
+        public IEqualityComparer<TKey> Comparer { get; private set; }
+        // typeof(TKey) == typeof(string)
+        //         ? StringComparer.OrdinalIgnoreCase as IEqualityComparer<TKey>
+        //         : new StrictComparer<TKey>();
 
         /// <summary>
         /// Constructs a DefaultDictionary where missing key lookups
@@ -49,10 +48,38 @@ namespace PeanutButter.Utils.Dictionaries
         /// return the value provided by the default resolver
         /// </summary>
         /// <param name="defaultResolver"></param>
-        public DefaultDictionary(Func<TValue> defaultResolver)
+        public DefaultDictionary(
+            Func<TValue> defaultResolver
+        ): this(defaultResolver, null as IEqualityComparer<TKey>)
+        {
+        }
+
+        /// <summary>
+        /// Creates the default dictionary with the provided default resolver and key comparer
+        /// </summary>
+        /// <param name="defaultResolver"></param>
+        /// <param name="keyComparer"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public DefaultDictionary(Func<TValue> defaultResolver, IEqualityComparer<TKey> keyComparer)
         {
             _defaultResolver = defaultResolver ?? throw new ArgumentNullException(nameof(defaultResolver));
-            _actual = new Dictionary<TKey, TValue>();
+            Comparer = ResolveEqualityComparer(keyComparer);
+            _actual = new Dictionary<TKey, TValue>(Comparer);
+        }
+
+        private IEqualityComparer<TKey> ResolveEqualityComparer(IEqualityComparer<TKey> provided)
+        {
+            if (provided is not null)
+            {
+                return provided;
+            }
+
+            if (typeof(TKey) == typeof(string))
+            {
+                return (IEqualityComparer<TKey>) StringComparer.OrdinalIgnoreCase;
+            }
+            
+            return EqualityComparer<TKey>.Default;
         }
 
         /// <summary>
@@ -60,9 +87,14 @@ namespace PeanutButter.Utils.Dictionaries
         /// return the value provided by the default resolver
         /// </summary>
         /// <param name="smartResolver"></param>
-        public DefaultDictionary(Func<TKey, TValue> smartResolver)
+        public DefaultDictionary(Func<TKey, TValue> smartResolver): this(smartResolver, null as IEqualityComparer<TKey>)
+        {
+        }
+
+        private DefaultDictionary(Func<TKey, TValue> smartResolver, IEqualityComparer<TKey> keyComparer)
         {
             _smartResolver = smartResolver ?? throw new ArgumentNullException(nameof(smartResolver));
+            Comparer = ResolveEqualityComparer(keyComparer);
             _actual = new Dictionary<TKey, TValue>();
         }
 
@@ -201,7 +233,9 @@ namespace PeanutButter.Utils.Dictionaries
         /// <param name="key">Key to look up</param>
         public TValue this[TKey key]
         {
-            get => _actual.TryGetValue(key, out var result) ? result : Resolve(key);
+            get => _actual.TryGetValue(key, out var result)
+                ? result
+                : Resolve(key);
             set => _actual[key] = value;
         }
 

@@ -20,7 +20,7 @@ public class FakeFormCollection : StringValueMap, IFormCollection, IFake
 
     /// <inheritdoc />
     public FakeFormCollection()
-        : base(StringComparer.Ordinal)
+        : base(StringComparer.OrdinalIgnoreCase)
     {
     }
 

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Microsoft.Extensions.Primitives;
+using PeanutButter.Utils.Dictionaries;
 
 // ReSharper disable PublicConstructorInAbstractClass
 
@@ -38,7 +39,7 @@ public abstract class StringValueMap
     /// <summary>
     /// Create a blank string-value map
     /// </summary>
-    public StringValueMap() : this(StringComparer.Ordinal)
+    public StringValueMap() : this(StringComparer.OrdinalIgnoreCase)
     {
     }
 
@@ -55,7 +56,10 @@ public abstract class StringValueMap
 
     private IDictionary<string, StringValues> CreateDefaultStore()
     {
-        return new Dictionary<string, StringValues>(_equalityComparer);
+        return new DefaultDictionary<string, StringValues>(
+            () => new StringValues(),
+            _equalityComparer
+        );
     }
 
     /// <summary>
