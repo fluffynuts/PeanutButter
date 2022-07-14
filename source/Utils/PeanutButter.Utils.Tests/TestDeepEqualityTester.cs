@@ -619,6 +619,7 @@ namespace PeanutButter.Utils.Tests
                     // Assert
                     PropertyAssert.AreDeepEqual(result, thang);
                 }
+
             }
         }
 
@@ -941,7 +942,7 @@ namespace PeanutButter.Utils.Tests
                     {
                         // Arrange
                         var left = new { id = 1 };
-                        var right = new { id = (int?)1 };
+                        var right = new { id = (int?) 1 };
                         var sut = Create(left, right);
                         // Act
                         var result = sut.AreDeepEqual();
@@ -955,7 +956,7 @@ namespace PeanutButter.Utils.Tests
                     {
                         // Arrange
                         var left = new { id = 1 };
-                        var right = new { id = (long?)1 };
+                        var right = new { id = (long?) 1 };
                         var sut = Create(left, right);
                         // Act
                         var result = sut.AreDeepEqual();
@@ -969,7 +970,7 @@ namespace PeanutButter.Utils.Tests
                     {
                         // Arrange
                         var left = new { id = 1 };
-                        var right = new { id = (decimal?)1 };
+                        var right = new { id = (decimal?) 1 };
                         var sut = Create(left, right);
                         // Act
                         var result = sut.AreDeepEqual();
@@ -983,7 +984,7 @@ namespace PeanutButter.Utils.Tests
                     {
                         // Arrange
                         var left = new { id = 1 };
-                        var right = new { id = (short?)1 };
+                        var right = new { id = (short?) 1 };
                         var sut = Create(left, right);
                         // Act
                         var result = sut.AreDeepEqual();
@@ -997,7 +998,7 @@ namespace PeanutButter.Utils.Tests
                     {
                         // Arrange
                         var left = new { id = 1 };
-                        var right = new { id = (float?)1 };
+                        var right = new { id = (float?) 1 };
                         var sut = Create(left, right);
                         // Act
                         var result = sut.AreDeepEqual();
@@ -1011,7 +1012,7 @@ namespace PeanutButter.Utils.Tests
                     {
                         // Arrange
                         var left = new { id = 1 };
-                        var right = new { id = (double?)1 };
+                        var right = new { id = (double?) 1 };
                         var sut = Create(left, right);
                         // Act
                         var result = sut.AreDeepEqual();
@@ -1020,7 +1021,7 @@ namespace PeanutButter.Utils.Tests
                             .To.Be.True();
                     }
                 }
-                
+
                 [TestFixture]
                 public class SadPaths
                 {
@@ -1029,7 +1030,7 @@ namespace PeanutButter.Utils.Tests
                     {
                         // Arrange
                         var left = new { id = 2 };
-                        var right = new { id = (int?)1 };
+                        var right = new { id = (int?) 1 };
                         var sut = Create(left, right);
                         // Act
                         var result = sut.AreDeepEqual();
@@ -1043,7 +1044,7 @@ namespace PeanutButter.Utils.Tests
                     {
                         // Arrange
                         var left = new { id = 2 };
-                        var right = new { id = (int?)null };
+                        var right = new { id = (int?) null };
                         var sut = Create(left, right);
                         // Act
                         var result = sut.AreDeepEqual();
@@ -1057,7 +1058,7 @@ namespace PeanutButter.Utils.Tests
                     {
                         // Arrange
                         var left = new { id = 2 };
-                        var right = new { id = (int?)null };
+                        var right = new { id = (int?) null };
                         var sut = Create(right, left);
                         // Act
                         var result = sut.AreDeepEqual();
@@ -1071,7 +1072,7 @@ namespace PeanutButter.Utils.Tests
                     {
                         // Arrange
                         var left = new { id = 2 };
-                        var right = new { id = (long?)1 };
+                        var right = new { id = (long?) 1 };
                         var sut = Create(left, right);
                         // Act
                         var result = sut.AreDeepEqual();
@@ -1085,7 +1086,7 @@ namespace PeanutButter.Utils.Tests
                     {
                         // Arrange
                         var left = new { id = 1 };
-                        var right = new { id = (decimal?)1.0001M };
+                        var right = new { id = (decimal?) 1.0001M };
                         var sut = Create(left, right);
                         // Act
                         var result = sut.AreDeepEqual();
@@ -1099,7 +1100,7 @@ namespace PeanutButter.Utils.Tests
                     {
                         // Arrange
                         var left = new { id = 1 };
-                        var right = new { id = (short?)2 };
+                        var right = new { id = (short?) 2 };
                         var sut = Create(left, right);
                         // Act
                         var result = sut.AreDeepEqual();
@@ -1113,7 +1114,7 @@ namespace PeanutButter.Utils.Tests
                     {
                         // Arrange
                         var left = new { id = 1 };
-                        var right = new { id = (float?)1.2 };
+                        var right = new { id = (float?) 1.2 };
                         var sut = Create(left, right);
                         // Act
                         var result = sut.AreDeepEqual();
@@ -1127,7 +1128,7 @@ namespace PeanutButter.Utils.Tests
                     {
                         // Arrange
                         var left = new { id = 1 };
-                        var right = new { id = (double?)1.000001 };
+                        var right = new { id = (double?) 1.000001 };
                         var sut = Create(left, right);
                         // Act
                         var result = sut.AreDeepEqual();
@@ -1204,7 +1205,7 @@ namespace PeanutButter.Utils.Tests
             public void GivenDisparateNumericTypesAndCustomDecimalComparer()
             {
                 // Arrange
-                var left = new { id = (long)1 };
+                var left = new { id = (long) 1 };
                 var right = new { id = 2 };
                 var sut = Create(left, right);
                 sut.AddCustomComparer(new DecimalComparerWhichAllowsUpTo2Delta());

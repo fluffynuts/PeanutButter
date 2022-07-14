@@ -1,7 +1,9 @@
-using System;
+using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Http;
 using NUnit.Framework;
 using NExpect;
+using PeanutButter.TestUtils.AspNetCore.Builders;
 using static NExpect.Expectations;
 
 namespace PeanutButter.Utils.NetCore.Tests
@@ -74,6 +76,53 @@ namespace PeanutButter.Utils.NetCore.Tests
                 .To.Be.False();
             // Assert
         }
+
+        [Test]
+        public void ShouldNotBreakOnPathString()
+        {
+            // Arrange
+            var s1 = new PathString();
+            var s2 = new PathString();
+            var sut = Create(s1, s2);
+            // Act
+            var result = sut.AreDeepEqual();
+            // Assert
+            Expect(result)
+                .To.Be.True();
+        }
+
+        [Test]
+        public void ComparingKeyValuePairsWithComplexParts()
+        {
+            // Arrange
+            var kvp1 = new KeyValuePair<string, string[]>("a", new[] { "b" });
+            var kvp2 = new KeyValuePair<string, string[]>("a", new[] { "b" });
+            var sut = Create(kvp1, kvp2);
+            // Act
+            var result = sut.AreDeepEqual();
+            // Assert
+            Expect(result)
+                .To.Be.True();
+        }
+
+        [Test]
+        public void ShouldNotBreakOnFakeHttpRequest()
+        {
+            // Arrange
+            var req1 = HttpRequestBuilder.Create()
+                .Randomize()
+                .Build();
+            var req2 = HttpRequestBuilder.Create()
+                .Randomize()
+                .Build();
+            var sut = Create(req1, req2);
+            // Act
+            var result = sut.AreDeepEqual();
+            // Assert
+            Expect(result)
+                .To.Be.False();
+        }
+
 
         public class Node
         {

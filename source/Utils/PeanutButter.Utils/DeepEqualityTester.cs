@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -164,9 +165,11 @@ Imported.PeanutButter.Utils
         {
             if (!result &&
                 RecordErrors &&
-                IsSimpleTypeOrNullableOfSimpleType(_objSource?.GetType()) &&
-                IsSimpleTypeOrNullableOfSimpleType(_objCompare?.GetType()))
+                CanBeComparedWithEquals(_objSource?.GetType()) &&
+                CanBeComparedWithEquals(_objCompare?.GetType()))
+            {
                 AddError("Primitive values differ");
+            }
         }
 
         private void AddError(string message)
@@ -176,10 +179,10 @@ Imported.PeanutButter.Utils
             _errors.Add(message);
         }
 
-        private static bool AreBothSimpleOrNullableOfSimpleTypes(Type t1, Type t2)
+        private static bool CanBothBeComparedWithEquals(Type t1, Type t2)
         {
-            return IsSimpleTypeOrNullableOfSimpleType(t1) &&
-                IsSimpleTypeOrNullableOfSimpleType(t2);
+            return CanBeComparedWithEquals(t1) &&
+                CanBeComparedWithEquals(t2);
         }
 
         private bool AreDeepEqualInternal(
@@ -216,7 +219,7 @@ Imported.PeanutButter.Utils
                 return CompareEnums(objSource, objCompare);
             }
 
-            if (AreBothSimpleOrNullableOfSimpleTypes(sourceType, compareType))
+            if (CanBothBeComparedWithEquals(sourceType, compareType))
             {
                 return AreSimpleEqual(sourceType, objSource, compareType, objCompare);
             }
@@ -336,7 +339,9 @@ Imported.PeanutButter.Utils
             T right
         )
         {
-            var comparer = _customComparers.OfType<IEqualityComparer<T>>().FirstOrDefault();
+            var comparer = _customComparers
+                .OfType<IEqualityComparer<T>>()
+                .FirstOrDefault();
             return comparer?.Equals(left, right);
         }
 
@@ -454,19 +459,33 @@ Imported.PeanutButter.Utils
             _pendingComparisons = new Dictionary<object, object>();
         }
 
+        private static bool CanBeComparedWithEquals(Type t)
+        {
+            var equatableInterface = EquatableInterfaces.FindOrAdd(
+                t, () => EquatableGenericType.MakeGenericType(t)
+            );
+            return t.Implements(equatableInterface)
+                || IsSimpleTypeOrNullableOfSimpleType(t);
+        }
+
+        private static readonly Type EquatableGenericType = typeof(IEquatable<>);
+        private static readonly ConcurrentDictionary<Type, Type> EquatableInterfaces = new();
+
         private static bool IsSimpleTypeOrNullableOfSimpleType(Type t)
         {
-            return t != null &&
+            return t is not null &&
+            (
                 Types.PrimitivesAndImmutables.Any(
                     si => si == t ||
 #if NETSTANDARD
                         (t.IsConstructedGenericType &&
 #else
-                            (t.IsGenericType &&
+                        (t.IsGenericType &&
 #endif
-                                t.GetGenericTypeDefinition() == typeof(Nullable<>) &&
-                                Nullable.GetUnderlyingType(t) == si))
-                );
+                            t.GetGenericTypeDefinition() == typeof(Nullable<>) &&
+                            Nullable.GetUnderlyingType(t) == si)
+                )
+            );
         }
 
 
