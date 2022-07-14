@@ -22,6 +22,7 @@ public class HttpRequestBuilder : RandomizableBuilder<HttpRequestBuilder, HttpRe
         return new HttpRequestBuilder(noContext: true);
     }
 
+    /// <inheritdoc />
     public HttpRequestBuilder()
         : this(noContext: false)
     {

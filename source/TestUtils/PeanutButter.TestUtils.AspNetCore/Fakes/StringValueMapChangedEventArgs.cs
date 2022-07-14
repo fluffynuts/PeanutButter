@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Primitives;
+
 // ReSharper disable MemberCanBePrivate.Global
 
-namespace PeanutButter.TestUtils.AspNetCore;
+namespace PeanutButter.TestUtils.AspNetCore.Fakes;
 
 /// <summary>
 /// Raised when a StringValueMap changes

@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace PeanutButter.TestUtils.AspNetCore;
+namespace PeanutButter.TestUtils.AspNetCore.Fakes;
 
 /// <summary>
 /// Provides a collection of string maps

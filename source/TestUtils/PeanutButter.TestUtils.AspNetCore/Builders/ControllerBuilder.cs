@@ -10,12 +10,12 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
-using PeanutButter.TestUtils.AspNetCore.Builders;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
+using PeanutButter.TestUtils.AspNetCore.Utils;
 
 // ReSharper disable MemberCanBePrivate.Global
 
-namespace PeanutButter.TestUtils.AspNetCore;
+namespace PeanutButter.TestUtils.AspNetCore.Builders;
 
 /// <summary>
 /// Starts off a builder for your ApiController

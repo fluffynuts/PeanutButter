@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
-namespace PeanutButter.TestUtils.AspNetCore;
+namespace PeanutButter.TestUtils.AspNetCore.Utils;
 
 /// <summary>
 /// Provides a null-implementation for IOptions&lt;MvcOptions&gt;

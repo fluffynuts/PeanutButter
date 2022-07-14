@@ -3,7 +3,7 @@ using System.Text;
 using Microsoft.AspNetCore.Http;
 using PeanutButter.Utils;
 
-namespace PeanutButter.TestUtils.AspNetCore;
+namespace PeanutButter.TestUtils.AspNetCore.Utils;
 
 /// <summary>
 /// Provides some convenience extensions for form files

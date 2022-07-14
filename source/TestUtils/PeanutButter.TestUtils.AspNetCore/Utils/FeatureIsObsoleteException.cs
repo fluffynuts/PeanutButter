@@ -1,6 +1,6 @@
 using System;
 
-namespace PeanutButter.TestUtils.AspNetCore;
+namespace PeanutButter.TestUtils.AspNetCore.Utils;
 
 /// <summary>
 /// Thrown when attempting to use an obsolete feature

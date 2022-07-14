@@ -3,9 +3,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using PeanutButter.TestUtils.AspNetCore.Fakes;
 
-namespace PeanutButter.TestUtils.AspNetCore;
+namespace PeanutButter.TestUtils.AspNetCore.Fakes;
 
 /// <summary>
 /// Provides a minimal implementation of IServiceProvider

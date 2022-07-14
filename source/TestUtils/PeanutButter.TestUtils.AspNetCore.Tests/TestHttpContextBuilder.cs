@@ -8,6 +8,7 @@ using NSubstitute;
 using NUnit.Framework;
 using PeanutButter.TestUtils.AspNetCore.Builders;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
+using PeanutButter.TestUtils.AspNetCore.Utils;
 using static NExpect.Expectations;
 using static NExpect.AspNetCoreExpectations;
 

@@ -1,5 +1,6 @@
 using NExpect;
 using NUnit.Framework;
+using PeanutButter.TestUtils.AspNetCore.Fakes;
 using static NExpect.Expectations;
 
 namespace PeanutButter.TestUtils.AspNetCore.Tests;

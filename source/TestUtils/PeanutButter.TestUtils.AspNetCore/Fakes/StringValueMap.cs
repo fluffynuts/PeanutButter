@@ -2,9 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using Microsoft.Extensions.Primitives;
+
 // ReSharper disable PublicConstructorInAbstractClass
 
-namespace PeanutButter.TestUtils.AspNetCore;
+namespace PeanutButter.TestUtils.AspNetCore.Fakes;
 
 /// <summary>
 /// Provides a string-to-stringvalue map

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using NExpect;
 using NUnit.Framework;
+using PeanutButter.TestUtils.AspNetCore.Builders;
 
 namespace PeanutButter.TestUtils.AspNetCore.Tests;
 
