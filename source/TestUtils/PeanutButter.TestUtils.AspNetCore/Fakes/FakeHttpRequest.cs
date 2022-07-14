@@ -49,9 +49,23 @@ public class FakeHttpRequest : HttpRequest, IFake
     public override bool IsHttps
     {
         get => Scheme?.ToLower() == "https";
-        set => Scheme = value
-            ? "https"
-            : "http";
+        set
+        {
+            Scheme = value
+                ? "https"
+                : "http";
+            Protocol = GuessProtocolFor(Scheme);
+        }
+    }
+
+    internal static string GuessProtocolFor(string scheme)
+    {
+        return scheme?.ToLower() switch
+        {
+            "http" => "HTTP/1.1",
+            "https" => "HTTP/2",
+            _ => scheme
+        };
     }
 
     /// <inheritdoc />
@@ -118,11 +132,7 @@ public class FakeHttpRequest : HttpRequest, IFake
     private IHeaderDictionary _headers = new FakeHeaderDictionary();
 
     /// <inheritdoc />
-    public override string Protocol
-    {
-        get => Scheme;
-        set => Scheme = value;
-    }
+    public override string Protocol { get; set; }
 
     /// <inheritdoc />
     public override IHeaderDictionary Headers

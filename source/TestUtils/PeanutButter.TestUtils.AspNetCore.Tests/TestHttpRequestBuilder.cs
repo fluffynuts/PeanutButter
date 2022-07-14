@@ -67,7 +67,7 @@ public class TestHttpRequestBuilder
             Expect(result.Scheme)
                 .To.Equal("http");
             Expect(result.Protocol)
-                .To.Equal("http");
+                .To.Equal("HTTP/1.1");
         }
 
         [Test]
@@ -198,6 +198,24 @@ public class TestHttpRequestBuilder
             .To.Equal("https");
         Expect(captured2)
             .To.Equal("http");
+    }
+
+    [Test]
+    public void ShouldSwitchProtocolWhenFlippingIsHttps()
+    {
+        // Arrange
+        // Act
+        var result = HttpRequestBuilder.BuildDefault();
+        result.IsHttps = true;
+        var captured1 = result.Protocol;
+        result.IsHttps = false;
+        var captured2 = result.Protocol;
+        // Assert
+
+        Expect(captured1)
+            .To.Equal("HTTP/2");
+        Expect(captured2)
+            .To.Equal("HTTP/1.1");
     }
 
     [Test]

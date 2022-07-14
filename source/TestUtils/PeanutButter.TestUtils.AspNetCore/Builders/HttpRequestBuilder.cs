@@ -466,17 +466,7 @@ public class HttpRequestBuilder : RandomizableBuilder<HttpRequestBuilder, HttpRe
     {
         return With(
             o => o.Scheme = scheme
-        ).With(o => o.Protocol = GuessProtocolFor(o.Scheme));
-    }
-
-    private string GuessProtocolFor(string scheme)
-    {
-        return scheme?.ToLower() switch
-        {
-            "http" => "HTTP/1.1",
-            "https" => "HTTP/2",
-            _ => scheme
-        };
+        ).With(o => o.Protocol = FakeHttpRequest.GuessProtocolFor(o.Scheme));
     }
 
     /// <summary>

@@ -271,22 +271,6 @@ public class TestHttpResponseBuilder
     }
 
     [Test]
-    [Ignore("WIP")]
-    public void PathString()
-    {
-        // Arrange
-        var s1 = new PathString();
-        var s2 = new PathString();
-        // Act
-        Expect(s1)
-            .To.Equal(s2);
-        Expect(s1)
-            .To.Deep.Equal(s2);
-        // Assert
-    }
-
-    [Test]
-    [Ignore("WIP: have to work around deep equality on types like PathString")]
     public void ShouldBeAbleToBuildRandom()
     {
         // Arrange
@@ -294,9 +278,7 @@ public class TestHttpResponseBuilder
         var result1 = GetRandom<HttpResponse>();
         var result2 = GetRandom<HttpResponse>();
         // // Assert
-        Expect(result1.DeepEquals(result2))
-            .To.Be.False();
-        // Expect(result1)
-        //     .Not.To.Deep.Equal(result2);
+        Expect(result1)
+            .Not.To.Deep.Equal(result2);
     }
 }
