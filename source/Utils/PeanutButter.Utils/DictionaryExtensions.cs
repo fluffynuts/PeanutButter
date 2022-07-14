@@ -141,7 +141,7 @@ namespace PeanutButter.Utils
                 {
                     return result;
                 }
-                
+
                 // item has been removed, but technically, we can give it back
                 // if it was generated (or regen) - this is a threading scenario
                 // in the host app - not our immediate problem
@@ -230,10 +230,15 @@ namespace PeanutButter.Utils
         }
     }
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
     /// <summary>
     /// Sets the precedence when merging data with the same keys
     /// </summary>
-    public enum MergePrecedence
+    public
+#endif
+        enum MergePrecedence
     {
         /// <summary>
         /// Prefer the first value seen
