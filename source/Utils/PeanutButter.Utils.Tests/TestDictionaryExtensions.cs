@@ -212,11 +212,16 @@ namespace PeanutButter.Utils.Tests
 
                     // Act
                     var result = d1
-                        .MergedWith(d2, MergePrecedence.Last);
+                        .MergedWith(d2, MergeWithPrecedence.PreferLastSeen);
                     // Assert
                     // key order isn't guaranteed by Dictionary<TKey, TValue>
                     // but it turns out that in a small collection, they will
                     // be in first-seen order; however, this test is sufficient
+                    var noMutate = "should not mutate either of the original dictionaries";
+                    Expect(d2)
+                        .Not.To.Contain.Key("one", noMutate);
+                    Expect(d1)
+                        .Not.To.Contain.Key("two", noMutate);
                     Expect(result)
                         .To.Be.Equivalent.To(expected);
                 }
@@ -284,13 +289,148 @@ namespace PeanutButter.Utils.Tests
 
                     // Act
                     var result = d1
-                        .MergedWith(d2, MergePrecedence.First);
+                        .MergedWith(d2, MergeWithPrecedence.PreferFirstSeen);
                     // Assert
                     // key order isn't guaranteed by Dictionary<TKey, TValue>
                     // but it turns out that in a small collection, they will
                     // be in first-seen order; however, this test is sufficient
                     Expect(result)
                         .To.Be.Equivalent.To(expected);
+                }
+            }
+        }
+
+        [TestFixture]
+        public class MergeInto
+        {
+            [Test]
+            public void ShouldNotThrowIfNewDataIsNull()
+            {
+                // Arrange
+                var key = GetRandomString();
+                var value = GetRandomString();
+                var newData = null as IDictionary<string, string>;
+                var target = new Dictionary<string, string>()
+                {
+                    [key] = value
+                };
+                // Act
+                Expect(() => newData.MergeInto(target))
+                    .Not.To.Throw();
+                // Assert
+            }
+
+            [TestFixture]
+            public class DefaultBehavior
+            {
+                [Test]
+                public void ShouldNotOverwriteTargetData()
+                {
+                    // Arrange
+                    var newKey = GetRandomString(10);
+                    var sharedKey = GetRandomString(10);
+                    var existingKey = GetRandomString(10);
+                    var newValue = GetRandomString(10);
+                    var expected = GetRandomString(10);
+                    var existingValue = GetRandomString(10);
+
+                    var newData = new Dictionary<string, string>()
+                    {
+                        [newKey] = newValue,
+                        [sharedKey] = GetRandomString(10)
+                    };
+                    var target = new Dictionary<string, string>()
+                    {
+                        [existingKey] = existingValue,
+                        [sharedKey] = expected
+                    };
+                    // Act
+                    newData.MergeInto(target);
+                    // Assert
+                    Expect(target)
+                        .To.Contain.Only(3).Items();
+                    Expect(target[newKey])
+                        .To.Equal(newValue);
+                    Expect(target[existingKey])
+                        .To.Equal(existingValue);
+                    Expect(target[sharedKey])
+                        .To.Equal(expected);
+                }
+            }
+
+            [TestFixture]
+            public class WhenExplicitlyChoosingPreferTargetData
+            {
+                [Test]
+                public void ShouldNotOverwriteTargetData()
+                {
+                    // Arrange
+                    var newKey = GetRandomString(10);
+                    var sharedKey = GetRandomString(10);
+                    var existingKey = GetRandomString(10);
+                    var newValue = GetRandomString(10);
+                    var expected = GetRandomString(10);
+                    var existingValue = GetRandomString(10);
+
+                    var newData = new Dictionary<string, string>()
+                    {
+                        [newKey] = newValue,
+                        [sharedKey] = GetRandomString(10)
+                    };
+                    var target = new Dictionary<string, string>()
+                    {
+                        [existingKey] = existingValue,
+                        [sharedKey] = expected
+                    };
+                    // Act
+                    newData.MergeInto(target, MergeIntoPrecedence.PreferTargetData);
+                    // Assert
+                    Expect(target)
+                        .To.Contain.Only(3).Items();
+                    Expect(target[newKey])
+                        .To.Equal(newValue);
+                    Expect(target[existingKey])
+                        .To.Equal(existingValue);
+                    Expect(target[sharedKey])
+                        .To.Equal(expected);
+                }
+            }
+
+            [TestFixture]
+            public class WhenExplicitlyChoosingPreferNewData
+            {
+                [Test]
+                public void ShouldOverwriteTargetData()
+                {
+                    // Arrange
+                    var newKey = GetRandomString(10);
+                    var sharedKey = GetRandomString(10);
+                    var existingKey = GetRandomString(10);
+                    var newValue = GetRandomString(10);
+                    var expected = GetRandomString(10);
+                    var existingValue = GetRandomString(10);
+
+                    var newData = new Dictionary<string, string>()
+                    {
+                        [newKey] = newValue,
+                        [sharedKey] = expected
+                    };
+                    var target = new Dictionary<string, string>()
+                    {
+                        [existingKey] = existingValue,
+                        [sharedKey] = GetRandomString(10)
+                    };
+                    // Act
+                    newData.MergeInto(target, MergeIntoPrecedence.PreferNewData);
+                    // Assert
+                    Expect(target)
+                        .To.Contain.Only(3).Items();
+                    Expect(target[newKey])
+                        .To.Equal(newValue);
+                    Expect(target[existingKey])
+                        .To.Equal(existingValue);
+                    Expect(target[sharedKey])
+                        .To.Equal(expected);
                 }
             }
         }

@@ -194,7 +194,7 @@ namespace PeanutButter.Utils
         {
             return first.MergedWith(
                 second,
-                MergePrecedence.Last
+                MergeWithPrecedence.PreferLastSeen
             );
         }
 
@@ -204,17 +204,17 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="first"></param>
         /// <param name="second"></param>
-        /// <param name="precedence"></param>
+        /// <param name="withPrecedence"></param>
         /// <typeparam name="TKey"></typeparam>
         /// <typeparam name="TValue"></typeparam>
         /// <returns></returns>
         public static IDictionary<TKey, TValue> MergedWith<TKey, TValue>(
             this IDictionary<TKey, TValue> first,
             IDictionary<TKey, TValue> second,
-            MergePrecedence precedence
+            MergeWithPrecedence withPrecedence
         )
         {
-            var dictionaries = precedence == MergePrecedence.First
+            var dictionaries = withPrecedence == MergeWithPrecedence.PreferFirstSeen
                 ? new[] { second, first }
                 : new[] { first, second };
             var result = new Dictionary<TKey, TValue>();
@@ -228,26 +228,124 @@ namespace PeanutButter.Utils
 
             return result;
         }
+
+        /// <summary>
+        /// Merges the new data into the target, preferring to keep
+        /// the original values in the target when also specified in
+        /// the new data
+        /// </summary>
+        /// <param name="newData"></param>
+        /// <param name="target"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        public static void MergeInto<TKey, TValue>(
+            this IDictionary<TKey, TValue> newData,
+            IDictionary<TKey, TValue> target
+        )
+        {
+            newData.MergeInto(target, MergeIntoPrecedence.PreferTargetData);
+        }
+
+        /// <summary>
+        /// Merges the new data into the target, with the
+        /// specified merge preference
+        /// </summary>
+        /// <param name="newData"></param>
+        /// <param name="target"></param>
+        /// <param name="mergePrecedence"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        public static void MergeInto<TKey, TValue>(
+            this IDictionary<TKey, TValue> newData,
+            IDictionary<TKey, TValue> target,
+            MergeIntoPrecedence mergePrecedence
+        )
+        {
+            if (newData is null)
+            {
+                return; // nothing to add
+            }
+
+            if (target is null)
+            {
+                throw new ArgumentNullException(nameof(target));
+            }
+
+            if (mergePrecedence == MergeIntoPrecedence.PreferNewData)
+            {
+                MergeWithOverwrite(newData, target);
+            }
+            else
+            {
+                MergeWithOriginalRetention(newData, target);
+            }
+        }
+
+        private static void MergeWithOriginalRetention<TKey, TValue>(
+            IDictionary<TKey, TValue> newData,
+            IDictionary<TKey, TValue> target
+        )
+        {
+            var toMerge = newData.Keys.Except(target.Keys);
+            foreach (var key in toMerge)
+            {
+                target[key] = newData[key];
+            }
+        }
+
+        private static void MergeWithOverwrite<TKey, TValue>(
+            IDictionary<TKey, TValue> newData,
+            IDictionary<TKey, TValue> target
+        )
+        {
+            foreach (var kvp in newData)
+            {
+                target[kvp.Key] = kvp.Value;
+            }
+        }
     }
 
-#if BUILD_PEANUTBUTTER_INTERNAL
-    internal
-#else
     /// <summary>
     /// Sets the precedence when merging data with the same keys
     /// </summary>
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
     public
 #endif
-        enum MergePrecedence
+        enum MergeWithPrecedence
     {
         /// <summary>
         /// Prefer the first value seen
         /// </summary>
-        First,
+        PreferFirstSeen,
 
         /// <summary>
         /// Prefer the last value seen
         /// </summary>
-        Last
+        PreferLastSeen
+    }
+
+    /// <summary>
+    /// Sets the precedence when merging new data into an existing dictionary
+    /// </summary>
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        enum MergeIntoPrecedence
+    {
+        /// <summary>
+        /// Prefer target data over new data, ie
+        /// discard the new value if already found in the target
+        /// </summary>
+        PreferTargetData,
+
+        /// <summary>
+        /// Prefer to new data over existing target data, ie
+        /// overwrite the target value if found
+        /// </summary>
+        PreferNewData
     }
 }
