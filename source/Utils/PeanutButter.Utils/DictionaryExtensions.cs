@@ -238,12 +238,12 @@ namespace PeanutButter.Utils
         /// <param name="target"></param>
         /// <typeparam name="TKey"></typeparam>
         /// <typeparam name="TValue"></typeparam>
-        public static void MergeInto<TKey, TValue>(
+        public static IDictionary<TKey, TValue> MergeInto<TKey, TValue>(
             this IDictionary<TKey, TValue> newData,
             IDictionary<TKey, TValue> target
         )
         {
-            newData.MergeInto(target, MergeIntoPrecedence.PreferTargetData);
+            return newData.MergeInto(target, MergeIntoPrecedence.PreferTargetData);
         }
 
         /// <summary>
@@ -255,33 +255,28 @@ namespace PeanutButter.Utils
         /// <param name="mergePrecedence"></param>
         /// <typeparam name="TKey"></typeparam>
         /// <typeparam name="TValue"></typeparam>
-        public static void MergeInto<TKey, TValue>(
+        public static IDictionary<TKey, TValue> MergeInto<TKey, TValue>(
             this IDictionary<TKey, TValue> newData,
             IDictionary<TKey, TValue> target,
             MergeIntoPrecedence mergePrecedence
         )
         {
-            if (newData is null)
-            {
-                return; // nothing to add
-            }
-
             if (target is null)
             {
                 throw new ArgumentNullException(nameof(target));
             }
 
-            if (mergePrecedence == MergeIntoPrecedence.PreferNewData)
+            if (newData is null)
             {
-                MergeWithOverwrite(newData, target);
+                return target; // nothing to add
             }
-            else
-            {
-                MergeWithOriginalRetention(newData, target);
-            }
+
+            return mergePrecedence == MergeIntoPrecedence.PreferNewData
+                ? MergeWithOverwrite(newData, target)
+                : MergeWithOriginalRetention(newData, target);
         }
 
-        private static void MergeWithOriginalRetention<TKey, TValue>(
+        private static IDictionary<TKey, TValue> MergeWithOriginalRetention<TKey, TValue>(
             IDictionary<TKey, TValue> newData,
             IDictionary<TKey, TValue> target
         )
@@ -291,9 +286,10 @@ namespace PeanutButter.Utils
             {
                 target[key] = newData[key];
             }
+            return target;
         }
 
-        private static void MergeWithOverwrite<TKey, TValue>(
+        private static IDictionary<TKey, TValue> MergeWithOverwrite<TKey, TValue>(
             IDictionary<TKey, TValue> newData,
             IDictionary<TKey, TValue> target
         )
@@ -302,6 +298,7 @@ namespace PeanutButter.Utils
             {
                 target[kvp.Key] = kvp.Value;
             }
+            return target;
         }
     }
 

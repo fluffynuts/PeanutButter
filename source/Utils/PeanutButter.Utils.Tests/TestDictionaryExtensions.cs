@@ -433,6 +433,39 @@ namespace PeanutButter.Utils.Tests
                         .To.Equal(expected);
                 }
             }
+
+            [TestFixture]
+            public class FluentMultipleMergeInto
+            {
+                [Test]
+                public void ShouldMergeAll()
+                {
+                    // Arrange
+                    var target = new Dictionary<string, string>()
+                    {
+                        ["one"] = "1"
+                    };
+                    var expected = new Dictionary<string, string>()
+                    {
+                        ["one"] = "1",
+                        ["two"] = "2",
+                        ["three"] = "3"
+                    };
+                    // Act
+                    var result = new Dictionary<string, string>()
+                    {
+                        ["two"] = "2"
+                    }.MergeInto(new Dictionary<string, string>()
+                    {
+                        ["three"] = "3"
+                    }).MergeInto(target);
+                    // Assert
+                    Expect(result)
+                        .To.Be(target);
+                    Expect(result)
+                        .To.Be.Equivalent.To(expected);
+                }
+            }
         }
     }
 }
