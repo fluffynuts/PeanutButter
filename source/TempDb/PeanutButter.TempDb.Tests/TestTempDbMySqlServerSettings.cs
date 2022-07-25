@@ -24,7 +24,7 @@ namespace PeanutButter.TempDb.Tests
             Expect(sut.GeneralLog).To.Equal(0);
             Expect(sut.SlowQueryLog).To.Equal(0);
             Expect(sut.SyncBinLog).To.Equal(0);
-            Expect(sut.InnoDbIoCapacity).To.Equal(200);
+            Expect(sut.InnodbIoCapacity).To.Equal(200);
             Expect(sut.InnodbThreadConcurrency).To.Equal(0);
             Expect(sut.InnodbFlushLogAtTimeout).To.Equal(10);
             Expect(sut.InnodbFlushLogAtTrxCommit).To.Equal(2);
@@ -40,7 +40,7 @@ namespace PeanutButter.TempDb.Tests
             sut.OptimizeForPerformance(isRunningOnSsdDisk: true);
 
             // assert
-            Expect(sut.InnoDbIoCapacity).To.Equal(3000);
+            Expect(sut.InnodbIoCapacity).To.Equal(3000);
         }
 
         [Test]

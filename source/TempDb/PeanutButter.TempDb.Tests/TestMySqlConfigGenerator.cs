@@ -25,9 +25,13 @@ namespace PeanutButter.TempDb.Tests
             // Pre-Assert
             // Act
             var rawResult = sut.GenerateFor(new TempDbMySqlServerSettings());
-            var resultIni = new INI.INIFile();
+            var resultIni = new INIFile();
             resultIni.Parse(rawResult);
             // Assert
+            Expect(resultIni.HasSection("client"))
+                .To.Be.False("should only be encoded when set");
+            Expect(resultIni.HasSetting("mysqld", "default-character-set"))
+                .To.Be.False("should only be encoded when set");
             Expect(defaultIni.Sections)
                 .To.Be.Equivalent.To(resultIni.Sections);
             defaultIni.Sections.ForEach(section =>
@@ -63,55 +67,73 @@ namespace PeanutButter.TempDb.Tests
                 Expect(resultSettings.Count)
                     .To.Equal(expectedSettings.Count, () =>
                     {
-                            var extraKeys = resultSettings.Keys.Except(
-                                expectedSettings.Keys);
-                            var extraSettings = resultSettings.Where(
-                                kvp => extraKeys.Contains(kvp.Key)
-                                ).Select(KvpLine);
-                            var missingKeys = expectedSettings.Keys.Except(
-                                resultSettings.Keys);
-                            var missingSettings = expectedSettings.Where(
-                                kvp => missingKeys.Contains(kvp.Key)
-                                ).Select(KvpLine);
-                            var final = new List<string>();
-                            if (missingSettings.Any())
-                            {
-                                final.Add("Missing settings;");
-                                final.AddRange(missingSettings);
-                            }
+                        var extraKeys = resultSettings.Keys.Except(
+                            expectedSettings.Keys);
+                        var extraSettings = resultSettings.Where(
+                            kvp => extraKeys.Contains(kvp.Key)
+                        ).Select(KvpLine);
+                        var missingKeys = expectedSettings.Keys.Except(
+                            resultSettings.Keys);
+                        var missingSettings = expectedSettings.Where(
+                            kvp => missingKeys.Contains(kvp.Key)
+                        ).Select(KvpLine);
+                        var final = new List<string>();
+                        if (missingSettings.Any())
+                        {
+                            final.Add("Missing settings;");
+                            final.AddRange(missingSettings);
+                        }
 
-                            if (extraSettings.Any())
-                            {
-                                final.Add("Extra settings:");
-                                final.AddRange(extraSettings);
-                            }
-                            return final.JoinWith("\n");
-                            string KvpLine(KeyValuePair<string, string> kvp)
-                            {
-                                return $"{kvp.Key} = {kvp.Value}"; 
-                            }
+                        if (extraSettings.Any())
+                        {
+                            final.Add("Extra settings:");
+                            final.AddRange(extraSettings);
+                        }
+
+                        return final.JoinWith("\n");
+
+                        string KvpLine(KeyValuePair<string, string> kvp)
+                        {
+                            return $"{kvp.Key} = {kvp.Value}";
+                        }
                     });
             });
         }
 
         [Test]
-        public void WhenCustomSettingsSetToNull_ShouldStillGenerate()
+        public void ShouldBeAbleToSetClientDefaultCharacterSet()
         {
             // Arrange
-            var defaultIni = new INI.INIFile();
-            defaultIni.Parse(DEFAULTS);
+            var settings = TempDbMySqlServerSettingsBuilder
+                .Create()
+                .WithDefaultClientCharacterSet("ascii")
+                .Build();
             var sut = Create();
-            var settings = new TempDbMySqlServerSettings {CustomConfiguration = null};
-
             // Act
-            var rawResult = sut.GenerateFor(settings);
-            var resultIni = new INI.INIFile();
-            resultIni.Parse(rawResult);
-            
+            var raw = sut.GenerateFor(settings);
             // Assert
-            Expect(defaultIni.Sections)
-                .To.Be.Equivalent.To(resultIni.Sections);
+            var result = INIFile.FromString(raw);
+            Expect(result["client"]["default-character-set"])
+                .To.Equal("ascii");
+        }
 
+        [Test]
+        public void ShouldBeAbleToSetServerDefaultCharacterSet()
+        {
+            // Arrange
+            var settings = TempDbMySqlServerSettingsBuilder
+                .Create()
+#pragma warning disable CS0618
+                .WithDefaultServerCharacterSet("ascii")
+#pragma warning restore CS0618
+                .Build();
+            var sut = Create();
+            // Act
+            var raw = sut.GenerateFor(settings);
+            // Assert
+            var result = INIFile.FromString(raw);
+            Expect(result["mysqld"]["default-character-set"])
+                .To.Equal("ascii");
         }
 
         [Test]
@@ -124,15 +146,16 @@ namespace PeanutButter.TempDb.Tests
             var settings = new TempDbMySqlServerSettings();
             var key = GetRandomString(32);
             var value = GetRandomString(32);
-            settings.CustomConfiguration[key] = value;
-            
+            var section = GetRandomString(32);
+            settings.CustomConfiguration[section][key] = value;
+
             // Act
             var rawResult = sut.GenerateFor(settings);
             var resultIni = new INI.INIFile();
-            resultIni.Parse(rawResult); 
-            
+            resultIni.Parse(rawResult);
+
             // Assert
-            var resultValue = resultIni.GetValue(MySqlConfigGenerator.MAIN_CONFIG_SECTION, key);
+            var resultValue = resultIni.GetValue(section, key);
             Expect(resultValue).To.Equal(value);
         }
 
@@ -146,17 +169,23 @@ namespace PeanutButter.TempDb.Tests
             var settings = new TempDbMySqlServerSettings
             {
                 MaxConnections = -GetRandomInt(),
-                CustomConfiguration = {["max_connections"] = GetRandomInt(1000, 2000).ToString()}
+                CustomConfiguration =
+                {
+                    ["mysqld"] =
+                    {
+                        ["max_connections"] = GetRandomInt(1000, 2000).ToString()
+                    }
+                }
             };
 
             // Act
             var rawResult = sut.GenerateFor(settings);
             var resultIni = new INI.INIFile();
-            resultIni.Parse(rawResult); 
-            
+            resultIni.Parse(rawResult);
+
             // Assert
-            var resultValue = resultIni.GetValue(MySqlConfigGenerator.MAIN_CONFIG_SECTION, "max_connections");
-            Expect(resultValue).To.Equal(settings.CustomConfiguration["max_connections"]); 
+            var resultValue = resultIni.GetValue("mysqld", "max_connections");
+            Expect(resultValue).To.Equal(settings.CustomConfiguration["mysqld"]["max_connections"]);
         }
 
         private MySqlConfigGenerator Create()

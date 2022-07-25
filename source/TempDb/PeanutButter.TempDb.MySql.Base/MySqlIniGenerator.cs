@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
 using PeanutButter.Utils;
@@ -11,8 +10,6 @@ namespace PeanutButter.TempDb.MySql.Base
     /// </summary>
     public class MySqlConfigGenerator
     {
-        public const string MAIN_CONFIG_SECTION = "mysqld";
-
         /// <summary>
         /// Generates MySql configuration from TempDbMySqlServerSettings
         /// </summary>
@@ -23,27 +20,62 @@ namespace PeanutButter.TempDb.MySql.Base
         {
             if (tempDbMySqlSettings == null) throw new ArgumentNullException(nameof(tempDbMySqlSettings));
             var iniFile = new INI.INIFile();
-            iniFile.AddSection(MAIN_CONFIG_SECTION);
+            iniFile.AddSection(SettingAttribute.DEFAULT_SECTION);
             tempDbMySqlSettings.GetType()
                 .GetProperties()
                 .Select(prop => GetSetting(prop, tempDbMySqlSettings))
-                .Where(y => y.Key?.Length > 0)
+                .Where(y => y.Name?.Length > 0)
                 .ForEach(x => WriteSetting(iniFile, x));
-            tempDbMySqlSettings
-                .CustomConfiguration
-                ?.Select(x => new KeyValuePair<string, string>(x.Key, x.Value))
-                .ForEach(x => WriteSetting(iniFile, x));
+            foreach (var customSetting in tempDbMySqlSettings.CustomConfiguration)
+            {
+                foreach (var kvp in customSetting.Value)
+                {
+                    WriteSetting(iniFile, new IniSetting(customSetting.Key, kvp.Key, kvp.Value, true));
+                }
+            }
+
             return iniFile.ToString();
         }
 
         private void WriteSetting(
             INI.INIFile iniFile,
-            KeyValuePair<string, string> setting)
+            IniSetting setting)
         {
-            iniFile[MAIN_CONFIG_SECTION][setting.Key] = setting.Value;
+            if (setting.Value is null && setting.IgnoreIfNull)
+            {
+                return;
+            }
+            
+            iniFile[setting.Section][setting.Name] = setting.Value;
         }
 
-        private KeyValuePair<string, string> GetSetting(
+        private class IniSetting
+        {
+            public string Section { get; }
+            public string Name { get; }
+            public string Value { get; }
+            public bool IgnoreIfNull { get; }
+
+            public IniSetting(
+                string section,
+                string name,
+                string value,
+                bool ignoreIfNull
+            )
+            {
+                Section = section;
+                Name = name;
+                Value = value;
+                IgnoreIfNull = ignoreIfNull;
+            }
+
+            public static IniSetting Empty()
+            {
+                return new(null, null, null, true);
+            }
+        }
+
+        private IniSetting GetSetting(
             PropertyInfo prop,
             TempDbMySqlServerSettings tempDbMySqlSettings)
         {
@@ -52,42 +84,52 @@ namespace PeanutButter.TempDb.MySql.Base
                 .FirstOrDefault();
             if (settingAttrib is null)
             {
-                return new KeyValuePair<string, string>();
+                return emptySetting();
             }
 
-            if (prop.PropertyType == typeof(bool))
+            var rawPropValue = prop.GetValue(tempDbMySqlSettings);
+            if (prop.PropertyType != typeof(bool))
             {
-                var propValue = (bool)prop.GetValue(tempDbMySqlSettings);
-                if (settingAttrib.IsBare && !propValue)
-                {
-                    return empty();
-                }
-
-                return kvp(
+                return iniSetting(
+                    settingAttrib.Section,
                     settingAttrib.Name,
-                    settingAttrib.IsBare
+                    rawPropValue is null
                         ? null
-                        : OnOffFor((bool) prop.GetValue(tempDbMySqlSettings))
+                        : $"{prop.GetValue(tempDbMySqlSettings)}",
+                    settingAttrib.IgnoreIfNull
                 );
             }
 
-            return kvp(
+            var propValue = (bool) rawPropValue;
+            if (settingAttrib.IsBare && !propValue)
+            {
+                return emptySetting();
+            }
+
+
+            return iniSetting(
+                settingAttrib.Section,
                 settingAttrib.Name,
-                $"{prop.GetValue(tempDbMySqlSettings)}"
+                settingAttrib.IsBare
+                    ? null
+                    : OnOffFor((bool) prop.GetValue(tempDbMySqlSettings)),
+                settingAttrib.IgnoreIfNull
             );
 
             // ReSharper disable once InconsistentNaming
-            KeyValuePair<string, string> kvp(
+            IniSetting iniSetting(
+                string section,
                 string key,
-                string value
+                string value,
+                bool ignoreIfNull
             )
             {
-                return new KeyValuePair<string, string>(key, value);
+                return new(section, key, value, ignoreIfNull);
             }
 
-            KeyValuePair<string, string> empty()
+            IniSetting emptySetting()
             {
-                return new KeyValuePair<string, string>();
+                return IniSetting.Empty();
             }
         }
 

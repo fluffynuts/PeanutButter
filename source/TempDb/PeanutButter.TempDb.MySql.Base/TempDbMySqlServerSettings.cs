@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using PeanutButter.Utils;
+using PeanutButter.Utils.Dictionaries;
 
 namespace PeanutButter.TempDb.MySql.Base
 {
@@ -36,7 +37,7 @@ namespace PeanutButter.TempDb.MySql.Base
             /// Default maximum port to use when selecting a random port
             /// </summary>
             public const int DEFAULT_RANDOM_PORT_MAX = 53306;
-            
+
             /// <summary>
             /// The default max time to wait for a successful connection at
             /// startup, in seconds
@@ -100,15 +101,15 @@ namespace PeanutButter.TempDb.MySql.Base
             /// but there are stupid connectors which infer that
             /// a blank password means _no_ password :/
             /// </summary>
-            
             /// <summary>
             /// Use this as the root password; doesn't have to be secure for
             /// testing purposes, but does have to pass any default mysql
             /// password constraints for the service to start up
             /// </summary>
             public string RootUserPassword { get; set; } = DEFAULT_ROOT_PASSWORD;
+
             public const string DEFAULT_ROOT_PASSWORD = "root";
-            
+
             /// <summary>
             /// When set, will automatically shut down the service process if
             /// still alive this long from after first properly started up and
@@ -136,7 +137,7 @@ namespace PeanutButter.TempDb.MySql.Base
             /// When attempting to spin up MySql, how much grace period (in seconds)
             /// to give before giving up on connecting
             /// </summary>
-            public int MaxTimeToConnectAtStartInSeconds { get; set; } = 
+            public int MaxTimeToConnectAtStartInSeconds { get; set; } =
                 DEFAULT_MAX_TIME_TO_CONNECT_AT_START_IN_SECONDS;
 
             /// <summary>
@@ -149,14 +150,18 @@ namespace PeanutButter.TempDb.MySql.Base
         /// <summary>
         /// Allows any other configuration/settings to be specified - any duplicates of first class
         /// configuration settings will override the first class setting
+        /// This configuration is of the form of nested string dictionaries which
+        /// are automatically created for you - you should be able to, for instance, simply do:
+        /// settings.CustomConfiguration["mysqld"]["max_connection"] = "128";
         /// </summary>
-        public Dictionary<string, string> CustomConfiguration { get; set; } = new Dictionary<string, string>();
+        public DefaultDictionary<string, Dictionary<string, string>> CustomConfiguration { get; }
+            = new(() => new Dictionary<string, string>(), storeResolvedDefaults: true);
 
 
         /// <summary>
         /// Options for the instantiation of the temporary database
         /// </summary>
-        public TempDbOptions Options { get; } = new TempDbOptions();
+        public TempDbOptions Options { get; } = new();
 
         /// <summary>
         /// mysql setting
@@ -216,7 +221,7 @@ namespace PeanutButter.TempDb.MySql.Base
         /// mysql server setting
         /// </summary>
         [Setting("join_buffer_size")]
-        public string JoinBufferize { get; set; } = "256K";
+        public string JoinBufferSize { get; set; } = "256K";
 
         /// <summary>
         /// mysql server setting
@@ -306,7 +311,7 @@ namespace PeanutButter.TempDb.MySql.Base
         /// mysql server setting
         /// </summary>
         [Setting("innodb_io_capacity")]
-        public int InnoDbIoCapacity { get; set; } = 200;
+        public int InnodbIoCapacity { get; set; } = 200;
 
         /// <summary>
         /// mysql server setting
@@ -404,11 +409,18 @@ namespace PeanutButter.TempDb.MySql.Base
         [Setting("socket")]
         public string Socket { get; set; } = $"/tmp/mysql-temp-{Guid.NewGuid()}.socket";
 
+        [Setting("default-character-set", "client", isBare: false, ignoreIfNull: true)]
+        public string DefaultClientCharacterSet { get; set; }
+
+        [Setting("default-character-set", SettingAttribute.DEFAULT_SECTION , isBare: false, ignoreIfNull: true)]
+        [Obsolete($"You should probably rather use {nameof(CharacterSetServer)} as {nameof(DefaultServerCharacterSet)} is not supported: https://bugs.mysql.com/bug.php?id=52047")]
+        public string DefaultServerCharacterSet { get; set; }
+
         public TempDbMySqlServerSettings()
         {
             SetPortHintFromEnvironment();
         }
-        
+
         private void SetPortHintFromEnvironment()
         {
             if (Options.PortHint != null)
@@ -453,9 +465,9 @@ namespace PeanutButter.TempDb.MySql.Base
             InnodbFlushLogAtTrxCommit = 2;
             InnodbFlushLogAtTimeout = 10;
             SyncBinLog = 0;
-            InnoDbIoCapacity = isRunningOnSsdDisk
+            InnodbIoCapacity = isRunningOnSsdDisk
                 ? 3000
-                : InnoDbIoCapacity;
+                : InnodbIoCapacity;
             return this;
         }
     }
@@ -466,5 +478,226 @@ namespace PeanutButter.TempDb.MySql.Base
         {
             return WithProp(o => o.Options.Name = name);
         }
+
+        public TempDbMySqlServerSettingsBuilder SyncRelayLogInfo(int value)
+        {
+            return WithProp(o => o.SyncRelayLogInfo = value);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithSyncRelayLog(int value)
+        {
+            return WithProp(o => o.SyncRelayLog = value);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithSyncMasterInfo(int value)
+        {
+            return WithProp(o => o.SyncMasterInfo = value);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithBinLogRowEventMaxSize(string size)
+        {
+            return WithProp(o => o.BinLogRowEventMaxSize = size);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithTableDefinitionCache(int value)
+        {
+            return WithProp(o => o.TableDefinitionCache = value);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithSortBufferSize(string size)
+        {
+            return WithProp(o => o.SortBufferSize = size);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithOpenFilesLimit(int limit)
+        {
+            return WithProp(o => o.OpenFilesLimit = limit);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithMaxConnectionErrors(int value)
+        {
+            return WithProp(o => o.MaxConnectErrors = value);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithMaxAllowedPacket(string size)
+        {
+            return WithProp(o => o.MaxAllowedPacket = size);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithJoinBufferSize(string size)
+        {
+            return WithProp(o => o.JoinBufferSize = size);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithFlushTime(int seconds)
+        {
+            return WithProp(o => o.FlushTime = seconds);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithBackLog(int value)
+        {
+            return WithProp(o => o.BackLog = value);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithInnodbChecksumAlgorithm(int value)
+        {
+            return WithProp(o => o.InnodbChecksumAlgorithm = value);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithInnodbFilePerTable(int value)
+        {
+            return WithProp(o => o.InnodbFilePerTable = value);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithInnodbStatsOnMetadata(int value)
+        {
+            return WithProp(o => o.InnodbStatsOnMetadata = value);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithInnodbOldBlocksTime(int value)
+        {
+            return WithProp(o => o.InnodbOldBlocksTime = value);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithInnodbAutoextendIncrement(int value)
+        {
+            return WithProp(o => o.InnodbAutoextendIncrement = value);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithInnodbConcurrencyTickets(int value)
+        {
+            return WithProp(o => o.InnodbConcurrencyTickets = value);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithInnodbThreadConcurrency(int value)
+        {
+            return WithProp(o => o.InnodbThreadConcurrency = value);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithInnodbLogFileSize(string size)
+        {
+            return WithProp(o => o.InnodbLogFileSize = size);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithInnodbBufferPoolSize(string size)
+        {
+            return WithProp(o => o.InnodbBufferPoolSize = size);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithInnodbFlushLogAtTrxCommit(int value)
+        {
+            return WithProp(o => o.InnodbFlushLogAtTrxCommit = value);
+        }
+
+
+        public TempDbMySqlServerSettingsBuilder WithInnodbFlushLogAtTimeout(int value)
+        {
+            return WithProp(o => o.InnodbFlushLogAtTimeout = value);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithSyncBinLog(int value)
+        {
+            return WithProp(o => o.SyncBinLog = value);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithInnodbIoCapacity(int value)
+        {
+            return WithProp(o => o.InnodbIoCapacity = value);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithMyIsamMaxSortFileSize(string size)
+        {
+            return WithProp(o => o.MyIsamMaxSortFileSize = size);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithThreadCacheSize(int value)
+        {
+            return WithProp(o => o.ThreadCacheSize = value);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithTableOpenCache(int value)
+        {
+            return WithProp(o => o.TableOpenCache = value);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithMaxConnections(int value)
+        {
+            return WithProp(o => o.MaxConnections = value);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithServerId(int value)
+        {
+            return WithProp(o => o.ServerId = value);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithLogError(string filename)
+        {
+            return WithProp(o => o.LogError = filename);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithLongQueryTime(int value)
+        {
+            return WithProp(o => o.LongQueryTime = value);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithSlowQueryLogFile(string fileName)
+        {
+            return WithProp(o => o.SlowQueryLogFile = fileName);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithSlowQueryLog(int value)
+        {
+            return WithProp(o => o.SlowQueryLog = value);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithGeneralLog(int value)
+        {
+            return WithProp(o => o.GeneralLog = value);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithGeneralLogFile(string filename)
+        {
+            return WithProp(o => o.GeneralLogFile = filename);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithLogOutput(string value)
+        {
+            return WithProp(o => o.LogOutput = value);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithSqlMode(string value)
+        {
+            return WithProp(o => o.SqlMode = value);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithDefaultStorageEngine(string value)
+        {
+            return WithProp(o => o.DefaultStorageEngine = value);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithCharacterSetServer(string charset)
+        {
+            return WithProp(o => o.CharacterSetServer = charset);
+        }
+
+        public TempDbMySqlServerSettingsBuilder WithSocket(string socketPath)
+        {
+            return WithProp(o => o.Socket = socketPath);
+        }
+
+        [Setting("default-character-set", "client", isBare: false, ignoreIfNull: true)]
+        public string DefaultClientCharacterSet { get; set; }
+
+        public TempDbMySqlServerSettingsBuilder WithDefaultClientCharacterSet(string charset)
+        {
+            return WithProp(o => o.DefaultClientCharacterSet = charset);
+        }
+
+        [Obsolete($"You should probably rather use {nameof(TempDbMySqlServerSettings.CharacterSetServer)} as {nameof(TempDbMySqlServerSettings.DefaultServerCharacterSet)} is not supported: https://bugs.mysql.com/bug.php?id=52047")]
+        public TempDbMySqlServerSettingsBuilder WithDefaultServerCharacterSet(string charset)
+        {
+            return WithProp(o => o.DefaultServerCharacterSet = charset);
+        }
+        
     }
 }
