@@ -1582,8 +1582,17 @@ namespace PeanutButter.RandomGenerators
             return string.Join(
                 "/",
                 GetRandomHttpUrl(),
-                $"{GetRandomPath()}{GetRandomUrlQuery()}"
+                $"{GetRandomHttpPathAndParameters()}"
             );
+        }
+
+        /// <summary>
+        /// Produces just the path and query string for an http request
+        /// </summary>
+        /// <returns></returns>
+        public static string GetRandomHttpPathAndParameters()
+        {
+            return $"{GetRandomPath()}{GetRandomUrlQuery()}";
         }
 
         /// <summary>

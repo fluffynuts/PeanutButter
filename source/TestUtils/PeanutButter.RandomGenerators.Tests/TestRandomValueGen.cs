@@ -2713,11 +2713,11 @@ namespace PeanutButter.RandomGenerators.Tests
                     new[]
                     {
                         HttpMethod.Delete.ToString(),
-                        HttpMethod.Get.ToString(), 
-                        HttpMethod.Head.ToString(), 
-                        HttpMethod.Options.ToString(), 
-                        HttpMethod.Post.ToString(), 
-                        HttpMethod.Put.ToString(), 
+                        HttpMethod.Get.ToString(),
+                        HttpMethod.Head.ToString(),
+                        HttpMethod.Options.ToString(),
+                        HttpMethod.Post.ToString(),
+                        HttpMethod.Put.ToString(),
                         HttpMethod.Trace.ToString()
                     }
                 );
@@ -2728,6 +2728,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 {
                     collected.Add(GetRandomHttpMethod());
                 }
+
                 // Assert
                 Expect(collected)
                     .To.Contain.All
@@ -3356,6 +3357,23 @@ namespace PeanutButter.RandomGenerators.Tests
                 var uri = new Uri(url);
                 Expect(uri.AbsolutePath)
                     .To.Equal("/");
+                Expect(uri.Query)
+                    .Not.To.Be.Empty();
+                Expect(uri.Scheme)
+                    .To.Equal("http");
+            }
+
+            [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
+            [Test]
+            public void ShouldProvideUrlWithParametersAndPathOnDemand()
+            {
+                // Arrange
+                // Act
+                var url = GetRandomHttpUrlWithPathAndParameters();
+                // Assert
+                var uri = new Uri(url);
+                Expect(uri.AbsolutePath)
+                    .Not.To.Equal("/");
                 Expect(uri.Query)
                     .Not.To.Be.Empty();
                 Expect(uri.Scheme)
