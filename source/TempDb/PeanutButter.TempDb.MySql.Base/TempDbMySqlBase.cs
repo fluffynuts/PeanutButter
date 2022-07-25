@@ -439,16 +439,17 @@ namespace PeanutButter.TempDb.MySql.Base
             );
             forSchemas.ForEach(schema =>
             {
-                GrantAllPermissionsFor(user, schema);
+                GrantAllPermissionsFor(user, schema, "%");
             });
         }
 
         public void GrantAllPermissionsFor(
             string user,
-            string schema
+            string schema,
+            string host
         )
         {
-            Execute($"grant all privileges on {Escape(schema)}.* to {Quote(user)}@'localhost'");
+            Execute($"grant all privileges on {Escape(schema)}.* to {Quote(user)}@{Quote(host)}");
         }
 
 
