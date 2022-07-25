@@ -23,6 +23,7 @@ namespace PeanutButter.Utils.Dictionaries
         class DefaultDictionary<TKey, TValue> : IDictionary<TKey, TValue>
     {
         private readonly Func<TValue> _defaultResolver;
+        private readonly bool _storeResolvedDefaults;
         private readonly Func<TKey, TValue> _smartResolver;
         private readonly Dictionary<TKey, TValue> _actual;
 
@@ -50,7 +51,20 @@ namespace PeanutButter.Utils.Dictionaries
         /// <param name="defaultResolver"></param>
         public DefaultDictionary(
             Func<TValue> defaultResolver
-        ): this(defaultResolver, null as IEqualityComparer<TKey>)
+        ) : this(defaultResolver, null as IEqualityComparer<TKey>)
+        {
+        }
+
+        /// <summary>
+        /// Creates the default dictionary with the provided default resolver,
+        /// optionally storing resolved defaults for later re-use
+        /// </summary>
+        /// <param name="defaultResolver"></param>
+        /// <param name="storeResolvedDefaults"></param>
+        public DefaultDictionary(
+            Func<TValue> defaultResolver,
+            bool storeResolvedDefaults
+        ) : this(defaultResolver, null as IEqualityComparer<TKey>, storeResolvedDefaults)
         {
         }
 
@@ -60,11 +74,32 @@ namespace PeanutButter.Utils.Dictionaries
         /// <param name="defaultResolver"></param>
         /// <param name="keyComparer"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public DefaultDictionary(Func<TValue> defaultResolver, IEqualityComparer<TKey> keyComparer)
+        public DefaultDictionary(
+            Func<TValue> defaultResolver,
+            IEqualityComparer<TKey> keyComparer
+        ) : this(defaultResolver, keyComparer, false)
+        {
+        }
+
+        /// <summary>
+        /// Creates the default dictionary with the provided resolver and key comparer,
+        /// choosing to store (and re-serve) resolved defaults when storeResolvedDefaults
+        /// is true
+        /// </summary>
+        /// <param name="defaultResolver"></param>
+        /// <param name="keyComparer"></param>
+        /// <param name="storeResolvedDefaults"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public DefaultDictionary(
+            Func<TValue> defaultResolver,
+            IEqualityComparer<TKey> keyComparer,
+            bool storeResolvedDefaults
+        )
         {
             _defaultResolver = defaultResolver ?? throw new ArgumentNullException(nameof(defaultResolver));
-            Comparer = ResolveEqualityComparer(keyComparer);
+            _storeResolvedDefaults = storeResolvedDefaults;
             _actual = new Dictionary<TKey, TValue>(Comparer);
+            Comparer = ResolveEqualityComparer(keyComparer);
         }
 
         private IEqualityComparer<TKey> ResolveEqualityComparer(IEqualityComparer<TKey> provided)
@@ -78,7 +113,7 @@ namespace PeanutButter.Utils.Dictionaries
             {
                 return (IEqualityComparer<TKey>) StringComparer.OrdinalIgnoreCase;
             }
-            
+
             return EqualityComparer<TKey>.Default;
         }
 
@@ -87,7 +122,8 @@ namespace PeanutButter.Utils.Dictionaries
         /// return the value provided by the default resolver
         /// </summary>
         /// <param name="smartResolver"></param>
-        public DefaultDictionary(Func<TKey, TValue> smartResolver): this(smartResolver, null as IEqualityComparer<TKey>)
+        public DefaultDictionary(Func<TKey, TValue> smartResolver) : this(smartResolver,
+            null as IEqualityComparer<TKey>)
         {
         }
 
@@ -222,9 +258,24 @@ namespace PeanutButter.Utils.Dictionaries
 
         private TValue Resolve(TKey key)
         {
-            return _defaultResolver == null
-                ? _smartResolver(key)
-                : _defaultResolver();
+            return StoreIfNecessary(
+                key,
+                _defaultResolver == null
+                    ? _smartResolver(key)
+                    : _defaultResolver()
+            );
+        }
+
+        private TValue StoreIfNecessary(
+            TKey key,
+            TValue resolved
+        )
+        {
+            if (_storeResolvedDefaults)
+            {
+                _actual[key] = resolved;
+            }
+            return resolved;
         }
 
         /// <summary>

@@ -8,6 +8,7 @@ using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils.Dictionaries;
 using static NExpect.Expectations;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable CollectionNeverUpdated.Local
@@ -431,6 +432,26 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             // Assert
             Expect(dict as IDictionary<string, object>)
                 .To.Contain.Only(2).Items();
+        }
+
+        [Test]
+        public void ShouldOptionallyStoreResolvedValuesForLaterReUse()
+        {
+            // Arrange
+            var dict = new DefaultDictionary<string, Dictionary<string, string>>(
+                () => new Dictionary<string, string>(),
+                storeResolvedDefaults: true
+            );
+            var level1 = GetRandomString(10);
+            var level2 = GetRandomString(10);
+            var expected = GetRandomString(10);
+
+            // Act
+            dict[level1][level2] = expected;
+            
+            // Assert
+            Expect(dict[level1][level2])
+                .To.Equal(expected);
         }
 
         private IDictionary<TKey, TValue> Create<TKey, TValue>(
