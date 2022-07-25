@@ -241,6 +241,37 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 }).Not.To.Throw();
             }
 
+            [Test]
+            public void ShouldBeAbleToRestart()
+            {
+                // Arrange
+                Expect(() =>
+                {
+                    using var db = Create();
+                    Expect(db.ConfigFilePath)
+                        .To.Exist();
+                    var config = File.ReadAllText(db.ConfigFilePath);
+                    var ini = INIFile.FromString(config);
+                    Expect(ini)
+                        .To.Have.Section("mysqld");
+                    using (db.OpenConnection())
+                    {
+                        // Act
+                        // Assert
+                    }
+                    
+                    var originalPid = db.ServerProcessId;
+                    db.Restart();
+
+                    using (db.OpenConnection())
+                    {
+                    }
+                    
+                    Expect(db.ServerProcessId)
+                        .Not.To.Equal(originalPid);
+                }).Not.To.Throw();
+            }
+
             [SetUp]
             public void Setup()
             {

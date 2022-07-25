@@ -46,7 +46,7 @@ namespace PeanutButter.TempDb.MySql.Base
 
         public static int MaxSecondsToWaitForMySqlToStart =>
             DetermineMaxSecondsToWaitForMySqlToStart();
-        
+
         /// <summary>
         /// After the server has been set up and started, this will reflect
         /// the absolute path to the configuration file for the server
@@ -493,7 +493,7 @@ namespace PeanutButter.TempDb.MySql.Base
                 Directory.Delete(databasePath, true);
             }
         }
-        
+
         private const string MYSQL_CONFIG_FILE = "my.cnf";
 
         private string DumpDefaultsFileAt(
@@ -535,11 +535,8 @@ namespace PeanutButter.TempDb.MySql.Base
                     _disposed = true;
                 }
 
-                _processWatcherThread?.Join();
-                _processWatcherThread = null;
+                Stop();
 
-                AttemptGracefulShutdown();
-                EndServerProcess();
                 base.Dispose();
                 _autoDeleter?.Dispose();
                 _autoDeleter = null;
@@ -548,6 +545,24 @@ namespace PeanutButter.TempDb.MySql.Base
             {
                 Log($"Unable to kill MySql instance {_serverProcess?.Id}: {ex.Message}");
             }
+        }
+
+        private void Stop()
+        {
+            StopWatcher();
+            AttemptGracefulShutdown();
+            EndServerProcess();
+        }
+
+        private void StopWatcher()
+        {
+            using (new AutoLocker(_disposalLock))
+            {
+                _running = false;
+            }
+
+            _processWatcherThread?.Join();
+            _processWatcherThread = null;
         }
 
         private void EndServerProcess()
@@ -670,6 +685,16 @@ namespace PeanutButter.TempDb.MySql.Base
             }
         }
 
+        public void Restart()
+        {
+            if (_disposed)
+            {
+                throw new ObjectDisposedException("This instance has already been disposed");
+            }
+            Stop();
+            StartServer(MySqld);
+        }
+
         public string DataDir =>
             MySqlVersion.Version.Major >= 8
                 ? Path.Combine(DatabasePath, "data") // mysql 8 wants a clean dir to init in
@@ -680,19 +705,21 @@ namespace PeanutButter.TempDb.MySql.Base
 
         private void StartProcessWatcher()
         {
+            _running = true;
             _processWatcherThread = new Thread(ObserveMySqlProcess);
             _processWatcherThread.Start();
         }
 
         private bool _disposed;
+        private bool _running;
 
         private void ObserveMySqlProcess()
         {
-            while (!_disposed)
+            while (_running)
             {
                 using (new AutoLocker(_disposalLock))
                 {
-                    if (_disposed)
+                    if (!_running)
                     {
                         // we're outta here
                         break;
@@ -738,6 +765,16 @@ namespace PeanutButter.TempDb.MySql.Base
         {
             using var conn = OpenConnection();
             using var cmd = conn.CreateCommand();
+            // first, check if the id is in there already (restart)
+            cmd.CommandText = $"select count(*) from sys.sys_config where `variable` = '__tempdb_id__' and `value` = '{InstanceId}';";
+            using (var reader = cmd.ExecuteReader())
+            {
+                if (reader.Read() && int.TryParse(reader[0]?.ToString(), out var rows) && rows == 1)
+                {
+                    return true;
+                }
+            }
+
             cmd.CommandText = @$"insert into sys.sys_config (variable, value, set_by) 
 values ('__tempdb_id__', '{InstanceId}', 'root');";
             try
