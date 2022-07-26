@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace NugetPackageVersionIncrementer.Tests
 {
     [TestFixture]
-    public class TestWindsorBootstrapper
+    public class TestBootstrapper
     {
         [TestCase(typeof(INuspecUtil), typeof(NuspecUtil))]
         [TestCase(typeof(INuspecVersionCoordinator), typeof(NuspecVersionCoordinator))]

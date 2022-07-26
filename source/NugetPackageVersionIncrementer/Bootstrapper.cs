@@ -11,8 +11,13 @@ namespace NugetPackageVersionIncrementer
     {
         public IResolvingContainer Bootstrap()
         {
-            var container = new Container();
-            var allTypes = typeof(Bootstrapper).Assembly.GetTypes();
+            var container = new Container(
+                rules => rules.WithoutThrowOnRegisteringDisposableTransient()
+            );
+            var allTypes = typeof(Bootstrapper).Assembly.GetTypes()
+                .Where(t => !string.IsNullOrWhiteSpace(t.Namespace))
+                .Where(t => !t.Namespace.StartsWith("DryIoc"))
+                .ToArray();
             var interfaces = allTypes.Where(t => t.IsInterface).ToArray();
             var implementations = allTypes.Where(t => !t.IsAbstract && !t.IsInterface)
                 .ToArray();
@@ -29,7 +34,10 @@ namespace NugetPackageVersionIncrementer
 
                 if (possibleImplementations.Count == 1)
                 {
-                    container.Register(iface, possibleImplementations[0], Reuse.Transient);
+                    container.Register(
+                        iface,
+                        possibleImplementations[0],
+                        Reuse.Transient);
                 }
             }
 
