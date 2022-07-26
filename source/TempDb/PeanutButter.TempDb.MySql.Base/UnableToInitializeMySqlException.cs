@@ -2,7 +2,7 @@
 
 namespace PeanutButter.TempDb.MySql.Base
 {
-    internal class UnableToInitializeMySqlException
+    public class UnableToInitializeMySqlException
         : Exception
     {
         public UnableToInitializeMySqlException(

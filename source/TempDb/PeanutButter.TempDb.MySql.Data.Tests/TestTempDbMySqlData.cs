@@ -13,6 +13,7 @@ using NExpect.Interfaces;
 using NExpect.MatcherLogic;
 using NUnit.Framework;
 using PeanutButter.INI;
+using PeanutButter.SimpleTcpServer;
 using PeanutButter.TempDb.MySql.Base;
 using PeanutButter.Utils;
 using static NExpect.Expectations;
@@ -259,17 +260,45 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                         // Act
                         // Assert
                     }
-                    
+
                     var originalPid = db.ServerProcessId;
                     db.Restart();
 
                     using (db.OpenConnection())
                     {
                     }
-                    
+
                     Expect(db.ServerProcessId)
                         .Not.To.Equal(originalPid);
                 }).Not.To.Throw();
+            }
+
+            [Test]
+            public void ShouldReportErrorsFromErrorFile()
+            {
+                // Arrange
+                // Act
+                Expect(() =>
+                {
+                    using var db = new TempDBMySql(
+                        new TempDbMySqlServerSettings()
+                        {
+                            Options =
+                            {
+                                LogAction = Console.WriteLine,
+                                EnableVerboseLogging = true,
+                            },
+                            CustomConfiguration =
+                            {
+                                ["mysqld"] =
+                                {
+                                    ["default-character-set"] = "utf8mb4"
+                                }
+                            }
+                        });
+                }).To.Throw<UnableToInitializeMySqlException>()
+                    .With.Message.Containing("unknown variable");
+                // Assert
             }
 
             [SetUp]

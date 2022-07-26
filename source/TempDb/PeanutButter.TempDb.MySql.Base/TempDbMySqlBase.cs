@@ -936,8 +936,29 @@ stderr: {stderr}"
                 return;
             }
 
+            var stderr = process.StandardError.ReadToEnd();
+            var errors = new List<string>();
+            if (!string.IsNullOrWhiteSpace(stderr))
+            {
+                errors.Add($"stderr:\n{stderr}");
+            }
+            
+            var errorFile = Path.Combine(DataDir, "mysql-err.log");
+            if (File.Exists(errorFile))
+            {
+                try
+                {
+                    errors.Add($"{errorFile}:\n{File.ReadAllText(errorFile)}");
+                }
+                catch (Exception ex)
+                {
+                    errors.Add($"(unable to read error file at: '{errorFile}': {ex.Message})");
+                }
+            }
+
+
             throw new UnableToInitializeMySqlException(
-                process.StandardError.ReadToEnd()
+                errors.JoinWith("\n")
             );
         }
 
