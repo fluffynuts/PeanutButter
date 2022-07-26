@@ -440,6 +440,29 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
             }
         }
 
+        [Test]
+        public void ConnectionStringStrangeness()
+        {
+            // Arrange
+            var sut = new TempDBMySql(
+                new TempDbMySqlServerSettings()
+                {
+                    Options =
+                    {
+                        LogAction = s => Console.WriteLine($"debug: {s}"),
+                    }
+                }
+            );
+            // Act
+            var connectionString = sut.ConnectionString;
+            var builder = new MySqlConnectionStringBuilder(connectionString);
+            // Assert
+            Expect(builder.SslMode)
+                .To.Equal(MySqlSslMode.Disabled);
+            Expect(builder.AllowPublicKeyRetrieval)
+                .To.Be.False();
+        }
+
         [TestFixture]
         public class Reset
         {

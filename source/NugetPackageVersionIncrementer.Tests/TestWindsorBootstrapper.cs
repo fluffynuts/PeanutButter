@@ -24,9 +24,9 @@ namespace NugetPackageVersionIncrementer.Tests
 
         }
 
-        private WindsorBootstrapper Create()
+        private Bootstrapper Create()
         {
-            return new WindsorBootstrapper();
+            return new Bootstrapper();
         }
     }
 }

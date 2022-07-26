@@ -275,20 +275,12 @@ namespace PeanutButter.Utils
                         CreateNoWindow = true,
                         UseShellExecute = false,
                         WorkingDirectory = workingDirectory,
-#if NET452
-                        EnvironmentVariables = { }
-#else
                         Environment = { }
-#endif
                     }
                 };
                 processEnvironment.ForEach(kvp =>
                 {
-#if NET452
-                    _process.StartInfo.EnvironmentVariables[kvp.Key] = kvp.Value;
-#else
                     _process.StartInfo.Environment[kvp.Key] = kvp.Value;
-#endif
                 });
                 _process.Start();
                 Started = true;

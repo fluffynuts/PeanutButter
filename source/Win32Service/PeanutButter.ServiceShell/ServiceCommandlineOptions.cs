@@ -107,6 +107,7 @@ namespace PeanutButter.ServiceShell
                 opts.ExitOnError = false;
                 opts.ExitWhenShowingHelp = false;
                 opts.ShowHelpOnArgumentError = true;
+                opts.IgnoreUnknownSwitches = false;
             }
 
             var parsed = args.ParseTo<IServiceCommandlineOptions>(

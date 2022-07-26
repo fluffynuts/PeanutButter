@@ -703,7 +703,7 @@ namespace PeanutButter.EasyArgs
             var type = typeof(T);
             if (!type.IsInterface)
             {
-                return type.GetProperties(BindingFlags.Instance | BindingFlags.Default);
+                return type.GetProperties(BindingFlags.Instance | BindingFlags.Public);
             }
             return type.GetAllImplementedInterfaces()
                 .SelectMany(o => o.GetProperties())

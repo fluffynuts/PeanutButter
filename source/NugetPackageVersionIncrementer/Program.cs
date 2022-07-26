@@ -33,7 +33,7 @@ namespace NugetPackageVersionIncrementer
 
         private static INuspecVersionCoordinator ResolveNuspecCoordinator()
         {
-            var bootstrapper = new WindsorBootstrapper();
+            var bootstrapper = new Bootstrapper();
             var container = bootstrapper.Bootstrap();
             var coordinator = container.Resolve<INuspecVersionCoordinator>();
             return coordinator;

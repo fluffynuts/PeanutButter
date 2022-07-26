@@ -5,6 +5,7 @@
     <TargetFrameworks>netcoreapp3.1;net462</TargetFrameworks>
     <Configurations>Debug;Release;Debug-X</Configurations>
     <Platforms>AnyCPU</Platforms>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug-X' ">
@@ -12,12 +13,9 @@
     <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Castle.Windsor" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.1.0" PrivateAssets="All" IncludeAssets="runtime;build;native;contentfiles;analyzers;buildtransitive" />
-    <PackageReference Include="Castle.Windsor" Version="5.0.0" />
+    <PackageReference Include="DryIoc" Version="5.1.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Utils\PeanutButter.Utils.Windsor\PeanutButter.Utils.Windsor.csproj" />
     <ProjectReference Include="..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj" />
     <ProjectReference Include="..\Utils\PeanutButter.XmlUtils\PeanutButter.XmlUtils.csproj" />
   </ItemGroup>

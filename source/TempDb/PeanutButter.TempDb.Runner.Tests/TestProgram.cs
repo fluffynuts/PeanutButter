@@ -256,17 +256,17 @@ namespace PeanutButter.TempDb.Runner.Tests
                     }
                 });
             }
-
         }
 
         public class TestArena : IDisposable
         {
+            public const int MAX_WAIT_MS = 30000;
             private bool _haveStartedListening = false;
-            private readonly Barrier _waitForListeningBarrier = new Barrier(2);
-            private readonly Barrier _waitForExitBarrier = new Barrier(2);
+            private readonly Barrier _waitForListeningBarrier = new(2);
+            private readonly Barrier _waitForExitBarrier = new(2);
             private Barrier _readlineBarrier;
             private string _waitingInput;
-            public List<string> StdOut { get; } = new List<string>();
+            public List<string> StdOut { get; } = new();
 
             public TestArena(params string[] args)
             {
@@ -276,24 +276,41 @@ namespace PeanutButter.TempDb.Runner.Tests
                 _waitingInput = null;
                 Task.Run(() =>
                 {
-                    Program.Main(args);
-                    _waitForExitBarrier.SignalAndWait();
+                    try
+                    {
+                        Program.Main(args);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.Error.WriteLine($"Unable to start runner program:\n{ex.Message}");
+                        
+                    }
+
                     if (!_haveStartedListening)
                     {
                         // let the test fail properly
-                        _waitForListeningBarrier.SignalAndWait();
+                        WaitFor(_waitForListeningBarrier, "program to be listening");
                     }
+                    WaitFor(_waitForExitBarrier, "process to exit");
                 });
+            }
+
+            private void WaitFor(Barrier barrier, string context)
+            {
+                if (!barrier.SignalAndWait(MAX_WAIT_MS))
+                {
+                    throw new TimeoutException($"Timed out waiting for: {context}");
+                }
             }
 
             public void WaitForProgramToListen()
             {
-                _waitForListeningBarrier.SignalAndWait();
+                WaitFor(_waitForListeningBarrier, "program to be listening");
             }
 
             public void WaitForProgramToExit()
             {
-                _waitForExitBarrier.SignalAndWait();
+                WaitFor(_waitForExitBarrier, "program to exit");
             }
 
             public void WriteStdIn(string line)

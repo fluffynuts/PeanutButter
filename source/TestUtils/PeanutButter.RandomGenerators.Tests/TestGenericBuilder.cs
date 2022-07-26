@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using EmailSpooler.Win32Service.Entity;
 using NExpect;
 using NUnit.Framework;
 using PeanutButter.Utils;
@@ -476,6 +475,46 @@ namespace PeanutButter.RandomGenerators.Tests
         public class EmailRecipientBuilder
             : GenericBuilder<EmailRecipientBuilder, EmailRecipient>
         {
+        }
+        public class EmailRecipient
+        {
+            public int EmailRecipientId { get; set; }
+            public int EmailId { get; set; }
+            public string Recipient { get; set; }
+            public bool IsPrimaryRecipient { get; set; }
+            public bool IsCC { get; set; }
+            public bool IsBCC { get; set; }
+            public virtual Email Email { get; set; }
+        }
+        public class Email
+        {
+            public Email()
+            {
+                EmailAttachments = new List<EmailAttachment>();
+                EmailRecipients = new List<EmailRecipient>();
+            }
+
+            public int EmailId { get; set; }
+            public string Sender { get; set; }
+            public string Subject { get; set; }
+            public string Body { get; set; }
+            public System.DateTime SendAt { get; set; }
+            public int SendAttempts { get; set; }
+            public bool Sent { get; set; }
+            public string LastError { get; set; }
+            public virtual IList<EmailAttachment> EmailAttachments { get; set; }
+            public virtual IList<EmailRecipient> EmailRecipients { get; set; }
+        }
+        public class EmailAttachment
+        {
+            public int EmailAttachmentId { get; set; }
+            public int EmailId { get; set; }
+            public string Name { get; set; }
+            public bool Inline { get; set; }
+            public string ContentID { get; set; }
+            public string MIMEType { get; set; }
+            public byte[] Data { get; set; }
+            public virtual Email Email { get; set; }
         }
 
         [Test]

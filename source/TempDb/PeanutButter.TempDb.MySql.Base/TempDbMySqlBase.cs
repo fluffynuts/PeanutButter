@@ -561,7 +561,6 @@ namespace PeanutButter.TempDb.MySql.Base
             {
                 _running = false;
             }
-
             _processWatcherThread?.Join();
             _processWatcherThread = null;
         }

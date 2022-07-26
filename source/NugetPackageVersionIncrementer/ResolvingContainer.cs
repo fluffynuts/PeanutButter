@@ -1,5 +1,5 @@
 using System;
-using Castle.Windsor;
+using DryIoc;
 
 namespace NugetPackageVersionIncrementer
 {
@@ -10,12 +10,11 @@ namespace NugetPackageVersionIncrementer
     }
     public class ResolvingContainer: IResolvingContainer
     {
-        private readonly IWindsorContainer _container;
+        private readonly IContainer _container;
 
-        public ResolvingContainer(IWindsorContainer container)
+        public ResolvingContainer(IContainer container)
         {
-            if (container == null) throw new ArgumentNullException(nameof(container));
-            _container = container;
+            _container = container ?? throw new ArgumentNullException(nameof(container));
         }
 
         public T Resolve<T>() where T : class

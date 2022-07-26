@@ -77,17 +77,17 @@
     <None Include="Resources\SQLite.Interop.dll" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.0.78" />
-    <PackageReference Include="EntityFramework" Version="6.1.3" />
-    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.1.0" PrivateAssets="All" IncludeAssets="runtime;build;native;contentfiles;analyzers;buildtransitive" />
+    <PackageReference Include="Dapper" Version="2.0.123" />
+    <PackageReference Include="EntityFramework" Version="6.4.4" />
+    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.2.0" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
     <PackageReference Include="Microsoft.SqlServer.Compact" Version="4.0.8876.1" />
-    <PackageReference Include="MySql.Data" Version="8.0.17" Aliases="mysql_data" />
+    <PackageReference Include="MySql.Data" Version="8.0.30" Aliases="mysql_data" />
     <PackageReference Include="NExpect" Version="1.0.273" />
-    <PackageReference Include="NUnit" Version="3.12.0" />
-    <PackageReference Include="System.Data.SQLite" Version="1.0.97" />
-    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.112" />
-    <PackageReference Include="System.Data.SQLite.EF6" Version="1.0.97" />
-    <PackageReference Include="System.Data.SQLite.Linq" Version="1.0.97" />
+    <PackageReference Include="NUnit" Version="3.13.3" />
+    <PackageReference Include="System.Data.SQLite" Version="1.0.116" />
+    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.116" />
+    <PackageReference Include="System.Data.SQLite.EF6" Version="1.0.116" />
+    <PackageReference Include="System.Data.SQLite.Linq" Version="1.0.116" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
   </ItemGroup>
   <Import Project="$(SolutionDir)\packages\System.Data.SQLite.Core.1.0.97.0\build\net45\System.Data.SQLite.Core.targets" Condition="Exists('$(SolutionDir)\packages\System.Data.SQLite.Core.1.0.97.0\build\net45\System.Data.SQLite.Core.targets')" />

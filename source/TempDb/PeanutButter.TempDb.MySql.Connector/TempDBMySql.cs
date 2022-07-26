@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using PeanutButter.TempDb.MySql.Base;
 using PeanutButter.Utils;
 
@@ -90,8 +90,7 @@ namespace PeanutButter.TempDb.MySql.Connector
                 SslMode = MySqlSslMode.None,
                 Database = SchemaName,
                 ConnectionTimeout = DefaultTimeout,
-                DefaultCommandTimeout = DefaultTimeout,
-                AllowPublicKeyRetrieval = true
+                DefaultCommandTimeout = DefaultTimeout
             };
             return builder.ToString();
         }

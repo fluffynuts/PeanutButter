@@ -15,7 +15,7 @@
         "build": "run-s \"zarro build\"",
         "build-release": "cross-env BUILD_CONFIGURATION=Release run-s \"zarro build\"",
         "zarro-core": "cross-env BUILD_TOOLS_FOLDER=build-tools DOTNET_CORE=1 zarro",
-        "zarro": "cross-env BUILD_TOOLS_FOLDER=build-tools zarro",
+        "zarro": "cross-env TEMPDB_PORT_HINT=\"\" BUILD_TOOLS_FOLDER=build-tools zarro",
         "release": "run-s test \"zarro release\"",
         "quick-release": "run-s \"zarro release\"",
         "pack": "cross-env BUILD_CONFIGURATION=Release run-s \"zarro pack\""

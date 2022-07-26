@@ -195,44 +195,51 @@ namespace PeanutButter.TempDb
 
         protected void CheckForInactivity(object _)
         {
-            while (!_disposed)
+            try
             {
-                try
+                while (!_disposed)
                 {
-                    var connectionCount = TryFetchCurrentConnectionCount();
-                    var now = DateTime.Now;
-                    if (connectionCount != 0)
+                    try
                     {
-                        _eol = now.Add(_timeout);
+                        var connectionCount = TryFetchCurrentConnectionCount();
+                        var now = DateTime.Now;
+                        if (connectionCount != 0)
+                        {
+                            _eol = now.Add(_timeout);
+                        }
+
+                        var eolExceeded = now > _eol;
+                        var absoluteLifespanExceeded = now > _absoluteEol;
+
+                        if (eolExceeded || absoluteLifespanExceeded)
+                        {
+                            var message = absoluteLifespanExceeded
+                                ? $"absolute lifespan of {_absoluteLifespan} exceeded; shutting down"
+                                : $"inactivity timeout of {_timeout} exceeded; shutting down";
+                            Log(message);
+
+                            _autoDisposeInformation = new TempDbDisposedEventArgs(
+                                message,
+                                true,
+                                _timeout,
+                                _absoluteLifespan
+                            );
+                            _autoDisposeThread = new Thread(Dispose);
+                            _autoDisposeThread.Start();
+                            return;
+                        }
+                    }
+                    catch
+                    {
+                        // Suppress; this is a background thread; nothing we can really do about it anyway
                     }
 
-                    var eolExceeded = now > _eol;
-                    var absoluteLifespanExceeded = now > _absoluteEol;
-
-                    if (eolExceeded || absoluteLifespanExceeded)
-                    {
-                        var message = absoluteLifespanExceeded
-                            ? $"absolute lifespan of {_absoluteLifespan} exceeded; shutting down"
-                            : $"inactivity timeout of {_timeout} exceeded; shutting down";
-                        Log(message);
-
-                        _autoDisposeInformation = new TempDbDisposedEventArgs(
-                            message,
-                            true,
-                            _timeout,
-                            _absoluteLifespan
-                        );
-                        _autoDisposeThread = new Thread(Dispose);
-                        _autoDisposeThread.Start();
-                        return;
-                    }
+                    Thread.Sleep(100);
                 }
-                catch
-                {
-                    // Suppress; this is a background thread; nothing we can really do about it anyway
-                }
-
-                Thread.Sleep(100);
+            }
+            catch (ThreadAbortException)
+            {
+                // just exit cleanly
             }
         }
 
@@ -383,7 +390,11 @@ namespace PeanutButter.TempDb
             if (_inactivityWatcherThread is not null)
             {
                 Log("Waiting on inactivity watcher thread to complete");
-                _inactivityWatcherThread?.Join();
+                if (!(_inactivityWatcherThread?.Join(10000) ?? true))
+                {
+                    _inactivityWatcherThread.Abort();
+                }
+
                 _inactivityWatcherThread = null;
             }
 

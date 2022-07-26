@@ -227,7 +227,7 @@ namespace NugetPackageVersionIncrementer.Tests
                 )).To.Be.True();
                 var targetFrameworks = sut.FindTargetedFrameworks();
                 Expect(targetFrameworks)
-                    .To.Be.Equivalent.To(new[] { "net452", "netstandard2.0" });
+                    .To.Be.Equivalent.To(new[] { "net462", "netstandard2.0" });
                 // Act
                 sut.EnsureSameDependencyGroupForAllTargetFrameworks();
                 // Assert
@@ -239,7 +239,7 @@ namespace NugetPackageVersionIncrementer.Tests
                 );
                 Expect(groups).To.Contain.Only(2).Items();
                 Expect(groups).To.Contain.Exactly(1)
-                    .Matched.By(n => n.Attribute("targetFramework")?.Value == "net452");
+                    .Matched.By(n => n.Attribute("targetFramework")?.Value == "net462");
                 Expect(groups).To.Contain.Exactly(1)
                     .Matched.By(n => n.Attribute("targetFramework")?.Value == "netstandard2.0");
             }

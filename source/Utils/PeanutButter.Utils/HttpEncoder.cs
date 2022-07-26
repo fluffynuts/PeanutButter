@@ -9,7 +9,7 @@ namespace PeanutButter.Utils
 {
     /// <summary>
     /// This is adapted from the dotnet runtime to avoid having to depend
-    /// on System.Web, which is not readily available for older targets (read: net452)
+    /// on System.Web, which is not readily available for older targets (read: .NET Framework 4.5.2, which isn't really supported any more...)
     /// -> PB only needs UrlEncode, so a lot of the original source is stripped out
     ///     but the source classes of interest are
     ///         HttpEncoder

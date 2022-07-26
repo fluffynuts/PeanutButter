@@ -178,6 +178,7 @@ gulp.task("build-source-nuget-packages", function () {
 gulp.task("build-binary-nuget-packages", function () {
   return gulp.src(["**/source/**/*.nuspec",
     "!**/packages/**/*.nuspec",
+    "!**/_deprecated_/**",
     /* source */
     "!**/PeanutButter.TestUtils.MVC/**"
   ])

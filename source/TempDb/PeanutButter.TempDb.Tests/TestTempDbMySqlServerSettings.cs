@@ -123,12 +123,17 @@ namespace PeanutButter.TempDb.Tests
                     .EnvironmentVariables
                     .PORT_HINT
             );
-            if (current is null)
+            if (string.IsNullOrWhiteSpace(current))
             {
                 return null;
             }
 
-            return int.Parse(current);
+            if (int.TryParse(current, out var result))
+            {
+                return result;
+            }
+            Console.Error.WriteLine($"Unable to parse '{current}' as an integer");
+            return null;
         }
     }
 }

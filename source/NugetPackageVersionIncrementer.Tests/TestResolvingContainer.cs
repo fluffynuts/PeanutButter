@@ -1,5 +1,5 @@
 ﻿using System;
-using Castle.Windsor;
+using DryIoc;
 using NSubstitute;
 using NUnit.Framework;
 using PeanutButter.TestUtils.Generic;
@@ -48,7 +48,7 @@ namespace NugetPackageVersionIncrementer.Tests
         public void Resolve_ShouldCallIntoProvidedContainer()
         {
             //---------------Set up test pack-------------------
-            var container = Substitute.For<IWindsorContainer>();
+            var container = Substitute.For<IContainer>();
             var expected = new TestClass();
             container.Resolve<ITestInterface>().Returns(expected);
             var sut = Create(container);
@@ -66,7 +66,7 @@ namespace NugetPackageVersionIncrementer.Tests
         public void Resolve_GivenType_ShouldCallIntoProvidedContainer()
         {
             //---------------Set up test pack-------------------
-            var container = Substitute.For<IWindsorContainer>();
+            var container = Substitute.For<IContainer>();
             var expected = new TestClass();
             var serviceType = typeof(ITestInterface);
             container.Resolve(serviceType).Returns(expected);
@@ -81,7 +81,7 @@ namespace NugetPackageVersionIncrementer.Tests
             Assert.AreEqual(expected, result);
         }
 
-        private static IResolvingContainer Create(IWindsorContainer container)
+        private static IResolvingContainer Create(IContainer container)
         {
             return new ResolvingContainer(container);
         }
