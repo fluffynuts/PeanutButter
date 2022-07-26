@@ -8,7 +8,7 @@
     "scripts": {
         "pretest": "run-s build",
         "test": "cross-env TEST_EXCLUDE=PeanutButter.RandomGenerators.Core.Tests.Domain,NugetPackageVersionIncrementer.Tests,EmailSpooler.Win32Service.Entity.Tests run-s \"zarro test-dotnet\"",
-        "test-gh": "cross-env DOTNET_TEST_PARALLEL=1 TEST_EXCLUDE=PeanutButter.RandomGenerators.Core.Tests.Domain,NugetPackageVersionIncrementer.Tests,EmailSpooler.Win32Service.Entity.Tests,PeanutButter.TempDb.MySql.Connector.Tests,PeanutButter.TempDb.MySql.Data.Tests run-s \"zarro-core quick-test-dotnet\"",
+        "test-gh": "cross-env DOTNET_TEST_PARALLEL=1 TEST_EXCLUDE=PeanutButter.RandomGenerators.Core.Tests.Domain,NugetPackageVersionIncrementer.Tests,EmailSpooler.Win32Service.Entity.Tests,PeanutButter.TempDb.MySql.Connector.Tests,PeanutButter.TempDb.MySql.Data.Tests,**/_deprecated_/** run-s \"zarro-core quick-test-dotnet\"",
         "cover": "cross-env COVERAGE_INCLUDE=*,PeanutButter.* COVERAGE_EXCLUDE_ASSEMBLIES=PeanutButter.RandomGenerators.Core.Tests.Domain COVERAGE_ADDITIONAL_EXCLUDE=GenericBuilderTestLoadLoadedAssemblyObject,GenericBuilderTestNotLoadedAssembly run-s \"zarro cover-dotnet\"",
         "postcover": "run-s generate-reports",
         "generate-reports": "cross-env COVERAGE_INCLUDE=*,PeanutButter.* COVERAGE_EXCLUDE_ASSEMBLIES=PeanutButter.RandomGenerators.Core.Tests.Domain COVERAGE_ADDITIONAL_EXCLUDE=GenericBuilderTestLoadLoadedAssemblyObject,GenericBuilderTestNotLoadedAssembly run-s \"zarro generate-reports\"",
