@@ -412,10 +412,6 @@ namespace PeanutButter.TempDb.MySql.Base
         [Setting("default-character-set", "client", isBare: false, ignoreIfNull: true)]
         public string DefaultClientCharacterSet { get; set; }
 
-        [Setting("default-character-set", SettingAttribute.DEFAULT_SECTION , isBare: false, ignoreIfNull: true)]
-        [Obsolete($"You should probably rather use {nameof(CharacterSetServer)} as {nameof(DefaultServerCharacterSet)} is not supported: https://bugs.mysql.com/bug.php?id=52047")]
-        public string DefaultServerCharacterSet { get; set; }
-
         public TempDbMySqlServerSettings()
         {
             SetPortHintFromEnvironment();
@@ -692,12 +688,5 @@ namespace PeanutButter.TempDb.MySql.Base
         {
             return WithProp(o => o.DefaultClientCharacterSet = charset);
         }
-
-        [Obsolete($"You should probably rather use {nameof(TempDbMySqlServerSettings.CharacterSetServer)} as {nameof(TempDbMySqlServerSettings.DefaultServerCharacterSet)} is not supported: https://bugs.mysql.com/bug.php?id=52047")]
-        public TempDbMySqlServerSettingsBuilder WithDefaultServerCharacterSet(string charset)
-        {
-            return WithProp(o => o.DefaultServerCharacterSet = charset);
-        }
-        
     }
 }

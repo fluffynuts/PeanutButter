@@ -118,25 +118,6 @@ namespace PeanutButter.TempDb.Tests
         }
 
         [Test]
-        public void ShouldBeAbleToSetServerDefaultCharacterSet()
-        {
-            // Arrange
-            var settings = TempDbMySqlServerSettingsBuilder
-                .Create()
-#pragma warning disable CS0618
-                .WithDefaultServerCharacterSet("ascii")
-#pragma warning restore CS0618
-                .Build();
-            var sut = Create();
-            // Act
-            var raw = sut.GenerateFor(settings);
-            // Assert
-            var result = INIFile.FromString(raw);
-            Expect(result["mysqld"]["default-character-set"])
-                .To.Equal("ascii");
-        }
-
-        [Test]
         public void WhenHasCustomSettings_ShouldEmitCustomSettings()
         {
             // Arrange
