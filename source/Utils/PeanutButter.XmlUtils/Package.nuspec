@@ -1,7 +1,7 @@
 <package>
   <metadata>
     <id>PeanutButter.XmlUtils</id>
-    <version>3.0.0</version>
+    <version>3.0.1</version>
     <title>PeanutButter.XmlUtils</title>
     <authors>Davyd McColl</authors>
     <owners>Davyd McColl</owners>
@@ -17,8 +17,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">BSD-3-Clause</license>
     <copyright>Copyright  2014</copyright>
-    <dependencies>
-    </dependencies>
+    <dependencies></dependencies>
     <references></references>
     <tags>xml utilities</tags>
   </metadata>
