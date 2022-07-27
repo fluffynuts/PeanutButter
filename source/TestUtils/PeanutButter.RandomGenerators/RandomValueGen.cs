@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
+using System.Reflection;
 using PeanutButter.Utils;
 using static PeanutButter.Utils.PyLike;
 
@@ -66,15 +68,123 @@ namespace PeanutButter.RandomGenerators
             var type = typeof(T);
             if (RandomGenerators.TryGetValue(type, out var handler))
             {
-                return (T)handler();
+                return (T) handler();
             }
 
             if (type.IsEnum())
             {
-                return (T)GetRandomEnum(type);
+                return (T) GetRandomEnum(type);
             }
-            
-            return (T)GetRandomValue(type);
+
+            var dictionaryInterfaceType = type
+                .GetAllImplementedInterfaces()
+                .FirstOrDefault(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IDictionary<,>));
+            if (dictionaryInterfaceType is not null)
+            {
+                var genericArgs = dictionaryInterfaceType.GetGenericArguments();
+                var keyType = genericArgs[0];
+                var valueType = genericArgs[1];
+                var method = GenericGetRandomDictionary.MakeGenericMethod(keyType, valueType);
+                return (T)method.Invoke(null, new object[0]);
+            }
+
+            return (T) GetRandomValue(type);
+        }
+        
+        private static readonly MethodInfo GenericGetRandomDictionary = typeof(RandomValueGen)
+            .GetMethods()
+            .FirstOrDefault(mi => mi.Name == nameof(GetRandomDictionary) && mi.GetParameters().Length == 0);
+
+        /// <summary>
+        /// Generates a random dictionary of the provided key / value types
+        /// with at least one item in it
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <returns></returns>
+        public static IDictionary<TKey, TValue> GetRandomDictionary<TKey, TValue>()
+        {
+            return GetRandomDictionary<TKey, TValue>(DefaultRanges.MIN_ITEMS + 1);
+        }
+
+        /// <summary>
+        /// Generates a random dictionary of the provided key / value types
+        /// with at least {minItems} in it
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <returns></returns>
+        public static IDictionary<TKey, TValue> GetRandomDictionary<TKey, TValue>(
+            int minItems
+        )
+        {
+            return GetRandomDictionary<TKey, TValue>(minItems, DefaultRanges.MAX_ITEMS + minItems);
+        }
+
+        /// <summary>
+        /// Generates a random dictionary of the provided key / value types
+        /// with at least {minItems} and at most {maxItems} in it
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <returns></returns>
+        public static IDictionary<TKey, TValue> GetRandomDictionary<TKey, TValue>(
+            int minItems,
+            int maxItems
+        )
+        {
+            var result = new Dictionary<TKey, TValue>();
+            var howMany = GetRandomInt(minItems, maxItems);
+            for (var i = 0; i < howMany; i++)
+            {
+                var key = GetRandom<TKey>();
+                var value = GetRandom<TValue>();
+                result[key] = value;
+            }
+            return result;
+        }
+        
+        /// <summary>
+        /// Generates a random NameValueCollection
+        /// with at least one item in it
+        /// </summary>
+        /// <returns></returns>
+        public static NameValueCollection GetRandomNameValueCollection()
+        {
+            return GetRandomNameValueCollection(DefaultRanges.MIN_ITEMS + 1);
+        }
+
+        /// <summary>
+        /// Generates a random NameValueCollection
+        /// with at least {minItems} in it
+        /// </summary>
+        /// <returns></returns>
+        public static NameValueCollection GetRandomNameValueCollection(
+            int minItems
+        )
+        {
+            return GetRandomNameValueCollection(minItems, DefaultRanges.MAX_ITEMS + minItems);
+        }
+
+        /// <summary>
+        /// Generates a random NameValueCollection
+        /// with at least {minItems} and at most {maxItems} in it
+        /// </summary>
+        /// <returns></returns>
+        public static NameValueCollection GetRandomNameValueCollection(
+            int minItems,
+            int maxItems
+        )
+        {
+            var result = new NameValueCollection();
+            var howMany = GetRandomInt(minItems, maxItems);
+            for (var i = 0; i < howMany; i++)
+            {
+                var key = GetRandomString();
+                var value = GetRandomString();
+                result[key] = value;
+            }
+            return result;
         }
 
         /// <summary>
@@ -89,7 +199,7 @@ namespace PeanutButter.RandomGenerators
             Func<T> generator
         )
         {
-            RandomGenerators[typeof(T)] = () => (object)(generator());
+            RandomGenerators[typeof(T)] = () => (object) (generator());
         }
 
         private class RandomValueSpecialCase
@@ -109,7 +219,8 @@ namespace PeanutButter.RandomGenerators
 
         private static readonly Dictionary<Type, Func<object>> RandomGenerators = new()
         {
-            [typeof(IPAddress)] = () => IPAddress.Parse(GetRandomIPv4Address())
+            [typeof(IPAddress)] = () => IPAddress.Parse(GetRandomIPv4Address()),
+            [typeof(NameValueCollection)] = GetRandomNameValueCollection
         };
 
         /// <summary>

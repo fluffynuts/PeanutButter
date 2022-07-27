@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using PeanutButter.Utils.Dictionaries;
 
@@ -83,6 +84,7 @@ namespace PeanutButter.Utils
                     return dict;
                 case IDictionary dict:
                     return dict.ToDictionary<TKey, TValue>();
+                case NameValueCollection nvc:
                 default:
                     var type = obj.GetType();
                     if (type.IsPrimitiveOrImmutable())

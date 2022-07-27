@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 
 #if BUILD_PEANUTBUTTER_INTERNAL
@@ -286,6 +287,7 @@ namespace PeanutButter.Utils
             {
                 target[key] = newData[key];
             }
+
             return target;
         }
 
@@ -298,7 +300,39 @@ namespace PeanutButter.Utils
             {
                 target[kvp.Key] = kvp.Value;
             }
+
             return target;
+        }
+
+        /// <summary>
+        /// Converts a NameValueCollection to a dictionary
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <returns></returns>
+        public static IDictionary<string, string> ToDictionary(this NameValueCollection collection)
+        {
+            var result = new Dictionary<string, string>();
+            foreach (var key in collection.AllKeys)
+            {
+                result[key] = collection[key];
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Converts a NameValueCollection to a dictionary
+        /// </summary>
+        /// <param name="dict"></param>
+        /// <returns></returns>
+        public static NameValueCollection ToNameValueCollection(
+            this IDictionary<string, string> dict)
+        {
+            var result = new NameValueCollection();
+            foreach (var kvp in dict)
+            {
+                result[kvp.Key] = kvp.Value;
+            }
+            return result;
         }
     }
 

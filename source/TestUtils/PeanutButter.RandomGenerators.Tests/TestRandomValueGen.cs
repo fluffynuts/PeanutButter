@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -3747,6 +3748,45 @@ namespace PeanutButter.RandomGenerators.Tests
                 // Assert
                 Expect(result1.ToString())
                     .Not.To.Equal(result2.ToString());
+            }
+        }
+
+        [TestFixture]
+        public class RandomDictionaries
+        {
+            [Test]
+            [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
+            public void GenerateRandomDictionaryOfStringString()
+            {
+                // Arrange
+                // Act
+                var result = GetRandom<Dictionary<string, string>>();
+                // Assert
+                Expect(result)
+                    .To.Contain.At.Least(1)
+                    .Item();
+                Expect(result.Values)
+                    .To.Equal(result.Values.Distinct());
+            }
+        }
+
+        [TestFixture]
+        public class RandomNameValueCollection
+        {
+            [Test]
+            [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
+            public void GenerateRandomDictionaryOfStringString()
+            {
+                // Arrange
+                // Act
+                var result = GetRandom<NameValueCollection>();
+                // Assert
+                Expect(result)
+                    .To.Contain.At.Least(1)
+                    .Item();
+                var dict = result.ToDictionary();
+                Expect(dict.Values)
+                    .To.Equal(dict.Values.Distinct());
             }
         }
     }

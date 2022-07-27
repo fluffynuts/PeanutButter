@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using NExpect;
 using NUnit.Framework;
@@ -465,6 +466,66 @@ namespace PeanutButter.Utils.Tests
                     Expect(result)
                         .To.Be.Equivalent.To(expected);
                 }
+            }
+        }
+
+        [TestFixture]
+        public class ConvertingBetweenNameValueCollectionAndDictOfStringString
+        {
+            [Test]
+            public void ShouldBeAbleToConvertNameValueCollectionToDict()
+            {
+                // Arrange
+                var key1 = GetRandomString(10);
+                var key2 = GetRandomString(10);
+                var value1 = GetRandomString();
+                var value2 = GetRandomString();
+                var input = new NameValueCollection()
+                {
+                    { key1, value1 },
+                    { key2, value2 }
+                };
+
+                // Act
+                var result = input.ToDictionary();
+                // Assert
+                Expect(result)
+                    .To.Contain.Only(2)
+                    .Items();
+                Expect(result)
+                    .To.Contain.Key(key1)
+                    .With.Value(value1);
+                Expect(result)
+                    .To.Contain.Key(key2)
+                    .With.Value(value2);
+            }
+
+            [Test]
+            public void ShouldBeAbleToConvertDictionaryOfStringStringToNameValueCollection()
+            {
+                // Arrange
+                var key1 = GetRandomString(10);
+                var key2 = GetRandomString(10);
+                var value1 = GetRandomString();
+                var value2 = GetRandomString();
+                var input = new Dictionary<string, string>()
+                {
+                    { key1, value1 },
+                    { key2, value2 }
+                };
+
+                // Act
+                var result = input.ToNameValueCollection();
+                // Assert
+                Expect(result)
+                    .To.Contain.Only(2)
+                    .Items();
+                Expect(result)
+                    .To.Contain.Key(key1)
+                    .With.Value(value1);
+                Expect(result)
+                    .To.Contain.Key(key2)
+                    .With.Value(value2);
             }
         }
     }
