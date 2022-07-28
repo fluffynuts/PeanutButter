@@ -289,7 +289,7 @@ namespace PeanutButter.Utils
                 return StringifyPrimitive(obj, level, nullRepresentation);
             }
 
-            return _strategies.Aggregate(
+            var result = _strategies.Aggregate(
                 null as string,
                 (
                         acc,
@@ -302,7 +302,36 @@ namespace PeanutButter.Utils
                         nullRepresentation
                     )
             );
+            return result == EMPTY_OBJECT && HasCustomToString(obj)
+                ? $"<< {obj} >>"
+                : result;
         }
+
+        private static bool HasCustomToString(object o)
+        {
+            return CustomToStringCache.FindOrAdd(
+                o?.GetType(),
+                () => o?.GetType().GetMethods()
+                    .Any(mi => mi.Name == nameof(ToString) &&
+                        mi.GetParameters().Length == 0 &&
+                        !BaseTypes.Contains(mi.DeclaringType)
+                    ) ?? false
+            );
+        }
+
+        private static readonly Dictionary<Type, bool> CustomToStringCache = new();
+
+        private static readonly HashSet<Type> BaseTypes = new(
+            new[]
+            {
+#if NETSTANDARD
+                typeof(ValueType),
+#endif
+                typeof(object)
+            }
+        );
+
+        private const string EMPTY_OBJECT = "{}";
 
         private static string ApplyStrategy(
             Func<object, int, bool> matcher,
@@ -342,14 +371,14 @@ namespace PeanutButter.Utils
                         var propValue = cur.GetValue(obj);
                         if (_ignoreAssembliesByName.Contains(
 #if NETSTANDARD
-                            cur.DeclaringType?.AssemblyQualifiedName?.Split(
-                                new[] { "," },
-                                StringSplitOptions.RemoveEmptyEntries
-                            ).Skip(1).FirstOrDefault()
+                                cur.DeclaringType?.AssemblyQualifiedName?.Split(
+                                    new[] { "," },
+                                    StringSplitOptions.RemoveEmptyEntries
+                                ).Skip(1).FirstOrDefault()
 #else
                             cur.DeclaringType?.Assembly.GetName().Name
 #endif
-                        ))
+                            ))
                         {
                             acc.Add(string.Join("",
                                     cur.Name,
