@@ -193,7 +193,6 @@ namespace PeanutButter.WindowsServiceManagement
             );
         }
 
-        /// <inheritdoc />
         public int ServiceStateExtraWaitSeconds { get; set; }
 
         /// <inheritdoc />

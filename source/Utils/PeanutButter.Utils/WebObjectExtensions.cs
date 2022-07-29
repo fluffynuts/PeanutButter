@@ -84,7 +84,6 @@ namespace PeanutButter.Utils
                     return dict;
                 case IDictionary dict:
                     return dict.ToDictionary<TKey, TValue>();
-                case NameValueCollection nvc:
                 default:
                     var type = obj.GetType();
                     if (type.IsPrimitiveOrImmutable())
