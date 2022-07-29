@@ -24,8 +24,8 @@ namespace PeanutButter.Utils
         )
         {
             var parameters = o.AsQueryStringParameters();
-            return parameters == "" 
-                ? parameters 
+            return parameters == ""
+                ? parameters
                 : $"?{parameters}";
         }
 
@@ -44,7 +44,7 @@ namespace PeanutButter.Utils
             return dict.Aggregate(
                 new List<string>() as IList<string>,
                 (acc, cur) => acc.And(
-                    $"{HttpEncoder.UrlEncode((string)cur.Key)}={HttpEncoder.UrlEncode((string)cur.Value?.ToString())}"
+                    $"{HttpEncoder.UrlEncode((string) cur.Key)}={HttpEncoder.UrlEncode((string) cur.Value?.ToString())}"
                 )
             ).JoinWith("&");
         }
@@ -76,34 +76,37 @@ namespace PeanutButter.Utils
             this object obj
         )
         {
-            switch (obj)
+            return obj switch
             {
-                case null:
-                    return new Dictionary<TKey, TValue>();
-                case IDictionary<TKey, TValue> dict:
-                    return dict;
-                case IDictionary dict:
-                    return dict.ToDictionary<TKey, TValue>();
-                default:
-                    var type = obj.GetType();
-                    if (type.IsPrimitiveOrImmutable())
-                    {
-                        throw new NotSupportedException(
-                            $"Cannot convert object of type {type} to a dictionary"
-                        );
-                    }
+                null => new Dictionary<TKey, TValue>(),
+                IDictionary<TKey, TValue> typed => typed,
+                IDictionary dict => dict.ToDictionary<TKey, TValue>(),
+                _ => TryMakeDictionaryOutOf<TKey, TValue>(obj)
+            };
+        }
 
-                    if (typeof(TKey) == typeof(string) &&
-                        typeof(TValue) == typeof(object))
-                    {
-                        return new DictionaryWrappingObject(obj)
-                            as IDictionary<TKey, TValue>;
-                    }
-
-                    throw new NotSupportedException(
-                        "Arbitrary objects may only be represented by Dictionary<string, object>"
-                    );
+        private static IDictionary<TKey, TValue> TryMakeDictionaryOutOf<TKey, TValue>(
+            object obj
+        )
+        {
+            var type = obj.GetType();
+            if (type.IsPrimitiveOrImmutable())
+            {
+                throw new NotSupportedException(
+                    $"Cannot convert object of type {type} to a dictionary"
+                );
             }
+
+            if (typeof(TKey) == typeof(string) &&
+                typeof(TValue) == typeof(object))
+            {
+                return new DictionaryWrappingObject(obj)
+                    as IDictionary<TKey, TValue>;
+            }
+
+            throw new NotSupportedException(
+                "Arbitrary objects may only be represented by Dictionary<string, object>"
+            );
         }
     }
 }

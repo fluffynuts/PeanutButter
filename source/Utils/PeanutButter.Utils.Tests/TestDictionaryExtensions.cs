@@ -528,5 +528,62 @@ namespace PeanutButter.Utils.Tests
                     .With.Value(value2);
             }
         }
+
+        [TestFixture]
+        public class AsDictionary
+        {
+            [Test]
+            public void ShouldProduceOriginalRefForDictionary()
+            {
+                // Arrange
+                var dict = GetRandom<Dictionary<string, string>>();
+                Expect(dict as IDictionary<string, string>)
+                    .Not.To.Be.Null();
+
+                // Act
+                var result = dict.AsDictionary<string, string>();
+                // Assert
+                Expect(result)
+                    .To.Be(dict);
+            }
+
+            [Test]
+            public void ShouldProduceOriginalRefForIDictionary()
+            {
+                // Arrange
+                var dict = GetRandom<Dictionary<string, string>>();
+
+                // Act
+                var result = (dict as IDictionary<string, string>).AsDictionary<string, string>();
+                // Assert
+                Expect(result)
+                    .To.Be(dict);
+            }
+            [Test]
+            public void ShouldProduceOriginalRefForDictionaryUntypedFromStringObject()
+            {
+                // Arrange
+                var dict = GetRandom<Dictionary<string, object>>();
+
+                // Act
+                var result = dict.AsDictionary();
+                // Assert
+                Expect(result)
+                    .To.Be(dict);
+            }
+
+            [Test]
+            public void ShouldProduceOriginalRefForIDictionaryUntypedFromStringObject()
+            {
+                // Arrange
+                var dict = GetRandom<Dictionary<string, object>>();
+
+                // Act
+                var result = (dict as IDictionary<string, object>).AsDictionary();
+                // Assert
+                Expect(result)
+                    .To.Be(dict);
+            }
+        }
     }
 }
