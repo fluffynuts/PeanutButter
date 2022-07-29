@@ -919,6 +919,37 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                     Expect(result2)
                         .To.Equal(expected2);
                 }
+
+                [Test]
+                public void ShouldBeAbleToReadAndWriteNestedValue()
+                {
+                    // Arrange
+                    var expected1 = GetRandomString();
+                    var expected2 = GetAnother(expected1);
+                    var wrapped = new
+                    {
+                        data = new NameValueCollection()
+                        {
+                            ["id"] = expected1
+                        }
+                    };
+                    var sut = Create(wrapped, options: WrapOptions.WrapRecursively);
+
+                    // Act
+                    var dataDict = sut["data"] as IDictionary<string, object>
+                        ?? throw new Exception("data isn't a dictionary");
+                    var moo = sut["data"] as IDictionary<string, object>;
+                    Expect(moo)
+                        .To.Be(dataDict);
+                    var result1 = dataDict["id"];
+                    dataDict["id"] = expected2;
+                    var result2 = dataDict["id"];
+                    // Assert
+                    Expect(result1)
+                        .To.Equal(expected1);
+                    Expect(result2)
+                        .To.Equal(expected2);
+                }
             }
 
             [TestFixture]

@@ -572,6 +572,7 @@ namespace PeanutButter.Utils.Dictionaries
                 }
 
                 info.SetValue(_wrapped, value);
+                _memberCache[key] = value;
                 return;
             }
 
