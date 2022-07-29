@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace
 #if BUILD_PEANUTBUTTER_INTERNAL
@@ -100,7 +101,9 @@ internal
         )
         {
             if (AnyAreNull(left, middle, right))
+            {
                 yield break;
+            }
 
             using var leftEnumerator = left.GetEnumerator();
             using var middleEnumerator = middle.GetEnumerator();
@@ -111,6 +114,46 @@ internal
                     leftEnumerator.Current,
                     middleEnumerator.Current,
                     rightEnumerator.Current
+                );
+            }
+        }
+
+        /// <summary>
+        /// "Zips" four collections together so you can enumerate over them. The
+        ///   length of the enumeration is determined by the shortest collection
+        /// </summary>
+        /// <param name="first">left collection</param>
+        /// <param name="second">right collection</param>
+        /// <param name="third">right collection</param>
+        /// <param name="fourth">right collection</param>
+        /// <typeparam name="T1"></typeparam>
+        /// <typeparam name="T2"></typeparam>
+        /// <typeparam name="T3"></typeparam>
+        /// <typeparam name="T4"></typeparam>
+        /// <returns>Enumeration over the collections (Tuple of T1, T2, T4)</returns>
+        public static IEnumerable<Tuple<T1, T2, T3, T4>> Zip<T1, T2, T3, T4>(
+            IEnumerable<T1> first,
+            IEnumerable<T2> second,
+            IEnumerable<T3> third,
+            IEnumerable<T4> fourth
+        )
+        {
+            if (AnyAreNull(first, second, third, fourth))
+            {
+                yield break;
+            }
+
+            using var enumerator1 = first.GetEnumerator();
+            using var enumerator2 = second.GetEnumerator();
+            using var enumerator3 = third.GetEnumerator();
+            using var enumerator4 = fourth.GetEnumerator();
+            while (MoveAll(enumerator1, enumerator2, enumerator3, enumerator4))
+            {
+                yield return Tuple.Create(
+                    enumerator1.Current,
+                    enumerator2.Current,
+                    enumerator3.Current,
+                    enumerator4.Current
                 );
             }
         }

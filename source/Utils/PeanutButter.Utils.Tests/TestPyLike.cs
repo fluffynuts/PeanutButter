@@ -37,7 +37,7 @@ namespace PeanutButter.Utils.Tests
                 // Act
                 var result = Range(1).ToArray();
                 // Assert
-                Expect(result).To.Equal(new[] {0});
+                Expect(result).To.Equal(new[] { 0 });
             }
 
             [Test]
@@ -50,6 +50,7 @@ namespace PeanutButter.Utils.Tests
                 {
                     expected.Add(i);
                 }
+
                 // Pre-Assert
                 // Act
                 var result = Range(ceiling).ToArray();
@@ -69,6 +70,7 @@ namespace PeanutButter.Utils.Tests
                 {
                     expected.Add(i);
                 }
+
                 // Pre-Assert
                 // Act
                 var result = Range(start, ceiling).ToArray();
@@ -88,6 +90,7 @@ namespace PeanutButter.Utils.Tests
                 {
                     expected.Add(i);
                 }
+
                 // Pre-Assert
                 // Act
                 var result = Range(start, ceiling, step).ToArray();
@@ -112,112 +115,217 @@ namespace PeanutButter.Utils.Tests
         [TestFixture]
         public class Zip
         {
-            [Test]
-            public void Zip_WhenCollectionsHaveTheSameNumberOfItems_ShouldGetItemPairs()
+            [TestFixture]
+            public class WhenCollectionsHaveTheSameNumberOfItems
             {
-                // Arrange
-                var left = new[] {1, 2, 3};
-                var right = new[] {"a", "b", "c"};
-                // Pre-Assert
-                // Act
-                var result = Zip(left, right).ToArray();
-                // Assert
-                Expect(result).To.Contain.Exactly(3).Items();
-                Expect(result)
-                    .To.Equal(
-                        new[]
-                        {
-                            Tuple.Create(left[0], right[0]),
-                            Tuple.Create(left[1], right[1]),
-                            Tuple.Create(left[2], right[2])
-                        });
-            }
-
-            [Test]
-            public void Zip_WhenCollectionsHaveDifferntNumberOfItems_ShouldOnlyReturnFullPairs()
-            {
-                // Arrange
-                var left = new[] {1, 2};
-                var right = new[] {"a", "b", "c"};
-                // Pre-Assert
-                // Act
-                var result = Zip(left, right).ToArray();
-                // Assert
-                Expect(result).To.Contain.Exactly(2).Items();
-                Expect(result)
-                    .To.Equal(new[]
+                [TestFixture]
+                public class TwoCollections
+                {
+                    [Test]
+                    public void ShouldReturnItemPairs()
                     {
-                        Tuple.Create(left[0], right[0]),
-                        Tuple.Create(left[1], right[1])
-                    });
-            }
+                        // Arrange
+                        var left = new[] { 1, 2, 3 };
+                        var right = new[] { "a", "b", "c" };
+                        // Pre-Assert
+                        // Act
+                        var result = Zip(left, right).ToArray();
+                        // Assert
+                        Expect(result).To.Contain.Exactly(3).Items();
+                        Expect(result)
+                            .To.Equal(
+                                new[]
+                                {
+                                    Tuple.Create(left[0], right[0]),
+                                    Tuple.Create(left[1], right[1]),
+                                    Tuple.Create(left[2], right[2])
+                                });
+                    }
+                }
 
-            [Test]
-            public void Zip_WhenOneOfTwoIsNull_ShouldReturnEmptyCollection()
-            {
-                // Arrange
-                var left = new[] {1, 2};
-                int[] right = null;
-                // Pre-Assert
-                // Act
-                var result = Zip(left, right).ToArray();
-                // Assert
-                Expect(result).To.Be.Empty();
-            }
-
-            [Test]
-            public void Zip_WhenOneorMoreOfThreeIsNull_ShouldReturnEmptyCollection()
-            {
-                // Arrange
-                var left = new[] {1, 2};
-                bool[] middle = null;
-                int[] right = null;
-                // Pre-Assert
-                // Act
-                var result = Zip(left, middle, right).ToArray();
-                // Assert
-                Expect(result).To.Be.Empty();
-            }
-
-            [Test]
-            public void Zip_When3CollectionsHaveTheSameNumberOfItems_ShouldGetItemPairs()
-            {
-                // Arrange
-                var left = new[] {1, 2, 3};
-                var middle = GetRandomCollection<bool>(3, 3).ToArray();
-                var right = new[] {"a", "b", "c"};
-                // Pre-Assert
-                // Act
-                var result = Zip(left, middle, right).ToArray();
-                // Assert
-                Expect(result).To.Contain.Exactly(3).Items();
-                Expect(result)
-                    .To.Equal(new[]
+                [TestFixture]
+                public class ThreeCollections
+                {
+                    [Test]
+                    public void ShouldReturnItemPairs()
                     {
-                        Tuple.Create(left[0], middle[0], right[0]),
-                        Tuple.Create(left[1], middle[1], right[1]),
-                        Tuple.Create(left[2], middle[2], right[2])
-                    });
+                        // Arrange
+                        var left = new[] { 1, 2, 3 };
+                        var middle = GetRandomCollection<bool>(3, 3).ToArray();
+                        var right = new[] { "a", "b", "c" };
+                        // Pre-Assert
+                        // Act
+                        var result = Zip(left, middle, right).ToArray();
+                        // Assert
+                        Expect(result).To.Contain.Exactly(3).Items();
+                        Expect(result)
+                            .To.Equal(new[]
+                            {
+                                Tuple.Create(left[0], middle[0], right[0]),
+                                Tuple.Create(left[1], middle[1], right[1]),
+                                Tuple.Create(left[2], middle[2], right[2])
+                            });
+                    }
+                }
+
+                [TestFixture]
+                public class FourCollections
+                {
+                    [Test]
+                    public void ShouldReturnItemPairs()
+                    {
+                        // Arrange
+                        var first = new[] { 1, 2, 3 };
+                        var second = GetRandomArray<bool>(3, 3);
+                        var third = new[] { "a", "b", "c" };
+                        var fourth = GetRandomArray<DateTime>(10);
+                        // Pre-Assert
+                        // Act
+                        var result = Zip(first, second, third, fourth).ToArray();
+                        // Assert
+                        Expect(result).To.Contain.Exactly(3).Items();
+                        Expect(result)
+                            .To.Equal(new[]
+                            {
+                                Tuple.Create(first[0], second[0], third[0], fourth[0]),
+                                Tuple.Create(first[1], second[1], third[1], fourth[1]),
+                                Tuple.Create(first[2], second[2], third[2], fourth[2])
+                            });
+                    }
+                }
             }
 
-            [Test]
-            public void Zip_When3CollectionsHaveDifferntNumberOfItems_ShouldOnlyReturnFullPairs()
+            [TestFixture]
+            public class WhenCollectionsHaveDifferentNumberOfItems
             {
-                // Arrange
-                var left = new[] {1, 2};
-                var middle = GetRandomCollection<bool>(5, 7).ToArray();
-                var right = new[] {"a", "b", "c"};
-                // Pre-Assert
-                // Act
-                var result = Zip(left, middle, right).ToArray();
-                // Assert
-                Expect(result).To.Contain.Exactly(2).Items();
-                Expect(result)
-                    .To.Equal(new[]
+                [TestFixture]
+                public class TwoCollections
+                {
+                    [Test]
+                    public void ShouldOnlyReturnFullPairs()
                     {
-                        Tuple.Create(left[0], middle[0], right[0]),
-                        Tuple.Create(left[1], middle[1], right[1])
-                    });
+                        // Arrange
+                        var left = new[] { 1, 2 };
+                        var right = new[] { "a", "b", "c" };
+                        // Pre-Assert
+                        // Act
+                        var result = Zip(left, right).ToArray();
+                        // Assert
+                        Expect(result).To.Contain.Exactly(2).Items();
+                        Expect(result)
+                            .To.Equal(new[]
+                            {
+                                Tuple.Create(left[0], right[0]),
+                                Tuple.Create(left[1], right[1])
+                            });
+                    }
+                }
+
+                [TestFixture]
+                public class ThreeCollections
+                {
+                    [Test]
+                    public void ShouldOnlyReturnFullPairs()
+                    {
+                        // Arrange
+                        var left = new[] { 1, 2 };
+                        var middle = GetRandomCollection<bool>(5, 7).ToArray();
+                        var right = new[] { "a", "b", "c" };
+                        // Pre-Assert
+                        // Act
+                        var result = Zip(left, middle, right).ToArray();
+                        // Assert
+                        Expect(result).To.Contain.Exactly(2).Items();
+                        Expect(result)
+                            .To.Equal(new[]
+                            {
+                                Tuple.Create(left[0], middle[0], right[0]),
+                                Tuple.Create(left[1], middle[1], right[1])
+                            });
+                    }
+                }
+
+                [TestFixture]
+                public class FourCollections
+                {
+                    [Test]
+                    public void ShouldOnlyReturnFullPairs()
+                    {
+                        // Arrange
+                        var left = new[] { 1, 2 };
+                        var middle = GetRandomArray<bool>(5, 7);
+                        var right = new[] { "a", "b", "c" };
+                        var last = GetRandomArray<DateTime>(10);
+                        // Pre-Assert
+                        // Act
+                        var result = Zip(left, middle, right, last).ToArray();
+                        // Assert
+                        Expect(result).To.Contain.Exactly(2).Items();
+                        Expect(result)
+                            .To.Equal(new[]
+                            {
+                                Tuple.Create(left[0], middle[0], right[0], last[0]),
+                                Tuple.Create(left[1], middle[1], right[1], last[1])
+                            });
+                    }
+                }
+            }
+
+            [TestFixture]
+            public class WhenOneOrMoreCollectionsAreNull
+            {
+                [TestFixture]
+                public class TwoCollections
+                {
+                    [Test]
+                    public void ShouldReturnEmptyCollection()
+                    {
+                        // Arrange
+                        var left = new[] { 1, 2 };
+                        int[] right = null;
+                        // Pre-Assert
+                        // Act
+                        var result = Zip(left, right).ToArray();
+                        // Assert
+                        Expect(result).To.Be.Empty();
+                    }
+                }
+
+                [TestFixture]
+                public class ThreeCollections
+                {
+                    [Test]
+                    public void ShouldReturnEmptyCollection()
+                    {
+                        // Arrange
+                        var left = new[] { 1, 2 };
+                        bool[] middle = null;
+                        int[] right = null;
+                        // Pre-Assert
+                        // Act
+                        var result = Zip(left, middle, right).ToArray();
+                        // Assert
+                        Expect(result).To.Be.Empty();
+                    }
+                }
+
+                [TestFixture]
+                public class FourCollections
+                {
+                    [Test]
+                    public void ShouldReturnEmptyCollection()
+                    {
+                        // Arrange
+                        var left = new[] { 1, 2 };
+                        bool[] middle = null;
+                        int[] right = null;
+                        // Pre-Assert
+                        // Act
+                        var result = Zip(left, middle, right, GetRandomArray<DateTime>()).ToArray();
+                        // Assert
+                        Expect(result).To.Be.Empty();
+                    }
+                }
             }
         }
     }
