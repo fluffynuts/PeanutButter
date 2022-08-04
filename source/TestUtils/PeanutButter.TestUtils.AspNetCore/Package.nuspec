@@ -33,6 +33,7 @@
         <dependency id="PeanutButter.Utils" version="3.0.3" />
         <dependency id="PeanutButter.RandomGenerators" version="3.0.3" />
         <dependency id="Microsoft.AspNetCore.Http.Abstractions" version="2.2.0" />
+        <dependency id="Microsoft.AspNetCore.Mvc" version="2.2.0" />
         <dependency id="System.Text.Json" version="6.0.5" />
       </group>
     </dependencies>
