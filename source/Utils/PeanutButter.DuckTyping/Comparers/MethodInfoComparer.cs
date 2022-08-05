@@ -3,7 +3,11 @@ using System.Reflection;
 // ReSharper disable ConstantConditionalAccessQualifier
 // ReSharper disable ConstantNullCoalescingCondition
 
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+namespace Imported.PeanutButter.DuckTyping.Comparers
+#else
 namespace PeanutButter.DuckTyping.Comparers
+#endif
 {
     internal class MethodInfoComparer: IEqualityComparer<MethodInfo>
     {

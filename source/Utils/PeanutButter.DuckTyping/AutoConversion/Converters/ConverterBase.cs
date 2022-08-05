@@ -1,6 +1,10 @@
 ﻿using System;
 
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+namespace Imported.PeanutButter.DuckTyping.AutoConversion.Converters
+#else
 namespace PeanutButter.DuckTyping.AutoConversion.Converters
+#endif
 {
     internal abstract class ConverterBase
     {

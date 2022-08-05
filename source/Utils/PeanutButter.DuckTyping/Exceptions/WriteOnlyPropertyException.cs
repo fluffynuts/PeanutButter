@@ -1,12 +1,21 @@
 ﻿using System;
 
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+namespace Imported.PeanutButter.DuckTyping.Exceptions
+#else
 namespace PeanutButter.DuckTyping.Exceptions
+#endif
 {
     /// <summary>
     /// Exception thrown when a ducking operation expects a read/write
     /// property but the object being ducked implements a write-only property
     /// </summary>
-    public class WriteOnlyPropertyException: NotImplementedException
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+    internal
+#else
+    public
+#endif
+    class WriteOnlyPropertyException: NotImplementedException
     {
         /// <summary>
         /// Constructs a new instance of the exception

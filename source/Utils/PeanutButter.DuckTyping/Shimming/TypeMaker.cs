@@ -3,17 +3,31 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+using Imported.PeanutButter.DuckTyping.Comparers;
+using Imported.PeanutButter.DuckTyping.Extensions;
+#else
 using PeanutButter.DuckTyping.Comparers;
 using PeanutButter.DuckTyping.Extensions;
+#endif
 using Imported.PeanutButter.Utils;
 
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+namespace Imported.PeanutButter.DuckTyping.Shimming
+#else
 namespace PeanutButter.DuckTyping.Shimming
+#endif
 {
     /// <summary>
     /// Utility class to create types on the fly which implement provided interfaces,
     /// when possible.
     /// </summary>
-    public class TypeMaker : ITypeMaker
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+    internal
+#else
+    public
+#endif
+    class TypeMaker : ITypeMaker
     {
         private const string ASSEMBLY_NAME = "PeanutButter.DuckTyping.GeneratedTypes";
         private static readonly Type ShimInterfaceType = typeof(IShimSham);

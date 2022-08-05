@@ -1,14 +1,27 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+using Imported.PeanutButter.DuckTyping.AutoConversion;
+#else
 using PeanutButter.DuckTyping.AutoConversion;
+#endif
 
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+namespace Imported.PeanutButter.DuckTyping.Shimming
+#else
 namespace PeanutButter.DuckTyping.Shimming
+#endif
 {
     /// <summary>
     /// Base class for common shim functionality
     /// </summary>
-    public abstract class ShimShamBase
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+    internal
+#else
+    public
+#endif
+    abstract class ShimShamBase
     {
         private static MethodInfo GetTypeMakerMethod(string name)
         {

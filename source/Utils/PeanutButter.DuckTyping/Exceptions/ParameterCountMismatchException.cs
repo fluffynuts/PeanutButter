@@ -1,13 +1,22 @@
 ﻿using System;
 using System.Reflection;
 
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+namespace Imported.PeanutButter.DuckTyping.Exceptions
+#else
 namespace PeanutButter.DuckTyping.Exceptions
+#endif
 {
     /// <summary>
     /// Exception thrown when a ducked type has a different number of parameters
     /// for a ducked method than the ducked interface expects
     /// </summary>
-    public class ParameterCountMismatchException: ArgumentException
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+    internal
+#else
+    public
+#endif
+    class ParameterCountMismatchException: ArgumentException
     {
         /// <summary>
         /// Constructs an instance of the exception

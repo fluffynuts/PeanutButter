@@ -5,12 +5,21 @@ using TransformFunc = System.Func<string, string>;
 
 // ReSharper disable MemberCanBePrivate.Global
 
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+namespace Imported.PeanutButter.DuckTyping.Extensions
+#else
 namespace PeanutButter.DuckTyping.Extensions
+#endif
 {
     /// <summary>
     /// Provides duck-typing around NameValueCollections
     /// </summary>
-    public static class DuckTypingNameValueCollectionExtensions
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+    internal
+#else
+    public
+#endif
+    static class DuckTypingNameValueCollectionExtensions
     {
         internal static IDictionary<string, object> ToDictionary(this NameValueCollection src,
             bool caseInsensitive = false)

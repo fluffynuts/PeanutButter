@@ -9,15 +9,28 @@ using System.Linq;
 using System.Reflection;
 using Imported.PeanutButter.Utils;
 using Imported.PeanutButter.Utils.Dictionaries;
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+using Imported.PeanutButter.DuckTyping.Shimming;
+#else
 using PeanutButter.DuckTyping.Shimming;
+#endif
 
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+namespace Imported.PeanutButter.DuckTyping.Extensions
+#else
 namespace PeanutButter.DuckTyping.Extensions
+#endif
 {
     /// <summary>
     /// Provides extension method for merging multiple objects behind a
     /// required interface
     /// </summary>
-    public static class MergingExtensions
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+    internal
+#else
+    public
+#endif
+    static class MergingExtensions
     {
         /// <summary>
         /// Tests if a collection of objects can back

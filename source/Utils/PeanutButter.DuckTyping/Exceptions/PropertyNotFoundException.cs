@@ -1,11 +1,20 @@
 ﻿using System;
 
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+namespace Imported.PeanutButter.DuckTyping.Exceptions
+#else
 namespace PeanutButter.DuckTyping.Exceptions
+#endif
 {
     /// <summary>
     /// Exception thrown when an expected property was not found on a ducked type
     /// </summary>
-    public class PropertyNotFoundException : NotImplementedException
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+    internal
+#else
+    public
+#endif
+    class PropertyNotFoundException : NotImplementedException
     {
         /// <summary>
         /// Constructs a new instance of the exception

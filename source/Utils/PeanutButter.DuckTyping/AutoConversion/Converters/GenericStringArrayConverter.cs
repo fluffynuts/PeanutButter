@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Linq;
 
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+namespace Imported.PeanutButter.DuckTyping.AutoConversion.Converters
+#else
 namespace PeanutButter.DuckTyping.AutoConversion.Converters
+#endif
 {
     internal class GenericStringStringArrayConverter<T>
         : GenericStringConverterBase<T>,

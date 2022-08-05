@@ -3,7 +3,11 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+namespace Imported.PeanutButter.DuckTyping.Extensions
+#else
 namespace PeanutButter.DuckTyping.Extensions
+#endif
 {
     /// <summary>
     /// Contains an extension method to craete a CustomAttributeBuilder
@@ -11,7 +15,12 @@ namespace PeanutButter.DuckTyping.Extensions
     /// http://stackoverflow.com/questions/2365470/using-reflection-emit-to-copy-a-custom-attribute-to-another-method
     /// (apparently, this is how AutoFac does it!)
     /// </summary>
-    public static class CustomAttributeHelperExtensions
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+    internal
+#else
+    public
+#endif
+    static class CustomAttributeHelperExtensions
     {
         /// <summary>
         /// Creates a CustomAttributeBuilder from the provided CustomAttributeData

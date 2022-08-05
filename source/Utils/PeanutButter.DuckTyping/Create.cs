@@ -2,10 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+using Imported.PeanutButter.DuckTyping.Extensions;
+using Imported.PeanutButter.DuckTyping.Shimming;
+#else
 using PeanutButter.DuckTyping.Extensions;
 using PeanutButter.DuckTyping.Shimming;
+#endif
 
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+namespace Imported.PeanutButter.DuckTyping
+#else
 namespace PeanutButter.DuckTyping
+#endif
 {
     /// <summary>
     /// Static class to create instances of automatically generated

@@ -1,7 +1,11 @@
 using System;
 using System.Reflection;
 
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+namespace Imported.PeanutButter.DuckTyping.Shimming
+#else
 namespace PeanutButter.DuckTyping.Shimming
+#endif
 {
     internal class DefaultPropertyInfoFetcher: IPropertyInfoFetcher
     {

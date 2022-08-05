@@ -1,12 +1,21 @@
 ﻿using System;
 
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+namespace Imported.PeanutButter.DuckTyping.Exceptions
+#else
 namespace PeanutButter.DuckTyping.Exceptions
+#endif
 {
     /// <summary>
     /// Exception thrown when a forced ducked type does not implement
     /// a method that it is expected to implement
     /// </summary>
-    public class MethodNotFoundException : NotImplementedException
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+    internal
+#else
+    public
+#endif
+    class MethodNotFoundException : NotImplementedException
     {
         /// <summary>
         /// Constructs an instance of the exception

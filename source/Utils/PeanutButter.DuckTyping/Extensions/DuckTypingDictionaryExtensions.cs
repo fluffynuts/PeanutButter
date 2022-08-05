@@ -1,16 +1,28 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Specialized;
 using Imported.PeanutButter.Utils.Dictionaries;
-using PeanutButter.DuckTyping.Shimming;
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+using Shared = Imported.PeanutButter.DuckTyping.Extensions.DuckTypingExtensionSharedMethods;
+#else
 using Shared = PeanutButter.DuckTyping.Extensions.DuckTypingExtensionSharedMethods;
+#endif
 using TransformFunc = System.Func<string, string>;
 
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+namespace Imported.PeanutButter.DuckTyping.Extensions
+#else
 namespace PeanutButter.DuckTyping.Extensions
+#endif
 {
     /// <summary>
     /// Provides duck-typing extension methods around dictionary objects
     /// </summary>
-    public static class DuckTypingDictionaryExtensions
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+    internal
+#else
+    public
+#endif
+    static class DuckTypingDictionaryExtensions
     {
         /// <summary>
         /// Forces approximate ducking around a dictionary. Will "create" underlying

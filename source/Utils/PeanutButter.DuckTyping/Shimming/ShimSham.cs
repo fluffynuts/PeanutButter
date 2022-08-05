@@ -5,18 +5,35 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Imported.PeanutButter.Utils;
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+using Imported.PeanutButter.DuckTyping.AutoConversion;
+using Imported.PeanutButter.DuckTyping.AutoConversion.Converters;
+using Imported.PeanutButter.DuckTyping.Comparers;
+using Imported.PeanutButter.DuckTyping.Exceptions;
+using Imported.PeanutButter.DuckTyping.Extensions;
+#else
 using PeanutButter.DuckTyping.AutoConversion;
 using PeanutButter.DuckTyping.AutoConversion.Converters;
 using PeanutButter.DuckTyping.Comparers;
 using PeanutButter.DuckTyping.Exceptions;
 using PeanutButter.DuckTyping.Extensions;
+#endif
 
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+namespace Imported.PeanutButter.DuckTyping.Shimming
+#else
 namespace PeanutButter.DuckTyping.Shimming
+#endif
 {
     /// <summary>
     /// Shim to wrap objects for ducking
     /// </summary>
-    public class ShimSham : ShimShamBase, IShimSham
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+    internal
+#else
+    public
+#endif
+    class ShimSham : ShimShamBase, IShimSham
     {
         // ReSharper disable once MemberCanBePrivate.Global
         // ReSharper disable once InconsistentNaming

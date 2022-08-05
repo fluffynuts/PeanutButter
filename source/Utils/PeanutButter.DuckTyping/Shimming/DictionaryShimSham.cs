@@ -4,18 +4,35 @@ using System.Linq;
 using System.Reflection;
 using Imported.PeanutButter.Utils;
 using Imported.PeanutButter.Utils.Dictionaries;
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+using Imported.PeanutButter.DuckTyping.AutoConversion;
+using Imported.PeanutButter.DuckTyping.AutoConversion.Converters;
+using Imported.PeanutButter.DuckTyping.Comparers;
+using Imported.PeanutButter.DuckTyping.Exceptions;
+using Imported.PeanutButter.DuckTyping.Extensions;
+#else
 using PeanutButter.DuckTyping.AutoConversion;
 using PeanutButter.DuckTyping.AutoConversion.Converters;
 using PeanutButter.DuckTyping.Comparers;
 using PeanutButter.DuckTyping.Exceptions;
 using PeanutButter.DuckTyping.Extensions;
+#endif
 
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+namespace Imported.PeanutButter.DuckTyping.Shimming
+#else
 namespace PeanutButter.DuckTyping.Shimming
+#endif
 {
     /// <summary>
     /// Provides the required shimming to duck a dictionary object to an interface
     /// </summary>
-    public class DictionaryShimSham : ShimShamBase, IShimSham
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+    internal
+#else
+    public
+#endif
+    class DictionaryShimSham : ShimShamBase, IShimSham
     {
         private readonly Type _typeToMimic;
         private readonly IDictionary<string, object> _data;

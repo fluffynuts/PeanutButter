@@ -1,19 +1,29 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Imported.PeanutButter.Utils;
 using Imported.PeanutButter.Utils.Dictionaries;
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+using Imported.PeanutButter.DuckTyping.AutoConversion;
+using Imported.PeanutButter.DuckTyping.AutoConversion.Converters;
+using Imported.PeanutButter.DuckTyping.Comparers;
+using Imported.PeanutButter.DuckTyping.Shimming;
+#else
 using PeanutButter.DuckTyping.AutoConversion;
 using PeanutButter.DuckTyping.AutoConversion.Converters;
 using PeanutButter.DuckTyping.Comparers;
 using PeanutButter.DuckTyping.Shimming;
+#endif
 
 // ReSharper disable MemberCanBePrivate.Global
 
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+namespace Imported.PeanutButter.DuckTyping.Extensions
+#else
 namespace PeanutButter.DuckTyping.Extensions
+#endif
 {
     internal static class DuckTypingHelperExtensions
     {

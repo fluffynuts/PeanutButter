@@ -1,11 +1,20 @@
 ﻿using System;
 
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+namespace Imported.PeanutButter.DuckTyping.Exceptions
+#else
 namespace PeanutButter.DuckTyping.Exceptions
+#endif
 {
     /// <summary>
     /// Exception which is thrown when a type does not contain the expected backing field
     /// </summary>
-    public class BackingFieldForPropertyNotFoundException : NotImplementedException
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+    internal
+#else
+    public
+#endif
+    class BackingFieldForPropertyNotFoundException : NotImplementedException
     {
         /// <summary>
         /// Constructs an instance of the exception

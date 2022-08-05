@@ -3,12 +3,21 @@ using System.Linq;
 
 // ReSharper disable MemberCanBePrivate.Global
 
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+namespace Imported.PeanutButter.DuckTyping.Extensions
+#else
 namespace PeanutButter.DuckTyping.Extensions
+#endif
 {
     /// <summary>
     /// Provides ducking extensions for collections
     /// </summary>
-    public static class DuckTypingCollectionExtensions
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+    internal
+#else
+    public
+#endif
+    static class DuckTypingCollectionExtensions
     {
         /// <summary>
         /// Attempts to DuckType a collection

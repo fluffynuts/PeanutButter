@@ -8,91 +8,35 @@ using Imported.PeanutButter.Utils.Dictionaries;
 using System.Linq;
 using System.Reflection;
 using Imported.PeanutButter.Utils;
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+using Imported.PeanutButter.DuckTyping.AutoConversion;
+using Imported.PeanutButter.DuckTyping.AutoConversion.Converters;
+using Imported.PeanutButter.DuckTyping.Exceptions;
+using Imported.PeanutButter.DuckTyping.Shimming;
+#else
 using PeanutButter.DuckTyping.AutoConversion;
 using PeanutButter.DuckTyping.AutoConversion.Converters;
-using PeanutButter.DuckTyping.Comparers;
 using PeanutButter.DuckTyping.Exceptions;
 using PeanutButter.DuckTyping.Shimming;
+#endif
 
 // ReSharper disable MemberCanBePrivate.Global
 
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+namespace Imported.PeanutButter.DuckTyping.Extensions
+#else
 namespace PeanutButter.DuckTyping.Extensions
+#endif
 {
-    internal static class DuckableTypesCache
-    {
-        private class DuckCacheItem
-        {
-            public Type FromType { get; }
-            public Type ToType { get; }
-            public bool Duckable { get; }
-
-            public DuckCacheItem(Type fromType, Type toType, bool duckable)
-            {
-                ToType = toType;
-                FromType = fromType;
-                Duckable = duckable;
-            }
-        }
-
-        private static readonly List<DuckCacheItem> Duckables = new List<DuckCacheItem>();
-        private static readonly List<DuckCacheItem> FuzzyDuckables = new List<DuckCacheItem>();
-        private static readonly object Lock = new object();
-
-        internal static void CacheDuckable(
-            Type from,
-            Type to,
-            bool result,
-            bool fuzzy)
-        {
-            lock (Lock)
-            {
-                var cacheItem = new DuckCacheItem(from, to, result);
-                Duckables.Add(cacheItem);
-                if (fuzzy)
-                    FuzzyDuckables.Add(cacheItem);
-            }
-        }
-
-        internal static bool CanDuckAs<T>(Type toDuckFrom, bool fuzzy)
-        {
-            lock (Lock)
-            {
-                return HaveMatch(fuzzy
-                    ? FuzzyDuckables
-                    : Duckables, toDuckFrom, typeof(T));
-            }
-        }
-
-        internal static bool CanDuckAs(Type toDuckFrom, Type toDuckTo, bool fuzzy)
-        {
-            lock (Lock)
-            {
-                return HaveMatch(fuzzy
-                    ? FuzzyDuckables
-                    : Duckables, toDuckFrom, toDuckTo);
-            }
-        }
-
-        private static bool HaveMatch(
-            IEnumerable<DuckCacheItem> cache,
-            Type toDuckFrom,
-            Type toDuckTo
-        )
-        {
-            lock (Lock)
-            {
-                var match = cache.FirstOrDefault(
-                    o => o.FromType == toDuckFrom &&
-                        o.ToType == toDuckTo);
-                return match?.Duckable ?? false;
-            }
-        }
-    }
-
     /// <summary>
     /// Provides a set of extension methods to enable duck-typing
     /// </summary>
-    public static class DuckTypingExtensionSharedMethods
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+    internal
+#else
+    public
+#endif
+    static class DuckTypingExtensionSharedMethods
     {
         internal static readonly MethodInfo GenericFuzzyDuckAsMethod =
             FindGenericDuckMethodFromObjectExtensions(nameof(DuckTypingObjectExtensions.FuzzyDuckAs));

@@ -2,12 +2,21 @@
 using System.Linq;
 using System.Reflection;
 
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+namespace Imported.PeanutButter.DuckTyping.Comparers
+#else
 namespace PeanutButter.DuckTyping.Comparers
+#endif
 {
     /// <summary>
     /// Class which holds two lookups of method information: one accurate and one approximate
     /// </summary>
-    public class MethodInfoContainer
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+    internal
+#else
+    public
+#endif
+    class MethodInfoContainer
     {
         /// <summary>
         /// Accurate dictionary of method information

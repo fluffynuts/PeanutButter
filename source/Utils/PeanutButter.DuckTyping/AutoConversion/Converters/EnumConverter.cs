@@ -2,7 +2,11 @@ using System;
 using System.Linq;
 using System.Reflection;
 
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+namespace Imported.PeanutButter.DuckTyping.AutoConversion.Converters
+#else
 namespace PeanutButter.DuckTyping.AutoConversion.Converters
+#endif
 {
     internal static class EnumConverter
     {

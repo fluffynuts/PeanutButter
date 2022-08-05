@@ -2,7 +2,11 @@ using System;
 using System.Collections.Generic;
 using Imported.PeanutButter.Utils;
 
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+namespace Imported.PeanutButter.DuckTyping.AutoConversion.Converters
+#else
 namespace PeanutButter.DuckTyping.AutoConversion.Converters
+#endif
 {
     internal class GenericStringConverter<T>
         : GenericStringConverterBase<T>,

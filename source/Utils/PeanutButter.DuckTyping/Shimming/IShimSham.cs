@@ -1,11 +1,20 @@
-﻿namespace PeanutButter.DuckTyping.Shimming
+﻿#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+namespace Imported.PeanutButter.DuckTyping.Shimming
+#else
+namespace PeanutButter.DuckTyping.Shimming
+#endif
 {
     /// <summary>
     /// Interface to implement for shimming ducked-types. Used for the backing
     /// field within the ducked type. Could potentially be used as a starting point
     /// for new ways to duck.
     /// </summary>
-    public interface IShimSham
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+    internal
+#else
+    public
+#endif
+    interface IShimSham
     {
         /// <summary>
         /// Gets a property value from the underlying object

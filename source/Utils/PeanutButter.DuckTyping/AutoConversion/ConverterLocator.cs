@@ -4,10 +4,19 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Imported.PeanutButter.Utils;
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+using Imported.PeanutButter.DuckTyping.AutoConversion.Converters;
+using Imported.PeanutButter.DuckTyping.Extensions;
+#else
 using PeanutButter.DuckTyping.AutoConversion.Converters;
 using PeanutButter.DuckTyping.Extensions;
+#endif
 
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+namespace Imported.PeanutButter.DuckTyping.AutoConversion
+#else
 namespace PeanutButter.DuckTyping.AutoConversion
+#endif
 {
     internal static class ConverterLocator
     {

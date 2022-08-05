@@ -1,7 +1,10 @@
 using System;
-using System.Linq;
 
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+namespace Imported.PeanutButter.DuckTyping.AutoConversion
+#else
 namespace PeanutButter.DuckTyping.AutoConversion
+#endif
 {
     /// <summary>
     /// Implement this interface for two type to provide
@@ -9,7 +12,12 @@ namespace PeanutButter.DuckTyping.AutoConversion
     /// </summary>
     /// <typeparam name="T1">Type to convert from or to</typeparam>
     /// <typeparam name="T2">Type to convert to or from</typeparam>
-    public interface IConverter<T1, T2> : IConverter
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+    internal
+#else
+    public
+#endif
+        interface IConverter<T1, T2> : IConverter
     {
         /// <summary>
         /// Convert an object of type T2 to T1
@@ -29,7 +37,12 @@ namespace PeanutButter.DuckTyping.AutoConversion
     /// <summary>
     /// Base interface for converters of all types
     /// </summary>
-    public interface IConverter
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+    internal
+#else
+    public
+#endif
+    interface IConverter
     {
         /// <summary>
         /// Should return true when this converter can convert between t1 and t2
@@ -40,4 +53,3 @@ namespace PeanutButter.DuckTyping.AutoConversion
         bool CanConvert(Type t1, Type t2);
     }
 }
-

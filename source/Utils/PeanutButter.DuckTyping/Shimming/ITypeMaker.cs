@@ -1,11 +1,20 @@
 ﻿using System;
 
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+namespace Imported.PeanutButter.DuckTyping.Shimming
+#else
 namespace PeanutButter.DuckTyping.Shimming
+#endif
 {
     /// <summary>
     /// Interface implemented by the TypeMaker
     /// </summary>
-    public interface ITypeMaker
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+    internal
+#else
+    public
+#endif
+    interface ITypeMaker
     {
         /// <summary>
         /// Attempts to create a type implementing interface T or deriving from abstract / all-virtual type T

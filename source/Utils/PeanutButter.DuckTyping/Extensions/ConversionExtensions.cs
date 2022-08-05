@@ -1,8 +1,16 @@
 ﻿using System;
 using Imported.PeanutButter.Utils;
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+using Imported.PeanutButter.DuckTyping.AutoConversion;
+#else
 using PeanutButter.DuckTyping.AutoConversion;
+#endif
 
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+namespace Imported.PeanutButter.DuckTyping.Extensions
+#else
 namespace PeanutButter.DuckTyping.Extensions
+#endif
 {
     /// <summary>
     /// Provides an extension method on object to attempt to convert
@@ -12,7 +20,12 @@ namespace PeanutButter.DuckTyping.Extensions
     /// T1 and T2. Common .net type conversion from strings is already
     /// supported (based on culture-invariant conversions, eg "1.23" -> 1.23M)
     /// </summary>
-    public static class ConversionExtensions
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+    internal
+#else
+    public
+#endif
+    static class ConversionExtensions
     {
         /// <summary>
         /// Attempts to convert the object being operated on

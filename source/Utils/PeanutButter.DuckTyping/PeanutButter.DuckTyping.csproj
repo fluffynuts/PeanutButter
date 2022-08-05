@@ -58,11 +58,11 @@
     <Compile Include="..\PeanutButter.Utils\RandomNumber.cs" Link="Imported\RandomNumber.cs" />
     <Compile Include="..\PeanutButter.Utils\Stringifier.cs" Link="Imported\Stringifier.cs" />
     <Compile Include="..\PeanutButter.Utils\TypeExtensions.cs" Link="Imported\TypeExtensions.cs" />
-    <Compile Include="..\PeanutButter.Utils\CannotZipNullException.cs" Link="CannotZipNullException.cs" />
-    <Compile Include="..\PeanutButter.Utils\UnevenZipException.cs" Link="UnevenZipException.cs" />
-    <Compile Include="..\PeanutButter.Utils\Dictionaries\DictionaryWrappingNameValueCollection.cs" Link="DictionaryWrappingNameValueCollection.cs" />
-    <Compile Include="..\PeanutButter.Utils\Dictionaries\RedirectingDictionary.cs" Link="RedirectingDictionary.cs" />
-    <Compile Include="..\PeanutButter.Utils\Dictionaries\DictionaryWrappingConnectionStringSettingCollection.cs" Link="DictionaryWrappingConnectionStringSettingCollection.cs" />
+    <Compile Include="..\PeanutButter.Utils\CannotZipNullException.cs" Link="Imported\CannotZipNullException.cs" />
+    <Compile Include="..\PeanutButter.Utils\UnevenZipException.cs" Link="Imported\UnevenZipException.cs" />
+    <Compile Include="..\PeanutButter.Utils\Dictionaries\DictionaryWrappingNameValueCollection.cs" Link="Imported\DictionaryWrappingNameValueCollection.cs" />
+    <Compile Include="..\PeanutButter.Utils\Dictionaries\RedirectingDictionary.cs" Link="Imported\RedirectingDictionary.cs" />
+    <Compile Include="..\PeanutButter.Utils\Dictionaries\DictionaryWrappingConnectionStringSettingCollection.cs" Link="Imported\DictionaryWrappingConnectionStringSettingCollection.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Imported\" />

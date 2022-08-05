@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using static System.String;
 
 #if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
 namespace Imported.PeanutButter.DuckTyping.Extensions

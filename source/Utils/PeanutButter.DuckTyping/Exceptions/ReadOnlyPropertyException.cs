@@ -1,12 +1,21 @@
 ﻿using System;
 
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+namespace Imported.PeanutButter.DuckTyping.Exceptions
+#else
 namespace PeanutButter.DuckTyping.Exceptions
+#endif
 {
     /// <summary>
     /// Exception thrown when the ducked property is read-only but the interface
     /// to duck to expects a read/write property
     /// </summary>
-    public class ReadOnlyPropertyException: NotImplementedException
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+    internal
+#else
+    public
+#endif
+    class ReadOnlyPropertyException: NotImplementedException
     {
         /// <summary>
         /// Constructs an instance of the exception

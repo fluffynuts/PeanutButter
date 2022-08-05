@@ -1,13 +1,26 @@
 ﻿using System;
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+using static Imported.PeanutButter.DuckTyping.Extensions.DuckTypingExtensionSharedMethods;
+#else
 using static PeanutButter.DuckTyping.Extensions.DuckTypingExtensionSharedMethods;
+#endif
 // ReSharper disable MemberCanBePrivate.Global
 
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+namespace Imported.PeanutButter.DuckTyping.Extensions
+#else
 namespace PeanutButter.DuckTyping.Extensions
+#endif
 {
     /// <summary>
     /// Provides a set of extension methods to enable duck-typing
     /// </summary>
-    public static class DuckTypingObjectExtensions
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+    internal
+#else
+    public
+#endif
+    static class DuckTypingObjectExtensions
     {
         /// <summary>
         /// Tests whether or not a given object can be accurately duck-typed to the

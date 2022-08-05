@@ -1,7 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+namespace Imported.PeanutButter.DuckTyping.Comparers
+#else
 namespace PeanutButter.DuckTyping.Comparers
+#endif
 {
     internal class PropertyInfoComparer: IEqualityComparer<PropertyInfo>
     {

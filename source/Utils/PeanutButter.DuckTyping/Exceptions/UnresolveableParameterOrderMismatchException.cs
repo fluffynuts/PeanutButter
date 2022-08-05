@@ -2,7 +2,11 @@
 using System.Linq;
 using System.Reflection;
 
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+namespace Imported.PeanutButter.DuckTyping.Exceptions
+#else
 namespace PeanutButter.DuckTyping.Exceptions
+#endif
 {
     /// <summary>
     /// Exception thrown when fuzzy ducking is enabled but the duck
@@ -10,7 +14,12 @@ namespace PeanutButter.DuckTyping.Exceptions
     /// underlying type, usually because there are repeated types amongst the arguments
     /// (ie, two integers or similar)
     /// </summary>
-    public class UnresolveableParameterOrderMismatchException: ArgumentException
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+    internal
+#else
+    public
+#endif
+    class UnresolveableParameterOrderMismatchException: ArgumentException
     {
         /// <summary>
         /// Constructs an instance of the exception

@@ -1,12 +1,21 @@
 using System;
 using System.Reflection;
 
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+namespace Imported.PeanutButter.DuckTyping.Shimming
+#else
 namespace PeanutButter.DuckTyping.Shimming
+#endif
 {
     /// <summary>
     /// Interface to implement for a utility to fetch properties on a type or object
     /// </summary>
-    public interface IPropertyInfoFetcher
+#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
+    internal
+#else
+    public
+#endif
+    interface IPropertyInfoFetcher
     {
         /// <summary>
         /// Fetches properties from a type which conform to the provided binding flags
