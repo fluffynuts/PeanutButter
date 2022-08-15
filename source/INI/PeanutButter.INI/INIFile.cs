@@ -29,6 +29,11 @@ namespace PeanutButter.INI
         string SectionSeparator { get; set; }
 
         /// <summary>
+        /// Toggle whether a new line is added at the bottom when persisted
+        /// </summary>
+        public bool AppendTrailingNewLine { get; set; }
+
+        /// <summary>
         /// Toggle whether key values are wrapped in quote marks when persisted
         /// </summary>
         bool WrapValueInQuotes { get; set; }
@@ -389,6 +394,9 @@ namespace PeanutButter.INI
 
         /// <inheritdoc />
         public string SectionSeparator { get; set; } = "";
+
+        /// <inheritdoc />
+        public bool AppendTrailingNewLine { get; set; } = false;
 
         /// <inheritdoc />
         public bool WrapValueInQuotes { get; set; } = true;
@@ -1082,6 +1090,11 @@ namespace PeanutButter.INI
             if (addSeparator)
             {
                 lines.RemoveAt(lines.Count - 1);
+            }
+
+            if (AppendTrailingNewLine)
+            {
+                lines.Add("");
             }
 
             return lines;

@@ -1413,6 +1413,44 @@ key2=""value2""");
         }
 
         [TestFixture]
+        public class AppendTrailingNewLine
+        {
+            [Test]
+            public void ShouldDefaultToNotAppendTrailingNewLine()
+            {
+                // Arrange
+                var ini = Create();
+                // Act
+                ini["section"]["key"] = "value";
+                using var memStream = new MemoryStream();
+                ini.Persist(memStream);
+                var result = memStream.AsString();
+                // Assert
+                Expect(result)
+                    .To.Equal(@"[section]
+key=""value""");
+            }
+
+            [Test]
+            public void ShouldAppendTrailingNewLineWhenIsTrue()
+            {
+                // Arrange
+                var ini = Create();
+                // Act
+                ini.AppendTrailingNewLine = true;
+                ini["section"]["key"] = "value";
+                using var memStream = new MemoryStream();
+                ini.Persist(memStream);
+                var result = memStream.AsString();
+                // Assert
+                Expect(result)
+                    .To.Equal(@"[section]
+key=""value""
+");
+            }
+        }
+
+        [TestFixture]
         public class Reloading
         {
             [Test]
