@@ -1413,10 +1413,10 @@ key2=""value2""");
         }
 
         [TestFixture]
-        public class AddEmptyLineAtTheBottom
+        public class AppendTrailingNewLine
         {
             [Test]
-            public void ShouldDefaultToNotAddingEmptyLineAtTheBottom()
+            public void ShouldDefaultToNotAppendTrailingNewLine()
             {
                 // Arrange
                 var ini = Create();
@@ -1432,12 +1432,12 @@ key=""value""");
             }
 
             [Test]
-            public void ShouldAddEmptyLineAtTheBottomWhenIsTrue()
+            public void ShouldAppendTrailingNewLineWhenIsTrue()
             {
                 // Arrange
                 var ini = Create();
                 // Act
-                ini.AddEmptyLineAtTheBottom = true;
+                ini.AppendTrailingNewLine = true;
                 ini["section"]["key"] = "value";
                 using var memStream = new MemoryStream();
                 ini.Persist(memStream);
