@@ -3,6 +3,7 @@ using System.Diagnostics;
 using ImpromptuInterface;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Extensions;
+
 // ReSharper disable PossibleNullReferenceException
 // ReSharper disable RedundantArgumentDefaultValue
 // ReSharper disable MemberCanBePrivate.Global
@@ -19,7 +20,7 @@ namespace PeanutButter.DuckTyping.Tests
             i.ToString();
         }
 
-        private const int TIMES = 1000000;
+        private const int TIMES = 3000000;
 
         [Test]
         [Category("performance")]
@@ -30,22 +31,62 @@ namespace PeanutButter.DuckTyping.Tests
             // may be worth it when considering the extra features (like fuzzy-ducking)
             var tPoco = new PropPoco();
 
-            var tSetValue = "1";
+            var stringValue = "1";
+            var longValue = 1024L;
 
             var tWatch = TimeIt.Go(() =>
             {
-                Impromptu.InvokeSet(tPoco, "Prop1", tSetValue);
-            }, 500000);
-            var tPropertyInfo = tPoco.GetType().GetProperty("Prop1");
-            var tWatch2 = TimeIt.Go(() => tPropertyInfo.SetValue(tPoco, tSetValue, new object[] {}), TIMES);
+                Impromptu.InvokeSet(tPoco, "Prop1", stringValue);
+                Impromptu.InvokeSet(tPoco, "Prop2", longValue);
+            }, TIMES);
+
+            var type = tPoco.GetType();
+            var stringProp = type.GetProperty(nameof(IPropPoco.Prop1));
+            var longProp = type.GetProperty(nameof(IPropPoco.Prop2));
+            var copyProp = type.GetProperty(nameof(IPropPoco.Copy));
+            
+            var tWatch2 = TimeIt.Go(
+                () =>
+                {
+                    stringProp.SetValue(tPoco, stringValue);
+                    longProp.SetValue(tPoco, longValue);
+                    copyProp.SetValue(tPoco, longProp.GetValue(tPoco));
+                },
+                TIMES
+            );
             var ducked = tPoco.DuckAs<IPropPoco>();
             Assert.IsNotNull(ducked);
-            var tWatch3 = TimeIt.Go(() => ducked.Prop1 = tSetValue, TIMES);
+            var tWatch3 = TimeIt.Go(
+                () =>
+                {
+                    ducked.Prop1 = stringValue;
+                    ducked.Prop2 = longValue;
+                    ducked.Copy = ducked.Prop2;
+                },
+                TIMES
+            );
+
+            dynamic dynamo = Hide(tPoco);
+            var dynamicWatch = TimeIt.Go(
+                () =>
+                {
+                    dynamo.Prop1 = stringValue;
+                    dynamo.Prop2 = longValue;
+                    dynamo.Copy = dynamo.Prop2;
+                },
+                TIMES
+            );
 
 
-            TestContext.WriteLine("InvokeSet: " + tWatch.Elapsed);
-            TestContext.WriteLine("Reflection: " + tWatch2.Elapsed);
-            TestContext.WriteLine("Ducked: " + tWatch3.Elapsed);
+            TestContext.WriteLine($"InvokeSet:  {tWatch.Elapsed}");
+            TestContext.WriteLine($"Reflection: {tWatch2.Elapsed}");
+            TestContext.WriteLine($"Ducked:     {tWatch3.Elapsed}");
+            TestContext.WriteLine($"Dynamic:    {dynamicWatch.Elapsed}");
+        }
+
+        private static object Hide<T>(T obj)
+        {
+            return (object) obj;
         }
 
         [Serializable]
@@ -55,6 +96,7 @@ namespace PeanutButter.DuckTyping.Tests
             public long Prop2 { get; set; }
             public Guid Prop3 { get; set; }
             public int Event { get; set; }
+            public long Copy { get; set; }
         }
 
         public interface IPropPoco
@@ -63,9 +105,8 @@ namespace PeanutButter.DuckTyping.Tests
             long Prop2 { get; set; }
             Guid Prop3 { get; set; }
             int Event { get; set; }
-
+            long Copy { get; set; }
         }
-
 
         public static class TimeIt
         {
@@ -77,6 +118,7 @@ namespace PeanutButter.DuckTyping.Tests
                 {
                     action();
                 }
+
                 tStopwatch.Stop();
                 return tStopwatch;
             }

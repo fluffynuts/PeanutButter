@@ -724,9 +724,9 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                     var result = sut["Next"];
                     // Assert
                     Expect(result)
-                        .To.Be.An.Instance.Of<IDictionary<string, object>>();
-                    var dict = result.AsDict<string, object>();
-                    Expect(dict["Name"])
+                        .To.Be.An.Instance.Of<LinkedListItem>();
+                    var ll = result as LinkedListItem;
+                    Expect(ll.Name)
                         .To.Equal(replacement.Name);
                 }
 

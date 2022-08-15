@@ -33,7 +33,7 @@ namespace PeanutButter.DuckTyping.Shimming
 #else
     public
 #endif
-    class ShimSham : ShimShamBase, IShimSham
+        class ShimSham : ShimShamBase, IShimSham
     {
         // ReSharper disable once MemberCanBePrivate.Global
         // ReSharper disable once InconsistentNaming
@@ -44,22 +44,18 @@ namespace PeanutButter.DuckTyping.Shimming
         private readonly Type[] _wrappedTypes;
         private readonly bool _wrappingADuck;
 
-        private static readonly Dictionary<Type, PropertyInfoContainer> PropertyInfos =
-            new Dictionary<Type, PropertyInfoContainer>();
-
-        private static readonly Dictionary<Type, MethodInfoContainer> MethodInfos =
-            new Dictionary<Type, MethodInfoContainer>();
-
-        private static readonly Dictionary<Type, Dictionary<string, FieldInfo>> FieldInfos =
-            new Dictionary<Type, Dictionary<string, FieldInfo>>();
+        private static readonly Dictionary<Type, PropertyInfoContainer> PropertyInfos = new();
+        private static readonly Dictionary<Type, MethodInfoContainer> MethodInfos = new();
+        private static readonly Dictionary<Type, Dictionary<string, FieldInfo>> FieldInfos = new();
 
         private Dictionary<string, FieldInfo> _localFieldInfos;
         private Dictionary<string, MethodInfo> _localMethodInfos;
         private Dictionary<string, PropertyInfo> _localPropertyInfos;
-        private readonly Dictionary<string, object> _shimmedProperties = new Dictionary<string, object>();
-        private readonly HashSet<string> _unshimmableProperties = new HashSet<string>();
+        private readonly Dictionary<int, object> _shimmedProperties = new();
+        private readonly HashSet<int> _unshimmableProperties = new();
         private PropertyInfoContainer _mimickedPropInfos;
         private Dictionary<string, PropertyInfo> _localMimicPropertyInfos;
+        private Dictionary<string, Type> _localMimicPropertyTypes = new();
 
         // ReSharper disable once MemberCanBePrivate.Global
         /// <summary>
@@ -84,7 +80,7 @@ namespace PeanutButter.DuckTyping.Shimming
         /// <param name="allowReadonlyDefaultMembers">allows properties with no backing to be read as the default value for that type</param>
         // ReSharper disable once UnusedMember.Global
         public ShimSham(object toWrap, Type interfaceToMimic, bool isFuzzy, bool allowReadonlyDefaultMembers)
-            : this(new[] {toWrap}, interfaceToMimic, isFuzzy, allowReadonlyDefaultMembers)
+            : this(new[] { toWrap }, interfaceToMimic, isFuzzy, allowReadonlyDefaultMembers)
         {
         }
 
@@ -146,7 +142,10 @@ namespace PeanutButter.DuckTyping.Shimming
                 foreach (var wrappedType in wrappedTypes)
                 {
                     if (MethodInfos.ContainsKey(wrappedType))
+                    {
                         return;
+                    }
+
                     MethodInfos[wrappedType] = new MethodInfoContainer(
                         wrappedType
                             .GetMethods(BindingFlags.Instance | BindingFlags.Public)
@@ -161,111 +160,147 @@ namespace PeanutButter.DuckTyping.Shimming
         /// <inheritdoc />
         public object GetPropertyValue(string propertyName)
         {
+            var propCode = propertyName.GetHashCode();
             if (_wrappingADuck)
             {
                 return FieldValueFor(propertyName);
             }
-            if (_shimmedProperties.TryGetValue(propertyName, out var shimmed))
-                return shimmed;
-            var foundPropInfo = FindPropertyInfoFor(propertyName);
-            if (foundPropInfo == null)
-            {
-                return GetDefaultValueFor(_localMimicPropertyInfos[propertyName].PropertyType);
-            }
-            var propInfo = foundPropInfo.Value;
 
-            if (!propInfo.PropertyInfo.CanRead || propInfo.Getter == null)
+            if (_shimmedProperties.TryGetValue(propCode, out var shimmed))
+            {
+                return shimmed;
+            }
+
+            var propInfo = FindPropertyInfoFor(propCode, propertyName);
+            if (propInfo == null)
+            {
+                return GetDefaultValueFor(
+                    _localMimicPropertyTypes[propertyName]
+                );
+            }
+
+            if (!propInfo.CanRead || propInfo.Getter == null)
             {
                 // TODO: throw for the correct wrapped type for this property
                 throw new WriteOnlyPropertyException(_wrappedTypes[0], propertyName);
             }
+
             return DuckIfRequired(propInfo, propertyName);
         }
 
-        private object DuckIfRequired(PropertyInfoCacheItem propertyInfoCacheItem, string propertyName)
+        private object DuckIfRequired(
+            PropertyInfoCacheItem propertyInfoCacheItem,
+            string propertyName
+        )
         {
-            if (_shimmedProperties.TryGetValue(propertyName, out var existingShim))
+            if (_shimmedProperties.TryGetValue(propertyName.GetHashCode(), out var existingShim))
+            {
                 return existingShim;
+            }
+
             var getter = propertyInfoCacheItem.Getter;
             var propValue = getter();
 
-            var correctType = _localMimicPropertyInfos[propertyName].PropertyType;
+            var correctType = _localMimicPropertyTypes[propertyName];
             if (propValue == null)
             {
                 return GetDefaultValueFor(correctType);
             }
-            var propValueType = propertyInfoCacheItem.PropertyInfo.PropertyType;
+
+            var propValueType = propertyInfoCacheItem.PropertyType;
             if (correctType.IsAssignableFrom(propValueType))
+            {
                 return propValue;
+            }
+
             var converter = ConverterLocator.GetConverter(propValueType, correctType);
             if (converter != null)
+            {
                 return ConvertWith(converter, propValue, correctType);
+            }
+
             if (EnumConverter.TryConvert(propValueType, correctType, propValue, out var result))
+            {
                 return result;
+            }
+
             if (correctType.ShouldTreatAsPrimitive())
+            {
                 return GetDefaultValueFor(correctType);
-            if (CannotShim(propertyName, propValue, correctType))
+            }
+
+            if (CannotShim(propertyName.GetHashCode(), propValue, correctType))
+            {
                 return null;
+            }
+
             var duckType = MakeTypeToImplement(correctType, _isFuzzy);
             var asDict = propValue.TryConvertToDictionary();
             var instance = Activator.CreateInstance(duckType,
                 asDict == null
                     // ReSharper disable once RedundantExplicitArrayCreation
-                    ? new object[] {new object[] {propValue}}
-                    : new object[] {asDict});
-            _shimmedProperties[propertyName] = instance;
+                    ? new object[] { new object[] { propValue } }
+                    : new object[] { asDict });
+            _shimmedProperties[propertyName.GetHashCode()] = instance;
             return instance;
         }
 
-        private bool CannotShim(string propertyName, object propValue, Type targetType)
+        private bool CannotShim(int propCode, object propValue, Type targetType)
         {
-            if (_unshimmableProperties.Contains(propertyName))
+            if (_unshimmableProperties.Contains(propCode))
+            {
                 return true;
+            }
+
             var result = !propValue.InternalCanDuckAs(targetType, _isFuzzy, false);
             if (result)
-                _unshimmableProperties.Add(propertyName);
+            {
+                _unshimmableProperties.Add(propCode);
+            }
+
             return result;
         }
 
         /// <inheritdoc />
         public void SetPropertyValue(string propertyName, object newValue)
         {
+            var propCode = propertyName.GetHashCode();
             if (_wrappingADuck)
             {
                 SetFieldValue(propertyName, newValue);
                 return;
             }
 
-            var foundPropInfo = FindPropertyInfoFor(propertyName);
-            if (foundPropInfo == null)
+            var propInfo = FindPropertyInfoFor(propCode, propertyName);
+            if (propInfo == null)
             {
                 throw new PropertyNotFoundException(_wrappedTypes[0], propertyName);
             }
-            
-            var propInfo = foundPropInfo.Value;
 
-            if (!propInfo.PropertyInfo.CanWrite || propInfo.Setter == null)
+            if (!propInfo.CanWrite || propInfo.Setter is null)
             {
                 // TODO: throw for correct wrapped type for this particular property
                 throw new ReadOnlyPropertyException(_wrappedTypes[0], propertyName);
             }
-            var mimickedPropInfo = _localMimicPropertyInfos[propertyName];
+
+            var mimickedType = _localMimicPropertyTypes[propertyName];
             var newValueType = newValue?.GetType();
-            var mimickedType = mimickedPropInfo.PropertyType;
-            if (newValueType == null)
+            if (newValueType is null)
             {
                 var defaultValue = GetDefaultValueFor(mimickedType);
                 TrySetValue(defaultValue, mimickedType, propInfo);
                 return;
             }
+
             if (mimickedType.IsAssignableFrom(newValueType))
             {
                 TrySetValue(newValue, newValueType, propInfo);
                 return;
             }
+
             var duckType = MakeTypeToImplement(mimickedType, _isFuzzy);
-            var instance = Activator.CreateInstance(duckType, new object[] {new[] {newValue}});
-            _shimmedProperties[propertyName] = instance;
+            var instance = Activator.CreateInstance(duckType, new object[] { new[] { newValue } });
+            _shimmedProperties[propCode] = instance;
         }
 
 
@@ -282,6 +317,7 @@ namespace PeanutButter.DuckTyping.Shimming
             {
                 throw new NotImplementedException("Cannot call-through when there is no wrapped object");
             }
+
             // TODO: throw for correct wrapped type
             var wrappedType = _wrappedTypes[0];
             if (!_localMethodInfos.TryGetValue(methodName, out var methodInfo))
@@ -305,14 +341,23 @@ namespace PeanutButter.DuckTyping.Shimming
         {
             var methodParameters = methodInfo.GetParameters();
             if (parameters.Length != methodParameters.Length)
+            {
                 throw new ParameterCountMismatchException(parameters.Length, methodInfo);
+            }
+
             var srcTypes = parameters.Select(o => o?.GetType()).ToArray();
             var dstTypes = methodParameters.Select(p => p.ParameterType).ToArray();
             if (AlreadyInCorrectOrderByType(srcTypes, dstTypes))
+            {
                 return
                     parameters; // no need to change anything here and we don't have to care about parameters with the same type
+            }
+
             if (dstTypes.Distinct().Count() != dstTypes.Length)
+            {
                 throw new UnresolveableParameterOrderMismatchException(dstTypes, methodInfo);
+            }
+
             return Reorder(parameters, dstTypes);
         }
 
@@ -338,22 +383,29 @@ namespace PeanutButter.DuckTyping.Shimming
                 var src = srcTypes[i];
                 var dst = dstTypes[i];
                 if (src == null && dst.IsPrimitive)
+                {
                     return false;
+                }
+
                 if (src != dst)
+                {
                     return false;
+                }
             }
+
             return true;
         }
 
         private void LocallyCachePropertyInfos()
         {
-            // TODO: cache all wrapped type property infos
             var wrappedType = _wrappedTypes[0];
             _localPropertyInfos = _isFuzzy
                 ? PropertyInfos[wrappedType].FuzzyPropertyInfos
                 : PropertyInfos[wrappedType].PropertyInfos;
             if (_wrappingADuck)
+            {
                 _localFieldInfos = FieldInfos[wrappedType];
+            }
         }
 
         private void LocallyCacheMimickedPropertyInfos()
@@ -361,6 +413,14 @@ namespace PeanutButter.DuckTyping.Shimming
             _localMimicPropertyInfos = _isFuzzy
                 ? _mimickedPropInfos.FuzzyPropertyInfos
                 : _mimickedPropInfos.PropertyInfos;
+            _localMimicPropertyTypes = _localMimicPropertyInfos
+                .ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => kvp.Value.PropertyType,
+                    _isFuzzy
+                        ? StringComparer.OrdinalIgnoreCase
+                        : StringComparer.Ordinal
+                );
         }
 
         private void LocallyCacheMethodInfos()
@@ -380,13 +440,19 @@ namespace PeanutButter.DuckTyping.Shimming
                 var toCacheFor = cacheAll[0];
                 var type = toCacheFor.GetType();
                 if (PropertyInfos.ContainsKey(type))
+                {
                     return;
+                }
+
                 PropertyInfos[type] = new PropertyInfoContainer(
                     _propertyInfoFetcher
                         .GetPropertiesFor(toCacheFor,
                             BindingFlags.Instance | BindingFlags.Public));
                 if (!cacheFieldInfosToo)
+                {
                     return;
+                }
+
                 FieldInfos[type] = type
                     .GetFields(BindingFlags.Instance | BindingFlags.NonPublic)
                     .ToDictionary(
@@ -401,24 +467,33 @@ namespace PeanutButter.DuckTyping.Shimming
             return _wrappedTypes.Any(t => t.GetCustomAttributes(true).OfType<IsADuckAttribute>().Any());
         }
 
-        private readonly ListDictionary _propertyInfoLookupCache = new ListDictionary();
+        private readonly Dictionary<int, PropertyInfoCacheItem> _propertyInfoLookupCache = new();
 
-        private struct PropertyInfoCacheItem
+        private class PropertyInfoCacheItem
         {
-            public PropertyInfo PropertyInfo;
+            public Type PropertyType;
             public Action<object> Setter;
             public Func<object> Getter;
+            public bool CanRead;
+            public bool CanWrite;
         }
-        
-        private PropertyInfoCacheItem? FindPropertyInfoFor(string propertyName)
+
+        private PropertyInfoCacheItem FindPropertyInfoFor(
+            int propCode,
+            string propertyName
+        )
         {
-            PropertyInfoCacheItem cacheItem;
-            if (_propertyInfoLookupCache.Contains(propertyName))
-                return (PropertyInfoCacheItem) _propertyInfoLookupCache[propertyName];
-            if (_shimmedProperties.TryGetValue(propertyName, out _))
+            if (_propertyInfoLookupCache.TryGetValue(propCode, out var cached))
             {
-                cacheItem = CreateCacheItemFor(_localMimicPropertyInfos[propertyName]);
-                _propertyInfoLookupCache[propertyName] = cacheItem;
+                return cached;
+            }
+
+            if (_shimmedProperties.ContainsKey(propCode))
+            {
+                var cacheItem = CreateCacheItemFor(
+                    _localMimicPropertyInfos[propertyName]
+                );
+                _propertyInfoLookupCache[propCode] = cacheItem;
                 return cacheItem;
             }
 
@@ -433,16 +508,18 @@ namespace PeanutButter.DuckTyping.Shimming
                 throw new PropertyNotFoundException(_wrappedTypes[0], propertyName);
             }
 
-            cacheItem = CreateCacheItemFor(pi);
-            _propertyInfoLookupCache[propertyName] = cacheItem;
-            return cacheItem;
+            var result = CreateCacheItemFor(pi);
+            _propertyInfoLookupCache[propCode] = result;
+            return result;
         }
 
         private PropertyInfoCacheItem CreateCacheItemFor(PropertyInfo propertyInfo)
         {
             return new PropertyInfoCacheItem
             {
-                PropertyInfo = propertyInfo,
+                PropertyType = propertyInfo.PropertyType,
+                CanRead = propertyInfo.CanRead,
+                CanWrite = propertyInfo.CanWrite,
                 Setter = CreateSetterExpressionFor(propertyInfo),
                 Getter = CreateGetterExpressionFor(propertyInfo)
             };
@@ -467,7 +544,10 @@ namespace PeanutButter.DuckTyping.Shimming
             var seek = "_" + propertyName;
             if (!_localFieldInfos.TryGetValue(seek, out var fieldInfo))
                 // TODO: throw for the correct type
+            {
                 throw new BackingFieldForPropertyNotFoundException(_wrappedTypes[0], propertyName);
+            }
+
             return fieldInfo;
         }
 
@@ -480,7 +560,10 @@ namespace PeanutButter.DuckTyping.Shimming
         {
             var methodInfo = propertyInfo.GetSetMethod();
             if (methodInfo == null)
+            {
                 return null;
+            }
+
             var exValue = Expression.Parameter(typeof(object), "p");
             // FIXME: find the correct wrapped object to target
             var exTarget = Expression.Constant(_wrapped[0]);
@@ -492,19 +575,27 @@ namespace PeanutButter.DuckTyping.Shimming
             return action;
         }
 
-        private void TrySetValue(object newValue, Type newValueType, PropertyInfoCacheItem propInfo)
+        private void TrySetValue(
+            object newValue,
+            Type newValueType,
+            PropertyInfoCacheItem propInfo
+        )
         {
-            var pType = propInfo.PropertyInfo.PropertyType;
+            var pType = propInfo.PropertyType;
             var setter = propInfo.Setter;
             if (pType.IsAssignableFrom(newValueType))
             {
                 setter(newValue);
                 return;
             }
+
             var converter = ConverterLocator.GetConverter(newValueType, pType);
-            if (converter == null)
+            if (converter is null)
+            {
                 throw new InvalidOperationException(
                     $"Unable to set property: no converter for {newValueType.Name} => {pType.Name}");
+            }
+
             var converted = ConvertWith(converter, newValue, pType);
             setter(converted);
         }
@@ -513,7 +604,9 @@ namespace PeanutButter.DuckTyping.Shimming
         {
             var methodInfo = propertyInfo.GetGetMethod();
             if (methodInfo == null)
+            {
                 return null;
+            }
 
             // FIXME: find the correct target
             var exTarget = Expression.Constant(_wrapped[0]);
