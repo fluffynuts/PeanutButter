@@ -29,6 +29,11 @@ namespace PeanutButter.INI
         string SectionSeparator { get; set; }
 
         /// <summary>
+        /// Toggle whether an empty line is added at the bottom when persisted
+        /// </summary>
+        public bool AddEmptyLineAtTheBottom { get; set; }
+
+        /// <summary>
         /// Toggle whether key values are wrapped in quote marks when persisted
         /// </summary>
         bool WrapValueInQuotes { get; set; }
@@ -389,6 +394,9 @@ namespace PeanutButter.INI
 
         /// <inheritdoc />
         public string SectionSeparator { get; set; } = "";
+
+        /// <inheritdoc />
+        public bool AddEmptyLineAtTheBottom { get; set; } = false;
 
         /// <inheritdoc />
         public bool WrapValueInQuotes { get; set; } = true;
@@ -1058,6 +1066,7 @@ namespace PeanutButter.INI
             var addSeparator = SectionSeparator is not null;
             var commentDelimiter = lineParser.CommentDelimiter;
             var sep = CommentIfNecessary(SectionSeparator, commentDelimiter);
+            var addEmptyLineAtTheBottom = AddEmptyLineAtTheBottom;
             var lines = new List<string>();
             foreach (var section in sections)
             {
@@ -1082,6 +1091,11 @@ namespace PeanutButter.INI
             if (addSeparator)
             {
                 lines.RemoveAt(lines.Count - 1);
+            }
+
+            if (addEmptyLineAtTheBottom)
+            {
+                lines.Add("");
             }
 
             return lines;
