@@ -1262,6 +1262,26 @@ namespace PeanutButter.Utils.Tests
             }
         }
 
+        [TestFixture]
+        public class Issues
+        {
+            [Test]
+            public void ShouldNotGetConfusedWhenComparingObjectToAnonymousType()
+            {
+                // Arrange
+                var sub = new { id = 1 };
+                var container1 = new { sub };
+                var container2 = new { sub = (object)sub };
+                var sut = Create(container1, container2);
+                sut.RecordErrors = true;
+                // Act
+                var result = sut.AreDeepEqual();
+                // Assert
+                Expect(result)
+                    .To.Be.True(() => sut.Errors.JoinWith("\n"));
+            }
+        }
+
         public class DecimalComparerWhichAllowsUpTo2Delta : IEqualityComparer<decimal>
         {
             public bool Equals(decimal x, decimal y)

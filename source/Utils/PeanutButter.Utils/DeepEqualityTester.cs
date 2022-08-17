@@ -175,7 +175,10 @@ Imported.PeanutButter.Utils
         private void AddError(string message)
         {
             if (!RecordErrors)
+            {
                 return;
+            }
+
             _errors.Add(message);
         }
 
@@ -274,11 +277,17 @@ Imported.PeanutButter.Utils
             //  if the types match, use .Equals, otherwise attempt upcasting to decimal
             //  so that, eg: (long)2 == (int)2
             if (sourceType == compareType)
+            {
                 return OnlyCompareShape || PerformSameTypeEquals(objSource, objCompare);
+            }
+
             var sourceAsDecimal = TryConvertToDecimal(objSource);
             var compareAsDecimal = TryConvertToDecimal(objCompare);
             if (sourceAsDecimal == null || compareAsDecimal == null)
+            {
                 return false;
+            }
+
             return OnlyCompareShape || PerformDecimalEquals(sourceAsDecimal.Value, compareAsDecimal.Value);
         }
 
@@ -296,12 +305,20 @@ Imported.PeanutButter.Utils
         {
             var customResult = TryCompareWithCustomComparer(left, right);
             if (customResult.HasValue)
+            {
                 return customResult.Value;
+            }
+
             var result = left.Equals(right);
             if (IgnoreDateTimeKind())
+            {
                 return result;
+            }
+
             if (!result)
+            {
                 return false;
+            }
 
             if (left is DateTime leftDate &&
                 right is DateTime rightDate)
@@ -505,7 +522,10 @@ Imported.PeanutButter.Utils
             if (comparePropInfo is null)
             {
                 if (FailOnMissingProperties)
+                {
                     AddError("Unable to find comparison property with name: '" + srcPropInfo.Name + "'");
+                }
+
                 return null;
             }
 
@@ -560,8 +580,21 @@ Imported.PeanutButter.Utils
             TypesAreIdentical,
             TypesAreCloseEnough,
             TypesAreBothEnums, // defer this to a later choice
-            TypesHaveSimilarImmediateShape
+            TypesHaveSimilarImmediateShape,
+            TypesAreAnonymousOrObject
         };
+
+        private static bool TypesAreAnonymousOrObject(
+            DeepEqualityTester arg1,
+            Type arg2,
+            Type arg3
+        )
+        {
+            return arg2 == typeof(object) ||
+                arg3 == typeof(object) ||
+                arg2.LooksAnonymous() ||
+                arg3.LooksAnonymous();
+        }
 
         private static bool TypesAreBothEnums(
             DeepEqualityTester arg1,
@@ -579,13 +612,19 @@ Imported.PeanutButter.Utils
         )
         {
             if (CanPerformSimpleTypeMatchFor(srcType) || CanPerformSimpleTypeMatchFor(compareType))
+            {
                 return false;
+            }
+
             var srcProps = tester.GetPropertiesAndFieldsOf(srcType);
             var compareProps = tester.GetPropertiesAndFieldsOf(compareType);
             if (!tester.FailOnMissingProperties)
+            {
                 compareProps = compareProps
                     .Where(cp => srcProps.Any(sp => sp.Name == cp.Name))
                     .ToArray();
+            }
+
             return compareProps.Any() && compareProps.All(cp => srcProps.Any(sp => sp.Name == cp.Name));
         }
 
@@ -663,7 +702,10 @@ Imported.PeanutButter.Utils
         )
         {
             if (IsPending(objSource, objCompare))
+            {
                 return true; // let other comparisons continue
+            }
+
             var srcProps = GetPropertiesAndFieldsOf(sourceType);
             var compareProps = GetPropertiesAndFieldsOf(compareType);
 
@@ -682,7 +724,10 @@ Imported.PeanutButter.Utils
             if (!FailOnMissingProperties ||
                 OnlyTestIntersectingProperties ||
                 srcPropInfos.Length == compareProps.Length)
+            {
                 return CompareWith(objSource, objCompare, srcPropInfos, compareProps);
+            }
+
             AddError(
                 string.Join(
                     "\n",
@@ -746,7 +791,10 @@ Imported.PeanutButter.Utils
                 )
                 .ToArray();
             if (result.IsEmpty())
+            {
                 AddError("No intersecting properties found");
+            }
+
             return result;
         }
 
@@ -762,7 +810,10 @@ Imported.PeanutButter.Utils
                 (result, srcProp) =>
                 {
                     if (!result)
+                    {
                         return false;
+                    }
+
                     var compareProp = FindMatchingPropertyInfoFor(srcProp, comparePropInfos);
                     didAnyComparison = didAnyComparison || compareProp != null;
                     return (compareProp == null &&
@@ -776,9 +827,15 @@ Imported.PeanutButter.Utils
         private bool IsPending(object objSource, object objCompare)
         {
             if (_pendingComparisons.TryGetValue(objSource, out var gotValue))
+            {
                 return ReferenceEquals(gotValue, objCompare);
+            }
+
             if (_pendingComparisons.TryGetValue(objCompare, out gotValue))
+            {
                 return ReferenceEquals(gotValue, objSource);
+            }
+
             _pendingComparisons.Add(objSource, objCompare);
             return false;
         }
@@ -931,9 +988,12 @@ Imported.PeanutButter.Utils
                     BindingFlags.Instance | BindingFlags.NonPublic);
 #endif
             if (genericMethod == null)
+            {
                 throw new InvalidOperationException(
                     $"No '{nameof(TestCollectionsMatch)}' method found on {GetType().PrettyName()}"
                 );
+            }
+
             var typedMethod = genericMethod.MakeGenericMethod(t1, t2);
             return (bool) typedMethod.Invoke(this, new[] { srcValue, compareValue });
         }
@@ -947,13 +1007,22 @@ Imported.PeanutButter.Utils
         )
         {
             if (collection1 == null && collection2 == null)
+            {
                 return true;
+            }
+
             if (collection1 == null || collection2 == null)
+            {
                 return false;
+            }
+
             var enumerable = collection1 as T1[] ?? collection1.ToArray();
             var second = collection2 as T2[] ?? collection2.ToArray();
             if (enumerable.Length != second.Length)
+            {
                 return false;
+            }
+
             var collection1ContainsCollection2 = AllMembersOfFirstCollectionAreFoundInSecond(enumerable, second);
             var collection2ContainsCollection1 = AllMembersOfFirstCollectionAreFoundInSecond(second, enumerable);
             return collection1ContainsCollection2 && collection2ContainsCollection1;

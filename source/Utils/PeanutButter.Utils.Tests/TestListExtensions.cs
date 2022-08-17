@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using NUnit.Framework;
-using static PeanutButter.RandomGenerators.RandomValueGen;
 using NExpect;
 using static NExpect.Expectations;
 
@@ -125,6 +124,5 @@ namespace PeanutButter.Utils.Tests
                     .To.Equal(new[] { true, false, true });
             }
         }
-
     }
 }

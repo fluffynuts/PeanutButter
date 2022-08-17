@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 // ReSharper disable ConstantNullCoalescingCondition
 // ReSharper disable UnusedMember.Global
@@ -1196,6 +1197,101 @@ namespace PeanutButter.Utils
                 .OfType<TAttribute>()
                 .Any();
         }
+
+        /// <summary>
+        /// Returns true if the type is compiler-generated
+        /// This is always the case with anonymous types, but
+        /// may also be the case with other types. Other heuristics
+        /// for determining an anonymous type rely on naming (unreliable)
+        /// and it being sealed
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static bool IsCompilerGenerated(
+            this Type type
+        )
+        {
+            return type.GetCustomAttributes()
+                .OfType<CompilerGeneratedAttribute>()
+                .Any();
+        }
+
+        /// <summary>
+        /// Takes a guess that the type is anonymous based on some rules:
+        /// - class
+        /// - sealed
+        /// - non-public
+        /// - null namespace
+        /// - base type is object
+        /// - compiler-generated
+        /// - single parameterless constructor
+        /// note that attempts to determine whether a type is anonymous
+        /// by its name are all flawed, especially since there's no guarantee
+        /// that the type was made in C# and F# allows all the characters
+        /// in anonymous type names
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static bool LooksAnonymous(
+            this Type type
+        )
+        {
+            return type.IsClass &&
+                type.IsSealed &&
+                type.IsNotPublic &&
+                type.Namespace is null &&
+                type.BaseType == typeof(object) &&
+                type.IsCompilerGenerated() &&
+                type.HasOnlyParameterlessConstructor();
+        }
+
+        /// <summary>
+        /// Determine if a type has a single constructor and
+        /// that constructor is parameterless
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static bool HasOnlyParameterlessConstructor(
+            this Type type
+        )
+        {
+            DetermineConstructorInfoFor(type, out var count, out var hasParameterless);
+            return count == 1 && hasParameterless;
+        }
+
+        /// <summary>
+        /// Returns true if the type has a parameterless constructor
+        /// Note that the type may have other constructors too
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static bool HasParameterlessConstructor(
+            this Type type
+        )
+        {
+            DetermineConstructorInfoFor(type, out _, out var hasParameterless);
+            return hasParameterless;
+        }
+
+        private static void DetermineConstructorInfoFor(
+            Type type,
+            out int constructorCount,
+            out bool hasParameterlessConstructor
+        )
+        {
+            constructorCount = 0;
+            hasParameterlessConstructor = false;
+            var constructors = type.GetConstructors();
+            foreach (var ctor in constructors)
+            {
+                constructorCount++;
+                if (ctor.GetParameters().Length == 0)
+                {
+                    hasParameterlessConstructor = true;
+                }
+            }
+        }
+
     }
 
     internal static class Types
