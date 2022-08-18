@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Diagnostics;
 using ImpromptuInterface;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Extensions;
+using static PeanutButter.Utils.Benchmark;
 
 // ReSharper disable PossibleNullReferenceException
 // ReSharper disable RedundantArgumentDefaultValue
@@ -34,7 +34,7 @@ namespace PeanutButter.DuckTyping.Tests
             var stringValue = "1";
             var longValue = 1024L;
 
-            var tWatch = TimeIt.Go(() =>
+            var impromptuElapsed = Time(() =>
             {
                 Impromptu.InvokeSet(tPoco, "Prop1", stringValue);
                 Impromptu.InvokeSet(tPoco, "Prop2", longValue);
@@ -45,7 +45,7 @@ namespace PeanutButter.DuckTyping.Tests
             var longProp = type.GetProperty(nameof(IPropPoco.Prop2));
             var copyProp = type.GetProperty(nameof(IPropPoco.Copy));
             
-            var tWatch2 = TimeIt.Go(
+            var reflectionElapsed = Time(
                 () =>
                 {
                     stringProp.SetValue(tPoco, stringValue);
@@ -56,7 +56,7 @@ namespace PeanutButter.DuckTyping.Tests
             );
             var ducked = tPoco.DuckAs<IPropPoco>();
             Assert.IsNotNull(ducked);
-            var tWatch3 = TimeIt.Go(
+            var duckedElapsed = Time(
                 () =>
                 {
                     ducked.Prop1 = stringValue;
@@ -67,7 +67,7 @@ namespace PeanutButter.DuckTyping.Tests
             );
 
             dynamic dynamo = Hide(tPoco);
-            var dynamicWatch = TimeIt.Go(
+            var dynamicElapsed = Time(
                 () =>
                 {
                     dynamo.Prop1 = stringValue;
@@ -78,10 +78,10 @@ namespace PeanutButter.DuckTyping.Tests
             );
 
 
-            TestContext.WriteLine($"InvokeSet:  {tWatch.Elapsed}");
-            TestContext.WriteLine($"Reflection: {tWatch2.Elapsed}");
-            TestContext.WriteLine($"Ducked:     {tWatch3.Elapsed}");
-            TestContext.WriteLine($"Dynamic:    {dynamicWatch.Elapsed}");
+            TestContext.WriteLine($"InvokeSet:  {impromptuElapsed}");
+            TestContext.WriteLine($"Reflection: {reflectionElapsed}");
+            TestContext.WriteLine($"Ducked:     {duckedElapsed}");
+            TestContext.WriteLine($"Dynamic:    {dynamicElapsed}");
         }
 
         private static object Hide<T>(T obj)
@@ -106,22 +106,6 @@ namespace PeanutButter.DuckTyping.Tests
             Guid Prop3 { get; set; }
             int Event { get; set; }
             long Copy { get; set; }
-        }
-
-        public static class TimeIt
-        {
-            public static Stopwatch Go(Action action, int interation = 1000000)
-            {
-                var tStopwatch = new Stopwatch();
-                tStopwatch.Start();
-                for (int i = 0; i < interation; i++)
-                {
-                    action();
-                }
-
-                tStopwatch.Stop();
-                return tStopwatch;
-            }
         }
     }
 }

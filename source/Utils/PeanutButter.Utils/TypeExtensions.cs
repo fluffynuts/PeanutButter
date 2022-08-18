@@ -1184,7 +1184,8 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
-        /// Tests if a provided type is decorated with the expected attribute [TAttribute]
+        /// Tests if a provided type or base type is decorated with
+        /// the expected attribute [TAttribute]
         /// </summary>
         /// <param name="type"></param>
         /// <typeparam name="TAttribute"></typeparam>
@@ -1193,10 +1194,161 @@ namespace PeanutButter.Utils
             this Type type
         ) where TAttribute : Attribute
         {
-            return type.GetCustomAttributes()
-                .OfType<TAttribute>()
-                .Any();
+            return type.HasAttribute<TAttribute>(true);
         }
+
+        /// <summary>
+        /// Tests if a provided type is decorated with the attribute
+        /// of type attributeType, including base types when enabled
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="inherit"></param>
+        /// <typeparam name="TAttribute"></typeparam>
+        /// <returns></returns>
+        public static bool HasAttribute<TAttribute>(
+            this Type type,
+            bool inherit
+        )
+        {
+            return type.HasAttribute(typeof(TAttribute), inherit);
+        }
+
+        /// <summary>
+        /// Tests if a provided type is decorated with the attribute
+        /// of type attributeType, including base types when enabled
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="attributeType"></param>
+        /// <param name="inherit"></param>
+        /// <returns></returns>
+        public static bool HasAttribute(
+            this Type type,
+            Type attributeType,
+            bool inherit
+        )
+        {
+            var key = Tuple.Create(type, attributeType, inherit);
+            return TypeAttributeCache.GetOrAdd(
+                key,
+                _ => type
+                    .GetCustomAttributes(inherit)
+                    .Any(a => a?.GetType() == attributeType)
+            );
+        }
+
+        private static readonly ConcurrentDictionary<Tuple<Type, Type, bool>, bool> TypeAttributeCache = new();
+
+        /// <summary>
+        /// Tests if the method (or any overridden base method)
+        /// is decorated with [TAttribute]
+        /// </summary>
+        /// <param name="methodInfo"></param>
+        /// <typeparam name="TAttribute"></typeparam>
+        /// <returns></returns>
+        public static bool HasAttribute<TAttribute>(
+            this MethodInfo methodInfo
+        ) where TAttribute : Attribute
+        {
+            return methodInfo.HasAttribute(typeof(TAttribute), true);
+        }
+
+        /// <summary>
+        /// Tests if the method is decorated with [TAttribute],
+        /// including inheritance when enabled
+        /// </summary>
+        /// <param name="methodInfo"></param>
+        /// <param name="inherit"></param>
+        /// <typeparam name="TAttribute"></typeparam>
+        /// <returns></returns>
+        public static bool HasAttribute<TAttribute>(
+            this MethodInfo methodInfo,
+            bool inherit
+        ) where TAttribute : Attribute
+        {
+            return methodInfo.HasAttribute(typeof(TAttribute), inherit);
+        }
+
+        /// <summary>
+        /// Tests if a provided method is decorated with the attribute
+        /// of type attributeType, including inheritance when enabled
+        /// </summary>
+        /// <param name="methodInfo"></param>
+        /// <param name="attributeType"></param>
+        /// <param name="inherit"></param>
+        /// <returns></returns>
+        public static bool HasAttribute(
+            this MethodInfo methodInfo,
+            Type attributeType,
+            bool inherit
+        )
+        {
+            var key = Tuple.Create(methodInfo, attributeType, inherit);
+            return MethodAttributeCache.GetOrAdd(
+                key,
+                _ => methodInfo.GetCustomAttributes(inherit)
+                    .Any(a => a?.GetType() == attributeType)
+            );
+        }
+
+        private static readonly ConcurrentDictionary<Tuple<MethodInfo, Type, bool>, bool> MethodAttributeCache = new();
+
+        /// <summary>
+        /// Tests if the property (or base property that is overridden)
+        /// is decorated with [TAttribute]
+        /// </summary>
+        /// <param name="propertyInfo"></param>
+        /// <typeparam name="TAttribute"></typeparam>
+        /// <returns></returns>
+        public static bool HasAttribute<TAttribute>(
+            this PropertyInfo propertyInfo
+        ) where TAttribute : Attribute
+        {
+            return propertyInfo.HasAttribute<TAttribute>(true);
+        }
+
+        /// <summary>
+        /// Tests if the property is decorated with [TAttribute],
+        /// directly specifying whether or not to inherit attributes
+        /// from base members
+        /// </summary>
+        /// <param name="propertyInfo"></param>
+        /// <param name="inherit"></param>
+        /// <typeparam name="TAttribute"></typeparam>
+        /// <returns></returns>
+        public static bool HasAttribute<TAttribute>(
+            this PropertyInfo propertyInfo,
+            bool inherit
+        ) where TAttribute : Attribute
+        {
+            return propertyInfo.HasAttribute(typeof(TAttribute), inherit);
+        }
+
+        /// <summary>
+        /// Tests if the property is decorated with [TAttribute]
+        /// </summary>
+        /// <param name="propertyInfo"></param>
+        /// <param name="attributeType"></param>
+        /// <param name="inherit"></param>
+        /// <returns></returns>
+        public static bool HasAttribute(
+            this PropertyInfo propertyInfo,
+            Type attributeType,
+            bool inherit
+        )
+        {
+            var key = Tuple.Create(propertyInfo, attributeType, inherit);
+            return PropertyAttributeCache.GetOrAdd(
+                key,
+                // see: https://github.com/dotnet/runtime/issues/74149
+                _ => inherit
+                    ? propertyInfo.GetCustomAttributes()
+                        .Any(a => a?.GetType() == attributeType)
+                    : propertyInfo.GetCustomAttributes(false)
+                        .Any(a => a?.GetType() == attributeType));
+        }
+
+        private static readonly ConcurrentDictionary<Tuple<PropertyInfo, Type, bool>, bool> PropertyAttributeCache =
+            new();
 
         /// <summary>
         /// Returns true if the type is compiler-generated
@@ -1291,7 +1443,6 @@ namespace PeanutButter.Utils
                 }
             }
         }
-
     }
 
     internal static class Types

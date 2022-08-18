@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using NExpect;
 using NUnit.Framework;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using static PeanutButter.Utils.Benchmark;
 
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable MemberCanBePrivate.Global
@@ -895,6 +898,192 @@ namespace PeanutButter.Utils.Tests
                 public void ConcreteMethod()
                 {
                 }
+            }
+        }
+
+        [TestFixture]
+        public class HasAttribute
+        {
+            public class ClassAttribute : Attribute
+            {
+            }
+
+            public class BaseClassAttribute : Attribute
+            {
+            }
+
+            public class MethodAttribute : Attribute
+            {
+            }
+
+            public class BaseMethodAttribute : Attribute
+            {
+            }
+
+            public class PropertyAttribute : Attribute
+            {
+            }
+
+            public class BasePropertyAttribute : Attribute
+            {
+            }
+
+            [BaseClass]
+            public abstract class TestClassBase
+            {
+                [BaseProperty]
+                public virtual int Id { get; set; }
+
+                [BaseMethod]
+                public virtual void DoNothing()
+                {
+                }
+            }
+
+            [Class]
+            public class TestClass: 
+                TestClassBase
+            {
+                [Property]
+                public override int Id { get; set; }
+
+                [Method]
+                public override void DoNothing()
+                {
+                }
+            }
+
+            [TestFixture]
+            public class OperatingOnType
+            {
+                [Test]
+                public void ShouldFindAttributeWhenPresent()
+                {
+                    // Arrange
+                    var sut = typeof(TestClass);
+                    // Act
+                    Expect(sut.HasAttribute<ClassAttribute>())
+                        .To.Be.True();
+                    Expect(sut.HasAttribute<PropertyAttribute>())
+                        .To.Be.False();
+                    Expect(sut.HasAttribute<MethodAttribute>())
+                        .To.Be.False();
+                    // Assert
+                }
+
+                [Test]
+                public void ShouldFindBaseClassAttribute()
+                {
+                    // Arrange
+                    var sut = typeof(TestClass);
+                    // Act
+                    Expect(sut.HasAttribute<BaseClassAttribute>())
+                        .To.Be.True();
+                    Expect(sut.HasAttribute<BaseClassAttribute>(false))
+                        .To.Be.False();
+                    // Assert
+                }
+            }
+
+            [TestFixture]
+            public class OperatingOnMethodInfo
+            {
+                [Test]
+                public void ShouldFindAttributeWhenPresent()
+                {
+                    // Arrange
+                    var sut = typeof(TestClass)
+                        .GetMethod(nameof(TestClass.DoNothing));
+                    // Act
+                    Expect(sut.HasAttribute<ClassAttribute>())
+                        .To.Be.False();
+                    Expect(sut.HasAttribute<PropertyAttribute>())
+                        .To.Be.False();
+                    Expect(sut.HasAttribute<MethodAttribute>())
+                        .To.Be.True();
+                    // Assert
+                }
+
+                [Test]
+                public void ShouldFindBaseMethodAttribute()
+                {
+                    // Arrange
+                    var sut = typeof(TestClass)
+                        .GetMethod(nameof(TestClass.DoNothing));
+                    // Act
+                    Expect(sut.HasAttribute<BaseMethodAttribute>())
+                        .To.Be.True();
+                    Expect(sut.HasAttribute<BaseMethodAttribute>(false))
+                        .To.Be.False();
+                    // Assert
+                }
+            }
+
+            [TestFixture]
+            public class OperatingOnPropertyInfo
+            {
+                [Test]
+                public void ShouldFindAttributeWhenPresent()
+                {
+                    // Arrange
+                    var sut = typeof(TestClass)
+                        .GetProperty(nameof(TestClass.Id));
+                    // Act
+                    Expect(sut.HasAttribute<ClassAttribute>())
+                        .To.Be.False();
+                    Expect(sut.HasAttribute<PropertyAttribute>())
+                        .To.Be.True();
+                    Expect(sut.HasAttribute<MethodAttribute>())
+                        .To.Be.False();
+                    // Assert
+                }
+
+                [Test]
+                public void ShouldFindBaseAttribute()
+                {
+                    // Arrange
+                    var sut = typeof(TestClass)
+                        .GetProperty(nameof(TestClass.Id));
+
+                    // Act
+                    Expect(sut.HasAttribute<BasePropertyAttribute>())
+                        .To.Be.True();
+                    Expect(sut.HasAttribute<BasePropertyAttribute>(false))
+                        .To.Be.False();
+                    // Assert
+                }
+            }
+            
+            [Test]
+            [Explicit("Speed test: proves that the non-generic path is _slightly_ more performant")]
+            public void Speed()
+            {
+                // Arrange
+                var sut = typeof(TestClass);
+                var iterations = 1000000;
+                bool foo;
+                var classAttrib = typeof(ClassAttribute);
+                var methodAttrib = typeof(MethodAttribute);
+                var nonGeneric = Time(() =>
+                {
+                    foo = sut.GetCustomAttributes()
+                        .Any(a => a?.GetType() == classAttrib);
+                    foo = sut.GetCustomAttributes()
+                        .Any(a => a?.GetType() == methodAttrib);
+                }, iterations);
+                var generic = Time(() =>
+                {
+                    foo = sut.GetCustomAttributes()
+                        .OfType<ClassAttribute>()
+                        .Any();
+                    foo = sut.GetCustomAttributes()
+                        .OfType<MethodAttribute>()
+                        .Any();
+                }, iterations);
+                // Act
+                // Assert
+                Console.WriteLine($"Generic : {generic}");
+                Console.WriteLine($"!Generic: {nonGeneric}");
             }
         }
     }
