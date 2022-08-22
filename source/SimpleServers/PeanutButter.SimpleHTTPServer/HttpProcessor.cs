@@ -236,13 +236,13 @@ namespace PeanutButter.SimpleHTTPServer
         {
             using (var ms = new MemoryStream())
             {
-                if (this.HttpHeaders.ContainsKey(Headers.CONTENT_LENGTH))
+                if (HttpHeaders.ContainsKey(Headers.CONTENT_LENGTH))
                 {
-                    var contentLength = Convert.ToInt32(this.HttpHeaders[Headers.CONTENT_LENGTH]);
-                    if (contentLength > this.MaxPostSize)
+                    var contentLength = Convert.ToInt32(HttpHeaders[Headers.CONTENT_LENGTH]);
+                    if (contentLength > MaxPostSize)
                     {
                         throw new Exception(
-                            $"{method} Content-Length({contentLength}) too big for this simple server (max: {this.MaxPostSize})");
+                            $"{method} Content-Length({contentLength}) too big for this simple server (max: {MaxPostSize})");
                     }
 
                     var buf = new byte[BUF_SIZE];
@@ -269,8 +269,8 @@ namespace PeanutButter.SimpleHTTPServer
                     ms.Seek(0, SeekOrigin.Begin);
                 }
 
-                this.ParseFormElementsIfRequired(ms);
-                this.Server.HandleRequestWithBody(this, ms, method);
+                ParseFormElementsIfRequired(ms);
+                Server.HandleRequestWithBody(this, ms, method);
             }
         }
 
