@@ -40,11 +40,6 @@ namespace PeanutButter.SimpleHTTPServer
             public const string PUT = "PUT";
 
             /// <summary>
-            /// UPDATE method.
-            /// </summary>
-            public const string UPDATE = "UPDATE";
-
-            /// <summary>
             /// DELETE method.
             /// </summary>
             public const string DELETE = "DELETE";

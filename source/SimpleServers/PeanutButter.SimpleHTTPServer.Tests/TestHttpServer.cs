@@ -177,7 +177,6 @@ namespace PeanutButter.SimpleHTTPServer.Tests
 
         [TestCase("POST")]
         [TestCase("PUT")]
-        [TestCase("UPDATE")]
         [TestCase("DELETE")]
         [TestCase("PATCH")]
         public async Task GettingRequestBody(string method)

@@ -136,7 +136,6 @@ namespace PeanutButter.SimpleHTTPServer
             }
 
             if (Method.Equals(Methods.PUT)
-                || Method.Equals(Methods.UPDATE)
                 || Method.Equals(Methods.DELETE)
                 || Method.Equals(Methods.PATCH))
             {
