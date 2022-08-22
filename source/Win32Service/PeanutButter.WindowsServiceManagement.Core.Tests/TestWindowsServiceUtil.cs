@@ -52,7 +52,7 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
             {
                 EnsureTestServiceIsNotInstalled();
             }
-            
+
 
             [SetUp]
             public void Setup()

@@ -19,18 +19,20 @@ using TimeoutException = System.TimeoutException;
 namespace PeanutButter.WindowsServiceManagement.Tests
 {
     [TestFixture]
-    public class TestNativeWindowsServiceUtil: TestWindowsServiceUtilBase
+    [Parallelizable(ParallelScope.None)]
+    public class TestNativeWindowsServiceUtil : TestWindowsServiceUtilBase
     {
-        public TestNativeWindowsServiceUtil() 
+        public TestNativeWindowsServiceUtil()
             : base(typeof(NativeWindowsServiceUtil))
         {
         }
     }
 
     [TestFixture]
+    [Parallelizable(ParallelScope.None)]
     public class TestWindowsServiceUtil : TestWindowsServiceUtilBase
     {
-        public TestWindowsServiceUtil() 
+        public TestWindowsServiceUtil()
             : base(typeof(WindowsServiceUtil))
         {
         }
@@ -346,6 +348,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                         {
                             u.Refresh();
                         }
+
                         Expect(util.IsInstalled)
                             .To.Be.False();
                     });
@@ -383,186 +386,178 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             //, Throws.Nothing);
         }
 
-        [TestFixture]
-        public class KillService
+        [Test]
+        // [Explicit("Slow and flaky")]
+        public void KillService_ShouldKillSingleWithoutArgs()
         {
-            [Test]
-            [Explicit("Slow and flaky")]
-            public void ShouldKillSingleWithoutArgs()
+            // Arrange
+            var util = Create(
+                TestServiceName,
+                TestServiceName,
+                TestServicePath
+            );
+            util.InstallAndStart();
+            // Act
+            var allProcesses = Process.GetProcesses();
+            var proc = allProcesses
+                .Single(p => HasMainModule(p, TestServicePath));
+            var result = util.KillService();
+            // Assert
+            Expect(proc.HasExited)
+                .To.Be.True();
+            Expect(result)
+                .To.Equal(KillServiceResult.Killed);
+        }
+
+        private static bool HasMainModule(
+            Process p,
+            string path)
+        {
+            try
             {
-                // Arrange
-                var util = Create(
-                    TestServiceName,
-                    TestServiceName,
-                    TestServicePath
-                );
-                util.InstallAndStart();
-                // Act
-                var allProcesses = Process.GetProcesses();
-                var proc = allProcesses
-                    .Single(p => HasMainModule(p, TestServicePath));
-                var result = util.KillService();
-                // Assert
-                Expect(proc.HasExited)
-                    .To.Be.True();
-                Expect(result)
-                    .To.Equal(KillServiceResult.Killed);
+                return p.MainModule.FileName == path;
             }
-
-            private static bool HasMainModule(
-                Process p,
-                string path)
+            catch // easy to get access denied!
             {
-                try
-                {
-                    return p.MainModule.FileName == path;
-                }
-                catch // easy to get access denied!
-                {
-                    return false;
-                }
-            }
-
-            // Spaced Service doesn't attempt to do anything with arguments, so it's
-            //    nice for testing this out
-
-            [Test]
-            [Explicit("Slow and flaky")]
-            public void ShouldKillTheCorrectService()
-            {
-                // Arrange
-                var service1Name = $"service-1-{Guid.NewGuid()}";
-                var service2Name = $"service-2-{Guid.NewGuid()}";
-                var args1 = GetRandomArray<string>(2);
-                var args2 = GetRandomArray<string>(2);
-                var cli1 = $"\"{SpacedServiceExe}\" {string.Join(" ", args1)}";
-                var cli2 = $"\"{SpacedServiceExe}\" {string.Join(" ", args2)}";
-                var util1 = Create(service1Name, service1Name, cli1);
-                var util2 = Create(service2Name, service2Name, cli2);
-                util1.InstallAndStart();
-                util2.InstallAndStart();
-
-                using var _ = new AutoResetter(Noop, () =>
-                {
-                    TryDo(() => util1.Uninstall());
-                    TryDo(() => util2.Uninstall());
-                });
-
-                var processes = Process.GetProcesses()
-                    .Where(p => HasMainModule(p, SpacedServiceExe))
-                    .ToArray();
-                var p1 = processes.FirstOrDefault(
-                    p =>
-                    {
-                        var testArgs = p.QueryCommandline()
-                            .SplitCommandline()
-                            .Skip(1)
-                            .ToArray();
-                        return testArgs.Matches(args1);
-                    }
-                );
-                var p2 = processes.FirstOrDefault(
-                    p => p.QueryCommandline()
-                        .SplitCommandline()
-                        .Skip(1)
-                        .Matches(args2)
-                );
-
-                Expect(p1)
-                    .Not.To.Be.Null(() => $"Can't find process for {cli1}");
-                Expect(p2)
-                    .Not.To.Be.Null(() => $"Can't find process for {cli2}");
-
-                // Act
-                util1.KillService();
-
-                // Assert
-                Expect(p1.HasExited)
-                    .To.Be.True();
-                Expect(p2.HasExited)
-                    .To.Be.False();
+                return false;
             }
         }
 
-        [TestFixture]
-        public class StubbornService
+        // Spaced Service doesn't attempt to do anything with arguments, so it's
+        //    nice for testing this out
+
+        [Test]
+        // [Explicit("Slow and flaky")]
+        public void KillService_ShouldKillTheCorrectService()
         {
-            [Test]
-            public void ShouldBeAbleToSuccessfullyUninstallWithForceOption()
-            {
-                // by definition, if this fails, it may require manual cleanup
-                // -> stubborn-service will basically lock for a minute
-                //    when requested to stop
-                // Arrange
-                var serviceExe = StubbornServiceExe;
-                var serviceName = $"stubborn-service-{Guid.NewGuid()}";
-                var util = Create(
-                    serviceName,
-                    serviceName,
-                    serviceExe);
-                // Act
-                util.InstallAndStart();
-                var servicePid = util.ServicePID;
-                util.Uninstall(
-                    ControlOptions.Wait |
-                    ControlOptions.Force
-                );
-                // Assert
-                Expect(() => Process.GetProcessById(servicePid))
-                    .To.Throw<ArgumentException>(); // shouldn't be running
-                var anotherUtil = Create(serviceName);
-                Expect(anotherUtil.IsInstalled)
-                    .To.Be.False();
-                Expect(anotherUtil.IsMarkedForDelete)
-                    .To.Be.False();
-            }
+            // Arrange
+            var service1Name = $"service-1-{Guid.NewGuid()}";
+            var service2Name = $"service-2-{Guid.NewGuid()}";
+            var args1 = GetRandomArray<string>(2);
+            var args2 = GetRandomArray<string>(2);
+            var cli1 = $"\"{SpacedServiceExe}\" {string.Join(" ", args1)}";
+            var cli2 = $"\"{SpacedServiceExe}\" {string.Join(" ", args2)}";
+            var util1 = Create(service1Name, service1Name, cli1);
+            var util2 = Create(service2Name, service2Name, cli2);
+            util1.InstallAndStart();
+            util2.InstallAndStart();
 
-            [Test]
-            public void ShouldNotSuccessfullyUninstallWithDefaultUninstallMethod()
+            using var _ = new AutoResetter(Noop, () =>
             {
-                // by default, Uninstall _should_ wait for the stop / uninstall
-                // but _not_ kill (in case of loss of data)
-                // Arrange
-                var serviceExe = StubbornServiceExe;
-                var serviceName = $"stubborn-service{Guid.NewGuid()}";
-                var sut = Create(
-                    serviceName,
-                    serviceName,
-                    serviceExe
-                );
-                using var _ = new AutoResetter(Noop, () => sut.Uninstall(
-                    ControlOptions.Force | ControlOptions.Wait
-                ));
-                sut.InstallAndStart();
-                // Act
-                if (sut is NativeWindowsServiceUtil u)
-                {
-                    u.ServiceStateExtraWaitSeconds = 0;
-                    Expect(() => sut.Uninstall())
-                        .To.Throw<ServiceOperationException>()
-                        .With.Message.Containing("Unable to perform Stop");
-                }
-                else if (sut is WindowsServiceUtil u2)
-                {
-                    u2.ServiceControlTimeoutSeconds = 5;
-                    Expect(() => sut.Uninstall())
-                        .To.Throw<TimeoutException>()
-                        .With.Message.Containing("state: Stopped");
-                }
+                TryDo(() => util1.Uninstall());
+                TryDo(() => util2.Uninstall());
+            });
 
-                // Assert
-                Expect(sut.IsInstalled)
-                    .To.Be.True();
-                Process process = null;
-                Expect(() => process = Process.GetProcessById(sut.ServicePID))
-                    .Not.To.Throw();
-                Expect(process.HasExited)
-                    .To.Be.False();
-            }
+            var processes = Process.GetProcesses()
+                .Where(p => HasMainModule(p, SpacedServiceExe))
+                .ToArray();
+            var p1 = processes.FirstOrDefault(
+                p =>
+                {
+                    var testArgs = p.QueryCommandline()
+                        .SplitCommandline()
+                        .Skip(1)
+                        .ToArray();
+                    return testArgs.Matches(args1);
+                }
+            );
+            var p2 = processes.FirstOrDefault(
+                p => p.QueryCommandline()
+                    .SplitCommandline()
+                    .Skip(1)
+                    .Matches(args2)
+            );
+
+            Expect(p1)
+                .Not.To.Be.Null(() => $"Can't find process for {cli1}");
+            Expect(p2)
+                .Not.To.Be.Null(() => $"Can't find process for {cli2}");
+
+            // Act
+            util1.KillService();
+
+            // Assert
+            Expect(p1.HasExited)
+                .To.Be.True();
+            Expect(p2.HasExited)
+                .To.Be.False();
         }
 
         [Test]
-        [Explicit("Slow and flaky")]
+        public void StubbornService_ShouldBeAbleToSuccessfullyUninstallWithForceOption()
+        {
+            // by definition, if this fails, it may require manual cleanup
+            // -> stubborn-service will basically lock for a minute
+            //    when requested to stop
+            // Arrange
+            var serviceExe = StubbornServiceExe;
+            var serviceName = $"stubborn-service-{Guid.NewGuid()}";
+            var util = Create(
+                serviceName,
+                serviceName,
+                serviceExe);
+            // Act
+            util.InstallAndStart();
+            var servicePid = util.ServicePID;
+            util.Uninstall(
+                ControlOptions.Wait |
+                ControlOptions.Force
+            );
+            // Assert
+            Expect(() => Process.GetProcessById(servicePid))
+                .To.Throw<ArgumentException>(); // shouldn't be running
+            var anotherUtil = Create(serviceName);
+            Expect(anotherUtil.IsInstalled)
+                .To.Be.False();
+            Expect(anotherUtil.IsMarkedForDelete)
+                .To.Be.False();
+        }
+
+        [Test]
+        public void StubbornService_ShouldNotSuccessfullyUninstallWithDefaultUninstallMethod()
+        {
+            // by default, Uninstall _should_ wait for the stop / uninstall
+            // but _not_ kill (in case of loss of data)
+            // Arrange
+            var serviceExe = StubbornServiceExe;
+            var serviceName = $"stubborn-service{Guid.NewGuid()}";
+            var sut = Create(
+                serviceName,
+                serviceName,
+                serviceExe
+            );
+            using var _ = new AutoResetter(Noop, () => sut.Uninstall(
+                ControlOptions.Force | ControlOptions.Wait
+            ));
+            sut.InstallAndStart();
+            // Act
+            if (sut is NativeWindowsServiceUtil u)
+            {
+                u.ServiceStateExtraWaitSeconds = 0;
+                Expect(() => sut.Uninstall())
+                    .To.Throw<ServiceOperationException>()
+                    .With.Message.Containing("Unable to perform Stop");
+            }
+            else if (sut is WindowsServiceUtil u2)
+            {
+                u2.ServiceControlTimeoutSeconds = 5;
+                Expect(() => sut.Uninstall())
+                    .To.Throw<TimeoutException>()
+                    .With.Message.Containing("state: Stopped");
+            }
+
+            // Assert
+            Expect(sut.IsInstalled)
+                .To.Be.True();
+            Process process = null;
+            Expect(() => process = Process.GetProcessById(sut.ServicePID))
+                .Not.To.Throw();
+            Expect(process.HasExited)
+                .To.Be.False();
+        }
+
+        [Test]
+        // [Explicit("Slow and flaky")]
         public void ServiceWithArgs()
         {
             // Arrange
@@ -574,6 +569,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             var arg2 = GetRandomString(3);
             var args = new[] { logFile, arg1, arg2 }.Select(p => p.QuoteIfSpaced());
             var serviceName = "test-service-foo-bar";
+            EnsureTestServiceIsNotInstalled();
             var displayName = "Test Service - Foo,Bar";
             var commandline = string.Join(
                 " ",
@@ -599,7 +595,6 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             using var resetter = new AutoResetter(
                 () => util.Install(),
                 () => util.Uninstall(true));
-            util.Install();
             // Assert
             Expect(util.IsInstalled)
                 .To.Be.True();
@@ -659,7 +654,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                 .To.Equal(TestServicePath);
             Expect(check1.Arguments)
                 .To.Equal(new[] { "a", "b", "c" });
-            
+
             // Act
             var sut2 = new WindowsServiceUtil(
                 serviceName,
@@ -668,7 +663,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             );
             Expect(() => sut2.Install())
                 .To.Throw();
-            
+
             // Assert
         }
 
@@ -714,7 +709,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests
         private string _spacedServiceName;
 
         [Test]
-        [Explicit("Slow and flaky")]
+        // [Explicit("Slow and flaky")]
         public void InstallingServiceWithSpacedPath()
         {
             // Arrange
@@ -833,9 +828,9 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                 throw new InvalidOperationException("No implementation set");
             }
 
-            return (IWindowsServiceUtil)(Activator.CreateInstance(_implementationType, serviceName));
+            return (IWindowsServiceUtil) (Activator.CreateInstance(_implementationType, serviceName));
         }
-        
+
         private static IWindowsServiceUtil Create(
             string serviceName,
             string displayName,
@@ -845,7 +840,9 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             {
                 throw new InvalidOperationException("No implementation set");
             }
-            return (IWindowsServiceUtil)(Activator.CreateInstance(_implementationType, serviceName, displayName, commandline));
+
+            return (IWindowsServiceUtil) (Activator.CreateInstance(_implementationType, serviceName, displayName,
+                commandline));
         }
 
         private static string FindPath(

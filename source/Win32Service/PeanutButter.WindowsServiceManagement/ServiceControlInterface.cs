@@ -129,7 +129,7 @@ namespace PeanutButter.WindowsServiceManagement
         )
         {
             using var io = ProcessIO.Start(
-                "sc", args
+                "sc", EscapeQuotesIn(args)
             );
             io.Process.WaitForExit();
             if (io.ExitCode != 0)
@@ -169,6 +169,16 @@ namespace PeanutButter.WindowsServiceManagement
             }
 
             return result;
+        }
+
+        private string[] EscapeQuotesIn(string[] args)
+        {
+            var result = new List<string>();
+            foreach (var arg in args)
+            {
+                result.Add(arg.Replace("\"", "\\\""));
+            }
+            return result.ToArray();
         }
 
         private bool TryParseKeyAndValueFrom(string line, out string key, out string value)

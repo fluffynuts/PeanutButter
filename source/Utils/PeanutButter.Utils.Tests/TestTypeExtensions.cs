@@ -941,8 +941,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Class]
-            public class TestClass: 
-                TestClassBase
+            public class TestClass : TestClassBase
             {
                 [Property]
                 public override int Id { get; set; }
@@ -1053,7 +1052,7 @@ namespace PeanutButter.Utils.Tests
                     // Assert
                 }
             }
-            
+
             [Test]
             [Explicit("Speed test: proves that the non-generic path is _slightly_ more performant")]
             public void Speed()

@@ -578,7 +578,7 @@ namespace PeanutButter.WindowsServiceManagement
                 );
             }
         }
-
+        
         /// <inheritdoc />
         public ServiceStartupTypes StartupType
         {

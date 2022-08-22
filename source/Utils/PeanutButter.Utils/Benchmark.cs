@@ -10,6 +10,24 @@ namespace PeanutButter.Utils
     public static class Benchmark
     {
         /// <summary>
+        /// Times the provided action, run the provided number
+        /// of iterations, and then prints out the run time to
+        /// stdout
+        /// </summary>
+        /// <param name="label"></param>
+        /// <param name="toRun"></param>
+        /// <param name="iterations"></param>
+        public static void PrintTime(
+            string label,
+            Action toRun,
+            int iterations
+        )
+        {
+            var runTime = Time(toRun, iterations);
+            Console.WriteLine($"{label}: {runTime}");
+        }
+
+        /// <summary>
         /// Time an action, run the specified number of times,
         /// and return the time it took.
         /// </summary>
