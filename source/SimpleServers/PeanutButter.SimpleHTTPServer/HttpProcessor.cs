@@ -229,7 +229,7 @@ namespace PeanutButter.SimpleHTTPServer
         /// <param name="stream"></param>
         public void HandlePOSTRequest(Stream stream)
         {
-            this.HandleRequestWithBody(stream, "POST");
+            this.HandleRequestWithBody(stream, Methods.POST);
         }
 
         private void HandleRequestWithBody(Stream stream, string method)
