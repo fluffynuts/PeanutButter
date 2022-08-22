@@ -33,6 +33,26 @@ namespace PeanutButter.SimpleHTTPServer
             /// POST
             /// </summary>
             public const string POST = "POST";
+
+            /// <summary>
+            /// PUT method.
+            /// </summary>
+            public const string PUT = "PUT";
+
+            /// <summary>
+            /// UPDATE method.
+            /// </summary>
+            public const string UPDATE = "UPDATE";
+
+            /// <summary>
+            /// DELETE method.
+            /// </summary>
+            public const string DELETE = "DELETE";
+
+            /// <summary>
+            /// PATCH method.
+            /// </summary>
+            public const string PATCH = "PATCH";
         }
 
         /// <summary>

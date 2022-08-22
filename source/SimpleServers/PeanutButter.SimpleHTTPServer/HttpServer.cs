@@ -404,6 +404,12 @@ namespace PeanutButter.SimpleHTTPServer
             InvokeHandlersWith(p, inputData);
         }
 
+        public override void HandleRequestWithBody(HttpProcessor p, MemoryStream inputData, string method)
+        {
+            Log($"Incoming {method} request: {p.FullUrl}");
+            InvokeHandlersWith(p, inputData);
+        }
+
         /// <summary>
         /// Serves an XDocument from the provided path, for the provided method
         /// </summary>

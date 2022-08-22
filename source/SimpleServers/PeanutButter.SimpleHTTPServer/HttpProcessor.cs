@@ -130,7 +130,19 @@ namespace PeanutButter.SimpleHTTPServer
             }
 
             if (Method.Equals(Methods.POST))
+            {
                 HandlePOSTRequest(io.RawStream);
+                return;
+            }
+
+            if (Method.Equals(Methods.PUT)
+                || Method.Equals(Methods.UPDATE)
+                || Method.Equals(Methods.DELETE)
+                || Method.Equals(Methods.PATCH))
+            {
+                this.HandleRequestWithBody(io.RawStream, Method);
+                return;
+            }
         }
 
         /// <summary>
@@ -217,16 +229,20 @@ namespace PeanutButter.SimpleHTTPServer
         /// <param name="stream"></param>
         public void HandlePOSTRequest(Stream stream)
         {
+            this.HandleRequestWithBody(stream, "POST");
+        }
+
+        private void HandleRequestWithBody(Stream stream, string method)
+        {
             using (var ms = new MemoryStream())
             {
-                if (HttpHeaders.ContainsKey(Headers.CONTENT_LENGTH))
+                if (this.HttpHeaders.ContainsKey(Headers.CONTENT_LENGTH))
                 {
-                    var contentLength = Convert.ToInt32(HttpHeaders[Headers.CONTENT_LENGTH]);
-                    if (contentLength > MaxPostSize)
+                    var contentLength = Convert.ToInt32(this.HttpHeaders[Headers.CONTENT_LENGTH]);
+                    if (contentLength > this.MaxPostSize)
                     {
                         throw new Exception(
-                            $"POST Content-Length({contentLength}) too big for this simple server (max: {MaxPostSize})"
-                        );
+                            $"{method} Content-Length({contentLength}) too big for this simple server (max: {this.MaxPostSize})");
                     }
 
                     var buf = new byte[BUF_SIZE];
@@ -253,8 +269,8 @@ namespace PeanutButter.SimpleHTTPServer
                     ms.Seek(0, SeekOrigin.Begin);
                 }
 
-                ParseFormElementsIfRequired(ms);
-                Server.HandlePOSTRequest(this, ms);
+                this.ParseFormElementsIfRequired(ms);
+                this.Server.HandleRequestWithBody(this, ms, method);
             }
         }
 
