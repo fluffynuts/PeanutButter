@@ -9,11 +9,11 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NExpect;
+using NSubstitute;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.AutoConversion;
 using PeanutButter.DuckTyping.Exceptions;
 using PeanutButter.DuckTyping.Extensions;
-using PeanutButter.DuckTyping.Shimming;
 using PeanutButter.Utils;
 using PeanutButter.Utils.Dictionaries;
 using static PeanutButter.RandomGenerators.RandomValueGen;
@@ -358,7 +358,7 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
         }
 
         [Test]
-        public void DuckAs_ShouldNotBeConfusedByInterfaceInheritence()
+        public void DuckAs_ShouldNotBeConfusedByInterfaceInheritance()
         {
             //--------------- Arrange -------------------
             var src = new
@@ -2827,8 +2827,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             {
                 // Arrange
                 using (var tempFile = new AutoTempFile(
-                    Path.GetTempPath(),
-                    "appsettings.json"))
+                           Path.GetTempPath(),
+                           "appsettings.json"))
                 {
                     var config = CreateConfig(tempFile.Path);
                     // Act
@@ -3322,6 +3322,126 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             public interface IHasIntProp
             {
                 int IntProp { get; }
+            }
+        }
+
+        [TestFixture]
+        public class MethodDucking
+        {
+            [Test]
+            public void Simplest()
+            {
+                // Arrange
+                var actual = Substitute.For<IAddInts>()
+                    .With(o => o.Add(Arg.Any<int>(), Arg.Any<int>())
+                        .Returns(ci => (int) ci.Args()[0] + (int) ci.Args()[1])
+                    );
+                Expect(actual.Add(1, 2))
+                    .To.Equal(3);
+
+                var ducked = actual.DuckAs<IAddInts>();
+                Expect(ducked)
+                    .Not.To.Be(actual);
+                var a = GetRandomInt();
+                var b = GetRandomInt();
+                var expected = a + b;
+                // Act
+                var result = ducked.Add(a, b);
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+
+            [Test]
+            public void ShouldSelectCorrectOverloadForExactMatch()
+            {
+                // Arrange
+                var actual = new Adder();
+                Expect(actual.Add(1, 2))
+                    .To.Equal(3);
+                Expect(actual.Add("1", "2"))
+                    .To.Equal("12");
+                try
+                {
+                    var ducked = actual.DuckAs<IAddStrings>(throwOnError: true);
+                    var a = GetRandomString();
+                    var b = GetRandomString();
+                    var expected = a + b;
+                    // Act
+                    var result = ducked.Add(a, b);
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+                catch (UnDuckableException e)
+                {
+                    throw new Exception($"Duck fails:\n{string.Join("\n", e.Errors)}");
+                }
+            }
+
+            [Test]
+            public void ShouldSelectCorrectOverloadForUnorderedParameters()
+            {
+                // Arrange
+                var actual = new Adder();
+                var stringValue = GetRandomString();
+                var intValue = GetRandomInt();
+                var expected = $"{intValue}{stringValue}";
+                // Act
+                try
+                {
+                    var ducked = actual.FuzzyDuckAs<IAddStringsAndInts>(throwOnError: true);
+                    var result = ducked.Add(stringValue, intValue);
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+                catch (UnDuckableException e)
+                {
+                    throw new Exception($"Duck fails:\n{string.Join("\n", e.Errors)}");
+                }
+            }
+
+            public interface IAddInts
+            {
+                int Add(int a, int b);
+            }
+
+            public interface IAddStrings
+            {
+                string Add(string a, string b);
+            }
+
+            public interface IAddStringsAndInts
+            {
+                string Add(string a, int b);
+            }
+
+            public interface IAddIntsAndStrings
+            {
+                string Add(int a, string b);
+            }
+
+            public interface IAdder : IAddInts, IAddStrings, IAddIntsAndStrings
+            {
+            }
+
+            public class Adder : IAdder
+            {
+                public int Add(int a, int b)
+                {
+                    return a + b;
+                }
+
+                public string Add(string a, string b)
+                {
+                    return a + b;
+                }
+
+                public string Add(int a, string b)
+                {
+                    return $"{a}{b}";
+                }
             }
         }
 

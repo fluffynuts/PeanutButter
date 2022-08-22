@@ -91,7 +91,7 @@ namespace PeanutButter.DuckTyping.Extensions
             return new PropertyInfoContainer(all);
         }
 
-        internal static Dictionary<string, MethodInfo> FindMethods(this Type type)
+        internal static Dictionary<string, MethodInfo[]> FindMethods(this Type type)
         {
             lock (MethodCache)
             {
@@ -100,7 +100,7 @@ namespace PeanutButter.DuckTyping.Extensions
             }
         }
 
-        internal static Dictionary<string, MethodInfo> FindFuzzyMethods(
+        internal static Dictionary<string, MethodInfo[]> FindFuzzyMethods(
             this Type type
         )
         {
@@ -154,10 +154,12 @@ namespace PeanutButter.DuckTyping.Extensions
         }
 
         internal static bool IsSuperSetOf(
-            this Dictionary<string, MethodInfo> src,
-            Dictionary<string, MethodInfo> other)
+            this Dictionary<string, MethodInfo[]> src,
+            Dictionary<string, MethodInfo[]> other,
+            bool allowParameterOrderMismatch
+        )
         {
-            return other.All(kvp => src.HasMethodMatching(kvp.Value));
+            return other.All(kvp => src.HasMethodMatching(kvp.Value, allowParameterOrderMismatch));
         }
 
 
@@ -202,16 +204,19 @@ namespace PeanutButter.DuckTyping.Extensions
             {
                 return false;
             }
+
             if (!matchByName.PropertyType.ShouldTreatAsPrimitive())
             {
                 return false;
             }
+
             if (needle.IsReadOnly() &&
                 matchByName.CanRead &&
                 needle.PropertyType.IsAssignableFrom(matchByName.PropertyType))
             {
                 return true;
             }
+
             return MatchesTypeOrCanConvert(needle, matchByName) &&
                 matchByName.IsNoMoreRestrictiveThan(needle);
         }
@@ -257,31 +262,64 @@ namespace PeanutButter.DuckTyping.Extensions
             {
                 return false;
             }
+
             var parameters = mi.GetParameters();
             if (parameters.Length != 2)
             {
                 return false;
             }
+
             return parameters[0].ParameterType == typeof(string) &&
                 parameters[1].IsOut;
         }
 
-        internal static bool HasMethodMatching(
-            this Dictionary<string, MethodInfo> haystack,
-            MethodInfo needle
-        )
+        internal static bool HasMethodMatching(this Dictionary<string, MethodInfo[]> haystack,
+            MethodInfo[] needles,
+            bool allowParameterOrderMismatch)
         {
-            if (!haystack.TryGetValue(needle.Name, out var matchByName))
+            var needleName = needles.FirstOrDefault()?.Name;
+            if (needleName is null)
             {
                 return false;
             }
-            return matchByName.ReturnType == needle.ReturnType &&
-                matchByName.ExactlyMatchesParametersOf(needle);
+
+            if (!haystack.TryGetValue(needleName, out var matchByNames))
+            {
+                return false;
+            }
+
+            foreach (var matchByName in matchByNames)
+            {
+                foreach (var needle in needles)
+                {
+                    if (IsMethodMatch(needle, matchByName, allowParameterOrderMismatch))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
-        internal static bool ExactlyMatchesParametersOf(
+        private static bool IsMethodMatch(MethodInfo wanted,
+            MethodInfo test,
+            bool allowParameterOrderMismatch
+        )
+        {
+            if (test.ReturnType != wanted.ReturnType)
+            {
+                return false;
+            }
+
+            return test.ReturnType == wanted.ReturnType &&
+                test.MatchesParametersOf(wanted, allowParameterOrderMismatch);
+        }
+
+        internal static bool MatchesParametersOf(
             this MethodInfo src,
-            MethodInfo other
+            MethodInfo other,
+            bool allowParameterOrderMismatch
         )
         {
             var srcParameters = src.GetParameters();
@@ -290,18 +328,13 @@ namespace PeanutButter.DuckTyping.Extensions
             {
                 return false;
             }
-            for (var i = 0; i < srcParameters.Length; i++)
-            {
-                var p1 = srcParameters[i];
-                var p2 = otherParameters[i];
-                // only care about positioning and type
-                if (p1.ParameterType != p2.ParameterType)
-                {
-                    return false;
-                }
-            }
+            
+            var srcParameterTypes = srcParameters.Select(p => p.ParameterType).ToArray();
+            var otherParameterTypes = otherParameters.Select(p => p.ParameterType).ToArray();
 
-            return true;
+            return allowParameterOrderMismatch
+                ? srcParameterTypes.IsEquivalentTo(otherParameterTypes)
+                : srcParameterTypes.IsEqualTo(otherParameterTypes);
         }
 
         private static readonly IEqualityComparer<string>[] CaseInsensitiveComparers =
@@ -347,6 +380,7 @@ namespace PeanutButter.DuckTyping.Extensions
             {
                 return false;
             }
+
             string upper = null;
             string lower = null;
             foreach (var key in GetKeysOf(data))
@@ -357,6 +391,7 @@ namespace PeanutButter.DuckTyping.Extensions
                 {
                     break;
                 }
+
                 upper = null;
             }
 
@@ -437,7 +472,5 @@ namespace PeanutButter.DuckTyping.Extensions
 
             return result;
         }
-
-
     }
 }

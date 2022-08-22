@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using Imported.PeanutButter.Utils;
 
 #if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
 namespace Imported.PeanutButter.DuckTyping.Comparers
@@ -21,12 +23,12 @@ namespace PeanutButter.DuckTyping.Comparers
         /// <summary>
         /// Accurate dictionary of method information
         /// </summary>
-        public Dictionary<string, MethodInfo> MethodInfos { get; }
+        public Dictionary<string, MethodInfo[]> MethodInfos { get; }
 
         /// <summary>
         /// Approximate dictionary of method information
         /// </summary>
-        public Dictionary<string, MethodInfo> FuzzyMethodInfos { get; }
+        public Dictionary<string, MethodInfo[]> FuzzyMethodInfos { get; }
 
         /// <summary>
         /// Constructs a new instance of the MethodInfo container
@@ -36,17 +38,27 @@ namespace PeanutButter.DuckTyping.Comparers
             MethodInfo[] methodInfos
         )
         {
-            var distinct = methodInfos.Distinct(new MethodInfoComparer()).ToArray();
-            MethodInfos = distinct.ToDictionary(
-                pi => pi.Name,
-                pi => pi,
-                Comparers.NonFuzzyComparer
-            );
-            FuzzyMethodInfos = distinct.ToDictionary(
-                pi => pi.Name,
-                pi => pi,
-                Comparers.FuzzyComparer
-            );
+            MethodInfos = new Dictionary<string, MethodInfo[]>(Comparers.NonFuzzyComparer);
+            FuzzyMethodInfos = new Dictionary<string, MethodInfo[]>(Comparers.FuzzyComparer);
+            foreach (var methodInfo in methodInfos)
+            {
+                AddToArrayValue(MethodInfos, methodInfo.Name, methodInfo);
+                AddToArrayValue(FuzzyMethodInfos, methodInfo.Name, methodInfo);
+            }
+        }
+
+        private static void AddToArrayValue(
+            IDictionary<string, MethodInfo[]> dict,
+            string key,
+            MethodInfo methodInfo
+        )
+        {
+            if (!dict.TryGetValue(key, out var existing))
+            {
+                dict[key] = new[] { methodInfo };
+                return;
+            }
+            dict[key] = existing.And(methodInfo);
         }
     }
 }

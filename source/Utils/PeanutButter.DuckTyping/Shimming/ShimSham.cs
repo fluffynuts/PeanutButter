@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
@@ -49,7 +50,7 @@ namespace PeanutButter.DuckTyping.Shimming
         private static readonly Dictionary<Type, Dictionary<string, FieldInfo>> FieldInfos = new();
 
         private Dictionary<string, FieldInfo> _localFieldInfos;
-        private Dictionary<string, MethodInfo> _localMethodInfos;
+        private Dictionary<string, MethodInfo[]> _localMethodInfos;
         private Dictionary<string, PropertyInfo> _localPropertyInfos;
         private readonly Dictionary<int, object> _shimmedProperties = new();
         private readonly HashSet<int> _unshimmableProperties = new();
@@ -147,11 +148,9 @@ namespace PeanutButter.DuckTyping.Shimming
                     }
 
                     MethodInfos[wrappedType] = new MethodInfoContainer(
-                        wrappedType
-                            .GetMethods(BindingFlags.Instance | BindingFlags.Public)
-                            // TODO: handle method overloads, which this won't
-                            .Distinct(new MethodInfoComparer())
-                            .ToArray()
+                        wrappedType.GetMethods(
+                            BindingFlags.Instance | BindingFlags.Public
+                        )
                     );
                 }
             }
@@ -320,11 +319,17 @@ namespace PeanutButter.DuckTyping.Shimming
 
             // TODO: throw for correct wrapped type
             var wrappedType = _wrappedTypes[0];
-            if (!_localMethodInfos.TryGetValue(methodName, out var methodInfo))
+            if (!_localMethodInfos.TryGetValue(methodName, out var methodInfos))
             {
                 throw new MethodNotFoundException(wrappedType, methodName);
             }
 
+            var argumentTypes = arguments.Select(o => o?.GetType()).ToArray();
+            var k = Tuple.Create(methodName, argumentTypes);
+            var methodInfo = CachedMethodResolutions.FindOrAdd(
+                k,
+                () => TryFindBestParameterMatchFor(methodName, argumentTypes, methodInfos)
+            );
             if (_isFuzzy)
             {
                 arguments = AttemptToOrderCorrectly(arguments, methodInfo);
@@ -333,6 +338,56 @@ namespace PeanutButter.DuckTyping.Shimming
             // FIXME: find the correct wrapped object to invoke on
             var result = methodInfo.Invoke(_wrapped[0], arguments);
             return result;
+        }
+
+        private readonly ConcurrentDictionary<Tuple<string, Type[]>, MethodInfo> CachedMethodResolutions = new();
+
+        private MethodInfo TryFindBestParameterMatchFor(
+            string methodName,
+            Type[] argumentTypes,
+            MethodInfo[] methodInfos
+        )
+        {
+            if (methodInfos.Length == 0)
+            {
+                throw new InvalidOperationException(
+                    $"No underlying methods by name '{methodName}'"
+                );
+            }
+
+            if (methodInfos.Length == 1)
+            {
+                return methodInfos[0];
+            }
+
+            MethodInfo closeMatch = null;
+            foreach (var methodInfo in methodInfos)
+            {
+                var parameterTypes = methodInfo.GetParameters().Select(o => o.ParameterType).ToArray();
+                if (parameterTypes.Length != argumentTypes.Length)
+                {
+                    continue;
+                }
+
+                if (argumentTypes.IsEqualTo(parameterTypes))
+                {
+                    return methodInfo;
+                }
+
+                if (closeMatch is null && argumentTypes.IsEquivalentTo(parameterTypes))
+                {
+                    closeMatch = methodInfo;
+                }
+            }
+
+            if (closeMatch is not null)
+            {
+                return closeMatch; // let the caller take care of argument re-ordering
+            }
+
+            throw new InvalidOperationException(
+                $"Unable to find matching underlying method '{methodName}' with parameter types {string.Join(",", argumentTypes.Select(t => (object) t))}"
+            );
         }
 
         private object[] AttemptToOrderCorrectly(
