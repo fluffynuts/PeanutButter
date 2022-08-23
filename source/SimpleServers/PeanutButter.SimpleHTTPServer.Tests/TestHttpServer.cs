@@ -175,8 +175,11 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             public string Name { get; set; }
         }
 
-        [Test]
-        public async Task GettingPostBody()
+        [TestCase("POST")]
+        [TestCase("PUT")]
+        [TestCase("DELETE")]
+        [TestCase("PATCH")]
+        public async Task GettingRequestBody(string method)
         {
             // Arrange
             using var server = new HttpServer();
@@ -185,13 +188,14 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                 id = 1,
                 name = "moo"
             };
+            var path = $"/{method.ToLower()}";
             var expectedBody = JsonConvert.SerializeObject(poco);
             string body = null;
             PostBody bodyObject = null;
             server.AddJsonDocumentHandler(
                 (processor, stream) =>
                 {
-                    if (processor.Path != "/post")
+                    if (processor.Path != path)
                         return null;
                     body = stream.AsString();
                     bodyObject = stream.As<PostBody>();
@@ -205,10 +209,9 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             // Act
             var client = new HttpClient();
             var message = new HttpRequestMessage(
-                HttpMethod.Post,
-                server.GetFullUrlFor("/post"))
+                new HttpMethod(method),
+                server.GetFullUrlFor(path))
             {
-                Method = HttpMethod.Post,
                 Content = new ObjectContent<object>(
                     poco,
                     new JsonMediaTypeFormatter())

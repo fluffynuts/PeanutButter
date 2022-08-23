@@ -121,16 +121,21 @@ namespace PeanutButter.SimpleHTTPServer
         /// Handles the request, given an IO wrapper
         /// </summary>
         /// <param name="io"></param>
-        public void HandleRequest(TcpIoWrapper io)
+        protected void HandleRequest(TcpIoWrapper io)
         {
             if (Method.Equals(Methods.GET))
             {
-                HandleGETRequest();
+                this.HandleRequestWithoutBody(Method);
                 return;
             }
 
-            if (Method.Equals(Methods.POST))
-                HandlePOSTRequest(io.RawStream);
+            if (Method.Equals(Methods.PUT)
+                || Method.Equals(Methods.DELETE)
+                || Method.Equals(Methods.PATCH)
+                || Method.Equals(Methods.POST))
+            {
+                this.HandleRequestWithBody(io.RawStream, Method);
+            }
         }
 
         /// <summary>
@@ -204,18 +209,14 @@ namespace PeanutButter.SimpleHTTPServer
         }
 
         /// <summary>
-        /// Handles this request as a GET
+        /// Handles a request that does not contain a body (as of the HTTP spec).
         /// </summary>
-        public void HandleGETRequest()
+        private void HandleRequestWithoutBody(string method)
         {
-            Server.HandleGETRequest(this);
+            Server.HandleRequestWithoutBody(this, method);
         }
 
-        /// <summary>
-        /// Handles this request as a POST
-        /// </summary>
-        /// <param name="stream"></param>
-        public void HandlePOSTRequest(Stream stream)
+        private void HandleRequestWithBody(Stream stream, string method)
         {
             using (var ms = new MemoryStream())
             {
@@ -225,8 +226,7 @@ namespace PeanutButter.SimpleHTTPServer
                     if (contentLength > MaxPostSize)
                     {
                         throw new Exception(
-                            $"POST Content-Length({contentLength}) too big for this simple server (max: {MaxPostSize})"
-                        );
+                            $"{method} Content-Length({contentLength}) too big for this simple server (max: {MaxPostSize})");
                     }
 
                     var buf = new byte[BUF_SIZE];
@@ -254,7 +254,7 @@ namespace PeanutButter.SimpleHTTPServer
                 }
 
                 ParseFormElementsIfRequired(ms);
-                Server.HandlePOSTRequest(this, ms);
+                Server.HandleRequestWithBody(this, ms, method);
             }
         }
 
