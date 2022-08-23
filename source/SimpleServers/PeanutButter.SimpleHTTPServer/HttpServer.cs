@@ -351,13 +351,6 @@ namespace PeanutButter.SimpleHTTPServer
             });
         }
 
-        /// <inheritdoc />
-        public override void HandleGETRequest(HttpProcessor p)
-        {
-            Log("Incoming GET request: {0}", p.FullUrl);
-            InvokeHandlersWith(p, null);
-        }
-
         private void InvokeHandlersWith(HttpProcessor p, Stream stream)
         {
             var handled = false;
@@ -398,10 +391,10 @@ namespace PeanutButter.SimpleHTTPServer
         }
 
         /// <inheritdoc />
-        public override void HandlePOSTRequest(HttpProcessor p, Stream inputData)
+        public override void HandleRequestWithoutBody(HttpProcessor p, string method)
         {
-            Log("Incoming POST request: {0}", p.FullUrl);
-            InvokeHandlersWith(p, inputData);
+            Log($"Incoming {method} request: {p.FullUrl}");
+            InvokeHandlersWith(p, null);
         }
 
         public override void HandleRequestWithBody(HttpProcessor p, MemoryStream inputData, string method)

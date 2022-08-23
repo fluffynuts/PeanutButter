@@ -45,17 +45,11 @@ namespace PeanutButter.SimpleHTTPServer
         }
 
         /// <summary>
-        /// Handles a GET request
+        /// Handles a request that does not contain a body (as of the HTTP spec).
         /// </summary>
-        /// <param name="p"></param>
-        public abstract void HandleGETRequest(HttpProcessor p);
-
-        /// <summary>
-        /// Handles a POST request
-        /// </summary>
-        /// <param name="p"></param>
-        /// <param name="inputData"></param>
-        public abstract void HandlePOSTRequest(HttpProcessor p, Stream inputData);
+        /// <param name="p">The HTTP processor.</param>
+        /// <param name="method">The HTTP method.</param>
+        public abstract void HandleRequestWithoutBody(HttpProcessor p, string method);
 
         /// <summary>
         /// Handles a general request with a request body.

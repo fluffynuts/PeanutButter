@@ -121,26 +121,20 @@ namespace PeanutButter.SimpleHTTPServer
         /// Handles the request, given an IO wrapper
         /// </summary>
         /// <param name="io"></param>
-        public void HandleRequest(TcpIoWrapper io)
+        protected void HandleRequest(TcpIoWrapper io)
         {
             if (Method.Equals(Methods.GET))
             {
-                HandleGETRequest();
-                return;
-            }
-
-            if (Method.Equals(Methods.POST))
-            {
-                HandlePOSTRequest(io.RawStream);
+                this.HandleRequestWithoutBody(Method);
                 return;
             }
 
             if (Method.Equals(Methods.PUT)
                 || Method.Equals(Methods.DELETE)
-                || Method.Equals(Methods.PATCH))
+                || Method.Equals(Methods.PATCH)
+                || Method.Equals(Methods.POST))
             {
                 this.HandleRequestWithBody(io.RawStream, Method);
-                return;
             }
         }
 
@@ -215,20 +209,11 @@ namespace PeanutButter.SimpleHTTPServer
         }
 
         /// <summary>
-        /// Handles this request as a GET
+        /// Handles a request that does not contain a body (as of the HTTP spec).
         /// </summary>
-        public void HandleGETRequest()
+        private void HandleRequestWithoutBody(string method)
         {
-            Server.HandleGETRequest(this);
-        }
-
-        /// <summary>
-        /// Handles this request as a POST
-        /// </summary>
-        /// <param name="stream"></param>
-        public void HandlePOSTRequest(Stream stream)
-        {
-            this.HandleRequestWithBody(stream, Methods.POST);
+            Server.HandleRequestWithoutBody(this, method);
         }
 
         private void HandleRequestWithBody(Stream stream, string method)
