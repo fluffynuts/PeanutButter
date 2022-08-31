@@ -1,4 +1,8 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reflection;
 using NExpect;
 using NUnit.Framework;
@@ -99,8 +103,104 @@ namespace PeanutButter.Utils.Tests
                 Expect(sut.CanWrite)
                     .To.Be.True();
             }
+
+            [TestFixture]
+            public class GetValueAt
+            {
+                [Test]
+                public void ShouldBeAbleToReadArrayElement()
+                {
+                    // Arrange
+                    var sut = Create(NumbersArrayProp);
+                    var idx = GetRandomInt(0, 2);
+                    var data = new SomeClass();
+                    // Act
+                    var result = sut.GetValueAt(data, idx);
+                    // Assert
+                    Expect(result)
+                        .To.Equal(data.NumbersArrayProp[idx]);
+                }
+
+                [Test]
+                public void ShouldBeAbleToReadListElement()
+                {
+                    // Arrange
+                    var sut = Create(NumbersListProp);
+                    var idx = GetRandomInt(0, 2);
+                    var data = new SomeClass();
+                    // Act
+                    var result = sut.GetValueAt(data, idx);
+                    // Assert
+                    Expect(result)
+                        .To.Equal(data.NumbersListProp[idx]);
+                }
+
+                [Test]
+                public void ShouldBeAbleToReadEnumerable()
+                {
+                    // Arrange
+                    var sut = Create(NumbersEnumerableProp);
+                    var idx = GetRandomInt(0, 2);
+                    var data = new SomeClass();
+                    // Act
+                    var result = sut.GetValueAt(data, idx);
+                    // Assert
+                    Expect(result)
+                        .To.Equal(data.NumbersEnumerableProp.Skip(idx).First());
+                }
+
+                [Test]
+                public void ShouldBeAbleToIndexIntoDictionary()
+                {
+                    // Arrange
+                    var sut = Create(StringIntDictionaryProp);
+                    var data = new SomeClass();
+                    var idx = GetRandomFrom(data.StringIntDictionaryProp.Keys);
+                    var expected = data.StringIntDictionaryProp[idx];
+                    // Act
+                    var result = sut.GetValueAt(data, idx);
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
+
+            [TestFixture]
+            public class SetValueAt
+            {
+                [Test]
+                public void ShouldBeAbleToSetArrayValue()
+                {
+                    // Arrange
+                    var sut = Create(NumbersArrayProp);
+                    var data = new SomeClass();
+                    var expected = GetRandomInt(10, 20);
+                    var idx = GetRandomInt(0, 2);
+                    // Act
+                    sut.SetValueAt(data, expected, idx);
+                    // Assert
+                    Expect(data.NumbersArrayProp[idx])
+                        .To.Equal(expected);
+                }
+
+                [Test]
+                public void ShouldBeAbleToSetDictionaryValue()
+                {
+                    // Arrange
+                    var sut = Create(StringIntDictionaryProp);
+                    var data = new SomeClass();
+                    var key = GetRandomFrom(data.StringIntDictionaryProp.Keys);
+                    var expected = GetRandomInt(100, 200);
+                    // Act
+                    sut.SetValueAt(data, expected, key);
+                    // Assert
+                    Expect(data.StringIntDictionaryProp[key])
+                        .To.Equal(expected);
+                }
+            }
         }
-        
+
+
         [TestFixture]
         public class WhenConstructedWithFieldInfo
         {
@@ -162,6 +262,102 @@ namespace PeanutButter.Utils.Tests
                 Expect(sut.CanWrite)
                     .To.Be.True();
             }
+            
+            
+            [TestFixture]
+            public class GetValueAt
+            {
+                [Test]
+                public void ShouldBeAbleToReadArrayElement()
+                {
+                    // Arrange
+                    var sut = Create(NumbersArrayField);
+                    var idx = GetRandomInt(0, 2);
+                    var data = new SomeClass();
+                    // Act
+                    var result = sut.GetValueAt(data, idx);
+                    // Assert
+                    Expect(result)
+                        .To.Equal(data.NumbersArrayField[idx]);
+                }
+
+                [Test]
+                public void ShouldBeAbleToReadListElement()
+                {
+                    // Arrange
+                    var sut = Create(NumbersListField);
+                    var idx = GetRandomInt(0, 2);
+                    var data = new SomeClass();
+                    // Act
+                    var result = sut.GetValueAt(data, idx);
+                    // Assert
+                    Expect(result)
+                        .To.Equal(data.NumbersListField[idx]);
+                }
+
+                [Test]
+                public void ShouldBeAbleToReadEnumerable()
+                {
+                    // Arrange
+                    var sut = Create(NumbersEnumerableField);
+                    var idx = GetRandomInt(0, 2);
+                    var data = new SomeClass();
+                    // Act
+                    var result = sut.GetValueAt(data, idx);
+                    // Assert
+                    Expect(result)
+                        .To.Equal(data.NumbersEnumerableField.Skip(idx).First());
+                }
+
+                [Test]
+                public void ShouldBeAbleToIndexIntoDictionary()
+                {
+                    // Arrange
+                    var sut = Create(StringIntDictionaryField);
+                    var data = new SomeClass();
+                    var idx = GetRandomFrom(data.StringIntDictionaryField.Keys);
+                    var expected = data.StringIntDictionaryField[idx];
+                    // Act
+                    var result = sut.GetValueAt(data, idx);
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
+            
+            [TestFixture]
+            public class SetValueAt
+            {
+                [Test]
+                public void ShouldBeAbleToSetArrayValue()
+                {
+                    // Arrange
+                    var sut = Create(NumbersArrayField);
+                    var data = new SomeClass();
+                    var expected = GetRandomInt(10, 20);
+                    var idx = GetRandomInt(0, 2);
+                    // Act
+                    sut.SetValueAt(data, expected, idx);
+                    // Assert
+                    Expect(data.NumbersArrayField[idx])
+                        .To.Equal(expected);
+                }
+
+                [Test]
+                public void ShouldBeAbleToSetDictionaryValue()
+                {
+                    // Arrange
+                    var sut = Create(StringIntDictionaryField);
+                    var data = new SomeClass();
+                    var key = GetRandomFrom(data.StringIntDictionaryField.Keys);
+                    var expected = GetRandomInt(100, 200);
+                    // Act
+                    sut.SetValueAt(data, expected, key);
+                    // Assert
+                    Expect(data.StringIntDictionaryField[key])
+                        .To.Equal(expected);
+                }
+            }
         }
 
         public class SomeClass
@@ -178,6 +374,53 @@ namespace PeanutButter.Utils.Tests
             }
 
             public int IntField;
+
+            public int[] NumbersArrayProp { get; set; } = { 1, 2, 3 };
+            public List<int> NumbersListProp { get; set; } = new(new[] { 4, 5, 6 });
+
+            public IEnumerable<int> NumbersEnumerableProp { get; } =
+                new SomeEnumerable<int>(new[] { 7, 8, 9 });
+
+            public Dictionary<string, int> StringIntDictionaryProp { get; }
+                = new()
+                {
+                    ["one"] = 1,
+                    ["two"] = 2,
+                    ["three"] = 3
+                };
+            public int[] NumbersArrayField = { 1, 2, 3 };
+            public List<int> NumbersListField = new(new[] { 4, 5, 6 });
+
+            public IEnumerable<int> NumbersEnumerableField =
+                new SomeEnumerable<int>(new[] { 7, 8, 9 });
+
+            public Dictionary<string, int> StringIntDictionaryField
+                = new()
+                {
+                    ["one"] = 1,
+                    ["two"] = 2,
+                    ["three"] = 3
+                };
+        }
+
+        public class SomeEnumerable<T> : IEnumerable<T>
+        {
+            private readonly IEnumerable<T> _actual;
+
+            public SomeEnumerable(IEnumerable<T> actual)
+            {
+                _actual = actual;
+            }
+
+            public IEnumerator<T> GetEnumerator()
+            {
+                return _actual.GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
         }
 
         private static readonly Type SomeClassType = typeof(SomeClass);
@@ -194,11 +437,43 @@ namespace PeanutButter.Utils.Tests
             nameof(SomeClass.WriteOnlyProperty)
         );
 
-        private static readonly PropertyInfo[] Props = 
+        private static readonly PropertyInfo[] Props =
             { ReadWriteIntProp, ReadOnlyIntProp, WriteOnlyIntProp };
 
         private static readonly FieldInfo IntField = SomeClassType.GetField(
             nameof(SomeClass.IntField)
+        );
+
+        private static readonly PropertyInfo NumbersArrayProp = SomeClassType.GetProperty(
+            nameof(SomeClass.NumbersArrayProp)
+        );
+
+        private static readonly PropertyInfo NumbersListProp = SomeClassType.GetProperty(
+            nameof(SomeClass.NumbersListProp)
+        );
+
+        private static readonly PropertyInfo NumbersEnumerableProp = SomeClassType.GetProperty(
+            nameof(SomeClass.NumbersEnumerableProp)
+        );
+
+        private static readonly PropertyInfo StringIntDictionaryProp = SomeClassType.GetProperty(
+            nameof(SomeClass.StringIntDictionaryProp)
+        );
+
+        private static readonly FieldInfo NumbersArrayField = SomeClassType.GetField(
+            nameof(SomeClass.NumbersArrayField)
+        );
+
+        private static readonly FieldInfo NumbersListField = SomeClassType.GetField(
+            nameof(SomeClass.NumbersListField)
+        );
+
+        private static readonly FieldInfo NumbersEnumerableField = SomeClassType.GetField(
+            nameof(SomeClass.NumbersEnumerableField)
+        );
+
+        private static readonly FieldInfo StringIntDictionaryField = SomeClassType.GetField(
+            nameof(SomeClass.StringIntDictionaryField)
         );
 
         private static PropertyOrField Create(

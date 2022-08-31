@@ -790,6 +790,16 @@ namespace PeanutButter.Utils.Dictionaries
             SetValue(host, value);
         }
 
+        public void SetValueAt(object host, object value, object index)
+        {
+            throw new NotImplementedException("Not implemented for fake props");
+        }
+
+        public object GetValueAt(object host, object index)
+        {
+            throw new NotImplementedException("Not implemented for fake props");
+        }
+
         public FakeProperty(
             string name,
             Type type,

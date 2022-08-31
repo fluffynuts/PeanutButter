@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq;
@@ -39,9 +40,9 @@ namespace PeanutButter.Utils
 #if BUILD_PEANUTBUTTER_INTERNAL
     internal
 #else
-    public 
+    public
 #endif
-interface IPropertyOrField
+        interface IPropertyOrField
     {
         /// <summary>
         /// Name of the property or field
@@ -115,6 +116,22 @@ interface IPropertyOrField
         /// <param name="value"></param>
         /// <typeparam name="T"></typeparam>
         void SetValue<T>(ref T host, object value);
+
+        /// <summary>
+        /// Sets the value in a collection at that index, if possible
+        /// </summary>
+        /// <param name="host"></param>
+        /// <param name="value"></param>
+        /// <param name="index"></param>
+        void SetValueAt(object host, object value, object index);
+
+        /// <summary>
+        /// Get the value at the provided index into a collection
+        /// </summary>
+        /// <param name="host"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        object GetValueAt(object host, object index);
     }
 
     /// <summary>
@@ -254,6 +271,7 @@ interface IPropertyOrField
         public int AncestralDistance { get; }
 
         private readonly Func<object, object> _getValue;
+        private readonly Func<object, object[], object> _getValueIndexed;
         private readonly Action<object, object> _setValue;
 
         /// <summary>
@@ -283,7 +301,10 @@ interface IPropertyOrField
                 throw new ArgumentNullException(nameof(prop));
             }
 
+            PropertyInfo = prop;
+
             _getValue = prop.GetValue;
+            _getValueIndexed = prop.GetValue;
             _setValue = prop.SetValue;
 
             Name = prop.Name;
@@ -295,6 +316,11 @@ interface IPropertyOrField
             HostingType = hostingType ?? throw new ArgumentNullException(nameof(hostingType));
             AncestralDistance = CalculateAncestralDistance();
         }
+
+        /// <summary>
+        ///  the provided prop
+        /// </summary>
+        public PropertyInfo PropertyInfo { get; }
 
         /// <summary>
         /// Implicitly converts a PropertyInfo object to a PropertyOrField
@@ -363,6 +389,46 @@ interface IPropertyOrField
         }
 
         /// <inheritdoc />
+        public object GetValueAt(object host, object index)
+        {
+            if (index is null)
+            {
+                throw new InvalidOperationException("Index may not be null");
+            }
+
+            var collection = _getValue(host);
+            if (collection is IList list)
+            {
+                return list[RequireIntegerIndex(index)];
+            }
+
+            if (collection is IDictionary dict)
+            {
+                return dict[index];
+            }
+
+            var wrapper = new EnumerableWrapper(collection);
+            if (wrapper.IsValid)
+            {
+                var i = 0;
+                var intIndex = RequireIntegerIndex(index);
+                foreach (var item in wrapper)
+                {
+                    if (i++ == intIndex)
+                    {
+                        return item;
+                    }
+                }
+
+                throw new IndexOutOfRangeException();
+            }
+
+            throw new InvalidOperationException(
+                $"Unable to index into '{Name}'"
+            );
+        }
+
+        /// <inheritdoc />
         public bool TryGetValue(object host, out object value, out Exception exception)
         {
             try
@@ -403,14 +469,54 @@ interface IPropertyOrField
             _setValue(host, castValue);
         }
 
+        /// <inheritdoc />
+        public void SetValueAt(object host, object value, object index)
+        {
+            if (index is null)
+            {
+                throw new InvalidOperationException("Index may not be null");
+            }
+
+            var collection = _getValue(host);
+            if (collection is IList list)
+            {
+                list[RequireIntegerIndex(index)] = value;
+                return;
+            }
+
+            if (collection is IDictionary dict)
+            {
+                dict[index] = value;
+                return;
+            }
+
+            throw new NotSupportedException(
+                $"Setting indexed values on items of type '{Type}' is not supported"
+            );
+        }
+
+        private int RequireIntegerIndex(object idx)
+        {
+            try
+            {
+                return (int) idx;
+            }
+            catch (InvalidCastException)
+            {
+                throw new NotSupportedException(
+                    $"Indexing int '{Name}' requires an integer index"
+                );
+            }
+        }
+
 
         /// <inheritdoc />
         public void SetValue<T>(ref T host, object value)
         {
-            var asObject = (object)host;
+            var asObject = (object) host;
             _setValue(asObject, value);
             // required for referenced by-val sets to work (ie struct values)
-            host = (T)asObject;
+            host = (T) asObject;
         }
 
         private int CalculateAncestralDistance()

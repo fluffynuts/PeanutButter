@@ -144,27 +144,12 @@ namespace PeanutButter.Utils
         /// <param name="otherCollection">Collection to compare with</param>
         /// <typeparam name="T">Item type of the collections</typeparam>
         /// <returns>True if all values in the source collection are found in the target collection</returns>
+        [Obsolete("This redirects to IsEquivalentTo and will be removed at some point")]
         public static bool IsSameAs<T>(
             this IEnumerable<T> collection,
             IEnumerable<T> otherCollection)
         {
-            if (collection == null && otherCollection == null)
-            {
-                return true;
-            }
-
-            if (collection == null || otherCollection == null)
-            {
-                return false;
-            }
-
-            var source = collection.ToArray();
-            var target = otherCollection.ToArray();
-            return source.Length == target.Length &&
-                source.Aggregate(
-                    true,
-                    (state, item) => state && target.Contains(item)
-                );
+            return collection.IsEquivalentTo(otherCollection);
         }
 
         /// <summary>
@@ -214,6 +199,11 @@ namespace PeanutButter.Utils
         /// <returns>True if the collection is null or has no items; false otherwise.</returns>
         public static bool IsEmpty<T>(this IEnumerable<T> collection)
         {
+            if (collection is T[] array)
+            {
+                return array.Length == 0;
+            }
+
             return !collection?.Any() ?? true;
         }
 
@@ -1164,6 +1154,44 @@ namespace PeanutButter.Utils
             }
 
             return leftValue.Equals(rightValue);
+        }
+
+        /// <summary>
+        /// null-safe shorthand for .Select(...).ToArray()
+        /// - will return an empty array for a null input
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="transform"></param>
+        /// <typeparam name="TResult"></typeparam>
+        /// <typeparam name="TSource"></typeparam>
+        /// <returns></returns>
+        public static TResult[] Map<TResult, TSource>(
+            this IEnumerable<TSource> collection,
+            Func<TSource, TResult> transform
+        )
+        {
+            return collection
+                ?.Select(transform)
+                .ToArray() ?? Array.Empty<TResult>();
+        }
+
+        /// <summary>
+        /// null-safe shorthand for .Select(...).ToList()
+        /// - will return an empty array for a null input
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="transform"></param>
+        /// <typeparam name="TResult"></typeparam>
+        /// <typeparam name="TSource"></typeparam>
+        /// <returns></returns>
+        public static IList<TResult> MapList<TResult, TSource>(
+            this IEnumerable<TSource> collection,
+            Func<TSource, TResult> transform
+        )
+        {
+            return collection
+                ?.Select(transform)
+                .ToList() ?? new List<TResult>();
         }
     }
 }

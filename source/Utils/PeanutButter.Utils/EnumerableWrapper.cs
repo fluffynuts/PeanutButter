@@ -236,9 +236,20 @@ namespace PeanutButter.Utils
                 return;
             }
 
-            var enumeratorReturnType = _getEnumeratorMethod.ReturnType;
-            _currentPropInfo = enumeratorReturnType.GetProperty(nameof(Current));
-            var methods = enumeratorReturnType.GetMethods(PublicInstance);
+            var enumeratorReturnTypes = new List<Type> { _getEnumeratorMethod.ReturnType };
+            if (enumeratorReturnTypes[0].IsInterface)
+            {
+                enumeratorReturnTypes.AddRange(enumeratorReturnTypes[0].GetAllImplementedInterfaces());
+            }
+
+            var currentProps = enumeratorReturnTypes.SelectMany(
+                t => t.GetProperties().Where(pi => pi.Name == nameof(Current))
+            ).ToArray();
+            _currentPropInfo = 
+                currentProps.FirstOrDefault(pi => pi.PropertyType == typeof(object))
+                ?? currentProps.FirstOrDefault();
+            var methods = enumeratorReturnTypes.SelectMany(t => t.GetMethods(PublicInstance))
+                .ToArray();
             _moveNextMethod = methods.FirstOrDefault(
                 mi => mi.Name == nameof(MoveNext) &&
                     mi.ReturnType == typeof(bool) &&

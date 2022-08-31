@@ -18,155 +18,226 @@ namespace PeanutButter.Utils.Tests
     [TestFixture]
     public class TestExtensionsForIEnumerables
     {
-        [Test]
-        public void ForEach_OperatingOnNullCollection_ShouldThrowArgumentNullException()
+        [TestFixture]
+        public class ForEach
         {
-            // This may seem pointless, but bear with me:
-            //  I actually wanted ForEach to just do nothing when given a null collection,
-            //  however System.Collections.Generic.List<T> has its own ForEach signature
-            //  which doesn't even throw a valid ArgumentNullException -- it just barfs
-            //  with a NullReferenceException. So if I made mine different, it would be
-            //  inconsistent and surprising. And extension methods can't override actual
-            //  methods. So, poo. This test then serves as documentation that I thought
-            //  about it and chose consistency over function. You can, however, use
-            //  the helper EmptyIfNull() to get the nicer behaviour:
-            //  int[] foo = null;
-            //  foo.EmptyIfNull().ForEach(i => {});
-            //---------------Set up test pack-------------------
-            int[] src = null;
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            Expect(() => src.ForEach(i =>
+            [TestFixture]
+            public class OperatingOnNull
             {
-            })).To.Throw<NullReferenceException>();
+                [Test]
+                public void ShouldThrowArgumentNullException()
+                {
+                    // This may seem pointless, but bear with me:
+                    //  I actually wanted ForEach to just do nothing when given a null collection,
+                    //  however System.Collections.Generic.List<T> has its own ForEach signature
+                    //  which doesn't even throw a valid ArgumentNullException -- it just barfs
+                    //  with a NullReferenceException. So if I made mine different, it would be
+                    //  inconsistent and surprising. And extension methods can't override actual
+                    //  methods. So, poo. This test then serves as documentation that I thought
+                    //  about it and chose consistency over function. You can, however, use
+                    //  the helper EmptyIfNull() to get the nicer behaviour:
+                    //  int[] foo = null;
+                    //  foo.EmptyIfNull().ForEach(i => {});
+                    //---------------Set up test pack-------------------
+                    int[] src = null;
 
-            //---------------Test Result -----------------------
-        }
+                    //---------------Assert Precondition----------------
 
-        [Test]
-        public void ForEach_OperatingOnCollection_ShouldRunActionOnEachElement()
-        {
-            //---------------Set up test pack-------------------
-            var result = new List<int>();
-            var src = new[]
+                    //---------------Execute Test ----------------------
+                    Expect(() => src.ForEach(i =>
+                    {
+                    })).To.Throw<NullReferenceException>();
+
+                    //---------------Test Result -----------------------
+                }
+            }
+
+            [TestFixture]
+            public class OperatingOnCollection
             {
-                GetRandomInt(),
-                GetRandomInt(),
-                GetRandomInt()
-            };
+                [Test]
+                public void ShouldRunActionOnEachElement()
+                {
+                    //---------------Set up test pack-------------------
+                    var result = new List<int>();
+                    var src = new[]
+                    {
+                        GetRandomInt(),
+                        GetRandomInt(),
+                        GetRandomInt()
+                    };
 
-            //---------------Assert Precondition----------------
+                    //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            src.ForEach(item => result.Add(item));
+                    //---------------Execute Test ----------------------
+                    src.ForEach(item => result.Add(item));
 
-            //---------------Test Result -----------------------
-            Expect(result)
-                .To.Equal(src);
+                    //---------------Test Result -----------------------
+                    Expect(result)
+                        .To.Equal(src);
+                }
+            }
+
+            [TestFixture]
+            public class GivenActionTakingIndex
+            {
+                [Test]
+                public void ShouldPopulateSecondParameterWithIndex()
+                {
+                    //---------------Set up test pack-------------------
+                    var input = GetRandomArray<int>(5, 15);
+                    var collectedIndexes = new List<int>();
+                    var collectedItems = new List<int>();
+                    var expectedIndexes = input.Select((o, i) => i).ToList();
+
+                    //---------------Assert Precondition----------------
+
+                    //---------------Execute Test ----------------------
+                    input.ForEach((item, idx) =>
+                    {
+                        collectedItems.Add(item);
+                        collectedIndexes.Add(idx);
+                    });
+
+                    //---------------Test Result -----------------------
+                    Expect(collectedItems)
+                        .To.Equal(input);
+                    Expect(collectedIndexes)
+                        .To.Equal(expectedIndexes);
+                }
+            }
         }
 
-        [Test]
-        public void IsSameAs_OperatingOnCollection_WhenBothAreNull_ShouldReturnTrue()
+        [TestFixture]
+        public class IsSameAs
         {
-            //---------------Set up test pack-------------------
-            List<int> first = null;
-            List<int> second = null;
+#pragma warning disable CS0618
+            [TestFixture]
+            public class WhenBothAreNull
+            {
+                [Test]
+                public void ShouldReturnTrue()
+                {
+                    //---------------Set up test pack-------------------
+                    List<int> first = null;
+                    List<int> second = null;
 
-            //---------------Assert Precondition----------------
+                    //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var result = first.IsSameAs(second);
+                    //---------------Execute Test ----------------------
+                    var result = first.IsSameAs(second);
 
-            //---------------Test Result -----------------------
-            Expect(result)
-                .To.Be.True();
-        }
+                    //---------------Test Result -----------------------
+                    Expect(result)
+                        .To.Be.True();
+                }
+            }
 
-        [Test]
-        public void IsSameAs_OperatingOnCollection_WhenOneIsNull_ShouldReturnFalse()
-        {
-            //---------------Set up test pack-------------------
-            List<int> first = null;
-            var second = new List<int>();
+            [TestFixture]
+            public class WhenOneIsNull
+            {
+                [Test]
+                public void ShouldReturnFalse()
+                {
+                    //---------------Set up test pack-------------------
+                    List<int> first = null;
+                    var second = new List<int>();
 
-            //---------------Assert Precondition----------------
+                    //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var result = first.IsSameAs(second);
+                    //---------------Execute Test ----------------------
+                    var result = first.IsSameAs(second);
 
-            //---------------Test Result -----------------------
-            Expect(result)
-                .To.Be.False();
-        }
+                    //---------------Test Result -----------------------
+                    Expect(result)
+                        .To.Be.False();
+                }
+            }
 
-        [Test]
-        public void IsSameAs_OperatingOnCollection_WhenBothAreEmpty_ShouldReturnTrue()
-        {
-            //---------------Set up test pack-------------------
-            var first = new int[] { };
-            var second = new List<int>();
+            [TestFixture]
+            public class WhenBothAreEmpty
+            {
+                [Test]
+                public void ShouldReturnTrue()
+                {
+                    //---------------Set up test pack-------------------
+                    var first = new int[] { };
+                    var second = new List<int>();
 
-            //---------------Assert Precondition----------------
+                    //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var result = first.IsSameAs(second);
+                    //---------------Execute Test ----------------------
+                    var result = first.IsSameAs(second);
 
-            //---------------Test Result -----------------------
-            Expect(result)
-                .To.Be.True();
-        }
+                    //---------------Test Result -----------------------
+                    Expect(result)
+                        .To.Be.True();
+                }
+            }
 
-        [Test]
-        public void IsSameAs_OperatingOnCollection_WhenBothContainSameElements_ShouldReturnTrue()
-        {
-            //---------------Set up test pack-------------------
-            var first = new[] { 1 };
-            var second = new List<int>(new[] { 1 });
+            [TestFixture]
+            public class WhenBothContainSameElementsInOrder
+            {
+                [Test]
+                public void ShouldReturnTrue()
+                {
+                    //---------------Set up test pack-------------------
+                    var first = new[] { 1, 2 };
+                    var second = new List<int>(new[] { 1, 2 });
 
-            //---------------Assert Precondition----------------
+                    //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var result = first.IsSameAs(second);
+                    //---------------Execute Test ----------------------
+                    var result = first.IsSameAs(second);
 
-            //---------------Test Result -----------------------
-            Expect(result)
-                .To.Be.True();
-        }
+                    //---------------Test Result -----------------------
+                    Expect(result)
+                        .To.Be.True();
+                }
+            }
 
-        [Test]
-        public void IsSameAs_OperatingOnCollection_WhenBothContainSameElementsInDifferentOrder_ShouldReturnTrue()
-        {
-            //---------------Set up test pack-------------------
-            var first = new[] { 1, 2 };
-            var second = new List<int>(new[] { 2, 1 });
+            [TestFixture]
+            public class WhenBothContainSameElementsOutOfOrder
+            {
+                [Test]
+                public void ShouldReturnTrue()
+                {
+                    //---------------Set up test pack-------------------
+                    var first = new[] { 1, 2 };
+                    var second = new List<int>(new[] { 2, 1 });
 
-            //---------------Assert Precondition----------------
+                    //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var result = first.IsSameAs(second);
+                    //---------------Execute Test ----------------------
+                    var result = first.IsSameAs(second);
 
-            //---------------Test Result -----------------------
-            Expect(result)
-                .To.Be.True();
-        }
+                    //---------------Test Result -----------------------
+                    Expect(result)
+                        .To.Be.True();
+                }
+            }
 
-        [Test]
-        public void IsSameAs_OperatingOnCollection_WhenBothContainDifferentElements_ShouldReturnFalse()
-        {
-            //---------------Set up test pack-------------------
-            var first = new[] { 1 };
-            var second = new List<int>(new[] { 2, 1 });
+            [TestFixture]
+            public class WhenBothContainDifferentElements
+            {
+                [Test]
+                public void ShouldReturnFalse()
+                {
+                    //---------------Set up test pack-------------------
+                    var first = new[] { 1 };
+                    var second = new List<int>(new[] { 2, 1 });
 
-            //---------------Assert Precondition----------------
+                    //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var result = first.IsSameAs(second);
+                    //---------------Execute Test ----------------------
+                    var result = first.IsSameAs(second);
 
-            //---------------Test Result -----------------------
-            Expect(result)
-                .To.Be.False();
+                    //---------------Test Result -----------------------
+                    Expect(result)
+                        .To.Be.False();
+                }
+            }
+#pragma warning restore CS0618
         }
 
         [TestFixture]
@@ -519,272 +590,347 @@ namespace PeanutButter.Utils.Tests
             }
         }
 
-        [Test]
-        public void ButNot_OperatingOnArrayOfType_ShouldReturnNewArrayWithAddedItems()
+        [TestFixture]
+        public class ButNot
         {
-            //---------------Set up test pack-------------------
-            var src = new[] { 1, 2, 3 };
+            [Test]
+            public void ShouldReturnNewArrayWithoutRemovedItems()
+            {
+                //---------------Set up test pack-------------------
+                var src = new[] { 1, 2, 3 };
 
-            //---------------Assert Precondition----------------
+                //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var result = src.ButNot(2);
+                //---------------Execute Test ----------------------
+                var result = src.ButNot(2);
 
-            //---------------Test Result -----------------------
-            Expect(result)
-                .To.Equal(new[] { 1, 3 });
+                //---------------Test Result -----------------------
+                Expect(result)
+                    .To.Equal(new[] { 1, 3 });
+            }
         }
 
-        [Test]
-        public void Flatten_GivenEmptyCollection_ShouldReturnEmptyCollection()
+        [TestFixture]
+        public class Flatten
         {
-            //---------------Set up test pack-------------------
-            var input = new List<List<int>>();
+            [TestFixture]
+            public class OperatingOnEmptyCollection
+            {
+                [Test]
+                public void ShouldReturnEmptyCollection()
+                {
+                    //---------------Set up test pack-------------------
+                    var input = new List<List<int>>();
 
-            //---------------Assert Precondition----------------
+                    //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var result = input.Flatten();
+                    //---------------Execute Test ----------------------
+                    var result = input.Flatten();
 
-            //---------------Test Result -----------------------
-            Expect(result)
-                .To.Be.Empty();
+                    //---------------Test Result -----------------------
+                    Expect(result)
+                        .To.Be.Empty();
+                }
+            }
+
+            [TestFixture]
+            public class WhenOneItemInSubCollection
+            {
+                [Test]
+                public void ShouldReturnFlattened()
+                {
+                    //---------------Set up test pack-------------------
+                    var input = new List<IEnumerable<int>>();
+                    var expected = GetRandomArray<int>(1, 1);
+                    input.Add(expected);
+
+                    //---------------Assert Precondition----------------
+
+                    //---------------Execute Test ----------------------
+                    var result = input.Flatten();
+
+                    //---------------Test Result -----------------------
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
+
+            [TestFixture]
+            public class WhenMultipleItemsInSubCollections
+            {
+                [Test]
+                public void ShouldReturnFlattened()
+                {
+                    //---------------Set up test pack-------------------
+                    var input = new List<IEnumerable<int>>();
+                    var part1 = GetRandomArray<int>();
+                    var part2 = GetRandomArray<int>();
+                    var part3 = GetRandomArray<int>();
+                    var expected = new List<int>();
+                    expected.AddRange(part1);
+                    expected.AddRange(part2);
+                    expected.AddRange(part3);
+                    input.AddRange(new[] { part1, part2, part3 });
+
+                    //---------------Assert Precondition----------------
+
+                    //---------------Execute Test ----------------------
+                    var result = input.Flatten();
+
+                    //---------------Test Result -----------------------
+                    Expect(result)
+                        .To.Be.Equivalent.To(expected);
+                }
+            }
         }
 
-        [Test]
-        public void Flatten_GivenCollectionWithOneItemInSubCollection_ShouldReturnFlattened()
+        [TestFixture]
+        public class Second
         {
-            //---------------Set up test pack-------------------
-            var input = new List<IEnumerable<int>>();
-            var expected = GetRandomArray<int>(1, 1);
-            input.Add(expected);
+            [TestFixture]
+            public class WhenOnlyHaveOneItemInCollection
+            {
+                [Test]
+                public void ShouldThrow()
+                {
+                    //---------------Set up test pack-------------------
+                    var input = new[] { 1 };
+                    var expectedMessage = ReadDefaultOutOfRangeMessage();
 
-            //---------------Assert Precondition----------------
+                    //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var result = input.Flatten();
+                    //---------------Execute Test ----------------------
+                    Expect(() => input.Second())
+                        .To.Throw<InvalidOperationException>()
+                        .With.Message.Equal.To(expectedMessage);
 
-            //---------------Test Result -----------------------
-            Expect(result)
-                .To.Equal(expected);
+                    //---------------Test Result -----------------------
+                }
+            }
+
+            [TestFixture]
+            public class WhenTwoOrMoreItemsInCollection
+            {
+                [Test]
+                public void ShouldReturnSecond()
+                {
+                    //---------------Set up test pack-------------------
+                    var collection = GetRandomArray<string>(2);
+                    var expected = collection.ToArray()[1];
+
+                    //---------------Assert Precondition----------------
+                    Assert.That(collection.Count(), Is.GreaterThanOrEqualTo(2));
+
+                    //---------------Execute Test ----------------------
+                    var item = collection.Second();
+
+                    //---------------Test Result -----------------------
+                    Expect(item)
+                        .To.Equal(expected);
+                }
+            }
         }
 
-        [Test]
-        public void Flatten_GivenCollectionWithMultipleItemsInMultipleSubCollections_ShouldReturnFlattened()
+        [TestFixture]
+        public class Third
         {
-            //---------------Set up test pack-------------------
-            var input = new List<IEnumerable<int>>();
-            var part1 = GetRandomArray<int>();
-            var part2 = GetRandomArray<int>();
-            var part3 = GetRandomArray<int>();
-            var expected = new List<int>();
-            expected.AddRange(part1);
-            expected.AddRange(part2);
-            expected.AddRange(part3);
-            input.AddRange(new[] { part1, part2, part3 });
+            [TestFixture]
+            public class WhenCollectionLessThanThreeItems
+            {
+                [TestCase(1)]
+                [TestCase(2)]
+                public void ShouldThrowFor_(int howMany)
+                {
+                    //---------------Set up test pack-------------------
+                    var input = GetRandomArray<int>(howMany, howMany);
+                    var expectedMessage = ReadDefaultOutOfRangeMessage();
 
-            //---------------Assert Precondition----------------
+                    //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var result = input.Flatten();
+                    //---------------Execute Test ----------------------
+                    Expect(() => input.Third())
+                        .To.Throw<InvalidOperationException>()
+                        .With.Message.Equal.To(expectedMessage);
 
-            //---------------Test Result -----------------------
-            Expect(result)
-                .To.Be.Equivalent.To(expected);
+                    //---------------Test Result -----------------------
+                }
+            }
+
+            [TestFixture]
+            public class WhenThreeOrMoreItemsInCollection
+            {
+                [Test]
+                public void ShouldReturnThird()
+                {
+                    //---------------Set up test pack-------------------
+                    var collection = GetRandomArray<string>(3);
+                    var expected = collection.ToArray()[2];
+
+                    //---------------Assert Precondition----------------
+                    Expect(collection)
+                        .To.Contain.At.Least(3)
+                        .Items();
+
+                    //---------------Execute Test ----------------------
+                    var item = collection.Third();
+
+                    //---------------Test Result -----------------------
+                    Expect(item)
+                        .To.Equal(expected);
+                }
+            }
         }
 
-        [Test]
-        public void Second_WhenOnlyHaveOneItemInCollection_ShouldThrow()
+        [TestFixture]
+        public class FirstAfter
         {
-            //---------------Set up test pack-------------------
-            var input = new[] { 1 };
-            var expectedMessage = GetOutOfRangeMessage();
+            [TestFixture]
+            public class WhenCollectionIsInsufficient
+            {
+                [Test]
+                public void ShouldThrow()
+                {
+                    //---------------Set up test pack-------------------
+                    var collection = GetRandomArray<int>(2, 5);
+                    var skip = GetRandomInt(6, 100);
+                    var expectedMessage = ReadDefaultOutOfRangeMessage();
 
-            //---------------Assert Precondition----------------
+                    //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            Expect(() => input.Second())
-                .To.Throw<InvalidOperationException>()
-                .With.Message.Equal.To(expectedMessage);
+                    //---------------Execute Test ----------------------
+                    Expect(() => collection.FirstAfter(skip))
+                        .To.Throw<InvalidOperationException>()
+                        .With.Message.Equal.To(expectedMessage);
 
-            //---------------Test Result -----------------------
+                    //---------------Test Result -----------------------
+                }
+            }
+
+            [TestFixture]
+            public class WhenSkipIsZero
+            {
+                [Test]
+                public void ShouldReturnFirstElement()
+                {
+                    //---------------Set up test pack-------------------
+                    var collection = GetRandomCollection<int>(10, 20).ToArray();
+                    var expected = collection[0];
+
+                    //---------------Assert Precondition----------------
+
+                    //---------------Execute Test ----------------------
+                    var result = collection.FirstAfter(0);
+
+                    //---------------Test Result -----------------------
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
+
+            [TestFixture]
+            public class WhenCollectionIsSufficientForRequestedIndex
+            {
+                [Test]
+                public void ShouldReturnRequestedElement()
+                {
+                    //---------------Set up test pack-------------------
+                    var collection = GetRandomCollection<int>(10, 20).ToArray();
+                    var skip = GetRandomInt(2, 8);
+                    var expected = collection[skip];
+
+                    //---------------Assert Precondition----------------
+
+                    //---------------Execute Test ----------------------
+                    var result = collection.FirstAfter(skip);
+
+                    //---------------Test Result -----------------------
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
         }
 
-        [Test]
-        public void Second_WhenHave2OrMoreItemsInCollection_ShouldReturnSecond()
+        [TestFixture]
+        public class FirstOrDefaultAfter
         {
-            //---------------Set up test pack-------------------
-            var collection = GetRandomArray<string>(2);
-            var expected = collection.ToArray()[1];
+            [TestFixture]
+            public class WhenIntCollectionIsInsufficient
+            {
+                [TestCase(default(int))]
+                public void ShouldReturn_(int expected)
+                {
+                    //---------------Set up test pack-------------------
+                    var collection = GetRandomCollection<int>(2, 5);
+                    var skip = GetRandomInt(6, 100);
 
-            //---------------Assert Precondition----------------
-            Assert.That(collection.Count(), Is.GreaterThanOrEqualTo(2));
+                    //---------------Assert Precondition----------------
+                    Assert.That(skip, Is.GreaterThan(collection.Count()));
 
-            //---------------Execute Test ----------------------
-            var item = collection.Second();
+                    //---------------Execute Test ----------------------
+                    var result = collection.FirstOrDefaultAfter(skip);
 
-            //---------------Test Result -----------------------
-            Expect(item)
-                .To.Equal(expected);
+                    //---------------Test Result -----------------------
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
+
+            [TestFixture]
+            public class WhenRefTypeCollectionIsInsufficient
+            {
+                [Test]
+                public void ShouldReturnDefaultForType()
+                {
+                    //---------------Set up test pack-------------------
+                    var collection = GetRandomCollection<SomeType>(2, 5);
+                    var skip = GetRandomInt(6, 100);
+                    var expected = default(SomeType);
+
+                    //---------------Assert Precondition----------------
+                    Assert.That(skip, Is.GreaterThan(collection.Count()));
+
+                    //---------------Execute Test ----------------------
+                    var result = collection.FirstOrDefaultAfter(skip);
+
+                    //---------------Test Result -----------------------
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+
+                public class SomeType
+                {
+                }
+            }
+
+
+            [TestFixture]
+            public class WhenCollectionIsSufficient
+            {
+                [Test]
+                public void ShouldReturnRequestedElement()
+                {
+                    //---------------Set up test pack-------------------
+                    var collection = GetRandomArray<int>(10, 20);
+                    var skip = GetRandomInt(2, 8);
+                    var expected = collection[skip];
+
+                    //---------------Assert Precondition----------------
+
+                    //---------------Execute Test ----------------------
+                    var result = collection.FirstOrDefaultAfter(skip);
+
+                    //---------------Test Result -----------------------
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
         }
 
-
-        [Test]
-        public void Third_WhenOnlyHaveOneItemInCollection_ShouldThrow()
-        {
-            //---------------Set up test pack-------------------
-            var input = new[] { 1 };
-            var expectedMessage = GetOutOfRangeMessage();
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            Expect(() => input.Second())
-                .To.Throw<InvalidOperationException>()
-                .With.Message.Equal.To(expectedMessage);
-
-            //---------------Test Result -----------------------
-        }
-
-        [Test]
-        public void Third_WhenHave2OrMoreItemsInCollection_ShouldReturnThird()
-        {
-            //---------------Set up test pack-------------------
-            var collection = GetRandomArray<string>(3);
-            var expected = collection.ToArray()[2];
-
-            //---------------Assert Precondition----------------
-            Expect(collection)
-                .To.Contain.At.Least(3)
-                .Items();
-
-            //---------------Execute Test ----------------------
-            var item = collection.Third();
-
-            //---------------Test Result -----------------------
-            Expect(item)
-                .To.Equal(expected);
-        }
-
-        [Test]
-        public void FirstAfter_OperatingOnInsufficientCollection_ShouldThrow()
-        {
-            //---------------Set up test pack-------------------
-            var collection = GetRandomArray<int>(2, 5);
-            var skip = GetRandomInt(6, 100);
-            var expectedMessage = GetOutOfRangeMessage();
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            Expect(() => collection.FirstAfter(skip))
-                .To.Throw<InvalidOperationException>()
-                .With.Message.Equal.To(expectedMessage);
-
-            //---------------Test Result -----------------------
-        }
-
-        [Test]
-        public void FirstAfter_GivenSkipZero_ShouldReturnFirstElement()
-        {
-            //---------------Set up test pack-------------------
-            var collection = GetRandomCollection<int>(10, 20).ToArray();
-            var expected = collection[0];
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = collection.FirstAfter(0);
-
-            //---------------Test Result -----------------------
-            Expect(result)
-                .To.Equal(expected);
-        }
-
-        [Test]
-        public void FirstAfter_OperatingOnSufficientCollection_ShouldReturnRequestedElement()
-        {
-            //---------------Set up test pack-------------------
-            var collection = GetRandomCollection<int>(10, 20).ToArray();
-            var skip = GetRandomInt(2, 8);
-            var expected = collection[skip];
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = collection.FirstAfter(skip);
-
-            //---------------Test Result -----------------------
-            Expect(result)
-                .To.Equal(expected);
-        }
-
-        [Test]
-        public void FirstOrDefaultAfter_OperatingOnInsufficientCollectionOfInt_ShouldReturnDefaultForType()
-        {
-            //---------------Set up test pack-------------------
-            var collection = GetRandomCollection<int>(2, 5);
-            var skip = GetRandomInt(6, 100);
-            var expected = default(int);
-
-            //---------------Assert Precondition----------------
-            Assert.That(skip, Is.GreaterThan(collection.Count()));
-
-            //---------------Execute Test ----------------------
-            var result = collection.FirstOrDefaultAfter(skip);
-
-            //---------------Test Result -----------------------
-            Expect(result)
-                .To.Equal(expected);
-        }
-
-        public class SomeType
-        {
-        }
-
-        [Test]
-        public void FirstOrDefaultAfter_OperatingOnInsufficientCollectionOfComplexType_ShouldReturnDefaultForType()
-        {
-            //---------------Set up test pack-------------------
-            var collection = GetRandomCollection<SomeType>(2, 5);
-            var skip = GetRandomInt(6, 100);
-            var expected = default(SomeType);
-
-            //---------------Assert Precondition----------------
-            Assert.That(skip, Is.GreaterThan(collection.Count()));
-
-            //---------------Execute Test ----------------------
-            var result = collection.FirstOrDefaultAfter(skip);
-
-            //---------------Test Result -----------------------
-            Expect(result)
-                .To.Equal(expected);
-        }
-
-
-        [Test]
-        public void FirstOrDefaultAfter_OperatingOnSufficientCollection_ShouldReturnRequestedElement()
-        {
-            //---------------Set up test pack-------------------
-            var collection = GetRandomArray<int>(10, 20);
-            var skip = GetRandomInt(2, 8);
-            var expected = collection[skip];
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = collection.FirstOrDefaultAfter(skip);
-
-            //---------------Test Result -----------------------
-            Expect(result)
-                .To.Equal(expected);
-        }
-
-        private string GetOutOfRangeMessage()
+        private static string ReadDefaultOutOfRangeMessage()
         {
             // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
             var reference = Assert.Throws<InvalidOperationException>(() => new int[0].First());
-            return reference.Message;
+            return reference?.Message ?? throw new Exception("Message not retrieved");
         }
 
 
@@ -799,299 +945,425 @@ namespace PeanutButter.Utils.Tests
             }
         }
 
-        [Test]
-        public void SelectNonNull_GivenCollectionOfObjectsWithNullableInts_ShouldReturnOnlyNonNullValues()
+        [TestFixture]
+        public class SelectNonNull
         {
-            //---------------Set up test pack-------------------
-            var id1 = GetRandomInt();
-            var id2 = GetRandomInt();
-            var expected = new[] { id1, id2 };
-            var input = new[]
+            [Test]
+            public void ShouldReturnOnlyNonNullValues()
             {
-                ItemWithNullableId.For(id1),
-                ItemWithNullableId.For(null),
-                ItemWithNullableId.For(id2),
-                ItemWithNullableId.For(null)
-            };
+                //---------------Set up test pack-------------------
+                var id1 = GetRandomInt();
+                var id2 = GetRandomInt();
+                var expected = new[] { id1, id2 };
+                var input = new[]
+                {
+                    ItemWithNullableId.For(id1),
+                    ItemWithNullableId.For(null),
+                    ItemWithNullableId.For(id2),
+                    ItemWithNullableId.For(null)
+                };
 
-            //---------------Assert Precondition----------------
+                //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var result = input.SelectNonNull(o => o.Id);
+                //---------------Execute Test ----------------------
+                var result = input.SelectNonNull(o => o.Id);
 
-            //---------------Test Result -----------------------
-            CollectionAssert.AreEqual(expected, result);
-            Expect(result)
-                .To.Equal(expected);
-        }
+                //---------------Test Result -----------------------
+                Expect(result)
+                    .To.Equal(expected);
+            }
 
 
-        public class Thing
-        {
-        }
-
-        public class ItemWithNullableThing
-        {
-            public Thing Thing { get; set; }
-
-            public static ItemWithNullableThing For(Thing thing)
+            public class Thing
             {
-                return new ItemWithNullableThing() { Thing = thing };
+            }
+
+            public class ItemWithNullableThing
+            {
+                public Thing Thing { get; set; }
+
+                public static ItemWithNullableThing For(Thing thing)
+                {
+                    return new ItemWithNullableThing() { Thing = thing };
+                }
+            }
+
+            [Test]
+            public void ShouldReturnOnlyNonNullValues2()
+            {
+                //---------------Set up test pack-------------------
+                var id1 = GetRandom<Thing>();
+                var id2 = GetRandom<Thing>();
+                var expected = new[] { id1, id2 };
+                var input = new[]
+                {
+                    ItemWithNullableThing.For(id1),
+                    ItemWithNullableThing.For(null),
+                    ItemWithNullableThing.For(id2),
+                    ItemWithNullableThing.For(null)
+                };
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = input.SelectNonNull(o => o.Thing);
+
+                //---------------Test Result -----------------------
+                Expect(result)
+                    .To.Equal(expected);
             }
         }
 
-        [Test]
-        public void SelectNonNull_GivenCollectionOfObjectsWithNullableThings_ShouldReturnOnlyNonNullValues()
+        [TestFixture]
+        public class AsText
         {
-            //---------------Set up test pack-------------------
-            var id1 = GetRandom<Thing>();
-            var id2 = GetRandom<Thing>();
-            var expected = new[] { id1, id2 };
-            var input = new[]
+            [TestFixture]
+            public class OperatingOnStringArray
             {
-                ItemWithNullableThing.For(id1),
-                ItemWithNullableThing.For(null),
-                ItemWithNullableThing.For(id2),
-                ItemWithNullableThing.For(null)
-            };
+                [Test]
+                public void ShouldReturnTextBlockWithEnvironmentNewlines()
+                {
+                    //---------------Set up test pack-------------------
+                    var input = GetRandomArray<string>(2, 4);
+                    var expected = string.Join(Environment.NewLine, input);
 
-            //---------------Assert Precondition----------------
+                    //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var result = input.SelectNonNull(o => o.Thing);
+                    //---------------Execute Test ----------------------
+                    var result = input.AsText();
 
-            //---------------Test Result -----------------------
-            Expect(result)
-                .To.Equal(expected);
-        }
+                    //---------------Test Result -----------------------
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
 
-        [Test]
-        public void AsText_OperatingOnStringArray_ShouldReturnTextBlockWithEnvironmentNewlines()
-        {
-            //---------------Set up test pack-------------------
-            var input = GetRandomArray<string>(2, 4);
-            var expected = string.Join(Environment.NewLine, input);
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = input.AsText();
-
-            //---------------Test Result -----------------------
-            Expect(result)
-                .To.Equal(expected);
-        }
-
-        public class SomethingWithNiceToString
-        {
-            public int Id { get; set; }
-            public string Name { get; set; }
-
-            public override string ToString()
+            [TestFixture]
+            public class OperatingOnOtherTypes
             {
-                return $"{Id} :: {Name}";
+                [Test]
+                public void ShouldReturnTextBlockWithStringRepresentations()
+                {
+                    //---------------Set up test pack-------------------
+                    var input = GetRandomList<SomethingWithNiceToString>(2, 4);
+                    var expected = string.Join(Environment.NewLine, input);
+
+                    //---------------Assert Precondition----------------
+
+                    //---------------Execute Test ----------------------
+                    var result = input.AsText();
+
+                    //---------------Test Result -----------------------
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+
+                public class SomethingWithNiceToString
+                {
+                    public int Id { get; set; }
+                    public string Name { get; set; }
+
+                    public override string ToString()
+                    {
+                        return $"{Id} :: {Name}";
+                    }
+                }
+            }
+
+            [TestFixture]
+            public class WhenGivenAlternativeDelimiter
+            {
+                [Test]
+                public void ShouldUseIt()
+                {
+                    //---------------Set up test pack-------------------
+                    var input = GetRandomArray<int>(3, 6);
+                    var delimiter = GetRandomString(1);
+                    var expected = string.Join(delimiter, input);
+
+                    //---------------Assert Precondition----------------
+
+                    //---------------Execute Test ----------------------
+                    var result = input.AsText(delimiter);
+
+                    //---------------Test Result -----------------------
+                    Expect(result)
+                        .To.Equal(expected);
+                }
             }
         }
 
-        [Test]
-        public void AsText_OperatingOnArrayOfObjects_ShouldReturnTextBlockWithStringRepresentations()
+        [TestFixture]
+        public class HasUnique
         {
-            //---------------Set up test pack-------------------
-            var input = GetRandomList<SomethingWithNiceToString>(2, 4);
-            var expected = string.Join(Environment.NewLine, input);
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = input.AsText();
-
-            //---------------Test Result -----------------------
-            Expect(result)
-                .To.Equal(expected);
-        }
-
-        [Test]
-        public void AsText_GivenAlternativeDelimiter_ShouldUseIt()
-        {
-            //---------------Set up test pack-------------------
-            var input = GetRandomArray<int>(3, 6);
-            var delimiter = GetRandomString(1);
-            var expected = string.Join(delimiter, input);
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = input.AsText(delimiter);
-
-            //---------------Test Result -----------------------
-            Expect(result)
-                .To.Equal(expected);
-        }
-
-        [Test]
-        public void HasUnique_WhenNoMatchesForLambda_ShouldReturnFalse()
-        {
-            //---------------Set up test pack-------------------
-            var input = new[] { 1, 2, 3 };
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = input.HasUnique(i => i == 4);
-
-            //---------------Test Result -----------------------
-            Expect(result)
-                .To.Be.False();
-        }
-
-        [Test]
-        public void HasUnique_WhenMultipleMatchesForLambda_ShouldReturnFalse()
-        {
-            //---------------Set up test pack-------------------
-            var input = new[] { "a", "a", "b", "c" };
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = input.HasUnique(i => i == "a");
-
-            //---------------Test Result -----------------------
-            Expect(result)
-                .To.Be.False();
-        }
-
-        [Test]
-        public void HasUnique_WhenOneMatchesForLambda_ShouldReturnTrue()
-        {
-            //---------------Set up test pack-------------------
-            var input = new[] { "a", "a", "b", "c" };
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = input.HasUnique(i => i == "b");
-
-            //---------------Test Result -----------------------
-            Expect(result)
-                .To.Be.True();
-        }
-
-
-        [Test]
-        public void TimesDo_OperatingOnZero_ShouldNotRunAction()
-        {
-            //---------------Set up test pack-------------------
-            var calls = 0;
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            0.TimesDo(() => calls++);
-
-            //---------------Test Result -----------------------
-            Expect(calls)
-                .To.Equal(0);
-        }
-
-        [Test]
-        public void TimesDo_OperatingOnPositiveInteger_ShouldRunActionThatManyTimes()
-        {
-            //---------------Set up test pack-------------------
-            var calls = 0;
-            var howMany = GetRandomInt(1, 20);
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            howMany.TimesDo(() => calls++);
-
-            //---------------Test Result -----------------------
-            Expect(calls)
-                .To.Equal(howMany);
-        }
-
-        [Test]
-        public void TimesDo_OperatingOnNegativeInteger_ShouldThrowArgumentException()
-        {
-            //---------------Set up test pack-------------------
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var ex = Assert.Throws<ArgumentException>(() => (-1).TimesDo(() =>
+            [TestFixture]
+            public class WhenNoMatch
             {
-            }));
+                [Test]
+                public void ShouldReturnFalse()
+                {
+                    //---------------Set up test pack-------------------
+                    var input = new[] { 1, 2, 3 };
 
-            //---------------Test Result -----------------------
-            Expect(ex.Message)
-                .To.Contain("positive integer");
-            Expect(ex.ParamName)
-                .To.Equal("howMany");
-        }
+                    //---------------Assert Precondition----------------
 
-        [Test]
-        public void TimesDo_OperatingOnNegativeIntegerWithActionAcceptingIndex_ShouldThrowArgumentException()
-        {
-            //---------------Set up test pack-------------------
+                    //---------------Execute Test ----------------------
+                    var result = input.HasUnique(i => i == 4);
 
-            //---------------Assert Precondition----------------
+                    //---------------Test Result -----------------------
+                    Expect(result)
+                        .To.Be.False();
+                }
+            }
 
-            //---------------Execute Test ----------------------
-            var ex = Assert.Throws<ArgumentException>(() => (-1).TimesDo(i =>
+            [TestFixture]
+            public class WhenHaveMultipleMatches
             {
-            }));
+                [Test]
+                public void ShouldReturnFalse()
+                {
+                    //---------------Set up test pack-------------------
+                    var input = new[] { "a", "a", "b", "c" };
 
-            //---------------Test Result -----------------------
-            Expect(ex.Message)
-                .To.Contain("positive integer");
-            Expect(ex.ParamName)
-                .To.Equal("howMany");
-        }
+                    //---------------Assert Precondition----------------
 
-        [Test]
-        public void TimesDo_GivenActionAcceptingInteger_ShouldFeedIndex()
-        {
-            //---------------Set up test pack-------------------
-            var howMany = GetRandomInt();
-            var result = new List<int>();
-            var expected = new List<int>();
-            for (var i = 0; i < howMany; i++)
-                expected.Add(i);
-            //---------------Assert Precondition----------------
+                    //---------------Execute Test ----------------------
+                    var result = input.HasUnique(i => i == "a");
 
-            //---------------Execute Test ----------------------
-            howMany.TimesDo(i => result.Add(i));
+                    //---------------Test Result -----------------------
+                    Expect(result)
+                        .To.Be.False();
+                }
+            }
 
-            //---------------Test Result -----------------------
-            Expect(result)
-                .To.Equal(expected);
-        }
-
-
-        [Test]
-        public void ForEach_GivenCollectionAndActionWithTwoParameters_ShouldPopulateSecondParameterWithIndex()
-        {
-            //---------------Set up test pack-------------------
-            var input = GetRandomArray<int>(5, 15);
-            var collectedIndexes = new List<int>();
-            var collectedItems = new List<int>();
-            var expectedIndexes = input.Select((o, i) => i).ToList();
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            input.ForEach((item, idx) =>
+            [TestFixture]
+            public class WhenOnlyOneMatch
             {
-                collectedItems.Add(item);
-                collectedIndexes.Add(idx);
-            });
+                [Test]
+                public void ShouldReturnTrue()
+                {
+                    //---------------Set up test pack-------------------
+                    var input = new[] { "a", "a", "b", "c" };
 
-            //---------------Test Result -----------------------
-            Expect(collectedItems)
-                .To.Equal(input);
-            Expect(collectedIndexes)
-                .To.Equal(expectedIndexes);
+                    //---------------Assert Precondition----------------
+
+                    //---------------Execute Test ----------------------
+                    var result = input.HasUnique(i => i == "b");
+
+                    //---------------Test Result -----------------------
+                    Expect(result)
+                        .To.Be.True();
+                }
+            }
         }
 
+        [TestFixture]
+        public class TimesDo
+        {
+            [TestFixture]
+            public class OperatingOnZero
+            {
+                [Test]
+                public void ShouldNotRunAction()
+                {
+                    //---------------Set up test pack-------------------
+                    var calls = 0;
+                    //---------------Assert Precondition----------------
+
+                    //---------------Execute Test ----------------------
+                    0.TimesDo(() => calls++);
+
+                    //---------------Test Result -----------------------
+                    Expect(calls)
+                        .To.Equal(0);
+                }
+            }
+
+            [TestFixture]
+            public class OperatingOnPositiveInteger
+            {
+                [Test]
+                public void ShouldRunActionThatManyTimes()
+                {
+                    //---------------Set up test pack-------------------
+                    var calls = 0;
+                    var howMany = GetRandomInt(1, 20);
+
+                    //---------------Assert Precondition----------------
+
+                    //---------------Execute Test ----------------------
+                    howMany.TimesDo(() => calls++);
+
+                    //---------------Test Result -----------------------
+                    Expect(calls)
+                        .To.Equal(howMany);
+                }
+
+                [TestFixture]
+                public class GivenActionAcceptingIndex
+                {
+                    [Test]
+                    public void ShouldFeedIndex()
+                    {
+                        //---------------Set up test pack-------------------
+                        var howMany = GetRandomInt();
+                        var result = new List<int>();
+                        var expected = new List<int>();
+                        for (var i = 0; i < howMany; i++)
+                            expected.Add(i);
+                        //---------------Assert Precondition----------------
+
+                        //---------------Execute Test ----------------------
+                        howMany.TimesDo(i => result.Add(i));
+
+                        //---------------Test Result -----------------------
+                        Expect(result)
+                            .To.Equal(expected);
+                    }
+                }
+            }
+
+            [TestFixture]
+            public class OperatingOnNegativeInteger
+            {
+                [Test]
+                public void ShouldThrowArgumentException()
+                {
+                    //---------------Set up test pack-------------------
+
+                    //---------------Assert Precondition----------------
+
+                    //---------------Execute Test ----------------------
+                    Expect(() => (-1).TimesDo(() =>
+                        {
+                        })).To.Throw<ArgumentException>()
+                        .For("howMany")
+                        .With.Message.Containing("positive integer");
+
+                    //---------------Test Result -----------------------
+                }
+
+                [TestFixture]
+                public class GivenActionAcceptingIndex
+                {
+                    [Test]
+                    public void ShouldThrowArgumentException()
+                    {
+                        //---------------Set up test pack-------------------
+
+                        //---------------Assert Precondition----------------
+
+                        //---------------Execute Test ----------------------
+                        Expect(() => (-1).TimesDo(i =>
+                            {
+                            })).To.Throw<ArgumentException>()
+                            .For("howMany")
+                            .With.Message.Containing("positive integer");
+
+                        //---------------Test Result -----------------------
+                    }
+                }
+            }
+        }
+
+        [TestFixture]
+        public class None
+        {
+            [TestFixture]
+            public class WithTestFn
+            {
+                [Test]
+                public void ShouldReturnTrueForNullCollection()
+                {
+                    // Arrange
+                    var input = null as IEnumerable<int>;
+                    // Pre-assert
+                    // Act
+                    var result = input.None(i => i == 1);
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
+
+                [Test]
+                public void ShouldReturnTrueForEmptyCollection()
+                {
+                    // Arrange
+                    var input = new int[0];
+                    // Pre-assert
+                    // Act
+                    var result = input.None(i => i == GetRandomInt());
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
+
+                [Test]
+                public void ShouldReturnTrueWhenAllFail()
+                {
+                    // Arrange
+                    var input = new[] { 1, 2, 3 };
+                    // Pre-assert
+                    // Act
+                    var result = input.None(i => i > 4);
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
+
+                [Test]
+                public void ShouldReturnFalseWhenAnyOnePasses()
+                {
+                    // Arrange
+                    var input = new[] { 2, 4, 6, 7 };
+                    // Pre-assert
+                    // Act
+                    var result = input.None(i => i % 2 == 1);
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+            }
+
+            [TestFixture]
+            public class WithNoTestFn
+            {
+                [Test]
+                public void ShouldReturnTrueForNullCollection()
+                {
+                    // Arrange
+                    var input = null as IEnumerable<int>;
+                    // Act
+                    var result = input.None();
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
+
+                [Test]
+                public void ShouldBeTrueForEmptyCollection()
+                {
+                    // Arrange
+                    var input = new int[0];
+                    // Act
+                    var result = input.None();
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
+
+                [Test]
+                public void ShouldBeFalseForAnySizeCollection()
+                {
+                    // Arrange
+                    var input = GetRandomArray<int>(1);
+                    // Act
+                    var result = input.None();
+                    // Assert
+                    Expect(result).To.Be.False();
+                }
+            }
+        }
 
         [TestFixture]
         public class FindDuplicates
@@ -1099,159 +1371,76 @@ namespace PeanutButter.Utils.Tests
             [TestFixture]
             public class WithImpliedDiscriminator
             {
-                [Test]
-                public void OperatingOnEmptyCollection_ShouldReturnEmptCollection()
-                {
-                    // Arrange
-                    var input = new int[0];
-                    // Pre-Assert
-                    // Act
-                    var result = input.FindDuplicates();
-                    // Assert
-                    Expect(result)
-                        .To.Be.Empty();
-                }
-
-                [Test]
-                public void OperatingOnCollectionOfOne_ShouldReturnEmptCollection()
-                {
-                    // Arrange
-                    var input = new[] { GetRandomInt() };
-                    // Pre-Assert
-                    // Act
-                    var result = input.FindDuplicates();
-                    // Assert
-                    Expect(result)
-                        .To.Be.Empty();
-                }
-
-                [Test]
-                public void OperatingOnUniqueCollection_ShouldReturnEmptCollection()
-                {
-                    // Arrange
-                    var input = GetRandomCollection<string>(10, 20).Distinct();
-                    // Pre-Assert
-                    // Act
-                    var result = input.FindDuplicates();
-                    // Assert
-                    Expect(result)
-                        .To.Be.Empty();
-                }
-
-                [Test]
-                public void OperatingOnCollectionWithDuplicates_ShouldReturnDuplicatesOnceEach()
-                {
-                    // Arrange
-                    var input = new[]
-                    {
-                        1, 2, 3, 3, 3, 2
-                    };
-                    // Pre-Assert
-                    // Act
-                    var result = input.FindDuplicates();
-                    // Assert
-                    Expect(result)
-                        .To.Contain.Exactly(2).Items();
-                    Expect(result)
-                        .To.Be.Equivalent.To(new[] { 2, 3 });
-                }
-            }
-
-            [TestFixture]
-            public class None
-            {
                 [TestFixture]
-                public class WithTestFn
+                public class OperatingOnEmptyCollection
                 {
                     [Test]
-                    public void ShouldReturnTrueForNullCollection()
-                    {
-                        // Arrange
-                        var input = null as IEnumerable<int>;
-                        // Pre-assert
-                        // Act
-                        var result = input.None(i => i == 1);
-                        // Assert
-                        Expect(result)
-                            .To.Be.True();
-                    }
-
-                    [Test]
-                    public void ShouldReturnTrueForEmptyCollection()
+                    public void ShouldReturnEmptyCollection()
                     {
                         // Arrange
                         var input = new int[0];
-                        // Pre-assert
+                        // Pre-Assert
                         // Act
-                        var result = input.None(i => i == GetRandomInt());
+                        var result = input.FindDuplicates();
                         // Assert
                         Expect(result)
-                            .To.Be.True();
-                    }
-
-                    [Test]
-                    public void ShouldReturnTrueWhenAllFail()
-                    {
-                        // Arrange
-                        var input = new[] { 1, 2, 3 };
-                        // Pre-assert
-                        // Act
-                        var result = input.None(i => i > 4);
-                        // Assert
-                        Expect(result)
-                            .To.Be.True();
-                    }
-
-                    [Test]
-                    public void ShouldReturnFalseWhenAnyOnePasses()
-                    {
-                        // Arrange
-                        var input = new[] { 2, 4, 6, 7 };
-                        // Pre-assert
-                        // Act
-                        var result = input.None(i => i % 2 == 1);
-                        // Assert
-                        Expect(result)
-                            .To.Be.False();
+                            .To.Be.Empty();
                     }
                 }
 
                 [TestFixture]
-                public class WithNoTestFn
+                public class OperatingOnCollectionOfOne
                 {
                     [Test]
-                    public void ShouldReturnTrueForNullCollection()
+                    public void ShouldReturnEmptyCollection()
                     {
                         // Arrange
-                        var input = null as IEnumerable<int>;
+                        var input = new[] { GetRandomInt() };
+                        // Pre-Assert
                         // Act
-                        var result = input.None();
+                        var result = input.FindDuplicates();
                         // Assert
                         Expect(result)
-                            .To.Be.True();
+                            .To.Be.Empty();
                     }
+                }
 
+                [TestFixture]
+                public class OperatingOnDistinctCollection
+                {
                     [Test]
-                    public void ShouldBeTrueForEmptyCollection()
+                    public void ShouldReturnEmptyCollection()
                     {
                         // Arrange
-                        var input = new int[0];
+                        var input = GetRandomCollection<string>(10, 20).Distinct();
+                        // Pre-Assert
                         // Act
-                        var result = input.None();
+                        var result = input.FindDuplicates();
                         // Assert
                         Expect(result)
-                            .To.Be.True();
+                            .To.Be.Empty();
                     }
+                }
 
+                [TestFixture]
+                public class OperatingOnCollectionWithDuplicates
+                {
                     [Test]
-                    public void ShouldBeFalseForAnySizeCollection()
+                    public void ShouldReturnDuplicatesOnceEach()
                     {
                         // Arrange
-                        var input = GetRandomArray<int>(1);
+                        var input = new[]
+                        {
+                            1, 2, 3, 3, 3, 2
+                        };
+                        // Pre-Assert
                         // Act
-                        var result = input.None();
+                        var result = input.FindDuplicates();
                         // Assert
-                        Expect(result).To.Be.False();
+                        Expect(result)
+                            .To.Contain.Exactly(2).Items();
+                        Expect(result)
+                            .To.Be.Equivalent.To(new[] { 2, 3 });
                     }
                 }
             }
@@ -1259,80 +1448,97 @@ namespace PeanutButter.Utils.Tests
             [TestFixture]
             public class WithProvidedDiscriminator
             {
-                [Test]
-                public void OperatingOnEmptyCollection_ShouldReturnEmptCollection()
+                [TestFixture]
+                public class OperatingOnEmptyCollection
                 {
-                    // Arrange
-                    var input = new object[0];
-                    // Pre-Assert
-                    // Act
-                    var result = input.FindDuplicates(o => o.GetHashCode());
-                    // Assert
-                    Expect(result).To.Be.Empty();
-                }
-
-                [Test]
-                public void OperatingOnCollectionOfOne_ShouldReturnEmptCollection()
-                {
-                    // Arrange
-                    var input = new[] { new { id = 1, name = "bob" } };
-                    // Pre-Assert
-                    // Act
-                    var result = input.FindDuplicates(o => o.id);
-                    // Assert
-                    Expect(result).To.Be.Empty();
-                }
-
-                [Test]
-                public void OperatingOnUniqueCollection_ShouldReturnEmptCollection()
-                {
-                    // Arrange
-                    var idx = 0;
-                    var input = GetRandomCollection(() => new
+                    [Test]
+                    public void ShouldReturnEmptyCollection()
                     {
-                        name = $"snowflake #{idx}",
-                        id = idx++
-                    });
-                    // Pre-Assert
-                    // Act
-                    var result = input.FindDuplicates(o => o.id);
-                    // Assert
-                    Expect(result).To.Be.Empty();
+                        // Arrange
+                        var input = new object[0];
+                        // Pre-Assert
+                        // Act
+                        var result = input.FindDuplicates(o => o.GetHashCode());
+                        // Assert
+                        Expect(result).To.Be.Empty();
+                    }
                 }
 
-                [Test]
-                public void OperatingOnCollectionWithDuplicates_ShouldReturnDuplicatesOnceEach()
+                [TestFixture]
+                public class OperatingOnCollectionOfOne
                 {
-                    // Arrange
-                    var input = new[]
+                    [Test]
+                    public void ShouldReturnEmptyCollection()
                     {
-                        new { id = 1, name = "bob" },
-                        new { id = 2, name = "andrew" },
-                        new { id = 3, name = "posh" },
-                        new { id = 3, name = "scary" },
-                        new { id = 3, name = "baby" },
-                        new { id = 3, name = "sporty" },
-                        new { id = 3, name = "ginger" },
-                        new { id = 2, name = "dave" }
-                    };
-                    // Pre-Assert
-                    // Act
-                    var result = input.FindDuplicates(o => o.id);
-                    // Assert
-                    Expect(result).To.Contain.Exactly(2).Items();
-                    var spiceGirls = result.Where(o => o.Key == 3).Select(o => o.Items).Single().Select(o => o.name);
-                    Expect(spiceGirls).To.Contain.Exactly(5).Items();
-                    Expect(spiceGirls)
-                        .To.Be.Equivalent.To(new[]
+                        // Arrange
+                        var input = new[] { new { id = 1, name = "bob" } };
+                        // Pre-Assert
+                        // Act
+                        var result = input.FindDuplicates(o => o.id);
+                        // Assert
+                        Expect(result).To.Be.Empty();
+                    }
+                }
+
+                [TestFixture]
+                public class OperatingOnDistinctCollection
+                {
+                    [Test]
+                    public void ShouldReturnEmptyCollection()
+                    {
+                        // Arrange
+                        var idx = 0;
+                        var input = GetRandomCollection(() => new
                         {
-                            "posh",
-                            "scary",
-                            "baby",
-                            "sporty",
-                            "ginger"
+                            name = $"snowflake #{idx}",
+                            id = idx++
                         });
-                    var adoringFans = result.Where(r => r.Key == 2).Select(r => r.Items).Single();
-                    Expect(adoringFans).To.Contain.Exactly(2).Items();
+                        // Pre-Assert
+                        // Act
+                        var result = input.FindDuplicates(o => o.id);
+                        // Assert
+                        Expect(result).To.Be.Empty();
+                    }
+                }
+
+                [TestFixture]
+                public class OperatingOnCollectionWithDuplicates
+                {
+                    [Test]
+                    public void ShouldReturnDuplicatesOnceEach()
+                    {
+                        // Arrange
+                        var input = new[]
+                        {
+                            new { id = 1, name = "bob" },
+                            new { id = 2, name = "andrew" },
+                            new { id = 3, name = "posh" },
+                            new { id = 3, name = "scary" },
+                            new { id = 3, name = "baby" },
+                            new { id = 3, name = "sporty" },
+                            new { id = 3, name = "ginger" },
+                            new { id = 2, name = "dave" }
+                        };
+                        // Pre-Assert
+                        // Act
+                        var result = input.FindDuplicates(o => o.id);
+                        // Assert
+                        Expect(result).To.Contain.Exactly(2).Items();
+                        var spiceGirls = result.Where(o => o.Key == 3).Select(o => o.Items).Single()
+                            .Select(o => o.name);
+                        Expect(spiceGirls).To.Contain.Exactly(5).Items();
+                        Expect(spiceGirls)
+                            .To.Be.Equivalent.To(new[]
+                            {
+                                "posh",
+                                "scary",
+                                "baby",
+                                "sporty",
+                                "ginger"
+                            });
+                        var adoringFans = result.Where(r => r.Key == 2).Select(r => r.Items).Single();
+                        Expect(adoringFans).To.Contain.Exactly(2).Items();
+                    }
                 }
             }
         }
@@ -1861,5 +2067,84 @@ namespace PeanutButter.Utils.Tests
                     .To.Equal(expected);
             }
         }
+
+        [TestFixture]
+        public class SelectArray
+        {
+            [TestFixture]
+            public class GivenNull
+            {
+                [Test]
+                public void ShouldReturnEmptyArray()
+                {
+                    // Arrange
+                    var input = null as List<int>;
+                    var expected = new int[0];
+                    // Act
+                    var result = input.Map(i => i);
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                    Expect(result)
+                        .To.Be(Array.Empty<int>());
+                }
+            }
+
+            [Test]
+            public void ShouldReturnMappedCollectionAsArray()
+            {
+                // Arrange
+                var input = new List<int>() { 1, 2, 3 };
+                var expected = new[] { 2, 4, 6 };
+                // Act
+                var result = input.Map(i => i * 2);
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+                // ReSharper disable once ConvertTypeCheckToNullCheck
+                Expect(result is int[])
+                    .To.Be.True();
+            }
+        }
+
+        [TestFixture]
+        public class SelectList
+        {
+            [TestFixture]
+            public class GivenNull
+            {
+                [Test]
+                public void ShouldReturnEmptyArray()
+                {
+                    // Arrange
+                    var input = null as int[];
+                    var expected = new List<int>();
+                    // Act
+                    var result = input.MapList(i => i);
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                    Expect(result is List<int>)
+                        .To.Be.True();
+                }
+            }
+
+            [Test]
+            public void ShouldReturnMappedCollectionAsArray()
+            {
+                // Arrange
+                var input = new List<int>() { 1, 2, 3 };
+                var expected = new[] { 2, 4, 6 };
+                // Act
+                var result = input.MapList(i => i * 2);
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+                // ReSharper disable once ConvertTypeCheckToNullCheck
+                Expect(result is List<int>)
+                    .To.Be.True();
+            }
+        }
     }
+    
 }

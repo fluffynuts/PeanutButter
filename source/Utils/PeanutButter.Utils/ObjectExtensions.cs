@@ -5,12 +5,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 // ReSharper disable MemberCanBePrivate.Global
 #if BUILD_PEANUTBUTTER_INTERNAL
 namespace Imported.PeanutButter.Utils
 #else
-
 namespace PeanutButter.Utils
 #endif
 {
@@ -595,7 +595,7 @@ namespace PeanutButter.Utils
         {
             return item is null || item.Equals(default(T))
                 ? default(T)
-                : (T)item.DeepCloneInternal(item.GetType());
+                : (T) item.DeepCloneInternal(item.GetType());
         }
 
         private static object DeepCloneInternal(
@@ -829,7 +829,7 @@ namespace PeanutButter.Utils
                     "', but expected '" +
                     typeof(T).Name +
                     "' or derivative");
-            return (T)valueAsObject;
+            return (T) valueAsObject;
         }
 
 
@@ -842,8 +842,16 @@ namespace PeanutButter.Utils
         /// <exception cref="MemberNotFoundException">Thrown when the property is not found by name</exception>
         public static object GetPropertyValue(
             this object src,
-            string propertyPath)
+            string propertyPath
+        )
         {
+            if (src is null)
+            {
+                throw new InvalidOperationException(
+                    "Cannot retrieve any property value off of null"
+                );
+            }
+
             var trailingMember = FindPropertyOrField(
                 src,
                 propertyPath,
@@ -943,15 +951,26 @@ namespace PeanutButter.Utils
             public bool Found => Member != null;
             public PropertyOrField Member { get; set; }
             public object Host { get; set; }
+            public object Index { get; set; }
+            public bool IsIndexed { get; set; }
 
             public object GetValue()
             {
-                return Member.GetValue(Host);
+                return IsIndexed
+                    ? Member.GetValueAt(Host, Index)
+                    : Member.GetValue(Host);
             }
 
             public void SetValue(object value)
             {
-                Member.SetValue(Host, value);
+                if (IsIndexed)
+                {
+                    throw new NotImplementedException();
+                }
+                else
+                {
+                    Member.SetValue(Host, value);
+                }
             }
         }
 
@@ -965,27 +984,61 @@ namespace PeanutButter.Utils
             while (queue.Count > 0)
             {
                 var current = queue.Dequeue();
+                var isIndexed = ParseIndexes(current, out var name, out var indexes);
+                if (isIndexed && indexes.Length > 1)
+                {
+                    throw new NotSupportedException("Multi-dimensional indexing is not supported");
+                }
+
+                var index = indexes?.FirstOrDefault();
+
                 var type = src.GetType();
                 var memberInfo = fetchers.Aggregate(
                     null as PropertyOrField,
-                    (acc, cur) => acc ?? cur(type).FirstOrDefault(mi => mi.Name == current)
+                    (acc, cur) => acc ?? cur(type).FirstOrDefault(mi => mi.Name == name)
                 );
                 if (memberInfo == null)
                 {
-                    throw new MemberNotFoundException(type, current);
+                    throw new MemberNotFoundException(type, name);
                 }
 
                 if (queue.Count == 0)
                 {
                     result.Member = memberInfo;
                     result.Host = src;
+                    result.IsIndexed = isIndexed;
+                    result.Index = index;
                     break;
                 }
 
-                src = memberInfo.GetValue(src);
+                src = isIndexed
+                    ? memberInfo.GetValueAt(src, index)
+                    : memberInfo.GetValue(src);
             }
 
             return result;
+        }
+
+        private static bool ParseIndexes(
+            string path,
+            out string name,
+            out object[] indexes
+        )
+        {
+            var parts = path.Split('[', ']').Where(p => p.Length > 0)
+                .ToArray();
+            name = parts[0];
+            if (parts.Length == 1)
+            {
+                indexes = default;
+                return false;
+            }
+
+            indexes = parts.Skip(1).Select(s => int.TryParse(s, out var asInt)
+                ? asInt
+                : s as object
+            ).ToArray();
+            return true;
         }
 
         /// <summary>
@@ -1042,7 +1095,7 @@ namespace PeanutButter.Utils
         public static T GetPropertyValue<T>(this object src, string propertyPath)
         {
             var objectResult = GetPropertyValue(src, propertyPath);
-            return (T)objectResult;
+            return (T) objectResult;
         }
 
         /// <summary>
@@ -1184,7 +1237,7 @@ namespace PeanutButter.Utils
             }
 
             var result = TryChangeType(input, typeof(T), out var outputObj);
-            output = (T)outputObj;
+            output = (T) outputObj;
             return result;
         }
 
@@ -1277,7 +1330,7 @@ namespace PeanutButter.Utils
             var method = GenericIsInstanceOf.MakeGenericMethod(
                 type
             );
-            return (bool)method.Invoke(null, new[] { obj });
+            return (bool) method.Invoke(null, new[] { obj });
         }
 
         /// <summary>
@@ -1292,6 +1345,5 @@ namespace PeanutButter.Utils
                 objType.Name == "RuntimeType" &&
                 objType.Namespace == "System";
         }
-
     }
 }

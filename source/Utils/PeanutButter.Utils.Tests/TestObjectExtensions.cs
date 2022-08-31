@@ -1330,6 +1330,57 @@ namespace PeanutButter.Utils.Tests
                     Expect(result).To.Equal(expected);
                 }
 
+                [Test]
+                public void ShouldIndexIntoArray()
+                {
+                    // Arrange
+                    var expected = GetRandomString();
+                    var input = new
+                    {
+                        Names = new[] { expected }
+                    };
+                    // Act
+                    var result = input.GetPropertyValue("Names[0]");
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+
+                [Test]
+                public void ShouldIndexIntoString()
+                {
+                    // Arrange
+                    var input = new
+                    {
+                        Name = "123"
+                    };
+
+                    // Act
+                    var result = input.GetPropertyValue("Name[1]");
+                    // Assert
+                    Expect(result)
+                        .To.Equal('2');
+                }
+
+                [Test]
+                public void ShouldIndexIntoArrayProps()
+                {
+                    // Arrange
+                    var expected = GetRandomString(10);
+                    var input = new
+                    {
+                        Items = new[]
+                        {
+                            new { Name = expected }
+                        }
+                    };
+                    // Act
+                    var result = input.GetPropertyValue("Items[0].Name");
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+
                 public class SomeSimpleType
                 {
                     public int Id { get; set; }
@@ -1477,6 +1528,27 @@ namespace PeanutButter.Utils.Tests
                     Expect(() => data.Set("MooCows", 123))
                         .To.Throw();
                     // Assert
+                }
+
+                [TestFixture]
+                public class OperatingOnArrayIndex
+                {
+                    public class Poco
+                    {
+                        public int[] Numbers { get; set; }
+                            = new[] { 1, 2, 3 };
+                    }
+
+                    // [Test]
+                    // public void ShouldBeAbleToSetAtIndex()
+                    // {
+                    //     // Arrange
+                    //     var expected = GetRandomInt(5, 10);
+                    //     var data = new Poco();
+                    //     // Act
+                    //     data.Set("Numbers", 1, expected);
+                    //     // Assert
+                    // }
                 }
             }
 
@@ -1738,7 +1810,7 @@ namespace PeanutButter.Utils.Tests
             {
                 // Arrange
                 var src = GetRandom<HasANameAndLabel>();
-                var downCast = (HasAName)src;
+                var downCast = (HasAName) src;
                 // Pre-Assert
                 // Act
                 var result = downCast.DeepClone();
@@ -1878,11 +1950,11 @@ namespace PeanutButter.Utils.Tests
                         reader.ReadStartElement("item");
 
                         reader.ReadStartElement("key");
-                        TKey key = (TKey)keySerializer.Deserialize(reader);
+                        TKey key = (TKey) keySerializer.Deserialize(reader);
                         reader.ReadEndElement();
 
                         reader.ReadStartElement("value");
-                        TValue value = (TValue)valueSerializer.Deserialize(reader);
+                        TValue value = (TValue) valueSerializer.Deserialize(reader);
                         reader.ReadEndElement();
 
                         Add(key, value);
@@ -2265,7 +2337,7 @@ namespace PeanutButter.Utils.Tests
                 // Act
                 var result = data.AsEnumerable<long>().ToArray();
                 // Assert
-                Expect(result).To.Equal(data.Select(o => (long)o));
+                Expect(result).To.Equal(data.Select(o => (long) o));
             }
 
             [Test]
