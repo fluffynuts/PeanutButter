@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+
 // ReSharper disable MemberCanBePrivate.Global
 
 #if BUILD_PEANUTBUTTER_INTERNAL
@@ -1177,7 +1178,7 @@ namespace PeanutButter.Utils
 
         /// <summary>
         /// null-safe shorthand for .Select(...).ToList()
-        /// - will return an empty array for a null input
+        /// - will return an empty list for a null input
         /// </summary>
         /// <param name="collection"></param>
         /// <param name="transform"></param>
@@ -1192,6 +1193,42 @@ namespace PeanutButter.Utils
             return collection
                 ?.Select(transform)
                 .ToList() ?? new List<TResult>();
+        }
+
+        /// <summary>
+        /// null-safe shorthand for .Where(...).ToArray()
+        /// - will return an empty array for a null input
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="filter"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T[] Filter<T>(
+            this IEnumerable<T> collection,
+            Func<T, bool> filter
+        )
+        {
+            return collection
+                ?.Where(filter)
+                .ToArray() ?? Array.Empty<T>();
+        }
+
+        /// <summary>
+        /// null-safe shorthand for .Where(...).ToList()
+        /// - will return an empty list for a null input
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="filter"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static IList<T> FilterList<T>(
+            this IEnumerable<T> collection,
+            Func<T, bool> filter
+        )
+        {
+            return collection
+                ?.Where(filter)
+                .ToList() ?? new List<T>();
         }
     }
 }

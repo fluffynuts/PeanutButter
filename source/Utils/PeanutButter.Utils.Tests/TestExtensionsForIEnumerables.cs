@@ -2145,6 +2145,88 @@ namespace PeanutButter.Utils.Tests
                     .To.Be.True();
             }
         }
+
+        [TestFixture]
+        public class Filter
+        {
+            [TestFixture]
+            public class OperatingOnNull
+            {
+                [Test]
+                public void ShouldReturnEmptyArray()
+                {
+                    // Arrange
+                    var input = null as List<int>;
+                    var expected = Array.Empty<int>();
+                    // Act
+                    var result = input.Filter(i => true);
+                    // Assert
+                    Expect(result)
+                        .To.Be(expected);
+                }
+            }
+
+            [TestFixture]
+            public class OperatingOnCollection
+            {
+                [Test]
+                public void ShouldFilterInput()
+                {
+                    // Arrange
+                    var input = new List<int>() { 1, 2, 3, 4, 5, 6 };
+                    var expected = new[] { 2, 4, 6 };
+                    // Act
+                    var result = input.Filter(i => i % 2 == 0);
+                    // Assert
+                    // ReSharper disable once ConvertTypeCheckToNullCheck
+                    Expect(result is int[])
+                        .To.Be.True();
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
+        }
+
+        [TestFixture]
+        public class FilterList
+        {
+            [TestFixture]
+            public class OperatingOnNull
+            {
+                [Test]
+                public void ShouldReturnEmptyArray()
+                {
+                    // Arrange
+                    var input = null as int[];
+                    // Act
+                    var result = input.FilterList(i => true);
+                    // Assert
+                    Expect(result)
+                        .To.Be.Empty();
+                    Expect(result is List<int>)
+                        .To.Be.True();
+                }
+            }
+
+            [TestFixture]
+            public class OperatingOnCollection
+            {
+                [Test]
+                public void ShouldFilterListInput()
+                {
+                    // Arrange
+                    var input = new int[] { 1, 2, 3, 4, 5, 6 };
+                    var expected = new List<int>() { 2, 4, 6 };
+                    // Act
+                    var result = input.FilterList(i => i % 2 == 0);
+                    // Assert
+                    // ReSharper disable once ConvertTypeCheckToNullCheck
+                    Expect(result is List<int>)
+                        .To.Be.True();
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
+        }
     }
-    
 }
