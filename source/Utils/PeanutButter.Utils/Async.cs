@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -22,25 +23,38 @@ namespace PeanutButter.Utils
             var oldContext = SynchronizationContext.Current;
             var context = new ExclusiveSynchronizationContext();
             SynchronizationContext.SetSynchronizationContext(context);
-            context.Post(async _ =>
+            try
             {
-                try
+                context.Post(async _ =>
                 {
-                    await task();
-                }
-                catch (Exception e)
+                    try
+                    {
+                        await task();
+                    }
+                    catch (Exception e)
+                    {
+                        context.InnerException = e;
+                        throw;
+                    }
+                    finally
+                    {
+                        context.EndMessageLoop();
+                    }
+                }, null);
+                context.BeginMessageLoop();
+
+                SynchronizationContext.SetSynchronizationContext(oldContext);
+            }
+            catch (AggregateException ex)
+            {
+                if (ex.InnerException is null)
                 {
-                    context.InnerException = e;
                     throw;
                 }
-                finally
-                {
-                    context.EndMessageLoop();
-                }
-            }, null);
-            context.BeginMessageLoop();
-
-            SynchronizationContext.SetSynchronizationContext(oldContext);
+                ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+                // shouldn't actually get here
+                throw;
+            }
         }
 
         /// <summary>
@@ -57,25 +71,38 @@ namespace PeanutButter.Utils
             var context = new ExclusiveSynchronizationContext();
             SynchronizationContext.SetSynchronizationContext(context);
             var ret = default(T);
-            context.Post(async _ =>
+            try
             {
-                try
+                context.Post(async _ =>
                 {
-                    ret = await task();
-                }
-                catch (Exception e)
+                    try
+                    {
+                        ret = await task();
+                    }
+                    catch (Exception e)
+                    {
+                        context.InnerException = e;
+                        throw;
+                    }
+                    finally
+                    {
+                        context.EndMessageLoop();
+                    }
+                }, null);
+                context.BeginMessageLoop();
+                SynchronizationContext.SetSynchronizationContext(oldContext);
+                return ret;
+            }
+            catch (AggregateException ex)
+            {
+                if (ex.InnerException is null)
                 {
-                    context.InnerException = e;
                     throw;
                 }
-                finally
-                {
-                    context.EndMessageLoop();
-                }
-            }, null);
-            context.BeginMessageLoop();
-            SynchronizationContext.SetSynchronizationContext(oldContext);
-            return ret;
+                ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+                // shouldn't actually get here
+                throw;
+            }
         }
     }
 
@@ -121,20 +148,19 @@ namespace PeanutButter.Utils
                     }
                 }
 
-                if (task != null)
-                {
-                    task.Item1(task.Item2);
-                    if (InnerException is not null)
-                    {
-                        throw new AggregateException(
-                            $"{nameof(Async)}.{nameof(Async.RunSync)}: provided async function threw an exception.",
-                            InnerException
-                        );
-                    }
-                }
-                else
+                if (task is null)
                 {
                     _workItemsWaiting.WaitOne();
+                    continue;
+                }
+
+                task.Item1(task.Item2);
+                if (InnerException is not null)
+                {
+                    throw new AggregateException(
+                        $"{nameof(Async)}.{nameof(Async.RunSync)}: provided async function threw an exception.",
+                        InnerException
+                    );
                 }
             }
         }
