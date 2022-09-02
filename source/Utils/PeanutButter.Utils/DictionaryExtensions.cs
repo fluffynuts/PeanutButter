@@ -305,17 +305,36 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
-        /// Converts a NameValueCollection to a dictionary
+        /// Converts a NameValueCollection to a dictionary with the
+        /// Ordinal key comparer
         /// </summary>
         /// <param name="collection"></param>
         /// <returns></returns>
-        public static IDictionary<string, string> ToDictionary(this NameValueCollection collection)
+        public static IDictionary<string, string> ToDictionary(
+            this NameValueCollection collection
+        )
         {
-            var result = new Dictionary<string, string>();
+            return collection.ToDictionary(StringComparer.Ordinal);
+        }
+
+        /// <summary>
+        /// Converts a NameValueCollection to a dictionary with the
+        /// provided key comparer
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="keyComparer"></param>
+        /// <returns></returns>
+        public static IDictionary<string, string> ToDictionary(
+            this NameValueCollection collection,
+            IEqualityComparer<string> keyComparer
+        )
+        {
+            var result = new Dictionary<string, string>(keyComparer);
             foreach (var key in collection.AllKeys)
             {
                 result[key] = collection[key];
             }
+
             return result;
         }
 
@@ -332,6 +351,7 @@ namespace PeanutButter.Utils
             {
                 result[kvp.Key] = kvp.Value;
             }
+
             return result;
         }
     }

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -501,6 +502,24 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            public void ShouldBeAbleToSetTheKeyComparer()
+            {
+                // Arrange
+                var key = "AAA";
+                var value = "BBB";
+                var input = new NameValueCollection()
+                {
+                    { key, value }
+                };
+
+                // Act
+                var result = input.ToDictionary(StringComparer.OrdinalIgnoreCase);
+                // Assert
+                Expect(result["aaa"])
+                    .To.Equal(value);
+            }
+
+            [Test]
             public void ShouldBeAbleToConvertDictionaryOfStringStringToNameValueCollection()
             {
                 // Arrange
@@ -559,6 +578,7 @@ namespace PeanutButter.Utils.Tests
                 Expect(result)
                     .To.Be(dict);
             }
+
             [Test]
             public void ShouldProduceOriginalRefForDictionaryUntypedFromStringObject()
             {
