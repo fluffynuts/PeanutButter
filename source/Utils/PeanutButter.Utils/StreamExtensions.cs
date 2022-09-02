@@ -296,7 +296,7 @@ namespace PeanutButter.Utils
 
             using var stream = new MemoryStream();
             src.CopyTo(stream);
-            
+
             if (src.CanSeek)
             {
                 src.Rewind();
@@ -324,6 +324,7 @@ namespace PeanutButter.Utils
             {
                 src.Rewind();
             }
+
             return stream.ToArray();
         }
 
@@ -464,6 +465,7 @@ namespace PeanutButter.Utils
 
         /// <summary>
         /// Read all content of a stream as text
+        /// with utf8 encoding
         /// </summary>
         /// <param name="stream"></param>
         /// <returns></returns>
@@ -474,13 +476,50 @@ namespace PeanutButter.Utils
             return stream.ReadAllText(Encoding.UTF8);
         }
 
-        private static string ReadAllText(
+        /// <summary>
+        /// Read all content of a stream as text
+        /// with the provided encoding
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="encoding"></param>
+        /// <returns></returns>
+        public static string ReadAllText(
             this Stream stream,
             Encoding encoding
         )
         {
             return encoding.GetString(
                 stream.ReadAllBytes()
+            );
+        }
+
+        /// <summary>
+        /// Read all content of a stream as text
+        /// with utf8 encoding
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        public static async Task<string> ReadAllTextAsync(
+            this Stream stream
+        )
+        {
+            return await stream.ReadAllTextAsync(Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// Read all content of a stream as text
+        /// with the provided encoding
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="encoding"></param>
+        /// <returns></returns>
+        public static async Task<string> ReadAllTextAsync(
+            this Stream stream,
+            Encoding encoding
+        )
+        {
+            return encoding.GetString(
+                await stream.ReadAllBytesAsync()
             );
         }
     }
@@ -495,6 +534,7 @@ namespace PeanutButter.Utils
         /// </summary>
         // ReSharper disable once InconsistentNaming
         Lf,
+
         /// <summary>
         /// Carriage-return, Line-feed (eg Windows)
         /// </summary>

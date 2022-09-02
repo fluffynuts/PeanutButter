@@ -936,6 +936,45 @@ namespace PeanutButter.Utils.Tests
                     .To.Equal(expected);
             }
         }
+        
+        [TestFixture]
+        public class ReadAllTextAsync
+        {
+            [Test]
+            public async Task ShouldReadTheStreamAsText()
+            {
+                // Arrange
+                var expected = GetRandomWords();
+                var memStream = new MemoryStream(
+                    Encoding.UTF8.GetBytes(
+                        expected
+                    )
+                );
+                // Act
+                var result = await memStream.ReadAllTextAsync();
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+            
+            [Test]
+            public async Task ShouldReadTheStreamAsTextTwice()
+            {
+                // Arrange
+                var expected = GetRandomWords();
+                var memStream = new MemoryStream(
+                    Encoding.UTF8.GetBytes(
+                        expected
+                    )
+                );
+                // Act
+                memStream.ReadAllText();
+                var result = await memStream.ReadAllTextAsync();
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+        }
 
         [TestFixture]
         public class ReadLines
