@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
 using NExpect;
@@ -122,6 +123,107 @@ namespace PeanutButter.Utils.Tests
                 // Assert
                 Expect(list)
                     .To.Equal(new[] { true, false, true });
+            }
+        }
+
+        [TestFixture]
+        public class AddAll
+        {
+            [Test]
+            public void ShouldAddAllTheItems()
+            {
+                // Arrange
+                var list = new List<int>();
+                // Act
+                var result = list.AddAll(1, 2, 3);
+                // Assert
+                Expect(list)
+                    .To.Equal(new[] { 1, 2, 3 });
+                Expect(result)
+                    .To.Be(list);
+            }
+
+            [Test]
+            public void ShouldAddAllTheItemsAlt()
+            {
+                // Arrange
+                var list = new MyList<int>();
+                // Act
+                var result = list.AddAll(1, 2, 3);
+                // Assert
+                Expect(list as IEnumerable<int>)
+                    .To.Equal(new[] { 1, 2, 3 });
+                Expect(result)
+                    .To.Be(list);
+            }
+
+
+            public class MyList<T> : IList<T>
+            {
+                private readonly List<T> _actual;
+
+                public MyList()
+                {
+                    _actual = new List<T>();
+                }
+
+                public IEnumerator<T> GetEnumerator()
+                {
+                    return _actual.GetEnumerator();
+                }
+
+                IEnumerator IEnumerable.GetEnumerator()
+                {
+                    return GetEnumerator();
+                }
+
+                public void Add(T item)
+                {
+                    _actual.Add(item);
+                }
+
+                public void Clear()
+                {
+                    _actual.Clear();
+                }
+
+                public bool Contains(T item)
+                {
+                    return _actual.Contains(item);
+                }
+
+                public void CopyTo(T[] array, int arrayIndex)
+                {
+                    _actual.CopyTo(array, arrayIndex);
+                }
+
+                public bool Remove(T item)
+                {
+                    return _actual.Remove(item);
+                }
+
+                public int Count => _actual.Count;
+                public bool IsReadOnly => false;
+                public int IndexOf(T item)
+                {
+                    return _actual.IndexOf(item);
+                }
+
+                public void Insert(int index, T item)
+                {
+                    _actual.Insert(index, item);
+                }
+
+                public void RemoveAt(int index)
+                {
+                    _actual.RemoveAt(index);
+                }
+
+                public T this[int index]
+                {
+                    get => _actual[index];
+                    set => _actual[index] = value;
+                }
             }
         }
     }

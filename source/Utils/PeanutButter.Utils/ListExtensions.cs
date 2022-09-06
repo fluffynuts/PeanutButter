@@ -95,6 +95,34 @@ namespace PeanutButter.Utils
             }
         }
 
+        /// <summary>
+        /// Adds all the provided items and returns the list
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="items"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static IList<T> AddAll<T>(
+            this IList<T> list,
+            params T[] items
+        )
+        {
+            if (list is List<T> lst)
+            {
+                // concrete list can do this more efficiently
+                lst.AddRange(items);
+            }
+            else
+            {
+                foreach (var item in items)
+                {
+                    list.Add(item);
+                }
+            }
+
+            return list;
+        }
+
         private static void ValidateListContainsElements<T>(IList<T> list)
         {
             if (list.Count < 1)
