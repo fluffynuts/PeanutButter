@@ -207,6 +207,31 @@ namespace PeanutButter.Utils.Tests
                     Expect(result)
                         .To.Be.False();
                 }
+
+                [TestFixture]
+                public class Generics
+                {
+                    [Test]
+                    public void ShouldReturnTrueWhenComparingRelatedGenerics()
+                    {
+                        // Arrange
+                        var baseType = typeof(BaseGenericType<>);
+                        var derivedType = typeof(DerivedGenericType<>);
+                        // Act
+                        var result = derivedType.Inherits(baseType);
+                        // Assert
+                        Expect(result)
+                            .To.Be.True();
+                    }
+                }
+            }
+
+            public class BaseGenericType<T>
+            {
+            }
+
+            public class DerivedGenericType<T>: BaseGenericType<T>
+            {
             }
 
             public class SimpleType
@@ -692,6 +717,30 @@ namespace PeanutButter.Utils.Tests
                 var sut = typeof(Concrete<int>);
                 // Act
                 var result = sut.Implements(typeof(IContract));
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+
+            [Test]
+            public void ShouldReturnTrueForInheritedGeneric()
+            {
+                // Arrange
+                var sut = typeof(Concrete<int>);
+                // Act
+                var result = sut.Implements(typeof(IContract<int>));
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+
+            [Test]
+            public void ShouldReturnTrueForGenerics()
+            {
+                // Arrange
+                var sut = typeof(Concrete<>);
+                // Act
+                var result = sut.Implements(typeof(IContract<>));
                 // Assert
                 Expect(result)
                     .To.Be.True();

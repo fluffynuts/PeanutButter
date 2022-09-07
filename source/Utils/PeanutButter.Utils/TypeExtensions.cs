@@ -767,6 +767,52 @@ namespace PeanutButter.Utils
                 return false;
             }
 
+            if (baseType.IsGenericType && test.IsGenericType)
+            {
+                var baseGen = baseType.GetGenericTypeDefinition();
+                var testGen = test.GetGenericTypeDefinition();
+                if (baseGen == testGen)
+                {
+                    var baseParams = baseType.GetGenericArguments();
+                    var testParams = test.GetGenericArguments();
+                    if (baseParams.Length == testParams.Length)
+                    {
+                        var match = true;
+                        for (var i = 0; i < baseParams.Length; i++)
+                        {
+                            var baseIsParam = baseParams[i].IsGenericParameter;
+                            var testIsParam = testParams[i].IsGenericParameter;
+                            if (baseIsParam && testIsParam)
+                            {
+                                continue;
+                            }
+
+                            if (baseIsParam || testIsParam)
+                            {
+                                match = false;
+                                break;
+                            }
+
+                            if (baseParams[i] == testParams[i])
+                            {
+                                continue;
+                            }
+                        }
+
+                        if (match)
+                        {
+                            return true;
+                        }
+                    }
+
+                    if (baseParams.IsEqualTo(testParams))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+
             return baseType == test ||
                 baseType.Inherits(test);
         }
@@ -796,7 +842,28 @@ namespace PeanutButter.Utils
                 throw new InvalidOperationException($"{interfaceType} is not an interface type");
             }
 
-            return type.GetInterfaces().Contains(interfaceType);
+            var interfaces = type.GetInterfaces();
+            var nonGenericInterfaces = interfaces.Where(
+                i => !i.IsGenericType
+            ).ToHashSet();
+            if (nonGenericInterfaces.Contains(interfaceType))
+            {
+                return true;
+            }
+
+            if (!interfaceType.IsGenericType)
+            {
+                return false;
+            }
+
+            var genericInterfaces = interfaces.Where(
+                i => i.IsGenericType
+            );
+
+            var seeking = interfaceType.GetGenericTypeDefinition();
+            return genericInterfaces.Any(
+                i => i.GetGenericTypeDefinition() == seeking
+            );
         }
 
         private static readonly Type[] NumericTypes =
