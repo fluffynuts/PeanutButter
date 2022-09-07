@@ -787,16 +787,23 @@ namespace PeanutButter.Utils
                                 continue;
                             }
 
-                            if (baseIsParam || testIsParam)
+                            if (baseIsParam)
                             {
                                 match = false;
                                 break;
                             }
 
-                            if (baseParams[i] == testParams[i])
+                            if (testIsParam)
                             {
                                 continue;
                             }
+
+                            if (baseParams[i] != testParams[i])
+                            {
+                                match = false;
+                                break;
+                            }
+                            
                         }
 
                         if (match)

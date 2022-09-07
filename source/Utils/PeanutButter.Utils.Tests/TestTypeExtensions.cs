@@ -223,6 +223,51 @@ namespace PeanutButter.Utils.Tests
                         Expect(result)
                             .To.Be.True();
                     }
+
+                    [Test]
+                    public void ShouldReturnTrueWhenOperatingTypeHasGenericParamAndRelatedGenericDoesNot()
+                    {
+                        // Arrange
+                        var baseType = typeof(BaseGenericType<>);
+                        var derivedType = typeof(DerivedGenericType<int>);
+
+                        // Act
+                        var result = derivedType.Inherits(baseType);
+                        
+                        // Assert
+                        Expect(result)
+                            .To.Be.True();
+                    }
+
+                    [Test]
+                    public void ShouldReturnFalseWhenDerivedIsParameterlessAndBaseHasParameter()
+                    {
+                        // Arrange
+                        var baseType = typeof(BaseGenericType<int>);
+                        var derivedType = typeof(DerivedGenericType<>);
+
+                        // Act
+                        var result = derivedType.Inherits(baseType);
+                        
+                        // Assert
+                        Expect(result)
+                            .To.Be.False();
+                    }
+
+                    [Test]
+                    public void ShouldReturnFalseWhenParametersMisMatch()
+                    {
+                        // Arrange
+                        var baseType = typeof(BaseGenericType<int>);
+                        var derivedType = typeof(DerivedGenericType<string>);
+
+                        // Act
+                        var result = derivedType.Inherits(baseType);
+                        
+                        // Assert
+                        Expect(result)
+                            .To.Be.False();
+                    }
                 }
             }
 
@@ -739,6 +784,18 @@ namespace PeanutButter.Utils.Tests
             {
                 // Arrange
                 var sut = typeof(Concrete<>);
+                // Act
+                var result = sut.Implements(typeof(IContract<>));
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+
+            [Test]
+            public void ShouldReturnTrueForParameterisedImplementorOfGeneric()
+            {
+                // Arrange
+                var sut = typeof(Concrete<int>);
                 // Act
                 var result = sut.Implements(typeof(IContract<>));
                 // Assert
