@@ -775,53 +775,65 @@ namespace PeanutButter.Utils
                 {
                     var baseParams = baseType.GetGenericArguments();
                     var testParams = test.GetGenericArguments();
-                    if (baseParams.Length == testParams.Length)
-                    {
-                        var match = true;
-                        for (var i = 0; i < baseParams.Length; i++)
-                        {
-                            var baseIsParam = baseParams[i].IsGenericParameter;
-                            var testIsParam = testParams[i].IsGenericParameter;
-                            if (baseIsParam && testIsParam)
-                            {
-                                continue;
-                            }
 
-                            if (baseIsParam)
-                            {
-                                match = false;
-                                break;
-                            }
-
-                            if (testIsParam)
-                            {
-                                continue;
-                            }
-
-                            if (baseParams[i] != testParams[i])
-                            {
-                                match = false;
-                                break;
-                            }
-                            
-                        }
-
-                        if (match)
-                        {
-                            return true;
-                        }
-                    }
-
-                    if (baseParams.IsEqualTo(testParams))
-                    {
-                        return true;
-                    }
+                    return TypesMatch(baseParams, testParams);
                 }
             }
 
 
             return baseType == test ||
                 baseType.Inherits(test);
+        }
+
+        private static bool TypesMatch(
+            Type[] typeParams,
+            Type[] testParams
+        )
+        {
+            if (typeParams.Length == testParams.Length)
+            {
+                var match = true;
+                for (var i = 0; i < typeParams.Length; i++)
+                {
+                    var testParam = testParams[i];
+                    var baseParam = typeParams[i];
+                    if (testParam.IsGenericParameter)
+                    {
+                        var testGenericConstraints = testParam.GetGenericParameterConstraints();
+                        if (testGenericConstraints.Any(constraint => !baseParam.Inherits(constraint)))
+                        {
+                            match = false;
+                        }
+
+                        continue;
+                    }
+
+                    if (baseParam.IsGenericParameter)
+                    {
+                        match = false;
+                        break;
+                    }
+
+
+                    if (baseParam != testParam)
+                    {
+                        match = false;
+                        break;
+                    }
+                }
+
+                if (match)
+                {
+                    return true;
+                }
+            }
+
+            if (typeParams.IsEqualTo(testParams))
+            {
+                return true;
+            }
+
+            return false;
         }
 
 
@@ -868,8 +880,19 @@ namespace PeanutButter.Utils
             );
 
             var seeking = interfaceType.GetGenericTypeDefinition();
+            var seekingParams = interfaceType.GetGenericArguments();
             return genericInterfaces.Any(
-                i => i.GetGenericTypeDefinition() == seeking
+                i =>
+                {
+                    var genericTypeDef = i.GetGenericTypeDefinition();
+                    if (genericTypeDef != seeking)
+                    {
+                        return false;
+                    }
+
+                    var testParams = i.GetGenericArguments();
+                    return TypesMatch(testParams, seekingParams);
+                }
             );
         }
 

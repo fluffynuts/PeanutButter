@@ -803,6 +803,39 @@ namespace PeanutButter.Utils.Tests
                     .To.Be.True();
             }
 
+            [Test]
+            public void ShouldReturnFalseWhenGenericParametersMismatch()
+            {
+                // Arrange
+                var sut = typeof(Concrete<int>);
+                
+                // Act
+                var result = sut.Implements(typeof(IContract<string>));
+                // Assert
+                Expect(result)
+                    .To.Be.False();
+            }
+
+            [Test]
+            public void ShouldHandleConstrainedParameters()
+            {
+                // Arrange
+                var sut = typeof(Constrained<int>);
+                // Act
+                var result = sut.Implements(typeof(IConstrained<>));
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+
+            public interface IConstrained<T> where T : struct
+            {
+            }
+
+            public class Constrained<T> : IConstrained<T> where T : struct
+            {
+            }
+
             public class Concrete<T> : IContract<T>
             {
             }
