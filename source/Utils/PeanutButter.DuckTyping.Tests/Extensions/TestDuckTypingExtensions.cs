@@ -18,6 +18,7 @@ using PeanutButter.Utils;
 using PeanutButter.Utils.Dictionaries;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using static NExpect.Expectations;
+using ConfigurationManager = System.Configuration.ConfigurationManager;
 
 // ReSharper disable ConditionIsAlwaysTrueOrFalse
 // ReSharper disable NotNullMemberIsNotInitialized

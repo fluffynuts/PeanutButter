@@ -23,7 +23,7 @@
       <group targetFramework="net462">
         <dependency id="PeanutButter.WindowsServiceManagement" version="3.0.18" />
         <dependency id="CommandLineParser" version="1.9.71" />
-        <dependency id="log4net" version="2.0.12" />
+        <dependency id="log4net" version="2.0.15" />
       </group>
     </dependencies>
     <references></references>

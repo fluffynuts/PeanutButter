@@ -601,6 +601,43 @@ public class HttpRequestBuilder : RandomizableBuilder<HttpRequestBuilder, HttpRe
     }
 
     /// <summary>
+    /// Set the full url for the request
+    /// </summary>
+    /// <param name="url"></param>
+    /// <returns></returns>
+    public HttpRequestBuilder WithUrl(string url)
+    {
+        return WithUrl(new Uri(url));
+    }
+
+    /// <summary>
+    /// Set the full url for the request
+    /// </summary>
+    /// <param name="url"></param>
+    /// <returns></returns>
+    public HttpRequestBuilder WithUrl(Uri url)
+    {
+        return With(o =>
+        {
+            o.Scheme = url.Scheme;
+            var hasDefaultPort = DefaultPorts.TryGetValue(url.Scheme, out var port)
+                && port == url.Port;
+            o.Host = hasDefaultPort
+                ? new HostString(url.Host)
+                : new HostString(url.Host, url.Port);
+            o.Path = url.AbsolutePath;
+            o.PathBase = "";
+            o.QueryString = new QueryString(url.Query);
+        });
+    }
+
+    private static readonly Dictionary<string, int> DefaultPorts = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["http"] = 80,
+        ["https"] = 443
+    };
+
+    /// <summary>
     /// Adds a form file with text content and the provided name and filename
     /// </summary>
     /// <param name="content"></param>
