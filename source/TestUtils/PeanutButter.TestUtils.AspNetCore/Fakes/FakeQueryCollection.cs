@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Microsoft.AspNetCore.Http;
 
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
@@ -9,12 +10,12 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes;
 public class FakeQueryCollection : StringValueMap, IQueryCollection, IFake
 {
     /// <inheritdoc />
-    public FakeQueryCollection()
+    public FakeQueryCollection(): base(StringComparer.OrdinalIgnoreCase)
     {
     }
 
     /// <inheritdoc />
-    public FakeQueryCollection(string queryString)
+    public FakeQueryCollection(string queryString): base(StringComparer.OrdinalIgnoreCase)
     {
         queryString ??= "";
         queryString = queryString.Trim();

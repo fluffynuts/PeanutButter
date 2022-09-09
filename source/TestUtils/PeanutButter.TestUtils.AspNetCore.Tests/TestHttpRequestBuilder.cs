@@ -352,7 +352,7 @@ public class TestHttpRequestBuilder
         Expect(search)
             .Not.To.Equal(key);
         // Act
-        var result = sut.Query["OnE"];
+        var result = sut.Query[search];
         // Assert
         Expect(result)
             .To.Equal(value);

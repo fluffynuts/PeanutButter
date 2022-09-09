@@ -98,8 +98,8 @@ namespace PeanutButter.Utils.Dictionaries
         {
             _defaultResolver = defaultResolver ?? throw new ArgumentNullException(nameof(defaultResolver));
             _storeResolvedDefaults = storeResolvedDefaults;
-            _actual = new Dictionary<TKey, TValue>(Comparer);
             Comparer = ResolveEqualityComparer(keyComparer);
+            _actual = new Dictionary<TKey, TValue>(Comparer);
         }
 
         private IEqualityComparer<TKey> ResolveEqualityComparer(IEqualityComparer<TKey> provided)
@@ -131,7 +131,7 @@ namespace PeanutButter.Utils.Dictionaries
         {
             _smartResolver = smartResolver ?? throw new ArgumentNullException(nameof(smartResolver));
             Comparer = ResolveEqualityComparer(keyComparer);
-            _actual = new Dictionary<TKey, TValue>();
+            _actual = new Dictionary<TKey, TValue>(Comparer);
         }
 
         /// <summary>

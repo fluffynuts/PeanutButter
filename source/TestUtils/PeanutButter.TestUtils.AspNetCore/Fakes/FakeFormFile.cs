@@ -128,6 +128,7 @@ public class FakeFormFile : IFormFile, IFake
         get 
         {
             using var memStream = new MemoryStream();
+            _content.Rewind();
             _content.CopyTo(memStream);
             return memStream.ToArray();
         }
