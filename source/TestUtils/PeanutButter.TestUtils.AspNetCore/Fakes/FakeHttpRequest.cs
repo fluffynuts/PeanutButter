@@ -264,4 +264,36 @@ public class FakeHttpRequest : HttpRequest, IFake
     {
         _headers = headers;
     }
+
+    /// <summary>
+    /// Sets the url components on this request from the provided Url
+    /// </summary>
+    /// <param name="url"></param>
+    public void SetUrl(string url)
+    {
+        SetUrl(new Uri(url));
+    }
+
+    /// <summary>
+    /// Sets the url components on this request from the provided Url
+    /// </summary>
+    /// <param name="url"></param>
+    public void SetUrl(Uri url)
+    {
+        Scheme = url.Scheme;
+        var hasDefaultPort = DefaultPorts.TryGetValue(url.Scheme, out var port)
+            && port == url.Port;
+        Host = hasDefaultPort
+            ? new HostString(url.Host)
+            : new HostString(url.Host, url.Port);
+        Path = url.AbsolutePath;
+        PathBase = "";
+        QueryString = new QueryString(url.Query);
+    }
+
+    private static readonly Dictionary<string, int> DefaultPorts = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["http"] = 80,
+        ["https"] = 443
+    };
 }

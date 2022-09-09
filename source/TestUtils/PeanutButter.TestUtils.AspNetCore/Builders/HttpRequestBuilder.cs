@@ -617,18 +617,7 @@ public class HttpRequestBuilder : RandomizableBuilder<HttpRequestBuilder, HttpRe
     /// <returns></returns>
     public HttpRequestBuilder WithUrl(Uri url)
     {
-        return With(o =>
-        {
-            o.Scheme = url.Scheme;
-            var hasDefaultPort = DefaultPorts.TryGetValue(url.Scheme, out var port)
-                && port == url.Port;
-            o.Host = hasDefaultPort
-                ? new HostString(url.Host)
-                : new HostString(url.Host, url.Port);
-            o.Path = url.AbsolutePath;
-            o.PathBase = "";
-            o.QueryString = new QueryString(url.Query);
-        });
+        return With(o => o.As<FakeHttpRequest>().SetUrl(url));
     }
 
     private static readonly Dictionary<string, int> DefaultPorts = new(StringComparer.OrdinalIgnoreCase)
