@@ -4,13 +4,10 @@ using System.IO;
 using System.Net.Http;
 using System.Text;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
-// ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable MemberCanBePrivate.Global
-
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
 
 /// <summary>

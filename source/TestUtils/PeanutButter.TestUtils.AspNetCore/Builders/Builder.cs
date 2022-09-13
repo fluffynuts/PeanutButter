@@ -12,7 +12,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders;
 /// <typeparam name="TBuilder"></typeparam>
 /// <typeparam name="TSubject"></typeparam>
 public abstract class Builder<TBuilder, TSubject>
-    where TBuilder : Builder<TBuilder, TSubject>
+    where TBuilder : Builder<TBuilder, TSubject>, new()
 {
     private readonly Action<TSubject>[] _actualizers;
 
@@ -22,7 +22,7 @@ public abstract class Builder<TBuilder, TSubject>
     /// <returns></returns>
     public static TBuilder Create()
     {
-        return Activator.CreateInstance<TBuilder>();
+        return new TBuilder();
     }
 
     internal Builder(

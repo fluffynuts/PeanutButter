@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
@@ -23,6 +24,17 @@ internal static class RandomValueGen
         InstallHttpResponseGenerator();
         InstallRequestCookieCollectionBuilder();
         InstallWebSocketBuilder();
+        InstallModelBindingContextBuilder();
+    }
+
+    private static void InstallModelBindingContextBuilder()
+    {
+        InstallRandomGenerator(
+            () => ModelBindingContextBuilder.BuildRandom() as FakeModelBindingContext
+        );
+        InstallRandomGenerator(
+            ModelBindingContextBuilder.BuildRandom
+        );
     }
 
     private static void InstallHttpResponseGenerator()

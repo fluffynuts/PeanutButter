@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 
-// ReSharper disable ClassNeverInstantiated.Global
-
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
 
 /// <summary>

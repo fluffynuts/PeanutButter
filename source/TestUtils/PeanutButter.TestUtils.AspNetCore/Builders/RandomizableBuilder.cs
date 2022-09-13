@@ -8,7 +8,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders;
 /// <typeparam name="TBuilder"></typeparam>
 /// <typeparam name="TSubject"></typeparam>
 public abstract class RandomizableBuilder<TBuilder, TSubject> : Builder<TBuilder, TSubject>
-    where TBuilder : RandomizableBuilder<TBuilder, TSubject>
+    where TBuilder : RandomizableBuilder<TBuilder, TSubject>, new()
 {
     internal RandomizableBuilder(
         params Action<TSubject>[] actualizers

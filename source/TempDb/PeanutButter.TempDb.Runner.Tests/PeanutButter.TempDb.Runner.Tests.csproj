@@ -21,7 +21,7 @@
     <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.2.0" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
     <PackageReference Include="MySql.Data" Version="8.0.30" />
     <PackageReference Include="MySqlConnector" Version="2.1.11" />
-    <PackageReference Include="NExpect" Version="2.0.3" />
+    <PackageReference Include="NExpect" Version="2.0.5" " />
     <PackageReference Include="nunit" Version="3.13.3" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
