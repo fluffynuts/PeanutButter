@@ -748,7 +748,7 @@ public class TestHttpRequestBuilder
             );
             Expect(expected.Content)
                 .To.Equal(Encoding.UTF8.GetBytes(content));
-            
+
             var sut = HttpRequestBuilder.Create()
                 .WithFormFile(content, name, fileName)
                 .Build();
@@ -757,6 +757,21 @@ public class TestHttpRequestBuilder
             // Assert
             Expect(result)
                 .To.Deep.Equal(expected);
+        }
+
+        [Test]
+        public void ShouldBeAbleToAffectTheExistingHttpContext()
+        {
+            // Arrange
+            var sut = HttpRequestBuilder.Create()
+                .WithHttpContextMutator(
+                    ctx => ctx.Items["foo"] = "bar"
+                ).Build();
+            // Act
+            var result = sut.HttpContext.Items["foo"];
+            // Assert
+            Expect(result)
+                .To.Equal("bar");
         }
 
         [TestFixture]
@@ -796,7 +811,9 @@ public class TestHttpRequestBuilder
             public void ShouldSetScheme()
             {
                 // Arrange
-                var expected = GetRandomBoolean() ? "http": "https";
+                var expected = GetRandomBoolean()
+                    ? "http"
+                    : "https";
                 var url = $"{expected}://{GetRandomHostname()}/{GetRandomHttpPathAndParameters()}";
                 // Act
                 var result = HttpRequestBuilder.Create()
@@ -856,7 +873,6 @@ public class TestHttpRequestBuilder
                 Expect(result.Query)
                     .To.Be.Equivalent.To(parameters);
             }
-
         }
     }
 

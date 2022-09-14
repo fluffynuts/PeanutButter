@@ -641,4 +641,16 @@ public class HttpRequestBuilder : RandomizableBuilder<HttpRequestBuilder, HttpRe
                 .Add(new FakeFormFile(content, name, fileName))
         );
     }
+
+    /// <summary>
+    /// Facilitates easier http context mutations
+    /// </summary>
+    /// <param name="mutator"></param>
+    /// <returns></returns>
+    public HttpRequestBuilder WithHttpContextMutator(
+        Action<FakeHttpContext> mutator
+    )
+    {
+        return With(o => mutator(o.HttpContext.As<FakeHttpContext>()));
+    }
 }
