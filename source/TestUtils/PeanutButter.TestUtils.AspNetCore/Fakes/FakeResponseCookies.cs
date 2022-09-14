@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Http;
 using PeanutButter.RandomGenerators;
 
@@ -17,6 +18,36 @@ public class FakeResponseCookies : IResponseCookies, IFake
         => _store;
 
     private readonly Dictionary<string, FakeCookie> _store = new();
+
+    /// <summary>
+    /// Provides easier indexing into the store
+    /// </summary>
+    /// <param name="key"></param>
+    public FakeCookie this[string key] 
+    { 
+        get => Store[key];
+        set => Store[key] = value;
+    }
+
+    /// <summary>
+    /// Query if the store contains the key
+    /// </summary>
+    /// <param name="key"></param>
+    /// <returns></returns>
+    public bool ContainsKey(string key)
+    {
+        return Store.ContainsKey(key);
+    }
+    
+    /// <summary>
+    /// Return all store keys
+    /// </summary>
+    public string[] Keys => Store.Keys.ToArray();
+    
+    /// <summary>
+    /// Return all store values
+    /// </summary>
+    public FakeCookie[] Values => Store.Values.ToArray();
 
     /// <summary>
     /// Attempts to create a substitute for FakeResponseCookies using

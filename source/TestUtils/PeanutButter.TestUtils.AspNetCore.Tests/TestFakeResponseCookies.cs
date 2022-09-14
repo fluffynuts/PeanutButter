@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using NExpect;
@@ -78,7 +79,7 @@ public class TestFakeResponseCookies
 
         // Act
         sut.Delete(key);
-        
+
         // Assert
         Expect(sut.Store)
             .Not.To.Contain.Key(key);
@@ -98,7 +99,7 @@ public class TestFakeResponseCookies
             .Not.To.Be.Null.Or.Empty();
         sut.Append(key, value, options);
         var otherOptions = GetRandom<CookieOptions>();
-        
+
         // Act
         sut.Delete(key, otherOptions);
         Expect(sut.Store)
@@ -109,9 +110,84 @@ public class TestFakeResponseCookies
             .Not.To.Contain.Key(key);
     }
 
+    [TestFixture]
+    public class QuickerStoreAccess
+    {
+        [Test]
+        public void ShouldBeAbleToIndexIntoStore()
+        {
+            // Arrange
+            var sut = Create();
+            var key = GetRandomString();
+            var cookie = GetRandom<FakeCookie>();
+            // Act
+            sut[key] = cookie;
+            // Assert
+            Expect(sut.Store)
+                .To.Contain.Key(key)
+                .With.Value.Deep.Equal.To(cookie);
+        }
+
+        [Test]
+        public void ShouldBeAbleToQueryAllKeys()
+        {
+            // Arrange
+            var sut = Create();
+            var keys = GetRandomArray<string>(2, 4);
+            foreach (var k in keys)
+            {
+                sut[k] = GetRandom<FakeCookie>();
+            }
+
+            // Act
+            var result = sut.Keys;
+            // Assert
+            Expect(result)
+                .To.Be.Equivalent.To(keys);
+        }
+
+        [Test]
+        public void ShouldBeAbleToQueryAllValues()
+        {
+            // Arrange
+            var sut = Create();
+            var keys = GetRandomArray<string>(2, 4);
+            var cookies = new List<FakeCookie>();
+            foreach (var k in keys)
+            {
+                sut[k] = GetRandom<FakeCookie>();
+                cookies.Add(sut[k]);
+            }
+
+            // Act
+            var result = sut.Values;
+            // Assert
+            Expect(result)
+                .To.Be.Deep.Equivalent.To(cookies);
+        }
+
+        [Test]
+        public void ShouldBeAbleToQueryIfHasKey()
+        {
+            // Arrange
+            var included = GetRandomString();
+            var exluded = GetAnother(included);
+            var sut = Create();
+            sut[included] = GetRandom<FakeCookie>();
+            // Act
+            var includedResult = sut.ContainsKey(included);
+            var excludedResult = sut.ContainsKey(exluded);
+            // Assert
+            
+            Expect(includedResult)
+                .To.Be.True();
+            Expect(excludedResult)
+                .To.Be.False();
+        }
+    }
+
     private static FakeResponseCookies Create()
     {
         return FakeResponseCookies.CreateSubstitutedIfPossible() as FakeResponseCookies;
-        ;
     }
 }
