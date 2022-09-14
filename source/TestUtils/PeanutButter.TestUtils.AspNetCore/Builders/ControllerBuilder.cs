@@ -473,4 +473,39 @@ public class ControllerBuilder<TController>
                 typeof(TController).GetMethod(name)
         );
     }
+
+    /// <summary>
+    /// Sets the url on the associated request. Does NOT set
+    /// any routing parameters (eg action)
+    /// </summary>
+    /// <param name="url"></param>
+    /// <returns></returns>
+    public ControllerBuilder<TController> WithRequestUrl(string url)
+    {
+        return WithRequestUrl(new Uri(url));
+    }
+
+    /// <summary>
+    /// Sets the url on the associated request. Does NOT set
+    /// any routing parameters (eg action)
+    /// </summary>
+    /// <param name="url"></param>
+    /// <returns></returns>
+    public ControllerBuilder<TController> WithRequestUrl(Uri url)
+    {
+        return WithRequestMutator(o => o.SetUrl(url));
+    }
+
+    /// <summary>
+    /// Facilitates arbitrary mutations on the existing FakeHttpRequest
+    /// for this build
+    /// </summary>
+    /// <param name="mutator"></param>
+    /// <returns></returns>
+    public ControllerBuilder<TController> WithRequestMutator(
+        Action<FakeHttpRequest> mutator
+    )
+    {
+        return With(o => mutator(o.Request.As<FakeHttpRequest>()));
+    }
 }
