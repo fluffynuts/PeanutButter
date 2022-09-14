@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using NUnit.Framework;
 using PeanutButter.TestUtils.AspNetCore.Builders;
 using NExpect;
+using NSubstitute;
 using PeanutButter.TestUtils.AspNetCore.Utils;
 using static NExpect.Expectations;
 using static NExpect.AspNetCoreExpectations;
@@ -198,6 +199,24 @@ namespace PeanutButter.TestUtils.AspNetCore.Tests
             private static ModelBindingContext BuildDefault()
             {
                 return ModelBindingContextBuilder.BuildDefault();
+            }
+        }
+
+        [TestFixture]
+        public class CustomisingTheResult
+        {
+            [Test]
+            public void ShouldBeAbleToCompletelyOverrideIValueProvider()
+            {
+                // Arrange
+                var expected = Substitute.For<IValueProvider>();
+                // Act
+                var result = ModelBindingContextBuilder.Create()
+                    .WithValueProvider(expected)
+                    .Build();
+                // Assert
+                Expect(result.ValueProvider)
+                    .To.Be(expected);
             }
         }
     }

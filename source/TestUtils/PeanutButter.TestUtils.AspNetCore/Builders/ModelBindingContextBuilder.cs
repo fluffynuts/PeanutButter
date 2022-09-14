@@ -59,9 +59,9 @@ public class ModelBindingContextBuilder
             .WithModelMetadata(CreateEmptyDefaultModelMetadata())
             .WithModelState(new ModelStateDictionary())
             .WithValidationState(new ValidationStateDictionary())
-            .WithCompositeValueProvider(new CompositeValueProvider())
-            .WithValueProvider(new RouteValueProvider(BindingSource.Query, new RouteValueDictionary()))
-            .WithValueProvider(new FormValueProvider(BindingSource.Form, FormBuilder.BuildDefault(), CultureInfo.CurrentCulture))
+            .WithValueProvider(new CompositeValueProvider())
+            .WithPartialValueProvider(new RouteValueProvider(BindingSource.Query, new RouteValueDictionary()))
+            .WithPartialValueProvider(new FormValueProvider(BindingSource.Form, FormBuilder.BuildDefault(), CultureInfo.CurrentCulture))
             .WithPropertyFilter(_ => true)
             .WithSuccessfulModelBindingResult();
     }
@@ -110,14 +110,12 @@ public class ModelBindingContextBuilder
     }
 
     /// <summary>
-    /// Resets the main ValueProvider, which should be a CompositeValueProvider,
-    /// such that any existing underlying ValueProviders are lost. Add actual
-    /// ValueProviders via WithValueProvider.
+    /// Resets the main ValueProvider (which defaults to a CompositeValueProvider)
     /// </summary>
     /// <param name="valueProvider"></param>
     /// <returns></returns>
-    public ModelBindingContextBuilder WithCompositeValueProvider(
-        CompositeValueProvider valueProvider
+    public ModelBindingContextBuilder WithValueProvider(
+        IValueProvider valueProvider
     )
     {
         return With(o => o.ValueProvider = valueProvider);
@@ -125,11 +123,12 @@ public class ModelBindingContextBuilder
 
     /// <summary>
     /// Adds a ValueProvider to the CompositeValueProvider provided
-    /// by the ValueProvider property.
+    /// by the ValueProvider property. Will reset the ValueProvider to
+    /// be a CompositeValueProvider if it isn't one already.
     /// </summary>
     /// <param name="valueProvider"></param>
     /// <returns></returns>
-    public ModelBindingContextBuilder WithValueProvider(
+    public ModelBindingContextBuilder WithPartialValueProvider(
         IValueProvider valueProvider
     )
     {
