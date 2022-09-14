@@ -1,11 +1,12 @@
 using System;
-using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Internal;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Microsoft.AspNetCore.Routing;
 using PeanutButter.TestUtils.AspNetCore.Utils;
 
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
@@ -58,7 +59,89 @@ public class ModelBindingContextBuilder
             .WithModelMetadata(CreateEmptyDefaultModelMetadata())
             .WithModelState(new ModelStateDictionary())
             .WithValidationState(new ValidationStateDictionary())
-            .WithPropertyFilter(_ => true);
+            .WithCompositeValueProvider(new CompositeValueProvider())
+            .WithValueProvider(new RouteValueProvider(BindingSource.Query, new RouteValueDictionary()))
+            .WithValueProvider(new FormValueProvider(BindingSource.Form, FormBuilder.BuildDefault(), CultureInfo.CurrentCulture))
+            .WithPropertyFilter(_ => true)
+            .WithSuccessfulModelBindingResult();
+    }
+
+    /// <summary>
+    /// Sets a successful Result property from Model on the ModelBindingContext
+    /// at the time the mutation is run.
+    /// </summary>
+    /// <returns></returns>
+    public ModelBindingContextBuilder WithSuccessfulModelBindingResult()
+    {
+        return WithModelBindingResult(ModelBindingResult.Success);
+    }
+
+    /// <summary>
+    /// Sets a failed Result property
+    /// </summary>
+    /// <returns></returns>
+    public ModelBindingContextBuilder WithFailedModelBindingResult()
+    {
+        return WithModelBindingResult(_ => ModelBindingResult.Failed());
+    }
+
+    /// <summary>
+    /// Sets the Result property
+    /// </summary>
+    /// <param name="modelBindingResult"></param>
+    /// <returns></returns>
+    public ModelBindingContextBuilder WithModelBindingResult(
+        ModelBindingResult modelBindingResult
+    )
+    {
+        return WithModelBindingResult(_ => modelBindingResult);
+    }
+
+    /// <summary>
+    /// Sets a Result by generating it from the current Model on the ModelBindingContext
+    /// </summary>
+    /// <param name="modelBindingResultGenerator"></param>
+    /// <returns></returns>
+    public ModelBindingContextBuilder WithModelBindingResult(
+        Func<object, ModelBindingResult> modelBindingResultGenerator
+    )
+    {
+        return With(o => o.Result = modelBindingResultGenerator(o.Model));
+    }
+
+    /// <summary>
+    /// Resets the main ValueProvider, which should be a CompositeValueProvider,
+    /// such that any existing underlying ValueProviders are lost. Add actual
+    /// ValueProviders via WithValueProvider.
+    /// </summary>
+    /// <param name="valueProvider"></param>
+    /// <returns></returns>
+    public ModelBindingContextBuilder WithCompositeValueProvider(
+        CompositeValueProvider valueProvider
+    )
+    {
+        return With(o => o.ValueProvider = valueProvider);
+    }
+
+    /// <summary>
+    /// Adds a ValueProvider to the CompositeValueProvider provided
+    /// by the ValueProvider property.
+    /// </summary>
+    /// <param name="valueProvider"></param>
+    /// <returns></returns>
+    public ModelBindingContextBuilder WithValueProvider(
+        IValueProvider valueProvider
+    )
+    {
+        return With(o =>
+        {
+            if (o.ValueProvider is not CompositeValueProvider compositeValueProvider)
+            {
+                o.ValueProvider = compositeValueProvider = new CompositeValueProvider();
+                
+            }
+            compositeValueProvider.Add(valueProvider);
+        });
     }
 
     /// <summary>

@@ -155,9 +155,21 @@ public abstract class Builder<TBuilder, TSubject>
         TSubject subject
     )
     {
-        foreach (var mutator in _mutators)
+        lock (_mutators)
         {
-            mutator.Action(subject);
+            var originalMutators = _mutators.ToArray();
+            while (_mutators.Any())
+            {
+                var currentMutators = _mutators.ToArray();
+                _mutators.Clear(); // allow mutators to add mutators
+                foreach (var mutator in currentMutators)
+                {
+                    mutator.Action(subject);
+                }
+            }
+
+            _mutators.Clear();
+            _mutators.AddRange(originalMutators);
         }
 
         return subject;

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Linq;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Internal;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
@@ -154,27 +155,44 @@ namespace PeanutButter.TestUtils.AspNetCore.Tests
                 // Assert
                 Expect(result.ValidationState)
                     .Not.To.Be.Null();
-                // TODO: validate that it's empty
+                Expect(result.ValidationState)
+                    .To.Be.Empty();
             }
 
             [Test]
-            [Ignore("WIP")]
-            public void ShouldSetReflectiveValueProvider()
+            public void ShouldSetCompositeValueProvider()
             {
                 // Arrange
-                
                 // Act
+                var result = BuildDefault();
                 // Assert
+                Expect(result.ValueProvider)
+                    .Not.To.Be.Null()
+                    .And
+                    .To.Be.An.Instance.Of<CompositeValueProvider>();
+                var composite = result.ValueProvider as CompositeValueProvider;
+                var providers = composite.ToArray();
+                Expect(providers)
+                    .To.Contain.Exactly(1)
+                    .Matched.By(o => o is RouteValueProvider);
+                Expect(providers)
+                    .To.Contain.Exactly(1)
+                    .Matched.By(o => o is FormValueProvider);
             }
 
             [Test]
-            [Ignore("WIP")]
             public void ShouldSetEmptyModelBindingResult()
             {
                 // Arrange
-                
                 // Act
+                var result = BuildDefault();
                 // Assert
+                Expect(result.Result)
+                    .Not.To.Be.Null();
+                Expect(result.Result.IsModelSet)
+                    .To.Be.True();
+                Expect(result.Result.Model)
+                    .To.Be(result.Model);
             }
 
             private static ModelBindingContext BuildDefault()
