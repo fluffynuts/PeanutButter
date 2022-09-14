@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
+using System.Security.Claims;
+using System.Security.Principal;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -94,5 +97,47 @@ public class ControllerContextBuilder : Builder<ControllerContextBuilder, Contro
             o => o.ActionDescriptor.ControllerName =
                 type.Name.RegexReplace("Controller$", "")
         );
+    }
+
+    /// <summary>
+    /// Add the identity to the available claims identities
+    /// - the original ClaimsPrincipal should be empty
+    /// </summary>
+    /// <param name="identity"></param>
+    /// <returns></returns>
+    public ControllerContextBuilder WithIdentity(
+        IIdentity identity
+    )
+    {
+        return With(o =>
+        {
+            var principal = o.HttpContext.User ?? new ClaimsPrincipal();
+            principal.AddIdentity(new ClaimsIdentity(identity));
+            o.HttpContext.User = principal;
+        });
+    }
+
+    /// <summary>
+    /// Sets the User on the HttpContext of the ControllerContext
+    /// </summary>
+    /// <param name="user"></param>
+    /// <returns></returns>
+    public ControllerContextBuilder WithUser(
+        ClaimsPrincipal user
+    )
+    {
+        return With(o => o.HttpContext.User = user);
+    }
+    
+    /// <summary>
+    /// Facilitates easier http context mutations
+    /// </summary>
+    /// <param name="mutator"></param>
+    /// <returns></returns>
+    public ControllerContextBuilder WithHttpContextMutator(
+        Action<FakeHttpContext> mutator
+    )
+    {
+        return With(o => mutator(o.HttpContext.As<FakeHttpContext>()));
     }
 }
