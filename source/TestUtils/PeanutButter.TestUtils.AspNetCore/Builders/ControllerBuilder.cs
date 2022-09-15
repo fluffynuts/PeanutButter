@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -507,5 +508,25 @@ public class ControllerBuilder<TController>
     )
     {
         return With(o => mutator(o.Request.As<FakeHttpRequest>()));
+    }
+
+    /// <summary>
+    /// Set multiple request headers at once
+    /// </summary>
+    /// <param name="headers"></param>
+    /// <returns></returns>
+    public ControllerBuilder<TController> WithRequestHeaders(
+        IDictionary<string, string> headers
+    )
+    {
+        return WithRequestMutator(
+            r =>
+            {
+                foreach (var kvp in headers)
+                {
+                    r.Headers[kvp.Key] = kvp.Value;
+                }
+            }
+        );
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -414,6 +415,24 @@ public class TestControllerBuilder
                 .To.Equal(new Uri(url));
         }
 
+        [Test]
+        public void ShouldBeAbleToSetABunchOfRequestHeaders()
+        {
+            // Arrange
+            var headers = GetRandom<Dictionary<string, string>>();
+            // Act
+            var result = ControllerBuilder.For<ApiController>()
+                .WithDefaultFactoryForApiController()
+                .WithRequestHeaders(headers)
+                .Build();
+            // Assert
+            foreach (var kvp in headers)
+            {
+                Expect(result.Request.Headers)
+                    .To.Contain.Key(kvp.Key)
+                    .With.Value(kvp.Value);
+            }
+        }
     }
 
     [TestFixture]
