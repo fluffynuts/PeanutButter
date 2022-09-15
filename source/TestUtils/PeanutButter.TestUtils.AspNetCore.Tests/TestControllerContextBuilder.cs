@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Reflection;
+using System.Security.Claims;
 using System.Security.Principal;
 using Microsoft.AspNetCore.Mvc;
 using NUnit.Framework;
@@ -64,6 +65,25 @@ public class TestControllerContextBuilder
         Expect(result.HttpContext.Request.Headers)
             .To.Contain.Key(key)
             .With.Value(value);
+    }
+
+    [Test]
+    public void ShouldBeAbleToAssociateAController()
+    {
+        // Arrange
+        var controller = new MyController();
+        
+        // Act
+        var result = ControllerContextBuilder.Create()
+            .WithController(controller)
+            .Build();
+        // Assert
+        Expect(controller.ControllerContext)
+            .To.Be(result);
+        Expect(result.ActionDescriptor.ControllerName)
+            .To.Equal("My");
+        Expect(result.ActionDescriptor.ControllerTypeInfo)
+            .To.Equal(typeof(MyController).GetTypeInfo());
     }
 
     public class MyController : ControllerBase

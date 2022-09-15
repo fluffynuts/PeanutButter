@@ -128,7 +128,7 @@ public class ControllerContextBuilder : Builder<ControllerContextBuilder, Contro
     {
         return With(o => o.HttpContext.User = user);
     }
-    
+
     /// <summary>
     /// Facilitates easier http context mutations
     /// </summary>
@@ -139,5 +139,31 @@ public class ControllerContextBuilder : Builder<ControllerContextBuilder, Contro
     )
     {
         return With(o => mutator(o.HttpContext.As<FakeHttpContext>()));
+    }
+
+    /// <summary>
+    /// Associates the context with the provided controller
+    /// </summary>
+    /// <param name="controller"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public ControllerContextBuilder WithController<T>(
+        T controller
+    ) where T : ControllerBase
+    {
+        return With(o =>
+        {
+            if (controller is null)
+            {
+                o.ActionDescriptor.ControllerName = null;
+                o.ActionDescriptor.ControllerTypeInfo = null;
+                return;
+            }
+
+            controller.ControllerContext = o;
+            var controllerType = controller.GetType();
+            o.ActionDescriptor.ControllerName = controllerType.Name.RegexReplace("Controller$", "");
+            o.ActionDescriptor.ControllerTypeInfo = controllerType.GetTypeInfo();
+        });
     }
 }
