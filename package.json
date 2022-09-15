@@ -15,7 +15,7 @@
         "build": "run-s \"zarro build\"",
         "build-release": "cross-env BUILD_CONFIGURATION=Release run-s \"zarro build\"",
         "zarro-core": "cross-env BUILD_TOOLS_FOLDER=build-tools DOTNET_CORE=1 zarro",
-        "zarro": "cross-env TEMPDB_PORT_HINT=\"\" BUILD_TOOLS_FOLDER=build-tools NUGET_PUSH_TIMEOUT=600 zarro",
+        "zarro": "cross-env TEMPDB_PORT_HINT=\"\" BUILD_TOOLS_FOLDER=build-tools NUGET_PUSH_TIMEOUT=900 zarro",
         "release": "run-s test \"zarro release\"",
         "quick-release": "run-s \"zarro release\"",
         "pack": "cross-env BUILD_CONFIGURATION=Release run-s \"zarro pack\""
@@ -25,6 +25,6 @@
         "gulp-edit-xml": "^3.1.1",
         "npm-run-all": "^4.1.5",
         "p-queue": "^6.3.0",
-        "zarro": "^1.114.1"
+        "zarro": "^1.114.2"
     }
 }
