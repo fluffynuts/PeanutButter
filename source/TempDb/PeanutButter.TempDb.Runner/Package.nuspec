@@ -1,7 +1,7 @@
 <package>
   <metadata>
     <id>PeanutButter.TempDb.Runner</id>
-    <version>3.0.28</version>
+    <version>3.0.29</version>
     <title>PeanutButter.TempDb</title>
     <authors>Davyd McColl</authors>
     <owners />
@@ -162,43 +162,5 @@
     <file src="bin\Release\net6.0\start-tempdb.sh" target="lib/net6.0" />
     <file src="bin\Release\net6.0\System.Data.SqlClient.dll" target="lib/net6.0" />
     <file src="bin\Release\net6.0\System.Data.SQLite.dll" target="lib/net6.0" />
-    <file src="bin\Release\netcoreapp3.1\CommandLine.dll" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\MySqlConnector.dll" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\Newtonsoft.Json.dll" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.INI.dll" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.INI.pdb" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.INI.xml" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.dll" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.LocalDb.dll" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.LocalDb.pdb" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.MySql.Base.dll" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.MySql.Base.pdb" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.MySql.Connector.dll" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.MySql.Connector.pdb" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.pdb" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.Runner.deps.json" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.Runner.dll" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.Runner.pdb" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.Runner.runtimeconfig.dev.json" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.Runner.runtimeconfig.json" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.Sqlite.dll" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.Sqlite.dll.config" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.TempDb.Sqlite.pdb" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.Utils.dll" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.Utils.pdb" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\PeanutButter.Utils.xml" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\runtimes\linux-x64\native\netstandard2.0\SQLite.Interop.dll" target="lib/netcoreapp3.1/runtimes/linux-x64/native/netstandard2.0" />
-    <file src="bin\Release\netcoreapp3.1\runtimes\osx-x64\native\netstandard2.0\SQLite.Interop.dll" target="lib/netcoreapp3.1/runtimes/osx-x64/native/netstandard2.0" />
-    <file src="bin\Release\netcoreapp3.1\runtimes\unix\lib\netcoreapp2.1\System.Data.SqlClient.dll" target="lib/netcoreapp3.1/runtimes/unix/lib/netcoreapp2.1" />
-    <file src="bin\Release\netcoreapp3.1\runtimes\win\lib\netcoreapp2.1\System.Data.SqlClient.dll" target="lib/netcoreapp3.1/runtimes/win/lib/netcoreapp2.1" />
-    <file src="bin\Release\netcoreapp3.1\runtimes\win-arm64\native\sni.dll" target="lib/netcoreapp3.1/runtimes/win-arm64/native" />
-    <file src="bin\Release\netcoreapp3.1\runtimes\win-x64\native\netstandard2.0\SQLite.Interop.dll" target="lib/netcoreapp3.1/runtimes/win-x64/native/netstandard2.0" />
-    <file src="bin\Release\netcoreapp3.1\runtimes\win-x64\native\sni.dll" target="lib/netcoreapp3.1/runtimes/win-x64/native" />
-    <file src="bin\Release\netcoreapp3.1\runtimes\win-x86\native\netstandard2.0\SQLite.Interop.dll" target="lib/netcoreapp3.1/runtimes/win-x86/native/netstandard2.0" />
-    <file src="bin\Release\netcoreapp3.1\runtimes\win-x86\native\sni.dll" target="lib/netcoreapp3.1/runtimes/win-x86/native" />
-    <file src="bin\Release\netcoreapp3.1\start-tempdb.bat" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\start-tempdb.sh" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\System.Data.SqlClient.dll" target="lib/netcoreapp3.1" />
-    <file src="bin\Release\netcoreapp3.1\System.Data.SQLite.dll" target="lib/netcoreapp3.1" />
   </files>
 </package>

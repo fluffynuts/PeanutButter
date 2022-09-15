@@ -86,6 +86,22 @@ public class TestControllerContextBuilder
             .To.Equal(typeof(MyController).GetTypeInfo());
     }
 
+    [Test]
+    public void ShouldBeAbleToSetARequestHeader()
+    {
+        // Arrange
+        var key = GetRandomString();
+        var value = GetRandomString();
+        // Act
+        var result = ControllerContextBuilder.Create()
+            .WithRequestHeader(key, value)
+            .Build();
+        // Assert
+        Expect(result.HttpContext.Request.Headers)
+            .To.Contain.Key(key)
+            .With.Value(value);
+    }
+
     public class MyController : ControllerBase
     {
     }

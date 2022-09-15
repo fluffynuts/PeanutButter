@@ -166,4 +166,18 @@ public class ControllerContextBuilder : Builder<ControllerContextBuilder, Contro
             o.ActionDescriptor.ControllerTypeInfo = controllerType.GetTypeInfo();
         });
     }
+
+    /// <summary>
+    /// Set a request header on the associated http context
+    /// </summary>
+    /// <param name="header"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public ControllerContextBuilder WithRequestHeader(
+        string header,
+        string value
+    )
+    {
+        return WithHttpContextMutator(o => o.Request.Headers[header] = value);
+    }
 }
