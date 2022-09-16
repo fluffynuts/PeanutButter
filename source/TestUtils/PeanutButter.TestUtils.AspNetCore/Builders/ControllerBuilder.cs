@@ -529,4 +529,19 @@ public class ControllerBuilder<TController>
             }
         );
     }
+
+    /// <summary>
+    /// Set the request method for the associated request
+    /// </summary>
+    /// <param name="method"></param>
+    /// <returns></returns>
+    public ControllerBuilder<TController> WithRequestMethod(
+        string method
+    )
+    {
+        return WithRequestMutator(req =>
+        {
+            req.Method = method;
+        });
+    }
 }

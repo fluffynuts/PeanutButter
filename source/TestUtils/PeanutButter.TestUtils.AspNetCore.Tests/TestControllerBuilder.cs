@@ -44,6 +44,28 @@ public class TestControllerBuilder
                     .Not.To.Be.Null();
             }
 
+            [TestCase("http://localhost")]
+            public void ShouldSetUrl_(string expected)
+            {
+                // Arrange
+                // Act
+                var result = BuildDefault();
+                // Assert
+                Expect(result.Request.FullUrl())
+                    .To.Equal(new Uri(expected));
+            }
+
+            [TestCase("GET")]
+            public void ShouldSetMethod_(string expected)
+            {
+                // Arrange
+                // Act
+                var result = BuildDefault();
+                // Assert
+                Expect(result.Request.Method)
+                    .To.Equal(expected);
+            }
+
             [Test]
             public void ShouldSetResponse()
             {
@@ -432,6 +454,30 @@ public class TestControllerBuilder
                     .To.Contain.Key(kvp.Key)
                     .With.Value(kvp.Value);
             }
+        }
+
+        [Test]
+        public void ShouldBeAbleToSetMethod()
+        {
+            // Arrange
+            var expected = OneOf(
+                HttpMethods.Connect,
+                HttpMethods.Delete,
+                HttpMethods.Head,
+                HttpMethods.Options,
+                HttpMethods.Patch,
+                HttpMethods.Post,
+                HttpMethods.Put,
+                HttpMethods.Trace
+            );
+            // Act
+            var result = ControllerBuilder.For<ApiController>()
+                .WithDefaultFactoryForApiController()
+                .WithRequestMethod(expected)
+                .Build();
+            // Assert
+            Expect(result.Request.Method)
+                .To.Equal(expected);
         }
     }
 
