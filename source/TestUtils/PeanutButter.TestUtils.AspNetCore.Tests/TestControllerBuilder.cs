@@ -376,6 +376,34 @@ public class TestControllerBuilder
         }
 
         [Test]
+        public void ShouldBeAbleToSetMultipleRequestCookies()
+        {
+            // Arrange
+            var key1 = GetRandomString(10);
+            var value1 = GetRandomString(10);
+            var key2 = GetRandomString(10);
+            var value2 = GetRandomString(10);
+            var setCookies = new Dictionary<string, string>()
+            {
+                [key1] = value1,
+                [key2] = value2
+            };
+            // Act
+            var result = ControllerBuilder.For<ApiController>()
+                .WithDefaultFactoryForApiController()
+                .WithRequestCookies(setCookies)
+                .Build();
+            // Assert
+            var cookies = result.Request.Cookies;
+            Expect(cookies)
+                .To.Contain.Key(key1)
+                .With.Value(value1);
+            Expect(cookies)
+                .To.Contain.Key(key2)
+                .With.Value(value2);
+        }
+
+        [Test]
         public void ShouldBeAbleToSetHttpContextItem()
         {
             // Arrange

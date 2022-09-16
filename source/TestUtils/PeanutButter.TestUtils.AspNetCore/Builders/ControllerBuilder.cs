@@ -263,6 +263,29 @@ public class ControllerBuilder<TController>
     }
 
     /// <summary>
+    /// Sets a bunch of cookies on the request for the controller
+    /// </summary>
+    /// <param name="cookies"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public ControllerBuilder<TController> WithRequestCookies(
+        IDictionary<string, string> cookies
+    )
+    {
+        return WithRequestMutator(req =>
+        {
+            var requestCookies = req.Cookies as FakeRequestCookieCollection
+                ?? throw new InvalidOperationException(
+                    $"Request cookies are not an instance of {nameof(FakeRequestCookieCollection)}"
+                );
+            foreach (var kvp in cookies)
+            {
+                requestCookies[kvp.Key] = kvp.Value;
+            }
+        });
+    }
+
+    /// <summary>
     /// Sets a header on the request for the controller
     /// </summary>
     /// <param name="header"></param>
