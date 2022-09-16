@@ -1,7 +1,7 @@
 <package>
   <metadata>
     <id>PeanutButter.TestUtils.MVC</id>
-    <version>3.0.29</version>
+    <version>3.0.30</version>
     <title>PeanutButter.TestUtils.MVC.Sources</title>
     <authors>Davyd McColl</authors>
     <owners />
@@ -63,7 +63,6 @@
     <file src="FakePrincipal.cs" target="content\FakePrincipal.cs" />
     <file src="HttpRequestExtensions.cs" target="content\HttpRequestExtensions.cs" />
     <file src="NameValueCollectionExtensions.cs" target="content\NameValueCollectionExtensions.cs" />
-    <file src="obj\Debug\net462\.NETFramework,Version=v4.6.2.AssemblyAttributes.cs" target="content\obj\Debug\net462\.NETFramework,Version=v4.6.2.AssemblyAttributes.cs" />
     <file src="obj\Release\net462\.NETFramework,Version=v4.6.2.AssemblyAttributes.cs" target="content\obj\Release\net462\.NETFramework,Version=v4.6.2.AssemblyAttributes.cs" />
     <file src="Properties\AssemblyInfo.cs" target="content\Properties\AssemblyInfo.cs" />
     <file src="Builders\ControllerWithContextBuilder.cs" target="contentFiles\Builders\ControllerWithContextBuilder.cs" />
@@ -89,7 +88,6 @@
     <file src="FakePrincipal.cs" target="contentFiles\FakePrincipal.cs" />
     <file src="HttpRequestExtensions.cs" target="contentFiles\HttpRequestExtensions.cs" />
     <file src="NameValueCollectionExtensions.cs" target="contentFiles\NameValueCollectionExtensions.cs" />
-    <file src="obj\Debug\net462\.NETFramework,Version=v4.6.2.AssemblyAttributes.cs" target="contentFiles\obj\Debug\net462\.NETFramework,Version=v4.6.2.AssemblyAttributes.cs" />
     <file src="obj\Release\net462\.NETFramework,Version=v4.6.2.AssemblyAttributes.cs" target="contentFiles\obj\Release\net462\.NETFramework,Version=v4.6.2.AssemblyAttributes.cs" />
     <file src="Properties\AssemblyInfo.cs" target="contentFiles\Properties\AssemblyInfo.cs" />
   </files>
