@@ -526,6 +526,17 @@ namespace PeanutButter.RandomGenerators.Tests
                 Assert.IsTrue(results.All(r => items.Contains(r)));
                 Assert.IsTrue(items.All(i => results.Any(r => r == i)));
             }
+
+            [Test]
+            public void ParamsSignatureForEasyWins()
+            {
+                // Arrange
+                // Act
+                var result = OneOf(1, 2, 3);
+                // Assert
+                Expect(new[] { 1, 2, 3 })
+                    .To.Contain(result);
+            }
         }
 
         [TestFixture]

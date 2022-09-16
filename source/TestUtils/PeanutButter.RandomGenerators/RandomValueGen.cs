@@ -1943,6 +1943,19 @@ namespace PeanutButter.RandomGenerators
         }
 
         /// <summary>
+        /// Convenience wrapper for GetRandomFrom for params signature
+        /// </summary>
+        /// <param name="items"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T OneOf<T>(
+            params T[] items
+        )
+        {
+            return GetRandomFrom(items);
+        }
+
+        /// <summary>
         /// Gets a random item from the provided collection
         /// </summary>
         /// <param name="items">Collection of items</param>
