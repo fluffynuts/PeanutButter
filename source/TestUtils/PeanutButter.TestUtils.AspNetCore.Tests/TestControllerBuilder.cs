@@ -173,6 +173,17 @@ public class TestControllerBuilder
                     .To.Equal("Api");
             }
 
+            [Test]
+            public void ShortHandBuilder()
+            {
+                // Arrange
+                // Act
+                var result = ControllerBuilder.BuildDefault<NoDependenciesController>();
+                // Assert
+                Expect(result)
+                    .To.Be.An.Instance.Of<NoDependenciesController>();
+            }
+
             private static ApiController BuildDefault(
                 ILogger logger = null
             )
@@ -571,6 +582,10 @@ public static class ApiControllerBuilderExtensions
 public interface ILogger
 {
     void Log(string str);
+}
+
+public class NoDependenciesController : ControllerBase
+{
 }
 
 public class ApiController : ControllerBase

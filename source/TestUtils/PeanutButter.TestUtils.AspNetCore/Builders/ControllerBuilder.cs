@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -33,6 +34,38 @@ public static class ControllerBuilder
         where TController : ControllerBase
     {
         return new ControllerBuilder<TController>();
+    }
+
+    /// <summary>
+    /// Convenience wrapper to build simple controllers with
+    /// no constructor parameters
+    /// </summary>
+    /// <typeparam name="TController"></typeparam>
+    /// <returns></returns>
+    public static TController BuildDefault<TController>()
+        where TController : ControllerBase
+    {
+        VerifyHasParameterlessConstructor<TController>();
+        return For<TController>().Build();
+    }
+
+    private static void VerifyHasParameterlessConstructor<TController>() where TController : ControllerBase
+    {
+        var constructor = typeof(TController)
+            .GetConstructors()
+            .FirstOrDefault(o => o.GetParameters().Length == 0);
+        if (constructor is null)
+        {
+            throw new InvalidOperationException(
+                $@"{
+                    nameof(ControllerBuilder)
+                }.{
+                    nameof(BuildDefault)
+                } cannot be invoked on {
+                    typeof(TController)
+                }: no parameterless constructor found"
+            );
+        }
     }
 }
 
