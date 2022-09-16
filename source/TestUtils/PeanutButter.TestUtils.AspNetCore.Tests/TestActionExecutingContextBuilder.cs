@@ -151,6 +151,22 @@ public class TestActionExecutingContextBuilder
             .To.Be(expected);
     }
 
+    [Test]
+    public void ShouldBeAbleToSetAction()
+    {
+        // Arrange
+        var expected = GetRandomString();
+        // Act
+        var result = ActionExecutingContextBuilder.Create()
+            .WithController(new SomeController())
+            .WithAction(expected)
+            .Build();
+        // Assert
+        Expect(result.RouteData.Values["action"])
+            .To.Equal(expected);
+    }
+
+
     public class SomeController : ControllerBase
     {
     }

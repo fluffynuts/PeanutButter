@@ -53,6 +53,32 @@ public class ActionExecutingContextBuilder
     }
 
     /// <summary>
+    /// Sets the "action" route parameter
+    /// </summary>
+    /// <param name="action"></param>
+    /// <returns></returns>
+    public ActionExecutingContextBuilder WithAction(
+        string action
+    )
+    {
+        return WithRouteValue("action", action);
+    }
+
+    /// <summary>
+    /// Sets a value on the associated route data
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public ActionExecutingContextBuilder WithRouteValue(
+        string key,
+        string value
+    )
+    {
+        return With(o => o.RouteData.Values[key] = value);
+    }
+
+    /// <summary>
     /// Sets the controller for the ActionExecutingContext
     /// </summary>
     /// <param name="controller"></param>
