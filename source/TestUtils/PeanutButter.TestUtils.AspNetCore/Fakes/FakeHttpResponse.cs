@@ -66,7 +66,7 @@ public class FakeHttpResponse : HttpResponse, IFake
 
     /// <inheritdoc />
     public override IResponseCookies Cookies => _cookies;
-    private IResponseCookies _cookies = FakeResponseCookies.CreateSubstitutedIfPossible();
+    private IResponseCookies _cookies;
 
     /// <inheritdoc />
     public override bool HasStarted => _hasStarted;
@@ -82,6 +82,7 @@ public class FakeHttpResponse : HttpResponse, IFake
     {
         _httpContext = null;
         _httpContextAccessor = accessor;
+        _cookies = FakeResponseCookies.CreateSubstitutedIfPossible(this);
     }
 
     /// <summary>

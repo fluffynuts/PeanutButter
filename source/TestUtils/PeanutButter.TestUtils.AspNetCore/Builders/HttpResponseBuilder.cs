@@ -26,7 +26,7 @@ public class HttpResponseBuilder : RandomizableBuilder<HttpResponseBuilder, Http
     internal HttpResponseBuilder(bool noContext) : base(Actualize)
     {
         WithStatusCode(HttpStatusCode.OK)
-            .WithCookies(FakeResponseCookies.CreateSubstitutedIfPossible());
+            .WithCookies(FakeResponseCookies.CreateSubstitutedIfPossible);
         if (!noContext)
         {
             WithHttpContext(
@@ -101,6 +101,20 @@ public class HttpResponseBuilder : RandomizableBuilder<HttpResponseBuilder, Http
     {
         return With<FakeHttpResponse>(
             o => o.SetCookies(cookies)
+        );
+    }
+
+    /// <summary>
+    /// Set the response cookies
+    /// </summary>
+    /// <param name="generator"></param>
+    /// <returns></returns>
+    public HttpResponseBuilder WithCookies(
+        Func<FakeHttpResponse, IResponseCookies> generator
+    )
+    {
+        return With<FakeHttpResponse>(
+            o => o.SetCookies(generator(o))
         );
     }
 

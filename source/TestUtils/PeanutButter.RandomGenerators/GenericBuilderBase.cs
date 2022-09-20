@@ -135,6 +135,51 @@ namespace PeanutButter.RandomGenerators
             return TryCreateSubstituteFor(
                 throwOnError: false,
                 callThrough,
+                new object[0],
+                out result
+            );
+        }
+
+        /// <summary>
+        /// Attempt to create a substitute for the given type with parameters
+        /// </summary>
+        /// <param name="callThrough">Create a partial sub where calls go through to the original implementation</param>
+        /// <param name="constructorParameters"></param>
+        /// <param name="result"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool TryCreateSubstituteFor<T>(
+            bool callThrough,
+            object[] constructorParameters,
+            out T result
+        )
+        {
+            return TryCreateSubstituteFor(
+                throwOnError: false,
+                callThrough,
+                constructorParameters,
+                out result
+            );
+        }
+
+        /// <summary>
+        /// Attempt to create a substitute from a type with a parameterless constructor
+        /// </summary>
+        /// <param name="throwOnError"></param>
+        /// <param name="callThrough"></param>
+        /// <param name="result"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool TryCreateSubstituteFor<T>(
+            bool throwOnError,
+            bool callThrough,
+            out T result
+        )
+        {
+            return TryCreateSubstituteFor<T>(
+                throwOnError,
+                callThrough,
+                new object[0],
                 out result
             );
         }
@@ -148,6 +193,7 @@ namespace PeanutButter.RandomGenerators
         public static bool TryCreateSubstituteFor<T>(
             bool throwOnError,
             bool callThrough,
+            object[] constructorParameters,
             out T result
         )
         {
@@ -206,10 +252,10 @@ namespace PeanutButter.RandomGenerators
             {
                 result = (T) specificMethod.Invoke(
                     null,
-                    new object[]
-                    {
-                        new object[] { }
-                    });
+                    // these are parameters to NSubstitute.Substitute.ForPartsOf
+                    // and those become parameters for the constructor
+                    new object[] { constructorParameters }
+                );
                 return true;
             }
             catch

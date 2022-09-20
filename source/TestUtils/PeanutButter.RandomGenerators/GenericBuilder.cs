@@ -337,6 +337,7 @@ namespace PeanutButter.RandomGenerators
             () => TryCreateSubstituteFor<TEntity>(
                 throwOnError: true,
                 callThrough: false,
+                new object[0],
                 out var result
             ) ? result : default,
             AttemptToCreateForcedFuzzyDuckFor
