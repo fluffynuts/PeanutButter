@@ -1,11 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
-using NUnit.Framework;
-using static PeanutButter.RandomGenerators.RandomValueGen;
+using Microsoft.Extensions.Primitives;
 using NExpect;
+using NUnit.Framework;
+using PeanutButter.TestUtils.AspNetCore.Builders;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 using PeanutButter.Utils;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 using static NExpect.Expectations;
+
+namespace PeanutButter.TestUtils.AspNetCore.Tests;
 
 [TestFixture]
 public class TestFakeResponseCookies
@@ -15,7 +20,8 @@ public class TestFakeResponseCookies
     public void ShouldCreateSubstituteWherePossible()
     {
         // Arrange
-        var sut = FakeResponseCookies.CreateSubstitutedIfPossible();
+        var httpResponse = HttpResponseBuilder.BuildDefault();
+        var sut = FakeResponseCookies.CreateSubstitutedIfPossible(httpResponse);
         var key = GetRandomString();
         var value = GetRandomString();
         // Act
@@ -41,7 +47,7 @@ public class TestFakeResponseCookies
         // Act
         sut.Append(key, value);
         // Assert
-        Expect(sut.Store)
+        Expect(sut.Snapshot)
             .To.Contain.Key(key)
             .With.Value.Matched.By(
                 o => o.Value == value &&
@@ -60,7 +66,7 @@ public class TestFakeResponseCookies
         // Act
         sut.Append(key, value, options);
         // Assert
-        Expect(sut.Store)
+        Expect(sut.Snapshot)
             .To.Contain.Key(key)
             .With.Value.Matched.By(
                 o => o.Value == value &&
@@ -81,7 +87,7 @@ public class TestFakeResponseCookies
         sut.Delete(key);
 
         // Assert
-        Expect(sut.Store)
+        Expect(sut.Snapshot)
             .Not.To.Contain.Key(key);
     }
 
@@ -102,11 +108,11 @@ public class TestFakeResponseCookies
 
         // Act
         sut.Delete(key, otherOptions);
-        Expect(sut.Store)
+        Expect(sut.Snapshot)
             .To.Contain.Key(key);
         sut.Delete(key, options);
         // Assert
-        Expect(sut.Store)
+        Expect(sut.Snapshot)
             .Not.To.Contain.Key(key);
     }
 
@@ -123,7 +129,7 @@ public class TestFakeResponseCookies
             // Act
             sut[key] = cookie;
             // Assert
-            Expect(sut.Store)
+            Expect(sut.Snapshot)
                 .To.Contain.Key(key)
                 .With.Value.Deep.Equal.To(cookie);
         }
@@ -178,7 +184,7 @@ public class TestFakeResponseCookies
             var includedResult = sut.ContainsKey(included);
             var excludedResult = sut.ContainsKey(exluded);
             // Assert
-            
+
             Expect(includedResult)
                 .To.Be.True();
             Expect(excludedResult)
@@ -186,8 +192,122 @@ public class TestFakeResponseCookies
         }
     }
 
-    private static FakeResponseCookies Create()
+    [TestFixture]
+    public class BackingInAssociatedResponse
     {
-        return FakeResponseCookies.CreateSubstitutedIfPossible() as FakeResponseCookies;
+        [Test]
+        public void ShouldSetTheSetCookieHeader()
+        {
+            // Arrange
+            var key = GetRandomString();
+            var value = GetRandomString();
+            var expected = $"{key}={value}; Path=/";
+            var response = HttpResponseBuilder.Create()
+                .WithCookies(null as IResponseCookies)
+                .Build();
+            var sut = Create(response);
+            Expect(response.Cookies)
+                .To.Be(sut);
+            Expect(response.Headers["set-cookie"].ToArray())
+                .To.Be.Empty();
+            // Act
+            sut[key] = new FakeCookie(key, value, new CookieOptions());
+            // Assert
+            var setCookie = response.Headers["set-cookie"].ToArray();
+            Expect(setCookie)
+                .To.Contain.Only(1)
+                .Equal.To(expected);
+        }
+
+        [Test]
+        public void ShouldSetTheSetSecureHttpOnlyCookieHeaderWithMaxAgeAndDomain()
+        {
+            // Arrange
+            var key = GetRandomString();
+            var value = GetRandomString();
+            var domain = GetRandomHostname();
+            var path = "/{GetRandomString()";
+            var maxAge = GetRandomInt(100, 200);
+            var expected = $"{key}={value}; Domain={domain}; Path={path}; Max-Age={maxAge}; Secure; HttpOnly";
+            var response = HttpResponseBuilder.Create()
+                .WithCookies(null as IResponseCookies)
+                .Build();
+            var sut = Create(response);
+            Expect(response.Cookies)
+                .To.Be(sut);
+            Expect(response.Headers["set-cookie"].ToArray())
+                .To.Be.Empty();
+            // Act
+            sut[key] = new FakeCookie(key, value, new CookieOptions()
+            {
+                Secure = true,
+                HttpOnly = true,
+                Domain = domain,
+                Path = path,
+                MaxAge = TimeSpan.FromSeconds(maxAge)
+            });
+            // Assert
+            var setCookie = response.Headers["set-cookie"].ToArray();
+            Expect(setCookie)
+                .To.Contain.Only(1)
+                .Equal.To(expected);
+        }
+
+        [Test]
+        public void ShouldUpdateIndexerValueWhenHeaderChanges()
+        {
+            // Arrange
+            var response = HttpResponseBuilder.Create()
+                .WithCookies(null as IResponseCookies)
+                .Build();
+            var sut = Create(response);
+            Expect(response.Cookies)
+                .To.Be(sut);
+            Expect(response.Headers["set-cookie"].ToArray())
+                .To.Be.Empty();
+
+            var key1 = GetRandomString();
+            var value1 = GetRandomString();
+            var domain = GetRandomHostname();
+            var path = $"/{GetRandomString()}";
+            var maxAge = GetRandomInt(100, 200);
+            var key2 = GetRandomString(10);
+            var value2 = GetRandomString(10);
+            var header1 = $"{key1}={value1}; Domain={domain}; Path={path}; Max-Age={maxAge}; Secure; HttpOnly; SameSite=None";
+            var header2 = $"{key2}={value2}";
+            var expected1 = new FakeCookie(key1, value1, new CookieOptions()
+            {
+                Path = path,
+                Domain = domain,
+                MaxAge = TimeSpan.FromSeconds(maxAge),
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                HttpOnly = true,
+            });
+            var expected2 = new FakeCookie(key2, value2, new CookieOptions());
+            // Act
+            response.Headers["set-cookie"] = new StringValues(
+                new[]
+                {
+                    header1,
+                    header2
+                }
+            );
+            var result1 = sut[key1];
+            var result2 = sut[key2];
+
+            // Assert
+            Expect(result1)
+                .To.Deep.Equal(expected1);
+            Expect(result2)
+                .To.Deep.Equal(expected2);
+        }
+    }
+
+    private static FakeResponseCookies Create(
+        HttpResponse associatedResponse = null
+    )
+    {
+        return new FakeResponseCookies(associatedResponse);
     }
 }

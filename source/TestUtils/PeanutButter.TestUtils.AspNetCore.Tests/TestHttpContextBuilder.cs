@@ -1,7 +1,9 @@
 using System;
+using System.Linq;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.Extensions.Primitives;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using NExpect;
 using NSubstitute;
@@ -305,6 +307,7 @@ public class TestHttpContextBuilder
                 {
                     throw new ArgumentException("Unable to make type {t}");
                 }
+
                 return expected;
             });
         // Act
@@ -356,7 +359,7 @@ public class TestHttpContextBuilder
         // Arrange
         var key = GetRandomString();
         var value = GetRandomString();
-        
+
         // Act
         var result = HttpContextBuilder.Create()
             .WithFormField(key, value)
@@ -427,6 +430,86 @@ public class TestHttpContextBuilder
             .To.Equal("bar");
         Expect(req.Query["one"])
             .To.Equal("1");
+    }
+
+    [Test]
+    public void SettingAResponseCookieHeaderShouldReflectInResponseCookiesAsFake()
+    {
+        // Arrange
+        var ctx = HttpContextBuilder.BuildDefault();
+        var response = ctx.Response;
+        Expect(response.Headers["set-cookie"].ToArray())
+            .To.Be.Empty();
+        var responseCookies = ctx.Response.Cookies as FakeResponseCookies;
+
+        var key1 = GetRandomString();
+        var value1 = GetRandomString();
+        var domain = GetRandomHostname();
+        var path = $"/{GetRandomString()}";
+        var maxAge = GetRandomInt(100, 200);
+        var key2 = GetRandomString(10);
+        var value2 = GetRandomString(10);
+        var header1 =
+            $"{key1}={value1}; Domain={domain}; Path={path}; Max-Age={maxAge}; Secure; HttpOnly; SameSite=None";
+        var header2 = $"{key2}={value2}";
+        var expected1 = new FakeCookie(key1, value1, new CookieOptions()
+        {
+            Path = path,
+            Domain = domain,
+            MaxAge = TimeSpan.FromSeconds(maxAge),
+            Secure = true,
+            SameSite = SameSiteMode.None,
+            HttpOnly = true,
+        });
+        var expected2 = new FakeCookie(key2, value2, new CookieOptions());
+        // Act
+        response.Headers["set-cookie"] = new StringValues(
+            new[]
+            {
+                header1,
+                header2
+            }
+        );
+        var result1 = responseCookies![key1];
+        var result2 = responseCookies[key2];
+
+        // Assert
+        Expect(result1)
+            .To.Deep.Equal(expected1);
+        Expect(result2)
+            .To.Deep.Equal(expected2);
+    }
+
+    [Test]
+    public void SettingAResponseCookieShouldReflectInTheResponseCookiesHeader()
+    {
+        // Arrange
+        var key = GetRandomString();
+        var value = GetRandomString();
+        var expected = new FakeCookie(key, value, new CookieOptions());
+        var ctx = HttpContextBuilder.BuildDefault();
+        // Act
+        ctx.Response.Cookies.Append(expected.Name, expected.Value, expected.Options);
+        var result = FakeCookie.Parse(ctx.Response.Headers["set-cookie"].FirstOrDefault());
+        // Assert
+        Expect(result)
+            .To.Deep.Equal(expected);
+    }
+
+    [Test]
+    public void RemovingAResponseCookieShouldReflectInTheResponseCookiesHeader()
+    {
+        // Arrange
+        var key = GetRandomString();
+        var value = GetRandomString();
+        var expected = new FakeCookie(key, value, new CookieOptions());
+        var ctx = HttpContextBuilder.BuildDefault();
+        ctx.Response.Cookies.Append(expected.Name, expected.Value, expected.Options);
+        // Act
+        ctx.Response.Cookies.Delete(key);
+        // Assert
+        Expect(ctx.Response.Headers["set-cookie"].ToArray())
+            .To.Be.Empty();
     }
 
     public class SomeService

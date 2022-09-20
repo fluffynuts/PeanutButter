@@ -1,7 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 using PeanutButter.RandomGenerators;
+using PeanutButter.TestUtils.AspNetCore.Builders;
+using static PeanutButter.TestUtils.AspNetCore.Fakes.FakeCookie;
+
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
 
@@ -12,21 +19,159 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes;
 public class FakeResponseCookies : IResponseCookies, IFake
 {
     /// <summary>
-    /// Use to query what cookies have been set
+    /// Snapshot the current state of the cookies
     /// </summary>
-    public IDictionary<string, FakeCookie> Store
-        => _store;
+    /// <returns></returns>
+    public IDictionary<string, FakeCookie> Snapshot
+        => Cache.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
-    private readonly Dictionary<string, FakeCookie> _store = new();
+    private IDictionary<string, FakeCookie> Cache
+        => ProvideStore();
+
+    private IDictionary<string, FakeCookie> ProvideStore()
+    {
+        var currentHash = HttpResponse.Headers.GetHashCode();
+        if (currentHash == _responseHeadersHash)
+        {
+            return _store;
+        }
+
+        _responseHeadersHash = currentHash;
+        return _store = RegenerateStoreFromHeaders();
+    }
+
+    private Dictionary<string, FakeCookie> RegenerateStoreFromHeaders()
+    {
+        var cookieHeaders = HttpResponse.Headers.Where(
+            kvp => kvp.Key.Equals(SET_COOKIE, StringComparison.OrdinalIgnoreCase)
+        ).Select(kvp => kvp.Value);
+        return cookieHeaders
+            .Select(ParseCookies)
+            .SelectMany(o => o)
+            .Where(o => o is not null)
+            .ToDictionary(c => c.Name, c => c);
+    }
+
+    private IEnumerable<FakeCookie> ParseCookies(StringValues stringValues)
+    {
+        foreach (var stringValue in stringValues)
+        {
+            foreach (var subValue in stringValue.Split(','))
+            {
+                yield return Parse(subValue);
+            }
+        }
+    }
+
+
+    private Dictionary<string, FakeCookie> _store = new();
+
+    /// <summary>
+    /// Creates an instance of FakeResponseCookies with its
+    /// own internal HttpResponse that it's attached to
+    /// </summary>
+    public FakeResponseCookies() : this(null)
+    {
+    }
+
+    /// <summary>
+    /// Constructs an instance of FakeResponseCookies attached to the
+    /// provided HttpResponse
+    /// </summary>
+    /// <param name="attachedTo"></param>
+    public FakeResponseCookies(HttpResponse attachedTo)
+    {
+        HttpResponse = attachedTo;
+        if (attachedTo is FakeHttpResponse fake)
+        {
+            fake.SetCookies(this);
+        }
+    }
+
+    /// <summary>
+    /// The HttpResponse these cookies are attached to.
+    /// You may override the response, but if you provide
+    /// null, it will be replaced with a new HttpResponse
+    /// </summary>
+    public HttpResponse HttpResponse
+    {
+        get => _response;
+        set
+        {
+            _response = value ?? HttpResponseBuilder.Create()
+                .WithCookies(this)
+                .Build();
+            _responseHeadersHash = null;
+        }
+    }
+
+    private HttpResponse _response;
+
+    private int? _responseHeadersHash;
 
     /// <summary>
     /// Provides easier indexing into the store
     /// </summary>
     /// <param name="key"></param>
-    public FakeCookie this[string key] 
-    { 
-        get => Store[key];
-        set => Store[key] = value;
+    public FakeCookie this[string key]
+    {
+        get => Cache[key];
+        set => UpdateStore(key, value);
+    }
+
+    private void UpdateStore(string key, FakeCookie value)
+    {
+        if (value is null)
+        {
+            Cache.Remove(key);
+        }
+        else
+        {
+            Cache[key] = value;
+        }
+
+        var strings = Cache.Select(
+            kvp => GenerateSetCookieHeaderFor(kvp.Value)
+        ).ToArray();
+        _response.Headers[SET_COOKIE] =
+            new StringValues(
+                strings
+            );
+    }
+
+    private string GenerateSetCookieHeaderFor(FakeCookie value)
+    {
+        var parts = new List<string>()
+        {
+            $"{WebUtility.UrlEncode(value.Name)}={WebUtility.UrlEncode(value.Value)}"
+        };
+        var opts = value.Options;
+        if (!string.IsNullOrWhiteSpace(opts.Domain))
+        {
+            parts.Add($"{COOKIE_DOMAIN_KEY}={opts.Domain}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(opts.Path))
+        {
+            parts.Add($"{COOKIE_PATH_KEY}={opts.Path}");
+        }
+
+        if (opts.MaxAge is not null)
+        {
+            parts.Add($"{COOKIE_MAX_AGE_KEY}={opts.MaxAge.Value.TotalSeconds}");
+        }
+
+        if (opts.Secure)
+        {
+            parts.Add(COOKIE_SECURE_FLAG);
+        }
+
+        if (opts.HttpOnly)
+        {
+            parts.Add(COOKIE_HTTP_ONLY_FLAG);
+        }
+
+        return string.Join("; ", parts);
     }
 
     /// <summary>
@@ -36,18 +181,18 @@ public class FakeResponseCookies : IResponseCookies, IFake
     /// <returns></returns>
     public bool ContainsKey(string key)
     {
-        return Store.ContainsKey(key);
+        return Cache.ContainsKey(key);
     }
-    
+
     /// <summary>
     /// Return all store keys
     /// </summary>
-    public string[] Keys => Store.Keys.ToArray();
-    
+    public string[] Keys => Cache.Keys.ToArray();
+
     /// <summary>
     /// Return all store values
     /// </summary>
-    public FakeCookie[] Values => Store.Values.ToArray();
+    public FakeCookie[] Values => Cache.Values.ToArray();
 
     /// <summary>
     /// Attempts to create a substitute for FakeResponseCookies using
@@ -64,16 +209,19 @@ public class FakeResponseCookies : IResponseCookies, IFake
     /// get a plain-old FakeResponseCookies object here.
     /// </summary>
     /// <returns></returns>
-    public static IResponseCookies CreateSubstitutedIfPossible()
+    public static IResponseCookies CreateSubstitutedIfPossible(
+        HttpResponse attachedTo
+    )
     {
         // try to return a substitute if possible
         // -> then assertions against setting cookies is easier
         return GenericBuilderBase.TryCreateSubstituteFor<FakeResponseCookies>(
             callThrough: true,
+            new object[] { attachedTo },
             out var result
         )
             ? result
-            : new FakeResponseCookies();
+            : new FakeResponseCookies(attachedTo);
     }
 
     /// <inheritdoc />
@@ -85,19 +233,19 @@ public class FakeResponseCookies : IResponseCookies, IFake
     /// <inheritdoc />
     public virtual void Append(string key, string value, CookieOptions options)
     {
-        Store[key] = new FakeCookie(key, value, options);
+        UpdateStore(key, new FakeCookie(key, value, options));
     }
 
     /// <inheritdoc />
     public virtual void Delete(string key)
     {
-        Store.Remove(key);
+        UpdateStore(key, null);
     }
 
     /// <inheritdoc />
     public virtual void Delete(string key, CookieOptions options)
     {
-        if (!Store.TryGetValue(key, out var cookie))
+        if (!Cache.TryGetValue(key, out var cookie))
         {
             return;
         }
