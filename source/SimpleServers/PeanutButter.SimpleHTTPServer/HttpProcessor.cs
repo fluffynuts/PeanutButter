@@ -389,7 +389,8 @@ namespace PeanutButter.SimpleHTTPServer
                 _outputStream.Flush();
                 _outputStream.BaseStream.Write(data, 0, data.Length);
                 _outputStream.BaseStream.Flush();
-            }catch(Exception ex)
+            }
+            catch(Exception ex)
             {
                 LogAction(ex.Message);
             }
