@@ -180,7 +180,7 @@ namespace PeanutButter.Utils
 #if NETSTANDARD
         /// <summary>
         /// provides the method normally found on a .net framework
-        /// Type object, but reachabole on .net standard only via GetTypeInfo();
+        /// Type object, but reachable on .net standard only via GetTypeInfo();
         /// </summary>
         public static MethodInfo GetMethod(this Type t, string name, BindingFlags flags)
         {
@@ -189,7 +189,7 @@ namespace PeanutButter.Utils
 
         /// <summary>
         /// provides the method normally found on a .net framework
-        /// Type object, but reachabole on .net standard only via GetTypeInfo();
+        /// Type object, but reachable on .net standard only via GetTypeInfo();
         /// </summary>
         public static PropertyInfo[] GetProperties(this Type t)
         {
@@ -198,7 +198,7 @@ namespace PeanutButter.Utils
 
         /// <summary>
         /// provides the method normally found on a .net framework
-        /// Type object, but reachabole on .net standard only via GetTypeInfo();
+        /// Type object, but reachable on .net standard only via GetTypeInfo();
         /// </summary>
         public static PropertyInfo GetProperty(this Type t, string name)
         {
@@ -207,7 +207,7 @@ namespace PeanutButter.Utils
 
         /// <summary>
         /// provides the method normally found on a .net framework
-        /// Type object, but reachabole on .net standard only via GetTypeInfo();
+        /// Type object, but reachable on .net standard only via GetTypeInfo();
         /// </summary>
         public static PropertyInfo GetProperty(this Type t, string name, BindingFlags flags)
         {

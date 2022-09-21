@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Primitives;
 using static PeanutButter.RandomGenerators.RandomValueGen;
@@ -179,6 +180,17 @@ public class TestHttpContextBuilder
                 .Not.To.Be.Null();
         }
 
+        [Test]
+        public void ShouldHaveValidRequestUrl()
+        {
+            var foo = Substitute.For<HttpContext>();
+            // Arrange
+            var result = BuildDefault();
+            // Act
+            Expect(() => new Uri(result.Request.GetDisplayUrl()))
+                .Not.To.Throw();
+            // Assert
+        }
 
         private static HttpContext BuildDefault()
         {
@@ -511,6 +523,7 @@ public class TestHttpContextBuilder
         Expect(ctx.Response.Headers["set-cookie"].ToArray())
             .To.Be.Empty();
     }
+
 
     public class SomeService
     {
