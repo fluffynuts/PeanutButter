@@ -182,7 +182,65 @@ namespace PeanutButter.SimpleHTTPServer.Tests
         public async Task GettingRequestBody(string method)
         {
             // Arrange
-            using var server = new HttpServer();
+            using var server = new HttpServer()
+            {
+                LogAction = Console.WriteLine
+            };
+            var poco = new
+            {
+                id = 1,
+                name = "moo"
+            };
+            var path = $"/{method.ToLower()}";
+            var expectedBody = JsonConvert.SerializeObject(poco);
+            string body = null;
+            PostBody bodyObject = null;
+            server.AddJsonDocumentHandler(
+                (processor, stream) =>
+                {
+                    if (processor.Path != path)
+                        return null;
+                    body = stream.AsString();
+                    bodyObject = stream.As<PostBody>();
+                    return new
+                    {
+                        id = 1,
+                        body
+                    };
+                });
+            // Pre-assert
+            // Act
+            var client = new HttpClient();
+            var message = new HttpRequestMessage(
+                new HttpMethod(method),
+                server.GetFullUrlFor(path))
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(poco)
+                )
+            };
+            await client.SendAsync(message);
+            // Assert
+            Expect(body).To.Equal(expectedBody);
+            Expect(bodyObject).Not.To.Be.Null();
+            Expect(bodyObject.Id).To.Equal(poco.id);
+            Expect(bodyObject.Name).To.Equal(poco.name);
+        }
+        
+        [TestCase("POST")]
+        [TestCase("PUT")]
+        [TestCase("DELETE")]
+        [TestCase("PATCH")]
+        public async Task GettingRequestBodyWhenChunked(string method)
+        {
+            // HttpClient in net6.0 (netstandard perhaps?) will 
+            // send the body chunked when using ObjectContent - where net462
+            // will not
+            // Arrange
+            using var server = new HttpServer()
+            {
+                LogAction = Console.WriteLine
+            };
             var poco = new
             {
                 id = 1,
@@ -223,6 +281,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             Expect(bodyObject.Id).To.Equal(poco.id);
             Expect(bodyObject.Name).To.Equal(poco.name);
         }
+        
 
         public class SimpleData
         {
@@ -815,13 +874,133 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             }
         }
 
-        private HttpServer Create(int? port = null)
+        // [TestFixture]
+        // public class WildIssues
+        // {
+        //     [TestFixture]
+        //     public class SuddenEndOfStreamFail
+        //     {
+        //         [TestCase("POST")]
+        //         [TestCase("GET")]
+        //         public void ShouldSendRequestWithMethod_(string expectedMethod)
+        //         {
+        //             // Arrange
+        //             var requestPathAndParameters = GetRandomHttpPathAndParameters();
+        //             var expectedResult = GetRandomWords();
+        //             var capturedPath = null as string;
+        //             var capturedParameters = new Dictionary<string, string>();
+        //             var capturedMethod = null as string;
+        //             var capturedHeaders = new Dictionary<string, string>();
+        //             using var server = Create();
+        //             server.AddHandler((processor, _) =>
+        //             {
+        //                 capturedMethod = processor.Method;
+        //                 capturedParameters = processor.UrlParameters;
+        //                 capturedPath = processor.Path;
+        //                 capturedHeaders = processor.HttpHeaders;
+        //                 processor.WriteDocument(expectedResult);
+        //                 return HttpServerPipelineResult.HandledExclusively;
+        //             });
+        //             var url = server.GetFullUrlFor(requestPathAndParameters);
+        //             var uri = new Uri(url);
+        //             var expectedParameters = uri.ParseQueryString().ToDictionary();
+        //             var expectedPath = uri.AbsolutePath;
+        //
+        //             var sut = new HttpRequestExecutor();
+        //             // Act
+        //             var result = sut.ExecuteRequest(url, expectedMethod);
+        //
+        //             // Assert
+        //             Expect(capturedParameters)
+        //                 .To.Equal(expectedParameters);
+        //             Expect(capturedPath)
+        //                 .To.Equal(expectedPath);
+        //             Expect(result.StatusCode)
+        //                 .To.Equal(HttpStatusCode.OK);
+        //             Expect(result.RawResponse)
+        //                 .To.Equal(expectedResult);
+        //             Expect(capturedHeaders)
+        //                 .To.Contain.Key("Connection")
+        //                 .With.Value("Keep-Alive");
+        //             Expect(capturedHeaders)
+        //                 .To.Contain.Key("Accept-Encoding")
+        //                 .With.Value("gzip, deflate");
+        //         }
+        //
+        //         /// <summary>
+        //         /// The request result
+        //         /// </summary>
+        //         public class RequestResult
+        //         {
+        //             public HttpStatusCode StatusCode { get; }
+        //
+        //             public string RawResponse { get; }
+        //
+        //             public RequestResult(HttpStatusCode statusCode, string rawResponse)
+        //             {
+        //                 StatusCode = statusCode;
+        //                 RawResponse = rawResponse;
+        //             }
+        //         }
+        //
+        //         public interface IHttpRequestExecutor
+        //         {
+        //             RequestResult ExecuteRequest(string url, string method = "POST");
+        //         }
+        //
+        //         public class HttpRequestExecutor
+        //             : IHttpRequestExecutor
+        //         {
+        //             private static readonly HttpClient HttpClient;
+        //
+        //             static HttpRequestExecutor()
+        //             {
+        //                 HttpClient = new HttpClient()
+        //                 {
+        //                     DefaultRequestHeaders =
+        //                     {
+        //                         { "Connection", "Keep-Alive" },
+        //                         { "Accept-Encoding", "gzip, deflate" }
+        //                     }
+        //                 };
+        //             }
+        //
+        //             public RequestResult ExecuteRequest(string url, string method = "POST")
+        //             {
+        //                 var message = new HttpRequestMessage()
+        //                 {
+        //                     RequestUri = new Uri(url),
+        //                     Method = ResolveHttpMethodFor(method),
+        //                     Content = null
+        //                 };
+        //                 var response = HttpClient.Send(message);
+        //                 using var contentStream = response.Content.ReadAsStream();
+        //                 return new RequestResult(response.StatusCode, contentStream.ReadAllText());
+        //             }
+        //
+        //             private HttpMethod ResolveHttpMethodFor(string method)
+        //             {
+        //                 return method?.ToLower() switch
+        //                 {
+        //                     "get" => HttpMethod.Get,
+        //                     "post" => HttpMethod.Post,
+        //                     "put" => HttpMethod.Put,
+        //                     "patch" => HttpMethod.Patch,
+        //                     "delete" => HttpMethod.Delete,
+        //                     _ => throw new ArgumentException($"'{method}' is not a known http method")
+        //                 };
+        //             }
+        //         }
+        //     }
+        // }
+
+        private static HttpServer Create(int? port = null)
         {
             var result = CreateWithPort(port);
             return result;
         }
 
-        private HttpServer CreateWithPort(int? port)
+        private static HttpServer CreateWithPort(int? port)
         {
             return port.HasValue
                 ? new HttpServer(port.Value, true, Console.WriteLine)
@@ -888,7 +1067,9 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             }
         }
 
-        private static byte[] DownloadResultFrom(HttpServer server, string path, Dictionary<string, string> addHeaders = null)
+        private static byte[] DownloadResultFrom(HttpServer server,
+            string path,
+            Dictionary<string, string> addHeaders = null)
         {
             return DownloadResultFrom(server, path, addHeaders, out var _);
         }

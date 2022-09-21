@@ -14,6 +14,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using PeanutButter.SimpleTcpServer;
+using PeanutButter.Utils;
 using static PeanutButter.SimpleHTTPServer.HttpConstants;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -108,7 +109,7 @@ namespace PeanutButter.SimpleHTTPServer
                 catch (Exception ex)
                 {
                     WriteFailure(HttpStatusCode.InternalServerError, $"{Statuses.INTERNALERROR}: {ex.Message}");
-                    LogAction("Unable to process request: " + ex.Message);
+                    LogAction?.Invoke("Unable to process request: " + ex.Message);
                 }
                 finally
                 {
@@ -218,43 +219,109 @@ namespace PeanutButter.SimpleHTTPServer
 
         private void HandleRequestWithBody(Stream stream, string method)
         {
-            using (var ms = new MemoryStream())
+            using var ms = new MemoryStream();
+            if (HttpHeaders.ContainsKey(Headers.CONTENT_LENGTH))
             {
-                if (HttpHeaders.ContainsKey(Headers.CONTENT_LENGTH))
+                var contentLength = Convert.ToInt32(HttpHeaders[Headers.CONTENT_LENGTH]);
+                ReadBodyContent(stream, method, contentLength, ms);
+            }
+            else if (HttpHeaders.ContainsKey(Headers.TRANSFER_ENCODING))
+            {
+                var transferEncoding = HttpHeaders[Headers.TRANSFER_ENCODING];
+                if (!transferEncoding.Equals("chunked", StringComparison.OrdinalIgnoreCase))
                 {
-                    var contentLength = Convert.ToInt32(HttpHeaders[Headers.CONTENT_LENGTH]);
-                    if (contentLength > MaxPostSize)
-                    {
-                        throw new Exception(
-                            $"{method} Content-Length({contentLength}) too big for this simple server (max: {MaxPostSize})");
-                    }
-
-                    var buf = new byte[BUF_SIZE];
-                    var toRead = contentLength;
-                    while (toRead > 0)
-                    {
-                        var numread = stream.Read(buf, 0, Math.Min(BUF_SIZE, toRead));
-                        if (numread == 0)
-                        {
-                            if (toRead == 0)
-                            {
-                                break;
-                            }
-                            else
-                            {
-                                throw new Exception("client disconnected during post");
-                            }
-                        }
-
-                        toRead -= numread;
-                        ms.Write(buf, 0, numread);
-                    }
-
-                    ms.Seek(0, SeekOrigin.Begin);
+                    throw new NotSupportedException(
+                        $"Transfer-Encoding '{transferEncoding}' is not supported"
+                    );
                 }
 
-                ParseFormElementsIfRequired(ms);
-                Server.HandleRequestWithBody(this, ms, method);
+                ReadChunked(stream, method, ms);
+            }
+
+            ParseFormElementsIfRequired(ms);
+            Server.HandleRequestWithBody(this, ms, method);
+        }
+
+        // see: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Transfer-Encoding#chunked_encoding
+        private void ReadChunked(
+            Stream stream,
+            string method,
+            MemoryStream ms
+        )
+        {
+            var eol = new byte[2];
+            while (true)
+            {
+                var chunkSize = stream.ReadLine();
+                if (chunkSize is null)
+                {
+                    return;
+                }
+
+                if (!chunkSize.TryParseHex(out var toRead))
+                {
+                    throw new InvalidOperationException(
+                        $"{method} Expected a chunk size, but found '{chunkSize}'"
+                    );
+                }
+
+                if (toRead == 0)
+                {
+                    // this is the terminating chunk - we're done after reading the
+                    // final trailing newline
+                    ReadNewlineFromStream();
+                    return;
+                }
+
+                CopyBytes(stream, toRead, ms);
+                ReadNewlineFromStream();
+            }
+
+            void ReadNewlineFromStream()
+            {
+                // skip the trailing \r\n
+                var eolRead = stream.Read(eol, 0, 2);
+                if (eolRead != 2 || eol[0] != '\r' || eol[1] != '\n')
+                {
+                    LogAction?.Invoke(
+                        $"WARNING: possibly invalid chunked transfer: expected [ 13, 10 ], but received [ {eol[0]}, {eol[1]} ]"
+                    );
+                }
+            }
+        }
+
+        private void ReadBodyContent(Stream stream, string method, int contentLength, MemoryStream ms)
+        {
+            if (contentLength > MaxPostSize)
+            {
+                throw new Exception(
+                    $"{method} Content-Length({contentLength}) too big for this simple server (max: {MaxPostSize})"
+                );
+            }
+
+            CopyBytes(stream, contentLength, ms);
+
+            ms.Seek(0, SeekOrigin.Begin);
+        }
+
+        private static void CopyBytes(
+            Stream source,
+            int howMany,
+            Stream target
+        )
+        {
+            var buf = new byte[BUF_SIZE];
+            var toRead = howMany;
+            while (toRead > 0)
+            {
+                var numRead = source.Read(buf, 0, Math.Min(BUF_SIZE, toRead));
+                if (numRead == 0)
+                {
+                    throw new Exception("client disconnected during post");
+                }
+
+                toRead -= numRead;
+                target.Write(buf, 0, numRead);
             }
         }
 
@@ -390,9 +457,9 @@ namespace PeanutButter.SimpleHTTPServer
                 _outputStream.BaseStream.Write(data, 0, data.Length);
                 _outputStream.BaseStream.Flush();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                LogAction(ex.Message);
+                LogAction?.Invoke(ex.Message);
             }
         }
 

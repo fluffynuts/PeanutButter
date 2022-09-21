@@ -464,6 +464,67 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
+        /// Read one line from the stream, encoded as utf8
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        public static string ReadLine(
+            this Stream stream
+        )
+        {
+            return stream.ReadLine(Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// Read one line from the stream, with the provided encoding
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="encoding"></param>
+        /// <returns></returns>
+        public static string ReadLine(
+            this Stream stream,
+            Encoding encoding
+        )
+        {
+            var bytes = new List<byte>();
+            int c;
+            var collected = 0;
+            var danglingCarriageReturn = false;
+            while ((c = stream.ReadByte()) != -1)
+            {
+                if (c == '\r')
+                {
+                    danglingCarriageReturn = true;
+                    continue;
+                }
+
+                if (c == '\n')
+                {
+                    return encoding.GetString(
+                        bytes.ToArray()
+                    );
+                }
+
+                if (danglingCarriageReturn)
+                {
+                    bytes.Add((byte) '\r');
+                    danglingCarriageReturn = false;
+                }
+
+                collected++;
+                bytes.Add((byte) c);
+            }
+
+            if (collected > 0)
+            {
+                return encoding.GetString(
+                    bytes.ToArray()
+                );
+            }
+            return null;
+        }
+
+        /// <summary>
         /// Read all content of a stream as text
         /// with utf8 encoding
         /// </summary>

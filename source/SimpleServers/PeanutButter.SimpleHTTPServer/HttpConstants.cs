@@ -18,6 +18,10 @@ namespace PeanutButter.SimpleHTTPServer
             /// Content-Type
             /// </summary>
             public const string CONTENT_TYPE = "Content-Type";
+            /// <summary>
+            /// Transfer-Encoding (https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Transfer-Encoding)
+            /// </summary>
+            public const string TRANSFER_ENCODING = "Transfer-Encoding";
         }
 
         /// <summary>

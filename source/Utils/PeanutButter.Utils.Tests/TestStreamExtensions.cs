@@ -917,7 +917,7 @@ namespace PeanutButter.Utils.Tests
                 Expect(result)
                     .To.Equal(expected);
             }
-            
+
             [Test]
             public void ShouldReadTheStreamAsTextTwice()
             {
@@ -936,7 +936,7 @@ namespace PeanutButter.Utils.Tests
                     .To.Equal(expected);
             }
         }
-        
+
         [TestFixture]
         public class ReadAllTextAsync
         {
@@ -956,7 +956,7 @@ namespace PeanutButter.Utils.Tests
                 Expect(result)
                     .To.Equal(expected);
             }
-            
+
             [Test]
             public async Task ShouldReadTheStreamAsTextTwice()
             {
@@ -1034,6 +1034,58 @@ namespace PeanutButter.Utils.Tests
                 );
                 // Act
                 var result = stream.ReadLines().ToArray();
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+        }
+
+        [TestFixture]
+        public class ReadingLinesOneAtATime
+        {
+            [TestCase("\r\n")]
+            [TestCase("\n")]
+            public void ShouldReadAllTheLinesSeparatedBy(string eol)
+            {
+                // Arrange
+                var expected = GetRandomArray<string>(3, 5);
+                var text = string.Join(eol, expected);
+                var stream = new MemoryStream(
+                    Encoding.UTF8.GetBytes(text)
+                );
+                var result = new List<string>();
+                // Act
+                string line;
+                while ((line = stream.ReadLine()) is not null)
+                {
+                    result.Add(line);
+                }
+
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+
+            [Test]
+            public void ShouldNotDiscardLonelyCarriageReturn()
+            {
+                // Arrange
+                var text = "abc\r123\r\nline two";
+                var expected = new[]
+                {
+                    "abc\r123",
+                    "line two"
+                };
+                var stream = new MemoryStream(
+                    Encoding.UTF8.GetBytes(text)
+                );
+                var result = new List<string>();
+                // Act
+                string line;
+                while ((line = stream.ReadLine()) is not null)
+                {
+                    result.Add(line);
+                }
                 // Assert
                 Expect(result)
                     .To.Equal(expected);

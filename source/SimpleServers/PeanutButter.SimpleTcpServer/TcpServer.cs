@@ -160,7 +160,7 @@ namespace PeanutButter.SimpleTcpServer
             _task = Task.Run(() =>
             {
                 if (token.IsCancellationRequested) return;
-                while (!_cancellationTokenSource.IsCancellationRequested)
+                while (!_cancellationTokenSource?.IsCancellationRequested ?? true)
                 {
                     try
                     {
@@ -168,7 +168,7 @@ namespace PeanutButter.SimpleTcpServer
                     }
                     catch (Exception ex)
                     {
-                        if (!_cancellationTokenSource.IsCancellationRequested)
+                        if (!_cancellationTokenSource?.IsCancellationRequested ?? true)
                         {
                             LogException(ex);
                         }

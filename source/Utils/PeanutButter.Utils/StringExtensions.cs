@@ -1340,5 +1340,33 @@ namespace PeanutButter.Utils
 
             return result;
         }
+
+        /// <summary>
+        /// Attempt to parse a string as an integer encoded with hex
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="parsed"></param>
+        /// <returns></returns>
+        public static bool TryParseHex(
+            this string str,
+            out int parsed
+        )
+        {
+            try
+            {
+                parsed = Convert.ToInt32(str, 16);
+                return true;
+            }
+            catch (OverflowException)
+            {
+                parsed = Int32.MaxValue;
+                return false;
+            }
+            catch (FormatException)
+            {
+                parsed = 0;
+                return false;
+            }
+        }
     }
 }
