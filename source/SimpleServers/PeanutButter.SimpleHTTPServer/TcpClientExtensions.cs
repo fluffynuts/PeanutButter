@@ -56,9 +56,7 @@ namespace PeanutButter.SimpleHTTPServer
             var readFails = 0;
             while (true)
             {
-                var thisChar = stream.ReadByte();
-                if (thisChar == '\n') break;
-                if (thisChar == '\r') continue;
+                var thisChar = stream.TryReadByte();
                 if (thisChar < 0)
                 {
                     if (++readFails > 10)
@@ -71,11 +69,33 @@ namespace PeanutButter.SimpleHTTPServer
                     continue;
                 }
 
+                if (thisChar == '\n') break;
+                if (thisChar == '\r') continue;
                 data.Add(Convert.ToChar(thisChar));
             } // while (stream.DataAvailable);
 
             var result = string.Join(string.Empty, data);
             return result;
+        }
+
+        /// <summary>
+        /// Attempt to read a byte from the NetworkStream. Any encountered
+        /// exception makes this return -2.
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        public static int TryReadByte(
+            this NetworkStream stream
+        )
+        {
+            try
+            {
+                return stream.ReadByte();
+            }
+            catch
+            {
+                return -2;
+            }
         }
     }
 }
