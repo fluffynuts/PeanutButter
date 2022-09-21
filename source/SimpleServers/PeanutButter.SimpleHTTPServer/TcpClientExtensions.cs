@@ -59,9 +59,9 @@ namespace PeanutButter.SimpleHTTPServer
                 var thisChar = stream.TryReadByte();
                 if (thisChar < 0)
                 {
-                    if (++readFails > 10)
+                    if (thisChar == -2 || ++readFails > 10)
                     {
-                        // it's possible there's just a hiccup in the stream?
+                        // it's possible the failure is transitive?
                         break;
                     }
 
