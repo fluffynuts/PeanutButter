@@ -49,8 +49,15 @@ namespace PeanutButter.SimpleHTTPServer
 
         private void DisposeStreamWriter()
         {
-            _outputStreamWriter?.Flush();
-            _outputStreamWriter?.Dispose();
+            try
+            {
+                _outputStreamWriter?.Flush();
+                _outputStreamWriter?.Dispose();
+            }
+            catch
+            {
+                /* intentionally left blank */
+            }
             _outputStreamWriter = null;
         }
 

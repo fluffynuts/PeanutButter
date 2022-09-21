@@ -18,8 +18,9 @@ namespace PeanutButter.SimpleHTTPServer
         public static string ReadLine(this TcpClient client)
         {
             var stream = client.GetStream();
+            stream.ReadTimeout = 3000;
             var data = new List<char>();
-            while (true)
+            while (true && stream.DataAvailable)
             {
                 var thisChar = stream.ReadByte();
                 if (thisChar == '\n') break;

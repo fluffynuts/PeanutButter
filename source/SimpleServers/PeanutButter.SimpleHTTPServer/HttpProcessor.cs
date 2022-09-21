@@ -384,9 +384,16 @@ namespace PeanutButter.SimpleHTTPServer
         public void WriteDataToStream(byte[] data)
         {
             if (data == null) return;
-            _outputStream.Flush();
-            _outputStream.BaseStream.Write(data, 0, data.Length);
-            _outputStream.BaseStream.Flush();
+            try
+            {
+                _outputStream.Flush();
+                _outputStream.BaseStream.Write(data, 0, data.Length);
+                _outputStream.BaseStream.Flush();
+            }
+            catch(Exception ex)
+            {
+                LogAction(ex.Message);
+            }
         }
 
         /// <summary>
