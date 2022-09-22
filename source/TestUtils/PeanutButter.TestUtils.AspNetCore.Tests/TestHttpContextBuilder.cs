@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Net;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -394,8 +395,6 @@ public class TestHttpContextBuilder
             .Not.To.Deep.Equal(result2);
         Expect(result1.Request.Host.Host)
             .Not.To.Equal("localhost");
-        Expect(result1.Request.Cookies.Keys)
-            .Not.To.Be.Empty();
     }
 
     [Test]
@@ -522,6 +521,41 @@ public class TestHttpContextBuilder
         // Assert
         Expect(ctx.Response.Headers["set-cookie"].ToArray())
             .To.Be.Empty();
+    }
+
+    [Test]
+    public void SettingARequestCookieShouldSetTheCookieHeaderOnTheRequest()
+    {
+        // Arrange
+        var key  = GetRandomString();
+        var value = GetRandomString();
+        var ctx = HttpContextBuilder.BuildDefault();
+        var requestCookies = ctx.Request.Cookies as FakeRequestCookieCollection;
+        Expect(requestCookies!.HttpRequest)
+            .To.Be(ctx.Request);
+        // Act
+        requestCookies[key] = value;
+        var result = ctx.Request.Headers["Cookie"].FirstOrDefault();
+        // Assert
+        Expect(result)
+            .Not.To.Be.Null();
+        Expect(result)
+            .To.Equal($"{WebUtility.UrlEncode(key)}={WebUtility.UrlEncode(value)}");
+    }
+
+    [Test]
+    public void SettingACookieInTheHeaderShouldUpdateTheCollection()
+    {
+        // Arrange
+        var key = GetRandomString();
+        var value = GetRandomString();
+        var ctx = HttpContextBuilder.BuildDefault();
+        // Act
+        ctx.Request.Headers["Cookie"] = $"{WebUtility.UrlEncode(key)}={WebUtility.UrlEncode(value)}";
+        // Assert
+        Expect(ctx.Request.Cookies)
+            .To.Contain.Key(key)
+            .With.Value(value);
     }
 
 

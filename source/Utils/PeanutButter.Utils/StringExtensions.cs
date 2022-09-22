@@ -1368,5 +1368,40 @@ namespace PeanutButter.Utils
                 return false;
             }
         }
+
+        /// <summary>
+        /// Split the string only once, eg so "foo:bar:qux" split on ":" returns [ "foo", "bar:qux" ]
+        /// edge cases:
+        /// null returns empty array
+        /// no delimiter -> array with single element (original string)
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="splitOn"></param>
+        /// <returns></returns>
+        public static string[] SplitOnce(
+            this string str,
+            string splitOn
+        )
+        {
+            if (str is null)
+            {
+                return Array.Empty<string>();
+            }
+
+            if (splitOn is null)
+            {
+                throw new ArgumentNullException(nameof(splitOn));
+            }
+
+            var idx = str.IndexOf(splitOn, StringComparison.InvariantCulture);
+            if (idx < 0)
+            {
+                return new[] { str };
+            }
+            
+            var first = str.Substring(0, idx);
+            var second = str.Substring(idx + splitOn.Length);
+            return new[] { first, second };
+        }
     }
 }

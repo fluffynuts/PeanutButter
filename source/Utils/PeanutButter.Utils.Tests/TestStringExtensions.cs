@@ -2034,5 +2034,106 @@ function foo() {
             }
         }
 
+        [TestFixture]
+        public class SplitOnce
+        {
+            [TestFixture]
+            public class GivenNull
+            {
+                [Test]
+                public void ShouldReturnEmptyArray()
+                {
+                    // Arrange
+                    var str = null as string;
+                    // Act
+                    var result = str.SplitOnce(";");
+                    // Assert
+                    Expect(result)
+                        .To.Be.Empty();
+                }
+            }
+
+            [TestFixture]
+            public class GivenEmptyString
+            {
+                [Test]
+                public void ShouldReturnSingleElementEmpty()
+                {
+                    // Arrange
+                    var str = "";
+                    // Act
+                    var result = str.SplitOnce(";");
+                    // Assert
+                    Expect(result)
+                        .To.Equal(new[] { "" });
+                }
+            }
+
+            [TestFixture]
+            public class GivenNonEmptyStringWithoutDelimiter
+            {
+                [Test]
+                public void ShouldReturnSingleElement()
+                {
+                    // Arrange
+                    var str = "moocakes";
+                    // Act
+                    var result = str.SplitOnce("::");
+                    // Assert
+                    Expect(result)
+                        .To.Equal(new[] { str });
+                }
+            }
+
+            [TestFixture]
+            public class GivenStringWithTwoElements
+            {
+                [Test]
+                public void ShouldReturnThoseTwoElements()
+                {
+                    // Arrange
+                    var str = "foo;bar";
+                    var expected = new[] { "foo", "bar" };
+                    // Act
+                    var result = str.SplitOnce(";");
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
+
+            [TestFixture]
+            public class GivenStringWithThreeElements
+            {
+                [Test]
+                public void ShouldReturnOnlyTwoItemsInArray()
+                {
+                    // Arrange
+                    var str = "foo::bar::qux";
+                    var expected = new[] { "foo", "bar::qux" };
+                    // Act
+                    var result = str.SplitOnce("::");
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
+
+            [TestFixture]
+            public class GivenNullSplitter
+            {
+                [Test]
+                public void ShouldThrow()
+                {
+                    // Arrange
+                    // Act
+                    Expect(() => "".SplitOnce(null))
+                        .To.Throw<ArgumentNullException>()
+                        .For("splitOn");
+                    // Assert
+                }
+            }
+        }
+
     }
 }

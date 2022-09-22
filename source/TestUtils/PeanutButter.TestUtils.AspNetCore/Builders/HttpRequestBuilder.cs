@@ -38,7 +38,17 @@ public class HttpRequestBuilder : RandomizableBuilder<HttpRequestBuilder, HttpRe
             .WithHost("localhost")
             .WithPort(80)
             .WithHeaders(HeaderDictionaryBuilder.BuildDefault())
-            .WithCookies(RequestCookieCollectionBuilder.BuildDefault());
+            .WithCookies(
+                RequestCookieCollectionBuilder
+                    .Create()
+                    .Build()
+            ).WithPostBuild(request =>
+            {
+                if (request.Cookies is FakeRequestCookieCollection fake)
+                {
+                    fake.HttpRequest = request;
+                }
+            });
         if (!noContext)
         {
             WithHttpContext(
@@ -205,8 +215,14 @@ public class HttpRequestBuilder : RandomizableBuilder<HttpRequestBuilder, HttpRe
         return With(
             o =>
             {
-                var cookies = o.Cookies.As<FakeRequestCookieCollection>();
-                cookies[name] = value;
+                CookieUtil.GenerateCookieHeader(
+                    new Dictionary<string, string>()
+                    {
+                        [name] = value
+                    },
+                    o,
+                    overwrite: false
+                );
             }
         );
     }
@@ -226,17 +242,11 @@ public class HttpRequestBuilder : RandomizableBuilder<HttpRequestBuilder, HttpRe
         return With(
             o =>
             {
-                if (cookies is null)
-                {
-                    throw new ArgumentNullException(nameof(cookies));
-                }
-
-                var fake = o.Cookies.As<FakeRequestCookieCollection>();
-
-                foreach (var kvp in cookies)
-                {
-                    fake[kvp.Key] = kvp.Value;
-                }
+                CookieUtil.GenerateCookieHeader(
+                    cookies,
+                    o,
+                    overwrite: false
+                );
             }
         );
     }
@@ -250,8 +260,7 @@ public class HttpRequestBuilder : RandomizableBuilder<HttpRequestBuilder, HttpRe
         return With(
             o =>
             {
-                var cookies = o.Cookies.As<FakeRequestCookieCollection>();
-                cookies.Clear();
+                o.Headers.Remove(CookieUtil.HEADER);
             });
     }
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System;
+using Microsoft.AspNetCore.Http;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
@@ -11,6 +12,20 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders;
 public class RequestCookieCollectionBuilder
     : RandomizableBuilder<RequestCookieCollectionBuilder, IRequestCookieCollection>
 {
+    /// <summary>
+    /// Builds a request cookie collection
+    /// </summary>
+    public RequestCookieCollectionBuilder() : base(Actualize)
+    {
+    }
+
+    private static void Actualize(IRequestCookieCollection requestCookieCollection)
+    {
+        var requestCookies = requestCookieCollection as FakeRequestCookieCollection;
+        WarnIf(requestCookies is null, "request cookies is not a FakeRequestCookieCollection");
+        WarnIf(requestCookies?.HttpRequest is null, "request cookies not set up with any associated request");
+    }
+
     /// <summary>
     /// Constructs the fake cookie collection
     /// </summary>

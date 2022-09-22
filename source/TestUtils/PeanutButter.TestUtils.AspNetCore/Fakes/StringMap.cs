@@ -19,7 +19,7 @@ public class StringMap : IEnumerable<KeyValuePair<string, string>>
     private readonly Dictionary<string, string> _store = new();
 
     /// <inheritdoc />
-    public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
+    public virtual IEnumerator<KeyValuePair<string, string>> GetEnumerator()
     {
         return _store.GetEnumerator();
     }
@@ -66,7 +66,27 @@ public class StringMap : IEnumerable<KeyValuePair<string, string>>
     /// <param name="key"></param>
     public string this[string key]
     {
-        get => _store[key];
-        set => _store[key] = value;
+        get => Retrieve(key);
+        set => Store(key, value);
+    }
+
+    /// <summary>
+    /// Stores the value in the store
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
+    protected virtual void Store(string key, string value)
+    {
+        _store[key] = value;
+    }
+
+    /// <summary>
+    /// retrieves the value from the store
+    /// - override in an inherited class to do other funky things
+    /// </summary>
+    /// <param name="key"></param>
+    protected virtual string Retrieve(string key)
+    {
+        return _store[key];
     }
 }

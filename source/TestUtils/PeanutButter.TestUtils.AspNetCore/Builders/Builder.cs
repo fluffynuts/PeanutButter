@@ -220,6 +220,11 @@ public abstract class Builder<TBuilder, TSubject>
         }
 
         CurrentEntity = default;
+        foreach (var postBuild in _postBuild)
+        {
+            postBuild(result);
+        }
+
         return result;
     }
 
@@ -277,6 +282,7 @@ public abstract class Builder<TBuilder, TSubject>
     }
 
     private readonly List<Action> _precursors = new();
+    private readonly List<Action<TSubject>> _postBuild = new();
 
     /// <summary>
     /// Run a precursor before your entity is constructed - use when
@@ -287,6 +293,17 @@ public abstract class Builder<TBuilder, TSubject>
     protected TBuilder WithPreCursor(Action toRun)
     {
         _precursors.Add(toRun);
+        return this as TBuilder;
+    }
+
+    /// <summary>
+    /// Add post-build actions
+    /// </summary>
+    /// <param name="action"></param>
+    /// <returns></returns>
+    protected TBuilder WithPostBuild(Action<TSubject> action)
+    {
+        _postBuild.Add(action);
         return this as TBuilder;
     }
 }
