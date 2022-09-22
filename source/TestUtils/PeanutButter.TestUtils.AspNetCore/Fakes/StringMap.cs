@@ -87,6 +87,8 @@ public class StringMap : IEnumerable<KeyValuePair<string, string>>
     /// <param name="key"></param>
     protected virtual string Retrieve(string key)
     {
-        return _store[key];
+        return _store.TryGetValue(key, out var result)
+            ? result
+            : null;
     }
 }
