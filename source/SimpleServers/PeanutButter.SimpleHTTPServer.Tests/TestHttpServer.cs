@@ -15,6 +15,7 @@ using PeanutButter.SimpleTcpServer;
 using PeanutButter.Utils;
 using NExpect;
 using static NExpect.Expectations;
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMethodReturnValue.Global
@@ -83,7 +84,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             const string theDocName = "index.html";
             using var server = Create();
             server.AddHtmlDocumentHandler(
-                (p, s) => p.Path == "/" + theDocName
+                (p, _) => p.Path == "/" + theDocName
                     ? doc
                     : null);
             //---------------Assert Precondition----------------
@@ -110,27 +111,27 @@ namespace PeanutButter.SimpleHTTPServer.Tests
 
             // Act
             server.AddDocumentHandler(
-                (p, s) => p.Path == "/html1"
+                (p, _) => p.Path == "/html1"
                     ? html1
                     : null);
             server.AddDocumentHandler(
-                (p, s) => p.Path == "/html2"
+                (p, _) => p.Path == "/html2"
                     ? html2
                     : null);
             server.AddDocumentHandler(
-                (p, s) => p.Path == "/json"
+                (p, _) => p.Path == "/json"
                     ? json
                     : null);
             server.AddDocumentHandler(
-                (p, s) => p.Path == "/text"
+                (p, _) => p.Path == "/text"
                     ? text
                     : null);
             server.AddDocumentHandler(
-                (p, s) => p.Path == "/xml1"
+                (p, _) => p.Path == "/xml1"
                     ? xml1
                     : null);
             server.AddDocumentHandler(
-                (p, s) => p.Path == "/xml2"
+                (p, _) => p.Path == "/xml2"
                     ? xml2
                     : null);
             DownloadResultFrom(
@@ -297,7 +298,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             var route = "api/foo";
             using var server = Create();
             server.AddJsonDocumentHandler(
-                (p, s) => p.Path == "/" + route
+                (p, _) => p.Path == "/" + route
                     ? data
                     : null);
             //---------------Assert Precondition----------------
@@ -322,7 +323,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             using var server = Create();
             //---------------Assert Precondition----------------
             server.AddFileHandler(
-                (p, s) => p.Path == "/" + theFileName
+                (p, _) => p.Path == "/" + theFileName
                     ? theFile
                     : null);
             //---------------Execute Test ----------------------
@@ -339,7 +340,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             const string theFileName = "somefile.bin";
             using var server = Create();
             //---------------Assert Precondition----------------
-            server.ServeFile("/" + theFileName, () => theFile, "application/octet-stream");
+            server.ServeFile("/" + theFileName, () => theFile, contentType: "application/octet-stream");
             //---------------Execute Test ----------------------
             var result = DownloadResultFrom(server, theFileName);
             //---------------Test Result -----------------------
@@ -661,7 +662,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             var url = server.GetFullUrlFor(fileName);
             var expectedBytes = GetRandomBytes(100, 200);
             server.AddFileHandler(
-                (processor, stream) =>
+                (processor, _) =>
                 {
                     if (processor.FullUrl == "/" + fileName)
                     {
@@ -707,7 +708,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             var logs = new List<string>();
             server.LogAction = logs.Add;
             server.AddHtmlDocumentHandler(
-                (p, s) => throw new Exception(message)
+                (_, _) => throw new Exception(message)
             );
             //---------------Assert Precondition----------------
 
@@ -758,7 +759,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             using var server = Create();
             var capturedParams = new Dictionary<string, string>();
             server.AddJsonDocumentHandler(
-                (processor, stream) =>
+                (processor, _) =>
                 {
                     processor.UrlParameters.ForEach(
                         kvp => capturedParams.Add(kvp.Key, kvp.Value));
@@ -786,9 +787,11 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             // Arrange
             using var server = Create();
             var exceptionMessage = GetRandomString(10);
-            server.AddHandler((p, s) => throw new Exception(exceptionMessage));
+            server.AddHandler((_, _) => throw new Exception(exceptionMessage));
 
+#pragma warning disable SYSLIB0014
             var req = WebRequest.Create(server.GetFullUrlFor("/moo.jpg"));
+#pragma warning restore SYSLIB0014
             try
             {
                 using var res = req.GetResponse() as HttpWebResponse;
@@ -844,7 +847,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             {
                 // Arrange
                 var expected = GetRandomString();
-                _server.AddDocumentHandler((processor, stream) =>
+                _server.AddDocumentHandler((processor, _) =>
                     processor.Path == "/index.html"
                         ? expected
                         : null
@@ -861,7 +864,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             {
                 // Arrange
                 var expected = GetRandomString();
-                _server.AddDocumentHandler((processor, stream) =>
+                _server.AddDocumentHandler((processor, _) =>
                     processor.Path == "/index.html"
                         ? expected
                         : null
@@ -1012,7 +1015,9 @@ namespace PeanutButter.SimpleHTTPServer.Tests
         public string Download(string url, string fileName, string destPath)
         {
             var outFile = Path.Combine(destPath, fileName);
+#pragma warning disable SYSLIB0014
             var req = WebRequest.Create(url) as HttpWebRequest;
+#pragma warning restore SYSLIB0014
             long existingSize = 0;
             if (File.Exists(outFile))
             {
@@ -1039,7 +1044,9 @@ namespace PeanutButter.SimpleHTTPServer.Tests
 
         private long GetContentLengthFor(string downloadUrl)
         {
+#pragma warning disable SYSLIB0014
             var req = WebRequest.Create(downloadUrl) as HttpWebRequest;
+#pragma warning restore SYSLIB0014
             using var response = req.GetResponse();
             return long.Parse(response.Headers[CONTENT_LENGTH_HEADER]);
         }
@@ -1081,7 +1088,9 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             Dictionary<string, string> addHeaders,
             out string contentType)
         {
+#pragma warning disable SYSLIB0014
             var request = WebRequest.Create(server.GetFullUrlFor(path));
+#pragma warning restore SYSLIB0014
             (request as HttpWebRequest).KeepAlive = false;
             request.Method = method.ToString().ToUpper();
             addHeaders?.ForEach(kvp => request.Headers[kvp.Key] = kvp.Value);
