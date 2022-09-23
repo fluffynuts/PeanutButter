@@ -189,6 +189,32 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
         }
 
         /// <summary>
+        /// Set the url on the associated request
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        public AuthorizationFilterContextBuilder WithRequestUrl(
+            string url
+        )
+        {
+            return WithRequestUrl(new Uri(url));
+        }
+
+        /// <summary>
+        /// Set the url on the associated request
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        public AuthorizationFilterContextBuilder WithRequestUrl(
+            Uri url
+        )
+        {
+            return WithRequestMutator(
+                req => req.SetUrl(url)
+            );
+        }
+
+        /// <summary>
         /// Set multiple cookies on the request
         /// </summary>
         /// <param name="cookies"></param>

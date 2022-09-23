@@ -580,6 +580,7 @@ public class TestControllerBuilder
                     .WithAction(nameof(MvcController.Add))
                     .Build();
                 // Act
+                // ReSharper disable once Mvc.ActionNotResolved
                 var result = controller.Url.Action("foo");
                 // Assert
                 Expect(result)

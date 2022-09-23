@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -146,6 +147,22 @@ namespace PeanutButter.TestUtils.AspNetCore.Tests
             Expect(result.HttpContext.Request.Cookies)
                 .To.Contain.Key(key)
                 .With.Value(value);
+        }
+
+        [Test]
+        public void ShouldBeAbleToSetRequestUrl()
+        {
+            // Arrange
+            var expected = GetRandomHttpUrl();
+            // Act
+            var result = AuthorizationFilterContextBuilder.Create()
+                .ForController<MyController>()
+                .ForAction(nameof(MyController.Moo))
+                .WithRequestUrl(expected)
+                .Build();
+            // Assert
+            Expect(result.HttpContext.Request.FullUrl())
+                .To.Equal(new Uri(expected));
         }
 
         public class Poco
