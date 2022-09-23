@@ -132,7 +132,7 @@ public class TestHttpContextBuilder
         }
 
         [Test]
-        public void ShouldSetNonFunctionalServiceProvider()
+        public void ShouldSetMinimalServiceProvider()
         {
             // Arrange
             // Act
@@ -140,8 +140,8 @@ public class TestHttpContextBuilder
             // Assert
             Expect(result.RequestServices)
                 .Not.To.Be.Null();
-            Expect(() => result.RequestServices.GetService(typeof(SomeService)))
-                .To.Throw<ServiceProviderImplementationRequiredException>();
+            Expect(result.RequestServices.GetService(typeof(AService)))
+                .To.Be.An.Instance.Of<AService>();
         }
 
         [Test]
@@ -311,12 +311,12 @@ public class TestHttpContextBuilder
     {
         // Arrange
         var serviceProvider = Substitute.For<IServiceProvider>();
-        var expected = new SomeService();
+        var expected = new AService();
         serviceProvider.GetService(Arg.Any<Type>())
             .Returns(ci =>
             {
                 var t = ci.Arg<Type>();
-                if (t != typeof(SomeService))
+                if (t != typeof(AService))
                 {
                     throw new ArgumentException("Unable to make type {t}");
                 }
@@ -328,7 +328,7 @@ public class TestHttpContextBuilder
             .WithRequestServices(serviceProvider)
             .Build();
         // Assert
-        var resolved = result.RequestServices.GetService(typeof(SomeService));
+        var resolved = result.RequestServices.GetService(typeof(AService));
         Expect(resolved)
             .To.Be(expected);
     }
@@ -558,8 +558,97 @@ public class TestHttpContextBuilder
             .With.Value(value);
     }
 
+    [TestFixture]
+    public class CustomisingAvailableServices
+    {
+        [Test]
+        public void ShouldBeAbleToRegisterTransient()
+        {
+            // Arrange
+            var ctx = HttpContextBuilder.Create()
+                .WithTransientService<ISomeService, SomeService>()
+                .Build();
+            // Act
+            var result1 = ctx.RequestServices.GetService(typeof(ISomeService));
+            var result2 = ctx.RequestServices.GetService(typeof(ISomeService));
+            // Assert
+            Expect(result1)
+                .To.Be.An.Instance.Of<SomeService>();
+            Expect(result2)
+                .To.Be.An.Instance.Of<SomeService>();
+            Expect(result1)
+                .Not.To.Be(result2);
+        }
 
-    public class SomeService
+        [Test]
+        public void ShouldBeAbleToRegisterSingleton()
+        {
+            // Arrange
+            var ctx = HttpContextBuilder.Create()
+                .WithSingletonService<ISomeService, SomeService>()
+                .Build();
+            // Act
+            var result1 = ctx.RequestServices.GetService(typeof(ISomeService));
+            var result2 = ctx.RequestServices.GetService(typeof(ISomeService));
+            // Assert
+            Expect(result1)
+                .To.Be.An.Instance.Of<SomeService>();
+            Expect(result2)
+                .To.Be.An.Instance.Of<SomeService>();
+            Expect(result1)
+                .To.Be(result2);
+        }
+
+        [Test]
+        public void ShouldBeAbleToRegisterAnInstance()
+        {
+            // Arrange
+            var expected = new SomeService();
+            var ctx = HttpContextBuilder.Create()
+                .WithService<ISomeService>(expected)
+                .Build();
+            // Act
+            var result = ctx.RequestServices.GetService(typeof(ISomeService));
+            // Assert
+            Expect(result)
+                .To.Be(expected);
+        }
+
+        [Test]
+        public void ShouldBeAbleToRegisterAFactory()
+        {
+            // Arrange
+            var expected = new SomeService();
+            var ctx = HttpContextBuilder.Create()
+                .WithService<ISomeService>(() => expected)
+                .Build();
+            // Act
+            var result = ctx.RequestServices.GetService(typeof(ISomeService));
+            // Assert
+            Expect(result)
+                .To.Be(expected);
+        }
+
+        public interface ISomeService
+        {
+            void NoOp();
+        }
+
+        public class SomeService : ISomeService
+        {
+            public void NoOp()
+            {
+            }
+        }
+    }
+
+    [TestFixture]
+    public class D
+    {
+    }
+
+
+    public class AService
     {
         public void DoNothing()
         {

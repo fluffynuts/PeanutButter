@@ -6,6 +6,7 @@ using System.Security.Principal;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Routing;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 using PeanutButter.Utils;
 
@@ -23,7 +24,31 @@ public class ControllerContextBuilder : Builder<ControllerContextBuilder, Contro
     {
         // ensure fake is installed for late overriding of request/response
         WithHttpContext(HttpContextBuilder.BuildDefault())
+            .WithRouteData(new RouteData())
+            .WithRouteDataValue("controller", "Home")
+            .WithRouteDataValue("action", "Index")
             .WithActionDescriptor(ControllerActionDescriptorBuilder.BuildDefault());
+    }
+
+    /// <summary>
+    /// Sets a RouteData value (eg "controller", "action", etc)
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public ControllerContextBuilder WithRouteDataValue(string key, string value)
+    {
+        return With(o => o.RouteData.Values[key] = value);
+    }
+
+    /// <summary>
+    /// Sets the RouteData on the context
+    /// </summary>
+    /// <param name="routeData"></param>
+    /// <returns></returns>
+    public ControllerContextBuilder WithRouteData(RouteData routeData)
+    {
+        return With(o => o.RouteData = routeData);
     }
 
     /// <summary>
@@ -151,20 +176,21 @@ public class ControllerContextBuilder : Builder<ControllerContextBuilder, Contro
         T controller
     ) where T : ControllerBase
     {
+        var controllerType = typeof(T);
+        var controllerName = controllerType.Name.RegexReplace("Controller$", "");
         return With(o =>
-        {
-            if (controller is null)
             {
-                o.ActionDescriptor.ControllerName = null;
-                o.ActionDescriptor.ControllerTypeInfo = null;
-                return;
+                controller.ControllerContext = o;
+                o.ActionDescriptor.ControllerName = controllerType.Name.RegexReplace("Controller$", "");
+                o.ActionDescriptor.ControllerTypeInfo = controllerType.GetTypeInfo();
+                if (o.ActionDescriptor.ActionName is not null &&
+                    o.ActionDescriptor.MethodInfo is null)
+                {
+                    // allows setting action before controller
+                    o.ActionDescriptor.MethodInfo = controllerType.GetMethod(o.ActionDescriptor.ActionName);
+                }
             }
-
-            controller.ControllerContext = o;
-            var controllerType = controller.GetType();
-            o.ActionDescriptor.ControllerName = controllerType.Name.RegexReplace("Controller$", "");
-            o.ActionDescriptor.ControllerTypeInfo = controllerType.GetTypeInfo();
-        });
+        ).WithRouteDataValue("controller", controllerName);
     }
 
     /// <summary>
@@ -180,4 +206,21 @@ public class ControllerContextBuilder : Builder<ControllerContextBuilder, Contro
     {
         return WithHttpContextMutator(o => o.Request.Headers[header] = value);
     }
-}
+
+    /// <summary>
+    /// Sets the action on the context
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
+    public ControllerContextBuilder WithAction(string name)
+    {
+        return With(o =>
+        {
+            o.ActionDescriptor.ActionName = o.ActionDescriptor.DisplayName =  name;
+            if (o.ActionDescriptor.ControllerTypeInfo is not null)
+            {
+                o.ActionDescriptor.MethodInfo = o.ActionDescriptor.ControllerTypeInfo.GetMethod(name);
+            }
+        });
+        }
+    }

@@ -1,6 +1,7 @@
 using NExpect;
 using NUnit.Framework;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
+using PeanutButter.Utils;
 using static NExpect.Expectations;
 
 namespace PeanutButter.TestUtils.AspNetCore.Tests;
@@ -72,7 +73,74 @@ public class TestMinimalServiceProvider
         // Arrange
         var sut = Create();
         // Act
+        var result = sut.Resolve<Service>();
         // Assert
+        Expect(result)
+            .Not.To.Be.Null();
+    }
+
+    [Test]
+    public void ShouldResolveSimpleDependency()
+    {
+        // Arrange
+        var sut = Create();
+        sut.Register<IService, Service>();
+        // Act
+        var result = sut.Resolve<Cow>();
+        // Assert
+        Expect(result)
+            .Not.To.Be.Null();
+        Expect(result.Dep)
+            .Not.To.Be.Null();
+    }
+
+    [Test]
+    public void ShouldResolveTwoLevelsOfDependency()
+    {
+        // Arrange
+        var sut = Create();
+        sut.Register<IService, Service>();
+        sut.Register<ICow, Cow>();
+        // Act
+        var result = sut.Resolve<Barn>();
+        // Assert
+        Expect(result)
+            .Not.To.Be.Null();
+        Expect(result.Cow)
+            .Not.To.Be.Null();
+        Expect(result.Cow.Dep)
+            .Not.To.Be.Null();
+    }
+
+    public class Barn
+    {
+        public ICow Cow { get; }
+
+        public Barn(ICow cow)
+        {
+            Cow = cow;
+        }
+    }
+
+    public interface ICow
+    {
+        IService Dep { get; }
+        void Moo();
+    }
+
+    public class Cow
+        : ICow
+    {
+        public IService Dep { get; }
+
+        public Cow(IService dep)
+        {
+            Dep = dep;
+        }
+
+        public void Moo()
+        {
+        }
     }
 
     private static MinimalServiceProvider Create()

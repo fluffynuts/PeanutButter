@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
@@ -51,6 +53,7 @@ public class HttpContextBuilder : RandomizableBuilder<HttpContextBuilder, HttpCo
             )
             .WithConnection(GetRandom<FakeConnectionInfo>())
             .WithUser(GetRandom<ClaimsPrincipal>())
+            .WithRequestServices(new MinimalServiceProvider())
             .WithRequest(
                 () => HttpRequestBuilder.CreateWithNoHttpContext()
                     .Build()
@@ -338,7 +341,7 @@ public class HttpContextBuilder : RandomizableBuilder<HttpContextBuilder, HttpCo
 
     private bool IsDefaultPortForScheme(string uriScheme, int uriPort)
     {
-        return DefaultPortsPerScheme.TryGetValue(uriScheme, out var defaultPort) 
+        return DefaultPortsPerScheme.TryGetValue(uriScheme, out var defaultPort)
             && defaultPort == uriPort;
     }
 
@@ -347,4 +350,73 @@ public class HttpContextBuilder : RandomizableBuilder<HttpContextBuilder, HttpCo
         ["http"] = 80,
         ["https"] = 443
     };
+
+    /// <summary>
+    /// Register a transient service
+    /// </summary>
+    /// <typeparam name="TService"></typeparam>
+    /// <typeparam name="TImplementation"></typeparam>
+    /// <returns></returns>
+    public HttpContextBuilder WithTransientService<TService, TImplementation>() 
+        where TImplementation : TService
+    {
+        return WithServicesMutator(provider => provider.Register<TService, TImplementation>());
+    }
+
+    /// <summary>
+    /// Register a singleton service
+    /// </summary>
+    /// <typeparam name="TService"></typeparam>
+    /// <typeparam name="TImplementation"></typeparam>
+    /// <returns></returns>
+    public HttpContextBuilder WithSingletonService<TService, TImplementation>() 
+        where TImplementation : TService
+    {
+        return WithServicesMutator(provider => provider.RegisterSingleton<TService, TImplementation>());
+    }
+
+    /// <summary>
+    /// Register a service instance
+    /// </summary>
+    /// <param name="service"></param>
+    /// <typeparam name="TService"></typeparam>
+    /// <returns></returns>
+    public HttpContextBuilder WithService<TService>(TService service)
+    {
+        // ReSharper disable once RedundantTypeArgumentsOfMethod
+        return WithServicesMutator(provider => provider.RegisterInstance<TService>(service));
+    }
+
+    /// <summary>
+    /// Register a service factory
+    /// </summary>
+    /// <param name="factory"></param>
+    /// <typeparam name="TService"></typeparam>
+    /// <returns></returns>
+    public HttpContextBuilder WithService<TService>(Func<TService> factory)
+    {
+        // ReSharper disable once RedundantTypeArgumentsOfMethod
+        return WithServicesMutator(provider => provider.Register<TService>(() => factory()));
+    }
+
+    /// <summary>
+    /// Open access to apply mutations to the MinimalServiceProvider, if not overridden.
+    /// </summary>
+    /// <param name="mutator"></param>
+    /// <returns></returns>
+    /// <exception cref="NotSupportedException"></exception>
+    public HttpContextBuilder WithServicesMutator(Action<MinimalServiceProvider> mutator)
+    {
+        return With(o =>
+        {
+            if (o.RequestServices is not MinimalServiceProvider provider)
+            {
+                throw new NotSupportedException(
+                    $@"Only the {nameof(MinimalServiceProvider)} provider is supported for service registration
+via builder methods. If you're providing your own RequestServices, you'll have to register elsewhere."
+                );
+            }
+            mutator(provider);
+        });
+    }
 }

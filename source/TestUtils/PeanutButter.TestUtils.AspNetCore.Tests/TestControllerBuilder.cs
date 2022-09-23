@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Internal;
 using NUnit.Framework;
 using NExpect;
 using NSubstitute;
 using PeanutButter.TestUtils.AspNetCore.Builders;
+using PeanutButter.Utils;
 using static NExpect.Expectations;
 using static NExpect.AspNetCoreExpectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
@@ -142,7 +144,7 @@ public class TestControllerBuilder
                 Expect(result.RouteData)
                     .Not.To.Be.Null();
                 Expect(result.RouteData.Values.Keys)
-                    .To.Be.Empty();
+                    .To.Equal(new[] { "controller" });
                 Expect(result.RouteData.DataTokens.Keys)
                     .To.Be.Empty();
             }
@@ -563,6 +565,55 @@ public class TestControllerBuilder
             {
                 return ControllerBuilder.For<MvcController>()
                     .Build();
+            }
+        }
+
+        [TestFixture]
+        public class Issues
+        {
+            [Test]
+            public void ShouldResolveMvcLikePathForAction()
+            {
+                // Arrange
+                var controller = ControllerBuilder
+                    .For<MvcController>()
+                    .WithAction(nameof(MvcController.Add))
+                    .Build();
+                // Act
+                var result = controller.Url.Action("foo");
+                // Assert
+                Expect(result)
+                    .To.Equal("/Mvc/foo");
+            }
+
+            [Test]
+            public void ResolvingLinks()
+            {
+                // Arrange
+                var controller = ControllerBuilder
+                    .For<MvcController>()
+                    .WithAction(nameof(MvcController.Add))
+                    .Build();
+                // Act
+                var result = controller.Url.Link("foo", new { id = 1 });
+                // Assert
+                Expect(result)
+                    .To.Equal("http://localhost:80/Mvc/Add?id=1");
+            }
+
+            [Test]
+            public void ResolvingContent()
+            {
+                // Arrange
+                var controller = ControllerBuilder
+                    .For<MvcController>()
+                    .WithAction(nameof(MvcController.Add))
+                    .Build();
+                // Act
+                var result = controller.Url.Content("~/resource/123?a=bc");
+                // Assert
+                Expect(result)
+                    .To.Equal("/resource/123?a=bc");
             }
         }
 

@@ -14,6 +14,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 using PeanutButter.TestUtils.AspNetCore.Utils;
+using PeanutButter.Utils;
 
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -88,6 +89,7 @@ public class ControllerBuilder<TController>
                     .Build()
             )
             .WithRouteData(RouteDataBuilder.BuildDefault())
+            .WithRouteDataValue("controller", typeof(TController).Name.RegexReplace("Controller$", ""))
             .WithHttpContext(HttpContextBuilder.Create()
                 .WithRequestServices(new MinimalServiceProvider())
                 .Build()
@@ -342,6 +344,22 @@ public class ControllerBuilder<TController>
     }
 
     /// <summary>
+    /// Sets some route data value
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public ControllerBuilder<TController> WithRouteDataValue(
+        string key,
+        object value
+    )
+    {
+        return With(
+            o => o.RouteData.Values[key] = value
+        );
+    }
+
+    /// <summary>
     /// Sets the http context for your controller
     /// </summary>
     /// <param name="context"></param>
@@ -528,7 +546,7 @@ public class ControllerBuilder<TController>
         ).With(
             o => o.ControllerContext.ActionDescriptor.MethodInfo =
                 typeof(TController).GetMethod(name)
-        );
+        ).WithRouteDataValue("action", name);
     }
 
     /// <summary>

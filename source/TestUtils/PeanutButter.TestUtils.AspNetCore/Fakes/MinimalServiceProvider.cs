@@ -13,6 +13,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes;
 ///     parameters are either empty or can also be resolved:
 ///     - single implementations for interfaces
 ///     - concrete types
+/// - possibly the simplest DI "framework" in the world...
 /// </summary>
 public interface IMinimalServiceProvider : IServiceProvider
 {

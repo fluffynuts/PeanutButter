@@ -8,6 +8,14 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders;
 public class RouteDataBuilder : Builder<RouteDataBuilder, RouteData>
 {
     /// <summary>
+    /// Sets up the default RouteData
+    /// </summary>
+    public RouteDataBuilder()
+    {
+        WithRouter(new TrivialRouter());
+    }
+
+    /// <summary>
     /// Sets a route value
     /// </summary>
     /// <param name="key"></param>
