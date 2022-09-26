@@ -102,9 +102,8 @@ public class ControllerBuilder<TController>
                 )
             )
             .WithModelValidator(() => new DefaultObjectModelValidator())
-            .WithTempDataDictionaryFactory(() => new TempDataDictionaryFactory(
-                    new SessionStateTempDataProvider()
-                )
+            .WithTempDataDictionaryFactory(
+                () => new FakeTempDataDictionaryFactory()
             )
             .WithOptions(() => new DefaultOptions())
             .WithFactory(DefaultFactory);
