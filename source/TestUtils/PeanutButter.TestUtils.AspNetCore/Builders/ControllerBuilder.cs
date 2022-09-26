@@ -105,8 +105,20 @@ public class ControllerBuilder<TController>
             .WithTempDataDictionaryFactory(
                 () => new FakeTempDataDictionaryFactory()
             )
+            .WithTempDataProvider(() => new FakeTempDataProvider())
             .WithOptions(() => new DefaultOptions())
             .WithFactory(DefaultFactory);
+    }
+
+    /// <summary>
+    /// Set up a factory for a TempDataProvider
+    /// </summary>
+    /// <param name="func"></param>
+    /// <returns></returns>
+    /// <exception cref="NotImplementedException"></exception>
+    public ControllerBuilder<TController> WithTempDataProvider(Func<ITempDataProvider> func)
+    {
+        return WithRegistration((sp, _) => sp.Register<ITempDataProvider>(func));
     }
 
     /// <summary>

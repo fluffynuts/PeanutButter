@@ -4,10 +4,12 @@ using System.Reflection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Internal;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using NUnit.Framework;
 using NExpect;
 using NSubstitute;
 using PeanutButter.TestUtils.AspNetCore.Builders;
+using PeanutButter.TestUtils.AspNetCore.Fakes;
 using PeanutButter.Utils;
 using static NExpect.Expectations;
 using static NExpect.AspNetCoreExpectations;
@@ -615,6 +617,36 @@ public class TestControllerBuilder
                 // Assert
                 Expect(result)
                     .To.Equal("/resource/123?a=bc");
+            }
+
+            [Test]
+            public void ShouldRegisterOwnImplementationOfTempDataDictionaryFactory()
+            {
+                // Arrange
+                var controller = ControllerBuilder.For<MvcController>()
+                    .Build();
+                // Act
+                var result = controller.HttpContext.RequestServices.GetService(
+                    typeof(ITempDataDictionaryFactory)
+                );
+                // Assert
+                Expect(result)
+                    .To.Be.An.Instance.Of<FakeTempDataDictionaryFactory>();
+            }
+
+            [Test]
+            public void ShouldRegisterOwnImplementationOfTempDataProvider()
+            {
+                // Arrange
+                var controller = ControllerBuilder.For<MvcController>()
+                    .Build();
+                // Act
+                var result = controller.HttpContext.RequestServices.GetService(
+                    typeof(ITempDataProvider)
+                );
+                // Assert
+                Expect(result)
+                    .To.Be.An.Instance.Of<FakeTempDataProvider>();
             }
         }
 
