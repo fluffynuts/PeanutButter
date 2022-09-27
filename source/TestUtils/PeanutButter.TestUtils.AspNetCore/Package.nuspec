@@ -1,7 +1,7 @@
 <package>
   <metadata>
     <id>PeanutButter.TestUtils.AspNetCore</id>
-    <version>3.0.49</version>
+    <version>3.0.50</version>
     <title>PeanutButter.TestUtils.MVC.Sources</title>
     <authors>Davyd McColl</authors>
     <owners />
@@ -30,8 +30,8 @@
     <copyright>Copyright 2016</copyright>
     <dependencies>
       <group targetFramework="netstandard2.0">
-        <dependency id="PeanutButter.Utils" version="3.0.49" />
-        <dependency id="PeanutButter.RandomGenerators" version="3.0.49" />
+        <dependency id="PeanutButter.Utils" version="3.0.50" />
+        <dependency id="PeanutButter.RandomGenerators" version="3.0.50" />
         <dependency id="Microsoft.AspNetCore.Http.Abstractions" version="2.2.0" />
         <dependency id="Microsoft.AspNetCore.Mvc" version="2.2.0" />
         <dependency id="Microsoft.AspNetCore.Mvc.ViewFeatures" version="2.2.0" />
