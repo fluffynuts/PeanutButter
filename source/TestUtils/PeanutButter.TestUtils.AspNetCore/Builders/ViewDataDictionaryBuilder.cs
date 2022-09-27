@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Options;
+using PeanutButter.TestUtils.AspNetCore.Fakes;
 
 namespace PeanutButter.TestUtils.AspNetCore.Builders
 {
@@ -32,16 +33,8 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
         /// <inheritdoc />
         protected override ViewDataDictionary ConstructEntity()
         {
-            var compositeProvider = new DefaultCompositeMetadataDetailsProvider(
-                new[] { new DefaultBindingMetadataProvider() }
-            );
-            var optionsAccessor = new OptionsAccessor();
-            var provider = new DefaultModelMetadataProvider(
-                compositeProvider,
-                optionsAccessor
-            );
             return new ViewDataDictionary(
-                provider,
+                ModelMetadataBuilder.BuildDefault(),
                 new ModelStateDictionary()
             );
 
