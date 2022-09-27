@@ -13,7 +13,6 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
     /// </summary>
     public interface IFakeModelMetadata
     {
-        
         /// <summary>
         /// Sets the AdditionalValues collection
         /// </summary>
@@ -200,7 +199,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
         /// <param name="identity"></param>
         void Init(ModelMetadataIdentity identity);
     }
-    
+
     /// <summary>
     /// provides a faked model metadata
     /// </summary>
@@ -240,7 +239,6 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
             _PropertySetter = (_, _) =>
             {
             };
-            
         }
 
         /// <inheritdoc />
@@ -536,6 +534,36 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
         /// Sets the PropertySetter action
         /// </summary>
         public Action<object, object> _PropertySetter { get; set; }
+
+        /// <summary>
+        /// Produces metadata for all properties on the provided type
+        /// </summary>
+        /// <param name="modelType"></param>
+        /// <returns></returns>
+        public override IEnumerable<ModelMetadata> GetMetadataForProperties(Type modelType)
+        {
+            if (modelType is null)
+            {
+                yield break;
+            }
+
+            foreach (var prop in modelType.GetProperties())
+            {
+                yield return GetMetadataForType(prop.PropertyType);
+            }
+        }
+
+        /// <summary>
+        /// Produces metadata for the provided typ
+        /// </summary>
+        /// <param name="modelType"></param>
+        /// <returns></returns>
+        public override ModelMetadata GetMetadataForType(Type modelType)
+        {
+            return new FakeModelMetadata(
+                ModelMetadataIdentity.ForType(modelType)
+            );
+        }
     }
 
     /// <summary>
