@@ -166,6 +166,9 @@ namespace PeanutButter.TestUtils.AspNetCore.Tests
             Expect(result.HttpContext.Request.FullUrl())
                 .To.Equal(new Uri(expected));
         }
+        
+        
+        
 
         public class Poco
         {

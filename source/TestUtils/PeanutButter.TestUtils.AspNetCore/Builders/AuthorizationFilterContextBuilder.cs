@@ -31,8 +31,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
         {
             return AuthorizationFilterContextBuilder<T>
                 .Create()
-                .WithController<T>()
-                .ForDefaultAction();
+                .WithController<T>();
         }
     }
 
@@ -74,7 +73,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
             {
                 descriptor.ControllerName = typeof(T).Name.RegexReplace("Controller$", "");
                 descriptor.ControllerTypeInfo = typeof(T).GetTypeInfo();
-            });
+            }).ForDefaultAction();
         }
 
         /// <summary>
