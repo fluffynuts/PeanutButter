@@ -25,6 +25,14 @@ internal static class RandomValueGen
         InstallRequestCookieCollectionBuilder();
         InstallWebSocketBuilder();
         InstallModelBindingContextBuilder();
+        InstallActionContextBuilder();
+    }
+
+    private static void InstallActionContextBuilder()
+    {
+        InstallRandomGenerator(
+            ActionContextBuilder.BuildRandom
+        );
     }
 
     private static void InstallModelBindingContextBuilder()
