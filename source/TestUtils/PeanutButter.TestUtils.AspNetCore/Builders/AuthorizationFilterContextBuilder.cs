@@ -11,14 +11,37 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Routing;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 using PeanutButter.Utils;
+// ReSharper disable StaticMemberInGenericType
 
 namespace PeanutButter.TestUtils.AspNetCore.Builders
 {
     /// <summary>
+    /// Easier start for building an AuthorizationContext via
+    /// AuthorizationContextBuilder.ForController&lt;TController&gt;()
+    /// </summary>
+    public abstract class AuthorizationFilterContextBuilder
+    {
+        /// <summary>
+        /// Sets up the controller name and type info for the AuthorizationFilterContext
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static AuthorizationFilterContextBuilder<T> ForController<T>()
+            where T : ControllerBase
+        {
+            return AuthorizationFilterContextBuilder<T>
+                .Create()
+                .WithController<T>()
+                .ForDefaultAction();
+        }
+    }
+
+    /// <summary>
     /// Builds AuthorizationFilterContexts
     /// </summary>
-    public class AuthorizationFilterContextBuilder
-        : Builder<AuthorizationFilterContextBuilder, AuthorizationFilterContext>
+    public class AuthorizationFilterContextBuilder<TController>
+        : Builder<AuthorizationFilterContextBuilder<TController>, AuthorizationFilterContext>
+        where TController : ControllerBase
     {
         /// <summary>
         /// Constructs the starting point for an AuthorizationFilterContext
@@ -38,12 +61,13 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
             );
         }
 
+
         /// <summary>
         /// Sets up the controller name and type info for the AuthorizationFilterContext
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public AuthorizationFilterContextBuilder ForController<T>()
+        public AuthorizationFilterContextBuilder<TController> WithController<T>()
             where T : ControllerBase
         {
             return WithActionDescriptorMutator(descriptor =>
@@ -54,17 +78,100 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
         }
 
         /// <summary>
+        /// Selects a default action on the controller to associate with the auth filter
+        /// context so that the descriptor will be valid by default
+        /// </summary>
+        /// <returns></returns>
+        public AuthorizationFilterContextBuilder<TController> ForDefaultAction()
+        {
+            var methods = typeof(TController)
+                .GetMethods()
+                .Where(mi => mi.DeclaringType == typeof(TController))
+                .ToArray();
+            var selected = DefaultActionSelectors.Aggregate(
+                null as MethodInfo,
+                (acc, cur) => acc ?? cur(methods)
+            );
+            return ForAction(selected?.Name);
+        }
+
+        private static readonly Func<MethodInfo[], MethodInfo>[] DefaultActionSelectors =
+        {
+            TryFindIndex,
+            TryFindFirstGetWithEmptyRoute,
+            FindFirstWithActionResult,
+            FindFirst
+        };
+
+        private static MethodInfo TryFindFirstGetWithEmptyRoute(MethodInfo[] arg)
+        {
+            return arg.FirstOrDefault(mi =>
+            {
+                var attribs = mi.GetCustomAttributes().ToArray();
+                var isGet = attribs.Any(a => a.GetType() == typeof(HttpGetAttribute)) ||
+                    attribs.None(a => NonGetAttributes.Contains(a.GetType()));
+                if (!isGet)
+                {
+                    return false;
+                }
+                var routeAttrib = attribs.FirstOrDefault(a => a is RouteAttribute) as RouteAttribute;
+                return routeAttrib is null || routeAttrib.Template == "";
+            });
+        }
+
+        private static readonly HashSet<Type> NonGetAttributes = new HashSet<Type>(
+            new[]
+            {
+                typeof(HttpPostAttribute),
+                typeof(HttpPatchAttribute),
+                typeof(HttpPutAttribute),
+                typeof(HttpDeleteAttribute),
+                typeof(HttpOptionsAttribute),
+                typeof(HttpHeadAttribute)
+            });
+
+        private static MethodInfo FindFirst(MethodInfo[] arg)
+        {
+            return arg.FirstOrDefault();
+        }
+
+        private static MethodInfo FindFirstWithActionResult(MethodInfo[] arg)
+        {
+            var want = typeof(IActionResult);
+            return arg.Aggregate(
+                null as MethodInfo,
+                (acc, cur) => acc ?? (want.IsAssignableFrom(cur.ReturnType)
+                        ? cur
+                        : null
+                    )
+            );
+        }
+
+        private static MethodInfo TryFindIndex(MethodInfo[] arg)
+        {
+            return arg.FirstOrDefault(mi => mi.Name.Equals("index", StringComparison.OrdinalIgnoreCase));
+        }
+
+        /// <summary>
         /// Sets up the method info, action name and display name for the AuthorizationFilterContext
         /// </summary>
         /// <param name="action"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public AuthorizationFilterContextBuilder ForAction(
+        public AuthorizationFilterContextBuilder<TController> ForAction(
             string action
         )
         {
             return WithActionDescriptorMutator(descriptor =>
             {
+                if (action is null)
+                {
+                    descriptor.MethodInfo = null;
+                    descriptor.ActionName = null;
+                    descriptor.DisplayName = null;
+                    return;
+                }
+
                 var controllerType = descriptor.ControllerTypeInfo;
                 var methodInfo = controllerType.GetMethod(action);
                 if (methodInfo is null)
@@ -85,7 +192,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
         /// <param name="value"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public AuthorizationFilterContextBuilder WithRequestHeader<T>(
+        public AuthorizationFilterContextBuilder<TController> WithRequestHeader<T>(
             string header,
             T value
         )
@@ -99,7 +206,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
         /// </summary>
         /// <param name="mutator"></param>
         /// <returns></returns>
-        public AuthorizationFilterContextBuilder WithRequestMutator(
+        public AuthorizationFilterContextBuilder<TController> WithRequestMutator(
             Action<HttpRequest> mutator
         )
         {
@@ -114,7 +221,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
         /// </summary>
         /// <param name="mutator"></param>
         /// <returns></returns>
-        public AuthorizationFilterContextBuilder WithResponseMutator(
+        public AuthorizationFilterContextBuilder<TController> WithResponseMutator(
             Action<HttpResponse> mutator
         )
         {
@@ -127,7 +234,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
         /// <param name="mutator"></param>
         /// <returns></returns>
         /// <exception cref="NotSupportedException"></exception>
-        public AuthorizationFilterContextBuilder WithActionDescriptorMutator(
+        public AuthorizationFilterContextBuilder<TController> WithActionDescriptorMutator(
             Action<ControllerActionDescriptor> mutator
         )
         {
@@ -150,7 +257,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
         /// <param name="payload"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public AuthorizationFilterContextBuilder WithJsonBody<T>(T payload)
+        public AuthorizationFilterContextBuilder<TController> WithJsonBody<T>(T payload)
         {
             return With(o =>
             {
@@ -169,7 +276,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
         /// <param name="value"></param>
         /// <returns></returns>
         /// <exception cref="NotSupportedException"></exception>
-        public AuthorizationFilterContextBuilder WithRequestCookie(
+        public AuthorizationFilterContextBuilder<TController> WithRequestCookie(
             string key,
             string value
         )
@@ -193,7 +300,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
-        public AuthorizationFilterContextBuilder WithRequestUrl(
+        public AuthorizationFilterContextBuilder<TController> WithRequestUrl(
             string url
         )
         {
@@ -205,7 +312,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
-        public AuthorizationFilterContextBuilder WithRequestUrl(
+        public AuthorizationFilterContextBuilder<TController> WithRequestUrl(
             Uri url
         )
         {
@@ -219,7 +326,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
         /// </summary>
         /// <param name="cookies"></param>
         /// <returns></returns>
-        public AuthorizationFilterContextBuilder WithRequestCookies(
+        public AuthorizationFilterContextBuilder<TController> WithRequestCookies(
             IDictionary<string, string> cookies
         )
         {

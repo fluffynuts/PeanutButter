@@ -23,7 +23,9 @@ namespace PeanutButter.TestUtils.AspNetCore.Tests
         {
             // Arrange
             // Act
-            var result = AuthorizationFilterContextBuilder.BuildDefault();
+            var result = AuthorizationFilterContextBuilder
+                .ForController<MyController>()
+                .Build();
             // Assert
             Expect(result.HttpContext)
                 .Not.To.Be.Null();
@@ -40,7 +42,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Tests
         {
             // Arrange
             // Act
-            var result = AuthorizationFilterContextBuilder.Create()
+            var result = AuthorizationFilterContextBuilder
                 .ForController<MyController>()
                 .Build();
             // Assert
@@ -58,7 +60,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Tests
         {
             // Arrange
             // Act
-            var result = AuthorizationFilterContextBuilder.Create()
+            var result = AuthorizationFilterContextBuilder
                 .ForController<MyController>()
                 .ForAction(nameof(MyController.Moo))
                 .Build();
@@ -79,7 +81,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Tests
             var o = new Poco { Id = 1, Value = "moo" };
             var json = JsonSerializer.Serialize(o);
             // Act
-            var result = AuthorizationFilterContextBuilder.Create()
+            var result = AuthorizationFilterContextBuilder
                 .ForController<MyController>()
                 .ForAction(nameof(MyController.Moo))
                 .WithJsonBody(json)
@@ -97,7 +99,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Tests
             // Arrange
             var o = new Poco { Id = 1, Value = "moo" };
             // Act
-            var result = AuthorizationFilterContextBuilder.Create()
+            var result = AuthorizationFilterContextBuilder
                 .ForController<MyController>()
                 .ForAction(nameof(MyController.Moo))
                 .WithJsonBody(o)
@@ -116,7 +118,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Tests
             var key = GetRandomString();
             var value = GetRandomString();
             // Act
-            var result = AuthorizationFilterContextBuilder.Create()
+            var result = AuthorizationFilterContextBuilder
                 .ForController<MyController>()
                 .ForAction(nameof(MyController.Moo))
                 .WithRequestCookie(key, value)
@@ -138,7 +140,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Tests
                 [key] = value
             };
             // Act
-            var result = AuthorizationFilterContextBuilder.Create()
+            var result = AuthorizationFilterContextBuilder
                 .ForController<MyController>()
                 .ForAction(nameof(MyController.Moo))
                 .WithRequestCookies(cookies)
@@ -155,7 +157,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Tests
             // Arrange
             var expected = GetRandomHttpUrl();
             // Act
-            var result = AuthorizationFilterContextBuilder.Create()
+            var result = AuthorizationFilterContextBuilder
                 .ForController<MyController>()
                 .ForAction(nameof(MyController.Moo))
                 .WithRequestUrl(expected)
