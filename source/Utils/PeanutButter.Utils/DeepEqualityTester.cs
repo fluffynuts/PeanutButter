@@ -163,6 +163,23 @@ Imported.PeanutButter.Utils
 
         private void RecordPrimitiveErrorIfRequiredFor(bool result)
         {
+            if (_objSource is null && _objCompare is null)
+            {
+                return;
+            }
+
+            if (_objSource is null)
+            {
+                AddError("source is null");
+                return;
+            }
+
+            if (_objCompare is null)
+            {
+                AddError("compare is null");
+                return;
+            }
+
             if (!result &&
                 RecordErrors &&
                 CanBeComparedWithEquals(_objSource?.GetType()) &&

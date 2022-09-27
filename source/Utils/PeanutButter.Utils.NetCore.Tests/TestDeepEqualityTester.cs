@@ -31,6 +31,20 @@ namespace PeanutButter.Utils.NetCore.Tests
         }
 
         [Test]
+        public void ShouldNotExplodeWhenOneIsNullAndRecordingErrors()
+        {
+            // Arrange
+            var left = new { id = 1 };
+            var right = null as object;
+            var sut = Create(right, left);
+            sut.RecordErrors = true;
+            // Act
+            Expect(() => sut.AreDeepEqual())
+                .Not.To.Throw();
+            // Assert
+        }
+
+        [Test]
         public void ShouldProduceCorrectMessageWhenEnabledForPropertiesOfDifferentTypes()
         {
             // Arrange
