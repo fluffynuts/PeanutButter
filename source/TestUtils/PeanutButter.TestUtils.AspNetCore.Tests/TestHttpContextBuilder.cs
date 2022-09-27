@@ -640,13 +640,39 @@ public class TestHttpContextBuilder
             {
             }
         }
-    }
 
-    [TestFixture]
-    public class D
-    {
-    }
+        [Test]
+        public void ShouldBeAbleToSetRequestHeader()
+        {
+            // Arrange
+            var key = GetRandomString();
+            var value = GetRandomString();
+            // Act
+            var result = HttpContextBuilder.Create()
+                .WithRequestHeader(key, value)
+                .Build();
+            // Assert
+            Expect(result.Request.Headers)
+                .To.Contain.Key(key)
+                .With.Value(value);
+        }
 
+        [Test]
+        public void ShouldBeAbleToSetResponseHeader()
+        {
+            // Arrange
+            var key = GetRandomString();
+            var value = GetRandomString();
+            // Act
+            var result = HttpContextBuilder.Create()
+                .WithResponseHeader(key, value)
+                .Build();
+            // Assert
+            Expect(result.Response.Headers)
+                .To.Contain.Key(key)
+                .With.Value(value);
+        }
+    }
 
     public class AService
     {

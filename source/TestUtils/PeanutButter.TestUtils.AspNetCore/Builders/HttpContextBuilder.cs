@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Routing;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
@@ -225,7 +223,7 @@ public class HttpContextBuilder : RandomizableBuilder<HttpContextBuilder, HttpCo
         string fileName = null
     )
     {
-        return WithRequestModifier(
+        return WithRequestMutator(
             o =>
             {
                 var request = o.As<FakeHttpRequest>();
@@ -265,24 +263,40 @@ public class HttpContextBuilder : RandomizableBuilder<HttpContextBuilder, HttpCo
         Action<FakeFormCollection> modifier
     )
     {
-        return WithRequestModifier(
+        return WithRequestMutator(
             req => modifier(req.Form.As<FakeFormCollection>())
         );
     }
 
     /// <summary>
     /// Modifies some aspect of the request.
-    /// Use this when what you want to do can be accomplished
+    /// Use this when what you want to do can be achieved
     /// on the proper HttpRequest type
     /// </summary>
-    /// <param name="modifier"></param>
+    /// <param name="mutator"></param>
     /// <returns></returns>
-    public HttpContextBuilder WithRequestModifier(
-        Action<HttpRequest> modifier
+    public HttpContextBuilder WithRequestMutator(
+        Action<HttpRequest> mutator
     )
     {
         return With(
-            o => modifier(o.Request)
+            o => mutator(o.Request)
+        );
+    }
+
+    /// <summary>
+    /// Modifies some aspect of the response.
+    /// Use this when what you want to do can be achieved
+    /// on the proper HttpResponse type
+    /// </summary>
+    /// <param name="mutator"></param>
+    /// <returns></returns>
+    public HttpContextBuilder WithResponseMutator(
+        Action<HttpResponse> mutator
+    )
+    {
+        return With(
+            o => mutator(o.Response)
         );
     }
 
@@ -357,7 +371,7 @@ public class HttpContextBuilder : RandomizableBuilder<HttpContextBuilder, HttpCo
     /// <typeparam name="TService"></typeparam>
     /// <typeparam name="TImplementation"></typeparam>
     /// <returns></returns>
-    public HttpContextBuilder WithTransientService<TService, TImplementation>() 
+    public HttpContextBuilder WithTransientService<TService, TImplementation>()
         where TImplementation : TService
     {
         return WithServicesMutator(provider => provider.Register<TService, TImplementation>());
@@ -369,7 +383,7 @@ public class HttpContextBuilder : RandomizableBuilder<HttpContextBuilder, HttpCo
     /// <typeparam name="TService"></typeparam>
     /// <typeparam name="TImplementation"></typeparam>
     /// <returns></returns>
-    public HttpContextBuilder WithSingletonService<TService, TImplementation>() 
+    public HttpContextBuilder WithSingletonService<TService, TImplementation>()
         where TImplementation : TService
     {
         return WithServicesMutator(provider => provider.RegisterSingleton<TService, TImplementation>());
@@ -416,7 +430,32 @@ public class HttpContextBuilder : RandomizableBuilder<HttpContextBuilder, HttpCo
 via builder methods. If you're providing your own RequestServices, you'll have to register elsewhere."
                 );
             }
+
             mutator(provider);
         });
+    }
+
+    /// <summary>
+    /// Set a request header
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    /// <exception cref="NotImplementedException"></exception>
+    public HttpContextBuilder WithRequestHeader(string key, string value)
+    {
+        return WithRequestMutator(req => req.Headers[key] = value);
+    }
+
+    /// <summary>
+    /// Set a response header
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    /// <exception cref="NotImplementedException"></exception>
+    public HttpContextBuilder WithResponseHeader(string key, string value)
+    {
+        return WithResponseMutator(res => res.Headers[key] = value);
     }
 }
