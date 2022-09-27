@@ -7,6 +7,7 @@ using NUnit.Framework;
 using PeanutButter.TestUtils.AspNetCore.Builders;
 using NExpect;
 using NSubstitute;
+using PeanutButter.TestUtils.AspNetCore.Fakes;
 using PeanutButter.TestUtils.AspNetCore.Utils;
 using static NExpect.Expectations;
 using static NExpect.AspNetCoreExpectations;
@@ -83,27 +84,26 @@ namespace PeanutButter.TestUtils.AspNetCore.Tests
             public void ShouldSetEmptyModelMetadata()
             {
                 // Arrange
-                var defaultCompositeMetadataDetailsProvider = new DefaultCompositeMetadataDetailsProvider(
-                    new IMetadataDetailsProvider[0]
-                );
-                var defaultModelMetadataProvider = new DefaultModelMetadataProvider(
-                    defaultCompositeMetadataDetailsProvider,
-                    new DefaultOptions()
-                );
-                var defaultMetadataDetails = new DefaultMetadataDetails(
-                    ModelMetadataIdentity.ForType(typeof(object)),
-                    ModelAttributes.GetAttributesForType(typeof(object))
-                );
-                var expectedMetaData = new DefaultModelMetadata(
-                    defaultModelMetadataProvider, defaultCompositeMetadataDetailsProvider,
-                    defaultMetadataDetails
-                );
+                var expectedMetaData = ModelMetadataBuilder.BuildDefault();
                 // Act
                 var result = BuildDefault();
                 // Assert
                 var metaData = result.ModelMetadata;
                 Expect(metaData)
                     .Not.To.Be.Null();
+                Expect(metaData)
+                    .To.Be.An.Instance.Of<FakeModelMetadata>();
+                Expect(metaData.BindingSource.DisplayName)
+                    .To.Equal(expectedMetaData.BindingSource.DisplayName);
+                Expect(metaData.BindingSource.IsGreedy)
+                    .To.Equal(expectedMetaData.BindingSource.IsGreedy);
+                Expect(metaData.BindingSource.IsFromRequest)
+                    .To.Equal(expectedMetaData.BindingSource.IsFromRequest);
+                Expect(metaData.BindingSource.Id)
+                    .Not.To.Equal(expectedMetaData.BindingSource.Id,
+                        () => "should have unique-ish ids for binding sources");
+                // shortcut for deep equality testing
+                (expectedMetaData as FakeModelMetadata)!._BindingSource = metaData.BindingSource;
                 Expect(metaData)
                     .To.Deep.Equal(
                         expectedMetaData

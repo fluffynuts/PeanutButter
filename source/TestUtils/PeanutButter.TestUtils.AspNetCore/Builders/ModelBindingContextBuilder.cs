@@ -2,12 +2,9 @@ using System;
 using System.Globalization;
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Internal;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Routing;
-using PeanutButter.TestUtils.AspNetCore.Utils;
 
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
 
@@ -23,30 +20,6 @@ public class ModelBindingContextBuilder
         return this;
     }
 
-    /// <summary>
-    /// Produces a DefaultModelMetadata instance that is essentially
-    /// empty
-    /// </summary>
-    /// <returns></returns>
-    public static DefaultModelMetadata CreateEmptyDefaultModelMetadata()
-    {
-        var defaultCompositeMetadataDetailsProvider = new DefaultCompositeMetadataDetailsProvider(
-            new IMetadataDetailsProvider[0]
-        );
-        var defaultModelMetadataProvider = new DefaultModelMetadataProvider(
-            defaultCompositeMetadataDetailsProvider,
-            new DefaultOptions()
-        );
-        var defaultMetadataDetails = new DefaultMetadataDetails(
-            ModelMetadataIdentity.ForType(typeof(object)),
-            ModelAttributes.GetAttributesForType(typeof(object))
-        );
-        return new DefaultModelMetadata(
-            defaultModelMetadataProvider, defaultCompositeMetadataDetailsProvider,
-            defaultMetadataDetails
-        );
-    }
-
     /// <inheritdoc />
     public ModelBindingContextBuilder()
     {
@@ -56,7 +29,7 @@ public class ModelBindingContextBuilder
             .WithFieldName("Field")
             .WithTopLevelObject(true)
             .WithModel(new { })
-            .WithModelMetadata(CreateEmptyDefaultModelMetadata())
+            .WithModelMetadata(ModelMetadataBuilder.BuildDefault())
             .WithModelState(new ModelStateDictionary())
             .WithValidationState(new ValidationStateDictionary())
             .WithValueProvider(new CompositeValueProvider())
