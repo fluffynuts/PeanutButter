@@ -876,6 +876,17 @@ public class TestHttpRequestBuilder
         }
     }
 
+    [Test]
+    public void ResponseShouldCompleteAsyncWithoutError()
+    {
+        // Arrange
+        var ctx = HttpContextBuilder.BuildDefault();
+        // Act
+        Expect(async () => await ctx.Response.CompleteAsync())
+            .Not.To.Throw();
+        // Assert
+    }
+
     private static HttpRequestBuilder Create()
     {
         return HttpRequestBuilder.Create();

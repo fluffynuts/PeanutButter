@@ -150,4 +150,15 @@ public class FakeHttpResponse : HttpResponse, IFake
     {
         _hasStarted = hasStarted;
     }
+
+    /// <summary>
+    /// Does nothing
+    /// </summary>
+    /// <returns></returns>
+    public override Task CompleteAsync()
+    {
+        // TODO: invoke OnCompleted handlers?
+        SetHasStarted(true);
+        return Task.CompletedTask;
+    }
 }
