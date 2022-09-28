@@ -45,6 +45,12 @@ public class HttpContextBuilder : RandomizableBuilder<HttpContextBuilder, HttpCo
     public HttpContextBuilder() : base(Actualize)
     {
         WithFeatures(new FakeFeatureCollection())
+            .WithFeature<IHttpResponseFeature>(
+                ctx => new FakeHttpResponseFeature(() => ctx.Response)
+            )
+            .WithFeature<IHttpRequestFeature>(
+                ctx => new FakeHttpRequestFeature(() => ctx.Request)
+            )
             .WithResponse(
                 () => HttpResponseBuilder.CreateWithNoHttpContext()
                     .Build()
@@ -54,6 +60,9 @@ public class HttpContextBuilder : RandomizableBuilder<HttpContextBuilder, HttpCo
             .WithRequestServices(new MinimalServiceProvider())
             .WithRequest(
                 () => HttpRequestBuilder.CreateWithNoHttpContext()
+                    .Build()
+            ).WithResponse(
+                () => HttpResponseBuilder.CreateWithNoHttpContext()
                     .Build()
             );
     }
@@ -112,7 +121,33 @@ public class HttpContextBuilder : RandomizableBuilder<HttpContextBuilder, HttpCo
     public HttpContextBuilder WithFeature<TFeature>(TFeature feature)
     {
         return With(
-            o => o.Features.Set(feature)
+            // ReSharper disable once RedundantTypeArgumentsOfMethod
+            o => o.Features.Set<TFeature>(feature)
+        );
+    }
+
+    /// <summary>
+    /// Set a feature via a factory which has access to the HttpContext
+    /// </summary>
+    /// <param name="factory"></param>
+    /// <typeparam name="TFeature"></typeparam>
+    /// <returns></returns>
+    public HttpContextBuilder WithFeature<TFeature>(Func<HttpContext, TFeature> factory)
+    {
+        return With(
+            // ReSharper disable once RedundantTypeArgumentsOfMethod
+            o =>
+            {
+                if (o.Features is FakeFeatureCollection fake)
+                {
+                    fake.SetFactory<TFeature>(() => factory(o));
+                }
+                else
+                {
+                    // ReSharper disable once RedundantTypeArgumentsOfMethod
+                    o.Features.Set<TFeature>(factory(o));
+                }
+            }
         );
     }
 

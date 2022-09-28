@@ -1,7 +1,9 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http.Features;
@@ -527,7 +529,7 @@ public class TestHttpContextBuilder
     public void SettingARequestCookieShouldSetTheCookieHeaderOnTheRequest()
     {
         // Arrange
-        var key  = GetRandomString();
+        var key = GetRandomString();
         var value = GetRandomString();
         var ctx = HttpContextBuilder.BuildDefault();
         var requestCookies = ctx.Request.Cookies as FakeRequestCookieCollection;
@@ -671,6 +673,311 @@ public class TestHttpContextBuilder
             Expect(result.Response.Headers)
                 .To.Contain.Key(key)
                 .With.Value(value);
+        }
+
+        [TestCase(typeof(IHttpResponseFeature))]
+        [TestCase(typeof(IHttpRequestFeature))]
+        public void ResponseShouldHaveFeature_(Type expected)
+        {
+            // Arrange
+            var ctx = HttpContextBuilder.BuildDefault();
+            // Act
+            var genericMethod = ctx.Features.GetType().GetMethod("Get");
+            var method = genericMethod!.MakeGenericMethod(expected);
+            var result = method.Invoke(ctx.Features, Array.Empty<object>());
+            // Assert
+            Expect(result)
+                .Not.To.Be.Null();
+            Expect(result)
+                .To.Be.An.Instance.Of(expected);
+        }
+
+        [TestFixture]
+        public class HttpResponseFeature
+        {
+            [Test]
+            public void ShouldDoNothingOnStarting()
+            {
+                // Arrange
+                var ctx = HttpContextBuilder.BuildDefault();
+                var feature = ctx.Features.Get<IHttpResponseFeature>();
+                // Act
+                Expect(() => feature.OnStarting(_ => Task.CompletedTask, new object()))
+                    .Not.To.Throw();
+                // Assert
+            }
+
+            [Test]
+            public void ShouldDoNothingOnCompleted()
+            {
+                // Arrange
+                var ctx = HttpContextBuilder.BuildDefault();
+                var feature = ctx.Features.Get<IHttpResponseFeature>();
+                // Act
+                Expect(() => feature.OnCompleted(_ => Task.CompletedTask, new object()))
+                    .Not.To.Throw();
+                // Assert
+            }
+
+            [TestFixture]
+            public class Props
+            {
+                [Test]
+                public void ShouldHaveOkStatusCode()
+                {
+                    // Arrange
+                    var ctx = HttpContextBuilder.BuildDefault();
+                    var feature = ctx.Features.Get<IHttpResponseFeature>();
+                    // Act
+                    // Assert
+                    Expect(feature.StatusCode)
+                        .To.Equal((int) HttpStatusCode.OK);
+                }
+
+                [TestCase("OK")]
+                public void ShouldHaveReasonPhrase_(string expected)
+                {
+                    // Arrange
+                    var ctx = HttpContextBuilder.BuildDefault();
+                    var feature = ctx.Features.Get<IHttpResponseFeature>();
+                    // Act
+                    // Assert
+                    Expect(feature.ReasonPhrase)
+                        .To.Equal(expected);
+                }
+
+                [Test]
+                public void StatusCodeShouldTrackResponse()
+                {
+                    // Arrange
+                    var ctx = HttpContextBuilder.BuildDefault();
+                    var feature = ctx.Features.Get<IHttpResponseFeature>();
+                    // Act
+                    ctx.Response.StatusCode = (int) GetRandom<HttpStatusCode>();
+                    Expect(feature.StatusCode)
+                        .To.Equal(ctx.Response.StatusCode);
+                    feature.StatusCode = (int) GetRandom<HttpStatusCode>();
+                    Expect(ctx.Response.StatusCode)
+                        .To.Equal(feature.StatusCode);
+                    // Assert
+                }
+
+                [Test]
+                public void ShouldHaveEmptyHeaders()
+                {
+                    // Arrange
+                    var ctx = HttpContextBuilder.BuildDefault();
+                    var feature = ctx.Features.Get<IHttpResponseFeature>();
+                    // Act
+                    // Assert
+                    Expect(feature.Headers)
+                        .To.Be.Empty();
+                    Expect(feature.Headers)
+                        .To.Be(ctx.Response.Headers);
+                }
+
+                [Test]
+                public void HeadersShouldTrackResponse()
+                {
+                    // Arrange
+                    var ctx = HttpContextBuilder.BuildDefault();
+                    var key = GetRandomString();
+                    var feature = ctx.Features.Get<IHttpResponseFeature>();
+                    // Act
+                    feature.Headers[key] = GetRandomString();
+                    Expect(ctx.Response.Headers[key])
+                        .To.Equal(feature.Headers[key]);
+                    ctx.Response.Headers[key] = GetRandomString();
+                    Expect(feature.Headers[key])
+                        .To.Equal(ctx.Response.Headers[key]);
+                    // Assert
+                }
+
+                [Test]
+                public void BodyShouldRedirectToResponse()
+                {
+                    // Arrange
+                    var ctx = HttpContextBuilder.BuildDefault();
+                    var feature = ctx.Features.Get<IHttpResponseFeature>();
+                    // Act
+                    Expect(feature.Body)
+                        .To.Be(ctx.Response.Body);
+                    feature.Body = new MemoryStream();
+                    Expect(ctx.Response.Body)
+                        .To.Be(feature.Body);
+                    // Assert
+                }
+
+                [Test]
+                public void HasStartedShouldRedirectToResponse()
+                {
+                    // Arrange
+                    var ctx = HttpContextBuilder.BuildDefault();
+                    var feature = ctx.Features.Get<IHttpResponseFeature>();
+                    // Act
+                    Expect(feature.HasStarted)
+                        .To.Equal(ctx.Response.HasStarted);
+                    var response = ctx.Response as FakeHttpResponse;
+                    response!.SetHasStarted(true);
+                    Expect(feature.HasStarted)
+                        .To.Equal(ctx.Response.HasStarted);
+                    // Assert
+                }
+            }
+        }
+
+        [TestFixture]
+        public class HttpRequestFeature
+        {
+            [TestFixture]
+            public class Props
+            {
+                [Test]
+                public void ProtocolShouldTieBackToRequest()
+                {
+                    // Arrange
+                    var ctx = HttpContextBuilder.BuildDefault();
+                    var feature = ctx.Features.Get<IHttpRequestFeature>();
+                    // Act
+                    feature.Protocol = GetRandomString(4, 4);
+                    Expect(ctx.Request.Protocol)
+                        .To.Equal(feature.Protocol);
+                    ctx.Request.Protocol = GetRandomString(4, 4);
+                    Expect(feature.Protocol)
+                        .To.Equal(ctx.Request.Protocol);
+                    // Assert
+                }
+
+                [Test]
+                public void SchemeShouldTieBackToRequest()
+                {
+                    // Arrange
+                    var ctx = HttpContextBuilder.BuildDefault();
+                    var feature = ctx.Features.Get<IHttpRequestFeature>();
+                    // Act
+                    feature.Scheme = GetRandomString(4, 4);
+                    Expect(ctx.Request.Scheme)
+                        .To.Equal(feature.Scheme);
+                    ctx.Request.Scheme = GetRandomString(4, 4);
+                    Expect(feature.Scheme)
+                        .To.Equal(ctx.Request.Scheme);
+                    // Assert
+                }
+
+                [Test]
+                public void MethodShouldTieBackToRequest()
+                {
+                    // Arrange
+                    var ctx = HttpContextBuilder.BuildDefault();
+                    var feature = ctx.Features.Get<IHttpRequestFeature>();
+                    // Act
+                    feature.Method = GetRandomString(4, 4);
+                    Expect(ctx.Request.Method)
+                        .To.Equal(feature.Method);
+                    ctx.Request.Method = GetRandomString(4, 4);
+                    Expect(feature.Method)
+                        .To.Equal(ctx.Request.Method);
+                    // Assert
+                }
+
+                [Test]
+                public void PathBaseShouldTieBackToRequest()
+                {
+                    // Arrange
+                    var ctx = HttpContextBuilder.BuildDefault();
+                    var feature = ctx.Features.Get<IHttpRequestFeature>();
+                    // Act
+                    feature.PathBase = $"/{GetRandomString(4, 4)}";
+                    Expect(ctx.Request.PathBase)
+                        .To.Equal(feature.PathBase);
+                    ctx.Request.PathBase = $"/{GetRandomString(4, 4)}";
+                    Expect(feature.PathBase)
+                        .To.Equal(ctx.Request.PathBase);
+                    // Assert
+                }
+
+                [Test]
+                public void PathShouldTieBackToRequest()
+                {
+                    // Arrange
+                    var ctx = HttpContextBuilder.BuildDefault();
+                    var feature = ctx.Features.Get<IHttpRequestFeature>();
+                    // Act
+                    feature.Path = $"/{GetRandomString(4, 4)}";
+                    Expect(ctx.Request.Path)
+                        .To.Equal(feature.Path);
+                    ctx.Request.Path = $"/{GetRandomString(4, 4)}";
+                    Expect(feature.Path)
+                        .To.Equal(ctx.Request.Path);
+                    // Assert
+                }
+
+                [Test]
+                public void QueryStringShouldTieBackToRequest()
+                {
+                    // Arrange
+                    var ctx = HttpContextBuilder.BuildDefault();
+                    var feature = ctx.Features.Get<IHttpRequestFeature>();
+                    // Act
+                    feature.QueryString = $"?{GetRandomString(4, 4)}";
+                    Expect(ctx.Request.QueryString.ToString())
+                        .To.Equal(feature.QueryString);
+                    ctx.Request.QueryString = new QueryString($"?{GetRandomString(4, 4)}");
+                    Expect(feature.QueryString)
+                        .To.Equal(ctx.Request.QueryString.ToString());
+                    // Assert
+                }
+
+                [Test]
+                public void RawTargetShouldTieBackToRequest()
+                {
+                    // Arrange
+                    var ctx = HttpContextBuilder.BuildDefault();
+                    var feature = ctx.Features.Get<IHttpRequestFeature>();
+                    var req = ctx.Request;
+                    var expected = $"{req.Method.ToUpper()} {req.FullUrl()} HTTP/1.1";
+                    // Act
+                    var result = feature.RawTarget;
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+
+                [Test]
+                public void HeadersShouldTrackRequest()
+                {
+                    // Arrange
+                    var ctx = HttpContextBuilder.BuildDefault();
+                    var key = GetRandomString();
+                    var feature = ctx.Features.Get<IHttpRequestFeature>();
+                    // Act
+                    feature.Headers[key] = GetRandomString();
+                    Expect(ctx.Request.Headers[key])
+                        .To.Equal(feature.Headers[key]);
+                    ctx.Request.Headers[key] = GetRandomString();
+                    Expect(feature.Headers[key])
+                        .To.Equal(ctx.Request.Headers[key]);
+                    // Assert
+                }
+
+                [Test]
+                public void BodyShouldTrackRequestBody()
+                {
+                    // Arrange
+                    var ctx = HttpContextBuilder.BuildDefault();
+                    var feature = ctx.Features.Get<IHttpRequestFeature>();
+                    // Act
+                    Expect(feature.Body)
+                        .To.Be(ctx.Request.Body);
+                    feature.Body = new MemoryStream();
+                    Expect(ctx.Request.Body)
+                        .To.Be(feature.Body);
+                    ctx.Request.Body = new MemoryStream();
+                    Expect(feature.Body)
+                        .To.Be(ctx.Request.Body);
+                    // Assert
+                }
+            }
         }
     }
 

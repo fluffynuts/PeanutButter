@@ -280,6 +280,6 @@ public class FakeHttpRequest : HttpRequest, IFake
     /// <param name="url"></param>
     public void SetUrl(Uri url)
     {
-        HttpRequestExtensions.SetUrl(this, url);
+        global::HttpRequestExtensions.SetUrl(this, url);
     }
 }

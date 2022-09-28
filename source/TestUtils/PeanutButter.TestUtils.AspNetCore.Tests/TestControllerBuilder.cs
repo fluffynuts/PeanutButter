@@ -660,25 +660,6 @@ public class TestControllerBuilder
     }
 }
 
-// TODO: if there's ever more asp.net utils,
-// move this into that project to publish
-public static class HttpRequestExtensions
-{
-    public static Uri FullUrl(
-        this HttpRequest request
-    )
-    {
-        return new Uri($@"{
-            request.Scheme
-        }://{
-            request.Host
-        }{
-            request.Path
-        }{request.QueryString}"
-        );
-    }
-}
-
 public static class ApiControllerBuilderExtensions
 {
     public static ControllerBuilder<ApiController> WithDefaultFactoryForApiController(
