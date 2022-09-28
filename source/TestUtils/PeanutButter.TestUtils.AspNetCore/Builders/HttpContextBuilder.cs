@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
@@ -433,7 +434,19 @@ public class HttpContextBuilder : RandomizableBuilder<HttpContextBuilder, HttpCo
     public HttpContextBuilder WithService<TService>(TService service)
     {
         // ReSharper disable once RedundantTypeArgumentsOfMethod
-        return WithServicesMutator(provider => provider.RegisterInstance<TService>(service));
+        return WithServicesMutator((_, provider) => provider.RegisterInstance<TService>(service));
+    }
+
+    /// <summary>
+    /// Register a service factory
+    /// </summary>
+    /// <param name="factory"></param>
+    /// <typeparam name="TService"></typeparam>
+    /// <returns></returns>
+    public HttpContextBuilder WithService<TService>(Func<HttpContext, TService> factory)
+    {
+        // ReSharper disable once RedundantTypeArgumentsOfMethod
+        return WithServicesMutator((ctx, provider) => provider.Register<TService>(() => factory(ctx)));
     }
 
     /// <summary>
@@ -446,6 +459,28 @@ public class HttpContextBuilder : RandomizableBuilder<HttpContextBuilder, HttpCo
     {
         // ReSharper disable once RedundantTypeArgumentsOfMethod
         return WithServicesMutator(provider => provider.Register<TService>(() => factory()));
+    }
+
+    /// <summary>
+    /// Open access to apply mutations to the MinimalServiceProvider, if not overridden.
+    /// </summary>
+    /// <param name="mutator"></param>
+    /// <returns></returns>
+    /// <exception cref="NotSupportedException"></exception>
+    public HttpContextBuilder WithServicesMutator(Action<HttpContext, MinimalServiceProvider> mutator)
+    {
+        return With(o =>
+        {
+            if (o.RequestServices is not MinimalServiceProvider provider)
+            {
+                throw new NotSupportedException(
+                    $@"Only the {nameof(MinimalServiceProvider)} provider is supported for service registration
+via builder methods. If you're providing your own RequestServices, you'll have to register elsewhere."
+                );
+            }
+
+            mutator(o, provider);
+        });
     }
 
     /// <summary>

@@ -5,8 +5,8 @@ using System.Reflection;
 using System.Security.Claims;
 using System.Threading;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Authentication;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Server.HttpSys;
 using PeanutButter.TestUtils.AspNetCore.Builders;
 using PeanutButter.TestUtils.AspNetCore.Utils;
 
@@ -115,12 +115,6 @@ public class FakeHttpContext : HttpContext, IFake
     {
         _webSockets = webSocketManager ?? WebSocketManagerBuilder.BuildDefault();
     }
-
-    /// <inheritdoc />
-    [Obsolete(
-        "This is obsolete and will be removed in a future version. See https://go.microsoft.com/fwlink/?linkid=845470")]
-    public override AuthenticationManager Authentication
-        => throw new FeatureIsObsoleteException(nameof(Authentication));
 
     /// <inheritdoc />
     public override ClaimsPrincipal User { get; set; }

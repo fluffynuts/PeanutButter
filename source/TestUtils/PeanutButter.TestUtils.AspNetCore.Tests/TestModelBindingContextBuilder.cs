@@ -1,14 +1,11 @@
 ﻿using System.Linq;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Internal;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using NUnit.Framework;
 using PeanutButter.TestUtils.AspNetCore.Builders;
 using NExpect;
 using NSubstitute;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
-using PeanutButter.TestUtils.AspNetCore.Utils;
 using static NExpect.Expectations;
 using static NExpect.AspNetCoreExpectations;
 
@@ -93,8 +90,8 @@ namespace PeanutButter.TestUtils.AspNetCore.Tests
                     .Not.To.Be.Null();
                 Expect(metaData)
                     .To.Be.An.Instance.Of<FakeModelMetadata>();
-                Expect(metaData.BindingSource.DisplayName)
-                    .To.Equal(expectedMetaData.BindingSource.DisplayName);
+                Expect(metaData.BindingSource!.DisplayName)
+                    .To.Equal(expectedMetaData.BindingSource!.DisplayName);
                 Expect(metaData.BindingSource.IsGreedy)
                     .To.Equal(expectedMetaData.BindingSource.IsGreedy);
                 Expect(metaData.BindingSource.IsFromRequest)
@@ -143,7 +140,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Tests
                 // Assert
                 Expect(result.PropertyFilter)
                     .Not.To.Be.Null();
-                Expect(result.PropertyFilter(null))
+                Expect(result.PropertyFilter!.Invoke(null))
                     .To.Be.True();
             }
 
@@ -172,7 +169,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Tests
                     .And
                     .To.Be.An.Instance.Of<CompositeValueProvider>();
                 var composite = result.ValueProvider as CompositeValueProvider;
-                var providers = composite.ToArray();
+                var providers = composite!.ToArray();
                 Expect(providers)
                     .To.Contain.Exactly(1)
                     .Matched.By(o => o is RouteValueProvider);

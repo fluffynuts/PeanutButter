@@ -99,19 +99,6 @@ public class TestHttpContextBuilder
         }
 
         [Test]
-        public void AuthenticationShouldThrow()
-        {
-            // Arrange
-            // Act
-            var result = BuildDefault();
-            // Assert
-#pragma warning disable CS0618
-            Expect(() => result.Authentication)
-#pragma warning restore CS0618
-                .To.Throw<FeatureIsObsoleteException>();
-        }
-
-        [Test]
         public void ShouldSetUser()
         {
             // Arrange
@@ -186,7 +173,6 @@ public class TestHttpContextBuilder
         [Test]
         public void ShouldHaveValidRequestUrl()
         {
-            var foo = Substitute.For<HttpContext>();
             // Arrange
             var result = BuildDefault();
             // Act
@@ -340,7 +326,7 @@ public class TestHttpContextBuilder
     {
         // Arrange
         var sut = HttpContextBuilder.BuildDefault() as FakeHttpContext;
-        Expect(sut.Aborted)
+        Expect(sut!.Aborted)
             .To.Be.False();
         // Act
         sut.Abort();
@@ -702,7 +688,7 @@ public class TestHttpContextBuilder
                 var ctx = HttpContextBuilder.BuildDefault();
                 var feature = ctx.Features.Get<IHttpResponseFeature>();
                 // Act
-                Expect(() => feature.OnStarting(_ => Task.CompletedTask, new object()))
+                Expect(() => feature!.OnStarting(_ => Task.CompletedTask, new object()))
                     .Not.To.Throw();
                 // Assert
             }
@@ -714,7 +700,7 @@ public class TestHttpContextBuilder
                 var ctx = HttpContextBuilder.BuildDefault();
                 var feature = ctx.Features.Get<IHttpResponseFeature>();
                 // Act
-                Expect(() => feature.OnCompleted(_ => Task.CompletedTask, new object()))
+                Expect(() => feature!.OnCompleted(_ => Task.CompletedTask, new object()))
                     .Not.To.Throw();
                 // Assert
             }
@@ -730,7 +716,7 @@ public class TestHttpContextBuilder
                     var feature = ctx.Features.Get<IHttpResponseFeature>();
                     // Act
                     // Assert
-                    Expect(feature.StatusCode)
+                    Expect(feature!.StatusCode)
                         .To.Equal((int) HttpStatusCode.OK);
                 }
 
@@ -742,7 +728,7 @@ public class TestHttpContextBuilder
                     var feature = ctx.Features.Get<IHttpResponseFeature>();
                     // Act
                     // Assert
-                    Expect(feature.ReasonPhrase)
+                    Expect(feature!.ReasonPhrase)
                         .To.Equal(expected);
                 }
 
@@ -754,7 +740,7 @@ public class TestHttpContextBuilder
                     var feature = ctx.Features.Get<IHttpResponseFeature>();
                     // Act
                     ctx.Response.StatusCode = (int) GetRandom<HttpStatusCode>();
-                    Expect(feature.StatusCode)
+                    Expect(feature!.StatusCode)
                         .To.Equal(ctx.Response.StatusCode);
                     feature.StatusCode = (int) GetRandom<HttpStatusCode>();
                     Expect(ctx.Response.StatusCode)
@@ -770,7 +756,7 @@ public class TestHttpContextBuilder
                     var feature = ctx.Features.Get<IHttpResponseFeature>();
                     // Act
                     // Assert
-                    Expect(feature.Headers)
+                    Expect(feature!.Headers)
                         .To.Be.Empty();
                     Expect(feature.Headers)
                         .To.Be(ctx.Response.Headers);
@@ -784,7 +770,7 @@ public class TestHttpContextBuilder
                     var key = GetRandomString();
                     var feature = ctx.Features.Get<IHttpResponseFeature>();
                     // Act
-                    feature.Headers[key] = GetRandomString();
+                    feature!.Headers[key] = GetRandomString();
                     Expect(ctx.Response.Headers[key])
                         .To.Equal(feature.Headers[key]);
                     ctx.Response.Headers[key] = GetRandomString();
@@ -793,6 +779,7 @@ public class TestHttpContextBuilder
                     // Assert
                 }
 
+#pragma warning disable CS0618
                 [Test]
                 public void BodyShouldRedirectToResponse()
                 {
@@ -800,7 +787,7 @@ public class TestHttpContextBuilder
                     var ctx = HttpContextBuilder.BuildDefault();
                     var feature = ctx.Features.Get<IHttpResponseFeature>();
                     // Act
-                    Expect(feature.Body)
+                    Expect(feature!.Body)
                         .To.Be(ctx.Response.Body);
                     feature.Body = new MemoryStream();
                     Expect(ctx.Response.Body)
@@ -815,7 +802,7 @@ public class TestHttpContextBuilder
                     var ctx = HttpContextBuilder.BuildDefault();
                     var feature = ctx.Features.Get<IHttpResponseFeature>();
                     // Act
-                    Expect(feature.HasStarted)
+                    Expect(feature!.HasStarted)
                         .To.Equal(ctx.Response.HasStarted);
                     var response = ctx.Response as FakeHttpResponse;
                     response!.SetHasStarted(true);
@@ -823,7 +810,14 @@ public class TestHttpContextBuilder
                         .To.Equal(ctx.Response.HasStarted);
                     // Assert
                 }
+#pragma warning restore CS0618
             }
+        }
+
+        [TestFixture]
+        public class HttpResponseBodyFeature
+        {
+            // TODO
         }
 
         [TestFixture]
@@ -839,7 +833,7 @@ public class TestHttpContextBuilder
                     var ctx = HttpContextBuilder.BuildDefault();
                     var feature = ctx.Features.Get<IHttpRequestFeature>();
                     // Act
-                    feature.Protocol = GetRandomString(4, 4);
+                    feature!.Protocol = GetRandomString(4, 4);
                     Expect(ctx.Request.Protocol)
                         .To.Equal(feature.Protocol);
                     ctx.Request.Protocol = GetRandomString(4, 4);
@@ -855,7 +849,7 @@ public class TestHttpContextBuilder
                     var ctx = HttpContextBuilder.BuildDefault();
                     var feature = ctx.Features.Get<IHttpRequestFeature>();
                     // Act
-                    feature.Scheme = GetRandomString(4, 4);
+                    feature!.Scheme = GetRandomString(4, 4);
                     Expect(ctx.Request.Scheme)
                         .To.Equal(feature.Scheme);
                     ctx.Request.Scheme = GetRandomString(4, 4);
@@ -871,7 +865,7 @@ public class TestHttpContextBuilder
                     var ctx = HttpContextBuilder.BuildDefault();
                     var feature = ctx.Features.Get<IHttpRequestFeature>();
                     // Act
-                    feature.Method = GetRandomString(4, 4);
+                    feature!.Method = GetRandomString(4, 4);
                     Expect(ctx.Request.Method)
                         .To.Equal(feature.Method);
                     ctx.Request.Method = GetRandomString(4, 4);
@@ -887,7 +881,7 @@ public class TestHttpContextBuilder
                     var ctx = HttpContextBuilder.BuildDefault();
                     var feature = ctx.Features.Get<IHttpRequestFeature>();
                     // Act
-                    feature.PathBase = $"/{GetRandomString(4, 4)}";
+                    feature!.PathBase = $"/{GetRandomString(4, 4)}";
                     Expect(ctx.Request.PathBase)
                         .To.Equal(feature.PathBase);
                     ctx.Request.PathBase = $"/{GetRandomString(4, 4)}";
@@ -903,7 +897,7 @@ public class TestHttpContextBuilder
                     var ctx = HttpContextBuilder.BuildDefault();
                     var feature = ctx.Features.Get<IHttpRequestFeature>();
                     // Act
-                    feature.Path = $"/{GetRandomString(4, 4)}";
+                    feature!.Path = $"/{GetRandomString(4, 4)}";
                     Expect(ctx.Request.Path)
                         .To.Equal(feature.Path);
                     ctx.Request.Path = $"/{GetRandomString(4, 4)}";
@@ -919,7 +913,7 @@ public class TestHttpContextBuilder
                     var ctx = HttpContextBuilder.BuildDefault();
                     var feature = ctx.Features.Get<IHttpRequestFeature>();
                     // Act
-                    feature.QueryString = $"?{GetRandomString(4, 4)}";
+                    feature!.QueryString = $"?{GetRandomString(4, 4)}";
                     Expect(ctx.Request.QueryString.ToString())
                         .To.Equal(feature.QueryString);
                     ctx.Request.QueryString = new QueryString($"?{GetRandomString(4, 4)}");
@@ -937,7 +931,7 @@ public class TestHttpContextBuilder
                     var req = ctx.Request;
                     var expected = $"{req.Method.ToUpper()} {req.FullUrl()} HTTP/1.1";
                     // Act
-                    var result = feature.RawTarget;
+                    var result = feature!.RawTarget;
                     // Assert
                     Expect(result)
                         .To.Equal(expected);
@@ -951,7 +945,7 @@ public class TestHttpContextBuilder
                     var key = GetRandomString();
                     var feature = ctx.Features.Get<IHttpRequestFeature>();
                     // Act
-                    feature.Headers[key] = GetRandomString();
+                    feature!.Headers[key] = GetRandomString();
                     Expect(ctx.Request.Headers[key])
                         .To.Equal(feature.Headers[key]);
                     ctx.Request.Headers[key] = GetRandomString();
@@ -967,7 +961,7 @@ public class TestHttpContextBuilder
                     var ctx = HttpContextBuilder.BuildDefault();
                     var feature = ctx.Features.Get<IHttpRequestFeature>();
                     // Act
-                    Expect(feature.Body)
+                    Expect(feature!.Body)
                         .To.Be(ctx.Request.Body);
                     feature.Body = new MemoryStream();
                     Expect(ctx.Request.Body)

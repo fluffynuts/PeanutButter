@@ -4,7 +4,6 @@ using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
-using Microsoft.AspNetCore.Mvc.Internal;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
@@ -83,6 +82,9 @@ public class ControllerBuilder<TController>
     /// <inheritdoc />
     public ControllerBuilder()
     {
+        var defaultModelMetadataProvider = new DefaultModelMetadataProvider(
+            new FakeCompositeMetadataDetailsProvider()
+        );
         WithControllerContext(
                 ControllerContextBuilder.Create()
                     .WithControllerType(typeof(TController))
@@ -92,21 +94,24 @@ public class ControllerBuilder<TController>
             .WithRouteDataValue("controller", typeof(TController).Name.RegexReplace("Controller$", ""))
             .WithHttpContext(HttpContextBuilder.Create()
                 .WithRequestServices(new MinimalServiceProvider())
+                .WithService<IModelBinderFactory>(
+                    ctx => new ModelBinderFactory(
+                        defaultModelMetadataProvider,
+                        new DefaultMvcOptions(),
+                        ctx.RequestServices   
+                    )
+                )
                 .Build()
             )
             .WithModelMetadataProvider(
-                () => new DefaultModelMetadataProvider(
-                    new DefaultCompositeMetadataDetailsProvider(
-                        new IMetadataDetailsProvider[0]
-                    )
-                )
+                defaultModelMetadataProvider
             )
             .WithModelValidator(() => new DefaultObjectModelValidator())
             .WithTempDataDictionaryFactory(
                 () => new FakeTempDataDictionaryFactory()
             )
             .WithTempDataProvider(() => new FakeTempDataProvider())
-            .WithOptions(() => new DefaultOptions())
+            .WithOptions(() => new DefaultMvcOptions())
             .WithFactory(DefaultFactory);
     }
 
