@@ -79,7 +79,7 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                Assert.Throws<AssertionException>(() => server.ShouldHaveReceivedRequestFor(GetRandomString()));
+                Assert.Throws<HttpServerAssertionException>(() => server.ShouldHaveReceivedRequestFor(GetRandomString()));
 
                 //---------------Test Result -----------------------
             }
@@ -98,7 +98,7 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                var ex = Assert.Throws<AssertionException>(() => server.ShouldHaveReceivedRequestFor(GetRandomString()));
+                var ex = Assert.Throws<HttpServerAssertionException>(() => server.ShouldHaveReceivedRequestFor(GetRandomString()));
 
                 //---------------Test Result -----------------------
                 StringAssert.Contains(expected, ex.Message, ex.Message);
@@ -171,7 +171,7 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                Assert.Throws<AssertionException>(() => server.ShouldHaveReceivedRequestFor(path, httpMethod));
+                Assert.Throws<HttpServerAssertionException>(() => server.ShouldHaveReceivedRequestFor(path, httpMethod));
 
                 //---------------Test Result -----------------------
             }
@@ -207,7 +207,7 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                Assert.Throws<AssertionException>(() => server.ShouldNotHaveReceivedRequestFor(path, httpMethod));
+                Assert.Throws<HttpServerAssertionException>(() => server.ShouldNotHaveReceivedRequestFor(path, httpMethod));
 
                 //---------------Test Result -----------------------
             }
@@ -254,7 +254,7 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                Assert.Throws<AssertionException>(() => server.ShouldHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1));
+                Assert.Throws<HttpServerAssertionException>(() => server.ShouldHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1));
 
                 //---------------Test Result -----------------------
             }
@@ -277,7 +277,7 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                Assert.Throws<AssertionException>(() => server.ShouldHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1));
+                Assert.Throws<HttpServerAssertionException>(() => server.ShouldHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1));
 
                 //---------------Test Result -----------------------
             }
@@ -370,7 +370,7 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                Assert.Throws<AssertionException>(() => server.ShouldNotHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1));
+                Assert.Throws<HttpServerAssertionException>(() => server.ShouldNotHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1));
 
                 //---------------Test Result -----------------------
             }
