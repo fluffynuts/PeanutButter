@@ -415,7 +415,8 @@ namespace PeanutButter.Utils
             {
                 return false;
             }
-            return value == "" || 
+
+            return value == "" ||
                 value.IsWhiteSpace();
         }
 
@@ -446,6 +447,7 @@ namespace PeanutButter.Utils
                     return false;
                 }
             }
+
             return true;
         }
 
@@ -470,10 +472,10 @@ namespace PeanutButter.Utils
             this string str
         )
         {
-            return !string.IsNullOrWhiteSpace(str) && 
+            return !string.IsNullOrWhiteSpace(str) &&
                 str.All(c => Base64Characters.Contains(c));
         }
-        
+
         private const string BASE64_CHARACTER_SET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
         private static readonly HashSet<char> Base64Characters = new(BASE64_CHARACTER_SET);
 
@@ -1256,7 +1258,7 @@ namespace PeanutButter.Utils
 
             return " ";
         }
-        
+
         private static readonly string[] IndentationSearch = new[] { " ", "\t" };
 
         /// <summary>
@@ -1398,7 +1400,7 @@ namespace PeanutButter.Utils
             {
                 return new[] { str };
             }
-            
+
             var first = str.Substring(0, idx);
             var second = str.Substring(idx + splitOn.Length);
             return new[] { first, second };
