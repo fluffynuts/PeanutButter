@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using NExpect;
 using NUnit.Framework;
@@ -2225,6 +2226,187 @@ namespace PeanutButter.Utils.Tests
                         .To.Be.True();
                     Expect(result)
                         .To.Equal(expected);
+                }
+            }
+        }
+
+        [TestFixture]
+        public class FindRepeatedValues
+        {
+            [TestFixture]
+            public class OperatingOnNull
+            {
+                [Test]
+                public void ShouldReturnEmptySet()
+                {
+                    // Arrange
+                    var collection = null as IEnumerable<int>;
+                    // Act
+                    var result = collection.FindRepeatedValues();
+                    // Assert
+                    Expect(result)
+                        .To.Be.Empty();
+                }
+            }
+
+            [TestFixture]
+            public class OperatingOnEmptyCollection
+            {
+                [Test]
+                public void ShouldReturnEmptySet()
+                {
+                    // Arrange
+                    var collection = Array.Empty<bool>();
+                    // Act
+                    var result = collection.FindRepeatedValues();
+                    // Assert
+                    Expect(result)
+                        .To.Be.Empty();
+                }
+            }
+
+            [TestFixture]
+            public class OperatingOnNonEmptyCollections
+            {
+                [Test]
+                public void ShouldFindTheValuesRepeatedOnce()
+                {
+                    // Arrange
+                    var collection = new[] { 1, 2, 3, 3, 1 };
+                    // Act
+                    var result = collection.FindRepeatedValues();
+                    // Assert
+                    Expect(result)
+                        .To.Be.Equivalent.To(new[] { 1, 3 });
+                }
+
+                [Test]
+                public void ShouldReturnRepeatedValuesOnlyOnce()
+                {
+                    // Arrange
+                    var collection = new[] { 1, 2, 3, 3, 1, 3, 3, 3, 1, 3, 1 };
+                    // Act
+                    var result = collection.FindRepeatedValues();
+                    // Assert
+                    Expect(result)
+                        .To.Be.Equivalent.To(new[] { 1, 3 });
+                }
+            }
+        }
+
+        [TestFixture]
+        public class FindAllRepeatedValues
+        {
+            [TestFixture]
+            public class OperatingOnNull
+            {
+                [Test]
+                public void ShouldReturnEmptySet()
+                {
+                    // Arrange
+                    var collection = null as IEnumerable<int>;
+                    // Act
+                    var result = collection.FindAllRepeatedValues();
+                    // Assert
+                    Expect(result)
+                        .To.Be.Empty();
+                }
+            }
+
+            [TestFixture]
+            public class OperatingOnEmptyCollection
+            {
+                [Test]
+                public void ShouldReturnEmptySet()
+                {
+                    // Arrange
+                    var collection = Array.Empty<bool>();
+                    // Act
+                    var result = collection.FindAllRepeatedValues();
+                    // Assert
+                    Expect(result)
+                        .To.Be.Empty();
+                }
+            }
+
+            [TestFixture]
+            public class OperatingOnNonEmptyCollections
+            {
+                [Test]
+                public void ShouldFindTheValuesRepeatedOnce()
+                {
+                    // Arrange
+                    var collection = new[] { 1, 2, 3, 3, 1 };
+                    // Act
+                    var result = collection.FindAllRepeatedValues();
+                    // Assert
+                    Expect(result)
+                        .To.Be.Equivalent.To(new[] { 1, 3 });
+                }
+
+                [Test]
+                public void ShouldReturnRepeatedValuesOnlyOnce()
+                {
+                    // Arrange
+                    var collection = new[] { 1, 2, 3, 3, 1, 3, 3, 3, 1, 3, 1 };
+                    // Act
+                    var result = collection.FindAllRepeatedValues();
+                    // Assert
+                    Expect(result)
+                        .To.Be.Equivalent.To(new[] { 1, 1, 1, 3, 3, 3, 3, 3 });
+                }
+            }
+        }
+
+        [TestFixture]
+        public class FindUniqueValues
+        {
+            [TestFixture]
+            public class OperatingOnNullCollection
+            {
+                [Test]
+                public void ShouldReturnEmptySet()
+                {
+                    // Arrange
+                    var collection = null as IEnumerable<string>;
+                    // Act
+                    var result = collection.FindUniqueValues();
+                    // Assert
+                    Expect(result)
+                        .To.Be.Empty();
+                }
+            }
+
+            [TestFixture]
+            public class OperatingOnEmptyCollection
+            {
+                [Test]
+                public void ShouldReturnEmptySet()
+                {
+                    // Arrange
+                    var collection = Array.Empty<int>();
+                    // Act
+                    var result = collection.FindUniqueValues();
+                    // Assert
+                    Expect(result)
+                        .To.Be.Empty();
+                }
+            }
+
+            [TestFixture]
+            public class OperatingOnCollection
+            {
+                [Test]
+                public void ShouldReturnUniqueValues()
+                {
+                    // Arrange
+                    var collection = new[] { 1, 7, 3, 5, 3, 9, 9 };
+                    var expected = new[] { 1, 5, 7 };
+                    // Act
+                    var result = collection.FindUniqueValues();
+                    // Assert
+                    Expect(result)
+                        .To.Be.Equivalent.To(expected);
                 }
             }
         }

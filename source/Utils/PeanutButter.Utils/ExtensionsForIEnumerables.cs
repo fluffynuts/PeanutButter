@@ -1230,5 +1230,110 @@ namespace PeanutButter.Utils
                 ?.Where(filter)
                 .ToList() ?? new List<T>();
         }
+
+        /// <summary>
+        /// Find singular occurrences of repeated values within a collection
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static IEnumerable<T> FindRepeatedValues<T>(
+            this IEnumerable<T> collection
+        )
+        {
+            if (collection is null)
+            {
+                yield break;
+            }
+
+            var seen = new HashSet<T>();
+            var returned = new HashSet<T>();
+            foreach (var item in collection)
+            {
+                if (!seen.Contains(item))
+                {
+                    seen.Add(item);
+                    continue;
+                }
+
+                if (returned.Contains(item))
+                {
+                    continue;
+                }
+
+                returned.Add(item);
+                yield return item;
+            }
+        }
+
+        /// <summary>
+        /// Find all occurrences of repeated values within a collection. All repeated
+        /// values are returned, eg: [ 1, 1, 1 ] => [ 1, 1 ]
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static IEnumerable<T> FindAllRepeatedValues<T>(
+            this IEnumerable<T> collection
+        )
+        {
+            if (collection is null)
+            {
+                yield break;
+            }
+
+            var seen = new HashSet<T>();
+            foreach (var item in collection)
+            {
+                if (seen.Contains(item))
+                {
+                    yield return item;
+                }
+                else
+                {
+                    seen.Add(item);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Finds all unique (non-repeated) values within a collection
+        /// - this is not the same as .Distinct(), which finds each
+        ///   distinct value within a set (ie, collapses repeated values)
+        /// - note, this cannot be performed lazily: the
+        ///   entire collection _must_ be read once before
+        ///   a result can be calculated. This method is _not_
+        ///   suitable for unending streams, and should be
+        ///   used with caution against large streams.
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static IEnumerable<T> FindUniqueValues<T>(
+            this IEnumerable<T> collection
+        )
+        {
+            if (collection is null)
+            {
+                yield break;
+            }
+
+            // materialise the full result set in case
+            // the provided IEnumerable is lazy and therefore
+            // re-calculated when performing FindDuplicates
+            var allValues = collection.ToArray();
+            var duplicates = new HashSet<T>(
+                allValues.FindDuplicates()
+            );
+
+            foreach (var value in allValues)
+            {
+                if (duplicates.Contains(value))
+                {
+                    continue;
+                }
+                yield return value;
+            }
+        }
     }
 }
