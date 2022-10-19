@@ -794,7 +794,20 @@ namespace PeanutButter.Utils
         /// <param name="input">The item to wrap</param>
         /// <typeparam name="T">The type of the object</typeparam>
         /// <returns>A single-element array containing the input object</returns>
+        [Obsolete("This method was poorly-named and will be removed at some point. Please rather use .InArray() to avoid confusion with the IEnumerable<T> extension AsArray")]
         public static T[] AsArray<T>(this T input)
+        {
+            return new[] { input };
+        }
+
+        /// <summary>
+        /// Fluency extension to wrap a single item in an array, eg:
+        /// new SomeBusinessObject().InArray().Union(SomeOtherCollection);
+        /// </summary>
+        /// <param name="input">The item to wrap</param>
+        /// <typeparam name="T">The type of the object</typeparam>
+        /// <returns>A single-element array containing the input object</returns>
+        public static T[] InArray<T>(this T input)
         {
             return new[] { input };
         }

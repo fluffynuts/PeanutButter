@@ -544,6 +544,26 @@ namespace PeanutButter.Utils
             return (collection ?? new T[0]).All(o => !test(o));
         }
 
+        /// <summary>
+        /// Provides an array for the collection, to avoid the potential for
+        /// multiple enumeration on an IEnumerable&lt;T&gt; argument to a method
+        /// - given an array, returns the exact array
+        /// - given null, returns empty array
+        /// - given any other IEnumerable&lt;T&gt;, calls .ToArray on it
+        /// 
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T[] AsArray<T>(this IEnumerable<T> collection)
+        {
+            return collection switch
+            {
+                null => Array.Empty<T>(),
+                T[] arr => arr,
+                _ => collection.ToArray()
+            };
+        }
 
         /// <summary>
         /// DTO for conveying results from the more complex FindDuplicates

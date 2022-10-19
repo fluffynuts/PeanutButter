@@ -2410,5 +2410,69 @@ namespace PeanutButter.Utils.Tests
                 }
             }
         }
+
+        [TestFixture]
+        public class AsArray
+        {
+            [TestFixture]
+            public class GivenArray
+            {
+                [Test]
+                public void ShouldReturnThatArray()
+                {
+                    // Arrange
+                    var collection = new[] { 1, 2, 3 };
+                    // Act
+                    var result = ExtensionsForIEnumerables.AsArray(collection);
+                    // Assert
+                    Expect(result)
+                        .To.Be(collection);
+                }
+            }
+
+            [TestFixture]
+            public class GivenNull
+            {
+                [Test]
+                public void ShouldReturnEmptyArray()
+                {
+                    // Arrange
+                    var collection = null as IEnumerable<string>;
+                    // Act
+                    var result = collection.AsArray();
+                    // Assert
+                    Expect(result)
+                        .To.Be.Empty();
+                }
+            }
+
+            [TestFixture]
+            public class GivenNonEmptyEnumerable
+            {
+                [Test]
+                public void ShouldReturnAnArrayWithTheItems()
+                {
+                    // Arrange
+                    var numbers = GetRandomArray<int>(3, 5);
+                    var enumerated = 0;
+                    var collection = GenerateNumbers();
+                    // Act
+                    var result = collection.AsArray();
+                    // Assert
+                    Expect(enumerated)
+                        .To.Equal(1);
+                    Expect(result)
+                        .To.Equal(collection);
+                    IEnumerable<int> GenerateNumbers()
+                    {
+                        enumerated++;
+                        foreach (var number in numbers)
+                        {
+                            yield return number;
+                        }
+                    }
+                }
+            }
+        }
     }
 }
