@@ -619,7 +619,6 @@ namespace PeanutButter.Utils.Tests
                     // Assert
                     PropertyAssert.AreDeepEqual(result, thang);
                 }
-
             }
         }
 
@@ -1271,7 +1270,7 @@ namespace PeanutButter.Utils.Tests
                 // Arrange
                 var sub = new { id = 1 };
                 var container1 = new { sub };
-                var container2 = new { sub = (object)sub };
+                var container2 = new { sub = (object) sub };
                 var sut = Create(container1, container2);
                 sut.RecordErrors = true;
                 // Act
@@ -1279,6 +1278,31 @@ namespace PeanutButter.Utils.Tests
                 // Assert
                 Expect(result)
                     .To.Be.True(() => sut.Errors.JoinWith("\n"));
+            }
+
+            [Test]
+            public void ShouldNotIncludeStaticPropsInComparison()
+            {
+                // Arrange
+                var data = new HasAStaticProp()
+                {
+                    Name = GetRandomString()
+                };
+                HasAStaticProp.Id = 123;
+                var sut = Create(data, new { data.Name, Id = 123 });
+
+                // Act
+                var result = sut.AreDeepEqual();
+
+                // Assert
+                Expect(result)
+                    .To.Be.False();
+            }
+
+            public class HasAStaticProp
+            {
+                public static int Id { get; set; }
+                public string Name { get; set; }
             }
         }
 

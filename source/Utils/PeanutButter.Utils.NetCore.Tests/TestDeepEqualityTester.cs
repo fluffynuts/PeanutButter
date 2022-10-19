@@ -5,6 +5,7 @@ using NUnit.Framework;
 using NExpect;
 using PeanutButter.TestUtils.AspNetCore.Builders;
 using static NExpect.Expectations;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.Utils.NetCore.Tests
 {
@@ -135,6 +136,31 @@ namespace PeanutButter.Utils.NetCore.Tests
             // Assert
             Expect(result)
                 .To.Be.False();
+        }
+
+        [Test]
+        public void ShouldNotIncludeStaticPropsInComparison()
+        {
+            // Arrange
+            var data = new HasAStaticProp()
+            {
+                Name = GetRandomString()
+            };
+            HasAStaticProp.Id = 123;
+            var sut = Create(data, new { data.Name, Id = 123 });
+
+            // Act
+            var result = sut.AreDeepEqual();
+            
+            // Assert
+            Expect(result)
+                .To.Be.False();
+        }
+
+        public class HasAStaticProp
+        {
+            public static int Id { get; set; }
+            public string Name { get; set; }
         }
 
 

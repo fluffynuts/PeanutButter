@@ -761,7 +761,7 @@ Imported.PeanutButter.Utils
         {
             var props = sourceType
 #if NETSTANDARD
-                .GetRuntimeProperties().Where(pi => pi.GetAccessors().Any(a => a.IsPublic)).ToArray()
+                .GetRuntimeProperties().Where(pi => pi.GetAccessors().Any(a => a.IsPublic && !a.IsStatic)).ToArray()
 #else
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
 #endif
