@@ -518,6 +518,17 @@ via builder methods. If you're providing your own RequestServices, you'll have t
     }
 
     /// <summary>
+    /// Set a request cookie
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public HttpContextBuilder WithRequestCookie(string key, string value)
+    {
+        return WithRequestMutator(req => req.Cookies.As<FakeRequestCookieCollection>()[key] = value);
+    }
+
+    /// <summary>
     /// Set a response header
     /// </summary>
     /// <param name="key"></param>

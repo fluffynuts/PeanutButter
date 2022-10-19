@@ -646,6 +646,22 @@ public class TestHttpContextBuilder
         }
 
         [Test]
+        public void ShouldBeAbleToEasilySetARequestCookie()
+        {
+            // Arrange
+            var key = GetRandomString();
+            var value = GetRandomString();
+            // Act
+            var result = HttpContextBuilder.Create()
+                .WithRequestCookie(key, value)
+                .Build();
+            // Assert
+            Expect(result.Request.Cookies)
+                .To.Contain.Key(key)
+                .With.Value(value);
+        }
+
+        [Test]
         public void ShouldBeAbleToSetResponseHeader()
         {
             // Arrange
