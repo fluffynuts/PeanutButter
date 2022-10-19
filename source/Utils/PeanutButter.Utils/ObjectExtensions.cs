@@ -812,6 +812,18 @@ namespace PeanutButter.Utils
             return new[] { input };
         }
 
+        /// <summary>
+        /// Fluency extension to wrap a single item in a list, eg:
+        /// new SomeBusinessObject().InList().Union(SomeOtherCollection);
+        /// </summary>
+        /// <param name="input">The item to wrap</param>
+        /// <typeparam name="T">The type of the object</typeparam>
+        /// <returns>A single-element list containing the input object</returns>
+        public static IList<T> InList<T>(this T input)
+        {
+            return new List<T>() { input };
+        }
+
         private static T ResolvePropertyValueFor<T>(
             object src,
             string propertyPath,

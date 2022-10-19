@@ -2096,10 +2096,10 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
-        public class AsArray
+        public class InArray
         {
             [Test]
-            public void AsArray_ShouldWrapObjectInArray()
+            public void ShouldWrapObjectInArray()
             {
                 //---------------Set up test pack-------------------
                 var sut = new object();
@@ -2107,12 +2107,29 @@ namespace PeanutButter.Utils.Tests
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                var result = sut.AsArray();
+                var result = sut.InArray();
 
                 //---------------Test Result -----------------------
                 Assert.IsNotNull(result);
                 CollectionAssert.IsNotEmpty(result);
                 Assert.AreEqual(sut, result.Single());
+            }
+        }
+
+        [TestFixture]
+        public class InList
+        {
+            [Test]
+            public void ShouldWrapObjectInList()
+            {
+                // Arrange
+                var sut = new object();
+                // Act
+                var result = sut.InList();
+                // Assert
+                Expect(result)
+                    .To.Contain.Only(1)
+                    .Matched.By(o => ReferenceEquals(o, sut));
             }
         }
 
