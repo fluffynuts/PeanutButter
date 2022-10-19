@@ -819,7 +819,7 @@ namespace PeanutButter.Utils
         /// <param name="input">The item to wrap</param>
         /// <typeparam name="T">The type of the object</typeparam>
         /// <returns>A single-element list containing the input object</returns>
-        public static IList<T> InList<T>(this T input)
+        public static List<T> InList<T>(this T input)
         {
             return new List<T>() { input };
         }
