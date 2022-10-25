@@ -1295,6 +1295,47 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
+        /// Test if the provided type is decorated with [TAttribute],
+        /// applying inheritance and the provided matcher
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="matcher"></param>
+        /// <typeparam name="TAttribute"></typeparam>
+        /// <returns></returns>
+        public static bool HasAttribute<TAttribute>(
+            this Type type,
+            Func<TAttribute, bool> matcher
+        )
+        {
+            return type.HasAttribute(
+                inherit: true,
+                matcher
+            );
+        }
+
+        /// <summary>
+        /// Test if the provided type is decorated with [TAttribute],
+        /// applying optional inheritance and the provided matcher
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="inherit"></param>
+        /// <param name="matcher"></param>
+        /// <typeparam name="TAttribute"></typeparam>
+        /// <returns></returns>
+        public static bool HasAttribute<TAttribute>(
+            this Type type,
+            bool inherit,
+            Func<TAttribute, bool> matcher
+        )
+        {
+            return type.HasAttribute(
+                typeof(TAttribute),
+                inherit,
+                a => a is TAttribute attr && matcher(attr)
+            );
+        }
+
+        /// <summary>
         /// Tests if a provided type is decorated with the attribute
         /// of type attributeType, including base types when enabled
         /// </summary>
@@ -1324,16 +1365,42 @@ namespace PeanutButter.Utils
             bool inherit
         )
         {
-            var key = Tuple.Create(type, attributeType, inherit);
-            return TypeAttributeCache.GetOrAdd(
-                key,
-                _ => type
-                    .GetCustomAttributes(inherit)
-                    .Any(a => a?.GetType() == attributeType)
+            return type.HasAttribute(
+                attributeType,
+                inherit,
+                AcceptAll
             );
         }
 
-        private static readonly ConcurrentDictionary<Tuple<Type, Type, bool>, bool> TypeAttributeCache = new();
+        /// <summary>
+        /// Tests if a provided type is decorated with the attribute
+        /// of type attributeType, including base types when enabled
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="attributeType"></param>
+        /// <param name="inherit"></param>
+        /// <param name="matcher"></param>
+        /// <returns></returns>
+        public static bool HasAttribute(
+            this Type type,
+            Type attributeType,
+            bool inherit,
+            Func<Attribute, bool> matcher
+        )
+        {
+            var key = Tuple.Create(type, attributeType, inherit);
+            var attributes = TypeAttributeCache.GetOrAdd(
+                key,
+                _ => type
+                    .GetCustomAttributes(inherit)
+                    .Where(a => a?.GetType() == attributeType)
+                    .Cast<Attribute>()
+                    .ToArray()
+            );
+            return attributes.Any(matcher);
+        }
+
+        private static readonly ConcurrentDictionary<Tuple<Type, Type, bool>, Attribute[]> TypeAttributeCache = new();
 
         /// <summary>
         /// Tests if the method (or any overridden base method)
@@ -1350,6 +1417,26 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
+        /// Tests if the method (or any overridden base method)
+        /// is decorated with [TAttribute]
+        /// </summary>
+        /// <param name="methodInfo"></param>
+        /// <param name="matcher"></param>
+        /// <typeparam name="TAttribute"></typeparam>
+        /// <returns></returns>
+        public static bool HasAttribute<TAttribute>(
+            this MethodInfo methodInfo,
+            Func<TAttribute, bool> matcher
+        ) where TAttribute : Attribute
+        {
+            return methodInfo.HasAttribute(
+                typeof(TAttribute),
+                true,
+                a => a is TAttribute attr && matcher(attr)
+            );
+        }
+
+        /// <summary>
         /// Tests if the method is decorated with [TAttribute],
         /// including inheritance when enabled
         /// </summary>
@@ -1362,7 +1449,107 @@ namespace PeanutButter.Utils
             bool inherit
         ) where TAttribute : Attribute
         {
-            return methodInfo.HasAttribute(typeof(TAttribute), inherit);
+            return methodInfo.HasAttribute<TAttribute>(
+                inherit,
+                AcceptAll
+            );
+        }
+
+        /// <summary>
+        /// Tests if the method is decorated with [TAttribute],
+        /// including inheritance when enabled
+        /// </summary>
+        /// <param name="methodInfo"></param>
+        /// <param name="inherit"></param>
+        /// <param name="matcher"></param>
+        /// <typeparam name="TAttribute"></typeparam>
+        /// <returns></returns>
+        public static bool HasAttribute<TAttribute>(
+            this MethodInfo methodInfo,
+            bool inherit,
+            Func<TAttribute, bool> matcher
+        ) where TAttribute : Attribute
+        {
+            return methodInfo.HasAttribute(
+                typeof(TAttribute),
+                inherit,
+                a => a is TAttribute attr && matcher(attr)
+            );
+        }
+
+        /// <summary>
+        /// Tests if the provided ParameterInfo is decorated with
+        /// [TAttribute]
+        /// </summary>
+        /// <param name="parameterInfo"></param>
+        /// <typeparam name="TAttribute"></typeparam>
+        /// <returns></returns>
+        public static bool HasAttribute<TAttribute>(
+            this ParameterInfo parameterInfo
+        ) where TAttribute : Attribute
+        {
+            return parameterInfo.HasAttribute<TAttribute>(
+                AcceptAll
+            );
+        }
+
+        /// <summary>
+        /// Tests if the provided ParameterInfo is decorated with
+        /// [TAttribute], validating the attribute with the provided
+        /// matcher
+        /// </summary>
+        /// <param name="parameterInfo"></param>
+        /// <param name="matcher"></param>
+        /// <typeparam name="TAttribute"></typeparam>
+        /// <returns></returns>
+        public static bool HasAttribute<TAttribute>(
+            this ParameterInfo parameterInfo,
+            Func<TAttribute, bool> matcher
+        ) where TAttribute : Attribute
+        {
+            return parameterInfo.HasAttribute(
+                typeof(TAttribute),
+                attr => attr is TAttribute typeMatch && matcher(typeMatch)
+            );
+        }
+
+        /// <summary>
+        /// Tests if the provided ParameterInfo has been decorated
+        /// with an attribute of the given type, passing the provided matcher
+        /// </summary>
+        /// <param name="parameterInfo"></param>
+        /// <param name="attributeType"></param>
+        /// <returns></returns>
+        public static bool HasAttribute(
+            this ParameterInfo parameterInfo,
+            Type attributeType
+        )
+        {
+            return parameterInfo.HasAttribute(
+                attributeType,
+                AcceptAll
+            );
+        }
+
+        /// <summary>
+        /// Tests if the provided ParameterInfo has been decorated
+        /// with an attribute of the given type, passing the provided matcher
+        /// </summary>
+        /// <param name="parameterInfo"></param>
+        /// <param name="attributeType"></param>
+        /// <param name="matcher"></param>
+        /// <returns></returns>
+        public static bool HasAttribute(
+            this ParameterInfo parameterInfo,
+            Type attributeType,
+            Func<Attribute, bool> matcher
+        )
+        {
+            return parameterInfo.GetCustomAttributes()
+                .Any(a => a is { } attr &&
+                    a.GetType() == attributeType &&
+                    matcher(attr)
+                );
         }
 
         /// <summary>
@@ -1379,15 +1566,47 @@ namespace PeanutButter.Utils
             bool inherit
         )
         {
-            var key = Tuple.Create(methodInfo, attributeType, inherit);
-            return MethodAttributeCache.GetOrAdd(
-                key,
-                _ => methodInfo.GetCustomAttributes(inherit)
-                    .Any(a => a?.GetType() == attributeType)
+            return methodInfo.HasAttribute(
+                attributeType,
+                inherit,
+                AcceptAll
             );
         }
 
-        private static readonly ConcurrentDictionary<Tuple<MethodInfo, Type, bool>, bool> MethodAttributeCache = new();
+        private static bool AcceptAll<T>(T _)
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// Tests if a provided method is decorated with the attribute
+        /// of type attributeType, including inheritance when enabled
+        /// </summary>
+        /// <param name="methodInfo"></param>
+        /// <param name="attributeType"></param>
+        /// <param name="inherit"></param>
+        /// <param name="matcher"></param>
+        /// <returns></returns>
+        public static bool HasAttribute(
+            this MethodInfo methodInfo,
+            Type attributeType,
+            bool inherit,
+            Func<Attribute, bool> matcher
+        )
+        {
+            var key = Tuple.Create(methodInfo, attributeType, inherit);
+            var attributes = MethodAttributeCache.GetOrAdd(
+                key,
+                _ => methodInfo.GetCustomAttributes(inherit)
+                    .Where(a => a is Attribute attr &&
+                        attr.GetType() == attributeType
+                    ).Cast<Attribute>().ToArray()
+            );
+            return attributes.Any(matcher);
+        }
+
+        private static readonly ConcurrentDictionary<Tuple<MethodInfo, Type, bool>, Attribute[]> MethodAttributeCache =
+            new();
 
         /// <summary>
         /// Tests if the property (or base property that is overridden)
@@ -1417,7 +1636,33 @@ namespace PeanutButter.Utils
             bool inherit
         ) where TAttribute : Attribute
         {
-            return propertyInfo.HasAttribute(typeof(TAttribute), inherit);
+            return propertyInfo.HasAttribute<TAttribute>(
+                inherit,
+                AcceptAll
+            );
+        }
+
+        /// <summary>
+        /// Tests if the property is decorated with [TAttribute],
+        /// directly specifying whether or not to inherit attributes
+        /// from base members
+        /// </summary>
+        /// <param name="propertyInfo"></param>
+        /// <param name="inherit"></param>
+        /// <param name="matcher"></param>
+        /// <typeparam name="TAttribute"></typeparam>
+        /// <returns></returns>
+        public static bool HasAttribute<TAttribute>(
+            this PropertyInfo propertyInfo,
+            bool inherit,
+            Func<TAttribute, bool> matcher
+        ) where TAttribute : Attribute
+        {
+            return propertyInfo.HasAttribute(
+                typeof(TAttribute),
+                inherit,
+                a => a is TAttribute matchedType && matcher(matchedType)
+            );
         }
 
         /// <summary>
@@ -1433,19 +1678,50 @@ namespace PeanutButter.Utils
             bool inherit
         )
         {
+            return propertyInfo.HasAttribute(
+                attributeType,
+                inherit,
+                AcceptAll
+            );
+        }
+
+        /// <summary>
+        /// Tests if the property is decorated with [TAttribute]
+        /// </summary>
+        /// <param name="propertyInfo"></param>
+        /// <param name="attributeType"></param>
+        /// <param name="inherit"></param>
+        /// <param name="matcher"></param>
+        /// <returns></returns>
+        public static bool HasAttribute(
+            this PropertyInfo propertyInfo,
+            Type attributeType,
+            bool inherit,
+            Func<Attribute, bool> matcher
+        )
+        {
             var key = Tuple.Create(propertyInfo, attributeType, inherit);
-            return PropertyAttributeCache.GetOrAdd(
+            var attributes = PropertyAttributeCache.GetOrAdd(
                 key,
                 // see: https://github.com/dotnet/runtime/issues/74149
                 _ => inherit
                     ? propertyInfo.GetCustomAttributes()
-                        .Any(a => a?.GetType() == attributeType)
+                        .Where(
+                            a => a is { } attr &&
+                                attr.GetType() == attributeType
+                        ).ToArray()
                     : propertyInfo.GetCustomAttributes(false)
-                        .Any(a => a?.GetType() == attributeType));
+                        .Where(a =>
+                            a is Attribute attr &&
+                            attr.GetType() == attributeType
+                        ).Cast<Attribute>().ToArray()
+            );
+            return attributes.Any(matcher);
         }
 
-        private static readonly ConcurrentDictionary<Tuple<PropertyInfo, Type, bool>, bool> PropertyAttributeCache =
-            new();
+        private static readonly ConcurrentDictionary<Tuple<PropertyInfo, Type, bool>, Attribute[]>
+            PropertyAttributeCache =
+                new();
 
         /// <summary>
         /// Returns true if the type is compiler-generated

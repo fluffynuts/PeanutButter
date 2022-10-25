@@ -233,7 +233,7 @@ namespace PeanutButter.Utils.Tests
 
                         // Act
                         var result = derivedType.Inherits(baseType);
-                        
+
                         // Assert
                         Expect(result)
                             .To.Be.True();
@@ -248,7 +248,7 @@ namespace PeanutButter.Utils.Tests
 
                         // Act
                         var result = derivedType.Inherits(baseType);
-                        
+
                         // Assert
                         Expect(result)
                             .To.Be.False();
@@ -263,7 +263,7 @@ namespace PeanutButter.Utils.Tests
 
                         // Act
                         var result = derivedType.Inherits(baseType);
-                        
+
                         // Assert
                         Expect(result)
                             .To.Be.False();
@@ -275,7 +275,7 @@ namespace PeanutButter.Utils.Tests
             {
             }
 
-            public class DerivedGenericType<T>: BaseGenericType<T>
+            public class DerivedGenericType<T> : BaseGenericType<T>
             {
             }
 
@@ -808,7 +808,7 @@ namespace PeanutButter.Utils.Tests
             {
                 // Arrange
                 var sut = typeof(Concrete<int>);
-                
+
                 // Act
                 var result = sut.Implements(typeof(IContract<string>));
                 // Assert
@@ -1045,48 +1045,65 @@ namespace PeanutButter.Utils.Tests
         {
             public class ClassAttribute : Attribute
             {
+                public string Name { get; set; }
             }
 
             public class BaseClassAttribute : Attribute
             {
+                public int Id { get; set; }
             }
 
             public class MethodAttribute : Attribute
             {
+                public string Name { get; set; }
             }
 
             public class BaseMethodAttribute : Attribute
             {
+                public int Id { get; set; }
             }
 
             public class PropertyAttribute : Attribute
             {
+                public string Name { get; set; }
             }
 
             public class BasePropertyAttribute : Attribute
             {
             }
 
-            [BaseClass]
+            public class ParameterAttribute : Attribute
+            {
+                public string Name { get; set; }
+            }
+
+            [BaseClass(Id = 1024)]
             public abstract class TestClassBase
             {
                 [BaseProperty]
                 public virtual int Id { get; set; }
 
-                [BaseMethod]
+                [BaseMethod(Id = 123)]
                 public virtual void DoNothing()
                 {
                 }
             }
 
-            [Class]
+            [Class(Name = "Test Class")]
             public class TestClass : TestClassBase
             {
-                [Property]
+                [Property(Name = "Id")]
                 public override int Id { get; set; }
 
-                [Method]
+                [Method(Name = "Do Nothing")]
                 public override void DoNothing()
+                {
+                }
+
+                public void DoLess(
+                    [Parameter(Name = "foo")] int foo,
+                    string bar
+                )
                 {
                 }
             }
@@ -1106,6 +1123,21 @@ namespace PeanutButter.Utils.Tests
                         .To.Be.False();
                     Expect(sut.HasAttribute<MethodAttribute>())
                         .To.Be.False();
+                    // Assert
+                }
+
+                [Test]
+                public void ShouldFindAttributeWithMatcher()
+                {
+                    // Arrange
+                    var sut = typeof(TestClass);
+                    // Act
+                    Expect(
+                            sut.HasAttribute<ClassAttribute>(
+                                o => o.Name == "Test Class"
+                            )
+                        )
+                        .To.Be.True();
                     // Assert
                 }
 
@@ -1155,6 +1187,47 @@ namespace PeanutButter.Utils.Tests
                         .To.Be.False();
                     // Assert
                 }
+
+                [Test]
+                public void ShouldFindBaseMethodAttributeWithMatcher()
+                {
+                    // Arrange
+                    var sut = typeof(TestClass)
+                        .GetMethod(nameof(TestClass.DoNothing));
+                    // Act
+                    Expect(sut.HasAttribute<BaseMethodAttribute>(
+                            inherit: true,
+                            a => a.Id == 123
+                        )
+                    ).To.Be.True();
+                    Expect(sut.HasAttribute<BaseMethodAttribute>(
+                            a => a.Id == 123
+                        )
+                    ).To.Be.True();
+                    Expect(sut.HasAttribute<BaseMethodAttribute>(false))
+                        .To.Be.False();
+                    // Assert
+                }
+
+                [Test]
+                public void ShouldFindByMatcher()
+                {
+                    // Arrange
+                    var sut = typeof(TestClass)
+                        .GetMethod(nameof(TestClass.DoNothing));
+                    // Act
+                    Expect(sut.HasAttribute<MethodAttribute>(
+                            inherit: true,
+                            a => a.Name == "Do Nothing"
+                        )
+                    ).To.Be.True();
+                    Expect(sut.HasAttribute<MethodAttribute>(
+                            inherit: true,
+                            a => a.Name == "Do Something"
+                        )
+                    ).To.Be.False();
+                    // Assert
+                }
             }
 
             [TestFixture]
@@ -1188,6 +1261,68 @@ namespace PeanutButter.Utils.Tests
                         .To.Be.True();
                     Expect(sut.HasAttribute<BasePropertyAttribute>(false))
                         .To.Be.False();
+                    // Assert
+                }
+
+                [Test]
+                public void ShouldMatchAttributeWithMatcher()
+                {
+                    // Arrange
+                    var prop = typeof(TestClass)
+                        .GetProperty("Id");
+                    // Act
+                    Expect(
+                        prop.HasAttribute<PropertyAttribute>(
+                            inherit: true,
+                            a => a.Name == "Id"
+                        )
+                    ).To.Be.True();
+                    Expect(
+                        prop.HasAttribute<PropertyAttribute>(
+                            inherit: true,
+                            a => a.Name == "Name"
+                        )
+                    ).To.Be.False();
+                    // Assert
+                }
+            }
+
+            [TestFixture]
+            public class OperatingOnMethodParameter
+            {
+                [Test]
+                public void ShouldFindAttributeWhenPresent()
+                {
+                    // Arrange
+                    var methodInfo = typeof(TestClass)
+                        .GetMethod(nameof(TestClass.DoLess));
+                    var parameters = methodInfo!.GetParameters();
+                    // Act
+                    Expect(parameters[0].HasAttribute<ParameterAttribute>())
+                        .To.Be.True();
+                    Expect(parameters[1].HasAttribute<ParameterAttribute>())
+                        .To.Be.False();
+                    // Assert
+                }
+
+                [Test]
+                public void ShouldBeAbleToMatchByAttributeProps()
+                {
+                    // Arrange
+                    var methodInfo = typeof(TestClass)
+                        .GetMethod(nameof(TestClass.DoLess));
+                    var first = methodInfo!.GetParameters().First();
+                    // Act
+                    Expect(
+                        first.HasAttribute<ParameterAttribute>(
+                            a => a.Name == "foo"
+                        )
+                    ).To.Be.True();
+                    Expect(
+                        first.HasAttribute<ParameterAttribute>(
+                            a => a.Name == "bar"
+                        )
+                    ).To.Be.False();
                     // Assert
                 }
             }
