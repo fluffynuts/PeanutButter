@@ -1392,7 +1392,12 @@ namespace PeanutButter.Utils
                 PathType.Unix => "/",
                 _ => throw new NotImplementedException($"path type {pathType} is not catered for")
             };
-            return string.Join(delimiter, parts);
+            var normalised = parts.Select(
+                    p => p.SplitPath()
+                )
+                .SelectMany(o => o)
+                .ToArray();
+            return string.Join(delimiter, normalised);
         }
     }
 
@@ -1405,10 +1410,12 @@ namespace PeanutButter.Utils
         /// Select the path type for the current platform
         /// </summary>
         Auto,
+
         /// <summary>
         /// Unix path type, delimited by /
         /// </summary>
         Unix,
+
         /// <summary>
         /// Windows path type, delimited by \\
         /// </summary>

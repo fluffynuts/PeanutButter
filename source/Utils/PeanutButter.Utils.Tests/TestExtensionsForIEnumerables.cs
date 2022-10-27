@@ -2521,6 +2521,20 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            public void ShouldUnifyPathDelimiters()
+            {
+                // Arrange
+                var basePath = "C:/foo/bar";
+                var addPath = "moo\\quux";
+                var expected = "C:/foo/bar/moo/quux";
+                // Act
+                var result = new[] { basePath, addPath }.JoinPath(PathType.Unix);
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+
+            [Test]
             public void ShouldThrowForNull()
             {
                 // Arrange
