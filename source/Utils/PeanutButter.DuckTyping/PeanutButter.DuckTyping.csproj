@@ -63,6 +63,7 @@
     <Compile Include="..\PeanutButter.Utils\Dictionaries\DictionaryWrappingNameValueCollection.cs" Link="Imported\DictionaryWrappingNameValueCollection.cs" />
     <Compile Include="..\PeanutButter.Utils\Dictionaries\RedirectingDictionary.cs" Link="Imported\RedirectingDictionary.cs" />
     <Compile Include="..\PeanutButter.Utils\Dictionaries\DictionaryWrappingConnectionStringSettingCollection.cs" Link="Imported\DictionaryWrappingConnectionStringSettingCollection.cs" />
+    <Compile Include="..\PeanutButter.Utils\Platform.cs" Link="Imported\Platform.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Imported\" />

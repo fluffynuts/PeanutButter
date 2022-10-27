@@ -1467,7 +1467,13 @@ namespace PeanutButter.Utils
             Regex regex
         )
         {
+            if (str is null)
+            {
+                return Array.Empty<string>();
+            }
+
             return regex.Split(str);
         }
+
     }
 }

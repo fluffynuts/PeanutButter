@@ -2463,6 +2463,7 @@ namespace PeanutButter.Utils.Tests
                         .To.Equal(1);
                     Expect(result)
                         .To.Equal(collection);
+
                     IEnumerable<int> GenerateNumbers()
                     {
                         enumerated++;
@@ -2472,6 +2473,62 @@ namespace PeanutButter.Utils.Tests
                         }
                     }
                 }
+            }
+        }
+
+        [TestFixture]
+        public class JoinPath
+        {
+            [Test]
+            public void ShouldJoinWindowsPathOnDemand()
+            {
+                // Arrange
+                var items = GetRandomArray<string>(3);
+                var expected = string.Join("\\", items);
+                // Act
+                var result = items.JoinPath(PathType.Windows);
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+
+            [Test]
+            public void ShouldJoinUnixPathOnDemand()
+            {
+                // Arrange
+                var items = GetRandomArray<string>(3);
+                var expected = string.Join("/", items);
+                // Act
+                var result = items.JoinPath(PathType.Unix);
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+
+            [Test]
+            public void ShouldJoinBasedOnEnvironmentByDefault()
+            {
+                // Arrange
+                var items = GetRandomArray<string>(3);
+                var expected = Platform.IsUnixy
+                    ? string.Join("/", items)
+                    : string.Join("\\", items);
+                // Act
+                var result = items.JoinPath(PathType.Windows);
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+
+            [Test]
+            public void ShouldThrowForNull()
+            {
+                // Arrange
+                // Act
+                Expect(() => (null as string[]).JoinPath())
+                    .To.Throw<ArgumentNullException>()
+                    .For("parts");
+                // Assert
             }
         }
     }

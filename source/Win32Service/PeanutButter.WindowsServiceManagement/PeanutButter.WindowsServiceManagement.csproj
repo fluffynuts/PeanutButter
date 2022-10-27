@@ -43,6 +43,7 @@
     <Compile Include="..\..\Utils\PeanutButter.Utils\ArrayExtensions.cs" Link="Imported\ArrayExtensions.cs" />
     <Compile Include="..\..\Utils\PeanutButter.Utils\EnumerableWrapper.cs" Link="Imported\EnumerableWrapper.cs" />
     <Compile Include="..\..\Utils\PeanutButter.Utils\Stringifier.cs" Link="Imported\Stringifier.cs" />
+    <Compile Include="..\..\Utils\PeanutButter.Utils\Platform.cs" Link="Imported\Platform.cs" />
     <Compile Include="..\..\Utils\PeanutButter.Utils\TypeExtensions.cs" Link="Imported\TypeExtensions.cs" />
     <Compile Include="..\..\Utils\PeanutButter.Utils\CannotZipNullException.cs" Link="Imported\CannotZipNullException.cs" />
     <Compile Include="..\..\Utils\PeanutButter.Utils\UnevenZipException.cs" Link="Imported\UnevenZipException.cs" />

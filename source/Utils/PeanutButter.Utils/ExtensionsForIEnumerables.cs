@@ -1352,8 +1352,66 @@ namespace PeanutButter.Utils
                 {
                     continue;
                 }
+
                 yield return value;
             }
         }
+
+        /// <summary>
+        /// Join the parts into a path for the current platform
+        /// </summary>
+        /// <param name="parts"></param>
+        /// <returns></returns>
+        public static string JoinPath(
+            this IEnumerable<string> parts
+        )
+        {
+            return parts.JoinPath(PathType.Auto);
+        }
+
+        /// <summary>
+        /// Join the parts into a path for the specified platform
+        /// </summary>
+        /// <param name="parts"></param>
+        /// <param name="pathType"></param>
+        /// <returns></returns>
+        public static string JoinPath(
+            this IEnumerable<string> parts,
+            PathType pathType
+        )
+        {
+            if (parts is null)
+            {
+                throw new ArgumentNullException(nameof(parts));
+            }
+
+            var delimiter = pathType switch
+            {
+                PathType.Auto => Platform.IsUnixy ? "/" : "\\",
+                PathType.Windows => "\\",
+                PathType.Unix => "/",
+                _ => throw new NotImplementedException($"path type {pathType} is not catered for")
+            };
+            return string.Join(delimiter, parts);
+        }
+    }
+
+    /// <summary>
+    /// Specifies the kind of path required when joining collections of strings to form a path
+    /// </summary>
+    public enum PathType
+    {
+        /// <summary>
+        /// Select the path type for the current platform
+        /// </summary>
+        Auto,
+        /// <summary>
+        /// Unix path type, delimited by /
+        /// </summary>
+        Unix,
+        /// <summary>
+        /// Windows path type, delimited by \\
+        /// </summary>
+        Windows
     }
 }
