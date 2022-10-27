@@ -1475,5 +1475,92 @@ namespace PeanutButter.Utils
             return regex.Split(str);
         }
 
+        /// <summary>
+        /// Determine the relative path from the string being operated on
+        /// to the one passed in. Eg, if operating on the path
+        /// '/foo/bar', provided '/foo', the result is 'bar'
+        /// The aim is to provide a C# analogue to Node's path.relative(...)
+        /// Paths are treated automatically via this overload:
+        /// - split on any path delimiter (/ or \)
+        /// - compared case-insensitive on windows, case-sensitive elsewhere
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="basePath"></param>
+        /// <returns></returns>
+        public static string RelativeTo(
+            this string path,
+            string basePath
+        )
+        {
+            return path.RelativeTo(basePath, PathType.Auto);
+        }
+
+        /// <summary>
+        /// Determine the relative path from the string being operated on
+        /// to the one passed in. Eg, if operating on the path
+        /// '/foo/bar', provided '/foo', the result is 'bar'
+        /// The aim is to provide a C# analogue to Node's path.relative(...)
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="basePath"></param>
+        /// <param name="pathType"></param>
+        /// <returns></returns>
+        public static string RelativeTo(
+            this string path,
+            string basePath,
+            PathType pathType
+        )
+        {
+            if (path is null)
+            {
+                throw new ArgumentNullException(nameof(path));
+            }
+
+            if (basePath is null)
+            {
+                throw new ArgumentNullException(nameof(basePath));
+            }
+
+            var compare = pathType == PathType.Windows
+                ? StringComparison.OrdinalIgnoreCase
+                : StringComparison.Ordinal;
+            if (path.Equals(basePath, compare))
+            {
+                return string.Empty;
+            }
+
+            var result = new List<string>();
+            var pathParts = path.SplitPath();
+            var baseParts = basePath.SplitPath();
+            var end = Math.Max(pathParts.Length, baseParts.Length);
+            var matching = true;
+
+            for (var i = 0; i < end; i++)
+            {
+                if (i >= pathParts.Length)
+                {
+                    result.Insert(0, "..");
+                }
+                else if (i >= baseParts.Length)
+                {
+                    result.Add(pathParts[i]);
+                }
+                else
+                {
+                    matching = matching && pathParts[i].Equals(baseParts[i], compare);
+                    if (matching)
+                    {
+                        continue;
+                    }
+
+                    result.Insert(0, "..");
+                    result.Add(pathParts[i]);
+                }
+            }
+
+
+            return result.JoinPath(pathType);
+        }
+
     }
 }

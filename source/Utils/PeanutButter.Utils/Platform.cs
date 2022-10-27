@@ -55,5 +55,10 @@ namespace PeanutButter.Utils
         /// on a 64-bit machine...
         /// </summary>
         public static bool Is32Bit => IntPtr.Size == 4;
+        
+        /// <summary>
+        /// Provide the default path delimiter on this platform
+        /// </summary>
+        public static string PathDelimiter => IsUnixy ? "/" : "\\";
     }
 }

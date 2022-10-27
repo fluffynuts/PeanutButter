@@ -1387,7 +1387,7 @@ namespace PeanutButter.Utils
 
             var delimiter = pathType switch
             {
-                PathType.Auto => Platform.IsUnixy ? "/" : "\\",
+                PathType.Auto => Platform.PathDelimiter,
                 PathType.Windows => "\\",
                 PathType.Unix => "/",
                 _ => throw new NotImplementedException($"path type {pathType} is not catered for")

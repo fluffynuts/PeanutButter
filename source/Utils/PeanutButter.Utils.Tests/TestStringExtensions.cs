@@ -2206,5 +2206,128 @@ function foo() {
             }
         }
 
+        [TestFixture]
+        public class RelativeTo
+        {
+            [TestFixture]
+            public class GivenTheSamePath
+            {
+                [Test]
+                public void ShouldReturnEmptyString()
+                {
+                    // Arrange
+                    var path = GetRandomAbsolutePath();
+                    // Act
+                    var result = path.RelativeTo(path);
+                    // Assert
+                    Expect(result)
+                        .To.Equal("");
+                }
+            }
+
+            [TestFixture]
+            public class GivenAParentFolder
+            {
+                [Test]
+                public void ShouldReturnOnlyTheChildPart()
+                {
+                    // Arrange
+                    var path = "/foo/bar/quux";
+                    var test = "/foo/bar";
+                    // Act
+                    var result = path.RelativeTo(test);
+                    // Assert
+                    Expect(result)
+                        .To.Equal("quux");
+                }
+            }
+
+            [TestFixture]
+            public class GivenAnAncestorFolder
+            {
+                [Test]
+                public void ShouldReturnTheFullRelativeChildPath()
+                {
+                    // Arrange
+                    var path = "/foo/bar/quux";
+                    var test = "/foo";
+                    // Act
+                    var result = path.RelativeTo(
+                        test,
+                        PathType.Unix // just to make the test deterministic
+                    );
+                    // Assert
+                    Expect(result)
+                        .To.Equal("bar/quux");
+                }
+            }
+
+            [TestFixture]
+            public class GivenAChildPath
+            {
+                [Test]
+                public void ShouldReturnTheRelativeDottedPath()
+                {
+                    // Arrange
+                    var path = "/foo";
+                    var test = "/foo/bar/quux";
+                    // Act
+                    var result = path.RelativeTo(
+                        test,
+                        PathType.Unix
+                    );
+                    // Assert
+                    Expect(result)
+                        .To.Equal("../..");
+                }
+            }
+
+            [TestFixture]
+            public class GivenDivergentBranches
+            {
+                [Test]
+                public void ShouldReturnTheRelativeDottedPath()
+                {
+                    // Arrange
+                    var path = "/foo/bar";
+                    var test = "/foo/quux";
+                    // Act
+                    var result = path.RelativeTo(test, PathType.Unix);
+                    // Assert
+                    Expect(result)
+                        .To.Equal("../bar");
+                }
+            }
+
+            [TestFixture]
+            public class RealWorld
+            {
+                [Test]
+                public void ShouldProduceRelativePathFromWwwRoot()
+                {
+                    // Arrange
+                    var wwwroot = "C:\\projects\\webby-web\\mvc\\wwwroot";
+                    var scriptPath = $"{wwwroot}\\Content\\Scripts\\Moo.js";
+                    // Act
+                    var result = scriptPath.RelativeTo(wwwroot, PathType.Windows);
+                    // Assert
+                    Expect(result)
+                        .To.Equal("Content\\Scripts\\Moo.js");
+                }
+
+                [Test]
+                public void ShouldProduceRelativePathFromWwwRootMixedTypes()
+                {
+                    // Arrange
+                    var wwwroot = "C:\\projects\\webby-web\\mvc\\wwwroot";
+                    var scriptPath = $"{wwwroot}\\Content/Scripts/Moo.js";
+                    // Act
+                    var result = scriptPath.RelativeTo(wwwroot, PathType.Windows);
+                    // Assert
+                    Expect(result)
+                        .To.Equal("Content\\Scripts\\Moo.js");
+                }
+            }
+        }
     }
 }
