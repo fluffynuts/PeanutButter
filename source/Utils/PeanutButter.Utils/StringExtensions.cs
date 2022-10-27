@@ -1405,5 +1405,69 @@ namespace PeanutButter.Utils
             var second = str.Substring(idx + splitOn.Length);
             return new[] { first, second };
         }
+
+        /// <summary>
+        /// Splits a string as if it were a path, treating
+        /// / and \ both as path delimiters
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static string[] SplitPath(
+            this string str
+        )
+        {
+            return str.SplitByRegex(PathSplitRegex);
+        }
+        
+        private static Regex PathSplitRegex =>
+            _pathSplitRegex ??= new Regex("[\\\\|/]", RegexOptions.Compiled);
+        private static Regex _pathSplitRegex;
+
+        /// <summary>
+        /// Split a string by the provided C# regular expression
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="regex"></param>
+        /// <returns></returns>
+        public static string[] SplitByRegex(
+            this string str,
+            string regex
+        )
+        {
+            return str.SplitByRegex(regex, RegexOptions.None);
+        }
+
+        /// <summary>
+        /// Split a string by the provided C# regular expression with
+        /// the provided regex options
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="regex"></param>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        public static string[] SplitByRegex(
+            this string str,
+            string regex,
+            RegexOptions options
+        )
+        {
+            return str.SplitByRegex(
+                new Regex(regex, options)
+            );
+        }
+
+        /// <summary>
+        /// Split a string by the provided Regex
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="regex"></param>
+        /// <returns></returns>
+        public static string[] SplitByRegex(
+            this string str,
+            Regex regex
+        )
+        {
+            return regex.Split(str);
+        }
     }
 }

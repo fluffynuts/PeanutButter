@@ -74,72 +74,80 @@ namespace PeanutButter.Utils.Tests
             }
         }
 
-        [TestCase(null)]
-        [TestCase("")]
-        public void Or_ActingOnString_ShouldReturnOtherStringWhenPrimaryIs_(
-            string value)
+        [TestFixture]
+        public class Or
         {
-            // think equivalent to Javascript:
-            //  var left = null;
-            //  var right = 'foo';
-            //  var empty = '';
-            //  var result = left || right; // result is 'foo'
-            //  var other = empty || right; // result is 'foo'
-            //---------------Set up test pack-------------------
-            string src = null;
-            var other = GetRandomString(1, 20);
+            [TestCase(null)]
+            [TestCase("")]
+            public void ShouldReturnOtherStringWhenPrimaryIs_(
+                string value)
+            {
+                // think equivalent to Javascript:
+                //  var left = null;
+                //  var right = 'foo';
+                //  var empty = '';
+                //  var result = left || right; // result is 'foo'
+                //  var other = empty || right; // result is 'foo'
+                //---------------Set up test pack-------------------
+                string src = null;
+                var other = GetRandomString(1, 20);
 
-            //---------------Assert Precondition----------------
+                //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var result = src.Or(other);
+                //---------------Execute Test ----------------------
+                var result = src.Or(other);
 
-            //---------------Test Result -----------------------
-            Expect(result).To.Equal(other);
+                //---------------Test Result -----------------------
+                Expect(result).To.Equal(other);
+            }
+
+            [Test]
+            public void ShouldChainUntilFirstValidValue()
+            {
+                //---------------Set up test pack-------------------
+                string start = null;
+                var expected = GetRandomString(1, 10);
+                var unexpected = GetRandomString(11, 20);
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = start.Or("").Or(null).Or(expected).Or(unexpected);
+
+                //---------------Test Result -----------------------
+                Expect(result).To.Equal(expected);
+            }
         }
 
-        [Test]
-        public void Or_CanChainUntilFirstValidValue()
+        [TestFixture]
+        public class AsBoolean
         {
-            //---------------Set up test pack-------------------
-            string start = null;
-            var expected = GetRandomString(1, 10);
-            var unexpected = GetRandomString(11, 20);
+            [TestCase("Yes", true)]
+            [TestCase("Y", true)]
+            [TestCase("yes", true)]
+            [TestCase("y", true)]
+            [TestCase("1", true)]
+            [TestCase("True", true)]
+            [TestCase("TRUE", true)]
+            [TestCase("true", true)]
+            [TestCase("", false)]
+            [TestCase(" ", false)]
+            [TestCase("\t", false)]
+            [TestCase(null, false)]
+            public void ShouldResolveToBooleanValue(
+                string input,
+                bool expected)
+            {
+                //---------------Set up test pack-------------------
 
-            //---------------Assert Precondition----------------
+                //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            var result = start.Or("").Or(null).Or(expected).Or(unexpected);
+                //---------------Execute Test ----------------------
+                var result = input.AsBoolean();
 
-            //---------------Test Result -----------------------
-            Expect(result).To.Equal(expected);
-        }
-
-        [TestCase("Yes", true)]
-        [TestCase("Y", true)]
-        [TestCase("yes", true)]
-        [TestCase("y", true)]
-        [TestCase("1", true)]
-        [TestCase("True", true)]
-        [TestCase("TRUE", true)]
-        [TestCase("true", true)]
-        [TestCase("", false)]
-        [TestCase(" ", false)]
-        [TestCase("\t", false)]
-        [TestCase(null, false)]
-        public void AsBoolean_ShouldResolveToBooleanValue(
-            string input,
-            bool expected)
-        {
-            //---------------Set up test pack-------------------
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = input.AsBoolean();
-
-            //---------------Test Result -----------------------
-            Expect(result).To.Equal(expected);
+                //---------------Test Result -----------------------
+                Expect(result).To.Equal(expected);
+            }
         }
 
         [TestFixture]
@@ -2135,5 +2143,50 @@ function foo() {
             }
         }
 
+        [TestFixture]
+        public class SplitPath
+        {
+            [Test]
+            public void ShouldSplitWindowsPath()
+            {
+                // Arrange
+                var expected = GetRandomArray<string>(3);
+                var path = string.Join("\\", expected);
+                // Act
+                var result = path.SplitPath();
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+
+            [Test]
+            public void ShouldSplitByUnixPath()
+            {
+                // Arrange
+                var expected = GetRandomArray<string>(3);
+                var path = string.Join("/", expected);
+                // Act
+                var result = path.SplitPath();
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+
+            [Test]
+            public void ShouldSplitPathWithMixedDelimiters()
+            {
+                // Arrange
+                var expected = GetRandomArray<string>(3, 3);
+                var flag = GetRandomBoolean();
+                var first = flag ? "/" : "\\";
+                var second = flag ? "\\": "/";
+                var path = $"{expected[0]}{first}{expected[1]}{second}{expected[2]}";
+                // Act
+                var result = path.SplitPath();
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+        }
     }
 }
