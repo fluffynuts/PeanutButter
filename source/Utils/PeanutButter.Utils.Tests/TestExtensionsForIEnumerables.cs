@@ -2545,5 +2545,144 @@ namespace PeanutButter.Utils.Tests
                 // Assert
             }
         }
+
+        [TestFixture]
+        public class FilterNulls
+        {
+            [TestFixture]
+            public class GivenNullCollection
+            {
+                [Test]
+                public void ShouldReturnEmptyCollection()
+                {
+                    // Arrange
+                    var collection = null as int?[];
+                    // Act
+                    var result = collection.FilterNulls();
+                    // Assert
+                    Expect(result)
+                        .To.Be.Empty();
+                    Expect(result)
+                        .To.Be.An.Instance.Of<int[]>();
+                }
+            }
+
+            [TestFixture]
+            public class GivenEmptyCollection
+            {
+                [Test]
+                public void ShouldReturnEmptyCollection()
+                {
+                    // Arrange
+                    var collection = new int?[0];
+                    // Act
+                    var result = collection.FilterNulls();
+                    // Assert
+                    Expect(result)
+                        .To.Be.Empty();
+                    Expect(result)
+                        .To.Be.An.Instance.Of<int[]>();
+                }
+            }
+
+            [TestFixture]
+            public class GivenNoNullValues
+            {
+                [Test]
+                public void ShouldReturnAllOriginalValuesNonNullable()
+                {
+                    // Arrange
+                    var collection = new int?[] { 1, 2, 3 };
+                    var expected = new[] { 1, 2, 3 };
+
+                    // Act
+                    var result = collection.FilterNulls();
+
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                    Expect(result)
+                        .To.Be.An.Instance.Of<int[]>();
+                }
+            }
+
+            [TestFixture]
+            public class GivenCollectionWithNullValues
+            {
+                [Test]
+                public void ShouldFilterThemOut()
+                {
+                    // Arrange
+                    var collection = new int?[] { 1, null, 2, 3, null };
+                    var expected = new[] { 1, 2, 3 };
+                    // Act
+                    var result = collection.FilterNulls();
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
+
+            [TestFixture]
+            public class OperatingOnStrings
+            {
+                [Test]
+                public void ShouldFilterOutNulls()
+                {
+                    // Arrange
+                    var collection = new string[] { "a", null, "b", "C" };
+                    var expected = new[] { "a", "b", "C" };
+                    // Act
+                    var result = collection.FilterNulls();
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
+
+            [TestFixture]
+            public class OperatingOnClassTypes
+            {
+                [Test]
+                public void ShouldFilterOutNulls()
+                {
+                    // Arrange
+                    var collection = new[]
+                    {
+                        new Person(1, "bob"),
+                        null,
+                        new Person(2, "sally")
+                    };
+
+                    var expected = new[]
+                    {
+                        new Person(1, "bob"),
+                        new Person(2, "sally")
+                    };
+
+                    // Act
+                    var result = collection.FilterNulls();
+                    
+                    // Assert
+                    Expect(result)
+                        .To.Deep.Equal(expected);
+                }
+
+                public class Person
+                {
+                    public int Id { get; set; }
+                    public string Name { get; set; }
+
+                    public Person(
+                        int id,
+                        string name
+                    )
+                    {
+                        Id = id;
+                        Name = name;
+                    }
+                }
+            }
+        }
     }
 }

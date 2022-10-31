@@ -1399,6 +1399,98 @@ namespace PeanutButter.Utils
                 .ToArray();
             return string.Join(delimiter, normalised);
         }
+
+        /// <summary>
+        /// Filters out null values in a collection of nullable
+        /// values and return non-nullable values.
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T[] FilterNulls<T>(
+            this T?[] collection
+        ) where T: struct
+        {
+            return (collection as IEnumerable<T?>)
+                .FilterNulls()
+                .ToArray();
+        }
+
+        /// <summary>
+        /// Filters out null values in a collection of nullable
+        /// values and return non-nullable values. Lazily evaluated
+        /// so large streams are ok, but the flip side is you should
+        /// .ToArray() when you have a small collection and want to
+        /// be sure of not re-enumerating.
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static IEnumerable<T> FilterNulls<T>(
+            this IEnumerable<T?> collection
+        ) where T : struct
+        {
+            if (collection is null)
+            {
+                yield break;
+            }
+
+            foreach (var item in collection)
+            {
+                if (item is null)
+                {
+                    continue;
+                }
+
+                yield return item.Value;
+            }
+        }
+
+        /// <summary>
+        /// Filters out null values in a collection of nullable
+        /// values and return non-nullable values.
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T[] FilterNulls<T>(
+            this T[] collection
+        )
+        {
+            return (collection as IEnumerable<T>)
+                .FilterNulls()
+                .ToArray();
+        }
+
+        /// <summary>
+        /// Filters out null values in a collection of nullable
+        /// values and return non-nullable values. Lazily evaluated
+        /// so large streams are ok, but the flip side is you should
+        /// .ToArray() when you have a small collection and want to
+        /// be sure of not re-enumerating.
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static IEnumerable<T> FilterNulls<T>(
+            this IEnumerable<T> collection
+        )
+        {
+            if (collection is null)
+            {
+                yield break;
+            }
+
+            foreach (var item in collection)
+            {
+                if (item is null)
+                {
+                    continue;
+                }
+
+                yield return item;
+            }
+        }
     }
 
     /// <summary>
