@@ -93,6 +93,11 @@ namespace PeanutButter.Utils
             {
                 throw new ArgumentException(nameof(src));
             }
+            
+            if (src.Position == 0)
+            {
+                return;
+            }
 
             if (!src.CanSeek)
             {
