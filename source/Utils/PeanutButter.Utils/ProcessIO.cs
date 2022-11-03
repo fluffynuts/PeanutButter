@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -53,7 +52,12 @@ namespace PeanutButter.Utils
         /// waiting for it to complete if necessary
         /// </summary>
         int ExitCode { get; }
-        
+
+        /// <summary>
+        /// Wait for the process to exit and return the exit code
+        /// </summary>
+        /// <returns></returns>
+        int WaitForExit();
     }
 
     /// <summary>
@@ -333,6 +337,12 @@ namespace PeanutButter.Utils
 
                 return Process.ExitCode;
             }
+        }
+
+        /// <inheritdoc />
+        public int WaitForExit()
+        {
+            return ExitCode;
         }
 
         /// <inheritdoc />
