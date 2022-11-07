@@ -29,7 +29,7 @@ namespace PeanutButter.DuckTyping.AutoConversion.Converters
 
         public bool CanConvert(Type t1, Type t2)
         {
-            return CanConvert(t1, t2, T1, T2);
+            return _tryParse is not null && CanConvert(t1, t2, T1, T2);
         }
     }
 }

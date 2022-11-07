@@ -145,7 +145,10 @@ namespace PeanutButter.DuckTyping.AutoConversion
             {
                 var specific = genericType.MakeGenericType(type);
                 var instance = (IConverter) Activator.CreateInstance(specific);
-                converters.Add(instance);
+                if (instance.CanConvert(type, typeof(string)))
+                {
+                    converters.Add(instance);
+                }
             }
             catch (Exception ex)
             {
