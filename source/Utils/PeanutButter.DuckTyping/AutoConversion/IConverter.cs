@@ -51,5 +51,13 @@ namespace PeanutButter.DuckTyping.AutoConversion
         /// <param name="t2"></param>
         /// <returns></returns>
         bool CanConvert(Type t1, Type t2);
+
+        /// <summary>
+        /// Should return true if the converter can be used later. For converters
+        /// which rely on reflection, this is a double-check that the required
+        /// underlying method has been located (which may not be the case in a
+        /// trimmed executable)
+        /// </summary>
+        bool IsInitialised { get; }
     }
 }

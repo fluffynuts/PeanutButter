@@ -78,10 +78,12 @@ namespace PeanutButter.DuckTyping.Tests.AutoConversion
 
             public bool CanConvert(Type t1, Type t2)
             {
-                var types = new HashSet<Type>(new[] {T1, T2});
+                var types = new HashSet<Type>(new[] { T1, T2 });
                 return types
                     .Contains(t1) && types.Contains(t2);
             }
+
+            public bool IsInitialised => true;
         }
 
         [Test]
@@ -107,7 +109,7 @@ namespace PeanutButter.DuckTyping.Tests.AutoConversion
         {
         }
 
-        public class ConverterWithConstructorParameters 
+        public class ConverterWithConstructorParameters
             : IConverter<IConvertMe1, IConvertMe2>
         {
             public Type T1 => typeof(IConvertMe1);
@@ -135,6 +137,8 @@ namespace PeanutButter.DuckTyping.Tests.AutoConversion
                     (t2 == T1 || t2 == T2) &&
                     t1 != t2;
             }
+
+            public bool IsInitialised => true;
         }
 
         [Test]

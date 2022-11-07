@@ -113,7 +113,21 @@ namespace PeanutButter.EasyArgs
         {
             var lookup = GenerateSwitchLookupFor<T>();
             AddImpliedOptionsTo(lookup);
-            var collected = Collect(arguments, out var ignored);
+            var flags = new HashSet<string>();
+            var collections = new HashSet<string>();
+            foreach (var kvp in lookup)
+            {
+                if (kvp.Value.IsFlag)
+                {
+                    flags.Add(kvp.Key);
+                }
+                else if (kvp.Value.GetType().IsCollection())
+                {
+                    collections.Add(kvp.Key);
+                }
+            }
+
+            var collected = Collect(arguments, flags, collections, out var ignored);
             var matched = TryMatch<T>(
                 lookup,
                 collected,
@@ -705,6 +719,7 @@ namespace PeanutButter.EasyArgs
             {
                 return type.GetProperties(BindingFlags.Instance | BindingFlags.Public);
             }
+
             return type.GetAllImplementedInterfaces()
                 .SelectMany(o => o.GetProperties())
                 .ToArray();
@@ -712,6 +727,8 @@ namespace PeanutButter.EasyArgs
 
         private static IDictionary<string, IHasValue> Collect(
             string[] args,
+            HashSet<string> flags,
+            HashSet<string> collections,
             out string[] ignored
         )
         {
@@ -734,7 +751,9 @@ namespace PeanutButter.EasyArgs
                         return acc;
                     }
 
-                    if (!cur.StartsWith("-") || IsNumeric(cur))
+                    var thisArgIsNotASwitch = (!cur.StartsWith("-") || IsNumeric(cur));
+                    var lastSwitchIsNotAFlag = !flags.Contains(lastSwitch.TrimStart('-'));
+                    if (thisArgIsNotASwitch && lastSwitchIsNotAFlag)
                     {
                         return acc.Add(lastSwitch, cur);
                     }

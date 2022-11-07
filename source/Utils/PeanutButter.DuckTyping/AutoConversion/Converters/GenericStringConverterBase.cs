@@ -14,6 +14,7 @@ namespace PeanutButter.DuckTyping.AutoConversion.Converters
 {
     internal abstract class GenericStringConverterBase<T>: ConverterBase
     {
+        public bool IsInitialised => _tryParse is not null;
         protected readonly MethodInfo _tryParse = GetTryParseMethod();
 
         private static MethodInfo GetTryParseMethod()

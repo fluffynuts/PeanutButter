@@ -49,7 +49,7 @@ namespace PeanutButter.EasyArgs
         public bool ExitOnError { get; set; } = true;
 
         /// <summary>
-        /// (flag) ignore unknown switches
+        /// (flag) ignore unknown switches - only include them in the collected
         /// </summary>
         public bool IgnoreUnknownSwitches { get; set; }
 

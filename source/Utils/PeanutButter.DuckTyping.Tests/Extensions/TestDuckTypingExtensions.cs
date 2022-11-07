@@ -1596,6 +1596,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                     (t2 == T1 || t2 == T2) &&
                     t1 != t2;
             }
+
+            public bool IsInitialised => true;
         }
 
         [Test]

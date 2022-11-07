@@ -9,6 +9,7 @@ namespace PeanutButter.DuckTyping.AutoConversion.Converters
     internal class GenericCastingConverter<T1, T2>
         : IConverter<T1, T2>
     {
+        public bool IsInitialised => true;
         private static readonly Type T1Type = typeof(T1);
         private static readonly Type T2Type = typeof(T2);
         

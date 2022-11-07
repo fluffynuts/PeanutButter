@@ -15,6 +15,7 @@ namespace PeanutButter.DuckTyping.AutoConversion.Converters
         public Type T1 => typeof(string);
         public Type T2 => typeof(T);
 
+
         public T Convert(string value)
         {
             var parameters = new object[] { value, null };

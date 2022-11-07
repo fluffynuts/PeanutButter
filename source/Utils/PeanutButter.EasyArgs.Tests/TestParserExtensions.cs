@@ -95,6 +95,7 @@ namespace PeanutButter.EasyArgs.Tests
             // Act
             var result = args.ParseTo<ISum>();
             // Assert
+            var foo = result.Values;
             Expect(result.Values)
                 .To.Equal(new[] { 1, 2, 3 });
         }
@@ -500,7 +501,10 @@ Report bugs to <no-one-cares@whatevs.org>
                     Description = new[] { GetRandomWords() },
                     IncludeDefaultDescription = true,
                     MoreInfo = new[] { GetRandomWords() },
-                    ExitOnError = false
+                    ExitOnError = false,
+                    ExitAction = i =>
+                    {
+                    }
                 };
                 // Act
                 args.ParseTo<IOpts>(opts);
@@ -595,12 +599,38 @@ Report bugs to <no-one-cares@whatevs.org>
                     .Matched.By(s => s.StartsWith("-t"));
             }
 
+        }
+
+        public interface IHasFlag
+        {
+            public bool Flag { get; set; }
+        }
+
+        [Test]
+        public void ShouldOutputUnknownArgsWhenNotExitingOnError()
+        {
+            // Arrange
+            var args = new[] { "--flag", "some command" };
+            var opts = new ParserOptions()
+            {
+                ExitOnError = false
+            };
+            // Act
+            var result = args.ParseTo<IHasFlag>(
+                out var uncollected,
+                opts
+            );
+            // Assert
+            Expect(result.Flag)
+                .To.Be.True();
+            Expect(uncollected)
+                .To.Equal(new[] { "some command" });
+        }
             public interface INoShortName
             {
                 [DisableGeneratedShortName]
                 public bool TheFlag { get; set; }
             }
-        }
 
         [TestFixture]
         public class GenerateArgs
