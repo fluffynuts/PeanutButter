@@ -37,10 +37,46 @@ namespace PeanutButter.WindowsServiceManagement
 
         IDictionary<string, string> RunServiceControl(params string[] args);
         IEnumerable<string> ListAllServices();
+        string FindServiceByPid(int pid);
     }
 
     internal class ServiceControlInterface : IServiceControlInterface
     {
+        public string FindServiceByPid(int pid)
+        {
+            using var io = ProcessIO.Start(
+                "sc", "queryex"
+            );
+            var lastServiceName = "";
+            foreach (var line in io.StandardOutput)
+            {
+                if (!TryParseKeyAndValueFrom(line, out var key, out var value))
+                {
+                    continue;
+                }
+
+                if (key == ServiceControlKeys.SERVICE_NAME)
+                {
+                    lastServiceName = value;
+                    continue;
+                }
+
+                if (key == ServiceControlKeys.PROCESS_ID)
+                {
+                    if (!int.TryParse(value, out var thisPid))
+                    {
+                        continue;
+                    }
+
+                    if (thisPid == pid)
+                    {
+                        return lastServiceName;
+                    }
+                }
+            }
+            return null;
+        }
+
         public IEnumerable<string> ListAllServices()
         {
             using var io = ProcessIO.Start(
@@ -48,7 +84,6 @@ namespace PeanutButter.WindowsServiceManagement
             );
             foreach (var line in io.StandardOutput)
             {
-                var trimmed = line.Trim();
                 if (!TryParseKeyAndValueFrom(line, out var key, out var value))
                 {
                     continue;
@@ -178,6 +213,7 @@ namespace PeanutButter.WindowsServiceManagement
             {
                 result.Add(arg.Replace("\"", "\\\""));
             }
+
             return result.ToArray();
         }
 

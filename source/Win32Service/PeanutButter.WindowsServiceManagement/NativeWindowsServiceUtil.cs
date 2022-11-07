@@ -14,9 +14,9 @@ using PeanutButter.WindowsServiceManagement.Exceptions;
 
 namespace PeanutButter.WindowsServiceManagement
 {
-    #if NETSTANDARD
+#if NETSTANDARD
     [Obsolete("This service utility uses native win32api to work. Rather use WindowsServiceUtil")]
-    #endif
+#endif
     public class NativeWindowsServiceUtil : IWindowsServiceUtil
     {
         public bool IsDisabled => StartupType == ServiceStartupTypes.Disabled;
@@ -146,6 +146,15 @@ namespace PeanutButter.WindowsServiceManagement
 
         private const string REG_SERVICES_BASE = "SYSTEM\\CurrentControlSet\\Services";
 
+        public static IWindowsServiceUtil GetServiceByPid(int pid)
+        {
+            var sci = new ServiceControlInterface();
+            var serviceName = sci.FindServiceByPid(pid);
+            return serviceName is null
+                ? null
+                : new NativeWindowsServiceUtil(serviceName);
+        }
+        
         public static WindowsServiceUtil GetServiceByPath(string path)
         {
             using var baseKey = Registry.LocalMachine.OpenSubKey(REG_SERVICES_BASE);
@@ -499,13 +508,46 @@ namespace PeanutButter.WindowsServiceManagement
             ServiceStartupTypes startupType
         )
         {
+            var shouldDelay = false;
+            if (startupType == ServiceStartupTypes.DelayedAutomatic)
+            {
+                shouldDelay = true;
+                startupType = ServiceStartupTypes.Automatic;
+            }
+
             if (!StartupTypeToBootFlagMap.TryGetValue(startupType, out var bootFlag))
             {
                 throw new InvalidOperationException(
-                    $"Service startup type {startupType} not implemented by {nameof(NativeWindowsServiceUtil)}"
+                    $"Service startup type {startupType} not supported by {nameof(NativeWindowsServiceUtil)}"
                 );
             }
-            return DoServiceInstall(scm, bootFlag);
+
+            var servicePtr = DoServiceInstall(scm, bootFlag);
+            var isInstalled = servicePtr != IntPtr.Zero;
+            if (isInstalled && shouldDelay)
+            {
+                var info = new Win32Api.SERVICE_DELAYED_AUTO_START_INFO()
+                {
+                    fDelayedAutostart = true
+                };
+                var hInfo = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(Win32Api.SERVICE_DELAYED_AUTO_START_INFO)));
+                Marshal.StructureToPtr(info, hInfo, true);
+                var isDelayed = Win32Api.ChangeServiceConfig2(servicePtr,
+                    Win32Api.SERVICE_CONFIG_DELAYED_AUTO_START_INFO, hInfo);
+                Marshal.FreeHGlobal(hInfo);
+                if (!isDelayed)
+                {
+                    Uninstall();
+                    Win32Api.CloseServiceHandle(servicePtr);
+                    throw new ServiceOperationException(
+                        ServiceName,
+                        ServiceOperationNames.INSTALL,
+                        "Unable to set installed service to have delayed auto-start"
+                    );
+                }
+            }
+
+            return servicePtr;
         }
 
         private IntPtr DoServiceInstall(
@@ -578,7 +620,7 @@ namespace PeanutButter.WindowsServiceManagement
                 );
             }
         }
-        
+
         /// <inheritdoc />
         public ServiceStartupTypes StartupType
         {

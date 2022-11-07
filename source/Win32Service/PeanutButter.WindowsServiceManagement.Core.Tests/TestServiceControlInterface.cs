@@ -33,6 +33,25 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
         }
 
         [TestFixture]
+        public class FindServiceByPid
+        {
+            [Test]
+            [Explicit("requires a running service on windows")]
+            public void ShouldBeAbleToFindRunningService()
+            {
+                // Arrange
+                var expected = "RabbitMQ";
+                var pid = 5932; // this must be manually set per run - use sc queryex to find the pid
+                var sut = Create();
+                // Act
+                var serviceName = sut.FindServiceByPid(pid);
+                // Assert
+                Expect(serviceName)
+                    .To.Equal(expected);
+            }
+        }
+
+        [TestFixture]
         [Explicit($"Requires running on windows, with {ServiceName} installed")]
         public class QueryEx
         {

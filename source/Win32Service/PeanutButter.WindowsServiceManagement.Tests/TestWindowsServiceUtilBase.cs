@@ -18,6 +18,7 @@ using TimeoutException = System.TimeoutException;
 
 namespace PeanutButter.WindowsServiceManagement.Tests
 {
+    // TODO: delayed startup for native windows service util?
     [TestFixture]
     [Parallelizable(ParallelScope.None)]
     public class TestNativeWindowsServiceUtil : TestWindowsServiceUtilBase
@@ -25,6 +26,21 @@ namespace PeanutButter.WindowsServiceManagement.Tests
         public TestNativeWindowsServiceUtil()
             : base(typeof(NativeWindowsServiceUtil))
         {
+        }
+        [Test]
+        [Explicit("Requires windows environment and knowledge of a running service pid")]
+        public void ShouldBeAbleToLoadServiceByPid()
+        {
+            // Arrange
+            var pid = 5932;
+            var expected = "RabbitMQ";
+            // Act
+            var result = NativeWindowsServiceUtil.GetServiceByPid(pid);
+            // Assert
+            Expect(result)
+                .Not.To.Be.Null();
+            Expect(result.ServiceName)
+                .To.Equal(expected);
         }
     }
 
@@ -36,6 +52,23 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             : base(typeof(WindowsServiceUtil))
         {
         }
+        
+        [Test]
+        [Explicit("Requires windows environment and knowledge of a running service pid")]
+        public void ShouldBeAbleToLoadServiceByPid()
+        {
+            // Arrange
+            var pid = 5932;
+            var expected = "RabbitMQ";
+            // Act
+            var result = WindowsServiceUtil.GetServiceByPid(pid);
+            // Assert
+            Expect(result)
+                .Not.To.Be.Null();
+            Expect(result.ServiceName)
+                .To.Equal(expected);
+        }
+
     }
 
     public abstract class TestWindowsServiceUtilBase
@@ -135,6 +168,32 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                 .To.Throw<ServiceNotInstalledException>();
 
             //---------------Test Result -----------------------
+        }
+
+        [Test]
+        [Explicit("Requires a windows world")]
+        public void DelayedAutoStart()
+        {
+            // Arrange
+            var sut = Create(TestServiceName, "test service", TestServicePath);
+            // Act
+            if (sut.IsInstalled)
+            {
+                sut.Uninstall();
+            }
+
+            try
+            {
+                sut.Install(ServiceStartupTypes.DelayedAutomatic);
+                var check = new WindowsServiceUtil(TestServiceName);
+                Expect(check.StartupType)
+                    .To.Equal(ServiceStartupTypes.DelayedAutomatic);
+            }
+            finally
+            {
+                sut.Uninstall();
+            }
+            // Assert
         }
 
 

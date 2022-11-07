@@ -89,5 +89,13 @@ namespace PeanutButter.WindowsServiceManagement
         [DllImport("advapi32.dll", SetLastError=true, CharSet=CharSet.Auto)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool ChangeServiceConfig2(IntPtr hService, int dwInfoLevel, IntPtr lpInfo);
+        
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        public struct SERVICE_DELAYED_AUTO_START_INFO
+        {
+            public bool fDelayedAutostart;
+        }
+        public const int SERVICE_CONFIG_DELAYED_AUTO_START_INFO = 3;
+        
     }
 }

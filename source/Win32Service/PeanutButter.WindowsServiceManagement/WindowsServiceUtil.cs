@@ -234,9 +234,18 @@ namespace PeanutButter.WindowsServiceManagement
         /// <returns></returns>
         KillServiceResult KillService();
     }
-
+    
     public class WindowsServiceUtil : IWindowsServiceUtil
     {
+        public static IWindowsServiceUtil GetServiceByPid(int pid)
+        {
+            var sci = new ServiceControlInterface();
+            var serviceName = sci.FindServiceByPid(pid);
+            return serviceName is null
+                ? null
+                : new WindowsServiceUtil(serviceName);
+        }
+
         public static IWindowsServiceUtil GetServiceByPath(string serviceExe)
         {
             var ctl = new ServiceControlInterface();
