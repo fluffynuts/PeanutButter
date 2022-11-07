@@ -1357,6 +1357,8 @@ namespace PeanutButter.Utils
             }
         }
 
+        // FIXME: find a way to make this build internal - PathType is a problem :|
+#if !BUILD_PEANUTBUTTER_INTERNAL
         /// <summary>
         /// Join the parts into a path for the current platform
         /// </summary>
@@ -1376,9 +1378,9 @@ namespace PeanutButter.Utils
         /// <param name="pathType"></param>
         /// <returns></returns>
         public static string JoinPath(
-            this IEnumerable<string> parts,
-            PathType pathType
-        )
+                this IEnumerable<string> parts,
+                PathType pathType
+            )
         {
             if (parts is null)
             {
@@ -1399,6 +1401,7 @@ namespace PeanutButter.Utils
                 .ToArray();
             return string.Join(delimiter, normalised);
         }
+#endif
 
         /// <summary>
         /// Filters out null values in a collection of nullable
@@ -1409,7 +1412,7 @@ namespace PeanutButter.Utils
         /// <returns></returns>
         public static T[] FilterNulls<T>(
             this T?[] collection
-        ) where T: struct
+        ) where T : struct
         {
             return (collection as IEnumerable<T?>)
                 .FilterNulls()
@@ -1491,26 +1494,5 @@ namespace PeanutButter.Utils
                 yield return item;
             }
         }
-    }
-
-    /// <summary>
-    /// Specifies the kind of path required when joining collections of strings to form a path
-    /// </summary>
-    public enum PathType
-    {
-        /// <summary>
-        /// Select the path type for the current platform
-        /// </summary>
-        Auto,
-
-        /// <summary>
-        /// Unix path type, delimited by /
-        /// </summary>
-        Unix,
-
-        /// <summary>
-        /// Windows path type, delimited by \\
-        /// </summary>
-        Windows
     }
 }

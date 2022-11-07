@@ -1418,9 +1418,10 @@ namespace PeanutButter.Utils
         {
             return str.SplitByRegex(PathSplitRegex);
         }
-        
+
         private static Regex PathSplitRegex =>
             _pathSplitRegex ??= new Regex("[\\\\|/]", RegexOptions.Compiled);
+
         private static Regex _pathSplitRegex;
 
         /// <summary>
@@ -1475,6 +1476,7 @@ namespace PeanutButter.Utils
             return regex.Split(str);
         }
 
+#if !BUILD_PEANUTBUTTER_INTERNAL
         /// <summary>
         /// Determine the relative path from the string being operated on
         /// to the one passed in. Eg, if operating on the path
@@ -1506,10 +1508,10 @@ namespace PeanutButter.Utils
         /// <param name="pathType"></param>
         /// <returns></returns>
         public static string RelativeTo(
-            this string path,
-            string basePath,
-            PathType pathType
-        )
+                this string path,
+                string basePath,
+                PathType pathType
+            )
         {
             if (path is null)
             {
@@ -1561,6 +1563,6 @@ namespace PeanutButter.Utils
 
             return result.JoinPath(pathType);
         }
-
+#endif
     }
 }
