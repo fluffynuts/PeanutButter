@@ -39,18 +39,26 @@ namespace PeanutButter.DuckTyping.AutoConversion
                 .Select(converter =>
                 {
                     // what if a converter implements multiple IConverter<,> interfaces?
-                    var iface = converter.GetType().GetInterfaces()
-                        .Single(i => i.IsGenericType &&
-                            i.GetGenericTypeDefinition() == typeof(IConverter<,>)
-                        );
-                    var types = iface.GetGenericArguments();
-                    return new[]
+                    try
                     {
-                        new { key = Tuple.Create(types[0], types[1]), value = converter },
-                        new { key = Tuple.Create(types[1], types[0]), value = converter }
-                    };
+                        var iface = converter.GetType().GetInterfaces()
+                            .Single(i => i.IsGenericType &&
+                                i.GetGenericTypeDefinition() == typeof(IConverter<,>)
+                            );
+                        var types = iface.GetGenericArguments();
+                        return new[]
+                        {
+                            new { key = Tuple.Create(types[0], types[1]), value = converter },
+                            new { key = Tuple.Create(types[1], types[0]), value = converter }
+                        };
+                    }
+                    catch
+                    {
+                        return null;
+                    }
                 })
-                .SelectMany(o => o);
+                .SelectMany(o => o)
+                .Where(o => o is not null);
 
             var result = new Dictionary<Tuple<Type, Type>, IConverter>();
             temp.ForEach(o =>
