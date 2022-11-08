@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
-using NUnit.Framework;
 using NExpect;
-using PeanutButter.Utils;
+using NUnit.Framework;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
-namespace PeanutButter.DuckTyping.Tests.Extensions
+namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
     public class TestRetryExtensions

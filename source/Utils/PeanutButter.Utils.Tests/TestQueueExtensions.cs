@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using NExpect;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
-using NExpect;
-using PeanutButter.Utils;
 using static NExpect.Expectations;
 
-namespace PeanutButter.DuckTyping.Tests.Extensions
+namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
     public class TestQueueExtensions
