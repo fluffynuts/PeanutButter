@@ -28,6 +28,16 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
+        /// Time a single iteration of the provided action
+        /// </summary>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        public static TimeSpan Time(Action action)
+        {
+            return Time(action, 1);
+        }
+
+        /// <summary>
         /// Time an action, run the specified number of times,
         /// and return the time it took.
         /// </summary>
