@@ -1,9 +1,8 @@
 ﻿using System;
 using NUnit.Framework;
-using NExpect;
 using PeanutButter.TestUtils.AspNetCore.Builders;
 using static NExpect.Expectations;
-using static PeanutButter.RandomGenerators.RandomValueGen;
+using NExpect;
 
 namespace PeanutButter.Utils.NetCore.Tests
 {
@@ -18,6 +17,8 @@ namespace PeanutButter.Utils.NetCore.Tests
             // Act
             var result = ctx.Stringify();
             // Assert
+            Expect(result)
+                .Not.To.Contain(Stringifier.SEEN_OBJECT_PLACEHOLDER);
             Console.WriteLine(result);
         }
     }

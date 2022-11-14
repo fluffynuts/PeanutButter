@@ -35,7 +35,7 @@ namespace PeanutButter.Utils
             if (typeof(T) == typeof(char))
             {
                 return objs == null
-                    ? NULL
+                    ? DEFAULT_NULL_PLACEHOLDER
                     : $"\"{objs as string}\"";
             }
 
@@ -49,14 +49,8 @@ namespace PeanutButter.Utils
             HashSet<object> seenObjects
         )
         {
-            if (seenObjects.Contains(objs))
-            {
-                return SEEN;
-            }
-            seenObjects.Add(objs);
-
             return objs == null
-                ? NULL
+                ? DEFAULT_NULL_PLACEHOLDER
                 : $"[ {string.Join(", ", objs.Select(o => Stringify(o, nullRepresentation, level, seenObjects)))} ]";
         }
 
@@ -69,11 +63,18 @@ namespace PeanutButter.Utils
             this object obj
         )
         {
-            return Stringify(obj, NULL);
+            return Stringify(obj, DEFAULT_NULL_PLACEHOLDER);
         }
-        
-        private const string NULL = "null";
-        private const string SEEN = "🔁";
+
+        /// <summary>
+        /// The default value put into a stringified result when null is encountered
+        /// </summary>
+        public const string DEFAULT_NULL_PLACEHOLDER = "null";
+        /// <summary>
+        /// The placeholder put into a stringified result when a circular reference is
+        /// encountered
+        /// </summary>
+        public const string SEEN_OBJECT_PLACEHOLDER = "🔁";
 
         /// <summary>
         /// Provides a reasonable human-readable string representation of an object
@@ -321,6 +322,15 @@ namespace PeanutButter.Utils
             HashSet<object> seen
         )
         {
+            if (!obj?.GetType().IsPrimitiveOrImmutable() ?? false)
+            {
+                if (seen.Contains(obj))
+                {
+                    return SEEN_OBJECT_PLACEHOLDER;
+                }
+
+                seen.Add(obj);
+            }
 
             if (level >= MAX_STRINGIFY_DEPTH)
             {
@@ -338,7 +348,10 @@ namespace PeanutButter.Utils
                         obj,
                         level,
                         nullRepresentation,
-                        seen
+                        // create a copy of the seen collection
+                        // so that collision detection is for circular
+                        // references, not just repeated references
+                        new HashSet<object>(seen)
                     )
             );
             return result == EMPTY_OBJECT && HasCustomToString(obj)
@@ -411,12 +424,6 @@ namespace PeanutButter.Utils
                         cur) =>
                     {
                         var propValue = cur.GetValue(obj);
-                        if (seen.Contains(propValue))
-                        {
-                            acc.Add($"{cur.Name}: {SEEN}");
-                            return acc;
-                        }
-                        seen.Add(propValue);
 
                         if (IgnoreAssembliesByName.Contains(
 #if NETSTANDARD
@@ -432,7 +439,7 @@ namespace PeanutButter.Utils
                             acc.Add(string.Join("",
                                     cur.Name,
                                     ": ",
-                                    SafeStringifier(propValue, level + 1, nullRepresentation, seen)
+                                    SafeStringifier(propValue, level + 1, nullRepresentation, new HashSet<object>(seen))
                                 )
                             );
                         }
@@ -443,7 +450,7 @@ namespace PeanutButter.Utils
                                     "",
                                     cur.Name,
                                     ": ",
-                                    SafeStringifier(propValue, level + 1, nullRepresentation, seen)));
+                                    SafeStringifier(propValue, level + 1, nullRepresentation, new HashSet<object>(seen))));
                         }
 
                         return acc;

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -1263,9 +1264,11 @@ namespace PeanutButter.Utils
             this Type type
         )
         {
-            return Types.PrimitivesAndImmutables.Contains(type);
+            return Types.PrimitivesAndImmutables.Contains(type) ||
+                Types.PrimitivesAndImmutables.Contains(
+                    type.ResolveNullableUnderlyingType()
+                );
         }
-
 
         /// <summary>
         /// Resolves to the actual type or the underlying type T if the provided
@@ -1836,7 +1839,8 @@ namespace PeanutButter.Utils
                 typeof(DateTime),
                 typeof(TimeSpan),
                 typeof(DateTimeOffset),
-                typeof(Guid)
+                typeof(Guid),
+                typeof(IPAddress)
             }
         );
     }
