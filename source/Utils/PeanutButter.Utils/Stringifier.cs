@@ -410,6 +410,7 @@ namespace PeanutButter.Utils
                             acc.Add($"{cur.Name}: {SEEN}");
                             return acc;
                         }
+                        seen.Add(obj);
 
                         if (IgnoreAssembliesByName.Contains(
 #if NETSTANDARD
