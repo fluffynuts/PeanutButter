@@ -35,22 +35,23 @@ namespace PeanutButter.Utils
             if (typeof(T) == typeof(char))
             {
                 return objs == null
-                    ? "(null)"
+                    ? NULL
                     : $"\"{objs as string}\"";
             }
 
-            return StringifyCollectionInternal(objs, "null", 0);
+            return StringifyCollectionInternal(objs, "null", 0, new HashSet<object>());
         }
 
         private static string StringifyCollectionInternal<T>(
             IEnumerable<T> objs,
             string nullRepresentation,
-            int level
+            int level,
+            HashSet<object> seenObjects
         )
         {
             return objs == null
-                ? "(null collection)"
-                : $"[ {string.Join(", ", objs.Select(o => Stringify(o, nullRepresentation, level)))} ]";
+                ? NULL
+                : $"[ {string.Join(", ", objs.Select(o => Stringify(o, nullRepresentation, level, seenObjects)))} ]";
         }
 
         /// <summary>
@@ -59,10 +60,14 @@ namespace PeanutButter.Utils
         /// <param name="obj"></param>
         /// <returns>Human-readable representation of object</returns>
         public static string Stringify(
-            this object obj)
+            this object obj
+        )
         {
-            return Stringify(obj, "null");
+            return Stringify(obj, NULL);
         }
+        
+        private const string NULL = "null";
+        private const string SEEN = "🔁";
 
         /// <summary>
         /// Provides a reasonable human-readable string representation of an object
@@ -72,36 +77,44 @@ namespace PeanutButter.Utils
         /// <returns>Human-readable representation of object</returns>
         public static string Stringify(
             object obj,
-            string nullRepresentation)
+            string nullRepresentation
+        )
         {
-            return Stringify(obj, nullRepresentation, 0);
+            return Stringify(obj, nullRepresentation, 0, new HashSet<object>());
         }
 
         private static string Stringify(
             object obj,
             string nullRepresentation,
-            int level)
+            int level,
+            HashSet<object> seenObjects
+        )
         {
-            return SafeStringifier(obj, level, nullRepresentation ?? "null");
+            return SafeStringifier(
+                obj,
+                level,
+                nullRepresentation ?? "null",
+                seenObjects
+            );
         }
 
         private const int MAX_STRINGIFY_DEPTH = 10;
         private const int INDENT_SIZE = 2;
 
-        private static readonly Dictionary<Type, Func<object, string>> _primitiveStringifiers
+        private static readonly Dictionary<Type, Func<object, string>> PrimitiveStringifiers
             = new Dictionary<Type, Func<object, string>>()
             {
                 [typeof(string)] = o => $"\"{o}\"",
                 [typeof(bool)] = o => o.ToString().ToLower()
             };
 
-        private static readonly string[] _ignoreAssembliesByName =
+        private static readonly string[] IgnoreAssembliesByName =
         {
             "mscorlib"
         };
 
-        private static readonly Tuple<Func<object, int, bool>, Func<object, int, string, string>>[]
-            _strategies =
+        private static readonly Tuple<Func<object, int, bool>, Func<object, int, string, HashSet<object>, string>>[]
+            Strategies =
             {
                 MakeStrategy(IsNull, PrintNull),
                 MakeStrategy(IsDateTime, StringifyDateTime),
@@ -118,7 +131,9 @@ namespace PeanutButter.Utils
         private static string StringifyXElement(
             object arg1,
             int arg2,
-            string arg3)
+            string arg3,
+            HashSet<object> seen
+        )
         {
             return ((XElement) arg1).ToString();
         }
@@ -133,7 +148,9 @@ namespace PeanutButter.Utils
         private static string StringifyXDocument(
             object arg1,
             int arg2,
-            string arg3)
+            string arg3,
+            HashSet<object> seen
+        )
         {
             return ((XDocument) arg1).ToString();
         }
@@ -148,7 +165,9 @@ namespace PeanutButter.Utils
         private static string StringifyType(
             object obj,
             int level,
-            string nullRep)
+            string nullRep,
+            HashSet<object> seen
+        )
         {
             return (obj as Type).PrettyName();
         }
@@ -163,7 +182,9 @@ namespace PeanutButter.Utils
         private static string StringifyDateTime(
             object obj,
             int level,
-            string nullRep)
+            string nullRep,
+            HashSet<object> seen
+        )
         {
             var dt = (DateTime) obj;
             return $"{dt.ToString(CultureInfo.InvariantCulture)} ({dt.Kind})";
@@ -179,7 +200,9 @@ namespace PeanutButter.Utils
         private static string StringifyCollection(
             object obj,
             int level,
-            string nullRep)
+            string nullRep,
+            HashSet<object> seen
+        )
         {
             var itemType = obj.GetType().TryGetEnumerableItemType() ??
                 throw new Exception($"{obj.GetType()} is not IEnumerable<T>");
@@ -190,7 +213,7 @@ namespace PeanutButter.Utils
                     $"No non-public, static '{nameof(StringifyCollectionInternal)}' method found on {typeof(Stringifier).PrettyName()}"
                 );
             var specific = method.MakeGenericMethod(itemType);
-            return (string) (specific.Invoke(null, new[] { obj, nullRep, level }));
+            return (string) (specific.Invoke(null, new[] { obj, nullRep, level, seen }));
         }
 
         private static bool IsEnumerable(
@@ -203,7 +226,9 @@ namespace PeanutButter.Utils
         private static string StringifyEnum(
             object obj,
             int level,
-            string nullRepresentation)
+            string nullRepresentation,
+            HashSet<object> seen
+        )
         {
             return obj.ToString();
         }
@@ -222,8 +247,17 @@ namespace PeanutButter.Utils
         private static string JustToStringIt(
             object obj,
             int level,
-            string nullRepresentation)
+            string nullRepresentation,
+            HashSet<object> seen
+        )
         {
+            if (seen.Contains(obj))
+            {
+                return SEEN;
+            }
+
+            seen.Add(obj);
+
             try
             {
                 return obj.ToString();
@@ -244,7 +278,9 @@ namespace PeanutButter.Utils
         private static string PrintNull(
             object obj,
             int level,
-            string nullRepresentation)
+            string nullRepresentation,
+            HashSet<object> seenObjects
+        )
         {
             return nullRepresentation;
         }
@@ -256,9 +292,9 @@ namespace PeanutButter.Utils
             return obj == null;
         }
 
-        private static Tuple<Func<object, int, bool>, Func<object, int, string, string>> MakeStrategy(
+        private static Tuple<Func<object, int, bool>, Func<object, int, string, HashSet<object>, string>> MakeStrategy(
             Func<object, int, bool> matcher,
-            Func<object, int, string, string> writer
+            Func<object, int, string, HashSet<object>, string> writer
         )
         {
             return Tuple.Create(matcher, writer);
@@ -282,14 +318,16 @@ namespace PeanutButter.Utils
         private static string SafeStringifier(
             object obj,
             int level,
-            string nullRepresentation)
+            string nullRepresentation,
+            HashSet<object> seen
+        )
         {
             if (level >= MAX_STRINGIFY_DEPTH)
             {
-                return StringifyPrimitive(obj, level, nullRepresentation);
+                return StringifyPrimitive(obj, level, nullRepresentation, seen);
             }
 
-            var result = _strategies.Aggregate(
+            var result = Strategies.Aggregate(
                 null as string,
                 (
                         acc,
@@ -299,7 +337,8 @@ namespace PeanutButter.Utils
                         cur.Item2,
                         obj,
                         level,
-                        nullRepresentation
+                        nullRepresentation,
+                        seen
                     )
             );
             return result == EMPTY_OBJECT && HasCustomToString(obj)
@@ -335,16 +374,17 @@ namespace PeanutButter.Utils
 
         private static string ApplyStrategy(
             Func<object, int, bool> matcher,
-            Func<object, int, string, string> strategy,
+            Func<object, int, string, HashSet<object>, string> strategy,
             object obj,
             int level,
-            string nullRepresentation)
+            string nullRepresentation,
+            HashSet<object> seen)
         {
             try
             {
                 var isMatched = matcher(obj, level);
                 return isMatched
-                    ? strategy(obj, level, nullRepresentation)
+                    ? strategy(obj, level, nullRepresentation, seen)
                     : null;
             }
             catch
@@ -357,8 +397,15 @@ namespace PeanutButter.Utils
         private static string StringifyJsonLike(
             object obj,
             int level,
-            string nullRepresentation)
+            string nullRepresentation,
+            HashSet<object> seen
+        )
         {
+            if (seen.Contains(obj))
+            {
+                return SEEN;
+            }
+            seen.Add(obj);
             var props = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
             var indentMinus1 = new string(' ', level * INDENT_SIZE);
             var indent = indentMinus1 + new string(' ', INDENT_SIZE);
@@ -369,7 +416,7 @@ namespace PeanutButter.Utils
                         cur) =>
                     {
                         var propValue = cur.GetValue(obj);
-                        if (_ignoreAssembliesByName.Contains(
+                        if (IgnoreAssembliesByName.Contains(
 #if NETSTANDARD
                                 cur.DeclaringType?.AssemblyQualifiedName?.Split(
                                     new[] { "," },
@@ -383,7 +430,7 @@ namespace PeanutButter.Utils
                             acc.Add(string.Join("",
                                     cur.Name,
                                     ": ",
-                                    SafeStringifier(propValue, level + 1, nullRepresentation)
+                                    SafeStringifier(propValue, level + 1, nullRepresentation, seen)
                                 )
                             );
                         }
@@ -394,7 +441,7 @@ namespace PeanutButter.Utils
                                     "",
                                     cur.Name,
                                     ": ",
-                                    SafeStringifier(propValue, level + 1, nullRepresentation)));
+                                    SafeStringifier(propValue, level + 1, nullRepresentation, seen)));
                         }
 
                         return acc;
@@ -411,11 +458,13 @@ namespace PeanutButter.Utils
         private static string StringifyPrimitive(
             object obj,
             int level,
-            string nullRep)
+            string nullRep,
+            HashSet<object> seen
+        )
         {
             if (obj == null)
                 return nullRep;
-            return _primitiveStringifiers.TryGetValue(obj.GetType(), out var strategy)
+            return PrimitiveStringifiers.TryGetValue(obj.GetType(), out var strategy)
                 ? strategy(obj)
                 : obj.ToString();
         }

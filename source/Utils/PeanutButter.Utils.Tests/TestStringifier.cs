@@ -158,8 +158,10 @@ namespace PeanutButter.Utils.Tests
             // Pre-assert
             // Act
             var result = node1.Stringify();
+            Console.WriteLine(result);
             // Assert
-            Expect(result).Not.To.Be.Null.Or.Empty();
+            Expect(result)
+                .Not.To.Be.Null.Or.Empty();
         }
 
         [Test]
