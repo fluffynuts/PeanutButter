@@ -269,7 +269,7 @@ namespace PeanutButter.Utils
             Func<T>[] toRun
         )
         {
-            var results = new List<WorkResult<T>>();
+            var results = new ConcurrentBag<WorkResult<T>>();
             var blocker = new SemaphoreSlim(maxDegreeOfParallelism);
             var threads = toRun.Select(a =>
             {
@@ -304,7 +304,10 @@ namespace PeanutButter.Utils
                 ? RunAll(maxDegreeOfParallelism, deferred.ToArray())
                 : Array.Empty<WorkResult<T>>();
 
-            results.AddRange(deferredResults);
+            foreach (var deferredResult in deferredResults)
+            {
+                results.Add(deferredResult);
+            }
             return results.ToArray();
         }
     }
