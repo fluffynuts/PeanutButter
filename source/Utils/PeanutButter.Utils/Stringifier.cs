@@ -251,13 +251,6 @@ namespace PeanutButter.Utils
             HashSet<object> seen
         )
         {
-            if (seen.Contains(obj))
-            {
-                return SEEN;
-            }
-
-            seen.Add(obj);
-
             try
             {
                 return obj.ToString();
@@ -322,6 +315,13 @@ namespace PeanutButter.Utils
             HashSet<object> seen
         )
         {
+
+            if (seen.Contains(obj))
+            {
+                return SEEN;
+            }
+            seen.Add(obj);
+
             if (level >= MAX_STRINGIFY_DEPTH)
             {
                 return StringifyPrimitive(obj, level, nullRepresentation, seen);
@@ -401,11 +401,6 @@ namespace PeanutButter.Utils
             HashSet<object> seen
         )
         {
-            if (seen.Contains(obj))
-            {
-                return SEEN;
-            }
-            seen.Add(obj);
             var props = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
             var indentMinus1 = new string(' ', level * INDENT_SIZE);
             var indent = indentMinus1 + new string(' ', INDENT_SIZE);
