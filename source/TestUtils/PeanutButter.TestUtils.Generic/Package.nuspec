@@ -1,7 +1,7 @@
 <package>
   <metadata>
     <id>PeanutButter.TestUtils.Generic</id>
-    <version>3.0.85</version>
+    <version>3.0.86</version>
     <title>PeanutButter.TestUtils.Generic</title>
     <authors>daf</authors>
     <owners></owners>
@@ -34,11 +34,11 @@
     <copyright>Copyright  2014</copyright>
     <dependencies>
       <group targetFramework="net462">
-        <dependency id="PeanutButter.Utils" version="3.0.85" />
+        <dependency id="PeanutButter.Utils" version="3.0.86" />
         <dependency id="NSubstitute" version="2.0.0" />
       </group>
       <group targetFramework="netstandard2.0">
-        <dependency id="PeanutButter.Utils" version="3.0.85" />
+        <dependency id="PeanutButter.Utils" version="3.0.86" />
         <dependency id="NSubstitute" version="2.0.0" />
       </group>
     </dependencies>
