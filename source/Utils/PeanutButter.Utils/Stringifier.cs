@@ -316,12 +316,6 @@ namespace PeanutButter.Utils
         )
         {
 
-            if (seen.Contains(obj))
-            {
-                return SEEN;
-            }
-            seen.Add(obj);
-
             if (level >= MAX_STRINGIFY_DEPTH)
             {
                 return StringifyPrimitive(obj, level, nullRepresentation, seen);
@@ -411,6 +405,12 @@ namespace PeanutButter.Utils
                         cur) =>
                     {
                         var propValue = cur.GetValue(obj);
+                        if (seen.Contains(obj))
+                        {
+                            acc.Add($"{cur.Name}: {SEEN}");
+                            return acc;
+                        }
+
                         if (IgnoreAssembliesByName.Contains(
 #if NETSTANDARD
                                 cur.DeclaringType?.AssemblyQualifiedName?.Split(
