@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Xml.Linq;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -74,7 +75,7 @@ namespace PeanutButter.Utils
         /// The placeholder put into a stringified result when a circular reference is
         /// encountered
         /// </summary>
-        public const string SEEN_OBJECT_PLACEHOLDER = "🔁";
+        public const string SEEN_OBJECT_PLACEHOLDER = "(at:";
 
         /// <summary>
         /// Provides a reasonable human-readable string representation of an object
@@ -322,11 +323,15 @@ namespace PeanutButter.Utils
             HashSet<object> seen
         )
         {
-            if (!obj?.GetType().IsPrimitiveOrImmutable() ?? false)
+            var objType = obj?.GetType();
+            if (objType is not null && !objType.IsPrimitiveOrImmutable())
             {
                 if (seen.Contains(obj))
                 {
-                    return SEEN_OBJECT_PLACEHOLDER;
+                    var handle = GCHandle.Alloc(obj);
+                    var seenResult = $"{{ {objType.Name} {SEEN_OBJECT_PLACEHOLDER} {(long)GCHandle.ToIntPtr(handle):x8}) }}";
+                    handle.Free();
+                    return seenResult;
                 }
 
                 seen.Add(obj);

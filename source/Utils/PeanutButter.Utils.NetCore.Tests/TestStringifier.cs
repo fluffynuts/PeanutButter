@@ -10,7 +10,7 @@ namespace PeanutButter.Utils.NetCore.Tests
     public class TestStringifier
     {
         [Test]
-        public void ShouldStringifyHttpContext()
+        public void ShouldStringifyPlainHttpContext()
         {
             // Arrange
             var ctx = HttpContextBuilder.BuildRandom();
@@ -19,6 +19,21 @@ namespace PeanutButter.Utils.NetCore.Tests
             // Assert
             Expect(result)
                 .Not.To.Contain(Stringifier.SEEN_OBJECT_PLACEHOLDER);
+            Console.WriteLine(result);
+        }
+
+        [Test]
+        public void ShouldStringifyHttpContextReferencingItself()
+        {
+            // Arrange
+            var ctx = HttpContextBuilder.BuildRandom();
+            ctx.Items["context"] = ctx;
+            // Act
+            var result = ctx.Stringify();
+            // Assert
+            var parts = result.Split(Stringifier.SEEN_OBJECT_PLACEHOLDER);
+            Expect(parts)
+                .To.Contain.Only(2).Items();
             Console.WriteLine(result);
         }
     }
