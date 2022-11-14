@@ -405,12 +405,12 @@ namespace PeanutButter.Utils
                         cur) =>
                     {
                         var propValue = cur.GetValue(obj);
-                        if (seen.Contains(obj))
+                        if (seen.Contains(propValue))
                         {
                             acc.Add($"{cur.Name}: {SEEN}");
                             return acc;
                         }
-                        seen.Add(obj);
+                        seen.Add(propValue);
 
                         if (IgnoreAssembliesByName.Contains(
 #if NETSTANDARD
