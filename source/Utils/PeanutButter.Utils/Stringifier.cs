@@ -49,6 +49,12 @@ namespace PeanutButter.Utils
             HashSet<object> seenObjects
         )
         {
+            if (seenObjects.Contains(objs))
+            {
+                return SEEN;
+            }
+            seenObjects.Add(objs);
+
             return objs == null
                 ? NULL
                 : $"[ {string.Join(", ", objs.Select(o => Stringify(o, nullRepresentation, level, seenObjects)))} ]";
