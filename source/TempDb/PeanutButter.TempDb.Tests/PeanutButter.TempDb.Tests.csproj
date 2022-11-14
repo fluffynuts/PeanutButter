@@ -79,7 +79,6 @@
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.0.123" />
     <PackageReference Include="EntityFramework" Version="6.4.4" />
-    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.2.0" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
     <PackageReference Include="Microsoft.SqlServer.Compact" Version="4.0.8876.1" />
     <PackageReference Include="MySql.Data" Version="8.0.31" Aliases="mysql_data" />
     <PackageReference Include="NExpect" Version="2.0.7" />

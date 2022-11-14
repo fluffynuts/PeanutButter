@@ -37,6 +37,11 @@
         <dependency id="PeanutButter.RandomGenerators" version="3.0.79" />
         <dependency id="System.Text.Json" version="6.0.5" />
       </group>
+      <group targetFramework="net7.0">
+        <dependency id="PeanutButter.Utils" version="3.0.79" />
+        <dependency id="PeanutButter.RandomGenerators" version="3.0.79" />
+        <dependency id="System.Text.Json" version="6.0.5" />
+      </group>
     </dependencies>
     <references />
     <tags />
@@ -46,5 +51,8 @@
     <file src="bin/Release/net6.0/PeanutButter.TestUtils.AspNetCore.dll" target="lib/net6.0" />
     <file src="bin/Release/net6.0/PeanutButter.TestUtils.AspNetCore.deps.json" target="lib/net6.0" />
     <file src="bin/Release/net6.0/PeanutButter.TestUtils.AspNetCore.xml" target="lib/net6.0" />
+    <file src="bin/Release/net7.0/PeanutButter.TestUtils.AspNetCore.dll" target="lib/net7.0" />
+    <file src="bin/Release/net7.0/PeanutButter.TestUtils.AspNetCore.deps.json" target="lib/net7.0" />
+    <file src="bin/Release/net7.0/PeanutButter.TestUtils.AspNetCore.xml" target="lib/net7.0" />
   </files>
 </package>

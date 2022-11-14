@@ -2292,6 +2292,129 @@ namespace PeanutButter.Utils.Tests
                         .To.Be.Equivalent.To(new[] { 1, 3 });
                 }
             }
+
+            [TestFixture]
+            public class OperatingOnComplexValue
+            {
+                [Test]
+                public void TwoIdenticalInstancesShouldHaveSameHashCodeAndReportEqual()
+                {
+                    // Arrange
+                    var method = GetRandom<HttpMethod>();
+                    var route = GetRandomPath();
+                    var first = new RouteAndMethod(route, method);
+                    var second = first.Clone();
+                    // Act
+                    Expect(first)
+                        .Not.To.Be(second);
+                    Expect(first.GetHashCode())
+                        .To.Equal(second.GetHashCode());
+                    Expect(first.Equals(second))
+                        .To.Be.True();
+                    Expect(second.Equals(first))
+                        .To.Be.True();
+                    // Assert
+                }
+
+                [Test]
+                public void ShouldFindDuplicates1()
+                {
+                    // Arrange
+                    var method = GetRandom<HttpMethod>();
+                    var route = GetRandomPath();
+                    var first = new RouteAndMethod(route, method);
+                    var second = first.Clone();
+                    var collection = new[] { first, second };
+                    // Act
+                    var result = collection.FindDuplicates();
+                    // Assert
+                    Expect(result)
+                        .To.Contain.Only(1)
+                        .Deep.Equal.To(first);
+                }
+                
+                public enum HttpMethod
+                {
+                    Get,
+                    Put,
+                    Delete,
+                    Post,
+                    Head,
+                    Trace,
+                    Patch,
+                    Connect,
+                    Options,
+                }
+
+                public class RouteAndMethod : IComparable<RouteAndMethod>
+                {
+                    public string Route { get; }
+                    public HttpMethod Method { get; }
+                    
+                    public RouteAndMethod(
+                        string route,
+                        HttpMethod method
+                    )
+                    {
+                        Route = route;
+                        Method = method;
+                    }
+
+                    public RouteAndMethod Clone()
+                    {
+                        return new(Route, Method);
+                    }
+
+                    public override string ToString()
+                    {
+                        return $"[{Method}] {Route}";
+                    }
+
+                    public override bool Equals(object obj)
+                    {
+                        var other = obj as RouteAndMethod;
+                        return Equals(other);
+                    }
+
+                    protected bool Equals(RouteAndMethod other)
+                    {
+                        return other is not null &&
+                            Route == other.Route &&
+                            Method == other.Method;
+                    }
+
+                    public override int GetHashCode()
+                    {
+                        return Tuple.Create(Route, (int)Method).GetHashCode();
+                    }
+
+                    public int CompareTo(RouteAndMethod other)
+                    {
+                        if (ReferenceEquals(this, other))
+                        {
+                            return 0;
+                        }
+
+                        if (ReferenceEquals(null, other))
+                        {
+                            return 1;
+                        }
+
+                        var routeComparison = string.Compare(
+                            Route,
+                            other.Route,
+                            StringComparison.OrdinalIgnoreCase
+                        );
+                        if (routeComparison != 0)
+                        {
+                            return routeComparison;
+                        }
+
+                        return Method.CompareTo(other.Method);
+                    }
+                }
+
+            }
         }
 
         [TestFixture]

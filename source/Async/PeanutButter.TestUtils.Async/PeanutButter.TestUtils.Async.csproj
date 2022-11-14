@@ -18,7 +18,6 @@
     <ProjectReference Include="..\..\TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.1.0" PrivateAssets="All" IncludeAssets="runtime;build;native;contentfiles;analyzers;buildtransitive" />
     <PackageReference Include="NSubstitute" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup>

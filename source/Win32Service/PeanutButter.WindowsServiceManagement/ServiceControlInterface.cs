@@ -9,38 +9,50 @@ using PeanutButter.WindowsServiceManagement.Exceptions;
 
 namespace PeanutButter.WindowsServiceManagement
 {
-    internal static class ServiceControlKeys
+    public interface IServiceControlInterface
     {
-        public const string SERVICE_NAME = "SERVICE_NAME";
-        public const string TYPE = "TYPE";
-        public const string STATE = "STATE";
-        public const string WIN32_EXIT_CODE = "WIN32_EXIT_CODE";
-        public const string SERVICE_EXIT_CODE = "SERVICE_EXIT_CODE";
-        public const string WAIT_HINT = "WAIT_HINT";
-        public const string PROCESS_ID = "PID";
-        public const string FLAGS = "FLAGS";
-        public const string START_TYPE = "START_TYPE";
-        public const string ERROR_CONTROL = "ERROR_CONTROL";
-        public const string BINARY_PATH_NAME = "BINARY_PATH_NAME";
-        public const string DISPLAY_NAME = "DISPLAY_NAME";
-        public const string LOAD_ORDER_GROUP = "LOAD_ORDER_GROUP";
-        public const string TAG = "TAG";
-        public const string DEPENDENCIES = "DEPENDENCIES";
-        public const string SERVICE_START_NAME = "SERVICE_START_NAME";
-    }
-
-    internal interface IServiceControlInterface
-    {
+        /// <summary>
+        /// Query all information (queryex and config) about a service by name
+        /// </summary>
+        /// <param name="serviceName"></param>
+        /// <returns></returns>
         IDictionary<string, string> QueryAll(string serviceName);
+        /// <summary>
+        /// Perform a queryex for a service by name
+        /// </summary>
+        /// <param name="serviceName"></param>
+        /// <returns></returns>
         IDictionary<string, string> QueryEx(string serviceName);
+        /// <summary>
+        /// Query service configuration by service name
+        /// </summary>
+        /// <param name="serviceName"></param>
+        /// <returns></returns>
         IDictionary<string, string> QueryConfiguration(string serviceName);
 
+        /// <summary>
+        /// Run a raw sc.exe command with the provided arguments and get back
+        /// the raw-ish key-value pairs of information
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
         IDictionary<string, string> RunServiceControl(params string[] args);
+        /// <summary>
+        /// List all known services on the local machine
+        /// </summary>
+        /// <returns></returns>
         IEnumerable<string> ListAllServices();
+        /// <summary>
+        /// Attempt to identify the service associated with the provided
+        /// process id. If the process id is not for a service, the return
+        /// value will be null.
+        /// </summary>
+        /// <param name="pid"></param>
+        /// <returns></returns>
         string FindServiceByPid(int pid);
     }
 
-    internal class ServiceControlInterface : IServiceControlInterface
+    public class ServiceControlInterface : IServiceControlInterface
     {
         public string FindServiceByPid(int pid)
         {
@@ -230,21 +242,6 @@ namespace PeanutButter.WindowsServiceManagement
             key = parts.First().Trim();
             value = parts.Skip(1).JoinWith(":").Trim();
             return true;
-        }
-    }
-
-    public class ServiceControlException : Exception
-    {
-        public ServiceControlException(string message)
-            : base(message)
-        {
-        }
-
-        public ServiceControlException(
-            string message,
-            string fullServiceControlCommandline
-        ) : base($"{message}\ncli: {fullServiceControlCommandline}")
-        {
         }
     }
 }
