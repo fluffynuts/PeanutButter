@@ -238,7 +238,7 @@ namespace PeanutButter.Utils.Tests
                                 {
                                     count++;
                                 }
-                    
+
                                 Thread.Sleep(50);
                                 barrier.SignalAndWait();
                                 thread1Saw = count;
@@ -250,7 +250,7 @@ namespace PeanutButter.Utils.Tests
                                 {
                                     count++;
                                 }
-                    
+
                                 Thread.Sleep(100);
                                 barrier.SignalAndWait();
                                 thread2Saw = count;
@@ -262,7 +262,7 @@ namespace PeanutButter.Utils.Tests
                                 {
                                     count++;
                                 }
-                    
+
                                 Thread.Sleep(100);
                                 barrier.SignalAndWait();
                                 thread3Saw = count;
@@ -281,7 +281,7 @@ namespace PeanutButter.Utils.Tests
                         Expect(thread3Saw)
                             .To.Equal(expected);
                     }
-                    
+
                     [Test]
                     public void ShouldRespectMaxDegreeOfParallelismWhenProvided()
                     {
@@ -311,7 +311,7 @@ namespace PeanutButter.Utils.Tests
                             .To.Be.Equivalent.To(expected);
                         Expect(maxConcurrent)
                             .To.Equal(1);
-                    
+
                         int Once()
                         {
                             lock (lockObject)
@@ -319,7 +319,7 @@ namespace PeanutButter.Utils.Tests
                                 concurrent++;
                                 maxConcurrent = Math.Max(concurrent, maxConcurrent);
                             }
-                    
+
                             Thread.Sleep(GetRandomInt(25, 100));
                             lock (lockObject)
                             {
@@ -374,7 +374,7 @@ namespace PeanutButter.Utils.Tests
                 var result = runner.RunAll();
                 // Assert
                 Expect(result.Results())
-                    .To.Equal(new[] { 1, 2 } );
+                    .To.Be.Equivalent.To(new[] { 1, 2 });
             }
         }
 
