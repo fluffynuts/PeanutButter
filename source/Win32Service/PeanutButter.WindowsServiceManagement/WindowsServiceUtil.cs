@@ -658,6 +658,12 @@ namespace PeanutButter.WindowsServiceManagement
 
             var scResult = _ctl.RunServiceControl(verb, ServiceName);
             var resultState = ParseState(scResult[ServiceControlKeys.STATE]);
+            if (resultState == toState)
+            {
+                // already accomplished!
+                return;
+            }
+
             if (resultState != pendingState)
             {
                 throw new ServiceControlException(
